@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where variants’ `promotionalPrices` weren’t showing as currency values on variant indexes.
+- Fixed a bug where dimension fields were not displaying values in the correct formatting locale. ([#3636](https://github.com/craftcms/commerce/issues/3636))
 
 ## 5.0.16.2 - 2024-08-16
 

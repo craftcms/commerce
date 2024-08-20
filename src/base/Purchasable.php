@@ -14,6 +14,7 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\helpers\Currency;
+use craft\commerce\helpers\Localization;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\InventoryItem;
 use craft\commerce\models\InventoryLevel;
@@ -290,6 +291,34 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             'promotionalPrice',
             'salePrice',
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setAttributesFromRequest(array $values): void
+    {
+        $length = ArrayHelper::remove($values, 'length');
+        if ($length !== null) {
+            $this->length  = (float)Localization::normalizeNumber($length);
+        }
+
+        $width = ArrayHelper::remove($values, 'width');
+        if ($width !== null) {
+            $this->width  = (float)Localization::normalizeNumber($width);
+        }
+
+        $height = ArrayHelper::remove($values, 'height');
+        if ($height !== null) {
+            $this->height  = (float)Localization::normalizeNumber($height);
+        }
+
+        $weight = ArrayHelper::remove($values, 'weight');
+        if ($weight !== null) {
+            $this->weight  = (float)Localization::normalizeNumber($weight);
+        }
+
+        $this->setAttributes($values);
     }
 
     /**
@@ -1188,10 +1217,10 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             'sku' => (string)Html::encode($this->getSkuAsText()),
             'price' => $this->basePriceAsCurrency, // @TODO change this to the `asCurrency` attribute when implemented
             'promotionalPrice' => $this->basePromotionalPriceAsCurrency, // @TODO change this to the `asCurrency` attribute when implemented
-            'weight' => $this->weight !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits : '',
-            'length' => $this->length !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
-            'width' => $this->width !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
-            'height' => $this->height !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
+            'weight' => $this->weight !== null ? Craft::$app->getFormattingLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits : '',
+            'length' => $this->length !== null ? Craft::$app->getFormattingLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
+            'width' => $this->width !== null ? Craft::$app->getFormattingLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
+            'height' => $this->height !== null ? Craft::$app->getFormattingLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
             'minQty' => (string)$this->minQty,
             'maxQty' => (string)$this->maxQty,
             'stock' => $stock,
