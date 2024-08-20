@@ -182,6 +182,12 @@ class ProjectConfigData
                 'variantTitleFormat',
                 'uid',
                 'variantFieldLayoutId',
+                'enableVersioning',
+                'productTitleTranslationMethod',
+                'productTitleTranslationKeyFormat',
+                'variantTitleTranslationMethod',
+                'variantTitleTranslationKeyFormat',
+                'propagationMethod',
             ])
             ->from([Table::PRODUCTTYPES . ' productTypes'])
             ->all();
@@ -215,6 +221,7 @@ class ProjectConfigData
             $productTypeRow['hasDimensions'] = (bool)$productTypeRow['hasDimensions'];
             $productTypeRow['hasVariantTitleField'] = (bool)$productTypeRow['hasVariantTitleField'];
             $productTypeRow['hasProductTitleField'] = (bool)$productTypeRow['hasProductTitleField'];
+            $productTypeRow['enableVersioning'] = (bool)$productTypeRow['enableVersioning'];
 
             $productTypeRow['siteSettings'] = [];
             $typeData[$rowUid] = $productTypeRow;
