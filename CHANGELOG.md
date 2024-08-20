@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where variants’ `promotionalPrices` weren’t showing as currency values on variant indexes.
+
 ## 5.0.16.2 - 2024-08-16
 
 - Fixed a bug where variants’ `sku` values could be cleared out when saving a product revision.
