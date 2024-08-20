@@ -249,7 +249,7 @@ return [
     'Couldn’t save tax category.' => 'Belastingcategorie opslaan niet mogelijk.',
     'Couldn’t save tax rate.' => 'Belastingtarief opslaan niet mogelijk.',
     'Couldn’t save tax zone.' => 'Belastingzone opslaan niet mogelijk.',
-    'Couldn’t save transfer fields.' => 'Kan overdrachtvelden niet opslaan.',
+    'Couldn’t save transfer fields.' => 'Kan overdrachtsvelden niet opslaan.',
     'Couldn’t update catalog pricing rule statuses.' => 'Kon status catalogusprijsregel niet bijwerken.',
     'Couldn’t update status.' => 'Kan status niet bijwerken.',
     'Couldn’t updated sales status.' => 'Status aanbieding bijwerken niet mogelijk.',
