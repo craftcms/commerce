@@ -73,7 +73,7 @@ class PurchasableDimensionsField extends BaseNativeField
             Cp::fieldHtml(Cp::textHtml([
                 'id' => 'length',
                 'name' => 'length',
-                'value' => $element->length !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($element->length) : '',
+                'value' => $element->length !== null ? Craft::$app->getFormattingLocale()->getFormatter()->asDecimal($element->length) : '',
                 'class' => 'text',
                 'size' => 10,
                 'unit' => Plugin::getInstance()->getSettings()->dimensionUnits,
@@ -81,7 +81,7 @@ class PurchasableDimensionsField extends BaseNativeField
             Cp::fieldHtml(Cp::textHtml([
                 'id' => 'width',
                 'name' => 'width',
-                'value' => $element->width !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($element->width) : '',
+                'value' => $element->width !== null ? Craft::$app->getFormattingLocale()->getFormatter()->asDecimal($element->width) : '',
                 'class' => 'text',
                 'size' => 10,
                 'unit' => Plugin::getInstance()->getSettings()->dimensionUnits,
@@ -89,7 +89,7 @@ class PurchasableDimensionsField extends BaseNativeField
             Cp::fieldHtml(Cp::textHtml([
                 'id' => 'height',
                 'name' => 'height',
-                'value' => $element->height !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($element->height) : '',
+                'value' => $element->height !== null ? Craft::$app->getFormattingLocale()->getFormatter()->asDecimal($element->height) : '',
                 'class' => 'text',
                 'size' => 10,
                 'unit' => Plugin::getInstance()->getSettings()->dimensionUnits,
