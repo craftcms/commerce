@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where Transfers would show the incorrect transfer status.
+
 ## 5.1.0-beta.2 - 2024-08-16
 
 - Fixed a bug where it wasn’t possible to select shipping and tax categories for custom line items on the Edit Order page.

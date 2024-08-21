@@ -164,12 +164,16 @@ class Transfer extends Element
         // only pending can being partial or received.
         if ($this->isTransferDraft()) {
             return;
+        }else{
+            $this->setTransferStatus(TransferStatusType::PENDING);
         }
 
-        if (!$this->isAllReceived() && $this->getTotalReceived() > 0) {
-            $this->setTransferStatus(TransferStatusType::PARTIAL);
-        } else {
+        if($this->isAllReceived()) {
             $this->setTransferStatus(TransferStatusType::RECEIVED);
+        }
+
+        if ($this->getTotalReceived() > 0 && $this->getTotalReceived() < $this->getTotalQuantity()) {
+            $this->setTransferStatus(TransferStatusType::PARTIAL);
         }
     }
 
