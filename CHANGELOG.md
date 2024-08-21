@@ -2,11 +2,11 @@
 
 ## Unreleased
 
-- Fixed a bug where variants’ `promotionalPrices` weren’t showing as currency values on variant indexes.
+- Fixed a bug where variant indexes weren’t displaying promotion prices as currency values.
 - Fixed a PHP error that could occur when sending an order email. ([#3596](https://github.com/craftcms/commerce/issues/3596))
 - Fixed a bug where dimension fields were not displaying values in the correct formatting locale. ([#3636](https://github.com/craftcms/commerce/issues/3636))
-- Fixed a bug where users couldn’t access catalog pricing rules even if the current user had permission. ([#3639](https://github.com/craftcms/commerce/issues/3639))
-- Fixed a bug where available shipping methods were not returning in price order. ([#3631](https://github.com/craftcms/commerce/issues/3631))
+- Fixed a bug where users couldn’t access catalog pricing rules when the current user had permission. ([#3639](https://github.com/craftcms/commerce/issues/3639))
+- Fixed a bug where available shipping methods were not returned in order of price. ([#3631](https://github.com/craftcms/commerce/issues/3631))
 
 ## 5.0.16.2 - 2024-08-16
 
