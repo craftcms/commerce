@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed a bug where available shipping methods were not returning in price order. ([#3631](https://github.com/craftcms/commerce/issues/3631))
+- Fixed a bug where available shipping methods were not returned in order of price. ([#3631](https://github.com/craftcms/commerce/issues/3631))
 
 ## 4.6.8 - 2024-08-14
 
