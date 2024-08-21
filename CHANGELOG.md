@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.0.17 - 2024-08-21
 
 - Fixed a bug where variant indexes weren’t displaying promotion prices as currency values.
 - Fixed a PHP error that could occur when sending an order email. ([#3596](https://github.com/craftcms/commerce/issues/3596))
