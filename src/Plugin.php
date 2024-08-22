@@ -861,14 +861,14 @@ class Plugin extends BasePlugin
         try {
             FileHelper::createDirectory($path);
         } catch (\Exception $e) {
-            Craft::error($e->getMessage());
+            Craft::$app->getErrorHandler()->logException($e);
         }
 
         Event::on(ClearCaches::class, ClearCaches::EVENT_REGISTER_CACHE_OPTIONS, static function(RegisterCacheOptionsEvent $e) use ($path) {
             try {
                 FileHelper::createDirectory($path);
             } catch (\Exception $e) {
-                Craft::error($e->getMessage());
+                Craft::$app->getErrorHandler()->logException($e);;
             }
 
             $e->options[] = [
