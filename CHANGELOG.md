@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a bug where the incorrect transfer status could be applied when saving transfers.
 - Fixed a bug where variant indexes weren’t displaying promotion prices as currency values.
 - Fixed a PHP error that could occur when sending an order email. ([#3596](https://github.com/craftcms/commerce/issues/3596))
 - Fixed a bug where dimension fields were not displaying values in the correct formatting locale. ([#3636](https://github.com/craftcms/commerce/issues/3636))
