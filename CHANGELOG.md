@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.1.0-beta.3 - 2024-08-22
 
 - Fixed a bug where the incorrect transfer status could be applied when saving transfers.
 - Fixed a bug where variant indexes weren’t displaying promotion prices as currency values.
