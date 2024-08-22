@@ -868,7 +868,7 @@ class Plugin extends BasePlugin
             try {
                 FileHelper::createDirectory($path);
             } catch (\Exception $e) {
-                Craft::$app->getErrorHandler()->logException($e);;
+                Craft::$app->getErrorHandler()->logException($e);
             }
 
             $e->options[] = [
