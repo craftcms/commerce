@@ -47,7 +47,6 @@ trait OrderValidatorsTrait
             $this->getPaymentSource();
         } catch (InvalidConfigException $e) {
             Craft::$app->getErrorHandler()->logException($e);
-            ;
             $validator->addError($this, $attribute, Craft::t('commerce', 'Invalid payment source ID: {value}'));
         }
     }
