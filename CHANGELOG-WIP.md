@@ -17,6 +17,8 @@
 
 ### Extensibility
 - Added `craft\commerce\controllers\TransfersController`.
+- Added `craft\commerce\elements\Order::EVENT_AFTER_LINE_ITEMS_REFRESHED`.
+- Added `craft\commerce\elements\Order::EVENT_BEFORE_LINE_ITEMS_REFRESHED`.
 - Added `craft\commerce\elements\conditions\products\CatalogPricingRuleProductCondition`.
 - Added `craft\commerce\elements\conditions\transfers\TransferCondition`.
 - Added `craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantCondition`.
@@ -40,8 +42,6 @@
 - Added `craft\commerce\models\LineItem::setIsPromotable()`.
 - Added `craft\commerce\models\LineItem::setIsShippable()`.
 - Added `craft\commerce\models\LineItem::setIsTaxable()`.
-- Added `craft\commerce\models\Order::EVENT_AFTER_LINE_ITEMS_REFRESHED`.
-- Added `craft\commerce\models\Order::EVENT_BEFORE_LINE_ITEMS_REFRESHED`.
 - Added `craft\commerce\models\ProductType::$productTitleTranslationKeyFormat`.
 - Added `craft\commerce\models\ProductType::$productTitleTranslationMethod`.
 - Added `craft\commerce\models\ProductType::$propagationMethod`.

@@ -960,7 +960,7 @@ class Product extends Element
             $this->_variants = self::createVariantQuery($this)->status(null)->collect();
         }
 
-        return $this->_variants->filter(fn(Variant $variant) => $includeDisabled || $variant->enabled);
+        return $this->_variants->filter(fn(Variant $variant) => $includeDisabled || ($variant->getStatus() === self::STATUS_ENABLED));
     }
 
     /**
@@ -1576,7 +1576,7 @@ class Product extends Element
             case 'defaultWeight':
             {
                 if ($productType->hasDimensions) {
-                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits;
+                    return Craft::$app->getFormattingLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits;
                 }
 
                 return '';
@@ -1586,7 +1586,7 @@ class Product extends Element
             case 'defaultHeight':
             {
                 if ($productType->hasDimensions) {
-                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits;
+                    return Craft::$app->getFormattingLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits;
                 }
 
                 return '';

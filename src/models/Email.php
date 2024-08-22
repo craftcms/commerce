@@ -227,7 +227,7 @@ class Email extends Model implements HasStoreInterface
         }
 
         if (!$senderAddress = App::parseEnv($this->_senderAddress)) {
-            $senderAddress = App::mailSettings()->fromEmail;
+            $senderAddress = App::parseEnv(App::mailSettings()->fromEmail);
         }
 
         return $senderAddress;
@@ -258,7 +258,7 @@ class Email extends Model implements HasStoreInterface
         }
 
         if (!$senderName = App::parseEnv($this->_senderName)) {
-            $senderName = App::mailSettings()->fromName;
+            $senderName = App::parseEnv(App::mailSettings()->fromName);
         }
 
         return $senderName;

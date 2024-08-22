@@ -16,7 +16,7 @@
 ]) %}
 
 {% block actionButton %}
-    {% if currentUser.can('commerce-createPricingCatalogRules') %}
+    {% if currentUser.can('commerce-createCatalogPricingRules') %}
         <a href="{{ url("commerce/store-management/#{storeHandle}/pricing-rules/new") }}" class="btn submit add icon">{{ 'New catalog pricing rule'|t('commerce') }}</a>
     {% endif %}
 {% endblock %}
@@ -57,7 +57,7 @@
 
 {% js %}
 var actions = [
-    {% if currentUser.can('commerce-editPricingCatalogRules') %}
+    {% if currentUser.can('commerce-editCatalogPricingRules') %}
     {
         label: Craft.t('commerce', 'Set status'),
         actions: [
@@ -78,7 +78,7 @@ var actions = [
         ]
     },
     {% endif %}
-    {% if currentUser.can('commerce-deletePricingCatalogRules') %}
+    {% if currentUser.can('commerce-deleteCatalogPricingRules') %}
     {
         label: Craft.t('commerce', 'Delete'),
         action: 'commerce/catalog-pricing-rules/delete',
@@ -106,7 +106,7 @@ new Craft.VueAdminTable({
   columns: columns,
   fullPane: false,
   container: '#pcr-vue-admin-table',
-  deleteAction: {{ currentUser.can('commerce-deletePricingCatalogRules')? '"commerce/catalog-pricing-rules/delete"' : 'null' }},
+  deleteAction: {{ currentUser.can('commerce-deleteCatalogPricingRules')? '"commerce/catalog-pricing-rules/delete"' : 'null' }},
   emptyMessage: Craft.t('commerce', 'No catalog pricing rules exist yet.'),
   padded: true,
   tableData: {{ tableData|json_encode|raw }}

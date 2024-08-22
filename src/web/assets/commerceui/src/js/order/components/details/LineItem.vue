@@ -315,11 +315,42 @@
                                         'commerce'
                                     )
                                 "
-                                :classes="{'order-flex': true}"
+                                classes="order-flex line-item-no-margin"
                                 @updateLineItem="
                                     $emit('updateLineItem', $event)
                                 "
-                            />
+                            >
+                                <field
+                                    :label="
+                                        fieldLabel(
+                                            $options.filters.t(
+                                                'Shipping Category',
+                                                'commerce'
+                                            )
+                                        )
+                                    "
+                                    style="
+                                        margin-top: 0;
+                                        margin-left: auto;
+                                        width: 60%;
+                                    "
+                                    classes="order-flex"
+                                    input-class="flex-grow"
+                                >
+                                    <template v-if="editing && editMode">
+                                        <select-input
+                                            label="name"
+                                            :options="shippingCategoryOptions"
+                                            :filterable="true"
+                                            :placeholder="shippingCategory"
+                                            v-model="shippingCategoryId"
+                                        />
+                                    </template>
+                                    <template v-else>
+                                        {{ shippingCategory }}
+                                    </template>
+                                </field>
+                            </line-item-property>
                         </order-block>
                         <order-block
                             class="order-flex"
@@ -358,11 +389,42 @@
                                 :label="
                                     $options.filters.t('Is Taxable', 'commerce')
                                 "
-                                :classes="{'order-flex': true}"
+                                classes="order-flex line-item-no-margin"
                                 @updateLineItem="
                                     $emit('updateLineItem', $event)
                                 "
-                            />
+                            >
+                                <field
+                                    :label="
+                                        fieldLabel(
+                                            $options.filters.t(
+                                                'Tax Category',
+                                                'commerce'
+                                            )
+                                        )
+                                    "
+                                    style="
+                                        margin-top: 0;
+                                        margin-left: auto;
+                                        width: 60%;
+                                    "
+                                    classes="order-flex"
+                                    input-class="flex-grow"
+                                >
+                                    <template v-if="editing && editMode">
+                                        <select-input
+                                            label="name"
+                                            :options="taxCategoryOptions"
+                                            :filterable="true"
+                                            :placeholder="taxCategory"
+                                            v-model="taxCategoryId"
+                                        />
+                                    </template>
+                                    <template v-else>
+                                        {{ taxCategory }}
+                                    </template>
+                                </field>
+                            </line-item-property>
                         </order-block>
                         <line-item-adjustments
                             :order-id="orderId"
@@ -468,6 +530,7 @@
     import LineItemAdjustments from './LineItemAdjustments';
     import LineItemProperty from './LineItemProperty.vue';
     import Snapshot from './Snapshot';
+    import SelectInput from '../../../base/components/SelectInput';
 
     export default {
         components: {
@@ -477,6 +540,7 @@
             LineItemNotes,
             LineItemAdjustments,
             LineItemProperty,
+            SelectInput,
             Snapshot,
         },
 
@@ -561,6 +625,36 @@
                 }, 1000),
             },
 
+            shippingCategoryId: {
+                get() {
+                    return {
+                        name: this.shippingCategories[
+                            this.lineItem.shippingCategoryId
+                        ],
+                        value: this.lineItem.shippingCategoryId,
+                    };
+                },
+                set: debounce(function (shippingCategoryOption) {
+                    const lineItem = this.lineItem;
+                    lineItem.shippingCategoryId = shippingCategoryOption.value;
+                    this.$emit('updateLineItem', lineItem);
+                }, 1000),
+            },
+
+            taxCategoryId: {
+                get() {
+                    return {
+                        name: this.taxCategories[this.lineItem.taxCategoryId],
+                        value: this.lineItem.taxCategoryId,
+                    };
+                },
+                set: debounce(function (taxCategoryOption) {
+                    const lineItem = this.lineItem;
+                    lineItem.taxCategoryId = taxCategoryOption.value;
+                    this.$emit('updateLineItem', lineItem);
+                }, 1000),
+            },
+
             promotionalPrice: {
                 get() {
                     return this.lineItem.promotionalPrice;
@@ -607,6 +701,24 @@
                 return this.shippingCategories[
                     this.lineItem.shippingCategoryId
                 ];
+            },
+
+            shippingCategoryOptions() {
+                return Object.keys(this.shippingCategories).map((id) => {
+                    return {
+                        name: this.shippingCategories[id],
+                        value: id,
+                    };
+                });
+            },
+
+            taxCategoryOptions() {
+                return Object.keys(this.taxCategories).map((id) => {
+                    return {
+                        name: this.taxCategories[id],
+                        value: id,
+                    };
+                });
             },
 
             taxCategory() {
@@ -752,6 +864,14 @@
                     this.priceInput.inputmask(this.maskOptions);
                 }
             },
+
+            fieldLabel(label) {
+                if (document.querySelector('body').dir === 'rtl') {
+                    return ':' + label;
+                }
+
+                return label + ':';
+            },
         },
 
         watch: {
@@ -811,6 +931,10 @@
             height: 0;
             clear: both;
             visibility: hidden;
+        }
+
+        &-no-margin {
+            margin: 0;
         }
 
         label {
