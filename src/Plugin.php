@@ -328,23 +328,6 @@ class Plugin extends BasePlugin
         Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = Transfer::class;
         });
-
-        Event::on(
-            Order::class,
-            Order::EVENT_AFTER_ADD_LINE_ITEM,
-            function(LineItemEvent $event) {
-                $variantId = Variant::find()->one()->id;
-                $order = $event->lineItem->order;
-                $exists = collect($order->getLineItems())
-                    ->filter(fn(LineItem $lineItem) => $lineItem->purchasableId == $variantId)
-                    ->count();
-
-                if (!$exists) {
-                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order, $variantId, []);
-                    $order->addLineItem($lineItem);
-                }
-            }
-        );
     }
 
     /**
