@@ -744,7 +744,7 @@ return [
     'Note' => 'Opmerking',
     'Notes' => 'Notities',
     'Number of Coupons' => 'Aantal coupons',
-    'Number' => 'Nummer',
+    'Number' => 'Aantal',
     'On Hand' => 'Aanwezig',
     'Only allow this gateway to be used for zero value orders?' => 'Toestaan dat deze gateway alleen wordt gebruikt voor orders met waarde nul?',
     'Only match certain purchasables…' => 'Alleen bepaalde koopbare artikelen vergelijken…',
