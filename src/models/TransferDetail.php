@@ -25,7 +25,7 @@ class TransferDetail extends Model
 
     public string $uid;
 
-    private ?Transfer $_transfer;
+    private ?Transfer $_transfer = null;
 
     /**
      * @inheritDoc
@@ -69,10 +69,19 @@ class TransferDetail extends Model
         return $this->_transfer;
     }
 
+    /**
+     * @return Transfer
+     */
+    public function setTransfer(Transfer $transfer): void
+    {
+        $this->transferId = $transfer->id;
+        $this->_transfer = $transfer;
+    }
+
     public function defineRules(): array
     {
         return [
-            [['quantity'], 'number', 'integerOnly' => true, 'min' => 1, 'when' => function() {
+            [['quantity'], 'number', 'integerOnly' => true, 'min' => 1, 'max' => 99999, 'when' => function() {
                 return $this->getTransfer()->transferStatus === TransferStatusType::DRAFT;
             }],
         ];
