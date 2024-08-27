@@ -70,7 +70,7 @@ class TransferDetail extends Model
     }
 
     /**
-     * @return Transfer
+     * @return void
      */
     public function setTransfer(Transfer $transfer): void
     {
