@@ -336,7 +336,7 @@ class Store extends Model
             'allowEmptyCartOnCheckout' => $this->getAllowEmptyCartOnCheckout(false),
             'allowPartialPaymentOnCheckout' => $this->getAllowPartialPaymentOnCheckout(false),
             'autoSetCartShippingMethodOption' => $this->getAutoSetCartShippingMethodOption(false),
-            'autoSetNewCartAddresses' => $this->getAutoSetCartShippingMethodOption(false),
+            'autoSetNewCartAddresses' => $this->getAutoSetNewCartAddresses(false),
             'autoSetPaymentSource' => $this->getAutoSetPaymentSource(false),
             'freeOrderPaymentStrategy' => $this->getFreeOrderPaymentStrategy(false),
             'handle' => $this->handle,

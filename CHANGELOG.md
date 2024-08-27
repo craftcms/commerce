@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug were the “Auto Set New Cart Addresses” store setting was not persisting when saved.
+
 ## 5.0.17 - 2024-08-21
 
 - Fixed a bug where variant indexes weren’t displaying promotion prices as currency values.
