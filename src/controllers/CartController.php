@@ -651,7 +651,6 @@ class CartController extends BaseFrontEndController
                     $cartShippingAddress = Craft::$app->getElements()->duplicateElement($userShippingAddress,
                         [
                             'owner' => $this->_cart,
-                            'primaryOwner' => $this->_cart,
                         ]);
                     $this->_cart->setShippingAddress($cartShippingAddress);
 
@@ -688,7 +687,6 @@ class CartController extends BaseFrontEndController
                     /** @var Address $cartBillingAddress */
                     $cartBillingAddress = Craft::$app->getElements()->duplicateElement($userBillingAddress,  [
                         'owner' => $this->_cart,
-                        'primaryOwner' => $this->_cart,
                     ]);
                     $this->_cart->setBillingAddress($cartBillingAddress);
 

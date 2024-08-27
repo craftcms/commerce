@@ -1530,7 +1530,6 @@ class Order extends Element
             $shippingAddress = Craft::$app->getElements()->duplicateElement($primaryShippingAddress,
                 [
                     'owner' => $this,
-                    'primaryOwner' => $this,
                 ]);
             $this->setShippingAddress($shippingAddress);
             $autoSetOccurred = true;
@@ -1541,7 +1540,6 @@ class Order extends Element
             $billingAddress = Craft::$app->getElements()->duplicateElement($primaryBillingAddress,
                 [
                     'owner' => $this,
-                    'primaryOwner' => $this,
                 ]);
             $this->setBillingAddress($billingAddress);
             $autoSetOccurred = true;

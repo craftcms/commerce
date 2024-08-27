@@ -341,7 +341,6 @@ class Customers extends Component
             // Only save one address if they are matching
             $newAddress = Craft::$app->getElements()->duplicateElement($order->getBillingAddress(),
                 [
-                    'primaryOwner' => $order->getCustomer(),
                     'owner' => $order->getCustomer(),
                 ]
             );
@@ -351,7 +350,6 @@ class Customers extends Component
             if ($saveBillingAddress) {
                 $newBillingAddress = Craft::$app->getElements()->duplicateElement($order->getBillingAddress(),
                     [
-                        'primaryOwner' => $order->getCustomer(),
                         'owner' => $order->getCustomer(),
                     ]);
                 $newSourceBillingAddressId = $newBillingAddress->id;
@@ -359,7 +357,6 @@ class Customers extends Component
 
             if ($saveShippingAddress) {
                 $newShippingAddress = Craft::$app->getElements()->duplicateElement($order->getShippingAddress(), [
-                    'primaryOwner' => $order->getCustomer(),
                     'owner' => $order->getCustomer(),
                 ]);
                 $newSourceShippingAddressId = $newShippingAddress->id;
@@ -417,7 +414,9 @@ class Customers extends Component
             }
 
             if ($billingAddress || $shippingAddress) {
-                $newAttributes = ['ownerId' => $user->id];
+                $newAttributes = [
+                    'owner' => $user
+                ];
 
                 // If there is only one address make sure we don't add duplicates to the user
                 if ($order->hasMatchingAddresses()) {
