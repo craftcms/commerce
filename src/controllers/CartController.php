@@ -648,7 +648,11 @@ class CartController extends BaseFrontEndController
                     $this->_cart->sourceShippingAddressId = $shippingAddressId;
 
                     /** @var Address $cartShippingAddress */
-                    $cartShippingAddress = Craft::$app->getElements()->duplicateElement($userShippingAddress, ['ownerId' => $this->_cart->id]);
+                    $cartShippingAddress = Craft::$app->getElements()->duplicateElement($userShippingAddress,
+                        [
+                            'owner' => $this->_cart,
+                            'primaryOwner' => $this->_cart,
+                        ]);
                     $this->_cart->setShippingAddress($cartShippingAddress);
 
                     if ($billingIsShipping) {
@@ -682,7 +686,10 @@ class CartController extends BaseFrontEndController
                     $this->_cart->sourceBillingAddressId = $billingAddressId;
 
                     /** @var Address $cartBillingAddress */
-                    $cartBillingAddress = Craft::$app->getElements()->duplicateElement($userBillingAddress, ['ownerId' => $this->_cart->id]);
+                    $cartBillingAddress = Craft::$app->getElements()->duplicateElement($userBillingAddress,  [
+                        'owner' => $this->_cart,
+                        'primaryOwner' => $this->_cart,
+                    ]);
                     $this->_cart->setBillingAddress($cartBillingAddress);
 
                     if ($shippingIsBilling) {
