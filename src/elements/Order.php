@@ -2966,6 +2966,12 @@ class Order extends Element implements HasStoreInterface
      */
     public function setAdjustments(array $adjustments): void
     {
+        $this->_orderAdjustments = [];
+
+        foreach ($adjustments as $adjustment) {
+            $adjustment->setOrder($this);
+        }
+
         $this->_orderAdjustments = $adjustments;
     }
 
