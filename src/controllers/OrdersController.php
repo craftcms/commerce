@@ -1317,7 +1317,7 @@ class OrdersController extends Controller
                     $address = Craft::$app->getElements()->getElementById($address['id'], Address::class);
                     $address = Craft::$app->getElements()->duplicateElement($address, [
                         'owner' => $order,
-                        'title' => $title
+                        'title' => $title,
                     ]);
                 } elseif ($address && ($address['id'] && $address['ownerId'] == $order->id)) {
                     /** @var Address|null $address */
