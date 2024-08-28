@@ -91,7 +91,7 @@ class m221122_055725_multi_store extends Migration
             'requireShippingAddressAtCheckout',
             'requireShippingMethodSelectionAtCheckout',
             'useBillingAddressForTax',
-            'validateOrganizationTaxIdAsVatId'
+            'validateOrganizationTaxIdAsVatId',
         ];
 
         $config = (new Query())
