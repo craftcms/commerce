@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## 4.6.10 - 2024-08-28
+## 5.0.18 - 2024-08-28
 
 - Fixed a PHP error that could occur when default addresses were set on a cart. ([#3641](https://github.com/craftcms/commerce/issues/3641))
 - Fixed a bug were the “Auto Set New Cart Addresses” store setting was not persisting when saved.
