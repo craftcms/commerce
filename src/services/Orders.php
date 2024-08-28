@@ -232,7 +232,7 @@ class Orders extends Component
                 $newBillingAddress = Craft::$app->getElements()->duplicateElement($address, [
                     'primaryOwner' => $cart,
                     'owner' => $cart,
-                    'title' => Craft::t('commerce', 'Billing Address')
+                    'title' => Craft::t('commerce', 'Billing Address'),
                 ]);
                 $cart->billingAddressId = $newBillingAddress->id;
             }
@@ -242,7 +242,7 @@ class Orders extends Component
                 $newShippingAddress = Craft::$app->getElements()->duplicateElement($address, [
                     'primaryOwner' => $cart,
                     'owner' => $cart,
-                    'title' => Craft::t('commerce', 'Shipping Address')
+                    'title' => Craft::t('commerce', 'Shipping Address'),
                 ]);
                 $cart->shippingAddressId = $newShippingAddress->id;
             }

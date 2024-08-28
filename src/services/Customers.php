@@ -393,7 +393,6 @@ class Customers extends Component
             }
 
             if ($billingAddress || $shippingAddress) {
-
                 $newAttributes = [
                     'owner' => $user,
                     'primaryOwner' => $user,
