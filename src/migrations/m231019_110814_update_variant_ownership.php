@@ -6,6 +6,7 @@ use craft\commerce\db\Table;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
+use yii\db\Expression;
 
 /**
  * m231019_110814_update_variant_ownership migration.
@@ -22,7 +23,7 @@ class m231019_110814_update_variant_ownership extends Migration
             ->select([
                 'id as elementId',
                 'productId as ownerId',
-                'sortOrder',
+                new Expression('CASE WHEN [[sortOrder]] is NULL THEN 1 ELSE [[sortOrder]] END as [[sortOrder]]'),
             ])
             ->from([Table::VARIANTS])
             ->all();
