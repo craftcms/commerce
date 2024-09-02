@@ -62,7 +62,11 @@ class OrderMarkAsCompleteTest extends Unit
         $lineItem = $completedOrder->getLineItems()[0];
         $qty = 4;
         $note = 'My note';
-        $lineItem = $this->pluginInstance->getLineItems()->createLineItem($order, $lineItem->purchasableId, [], $qty, $note);
+        $lineItem = $this->pluginInstance->getLineItems()->create($order, [
+                'purchasableId' => $lineItem->purchasableId,
+                'qty' => $qty,
+                'note' => $note,
+            ]);
         $order->setLineItems([$lineItem]);
 
         self::assertNull($order->dateOrdered);

@@ -25,6 +25,7 @@ use craft\commerce\services\Stores;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
+use craft\enums\PropagationMethod;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\MigrationHelper;
@@ -83,6 +84,8 @@ class Install extends Migration
             'apply' => $this->enum('apply', ['toPercent', 'toFlat', 'byPercent', 'byFlat'])->notNull(),
             'applyAmount' => $this->decimal(14, 4)->notNull(),
             'applyPriceType' => $this->enum('applyPriceType', [CatalogPricingRule::APPLY_PRICE_TYPE_PRICE, CatalogPricingRule::APPLY_PRICE_TYPE_PROMOTIONAL_PRICE])->notNull(),
+            'productCondition' => $this->text(),
+            'variantCondition' => $this->text(),
             'purchasableCondition' => $this->text(),
             'customerCondition' => $this->text(),
             'enabled' => $this->boolean()->notNull()->defaultValue(true),
@@ -365,6 +368,7 @@ class Install extends Migration
         $this->createTable(Table::LINEITEMS, [
             'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
+            'type' => $this->enum('type', ['purchasable', 'custom'])->defaultValue('purchasable')->notNull(),
             'purchasableId' => $this->integer(),
             'taxCategoryId' => $this->integer()->notNull(),
             'shippingCategoryId' => $this->integer()->notNull(),
@@ -385,6 +389,10 @@ class Install extends Migration
             'qty' => $this->integer()->notNull()->unsigned(),
             'note' => $this->text(),
             'privateNote' => $this->text(),
+            'hasFreeShipping' => $this->boolean(),
+            'isPromotable' => $this->boolean(),
+            'isShippable' => $this->boolean(),
+            'isTaxable' => $this->boolean(),
             'snapshot' => $this->longText(),
             'lineItemStatusId' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -609,10 +617,16 @@ class Install extends Migration
             // Variant title stuff
             'hasVariantTitleField' => $this->boolean()->notNull()->defaultValue(true),
             'variantTitleFormat' => $this->string()->notNull(),
+            'variantTitleTranslationMethod' => $this->string()->defaultValue('site')->notNull(),
+            'variantTitleTranslationKeyFormat' => $this->string(),
 
             // Product title stuff
             'hasProductTitleField' => $this->boolean()->notNull()->defaultValue(true),
             'productTitleFormat' => $this->string(),
+            'productTitleTranslationMethod' => $this->string()->defaultValue('site')->notNull(),
+            'productTitleTranslationKeyFormat' => $this->string(),
+
+            'propagationMethod' => $this->string()->defaultValue(PropagationMethod::All->value)->notNull(),
 
             'skuFormat' => $this->string(),
             'descriptionFormat' => $this->string(),
@@ -977,14 +991,15 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $this->archiveTableIfExists(Table::TRANSFERS_INVENTORYITEMS);
-        $this->createTable(Table::TRANSFERS_INVENTORYITEMS, [
+        $this->archiveTableIfExists(Table::TRANSFERDETAILS);
+        $this->createTable(Table::TRANSFERDETAILS, [
             'id' => $this->primaryKey(),
             'transferId' => $this->integer()->notNull(),
-            'inventoryItemId' => $this->integer()->notNull(),
+            'inventoryItemId' => $this->integer(),
+            'inventoryItemDescription' => $this->string()->notNull(),
             'quantity' => $this->integer()->notNull(),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
+            'quantityAccepted' => $this->integer()->notNull(),
+            'quantityRejected' => $this->integer()->notNull(),
             'uid' => $this->uid(),
         ]);
 
@@ -1140,8 +1155,8 @@ class Install extends Migration
         $this->createIndex(null, Table::TRANSACTIONS, 'hash', false);
         $this->createIndex(null, Table::TRANSFERS, 'destinationLocationId', false);
         $this->createIndex(null, Table::TRANSFERS, 'originLocationId', false);
-        $this->createIndex(null, Table::TRANSFERS_INVENTORYITEMS, 'inventoryItemId', false);
-        $this->createIndex(null, Table::TRANSFERS_INVENTORYITEMS, 'transferId', false);
+        $this->createIndex(null, Table::TRANSFERDETAILS, 'transferId', false);
+        $this->createIndex(null, Table::TRANSFERDETAILS, 'inventoryItemId', false);
         $this->createIndex(null, Table::VARIANTS, 'primaryOwnerId', false);
     }
 
@@ -1256,8 +1271,9 @@ class Install extends Migration
         $this->addForeignKey(null, Table::TRANSACTIONS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::TRANSACTIONS, ['parentId'], Table::TRANSACTIONS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::TRANSACTIONS, ['userId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::TRANSFERS_INVENTORYITEMS, ['inventoryItemId'], Table::INVENTORYITEMS, ['id'], 'CASCADE');
-        $this->addForeignKey(null, Table::TRANSFERS_INVENTORYITEMS, ['transferId'], Table::INVENTORYITEMS, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::TRANSFERS, 'id', CraftTable::ELEMENTS, 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::TRANSFERDETAILS, 'transferId', Table::TRANSFERS, 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::TRANSFERDETAILS, 'inventoryItemId', Table::INVENTORYITEMS, 'id', 'SET NULL', 'CASCADE');
         $this->addForeignKey(null, Table::VARIANTS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::VARIANTS, ['primaryOwnerId'], Table::PRODUCTS, ['id'], 'CASCADE');
     }

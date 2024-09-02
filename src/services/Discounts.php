@@ -13,6 +13,7 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\enums\LineItemType;
 use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\events\DiscountEvent;
 use craft\commerce\events\MatchLineItemEvent;
@@ -557,35 +558,38 @@ class Discounts extends Component
             return false;
         }
 
-        // can't match something not promotable
-        /** @var Purchasable|null $purchasable */
-        $purchasable = $lineItem->getPurchasable();
-        if (!$purchasable || !$purchasable->getIsPromotable()) {
+        if (!$lineItem->getIsPromotable()) {
             return false;
         }
 
-        if (!$discount->allPurchasables && !in_array($purchasable->id, $discount->getPurchasableIds(), false)) {
-            return false;
-        }
+        if ($lineItem->type === LineItemType::Purchasable) {
+            // can't match something not promotable
+            /** @var Purchasable|null $purchasable */
+            $purchasable = $lineItem->getPurchasable();
 
-        // TODO: Rename to allEntries in Commerce 5
-        if (!$discount->allCategories) {
-            $key = 'relationshipType:' . $discount->categoryRelationshipType . ':purchasableId:' . $purchasable->getId() . ':categoryIds:' . implode('|', $discount->getCategoryIds());
-
-            if (!isset($this->_matchingLineItemCategoryCondition[$key])) {
-                $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
-
-                $relatedEntries = Entry::find()->siteId($siteId)->relatedTo($relatedTo)->ids();
-                $relatedCategories = Category::find()->siteId($siteId)->relatedTo($relatedTo)->ids();
-
-                $relatedCategoriesOrEntries = array_merge($relatedEntries, $relatedCategories);
-                $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategoriesOrEntries, $discount->getCategoryIds());
-                if (!$purchasableIsRelateToOneOrMoreCategories) {
-                    return $this->_matchingLineItemCategoryCondition[$key] = false;
-                }
-                $this->_matchingLineItemCategoryCondition[$key] = true;
-            } elseif ($this->_matchingLineItemCategoryCondition[$key] === false) {
+            if (!$discount->allPurchasables && !in_array($purchasable->id, $discount->getPurchasableIds(), false)) {
                 return false;
+            }
+
+            // TODO: Rename to allEntries in Commerce 5
+            if (!$discount->allCategories) {
+                $key = 'relationshipType:' . $discount->categoryRelationshipType . ':purchasableId:' . $purchasable->getId() . ':categoryIds:' . implode('|', $discount->getCategoryIds());
+
+                if (!isset($this->_matchingLineItemCategoryCondition[$key])) {
+                    $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
+
+                    $relatedEntries = Entry::find()->siteId($siteId)->relatedTo($relatedTo)->ids();
+                    $relatedCategories = Category::find()->siteId($siteId)->relatedTo($relatedTo)->ids();
+
+                    $relatedCategoriesOrEntries = array_merge($relatedEntries, $relatedCategories);
+                    $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategoriesOrEntries, $discount->getCategoryIds());
+                    if (!$purchasableIsRelateToOneOrMoreCategories) {
+                        return $this->_matchingLineItemCategoryCondition[$key] = false;
+                    }
+                    $this->_matchingLineItemCategoryCondition[$key] = true;
+                } elseif ($this->_matchingLineItemCategoryCondition[$key] === false) {
+                    return false;
+                }
             }
         }
 

@@ -16,6 +16,7 @@ use craft\commerce\base\AdjusterInterface;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\HasStoreInterface;
+use craft\commerce\base\Purchasable;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\base\StoreTrait;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
@@ -28,6 +29,7 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\events\AddLineItemEvent;
 use craft\commerce\events\LineItemEvent;
+use craft\commerce\events\OrderLineItemsRefreshEvent;
 use craft\commerce\events\OrderNoticeEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Order as OrderHelper;
@@ -56,6 +58,7 @@ use craft\errors\InvalidElementException;
 use craft\errors\UnsupportedSiteException;
 use craft\fields\BaseRelationField;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\helpers\Db;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
@@ -64,6 +67,7 @@ use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use craft\models\Site;
 use DateTime;
+use Illuminate\Support\Collection;
 use Money\Teller;
 use ReflectionClass;
 use ReflectionMethod;
@@ -438,6 +442,52 @@ class Order extends Element implements HasStoreInterface
      * @since 4.1.0
      */
     public const EVENT_BEFORE_APPLY_ADD_NOTICE = 'beforeApplyAddNoticeToOrder';
+
+    /**
+     * @event \yii\base\Event The event that is triggered before line items are refreshed during recalculation of an order.
+     *
+     * ```php
+     * use craft\commerce\elements\Order;
+     * use craft\commerce\events\OrderLineItemsRefreshEvent;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Order::class,
+     *     Order::EVENT_BEFORE_LINE_ITEMS_REFRESHED,
+     *     function(OrderLineItemsRefreshEvent $event) {
+     *         $event->lineItems = [];
+     *         $event->recalculate = true;
+     *         // ...
+     *     }
+     * );
+     * ```
+     *
+     * @since 5.1.0
+     */
+    public const EVENT_BEFORE_LINE_ITEMS_REFRESHED = 'beforeLineItemsRefreshed';
+
+    /**
+     * @event \yii\base\Event The event that is triggered after line items are refreshed during recalculation of an order.
+     *
+     * ```php
+     * use craft\commerce\elements\Order;
+     * use craft\commerce\events\OrderLineItemsRefreshEvent;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Order::class,
+     *     Order::EVENT_AFTER_LINE_ITEMS_REFRESHED,
+     *     function(OrderLineItemsRefreshEvent $event) {
+     *         $event->lineItems = [];
+     *         $event->recalculate = true;
+     *         // ...
+     *     }
+     * );
+     * ```
+     *
+     * @since 5.1.0
+     */
+    public const EVENT_AFTER_LINE_ITEMS_REFRESHED = 'afterLineItemsRefreshed';
 
     /**
      * This is the unique number (hash) generated for the order when it was first created.
@@ -1877,6 +1927,18 @@ class Order extends Element implements HasStoreInterface
     }
 
     /**
+     * Returns any line item with that purchasable
+     *
+     * @param Purchasable $purchasable
+     * @return Collection
+     */
+    public function lineItemsByPurchasable(Purchasable $purchasable): Collection
+    {
+        return collect($this->getLineItems())
+            ->filter(fn(LineItem $lineItem) => $lineItem->purchasableId == $purchasable->getId());
+    }
+
+    /**
      * Gets the recalculation mode of the order
      */
     public function getRecalculationMode(): string
@@ -1902,6 +1964,9 @@ class Order extends Element implements HasStoreInterface
         if (!$this->id) {
             throw new InvalidCallException('Do not recalculate an order that has not been saved');
         }
+
+        // create a new before relcalculate event
+
 
         if ($this->hasErrors()) {
             Craft::getLogger()->log(Craft::t('commerce', 'Do not call recalculate on the order (Number: {orderNumber}) if errors are present.', ['orderNumber' => $this->number]), Logger::LEVEL_INFO);
@@ -1931,11 +1996,23 @@ class Order extends Element implements HasStoreInterface
                 }
             }
 
-            $lineItemRemoved = false;
+            $recalculateOrder = false;
+            if ($this->hasEventHandlers(self::EVENT_BEFORE_LINE_ITEMS_REFRESHED)) {
+                $event = new OrderLineItemsRefreshEvent([
+                    'lineItems' => $this->getLineItems(),
+                    'recalculate' => $recalculateOrder,
+                ]);
+                $this->trigger(self::EVENT_BEFORE_LINE_ITEMS_REFRESHED, $event);
+
+                $this->setLineItems($event->lineItems);
+                $recalculateOrder = $event->recalculate;
+            }
+
             foreach ($this->getLineItems() as $item) {
                 $originalSalePrice = $item->getSalePrice();
                 $originalSalePriceAsCurrency = $item->salePriceAsCurrency;
-                if ($item->refreshFromPurchasable()) {
+
+                if ($item->refresh()) {
                     if ($originalSalePrice > $item->salePrice) {
                         $message = Craft::t('commerce', 'The price of {description} was reduced from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()]);
                         /** @var OrderNotice $notice */
@@ -1976,17 +2053,28 @@ class Order extends Element implements HasStoreInterface
                     ]);
                     $this->addNotice($notice);
                     $this->removeLineItem($item);
-                    $lineItemRemoved = true;
+                    $recalculateOrder = true;
                 }
             }
 
             // This is run in a validation, but need to run again incase the options
             // data was changed on population of the line item by a plugin.
             if (OrderHelper::mergeDuplicateLineItems($this)) {
-                $lineItemRemoved = true;
+                $recalculateOrder = true;
             }
 
-            if ($lineItemRemoved) {
+            if ($this->hasEventHandlers(self::EVENT_AFTER_LINE_ITEMS_REFRESHED)) {
+                $event = new OrderLineItemsRefreshEvent([
+                    'lineItems' => $this->getLineItems(),
+                    'recalculate' => $recalculateOrder,
+                ]);
+                $this->trigger(self::EVENT_AFTER_LINE_ITEMS_REFRESHED, $event);
+
+                $this->setLineItems($event->lineItems);
+                $recalculateOrder = $event->recalculate;
+            }
+
+            if ($recalculateOrder) {
                 $this->recalculate();
                 return;
             }
@@ -2004,7 +2092,8 @@ class Order extends Element implements HasStoreInterface
             }
         }
 
-        if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {        // Since shipping adjusters run on the original price, pre discount, let's recalculate
+        if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {
+            // Since shipping adjusters run on the original price, pre discount, let's recalculate
             // if the currently selected shipping method is now not available after adjustments have run.
             $availableMethodOptions = $this->getAvailableShippingMethodOptions();
             if ($this->shippingMethodHandle && !isset($availableMethodOptions[$this->shippingMethodHandle])) {
@@ -2540,10 +2629,14 @@ class Order extends Element implements HasStoreInterface
         return $html;
     }
 
+    /**
+     * @return string
+     * @throws InvalidConfigException
+     */
     public function getOrderStatusHtml(): string
     {
         if ($status = $this->getOrderStatus()) {
-            return '<span class="commerceStatusLabel nowrap"><span class="status ' . $status->color . '"></span>' . $status->name . '</span>';
+            return $status->getLabelHtml();
         }
 
         return '';
@@ -2555,10 +2648,10 @@ class Order extends Element implements HasStoreInterface
     public function getPaidStatusHtml(): string
     {
         return match ($this->getPaidStatus()) {
-            self::PAID_STATUS_OVERPAID => '<span class="commerceStatusLabel nowrap"><span class="status blue"></span>' . Craft::t('commerce', 'Overpaid') . '</span>',
-            self::PAID_STATUS_PAID => '<span class="commerceStatusLabel nowrap"><span class="status green"></span>' . Craft::t('commerce', 'Paid') . '</span>',
-            self::PAID_STATUS_PARTIAL => '<span class="commerceStatusLabel nowrap"><span class="status orange"></span>' . Craft::t('commerce', 'Partial') . '</span>',
-            self::PAID_STATUS_UNPAID => '<span class="commerceStatusLabel nowrap"><span class="status red"></span>' . Craft::t('commerce', 'Unpaid') . '</span>',
+            self::PAID_STATUS_OVERPAID => Cp::statusLabelHtml(['color' => 'blue', 'label' => Craft::t('commerce', 'Overpaid')]),
+            self::PAID_STATUS_PAID => Cp::statusLabelHtml(['color' => 'green', 'label' => Craft::t('commerce', 'Paid')]),
+            self::PAID_STATUS_PARTIAL => Cp::statusLabelHtml(['color' => 'orange', 'label' => Craft::t('commerce', 'Partial')]),
+            self::PAID_STATUS_UNPAID => Cp::statusLabelHtml(['color' => 'red', 'label' => Craft::t('commerce', 'Unpaid')]),
             default => '',
         };
     }
