@@ -711,14 +711,12 @@ class ProductQuery extends ElementQuery
         // Store dependent related joins to the sub query need to be done after the `elements_sites` is joined in the base `ElementQuery` class.
         $customerId = Craft::$app->getUser()->getIdentity()?->id;
 
-        $catalogPricingQuery = Plugin::getInstance()
+        $catalogPricesQuery = Plugin::getInstance()
             ->getCatalogPricing()
-            ->createCatalogPricingQuery(userId: $customerId)
+            ->createCatalogPricesQuery(userId: $customerId)
             ->addSelect(['cp.purchasableId', 'cp.storeId'])
             ->leftJoin(['purvariants' => Table::VARIANTS], '[[purvariants.id]] = [[cp.purchasableId]]')
-            ->andWhere(['purvariants.isDefault' => true])
-        ;
-        $catalogPricesQuery = (clone $catalogPricingQuery)->andWhere(['isPromotionalPrice' => false]);
+            ->andWhere(['purvariants.isDefault' => true]);
 
         $this->subQuery->leftJoin(['sitestores' => Table::SITESTORES], '[[elements_sites.siteId]] = [[sitestores.siteId]]');
         $this->subQuery->leftJoin(['catalogprices' => $catalogPricesQuery], '[[catalogprices.purchasableId]] = [[commerce_products.defaultVariantId]] AND [[catalogprices.storeId]] = [[sitestores.storeId]]');
