@@ -1090,6 +1090,23 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     }
 
     /**
+     * @return array|Sale[]
+     * @throws InvalidConfigException
+     */
+    public function getSales(): array
+    {
+        if (Plugin::getInstance()->getCatalogPricingRules()->canUseCatalogPricingRules()) {
+            return [];
+        }
+
+        if ($this->_sales === null) {
+            $this->_loadSales();
+        }
+
+        return $this->_sales;
+    }
+
+    /**
      * @return Sale[] The sales that relate directly to this purchasable
      * @throws InvalidConfigException
      */

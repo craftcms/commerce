@@ -47,8 +47,6 @@ use yii\base\InvalidConfigException;
  * Variant model.
  *
  * @property string $eagerLoadedElements some eager-loaded elements on a given handle
- * @property bool $onSale
- * @property Sale[] $sales sales models which are currently affecting the salePrice of this purchasable
  * @property string $priceAsCurrency
  * @property DateTime|null $dateUpdated
  * @property DateTime|null $dateCreated
