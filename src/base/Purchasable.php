@@ -1095,10 +1095,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function getSales(): array
     {
-        if (Plugin::getInstance()->getCatalogPricingRules()->canUseCatalogPricingRules()) {
-            return [];
-        }
-
         if ($this->_sales === null) {
             $this->_loadSales();
         }
