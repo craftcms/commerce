@@ -23,6 +23,9 @@
 - Added `craft\commerce\elements\conditions\transfers\TransferCondition`.
 - Added `craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantCondition`.
 - Added `craft\commerce\elements\db\TransferQuery`.
+- Added `craft\commerce\elements\Product::$defaultBasePrice`.
+- Added `craft\commerce\elements\Product::$storeId`.
+- Added `craft\commerce\elements\Product::getStore()`.
 - Added `craft\commerce\elements\Transfer`.
 - Added `craft\commerce\enums\LineItemType`.
 - Added `craft\commerce\enums\TransferStatusType`.
@@ -55,12 +58,14 @@
 - Added `craft\commerce\records\ProductType::$propagationMethod`.
 - Added `craft\commerce\records\ProductType::$variantTitleTranslationKeyFormat`.
 - Added `craft\commerce\records\ProductType::$variantTitleTranslationMethod`.
+- Added `craft\commerce\services\CatalogPricing::createCatalogPricesQuery()`
 - Added `craft\commerce\services\InventoryLocations::getAllInventoryLocationsAsList`
 - Added `craft\commerce\services\LineItems::create()`.
 - Added `craft\commerce\services\LineItems::resolveCustomLineItem()`.
 - Added `craft\commerce\services\Transfers`.
 - Deprecated `craft\commerce\models\LineItem::populateFromPurchasable()`. `populate()` should be used instead.
 - Deprecated `craft\commerce\models\LineItem::refreshFromPurchasable()`. `refresh()` should be used instead.
+- Deprecated `craft\commerce\services\CatalogPricing::createCatalogPricingQuery()`. `createCatalogPricesQuery()` should be used instead.
 - Deprecated `craft\commerce\services\LineItems::createLineItem()`. `create()` should be used instead.
 - Removed `craft\commerce\fieldlayoutelements\UserCommerceField`.
 
