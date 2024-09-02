@@ -24,7 +24,6 @@ use craft\commerce\events\CustomizeVariantSnapshotDataEvent;
 use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\ProductType;
-use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
