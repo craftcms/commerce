@@ -10,12 +10,16 @@ namespace craft\commerce\elements;
 use Craft;
 use craft\base\Element;
 use craft\base\ElementInterface;
+use craft\commerce\base\HasStoreInterface;
+use craft\commerce\base\StoreTrait;
+use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\actions\CreateDiscount;
 use craft\commerce\elements\actions\CreateSale;
 use craft\commerce\elements\conditions\products\ProductCondition;
 use craft\commerce\elements\conditions\products\ProductTypeConditionRule;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\elements\db\VariantQuery;
+use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ShippingCategory;
@@ -66,11 +70,19 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class Product extends Element
+class Product extends Element implements HasStoreInterface
 {
+    use StoreTrait;
+
     public const STATUS_LIVE = 'live';
     public const STATUS_PENDING = 'pending';
     public const STATUS_EXPIRED = 'expired';
+
+    /**
+     * @var float|null
+     * @since 5.1.0
+     */
+    public ?float $defaultBasePrice = null;
 
     /**
      * @inheritdoc
@@ -607,6 +619,14 @@ class Product extends Element
     private ?NestedElementManager $_variantManager = null;
 
     /**
+     * @inheritdoc
+     */
+    public function currencyAttributes(): array
+    {
+        return ['defaultPrice', 'defaultBasePrice'];
+    }
+
+    /**
      * @throws InvalidConfigException
      */
     public function behaviors(): array
@@ -618,6 +638,11 @@ class Product extends Element
             'attributeTypes' => [
                 'id' => AttributeTypecastBehavior::TYPE_INTEGER,
             ],
+        ];
+
+        $behaviors['currencyAttributes'] = [
+            'class' => CurrencyAttributeBehavior::class,
+            'currencyAttributes' => $this->currencyAttributes(),
         ];
 
         return $behaviors;
@@ -641,15 +666,6 @@ class Product extends Element
     public function getDefaultPrice(): ?float
     {
         return $this->_defaultPrice ?? $this->getDefaultVariant()?->price;
-    }
-
-    /**
-     * @return string
-     * @throws InvalidConfigException
-     */
-    public function getDefaultPriceAsCurrency(): string
-    {
-        return $this->getDefaultVariant()?->priceAsCurrency ?? '';
     }
 
     public function canCreateDrafts(User $user): bool
@@ -1436,7 +1452,7 @@ class Product extends Element
             }
             case 'defaultPrice':
             {
-                return $this->defaultPriceAsCurrency;
+                return $this->defaultBasePriceAsCurrency;
             }
             case 'stock':
             {
