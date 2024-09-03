@@ -987,6 +987,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             // added to inventory before it is saved as a permanent variant.
             if ($purchasableId) {
                 // Set the inventory item data
+                /** @var InventoryItem|null $inventoryItem */
                 $inventoryItem = InventoryItemRecord::find()->where(['purchasableId' => $purchasableId])->one();
                 if (!$inventoryItem) {
                     $inventoryItem = new InventoryItemRecord();
