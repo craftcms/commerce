@@ -994,9 +994,11 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                     $inventoryItem->countryCodeOfOrigin = '';
                     $inventoryItem->administrativeAreaCodeOfOrigin = '';
                     $inventoryItem->harmonizedSystemCode = '';
+                    $inventoryItem->save();
                 }
 
-                $inventoryItem->save();
+                $this->inventoryItemId = $inventoryItem->id;
+
             }
         }
 
