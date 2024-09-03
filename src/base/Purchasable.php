@@ -998,7 +998,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                 }
 
                 $this->inventoryItemId = $inventoryItem->id;
-
             }
         }
 
