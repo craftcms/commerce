@@ -3,6 +3,7 @@
 ### Store Management
 - It’s now possible to manage transfers between inventory locations.
 - Catalog pricing rules now support flexible matching based on product and variant conditions. ([#3544](https://github.com/craftcms/commerce/issues/3544))
+- Variant conditions can now have an “SKU” rule.
 
 ### Administration
 - It’s now possible to create custom line items. ([#2301](https://github.com/craftcms/commerce/discussions/2301), [#2233](https://github.com/craftcms/commerce/discussions/2233), [#2345](https://github.com/craftcms/commerce/discussions/2345))
