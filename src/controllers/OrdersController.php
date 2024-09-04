@@ -1817,12 +1817,13 @@ JS, []);
     private function _addLivePurchasableInfo(array $results, int $siteId, int|false|null $customerId = null): array
     {
         $purchasables = [];
+        $store = Plugin::getInstance()->getStores()->getStoreBySiteId($siteId);
+        $baseCurrency = $store->getCurrency();
 
         foreach ($results as $row) {
             /** @var PurchasableInterface|null $purchasable */
             $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($row['id'], $siteId, $customerId);
             if ($purchasable) {
-                $baseCurrency = $purchasable->getStore()->getCurrency();
                 // @TODO revisit when updating currencies for stores
                 $row['price'] = $purchasable->getSalePrice();
                 $row['promotionalPrice'] = $purchasable->getPromotionalPrice();
