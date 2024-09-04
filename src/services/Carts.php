@@ -99,7 +99,7 @@ class Carts extends Component
     /**
      * Get the current cart for this session.
      *
-     * @param bool $forceSave Force the cart to save when requesting it.
+     * @param bool $forceSave Force the cart to save if it has no ID.
      * @throws ElementNotFoundException
      * @throws Exception
      * @throws Throwable
@@ -163,7 +163,7 @@ class Carts extends Component
         $hasSomethingChangedOnCart = ($hasIpChanged || $hasOrderLanguageChanged || $hasUserChanged || $hasPaymentCurrencyChanged || $hasOrderSiteIdChanged);
 
         // If the cart has already been saved (has an ID), then only save if something else changed.
-        if (($this->_cart->id && $hasSomethingChangedOnCart) || $forceSave) {
+        if (($this->_cart->id && $hasSomethingChangedOnCart) || (!$this->_cart->id && $forceSave)) {
             Craft::$app->getElements()->saveElement($this->_cart, false);
         }
 
