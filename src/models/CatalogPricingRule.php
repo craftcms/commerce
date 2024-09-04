@@ -8,21 +8,22 @@
 namespace craft\commerce\models;
 
 use Craft;
+use DateTime;
+use craft\commerce\Plugin;
 use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\StoreTrait;
+use craft\commerce\elements\Product;
+use craft\commerce\elements\Variant;
 use craft\commerce\elements\conditions\customers\CatalogPricingRuleCustomerCondition;
 use craft\commerce\elements\conditions\products\CatalogPricingRuleProductCondition;
 use craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasableCondition;
 use craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantCondition;
-use craft\commerce\elements\Product;
-use craft\commerce\elements\Variant;
 use craft\commerce\records\CatalogPricingRule as PricingCatalogRuleRecord;
-use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\User;
+use craft\elements\conditions\ElementConditionInterface;
 use craft\helpers\Json;
-use DateTime;
 use yii\base\InvalidConfigException;
 
 /**
@@ -461,6 +462,8 @@ class CatalogPricingRule extends Model implements HasStoreInterface
             PricingCatalogRuleRecord::APPLY_TO_FLAT => -$this->applyAmount,
             default => $price,
         };
+
+        $price = (float)Plugin::getInstance()->getCurrencies()->getTeller($this->getStore()->getCurrency())->convertToString($price);
 
         return max($price, 0);
     }
