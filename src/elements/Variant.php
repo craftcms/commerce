@@ -24,7 +24,6 @@ use craft\commerce\events\CustomizeVariantSnapshotDataEvent;
 use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\ProductType;
-use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
@@ -47,8 +46,6 @@ use yii\base\InvalidConfigException;
  * Variant model.
  *
  * @property string $eagerLoadedElements some eager-loaded elements on a given handle
- * @property bool $onSale
- * @property Sale[] $sales sales models which are currently affecting the salePrice of this purchasable
  * @property string $priceAsCurrency
  * @property DateTime|null $dateUpdated
  * @property DateTime|null $dateCreated
