@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.0.19 - 2024-09-04
 
 - Fixed a bug where calculated catalog prices weren’t getting rounded to the decimal precision of the store’s currency.
 - Fixed a PHP error that occurred when calling `craft\commerce\elements\Variant::getSales()`.
