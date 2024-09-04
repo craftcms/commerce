@@ -92,26 +92,7 @@ class Transfer extends Element
         $additionalMeta = [];
 
         $additionalMeta[] = [
-            Craft::t('commerce', 'Transfer Status') => \craft\helpers\Cp::statusIndicatorHtml($this->getTransferStatus()->label(), [
-                    'color' => $this->getTransferStatus()->color(),
-                ]) . ' ' . Html::tag('span', $this->getTransferStatus()->label()),
-        ];
-
-        if ($this->getIsDraft() && !$this->isProvisionalDraft) {
-            $additionalMeta[] = [
-                Craft::t('app', 'Status') => function() {
-                    $icon = Html::tag('span', '', [
-                        'data' => ['icon' => 'draft'],
-                        'aria' => ['hidden' => 'true'],
-                    ]);
-                    $label = Craft::t('app', 'Draft');
-                    return $icon . Html::tag('span', $label);
-                },
-            ];
-        }
-
-        $additionalMeta[] = [
-            Craft::t('commerce', 'Transfer Status') => \craft\helpers\Cp::statusIndicatorHtml($this->getTransferStatus()->label(), [
+            Craft::t('app', 'Status') => \craft\helpers\Cp::statusIndicatorHtml($this->getTransferStatus()->label(), [
                     'color' => $this->getTransferStatus()->color(),
                 ]) . ' ' . Html::tag('span', $this->getTransferStatus()->label()),
         ];
@@ -275,7 +256,21 @@ class Transfer extends Element
      */
     public static function hasStatuses(): bool
     {
-        return false;
+        return true;
+    }
+
+    public static function statuses(): array
+    {
+        $statuses = [];
+
+        foreach (TransferStatusType::cases() as $status) {
+            $statuses[$status->value] = [
+                'label' => $status->label(),
+                'color' => $status->color(),
+            ];
+        }
+
+        return $statuses;
     }
 
     /**
@@ -293,6 +288,14 @@ class Transfer extends Element
     public static function createCondition(): ElementConditionInterface
     {
         return Craft::createObject(TransferCondition::class, [static::class]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function showStatusField(): bool
+    {
+        return false;
     }
 
     /**
@@ -401,6 +404,14 @@ class Transfer extends Element
         }
 
         return $rules;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getStatus(): ?string
+    {
+        return $this->getTransferStatus()->value;
     }
 
     /**
