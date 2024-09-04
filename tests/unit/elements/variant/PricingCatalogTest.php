@@ -145,9 +145,9 @@ class PricingCatalogTest extends Unit
                                     Craft::$app->getConditions()->createConditionRule([
                                         'type' => SkuConditionRule::class,
                                         'value' => 'rad-hood',
-                                    ])
-                                ]
-                            ])
+                                    ]),
+                                ],
+                            ]),
                         ],
                     ],
                 ],
@@ -171,9 +171,9 @@ class PricingCatalogTest extends Unit
                                     Craft::$app->getConditions()->createConditionRule([
                                         'type' => SkuConditionRule::class,
                                         'value' => 'rad-hood',
-                                    ])
-                                ]
-                            ])
+                                    ]),
+                                ],
+                            ]),
                         ],
                     ],
                 ],
@@ -196,9 +196,9 @@ class PricingCatalogTest extends Unit
                                     Craft::$app->getConditions()->createConditionRule([
                                         'type' => SkuConditionRule::class,
                                         'value' => 'rad-hood',
-                                    ])
-                                ]
-                            ])
+                                    ]),
+                                ],
+                            ]),
                         ],
                     ],
                     [
@@ -214,9 +214,9 @@ class PricingCatalogTest extends Unit
                                     Craft::$app->getConditions()->createConditionRule([
                                         'type' => SkuConditionRule::class,
                                         'value' => 'rad-hood',
-                                    ])
-                                ]
-                            ])
+                                    ]),
+                                ],
+                            ]),
                         ],
                     ],
                 ],
