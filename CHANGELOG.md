@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.1.0 - 2024-09-04
 
 ### Store Management
 - It’s now possible to manage transfers between inventory locations.
