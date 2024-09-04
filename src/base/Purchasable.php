@@ -58,6 +58,7 @@ use yii\validators\Validator;
  * @property-read string $basePriceAsCurrency the base price
  * @property-read string $basePromotionalPriceAsCurrency the base promotional price
  * @property-read string $salePriceAsCurrency the base price the item will be added to the line item with
+ * @property-read Sale[] $sales sales models which are currently affecting the price of this purchasable
  * @property int $shippingCategoryId the purchasable's shipping category ID
  * @property string $sku a unique code as per the commerce_purchasables table
  * @property array $snapshot
@@ -1089,6 +1090,17 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         $purchasable?->delete();
 
         parent::afterDelete();
+    }
+
+    /**
+     * @return array|Sale[]
+     * @throws InvalidConfigException
+     */
+    public function getSales(): array
+    {
+        $this->_loadSales();
+
+        return $this->_sales;
     }
 
     /**
