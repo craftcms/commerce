@@ -26,7 +26,7 @@ trait StoreTrait
     public function getStore(): Store
     {
         // If the store ID is not set check to see if the class has a `siteId` property and use that.
-        if ($this->storeId === null && !property_exists($this, 'storeId')) {
+        if ($this->storeId === null && !property_exists($this, 'siteId')) {
             throw new InvalidConfigException('Store ID is required');
         }
 
