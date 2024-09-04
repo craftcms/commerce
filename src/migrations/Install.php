@@ -1045,6 +1045,8 @@ class Install extends Migration
         $this->createIndex(null, Table::CATALOG_PRICING, 'purchasableId', false);
         $this->createIndex(null, Table::CATALOG_PRICING, 'storeId', false);
         $this->createIndex(null, Table::CATALOG_PRICING, 'userId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId', 'isPromotionalPrice', 'price'], false);
+        $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId', 'isPromotionalPrice', 'price', 'catalogPricingRuleId', 'dateFrom', 'dateTo'], false);
         $this->createIndex(null, Table::CATALOG_PRICING_RULES, 'storeId', false);
         $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'catalogPricingRuleId', false);
         $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'userId', false);
