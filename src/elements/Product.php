@@ -625,6 +625,7 @@ class Product extends Element implements HasStoreInterface
 
     /**
      * @inheritdoc
+     * @since 5.1.0
      */
     public function currencyAttributes(): array
     {

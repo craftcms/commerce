@@ -26,6 +26,7 @@
 - Added `craft\commerce\elements\db\TransferQuery`.
 - Added `craft\commerce\elements\Product::$defaultBasePrice`.
 - Added `craft\commerce\elements\Product::$storeId`.
+- Added `craft\commerce\elements\Product::getCurrencyAttributes()`.
 - Added `craft\commerce\elements\Product::getStore()`.
 - Added `craft\commerce\elements\Transfer`.
 - Added `craft\commerce\enums\LineItemType`.
