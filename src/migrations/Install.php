@@ -643,6 +643,7 @@ class Install extends Migration
             'uriFormat' => $this->text(),
             'template' => $this->string(500),
             'hasUrls' => $this->boolean()->notNull()->defaultValue(false),
+            'enabledByDefault' => $this->boolean()->defaultValue(true)->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
