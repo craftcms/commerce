@@ -84,9 +84,11 @@
 ### System
 - Craft Commerce now requires Craft CMS 5.2 or later.
 
-## Unreleased
+## 5.0.19 - 2024-09-04
 
-- Fixed a SQL error that could occur when updating Commerce.
+- Fixed a bug where calculated catalog prices weren’t getting rounded to the decimal precision of the store’s currency.
+- Fixed a PHP error that occurred when calling `craft\commerce\elements\Variant::getSales()`.
+- Fixed a SQL error that could occur when upgrading to Commerce 5.
 
 ## 5.0.18 - 2024-08-28
 
