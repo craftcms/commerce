@@ -95,7 +95,6 @@
 - Fixed a bug where users couldn’t access catalog pricing rules when the current user had permission. ([#3639](https://github.com/craftcms/commerce/issues/3639))
 - Fixed a bug where available shipping methods were not returned in order of price. ([#3631](https://github.com/craftcms/commerce/issues/3631))
 
-
 ## 5.0.16.2 - 2024-08-16
 
 - Fixed a bug where variants’ `sku` values could be cleared out when saving a product revision.
