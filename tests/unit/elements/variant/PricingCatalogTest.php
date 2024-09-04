@@ -8,11 +8,19 @@
 namespace unit\elements\variant;
 
 use Codeception\Test\Unit;
+use Craft;
+use craft\commerce\elements\conditions\purchasables\SkuConditionRule;
+use craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantCondition;
 use craft\commerce\elements\Variant;
+use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
 use craft\commerce\services\CatalogPricingRules;
 use craft\commerce\services\Sales;
 use craftcommercetests\fixtures\ProductFixture;
+use Throwable;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 
 /**
  * PricingCatalogTest
@@ -34,7 +42,12 @@ class PricingCatalogTest extends Unit
         ];
     }
 
-    public function testVariantPricing()
+    /**
+     * @return void
+     * @throws Throwable
+     * @throws InvalidConfigException
+     */
+    public function testVariantPricing(): void
     {
         $variant = Variant::find()->sku('rad-hood')->one();
 
@@ -55,5 +68,162 @@ class PricingCatalogTest extends Unit
         self::assertEquals(123.99, $variant->getPrice());
         self::assertEquals(null, $variant->getPromotionalPrice());
         self::assertEquals(123.99, $variant->getSalePrice());
+    }
+
+    /**
+     * @param string $sku
+     * @param array|null $rules
+     * @param float|int|null $salePrice
+     * @param float|int|null $promotionalPrice
+     * @param float|int|null $price
+     * @return void
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws StaleObjectException
+     * @throws Throwable
+     * @throws \yii\db\Exception
+     * @dataProvider variantCatalogPricesDataProvider
+     * @since 5.1.0
+     */
+    public function testVariantCatalogPrices(string $sku, ?array $rules, float|int|null $salePrice, float|int|null $promotionalPrice, float|int|null $price): void
+    {
+        $catalogPricingRules = [];
+
+        if (!empty($rules)) {
+            foreach ($rules as $rule) {
+                $catalogPricingRule = Craft::createObject($rule);
+                Plugin::getInstance()->getCatalogPricingRules()->saveCatalogPricingRule($catalogPricingRule);
+                $catalogPricingRules[] = $catalogPricingRule->id;
+            }
+
+            Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices();
+        }
+
+        $variant = Variant::find()->sku($sku)->one();
+
+        self::assertInstanceof(Variant::class, $variant);
+        self::assertEquals($price, $variant->getPrice());
+        self::assertEquals($promotionalPrice, $variant->getPromotionalPrice());
+        self::assertEquals($salePrice, $variant->getSalePrice());
+
+        // Tidy up at the end of the test
+        if (!empty($catalogPricingRules)) {
+            foreach ($catalogPricingRules as $catalogPricingRule) {
+                Plugin::getInstance()->getCatalogPricingRules()->deleteCatalogPricingRuleById($catalogPricingRule);
+            }
+
+            Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices();
+        }
+    }
+
+    /**
+     * @return array[]
+     * @throws InvalidConfigException
+     */
+    public function variantCatalogPricesDataProvider(): array
+    {
+        return [
+            'no catalog prices' => [
+                'sku' => 'rad-hood',
+                'rules' => null,
+                'salePrice' => 123.99,
+                'promotionalPrice' => null,
+                'price' => 123.99,
+            ],
+            'rad hood reduced price' => [
+                'sku' => 'rad-hood',
+                'rules' => [
+                    [
+                        'class' => CatalogPricingRule::class,
+                        'attributes' => [
+                            'name' => 'Test Rule',
+                            'storeId' => 1,
+                            'applyAmount' => -0.1,
+                            'variantCondition' => Craft::$app->getConditions()->createCondition([
+                                'class' => CatalogPricingRuleVariantCondition::class,
+                                'conditionRules' => [
+                                    Craft::$app->getConditions()->createConditionRule([
+                                        'type' => SkuConditionRule::class,
+                                        'value' => 'rad-hood',
+                                    ])
+                                ]
+                            ])
+                        ],
+                    ],
+                ],
+                'salePrice' => 111.59,
+                'promotionalPrice' => null,
+                'price' => 111.59,
+            ],
+            'rad hood promotional price' => [
+                'sku' => 'rad-hood',
+                'rules' => [
+                    [
+                        'class' => CatalogPricingRule::class,
+                        'attributes' => [
+                            'name' => 'Test Rule',
+                            'storeId' => 1,
+                            'applyAmount' => -0.1,
+                            'isPromotionalPrice' => true,
+                            'variantCondition' => Craft::$app->getConditions()->createCondition([
+                                'class' => CatalogPricingRuleVariantCondition::class,
+                                'conditionRules' => [
+                                    Craft::$app->getConditions()->createConditionRule([
+                                        'type' => SkuConditionRule::class,
+                                        'value' => 'rad-hood',
+                                    ])
+                                ]
+                            ])
+                        ],
+                    ],
+                ],
+                'salePrice' => 111.59,
+                'promotionalPrice' => 111.59,
+                'price' => 123.99,
+            ],
+            'rad hood two rules' => [
+                'sku' => 'rad-hood',
+                'rules' => [
+                    [
+                        'class' => CatalogPricingRule::class,
+                        'attributes' => [
+                            'name' => 'Test Rule - 5%',
+                            'storeId' => 1,
+                            'applyAmount' => -0.05,
+                            'variantCondition' => Craft::$app->getConditions()->createCondition([
+                                'class' => CatalogPricingRuleVariantCondition::class,
+                                'conditionRules' => [
+                                    Craft::$app->getConditions()->createConditionRule([
+                                        'type' => SkuConditionRule::class,
+                                        'value' => 'rad-hood',
+                                    ])
+                                ]
+                            ])
+                        ],
+                    ],
+                    [
+                        'class' => CatalogPricingRule::class,
+                        'attributes' => [
+                            'name' => 'Test Rule - 1%',
+                            'storeId' => 1,
+                            'applyAmount' => -0.01,
+                            'isPromotionalPrice' => true,
+                            'variantCondition' => Craft::$app->getConditions()->createCondition([
+                                'class' => CatalogPricingRuleVariantCondition::class,
+                                'conditionRules' => [
+                                    Craft::$app->getConditions()->createConditionRule([
+                                        'type' => SkuConditionRule::class,
+                                        'value' => 'rad-hood',
+                                    ])
+                                ]
+                            ])
+                        ],
+                    ],
+                ],
+                'salePrice' => 117.79,
+                'promotionalPrice' => null,
+                'price' => 117.79,
+            ],
+        ];
     }
 }
