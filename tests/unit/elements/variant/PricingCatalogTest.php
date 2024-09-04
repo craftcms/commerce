@@ -117,6 +117,62 @@ class PricingCatalogTest extends Unit
     }
 
     /**
+     * @param string $sku
+     * @param array|null $rules
+     * @param float|int|null $salePrice
+     * @param float|int|null $promotionalPrice
+     * @param float|int|null $price
+     * @return void
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws StaleObjectException
+     * @throws Throwable
+     * @throws \yii\db\Exception
+     * @dataProvider variantCatalogPricesDataProvider
+     * @since 5.1.0
+     */
+    public function testVariantCatalogPricesQuerying(string $sku, ?array $rules, float|int|null $salePrice, float|int|null $promotionalPrice, float|int|null $price): void
+    {
+        $catalogPricingRules = [];
+
+        if (!empty($rules)) {
+            foreach ($rules as $rule) {
+                $catalogPricingRule = Craft::createObject($rule);
+                Plugin::getInstance()->getCatalogPricingRules()->saveCatalogPricingRule($catalogPricingRule);
+                $catalogPricingRules[] = $catalogPricingRule->id;
+            }
+
+            Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices();
+        }
+
+        $variant = Variant::find()->price($price)->one();
+        self::assertInstanceof(Variant::class, $variant);
+        self::assertEquals($sku, $variant->getSku());
+        self::assertEquals($price, $variant->getPrice());
+
+        if ($promotionalPrice !== null) {
+            $variant = Variant::find()->promotionalPrice($promotionalPrice)->one();
+            self::assertInstanceof(Variant::class, $variant);
+            self::assertEquals($sku, $variant->getSku());
+            self::assertEquals($promotionalPrice, $variant->getPromotionalPrice());
+        }
+
+        $variant = Variant::find()->salePrice($salePrice)->one();
+        self::assertInstanceof(Variant::class, $variant);
+        self::assertEquals($sku, $variant->getSku());
+        self::assertEquals($salePrice, $variant->getSalePrice());
+
+        // Tidy up at the end of the test
+        if (!empty($catalogPricingRules)) {
+            foreach ($catalogPricingRules as $catalogPricingRule) {
+                Plugin::getInstance()->getCatalogPricingRules()->deleteCatalogPricingRuleById($catalogPricingRule);
+            }
+
+            Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices();
+        }
+    }
+
+    /**
      * @return array[]
      * @throws InvalidConfigException
      */
