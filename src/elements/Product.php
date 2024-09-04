@@ -68,6 +68,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property ProductType $type
  * @property Variant[]|array $variants an array of the product's variants
  * @property-read string $defaultPriceAsCurrency
+ * @property-read string $defaultBasePriceAsCurrency
  * @property float|null $defaultPrice
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0

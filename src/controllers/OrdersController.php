@@ -16,6 +16,7 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\db\Table;
+use craft\commerce\elements\db\PurchasableQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\LineItemType;
@@ -44,6 +45,7 @@ use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\Address;
+use craft\elements\db\ElementQuery;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
@@ -1820,9 +1822,33 @@ JS, []);
         $store = Plugin::getInstance()->getStores()->getStoreBySiteId($siteId);
         $baseCurrency = $store->getCurrency();
 
+        $elementIdsByType = [];
+        foreach ($results as $r) {
+            if (!array_key_exists($r['type'], $elementIdsByType)) {
+                $elementIdsByType[$r['type']] = [];
+            }
+            $elementIdsByType[$r['type']][] = $r['id'];
+        }
+
+        $purchasablesById = [];
+        foreach ($elementIdsByType as $type => $ids) {
+            if (!class_exists($type)) {
+                continue;
+            }
+
+            /** @var ElementQuery $query */
+            $query = $type::find();
+
+            if ($query instanceof PurchasableQuery) {
+                $query->forCustomer($customerId);
+            }
+
+            $purchasablesById = [...$purchasablesById, ...$query->id($ids)->all()];
+        }
+
         foreach ($results as $row) {
             /** @var PurchasableInterface|null $purchasable */
-            $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($row['id'], $siteId, $customerId);
+            $purchasable = ArrayHelper::firstWhere($purchasablesById, 'id', $row['id']);
             if ($purchasable) {
                 // @TODO revisit when updating currencies for stores
                 $row['price'] = $purchasable->getSalePrice();
