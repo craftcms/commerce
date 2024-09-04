@@ -107,7 +107,7 @@ trait Routes
             $event->rules['commerce/settings/lineitemstatuses/<storeHandle:{handle}>/<id:\d+>'] = 'commerce/line-item-statuses/edit';
 
             // Store Settings
-            $event->rules['commerce/store-management'] = 'commerce/store-management/edit'; // Redirects to the first store
+            $event->rules['commerce/store-management'] = 'commerce/store-management/index'; // Redirects to the first store
             $event->rules['commerce/store-management/<storeHandle:{handle}>'] = 'commerce/store-management/edit';
 
             $event->rules['commerce/store-management/<storeHandle:{handle}>/payment-currencies'] = 'commerce/payment-currencies/index';
@@ -166,6 +166,9 @@ trait Routes
             $event->rules['commerce/inventory-locations'] = 'commerce/inventory-locations/index';
             $event->rules['commerce/inventory-locations/new'] = 'commerce/inventory-locations/edit';
             $event->rules['commerce/inventory-locations/<inventoryLocationId:\d+>'] = 'commerce/inventory-locations/edit';
+
+            $event->rules['commerce/inventory/transfers'] = 'commerce/transfers/index';
+            $event->rules['commerce/inventory/transfers/<elementId:\\d+>'] = 'elements/edit';
 
             // Donations
             $event->rules['commerce/donations'] = 'commerce/donations/edit';

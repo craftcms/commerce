@@ -11,6 +11,7 @@ use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\StoreTrait;
 use craft\commerce\records\LineItemStatus as LineItemStatusRecord;
+use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use craft\validators\HandleValidator;
@@ -131,9 +132,15 @@ class LineItemStatus extends Model implements HasStoreInterface
         return UrlHelper::cpUrl('commerce/settings/lineitemstatuses/' . $this->getStore()->handle . '/' . $this->id);
     }
 
+    /**
+     * @return string
+     */
     public function getLabelHtml(): string
     {
-        return sprintf('<span class="commerceStatusLabel nowrap"><span class="status %s"></span>%s</span>', $this->color, Html::encode($this->name));
+        return Cp::statusLabelHtml([
+            'label' => Html::encode($this->name),
+            'color' => $this->color,
+        ]);
     }
 
     /**

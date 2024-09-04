@@ -13,13 +13,18 @@ use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\StoreTrait;
 use craft\commerce\elements\conditions\customers\CatalogPricingRuleCustomerCondition;
+use craft\commerce\elements\conditions\products\CatalogPricingRuleProductCondition;
 use craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasableCondition;
+use craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantCondition;
+use craft\commerce\elements\Product;
+use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingRule as PricingCatalogRuleRecord;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\User;
 use craft\helpers\Json;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Catalog Pricing Rule model.
@@ -29,6 +34,8 @@ use DateTime;
  * @property string $applyAmountAsPercent
  * @property string|array|ElementConditionInterface $customerCondition
  * @property string|array|ElementConditionInterface $purchasableCondition
+ * @property string|array|ElementConditionInterface $productCondition
+ * @property string|array|ElementConditionInterface $variantCondition
  * @property array $purchasableIds
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
@@ -83,6 +90,19 @@ class CatalogPricingRule extends Model implements HasStoreInterface
      * @see setCustomerCondition()
      */
     public null|ElementConditionInterface $_customerCondition = null;
+
+    /**
+     * @var ElementConditionInterface|null
+     * @see getProductCondition()
+     * @see setProductCondition()
+     */
+    public null|ElementConditionInterface $_productCondition = null;
+    /**
+     * @var ElementConditionInterface|null
+     * @see getVariantCondition()
+     * @see setVariantCondition()
+     */
+    public null|ElementConditionInterface $_variantCondition = null;
 
     /**
      * @var ElementConditionInterface|null
@@ -147,8 +167,10 @@ class CatalogPricingRule extends Model implements HasStoreInterface
                 'id',
                 'isPromotionalPrice',
                 'metadata',
+                'productCondition',
                 'purchasableCondition',
                 'storeId',
+                'variantCondition',
             ], 'safe'],
         ];
     }
@@ -213,10 +235,67 @@ class CatalogPricingRule extends Model implements HasStoreInterface
      */
     public function getPurchasableIds(): ?array
     {
-        if ($this->_purchasableIds === null && !empty($this->getPurchasableCondition()->getConditionRules())) {
-            $purchasableQuery = Purchasable::find();
-            $this->getPurchasableCondition()->modifyQuery($purchasableQuery);
-            $this->_purchasableIds = $purchasableQuery->ids();
+        if ($this->_purchasableIds === null) {
+            $productVariantIds = null;
+
+            if (!empty($this->getProductCondition()->getConditionRules())) {
+                $productQuery = Product::find();
+                /** @var CatalogPricingRuleProductCondition $productCondition */
+                $productCondition = $this->getProductCondition();
+                $productCondition->modifyQuery($productQuery);
+
+                $productVariantIds = [];
+                if ($productIds = $productQuery->ids()) {
+                    $productVariantIds = Variant::find()->productId($productIds)->ids();
+                }
+            }
+
+            // If there are product condition rules and they have returned no variant IDs that means there are no products that matched
+            // We can skip out early as the rest of the conditions will not be met
+            if ($productVariantIds === []) {
+                $this->_purchasableIds = [];
+                return $this->_purchasableIds;
+            }
+
+            $this->_purchasableIds = $productVariantIds;
+
+            $variantIds = null;
+            if (!empty($this->getVariantCondition()->getConditionRules())) {
+                $variantQuery = Variant::find();
+                /** @var CatalogPricingRuleVariantCondition $variantCondition */
+                $variantCondition = $this->getVariantCondition();
+                $variantCondition->modifyQuery($variantQuery);
+
+                // If there are product condition rules we need to ensure the variant is in the list of product variants
+                if ($productVariantIds !== null) {
+                    $variantQuery->andWhere(['commerce_variants.id' => $productVariantIds]);
+                }
+
+                $variantIds = $variantQuery->ids();
+            }
+
+            // If there are variant condition rules and they have returned no variant IDs that means there are no variants that matched
+            // We can skip out early as the rest of the conditions will not be met
+            if ($variantIds === []) {
+                $this->_purchasableIds = [];
+                return $this->_purchasableIds;
+            }
+
+            $this->_purchasableIds = $variantIds;
+
+            if (!empty($this->getPurchasableCondition()->getConditionRules())) {
+                $purchasableQuery = Purchasable::find();
+                /** @var CatalogPricingRulePurchasableCondition $purchasableCondition */
+                $purchasableCondition = $this->getPurchasableCondition();
+                $purchasableCondition->modifyQuery($purchasableQuery);
+
+                // If there are product/variant condition rules we need to ensure the purchasable is in the list of product variants
+                if ($variantIds !== null) {
+                    $purchasableQuery->andWhere(['id' => $variantIds]);
+                }
+
+                $this->_purchasableIds = $purchasableQuery->ids();
+            }
         }
 
         return $this->_purchasableIds;
@@ -237,7 +316,7 @@ class CatalogPricingRule extends Model implements HasStoreInterface
     /**
      * @param ElementConditionInterface|string|array $condition
      * @return void
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function setCustomerCondition(ElementConditionInterface|string|array $condition): void
     {
@@ -270,7 +349,7 @@ class CatalogPricingRule extends Model implements HasStoreInterface
     /**
      * @param ElementConditionInterface|string|array $condition
      * @return void
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function setPurchasableCondition(ElementConditionInterface|string|array $condition): void
     {
@@ -286,6 +365,74 @@ class CatalogPricingRule extends Model implements HasStoreInterface
         $condition->forProjectConfig = false;
 
         $this->_purchasableCondition = $condition;
+    }
+
+    /**
+     * @return ElementConditionInterface
+     */
+    public function getProductCondition(): ElementConditionInterface
+    {
+        $condition = $this->_productCondition ?? new CatalogPricingRuleProductCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'productCondition';
+        $condition->elementType = Product::class;
+
+        return $condition;
+    }
+
+    /**
+     * @param ElementConditionInterface|string|array $condition
+     * @return void
+     * @throws InvalidConfigException
+     */
+    public function setProductCondition(ElementConditionInterface|string|array $condition): void
+    {
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof ElementConditionInterface) {
+            $condition['class'] = CatalogPricingRuleProductCondition::class;
+            $condition = Craft::$app->getConditions()->createCondition($condition);
+            /** @var CatalogPricingRuleProductCondition $condition */
+        }
+        $condition->forProjectConfig = false;
+
+        $this->_productCondition = $condition;
+    }
+
+    /**
+     * @return ElementConditionInterface
+     */
+    public function getVariantCondition(): ElementConditionInterface
+    {
+        $condition = $this->_variantCondition ?? new CatalogPricingRuleVariantCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'variantCondition';
+        $condition->elementType = Variant::class;
+
+        return $condition;
+    }
+
+    /**
+     * @param ElementConditionInterface|string|array $condition
+     * @return void
+     * @throws InvalidConfigException
+     */
+    public function setVariantCondition(ElementConditionInterface|string|array $condition): void
+    {
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof ElementConditionInterface) {
+            $condition['class'] = CatalogPricingRuleVariantCondition::class;
+            $condition = Craft::$app->getConditions()->createCondition($condition);
+            /** @var CatalogPricingRuleVariantCondition $condition */
+        }
+        $condition->forProjectConfig = false;
+
+        $this->_variantCondition = $condition;
     }
 
     /**

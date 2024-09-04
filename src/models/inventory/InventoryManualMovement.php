@@ -25,7 +25,7 @@ class InventoryManualMovement extends InventoryMovement
                 if (!$this->{$attribute}->canBeNegative() && $this->fromLocationAfterQuantity() < 0) {
                     $validator->addError($this, $attribute, 'The {inventoryLocation} inventory location’s {type} stock would drop below zero.',
                         [
-                            'inventoryLocation' => $this->fromInventoryLocation->name,
+                            'inventoryLocation' => $this->fromInventoryLocation->getUiLabel(),
                             'type' => $this->{$attribute}->typeAsLabel(),
                         ]
                     );
@@ -39,7 +39,7 @@ class InventoryManualMovement extends InventoryMovement
                 if (!$this->{$attribute}->canBeNegative() && $this->toLocationAfterQuantity() < 0) {
                     $validator->addError($this, $attribute, 'The {inventoryLocation} inventory location stock of {type} would drop below zero.',
                         [
-                            'inventoryLocation' => $this->toInventoryLocation->name,
+                            'inventoryLocation' => $this->toInventoryLocation->getUiLabel(),
                             'type' => $this->{$attribute}->typeAsLabel(),
                         ]
                     );

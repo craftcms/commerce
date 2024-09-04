@@ -23,6 +23,7 @@ use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Subscription;
+use craft\commerce\elements\Transfer;
 use craft\commerce\elements\Variant;
 use craft\commerce\events\EmailEvent;
 use craft\commerce\exports\LineItemExport;
@@ -37,8 +38,8 @@ use craft\commerce\fieldlayoutelements\PurchasablePromotableField;
 use craft\commerce\fieldlayoutelements\PurchasableSkuField;
 use craft\commerce\fieldlayoutelements\PurchasableStockField;
 use craft\commerce\fieldlayoutelements\PurchasableWeightField;
+use craft\commerce\fieldlayoutelements\TransferManagementField;
 use craft\commerce\fieldlayoutelements\UserAddressSettings;
-use craft\commerce\fieldlayoutelements\UserCommerceField;
 use craft\commerce\fieldlayoutelements\VariantsField as VariantsLayoutElement;
 use craft\commerce\fieldlayoutelements\VariantTitleField;
 use craft\commerce\fields\Products as ProductsField;
@@ -48,6 +49,7 @@ use craft\commerce\gql\interfaces\elements\Variant as GqlVariantInterface;
 use craft\commerce\gql\queries\Product as GqlProductQueries;
 use craft\commerce\gql\queries\Variant as GqlVariantQueries;
 use craft\commerce\helpers\ProjectConfigData;
+use craft\commerce\linktypes\Product as ProductLinkType;
 use craft\commerce\migrations\Install;
 use craft\commerce\models\Settings;
 use craft\commerce\plugin\Routes;
@@ -95,6 +97,8 @@ use craft\commerce\services\Taxes;
 use craft\commerce\services\TaxRates;
 use craft\commerce\services\TaxZones;
 use craft\commerce\services\Transactions;
+use craft\commerce\services\Transfers;
+use craft\commerce\services\Transfers as TransfersService;
 use craft\commerce\services\Variants as VariantsService;
 use craft\commerce\services\Vat;
 use craft\commerce\services\Webhooks;
@@ -136,6 +140,7 @@ use craft\events\RegisterGqlQueriesEvent;
 use craft\events\RegisterGqlSchemaComponentsEvent;
 use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
+use craft\fields\Link;
 use craft\fixfks\controllers\RestoreController;
 use craft\gql\ElementQueryConditionBuilder;
 use craft\helpers\ArrayHelper;
@@ -225,8 +230,7 @@ class Plugin extends BasePlugin
                 'taxZones' => ['class' => TaxZones::class],
                 'taxes' => ['class' => Taxes::class],
                 'transactions' => ['class' => Transactions::class],
-                // TODO: Restore this when transfers are enabled
-//                'transfers' => ['class' => Transfers::class],
+                'transfers' => ['class' => Transfers::class],
                 'variants' => ['class' => VariantsService::class],
                 'vat' => ['class' => Vat::class],
                 'webhooks' => ['class' => Webhooks::class],
@@ -250,7 +254,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.0.82';
+    public string $schemaVersion = '5.1.0.2';
 
     /**
      * @inheritdoc
@@ -307,6 +311,7 @@ class Plugin extends BasePlugin
             $this->_registerWidgets();
             $this->_registerElementExports();
             $this->_defineFieldLayoutElements();
+            $this->_registerLinkTypes();
             $this->_registerRedactorLinkOptions();
             $this->_registerCKEditorLinkOptions();
         } else {
@@ -318,11 +323,9 @@ class Plugin extends BasePlugin
         });
 
         Craft::setAlias('@commerceLib', Craft::getAlias('@craft/commerce/../lib'));
-
-        // TODO: Restore this when transfers are enabled
-//        Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $event) {
-//            $event->types[] = Transfer::class;
-//        });
+        Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $event) {
+            $event->types[] = Transfer::class;
+        });
     }
 
     /**
@@ -388,6 +391,14 @@ class Plugin extends BasePlugin
             ];
         }
 
+        $multipleLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations()->count() > 1;
+        if ($multipleLocations && Craft::$app->getUser()->checkPermission('commerce-manageInventoryTransfers')) {
+            $ret['subnav']['inventory-transfers'] = [
+                'label' => Craft::t('commerce', 'Inventory Transfers'),
+                'url' => 'commerce/inventory/transfers',
+            ];
+        }
+
         if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions') && Plugin::getInstance()->getPlans()->getAllPlans()) {
             $ret['subnav']['subscriptions'] = [
                 'label' => Craft::t('commerce', 'Subscriptions'),
@@ -395,18 +406,19 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions')) {
-            // @TODO: change "Plans" to "Subscription Plans" in 5.1.0
+        if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptionPlans')) {
             $ret['subnav']['subscription-plans'] = [
-                'label' => Craft::t('commerce', 'Plans'),
+                'label' => Craft::t('commerce', 'Subscription Plans'),
                 'url' => 'commerce/subscription-plans',
             ];
         }
 
-        $ret['subnav']['donations'] = [
-            'label' => Craft::t('commerce', 'Donations'),
-            'url' => 'commerce/donations',
-        ];
+        if (Craft::$app->getUser()->checkPermission('commerce-manageDonationSettings')) {
+            $ret['subnav']['donations'] = [
+                'label' => Craft::t('commerce', 'Donations'),
+                'url' => 'commerce/donations',
+            ];
+        }
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageStoreSettings')) {
             $ret['subnav']['store-management'] = [
@@ -441,6 +453,20 @@ class Plugin extends BasePlugin
     private function _addTwigExtensions(): void
     {
         Craft::$app->view->registerTwigExtension(new Extension());
+    }
+
+    /**
+     * Register Link types
+     */
+    private function _registerLinkTypes(): void
+    {
+        if (!class_exists(Link::class)) {
+            return;
+        }
+
+        Event::on(Link::class, Link::EVENT_REGISTER_LINK_TYPES, function(RegisterComponentTypesEvent $event) {
+            $event->types[] = ProductLinkType::class;
+        });
     }
 
     /**
@@ -558,14 +584,21 @@ class Plugin extends BasePlugin
 
                             ],
                         ],
-                        'commerce-managePromotions' => $this->_registerPromotionPermission(),
                         'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
-                        'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping')],
-                        'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes')],
+                        'commerce-manageSubscriptionPlans' => ['label' => Craft::t('commerce', 'Manage subscription plans')],
                         'commerce-manageInventoryStockLevels' => ['label' => Craft::t('commerce', 'Manage inventory stock levels')],
                         'commerce-manageInventoryLocations' => ['label' => Craft::t('commerce', 'Manage inventory locations')],
-                        'commerce-manageTransfers' => ['label' => Craft::t('commerce', 'Manage transfers')],
-                        'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
+                        'commerce-manageInventoryTransfers' => ['label' => Craft::t('commerce', 'Manage inventory transfers')],
+                        'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings'),
+                            'nested' => [
+                                'commerce-manageGeneralStoreSettings' => ['label' => Craft::t('commerce', 'Manage general store settings')],
+                                'commerce-managePaymentCurrencies' => ['label' => Craft::t('commerce', 'Manage payment currencies')],
+                                'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping')],
+                                'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes')],
+                                'commerce-managePromotions' => $this->_registerPromotionPermission(),
+                            ],
+                        ],
+                        'commerce-manageDonationSettings' => ['label' => Craft::t('commerce', 'Manage donation settings')],
                     ],
             ];
         });
@@ -647,11 +680,10 @@ class Plugin extends BasePlugin
             ->onUpdate(OrdersService::CONFIG_FIELDLAYOUT_KEY, [$ordersService, 'handleChangedFieldLayout'])
             ->onRemove(OrdersService::CONFIG_FIELDLAYOUT_KEY, [$ordersService, 'handleDeletedFieldLayout']);
 
-        // TODO: Restore this when transfers are enabled
-//        $transfersService = $this->getTransfers();
-//        $projectConfigService->onAdd(TransfersService::CONFIG_FIELDLAYOUT_KEY, [$transfersService, 'handleChangedFieldLayout'])
-//            ->onUpdate(TransfersService::CONFIG_FIELDLAYOUT_KEY, [$transfersService, 'handleChangedFieldLayout'])
-//            ->onRemove(TransfersService::CONFIG_FIELDLAYOUT_KEY, [$transfersService, 'handleDeletedFieldLayout']);
+        $transfersService = $this->getTransfers();
+        $projectConfigService->onAdd(TransfersService::CONFIG_FIELDLAYOUT_KEY, [$transfersService, 'handleChangedFieldLayout'])
+            ->onUpdate(TransfersService::CONFIG_FIELDLAYOUT_KEY, [$transfersService, 'handleChangedFieldLayout'])
+            ->onRemove(TransfersService::CONFIG_FIELDLAYOUT_KEY, [$transfersService, 'handleDeletedFieldLayout']);
 
         $subscriptionsService = $this->getSubscriptions();
         $projectConfigService->onAdd(Subscriptions::CONFIG_FIELDLAYOUT_KEY, [$subscriptionsService, 'handleChangedFieldLayout'])
@@ -1018,9 +1050,7 @@ class Plugin extends BasePlugin
             $gc->deletePartialElements(Product::class, Table::PRODUCTS, 'id');
             $gc->deletePartialElements(Subscription::class, Table::SUBSCRIPTIONS, 'id');
             $gc->deletePartialElements(Variant::class, Table::VARIANTS, 'id');
-
-            // TODO: Restore this when transfers are enabled
-            // $gc->deletePartialElements(Transfer::class, Table::TRANSFERS, 'id');
+            $gc->deletePartialElements(Transfer::class, Table::TRANSFERS, 'id');
         });
     }
 
@@ -1081,21 +1111,13 @@ class Plugin extends BasePlugin
                 case Address::class:
                     $e->fields[] = UserAddressSettings::class;
                     break;
-                case UserElement::class:
-                    // todo: remove in favor of a dedicated user management screen
-                    $currentUser = Craft::$app->getUser()->getIdentity();
-                    if ($currentUser?->can('commerce-manageOrders') || $currentUser?->can('commerce-manageSubscriptions')) {
-                        $e->fields[] = UserCommerceField::class;
-                    }
-                    break;
                 case Product::class:
                     $e->fields[] = ProductTitleField::class;
                     $e->fields[] = VariantsLayoutElement::class;
                     break;
-                // TODO: Restore this when transfers are enabled
-//                case Transfer::class:
-//                    $e->fields[] = TransferManagementField::class;
-//                    break;
+                case Transfer::class:
+                    $e->fields[] = TransferManagementField::class;
+                    break;
                 case Variant::class:
                     $e->fields[] = VariantTitleField::class;
                     $e->fields[] = PurchasableSkuField::class;

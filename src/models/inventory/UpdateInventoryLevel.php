@@ -22,6 +22,12 @@ class UpdateInventoryLevel extends Model
     public string $type;
 
     /**
+     * Whether the update should be associated with a transfer.
+     * @var int|null
+     */
+    public ?int $transferId = null;
+
+    /**
      * @var InventoryUpdateQuantityType The action to perform on the inventory.
      */
     public InventoryUpdateQuantityType $updateAction;

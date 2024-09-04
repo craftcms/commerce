@@ -10,6 +10,7 @@ namespace craft\commerce\elements;
 use Craft;
 use craft\base\Element;
 use craft\base\ElementInterface;
+use craft\base\Field;
 use craft\base\NestedElementInterface;
 use craft\base\NestedElementTrait;
 use craft\commerce\base\Purchasable;
@@ -33,7 +34,9 @@ use craft\elements\db\EagerLoadPlan;
 use craft\elements\User;
 use craft\gql\types\DateTime;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\helpers\Db;
+use craft\helpers\ElementHelper;
 use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
@@ -287,6 +290,31 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
+    public function getIsTitleTranslatable(): bool
+    {
+        return ($this->getOwner()->getType()->variantTitleTranslationMethod !== Field::TRANSLATION_METHOD_NONE);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getTitleTranslationDescription(): ?string
+    {
+        return ElementHelper::translationDescription($this->getOwner()->getType()->variantTitleTranslationMethod);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getTitleTranslationKey(): string
+    {
+        $type = $this->getOwner()->getType();
+        return ElementHelper::translationKey($this, $type->variantTitleTranslationMethod, $type->variantTitleTranslationKeyFormat);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function canSave(User $user): bool
     {
         if (parent::canSave($user)) {
@@ -400,6 +428,22 @@ class Variant extends Purchasable implements NestedElementInterface
         }
 
         return $fieldLayout;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function metadata(): array
+    {
+        $metadata = parent::metadata();
+
+        $product = $this->getOwner();
+
+        if ($product) {
+            $metadata[Craft::t('commerce', 'Product')] = Cp::elementChipHtml($product, ['showActionMenu' => true]);
+        }
+
+        return $metadata;
     }
 
     /**

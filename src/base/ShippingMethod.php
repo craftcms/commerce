@@ -12,7 +12,6 @@ use craft\commerce\base\Model as BaseModel;
 use craft\commerce\elements\conditions\orders\ShippingMethodOrderCondition;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\NotImplementedException;
-use craft\commerce\Plugin;
 use craft\helpers\Json;
 use DateTime;
 use Illuminate\Support\Collection;
@@ -230,10 +229,11 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
         $nonShippableItems = [];
 
         foreach ($lineItems as $item) {
-            $purchasable = $item->getPurchasable();
-            if ($purchasable && !Plugin::getInstance()->getPurchasables()->isPurchasableShippable($purchasable, $order)) {
-                $nonShippableItems[$item->id] = $item->id;
+            if ($item->getIsShippable()) {
+                continue;
             }
+
+            $nonShippableItems[$item->id] = $item->id;
         }
 
         // Are all line items non shippable items? No shipping cost.
@@ -244,17 +244,23 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
         $amount = $shippingRule->getBaseRate();
 
         foreach ($order->getLineItems() as $item) {
-            if ($item->getPurchasable() && !$item->purchasable->hasFreeShipping() && Plugin::getInstance()->getPurchasables()->isPurchasableShippable($item->getPurchasable(), $order)) {
-                $percentageRate = $shippingRule->getPercentageRate($item->shippingCategoryId);
-                $perItemRate = $shippingRule->getPerItemRate($item->shippingCategoryId);
-                $weightRate = $shippingRule->getWeightRate($item->shippingCategoryId);
-
-                $percentageAmount = $item->getSubtotal() * $percentageRate;
-                $perItemAmount = $item->qty * $perItemRate;
-                $weightAmount = ($item->weight * $item->qty) * $weightRate;
-
-                $amount += ($percentageAmount + $perItemAmount + $weightAmount);
+            if ($item->getHasFreeShipping()) {
+                continue;
             }
+
+            if (!$item->getIsShippable()) {
+                continue;
+            }
+
+            $percentageRate = $shippingRule->getPercentageRate($item->shippingCategoryId);
+            $perItemRate = $shippingRule->getPerItemRate($item->shippingCategoryId);
+            $weightRate = $shippingRule->getWeightRate($item->shippingCategoryId);
+
+            $percentageAmount = $item->getSubtotal() * $percentageRate;
+            $perItemAmount = $item->qty * $perItemRate;
+            $weightAmount = ($item->weight * $item->qty) * $weightRate;
+
+            $amount += ($percentageAmount + $perItemAmount + $weightAmount);
         }
 
         $amount = max($amount, $shippingRule->getMinRate());

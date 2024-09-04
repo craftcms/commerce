@@ -54,6 +54,12 @@ class ProductTypeSite extends Model
     public ?string $template = null;
 
     /**
+     * @var bool Enabled by default
+     * @since 5.1.0
+     */
+    public bool $enabledByDefault = true;
+
+    /**
      * @var ProductType|null
      */
     private ?ProductType $_productType = null;

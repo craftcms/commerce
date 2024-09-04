@@ -1229,8 +1229,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
         return match ($attribute) {
             'sku' => (string)Html::encode($this->getSkuAsText()),
-            'price' => $this->basePriceAsCurrency, // @TODO change this to the `asCurrency` attribute when implemented
-            'promotionalPrice' => $this->basePromotionalPriceAsCurrency, // @TODO change this to the `asCurrency` attribute when implemented
+            'price' => $this->basePriceAsCurrency,
+            'promotionalPrice' => $this->basePromotionalPriceAsCurrency,
             'weight' => $this->weight !== null ? Craft::$app->getFormattingLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits : '',
             'length' => $this->length !== null ? Craft::$app->getFormattingLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
             'width' => $this->width !== null ? Craft::$app->getFormattingLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
