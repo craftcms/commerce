@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Resolved an issue where calculated catalog prices were not rounded to the decimal precision of the store's currency.
+- Fixed a PHP error that occurred when calling `craft\commerce\elements\Variants::getSales()`.
 - Fixed a SQL error that could occur when updating Commerce.
 
 ## 5.0.18 - 2024-08-28
