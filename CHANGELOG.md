@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where catalog pricing rules could ignore product conditions. ([#3544](https://github.com/craftcms/commerce/issues/3544))
+
 ## 5.1.0 - 2024-09-04
 
 ### Store Management

@@ -259,7 +259,7 @@ class CatalogPricingRule extends Model implements HasStoreInterface
 
             $this->_purchasableIds = $productVariantIds;
 
-            $variantIds = null;
+            $variantIds = $productVariantIds;
             if (!empty($this->getVariantCondition()->getConditionRules())) {
                 $variantQuery = Variant::find();
                 /** @var CatalogPricingRuleVariantCondition $variantCondition */
