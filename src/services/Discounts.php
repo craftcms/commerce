@@ -1129,7 +1129,7 @@ SQL;
 
         $coupons = $discount->getCoupons();
         // Protect against empty coupon code list if the discount requires a coupon code
-        if ($discount->requireCouponCode && empty($coupons)) {
+        if (empty($coupons)) {
             return false;
         }
 
