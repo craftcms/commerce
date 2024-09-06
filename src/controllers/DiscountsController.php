@@ -340,6 +340,7 @@ class DiscountsController extends BaseCpController
     private function _setCouponsOnDiscount(array $coupons, Discount $discount): void
     {
         if (empty($coupons)) {
+            $discount->setCoupons([]);
             return;
         }
 
