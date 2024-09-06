@@ -636,20 +636,15 @@ abstract class PurchasableQuery extends ElementQuery
             $customerId = null;
         }
 
-        $catalogPricingQuery = Plugin::getInstance()
+        $catalogPricesQuery = Plugin::getInstance()
             ->getCatalogPricing()
-            ->createCatalogPricingQuery(userId: $customerId)
+            ->createCatalogPricesQuery(userId: $customerId)
             ->addSelect(['cp.purchasableId', 'cp.storeId']);
-        $catalogPricesQuery = (clone $catalogPricingQuery)->andWhere(['isPromotionalPrice' => false]);
-        $catalogPromotionalPricesQuery = (clone $catalogPricingQuery)->andWhere(['isPromotionalPrice' => true]);
-        $catalogSalePriceQuery = (clone $catalogPricingQuery);
 
         $this->subQuery->leftJoin(['sitestores' => Table::SITESTORES], '[[elements_sites.siteId]] = [[sitestores.siteId]]');
         $this->subQuery->leftJoin(['purchasables_stores' => Table::PURCHASABLES_STORES], '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[commerce_purchasables.id]]');
 
         $this->subQuery->leftJoin(['catalogprices' => $catalogPricesQuery], '[[catalogprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogprices.storeId]] = [[sitestores.storeId]]');
-        $this->subQuery->leftJoin(['catalogpromotionalprices' => $catalogPromotionalPricesQuery], '[[catalogpromotionalprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogpromotionalprices.storeId]] = [[sitestores.storeId]]');
-        $this->subQuery->leftJoin(['catalogsaleprices' => $catalogSalePriceQuery], '[[catalogsaleprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogsaleprices.storeId]] = [[sitestores.storeId]]');
         $this->subQuery->leftJoin(['inventoryitems' => Table::INVENTORYITEMS], '[[inventoryitems.purchasableId]] = [[commerce_purchasables.id]]');
 
         return parent::afterPrepare();
@@ -689,8 +684,8 @@ abstract class PurchasableQuery extends ElementQuery
 
         $this->subQuery->addSelect([
             'catalogprices.price',
-            'catalogpromotionalprices.price as promotionalPrice',
-            'catalogsaleprices.price as salePrice',
+            'catalogprices.promotionalPrice',
+            'catalogprices.salePrice',
         ]);
 
         if (isset($this->sku)) {
@@ -719,11 +714,11 @@ abstract class PurchasableQuery extends ElementQuery
         }
 
         if (isset($this->promotionalPrice)) {
-            $this->subQuery->andWhere(Db::parseNumericParam('catalogpromotionalprices.price', $this->promotionalPrice));
+            $this->subQuery->andWhere(Db::parseNumericParam('catalogprices.promotionalPrice', $this->promotionalPrice));
         }
 
         if (isset($this->salePrice)) {
-            $this->subQuery->andWhere(Db::parseNumericParam('catalogsaleprices.price' , $this->salePrice));
+            $this->subQuery->andWhere(Db::parseNumericParam('catalogprices.salePrice' , $this->salePrice));
         }
 
         if (isset($this->shippingCategoryId)) {

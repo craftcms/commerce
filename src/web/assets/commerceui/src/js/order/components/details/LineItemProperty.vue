@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full order-edit-line-item-prop">
+    <div class="w-full order-edit-line-item-prop order-flex">
         <field
             :label="fieldLabel"
             :instructions="instructions"
@@ -22,6 +22,7 @@
                 </template>
             </template>
         </field>
+        <slot></slot>
     </div>
 </template>
 

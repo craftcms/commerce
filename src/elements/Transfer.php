@@ -76,7 +76,7 @@ class Transfer extends Element
             return Craft::t('commerce', 'Transfer');
         }
 
-        return (string)Craft::t('commerce','{from} to {to}',[
+        return (string)Craft::t('commerce', '{from} to {to}', [
             'from' => $this->getOriginLocation()->getUiLabel(),
             'to' => $this->getDestinationLocation()->getUiLabel(),
         ]);
@@ -164,12 +164,16 @@ class Transfer extends Element
         // only pending can being partial or received.
         if ($this->isTransferDraft()) {
             return;
+        } else {
+            $this->setTransferStatus(TransferStatusType::PENDING);
         }
 
-        if (!$this->isAllReceived() && $this->getTotalReceived() > 0) {
-            $this->setTransferStatus(TransferStatusType::PARTIAL);
-        } else {
+        if ($this->isAllReceived()) {
             $this->setTransferStatus(TransferStatusType::RECEIVED);
+        }
+
+        if ($this->getTotalReceived() > 0 && $this->getTotalReceived() < $this->getTotalQuantity()) {
+            $this->setTransferStatus(TransferStatusType::PARTIAL);
         }
     }
 
@@ -412,7 +416,9 @@ class Transfer extends Element
         }
 
         foreach ($this->getDetails() as $detail) {
-            $this->addModelErrors($detail, 'detail');
+            if (!$detail->validate()) {
+                $this->addModelErrors($detail, 'details');
+            }
         }
     }
 
@@ -642,7 +648,7 @@ JS, [
                 ]
             ));
         }
-        
+
         /** @var Response|CpScreenResponseBehavior $response */
         $response->crumbs([
             [
@@ -686,7 +692,7 @@ JS, [
                 $value[$key] = new TransferDetail($detail);
             }
 
-            $value[$key]->transferId = $this->id;
+            $value[$key]->setTransfer($this);
 
             if (!$value[$key]->inventoryItemId) {
                 unset($value[$key]);

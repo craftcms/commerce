@@ -18,6 +18,7 @@ use craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasabl
 use craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantCondition;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingRule as PricingCatalogRuleRecord;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\User;
@@ -258,7 +259,7 @@ class CatalogPricingRule extends Model implements HasStoreInterface
 
             $this->_purchasableIds = $productVariantIds;
 
-            $variantIds = null;
+            $variantIds = $productVariantIds;
             if (!empty($this->getVariantCondition()->getConditionRules())) {
                 $variantQuery = Variant::find();
                 /** @var CatalogPricingRuleVariantCondition $variantCondition */
@@ -461,6 +462,8 @@ class CatalogPricingRule extends Model implements HasStoreInterface
             PricingCatalogRuleRecord::APPLY_TO_FLAT => -$this->applyAmount,
             default => $price,
         };
+
+        $price = (float)Plugin::getInstance()->getCurrencies()->getTeller($this->getStore()->getCurrency())->convertToString($price);
 
         return max($price, 0);
     }

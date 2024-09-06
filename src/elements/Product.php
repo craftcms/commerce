@@ -11,6 +11,9 @@ use Craft;
 use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\base\Field;
+use craft\commerce\base\HasStoreInterface;
+use craft\commerce\base\StoreTrait;
+use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\actions\CreateDiscount;
 use craft\commerce\elements\actions\CreateSale;
 use craft\commerce\elements\conditions\products\ProductCondition;
@@ -65,15 +68,24 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property ProductType $type
  * @property Variant[]|array $variants an array of the product's variants
  * @property-read string $defaultPriceAsCurrency
+ * @property-read string $defaultBasePriceAsCurrency
  * @property float|null $defaultPrice
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class Product extends Element
+class Product extends Element implements HasStoreInterface
 {
+    use StoreTrait;
+
     public const STATUS_LIVE = 'live';
     public const STATUS_PENDING = 'pending';
     public const STATUS_EXPIRED = 'expired';
+
+    /**
+     * @var float|null
+     * @since 5.1.0
+     */
+    public ?float $defaultBasePrice = null;
 
     /**
      * @inheritdoc
@@ -612,6 +624,15 @@ class Product extends Element
     private ?NestedElementManager $_variantManager = null;
 
     /**
+     * @inheritdoc
+     * @since 5.1.0
+     */
+    public function currencyAttributes(): array
+    {
+        return ['defaultPrice', 'defaultBasePrice'];
+    }
+
+    /**
      * @throws InvalidConfigException
      */
     public function behaviors(): array
@@ -623,6 +644,11 @@ class Product extends Element
             'attributeTypes' => [
                 'id' => AttributeTypecastBehavior::TYPE_INTEGER,
             ],
+        ];
+
+        $behaviors['currencyAttributes'] = [
+            'class' => CurrencyAttributeBehavior::class,
+            'currencyAttributes' => $this->currencyAttributes(),
         ];
 
         return $behaviors;
@@ -646,15 +672,6 @@ class Product extends Element
     public function getDefaultPrice(): ?float
     {
         return $this->_defaultPrice ?? $this->getDefaultVariant()?->price;
-    }
-
-    /**
-     * @return string
-     * @throws InvalidConfigException
-     */
-    public function getDefaultPriceAsCurrency(): string
-    {
-        return $this->getDefaultVariant()?->priceAsCurrency ?? '';
     }
 
     public function canCreateDrafts(User $user): bool
@@ -960,7 +977,7 @@ class Product extends Element
             $this->_variants = self::createVariantQuery($this)->status(null)->collect();
         }
 
-        return $this->_variants->filter(fn(Variant $variant) => $includeDisabled || $variant->enabled);
+        return $this->_variants->filter(fn(Variant $variant) => $includeDisabled || ($variant->getStatus() === self::STATUS_ENABLED));
     }
 
     /**
@@ -1558,7 +1575,7 @@ class Product extends Element
             }
             case 'defaultPrice':
             {
-                return $this->defaultPriceAsCurrency;
+                return $this->defaultBasePriceAsCurrency;
             }
             case 'stock':
             {
@@ -1576,7 +1593,7 @@ class Product extends Element
             case 'defaultWeight':
             {
                 if ($productType->hasDimensions) {
-                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits;
+                    return Craft::$app->getFormattingLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits;
                 }
 
                 return '';
@@ -1586,7 +1603,7 @@ class Product extends Element
             case 'defaultHeight':
             {
                 if ($productType->hasDimensions) {
-                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits;
+                    return Craft::$app->getFormattingLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits;
                 }
 
                 return '';

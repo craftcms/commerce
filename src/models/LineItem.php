@@ -550,8 +550,8 @@ class LineItem extends Model
             [['snapshot'], 'required', 'when' => fn() => $this->type === LineItemType::Purchasable],
             [['qty'], 'integer', 'min' => 1],
             [['shippingCategoryId', 'taxCategoryId'], 'integer'],
-            [['price'], 'number'],
-            [['promotionalPrice'], 'number', 'skipOnEmpty' => true],
+            [['price'], 'number', 'min' => 0],
+            [['promotionalPrice'], 'number', 'min' => 0, 'skipOnEmpty' => true],
             [['orderId', 'purchasableId', 'hasFreeShipping', 'isPromotable', 'isShippable', 'isTaxable', 'type'], 'safe'],
         ];
 

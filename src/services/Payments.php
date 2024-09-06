@@ -319,7 +319,7 @@ class Payments extends Component
                 $this->_saveTransaction($transaction);
             }
 
-            Craft::error($e->getMessage());
+            Craft::$app->getErrorHandler()->logException($e);
             throw new PaymentException($e->getMessage(), $e->getCode(), $e);
         }
     }
@@ -550,7 +550,7 @@ class Payments extends Component
             $child->message = $e->getMessage();
             $this->_saveTransaction($child);
 
-            Craft::error($e->getMessage());
+            Craft::$app->getErrorHandler()->logException($e);
         }
 
         return $child;
