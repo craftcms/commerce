@@ -7,6 +7,7 @@
 
 namespace craft\commerce\elements\conditions\orders;
 
+use craft\commerce\elements\Order;
 use craft\elements\conditions\ElementCondition;
 
 /**
@@ -17,6 +18,11 @@ use craft\elements\conditions\ElementCondition;
  */
 class OrderCondition extends ElementCondition
 {
+    /**
+     * @inheritdoc
+     */
+    public ?string $elementType = Order::class;
+
     /**
      * @inheritdoc
      */
