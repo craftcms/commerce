@@ -1527,14 +1527,20 @@ class Order extends Element
 
         if (!$this->_shippingAddress && !$this->shippingAddressId && $primaryShippingAddress = $user->getPrimaryShippingAddress()) {
             $this->sourceShippingAddressId = $primaryShippingAddress->id;
-            $shippingAddress = Craft::$app->getElements()->duplicateElement($primaryShippingAddress, ['ownerId' => $this->id]);
+            $shippingAddress = Craft::$app->getElements()->duplicateElement($primaryShippingAddress,
+                [
+                    'owner' => $this,
+                ]);
             $this->setShippingAddress($shippingAddress);
             $autoSetOccurred = true;
         }
 
         if (!$this->_billingAddress && !$this->billingAddressId && $primaryBillingAddress = $user->getPrimaryBillingAddress()) {
             $this->sourceBillingAddressId = $primaryBillingAddress->id;
-            $billingAddress = Craft::$app->getElements()->duplicateElement($primaryBillingAddress, ['ownerId' => $this->id]);
+            $billingAddress = Craft::$app->getElements()->duplicateElement($primaryBillingAddress,
+                [
+                    'owner' => $this,
+                ]);
             $this->setBillingAddress($billingAddress);
             $autoSetOccurred = true;
         }

@@ -103,7 +103,7 @@ class Pdfs extends Component
     public const EVENT_AFTER_SAVE_PDF = 'afterSavePdf';
 
     /**
-     * @event PdfEvent The event that is triggered before an order’s PDF is rendered.
+     * @event PdfRenderEvent The event that is triggered before an order’s PDF is rendered.
      *
      * Event handlers can customize PDF rendering by modifying several properties on the event object:
      *
@@ -133,7 +133,7 @@ class Pdfs extends Component
     public const EVENT_BEFORE_RENDER_PDF = 'beforeRenderPdf';
 
     /**
-     * @event PdfEvent The event that is triggered after an order’s PDF has been rendered.
+     * @event PdfRenderEvent The event that is triggered after an order’s PDF has been rendered.
      *
      * Event handlers can override Commerce’s PDF generation by setting the `pdf` property on the event to a custom-rendered PDF string. The event properties will be the same as those from `beforeRenderPdf`, but `pdf` will contain a rendered PDF string and is the only one for which setting a value will make any difference for the resulting PDF output.
      *
