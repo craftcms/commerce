@@ -18,7 +18,6 @@ use craft\elements\conditions\ElementCondition;
  */
 class OrderCondition extends ElementCondition
 {
-    public ?string $elementType = Order::class;
     /**
      * @inheritdoc
      */
