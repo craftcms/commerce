@@ -1,5 +1,13 @@
 # Release Notes for Craft Commerce
 
+## 4.6.10 - 2024-08-28
+
+- Fixed a PHP error that could occur when default addresses were set on a cart. ([#3641](https://github.com/craftcms/commerce/issues/3641))
+
+## 4.6.9 - 2024-08-21
+
+- Fixed a bug where available shipping methods were not returned in order of price. ([#3631](https://github.com/craftcms/commerce/issues/3631))
+
 ## 4.6.8 - 2024-08-14
 
 - It’s now possible to search for orders by shipping and billing address. ([#3603](https://github.com/craftcms/commerce/pull/3603))

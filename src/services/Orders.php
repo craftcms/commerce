@@ -273,13 +273,13 @@ class Orders extends Component
         foreach ($carts as $cart) {
             // Update the billing address
             if ($cart->sourceBillingAddressId === $address->id) {
-                $newBillingAddress = Craft::$app->getElements()->duplicateElement($address, ['ownerId' => $cart->id, 'title' => Craft::t('commerce', 'Billing Address')]);
+                $newBillingAddress = Craft::$app->getElements()->duplicateElement($address, ['owner' => $cart, 'title' => Craft::t('commerce', 'Billing Address')]);
                 $cart->billingAddressId = $newBillingAddress->id;
             }
 
             // Update the shipping address
             if ($cart->sourceShippingAddressId === $address->id) {
-                $newShippingAddress = Craft::$app->getElements()->duplicateElement($address, ['ownerId' => $cart->id, 'title' => Craft::t('commerce', 'Shipping Address')]);
+                $newShippingAddress = Craft::$app->getElements()->duplicateElement($address, ['owner' => $cart, 'title' => Craft::t('commerce', 'Shipping Address')]);
                 $cart->shippingAddressId = $newShippingAddress->id;
             }
 

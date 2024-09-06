@@ -22,6 +22,11 @@ class OrderCondition extends ElementCondition
     /**
      * @inheritdoc
      */
+    public ?string $elementType = Order::class;
+
+    /**
+     * @inheritdoc
+     */
     protected function conditionRuleTypes(): array
     {
         return array_merge(parent::conditionRuleTypes(), [

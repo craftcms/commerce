@@ -1309,24 +1309,27 @@ class OrdersController extends Controller
 
             $order->autoSetAddresses();
         } else {
-            $getAddress = static function($address, $orderId, $title) {
-                if ($address && ($address['id'] && ($address['ownerId'] != $orderId || isset($address['_copy'])))) {
+            $getAddress = static function($address, Order $order, $title) {
+                if ($address && ($address['id'] && ($address['ownerId'] != $order->id || isset($address['_copy'])))) {
                     if (isset($address['_copy'])) {
                         unset($address['_copy']);
                     }
                     $address = Craft::$app->getElements()->getElementById($address['id'], Address::class);
-                    $address = Craft::$app->getElements()->duplicateElement($address, ['ownerId' => $orderId, 'title' => $title]);
-                } elseif ($address && ($address['id'] && $address['ownerId'] == $orderId)) {
+                    $address = Craft::$app->getElements()->duplicateElement($address, [
+                        'owner' => $order,
+                        'title' => $title,
+                    ]);
+                } elseif ($address && ($address['id'] && $address['ownerId'] == $order->id)) {
                     /** @var Address|null $address */
                     $address = Address::find()->ownerId($address['ownerId'])->id($address['id'])->one();
                 }
 
                 return $address;
             };
-            $billingAddress = $getAddress($submittedBillingAddress, $orderRequestData['order']['id'], Craft::t('commerce', 'Billing Address'));
+            $billingAddress = $getAddress($submittedBillingAddress, $order, Craft::t('commerce', 'Billing Address'));
             $order->setBillingAddress($billingAddress);
 
-            $shippingAddress = $getAddress($submittedShippingAddress, $orderRequestData['order']['id'], Craft::t('commerce', 'Shipping Address'));
+            $shippingAddress = $getAddress($submittedShippingAddress, $order, Craft::t('commerce', 'Shipping Address'));
             $order->setShippingAddress($shippingAddress);
 
             if (isset($orderRequestData['order']['sourceBillingAddressId'])) {
