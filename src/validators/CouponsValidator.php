@@ -8,7 +8,9 @@
 namespace craft\commerce\validators;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\records\Coupon;
+use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use yii\validators\Validator;
 
@@ -40,16 +42,28 @@ class CouponsValidator extends Validator
         }
 
         // Check other codes in the DB
-        $query = Coupon::find()->where(['in', 'code', $codes]);
+        $query = (new Query())
+            ->select([
+                'coupons.code',
+                'discounts.name',
+            ])
+            ->from(Table::COUPONS . ' coupons')
+            ->leftJoin(Table::DISCOUNTS . ' discounts', '[[discounts.id]] = [[coupons.discountId]]')
+            ->where(['in', 'code', $codes]);
 
         if ($model->id) {
             $query->andWhere(['not', ['discountId' => $model->id]]);
         }
 
-        $codeCount = $query->count();
+        $existingDiscounts = $query->all();
 
-        if ($codeCount) {
-            $this->addError($model, $attribute, Craft::t('commerce', 'Coupon codes must be unique.'));
+        if (count($existingDiscounts)) {
+            foreach ($existingDiscounts as $existingDiscount) {
+                $this->addError($model, $attribute, Craft::t('commerce', 'Coupon code “{code}” is already in use by discount “{name}”.', [
+                    'code' => $existingDiscount['code'],
+                    'name' => $existingDiscount['name'],
+                ]));
+            }
         }
     }
 }

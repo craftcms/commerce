@@ -151,6 +151,7 @@ class Install extends Migration
             'customerCondition' => $this->text(),
             'shippingAddressCondition' => $this->text(),
             'billingAddressCondition' => $this->text(),
+            'requireCouponCode' => $this->boolean()->notNotNull()->defaultValue(false),
             'perUserLimit' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
             'perEmailLimit' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
             'totalDiscountUses' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
