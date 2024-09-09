@@ -118,6 +118,7 @@ use craft\commerce\widgets\TotalRevenue;
 use craft\console\Application as ConsoleApplication;
 use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;
+use craft\console\controllers\utils\RepairController;
 use craft\controllers\UsersController;
 use craft\db\Query;
 use craft\debug\Module;
@@ -254,7 +255,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.1.0.2';
+    public string $schemaVersion = '5.2.0.1';
 
     /**
      * @inheritdoc

@@ -46,7 +46,9 @@ use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
+use craft\models\Section;
 use craft\models\Site;
+use craft\services\Structures;
 use craft\validators\DateTimeValidator;
 use DateTime;
 use Illuminate\Support\Collection;
@@ -239,9 +241,11 @@ class Product extends Element implements HasStoreInterface
 
         $sources[] = ['heading' => Craft::t('commerce', 'Product Types')];
 
+        $user = Craft::$app->getUser()->getIdentity();
+
         foreach ($productTypes as $productType) {
             $key = 'productType:' . $productType->uid;
-            $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-editProductType:' . $productType->uid);
+            $canEditProducts = $user && $user->can('commerce-editProductType:' . $productType->uid);
 
             $sources[$key] = [
                 'key' => $key,
@@ -250,10 +254,23 @@ class Product extends Element implements HasStoreInterface
                     'handle' => $productType->handle,
                     'editable' => $canEditProducts,
                 ],
-                'criteria' => ['typeId' => $productType->id, 'editable' => $editable],
+                'criteria' => [
+                    'typeId' => $productType->id,
+                    'editable' => $editable
+                ],
                 // Get site ids enabled for this product type
                 'sites' => $productType->getSiteIds(),
             ];
+
+            if ($productType->type == ProductType::TYPE_ORDERABLE) {
+                $sources[$key]['defaultSort'] = ['structure', 'asc'];
+                $sources[$key]['structureId'] = $productType->structureId;
+                $sources[$key]['structureEditable'] = $canEditProducts;
+            } else {
+                $sources[$key]['defaultSort'] = ['postDate', 'desc'];
+            }
+
+
         }
 
         return $sources;
@@ -1282,6 +1299,8 @@ class Product extends Element implements HasStoreInterface
     public function afterSave(bool $isNew): void
     {
         if (!$this->propagating) {
+            $productType = $this->getType();
+
             if (!$isNew) {
                 $record = ProductRecord::findOne($this->id);
 
@@ -1313,9 +1332,58 @@ class Product extends Element implements HasStoreInterface
             $record->save(false);
 
             $this->id = $record->id;
+
+            if ($this->getIsCanonical() && isset($this->typeId) && $productType->type == ProductType::TYPE_ORDERABLE) {
+                // Has the parent changed?
+                if ($this->hasNewParent()) {
+                    $this->_placeInStructure($isNew, $productType);
+                }
+
+                // Update the entry’s descendants, who may be using this entry’s URI in their own URIs
+                if (!$isNew) {
+                    Craft::$app->getElements()->updateDescendantSlugsAndUris($this, true, true);
+                }
+            }
         }
 
         parent::afterSave($isNew);
+    }
+
+    private function _placeInStructure(bool $isNew, ProductType $productType): void
+    {
+        $parentId = $this->getParentId();
+        $structuresService = Craft::$app->getStructures();
+
+        // If this is a provisional draft and its new parent matches the canonical product’s, just drop it from the structure
+        if ($this->isProvisionalDraft) {
+            $canonicalParentId = self::find()
+                ->select(['elements.id'])
+                ->ancestorOf($this->getCanonicalId())
+                ->ancestorDist(1)
+                ->status(null)
+                ->scalar();
+
+            if ($parentId == $canonicalParentId) {
+                $structuresService->remove($this->structureId, $this);
+                return;
+            }
+        }
+
+        $mode = $isNew ? Structures::MODE_INSERT : Structures::MODE_AUTO;
+
+        if (!$parentId) {
+            if ($productType->defaultPlacement === ProductType::DEFAULT_PLACEMENT_BEGINNING) {
+                $structuresService->prependToRoot($this->structureId, $this, $mode);
+            } else {
+                $structuresService->appendToRoot($this->structureId, $this, $mode);
+            }
+        } else {
+            if ($productType->defaultPlacement === ProductType::DEFAULT_PLACEMENT_BEGINNING) {
+                $structuresService->prepend($this->structureId, $this, $this->getParent(), $mode);
+            } else {
+                $structuresService->append($this->structureId, $this, $this->getParent(), $mode);
+            }
+        }
     }
 
     /**
@@ -1464,6 +1532,8 @@ class Product extends Element implements HasStoreInterface
      */
     public function beforeSave(bool $isNew): bool
     {
+        $productType = $this->getType();
+
         // Make sure the entry has at least one revision if the section has versioning enabled
         if ($this->_shouldSaveRevision()) {
             $hasRevisions = self::find()
@@ -1484,6 +1554,30 @@ class Product extends Element implements HasStoreInterface
                     $revisionNotes = 'Revision from ' . Craft::$app->getFormatter()->asDatetime($currentProduct->dateUpdated);
                     Craft::$app->getRevisions()->createRevision($currentProduct, notes: $revisionNotes);
                 }
+            }
+        }
+
+        // Set the structure ID for Element::attributes() and afterSave()
+        if ($productType->type === ProductType::TYPE_ORDERABLE) {
+            $this->structureId = $productType->structureId;
+
+            // Has the entry been assigned to a new parent?
+            if (!$this->duplicateOf && $this->hasNewParent()) {
+                if ($parentId = $this->getParentId()) {
+                    $parentProduct = Plugin::getInstance()->getProducts()->getProductById($parentId, '*', [
+                        'preferSites' => [$this->siteId],
+                        'drafts' => null,
+                        'draftOf' => false,
+                    ]);
+
+                    if (!$parentProduct) {
+                        throw new InvalidConfigException("Invalid parent ID: $parentId");
+                    }
+                } else {
+                    $parentEntry = null;
+                }
+
+                $this->setParent($parentEntry);
             }
         }
 

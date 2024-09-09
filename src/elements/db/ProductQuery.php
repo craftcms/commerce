@@ -18,6 +18,7 @@ use craft\db\QueryAbortedException;
 use craft\elements\db\ElementQuery;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
+use craft\models\Section;
 use DateTime;
 use yii\db\Connection;
 use yii\db\Expression;
@@ -42,6 +43,7 @@ use yii\db\Expression;
  * @supports-slug-param
  * @supports-uri-param
  * @supports-status-param
+ * @supports-structure-params
  */
 class ProductQuery extends ElementQuery
 {
@@ -103,7 +105,10 @@ class ProductQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    protected array $defaultOrderBy = ['commerce_products.postDate' => SORT_DESC];
+    protected array $defaultOrderBy = [
+        'commerce_products.postDate' => SORT_DESC,
+        'elements.id' => SORT_DESC,
+    ];
 
     /**
      * @inheritdoc
@@ -117,6 +122,19 @@ class ProductQuery extends ElementQuery
 
         parent::__construct($elementType, $config);
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function init(): void
+    {
+        if (!isset($this->withStructure)) {
+            $this->withStructure = true;
+        }
+
+        parent::init();
+    }
+
 
     /**
      * @inheritdoc
@@ -413,6 +431,11 @@ class ProductQuery extends ElementQuery
      */
     public function type(mixed $value): static
     {
+        // If the value is a product type handle, swap it with the section
+        if (is_string($value) && ($section = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle($value))) {
+            $value = $section;
+        }
+
         if ($value instanceof ProductType) {
             $this->typeId = [$value->id];
         } elseif ($value !== null) {
@@ -768,9 +791,7 @@ class ProductQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseDateParam('commerce_products.expiryDate', $this->expiryDate));
         }
 
-        if (isset($this->typeId)) {
-            $this->subQuery->andWhere(['commerce_products.typeId' => $this->typeId]);
-        }
+        $this->_applyProductTypeIdParam();
 
         if (isset($this->defaultPrice)) {
             $this->subQuery->andWhere(Db::parseParam('catalogprices.price', $this->defaultPrice));
@@ -884,6 +905,30 @@ class ProductQuery extends ElementQuery
         $this->subQuery->andWhere([
             'commerce_products.typeId' => Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds(),
         ]);
+    }
+
+    /**
+     * Applies the 'productTypeId' param to the query being prepared.
+     */
+    private function _applyProductTypeIdParam(): void
+    {
+        if ($this->typeId) {
+            $this->subQuery->andWhere(['commerce_products.typeId' => $this->typeId]);
+
+            // Should we set the structureId param?
+            if (
+                $this->withStructure !== false &&
+                !isset($this->structureId) &&
+                count($this->typeId) === 1
+            ) {
+                $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById(reset($this->typeId));
+                if ($productType && $productType->type === ProductType::TYPE_ORDERABLE) {
+                    $this->structureId = $productType->structureId;
+                } else {
+                    $this->withStructure = false;
+                }
+            }
+        }
     }
 
     /**

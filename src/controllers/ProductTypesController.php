@@ -61,6 +61,17 @@ class ProductTypesController extends BaseAdminController
             }
         }
 
+        $typeOptions = [
+            ProductType::TYPE_CHANNEL => Craft::t('app', 'Channel'),
+            ProductType::TYPE_ORDERABLE => Craft::t('commerce', 'Orderable'),
+        ];
+
+        if (!$variables['productType']->type) {
+            $variables['productType']->type = ProductType::TYPE_CHANNEL;
+        }
+
+        $variables['typeOptions'] = $typeOptions;
+
         if (!empty($variables['productTypeId'])) {
             $variables['title'] = $variables['productType']->name;
         } else {
@@ -110,8 +121,17 @@ class ProductTypesController extends BaseAdminController
         }
 
         $this->requirePostRequest();
+        $productTypeId = $this->request->getBodyParam('productTypeId');
 
-        $productType = new ProductType();
+        if($productTypeId) {
+            $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($productTypeId);
+
+            if (!$productType) {
+                throw new BadRequestHttpException("Invalid section ID: $productTypeId");
+            }
+        } else {
+            $productType = new ProductType();
+        }
 
         // Shared attributes
         $productType->id = $this->request->getBodyParam('productTypeId');
@@ -130,8 +150,9 @@ class ProductTypesController extends BaseAdminController
         $productType->variantTitleTranslationKeyFormat = $this->request->getBodyParam('variantTitleTranslationKeyFormat', $productType->variantTitleTranslationKeyFormat);
         $productType->skuFormat = $this->request->getBodyParam('skuFormat');
         $productType->descriptionFormat = $this->request->getBodyParam('descriptionFormat');
-        $productType->propagationMethod = PropagationMethod::tryFrom($this->request->getBodyParam('propagationMethod') ?? '')
-            ?? PropagationMethod::All;
+        $productType->propagationMethod = PropagationMethod::tryFrom($this->request->getBodyParam('propagationMethod') ?? '') ?? PropagationMethod::All;
+        $productType->type = $this->request->getBodyParam('type');
+        $productType->defaultPlacement = $this->request->getBodyParam('defaultPlacement');
 
         // Site-specific settings
         $allSiteSettings = [];

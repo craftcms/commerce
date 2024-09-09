@@ -10,6 +10,8 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\elements\Product;
 use craft\commerce\Plugin;
+use craft\db\Query;
+use craft\db\Table;
 use craft\events\SiteEvent;
 use craft\helpers\Queue;
 use craft\queue\jobs\PropagateElements;
@@ -30,9 +32,23 @@ class Products extends Component
      * @param int|null $siteId
      * @return Product|null
      */
-    public function getProductById(int $id, int $siteId = null): ?Product
+    public function getProductById(int $id, int $siteId = null, array $criteria = []): ?Product
     {
-        return Craft::$app->getElements()->getElementById($id, Product::class, $siteId);
+        if(!$id){
+            return null;
+        }
+
+        // Get the structure ID
+        if (!isset($criteria['structureId'])) {
+            $criteria['structureId'] = (new Query())
+                ->select(['productTypes.structureId'])
+                ->from(['products' => \craft\commerce\db\Table::PRODUCTS])
+                ->innerJoin(['productTypes' => \craft\commerce\db\Table::PRODUCTTYPES], '[[productTypes.id]] = [[products.sectionId]]')
+                ->where(['products.id' => $id])
+                ->scalar();
+        }
+
+        return Craft::$app->getElements()->getElementById($id, Product::class, $siteId, $criteria);
     }
 
     /**
