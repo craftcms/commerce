@@ -42,7 +42,7 @@ class Products extends Component
             $criteria['structureId'] = (new Query())
                 ->select(['productTypes.structureId'])
                 ->from(['products' => \craft\commerce\db\Table::PRODUCTS])
-                ->innerJoin(['productTypes' => \craft\commerce\db\Table::PRODUCTTYPES], '[[productTypes.id]] = [[products.sectionId]]')
+                ->innerJoin(['productTypes' => \craft\commerce\db\Table::PRODUCTTYPES], '[[productTypes.id]] = [[products.typeId]]')
                 ->where(['products.id' => $id])
                 ->scalar();
         }
