@@ -256,7 +256,7 @@ class Product extends Element implements HasStoreInterface
                 ],
                 'criteria' => [
                     'typeId' => $productType->id,
-                    'editable' => $editable
+                    'editable' => $editable,
                 ],
                 // Get site ids enabled for this product type
                 'sites' => $productType->getSiteIds(),
@@ -269,8 +269,6 @@ class Product extends Element implements HasStoreInterface
             } else {
                 $sources[$key]['defaultSort'] = ['postDate', 'desc'];
             }
-
-
         }
 
         return $sources;

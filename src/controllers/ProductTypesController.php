@@ -123,7 +123,7 @@ class ProductTypesController extends BaseAdminController
         $this->requirePostRequest();
         $productTypeId = $this->request->getBodyParam('productTypeId');
 
-        if($productTypeId) {
+        if ($productTypeId) {
             $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($productTypeId);
 
             if (!$productType) {

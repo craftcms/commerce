@@ -11,7 +11,6 @@ use Craft;
 use craft\commerce\elements\Product;
 use craft\commerce\Plugin;
 use craft\db\Query;
-use craft\db\Table;
 use craft\events\SiteEvent;
 use craft\helpers\Queue;
 use craft\queue\jobs\PropagateElements;
@@ -34,7 +33,7 @@ class Products extends Component
      */
     public function getProductById(int $id, int $siteId = null, array $criteria = []): ?Product
     {
-        if(!$id){
+        if (!$id) {
             return null;
         }
 

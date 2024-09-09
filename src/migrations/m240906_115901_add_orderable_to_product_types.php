@@ -2,7 +2,6 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\commerce\models\ProductType;
 use craft\db\Migration;
 use craft\db\Table;
@@ -18,17 +17,16 @@ class m240906_115901_add_orderable_to_product_types extends Migration
     public function safeUp(): bool
     {
         if (!$this->db->columnExists('{{%commerce_producttypes}}', 'defaultPlacement')) {
-
             $this->addColumn('{{%commerce_producttypes}}', 'defaultPlacement', $this->enum('defaultPlacement', [
                     ProductType::DEFAULT_PLACEMENT_BEGINNING,
-                    ProductType::DEFAULT_PLACEMENT_END]
+                    ProductType::DEFAULT_PLACEMENT_END, ]
             )->defaultValue('end')->notNull());
         }
 
         if (!$this->db->columnExists('{{%commerce_producttypes}}', 'type')) {
             $this->addColumn('{{%commerce_producttypes}}', 'type', $this->enum('type', [
                     ProductType::TYPE_CHANNEL,
-                    ProductType::TYPE_ORDERABLE]
+                    ProductType::TYPE_ORDERABLE, ]
             )->defaultValue('channel')->notNull());
         }
 

@@ -118,7 +118,6 @@ use craft\commerce\widgets\TotalRevenue;
 use craft\console\Application as ConsoleApplication;
 use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;
-use craft\console\controllers\utils\RepairController;
 use craft\controllers\UsersController;
 use craft\db\Query;
 use craft\debug\Module;
