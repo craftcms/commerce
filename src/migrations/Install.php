@@ -609,6 +609,7 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'type' => $this->enum('type', [ProductType::TYPE_CHANNEL, ProductType::TYPE_ORDERABLE])->notNull()->defaultValue('channel'),
             'defaultPlacement' => $this->enum('defaultPlacement', [ProductType::DEFAULT_PLACEMENT_BEGINNING, ProductType::DEFAULT_PLACEMENT_END])->defaultValue('end')->notNull(),
+            'structureId' => $this->integer(),
             'fieldLayoutId' => $this->integer(),
             'variantFieldLayoutId' => $this->integer(),
             'name' => $this->string()->notNull(),
@@ -1115,6 +1116,7 @@ class Install extends Migration
         $this->createIndex(null, Table::PRODUCTS, 'expiryDate', false);
         $this->createIndex(null, Table::PRODUCTS, 'postDate', false);
         $this->createIndex(null, Table::PRODUCTS, 'typeId', false);
+        $this->createIndex(null, Table::PRODUCTTYPES, 'structureId', false);
         $this->createIndex(null, Table::PRODUCTTYPES, 'fieldLayoutId', false);
         $this->createIndex(null, Table::PRODUCTTYPES, 'handle', true);
         $this->createIndex(null, Table::PRODUCTTYPES, 'variantFieldLayoutId', false);
@@ -1238,6 +1240,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::PRODUCTS, ['typeId'], Table::PRODUCTTYPES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PRODUCTTYPES, ['fieldLayoutId'], '{{%fieldlayouts}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTTYPES, ['variantFieldLayoutId'], '{{%fieldlayouts}}', ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::PRODUCTTYPES, ['structureId'], CraftTable::STRUCTURES, ['id'], 'SET NULL', null);
         $this->addForeignKey(null, Table::PRODUCTTYPES_SHIPPINGCATEGORIES, ['productTypeId'], Table::PRODUCTTYPES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::PRODUCTTYPES_SHIPPINGCATEGORIES, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::PRODUCTTYPES_SITES, ['productTypeId'], Table::PRODUCTTYPES, ['id'], 'CASCADE');
