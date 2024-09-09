@@ -321,8 +321,7 @@ class Customers extends Component
             $newSourceShippingAddressId = $newAddress->id;
         } else {
             if ($saveBillingAddress) {
-                $newBillingAddress = Craft::$app->getElements()->duplicateElement(
-                    $order->getBillingAddress(),
+                $newBillingAddress = Craft::$app->getElements()->duplicateElement($order->getBillingAddress(),
                     [
                         'primaryOwner' => $order->getCustomer(),
                         'owner' => $order->getCustomer(),
@@ -354,9 +353,9 @@ class Customers extends Component
         // Manually update the order DB record to avoid looped element saves
         if ($newSourceBillingAddressId || $newSourceShippingAddressId) {
             \craft\commerce\records\Order::updateAll([
-                    'sourceBillingAddressId' => $order->sourceBillingAddressId,
-                    'sourceShippingAddressId' => $order->sourceShippingAddressId,
-                ],
+                'sourceBillingAddressId' => $order->sourceBillingAddressId,
+                'sourceShippingAddressId' => $order->sourceShippingAddressId,
+            ],
                 [
                     'id' => $order->id,
                 ]
@@ -394,7 +393,10 @@ class Customers extends Component
             }
 
             if ($billingAddress || $shippingAddress) {
-                $newAttributes = ['primaryOwner' => $user];
+                $newAttributes = [
+                    'owner' => $user,
+                    'primaryOwner' => $user,
+                ];
 
                 // If there is only one address make sure we don't add duplicates to the user
                 if ($order->hasMatchingAddresses()) {

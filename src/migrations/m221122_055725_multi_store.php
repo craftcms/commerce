@@ -62,7 +62,42 @@ class m221122_055725_multi_store extends Migration
             $this->addColumn(Table::STORES, 'primary', $this->boolean()->defaultValue(false)->notNull());
         }
 
-        $config = ['name' => 'Primary Store', 'handle' => 'primaryStore', 'primary' => true];
+        $config = [
+            'name' => 'Primary Store',
+            'handle' => 'primaryStore',
+            'primary' => true,
+        ];
+
+        $this->update(table: Table::STORES,
+            columns: $config,
+            condition: ['id' => $storeSettings['id']],
+            updateTimestamp: false
+        );
+
+        $configKeys = [
+            'name',
+            'handle',
+            'primary',
+            'allowCheckoutWithoutPayment',
+            'allowEmptyCartOnCheckout',
+            'allowPartialPaymentOnCheckout',
+            'autoSetCartShippingMethodOption',
+            'autoSetNewCartAddresses',
+            'autoSetPaymentSource',
+            'freeOrderPaymentStrategy',
+            'minimumTotalPriceStrategy',
+            'orderReferenceFormat',
+            'requireBillingAddressAtCheckout',
+            'requireShippingAddressAtCheckout',
+            'requireShippingMethodSelectionAtCheckout',
+            'useBillingAddressForTax',
+            'validateOrganizationTaxIdAsVatId',
+        ];
+
+        $config = (new Query())
+            ->select($configKeys)
+            ->from([Table::STORES])
+            ->one();
 
         $this->update(table: Table::STORES,
             columns: $config,
@@ -74,6 +109,7 @@ class m221122_055725_multi_store extends Migration
             ->select(['uid'])
             ->from([Table::STORES])
             ->scalar();
+
 
         // Make project config updates
         $projectConfig = Craft::$app->getProjectConfig();

@@ -91,10 +91,9 @@ class CatalogPricingCustomerConditionRule extends BaseConditionRule implements C
      */
     public function modifyQuery(Query $query): void
     {
-        if (!$this->customerId) {
-            return;
-        }
+        return;
 
-        // $query->andWhere(['purchasableId' => $ids]);
+        // Doesn't modify the query as the modification
+        // of the query happens in `CatalogPricingCondition::modifyQuery()` for this rule
     }
 }
