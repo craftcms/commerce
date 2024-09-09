@@ -1572,10 +1572,10 @@ class Product extends Element implements HasStoreInterface
                         throw new InvalidConfigException("Invalid parent ID: $parentId");
                     }
                 } else {
-                    $parentEntry = null;
+                    $parentProduct = null;
                 }
 
-                $this->setParent($parentEntry);
+                $this->setParent($parentProduct);
             }
         }
 

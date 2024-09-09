@@ -28,10 +28,10 @@ class Products extends Component
      * Returns a product by its ID.
      *
      * @param int $id
-     * @param int|null $siteId
+     * @param array|int|string|null $siteId
      * @return Product|null
      */
-    public function getProductById(int $id, int $siteId = null, array $criteria = []): ?Product
+    public function getProductById(int $id, array|int|string $siteId = null, array $criteria = []): ?Product
     {
         if (!$id) {
             return null;
