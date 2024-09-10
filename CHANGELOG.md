@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed XSS vulnerabilities.
+
 ## 4.6.10 - 2024-08-28
 
 - Fixed a PHP error that could occur when default addresses were set on a cart. ([#3641](https://github.com/craftcms/commerce/issues/3641))
