@@ -372,14 +372,15 @@ class Product extends Element implements HasStoreInterface
             // Delete
             $actions[] = Delete::class;
         } elseif (!empty($productTypes)) {
-            $userSession = Craft::$app->getUser();
 
+            $userSession = Craft::$app->getUser();
             $currentUser = $userSession->getIdentity();
+            $productTypeService = Plugin::getInstance()->getProductTypes();
 
             foreach ($productTypes as $productType) {
-                $canDelete = Plugin::getInstance()->getProductTypes()->hasPermission($currentUser, $productType, 'commerce-deleteProducts');
-                $canCreate = Plugin::getInstance()->getProductTypes()->hasPermission($currentUser, $productType, 'commerce-createProducts');
-                $canEdit = Plugin::getInstance()->getProductTypes()->hasPermission($currentUser, $productType, 'commerce-editProductType');
+                $canDelete = $productTypeService->hasPermission($currentUser, $productType, 'commerce-deleteProducts');
+                $canCreate = $productTypeService->hasPermission($currentUser, $productType, 'commerce-createProducts');
+                $canEdit = $productTypeService->hasPermission($currentUser, $productType, 'commerce-editProductType');
 
                 if ($canCreate) {
                     // Duplicate
@@ -1337,7 +1338,7 @@ class Product extends Element implements HasStoreInterface
                     $this->_placeInStructure($isNew, $productType);
                 }
 
-                // Update the entry’s descendants, who may be using this entry’s URI in their own URIs
+                // Update the product’s descendants, who may be using this product’s URI in their own URIs
                 if (!$isNew) {
                     Craft::$app->getElements()->updateDescendantSlugsAndUris($this, true, true);
                 }

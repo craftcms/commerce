@@ -431,9 +431,9 @@ class ProductQuery extends ElementQuery
      */
     public function type(mixed $value): static
     {
-        // If the value is a product type handle, swap it with the section
-        if (is_string($value) && ($section = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle($value))) {
-            $value = $section;
+        // If the value is a product type handle, swap it with the product type
+        if (is_string($value) && ($productType = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle($value))) {
+            $value = $productType;
         }
 
         if ($value instanceof ProductType) {
