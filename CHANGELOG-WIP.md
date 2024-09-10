@@ -2,4 +2,5 @@
 
 ## Unreleased
 
+- Improved the performance of adding to the cart.
 - Improved the performance of shipping rule matching when an order condition formula is used. ([3653](https://github.com/craftcms/commerce/pull/3653))
