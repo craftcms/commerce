@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed XSS vulnerabilities.
+
 ## 5.1.0.1 - 2024-09-05
 
 - Fixed a bug where catalog pricing rules weren’t respecting product conditions. ([#3544](https://github.com/craftcms/commerce/issues/3544))
