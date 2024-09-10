@@ -590,9 +590,9 @@ class CartController extends BaseFrontEndController
         $requestForceSave = (bool)$this->request->getBodyParam('forceSave');
         $doForceSave = ($requestForceSave || $forceSave);
 
-        $cart = Plugin::getInstance()->getCarts()->getCart(forceSave: $doForceSave);
+        $cart = Plugin::getInstance()->getCarts()->getCart($doForceSave);
 
-        if (!$cart->id) {
+        if (!$cart->id && !$doForceSave) {
             Craft::$app->getElements()->saveElement($this->_cart, false);
         }
 
