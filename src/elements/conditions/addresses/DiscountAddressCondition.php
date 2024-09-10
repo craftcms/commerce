@@ -2,6 +2,7 @@
 
 namespace craft\commerce\elements\conditions\addresses;
 
+use craft\elements\Address;
 use craft\elements\conditions\addresses\AddressCondition as ElementAddressCondition;
 use craft\elements\db\ElementQueryInterface;
 use yii\base\NotSupportedException;
@@ -14,6 +15,11 @@ use yii\base\NotSupportedException;
  */
 class DiscountAddressCondition extends ElementAddressCondition
 {
+    /**
+     * @inheritdoc
+     */
+    public ?string $elementType = Address::class;
+
     /**
      * @inheritdoc
      */
