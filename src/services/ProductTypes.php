@@ -154,17 +154,17 @@ class ProductTypes extends Component
      */
     public function getEditableProductTypeIds(): array
     {
-        $editable = [];
+        $editableIds = [];
         $user = Craft::$app->getUser()->getIdentity();
         $allProductTypes = $this->getAllProductTypes();
 
         foreach ($allProductTypes as $productType) {
             if ($this->hasPermission($user, $productType, 'commerce-editProductType')) {
-                $editable[] = $productType->id;
+                $editableIds[] = $productType->id;
             }
         }
 
-        return $editable;
+        return $editableIds;
     }
 
     /**
@@ -175,17 +175,17 @@ class ProductTypes extends Component
      */
     public function getCreatableProductTypeIds(): array
     {
-        $creatable = [];
+        $creatableIds = [];
         $user = Craft::$app->getUser()->getIdentity();
         $allProductTypes = $this->getAllProductTypes();
 
         foreach ($allProductTypes as $productType) {
             if ($this->hasPermission($user, $productType, 'commerce-createProducts')) {
-                $creatable[] = $productType->id;
+                $creatableIds[] = $productType->id;
             }
         }
 
-        return $creatable;
+        return $creatableIds;
     }
 
     /**
@@ -906,6 +906,7 @@ class ProductTypes extends Component
             $query->addSelect('productTypes.titleFormat');
         }
 
+        /** @since 5.0 */
         if ($db->columnExists(Table::PRODUCTTYPES, 'enableVersioning')) {
             $query->addSelect('productTypes.enableVersioning');
         }
@@ -920,14 +921,17 @@ class ProductTypes extends Component
             $query->addSelect('productTypes.defaultPlacement');
         }
 
+        /** @since 5.2 */
         if ($db->columnExists(Table::PRODUCTTYPES, 'structureId')) {
             $query->addSelect('productTypes.structureId');
         }
 
+        /** @since 5.1 */
         if ($db->columnExists(Table::PRODUCTTYPES, 'productTitleTranslationMethod')) {
             $query->addSelect('productTypes.productTitleTranslationMethod');
         }
 
+        /** @since 5.1 */
         if ($db->columnExists(Table::PRODUCTTYPES, 'productTitleTranslationKeyFormat')) {
             $query->addSelect('productTypes.productTitleTranslationKeyFormat');
         }
@@ -936,10 +940,12 @@ class ProductTypes extends Component
             $query->addSelect('productTypes.variantTitleTranslationMethod');
         }
 
+        /** @since 5.1 */
         if ($db->columnExists(Table::PRODUCTTYPES, 'variantTitleTranslationKeyFormat')) {
             $query->addSelect('productTypes.variantTitleTranslationKeyFormat');
         }
 
+        /** @since 5.1 */
         if ($db->columnExists(Table::PRODUCTTYPES, 'propagationMethod')) {
             $query->addSelect('productTypes.propagationMethod');
         }
