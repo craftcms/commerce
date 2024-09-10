@@ -113,7 +113,7 @@ class Store extends Model
      */
     public function extraFields(): array
     {
-        $fields =  parent::extraFields();
+        $fields = parent::extraFields();
         $fields[] = 'locationAddress';
 
         return $fields;
