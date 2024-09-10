@@ -135,7 +135,7 @@ class CartController extends BaseFrontEndController
 
         // Get the cart from the request or from the session.
         // When we are about to update the cart, we consider it a real cart at this point, and want to actually create it in the DB.
-        $this->_cart = $this->_getCart(saveIfNew: true);
+        $this->_cart = $this->_getCart();
 
         // Can clear line items when updating the cart
         $clearLineItems = $this->request->getParam('clearLineItems');
@@ -572,7 +572,7 @@ class CartController extends BaseFrontEndController
      * @throws NotFoundHttpException
      * @throws Throwable
      */
-    private function _getCart(bool $forceSave = false, bool $saveIfNew = false): Order
+    private function _getCart(bool $forceSave = false): Order
     {
         $orderNumber = $this->request->getBodyParam('number');
 
@@ -590,7 +590,13 @@ class CartController extends BaseFrontEndController
         $requestForceSave = (bool)$this->request->getBodyParam('forceSave');
         $doForceSave = ($requestForceSave || $forceSave);
 
-        return Plugin::getInstance()->getCarts()->getCart(forceSave: $doForceSave, saveIfNew: $saveIfNew);
+        $cart = Plugin::getInstance()->getCarts()->getCart(forceSave: $doForceSave);
+
+        if (!$cart->id) {
+            Craft::$app->getElements()->saveElement($this->_cart, false);
+        }
+
+        return $cart;
     }
 
     /**
