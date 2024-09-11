@@ -21,6 +21,7 @@ use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\exporters\Expanded as CraftExpanded;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Html;
 use craft\models\FieldLayout;
 use Exception;
 
@@ -77,35 +78,35 @@ trait OrderElementTrait
             }
             case 'shippingFullName':
             {
-                return $this->getShippingAddress() ? $this->getShippingAddress()->fullName ?? '' : '';
+                return $this->getShippingAddress() ? Html::encode($this->getShippingAddress()->fullName ?? '') : '';
             }
             case 'shippingFirstName':
             {
-                return $this->getShippingAddress() ? $this->getShippingAddress()->firstName ?? '' : '';
+                return $this->getShippingAddress() ? Html::encode($this->getShippingAddress()->firstName ?? '') : '';
             }
             case 'shippingLastName':
             {
-                return $this->getShippingAddress() ? $this->getShippingAddress()->lastName ?? '' : '';
+                return $this->getShippingAddress() ? Html::encode($this->getShippingAddress()->lastName ?? '') : '';
             }
             case 'billingFullName':
             {
-                return $this->getBillingAddress() ? $this->getBillingAddress()->fullName ?? '' : '';
+                return $this->getBillingAddress() ? Html::encode($this->getBillingAddress()->fullName ?? '') : '';
             }
             case 'billingFirstName':
             {
-                return $this->getBillingAddress() ? $this->getBillingAddress()->firstName ?? '' : '';
+                return $this->getBillingAddress() ? Html::encode($this->getBillingAddress()->firstName ?? '') : '';
             }
             case 'billingLastName':
             {
-                return $this->getBillingAddress() ? $this->getBillingAddress()->lastName ?? '' : '';
+                return $this->getBillingAddress() ? Html::encode($this->getBillingAddress()->lastName ?? '') : '';
             }
             case 'shippingOrganizationName':
             {
-                return $this->getShippingAddress()->organization ?? '';
+                return $this->getShippingAddress() ? Html::encode($this->getShippingAddress()->organization ?? '') : '';
             }
             case 'billingOrganizationName':
             {
-                return $this->getBillingAddress()->organization ?? '';
+                return $this->getBillingAddress() ? Html::encode($this->getBillingAddress()->organization ?? '') : '';
             }
             case 'shippingMethodName':
             {
