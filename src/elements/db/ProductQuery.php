@@ -18,7 +18,6 @@ use craft\db\QueryAbortedException;
 use craft\elements\db\ElementQuery;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
-use craft\models\Section;
 use DateTime;
 use yii\db\Connection;
 use yii\db\Expression;

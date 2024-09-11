@@ -372,7 +372,6 @@ class Product extends Element implements HasStoreInterface
             // Delete
             $actions[] = Delete::class;
         } elseif (!empty($productTypes)) {
-
             $userSession = Craft::$app->getUser();
             $currentUser = $userSession->getIdentity();
             $productTypeService = Plugin::getInstance()->getProductTypes();
