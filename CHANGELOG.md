@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where some text wasn’t getting translated on the Edit Order page. 
+
 ## 4.6.11 - 2024-09-10
 
 - Fixed XSS vulnerabilities.
