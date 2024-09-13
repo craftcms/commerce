@@ -157,7 +157,17 @@ class PricingCatalogTest extends Unit
     }
 
     /**
+     * @param string $sku
+     * @param array|null $rules
+     * @param float|int|null $salePrice
+     * @param float|int|null $promotionalPrice
+     * @param float|int|null $price
      * @return void
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws StaleObjectException
+     * @throws Throwable
+     * @throws \yii\db\Exception
      * @dataProvider variantCatalogPricesDataProvider
      * @since 5.2.0
      */
