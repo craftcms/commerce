@@ -40,4 +40,14 @@ class UpdateInventoryLevelCollection extends Collection
         $collection = parent::make($items);
         return $collection;
     }
+
+    /**
+     * @return array
+     */
+    public function getPurchasables(): array
+    {
+        return $this->map(function(UpdateInventoryLevel $updateInventoryLevel) {
+            return $updateInventoryLevel->inventoryItem->getPurchasable();
+        })->all();
+    }
 }
