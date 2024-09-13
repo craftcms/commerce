@@ -133,17 +133,7 @@ class PricingCatalogTest extends Unit
      */
     public function testVariantCatalogPricesQuerying(string $sku, ?array $rules, float|int|null $salePrice, float|int|null $promotionalPrice, float|int|null $price): void
     {
-        $catalogPricingRules = [];
-
-        if (!empty($rules)) {
-            foreach ($rules as $rule) {
-                $catalogPricingRule = Craft::createObject($rule);
-                Plugin::getInstance()->getCatalogPricingRules()->saveCatalogPricingRule($catalogPricingRule);
-                $catalogPricingRules[] = $catalogPricingRule->id;
-            }
-
-            Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices();
-        }
+        $catalogPricingRules = $this->_createCatalogPricingRules($rules);
 
         $variant = Variant::find()->price($price)->one();
         self::assertInstanceof(Variant::class, $variant);
@@ -163,8 +153,69 @@ class PricingCatalogTest extends Unit
         self::assertEquals($salePrice, $variant->getSalePrice());
 
         // Tidy up at the end of the test
-        if (!empty($catalogPricingRules)) {
-            foreach ($catalogPricingRules as $catalogPricingRule) {
+        $this->_deleteCatalogPricingRules($catalogPricingRules);
+    }
+
+    /**
+     * @return void
+     * @dataProvider variantCatalogPricesDataProvider
+     * @since 5.2.0
+     */
+    public function testVariantHasPromotionalPrice(string $sku, ?array $rules, float|int|null $salePrice, float|int|null $promotionalPrice, float|int|null $price): void
+    {
+        $catalogPricingRules = $this->_createCatalogPricingRules($rules);
+
+        $variantHasPromotionalPrice = Variant::find()->hasPromotionalPrice()->one();
+        $variantHasntPromotionalPrice = Variant::find()->hasPromotionalPrice(false)->one();
+
+        if ($promotionalPrice !== null) {
+            self::assertInstanceof(Variant::class, $variantHasPromotionalPrice);
+            self::assertEquals($sku, $variantHasPromotionalPrice->getSku());
+            self::assertEquals($promotionalPrice, $variantHasPromotionalPrice->getPromotionalPrice());
+        } else {
+            self::assertNull($variantHasPromotionalPrice);
+        }
+
+        $this->_deleteCatalogPricingRules($catalogPricingRules);
+    }
+
+    /**
+     * @param array|null $rules
+     * @return array
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws \yii\db\Exception
+     */
+    private function _createCatalogPricingRules(?array $rules): array
+    {
+        $catalogPricingRules = [];
+
+        if (!empty($rules)) {
+            foreach ($rules as $rule) {
+                $catalogPricingRule = Craft::createObject($rule);
+                Plugin::getInstance()->getCatalogPricingRules()->saveCatalogPricingRule($catalogPricingRule);
+                $catalogPricingRules[] = $catalogPricingRule->id;
+            }
+
+            Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices();
+        }
+
+        return $catalogPricingRules;
+    }
+
+    /**
+     * @param array|null $rules
+     * @return void
+     * @throws InvalidConfigException
+     * @throws StaleObjectException
+     * @throws Throwable
+     * @throws \yii\db\Exception
+     */
+    private function _deleteCatalogPricingRules(?array $rules): void
+    {
+        // Tidy up at the end of the test
+        if (!empty($rules)) {
+            foreach ($rules as $catalogPricingRule) {
                 Plugin::getInstance()->getCatalogPricingRules()->deleteCatalogPricingRuleById($catalogPricingRule);
             }
 
