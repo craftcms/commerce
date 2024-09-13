@@ -744,10 +744,10 @@ abstract class PurchasableQuery extends ElementQuery
 
         if (isset($this->hasPromotionalPrice)) {
             if ($this->hasPromotionalPrice) {
-                $this->subQuery->andWhere(new Expression('catalogprices.promotionalPrice < catalogprices.price'));
+                $this->subQuery->andWhere(new Expression('[[catalogprices.promotionalPrice]] < [[catalogprices.price]]'));
             } else {
                 // Commerce normalizes these when selecting/aggregating, so the values will actually be the same when a promotional price doesn't exist. This means it's not technically possible to distinguish between an *unset* promotional price and a promotional price that ended up being the same as the regular price. It’s also ambiguous when a pricing rule sets a `promotionalPrice` based on the original `price`!
-                $this->subQuery->andWhere(new Expression('catalogprices.price = catalogprices.promotionalPrice'));
+                $this->subQuery->andWhere(new Expression('[[catalogprices.price]] = [[catalogprices.promotionalPrice]]'));
             }
         }
 
