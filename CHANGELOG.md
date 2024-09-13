@@ -4,7 +4,7 @@
 
 - Fixed a bug where aggregate store stock levels weren’t being updated when inventory was updated. ([#3668](https://github.com/craftcms/commerce/issues/3668))
 
-## 5.1.1  - 2024-09-10
+## 5.1.1 - 2024-09-10
 
 - Fixed XSS vulnerabilities.
 
