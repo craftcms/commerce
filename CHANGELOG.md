@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## 5.1.1  - 2024-09-10
+## 5.1.1 - 2024-09-10
 
 - Fixed XSS vulnerabilities.
 
