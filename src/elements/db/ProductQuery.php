@@ -574,7 +574,8 @@ class ProductQuery extends ElementQuery
      *
      * | Value | Fetches {elements}…
      * | - | -
-     * | a [[VariantQuery|VariantQuery]] object | with variants that match the query.
+     * | a [[VariantQuery]] object | with variants that match the query.
+     * | a configuration [[array]] for a [[VariantQuery]] | with variants that match the criteria.
      *
      * @param VariantQuery|array $value The property value
      * @return static self reference
