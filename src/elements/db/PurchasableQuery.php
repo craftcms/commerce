@@ -52,6 +52,16 @@ abstract class PurchasableQuery extends ElementQuery
     public mixed $promotionalPrice = null;
 
     /**
+     * @var bool|null
+     */
+    public bool|null $hasPromotionalPrice = null;
+
+    /**
+     * @var bool|null
+     */
+    public bool|null $isOnPromotion = null;
+
+    /**
      * @var mixed|null
      */
     public mixed $salePrice = null;
@@ -624,6 +634,62 @@ abstract class PurchasableQuery extends ElementQuery
     }
 
     /**
+     * Return only purchasables with an active promotional price via catalog pricing rules (or which *do not* have an active promotional price).
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `true` | with a promotional price.
+     * | `false` | without a promotional price.
+     * | `null` | without taking into consideration the relationship between their price and promotional price.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     */
+    public function hasPromotionalPrice(bool|null $value = true): static
+    {
+        $this->hasPromotionalPrice = $value;
+        return $this;
+    }
+
+    /**
+     * Return only purchasables with a promotional price less than their price. This respects catalog pricing, and matches the return value from [[Purchasable::getIsOnPromotion()]].
+     *
+     * This method does not compare catalog prices against *base* prices, so even if a price is reduced by a rule, the purchasable will only be returned when the promotional price is less. In the same way, passing `false` *can* return purchasables with prices lower than their base price!
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `true` | with a promotional price less than its price.
+     * | `false` | with no promotional price, or a promotional price that is equal to its price.
+     * | `null` | without considering the relationship between their price and promotional price.
+     *
+     * Combine with [[forCustomer()]] to check whether a specific user (or a guest) would be eligible for promotional pricing.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} that are on promotion: #}
+     * {% set {elements-var} = {twig-method}
+     *   .isOnPromotion(true)
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} that are on promotion:
+     * ${elements-var} = {php-method}
+     *     ->isOnPromotion(true)
+     *     ->all();
+     * ```
+     * 
+     * @param bool|null $value The property value
+     * @return static self reference
+     */
+    public function isOnPromotion(bool|null $value = true): static
+    {
+        $this->isOnPromotion = $value;
+        return $this;
+    }
+
+    /**
      * @inheritdoc
      */
     protected function afterPrepare(): bool
@@ -716,6 +782,25 @@ abstract class PurchasableQuery extends ElementQuery
         if (isset($this->promotionalPrice)) {
             $this->subQuery->andWhere(Db::parseNumericParam('catalogprices.promotionalPrice', $this->promotionalPrice));
         }
+
+        if (isset($this->hasPromotionalPrice)) {
+            if ($this->hasPromotionalPrice) {
+                $this->subQuery->andWhere(new Expression('catalogprices.price != catalogprices.promotionalPrice'));
+            } else {
+                // Commerce normalizes these when selecting/aggregating, so the values will actually be the same when a promotional price doesn't exist. This means it's not technically possible to distinguish between an *unset* promotional price and a promotional price that ended up being the same as the regular price. It’s also ambiguous when a pricing rule sets a `promotionalPrice` based on the original `price`!
+                $this->subQuery->andWhere(new Expression('catalogprices.price = catalogprices.promotionalPrice'));
+            }
+        }
+
+        if (isset($this->isOnPromotion)) {
+            if ($this->isOnPromotion) {
+                $this->subQuery->andWhere(new Expression('catalogprices.price > catalogprices.promotionalPrice'));
+            } else {
+                // Effective price is less than or equal to effective promotional price (`price` should never be less than `promotionalPrice` based on how they’re aggregated in the pricing subquery—but semantically, this matches what we’re trying to do):
+                $this->subQuery->andWhere(new Expression('catalogprices.price <= catalogprices.promotionalPrice'));
+            }
+        }
+
 
         if (isset($this->salePrice)) {
             $this->subQuery->andWhere(Db::parseNumericParam('catalogprices.salePrice' , $this->salePrice));
