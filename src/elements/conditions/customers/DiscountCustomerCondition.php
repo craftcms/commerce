@@ -4,6 +4,7 @@ namespace craft\commerce\elements\conditions\customers;
 
 use craft\commerce\elements\conditions\users\DiscountGroupConditionRule;
 use craft\elements\conditions\users\UserCondition as UserElementCondition;
+use craft\elements\User;
 
 /**
  * Discount Order condition.
@@ -13,6 +14,11 @@ use craft\elements\conditions\users\UserCondition as UserElementCondition;
  */
 class DiscountCustomerCondition extends UserElementCondition
 {
+    /**
+     * @inheritdoc
+     */
+    public ?string $elementType = User::class;
+
     /**
      * @inheritdoc
      */
