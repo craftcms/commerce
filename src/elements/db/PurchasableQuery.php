@@ -679,7 +679,7 @@ abstract class PurchasableQuery extends ElementQuery
      *     ->isOnPromotion(true)
      *     ->all();
      * ```
-     * 
+     *
      * @param bool|null $value The property value
      * @return static self reference
      */
