@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where aggregate store stock levels weren’t being updated when inventory was updated. ([#3668](https://github.com/craftcms/commerce/issues/3668))
+- Fixed a bug where addresses weren’t being automatically added on the Edit Order page. ([#3673](https://github.com/craftcms/commerce/issues/3673))
 
 ## 5.1.1 - 2024-09-10
 
