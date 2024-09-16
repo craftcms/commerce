@@ -29,7 +29,7 @@ class ResetDataController extends Controller
      */
     public function actionIndex(): int
     {
-        $reset = $this->prompt('Resetting Commerce data will permanently delete all orders, subscriptions, payment sources, customer data, addresses, inventory transactions, and and reset discount usages ... do you wish to continue?', [
+        $reset = $this->prompt('Resetting Commerce data will permanently delete all orders, subscriptions, payment sources, customer data, addresses, inventory stock levels and transactions, and and reset discount usages ... do you wish to continue?', [
             'required' => true,
             'default' => 'no',
             'validator' => function($input) {
