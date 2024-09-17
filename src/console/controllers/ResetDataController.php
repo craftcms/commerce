@@ -29,7 +29,7 @@ class ResetDataController extends Controller
      */
     public function actionIndex(): int
     {
-        $reset = $this->prompt('Resetting Commerce data will permanently delete all orders, subscriptions, payment sources, customers, addresses and reset discount usages ... do you wish to continue?', [
+        $reset = $this->prompt('Resetting Commerce data will permanently delete all orders, subscriptions, payment sources, customer data, addresses, inventory stock levels and transactions, and and reset discount usages ... do you wish to continue?', [
             'required' => true,
             'default' => 'no',
             'validator' => function($input) {
@@ -60,6 +60,14 @@ class ResetDataController extends Controller
                     ->execute();
 
                 $this->stdout($count . ' orders deleted.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
+
+                // Inventory
+                $this->stdout('Deleting inventory transactions ...' . PHP_EOL, Console::FG_GREEN);
+                $count = Craft::$app->getDb()->createCommand()
+                    ->delete(Table::INVENTORYTRANSACTIONS)
+                    ->execute();
+
+                $this->stdout($count . ' inventory transactions deleted.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
 
                 // Subscriptions
                 $this->stdout('Deleting subscriptions ...' . PHP_EOL, Console::FG_GREEN);
