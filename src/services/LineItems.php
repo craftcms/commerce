@@ -275,12 +275,11 @@ class LineItems extends Component
         $lineItemRecord->isShippable = null;
         $lineItemRecord->isTaxable = null;
 
-        if ($lineItem->type === LineItemType::Custom) {
-            $lineItemRecord->hasFreeShipping = $lineItem->getHasFreeShipping();
-            $lineItemRecord->isPromotable = $lineItem->getIsPromotable();
-            $lineItemRecord->isShippable = $lineItem->getIsShippable();
-            $lineItemRecord->isTaxable = $lineItem->getIsTaxable();
-        }
+        // Save this information for all line item types, even though live lookups will happen for line items with purchasables
+        $lineItemRecord->hasFreeShipping = $lineItem->getHasFreeShipping();
+        $lineItemRecord->isPromotable = $lineItem->getIsPromotable();
+        $lineItemRecord->isShippable = $lineItem->getIsShippable();
+        $lineItemRecord->isTaxable = $lineItem->getIsTaxable();
 
         $lineItemRecord->purchasableId = $lineItem->purchasableId;
         $lineItemRecord->orderId = $lineItem->orderId;
