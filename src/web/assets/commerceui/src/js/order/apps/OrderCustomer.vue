@@ -204,7 +204,7 @@
         },
 
         methods: {
-            ...mapActions(['edit', 'getAddressById', 'recalculateOrder']),
+            ...mapActions(['edit', 'recalculateOrder']),
 
             enableEditMode() {
                 this.editMode = true;
@@ -306,52 +306,7 @@
                     this.photo = customer.photo;
                     this.draft = draft;
 
-                    if (
-                        !draft.order.isCompleted &&
-                        this.autoSetNewCartAddresses &&
-                        (customer.primaryBillingAddressId ||
-                            customer.primaryShippingAddressId)
-                    ) {
-                        let billingPromise = true;
-                        if (customer.primaryBillingAddressId) {
-                            billingPromise = this.getAddressById(
-                                customer.primaryBillingAddressId
-                            ).then((address) => {
-                                if (address) {
-                                    address['id'] = 'new';
-                                    $this.updateAddress(
-                                        'billing',
-                                        address,
-                                        false
-                                    );
-                                }
-                            });
-                        }
-
-                        let shippingPromise = true;
-                        if (customer.primaryShippingAddressId) {
-                            shippingPromise = this.getAddressById(
-                                customer.primaryShippingAddressId
-                            ).then((address) => {
-                                if (address) {
-                                    address['id'] = 'new';
-                                    $this.updateAddress(
-                                        'shipping',
-                                        address,
-                                        false
-                                    );
-                                }
-                            });
-                        }
-
-                        Promise.all([billingPromise, shippingPromise]).then(
-                            () => {
-                                $this.recalculate();
-                            }
-                        );
-                    } else {
-                        this.recalculate();
-                    }
+                    this.recalculate();
                 }
             },
 

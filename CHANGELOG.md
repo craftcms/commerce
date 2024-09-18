@@ -5,6 +5,7 @@
 - Fixed a bug where shipping method names were invalid when they contained the same name in another store. ([#3676](https://github.com/craftcms/commerce/issues/3676))
 - Fixed a bug where modified parameters in the `\craft\commerce\events\CreateSubscriptionEvent` were not being passed to the gateway.
 - Fixed a bug where aggregate store stock levels weren’t being updated when inventory was updated. ([#3668](https://github.com/craftcms/commerce/issues/3668))
+- Fixed a bug where addresses weren’t being automatically added on the Edit Order page. ([#3673](https://github.com/craftcms/commerce/issues/3673))
 - Fixed a PHP error that could occur when viewing the Edit Order page after deleting a purchasable. ([#3677](https://github.com/craftcms/commerce/issues/3677))
 
 ## 5.1.1 - 2024-09-10
