@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed a bug where some text wasn’t getting translated on the Edit Order page.
+- Fixed a bug where some strings weren’t getting translated on Edit Order screens.
 - Fixed a JavaScript error that could occur when editing an order.
 
 ## 4.6.11 - 2024-09-10
