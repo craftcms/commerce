@@ -802,7 +802,8 @@ class LineItem extends Model
      */
     public function getHasFreeShipping(): bool
     {
-        if ($this->type === LineItemType::Purchasable) {
+        // For purchasable line item types try and get the live data
+        if ($this->type === LineItemType::Purchasable && $this->getPurchasable()) {
             return $this->getPurchasable()->hasFreeShipping();
         }
 
@@ -959,7 +960,8 @@ class LineItem extends Model
      */
     public function getIsPromotable(): bool
     {
-        if ($this->type === LineItemType::Purchasable) {
+        // For purchasable line item types try and get the live data
+        if ($this->type === LineItemType::Purchasable && $this->getPurchasable()) {
             return $this->getPurchasable()->getIsPromotable();
         }
 
@@ -1083,7 +1085,7 @@ class LineItem extends Model
         }
 
         if (!$this->getPurchasable()) {
-            return true; // we have a default tax category so assume so.
+            return $this->_isTaxable ?? true; // we have a default tax category so assume so.
         }
 
         return $this->getPurchasable()->getIsTaxable();
@@ -1109,7 +1111,7 @@ class LineItem extends Model
         }
 
         if (!$this->getPurchasable()) {
-            return true; // we have a default shipping category so assume so.
+            return $this->_isShippable ?? true; // we have a default shipping category so assume so.
         }
 
         return Plugin::getInstance()->getPurchasables()->isPurchasableShippable($this->getPurchasable(), $this->getOrder());

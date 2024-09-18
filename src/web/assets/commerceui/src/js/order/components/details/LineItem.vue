@@ -854,7 +854,11 @@
                         this.onPromotionalPriceChange
                     );
 
-                    this.promotionalPriceInput.inputmask(this.maskOptions);
+                    // Make sure mask is cleared when input is empty
+                    this.promotionalPriceInput.inputmask({
+                        ...this.maskOptions,
+                        ...{nullable: true, clearMaskOnLostFocus: true},
+                    });
                 }
 
                 if (this.priceInput === null && this.$refs.price) {
