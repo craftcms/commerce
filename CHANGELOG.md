@@ -5,7 +5,6 @@
 - Fixed a bug where shipping method names were invalid when they contained the same name in another store. ([#3676](https://github.com/craftcms/commerce/issues/3676))
 - Fixed a bug where modified parameters in the `\craft\commerce\events\CreateSubscriptionEvent` were not being passed to the gateway.
 - Fixed a bug where aggregate store stock levels weren’t being updated when inventory was updated. ([#3668](https://github.com/craftcms/commerce/issues/3668))
-- The `commerce/reset-data` command now clears inventory transactions.
 
 ## 5.1.1 - 2024-09-10
 
