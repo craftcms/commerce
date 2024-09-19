@@ -7,6 +7,8 @@
 - Fixed a bug where stores’ aggregate stock levels weren’t getting updated when inventory changed. ([#3668](https://github.com/craftcms/commerce/issues/3668))
 - Fixed a bug where addresses weren’t being automatically added on Edit Order screens. ([#3673](https://github.com/craftcms/commerce/issues/3673))
 - Fixed a PHP error that could occur when viewing an Edit Order screen after deleting a purchasable. ([#3677](https://github.com/craftcms/commerce/issues/3677))
+- Fixed a bug where some strings weren’t getting translated on Edit Order screens.
+- Fixed a JavaScript error that could occur when editing an order.
 
 ## 5.1.1 - 2024-09-10
 
