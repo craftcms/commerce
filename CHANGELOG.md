@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.6.12 - 2024-09-19
 
 - Fixed a bug where some strings weren’t getting translated on Edit Order screens.
 - Fixed a JavaScript error that could occur when editing an order.
