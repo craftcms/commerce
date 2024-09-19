@@ -224,7 +224,10 @@
                     .then(() => {
                         this.$store.dispatch(
                             'displayNotice',
-                            'Order recalculated.'
+                            this.$options.filters.t(
+                                'Order recalculated.',
+                                'commerce'
+                            )
                         );
                     })
                     .catch((error) => {
@@ -242,7 +245,10 @@
                         .then(() => {
                             this.$store.dispatch(
                                 'displayNotice',
-                                'Order recalculated.'
+                                this.$options.filters.t(
+                                    'Order recalculated.',
+                                    'commerce'
+                                )
                             );
                         })
                         .catch((error) => {

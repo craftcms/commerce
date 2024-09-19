@@ -1,8 +1,14 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.1.2 - 2024-09-19
 
-- Fixed a bug where aggregate store stock levels weren’t being updated when inventory was updated. ([#3668](https://github.com/craftcms/commerce/issues/3668))
+- Fixed a bug where shipping methods weren’t validating if a shipping method in a different store had the same name. ([#3676](https://github.com/craftcms/commerce/issues/3676))
+- Fixed a bug where any modifications to `craft\commerce\events\CreateSubscriptionEvent::$parameters` weren’t being passed to the gateway’s `subscribe()` method.
+- Fixed a bug where stores’ aggregate stock levels weren’t getting updated when inventory changed. ([#3668](https://github.com/craftcms/commerce/issues/3668))
+- Fixed a bug where addresses weren’t being automatically added on Edit Order screens. ([#3673](https://github.com/craftcms/commerce/issues/3673))
+- Fixed a PHP error that could occur when viewing an Edit Order screen after deleting a purchasable. ([#3677](https://github.com/craftcms/commerce/issues/3677))
+- Fixed a bug where some strings weren’t getting translated on Edit Order screens.
+- Fixed a JavaScript error that could occur when editing an order.
 
 ## 5.1.1 - 2024-09-10
 

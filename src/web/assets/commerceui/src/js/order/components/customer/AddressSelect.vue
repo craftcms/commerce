@@ -142,6 +142,10 @@
             },
 
             isLoadMoreVisible() {
+                if (!this.$store.state.draft.order.customer) {
+                    return false;
+                }
+
                 if (
                     this.draft.order &&
                     this.draft.order.customer &&
