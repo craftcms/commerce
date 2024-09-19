@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.1.2 - 2024-09-19
 
 - Fixed a bug where shipping methods weren’t validating if a shipping method in a different store had the same name. ([#3676](https://github.com/craftcms/commerce/issues/3676))
 - Fixed a bug where any modifications to `craft\commerce\events\CreateSubscriptionEvent::$parameters` weren’t being passed to the gateway’s `subscribe()` method.
