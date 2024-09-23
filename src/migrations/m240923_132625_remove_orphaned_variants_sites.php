@@ -29,7 +29,7 @@ class m240923_132625_remove_orphaned_variants_sites extends Migration
         );
 
         // Find all existing combinations of variant and site IDs
-        $allVariantsSites = (new Query)
+        $allVariantsSites = (new Query())
             ->select(['es.id', 'elementId', 'siteId', 'primaryOwnerId'])
             ->from('{{%elements_sites}}' . ' es')
             ->innerJoin('{{%commerce_variants}}' . ' v', '[[es.elementId]] = [[v.id]]')
