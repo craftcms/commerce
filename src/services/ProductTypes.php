@@ -27,6 +27,7 @@ use craft\events\DeleteSiteEvent;
 use craft\events\SiteEvent;
 use craft\helpers\App;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\helpers\Db;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
@@ -163,9 +164,9 @@ class ProductTypes extends Component
         $editableProductTypeIds = $this->getEditableProductTypeIds();
         $editableProductTypes = [];
 
-        foreach ($this->getAllProductTypes() as $productTypes) {
-            if (in_array($productTypes->id, $editableProductTypeIds, false)) {
-                $editableProductTypes[] = $productTypes;
+        foreach ($this->getAllProductTypes() as $productType) {
+            if (in_array($productType->id, $editableProductTypeIds, false)) {
+                $editableProductTypes[] = $productType;
             }
         }
 
@@ -184,10 +185,22 @@ class ProductTypes extends Component
             $allProductTypes = $this->getAllProductTypes();
 
             $user = Craft::$app->getUser()->getIdentity();
+            if (!$user) {
+                return [];
+            }
+
+            $cpSite = Cp::requestedSite();
+
             foreach ($allProductTypes as $productType) {
-                if (Plugin::getInstance()->getProductTypes()->hasPermission($user, $productType, 'commerce-editProductType')) {
-                    $this->_editableProductTypeIds[] = $productType->id;
+                if (!Plugin::getInstance()->getProductTypes()->hasPermission($user, $productType, 'commerce-editProductType')) {
+                    continue;
                 }
+
+                if ($cpSite && !isset($productType->getSiteSettings()[$cpSite->id])) {
+                    continue;
+                }
+
+                $this->_editableProductTypeIds[] = $productType->id;
             }
         }
 
