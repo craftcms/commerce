@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a bug where variants weren’t respecting their owner’s propagation method.
 - Fixed a PHP error that could occur when creating a new product. 
 
 ## 5.1.2 - 2024-09-19
