@@ -171,12 +171,12 @@ class PricingCatalogTest extends Unit
      * @dataProvider variantCatalogPricesDataProvider
      * @since 5.2.0
      */
-    public function testVariantHasPromotionalPrice(string $sku, ?array $rules, float|int|null $salePrice, float|int|null $promotionalPrice, float|int|null $price): void
+    public function testVariantOnPromotion(string $sku, ?array $rules, float|int|null $salePrice, float|int|null $promotionalPrice, float|int|null $price): void
     {
         $catalogPricingRules = $this->_createCatalogPricingRules($rules);
 
-        $variantHasPromotionalPrice = Variant::find()->hasPromotionalPrice()->one();
-        $variantHasntPromotionalPrice = Variant::find()->hasPromotionalPrice(false)->one();
+        $variantHasPromotionalPrice = Variant::find()->onPromotion()->one();
+        $variantHasntPromotionalPrice = Variant::find()->onPromotion(false)->one();
 
         if ($promotionalPrice !== null) {
             self::assertInstanceof(Variant::class, $variantHasPromotionalPrice);

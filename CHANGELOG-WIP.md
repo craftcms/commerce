@@ -5,11 +5,11 @@
 ### Administration
 
 ### Development
-- Added the `hasPromotionalPrice` purchasable query param.
-- Added the `hasPromotionalPrice` GraphQL variant query argument.
+- Added the `onPromotion` purchasable query param.
+- Added the `onPromotion` GraphQL variant query argument.
 
 ### Extensibility
-- Added `craft\commerce\elements\db\Purchasable::$hasPromotionalPrice`.
-- Added `craft\commerce\elements\db\Purchasable::hasPromotionalPrice()`.
+- Added `craft\commerce\elements\db\Purchasable::$onPromotion`.
+- Added `craft\commerce\elements\db\Purchasable::onPromotion()`.
 
 ### System

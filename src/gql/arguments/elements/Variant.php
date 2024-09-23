@@ -83,8 +83,8 @@ class Variant extends ElementArguments
                 'type' => Type::listOf(QueryArgument::getType()),
                 'description' => 'Narrows the query results based on the variant’s promotional price.',
             ],
-            'hasPromotionalPrice' => [
-                'name' => 'hasPromotionalPrice',
+            'onPromotion' => [
+                'name' => 'onPromotion',
                 'type' => Type::boolean(),
                 'description' => 'Narrows the query results based on whether the variant has a promotional price.',
             ],

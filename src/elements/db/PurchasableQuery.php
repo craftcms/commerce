@@ -55,7 +55,7 @@ abstract class PurchasableQuery extends ElementQuery
      * @var bool|null
      * @since 5.2.0
      */
-    public bool|null $hasPromotionalPrice = null;
+    public bool|null $onPromotion = null;
 
     /**
      * @var mixed|null
@@ -642,9 +642,9 @@ abstract class PurchasableQuery extends ElementQuery
      * @return static self reference
      * @since 5.2.0
      */
-    public function hasPromotionalPrice(bool|null $value = true): static
+    public function onPromotion(bool|null $value = true): static
     {
-        $this->hasPromotionalPrice = $value;
+        $this->onPromotion = $value;
         return $this;
     }
 
@@ -742,8 +742,8 @@ abstract class PurchasableQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseNumericParam('catalogprices.promotionalPrice', $this->promotionalPrice));
         }
 
-        if (isset($this->hasPromotionalPrice)) {
-            if ($this->hasPromotionalPrice) {
+        if (isset($this->onPromotion)) {
+            if ($this->onPromotion) {
                 $this->subQuery->andWhere(new Expression('[[catalogprices.promotionalPrice]] < [[catalogprices.price]]'));
             } else {
                 // Commerce normalizes these when selecting/aggregating, so the values will actually be the same when a promotional price doesn't exist. This means it's not technically possible to distinguish between an *unset* promotional price and a promotional price that ended up being the same as the regular price. It’s also ambiguous when a pricing rule sets a `promotionalPrice` based on the original `price`!
