@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where deleting a user with orders would cause a PHP error. ([#3686](https://github.com/craftcms/commerce/issues/3686))
+
 ## 4.6.12 - 2024-09-19
 
 - Fixed a bug where some strings weren’t getting translated on Edit Order screens.

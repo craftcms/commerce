@@ -192,8 +192,9 @@ class Orders extends Component
 
         // If there are any orders, make sure that this is not allowed.
         if (Order::find()->customerId($user->id)->status(null)->exists()) {
-            // TODO revise this stop-gap measure when Craft CMS gets a way to hook into the user delete process.
-            throw new UserException(Craft::t('commerce', 'Unable to delete user {user}: the user has a Craft Commerce order.', [
+            $event->isValid = false;
+
+            Craft::error(Craft::t('commerce', 'Unable to delete user {user}: the user has a Craft Commerce order.', [
                 'user' => $user->id,
             ]));
         }
