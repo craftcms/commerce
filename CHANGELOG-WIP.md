@@ -10,4 +10,3 @@
 
 ### Extensibility
 - Added `craft\commerce\elements\conditions\products\ProductVariantSearchConditionRule`.
-- 
