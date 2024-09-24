@@ -111,6 +111,17 @@ class Store extends Model
     /**
      * @inheritdoc
      */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'locationAddress';
+
+        return $fields;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function attributes(): array
     {
         $names = parent::attributes();
