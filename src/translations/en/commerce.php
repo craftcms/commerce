@@ -1120,6 +1120,7 @@ return [
     'Variant Has Unlimited Stock' => 'Variant Has Unlimited Stock',
     'Variant Price' => 'Variant Price',
     'Variant SKU' => 'Variant SKU',
+    'Variant Search' => 'Variant Search',
     'Variant Stock' => 'Variant Stock',
     'Variant Title Format' => 'Variant Title Format',
     'Variants' => 'Variants',
