@@ -2,7 +2,11 @@
 
 ## Unreleased
 
-- Fixed a bug where some text wasn’t getting translated on the Edit Order page.
+- Fixed a bug where deleting a user with orders would cause a PHP error. ([#3686](https://github.com/craftcms/commerce/issues/3686))
+
+## 4.6.12 - 2024-09-19
+
+- Fixed a bug where some strings weren’t getting translated on Edit Order screens.
 - Fixed a JavaScript error that could occur when editing an order.
 
 ## 4.6.11 - 2024-09-10
