@@ -53,7 +53,9 @@ use yii\di\Instance;
 class UpgradeController extends Controller
 {
     /**
-     * @event Event The event that is triggered before the v3 columns and tables are dropped.
+     * @event UpgradeEvent The event that is triggered before the v3 columns and tables are dropped during upgrade.
+     * @see actionRun()
+     * @since 4.7.0
      */
     const EVENT_BEFORE_DROP_V3_DATABASE_ENTITIES = 'beforeDropV3DatabaseEntities';
 
