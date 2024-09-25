@@ -890,6 +890,20 @@ class Variant extends Purchasable implements NestedElementInterface
 
     /**
      * @inheritdoc
+     */
+    public function getSupportedSites(): array
+    {
+        $owner = $this->getOwner();
+
+        if (!$owner) {
+            return [Craft::$app->getSites()->getPrimarySite()->id];
+        }
+
+        return $this->getOwner()->getSupportedSites();
+    }
+
+    /**
+     * @inheritdoc
      * @throws Exception
      */
     public function afterSave(bool $isNew): void
