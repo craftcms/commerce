@@ -26,6 +26,7 @@ use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ShippingCategory;
+use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
@@ -1209,12 +1210,25 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     protected function availableTaxCategories(): array
     {
+        $allAvailableTaxCategories = parent::availableTaxCategories();
+
         $productTypeId = $this->getPrimaryOwner()?->getType()->id;
-        if ($productTypeId) {
-            return Plugin::getInstance()->getTaxCategories()->getTaxCategoriesByProductTypeId($productTypeId);
+
+        if (!$productTypeId) {
+            return [Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()];
         }
 
-        return parent::availableTaxCategories();
+        // Limit to only those for this product type
+        $categoryIds = collect(Plugin::getInstance()->getTaxCategories()->getTaxCategoriesByProductTypeId($productTypeId))->pluck('id')->toArray();
+        $available = collect($allAvailableTaxCategories)->filter(function(TaxCategory $category) use ($categoryIds) {
+            return in_array($category->id, $categoryIds);
+        });
+
+        if ($available->isEmpty()) {
+            return [Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()];
+        }
+
+        return $available->toArray();
     }
 
     /**

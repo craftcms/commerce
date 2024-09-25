@@ -6,6 +6,7 @@
 - Fixed a bug where variants weren’t respecting their owner’s propagation method.
 - Fixed a PHP error that could occur when creating a new product.
 - Fixed a bug where shipping categories for other stores were showing up for selection on the Edit Product screen. ([#3690](https://github.com/craftcms/commerce/issues/3690))
+- Fixed a bug where tax categories that were not available to the product type were showing up for selection on the Edit Product screen. ([#3690](https://github.com/craftcms/commerce/issues/3690))
 
 ## 5.1.2 - 2024-09-19
 
