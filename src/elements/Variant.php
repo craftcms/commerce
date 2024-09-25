@@ -25,6 +25,7 @@ use craft\commerce\events\CustomizeVariantSnapshotDataEvent;
 use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\ProductType;
+use craft\commerce\models\ShippingCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
@@ -1182,12 +1183,25 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     protected function availableShippingCategories(): array
     {
+        $allAvailableShippingCategories = parent::availableShippingCategories();
+
         $productTypeId = $this->getPrimaryOwner()?->getType()->id;
-        if ($productTypeId) {
-            return Plugin::getInstance()->getShippingCategories()->getShippingCategoriesByProductTypeId($productTypeId);
+
+        if (!$productTypeId) {
+            return [Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->storeId)];
         }
 
-        return parent::availableShippingCategories();
+        // Limit to only those for this product type
+        $categoryIds = collect(Plugin::getInstance()->getShippingCategories()->getShippingCategoriesByProductTypeId($productTypeId))->pluck('id')->toArray();
+        $available = collect($allAvailableShippingCategories)->filter(function(ShippingCategory $category) use ($categoryIds) {
+            return in_array($category->id, $categoryIds);
+        });
+
+        if ($available->isEmpty()) {
+            return [Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->storeId)];
+        }
+
+        return $available->toArray();
     }
 
     /**
