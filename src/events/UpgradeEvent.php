@@ -7,7 +7,6 @@
 
 namespace craft\commerce\events;
 
-use craft\commerce\models\Email;
 use yii\base\Event;
 
 /**

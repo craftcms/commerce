@@ -57,7 +57,7 @@ class UpgradeController extends Controller
      * @see actionRun()
      * @since 4.7.0
      */
-    const EVENT_BEFORE_DROP_V3_DATABASE_ENTITIES = 'beforeDropV3DatabaseEntities';
+    public const EVENT_BEFORE_DROP_V3_DATABASE_ENTITIES = 'beforeDropV3DatabaseEntities';
 
     /**
      * @inheritdoc
@@ -327,7 +327,7 @@ class UpgradeController extends Controller
         $event = new UpgradeEvent();
         $event->v3columnMap = $this->_v3droppableColumns;
         $event->v3tables = $this->_v3tables;
-        if($this->hasEventHandlers(self::EVENT_BEFORE_DROP_V3_DATABASE_ENTITIES)) {
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_DROP_V3_DATABASE_ENTITIES)) {
             $this->trigger(self::EVENT_BEFORE_DROP_V3_DATABASE_ENTITIES, $event);
         }
 
