@@ -1277,7 +1277,7 @@ SQL;
 
         // We know we have to make a user for every guest email address
         // We don't use Craft::$app->getUsers()->ensureUserByEmail() since we know it doesn’t exist in the users table already
-        $this->stdout('  Creating a inactive user for each guest email.');
+        $this->stdout('  Creating an inactive user for each guest email.');
         $startTime = microtime(true);
         $totalGuestEmails = count($guestEmails);
         $doneTotalGuestEmails = 0;
