@@ -580,7 +580,7 @@ class CartController extends BaseFrontEndController
             // Get the cart from the order number
             $cart = Order::find()->number($orderNumber)->isCompleted(false)->one();
 
-            if (!$cart) {
+            if ($cart === null) {
                 throw new NotFoundHttpException('Cart not found');
             }
 
@@ -590,13 +590,13 @@ class CartController extends BaseFrontEndController
         $requestForceSave = (bool)$this->request->getBodyParam('forceSave');
         $doForceSave = ($requestForceSave || $forceSave);
 
-        $cart = Plugin::getInstance()->getCarts()->getCart($doForceSave);
+        $this->_cart = Plugin::getInstance()->getCarts()->getCart($doForceSave);
 
-        if (!$cart->id) {
+        if (!$this->_cart->id) {
             Craft::$app->getElements()->saveElement($this->_cart, false);
         }
 
-        return $cart;
+        return $this->_cart;
     }
 
     /**
