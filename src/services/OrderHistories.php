@@ -120,10 +120,16 @@ class OrderHistories extends Component
             $userId = $currentUser->id;
         }
 
-        $user = Craft::$app->getUsers()->getUserById($userId);
+        if ($userId) {
+            $user = Craft::$app->getUsers()->getUserById($userId);
+            if ($user) {
+                $orderHistoryModel->userId = $userId;
+                $orderHistoryModel->userName = $user->fullName ?? $user->email;
+            } else {
+                $orderHistoryModel->userName = $order->getEmail();
+            }
+        }
 
-        $orderHistoryModel->userId = $userId;
-        $orderHistoryModel->userName = $user?->fullName ?? $user?->email;
         $orderHistoryModel->message = $order->message;
 
         if (!$this->saveOrderHistory($orderHistoryModel)) {
