@@ -7,6 +7,7 @@
 - Fixed a bug where shipping categories for other stores were showing up for selection on the Edit Product screen. ([#3690](https://github.com/craftcms/commerce/issues/3690))
 - Fixed a bug where tax categories that were not available to the product type were showing up for selection on the Edit Product screen. ([#3690](https://github.com/craftcms/commerce/issues/3690))
 - Fixed a bug where the store name was being displayed twice on the Edit Order screen.
+- Fixed a bug where the `CatalogPricingRule::$description` property was not being populated. ([#3699](https://github.com/craftcms/commerce/issues/3699))
 
 ## 5.1.2 - 2024-09-19
 
