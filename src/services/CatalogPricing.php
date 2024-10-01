@@ -123,7 +123,7 @@ class CatalogPricing extends Component
                 }
 
                 // Skip if the rule has user conditions but didn't generate any applicable users
-                if (!empty($catalogPricingRule->getCustomerCondition()->rules()) && !in_array($catalogPricingRule->id, $cprWithUserIds, true)) {
+                if (!empty($catalogPricingRule->getCustomerCondition()->getConditionRules()) && !in_array($catalogPricingRule->id, $cprWithUserIds, true)) {
                     continue;
                 }
 
