@@ -24,7 +24,6 @@ use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\models\FieldLayout;
 use yii\base\Component;
 use yii\base\Exception;
-use yii\base\UserException;
 
 /**
  * Orders service.

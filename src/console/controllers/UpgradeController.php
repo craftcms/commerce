@@ -12,6 +12,7 @@ use craft\base\FieldInterface;
 use craft\commerce\console\Controller;
 use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\addresses\PostalCodeFormulaConditionRule;
+use craft\commerce\events\UpgradeEvent;
 use craft\commerce\Plugin;
 use craft\commerce\records\Store;
 use craft\db\Connection;
@@ -51,6 +52,13 @@ use yii\di\Instance;
  */
 class UpgradeController extends Controller
 {
+    /**
+     * @event UpgradeEvent The event that is triggered before the v3 columns and tables are dropped during upgrade.
+     * @see actionRun()
+     * @since 4.7.0
+     */
+    public const EVENT_BEFORE_DROP_V3_DATABASE_ENTITIES = 'beforeDropV3DatabaseEntities';
+
     /**
      * @inheritdoc
      */
@@ -314,6 +322,13 @@ class UpgradeController extends Controller
             });
         } catch (OperationAbortedException) {
             return ExitCode::UNSPECIFIED_ERROR;
+        }
+
+        $event = new UpgradeEvent();
+        $event->v3columnMap = $this->_v3droppableColumns;
+        $event->v3tables = $this->_v3tables;
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_DROP_V3_DATABASE_ENTITIES)) {
+            $this->trigger(self::EVENT_BEFORE_DROP_V3_DATABASE_ENTITIES, $event);
         }
 
         $this->stdout("Cleaning up tables…");
