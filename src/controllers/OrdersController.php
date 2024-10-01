@@ -1529,6 +1529,15 @@ class OrdersController extends Controller
                     $transactionResponse = Json::htmlEncode($transactionResponse);
                 }
 
+                $transactionNoteType = 'text';
+                $transactionNote = Json::decodeIfJson($transaction->note);
+                if (is_array($transactionNote)) {
+                    $transactionNoteType = 'response';
+                    $transactionNote = Json::htmlEncode($transactionNote);
+                } else {
+                    $transactionNote = Html::encode($transaction->note);
+                }
+
                 $transactionMessage = Json::decodeIfJson($transaction->message);
                 $transactionMessage = Json::htmlEncode($transactionMessage);
 
@@ -1552,7 +1561,7 @@ class OrdersController extends Controller
                         ['label' => Html::encode(Craft::t('commerce', 'Transaction Hash')), 'type' => 'code', 'value' => $transaction->hash],
                         ['label' => Html::encode(Craft::t('commerce', 'Gateway Reference')), 'type' => 'code', 'value' => $transaction->reference],
                         ['label' => Html::encode(Craft::t('commerce', 'Gateway Message')), 'type' => 'text', 'value' => $transactionMessage],
-                        ['label' => Html::encode(Craft::t('commerce', 'Note')), 'type' => 'text', 'value' => Html::encode($transaction->note)],
+                        ['label' => Html::encode(Craft::t('commerce', 'Note')), 'type' => $transactionNoteType, 'value' => $transactionNote],
                         ['label' => Html::encode(Craft::t('commerce', 'Gateway Code')), 'type' => 'code', 'value' => $transaction->code],
                         ['label' => Html::encode(Craft::t('commerce', 'Converted Price')), 'type' => 'text', 'value' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>' . ' <small class="light">(1 ' . $transaction->currency . ' = ' . number_format($transaction->paymentRate) . ' ' . $transaction->paymentCurrency . ')</small>'],
                         ['label' => Html::encode(Craft::t('commerce', 'Gateway Response')), 'type' => 'response', 'value' => $transactionResponse],
