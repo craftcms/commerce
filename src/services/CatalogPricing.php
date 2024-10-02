@@ -84,6 +84,13 @@ class CatalogPricing extends Component
             return;
         }
 
+        // Rules with user ID records
+        $cprWithUserIds = (new Query())
+            ->select(['catalogPricingRuleId'])
+            ->from(Table::CATALOG_PRICING_RULES_USERS)
+            ->groupBy('catalogPricingRuleId')
+            ->column();
+
         // @TODO maybe mark prices as pending update here?
 
         $cprStartTime = microtime(true);
@@ -112,6 +119,11 @@ class CatalogPricing extends Component
 
                 // Skip rule if the rule is not enabled
                 if (!$catalogPricingRule->enabled) {
+                    continue;
+                }
+
+                // Skip if the rule has user conditions but didn't generate any applicable users
+                if (!empty($catalogPricingRule->getCustomerCondition()->getConditionRules()) && !in_array($catalogPricingRule->id, $cprWithUserIds, true)) {
                     continue;
                 }
 
