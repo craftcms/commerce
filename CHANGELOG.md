@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.1.3 - 2024-10-02
 
 - Fixed a bug where variants weren’t respecting their product’s propagation method.
 - Fixed a PHP error that could occur when creating a new product.
