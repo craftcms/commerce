@@ -9,6 +9,7 @@
 - Fixed a bug where Edit Order screens were displaying the store name twice.
 - Fixed a bug where `craft\commerce\models\CatalogPricingRule::$description` was not being populated. ([#3699](https://github.com/craftcms/commerce/issues/3699))
 - Fixed a bug where catalog pricing rules were generating prices incorrectly. ([#3700](https://github.com/craftcms/commerce/issues/3700))
+- Fixed a PHP error that could occur when deleting a user with orders. ([#3686](https://github.com/craftcms/commerce/issues/3686))
 
 ## 5.1.2 - 2024-09-19
 
