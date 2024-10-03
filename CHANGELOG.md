@@ -1,14 +1,15 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.1.3 - 2024-10-02
 
-- Fixed a bug where variants weren’t respecting their owner’s propagation method.
+- Fixed a bug where variants weren’t respecting their product’s propagation method.
 - Fixed a PHP error that could occur when creating a new product.
-- Fixed a bug where shipping categories for other stores were showing up for selection on the Edit Product screen. ([#3690](https://github.com/craftcms/commerce/issues/3690))
-- Fixed a bug where tax categories that were not available to the product type were showing up for selection on the Edit Product screen. ([#3690](https://github.com/craftcms/commerce/issues/3690))
-- Fixed a bug where the store name was being displayed twice on the Edit Order screen.
-- Fixed a bug where the `CatalogPricingRule::$description` property was not being populated. ([#3699](https://github.com/craftcms/commerce/issues/3699))
+- Fixed a bug where Edit Product screens were showing shipping categories that weren’t available to the current store. ([#3690](https://github.com/craftcms/commerce/issues/3690))
+- Fixed a bug where Edit Product screens were showing tax categories that weren’t available to the product type.. ([#3690](https://github.com/craftcms/commerce/issues/3690))
+- Fixed a bug where Edit Order screens were displaying the store name twice.
+- Fixed a bug where `craft\commerce\models\CatalogPricingRule::$description` was not being populated. ([#3699](https://github.com/craftcms/commerce/issues/3699))
 - Fixed a bug where catalog pricing rules were generating prices incorrectly. ([#3700](https://github.com/craftcms/commerce/issues/3700))
+- Fixed a PHP error that could occur when deleting a user with orders. ([#3686](https://github.com/craftcms/commerce/issues/3686))
 
 ## 5.1.2 - 2024-09-19
 
