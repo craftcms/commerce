@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where additional buttons defined with `Order::EVENT_DEFINE_ADDITIONAL_BUTTONS` weren’t displayed on the Edit Order screen. ([#3692](https://github.com/craftcms/commerce/issues/3692))
+
 ## 5.1.3 - 2024-10-02
 
 - Fixed a bug where variants weren’t respecting their product’s propagation method.
