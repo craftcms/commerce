@@ -181,6 +181,12 @@
     <input type="hidden" name="orderId" value="{{ order.id }}">
     {{ redirectInput('commerce/orders/'~order.id) }}
 
+    {% if order.getAdditionalButtons() %}
+      <div id="order-additional-buttons" class="flex">
+        {{ order.getAdditionalButtons()|raw }}
+      </div>
+    {% endif %}
+
     <div id="order-secondary-actions" class="flex">
         {% hook "cp.commerce.order.edit.order-secondary-actions" %}
         <div id="order-secondary-actions-app"></div>
