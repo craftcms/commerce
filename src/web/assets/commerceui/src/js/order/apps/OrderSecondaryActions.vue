@@ -154,14 +154,6 @@
                         .dispatch('sendEmail', emailTemplateId)
                         .then((response) => {
                             this.emailLoading = false;
-                            if (typeof response.data.error !== 'undefined') {
-                                this.$store.dispatch(
-                                    'displayError',
-                                    response.data.error
-                                );
-                                return;
-                            }
-
                             this.$store.dispatch(
                                 'displayNotice',
                                 this.$options.filters.t(
@@ -169,6 +161,10 @@
                                     'commerce'
                                 )
                             );
+                        })
+                        .catch((error) => {
+                            this.emailLoading = false;
+                            this.$store.dispatch('displayError', error);
                         });
                 }
             },
