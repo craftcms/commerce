@@ -2,6 +2,7 @@
 
 namespace craft\commerce\elements\conditions\variants;
 
+use craft\commerce\elements\Variant;
 use craft\elements\conditions\ElementCondition;
 
 /**
@@ -12,6 +13,11 @@ use craft\elements\conditions\ElementCondition;
  */
 class VariantCondition extends ElementCondition
 {
+    /**
+     * @inheritdoc
+     */
+    public ?string $elementType = Variant::class;
+
     /**
      * @inheritdoc
      */

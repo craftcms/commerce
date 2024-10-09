@@ -1,5 +1,47 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where deleting a user with orders would cause a PHP error. ([#3686](https://github.com/craftcms/commerce/issues/3686))
+
+## 4.6.12 - 2024-09-19
+
+- Fixed a bug where some strings weren’t getting translated on Edit Order screens.
+- Fixed a JavaScript error that could occur when editing an order.
+
+## 4.6.11 - 2024-09-10
+
+- Fixed XSS vulnerabilities.
+
+## 4.6.10 - 2024-08-28
+
+- Fixed a PHP error that could occur when default addresses were set on a cart. ([#3641](https://github.com/craftcms/commerce/issues/3641))
+
+## 4.6.9 - 2024-08-21
+
+- Fixed a bug where available shipping methods were not returned in order of price. ([#3631](https://github.com/craftcms/commerce/issues/3631))
+
+## 4.6.8 - 2024-08-14
+
+- It’s now possible to search for orders by shipping and billing address. ([#3603](https://github.com/craftcms/commerce/pull/3603))
+- Fixed a bug where the `commerce/upgrade` command wasn’t labeling order addresses correctly. ([#3081](https://github.com/craftcms/commerce/issues/3081))
+
+## 4.6.7 - 2024-07-25
+
+- Fixed a bug where account activation emails weren’t being sent on order completion. ([#3226](https://github.com/craftcms/commerce/issues/3226))
+
+## 4.6.6 - 2024-07-24
+
+- Fixed a bug where emails sent via the control panel could be rendered with the wrong language.
+
+## 4.6.5 - 2024-07-18
+
+- Fixed a bug where SCA payment sources prevented subscriptions from starting. ([#3590](https://github.com/craftcms/commerce/pull/3590))
+
+## 4.6.4 - 2024-07-17
+
+- Fixed PHP error that occurred when saving an estimated billing address. ([#3549](https://github.com/craftcms/commerce/pull/3549))
+
 ## 4.6.3.1 - 2024-06-20
 
 - Fixed a PHP error that could occur on app initialization. ([#3546](https://github.com/craftcms/commerce/issues/3546))

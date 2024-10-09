@@ -208,7 +208,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '4.5.2';
+    public string $schemaVersion = '4.7.0.1';
 
     /**
      * @inheritdoc
@@ -667,6 +667,7 @@ class Plugin extends BasePlugin
         Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);
         Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getOrders(), 'beforeDeleteUserHandler']);
 
+        Event::on(Address::class, Address::EVENT_BEFORE_SAVE, [$this->getOrders(), 'beforeSaveAddressHandler']);
         Event::on(Address::class, Address::EVENT_AFTER_SAVE, [$this->getOrders(), 'afterSaveAddressHandler']);
 
         Event::on(
@@ -883,14 +884,14 @@ class Plugin extends BasePlugin
         try {
             FileHelper::createDirectory($path);
         } catch (\Exception $e) {
-            Craft::error($e->getMessage());
+            Craft::$app->getErrorHandler()->logException($e);
         }
 
         Event::on(ClearCaches::class, ClearCaches::EVENT_REGISTER_CACHE_OPTIONS, static function(RegisterCacheOptionsEvent $e) use ($path) {
             try {
                 FileHelper::createDirectory($path);
             } catch (\Exception $e) {
-                Craft::error($e->getMessage());
+                Craft::$app->getErrorHandler()->logException($e);
             }
 
             $e->options[] = [

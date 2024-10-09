@@ -132,7 +132,7 @@ class ShippingMethods extends Component
 
         // Sort by price. Using the cached price and don't call `$method->getPriceForOrder($order);` again.
         uasort($matchingMethods, static function($a, $b) {
-            return ($a['price'] < $b['price']) ? -1 : 1;
+            return $a['price'] <=> $b['price'];
         });
 
         $shippingMethods = [];

@@ -62,6 +62,7 @@ use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use craft\models\Site;
 use DateTime;
+use Money\Teller;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionNamedType;
@@ -1527,14 +1528,20 @@ class Order extends Element
 
         if (!$this->_shippingAddress && !$this->shippingAddressId && $primaryShippingAddress = $user->getPrimaryShippingAddress()) {
             $this->sourceShippingAddressId = $primaryShippingAddress->id;
-            $shippingAddress = Craft::$app->getElements()->duplicateElement($primaryShippingAddress, ['ownerId' => $this->id]);
+            $shippingAddress = Craft::$app->getElements()->duplicateElement($primaryShippingAddress,
+                [
+                    'owner' => $this,
+                ]);
             $this->setShippingAddress($shippingAddress);
             $autoSetOccurred = true;
         }
 
         if (!$this->_billingAddress && !$this->billingAddressId && $primaryBillingAddress = $user->getPrimaryBillingAddress()) {
             $this->sourceBillingAddressId = $primaryBillingAddress->id;
-            $billingAddress = Craft::$app->getElements()->duplicateElement($primaryBillingAddress, ['ownerId' => $this->id]);
+            $billingAddress = Craft::$app->getElements()->duplicateElement($primaryBillingAddress,
+                [
+                    'owner' => $this,
+                ]);
             $this->setBillingAddress($billingAddress);
             $autoSetOccurred = true;
         }
@@ -2435,7 +2442,10 @@ class Order extends Element
      */
     public function getPaidStatus(): string
     {
-        if ($this->getIsPaid() && $this->getTotalPrice() > 0 && $this->getTotalPaid() > $this->getTotalPrice()) {
+        if ($this->getIsPaid() &&
+            $this->_getTeller()->greaterThan($this->getTotalPrice(), 0) &&
+            $this->_getTeller()->greaterThan($this->getTotalPaid(), $this->getTotalPrice())
+        ) {
             return self::PAID_STATUS_OVERPAID;
         }
 
@@ -2443,7 +2453,7 @@ class Order extends Element
             return self::PAID_STATUS_PAID;
         }
 
-        if ($this->getTotalPaid() > 0) {
+        if ($this->_getTeller()->greaterThan($this->getTotalPaid(), 0)) {
             return self::PAID_STATUS_PARTIAL;
         }
 
@@ -2547,20 +2557,18 @@ class Order extends Element
 
     /**
      * Returns the difference between the order amount and amount paid.
-     *
-     *
      */
     public function getOutstandingBalance(): float
     {
-        $totalPaid = Currency::round($this->getTotalPaid());
-        $totalPrice = $this->getTotalPrice(); // Already rounded
-
-        return $totalPrice - $totalPaid;
+        return (float)$this->_getTeller()->subtract($this->getTotalPrice(), $this->getTotalPaid());
     }
 
+    /**
+     * @return bool
+     */
     public function hasOutstandingBalance(): bool
     {
-        return $this->getOutstandingBalance() > 0;
+        return $this->_getTeller()->greaterThan($this->getOutstandingBalance(), 0);
     }
 
     /**
@@ -2587,7 +2595,7 @@ class Order extends Element
         $paid = array_sum(ArrayHelper::getColumn($paidTransactions, 'amount', false));
         $refunded = array_sum(ArrayHelper::getColumn($refundedTransactions, 'amount', false));
 
-        return $paid - $refunded;
+        return (float)$this->_getTeller()->subtract($paid, $refunded);
     }
 
     /**
@@ -2625,7 +2633,7 @@ class Order extends Element
             }
         }
 
-        return $authorized - $captured;
+        return (float)$this->_getTeller()->subtract($authorized, $captured);
     }
 
     /**
@@ -3137,6 +3145,7 @@ class Order extends Element
         if (!$address instanceof AddressElement) {
             $addressElement = new AddressElement();
             $addressElement->setAttributes($address);
+            $address = $addressElement;
         }
 
         $this->estimatedBillingAddressId = $address->id;
@@ -3603,5 +3612,15 @@ class Order extends Element
                 $addressElement->lastName = $lastName ?? $addressElement->lastName;
             }
         }
+    }
+
+    /**
+     * @return Teller
+     * @throws InvalidConfigException
+     * @since 4.7.0
+     */
+    private function _getTeller(): Teller
+    {
+        return Plugin::getInstance()->getCurrencies()->getTeller($this->currency);
     }
 }

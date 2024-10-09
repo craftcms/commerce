@@ -132,6 +132,10 @@
             },
 
             isLoadMoreVisible() {
+                if (!this.$store.state.draft.order.customer) {
+                    return false;
+                }
+
                 if (
                     this.$store.state.draft.order.customer.totalAddresses ==
                     this.addresses.length

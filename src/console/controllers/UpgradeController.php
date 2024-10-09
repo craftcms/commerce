@@ -12,6 +12,7 @@ use craft\base\FieldInterface;
 use craft\commerce\console\Controller;
 use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\addresses\PostalCodeFormulaConditionRule;
+use craft\commerce\events\UpgradeEvent;
 use craft\commerce\Plugin;
 use craft\commerce\records\Store;
 use craft\db\Connection;
@@ -51,6 +52,13 @@ use yii\di\Instance;
  */
 class UpgradeController extends Controller
 {
+    /**
+     * @event UpgradeEvent The event that is triggered before the v3 columns and tables are dropped during upgrade.
+     * @see actionRun()
+     * @since 4.7.0
+     */
+    public const EVENT_BEFORE_DROP_V3_DATABASE_ENTITIES = 'beforeDropV3DatabaseEntities';
+
     /**
      * @inheritdoc
      */
@@ -307,9 +315,20 @@ class UpgradeController extends Controller
                 $this->stdout("Updating user address books…");
                 $this->_migrateUserAddressBook();
                 $this->stdoutlast('Done.', Console::FG_GREEN);
+
+                $this->stdout("Re-labeling order addresses…");
+                $this->_relabelOrderAddresses();
+                $this->stdoutlast('Done.', Console::FG_GREEN);
             });
         } catch (OperationAbortedException) {
             return ExitCode::UNSPECIFIED_ERROR;
+        }
+
+        $event = new UpgradeEvent();
+        $event->v3columnMap = $this->_v3droppableColumns;
+        $event->v3tables = $this->_v3tables;
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_DROP_V3_DATABASE_ENTITIES)) {
+            $this->trigger(self::EVENT_BEFORE_DROP_V3_DATABASE_ENTITIES, $event);
         }
 
         $this->stdout("Cleaning up tables…");
@@ -331,6 +350,37 @@ class UpgradeController extends Controller
         $this->stdout("Done. Completed in {$totalTime->format('%H:%I:%S')}");
 
         return 0;
+    }
+
+    /**
+     * @return void
+     * @throws Exception
+     */
+    private function _relabelOrderAddresses(): void
+    {
+        $contentTable = CraftTable::CONTENT;
+
+        $billingAddressIds = (new Query())
+            ->select(['billingAddressId'])
+            ->from(Table::ORDERS)
+            ->where(['not', ['billingAddressId' => null]]);
+
+        $shippingAddressIds = (new Query())
+            ->select(['shippingAddressId'])
+            ->from(Table::ORDERS)
+            ->where(['not', ['shippingAddressId' => null]]);
+
+        Db::update($contentTable, [
+            'title' => Craft::t('commerce', 'Billing Address'),
+        ],
+            ['elementId' => $billingAddressIds]
+        );
+
+        Db::update($contentTable, [
+            'title' => Craft::t('commerce', 'Shipping Address'),
+        ],
+            ['elementId' => $shippingAddressIds]
+        );
     }
 
     /**
@@ -1229,7 +1279,7 @@ SQL;
 
         // We know we have to make a user for every guest email address
         // We don't use Craft::$app->getUsers()->ensureUserByEmail() since we know it doesn’t exist in the users table already
-        $this->stdout('  Creating a inactive user for each guest email.');
+        $this->stdout('  Creating an inactive user for each guest email.');
         $startTime = microtime(true);
         $totalGuestEmails = count($guestEmails);
         $doneTotalGuestEmails = 0;

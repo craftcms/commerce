@@ -1259,6 +1259,9 @@ class OrdersController extends Controller
         $forceEdit = ($variables['order']->hasErrors() || !$variables['order']->isCompleted);
 
         Craft::$app->getView()->registerJs('window.orderEdit.forceEdit = ' . Json::encode($forceEdit) . ';', View::POS_BEGIN);
+
+        $store = Plugin::getInstance()->getStore()->getStore();
+        Craft::$app->getView()->registerJs('window.orderEdit.store = ' . Json::encode($store->toArray([], ['locationAddress'])) . ';', View::POS_BEGIN);
     }
 
     /**
@@ -1286,6 +1289,12 @@ class OrdersController extends Controller
         $order->isCompleted = $orderRequestData['order']['isCompleted'];
         $order->orderStatusId = $orderRequestData['order']['orderStatusId'];
         $order->orderSiteId = $orderRequestData['order']['orderSiteId'];
+
+        // Set the order language based on the `orderSiteId`
+        if ($site = Craft::$app->getSites()->getSiteById($order->orderSiteId)) {
+            $order->orderLanguage = $site->language;
+        }
+
         $order->message = $orderRequestData['order']['message'];
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
         $order->suppressEmails = $orderRequestData['order']['suppressEmails'] ?? false;
@@ -1303,24 +1312,27 @@ class OrdersController extends Controller
 
             $order->autoSetAddresses();
         } else {
-            $getAddress = static function($address, $orderId, $title) {
-                if ($address && ($address['id'] && ($address['ownerId'] != $orderId || isset($address['_copy'])))) {
+            $getAddress = static function($address, Order $order, $title) {
+                if ($address && ($address['id'] && ($address['ownerId'] != $order->id || isset($address['_copy'])))) {
                     if (isset($address['_copy'])) {
                         unset($address['_copy']);
                     }
                     $address = Craft::$app->getElements()->getElementById($address['id'], Address::class);
-                    $address = Craft::$app->getElements()->duplicateElement($address, ['ownerId' => $orderId, 'title' => $title]);
-                } elseif ($address && ($address['id'] && $address['ownerId'] == $orderId)) {
+                    $address = Craft::$app->getElements()->duplicateElement($address, [
+                        'owner' => $order,
+                        'title' => $title,
+                    ]);
+                } elseif ($address && ($address['id'] && $address['ownerId'] == $order->id)) {
                     /** @var Address|null $address */
                     $address = Address::find()->ownerId($address['ownerId'])->id($address['id'])->one();
                 }
 
                 return $address;
             };
-            $billingAddress = $getAddress($submittedBillingAddress, $orderRequestData['order']['id'], Craft::t('commerce', 'Billing Address'));
+            $billingAddress = $getAddress($submittedBillingAddress, $order, Craft::t('commerce', 'Billing Address'));
             $order->setBillingAddress($billingAddress);
 
-            $shippingAddress = $getAddress($submittedShippingAddress, $orderRequestData['order']['id'], Craft::t('commerce', 'Shipping Address'));
+            $shippingAddress = $getAddress($submittedShippingAddress, $order, Craft::t('commerce', 'Shipping Address'));
             $order->setShippingAddress($shippingAddress);
 
             if (isset($orderRequestData['order']['sourceBillingAddressId'])) {
