@@ -158,6 +158,7 @@ class ShippingMethods extends Component
      *
      * @param Order $order
      * @return array
+     * @since 4.7.0
      */
     public function getSerializedOrderForMatchingRules(Order $order): array
     {
