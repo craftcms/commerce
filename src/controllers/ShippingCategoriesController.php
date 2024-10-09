@@ -183,12 +183,12 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         }
 
         if (!empty($failedIds)) {
-            // @TODO: re-word this message at next translations update
-            return $this->asFailure(Craft::t('commerce', 'Could not delete shipping category'));
+            return $this->asFailure(Craft::t('commerce', 'Could not delete {count, number} shipping {count, plural, one{category} other{categories}}.', [
+                'count' => count($failedIds)
+            ]));
         }
 
-        // @TODO: re-word add better message in next translation update
-        return $this->asSuccess();
+        return $this->asSuccess(Craft::t('commerce', 'Shipping categories deleted.'));
     }
 
     /**

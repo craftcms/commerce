@@ -14,6 +14,7 @@ use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
+use craft\helpers\StringHelper;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -146,7 +147,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
     /**
      * @throws HttpException
      */
-    public function actionDelete(): Response
+    public function actionDelete(): ?Response
     {
         $this->requirePostRequest();
 
@@ -171,12 +172,12 @@ class TaxCategoriesController extends BaseTaxSettingsController
         }
 
         if (!empty($failedIds)) {
-            // @TODO: re-word this message at next translations update
-            return $this->asFailure(Craft::t('commerce', 'Could not delete tax category'));
+            return $this->asFailure(Craft::t('commerce', 'Could not delete {count, number} tax {count, plural, one{category} other{categories}}.', [
+                'count' => count($failedIds)
+            ]));
         }
 
-        // @TODO: re-word add better message in next translation update
-        return $this->asSuccess();
+        return $this->asSuccess(Craft::t('commerce', 'Tax categories deleted.'));
     }
 
     /**
