@@ -241,10 +241,11 @@
 
                 if (
                     this.store &&
-                    this.store.locationAddress &&
-                    this.store.locationAddress.countryCode
+                    this.store.settings.locationAddress &&
+                    this.store.settings.locationAddress.countryCode
                 ) {
-                    data.countryCode = this.store.locationAddress.countryCode;
+                    data.countryCode =
+                        this.store.settings.locationAddress.countryCode;
                 }
 
                 Craft.sendActionRequest('POST', 'elements/create', {

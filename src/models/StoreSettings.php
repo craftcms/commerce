@@ -83,6 +83,17 @@ class StoreSettings extends Model
     /**
      * @inheritdoc
      */
+    public function extraFields(): array
+    {
+        $names = parent::extraFields();
+        $names[] = 'locationAddress';
+
+        return $names;
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected function defineRules(): array
     {
         $rules = parent::defineRules();
