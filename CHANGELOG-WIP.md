@@ -11,6 +11,7 @@
 
 ### Extensibility
 - Added `craft\commerce\console\controllers\UpgradeController::EVENT_BEFORE_DROP_V3_DATABASE_ENTITIES`.
+- Added `craft\commerce\events\UpgradeEvent`.
 - Added `craft\commerce\elements\conditions\products\ProductVariantSearchConditionRule`.
 - Added `craft\commerce\models\Discount::$requireCouponCode`.
 
