@@ -1,11 +1,9 @@
 {% extends "_layouts/elementindex" %}
-
 {% set title = "Products"|t('commerce') %}
 {% set docTitle = title~' - '~'Commerce' %}
 {% set elementType = 'craft\\commerce\\elements\\Product' %}
 {% set selectedTab = 'products' %}
 {% set selectedSubnavItem = "products" %}
-{% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceproducts commerceproductsindex" %}
 
 {% if productTypeHandle is defined %}
   {% js %}
