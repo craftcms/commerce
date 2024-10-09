@@ -436,8 +436,8 @@ class ProductTypes extends Component
             }
             $productTypeRecord->descriptionFormat = $descriptionFormat;
 
-            $productTypeRecord->type = $data['type'];
-            $productTypeRecord->defaultPlacement = $data['defaultPlacement'];
+            $productTypeRecord->type = $data['type'] ?? ProductType::TYPE_CHANNEL;
+            $productTypeRecord->defaultPlacement = $data['defaultPlacement'] ?? ProductType::DEFAULT_PLACEMENT_BEGINNING;
             if ($productTypeRecord->type != $productTypeRecord->getOldAttribute('type')) {
                 $shouldResaveProducts = true;
             }
@@ -470,7 +470,7 @@ class ProductTypes extends Component
                 $productTypeRecord->variantFieldLayoutId = null;
             }
 
-            if ($data['type'] === ProductType::TYPE_ORDERABLE) {
+            if ($productTypeRecord->type === ProductType::TYPE_ORDERABLE) {
                 // Save the structure
                 $structureUid = $data['structure']['uid'];
                 $structure = Craft::$app->getStructures()->getStructureByUid($structureUid, true) ?? new Structure(['uid' => $structureUid]);
