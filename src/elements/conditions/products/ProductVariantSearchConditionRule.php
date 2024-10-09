@@ -15,7 +15,6 @@ use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
-use craft\helpers\ArrayHelper;
 use yii\base\InvalidConfigException;
 
 /**
