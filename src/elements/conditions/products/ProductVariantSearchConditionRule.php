@@ -78,7 +78,7 @@ class ProductVariantSearchConditionRule extends BaseTextConditionRule implements
      */
     public function matchElement(ElementInterface $element): bool
     {
-        $variantIds = ArrayHelper::getColumn($element->getVariants(), 'id');
+        $variantIds = $element->getVariants()->pluck('id')->all();
         if (empty($variantIds)) {
             return false;
         }
