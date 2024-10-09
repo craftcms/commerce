@@ -13,7 +13,6 @@
 ### Extensibility
 - Added `craft\commerce\elements\db\Purchasable::$onPromotion`.
 - Added `craft\commerce\elements\db\Purchasable::onPromotion()`.
-
 - Added `craft\commerce\models\ProductType::TYPE_CHANNEL`
 - Added `craft\commerce\models\ProductType::TYPE_ORDERABLE`
 - Added `craft\commerce\models\ProductType::DEFAULT_PLACEMENT_BEGINNING`
