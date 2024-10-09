@@ -14,6 +14,7 @@
 - Added `craft\commerce\events\UpgradeEvent`.
 - Added `craft\commerce\elements\conditions\products\ProductVariantSearchConditionRule`.
 - Added `craft\commerce\models\Discount::$requireCouponCode`.
+- Added `craft\commerce\console\controllers\UpgradeController::$v3droppableColumns`
 
 ### System
 - Craft Commerce now requires 4.2+ of the moneyphp/money package.

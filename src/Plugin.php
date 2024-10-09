@@ -16,6 +16,7 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CustomerAddressBehavior;
 use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\behaviors\ValidateOrganizationTaxIdBehavior;
+use craft\commerce\console\controllers\UpgradeController as UpgradeController;
 use craft\commerce\db\Table;
 use craft\commerce\debug\CommercePanel;
 use craft\commerce\elements\Donation;
@@ -116,6 +117,7 @@ use craft\events\RegisterUserPermissionsEvent;
 use craft\fixfks\controllers\RestoreController;
 use craft\gql\ElementQueryConditionBuilder;
 use craft\helpers\Console;
+use craft\helpers\Cp;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
@@ -270,10 +272,32 @@ class Plugin extends BasePlugin
             $this->_registerDebugPanels();
 
             if ($request->getIsCpRequest()) {
+                $this->_checkUpgradeCommandHasFinished();
                 $this->_registerStoreAddressAuthHandlers();
             }
         });
         Craft::setAlias('@commerceLib', Craft::getAlias('@craft/commerce/../lib'));
+    }
+
+    private function _checkUpgradeCommandHasFinished()
+    {
+        $v3Columns = UpgradeController::$v3droppableColumns;
+        // do any of the columns exist:
+        $columnsExist = false;
+        foreach ($v3Columns as $column) {
+            if (Craft::$app->getDb()->columnExists($column['table'], $column['column'])) {
+                $columnsExist = true;
+                break;
+            }
+        }
+
+        if ($columnsExist) {
+            Event::on(Cp::class, Cp::EVENT_REGISTER_ALERTS, static function($event) {
+                $event->alerts[] = [
+                    'content' => Craft::t('commerce', 'Craft Commerce 4 upgrade incomplete. Please ensure the upgrade command has finished running.'),
+                ];
+            });
+        }
     }
 
     /**
