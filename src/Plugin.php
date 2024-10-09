@@ -323,9 +323,6 @@ class Plugin extends BasePlugin
         });
 
         Craft::setAlias('@commerceLib', Craft::getAlias('@craft/commerce/../lib'));
-        Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $event) {
-            $event->types[] = Transfer::class;
-        });
     }
 
     /**
@@ -922,6 +919,7 @@ class Plugin extends BasePlugin
             $e->types[] = Order::class;
             $e->types[] = Subscription::class;
             $e->types[] = Donation::class;
+            $e->types[] = Transfer::class;
         });
     }
 

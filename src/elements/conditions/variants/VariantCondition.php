@@ -17,6 +17,11 @@ class VariantCondition extends ElementCondition
     /**
      * @inheritdoc
      */
+    public ?string $elementType = Variant::class;
+
+    /**
+     * @inheritdoc
+     */
     protected function selectableConditionRules(): array
     {
         return array_merge(parent::selectableConditionRules(), [

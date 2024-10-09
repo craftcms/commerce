@@ -164,6 +164,7 @@ class CatalogPricingRule extends Model implements HasStoreInterface
                 'customerCondition',
                 'dateFrom',
                 'dateTo',
+                'description',
                 'id',
                 'isPromotionalPrice',
                 'metadata',

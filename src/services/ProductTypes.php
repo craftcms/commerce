@@ -15,6 +15,7 @@ use craft\commerce\errors\ProductTypeNotFoundException;
 use craft\commerce\events\ProductTypeEvent;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeSite;
+use craft\commerce\Plugin;
 use craft\commerce\records\ProductType as ProductTypeRecord;
 use craft\commerce\records\ProductTypeSite as ProductTypeSiteRecord;
 use craft\db\Query;
@@ -25,6 +26,10 @@ use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;
 use craft\events\SiteEvent;
 use craft\helpers\App;
+
+use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
+
 use craft\helpers\Db;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
@@ -158,10 +163,18 @@ class ProductTypes extends Component
         $user = Craft::$app->getUser()->getIdentity();
         $allProductTypes = $this->getAllProductTypes();
 
+        $cpSite = Cp::requestedSite();
+
         foreach ($allProductTypes as $productType) {
-            if ($this->hasPermission($user, $productType, 'commerce-editProductType')) {
-                $editableIds[] = $productType->id;
+            if (!Plugin::getInstance()->getProductTypes()->hasPermission($user, $productType, 'commerce-editProductType')) {
+                continue;
             }
+
+            if ($cpSite && !isset($productType->getSiteSettings()[$cpSite->id])) {
+                continue;
+            }
+
+            $editableIds[] = $productType->id;
         }
 
         return $editableIds;

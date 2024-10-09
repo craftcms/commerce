@@ -512,7 +512,7 @@ class Subscriptions extends Component
             throw new SubscriptionException(Craft::t('commerce', 'Unable to subscribe at this time.'));
         }
 
-        $response = $gateway->subscribe($user, $plan, $parameters);
+        $response = $gateway->subscribe($user, $plan, $event->parameters);
 
         $failedToStart = $response->isInactive();
 

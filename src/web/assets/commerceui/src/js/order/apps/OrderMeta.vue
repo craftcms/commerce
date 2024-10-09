@@ -135,11 +135,6 @@
             </div>
 
             <div class="data">
-                <h5 class="heading">{{ 'Store' | t('commerce') }}</h5>
-                <p class="value">{{ draft.order.store.name }}</p>
-            </div>
-
-            <div class="data">
                 <h5 class="heading">{{ 'Coupon Code' | t('commerce') }}</h5>
                 <span class="value code">{{ draft.order.couponCode }}</span>
             </div>
@@ -361,7 +356,10 @@
                         .then(() => {
                             this.$store.dispatch(
                                 'displayNotice',
-                                'Order recalculated.'
+                                this.$options.filters.t(
+                                    'Order recalculated.',
+                                    'commerce'
+                                )
                             );
                         })
                         .catch((error) => {
@@ -383,7 +381,10 @@
                         .then(() => {
                             this.$store.dispatch(
                                 'displayNotice',
-                                'Order recalculated.'
+                                this.$options.filters.t(
+                                    'Order recalculated.',
+                                    'commerce'
+                                )
                             );
                         })
                         .catch((error) => {
@@ -404,7 +405,10 @@
                         .then(() => {
                             this.$store.dispatch(
                                 'displayNotice',
-                                'Order recalculated.'
+                                this.$options.filters.t(
+                                    'Order recalculated.',
+                                    'commerce'
+                                )
                             );
                         })
                         .catch((error) => {
@@ -460,7 +464,10 @@
                     .then(() => {
                         this.$store.dispatch(
                             'displayNotice',
-                            'Order recalculated.'
+                            this.$options.filters.t(
+                                'Order recalculated.',
+                                'commerce'
+                            )
                         );
                     })
                     .catch((error) => {
@@ -486,7 +493,10 @@
                     .then(() => {
                         this.$store.dispatch(
                             'displayNotice',
-                            'Order recalculated.'
+                            this.$options.filters.t(
+                                'Order recalculated.',
+                                'commerce'
+                            )
                         );
                     })
                     .catch((error) => {

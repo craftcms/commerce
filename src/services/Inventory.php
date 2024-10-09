@@ -306,8 +306,9 @@ class Inventory extends Component
 
             $transaction->commit();
 
-            // TODO: Update stock value on purchasable stores
-            // Craft::$app->getElements()->invalidateCachesForElement($this);
+            foreach ($updateInventoryLevels->getPurchasables() as $purchasable) {
+                Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
+            }
 
             return true;
         } catch (\Exception $e) {
@@ -734,7 +735,7 @@ class Inventory extends Component
 
         foreach ($selectedInventoryLevelForItem as $inventoryLevel) {
             $purchasable = $inventoryLevel->getPurchasable();
-            Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable);
+            Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
         }
     }
 }
