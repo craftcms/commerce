@@ -189,14 +189,14 @@ class Discount extends Model implements HasStoreInterface
     /**
      * @var bool Match all product types
      *
-     * TODO: Rename to $allEntries in Commerce 5
+     * TODO: Rename to $allEntries in 6.0
      */
     public bool $allCategories = false;
 
     /**
      * @var string Type of relationship between Categories and Products
      *
-     * TODO: Rename to $entryRelationshipType in Commerce 5
+     * TODO: Rename to $entryRelationshipType in 6.0
      */
     public string $categoryRelationshipType = DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH;
 
@@ -672,7 +672,7 @@ class Discount extends Model implements HasStoreInterface
                 'dateUpdated',
                 'description',
                 'enabled',
-                // @TODO remove `excludeOnSale` in Commerce 6
+                // @TODO remove `excludeOnSale` in 6.0
                 'excludeOnSale',
                 'excludeOnPromotion',
                 'hasFreeShippingForMatchingItems',

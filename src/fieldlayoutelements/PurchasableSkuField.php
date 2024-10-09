@@ -56,7 +56,6 @@ class PurchasableSkuField extends BaseNativeField
         $html = '';
 
         if ($element instanceof Variant && $element->getOwner()->getType()->skuFormat !== null && !$element->id) {
-            // @TODO work out where SKU format will be defined
             $html .= Html::hiddenInput('sku', '');
         } else {
             $html .= PurchasableHelper::skuInputHtml($element->getSkuAsText());
