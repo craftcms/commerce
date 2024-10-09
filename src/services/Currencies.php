@@ -8,6 +8,11 @@
 namespace craft\commerce\services;
 
 use craft\commerce\models\Currency;
+use Money\Currencies\ISOCurrencies;
+use Money\Formatter\DecimalMoneyFormatter;
+use Money\Money;
+use Money\Parser\DecimalMoneyParser;
+use Money\Teller;
 use yii\base\Component;
 
 /**
@@ -22,8 +27,42 @@ class Currencies extends Component
     /**
      * @var array
      */
+    private array $_tellersByIso = [];
+
+    /**
+     * @var array
+     */
     private array $_allCurrencies;
 
+    /**
+     * @param \Money\Currency|string $currency
+     * @return Teller
+     * @since 4.7.0
+     */
+    public function getTeller(\Money\Currency|string $currency): Teller
+    {
+        if (is_string($currency)) {
+            $currency = new \Money\Currency($currency);
+        }
+
+        $iso = $currency->getCode();
+        if (isset($this->_tellersByIso[$iso])) {
+            return $this->_tellersByIso[$iso];
+        }
+
+        $isoCurrencies = new ISOCurrencies(); // remove in 5.0 and use $this->_isoCurrencies
+        $parser = new DecimalMoneyParser($isoCurrencies); // in 5.0 use $this->_isoCurrencies
+        $formatter = new DecimalMoneyFormatter($isoCurrencies); // in 5.0 use $this->_isoCurrencies
+        $roundingMode = Money::ROUND_HALF_UP;
+        $this->_tellersByIso[$iso] = new \Money\Teller(
+            $currency,
+            $parser,
+            $formatter,
+            $roundingMode
+        );
+
+        return $this->_tellersByIso[$iso];
+    }
 
     /**
      * Get a currency by it's ISO code.
