@@ -166,6 +166,7 @@ class ProductType extends Model
 
     /**
      * @var int|null Structure ID
+     * @since 5.2.0
      */
     public ?int $structureId = null;
 

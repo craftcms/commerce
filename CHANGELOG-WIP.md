@@ -8,4 +8,12 @@
 
 ### Extensibility
 
+- Added `craft\commerce\models\ProductType::TYPE_CHANNEL`
+- Added `craft\commerce\models\ProductType::TYPE_ORDERABLE`
+- Added `craft\commerce\models\ProductType::DEFAULT_PLACEMENT_BEGINNING`
+- Added `craft\commerce\models\ProductType::DEFAULT_PLACEMENT_END`
+- Added `craft\commerce\models\ProductType::$type`
+- Added `craft\commerce\models\ProductType::$structureId`
+- Added `craft\commerce\models\ProductType::getConfig()`
+
 ### System
