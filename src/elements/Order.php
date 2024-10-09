@@ -2595,7 +2595,7 @@ class Order extends Element
         $paid = array_sum(ArrayHelper::getColumn($paidTransactions, 'amount', false));
         $refunded = array_sum(ArrayHelper::getColumn($refundedTransactions, 'amount', false));
 
-        return $paid - $refunded;
+        return (float)$this->_getTeller()->subtract($paid, $refunded);
     }
 
     /**
@@ -2633,7 +2633,7 @@ class Order extends Element
             }
         }
 
-        return $authorized - $captured;
+        return (float)$this->_getTeller()->subtract($authorized, $captured);
     }
 
     /**
