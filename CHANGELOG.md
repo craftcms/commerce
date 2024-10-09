@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where inventory items could appear with blank descriptions on the Inventory management screen. ([#3706](https://github.com/craftcms/commerce/issues/3706))
+- Fixed a bug where additional buttons defined with `Order::EVENT_DEFINE_ADDITIONAL_BUTTONS` weren’t displayed on the Edit Order screen. ([#3692](https://github.com/craftcms/commerce/issues/3692))
+- Fixed a bug where email errors weren’t displayed on the Edit Order screen. ([#3693](https://github.com/craftcms/commerce/issues/3693))
+
 ## 5.1.3 - 2024-10-02
 
 - Fixed a bug where variants weren’t respecting their product’s propagation method.

@@ -236,6 +236,11 @@ export default new Vuex.Store({
 
   actions: {
     displayError(context, msg) {
+      // Check if `msg` is instance of JavaScript Error object
+      if (msg instanceof Error) {
+        msg = msg.message;
+      }
+
       Craft.cp.displayError(msg);
     },
 

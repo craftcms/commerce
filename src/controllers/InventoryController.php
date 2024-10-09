@@ -14,6 +14,7 @@ use craft\commerce\collections\UpdateInventoryLevelCollection;
 use craft\commerce\db\Table;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\InventoryUpdateQuantityType;
+use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\inventory\InventoryManualMovement;
 use craft\commerce\models\inventory\UpdateInventoryLevel;
 use craft\commerce\models\InventoryItem;
@@ -278,11 +279,13 @@ class InventoryController extends Controller
             $inventoryItemDomId = sprintf("edit-$id-link-%s", mt_rand());
             if ($purchasable) {
                 $inventoryLevel['purchasable'] = Cp::chipHtml($purchasable, ['labelHtml' => $purchasable->getDescription(), 'showActionMenu' => !$purchasable->getIsDraft() && $purchasable->canSave($currentUser)]);
-                $inventoryLevel['sku'] = Html::tag('span', Html::a($purchasable->getSkuAsText(), "#", ['id' => "$inventoryItemDomId", 'class' => 'code']));
             } else {
-                $inventoryLevel['purchasable'] = '';
+                $inventoryLevel['purchasable'] = $inventoryLevel['description'];
+            }
+            if (PurchasableHelper::isTempSku($inventoryLevel['sku'])) {
                 $inventoryLevel['sku'] = '';
             }
+            $inventoryLevel['sku'] = Html::tag('span', Html::a($inventoryLevel['sku'], "#", ['id' => "$inventoryItemDomId", 'class' => 'code']));
             $inventoryLevel['id'] = $id;
 
             $view->registerJsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS
