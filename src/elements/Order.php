@@ -2592,7 +2592,6 @@ class Order extends Element implements HasStoreInterface
      */
     public function getPaidStatus(): string
     {
-
         if ($this->getIsPaid() &&
             $this->_getTeller()->greaterThan($this->getTotalPrice(), 0) &&
             $this->_getTeller()->greaterThan($this->getTotalPaid(), $this->getTotalPrice())
@@ -3802,15 +3801,5 @@ class Order extends Element implements HasStoreInterface
                 $addressElement->lastName = $lastName ?? $addressElement->lastName;
             }
         }
-    }
-
-    /**
-     * @return Teller
-     * @throws InvalidConfigException
-     * @since 5.2.0
-     */
-    private function _getTeller(): Teller
-    {
-        return Plugin::getInstance()->getCurrencies()->getTeller($this->currency);
     }
 }
