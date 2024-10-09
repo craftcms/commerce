@@ -16,6 +16,7 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CustomerAddressBehavior;
 use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\behaviors\ValidateOrganizationTaxIdBehavior;
+use craft\commerce\console\controllers\UpgradeController as UpgradeController;
 use craft\commerce\db\Table;
 use craft\commerce\debug\CommercePanel;
 use craft\commerce\elements\Donation;
@@ -280,7 +281,7 @@ class Plugin extends BasePlugin
 
     private function _checkUpgradeCommandHasFinished()
     {
-        $v3Columns = \craft\commerce\console\controllers\UpgradeController::$_v3droppableColumns;
+        $v3Columns = UpgradeController::$v3droppableColumns;
         // do any of the columns exist:
         $columnsExist = false;
         foreach ($v3Columns as $column) {
@@ -293,7 +294,7 @@ class Plugin extends BasePlugin
         if ($columnsExist) {
             Event::on(Cp::class, Cp::EVENT_REGISTER_ALERTS, static function($event) {
                 $event->alerts[] = [
-                    'content' => Craft::t('commerce', 'Craft Commerce 4 upgrade incomplete. Please ensure the Craft Commerce 4 upgrade command has finished running.'),
+                    'content' => Craft::t('commerce', 'Craft Commerce 4 upgrade incomplete. Please ensure the upgrade command has finished running.'),
                 ];
             });
         }

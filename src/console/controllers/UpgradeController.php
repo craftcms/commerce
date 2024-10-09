@@ -104,7 +104,7 @@ class UpgradeController extends Controller
      *
      * @var array<array{table: string, column: string}>
      */
-    public static array $_v3droppableColumns = [
+    public static array $v3droppableColumns = [
         ['table' => '{{%commerce_taxzones}}', 'column' => 'v3isCountryBased'],
         ['table' => '{{%commerce_shippingzones}}', 'column' => 'v3isCountryBased'],
         ['table' => '{{%commerce_taxzones}}', 'column' => 'v3zipCodeConditionFormula'],
@@ -325,7 +325,7 @@ class UpgradeController extends Controller
         }
 
         $event = new UpgradeEvent();
-        $event->v3columnMap = $this->_v3droppableColumns;
+        $event->v3columnMap = self::$v3droppableColumns;
         $event->v3tables = $this->_v3tables;
         if ($this->hasEventHandlers(self::EVENT_BEFORE_DROP_V3_DATABASE_ENTITIES)) {
             $this->trigger(self::EVENT_BEFORE_DROP_V3_DATABASE_ENTITIES, $event);
@@ -337,7 +337,7 @@ class UpgradeController extends Controller
             $this->db->createCommand()->dropTableIfExists($table)->execute();
         }
 
-        foreach (static::$_v3droppableColumns as ['table' => $table, 'column' => $column]) {
+        foreach (static::$v3droppableColumns as ['table' => $table, 'column' => $column]) {
             if ($this->db->columnExists($table, $column)) {
                 Db::dropForeignKeyIfExists($table, $column, $this->db);
                 Db::dropIndexIfExists($table, $column, db: $this->db);
