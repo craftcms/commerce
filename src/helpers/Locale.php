@@ -26,7 +26,7 @@ class Locale
      * @param string $toLanguage
      * @param string|null $formattingLocale
      * @throws InvalidConfigException
-     * @TODO rename `toLanguage` to `locale` in Commerce 5
+     * @TODO rename `toLanguage` to `locale` in 6.0
      */
     public static function switchAppLanguage(string $toLanguage, ?string $formattingLocale = null): void
     {
