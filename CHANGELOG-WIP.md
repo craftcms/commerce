@@ -1,11 +1,9 @@
 # Release Notes for Craft Commerce 4.7 (WIP)
 
 ### Store Management
-- It’s now possible to specifically make discounts require a coupon code. ([#3132](https://github.com/craftcms/commerce/issues/3132))
-- Country code defaults to the store’s country when creating a new address on the Order Edit page. ([#3306](https://github.com/craftcms/commerce/issues/3306))
+- It’s now possible for discounts to explicitly require a coupon code. ([#3132](https://github.com/craftcms/commerce/issues/3132))
+- New order addresses now default to the store’s country on the Order Edit screen. ([#3306](https://github.com/craftcms/commerce/issues/3306))
 - Product conditions can now have a “Variant Search” rule. ([#3689](https://github.com/craftcms/commerce/issues/3689))
-- Improved the performance of adding items to the cart.
-- Improved the performance of shipping rule matching when an order condition formula is used. ([3653](https://github.com/craftcms/commerce/pull/3653))
 
 ### Administration
 
@@ -19,5 +17,7 @@
 - Added `craft\commerce\console\controllers\UpgradeController::$v3droppableColumns`
 
 ### System
-- Craft Commerce now requires 4.2+ of the moneyphp/money package.
+- Improved the performance of adding items to the cart.
+- Improved the performance of shipping rule matching when an order condition formula is used. ([3653](https://github.com/craftcms/commerce/pull/3653))
+- Craft Commerce now requires `moneyphp/money` 4.2 or later.
 - Fixed a bug where outstanding order balances could be calculated incorrectly. ([#3403](https://github.com/craftcms/commerce/issues/3403))
