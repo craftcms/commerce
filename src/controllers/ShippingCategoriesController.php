@@ -184,7 +184,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
 
         if (!empty($failedIds)) {
             return $this->asFailure(Craft::t('commerce', 'Could not delete {count, number} shipping {count, plural, one{category} other{categories}}.', [
-                'count' => count($failedIds)
+                'count' => count($failedIds),
             ]));
         }
 
