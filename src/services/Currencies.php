@@ -24,11 +24,12 @@ use yii\base\Component;
  */
 class Currencies extends Component
 {
+    private array $_tellersByIso = [];
+
     /**
      * @var array
      */
     private array $_allCurrencies;
-
 
     /**
      * @param \Money\Currency|string $currency
@@ -40,16 +41,24 @@ class Currencies extends Component
         if (is_string($currency)) {
             $currency = new \Money\Currency($currency);
         }
+
+        $iso = $currency->getCode();
+        if (isset($this->_tellersByIso[$iso])) {
+            return $this->_tellersByIso[$iso];
+        }
+
         $isoCurrencies = new ISOCurrencies(); // remove in 5.0 and use $this->_isoCurrencies
         $parser = new DecimalMoneyParser($isoCurrencies); // in 5.0 use $this->_isoCurrencies
         $formatter = new DecimalMoneyFormatter($isoCurrencies); // in 5.0 use $this->_isoCurrencies
         $roundingMode = Money::ROUND_HALF_UP;
-        return new \Money\Teller(
+        $this->_tellersByIso[$iso] = new \Money\Teller(
             $currency,
             $parser,
             $formatter,
             $roundingMode
         );
+
+        return $this->_tellersByIso[$iso];
     }
 
     /**

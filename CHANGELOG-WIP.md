@@ -16,3 +16,4 @@
 
 ### System
 - Craft Commerce now requires 4.2+ of the moneyphp/money package.
+- Fixed a bug where outstanding order balances could be calculated incorrectly. ([#3403](https://github.com/craftcms/commerce/issues/3403))

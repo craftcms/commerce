@@ -1187,11 +1187,6 @@ class Order extends Element
     public bool $suppressEmails = false;
 
     /**
-     * @var Teller|null
-     */
-    private ?Teller $_teller = null;
-
-    /**
      * @inheritdoc
      */
     public function init(): void
@@ -3626,12 +3621,6 @@ class Order extends Element
      */
     private function _getTeller(): Teller
     {
-        if ($this->_teller) {
-            return $this->_teller;
-        }
-
-        $this->_teller = Plugin::getInstance()->getCurrencies()->getTeller($this->currency);
-
-        return $this->_teller;
+        return Plugin::getInstance()->getCurrencies()->getTeller($this->currency);
     }
 }
