@@ -293,7 +293,7 @@ class Plugin extends BasePlugin
         if ($columnsExist) {
             Event::on(Cp::class, Cp::EVENT_REGISTER_ALERTS, static function($event) {
                 $event->alerts[] = [
-                    'content' => Craft::t('commerce', '<strong>Commerce 4 upgrade incomplete.</strong> Please ensure the <a href="https://craftcms.com/docs/commerce/4.x/upgrading.html#performing-the-upgrade" target="_blank" rel="noopener noreferrer">Commerce 4 upgrade command</a> has finished running.'),
+                    'content' => Craft::t('commerce', 'Craft Commerce 4 upgrade incomplete. Please ensure the Craft Commerce 4 upgrade command has finished running.'),
                 ];
             });
         }

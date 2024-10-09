@@ -237,6 +237,7 @@ return [
     'Coupon removed: {explanation}' => 'Coupon removed: {explanation}',
     'Coupons' => 'Coupons',
     'Craft Commerce' => 'Craft Commerce',
+    'Craft Commerce 4 upgrade incomplete. Please ensure the Craft Commerce 4 upgrade command has finished running.' => '<strong><span lang="en">Craft Commerce 4</span> upgrade incomplete.</strong> Please ensure the <a href="https://craftcms.com/docs/commerce/4.x/upgrading.html#performing-the-upgrade" target="_blank" rel="noopener noreferrer"><span lang="en">Craft Commerce 4</span> upgrade command</a> has finished running.',
     'Create a Discount' => 'Create a Discount',
     'Create a Product Type' => 'Create a Product Type',
     'Create a Subscription Plan' => 'Create a Subscription Plan',
