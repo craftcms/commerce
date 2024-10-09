@@ -95,6 +95,12 @@ class Discount extends Model implements HasStoreInterface
     public null|ElementConditionInterface $_billingAddressCondition = null;
 
     /**
+     * @var bool Requires a coupon code to be applied
+     * @since 5.2.0
+     */
+    public bool $requireCouponCode = false;
+
+    /**
      * @var int Per user coupon use limit
      */
     public int $perUserLimit = 0;
@@ -692,6 +698,7 @@ class Discount extends Model implements HasStoreInterface
                 'purchasableIds',
                 'purchaseQty',
                 'purchaseTotal',
+                'requireCouponCode',
                 'shippingAddressCondition',
                 'sortOrder',
                 'stopProcessing',

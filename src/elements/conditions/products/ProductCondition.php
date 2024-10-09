@@ -30,6 +30,7 @@ class ProductCondition extends ElementCondition
     {
         return array_merge(parent::selectableConditionRules(), [
             ProductTypeConditionRule::class,
+            ProductVariantSearchConditionRule::class,
             ProductVariantSkuConditionRule::class,
             ProductVariantStockConditionRule::class,
             ProductVariantHasUnlimitedStockConditionRule::class,

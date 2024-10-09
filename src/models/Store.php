@@ -97,6 +97,27 @@ class Store extends Model
      */
     private bool|string $_allowEmptyCartOnCheckout = false;
 
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'locationAddress';
+
+        return $fields;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function attributes(): array
+    {
+        $names = parent::attributes();
+        $names[] = 'name';
+        $names[] = 'locationAddressId';
+        $names[] = 'countries';
+        $names[] = 'marketAddressCondition';
+        return $names;
+    }
+
     /**
      * @var bool
      * @see setAllowCheckoutWithoutPayment()
@@ -314,16 +335,6 @@ class Store extends Model
             'commerce' => Craft::t('commerce', 'Handle'),
             'primary' => Craft::t('commerce', 'Primary'),
         ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function attributes(): array
-    {
-        $attributes = parent::attributes();
-        $attributes[] = 'name';
-        return $attributes;
     }
 
     /**

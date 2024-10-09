@@ -367,6 +367,7 @@ class Discounts extends Component
 
         $couponSubQuery = (new Query())
             ->from(Table::COUPONS)
+            ->leftJoin(Table::DISCOUNTS . ' disc', '[[disc.id]] = [[discountId]]')
             ->where(new Expression('[[discountId]] = [[discounts.id]]'));
 
         // If the order has a coupon code let's only get discounts for that code, or discounts that do not require a code
@@ -383,6 +384,7 @@ class Discounts extends Component
                     // Find discount where the coupon code matches
                     [
                         'exists', (clone $couponSubQuery)
+                        ->andWhere(['requireCouponCode' => true])
                         ->andWhere($codeWhere)
                         ->andWhere([
                                 'or',
@@ -392,14 +394,12 @@ class Discounts extends Component
                         ),
                     ],
                     // OR find discounts that do not have a coupon code requirement
-                    ['not exists', $couponSubQuery],
+                    ['requireCouponCode' => false],
                 ]
             );
         } elseif ($order && !$order->couponCode) {
-            $discountQuery->andWhere(
             // only discounts that do not have a coupon code requirement
-                ['not exists', $couponSubQuery]
-            );
+            $discountQuery->andWhere(['requireCouponCode' => false]);
         }
 
         if ($order && !empty($purchasableIds)) {
@@ -435,7 +435,17 @@ class Discounts extends Component
     {
         $discount = $this->getDiscountByCode($order->couponCode, $order->storeId);
 
-        if (!$discount || !$this->_isDiscountCouponCodeValid($order, $discount)) {
+        if (!$discount) {
+            $explanation = Craft::t('commerce', 'Coupon not valid.');
+            return false;
+        }
+
+        if (!$discount->requireCouponCode) {
+            $explanation = Craft::t('commerce', 'Coupon not valid.');
+            return false;
+        }
+
+        if (!$this->_isDiscountCouponCodeValid($order, $discount)) {
             $explanation = Craft::t('commerce', 'Coupon not valid.');
             return false;
         }
@@ -478,7 +488,7 @@ class Discounts extends Component
     }
 
     /**
-     * Returns an enabled discount by its code.
+     * Returns an enabled discount by its code, regardless of the discount's `requireCouponCode` value.
      *
      * @throws \Exception
      */
@@ -759,6 +769,7 @@ class Discounts extends Component
         $record->customerCondition = $model->hasCustomerCondition() ? $model->getCustomerCondition()->getConfig() : null;
         $record->shippingAddressCondition = $model->hasShippingAddressCondition() ? $model->getShippingAddressCondition()->getConfig() : null;
         $record->billingAddressCondition = $model->hasBillingAddressCondition() ? $model->getBillingAddressCondition()->getConfig() : null;
+        $record->requireCouponCode = $model->requireCouponCode;
         $record->orderConditionFormula = $model->orderConditionFormula;
         $record->purchaseQty = $model->purchaseQty;
         $record->maxPurchaseQty = $model->maxPurchaseQty;
@@ -1151,9 +1162,15 @@ SQL;
      */
     private function _isDiscountCouponCodeValid(Order $order, Discount $discount): bool
     {
-        $coupons = $discount->getCoupons();
-        if (empty($coupons)) {
+        // If the discount does not require a coupon code, it's valid
+        if (!$discount->requireCouponCode) {
             return true;
+        }
+
+        $coupons = $discount->getCoupons();
+        // Protect against empty coupon code list if the discount requires a coupon code
+        if (empty($coupons)) {
+            return false;
         }
 
         $return = ArrayHelper::firstWhere($coupons, static fn(Coupon $coupon) => (strcasecmp($coupon->code, $order->couponCode) == 0) && ($coupon->maxUses === null || $coupon->maxUses > $coupon->uses));
@@ -1331,6 +1348,7 @@ SQL;
                 '[[discounts.perUserLimit]]',
                 '[[discounts.purchaseTotal]]',
                 '[[discounts.purchaseQty]]',
+                '[[discounts.requireCouponCode]]',
                 '[[discounts.sortOrder]]',
                 '[[discounts.stopProcessing]]',
                 '[[discounts.storeId]]',

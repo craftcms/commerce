@@ -3,6 +3,9 @@
 ### Store Management
 
 - Added the ability to make a Product Type orderable, so that Products can be manually ordered.
+- It’s now possible for discounts to explicitly require a coupon code. ([#3132](https://github.com/craftcms/commerce/issues/3132))
+- New order addresses now default to the store’s country on the Order Edit screen. ([#3306](https://github.com/craftcms/commerce/issues/3306))
+- Product conditions can now have a “Variant Search” rule. ([#3689](https://github.com/craftcms/commerce/issues/3689))
 
 ### Administration
 
@@ -11,14 +14,23 @@
 - Added the `onPromotion` GraphQL variant query argument.
 
 ### Extensibility
+- Added `craft\commerce\console\controllers\UpgradeController::$v3droppableColumns`
+- Added `craft\commerce\console\controllers\UpgradeController::EVENT_BEFORE_DROP_V3_DATABASE_ENTITIES`.
+- Added `craft\commerce\elements\conditions\products\ProductVariantSearchConditionRule`.
 - Added `craft\commerce\elements\db\Purchasable::$onPromotion`.
 - Added `craft\commerce\elements\db\Purchasable::onPromotion()`.
-- Added `craft\commerce\models\ProductType::TYPE_CHANNEL`
-- Added `craft\commerce\models\ProductType::TYPE_ORDERABLE`
+- Added `craft\commerce\events\UpgradeEvent`.
+- Added `craft\commerce\models\Discount::$requireCouponCode`.
+- Added `craft\commerce\models\ProductType::$structureId`
+- Added `craft\commerce\models\ProductType::$type`
 - Added `craft\commerce\models\ProductType::DEFAULT_PLACEMENT_BEGINNING`
 - Added `craft\commerce\models\ProductType::DEFAULT_PLACEMENT_END`
-- Added `craft\commerce\models\ProductType::$type`
-- Added `craft\commerce\models\ProductType::$structureId`
+- Added `craft\commerce\models\ProductType::TYPE_CHANNEL`
+- Added `craft\commerce\models\ProductType::TYPE_ORDERABLE`
 - Added `craft\commerce\models\ProductType::getConfig()`
 
 ### System
+- Improved the performance of adding items to the cart.
+- Improved the performance of shipping rule matching when an order condition formula is used. ([3653](https://github.com/craftcms/commerce/pull/3653))
+- Craft Commerce now requires `moneyphp/money` 4.2 or later.
+- Fixed a bug where outstanding order balances could be calculated incorrectly. ([#3403](https://github.com/craftcms/commerce/issues/3403))

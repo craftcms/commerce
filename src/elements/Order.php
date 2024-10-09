@@ -2592,11 +2592,10 @@ class Order extends Element implements HasStoreInterface
      */
     public function getPaidStatus(): string
     {
-        $teller = $this->_getTeller();
 
         if ($this->getIsPaid() &&
-            $teller->greaterThan($this->getTotalPrice(), 0) &&
-            $teller->greaterThan($this->getTotalPaid(), $this->getTotalPrice())
+            $this->_getTeller()->greaterThan($this->getTotalPrice(), 0) &&
+            $this->_getTeller()->greaterThan($this->getTotalPaid(), $this->getTotalPrice())
         ) {
             return self::PAID_STATUS_OVERPAID;
         }
@@ -2605,7 +2604,7 @@ class Order extends Element implements HasStoreInterface
             return self::PAID_STATUS_PAID;
         }
 
-        if ($this->getTotalPaid() > 0) {
+        if ($this->_getTeller()->greaterThan($this->getTotalPaid(), 0)) {
             return self::PAID_STATUS_PARTIAL;
         }
 
@@ -2726,7 +2725,7 @@ class Order extends Element implements HasStoreInterface
      */
     public function hasOutstandingBalance(): bool
     {
-        return $this->getOutstandingBalance() > 0;
+        return $this->_getTeller()->greaterThan($this->getOutstandingBalance(), 0);
     }
 
     /**
@@ -3803,5 +3802,15 @@ class Order extends Element implements HasStoreInterface
                 $addressElement->lastName = $lastName ?? $addressElement->lastName;
             }
         }
+    }
+
+    /**
+     * @return Teller
+     * @throws InvalidConfigException
+     * @since 5.2.0
+     */
+    private function _getTeller(): Teller
+    {
+        return Plugin::getInstance()->getCurrencies()->getTeller($this->currency);
     }
 }

@@ -102,7 +102,7 @@ class Carts extends Component
     /**
      * Get the current cart for this session.
      *
-     * @param bool $forceSave Force the cart to save when requesting it.
+     * @param bool $forceSave Force the cart.
      * @throws ElementNotFoundException
      * @throws Exception
      * @throws Throwable

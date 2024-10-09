@@ -17,6 +17,8 @@ use craft\commerce\behaviors\CustomerAddressBehavior;
 use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\controllers\UsersController as CommerceUsersController;
+use craft\commerce\behaviors\ValidateOrganizationTaxIdBehavior;
+use craft\commerce\console\controllers\UpgradeController as UpgradeController;
 use craft\commerce\db\Table;
 use craft\commerce\debug\CommercePanel;
 use craft\commerce\elements\Donation;
@@ -145,6 +147,7 @@ use craft\fixfks\controllers\RestoreController;
 use craft\gql\ElementQueryConditionBuilder;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
+use craft\helpers\Cp;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
@@ -254,7 +257,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.2.0.1';
+    public string $schemaVersion = '5.2.0.2';
 
     /**
      * @inheritdoc

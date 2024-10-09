@@ -113,13 +113,11 @@ class DiscountsController extends BaseStoreManagementController
                 'discounts.dateTo',
                 'discounts.totalDiscountUses',
                 'discounts.ignorePromotions',
+                'discounts.requireCouponCode',
                 'discounts.stopProcessing',
                 'discounts.sortOrder',
-                'coupons.discountId',
             ])
-            ->distinct()
             ->where(['discounts.storeId' => $storeId])
-            ->leftJoin(Table::COUPONS . ' coupons', '[[coupons.discountId]] = [[discounts.id]]')
             ->orderBy(['sortOrder' => SORT_ASC]);
 
 
@@ -164,8 +162,7 @@ class DiscountsController extends BaseStoreManagementController
                 'status' => (bool)$item['enabled'],
                 'duration' => $dateRange,
                 'timesUsed' => $item['totalDiscountUses'],
-                // If there is joined data then there are coupons
-                'hasCoupons' => (bool)$item['discountId'],
+                'requireCouponCode' => (bool)$item['requireCouponCode'],
                 'ignore' => (bool)$item['ignorePromotions'],
                 'stop' => (bool)$item['stopProcessing'],
             ];
@@ -259,6 +256,7 @@ class DiscountsController extends BaseStoreManagementController
         $discount->setCustomerCondition($this->request->getBodyParam('customerCondition'));
         $discount->setShippingAddressCondition($this->request->getBodyParam('shippingAddressCondition'));
         $discount->setBillingAddressCondition($this->request->getBodyParam('billingAddressCondition'));
+        $discount->requireCouponCode = (bool)$this->request->getBodyParam('requireCouponCode');
         $discount->stopProcessing = (bool)$this->request->getBodyParam('stopProcessing');
         $discount->purchaseQty = $this->request->getBodyParam('purchaseQty');
         $discount->maxPurchaseQty = $this->request->getBodyParam('maxPurchaseQty');
@@ -385,6 +383,7 @@ class DiscountsController extends BaseStoreManagementController
     private function _setCouponsOnDiscount(array $coupons, Discount $discount): void
     {
         if (empty($coupons)) {
+            $discount->setCoupons([]);
             return;
         }
 
