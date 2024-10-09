@@ -592,10 +592,6 @@ class CartController extends BaseFrontEndController
 
         $this->_cart = Plugin::getInstance()->getCarts()->getCart($doForceSave);
 
-        if (!$this->_cart->id) {
-            Craft::$app->getElements()->saveElement($this->_cart, false);
-        }
-
         return $this->_cart;
     }
 
