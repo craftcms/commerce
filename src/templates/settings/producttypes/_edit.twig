@@ -201,23 +201,43 @@
         }) }}
 
         {{ forms.lightswitchField({
+            label: "Enable structure for products of this type"|t('commerce'),
+            warning: productType.id ? 'Changing this may result in data loss.'|t('app'),
+            id: 'isStructure',
+            name: 'isStructure',
+            on: productType.isStructure,
+            toggle: 'isStructureFields',
+        }) }}
+
+        <div id="isStructureFields" class="field {% if not productType.isStructure %}hidden{% endif %}">
+            {{ forms.selectField({
+                label: 'Default {type} Placement'|t('app', {type: 'Product'|t('commerce')}),
+                instructions: 'Where new {type} should be placed by default in the structure.'|t('commerce', {type: 'product'|t('commerce')}),
+                id: 'default-placement',
+                name: 'defaultPlacement',
+                options: [
+                    {label: 'Before other {type}'|t('app', {type: 'products'|t('commerce')}), value: 'beginning'},
+                    {label: 'After other {type}'|t('app', {type: 'products'|t('commerce')}), value: 'end'},
+                ],
+                value: productType.defaultPlacement,
+            }) }}
+
+            {{ forms.textField({
+                label: "Max Levels"|t('app'),
+                instructions: "The maximum number of levels this product type can have. Leave blank if you don’t care."|t('commerce'),
+                id: 'maxLevels',
+                name: 'maxLevels',
+                value: productType.maxLevels,
+                size: 5,
+                errors: productType.getErrors('maxLevels')
+            }) }}
+        </div>
+
+        {{ forms.lightswitchField({
             label: 'Enable versioning for products of this type'|t('app'),
             id: 'enableVersioning',
             name: 'enableVersioning',
             on: productType.enableVersioning
-        }) }}
-
-        {{ forms.selectField({
-            label: "Type"|t('commerce'),
-            instructions: "What type of product type is this?"|t('commerce'),
-            warning: productType.id and productType.type != 'single' ? 'Changing this may result in data loss.'|t('app'),
-            id: 'type',
-            name: 'type',
-            options: typeOptions,
-            value: productType.type,
-            toggle: true,
-            targetPrefix: '.type-',
-            errors: productType.getErrors('type')
         }) }}
 
         {{ productTitleFormatField(productType) }}
@@ -358,21 +378,6 @@
                 }) }}
             </div>
         {% endif %}
-
-        <div class="field type-orderable {% if productType.type != 'orderable' %}hidden{% endif %}">
-            {{ forms.selectField({
-                label: 'Default {type} Placement'|t('app', {type: 'Product'|t('commerce')}),
-                instructions: 'Where new {type} should be placed by default in the orderable product type.'|t('commerce', {type: 'product'|t('commerce')}),
-                id: 'default-placement',
-                name: 'defaultPlacement',
-                options: [
-                    {label: 'Before other {type}'|t('app', {type: 'products'|t('commerce')}), value: 'beginning'},
-                    {label: 'After other {type}'|t('app', {type: 'products'|t('commerce')}), value: 'end'},
-                ],
-                value: productType.defaultPlacement,
-            }) }}
-        </div>
-
     </div>
 
     <div id="tax-and-shipping" class="hidden">

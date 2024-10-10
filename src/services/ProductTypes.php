@@ -435,10 +435,10 @@ class ProductTypes extends Component
                 $shouldResaveProducts = true;
             }
             $productTypeRecord->descriptionFormat = $descriptionFormat;
-
-            $productTypeRecord->type = $data['type'] ?? ProductType::TYPE_CHANNEL;
+            $productTypeRecord->isStructure = $data['isStructure'] ?? false;
+            $productTypeRecord->maxLevels = $data['maxLevels'] ?? null;
             $productTypeRecord->defaultPlacement = $data['defaultPlacement'] ?? ProductType::DEFAULT_PLACEMENT_BEGINNING;
-            if ($productTypeRecord->type != $productTypeRecord->getOldAttribute('type')) {
+            if ($productTypeRecord->isStructure != $productTypeRecord->getOldAttribute('isStructure')) {
                 $shouldResaveProducts = true;
             }
 
@@ -470,12 +470,12 @@ class ProductTypes extends Component
                 $productTypeRecord->variantFieldLayoutId = null;
             }
 
-            if ($productTypeRecord->type === ProductType::TYPE_ORDERABLE) {
+            if ($productTypeRecord->isStructure) {
                 // Save the structure
                 $structureUid = $data['structure']['uid'];
                 $structure = Craft::$app->getStructures()->getStructureByUid($structureUid, true) ?? new Structure(['uid' => $structureUid]);
                 $isNewStructure = empty($structure->id);
-                $structure->maxLevels = 1;
+                $structure->maxLevels = $productTypeRecord->maxLevels;
                 Craft::$app->getStructures()->saveStructure($structure);
                 $productTypeRecord->structureId = $structure->id;
             } else {
@@ -565,7 +565,7 @@ class ProductTypes extends Component
             // -----------------------------------------------------------------
 
             if (
-                $productTypeRecord->type === ProductType::TYPE_ORDERABLE &&
+                $productTypeRecord->isStructure &&
                 !$isNewProductType &&
                 $isNewStructure
             ) {
@@ -922,8 +922,9 @@ class ProductTypes extends Component
         }
 
         /** @since 5.2 */
-        if ($db->columnExists(Table::PRODUCTTYPES, 'type')) {
-            $query->addSelect('productTypes.type');
+        if ($db->columnExists(Table::PRODUCTTYPES, 'isStructure')) {
+            $query->addSelect('productTypes.isStructure');
+            $query->addSelect('productTypes.maxLevels');
         }
 
         /** @since 5.2 */

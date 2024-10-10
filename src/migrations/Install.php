@@ -608,7 +608,8 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::PRODUCTTYPES);
         $this->createTable(Table::PRODUCTTYPES, [
             'id' => $this->primaryKey(),
-            'type' => $this->enum('type', [ProductType::TYPE_CHANNEL, ProductType::TYPE_ORDERABLE])->notNull()->defaultValue('channel'),
+            'isStructure' => $this->boolean()->notNull()->defaultValue(false),
+            'maxLevels' => $this->smallInteger()->unsigned(),
             'defaultPlacement' => $this->enum('defaultPlacement', [ProductType::DEFAULT_PLACEMENT_BEGINNING, ProductType::DEFAULT_PLACEMENT_END])->defaultValue('end')->notNull(),
             'structureId' => $this->integer(),
             'fieldLayoutId' => $this->integer(),

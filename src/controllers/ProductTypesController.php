@@ -61,17 +61,6 @@ class ProductTypesController extends BaseAdminController
             }
         }
 
-        $typeOptions = [
-            ProductType::TYPE_CHANNEL => Craft::t('app', 'Channel'),
-            ProductType::TYPE_ORDERABLE => Craft::t('commerce', 'Orderable'),
-        ];
-
-        if (!$variables['productType']->type) {
-            $variables['productType']->type = ProductType::TYPE_CHANNEL;
-        }
-
-        $variables['typeOptions'] = $typeOptions;
-
         if (!empty($variables['productTypeId'])) {
             $variables['title'] = $variables['productType']->name;
         } else {
@@ -151,7 +140,8 @@ class ProductTypesController extends BaseAdminController
         $productType->skuFormat = $this->request->getBodyParam('skuFormat');
         $productType->descriptionFormat = $this->request->getBodyParam('descriptionFormat');
         $productType->propagationMethod = PropagationMethod::tryFrom($this->request->getBodyParam('propagationMethod') ?? '') ?? PropagationMethod::All;
-        $productType->type = $this->request->getBodyParam('type');
+        $productType->isStructure = $this->request->getBodyParam('isStructure');
+        $productType->maxLevels = $this->request->getBodyParam('maxLevels', 1);
         $productType->defaultPlacement = $this->request->getBodyParam('defaultPlacement');
 
         // Site-specific settings

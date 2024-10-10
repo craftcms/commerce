@@ -25,8 +25,8 @@ class m240906_115901_add_orderable_to_product_types extends Migration
 
         if (!$this->db->columnExists('{{%commerce_producttypes}}', 'type')) {
             $this->addColumn('{{%commerce_producttypes}}', 'type', $this->enum('type', [
-                    ProductType::TYPE_CHANNEL,
-                    ProductType::TYPE_ORDERABLE, ]
+                    'channel',
+                    'orderable', ]
             )->defaultValue('channel')->notNull());
         }
 
