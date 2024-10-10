@@ -26,18 +26,24 @@ use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Product as ProductRecord;
+use craft\controllers\ElementIndexesController;
 use craft\db\Query;
 use craft\elements\actions\CopyReferenceTag;
 use craft\elements\actions\Delete;
 use craft\elements\actions\Duplicate;
+use craft\elements\actions\NewChild;
+use craft\elements\actions\NewSiblingAfter;
+use craft\elements\actions\NewSiblingBefore;
 use craft\elements\actions\Restore;
 use craft\elements\actions\SetStatus;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\EagerLoadPlan;
+use craft\elements\db\ElementQuery;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\NestedElementManager;
 use craft\elements\User;
 use craft\enums\PropagationMethod;
+use craft\events\ElementCriteriaEvent;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
@@ -82,6 +88,13 @@ class Product extends Element implements HasStoreInterface
     public const STATUS_LIVE = 'live';
     public const STATUS_PENDING = 'pending';
     public const STATUS_EXPIRED = 'expired';
+
+    /**
+     * @event ElementCriteriaEvent The event that is triggered when defining the parent selection criteria.
+     * @see _parentOptionCriteria()
+     * @since 5.2.0
+     */
+    public const EVENT_DEFINE_PARENT_SELECTION_CRITERIA = 'defineParentSelectionCriteria';
 
     /**
      * @var float|null
@@ -328,6 +341,19 @@ class Product extends Element implements HasStoreInterface
      */
     protected static function defineActions(string $source = null): array
     {
+        $elementsService = Craft::$app->getElements();
+        // Get the selected site
+        $controller = Craft::$app->controller;
+        if ($controller instanceof ElementIndexesController) {
+            /** @var ElementQuery $elementQuery */
+            $elementQuery = $controller->getElementQuery();
+        } else {
+            $elementQuery = null;
+        }
+        $site = $elementQuery && $elementQuery->siteId
+            ? Craft::$app->getSites()->getSiteById($elementQuery->siteId)
+            : Craft::$app->getSites()->getCurrentSite();
+
         // Get the section(s) we need to check permissions on
         switch ($source) {
             case '*':
@@ -398,6 +424,35 @@ class Product extends Element implements HasStoreInterface
 
                 if ($canEdit) {
                     $actions[] = SetStatus::class;
+                }
+
+                if (
+                    $productType->isStructure &&
+                    $canCreate
+                ) {
+                    $newProductUrl = 'commerce/products/' . $productType->handle . '/new';
+
+                    if (Craft::$app->getIsMultiSite()) {
+                        $newProductUrl .= '?site=' . $site->handle;
+                    }
+
+                    $actions[] = $elementsService->createAction([
+                        'type' => NewSiblingBefore::class,
+                        'newSiblingUrl' => $newProductUrl,
+                    ]);
+
+                    $actions[] = $elementsService->createAction([
+                        'type' => NewSiblingAfter::class,
+                        'newSiblingUrl' => $newProductUrl,
+                    ]);
+
+                    if ($productType->maxLevels != 1) {
+                        $actions[] = $elementsService->createAction([
+                            'type' => NewChild::class,
+                            'maxLevels' => $productType->maxLevels,
+                            'newChildUrl' => $newProductUrl,
+                        ]);
+                    }
                 }
             }
 
@@ -1213,9 +1268,46 @@ class Product extends Element implements HasStoreInterface
     {
         $fields = [];
         $view = Craft::$app->getView();
-
+        $productType = $this->getType();
         // Slug
         $fields[] = $this->slugFieldHtml($static);
+
+        if ($productType->isStructure && $productType->maxLevels !== 1) {
+            $fields[] = (function() use ($static, $productType) {
+                if ($parentId = $this->getParentId()) {
+                    $parent = Plugin::getInstance()->getProducts()->getProductById($parentId, $this->siteId, [
+                        'drafts' => null,
+                        'draftOf' => false,
+                    ]);
+                } else {
+                    // If the entry already has structure data, use it. Otherwise, use its canonical entry
+                    /** @var self|null $parent */
+                    $parent = self::find()
+                        ->siteId($this->siteId)
+                        ->ancestorOf($this->lft ? $this : ($this->getIsCanonical() ? $this->id : $this->getCanonical(true)))
+                        ->ancestorDist(1)
+                        ->drafts(null)
+                        ->draftOf(false)
+                        ->status(null)
+                        ->one();
+                }
+
+                return Cp::elementSelectFieldHtml([
+                    'label' => Craft::t('app', 'Parent'),
+                    'id' => 'parentId',
+                    'name' => 'parentId',
+                    'elementType' => self::class,
+                    'selectionLabel' => Craft::t('app', 'Choose'),
+                    'sources' => ["productType:$productType->uid"],
+                    'criteria' => $this->_parentOptionCriteria($productType),
+                    'limit' => 1,
+                    'elements' => $parent ? [$parent] : [],
+                    'disabled' => $static,
+                    'describedBy' => 'parentId-label',
+                    'errors' => $this->getErrors('parentId'),
+                ]);
+            })();
+        }
 
         $isDeltaRegistrationActive = $view->getIsDeltaRegistrationActive();
         $view->setIsDeltaRegistrationActive(true);
@@ -1248,6 +1340,55 @@ class Product extends Element implements HasStoreInterface
         $fields[] = parent::metaFieldsHtml($static);
 
         return implode("\n", $fields);
+    }
+
+    private function _parentOptionCriteria(ProductType $productType): array
+    {
+        $parentOptionCriteria = [
+            'siteId' => $this->siteId,
+            'typeId' => $productType->id,
+            'status' => null,
+            'drafts' => null,
+            'draftOf' => false,
+        ];
+
+        // Prevent the current entry, or any of its descendants, from being selected as a parent
+        if ($this->id) {
+            $excludeIds = self::find()
+                ->descendantOf($this)
+                ->drafts(null)
+                ->draftOf(false)
+                ->status(null)
+                ->ids();
+            $excludeIds[] = $this->getCanonicalId();
+            $parentOptionCriteria['id'] = array_merge(['not'], $excludeIds);
+        }
+
+        if ($productType->maxLevels) {
+            if ($this->id) {
+                // Figure out how deep the ancestors go
+                $maxDepth = self::find()
+                    ->select('level')
+                    ->descendantOf($this)
+                    ->status(null)
+                    ->leaves()
+                    ->scalar();
+                $depth = 1 + ($maxDepth ?: $this->level) - $this->level;
+            } else {
+                $depth = 1;
+            }
+
+            $parentOptionCriteria['level'] = sprintf('<=%s', $productType->maxLevels - $depth);
+        }
+
+        // Fire a 'defineParentSelectionCriteria' event
+        if ($this->hasEventHandlers(self::EVENT_DEFINE_PARENT_SELECTION_CRITERIA)) {
+            $event = new ElementCriteriaEvent(['criteria' => $parentOptionCriteria]);
+            $this->trigger(self::EVENT_DEFINE_PARENT_SELECTION_CRITERIA, $event);
+            return $event->criteria;
+        }
+
+        return $parentOptionCriteria;
     }
 
     /**

@@ -17,6 +17,7 @@
 - Added `craft\commerce\console\controllers\UpgradeController::$v3droppableColumns`
 - Added `craft\commerce\console\controllers\UpgradeController::EVENT_BEFORE_DROP_V3_DATABASE_ENTITIES`.
 - Added `craft\commerce\elements\conditions\products\ProductVariantSearchConditionRule`.
+- Added `craft\commerce\elements\Product::EVENT_DEFINE_PARENT_SELECTION_CRITERIA`.
 - Added `craft\commerce\elements\db\Purchasable::$onPromotion`.
 - Added `craft\commerce\elements\db\Purchasable::onPromotion()`.
 - Added `craft\commerce\events\UpgradeEvent`.

@@ -82,6 +82,15 @@ class ProductsController extends BaseController
         $product->typeId = $productType->id;
         $product->enabled = true;
 
+        // Structure parent
+        if (
+            $productType->isStructure &&
+            (int)$productType->maxLevels !== 1
+        ) {
+            // Set the initially selected parent
+            $product->setParentId($this->request->getParam('parentId'));
+        }
+
         // Make sure the user is allowed to create this entry
         if (!Craft::$app->getElements()->canSave($product, $user)) {
             throw new ForbiddenHttpException('User not authorized to create this product.');
