@@ -91,6 +91,21 @@ class ProductsController extends BaseController
             $product->setParentId($this->request->getParam('parentId'));
         }
 
+        // Set its position in the structure if a before/after param was passed
+        if ($productType->isStructure) {
+            if ($nextId = $this->request->getParam('before')) {
+                $nextEntry = Plugin::getInstance()->getProducts()->getProductById($nextId, $site->id, [
+                    'structureId' => $productType->structureId,
+                ]);
+                Craft::$app->getStructures()->moveBefore($productType->structureId, $product, $nextEntry);
+            } elseif ($prevId = $this->request->getParam('after')) {
+                $prevEntry = Plugin::getInstance()->getProducts()->getProductById($prevId, $site->id, [
+                    'structureId' => $productType->structureId,
+                ]);
+                Craft::$app->getStructures()->moveAfter($productType->structureId, $product, $prevEntry);
+            }
+        }
+
         // Make sure the user is allowed to create this entry
         if (!Craft::$app->getElements()->canSave($product, $user)) {
             throw new ForbiddenHttpException('User not authorized to create this product.');
