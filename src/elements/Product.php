@@ -1270,7 +1270,10 @@ class Product extends Element implements HasStoreInterface
     protected function searchKeywords(string $attribute): string
     {
         if ($attribute === 'sku') {
-            return $this->getVariants()->only('sku')->implode(' ');
+            return $this->getVariants()
+                ->pluck('sku')
+                ->filter(fn(?string $sku) => $sku && !PurchasableHelper::isTempSku($sku))
+                ->implode(' ');
         }
 
         return parent::searchKeywords($attribute);
