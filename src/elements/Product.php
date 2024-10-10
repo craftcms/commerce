@@ -262,7 +262,7 @@ class Product extends Element implements HasStoreInterface
                 'sites' => $productType->getSiteIds(),
             ];
 
-            if ($productType->type == ProductType::TYPE_ORDERABLE) {
+            if ($productType->isStructure) {
                 $sources[$key]['defaultSort'] = ['structure', 'asc'];
                 $sources[$key]['structureId'] = $productType->structureId;
                 $sources[$key]['structureEditable'] = $canEditProducts;
@@ -1331,7 +1331,7 @@ class Product extends Element implements HasStoreInterface
 
             $this->id = $record->id;
 
-            if ($this->getIsCanonical() && isset($this->typeId) && $productType->type == ProductType::TYPE_ORDERABLE) {
+            if ($this->getIsCanonical() && isset($this->typeId) && $productType->isStructure) {
                 // Has the parent changed?
                 if ($this->hasNewParent()) {
                     $this->_placeInStructure($isNew, $productType);
@@ -1556,7 +1556,7 @@ class Product extends Element implements HasStoreInterface
         }
 
         // Set the structure ID for Element::attributes() and afterSave()
-        if ($productType->type === ProductType::TYPE_ORDERABLE) {
+        if ($productType->isStructure) {
             $this->structureId = $productType->structureId;
 
             // Has the entry been assigned to a new parent?

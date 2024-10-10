@@ -50,11 +50,6 @@ use yii\base\InvalidConfigException;
 class ProductType extends Model
 {
     /** @since 5.2.0 */
-    public const TYPE_CHANNEL = 'channel';
-    /** @since 5.2.0 */
-    public const TYPE_ORDERABLE = 'orderable';
-
-    /** @since 5.2.0 */
     public const DEFAULT_PLACEMENT_BEGINNING = 'beginning';
     /** @since 5.2.0 */
     public const DEFAULT_PLACEMENT_END = 'end';
@@ -152,10 +147,16 @@ class ProductType extends Model
     public ?string $template = null;
 
     /**
-     * @var string|null Type
+     * @var bool Is this a structure product type
      * @since 5.2.0
      */
-    public ?string $type = null;
+    public bool $isStructure = false;
+
+    /**
+     * @var ?int max levels of structure
+     * @since 5.2.0
+     */
+    public ?int $maxLevels = null;
 
     /**
      * @var string Default placement
@@ -580,11 +581,12 @@ class ProductType extends Model
                 'descriptionFormat' => $this->descriptionFormat,
                 'siteSettings' => [],
 
-                'type' => $this->type,
+                'isStructure' => $this->isStructure,
+                'maxLevels' => $this->maxLevels,
                 'defaultPlacement' => $this->defaultPlacement,
         ];
 
-        if ($this->type === self::TYPE_ORDERABLE) {
+        if ($this->isStructure) {
             $config['structure'] = [
                 'uid' => $this->structureId ? Db::uidById(Table::STRUCTURES, $this->structureId) : StringHelper::UUID(),
             ];

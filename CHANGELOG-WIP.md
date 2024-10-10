@@ -2,7 +2,7 @@
 
 ### Store Management
 
-- Added the ability to make a Product Type orderable, so that Products can be manually ordered.
+- Added the ability to make a Product Type use a structure, so that Products can be manually ordered.
 - It’s now possible for discounts to explicitly require a coupon code. ([#3132](https://github.com/craftcms/commerce/issues/3132))
 - New order addresses now default to the store’s country on the Order Edit screen. ([#3306](https://github.com/craftcms/commerce/issues/3306))
 - Product conditions can now have a “Variant Search” rule. ([#3689](https://github.com/craftcms/commerce/issues/3689))
@@ -22,11 +22,10 @@
 - Added `craft\commerce\events\UpgradeEvent`.
 - Added `craft\commerce\models\Discount::$requireCouponCode`.
 - Added `craft\commerce\models\ProductType::$structureId`
-- Added `craft\commerce\models\ProductType::$type`
+- Added `craft\commerce\models\ProductType::$isStructure`
+- Added `craft\commerce\models\ProductType::$maxLevels`
 - Added `craft\commerce\models\ProductType::DEFAULT_PLACEMENT_BEGINNING`
 - Added `craft\commerce\models\ProductType::DEFAULT_PLACEMENT_END`
-- Added `craft\commerce\models\ProductType::TYPE_CHANNEL`
-- Added `craft\commerce\models\ProductType::TYPE_ORDERABLE`
 - Added `craft\commerce\models\ProductType::getConfig()`
 
 ### System

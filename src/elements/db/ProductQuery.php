@@ -922,7 +922,7 @@ class ProductQuery extends ElementQuery
                 count($this->typeId) === 1
             ) {
                 $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById(reset($this->typeId));
-                if ($productType && $productType->type === ProductType::TYPE_ORDERABLE) {
+                if ($productType && $productType->isStructure) {
                     $this->structureId = $productType->structureId;
                 } else {
                     $this->withStructure = false;
