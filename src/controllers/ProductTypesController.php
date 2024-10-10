@@ -142,7 +142,7 @@ class ProductTypesController extends BaseAdminController
         $productType->propagationMethod = PropagationMethod::tryFrom($this->request->getBodyParam('propagationMethod') ?? '') ?? PropagationMethod::All;
         $productType->isStructure = $this->request->getBodyParam('isStructure');
         $maxLevels = (int)$this->request->getBodyParam('maxLevels');
-        $productType->maxLevels = $maxLevels ? $maxLevels : null;
+        $productType->maxLevels = $maxLevels ?: null;
         $productType->defaultPlacement = $this->request->getBodyParam('defaultPlacement');
 
         // Site-specific settings
