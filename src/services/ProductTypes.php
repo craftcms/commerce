@@ -475,7 +475,7 @@ class ProductTypes extends Component
                 $structureUid = $data['structure']['uid'];
                 $structure = Craft::$app->getStructures()->getStructureByUid($structureUid, true) ?? new Structure(['uid' => $structureUid]);
                 $isNewStructure = empty($structure->id);
-                $structure->maxLevels = $productTypeRecord->maxLevels;
+                $structure->maxLevels = $data['structure']['maxLevels'] ?? null;
                 Craft::$app->getStructures()->saveStructure($structure);
                 $productTypeRecord->structureId = $structure->id;
             } else {
