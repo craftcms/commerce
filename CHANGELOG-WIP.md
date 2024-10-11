@@ -2,7 +2,7 @@
 
 ### Store Management
 
-- Added the ability to make a Product Type use a structure, so that Products can be manually ordered.
+- Added the ability to let Product Types use a structure, so that Products can be manually ordered.
 - It’s now possible for discounts to explicitly require a coupon code. ([#3132](https://github.com/craftcms/commerce/issues/3132))
 - New order addresses now default to the store’s country on the Order Edit screen. ([#3306](https://github.com/craftcms/commerce/issues/3306))
 - Product conditions can now have a “Variant Search” rule. ([#3689](https://github.com/craftcms/commerce/issues/3689))
