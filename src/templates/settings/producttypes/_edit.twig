@@ -212,7 +212,7 @@
         <div id="isStructureFields" class="field {% if not productType.isStructure %}hidden{% endif %}">
             {{ forms.selectField({
                 label: 'Default {type} Placement'|t('app', {type: 'Product'|t('commerce')}),
-                instructions: 'Where new {type} should be placed by default in the structure.'|t('commerce', {type: 'product'|t('commerce')}),
+                instructions: 'Where new {type} should be placed by default in the structure.'|t('app', {type: 'products'|t('commerce')}),
                 id: 'default-placement',
                 name: 'defaultPlacement',
                 options: [

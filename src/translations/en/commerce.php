@@ -1304,7 +1304,6 @@ return [
     'What this tax category will be called in the control panel.' => 'What this tax category will be called in the control panel.',
     'What this tax zone will be called in the control panel.' => 'What this tax zone will be called in the control panel.',
     'When this discount is applied to an order, which line items should be discounted?' => 'When this discount is applied to an order, which line items should be discounted?',
-    'Where new {type} should be placed by default in the structure.' => 'Where new {type} should be placed by default in the structure.',
     'Whether the first available shipping method option should be set automatically on carts.' => 'Whether the first available shipping method option should be set automatically on carts.',
     'Whether the user’s primary payment source should be set automatically on new carts.' => 'Whether the user’s primary payment source should be set automatically on new carts.',
     'Whether the user’s primary shipping and billing addresses should be set automatically on new carts.' => 'Whether the user’s primary shipping and billing addresses should be set automatically on new carts.',
