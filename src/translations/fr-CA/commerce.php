@@ -818,7 +818,7 @@ return [
     'Reorder' => 'Commander de nouveau',
     'Repeat Customers' => 'Clients réguliers',
     'Reply To' => 'Répondre à',
-    'Require Coupon Code' => 'Require Coupon Code',
+    'Require Coupon Code' => 'Demander un code de promotionnel',
     'Require' => 'Demander',
     'Reset usage' => 'Réinitialiser l\'utilisation',
     'Restrict the discount to only those orders where the customer has purchased a minimum total value of matching items.' => 'Restreindre le rabais aux commandes où le client a acheté une valeur totale minimale d’articles correspondants.',
