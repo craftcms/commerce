@@ -109,7 +109,19 @@ class Currency
             $moneyFormatter = new IntlMoneyFormatter($numberFormatter, new ISOCurrencies());
             $money = Plugin::getInstance()->getCurrencies()->getTeller($currencyIso)->convertToMoney($amount);
 
-            return $moneyFormatter->format($money);
+            $amount = $moneyFormatter->format($money);
+        }
+
+        if ($stripZeros) {
+            $decimalSeparator = Craft::$app->getFormattingLocale()->getNumberSymbol(\craft\i18n\Locale::SYMBOL_DECIMAL_SEPARATOR);
+            // find decimal separator and zeros based on formatting locale and number of subunits
+            $subUnit = Plugin::getInstance()->getCurrencies()->getSubunitFor($currencyIso);
+            $zeroSymbol = Craft::$app->getFormattingLocale()->getNumberSymbol(\craft\i18n\Locale::SYMBOL_ZERO_DIGIT);
+            $zerosString = $decimalSeparator . str_repeat($zeroSymbol, $subUnit);
+
+            if (str_contains($amount, $zerosString)) {
+                $amount = str_replace($zerosString, '', $amount);
+            }
         }
 
         return (string)$amount;
