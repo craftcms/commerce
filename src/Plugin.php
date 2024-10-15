@@ -120,6 +120,7 @@ use craft\helpers\Console;
 use craft\helpers\Cp;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
+use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\redactor\events\RegisterLinkOptionsEvent;
@@ -294,7 +295,13 @@ class Plugin extends BasePlugin
         if ($columnsExist) {
             Event::on(Cp::class, Cp::EVENT_REGISTER_ALERTS, static function($event) {
                 $event->alerts[] = [
-                    'content' => Craft::t('commerce', 'Craft Commerce 4 upgrade incomplete. Please ensure the upgrade command has finished running.'),
+                    'content' =>
+                        Html::tag('strong', Craft::t('commerce', '{name} upgrade incomplete.', [
+                            'name' => '<span lang="en">Craft Commerce 4</span>',
+                        ])) . ' ' .
+                        Craft::t('commerce', 'Please ensure the <a href="{url}">upgrade command</a> has finished running.', [
+                            'url' => 'https://craftcms.com/docs/commerce/4.x/upgrading.html#performing-the-upgrade',
+                        ]),
                 ];
             });
         }
