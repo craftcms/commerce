@@ -292,7 +292,7 @@ class Plugin extends BasePlugin
             }
         }
 
-        if ($columnsExist || true) {
+        if ($columnsExist) {
             Event::on(Cp::class, Cp::EVENT_REGISTER_ALERTS, static function($event) {
                 $event->alerts[] = [
                     'content' =>
