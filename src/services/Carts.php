@@ -119,18 +119,17 @@ class Carts extends Component
         }
 
         // We only want to auto set things on real carts, not in-memory carts.
-            $autoSetAddresses = false;
-            // We only want to call autoSetAddresses() if we have a authed cart customer
-            if ($currentUser && $currentUser->id == $this->_cart->customerId) {
-                $autoSetAddresses = $this->_cart->autoSetAddresses();
-            }
-            $autoSetShippingMethod = $this->_cart->autoSetShippingMethod();
-            $autoSetPaymentSource = $this->_cart->autoSetPaymentSource();
-            if ($this->_cart->id && ($autoSetAddresses || $autoSetShippingMethod || $autoSetPaymentSource)) {
-                $forceSave = true;
-            }
-
-
+        $autoSetAddresses = false;
+        // We only want to call autoSetAddresses() if we have a authed cart customer
+        if ($currentUser && $currentUser->id == $this->_cart->customerId) {
+            $autoSetAddresses = $this->_cart->autoSetAddresses();
+        }
+        $autoSetShippingMethod = $this->_cart->autoSetShippingMethod();
+        $autoSetPaymentSource = $this->_cart->autoSetPaymentSource();
+        if ($this->_cart->id && ($autoSetAddresses || $autoSetShippingMethod || $autoSetPaymentSource)) {
+            $forceSave = true;
+        }
+        
         // Ensure the session knows what the current cart is.
         $this->setSessionCartNumber($this->_cart->number);
 
