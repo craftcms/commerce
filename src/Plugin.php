@@ -301,7 +301,7 @@ class Plugin extends BasePlugin
                         ])) . ' ' .
                         Craft::t('commerce', 'Please ensure the <a href="{url}">upgrade command</a> has finished running.', [
                             'url' => 'https://craftcms.com/docs/commerce/4.x/upgrading.html#performing-the-upgrade',
-                        ])
+                        ]),
                 ];
             });
         }
