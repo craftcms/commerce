@@ -5,6 +5,7 @@
 - Fixed a bug where inventory items could appear with blank descriptions on the Inventory management screen. ([#3706](https://github.com/craftcms/commerce/issues/3706))
 - Fixed a bug where additional buttons defined with `Order::EVENT_DEFINE_ADDITIONAL_BUTTONS` weren’t displayed on the Edit Order screen. ([#3692](https://github.com/craftcms/commerce/issues/3692))
 - Fixed a bug where email errors weren’t displayed on the Edit Order screen. ([#3693](https://github.com/craftcms/commerce/issues/3693))
+- Fixed a bug where `craft\commerce\helpers\Currency::formatAsCurrency()` wasn't stripping zeros. ([#3716](https://github.com/craftcms/commerce/issues/3716))
 
 ## 5.1.3 - 2024-10-02
 
