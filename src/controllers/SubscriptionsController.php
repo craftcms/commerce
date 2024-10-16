@@ -236,7 +236,7 @@ class SubscriptionsController extends BaseController
             $error = $exception->getMessage();
         }
 
-        if (!$error && $returnUrl) {
+        if ($subscription && $returnUrl) {
             $returnUrl = $this->getView()->renderObjectTemplate($returnUrl, $subscription);
             $subscriptionRecord = SubscriptionRecord::findOne($subscription->id);
             $subscriptionRecord->returnUrl = $returnUrl;
