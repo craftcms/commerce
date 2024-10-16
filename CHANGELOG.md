@@ -2,7 +2,7 @@
 
 ## 4.6.14 - 2024-10-16
 
-- Fixed a PHP error that could occur when creating a subscription. ([#3710](https://github.com/craftcms/commerce/issues/))
+- Fixed a PHP error that could occur when creating a subscription. ([#3710](https://github.com/craftcms/commerce/issues/3710))
 
 ## 4.6.13 - 2024-10-02
 
