@@ -129,7 +129,7 @@ class Carts extends Component
         if ($this->_cart->id && ($autoSetAddresses || $autoSetShippingMethod || $autoSetPaymentSource)) {
             $forceSave = true;
         }
-        
+
         // Ensure the session knows what the current cart is.
         $this->setSessionCartNumber($this->_cart->number);
 
