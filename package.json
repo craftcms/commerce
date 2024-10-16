@@ -17,7 +17,7 @@
   "devDependencies": {
     "@craftcms/vue": "^1.0.0",
     "@craftcms/webpack": "^1.1.0",
-    "axios": "^0.26.1",
+    "axios": "^0.28.0",
     "chart.js": "^2.9.4",
     "chartjs-adapter-moment": "^0.1.2",
     "craftcms-sass": "^3.5.6",
