@@ -135,7 +135,6 @@ class Carts extends Component
             $forceSave = true;
         }
 
-        // We only want to auto set things on real carts, not in-memory carts.
         $autoSetAddresses = false;
         // We only want to call autoSetAddresses() if we have a authed cart customer
         if ($currentUser && $currentUser->id == $this->_cart->customerId) {
@@ -143,7 +142,7 @@ class Carts extends Component
         }
         $autoSetShippingMethod = $this->_cart->autoSetShippingMethod();
         $autoSetPaymentSource = $this->_cart->autoSetPaymentSource();
-        if ($this->_cart->id && ($autoSetAddresses || $autoSetShippingMethod || $autoSetPaymentSource)) {
+        if ($autoSetAddresses || $autoSetShippingMethod || $autoSetPaymentSource) {
             $forceSave = true;
         }
 
