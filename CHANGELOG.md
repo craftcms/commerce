@@ -1,13 +1,12 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.6.14 - 2024-10-16
 
-- Fixed a PHP error that could occur when creating a subscription. ([#3710](https://github.com/craftcms/commerce/issues/))
+- Fixed a PHP error that could occur when creating a subscription. ([#3710](https://github.com/craftcms/commerce/issues/3710))
 - Fixed a bug where inventory items could appear with blank descriptions on the Inventory management screen. ([#3706](https://github.com/craftcms/commerce/issues/3706))
 - Fixed a bug where additional buttons defined with `craft\commerce\elements\Order::EVENT_DEFINE_ADDITIONAL_BUTTONS` weren’t displayed on Edit Order screens. ([#3692](https://github.com/craftcms/commerce/issues/3692))
 - Fixed a bug where email errors weren’t displayed on Edit Order screens. ([#3693](https://github.com/craftcms/commerce/issues/3693))
 - Fixed a bug where `craft\commerce\helpers\Currency::formatAsCurrency()` wasn’t stripping zeros. ([#3716](https://github.com/craftcms/commerce/issues/3716))
-
 
 ## 5.1.3 - 2024-10-02
 
