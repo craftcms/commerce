@@ -155,20 +155,30 @@ class Purchasables extends Component
      * Updated the cached stock value for the purchasable in a store.
      *
      * @param Purchasable $purchasable
+     * @param bool $allSites Update across all sites (stores).
      * @return void
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\db\Exception
      */
-    public function updateStoreStockCache(Purchasable $purchasable): void
+    public function updateStoreStockCache(Purchasable $purchasable, bool $allSites = false): void
     {
-        $stock = Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($purchasable)->sum('availableTotal');
+        if ($allSites) {
+            $purchasables = $purchasable::find()->siteid('*')->id($purchasable->id)->status(null)->all();
+        } else {
+            $purchasables = [$purchasable];
+        }
 
-        Craft::$app->getDb()->createCommand()
-            ->update(
-                table:Table::PURCHASABLES_STORES,
-                columns: ['stock' => $stock],
-                condition: ['id' => $purchasable->id, 'storeId' => $purchasable->getStore()->id])
-            ->execute();
+        /** @var Purchasable $purchasable */
+        foreach ($purchasables as $purchasable) {
+            $stock = Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($purchasable)->sum('availableTotal');
+
+            Craft::$app->getDb()->createCommand()
+                ->update(
+                    table: Table::PURCHASABLES_STORES,
+                    columns: ['stock' => $stock],
+                    condition: ['purchasableId' => $purchasable->id, 'storeId' => $purchasable->getStore()->id])
+                ->execute();
+        }
     }
 
     /**

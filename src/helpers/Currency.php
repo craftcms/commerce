@@ -106,6 +106,13 @@ class Currency
 
         if ($format) {
             $numberFormatter = new \NumberFormatter(Craft::$app->getFormattingLocale(), \NumberFormatter::CURRENCY);
+
+            // Strip zeros if requested and only if the amount won't have any decimal places
+            if ($stripZeros && (int)$amount == $amount) {
+                $numberFormatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, 0);
+                $numberFormatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, 0);
+            }
+
             $moneyFormatter = new IntlMoneyFormatter($numberFormatter, new ISOCurrencies());
             $money = Plugin::getInstance()->getCurrencies()->getTeller($currencyIso)->convertToMoney($amount);
 

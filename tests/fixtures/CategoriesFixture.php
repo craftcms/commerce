@@ -3,6 +3,7 @@
 namespace craftcommercetests\fixtures;
 
 use Craft;
+use craft\elements\Category;
 use craft\helpers\ArrayHelper;
 use craft\models\CategoryGroup;
 use craft\models\CategoryGroup_SiteSettings;
@@ -49,6 +50,12 @@ class CategoriesFixture extends CategoryFixture
             $catGroup->name = 'Categories';
             $catGroup->handle = 'categories';
             $catGroup->structureId = $structure->id;
+            $layout = Craft::$app->getFields()->getLayoutByType(Category::class);
+
+            if ($layout) {
+                $catGroup->fieldLayoutId = $layout->id;
+            }
+
             $allSiteSettings = [];
         } else {
             $allSiteSettings = Craft::$app->getCategories()->getGroupSiteSettings($catGroup->id);
@@ -87,6 +94,10 @@ class CategoriesFixture extends CategoryFixture
     public function unload(): void
     {
         parent::unload();
+
+        foreach ($this->groupIds as $groupId) {
+            Craft::$app->getCategories()->deleteGroupById($groupId);
+        }
         $this->groupIds = [];
     }
 }

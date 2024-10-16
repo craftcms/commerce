@@ -145,7 +145,7 @@
         </template>
         <template v-else>
             <div class="w-1/5">
-                <span class="adjustment-type">{{ type }}</span>
+                <span class="adjustment-type">{{ getTypeName(type) }}</span>
             </div>
             <div class="w-4/5 order-flex">
                 <div class="w-2/3">
@@ -229,6 +229,18 @@
                 localAdjustmentAmount: this.adjustment.amount,
                 amountNaN: false,
             };
+        },
+
+        methods: {
+            getTypeName(type) {
+                for (let i = 0; i < this.adjustmentOptions.length; i++) {
+                    if (this.adjustmentOptions[i].value === type) {
+                        return this.adjustmentOptions[i].label;
+                    }
+                }
+
+                return type;
+            },
         },
 
         computed: {

@@ -1,7 +1,13 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\elements\conditions\products;
 
+use craft\commerce\elements\Product;
 use craft\elements\conditions\ElementCondition;
 
 /**
@@ -12,6 +18,11 @@ use craft\elements\conditions\ElementCondition;
  */
 class ProductCondition extends ElementCondition
 {
+    /**
+     * @inheritdoc
+     */
+    public ?string $elementType = Product::class;
+
     /**
      * @inheritdoc
      */

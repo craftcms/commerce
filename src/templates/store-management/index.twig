@@ -1,1 +1,5 @@
-{% redirect 'commerce/store-management' %}
+{% extends "commerce/_layouts/store-management" %}
+
+{% block content %}
+    {{ 'No access given to any specific store management features.'|t('commerce') }}
+{% endblock %}

@@ -58,6 +58,7 @@ use yii\validators\Validator;
  * @property-read string $basePriceAsCurrency the base price
  * @property-read string $basePromotionalPriceAsCurrency the base promotional price
  * @property-read string $salePriceAsCurrency the base price the item will be added to the line item with
+ * @property-read Sale[] $sales sales models which are currently affecting the price of this purchasable
  * @property int $shippingCategoryId the purchasable's shipping category ID
  * @property string $sku a unique code as per the commerce_purchasables table
  * @property array $snapshot
@@ -987,6 +988,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             // added to inventory before it is saved as a permanent variant.
             if ($purchasableId) {
                 // Set the inventory item data
+                /** @var InventoryItem|null $inventoryItem */
                 $inventoryItem = InventoryItemRecord::find()->where(['purchasableId' => $purchasableId])->one();
                 if (!$inventoryItem) {
                     $inventoryItem = new InventoryItemRecord();
@@ -994,9 +996,10 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                     $inventoryItem->countryCodeOfOrigin = '';
                     $inventoryItem->administrativeAreaCodeOfOrigin = '';
                     $inventoryItem->harmonizedSystemCode = '';
+                    $inventoryItem->save();
                 }
 
-                $inventoryItem->save();
+                $this->inventoryItemId = $inventoryItem->id;
             }
         }
 
@@ -1087,6 +1090,17 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         $purchasable?->delete();
 
         parent::afterDelete();
+    }
+
+    /**
+     * @return array|Sale[]
+     * @throws InvalidConfigException
+     */
+    public function getSales(): array
+    {
+        $this->_loadSales();
+
+        return $this->_sales;
     }
 
     /**
@@ -1215,8 +1229,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
         return match ($attribute) {
             'sku' => (string)Html::encode($this->getSkuAsText()),
-            'price' => $this->basePriceAsCurrency, // @TODO change this to the `asCurrency` attribute when implemented
-            'promotionalPrice' => $this->basePromotionalPriceAsCurrency, // @TODO change this to the `asCurrency` attribute when implemented
+            'price' => $this->basePriceAsCurrency,
+            'promotionalPrice' => $this->basePromotionalPriceAsCurrency,
             'weight' => $this->weight !== null ? Craft::$app->getFormattingLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits : '',
             'length' => $this->length !== null ? Craft::$app->getFormattingLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
             'width' => $this->width !== null ? Craft::$app->getFormattingLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',

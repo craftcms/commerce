@@ -7,14 +7,14 @@ return [
         'groupId' => $this->groupIds['categories'],
         'title' => 'Commerce Category',
 
-        'fieldLayoutType' => 'commerce_categories_fieldlayout',
+        'fieldLayoutType' => 'craft\elements\Category',
         'commerceProductVariants' => Variant::find()->sku(['hct-white'])->ids(),
     ],
     [
         'groupId' => $this->groupIds['categories'],
         'title' => 'Commerce Category #2',
 
-        'fieldLayoutType' => 'commerce_categories_fieldlayout',
+        'fieldLayoutType' => 'craft\elements\Category',
         'commerceProductVariants' => Variant::find()->sku(['hct-white'])->ids(),
     ],
 ];

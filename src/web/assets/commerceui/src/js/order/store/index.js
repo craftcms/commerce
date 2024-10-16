@@ -84,8 +84,16 @@ export default new Vuex.Store({
       return window.orderEdit.taxCategories;
     },
 
+    defaultTaxCategoryId() {
+      return window.orderEdit.defaultTaxCategoryId;
+    },
+
     shippingCategories() {
       return window.orderEdit.shippingCategories;
+    },
+
+    defaultShippingCategoryId() {
+      return window.orderEdit.defaultShippingCategoryId;
     },
 
     statesByCountryId() {
@@ -161,6 +169,10 @@ export default new Vuex.Store({
       return window.orderEdit.lineItemStatuses;
     },
 
+    lineItemTypes() {
+      return window.orderEdit.lineItemTypes;
+    },
+
     shippingMethods(state) {
       const shippingMethodsObject = JSON.parse(
         JSON.stringify(state.draft.order.availableShippingMethodOptions)
@@ -224,6 +236,11 @@ export default new Vuex.Store({
 
   actions: {
     displayError(context, msg) {
+      // Check if `msg` is instance of JavaScript Error object
+      if (msg instanceof Error) {
+        msg = msg.message;
+      }
+
       Craft.cp.displayError(msg);
     },
 
@@ -482,23 +499,6 @@ export default new Vuex.Store({
 
     sendEmail(context, emailTemplateId) {
       return ordersApi.sendEmail(emailTemplateId);
-    },
-
-    getAddressById(context, id) {
-      return addressesApi
-        .getById(id)
-        .then((response) => {
-          if (response.data && response.data.success && response.data.address) {
-            return response.data.address;
-          }
-
-          return null;
-        })
-        .catch(() => {
-          let errorMsg = 'Couldn’t retrieve address.';
-
-          throw errorMsg;
-        });
     },
 
     validateAddress(context, address) {

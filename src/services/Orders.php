@@ -23,7 +23,6 @@ use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\models\FieldLayout;
 use yii\base\Component;
 use yii\base\Exception;
-use yii\base\UserException;
 
 /**
  * Orders service.
@@ -183,8 +182,9 @@ class Orders extends Component
 
         // If there are any orders, make sure that this is not allowed.
         if (Order::find()->customerId($user->id)->status(null)->exists()) {
-            // TODO revise this stop-gap measure when Craft CMS gets a way to hook into the user delete process.
-            throw new UserException(Craft::t('commerce', 'Unable to delete user {user}: the user has a Craft Commerce order.', [
+            $event->isValid = false;
+
+            Craft::error(Craft::t('commerce', 'Unable to delete user {user}: the user has a Craft Commerce order.', [
                 'user' => $user->id,
             ]));
         }
@@ -229,13 +229,21 @@ class Orders extends Component
         foreach ($carts as $cart) {
             // Update the billing address
             if ($cart->sourceBillingAddressId === $address->id) {
-                $newBillingAddress = Craft::$app->getElements()->duplicateElement($address, ['primaryOwner' => $cart, 'title' => Craft::t('commerce', 'Billing Address')]);
+                $newBillingAddress = Craft::$app->getElements()->duplicateElement($address, [
+                    'primaryOwner' => $cart,
+                    'owner' => $cart,
+                    'title' => Craft::t('commerce', 'Billing Address'),
+                ]);
                 $cart->billingAddressId = $newBillingAddress->id;
             }
 
             // Update the shipping address
             if ($cart->sourceShippingAddressId === $address->id) {
-                $newShippingAddress = Craft::$app->getElements()->duplicateElement($address, ['primaryOwner' => $cart, 'title' => Craft::t('commerce', 'Shipping Address')]);
+                $newShippingAddress = Craft::$app->getElements()->duplicateElement($address, [
+                    'primaryOwner' => $cart,
+                    'owner' => $cart,
+                    'title' => Craft::t('commerce', 'Shipping Address'),
+                ]);
                 $cart->shippingAddressId = $newShippingAddress->id;
             }
 

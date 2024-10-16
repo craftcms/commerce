@@ -111,7 +111,7 @@ class ShippingMethod extends BaseShippingMethod
     {
         $rules = parent::defineRules();
         $rules[] = [['name', 'handle'], 'required'];
-        $rules[] = [['name'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class];
+        $rules[] = [['name'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class, 'targetAttribute' => ['name', 'storeId']];
         $rules[] = [['handle'], UniqueValidator::class,
             'targetClass' => ShippingMethodRecord::class,
             'targetAttribute' => ['handle', 'storeId'],

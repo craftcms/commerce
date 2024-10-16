@@ -10,6 +10,7 @@ namespace craft\commerce\elements;
 use Craft;
 use craft\base\Element;
 use craft\base\ElementInterface;
+use craft\base\Field;
 use craft\base\NestedElementInterface;
 use craft\base\NestedElementTrait;
 use craft\commerce\base\Purchasable;
@@ -24,7 +25,8 @@ use craft\commerce\events\CustomizeVariantSnapshotDataEvent;
 use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\ProductType;
-use craft\commerce\models\Sale;
+use craft\commerce\models\ShippingCategory;
+use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
@@ -34,7 +36,9 @@ use craft\elements\db\EagerLoadPlan;
 use craft\elements\User;
 use craft\gql\types\DateTime;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\helpers\Db;
+use craft\helpers\ElementHelper;
 use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
@@ -47,8 +51,6 @@ use yii\base\InvalidConfigException;
  * Variant model.
  *
  * @property string $eagerLoadedElements some eager-loaded elements on a given handle
- * @property bool $onSale
- * @property Sale[] $sales sales models which are currently affecting the salePrice of this purchasable
  * @property string $priceAsCurrency
  * @property DateTime|null $dateUpdated
  * @property DateTime|null $dateCreated
@@ -290,6 +292,31 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
+    public function getIsTitleTranslatable(): bool
+    {
+        return ($this->getOwner()->getType()->variantTitleTranslationMethod !== Field::TRANSLATION_METHOD_NONE);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getTitleTranslationDescription(): ?string
+    {
+        return ElementHelper::translationDescription($this->getOwner()->getType()->variantTitleTranslationMethod);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getTitleTranslationKey(): string
+    {
+        $type = $this->getOwner()->getType();
+        return ElementHelper::translationKey($this, $type->variantTitleTranslationMethod, $type->variantTitleTranslationKeyFormat);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function canSave(User $user): bool
     {
         if (parent::canSave($user)) {
@@ -403,6 +430,22 @@ class Variant extends Purchasable implements NestedElementInterface
         }
 
         return $fieldLayout;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function metadata(): array
+    {
+        $metadata = parent::metadata();
+
+        $product = $this->getOwner();
+
+        if ($product) {
+            $metadata[Craft::t('commerce', 'Product')] = Cp::elementChipHtml($product, ['showActionMenu' => true]);
+        }
+
+        return $metadata;
     }
 
     /**
@@ -847,6 +890,20 @@ class Variant extends Purchasable implements NestedElementInterface
 
     /**
      * @inheritdoc
+     */
+    public function getSupportedSites(): array
+    {
+        $owner = $this->getOwner();
+
+        if (!$owner) {
+            return [Craft::$app->getSites()->getPrimarySite()->id];
+        }
+
+        return $this->getOwner()->getSupportedSites();
+    }
+
+    /**
+     * @inheritdoc
      * @throws Exception
      */
     public function afterSave(bool $isNew): void
@@ -1141,12 +1198,25 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     protected function availableShippingCategories(): array
     {
+        $allAvailableShippingCategories = parent::availableShippingCategories();
+
         $productTypeId = $this->getPrimaryOwner()?->getType()->id;
-        if ($productTypeId) {
-            return Plugin::getInstance()->getShippingCategories()->getShippingCategoriesByProductTypeId($productTypeId);
+
+        if (!$productTypeId) {
+            return [Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->storeId)];
         }
 
-        return parent::availableShippingCategories();
+        // Limit to only those for this product type
+        $categoryIds = collect(Plugin::getInstance()->getShippingCategories()->getShippingCategoriesByProductTypeId($productTypeId))->pluck('id')->toArray();
+        $available = collect($allAvailableShippingCategories)->filter(function(ShippingCategory $category) use ($categoryIds) {
+            return in_array($category->id, $categoryIds);
+        });
+
+        if ($available->isEmpty()) {
+            return [Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->storeId)];
+        }
+
+        return $available->toArray();
     }
 
     /**
@@ -1154,12 +1224,25 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     protected function availableTaxCategories(): array
     {
+        $allAvailableTaxCategories = parent::availableTaxCategories();
+
         $productTypeId = $this->getPrimaryOwner()?->getType()->id;
-        if ($productTypeId) {
-            return Plugin::getInstance()->getTaxCategories()->getTaxCategoriesByProductTypeId($productTypeId);
+
+        if (!$productTypeId) {
+            return [Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()];
         }
 
-        return parent::availableTaxCategories();
+        // Limit to only those for this product type
+        $categoryIds = collect(Plugin::getInstance()->getTaxCategories()->getTaxCategoriesByProductTypeId($productTypeId))->pluck('id')->toArray();
+        $available = collect($allAvailableTaxCategories)->filter(function(TaxCategory $category) use ($categoryIds) {
+            return in_array($category->id, $categoryIds);
+        });
+
+        if ($available->isEmpty()) {
+            return [Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()];
+        }
+
+        return $available->toArray();
     }
 
     /**

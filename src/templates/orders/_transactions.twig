@@ -66,7 +66,6 @@ new Craft.VueAdminTable({
     onLoaded: function() {
       {% if not (order.paidStatus == constant('craft\\commerce\\elements\\Order::PAID_STATUS_UNPAID')) %}
         $(document).ready(function() {
-          console.log('ready');
           new Craft.Money(
             'refund-amount',
             {

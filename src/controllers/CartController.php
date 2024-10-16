@@ -19,6 +19,7 @@ use craft\elements\Address;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
+use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use Illuminate\Support\Collection;
 use Throwable;
@@ -160,7 +161,7 @@ class CartController extends BaseFrontEndController
             if ($qty > 0) {
                 // We only want a new line item if they cleared the cart
                 if ($clearLineItems) {
-                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($this->_cart, $purchasableId, $options);
+                    $lineItem = Plugin::getInstance()->getLineItems()->create($this->_cart, compact('purchasableId', 'options'));
                 } else {
                     $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasableId, $options);
                 }
@@ -212,7 +213,10 @@ class CartController extends BaseFrontEndController
 
                     // We only want a new line item if they cleared the cart
                     if ($clearLineItems) {
-                        $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($this->_cart, $purchasable['id'], $purchasable['options']);
+                        $lineItem = Plugin::getInstance()->getLineItems()->create($this->_cart, [
+                            'purchasableId' => $purchasable['id'],
+                            'options' => $purchasable['options'],
+                        ]);
                     } else {
                         $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasable['id'], $purchasable['options']);
                     }

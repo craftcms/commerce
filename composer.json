@@ -22,7 +22,7 @@
   "prefer-stable": true,
   "require": {
     "php": "^8.2",
-    "craftcms/cms": "^5.1.0",
+    "craftcms/cms": "^5.2.0",
     "dompdf/dompdf": "^2.0.2",
     "ibericode/vat": "^1.2.2",
     "iio/libmergepdf": "^4.0"

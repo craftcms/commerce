@@ -92,14 +92,13 @@ Craft.Commerce.InventoryLevelsManager = Garnish.Base.extend({
         dataClass: 'inventory-cell',
         title: Craft.t('commerce', 'On Hand'),
       },
-      // TODO: Restore when Transfers are completed.
-      // {
-      //   name: 'incoming',
-      //   sortField: 'incomingTotal',
-      //   titleClass: 'inventory-headers',
-      //   dataClass: 'inventory-cell',
-      //   title: Craft.t('commerce', 'Incoming'),
-      // },
+      {
+        name: 'incoming',
+        sortField: 'incomingTotal',
+        titleClass: 'inventory-headers',
+        dataClass: 'inventory-cell',
+        title: Craft.t('commerce', 'Incoming'),
+      },
     ];
 
     this.adminTable = new Craft.VueAdminTable({

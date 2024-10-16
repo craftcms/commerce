@@ -7,6 +7,7 @@ use craft\commerce\enums\InventoryTransactionType;
 
 /**
  * Inventory Manual movement model
+ *
  * @since 5.0
  */
 class InventoryRestockMovement extends InventoryMovement

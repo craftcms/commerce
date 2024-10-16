@@ -14,6 +14,8 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
+use craft\commerce\enums\LineItemType;
+use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Currency as CurrencyHelper;
@@ -21,10 +23,12 @@ use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\errors\DeprecationException;
+use craft\errors\SiteNotFoundException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use DateTime;
 use LitEmoji\LitEmoji;
+use yii\base\Exception;
 use yii\base\InvalidConfigException;
 
 /**
@@ -56,14 +60,16 @@ use yii\base\InvalidConfigException;
  * @property-read string $shippingCostAsCurrency
  * @property-read string $taxAsCurrency
  * @property-read string $taxIncludedAsCurrency
- * @property-read bool $isShippable
+ * @property bool $isShippable
  * @property string $sku
  * @property LineItemStatus|null $lineItemStatus
  * @property string $description
- * @property-read bool $isTaxable
+ * @property bool $isTaxable
  * @property float|int $promotionalPrice
  * @property-read float $promotionalAmount
  * @property-read string $adjustmentsTotalAsCurrency
+ * @property bool $hasFreeShipping
+ * @property bool $isPromotable
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -75,9 +81,15 @@ class LineItem extends Model
     public ?int $id = null;
 
     /**
-     * @var string Description
+     * @var LineItemType
+     * @since 5.1.0
      */
-    private string $_description;
+    public LineItemType $type = LineItemType::Purchasable;
+
+    /**
+     * @var string|null Description
+     */
+    private ?string $_description = null;
 
     /**
      * @var float Price is the original price of the purchasable
@@ -128,7 +140,7 @@ class LineItem extends Model
     /**
      * @var string SKU
      */
-    private string $_sku;
+    private ?string $_sku = null;
 
     /**
      * @var string Note
@@ -156,14 +168,14 @@ class LineItem extends Model
     public ?int $lineItemStatusId = null;
 
     /**
-     * @var int Tax category ID
+     * @var int|null Tax category ID
      */
-    public int $taxCategoryId;
+    public ?int $taxCategoryId = null;
 
     /**
-     * @var int Shipping category ID
+     * @var int|null Shipping category ID
      */
-    public int $shippingCategoryId;
+    public ?int $shippingCategoryId = null;
 
     /**
      * @var DateTime|null
@@ -178,9 +190,9 @@ class LineItem extends Model
     public ?DateTime $dateUpdated = null;
 
     /**
-     * @var string UID
+     * @var string|null UID
      */
-    public string $uid;
+    public ?string $uid = null;
 
     /**
      * @var PurchasableInterface|null Purchasable
@@ -201,6 +213,38 @@ class LineItem extends Model
      * @var array
      */
     private array $_options = [];
+
+    /**
+     * @var bool|null
+     * @see setIsPromotable()
+     * @see getIsPromotable()
+     * @since 5.1.0
+     */
+    private ?bool $_isPromotable = null;
+
+    /**
+     * @var bool|null
+     * @see setHasFreeShipping()
+     * @see getHasFreeShipping()
+     * @since 5.1.0
+     */
+    private ?bool $_hasFreeShipping = null;
+
+    /**
+     * @var bool|null
+     * @see setIsTaxable()
+     * @see getIsTaxable()
+     * @since 5.1.0
+     */
+    private ?bool $_isTaxable = null;
+
+    /**
+     * @var bool|null
+     * @see setIsShippable()
+     * @see getIsShippable()
+     * @since 5.1.0
+     */
+    private ?bool $_isShippable = null;
 
     /**
      * @inheritDoc
@@ -241,6 +285,10 @@ class LineItem extends Model
         return $this->_order;
     }
 
+    /**
+     * @param Order $order
+     * @return void
+     */
     public function setOrder(Order $order): void
     {
         $this->orderId = $order->id;
@@ -372,12 +420,12 @@ class LineItem extends Model
      */
     public function getSku(): string
     {
-        if (!$this->_sku) {
+        if ($this->_sku === null) {
             $snapshot = $this->getSnapshot();
             $this->_sku = $snapshot['sku'] ?? '';
         }
 
-        return $this->_sku;
+        return $this->_sku ?? '';
     }
 
     /**
@@ -456,6 +504,7 @@ class LineItem extends Model
 
     /**
      * @return float
+     * @throws DeprecationException
      * @deprecated in 5.0.0. Use `getPromotionalAmount()` instead.)
      */
     public function getSaleAmount(): float
@@ -493,18 +542,20 @@ class LineItem extends Model
                     'height',
                     'width',
                     'qty',
-                    'snapshot',
                     'taxCategoryId',
+                    'type',
                     'shippingCategoryId',
                 ], 'required',
             ],
+            [['snapshot'], 'required', 'when' => fn() => $this->type === LineItemType::Purchasable],
             [['qty'], 'integer', 'min' => 1],
             [['shippingCategoryId', 'taxCategoryId'], 'integer'],
-            [['price'], 'number'],
-            [['promotionalPrice'], 'number', 'skipOnEmpty' => true],
+            [['price'], 'number', 'min' => 0],
+            [['promotionalPrice'], 'number', 'min' => 0, 'skipOnEmpty' => true],
+            [['orderId', 'purchasableId', 'hasFreeShipping', 'isPromotable', 'isShippable', 'isTaxable', 'type'], 'safe'],
         ];
 
-        if ($this->purchasableId) {
+        if ($this->type === LineItemType::Purchasable && $this->purchasableId) {
             $order = $this->getOrder();
             /** @var PurchasableInterface|null $purchasable */
             $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($this->purchasableId, $order?->orderSiteId, $order?->getCustomer()?->id);
@@ -522,6 +573,9 @@ class LineItem extends Model
 
     /**
      * @return int
+     * @throws DeprecationException
+     * @throws InvalidConfigException
+     * @since 5.0.0
      */
     public function getFulfilledTotalQuantity(): int
     {
@@ -562,8 +616,13 @@ class LineItem extends Model
         $names = parent::attributes();
         ArrayHelper::removeValue($names, 'snapshot');
 
+        $names[] = 'type';
         $names[] = 'adjustments';
         $names[] = 'description';
+        $names[] = 'hasFreeShipping';
+        $names[] = 'isPromotable';
+        $names[] = 'isShippable';
+        $names[] = 'isTaxable';
         $names[] = 'options';
         $names[] = 'optionsSignature';
         $names[] = 'onPromotion';
@@ -647,6 +706,11 @@ class LineItem extends Model
         return $this->getSubtotal() + $this->getAdjustmentsTotal();
     }
 
+    /**
+     * @param string $taxable
+     * @return float
+     * @throws InvalidConfigException
+     */
     public function getTaxableSubtotal(string $taxable): float
     {
         return match ($taxable) {
@@ -658,11 +722,53 @@ class LineItem extends Model
     }
 
     /**
-     * @return bool False when no related purchasable exists
+     * @return bool
      * @throws InvalidConfigException
+     * @throws SiteNotFoundException
+     * @throws Exception
+     * @since 5.1.0
+     */
+    public function refresh(): bool
+    {
+        if ($this->type === LineItemType::Custom) {
+            return true;
+        }
+
+        return $this->_refreshFromPurchasable();
+    }
+
+    /**
+     * @return bool False when no related purchasable exists
+     * @throws DeprecationException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
+     * @deprecated in 5.1.0. Use `refresh()` instead.
      */
     public function refreshFromPurchasable(): bool
     {
+        Craft::$app->getDeprecator()->log(__METHOD__, '`LineItem::refreshFromPurchasable()` has been deprecated. Use `LineItem::refresh()` instead.');
+
+        if ($this->type === LineItemType::Custom) {
+            Craft::warning('Cannot refresh a custom line item from a purchasable', 'commerce');
+            return true;
+        }
+
+        return $this->_refreshFromPurchasable();
+    }
+
+    /**
+     * @return bool False when no related purchasable exists
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
+     */
+    private function _refreshFromPurchasable(): bool
+    {
+        if ($this->type === LineItemType::Custom) {
+            throw new Exception('Cannot refresh a custom line item from a purchasable');
+        }
+
         if ($this->qty <= 0 && $this->id) {
             return false;
         }
@@ -673,13 +779,48 @@ class LineItem extends Model
             return false;
         }
 
-        $this->populateFromPurchasable($purchasable);
+        $this->_populateFromPurchasable($purchasable);
 
         return true;
     }
 
+    /**
+     * @param bool|null $hasFreeShipping
+     * @return void
+     * @since 5.1.0
+     */
+    public function setHasFreeShipping(?bool $hasFreeShipping): void
+    {
+        $this->_hasFreeShipping = $hasFreeShipping;
+    }
+
+    /**
+     * @return bool
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
+     * @since 5.1.0
+     */
+    public function getHasFreeShipping(): bool
+    {
+        // For purchasable line item types try and get the live data
+        if ($this->type === LineItemType::Purchasable && $this->getPurchasable()) {
+            return $this->getPurchasable()->hasFreeShipping();
+        }
+
+        return $this->_hasFreeShipping ?? false;
+    }
+
+    /**
+     * @return PurchasableInterface|null
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
+     */
     public function getPurchasable(): ?PurchasableInterface
     {
+        if ($this->type === LineItemType::Custom) {
+            throw new InvalidConfigException('Cannot get a purchasable for a custom line item');
+        }
+
         if (!isset($this->_purchasable) && isset($this->purchasableId)) {
             $order = $this->getOrder();
             /** @var PurchasableInterface|null $purchasable */
@@ -690,17 +831,67 @@ class LineItem extends Model
         return $this->_purchasable;
     }
 
+    /**
+     * @param PurchasableInterface $purchasable
+     * @return void
+     * @throws InvalidConfigException
+     */
     public function setPurchasable(PurchasableInterface $purchasable): void
     {
         $this->purchasableId = $purchasable->getId();
         $this->_purchasable = $purchasable;
+        $this->type = LineItemType::Purchasable;
     }
 
     /**
+     * @param mixed|null $data
+     * @return void
      * @throws InvalidConfigException
+     * @since 5.1.0
+     */
+    public function populate(mixed $data = null): void
+    {
+        if ($this->type === LineItemType::Custom) {
+            return;
+        }
+
+        if ($data) {
+            $this->_populateFromPurchasable($data);
+        }
+    }
+
+    /**
+     * @param PurchasableInterface $purchasable
+     * @return void
+     * @throws InvalidConfigException
+     * @deprecated in 5.0.0. Use `populate()` instead.
      */
     public function populateFromPurchasable(PurchasableInterface $purchasable): void
     {
+        Craft::$app->getDeprecator()->log(__METHOD__, '`LineItem::populateFromPurchasable()` has been deprecated. Use `LineItem::populate()` instead.');
+
+        if ($this->type === LineItemType::Custom) {
+            // @TODO: Throw exception at next breaking change release
+            Craft::warning('Cannot populate a custom line item from a purchasable', 'commerce');
+            return;
+        }
+
+        $this->_populateFromPurchasable($purchasable);
+    }
+
+    /**
+     * @param PurchasableInterface $purchasable
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
+    private function _populateFromPurchasable(PurchasableInterface $purchasable): void
+    {
+        if ($this->type === LineItemType::Custom) {
+            throw new Exception('Cannot populate a custom line item from a purchasable');
+        }
+
+        // Set all things from the purchasable interface that are applicable to the line item.
+        $this->purchasableId = $purchasable->getId();
         $this->setPrice($purchasable->getPrice());
         $this->setPromotionalPrice($purchasable->getPromotionalPrice());
         $this->taxCategoryId = $purchasable->getTaxCategory()->id;
@@ -752,6 +943,32 @@ class LineItem extends Model
     }
 
     /**
+     * @param bool|null $isPromotable
+     * @return void
+     * @since 5.1.0
+     */
+    public function setIsPromotable(?bool $isPromotable): void
+    {
+        $this->_isPromotable = $isPromotable;
+    }
+
+    /**
+     * @return bool
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
+     * @since 5.1.0
+     */
+    public function getIsPromotable(): bool
+    {
+        // For purchasable line item types try and get the live data
+        if ($this->type === LineItemType::Purchasable && $this->getPurchasable()) {
+            return $this->getPurchasable()->getIsPromotable();
+        }
+
+        return $this->_isPromotable ?? false;
+    }
+
+    /**
      * @return bool
      * @since 5.0.0
      */
@@ -763,6 +980,7 @@ class LineItem extends Model
     /**
      * @return bool
      * @throws DeprecationException
+     * @deprecated in 5.0.0. Use `getOnPromotion()` instead.
      */
     public function getOnSale(): bool
     {
@@ -781,7 +999,9 @@ class LineItem extends Model
     }
 
     /**
+     * @return ShippingCategory
      * @throws InvalidConfigException
+     * @throws StoreNotFoundException
      */
     public function getShippingCategory(): ShippingCategory
     {
@@ -846,15 +1066,39 @@ class LineItem extends Model
     }
 
     /**
+     * @param bool|null $isTaxable
+     * @return void
+     * @since 5.1.0
+     */
+    public function setIsTaxable(?bool $isTaxable): void
+    {
+        $this->_isTaxable = $isTaxable;
+    }
+
+    /**
      * @since 3.3.4
      */
     public function getIsTaxable(): bool
     {
+        if ($this->type === LineItemType::Custom) {
+            return $this->_isTaxable ?? false;
+        }
+
         if (!$this->getPurchasable()) {
-            return true; // we have a default tax category so assume so.
+            return $this->_isTaxable ?? true; // we have a default tax category so assume so.
         }
 
         return $this->getPurchasable()->getIsTaxable();
+    }
+
+    /**
+     * @param bool|null $isShippable
+     * @return void
+     * @since 5.1.0
+     */
+    public function setIsShippable(?bool $isShippable): void
+    {
+        $this->_isShippable = $isShippable;
     }
 
     /**
@@ -862,11 +1106,15 @@ class LineItem extends Model
      */
     public function getIsShippable(): bool
     {
-        if (!$this->getPurchasable()) {
-            return true; // we have a default shipping category so assume so.
+        if ($this->type === LineItemType::Custom) {
+            return $this->_isShippable ?? false;
         }
 
-        return $this->getPurchasable()->getIsShippable();
+        if (!$this->getPurchasable()) {
+            return $this->_isShippable ?? true; // we have a default shipping category so assume so.
+        }
+
+        return Plugin::getInstance()->getPurchasables()->isPurchasableShippable($this->getPurchasable(), $this->getOrder());
     }
 
     /**

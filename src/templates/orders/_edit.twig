@@ -12,6 +12,7 @@
 {% do view.registerTranslations('commerce', [
     "A valid email is required to create a customer.",
     "Actions",
+    "Add a custom line item",
     "Add a line item",
     "Add an adjustment",
     "Add an option",
@@ -74,6 +75,7 @@
     "First Name",
     "Fulfillment",
     "Full Name",
+    "Has Free Shipping",
     "Hide snapshot",
     "ID",
     "IP Address",
@@ -81,6 +83,9 @@
     "Invalid JSON",
     "Invalid email.",
     "Item",
+    "Is Promotable",
+    "Is Shippable",
+    "Is Taxable",
     "Label",
     "Last Name",
     "Last Updated",
@@ -90,6 +95,7 @@
     "Name",
     "New Customer",
     "New address",
+    "No",
     "No address",
     "No billing address",
     "No description",
@@ -130,6 +136,7 @@
     "Send Email",
     "Share cart…",
     "Shipping Address",
+    "Shipping Category",
     "Shipping Method",
     "Shipping",
     "Short Number",
@@ -140,6 +147,7 @@
     "Status",
     "Store",
     "Suppress emails",
+    "Tax Category",
     "Tax",
     "There are errors on the order",
     "This URL will load the cart into the user’s session, making it the active cart.",
@@ -172,6 +180,12 @@
     <input type="hidden" name="action" value="commerce/orders/save">
     <input type="hidden" name="orderId" value="{{ order.id }}">
     {{ redirectInput('commerce/orders/'~order.id) }}
+
+    {% if order.getAdditionalButtons() %}
+      <div id="order-additional-buttons" class="flex">
+        {{ order.getAdditionalButtons()|raw }}
+      </div>
+    {% endif %}
 
     <div id="order-secondary-actions" class="flex">
         {% hook "cp.commerce.order.edit.order-secondary-actions" %}

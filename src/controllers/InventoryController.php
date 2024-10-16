@@ -14,9 +14,11 @@ use craft\commerce\collections\UpdateInventoryLevelCollection;
 use craft\commerce\db\Table;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\InventoryUpdateQuantityType;
+use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\inventory\InventoryManualMovement;
 use craft\commerce\models\inventory\UpdateInventoryLevel;
 use craft\commerce\models\InventoryItem;
+use craft\commerce\models\InventoryLocation;
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\inventory\InventoryAsset;
 use craft\enums\MenuItemType;
@@ -161,13 +163,45 @@ class InventoryController extends Controller
 
         $currentLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationByHandle($inventoryLocationHandle);
         $selectedItem = 'manage-' . $currentLocation->handle;
-        $title = $currentLocation->name . ' ' . Craft::t('commerce', 'Inventory');
+        $title = $currentLocation->getUiLabel() . ' ' . Craft::t('commerce', 'Inventory');
+
+        $locationMenuItems = [];
+
+        /** @var InventoryLocation $location */
+        foreach ($inventoryLocations as $location) {
+            $locationMenuItems[] = [
+                'label' => $location->getUiLabel(),
+                'url' => $location->getCpManageInventoryUrl(),
+                'selected' => $location->handle === $inventoryLocationHandle,
+            ];
+        }
+        $crumbs = [
+            [
+                'label' => Craft::t('commerce', 'Inventory'),
+                'url' => 'commerce/inventory',
+            ],
+        ];
+
+        if (count($locationMenuItems) > 1) {
+            $crumbs[] = [
+                'menu' => [
+                    'label' => Craft::t('app', 'Select section'),
+                    'items' => $locationMenuItems,
+                ],
+            ];
+        } else {
+            $crumbs[] = [
+                'label' => $currentLocation->getUiLabel(),
+                'url' => $currentLocation->getCpManageInventoryUrl(),
+            ];
+        }
 
         return $this->asCpScreen()
             ->title($title)
+            ->site(Cp::requestedSite())
+            ->selectableSites(Craft::$app->getSites()->getEditableSites())
             ->action(null)
-            ->addCrumb(Craft::t('commerce', 'Inventory'), 'commerce/inventory')
-            ->addCrumb($title, 'commerce/inventory')
+            ->crumbs($crumbs)
             ->contentTemplate('commerce/inventory/levels/_index', compact(
                 'inventoryLocations',
                 'currentLocation',
@@ -175,12 +209,7 @@ class InventoryController extends Controller
                 'selectedItem',
                 'search',
             ))
-            ->selectedSubnavItem('inventory')
-            ->pageSidebarTemplate('commerce/inventory/_sidebar', compact(
-                'inventoryLocations',
-                'currentLocation',
-                'selectedItem',
-            ));
+            ->selectedSubnavItem('inventory');
     }
 
     /**
@@ -245,12 +274,19 @@ class InventoryController extends Controller
         $time = microtime(true);
         foreach ($inventoryTableData as $key => &$inventoryLevel) {
             $id = $inventoryLevel['inventoryItemId'];
-            /** @var Purchasable $purchasable */
-            $purchasable = \Craft::$app->getElements()->getElementById($inventoryLevel['purchasableId']);
+            /** @var ?Purchasable $purchasable */
+            $purchasable = \Craft::$app->getElements()->getElementById($inventoryLevel['purchasableId'], siteId: Cp::requestedSite()->id);
             $inventoryItemDomId = sprintf("edit-$id-link-%s", mt_rand());
-            $inventoryLevel['purchasable'] = Cp::chipHtml($purchasable, ['showActionMenu' => !$purchasable->getIsDraft() && $purchasable->canSave($currentUser)]);
+            if ($purchasable) {
+                $inventoryLevel['purchasable'] = Cp::chipHtml($purchasable, ['labelHtml' => $purchasable->getDescription(), 'showActionMenu' => !$purchasable->getIsDraft() && $purchasable->canSave($currentUser)]);
+            } else {
+                $inventoryLevel['purchasable'] = $inventoryLevel['description'];
+            }
+            if (PurchasableHelper::isTempSku($inventoryLevel['sku'])) {
+                $inventoryLevel['sku'] = '';
+            }
+            $inventoryLevel['sku'] = Html::tag('span', Html::a($inventoryLevel['sku'], "#", ['id' => "$inventoryItemDomId", 'class' => 'code']));
             $inventoryLevel['id'] = $id;
-            $inventoryLevel['sku'] = Html::tag('span',Html::a($purchasable->getSkuAsText() , "#", ['id' => "$inventoryItemDomId", 'class' => 'code']));
 
             $view->registerJsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS
 $('#' + $id).on('click', (e) => {
@@ -505,8 +541,7 @@ JS, [
             $resultingInventoryLevels[] = Plugin::getInstance()->getInventory()->getInventoryLevel($updateInventoryLevel->inventoryItem, $updateInventoryLevel->inventoryLocation);
         }
 
-
-        return $this->asSuccess(Craft::t('commerce', 'Inventory updated.'),[
+        return $this->asSuccess(Craft::t('commerce', 'Inventory updated.'), [
             'updatedItems' => collect($resultingInventoryLevels)->toArray(),
         ]);
     }
@@ -542,7 +577,7 @@ JS, [
             'inventoryLevels' => $inventoryLevels,
             'updateAction' => $updateAction,
             'inventoryLocationOptions' => Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations()->mapWithKeys(function($location) {
-                return [$location->id => $location->name];
+                return [$location->id => $location->getUiLabel()];
             })->all(),
             'type' => $type,
             'quantity' => $quantity,

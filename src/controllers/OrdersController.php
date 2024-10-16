@@ -16,8 +16,10 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\db\Table;
+use craft\commerce\elements\db\PurchasableQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\enums\InventoryTransactionType;
+use craft\commerce\enums\LineItemType;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\errors\RefundException;
@@ -43,6 +45,7 @@ use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\Address;
+use craft\elements\db\ElementQuery;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
@@ -60,6 +63,7 @@ use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\models\Site;
 use craft\web\assets\inputmask\InputmaskAsset;
+use craft\web\assets\money\MoneyAsset;
 use craft\web\Controller;
 use craft\web\View;
 use DateTime;
@@ -599,6 +603,10 @@ JS, []);
         $lineItems = $order->getLineItems();
         $purchasableCpEditUrlByPurchasableId = [];
         foreach ($lineItems as $lineItem) {
+            if ($lineItem->type === LineItemType::Custom) {
+                continue;
+            }
+
             /** @var Purchasable|PurchasableElement|null $purchasable */
             $purchasable = $lineItem->getPurchasable();
             if (!$purchasable || isset($purchasableCpEditUrlByPurchasableId[$purchasable->id])) {
@@ -1339,6 +1347,8 @@ JS, []);
         /** @var Order $order */
         $order = $variables['order'];
         Craft::$app->getView()->registerAssetBundle(CommerceOrderAsset::class);
+        // Include the input mask asset for use in pricing fields
+        Craft::$app->getView()->registerAssetBundle(MoneyAsset::class);
 
         Craft::$app->getView()->registerJs('window.orderEdit = {};', View::POS_BEGIN);
 
@@ -1355,11 +1365,21 @@ JS, []);
         $lineItemStatuses = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses($order->storeId)->all();
         Craft::$app->getView()->registerJs('window.orderEdit.lineItemStatuses = ' . Json::encode($lineItemStatuses) . ';', View::POS_BEGIN);
 
+        $lineItemTypes = LineItemType::types();
+
+        Craft::$app->getView()->registerJs('window.orderEdit.lineItemTypes = ' . Json::encode($lineItemTypes) . ';', View::POS_BEGIN);
+
         $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategoriesAsList();
         Craft::$app->getView()->registerJs('window.orderEdit.taxCategories = ' . Json::encode(ArrayHelper::toArray($taxCategories)) . ';', View::POS_BEGIN);
 
+        $defaultTaxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
+        Craft::$app->getView()->registerJs('window.orderEdit.defaultTaxCategoryId = ' . Json::encode($defaultTaxCategoryId) . ';', View::POS_BEGIN);
+
         $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList($order->storeId);
         Craft::$app->getView()->registerJs('window.orderEdit.shippingCategories = ' . Json::encode(ArrayHelper::toArray($shippingCategories)) . ';', View::POS_BEGIN);
+
+        $defaultShippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($order->storeId)->id;
+        Craft::$app->getView()->registerJs('window.orderEdit.defaultShippingCategoryId = ' . Json::encode($defaultShippingCategoryId) . ';', View::POS_BEGIN);
 
         $currentUser = Craft::$app->getUser()->getIdentity();
         $permissions = [
@@ -1468,28 +1488,28 @@ JS, []);
 
             $order->autoSetAddresses();
         } else {
-            $getAddress = static function($address, $orderId, $title) {
-                if ($address && ($address['id'] && ($address['ownerId'] != $orderId || isset($address['_copy'])))) {
+            $getAddress = static function($address, Order $order, $title) {
+                if ($address && ($address['id'] && ($address['ownerId'] != $order->id || isset($address['_copy'])))) {
                     if (isset($address['_copy'])) {
                         unset($address['_copy']);
                     }
                     $address = Craft::$app->getElements()->getElementById($address['id'], Address::class);
                     $address = Craft::$app->getElements()->duplicateElement($address, [
-                        'ownerId' => $orderId,
-                        'primaryOwnerId' => $orderId,
+                        'owner' => $order,
+                        'primaryOwner' => $order,
                         'title' => $title,
                     ]);
-                } elseif ($address && ($address['id'] && $address['ownerId'] == $orderId)) {
+                } elseif ($address && ($address['id'] && $address['ownerId'] == $order->id)) {
                     /** @var Address|null $address */
                     $address = Address::find()->ownerId($address['ownerId'])->id($address['id'])->one();
                 }
 
                 return $address;
             };
-            $billingAddress = $getAddress($submittedBillingAddress, $orderRequestData['order']['id'], Craft::t('commerce', 'Billing Address'));
+            $billingAddress = $getAddress($submittedBillingAddress, $order, Craft::t('commerce', 'Billing Address'));
             $order->setBillingAddress($billingAddress);
 
-            $shippingAddress = $getAddress($submittedShippingAddress, $orderRequestData['order']['id'], Craft::t('commerce', 'Shipping Address'));
+            $shippingAddress = $getAddress($submittedShippingAddress, $order, Craft::t('commerce', 'Shipping Address'));
             $order->setShippingAddress($shippingAddress);
 
             if (isset($orderRequestData['order']['sourceBillingAddressId'])) {
@@ -1550,6 +1570,15 @@ JS, []);
 
         foreach ($orderRequestData['order']['lineItems'] as $lineItemData) {
             // Normalize data
+            $type = $lineItemData['type'] ?? LineItemType::Purchasable;
+            if (is_string($type)) {
+                $type = LineItemType::from($type);
+            } elseif (is_array($type) && isset($type['value'])) {
+                $type = LineItemType::from($type['value']);
+            }
+
+            $description = $lineItemData['description'] ?? null;
+            $sku = $lineItemData['sku'] ?? null;
             $lineItemId = $lineItemData['id'] ?? null;
             $note = $lineItemData['note'] ?? '';
             $privateNote = $lineItemData['privateNote'] ?? '';
@@ -1557,18 +1586,31 @@ JS, []);
             $lineItemStatusId = $lineItemData['lineItemStatusId'];
             $options = $lineItemData['options'] ?? [];
             $qty = $lineItemData['qty'] ?? 1;
+            $shippingCategoryId = $lineItemData['shippingCategoryId'] ?? null;
+            $taxCategoryId = $lineItemData['taxCategoryId'] ?? null;
+            $hasFreeShipping = $lineItemData['hasFreeShipping'] ?? null;
+            $isPromotable = $lineItemData['isPromotable'] ?? null;
+            $isShippable = $lineItemData['isShippable'] ?? null;
+            $isTaxable = $lineItemData['isTaxable'] ?? null;
             $uid = $lineItemData['uid'] ?? StringHelper::UUID();
 
             if ($lineItemId) {
                 $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
             } else {
                 try {
-                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order, $purchasableId, $options, $qty, $note, $uid);
+                    $params = compact('options', 'qty', 'note', 'uid');
+                    if ($type === LineItemType::Purchasable) {
+                        $params['purchasableId'] = $purchasableId;
+                    }
+
+                    $lineItem = Plugin::getInstance()->getLineItems()->create($order, $params, $type);
                 } catch (\Exception $exception) {
                     $order->addError('lineItems', $exception->getMessage());
                     continue;
                 }
             }
+
+            $lineItem->type = $type;
 
             $lineItem->purchasableId = $purchasableId;
             $lineItem->qty = $qty;
@@ -1580,14 +1622,48 @@ JS, []);
 
             $lineItem->setOrder($order);
 
+            if ($lineItem->type === LineItemType::Custom) {
+                if ($description) {
+                    $lineItem->setDescription($description);
+                }
+
+                if ($sku) {
+                    $lineItem->setSku($sku);
+                }
+
+                if ($shippingCategoryId) {
+                    $lineItem->shippingCategoryId = $shippingCategoryId;
+                }
+
+                if ($taxCategoryId) {
+                    $lineItem->taxCategoryId = $taxCategoryId;
+                }
+
+                if ($hasFreeShipping !== null) {
+                    $lineItem->setHasFreeShipping($hasFreeShipping);
+                }
+
+                if ($isPromotable !== null) {
+                    $lineItem->setIsPromotable($isPromotable);
+                }
+
+                if ($isShippable !== null) {
+                    $lineItem->setIsShippable($isShippable);
+                }
+
+                if ($isTaxable !== null) {
+                    $lineItem->setIsTaxable($isTaxable);
+                }
+            }
+
             // Deleted a purchasable while we had a purchasable ID in memory on the order edit page, unset it.
-            if ($purchasableId && !Plugin::getInstance()->getPurchasables()->getPurchasableById($purchasableId, $orderRequestData['order']['orderSiteId'], $orderRequestData['order']['customerId'] ?? false)) {
+            if ($lineItem->type === LineItemType::Purchasable && $purchasableId && !Plugin::getInstance()->getPurchasables()->getPurchasableById($purchasableId, $orderRequestData['order']['orderSiteId'], $orderRequestData['order']['customerId'] ?? false)) {
                 $lineItem->purchasableId = null;
             }
 
-            if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
+            if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE || $lineItem->type === LineItemType::Custom) {
                 $promotionalPrice = $lineItemData['promotionalPrice'] ? Localization::normalizeNumber($lineItemData['promotionalPrice']) : null;
-                $price = $lineItemData['price'] ? Localization::normalizeNumber($lineItemData['price']) : null;
+                $price = $lineItemData['price'] ? Localization::normalizeNumber($lineItemData['price']) : 0;
 
                 $lineItem->setPromotionalPrice($promotionalPrice);
                 $lineItem->setPrice($price);
@@ -1743,12 +1819,37 @@ JS, []);
     private function _addLivePurchasableInfo(array $results, int $siteId, int|false|null $customerId = null): array
     {
         $purchasables = [];
+        $store = Plugin::getInstance()->getStores()->getStoreBySiteId($siteId);
+        $baseCurrency = $store->getCurrency();
+
+        $elementIdsByType = [];
+        foreach ($results as $r) {
+            if (!array_key_exists($r['type'], $elementIdsByType)) {
+                $elementIdsByType[$r['type']] = [];
+            }
+            $elementIdsByType[$r['type']][] = $r['id'];
+        }
+
+        $purchasablesById = [];
+        foreach ($elementIdsByType as $type => $ids) {
+            if (!class_exists($type)) {
+                continue;
+            }
+
+            /** @var ElementQuery $query */
+            $query = $type::find();
+
+            if ($query instanceof PurchasableQuery) {
+                $query->forCustomer($customerId);
+            }
+
+            $purchasablesById = [...$purchasablesById, ...$query->id($ids)->all()];
+        }
 
         foreach ($results as $row) {
             /** @var PurchasableInterface|null $purchasable */
-            $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($row['id'], $siteId, $customerId);
+            $purchasable = ArrayHelper::firstWhere($purchasablesById, 'id', $row['id']);
             if ($purchasable) {
-                $baseCurrency = $purchasable->getStore()->getCurrency();
                 // @TODO revisit when updating currencies for stores
                 $row['price'] = $purchasable->getSalePrice();
                 $row['promotionalPrice'] = $purchasable->getPromotionalPrice();
