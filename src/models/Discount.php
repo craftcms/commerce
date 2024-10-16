@@ -92,6 +92,12 @@ class Discount extends Model
     public null|ElementConditionInterface $_billingAddressCondition = null;
 
     /**
+     * @var bool Requires a coupon code to be applied
+     * @since 4.7.0
+     */
+    public bool $requireCouponCode = false;
+
+    /**
      * @var int Per user coupon use limit
      */
     public int $perUserLimit = 0;
@@ -633,44 +639,45 @@ class Discount extends Model
                 },
             ],
             [[
-                'id',
-                'allPurchasables',
                 'allCategories',
-                'purchasableIds',
-                'categoryIds',
-                'name',
-                'description',
-                'couponFormat',
-                'orderCondition',
-                'customerCondition',
-                'billingAddressCondition',
-                'shippingAddressCondition',
-                'perUserLimit',
-                'perEmailLimit',
-                'totalDiscountUseLimit',
-                'totalDiscountUses',
-                'dateFrom',
-                'dateTo',
-                'purchaseTotal',
-                'orderConditionFormula',
-                'purchaseQty',
-                'maxPurchaseQty',
+                'allPurchasables',
+                'appliedTo',
                 'baseDiscount',
                 'baseDiscountType',
-                'perItemDiscount',
-                'percentDiscount',
-                'percentageOffSubject',
+                'billingAddressCondition',
+                'categoryIds',
+                'categoryRelationshipType',
+                'couponFormat',
+                'customerCondition',
+                'dateCreated',
+                'dateFrom',
+                'dateTo',
+                'dateUpdated',
+                'description',
+                'enabled',
                 'excludeOnSale',
                 'hasFreeShippingForMatchingItems',
                 'hasFreeShippingForOrder',
-                'categoryRelationshipType',
-                'enabled',
-                'stopProcessing',
-                'dateCreated',
-                'dateUpdated',
+                'id',
                 'ignoreSales',
-                'appliedTo',
+                'maxPurchaseQty',
+                'name',
+                'orderCondition',
+                'orderConditionFormula',
+                'perEmailLimit',
+                'perItemDiscount',
+                'perUserLimit',
+                'percentDiscount',
+                'percentageOffSubject',
+                'purchasableIds',
+                'purchaseQty',
+                'purchaseTotal',
+                'requireCouponCode',
+                'shippingAddressCondition',
                 'sortOrder',
+                'stopProcessing',
+                'totalDiscountUseLimit',
+                'totalDiscountUses',
             ], 'safe'],
         ];
     }

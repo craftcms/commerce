@@ -1259,6 +1259,9 @@ class OrdersController extends Controller
         $forceEdit = ($variables['order']->hasErrors() || !$variables['order']->isCompleted);
 
         Craft::$app->getView()->registerJs('window.orderEdit.forceEdit = ' . Json::encode($forceEdit) . ';', View::POS_BEGIN);
+
+        $store = Plugin::getInstance()->getStore()->getStore();
+        Craft::$app->getView()->registerJs('window.orderEdit.store = ' . Json::encode($store->toArray([], ['locationAddress'])) . ';', View::POS_BEGIN);
     }
 
     /**

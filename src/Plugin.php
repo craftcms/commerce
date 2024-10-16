@@ -16,6 +16,7 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CustomerAddressBehavior;
 use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\behaviors\ValidateOrganizationTaxIdBehavior;
+use craft\commerce\console\controllers\UpgradeController as UpgradeController;
 use craft\commerce\db\Table;
 use craft\commerce\debug\CommercePanel;
 use craft\commerce\elements\Donation;
@@ -116,8 +117,10 @@ use craft\events\RegisterUserPermissionsEvent;
 use craft\fixfks\controllers\RestoreController;
 use craft\gql\ElementQueryConditionBuilder;
 use craft\helpers\Console;
+use craft\helpers\Cp;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
+use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\redactor\events\RegisterLinkOptionsEvent;
@@ -207,7 +210,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '4.5.3';
+    public string $schemaVersion = '4.7.0.1';
 
     /**
      * @inheritdoc
@@ -270,10 +273,38 @@ class Plugin extends BasePlugin
             $this->_registerDebugPanels();
 
             if ($request->getIsCpRequest()) {
+                $this->_checkUpgradeCommandHasFinished();
                 $this->_registerStoreAddressAuthHandlers();
             }
         });
         Craft::setAlias('@commerceLib', Craft::getAlias('@craft/commerce/../lib'));
+    }
+
+    private function _checkUpgradeCommandHasFinished()
+    {
+        $v3Columns = UpgradeController::$v3droppableColumns;
+        // do any of the columns exist:
+        $columnsExist = false;
+        foreach ($v3Columns as $column) {
+            if (Craft::$app->getDb()->columnExists($column['table'], $column['column'])) {
+                $columnsExist = true;
+                break;
+            }
+        }
+
+        if ($columnsExist) {
+            Event::on(Cp::class, Cp::EVENT_REGISTER_ALERTS, static function($event) {
+                $event->alerts[] = [
+                    'content' =>
+                        Html::tag('strong', Craft::t('commerce', '{name} upgrade incomplete.', [
+                            'name' => '<span lang="en">Craft Commerce 4</span>',
+                        ])) . ' ' .
+                        Craft::t('commerce', 'Please ensure the <a href="{url}">upgrade command</a> has finished running.', [
+                            'url' => 'https://craftcms.com/docs/commerce/4.x/upgrading.html#performing-the-upgrade',
+                        ]),
+                ];
+            });
+        }
     }
 
     /**

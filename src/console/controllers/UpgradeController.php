@@ -12,6 +12,7 @@ use craft\base\FieldInterface;
 use craft\commerce\console\Controller;
 use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\addresses\PostalCodeFormulaConditionRule;
+use craft\commerce\events\UpgradeEvent;
 use craft\commerce\Plugin;
 use craft\commerce\records\Store;
 use craft\db\Connection;
@@ -51,6 +52,13 @@ use yii\di\Instance;
  */
 class UpgradeController extends Controller
 {
+    /**
+     * @event UpgradeEvent The event that is triggered before the v3 columns and tables are dropped during upgrade.
+     * @see actionRun()
+     * @since 4.7.0
+     */
+    public const EVENT_BEFORE_DROP_V3_DATABASE_ENTITIES = 'beforeDropV3DatabaseEntities';
+
     /**
      * @inheritdoc
      */
@@ -96,7 +104,7 @@ class UpgradeController extends Controller
      *
      * @var array<array{table: string, column: string}>
      */
-    private array $_v3droppableColumns = [
+    public static array $v3droppableColumns = [
         ['table' => '{{%commerce_taxzones}}', 'column' => 'v3isCountryBased'],
         ['table' => '{{%commerce_shippingzones}}', 'column' => 'v3isCountryBased'],
         ['table' => '{{%commerce_taxzones}}', 'column' => 'v3zipCodeConditionFormula'],
@@ -316,13 +324,20 @@ class UpgradeController extends Controller
             return ExitCode::UNSPECIFIED_ERROR;
         }
 
+        $event = new UpgradeEvent();
+        $event->v3columnMap = self::$v3droppableColumns;
+        $event->v3tables = $this->_v3tables;
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_DROP_V3_DATABASE_ENTITIES)) {
+            $this->trigger(self::EVENT_BEFORE_DROP_V3_DATABASE_ENTITIES, $event);
+        }
+
         $this->stdout("Cleaning up tables…");
         foreach ($this->_v3tables as $table) {
             Db::dropAllForeignKeysToTable($table, $this->db);
             $this->db->createCommand()->dropTableIfExists($table)->execute();
         }
 
-        foreach ($this->_v3droppableColumns as ['table' => $table, 'column' => $column]) {
+        foreach (static::$v3droppableColumns as ['table' => $table, 'column' => $column]) {
             if ($this->db->columnExists($table, $column)) {
                 Db::dropForeignKeyIfExists($table, $column, $this->db);
                 Db::dropIndexIfExists($table, $column, db: $this->db);
