@@ -8,7 +8,7 @@
     'Discounts reordered.',
     'Duration',
     'Enabled',
-    'Has Coupons?',
+    'Require Coupon Code',
     'Ignore Promotions?',
     'Name',
     'No discounts exist yet.',
@@ -65,7 +65,7 @@
 
     var columns = [
         { name: '__slot:title', title: Craft.t('commerce', 'Name') },
-        { name: 'hasCoupons', title: Craft.t('commerce', 'Has Coupons?'),
+        { name: 'requireCouponCode', title: Craft.t('commerce', 'Require Coupon Code'),
             callback: function(value) {
                 if (value) {
                     return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';

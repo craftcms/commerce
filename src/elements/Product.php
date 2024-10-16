@@ -26,18 +26,24 @@ use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Product as ProductRecord;
+use craft\controllers\ElementIndexesController;
 use craft\db\Query;
 use craft\elements\actions\CopyReferenceTag;
 use craft\elements\actions\Delete;
 use craft\elements\actions\Duplicate;
+use craft\elements\actions\NewChild;
+use craft\elements\actions\NewSiblingAfter;
+use craft\elements\actions\NewSiblingBefore;
 use craft\elements\actions\Restore;
 use craft\elements\actions\SetStatus;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\EagerLoadPlan;
+use craft\elements\db\ElementQuery;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\NestedElementManager;
 use craft\elements\User;
 use craft\enums\PropagationMethod;
+use craft\events\ElementCriteriaEvent;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
@@ -46,7 +52,9 @@ use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
+use craft\models\Section;
 use craft\models\Site;
+use craft\services\Structures;
 use craft\validators\DateTimeValidator;
 use DateTime;
 use Illuminate\Support\Collection;
@@ -80,6 +88,13 @@ class Product extends Element implements HasStoreInterface
     public const STATUS_LIVE = 'live';
     public const STATUS_PENDING = 'pending';
     public const STATUS_EXPIRED = 'expired';
+
+    /**
+     * @event ElementCriteriaEvent The event that is triggered when defining the parent selection criteria.
+     * @see _parentOptionCriteria()
+     * @since 5.2.0
+     */
+    public const EVENT_DEFINE_PARENT_SELECTION_CRITERIA = 'defineParentSelectionCriteria';
 
     /**
      * @var float|null
@@ -239,9 +254,11 @@ class Product extends Element implements HasStoreInterface
 
         $sources[] = ['heading' => Craft::t('commerce', 'Product Types')];
 
+        $user = Craft::$app->getUser()->getIdentity();
+
         foreach ($productTypes as $productType) {
             $key = 'productType:' . $productType->uid;
-            $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-editProductType:' . $productType->uid);
+            $canEditProducts = $user && $user->can('commerce-editProductType:' . $productType->uid);
 
             $sources[$key] = [
                 'key' => $key,
@@ -250,10 +267,21 @@ class Product extends Element implements HasStoreInterface
                     'handle' => $productType->handle,
                     'editable' => $canEditProducts,
                 ],
-                'criteria' => ['typeId' => $productType->id, 'editable' => $editable],
+                'criteria' => [
+                    'typeId' => $productType->id,
+                    'editable' => $editable,
+                ],
                 // Get site ids enabled for this product type
                 'sites' => $productType->getSiteIds(),
             ];
+
+            if ($productType->isStructure) {
+                $sources[$key]['defaultSort'] = ['structure', 'asc'];
+                $sources[$key]['structureId'] = $productType->structureId;
+                $sources[$key]['structureEditable'] = $canEditProducts;
+            } else {
+                $sources[$key]['defaultSort'] = ['postDate', 'desc'];
+            }
         }
 
         return $sources;
@@ -313,6 +341,19 @@ class Product extends Element implements HasStoreInterface
      */
     protected static function defineActions(string $source = null): array
     {
+        $elementsService = Craft::$app->getElements();
+        // Get the selected site
+        $controller = Craft::$app->controller;
+        if ($controller instanceof ElementIndexesController) {
+            /** @var ElementQuery $elementQuery */
+            $elementQuery = $controller->getElementQuery();
+        } else {
+            $elementQuery = null;
+        }
+        $site = $elementQuery && $elementQuery->siteId
+            ? Craft::$app->getSites()->getSiteById($elementQuery->siteId)
+            : Craft::$app->getSites()->getCurrentSite();
+
         // Get the section(s) we need to check permissions on
         switch ($source) {
             case '*':
@@ -358,13 +399,13 @@ class Product extends Element implements HasStoreInterface
             $actions[] = Delete::class;
         } elseif (!empty($productTypes)) {
             $userSession = Craft::$app->getUser();
-
             $currentUser = $userSession->getIdentity();
+            $productTypeService = Plugin::getInstance()->getProductTypes();
 
             foreach ($productTypes as $productType) {
-                $canDelete = Plugin::getInstance()->getProductTypes()->hasPermission($currentUser, $productType, 'commerce-deleteProducts');
-                $canCreate = Plugin::getInstance()->getProductTypes()->hasPermission($currentUser, $productType, 'commerce-createProducts');
-                $canEdit = Plugin::getInstance()->getProductTypes()->hasPermission($currentUser, $productType, 'commerce-editProductType');
+                $canDelete = $productTypeService->hasPermission($currentUser, $productType, 'commerce-deleteProducts');
+                $canCreate = $productTypeService->hasPermission($currentUser, $productType, 'commerce-createProducts');
+                $canEdit = $productTypeService->hasPermission($currentUser, $productType, 'commerce-editProductType');
 
                 if ($canCreate) {
                     // Duplicate
@@ -383,6 +424,35 @@ class Product extends Element implements HasStoreInterface
 
                 if ($canEdit) {
                     $actions[] = SetStatus::class;
+                }
+
+                if (
+                    $productType->isStructure &&
+                    $canCreate
+                ) {
+                    $newProductUrl = 'commerce/products/' . $productType->handle . '/new';
+
+                    if (Craft::$app->getIsMultiSite()) {
+                        $newProductUrl .= '?site=' . $site->handle;
+                    }
+
+                    $actions[] = $elementsService->createAction([
+                        'type' => NewSiblingBefore::class,
+                        'newSiblingUrl' => $newProductUrl,
+                    ]);
+
+                    $actions[] = $elementsService->createAction([
+                        'type' => NewSiblingAfter::class,
+                        'newSiblingUrl' => $newProductUrl,
+                    ]);
+
+                    if ($productType->maxLevels != 1) {
+                        $actions[] = $elementsService->createAction([
+                            'type' => NewChild::class,
+                            'maxLevels' => $productType->maxLevels,
+                            'newChildUrl' => $newProductUrl,
+                        ]);
+                    }
                 }
             }
 
@@ -1198,9 +1268,46 @@ class Product extends Element implements HasStoreInterface
     {
         $fields = [];
         $view = Craft::$app->getView();
-
+        $productType = $this->getType();
         // Slug
         $fields[] = $this->slugFieldHtml($static);
+
+        if ($productType->isStructure && $productType->maxLevels !== 1) {
+            $fields[] = (function() use ($static, $productType) {
+                if ($parentId = $this->getParentId()) {
+                    $parent = Plugin::getInstance()->getProducts()->getProductById($parentId, $this->siteId, [
+                        'drafts' => null,
+                        'draftOf' => false,
+                    ]);
+                } else {
+                    // If the entry already has structure data, use it. Otherwise, use its canonical entry
+                    /** @var self|null $parent */
+                    $parent = self::find()
+                        ->siteId($this->siteId)
+                        ->ancestorOf($this->lft ? $this : ($this->getIsCanonical() ? $this->id : $this->getCanonical(true)))
+                        ->ancestorDist(1)
+                        ->drafts(null)
+                        ->draftOf(false)
+                        ->status(null)
+                        ->one();
+                }
+
+                return Cp::elementSelectFieldHtml([
+                    'label' => Craft::t('app', 'Parent'),
+                    'id' => 'parentId',
+                    'name' => 'parentId',
+                    'elementType' => self::class,
+                    'selectionLabel' => Craft::t('app', 'Choose'),
+                    'sources' => ["productType:$productType->uid"],
+                    'criteria' => $this->_parentOptionCriteria($productType),
+                    'limit' => 1,
+                    'elements' => $parent ? [$parent] : [],
+                    'disabled' => $static,
+                    'describedBy' => 'parentId-label',
+                    'errors' => $this->getErrors('parentId'),
+                ]);
+            })();
+        }
 
         $isDeltaRegistrationActive = $view->getIsDeltaRegistrationActive();
         $view->setIsDeltaRegistrationActive(true);
@@ -1233,6 +1340,55 @@ class Product extends Element implements HasStoreInterface
         $fields[] = parent::metaFieldsHtml($static);
 
         return implode("\n", $fields);
+    }
+
+    private function _parentOptionCriteria(ProductType $productType): array
+    {
+        $parentOptionCriteria = [
+            'siteId' => $this->siteId,
+            'typeId' => $productType->id,
+            'status' => null,
+            'drafts' => null,
+            'draftOf' => false,
+        ];
+
+        // Prevent the current entry, or any of its descendants, from being selected as a parent
+        if ($this->id) {
+            $excludeIds = self::find()
+                ->descendantOf($this)
+                ->drafts(null)
+                ->draftOf(false)
+                ->status(null)
+                ->ids();
+            $excludeIds[] = $this->getCanonicalId();
+            $parentOptionCriteria['id'] = array_merge(['not'], $excludeIds);
+        }
+
+        if ($productType->maxLevels) {
+            if ($this->id) {
+                // Figure out how deep the ancestors go
+                $maxDepth = self::find()
+                    ->select('level')
+                    ->descendantOf($this)
+                    ->status(null)
+                    ->leaves()
+                    ->scalar();
+                $depth = 1 + ($maxDepth ?: $this->level) - $this->level;
+            } else {
+                $depth = 1;
+            }
+
+            $parentOptionCriteria['level'] = sprintf('<=%s', $productType->maxLevels - $depth);
+        }
+
+        // Fire a 'defineParentSelectionCriteria' event
+        if ($this->hasEventHandlers(self::EVENT_DEFINE_PARENT_SELECTION_CRITERIA)) {
+            $event = new ElementCriteriaEvent(['criteria' => $parentOptionCriteria]);
+            $this->trigger(self::EVENT_DEFINE_PARENT_SELECTION_CRITERIA, $event);
+            return $event->criteria;
+        }
+
+        return $parentOptionCriteria;
     }
 
     /**
@@ -1285,6 +1441,8 @@ class Product extends Element implements HasStoreInterface
     public function afterSave(bool $isNew): void
     {
         if (!$this->propagating) {
+            $productType = $this->getType();
+
             if (!$isNew) {
                 $record = ProductRecord::findOne($this->id);
 
@@ -1316,9 +1474,58 @@ class Product extends Element implements HasStoreInterface
             $record->save(false);
 
             $this->id = $record->id;
+
+            if ($this->getIsCanonical() && isset($this->typeId) && $productType->isStructure) {
+                // Has the parent changed?
+                if ($this->hasNewParent()) {
+                    $this->_placeInStructure($isNew, $productType);
+                }
+
+                // Update the product’s descendants, who may be using this product’s URI in their own URIs
+                if (!$isNew) {
+                    Craft::$app->getElements()->updateDescendantSlugsAndUris($this, true, true);
+                }
+            }
         }
 
         parent::afterSave($isNew);
+    }
+
+    private function _placeInStructure(bool $isNew, ProductType $productType): void
+    {
+        $parentId = $this->getParentId();
+        $structuresService = Craft::$app->getStructures();
+
+        // If this is a provisional draft and its new parent matches the canonical product’s, just drop it from the structure
+        if ($this->isProvisionalDraft) {
+            $canonicalParentId = self::find()
+                ->select(['elements.id'])
+                ->ancestorOf($this->getCanonicalId())
+                ->ancestorDist(1)
+                ->status(null)
+                ->scalar();
+
+            if ($parentId == $canonicalParentId) {
+                $structuresService->remove($this->structureId, $this);
+                return;
+            }
+        }
+
+        $mode = $isNew ? Structures::MODE_INSERT : Structures::MODE_AUTO;
+
+        if (!$parentId) {
+            if ($productType->defaultPlacement === ProductType::DEFAULT_PLACEMENT_BEGINNING) {
+                $structuresService->prependToRoot($this->structureId, $this, $mode);
+            } else {
+                $structuresService->appendToRoot($this->structureId, $this, $mode);
+            }
+        } else {
+            if ($productType->defaultPlacement === ProductType::DEFAULT_PLACEMENT_BEGINNING) {
+                $structuresService->prepend($this->structureId, $this, $this->getParent(), $mode);
+            } else {
+                $structuresService->append($this->structureId, $this, $this->getParent(), $mode);
+            }
+        }
     }
 
     /**
@@ -1467,6 +1674,8 @@ class Product extends Element implements HasStoreInterface
      */
     public function beforeSave(bool $isNew): bool
     {
+        $productType = $this->getType();
+
         // Make sure the entry has at least one revision if the section has versioning enabled
         if ($this->_shouldSaveRevision()) {
             $hasRevisions = self::find()
@@ -1487,6 +1696,30 @@ class Product extends Element implements HasStoreInterface
                     $revisionNotes = 'Revision from ' . Craft::$app->getFormatter()->asDatetime($currentProduct->dateUpdated);
                     Craft::$app->getRevisions()->createRevision($currentProduct, notes: $revisionNotes);
                 }
+            }
+        }
+
+        // Set the structure ID for Element::attributes() and afterSave()
+        if ($productType->isStructure) {
+            $this->structureId = $productType->structureId;
+
+            // Has the entry been assigned to a new parent?
+            if (!$this->duplicateOf && $this->hasNewParent()) {
+                if ($parentId = $this->getParentId()) {
+                    $parentProduct = Plugin::getInstance()->getProducts()->getProductById($parentId, '*', [
+                        'preferSites' => [$this->siteId],
+                        'drafts' => null,
+                        'draftOf' => false,
+                    ]);
+
+                    if (!$parentProduct) {
+                        throw new InvalidConfigException("Invalid parent ID: $parentId");
+                    }
+                } else {
+                    $parentProduct = null;
+                }
+
+                $this->setParent($parentProduct);
             }
         }
 

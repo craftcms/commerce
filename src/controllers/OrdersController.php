@@ -1438,6 +1438,9 @@ JS, []);
         $forceEdit = ($order->hasErrors() || !$order->isCompleted);
 
         Craft::$app->getView()->registerJs('window.orderEdit.forceEdit = ' . Json::encode($forceEdit) . ';', View::POS_BEGIN);
+
+        $store = $order->getStore();
+        Craft::$app->getView()->registerJs('window.orderEdit.store = ' . Json::encode($store->toArray([], ['settings.locationAddress'])) . ';', View::POS_BEGIN);
     }
 
     /**

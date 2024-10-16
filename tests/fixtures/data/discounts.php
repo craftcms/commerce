@@ -18,6 +18,7 @@ return [
         'allCategories' => true,
         'allPurchasables' => true,
         'percentageOffSubject' => 'original',
+        'requireCouponCode' => true,
         '_coupons' => [
             [
                 'code' => 'discount_1',

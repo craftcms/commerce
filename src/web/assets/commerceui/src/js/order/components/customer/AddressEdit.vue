@@ -176,7 +176,7 @@
         },
 
         computed: {
-            ...mapGetters(['hasCustomer']),
+            ...mapGetters(['hasCustomer', 'store']),
 
             emptyMsg() {
                 if (!this.emptyMessage) {
@@ -233,12 +233,23 @@
             },
 
             handleNewAddress() {
+                let data = {
+                    elementType: 'craft\\elements\\Address',
+                    ownerId: this.$store.state.draft.order.id,
+                    title: this.title,
+                };
+
+                if (
+                    this.store &&
+                    this.store.settings.locationAddress &&
+                    this.store.settings.locationAddress.countryCode
+                ) {
+                    data.countryCode =
+                        this.store.settings.locationAddress.countryCode;
+                }
+
                 Craft.sendActionRequest('POST', 'elements/create', {
-                    data: {
-                        elementType: 'craft\\elements\\Address',
-                        ownerId: this.$store.state.draft.order.id,
-                        title: this.title,
-                    },
+                    data: data,
                 }).then((response) => {
                     const slideout = Craft.createElementEditor(
                         'craft\\elements\\Address',

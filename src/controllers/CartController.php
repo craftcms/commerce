@@ -136,7 +136,7 @@ class CartController extends BaseFrontEndController
 
         // Get the cart from the request or from the session.
         // When we are about to update the cart, we consider it a real cart at this point, and want to actually create it in the DB.
-        $this->_cart = $this->_getCart(true);
+        $this->_cart = $this->_getCart();
 
         // Can clear line items when updating the cart
         $clearLineItems = $this->request->getParam('clearLineItems');
@@ -584,7 +584,7 @@ class CartController extends BaseFrontEndController
             // Get the cart from the order number
             $cart = Order::find()->number($orderNumber)->isCompleted(false)->one();
 
-            if (!$cart) {
+            if ($cart === null) {
                 throw new NotFoundHttpException('Cart not found');
             }
 
@@ -594,7 +594,9 @@ class CartController extends BaseFrontEndController
         $requestForceSave = (bool)$this->request->getBodyParam('forceSave');
         $doForceSave = ($requestForceSave || $forceSave);
 
-        return Plugin::getInstance()->getCarts()->getCart($doForceSave);
+        $this->_cart = Plugin::getInstance()->getCarts()->getCart($doForceSave);
+
+        return $this->_cart;
     }
 
     /**
@@ -699,6 +701,7 @@ class CartController extends BaseFrontEndController
                             'owner' => $this->_cart,
                         ]
                     );
+
                     $this->_cart->setBillingAddress($cartBillingAddress);
 
                     if ($shippingIsBilling) {

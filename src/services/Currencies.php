@@ -33,7 +33,12 @@ class Currencies extends Component
     }
 
     /**
-     * @param Currency|string $currency
+     * @var array
+     */
+    private array $_tellersByIso = [];
+
+    /**
+     * @param \Money\Currency|string $currency
      * @return Teller
      */
     public function getTeller(\Money\Currency|string $currency): Teller
@@ -45,12 +50,20 @@ class Currencies extends Component
         $parser = new DecimalMoneyParser($this->_isoCurrencies);
         $formatter = new DecimalMoneyFormatter($this->_isoCurrencies);
         $roundingMode = Money::ROUND_HALF_UP;
-        return new \Money\Teller(
+
+        $iso = $currency->getCode();
+        if (isset($this->_tellersByIso[$iso])) {
+            return $this->_tellersByIso[$iso];
+        }
+
+        $this->_tellersByIso[$iso] = new \Money\Teller(
             $currency,
             $parser,
             $formatter,
             $roundingMode
         );
+
+        return $this->_tellersByIso[$iso];
     }
 
     /**

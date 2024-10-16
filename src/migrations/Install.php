@@ -13,6 +13,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
+use craft\commerce\models\ProductType;
 use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
@@ -202,6 +203,7 @@ class Install extends Migration
             'customerCondition' => $this->text(),
             'shippingAddressCondition' => $this->text(),
             'billingAddressCondition' => $this->text(),
+            'requireCouponCode' => $this->boolean()->notNull()->defaultValue(false),
             'perUserLimit' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
             'perEmailLimit' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
             'totalDiscountUses' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
@@ -606,6 +608,10 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::PRODUCTTYPES);
         $this->createTable(Table::PRODUCTTYPES, [
             'id' => $this->primaryKey(),
+            'isStructure' => $this->boolean()->notNull()->defaultValue(false),
+            'maxLevels' => $this->smallInteger()->unsigned(),
+            'defaultPlacement' => $this->enum('defaultPlacement', [ProductType::DEFAULT_PLACEMENT_BEGINNING, ProductType::DEFAULT_PLACEMENT_END])->defaultValue('end')->notNull(),
+            'structureId' => $this->integer(),
             'fieldLayoutId' => $this->integer(),
             'variantFieldLayoutId' => $this->integer(),
             'name' => $this->string()->notNull(),
@@ -1112,6 +1118,7 @@ class Install extends Migration
         $this->createIndex(null, Table::PRODUCTS, 'expiryDate', false);
         $this->createIndex(null, Table::PRODUCTS, 'postDate', false);
         $this->createIndex(null, Table::PRODUCTS, 'typeId', false);
+        $this->createIndex(null, Table::PRODUCTTYPES, 'structureId', false);
         $this->createIndex(null, Table::PRODUCTTYPES, 'fieldLayoutId', false);
         $this->createIndex(null, Table::PRODUCTTYPES, 'handle', true);
         $this->createIndex(null, Table::PRODUCTTYPES, 'variantFieldLayoutId', false);
@@ -1235,6 +1242,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::PRODUCTS, ['typeId'], Table::PRODUCTTYPES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PRODUCTTYPES, ['fieldLayoutId'], '{{%fieldlayouts}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTTYPES, ['variantFieldLayoutId'], '{{%fieldlayouts}}', ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::PRODUCTTYPES, ['structureId'], CraftTable::STRUCTURES, ['id'], 'SET NULL', null);
         $this->addForeignKey(null, Table::PRODUCTTYPES_SHIPPINGCATEGORIES, ['productTypeId'], Table::PRODUCTTYPES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::PRODUCTTYPES_SHIPPINGCATEGORIES, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::PRODUCTTYPES_SITES, ['productTypeId'], Table::PRODUCTTYPES, ['id'], 'CASCADE');

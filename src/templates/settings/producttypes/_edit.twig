@@ -201,6 +201,39 @@
         }) }}
 
         {{ forms.lightswitchField({
+            label: "Enable structure for products of this type"|t('commerce'),
+            warning: productType.id ? 'Changing this may result in data loss.'|t('app'),
+            id: 'isStructure',
+            name: 'isStructure',
+            on: productType.isStructure,
+            toggle: 'isStructureFields',
+        }) }}
+
+        <div id="isStructureFields" class="field {% if not productType.isStructure %}hidden{% endif %}">
+            {{ forms.selectField({
+                label: 'Default {type} Placement'|t('app', {type: 'Product'|t('commerce')}),
+                instructions: 'Where new {type} should be placed by default in the structure.'|t('app', {type: 'products'|t('commerce')}),
+                id: 'default-placement',
+                name: 'defaultPlacement',
+                options: [
+                    {label: 'Before other {type}'|t('app', {type: 'products'|t('commerce')}), value: 'beginning'},
+                    {label: 'After other {type}'|t('app', {type: 'products'|t('commerce')}), value: 'end'},
+                ],
+                value: productType.defaultPlacement,
+            }) }}
+
+            {{ forms.textField({
+                label: "Max Levels"|t('app'),
+                instructions: "The maximum number of levels this product type can have. Leave blank if you don’t care."|t('commerce'),
+                id: 'maxLevels',
+                name: 'maxLevels',
+                value: productType.maxLevels,
+                size: 5,
+                errors: productType.getErrors('maxLevels')
+            }) }}
+        </div>
+
+        {{ forms.lightswitchField({
             label: 'Enable versioning for products of this type'|t('app'),
             id: 'enableVersioning',
             name: 'enableVersioning',
@@ -316,7 +349,6 @@
                     type: 'lightswitch',
                     heading: "Default Status"|t('app'),
                     thin: true,
-                    class: ['type-channel', 'type-structure']|filter
                 }
             }|filter,
             rows: siteRows,
@@ -328,7 +360,7 @@
         }) }}
 
         {% if craft.app.getIsMultiSite() %}
-            <div class="field type-channel type-structure">
+            <div class="field">
                 {{ forms.selectField({
                     label: 'Propagation Method'|t('app'),
                     instructions: 'Of the enabled sites above, which sites should products in this product type be saved to?'|t('commerce'),
@@ -346,8 +378,6 @@
                 }) }}
             </div>
         {% endif %}
-
-
     </div>
 
     <div id="tax-and-shipping" class="hidden">

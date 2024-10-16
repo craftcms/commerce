@@ -40,6 +40,10 @@ use yii\db\ActiveQueryInterface;
  * @property string $propagationMethod
  * @property ActiveQueryInterface $variantFieldLayout
  * @property int|null $variantFieldLayoutId
+ * @property bool $isStructure
+ * @property int|null $maxLevels
+ * @property string $defaultPlacement
+ * @property int|null $structureId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

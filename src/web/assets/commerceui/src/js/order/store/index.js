@@ -195,6 +195,10 @@ export default new Vuex.Store({
       return window.orderEdit.orderSites;
     },
 
+    store() {
+      return window.orderEdit.store;
+    },
+
     getErrors(state) {
       return (errorKey) => {
         if (

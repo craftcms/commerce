@@ -252,37 +252,48 @@
     </div>
 
     <div id="coupons" class="hidden flex-fields">
-        <div id="commerce-coupons">
-            {% set tableField %}
-                <div>
-                    {{ forms.editableTable({
-                        id: 'commerce-coupons-table',
-                        name: couponsTable.name,
-                        cols: couponsTable.cols,
-                        rows: discount.coupons,
-                        addRowLabel: 'Add a coupon'|t('commerce'),
-                        allowAdd: true,
-                        allowDelete: true,
-                        initJs: false
-                    }) }}
-                </div>
-            {% endset %}
-            {{ forms.field({
-                label: 'Coupons'|t('commerce'),
-                errors: discount.getErrors('coupons'),
-                headingSuffix: forms.button({
-                    id: 'commerce-coupons-generate',
-                    label: 'Generate'|t('commerce'),
-                    spinner: true,
-                }),
-            }, tableField) }}
+        {{ forms.lightswitchField({
+          label: "Require Coupon Code"|t('commerce'),
+          id: 'requireCouponCode',
+          name: 'requireCouponCode',
+          on: discount.requireCouponCode ? true : false,
+          errors: discount.getErrors('requireCouponCode'),
+          toggle: '#commerce-coupons-container',
+        }) }}
 
-            {# This field is update from the generate hud when generating new coupons #}
-            {{ forms.hidden({
-                id: 'commerce-coupon-format',
-                name: 'couponFormat',
-                value: discount.couponFormat,
-            }) }}
+        <div id="commerce-coupons-container">
+            <div id="commerce-coupons">
+                {% set tableField %}
+                    <div>
+                        {{ forms.editableTable({
+                            id: 'commerce-coupons-table',
+                            name: couponsTable.name,
+                            cols: couponsTable.cols,
+                            rows: discount.coupons,
+                            addRowLabel: 'Add a coupon'|t('commerce'),
+                            allowAdd: true,
+                            allowDelete: true,
+                            initJs: false
+                        }) }}
+                    </div>
+                {% endset %}
+                {{ forms.field({
+                    label: 'Coupons'|t('commerce'),
+                    errors: discount.getErrors('coupons'),
+                    headingSuffix: forms.button({
+                        id: 'commerce-coupons-generate',
+                        label: 'Generate'|t('commerce'),
+                        spinner: true,
+                    }),
+                }, tableField) }}
+
+                {# This field is update from the generate hud when generating new coupons #}
+                {{ forms.hidden({
+                    id: 'commerce-coupon-format',
+                    name: 'couponFormat',
+                    value: discount.couponFormat,
+                }) }}
+            </div>
         </div>
     </div>
 

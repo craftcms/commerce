@@ -160,10 +160,6 @@ class Coupons extends Component
             throw new Exception('Discount must be saved before it can have coupons');
         }
 
-        if (empty($discount->getCoupons())) {
-            return true;
-        }
-
         // Get currently saved coupon IDs from the DB
         $existingCouponIds = $this->_createCouponQuery()
             ->select(['id'])

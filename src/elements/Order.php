@@ -2592,11 +2592,9 @@ class Order extends Element implements HasStoreInterface
      */
     public function getPaidStatus(): string
     {
-        $teller = $this->_getTeller();
-
         if ($this->getIsPaid() &&
-            $teller->greaterThan($this->getTotalPrice(), 0) &&
-            $teller->greaterThan($this->getTotalPaid(), $this->getTotalPrice())
+            $this->_getTeller()->greaterThan($this->getTotalPrice(), 0) &&
+            $this->_getTeller()->greaterThan($this->getTotalPaid(), $this->getTotalPrice())
         ) {
             return self::PAID_STATUS_OVERPAID;
         }
@@ -2605,7 +2603,7 @@ class Order extends Element implements HasStoreInterface
             return self::PAID_STATUS_PAID;
         }
 
-        if ($this->getTotalPaid() > 0) {
+        if ($this->_getTeller()->greaterThan($this->getTotalPaid(), 0)) {
             return self::PAID_STATUS_PARTIAL;
         }
 
@@ -2726,7 +2724,7 @@ class Order extends Element implements HasStoreInterface
      */
     public function hasOutstandingBalance(): bool
     {
-        return $this->getOutstandingBalance() > 0;
+        return $this->_getTeller()->greaterThan($this->getOutstandingBalance(), 0);
     }
 
     /**

@@ -110,8 +110,17 @@ class ProductTypesController extends BaseAdminController
         }
 
         $this->requirePostRequest();
+        $productTypeId = $this->request->getBodyParam('productTypeId');
 
-        $productType = new ProductType();
+        if ($productTypeId) {
+            $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($productTypeId);
+
+            if (!$productType) {
+                throw new BadRequestHttpException("Invalid section ID: $productTypeId");
+            }
+        } else {
+            $productType = new ProductType();
+        }
 
         // Shared attributes
         $productType->id = $this->request->getBodyParam('productTypeId');
@@ -130,8 +139,11 @@ class ProductTypesController extends BaseAdminController
         $productType->variantTitleTranslationKeyFormat = $this->request->getBodyParam('variantTitleTranslationKeyFormat', $productType->variantTitleTranslationKeyFormat);
         $productType->skuFormat = $this->request->getBodyParam('skuFormat');
         $productType->descriptionFormat = $this->request->getBodyParam('descriptionFormat');
-        $productType->propagationMethod = PropagationMethod::tryFrom($this->request->getBodyParam('propagationMethod') ?? '')
-            ?? PropagationMethod::All;
+        $productType->propagationMethod = PropagationMethod::tryFrom($this->request->getBodyParam('propagationMethod') ?? '') ?? PropagationMethod::All;
+        $productType->isStructure = $this->request->getBodyParam('isStructure');
+        $maxLevels = (int)$this->request->getBodyParam('maxLevels');
+        $productType->maxLevels = $maxLevels ?: null; // zero should be null
+        $productType->defaultPlacement = $this->request->getBodyParam('defaultPlacement');
 
         // Site-specific settings
         $allSiteSettings = [];
