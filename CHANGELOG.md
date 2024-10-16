@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## 4.6.14 - 2024-10-16
+## 5.1.4 - 2024-10-16
 
 - Fixed a PHP error that could occur when creating a subscription. ([#3710](https://github.com/craftcms/commerce/issues/3710))
 - Fixed a bug where inventory items could appear with blank descriptions on the Inventory management screen. ([#3706](https://github.com/craftcms/commerce/issues/3706))
