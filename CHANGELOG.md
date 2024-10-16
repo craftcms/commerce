@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.6.14 - 2024-10-16
 
 - Fixed a PHP error that could occur when creating a subscription. ([#3710](https://github.com/craftcms/commerce/issues/))
 
