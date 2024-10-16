@@ -117,10 +117,7 @@ class Carts extends Component
                 $this->_cart->setCustomer($currentUser); // Will ensure the email is also set
             }
         }
-        if ($this->_cart->autoSetShippingMethod() || $this->_cart->autoSetPaymentSource()) {
-            $forceSave = true;
-        }
-
+        
         $autoSetAddresses = false;
         // We only want to call autoSetAddresses() if we have a authed cart customer
         if ($currentUser && $currentUser->id == $this->_cart->customerId) {
