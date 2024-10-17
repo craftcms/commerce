@@ -229,8 +229,9 @@ class ShippingRule extends Model implements ShippingRuleInterface
                         if (!$order) {
                             $order = new Order();
                         }
+                        $orderAsArray = Plugin::getInstance()->getShippingMethods()->getSerializedOrderForMatchingRules($order);
                         $orderConditionParams = [
-                            'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']),
+                            'order' => $orderAsArray,
                         ];
                         if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->{$attribute}, $orderConditionParams)) {
                             $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
@@ -273,10 +274,9 @@ class ShippingRule extends Model implements ShippingRuleInterface
         $lineItems = $order->getLineItems();
 
         if ($this->orderConditionFormula) {
-            $fieldsAsArray = $order->getSerializedFieldValues();
-            $orderAsArray = $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']);
+            $orderAsArray = Plugin::getInstance()->getShippingMethods()->getSerializedOrderForMatchingRules($order);
             $orderConditionParams = [
-                'order' => array_merge($orderAsArray, $fieldsAsArray),
+                'order' => $orderAsArray,
             ];
             if (!Plugin::getInstance()->getFormulas()->evaluateCondition($this->orderConditionFormula, $orderConditionParams, 'Evaluate Shipping Rule Order Condition Formula')) {
                 return false;

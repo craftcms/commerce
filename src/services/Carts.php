@@ -99,7 +99,7 @@ class Carts extends Component
     /**
      * Get the current cart for this session.
      *
-     * @param bool $forceSave Force the cart to save when requesting it.
+     * @param bool $forceSave Force the cart.
      * @throws ElementNotFoundException
      * @throws Exception
      * @throws Throwable
@@ -116,9 +116,6 @@ class Carts extends Component
             if ($currentUser) {
                 $this->_cart->setCustomer($currentUser); // Will ensure the email is also set
             }
-        }
-        if ($this->_cart->autoSetShippingMethod() || $this->_cart->autoSetPaymentSource()) {
-            $forceSave = true;
         }
 
         $autoSetAddresses = false;

@@ -49,6 +49,7 @@ use yii\db\ActiveQueryInterface;
  * @property array|null $shippingAddressCondition
  * @property array|null $billingAddressCondition
  * @property string|null $orderConditionFormula
+ * @property bool $requireCouponCode
  * @property int $sortOrder
  * @property bool $stopProcessing
  * @property bool $ignoreSales
