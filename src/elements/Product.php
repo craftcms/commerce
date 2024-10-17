@@ -1755,10 +1755,16 @@ class Product extends Element implements HasStoreInterface
      */
     private static function createVariantQuery(Product $product): VariantQuery
     {
-        return Variant::find()
+        $query = Variant::find()
             ->productId($product->id)
             ->siteId($product->siteId)
             ->orderBy(['sortOrder' => SORT_ASC]);
+
+        if ($product->getIsRevision()) {
+            $query->revisions(null)->trashed(null);
+        }
+
+        return $query;
     }
 
     /**

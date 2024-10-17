@@ -670,7 +670,7 @@ abstract class PurchasableQuery extends ElementQuery
         $this->subQuery->leftJoin(['purchasables_stores' => Table::PURCHASABLES_STORES], '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[commerce_purchasables.id]]');
 
         $this->subQuery->leftJoin(['catalogprices' => $catalogPricesQuery], '[[catalogprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogprices.storeId]] = [[sitestores.storeId]]');
-        $this->subQuery->leftJoin(['inventoryitems' => Table::INVENTORYITEMS], '[[inventoryitems.purchasableId]] = [[commerce_purchasables.id]]');
+        $this->subQuery->leftJoin(['inventoryitems' => Table::INVENTORYITEMS], '[[inventoryitems.purchasableId]] = [[commerce_purchasables.id]] OR [[inventoryitems.purchasableId]] = [[elements.canonicalId]]');
 
         return parent::afterPrepare();
     }
@@ -705,7 +705,7 @@ abstract class PurchasableQuery extends ElementQuery
 
         $this->query->leftJoin(Table::SITESTORES . ' sitestores', '[[elements_sites.siteId]] = [[sitestores.siteId]]');
         $this->query->leftJoin(Table::PURCHASABLES_STORES . ' purchasables_stores', '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[commerce_purchasables.id]]');
-        $this->query->leftJoin(['inventoryitems' => Table::INVENTORYITEMS], '[[inventoryitems.purchasableId]] = [[commerce_purchasables.id]]');
+        $this->query->leftJoin(['inventoryitems' => Table::INVENTORYITEMS], '[[inventoryitems.purchasableId]] = [[commerce_purchasables.id]] OR [[inventoryitems.purchasableId]] = [[elements.canonicalId]]');
 
         $this->subQuery->addSelect([
             'catalogprices.price',

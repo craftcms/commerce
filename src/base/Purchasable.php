@@ -947,7 +947,9 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function afterSave(bool $isNew): void
     {
-        $purchasableId = $this->getCanonicalId();
+        $canonicalPurchasableId = $this->getCanonicalId();
+        $purchasableId = $this->id;
+
         if (!$this->propagating) {
             $isOwnerDraftApplying = false;
 
@@ -986,20 +988,29 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
             // Always create the inventory item even if it's a temporary draft (in the slide) since we want to allow stock to be
             // added to inventory before it is saved as a permanent variant.
-            if ($purchasableId) {
-                // Set the inventory item data
-                /** @var InventoryItem|null $inventoryItem */
-                $inventoryItem = InventoryItemRecord::find()->where(['purchasableId' => $purchasableId])->one();
-                if (!$inventoryItem) {
-                    $inventoryItem = new InventoryItemRecord();
-                    $inventoryItem->purchasableId = $purchasableId;
-                    $inventoryItem->countryCodeOfOrigin = '';
-                    $inventoryItem->administrativeAreaCodeOfOrigin = '';
-                    $inventoryItem->harmonizedSystemCode = '';
-                    $inventoryItem->save();
+            if ($canonicalPurchasableId) {
+                if ($isOwnerDraftApplying && $this->duplicateOf !== null) {
+                    /** @var InventoryItem|null $inventoryItem */
+                    $inventoryItem = InventoryItemRecord::find()->where(['purchasableId' => $this->duplicateOf->id])->one();
+                    if ($inventoryItem) {
+                        $inventoryItem->purchasableId = $canonicalPurchasableId;
+                        $inventoryItem->save();
+                        $this->inventoryItemId = $inventoryItem->id;
+                    }
+                } else {
+                    // Set the inventory item data
+                    /** @var InventoryItem|null $inventoryItem */
+                    $inventoryItem = InventoryItemRecord::find()->where(['purchasableId' => $canonicalPurchasableId])->one();
+                    if (!$inventoryItem) {
+                        $inventoryItem = new InventoryItemRecord();
+                        $inventoryItem->purchasableId = $canonicalPurchasableId;
+                        $inventoryItem->countryCodeOfOrigin = '';
+                        $inventoryItem->administrativeAreaCodeOfOrigin = '';
+                        $inventoryItem->harmonizedSystemCode = '';
+                        $inventoryItem->save();
+                        $this->inventoryItemId = $inventoryItem->id;
+                    }
                 }
-
-                $this->inventoryItemId = $inventoryItem->id;
             }
         }
 

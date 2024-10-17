@@ -84,6 +84,9 @@ class CatalogPricing extends Component
             return;
         }
 
+        // Remove all purchasable IDs that are revisions
+
+
         // Rules with user ID records
         $cprWithUserIds = (new Query())
             ->select(['catalogPricingRuleId'])
