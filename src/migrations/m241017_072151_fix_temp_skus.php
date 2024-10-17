@@ -2,7 +2,6 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\commerce\helpers\Purchasable;
 use craft\db\Migration;
 
