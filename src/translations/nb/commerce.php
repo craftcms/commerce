@@ -1202,7 +1202,7 @@ return [
     '{description} is no longer available.' => '{description} er ikke tilgjengelig lenger.',
     '{description} only has {stock} in stock.' => '{description} har bare {stock} på lager.',
     '{name} (Primary)' => '{name} (Primære)',
-    '{name} upgrade incomplete.' => '{name}-oppgradering ufullstendig',
+    '{name} upgrade incomplete.' => '{name}-oppgradering ufullstendig.',
     '{num, plural, =1{Order} other{Orders}} updated.' => '{num, plural, one {}=1{ordre} other{ordrer}} oppdatert.',
     '{number} more…' => '{number} mer…',
     '{pct} off the discounted item price' => '{pct} avslag på rabattert pris',
