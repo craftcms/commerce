@@ -75,17 +75,34 @@ class CatalogPricing extends Component
         $isAllPurchasables = $purchasableIds === null;
         if ($isAllPurchasables) {
             $purchasableIds = (new Query())
-                ->select(['id'])
-                ->from([Table::PURCHASABLES])
+                ->select(['purchasables.id'])
+                ->from(Table::PURCHASABLES . ' purchasables')
+                ->innerJoin(\craft\db\Table::ELEMENTS . ' e', '[[e.id]] = [[purchasables.id]]')
+                // Make sure we aren't putting and draft or revision purchasables in the catalog pricing table
+                ->where(['e.revisionId' => null])
+                ->andWhere(['e.draftId' => null])
                 ->column();
+        } else {
+            // If purchasable IDs have been passed in remove all IDs that are revisions or drafts
+            $allowedPurchasableIds = [];
+            // Chunk through the IDs to avoid hitting the int limit in the where clause
+            foreach (array_chunk($purchasableIds, 2000) as $purchasableIdsChunk) {
+                $allowedPurchasableIds = array_merge($allowedPurchasableIds, (new Query())
+                    ->select(['purchasables.id'])
+                    ->from(Table::PURCHASABLES . ' purchasables')
+                    ->innerJoin(\craft\db\Table::ELEMENTS . ' e', '[[e.id]] = [[purchasables.id]]')
+                    ->where(['e.revisionId' => null])
+                    ->andWhere(['e.draftId' => null])
+                    ->andWhere(['purchasables.id' => $purchasableIdsChunk])
+                    ->column());
+            }
+
+            $purchasableIds = $allowedPurchasableIds;
         }
 
         if (empty($purchasableIds)) {
             return;
         }
-
-        // Remove all purchasable IDs that are revisions
-
 
         // Rules with user ID records
         $cprWithUserIds = (new Query())
