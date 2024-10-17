@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed an SQL error that occurred when duplicating variants. ([#3727](https://github.com/craftcms/commerce/issues/3727))
+
 ## 5.2.0 - 2024-10-16
 
 ### Store Management
