@@ -361,6 +361,14 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public function getIsAvailable(): bool
     {
+        if ($this->getIsRevision()) {
+            return false;
+        }
+
+        if ($this->getIsDraft()) {
+            return false;
+        }
+
         if ($this->getPrimaryOwner()->getIsDraft()) {
             return false;
         }
