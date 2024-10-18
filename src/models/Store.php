@@ -101,6 +101,7 @@ class Store extends Model
     {
         $fields = parent::extraFields();
         $fields[] = 'settings.locationAddress';
+        $fields[] = 'settings.countries';
 
         return $fields;
     }
@@ -112,8 +113,6 @@ class Store extends Model
     {
         $names = parent::attributes();
         $names[] = 'name';
-        $names[] = 'countries';
-        $names[] = 'marketAddressCondition';
         $names[] = 'settings';
         return $names;
     }

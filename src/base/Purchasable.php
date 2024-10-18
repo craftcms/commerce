@@ -40,6 +40,7 @@ use Illuminate\Support\Collection;
 use Money\Money;
 use Money\Teller;
 use yii\base\InvalidConfigException;
+use yii\db\ActiveQueryInterface;
 use yii\validators\Validator;
 
 /**
@@ -818,6 +819,10 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                 UniqueValidator::class,
                 'targetClass' => PurchasableRecord::class,
                 'caseInsensitive' => true,
+                'filter' => function(ActiveQueryInterface $query) {
+                    $query->leftJoin(\craft\db\Table::ELEMENTS . ' elements', '[[elements.id]] = [[commerce_purchasables.id]]');
+                    $query->andWhere(['elements.revisionId' => null, 'elements.draftId' => null]);
+                },
                 'on' => self::SCENARIO_LIVE,
             ],
             [['basePrice'], 'number'],
@@ -953,6 +958,27 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         if (!$this->propagating) {
             $isOwnerDraftApplying = false;
 
+            $owner = $this->getOwner();
+            $state = [
+                'id' => $this->id,
+                'canonicalId' => $this->canonicalId,
+                'isDraft' => $this->getIsDraft(),
+                'isRevision' => $this->getIsRevision(),
+                'isCanonical' => $this->getIsCanonical(),
+                'isDuplicateOf' => $this->duplicateOf !== null,
+                'duplicateOfId' => $this->duplicateOf?->id,
+                'ownerId' => $owner?->id,
+                'ownerCanonicalId' => $owner?->canonicalId,
+                'ownerIsDraft' => $owner?->getIsDraft(),
+                'ownerIsRevision' => $owner?->getIsRevision(),
+                'ownerIsCanonical' =>$owner?->getIsCanonical(),
+                'ownerIsDuplicateOf' => $owner->duplicateOf !== null,
+                'ownerDuplicateOfId' => $owner->duplicateOf?->id,
+                'ownerDuplicateOfIsCanonical' => $owner->duplicateOf?->getIsCanonical(),
+                'ownerDuplicateOfIsDraft' => $owner->duplicateOf?->getIsDraft(),
+                'ownerDuplicateOfIsRevision' => $owner->duplicateOf?->getIsRevision(),
+            ];
+
             // If this is a nested element, check if the owner is a draft and is being applied
             if ($this instanceof NestedElementInterface) {
                 $owner = $this->getOwner();
@@ -960,6 +986,10 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             }
 
             if ($this->duplicateOf !== null && !$this->getIsRevision() && !$isOwnerDraftApplying) {
+
+                // TODO: remove this comment
+                // This code is being run when a revision is being restored and the variant is being put back as the main variant
+
                 $this->sku = PurchasableHelper::tempSku();
                 // Nullify inventory item so a new one is created
                 $this->inventoryItemId = null;
