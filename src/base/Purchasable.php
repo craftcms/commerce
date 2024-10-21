@@ -1222,6 +1222,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             'label' => Craft::t('commerce', 'Shipping Category'),
             'options' => $options,
             'value' => $this->shippingCategoryId,
+            'disabled' => $static,
         ]);
     }
 
@@ -1251,6 +1252,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             'label' => Craft::t('commerce', 'Tax Category'),
             'options' => $options,
             'value' => $this->taxCategoryId,
+            'disabled' => $static,
         ]);
     }
 
