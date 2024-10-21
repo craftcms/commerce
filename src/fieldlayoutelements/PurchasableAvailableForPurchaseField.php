@@ -51,7 +51,9 @@ class PurchasableAvailableForPurchaseField extends BaseNativeField
             throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
         }
 
-        return PurchasableHelper::availableForPurchaseInputHtml($element->availableForPurchase);
+        return PurchasableHelper::availableForPurchaseInputHtml($element->availableForPurchase, [
+            'disabled' => $static,
+        ]);
     }
 
     /**

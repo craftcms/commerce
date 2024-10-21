@@ -147,6 +147,8 @@ JS;
             }
         }
 
+        $toggleContent = $static ? null : $toggleContent;
+
         $currency = $element->getStore()->getCurrency();
 
         return Html::beginTag('div', [
@@ -161,6 +163,7 @@ JS;
                     'currencyLabel' => $currency->getCode(),
                     'required' => true,
                     'errors' => $element->getErrors('basePrice'),
+                    'disabled' => $static,
                 ]), [
                     'id' => 'base-price',
                     'label' => Craft::t('commerce', 'Price'),
@@ -174,6 +177,7 @@ JS;
                         'currency' => $currency->getCode(),
                         'currencyLabel' => $currency->getCode(),
                         'errors' => $element->getErrors('basePromotionalPrice'),
+                        'disabled' => $static,
                     ]), [
                         'id' => 'promotional-price',
                         'label' => Craft::t('commerce', 'Promotional Price'),

@@ -60,6 +60,7 @@ class PurchasableAllowedQtyField extends BaseNativeField
                     'value' => $element->minQty,
                     'placeholder' => Craft::t('commerce', 'Any'),
                     'title' => Craft::t('commerce', 'Minimum allowed quantity'),
+                    'disabled' => $static,
                 ]) .
             Html::endTag('div') .
             Html::tag('div', Craft::t('commerce', 'to'), ['class' => 'label light']) .
@@ -70,6 +71,7 @@ class PurchasableAllowedQtyField extends BaseNativeField
                     'value' => $element->maxQty,
                     'placeholder' => Craft::t('commerce', 'Any'),
                     'title' => Craft::t('commerce', 'Maximum allowed quantity'),
+                    'disabled' => $static,
                 ]) .
             Html::endTag('div') .
         Html::endTag('div');

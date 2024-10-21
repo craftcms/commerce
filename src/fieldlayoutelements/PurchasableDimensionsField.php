@@ -77,6 +77,7 @@ class PurchasableDimensionsField extends BaseNativeField
                 'class' => 'text',
                 'size' => 10,
                 'unit' => Plugin::getInstance()->getSettings()->dimensionUnits,
+                'disabled' => $static,
             ]), ['id' => 'length', 'label' => Craft::t('commerce', 'Length')]) .
             Cp::fieldHtml(Cp::textHtml([
                 'id' => 'width',
@@ -85,6 +86,7 @@ class PurchasableDimensionsField extends BaseNativeField
                 'class' => 'text',
                 'size' => 10,
                 'unit' => Plugin::getInstance()->getSettings()->dimensionUnits,
+                'disabled' => $static,
             ]), ['id' => 'width', 'label' => Craft::t('commerce', 'Width')]) .
             Cp::fieldHtml(Cp::textHtml([
                 'id' => 'height',
@@ -93,6 +95,7 @@ class PurchasableDimensionsField extends BaseNativeField
                 'class' => 'text',
                 'size' => 10,
                 'unit' => Plugin::getInstance()->getSettings()->dimensionUnits,
+                'disabled' => $static,
             ]), ['id' => 'height', 'label' => Craft::t('commerce', 'Height')]) .
         Html::endTag('div');
     }

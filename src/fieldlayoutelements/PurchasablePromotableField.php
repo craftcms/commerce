@@ -56,6 +56,7 @@ class PurchasablePromotableField extends BaseNativeField
             'name' => 'promotable',
             'small' => true,
             'on' => $element->promotable,
+            'disabled' => $static,
         ]);
     }
 

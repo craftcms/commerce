@@ -56,6 +56,7 @@ class PurchasableFreeShippingField extends BaseNativeField
             'name' => 'freeShipping',
             'small' => true,
             'on' => $element->freeShipping,
+            'disabled' => $static,
         ]);
     }
 
