@@ -112,8 +112,6 @@ class Store extends Model
     {
         $names = parent::attributes();
         $names[] = 'name';
-        $names[] = 'countries';
-        $names[] = 'marketAddressCondition';
         $names[] = 'settings';
         return $names;
     }
