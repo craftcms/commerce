@@ -509,7 +509,7 @@ class Pdfs extends Component
         if (!$event->template || !$view->doesTemplateExist($event->template)) {
             // Restore the original template mode
             $view->setTemplateMode($oldTemplateMode);
-            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage);
+            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
 
             throw new Exception('PDF template file does not exist.');
         }
@@ -518,14 +518,14 @@ class Pdfs extends Component
             // TODO Add event
             $html = $view->renderTemplate($event->template, $variables);
         } catch (\Exception $e) {
-            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage);
+            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
             // Set the pdf html to the render error.
             Craft::error('Order PDF render error. Order number: ' . $order->getShortNumber() . '. ' . $e->getMessage());
             Craft::$app->getErrorHandler()->logException($e);
             $html = Craft::t('commerce', 'An error occurred while generating this PDF.');
         }
 
-        Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage);
+        Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
         // Restore the original template mode
         $view->setTemplateMode($oldTemplateMode);
 

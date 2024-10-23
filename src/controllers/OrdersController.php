@@ -930,7 +930,7 @@ JS, []);
         }
 
         // Set previous language back
-        Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale);
+        Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale->id);
 
         if (!$success) {
             $error = $error ?: Craft::t('commerce', 'Could not send email');

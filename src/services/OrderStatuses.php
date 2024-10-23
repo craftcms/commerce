@@ -502,7 +502,7 @@ class OrderStatuses extends Component
         }
 
         // Set previous language back
-        Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale);
+        Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale->id);
     }
 
     /**
