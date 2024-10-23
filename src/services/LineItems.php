@@ -520,7 +520,7 @@ class LineItems extends Component
     public function orderCompleteHandler(LineItem $lineItem, Order $order): void
     {
         // Called the after order complete method for the purchasable if there is one
-        if ($lineItem->getPurchasable()) {
+        if ($lineItem->type === LineItemType::Purchasable && $lineItem->getPurchasable()) {
             $lineItem->getPurchasable()->afterOrderComplete($order, $lineItem);
         }
 
