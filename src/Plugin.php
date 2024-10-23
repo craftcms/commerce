@@ -354,19 +354,20 @@ class Plugin extends BasePlugin
     public function getCpNavItem(): ?array
     {
         $ret = parent::getCpNavItem();
+        $userService = Craft::$app->getUser();
 
-        if (Craft::$app->getUser()->checkPermission('accessPlugin-commerce')) {
+        if ($userService->checkPermission('accessPlugin-commerce')) {
             $ret['label'] = Craft::t('commerce', 'Commerce');
         }
 
-        if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
+        if ($userService->checkPermission('commerce-manageOrders')) {
             $ret['subnav']['orders'] = [
                 'label' => Craft::t('commerce', 'Orders'),
                 'url' => 'commerce/orders',
             ];
         }
 
-        $hasEditableProductTypes = !empty($this->getProductTypes()->getEditableProductTypes());
+        $hasEditableProductTypes = Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds(true);
         if ($hasEditableProductTypes) {
             $ret['subnav']['products'] = [
                 'label' => Craft::t('commerce', 'Products'),
