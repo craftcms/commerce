@@ -154,7 +154,7 @@ class ProductTypes extends Component
      *
      * @return array An array of all the editable product types’ IDs.
      */
-    public function getEditableProductTypeIds(): array
+    public function getEditableProductTypeIds(bool $anySite = false): array
     {
         $editableIds = [];
         $user = Craft::$app->getUser()->getIdentity();
@@ -167,7 +167,7 @@ class ProductTypes extends Component
                 continue;
             }
 
-            if ($cpSite && !isset($productType->getSiteSettings()[$cpSite->id])) {
+            if (!$anySite && $cpSite && !isset($productType->getSiteSettings()[$cpSite->id])) {
                 continue;
             }
 
