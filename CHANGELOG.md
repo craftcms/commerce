@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.2.1 - 2024-10-23
 
 - Fixed a bug where the Commerce subnav could be missing the “Product” nav item. ([#3735](https://github.com/craftcms/commerce/issues/3735))
 - Fixed PHP errors that could occur when completing an order. ([#3733](https://github.com/craftcms/commerce/issues/3733), [#3736](https://github.com/craftcms/commerce/issues/3736))
