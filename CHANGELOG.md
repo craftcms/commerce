@@ -4,6 +4,7 @@
 
 - Fixed an SQL error that occurred when duplicating variants. ([#3727](https://github.com/craftcms/commerce/issues/3727))
 - Fixed a PHP error that could occur when completing an order. ([#3733](https://github.com/craftcms/commerce/issues/3733))
+- Fixed a bug where the “Product” navigation item could be missing from the navigation. ([#3735](https://github.com/craftcms/commerce/issues/3735))  
 
 ## 5.2.0 - 2024-10-16
 
