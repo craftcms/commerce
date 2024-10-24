@@ -10,6 +10,7 @@ use craft\commerce\records\Store;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\helpers\Db;
+use craft\helpers\StringHelper;
 use Illuminate\Support\Collection;
 
 /**
@@ -24,18 +25,25 @@ class m241022_075144_add_missing_variant_revision_records extends Migration
     {
         $variantsWithRevisions = (new Query())
             ->select([
-                'id',
-                'canonicalId',
-                'revisionId',
+                'e.id',
+                'e.canonicalId',
+                'e.revisionId',
+                'es.siteId',
             ])
             ->from('{{%elements}}' . ' e')
+            ->innerJoin('{{%elements_sites}}' . ' es', '[[e.id]] = [[es.elementId]]')
             ->where(['type' => Variant::class])
             ->andWhere(['not', ['revisionId' => null]])
             ->collect();
 
+        $sitesStores = (new Query())
+            ->select(['siteId', 'storeId'])
+            ->from('{{%commerce_site_stores}}')
+            ->collect();
+
         /** @var Collection $variantsWithRevisions */
-        $canonicalVariantIds = $variantsWithRevisions->map(fn (array $v) => $v['canonicalId'])->unique()->all();
-        $revisionVariantElementIds = $variantsWithRevisions->map(fn (array $v) => $v['id'])->unique()->all();
+        $canonicalVariantIds = $variantsWithRevisions->pluck('canonicalId')->unique()->all();
+        $revisionVariantElementIds = $variantsWithRevisions->pluck('id')->unique()->all();
         $nonCanonicalPurchasableRecords = [];
         $nonCanonicalPurchasableStoreRecords = [];
 
@@ -52,7 +60,6 @@ class m241022_075144_add_missing_variant_revision_records extends Migration
             $canonicalVariantPurchasableStoreRecords += PurchasableStore::find()->where(['purchasableId' => $chunk])->indexBy(fn(PurchasableStore $row) => $row['purchasableId'] . '-' . $row['storeId'])->all();
         }
 
-        $stores = Store::find()->all();
         $purchasableInserts = [];
         $purchasableStoresInserts = [];
         $date = Db::prepareDateForDb(new \DateTime());
@@ -66,31 +73,37 @@ class m241022_075144_add_missing_variant_revision_records extends Migration
                 continue;
             }
 
-            $purchasableInserts[] = [
-                'id' => $v['id'],
-                'description' => $canonicalPurchasableRecord['description'],
-                'sku' => $canonicalPurchasableRecord['sku'],
-                'width' => $canonicalPurchasableRecord['width'],
-                'height' => $canonicalPurchasableRecord['height'],
-                'length' => $canonicalPurchasableRecord['length'],
-                'weight' => $canonicalPurchasableRecord['weight'],
-                'dateCreated' => $date,
-                'dateUpdated' => $date,
-                'taxCategoryId' => $canonicalPurchasableRecord['taxCategoryId'],
-            ];
+            // As we are looping over variants across sites we need to ensure we only insert a purchasable once
+            if (!($purchasableInserts[$v['id']] ?? null)) {
+                $purchasableInserts[$v['id']] = [
+                    'id' => $v['id'],
+                    'description' => $canonicalPurchasableRecord['description'],
+                    'sku' => $canonicalPurchasableRecord['sku'],
+                    'width' => $canonicalPurchasableRecord['width'],
+                    'height' => $canonicalPurchasableRecord['height'],
+                    'length' => $canonicalPurchasableRecord['length'],
+                    'weight' => $canonicalPurchasableRecord['weight'],
+                    'dateCreated' => $date,
+                    'dateUpdated' => $date,
+                    'taxCategoryId' => $canonicalPurchasableRecord['taxCategoryId'],
+                    'uid' => StringHelper::UUID(),
+                ];
+            }
 
-            foreach ($stores as $store) {
-                $canonicalPurchasableStoreRecord = $canonicalVariantPurchasableStoreRecords[$v['canonicalId'] . '-' . $store['id']] ?? null;
-                $nonCanonicalPurchaseStoreRecord = $nonCanonicalPurchasableStoreRecords[$v['id'] . '-' . $store['id']] ?? null;
+            $storeId = $sitesStores->where('siteId', $v['siteId'])->pluck('storeId')->first();
 
-                // Skip if we can't find the canonical record or if a record exists for this variant ID and Store ID
-                if (!$canonicalPurchasableStoreRecord || $nonCanonicalPurchaseStoreRecord) {
-                    continue;
-                }
+            $canonicalPurchasableStoreRecord = $canonicalVariantPurchasableStoreRecords[$v['canonicalId'] . '-' . $storeId] ?? null;
+            $nonCanonicalPurchaseStoreRecord = $nonCanonicalPurchasableStoreRecords[$v['id'] . '-' . $storeId] ?? null;
 
-                $purchasableStoresInserts[] = [
+            // Skip if we can't find the canonical record or if a record exists for this variant ID and Store ID
+            if (!$canonicalPurchasableStoreRecord || $nonCanonicalPurchaseStoreRecord) {
+                continue;
+            }
+
+            if (!($purchasableStoresInserts[$v['id'] . '-' . $storeId] ?? null)) {
+                $purchasableStoresInserts[$v['id'] . '-' . $storeId] = [
                     'purchasableId' => $v['id'],
-                    'storeId' => $store['id'],
+                    'storeId' => $storeId,
                     'basePrice' => $canonicalPurchasableStoreRecord['basePrice'],
                     'basePromotionalPrice' => $canonicalPurchasableStoreRecord['basePromotionalPrice'],
                     'promotable' => $canonicalPurchasableStoreRecord['promotable'],
@@ -101,6 +114,7 @@ class m241022_075144_add_missing_variant_revision_records extends Migration
                     'minQty' => $canonicalPurchasableStoreRecord['minQty'],
                     'maxQty' => $canonicalPurchasableStoreRecord['maxQty'],
                     'shippingCategoryId' => $canonicalPurchasableStoreRecord['shippingCategoryId'],
+                    'uid' => StringHelper::UUID(),
                     'dateCreated' => $date,
                     'dateUpdated' => $date,
                 ];
@@ -108,15 +122,19 @@ class m241022_075144_add_missing_variant_revision_records extends Migration
         }
 
         if (!empty($purchasableInserts)) {
-            Craft::$app->getDb()->createCommand()
-                ->batchInsert('{{%commerce_purchasables}}', array_keys($purchasableInserts[0]), $purchasableInserts)
-                ->execute();
+            foreach (array_chunk($purchasableInserts, 1000) as $purchasableInsertsChunk) {
+                Craft::$app->getDb()->createCommand()
+                    ->batchInsert('{{%commerce_purchasables}}', array_keys($purchasableInsertsChunk[0]), $purchasableInsertsChunk)
+                    ->execute();
+            }
         }
 
         if (!empty($purchasableStoresInserts)) {
-            Craft::$app->getDb()->createCommand()
-                ->batchInsert('{{%commerce_purchasables_stores}}', array_keys($purchasableStoresInserts[0]), $purchasableStoresInserts)
-                ->execute();
+            foreach (array_chunk($purchasableStoresInserts, 1000) as $purchasableStoresInsertsChunk) {
+                Craft::$app->getDb()->createCommand()
+                    ->batchInsert('{{%commerce_purchasables_stores}}', array_keys($purchasableStoresInsertsChunk[0]), $purchasableStoresInsertsChunk)
+                    ->execute();
+            }
         }
 
         return true;
