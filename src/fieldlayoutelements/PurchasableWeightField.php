@@ -76,6 +76,7 @@ class PurchasableWeightField extends BaseNativeField
             'size' => 10,
             'unit' => Plugin::getInstance()->getSettings()->weightUnits,
             'placeholder' => Craft::t('commerce', 'Weight'),
+            'disabled' => $static,
         ]);
     }
 

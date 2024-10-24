@@ -450,7 +450,7 @@ return [
     'Enter SKU' => 'Inserisci SKU',
     'Enter a human-friendly name for this tax rate to be used in the control panel.' => 'Inserisci un nome facilmente comprensibile per questa aliquota fiscale da usare nel pannello di controllo.',
     'Enter a percentage like {ex1} or {ex2}.' => 'Inserisci una percentuale come {ex1} o {ex2}.',
-    'Enter coupon code' => 'Inserisci il coupon',
+    'Enter coupon code' => 'Inserisci il codice coupon',
     'Enter reference' => 'Inserisci riferimento',
     'Error refunding transaction: {transactionHash}' => 'Errore di rimborso della transazione: {transactionHash}',
     'Every new store must be assigned to at least one site.' => 'Ogni nuovo store deve essere assegnato ad almeno un sito.',

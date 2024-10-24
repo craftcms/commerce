@@ -97,15 +97,6 @@ class Store extends Model
      */
     private bool|string $_allowEmptyCartOnCheckout = false;
 
-    public function extraFields(): array
-    {
-        $fields = parent::extraFields();
-        $fields[] = 'settings.locationAddress';
-        $fields[] = 'settings.countries';
-
-        return $fields;
-    }
-
     /**
      * @inheritdoc
      */

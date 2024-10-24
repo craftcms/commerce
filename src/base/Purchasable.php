@@ -957,6 +957,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
         if (!$this->propagating) {
             $isOwnerDraftApplying = false;
+            $isOwnerRevisionApplying = false;
 
             $owner = $this->getOwner();
             $state = [
@@ -982,17 +983,23 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             // If this is a nested element, check if the owner is a draft and is being applied
             if ($this instanceof NestedElementInterface) {
                 $owner = $this->getOwner();
-                $isOwnerDraftApplying = $owner && $owner->getIsCanonical() && $owner->duplicateOf !== null && $owner->duplicateOf->getIsDraft();
+                $isOwnerDraftApplying = $owner
+                    && $owner->getIsCanonical()
+                    && $owner->duplicateOf !== null
+                    && $owner->duplicateOf->getIsDraft();
+
+                $isOwnerRevisionApplying = $owner
+                    && $owner->duplicateOf !== null
+                    && $owner->duplicateOf->getIsRevision();
             }
 
-            if ($this->duplicateOf !== null && !$this->getIsRevision() && !$isOwnerDraftApplying) {
-
-                // TODO: remove this comment
-                // This code is being run when a revision is being restored and the variant is being put back as the main variant
-
-                $this->sku = PurchasableHelper::tempSku();
-                // Nullify inventory item so a new one is created
-                $this->inventoryItemId = null;
+            if (!$this->getIsRevision()) {
+                // Reset the purchasable's SKU when it is explicitly being duplicating
+                if ($this->duplicateOf !== null && !$isOwnerDraftApplying && !$isOwnerRevisionApplying) {
+                    $this->sku = PurchasableHelper::tempSku();
+                    // Nullify inventory item so a new one is created
+                    $this->inventoryItemId = null;
+                }
             }
 
             $purchasable = PurchasableRecord::findOne($purchasableId);
@@ -1222,6 +1229,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             'label' => Craft::t('commerce', 'Shipping Category'),
             'options' => $options,
             'value' => $this->shippingCategoryId,
+            'disabled' => $static,
         ]);
     }
 
@@ -1251,6 +1259,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             'label' => Craft::t('commerce', 'Tax Category'),
             'options' => $options,
             'value' => $this->taxCategoryId,
+            'disabled' => $static,
         ]);
     }
 

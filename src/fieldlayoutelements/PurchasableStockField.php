@@ -114,72 +114,80 @@ JS, [
 
             $inventoryLevelTableRows .= Html::beginTag('tr') .
                 Html::beginTag('td') .
-                $inventoryLevel->getInventoryLocation()->name .
+                    $inventoryLevel->getInventoryLocation()->name .
                 Html::endTag('td') .
                 Html::beginTag('td') .
-                Html::beginTag('div', ['class' => 'flex']) .
-                Html::tag('div', (string)$inventoryLevel->availableTotal, [
-                    'id' => $updatedValueId,
-                ]) .
-                Html::tag('div',Html::button(Craft::t('commerce', ''),
-                    [
-                        'class' => 'btn menubtn action-btn',
-                        'id' => $editUpdateQuantityInventoryItemId,
-                    ])) .
-                Html::endTag('div') .
+                    Html::beginTag('div', ['class' => 'flex']) .
+                        Html::tag('div', (string)$inventoryLevel->availableTotal, [
+                            'id' => $updatedValueId,
+                        ]) .
+                        (!$static ? Html::tag('div',Html::button(Craft::t('commerce', ''),
+                            [
+                                'class' => 'btn menubtn action-btn',
+                                'id' => $editUpdateQuantityInventoryItemId,
+                            ])) : '') .
+                    Html::endTag('div') .
                 Html::endTag('td') .
-                Html::beginTag('td') .
-                (Craft::$app->getUser()->checkPermission('commerce-manageInventoryStockLevels') ?
-                Html::a(
-                    Craft::t('commerce', 'Manage'),
-                    UrlHelper::cpUrl('commerce/inventory/levels/' . $inventoryLevel->getInventoryLocation()->handle, [
-                        'inventoryItemId' => $inventoryLevel->getInventoryItem()->id,
-                    ]),
-                    [
-                        'target' => '_blank',
-                        'class' => 'btn small',
-                        'id' => $editUpdateQuantityInventoryItemId,
-                        'aria-label' => Craft::t('app', 'Open in a new tab'),
-                        'data-icon' => 'external',
-                    ]
-                ) : '') .
+                (!$static ? Html::beginTag('td') .
+                    (Craft::$app->getUser()->checkPermission('commerce-manageInventoryStockLevels') ?
+                    Html::a(
+                        Craft::t('commerce', 'Manage'),
+                        UrlHelper::cpUrl('commerce/inventory/levels/' . $inventoryLevel->getInventoryLocation()->handle, [
+                            'inventoryItemId' => $inventoryLevel->getInventoryItem()->id,
+                        ]),
+                        [
+                            'target' => '_blank',
+                            'class' => 'btn small',
+                            'id' => $editUpdateQuantityInventoryItemId,
+                            'aria-label' => Craft::t('app', 'Open in a new tab'),
+                            'data-icon' => 'external',
+                        ]
+                    ) : '') : '') .
                 Html::endTag('td') .
                 Html::endTag('tr');
         }
 
         $inventoryLevelsTable = Html::beginTag('table', ['class' => 'data fullwidth', 'style' => 'margin-top:5px;']) .
             Html::beginTag('thead') .
-            Html::beginTag('tr') .
-                Html::beginTag('th') .
-                    Craft::t('commerce', 'Location') .
-                Html::endTag('th') .
+                Html::beginTag('tr') .
                     Html::beginTag('th') .
-                Craft::t('commerce', 'Available') .
+                        Craft::t('commerce', 'Location') .
                     Html::endTag('th') .
-                Html::beginTag('th') .
-                    Craft::t('commerce', 'Manage') .
-                Html::endTag('th') .
-            Html::endTag('tr') .
+                        Html::beginTag('th') .
+                    Craft::t('commerce', 'Available') .
+                        Html::endTag('th') .
+
+
+                    (!$static ? Html::beginTag('th') .
+                        Craft::t('commerce', 'Manage') .
+                    Html::endTag('th') : '') .
+
+
+
+                Html::endTag('tr') .
             Html::endTag('thead') .
+
             Html::beginTag('tbody') .
-            $inventoryLevelTableRows .
-            Html::beginTag('tr') .
-            Html::beginTag('td', ['colspan' => '2']) .
-            $availableStockLabel .
-            Html::beginTag('td') .
-            Html::a(
-                Craft::t('commerce', 'Edit'),
-                '#',
-                [
-                    'class' => 'btn small',
-                    'id' => $editInventoryItemId,
-                    'aria-label' => Craft::t('app', 'Edit Inventory Item'),
-                    'data-icon' => 'edit',
-                ]
-            ) .
-            Html::endTag('td') .
-            Html::endTag('td') .
-            Html::endTag('tr') .
+                $inventoryLevelTableRows .
+                Html::beginTag('tr') .
+                    Html::beginTag('td', ['colspan' => '2']) .
+                        $availableStockLabel .
+                    Html::endTag('td') .
+
+                    (!$static ? Html::beginTag('td') .
+                        Html::a(
+                            Craft::t('commerce', 'Edit'),
+                            '#',
+                            [
+                                'class' => 'btn small',
+                                'id' => $editInventoryItemId,
+                                'aria-label' => Craft::t('app', 'Edit Inventory Item'),
+                                'data-icon' => 'edit',
+                            ]
+                        ) .
+                    Html::endTag('td') : '') .
+
+                Html::endTag('tr') .
             Html::endTag('tbody') .
             Html::endTag('table');
 
@@ -190,6 +198,7 @@ JS, [
             'small' => true,
             'on' => $element->inventoryTracked,
             'toggle' => $inventoryItemTrackedId,
+            'disabled' => $static,
         ];
 
         return Html::beginTag('div') .

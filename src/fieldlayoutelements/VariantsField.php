@@ -60,9 +60,9 @@ class VariantsField extends BaseNativeField
         Craft::$app->getView()->registerDeltaName($this->attribute());
 
         return $element->getVariantManager()->getIndexHtml($element, [
-            'canCreate' => true,
+            'canCreate' => !$static,
             'allowedViewModes' => [ElementIndexViewMode::Cards, ElementIndexViewMode::Table],
-            'sortable' => true,
+            'sortable' => !$static,
             'fieldLayouts' => [$element->getType()->getVariantFieldLayout()],
         ]);
     }
