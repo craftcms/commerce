@@ -424,16 +424,14 @@ class Variant extends Purchasable implements NestedElementInterface
 
     /**
      * @inheritdoc
-     * @throws InvalidConfigException
-     * @throws InvalidConfigException
-     * @throws InvalidConfigException
-     */
-    /**
-     * @inheritdoc
      */
     public function getFieldLayout(): ?FieldLayout
     {
         try {
+            if ($this->getOwner() === null) {
+                return parent::getFieldLayout();
+            }
+
             return $this->getOwner()->getType()->getVariantFieldLayout();
         } catch (InvalidConfigException) {
             // The product type was probably deleted

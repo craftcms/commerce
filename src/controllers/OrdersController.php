@@ -685,6 +685,14 @@ JS, []);
                 'and',
                 '[[elements.id]] = [[purchasables.id]]',
             ])
+            // Make sure this purchasable is enabled for the site
+            ->innerJoin(['es' => CraftTable::ELEMENTS_SITES], [
+                'and',
+                '[[es.elementId]] = [[purchasables.id]]',
+                '[[es.siteId]] = :siteId',
+            ], [
+                ':siteId' => $siteId,
+            ])
             ->innerJoin(Table::PURCHASABLES_STORES . ' pstores', '[[purchasables.id]] = [[pstores.purchasableId]]')
             ->where(['elements.enabled' => true])
             ->andWhere(['pstores.storeId' => $store->id])

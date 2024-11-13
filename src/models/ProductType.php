@@ -396,6 +396,9 @@ class ProductType extends Model implements FieldLayoutProviderInterface
         $this->_taxCategories = $categories;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getFieldLayout(): FieldLayout
     {
         return $this->getProductFieldLayout();

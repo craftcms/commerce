@@ -1,9 +1,18 @@
 # Release Notes for Craft Commerce
 
 ## Unreleased
+
+- Fixed a bug where purchasables were showing incorrectly on the Edit Order screen. ([#3756](https://github.com/craftcms/commerce/issues/3756))
+
+## 5.2.2.1 - 2024-11-08
+
+- Fixed a PHP error that could occur when retrieving a variant. ([#3754](https://github.com/craftcms/commerce/issues/3754))
+
+## 5.2.2 - 2024-11-06
+
 - Fixed a bug where product revisions weren’t storing variant relations.
-- Fixed a PHP error that occurred when calling a product or variant's render method. ([#3742](https://github.com/craftcms/commerce/issues/3742))
-- Fixed a bug where inventory would not save when creating a new variant. ([#3661](https://github.com/craftcms/commerce/issues/3661))
+- Fixed a PHP error that occurred when calling a product or variant’s `render()` method. ([#3742](https://github.com/craftcms/commerce/issues/3742))
+- Fixed a bug where inventory data wasn’t getting saved when creating a new variant. ([#3661](https://github.com/craftcms/commerce/issues/3661))
 
 ## 5.2.1 - 2024-10-23
 
