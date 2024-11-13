@@ -82,6 +82,7 @@ use craft\commerce\services\Plans;
 use craft\commerce\services\Products;
 use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Purchasables;
+use craft\commerce\services\Reports;
 use craft\commerce\services\Sales;
 use craft\commerce\services\ShippingCategories;
 use craft\commerce\services\ShippingMethods;
@@ -215,6 +216,7 @@ class Plugin extends BasePlugin
                 'productTypes' => ['class' => ProductTypes::class],
                 'products' => ['class' => Products::class],
                 'purchasables' => ['class' => Purchasables::class],
+                'reports' => ['class' => Reports::class],
                 'sales' => ['class' => Sales::class],
                 'shippingCategories' => ['class' => ShippingCategories::class],
                 'shippingMethods' => ['class' => ShippingMethods::class],
@@ -372,6 +374,13 @@ class Plugin extends BasePlugin
             $ret['subnav']['products'] = [
                 'label' => Craft::t('commerce', 'Products'),
                 'url' => 'commerce/products',
+            ];
+        }
+
+        if ($userService->checkPermission('commerce-manageReports')) {
+            $ret['subnav']['reports'] = [
+                'label' => Craft::t('commerce', 'Reporting'),
+                'url' => 'commerce/reports',
             ];
         }
 

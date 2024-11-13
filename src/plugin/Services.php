@@ -34,6 +34,7 @@ use craft\commerce\services\Plans;
 use craft\commerce\services\Products;
 use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Purchasables;
+use craft\commerce\services\Reports;
 use craft\commerce\services\Sales;
 use craft\commerce\services\ShippingCategories;
 use craft\commerce\services\ShippingMethods;
@@ -393,6 +394,17 @@ trait Services
     public function getPurchasables(): Purchasables
     {
         return $this->get('purchasables');
+    }
+
+    /**
+     * Returns the reports service
+     *
+     * @return Reports The reports service
+     * @throws InvalidConfigException
+     */
+    public function getReports(): Reports
+    {
+        return $this->get('reports');
     }
 
     /**

@@ -86,8 +86,16 @@ interface StatInterface
      */
     public function getEndDate(): mixed;
 
+    /**
+     * @param DateTime|null $date
+     * @return void
+     */
     public function setStartDate(?DateTime $date): void;
 
+    /**
+     * @param DateTime|null $date
+     * @return void
+     */
     public function setEndDate(?DateTime $date): void;
 
     /**
@@ -96,6 +104,9 @@ interface StatInterface
      */
     public function prepareData($data): mixed;
 
+    /**
+     * @return string
+     */
     public function getDateRangeWording(): string;
 
     /**
