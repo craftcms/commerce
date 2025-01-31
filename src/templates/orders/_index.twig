@@ -4,7 +4,7 @@
 {% set title = "Orders"|t('commerce') %}
 {% set elementType = 'craft\\commerce\\elements\\Order' %}
 {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceorders commerceordersindex" %}
-
+{% set selectedSubnavItem = 'orders' %}
 
 {% do craft.app.view.registerTranslations('commerce', [
     "Apply",

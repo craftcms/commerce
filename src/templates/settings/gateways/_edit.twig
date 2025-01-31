@@ -1,13 +1,18 @@
 {% extends "commerce/_layouts/cp" %}
 
 {% set crumbs = [
-    { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
-    { label: "Gateways"|t('commerce'), url: url('commerce/settings/gateways') },
+  { label: 'Commerce'|t('commerce'), url: url('commerce') },
+  { label: 'Settings'|t('app'), url: url('commerce/settings'), ariaLabel: 'Commerce Settings'|t('commerce') },
+  { label: "Gateways"|t('commerce'), url: url('commerce/settings/gateways') },
 ] %}
 
 {% set selectedSubnavItem = 'settings' %}
 
-{% set fullPageForm = true %}
+{% set fullPageForm = not readOnly %}
+
+{% if readOnly %}
+    {% set contentNotice = readOnlyNotice() %}
+{% endif %}
 
 {% import "_includes/forms" as forms %}
 
@@ -23,6 +28,7 @@
         value : gateway.name,
         required: true,
         errors: gateway.getErrors('name'),
+        disabled: readOnly,
     }) }}
 
     {{ forms.textField({
@@ -33,6 +39,7 @@
         value : gateway.handle,
         required: true,
         errors: gateway.getErrors('handle'),
+        disabled: readOnly,
     }) }}
 
     {% if gateway.supportsWebhooks() %}
@@ -40,7 +47,8 @@
             label: "Webhook URL"|t('commerce'),
             instructions: "The webhook URL for this gateway."|t('commerce'),
             disabled: true,
-            value: gateway.webhookUrl
+            value: gateway.webhookUrl,
+            disabled: readOnly,
         }) }}
     {% endif %}
     <hr>
@@ -55,7 +63,8 @@
         value : className(gateway),
         required: true,
         errors: gateway.getErrors('type') ?? null,
-        toggle: true
+        toggle: true,
+        disabled: readOnly,
     }) }}
 
     <input type="hidden" name="gatewayClass" value="{{ className(gateway) }}">
@@ -75,14 +84,16 @@
                     options: gatewayInstances[gatewayType].getPaymentTypeOptions(),
                     errors: gateway.getErrors('paymentType'),
                     required: true,
+                    disabled: readOnly,
                 }) }}
             {% endnamespace %}
 
             {% namespace 'types['~gatewayType~']' %}
                 {% if isCurrent %}
                     {{ gateway.getSettingsHtml()|raw }}
+                    {{ readOnly ? gateway.getReadOnlySettingsHtml()|raw : gateway.getSettingsHtml()|raw }}
                 {% else %}
-                    {{ gatewayInstances[gatewayType].getSettingsHtml()|raw }}
+                    {{ readOnly ? gatewayInstances[gatewayType].getReadOnlySettingsHtml()|raw : gatewayInstances[gatewayType].getSettingsHtml()|raw }}
                 {% endif %}
             {% endnamespace %}
         </div>
@@ -97,6 +108,7 @@
         includeEnvVars: true,
         value: gateway.isFrontendEnabled(false),
         errors: gateway.getErrors('isFrontendEnabled'),
+        disabled: readOnly,
     }) }}
 
 {% endblock %}

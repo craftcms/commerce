@@ -212,26 +212,66 @@ class CurrencyHelperTest extends Unit
                 false,
                 '1 234,00 €',
             ],
-            'EUR-ARABIC' => [
-                'EUR',
-                'ar',
-                1234.56,
-                true,
-                '١٬٢٣٤٫٥٦ €',
+        ];
+    }
+
+    /**
+     * @param string $currency
+     * @param string $language
+     * @param string $expected
+     * @return void
+     * @throws CurrencyException
+     * @throws InvalidConfigException
+     * @dataProvider formatAsCurrencyNegativeDataProvider
+     */
+    public function testFormatAsCurrencyNegative(string $currency, string $language, string $expected): void
+    {
+        $originalLocale = \Craft::$app->getLocale();
+        Locale::switchAppLanguage($language);
+        $amount = -1234.56;
+        $formattedValue = Currency::formatAsCurrency($amount, $currency);
+
+        self::assertEquals($expected, $formattedValue);
+        Locale::switchAppLanguage($originalLocale->getLanguageID());
+    }
+
+    public function formatAsCurrencyNegativeDataProvider(): array
+    {
+        return [
+            'USD-US' => [
+                'USD',
+                'en-US',
+                '-$1,234.56',
             ],
-            'EUR-ARABIC-strip' => [
-                'EUR',
-                'ar',
-                1234.00,
-                true,
-                '١٬٢٣٤ €',
+            'USD-GB' => [
+                'USD',
+                'en-GB',
+                '-US$1,234.56',
             ],
-            'EUR-ARABIC-no-strip' => [
+            'USD-FR' => [
+                'USD',
+                'fr-FR',
+                '-1 234,56 $US',
+            ],
+            'EUR-US' => [
                 'EUR',
-                'ar',
-                1234.00,
-                false,
-                '١٬٢٣٤٫٠٠ €',
+                'en-US',
+                '-€1,234.56',
+            ],
+            'EUR-GB' => [
+                'EUR',
+                'en-GB',
+                '-€1,234.56',
+            ],
+            'EUR-FR' => [
+                'EUR',
+                'fr-FR',
+                '-1 234,56 €',
+            ],
+            'CHF-DE-CH' => [
+                'CHF',
+                'de-CH',
+                'CHF-1’234.56',
             ],
         ];
     }

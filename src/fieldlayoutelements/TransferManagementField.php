@@ -82,7 +82,7 @@ class TransferManagementField extends BaseNativeField
         $tableRows = '';
 
         foreach ($element->getDetails() as $detail) {
-            $purchasable = $detail->getInventoryItem()?->getPurchasable();
+            $purchasable = $detail->getInventoryItem()?->getPurchasable(Cp::requestedSite()->id);
             $tableRows .= Html::tag('tr',
                 Html::tag('td', ($purchasable ? Cp::chipHtml($purchasable, ['showActionMenu' => !$purchasable->getIsDraft() && $purchasable->canSave($currentUser)]) : Html::tag('span', $detail->inventoryItemDescription))) .
                 Html::tag('td', (string)$detail->quantityRejected, ['class' => 'rightalign']) .
@@ -188,7 +188,7 @@ class TransferManagementField extends BaseNativeField
 
         foreach ($element->getDetails() as $detail) {
             $key = $detail->uid ?? StringHelper::UUID();
-            $purchasable = $detail->getInventoryItem()?->getPurchasable();
+            $purchasable = $detail->getInventoryItem()?->getPurchasable(Cp::requestedSite()->id);
             $tableRows .= Html::tag('tr',
                 Html::hiddenInput('details[' . $key . '][id]', (string)$detail->id) .
                 Html::hiddenInput('details[' . $key . '][uid]', $detail->uid) .

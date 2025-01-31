@@ -41,7 +41,7 @@ class VariantTitleField extends TitleField
     protected function translatable(?ElementInterface $element = null, bool $static = false): bool
     {
         if (!$element instanceof Variant) {
-            throw new \InvalidArgumentException(sprintf('%s can only be used in variant field layouts.', __CLASS__));
+            throw new \InvalidArgumentException(sprintf('%s can only be used in variant field layouts.', self::class));
         }
 
         return $element->getOwner()->getType()->variantTitleTranslationMethod !== Field::TRANSLATION_METHOD_NONE;
@@ -53,7 +53,7 @@ class VariantTitleField extends TitleField
     protected function translationDescription(?ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Variant) {
-            throw new \InvalidArgumentException(sprintf('%s can only be used in variant field layouts.', __CLASS__));
+            throw new \InvalidArgumentException(sprintf('%s can only be used in variant field layouts.', self::class));
         }
 
         return ElementHelper::translationDescription($element->getOwner()->getType()->variantTitleTranslationMethod);

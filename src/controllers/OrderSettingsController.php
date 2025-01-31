@@ -34,6 +34,7 @@ class OrderSettingsController extends BaseAdminController
 
         $variables['fieldLayout'] = $fieldLayout;
         $variables['title'] = Craft::t('commerce', 'Order Settings');
+        $variables['readOnly'] = $this->isReadOnlyScreen();
 
         return $this->renderTemplate('commerce/settings/ordersettings/_edit', $variables);
     }

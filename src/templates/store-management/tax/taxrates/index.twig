@@ -3,7 +3,6 @@
 {% do view.registerTranslations('commerce', [
     'Include in price?',
     'Remove from price?',
-    'Is EU VAT?',
     'Name',
     'Rate',
     'Tax Category',
@@ -29,6 +28,7 @@
 {% for taxRate in taxRates -%}
     {%- set tableData = tableData|merge([{
         id: taxRate.id,
+        status: taxRate.enabled,
         title: taxRate.name|t('site'),
         url: taxRate.getCpEditUrl(),
         rate: taxRate.rateAsPercent,
@@ -54,11 +54,6 @@ var columns = [
                 return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
             }
         } },
-    { name: 'vat', title: Craft.t('commerce', 'Is EU VAT?'), callback: function(value) {
-        if (value) {
-            return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
-        }
-    } },
     { name: 'zone', title: Craft.t('commerce', 'Tax Zone'), callback: function(value) {
         if (value && value.url) {
             return '<a href="'+value.url+'">'+value.label+'</a>';
@@ -70,11 +65,35 @@ var columns = [
         if (value) {
             return '<a href="'+value.url+'">'+value.label+'</a>';
         }
-    } },
+    } }
+];
+
+var actions = [
+  {
+    label: Craft.t('commerce', 'Set status'),
+    actions: [
+      {
+        label: Craft.t('commerce', 'Enabled'),
+        action: 'commerce/tax-rates/update-status',
+        param: 'status',
+        value: 'enabled',
+        status: 'enabled'
+      },
+      {
+        label: Craft.t('commerce', 'Disabled'),
+        action: 'commerce/tax-rates/update-status',
+        param: 'status',
+        value: 'disabled',
+        status: 'disabled'
+      }
+    ]
+  }
 ];
 
 new Craft.VueAdminTable({
     columns: columns,
+    actions: actions,
+    checkboxes: true,
     container: '#taxrate-vue-admin-table',
     deleteAction: {{ craft.commerce.taxes.deleteTaxRates() ? 'commerce/tax-rates/delete'|json_encode|raw : 'null' }},
     tableData: {{ tableData|json_encode|raw }},

@@ -29,7 +29,9 @@ use yii\db\ActiveQueryInterface;
  * @property int $taxCategoryId
  * @property TaxZone $taxZone
  * @property bool $isEverywhere
+ * @property array $taxIdValidators
  * @property int $taxZoneId
+ * @property bool $enabled
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

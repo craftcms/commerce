@@ -84,7 +84,9 @@ trait Routes
 
             $event->rules['commerce/settings/ordersettings'] = 'commerce/order-settings/edit';
 
-            $event->rules['commerce/settings/transfers'] = 'commerce/transfers/edit-settings';
+            $event->rules['commerce/settings/transfers'] = 'commerce/settings/edit-transfer-settings';
+
+            $event->rules['commerce/settings/subscriptions'] = 'commerce/settings/edit-subscription-settings';
 
             $event->rules['commerce/settings/gateways'] = 'commerce/gateways/index';
             $event->rules['commerce/settings/gateways/new'] = 'commerce/gateways/edit';

@@ -12,36 +12,19 @@
 {% endif %}
 {% set store = craft.commerce.stores.getStoreByHandle(storeHandle) %}
 {% set defaultCrumbs = [
-  { label: store.name, url: url('commerce/store-management/' ~ store.handle) },
+  { label: 'Commerce'|t('commerce'), url: url('commerce') },
 ] %}
-{% set crumbs = not isIndex ? defaultCrumbs|merge(crumbs is not defined ? [] : crumbs) : [] %}
+
+{% if craft.commerce.stores.getAllStores().count() > 1 %}
+    {% set defaultCrumbs = defaultCrumbs|merge({storeSwitcher}) %}
+{% endif %}
+
+{% set crumbs = not isIndex ? defaultCrumbs|merge(crumbs is not defined ? [] : crumbs) : defaultCrumbs %}
 
 {% set title = title is not defined ? 'Store Management'|t('commerce') : title %}
 
-{% block toolbar %}
-    {% if isIndex and hasStoreSelector %}
-        {# store selector dropdown input #}
-        {% if craft.commerce.stores.getAllStores().count() > 1 %}
-            <div class="btn menubtn sitemenbtn store-selector">
-                <select id="store-selector">
-                    {% for storeOption in craft.commerce.stores.getAllStores() %}
-                        {# Include `store-management` in the replace to avoid accidentally overrding another part of the URL #}
-                        <option value="{{ craft.app.request.url|replace('store-management/' ~ storeHandle, 'store-management/' ~ storeOption.handle) }}" {% if store.id == storeOption.id %}selected{% endif %}>{{ storeOption.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        {% endif %}
-    {% endif %}
-{% endblock %}
 {% block sidebar %}
     {% if isIndex %}
         {% include 'commerce/_includes/_storeManagementNav' with { store: store, storeSettingsNav: storeSettingsNav, selectedItem: selectedItem } %}
     {% endif %}
 {% endblock %}
-
-{% js %}
-    $('#store-selector').on('change', function() {
-        var storeUrl = $(this).val();
-        window.location.href = storeUrl;
-    });
-{% endjs %}

@@ -18,7 +18,7 @@ jobs:
       php_version: '["8.2", "8.3"]'
       craft_version: '5'
       node_version: '20'
-      jobs: '["ecs", "phpstan", "prettier", "tests"]'
+      jobs: '["ecs", "phpstan", "prettier", "tests", "rector"]'
       notify_slack: true
       slack_subteam: <!subteam^S01CWPYH9D5>
     secrets:

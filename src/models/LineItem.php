@@ -703,7 +703,7 @@ class LineItem extends Model
      */
     public function getTotal(): float
     {
-        return $this->getSubtotal() + $this->getAdjustmentsTotal();
+        return (float)$this->order->getTeller()->add($this->getSubtotal(), $this->getAdjustmentsTotal());
     }
 
     /**
@@ -714,10 +714,9 @@ class LineItem extends Model
     public function getTaxableSubtotal(string $taxable): float
     {
         return match ($taxable) {
-            TaxRateRecord::TAXABLE_PRICE => $this->getSubtotal() + $this->getDiscount(),
             TaxRateRecord::TAXABLE_SHIPPING => $this->getShippingCost(),
-            TaxRateRecord::TAXABLE_PRICE_SHIPPING => $this->getSubtotal() + $this->getDiscount() + $this->getShippingCost(),
-            default => $this->getSubtotal() + $this->getDiscount(),
+            TaxRateRecord::TAXABLE_PRICE_SHIPPING => (float)$this->order->getTeller()->sum($this->getSubtotal(), $this->getDiscount() , $this->getShippingCost()),
+            default => (float)$this->order->getTeller()->add($this->getSubtotal() , $this->getDiscount()), // TaxRateRecord::TAXABLE_PRICE is default
         };
     }
 
@@ -825,6 +824,14 @@ class LineItem extends Model
             $order = $this->getOrder();
             /** @var PurchasableInterface|null $purchasable */
             $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($this->purchasableId, $order?->orderSiteId, $order?->getCustomer()?->id);
+
+            // If we are still using sales we need to make sure that the promotional price is set.
+            if (!Plugin::getInstance()->getCatalogPricingRules()->canUseCatalogPricingRules()) {
+                if ($purchasable instanceof Purchasable) {
+                    $purchasable->loadSales($this->getOrder());
+                }
+            }
+
             $this->_purchasable = $purchasable;
         }
 

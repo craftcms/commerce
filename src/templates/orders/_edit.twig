@@ -5,6 +5,7 @@
 {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceorders commerceordersedit" %}
 
 {% set crumbs = [
+    { label: 'Commerce'|t('commerce'), url: url('commerce') },
     { label: "Orders"|t('commerce'), url: url('commerce/orders') },
     { label: order.getStore().name|t('site'), url: url('commerce/orders') },
 ] %}

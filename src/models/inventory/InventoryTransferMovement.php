@@ -9,12 +9,4 @@ use craft\commerce\base\InventoryMovement;
  */
 class InventoryTransferMovement extends InventoryMovement
 {
-    /**
-     * @return array
-     */
-    public function defineRules(): array
-    {
-        $rules = parent::defineRules();
-        return $rules;
-    }
 }

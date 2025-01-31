@@ -444,6 +444,7 @@ class LineItems extends Component
         }
 
         $params['class'] = LineItem::class;
+        /** @var LineItem $lineItem */
         $lineItem = Craft::createObject($params);
 
         if ($lineItem->type === LineItemType::Purchasable) {

@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\StoreTrait;
+use craft\commerce\base\TaxIdValidatorInterface;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use DateTime;
@@ -64,15 +65,10 @@ class TaxRate extends Model implements HasStoreInterface
     public bool $removeIncluded = false;
 
     /**
-     * @var bool Whether an included VAT tax amount should be removed from VAT-disqualified subject prices
+     * @var bool Whether an included VAT ID tax amount should be removed from VAT-disqualified subject prices
      * @since 3.4
      */
     public bool $removeVatIncluded = false;
-
-    /**
-     * @var bool Whether this tax rate represents VAT
-     */
-    public bool $isVat = false;
 
     /**
      * @var string The subject to which `$rate` should be applied. Options:
@@ -96,6 +92,11 @@ class TaxRate extends Model implements HasStoreInterface
     public ?int $taxZoneId = null;
 
     /**
+     * @var array Tax ID Validators
+     */
+    public array $taxIdValidators = [];
+
+    /**
      * @var DateTime|null
      * @since 3.4
      */
@@ -108,6 +109,11 @@ class TaxRate extends Model implements HasStoreInterface
     public ?DateTime $dateUpdated = null;
 
     /**
+     * @var bool Whether the tax rate is enabled
+     */
+    public bool $enabled = true;
+
+    /**
      * @var TaxCategory|null
      */
     private ?TaxCategory $_taxCategory = null;
@@ -116,6 +122,16 @@ class TaxRate extends Model implements HasStoreInterface
      * @var TaxAddressZone|null
      */
     private ?TaxAddressZone $_taxZone = null;
+
+    /**
+     * @inheritdoc
+     */
+    public function attributes(): array
+    {
+        $names = parent::attributes();
+        $names[] = 'isVat'; // TODO remove in Commerce 6.x
+        return $names;
+    }
 
     /**
      * @inheritdoc
@@ -138,12 +154,14 @@ class TaxRate extends Model implements HasStoreInterface
             'isVat',
             'name',
             'rate',
+            'taxIdValidators',
             'removeIncluded',
             'removeVatIncluded',
             'storeId',
             'taxable',
             'taxCategoryId',
             'taxZoneId',
+            'enabled',
         ], 'safe'];
 
         return $rules;
@@ -223,5 +241,62 @@ class TaxRate extends Model implements HasStoreInterface
     public function getIsEverywhere(): bool
     {
         return !$this->getTaxZone();
+    }
+
+    /**
+     * @return bool
+     * @deprecated in 5.3.0
+     */
+    public function getIsVat(): bool
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'TaxRate::setIsVat() is deprecated.');
+
+        return $this->hasTaxIdValidators();
+    }
+
+    /**
+     * @param bool $isVat
+     * @deprecated in 5.3.0
+     */
+    public function setIsVat(bool $isVat): void
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'TaxRate::setIsVat() is deprecated.');
+    }
+
+    /**
+     * @return bool
+     * @since 5.3.0
+     */
+    public function hasTaxIdValidators(): bool
+    {
+        return count($this->taxIdValidators) > 0;
+    }
+
+    /**
+     * @param string $className
+     * @return bool
+     * @since 5.3.0
+     */
+    public function hasTaxIdValidator(string $className): bool
+    {
+        return in_array($className, $this->taxIdValidators, true);
+    }
+
+    /**
+     * @return TaxIdValidatorInterface[]
+     * @throws InvalidConfigException
+     * @since 5.3.0
+     */
+    public function getSelectedEnabledTaxIdValidators(): array
+    {
+        $selectedValidators = $this->taxIdValidators;
+        $validators = Plugin::getInstance()->getTaxes()->getEnabledTaxIdValidators();
+        $activeValidators = [];
+        foreach ($validators as $validator) {
+            if (in_array($validator::class, $selectedValidators)) {
+                $activeValidators[] = $validator;
+            }
+        }
+        return $activeValidators;
     }
 }

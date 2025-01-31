@@ -34,7 +34,7 @@ class EmailPreviewController extends Controller
      */
     public function actionRender(): Response
     {
-        $this->requireAdmin();
+        $this->requireAdmin(false);
 
         $email = $this->request->getParam('email');
         $emailId = (int)StringHelper::split($email, ':')[0];

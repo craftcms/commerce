@@ -16,6 +16,7 @@ use craft\commerce\models\LineItem;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
+use craft\commerce\taxidvalidators\EuVatIdValidator;
 use craft\elements\Address;
 use craft\elements\conditions\addresses\CountryConditionRule;
 use craft\helpers\Json;
@@ -90,7 +91,7 @@ class TaxTest extends Unit
             $rate->rate = $item['rate'];
             $rate->include = $item['include'];
             $rate->removeIncluded = $item['removeIncluded'] ?? false;
-            $rate->isVat = $item['isVat'];
+            $rate->taxIdValidators = $item['taxIdValidators'] ?? [];
             $rate->removeVatIncluded = $item['removeVatIncluded'] ?? false;
             $rate->taxable = $item['taxable'];
             $rate->taxCategoryId = $item['taxCategoryId'];
@@ -110,7 +111,7 @@ class TaxTest extends Unit
 
         $taxAdjuster = $this->make(Tax::class, [
             'getTaxRates' => collect($taxRates),
-            'validateVatNumber' => function($vatNum) use ($addressData) {
+            'validateTaxIdNumber' => function($vatNum) use ($addressData) {
                 return $addressData['_validateVat'] ?? false;
             },
         ]);
@@ -156,7 +157,6 @@ class TaxTest extends Unit
                         'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => true,
-                        'isVat' => false,
                         'taxable' => 'order_total_price',
                         'zone' => [
                             'condition' => [
@@ -213,7 +213,6 @@ class TaxTest extends Unit
                         'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => false,
-                        'isVat' => false,
                         'taxable' => 'order_total_price',
                         // zone is everywhere
                     ],
@@ -250,7 +249,7 @@ class TaxTest extends Unit
                         'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => true,
-                        'isVat' => true,
+                        'taxIdValidators' => [EuVatIdValidator::class],
                         'taxable' => 'price_shipping',
                         // zone is everywhere
                     ],
@@ -292,7 +291,6 @@ class TaxTest extends Unit
                         'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => false,
-                        'isVat' => false,
                         'taxable' => 'order_total_price',
                         'zone' => [
                             'condition' => [
@@ -343,7 +341,6 @@ class TaxTest extends Unit
                         'rate' => 0.1,
                         'include' => true,
                         'removeIncluded' => true,
-                        'isVat' => false,
                         'taxable' => 'order_total_price',
                         'zone' => [
                             'condition' => [
@@ -402,7 +399,7 @@ class TaxTest extends Unit
                         'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => true,
-                        'isVat' => true,
+                        'taxIdValidators' => [EuVatIdValidator::class],
                         'removeVatIncluded' => true,
                         'taxable' => 'order_total_price',
                         'zone' => [
@@ -462,7 +459,7 @@ class TaxTest extends Unit
                         'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => true,
-                        'isVat' => true,
+                        'taxIdValidators' => [EuVatIdValidator::class],
                         'removeVatIncluded' => false,
                         'taxable' => 'order_total_price',
                         'zone' => [
@@ -515,7 +512,7 @@ class TaxTest extends Unit
                         'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => true,
-                        'isVat' => true,
+                        'taxIdValidators' => [EuVatIdValidator::class],
                         'removeVatIncluded' => true,
                         'taxable' => 'order_total_price',
                         'zone' => [
@@ -573,7 +570,7 @@ class TaxTest extends Unit
                         'taxCategoryId' => 1,
                         'rate' => 0.2,
                         'include' => false,
-                        'isVat' => true,
+                        'taxIdValidators' => [EuVatIdValidator::class],
                         'taxable' => 'price',
                     ],
                 ],
@@ -608,7 +605,7 @@ class TaxTest extends Unit
                         'taxCategoryId' => 1,
                         'rate' => 0.2,
                         'include' => false,
-                        'isVat' => true,
+                        'taxIdValidators' => [EuVatIdValidator::class],
                         'taxable' => 'purchasable',
                     ],
                 ],
@@ -643,7 +640,7 @@ class TaxTest extends Unit
                         'taxCategoryId' => 1,
                         'rate' => 0.2,
                         'include' => false,
-                        'isVat' => true,
+                        'taxIdValidators' => [EuVatIdValidator::class],
                         'taxable' => 'price',
                     ],
                 ],
@@ -678,7 +675,7 @@ class TaxTest extends Unit
                         'taxCategoryId' => 1,
                         'rate' => 0.2,
                         'include' => false,
-                        'isVat' => true,
+                        'taxIdValidators' => [EuVatIdValidator::class],
                         'taxable' => 'purchasable',
                     ],
                 ],

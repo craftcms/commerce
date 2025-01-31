@@ -207,10 +207,21 @@ JS, [
             'disabled' => $static,
         ];
 
+        $storeAllowOutOfStockPurchasesLightswitchConfig = [
+            'label' => Craft::t('commerce', 'Allow out of stock purchases'),
+            'id' => 'store-backorder-allowed',
+            'name' => 'allowOutOfStockPurchases',
+            'small' => true,
+            'on' => $element->getIsOutOfStockPurchasingAllowed(),
+            'disabled' => $static,
+        ];
+
+
         return Html::beginTag('div') .
                 Cp::lightswitchHtml($storeInventoryTrackedLightswitchConfig) .
                 Html::beginTag('div', ['id' => $inventoryItemTrackedId, 'class' => 'hidden']) .
                     $inventoryLevelsTable .
+                    Cp::lightswitchFieldHtml($storeAllowOutOfStockPurchasesLightswitchConfig) .
                 Html::endTag('div') .
             Html::endTag('div');
     }

@@ -174,13 +174,15 @@
     ) }}
 
      {% set isVatInput %}
-         {{ forms.lightswitchField({
-             label: "EU VAT ID"|t('commerce'),
-             name: 'isVat',
-             on: taxRate.isVat,
-             errors: taxRate.getErrors('isVat'),
-             toggle: '#isVatContainer'
+         {% for taxIdValidator in taxIdValidators %}
+         {{ forms.checkboxField({
+             label: taxIdValidator.displayName(),
+             name: 'taxIdValidators[' ~ className(taxIdValidator) ~ ']',
+             checked: taxRate.hasTaxIdValidator(className(taxIdValidator)),
+             errors: taxRate.getErrors('taxIdValidators'),
+             toggle: '#isTaxIdContainer'
          }) }}
+         {% endfor %}
      {% endset %}
 
     {{ forms.field({
@@ -258,11 +260,11 @@
     }) }}
 </div>
 
-<div id="isVatContainer" {% if not taxRate.isVat %} class="hidden"{% endif %}>
+<div id="isTaxIdContainer" {% if not taxRate.isVat %} class="hidden"{% endif %}>
     <div id="removeVatIncludedContainer" {% if not taxRate.include %} class="hidden"{% endif %} style="margin-top: 1.5rem;">
         {{ forms.lightSwitchField({
             id: 'removeVatIncluded',
-            label: "Remove the included tax when a valid EU VAT ID is present?"|t('commerce'),
+            label: "Remove the included tax when a valid organization tax ID is present?"|t('commerce'),
             name: 'removeVatIncluded',
             instructions: "If enabled and this rate does not match the order, the rate amount will be removed from the subject price in the cart."|t('commerce'),
             on: taxRate.removeVatIncluded,

@@ -164,6 +164,7 @@ JS;
                     'required' => true,
                     'errors' => $element->getErrors('basePrice'),
                     'disabled' => $static,
+                    'size' => 12,
                 ]), [
                     'id' => 'base-price',
                     'label' => Craft::t('commerce', 'Price'),
@@ -178,6 +179,7 @@ JS;
                         'currencyLabel' => $currency->getCode(),
                         'errors' => $element->getErrors('basePromotionalPrice'),
                         'disabled' => $static,
+                        'size' => 12,
                     ]), [
                         'id' => 'promotional-price',
                         'label' => Craft::t('commerce', 'Promotional Price'),

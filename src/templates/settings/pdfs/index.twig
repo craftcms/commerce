@@ -10,7 +10,16 @@
     'Yes',
 ]) %}
 
+{% set crumbs = [
+  { label: 'Commerce'|t('commerce'), url: url('commerce') },
+] %}
+
+{% if readOnly %}
+    {% set contentNotice = readOnlyNotice() %}
+{% endif %}
+
 {% block actionButton %}
+    {% if not readOnly %}
     <div class="btngroup">
         <button type="button" class="btn submit add icon menubtn">{{ 'New PDF'|t('commerce') }}</button>
         <div class="menu">
@@ -23,17 +32,17 @@
             </ul>
         </div>
     </div>
+    {% endif %}
 {% endblock %}
 
-{% block main %}
-    <div id="content">
+{% block content %}
         {% for store in stores %}
-            <h2 id="{{ store.handle }}" class="pdfs-margin-top">{{ store.name }}</h2>
-            <div class="content-pane">
-                <div id="pdfs-vue-admin-table-{{ store.handle }}"></div>
-            </div>
+            {% if stores|length > 1 %}
+                <h2 id="{{ store.handle }}" class="{% if loop.first %}first{% endif %}">{{ store.name }}</h2>
+            {% endif %}
+            <div id="pdfs-vue-admin-table-{{ store.handle }}"></div>
+            {% if not loop.last %}<hr>{% endif %}
         {% endfor %}
-    </div>
 {% endblock %}
 
 {% for storeHandle, storePdfs in pdfs %}
@@ -64,26 +73,21 @@
             }
         ];
 
-        new Craft.VueAdminTable({
-            columns: columns,
-            container: '#pdfs-vue-admin-table-{{ storeHandle }}',
-            deleteAction: 'commerce/pdfs/delete',
-            emptyMessage: Craft.t('commerce', 'No PDFs exist yet.'),
-            reorderAction: 'commerce/pdfs/reorder',
-            reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder PDFs.'),
-            reorderSuccessMessage: Craft.t('commerce', 'PDFs reordered.'),
-            tableData: {{ tableData|json_encode|raw }},
-        });
+        let {{ storeHandle }}Config = {
+          columns: columns,
+          fullPane: false,
+          container: '#pdfs-vue-admin-table-{{ storeHandle }}',
+          emptyMessage: Craft.t('commerce', 'No PDFs exist yet.'),
+          tableData: {{ tableData|json_encode|raw }},
+        };
+
+        {% if not readOnly %}
+        {{ storeHandle }}Config['deleteAction'] = 'commerce/pdfs/delete';
+        {{ storeHandle }}Config['reorderAction'] = 'commerce/pdfs/reorder';
+        {{ storeHandle }}Config['reorderFailMessage'] = Craft.t('commerce', 'Couldn’t reorder PDFs.');
+        {{ storeHandle }}Config['reorderSuccessMessage'] = Craft.t('commerce', 'PDFs reordered.');
+        {% endif %}
+
+        new Craft.VueAdminTable({{ storeHandle }}Config);
     {% endjs %}
 {% endfor %}
-
-{% css %}
-  table.data thead .vuetable-th-slot-title,
-  table.data thead .vuetable-th-slot-handle {
-    width: 33%;
-  }
-
-  .pdfs-margin-top {
-    margin-top: var(--xl);
-  }
-{% endcss %}

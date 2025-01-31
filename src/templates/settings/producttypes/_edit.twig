@@ -2,7 +2,8 @@
 {% set title = productType.id ? productType.name : 'Create a new product type'|t('commerce') %}
 
 {% set crumbs = [
-    { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+    { label: 'Commerce'|t('commerce'), url: url('commerce') },
+    { label: 'Settings'|t('app'), url: url('commerce/settings'), ariaLabel: 'Commerce Settings'|t('commerce') },
     { label: "Product Types"|t('commerce'), url: url('commerce/settings/producttypes') },
 ] %}
 
@@ -10,14 +11,21 @@
 
 {% set headlessMode = craft.app.config.general.headlessMode %}
 
-{% set fullPageForm = true %}
+{% set fullPageForm = not readOnly %}
+
+{% if readOnly %}
+    {% set contentNotice = readOnlyNotice() %}
+{% endif %}
 
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    <input type="hidden" name="action"
-           value="commerce/product-types/save-product-type">
+
+    {% if not readOnly %}
+    {{ actionInput('commerce/product-types/save-product-type') }}
     {{ redirectInput('commerce/settings/producttypes') }}
+    {% endif %}
+
     {% if productType.id %}
         <input type="hidden" name="productTypeId" value="{{ productType.id }}">
     {% endif %}
@@ -33,11 +41,12 @@
                 class: 'ltr',
                 name: 'template',
                 value: productType.template,
-                errors: productType.getErrors('template')
+                errors: productType.getErrors('template'),
+                disabled: readOnly,
             }) }}
         {% endmacro %}
 
-        {% macro productTitleFormatField(productType) %}
+        {% macro productTitleFormatField(productType, disabled) %}
             {% import '_includes/forms' as forms %}
 
                 {{ forms.lightswitchField({
@@ -45,7 +54,8 @@
                     name: 'hasProductTitleField',
                     toggle: '#productTitle-container',
                     reverseToggle: '#productTitleFormat-container, .fld-product-title-field-icon',
-                    on: productType.hasProductTitleField
+                    on: productType.hasProductTitleField,
+                    disabled: disabled,
                 }) }}
 
             {% if craft.app.getIsMultiSite() %}
@@ -68,7 +78,8 @@
                         ]|filter,
                         value: productType.productTitleTranslationMethod,
                         toggle: true,
-                        targetPrefix: 'product-translation-method-'
+                        targetPrefix: 'product-translation-method-',
+                        disabled: disabled,
                     }) }}
 
                     <div id="product-translation-method-custom" {% if productType.productTitleTranslationMethod != 'custom' %}class="hidden"{% endif %}>
@@ -86,6 +97,7 @@
                             data: {
                                 'error-key': 'productTitleTranslationKeyFormat',
                             },
+                            disabled: disabled,
                         }) }}
                     </div>
                 </div>
@@ -99,12 +111,13 @@
                         class: 'code ltr',
                         name: 'productTitleFormat',
                         value: productType.productTitleFormat,
-                        errors: productType.getErrors('productTitleFormat')
+                        errors: productType.getErrors('productTitleFormat'),
+                        disabled: disabled,
                     }) }}
                 </div>
         {% endmacro %}
 
-        {% macro variantTitleFormatField(productType) %}
+        {% macro variantTitleFormatField(productType, disabled) %}
             {% import '_includes/forms' as forms %}
 
             <div id="variant-settings">
@@ -113,7 +126,8 @@
                     name: 'hasVariantTitleField',
                     toggle: '#variantTitle-container',
                     reverseToggle: '#variantTitleFormat-container, .fld-variant-title-field-icon',
-                    on: productType.hasVariantTitleField
+                    on: productType.hasVariantTitleField,
+                    disabled: disabled,
                 }) }}
 
                 {% if craft.app.getIsMultiSite() %}
@@ -136,7 +150,8 @@
                             ]|filter,
                             value: productType.variantTitleTranslationMethod,
                             toggle: true,
-                            targetPrefix: 'variant-translation-method-'
+                            targetPrefix: 'variant-translation-method-',
+                            disabled: disabled,
                         }) }}
 
                         <div id="variant-translation-method-custom" {% if productType.variantTitleTranslationMethod != 'custom' %}class="hidden"{% endif %}>
@@ -154,6 +169,7 @@
                                 data: {
                                     'error-key': 'variantTitleTranslationKeyFormat',
                                 },
+                                disabled: disabled,
                             }) }}
                         </div>
                     </div>
@@ -167,7 +183,8 @@
                         class: 'code ltr',
                         name: 'variantTitleFormat',
                         value: productType.variantTitleFormat,
-                        errors: productType.getErrors('variantTitleFormat')
+                        errors: productType.getErrors('variantTitleFormat'),
+                        disabled: disabled,
                     }) }}
                 </div>
 
@@ -186,7 +203,8 @@
             value: productType.name,
             errors: productType.getErrors('name'),
             autofocus: true,
-            required: true
+            required: true,
+            disabled: readOnly,
         }) }}
 
         {{ forms.textField({
@@ -197,7 +215,8 @@
             name: 'handle',
             value: productType.handle,
             errors: productType.getErrors('handle'),
-            required: true
+            required: true,
+            disabled: readOnly,
         }) }}
 
         {{ forms.lightswitchField({
@@ -207,6 +226,7 @@
             name: 'isStructure',
             on: productType.isStructure,
             toggle: 'isStructureFields',
+            disabled: readOnly,
         }) }}
 
         <div id="isStructureFields" class="field {% if not productType.isStructure %}hidden{% endif %}">
@@ -220,6 +240,7 @@
                     {label: 'After other {type}'|t('app', {type: 'products'|t('commerce')}), value: 'end'},
                 ],
                 value: productType.defaultPlacement,
+                disabled: readOnly,
             }) }}
 
             {{ forms.textField({
@@ -229,7 +250,8 @@
                 name: 'maxLevels',
                 value: productType.maxLevels,
                 size: 5,
-                errors: productType.getErrors('maxLevels')
+                errors: productType.getErrors('maxLevels'),
+                disabled: readOnly,
             }) }}
         </div>
 
@@ -237,10 +259,11 @@
             label: 'Enable versioning for products of this type'|t('app'),
             id: 'enableVersioning',
             name: 'enableVersioning',
-            on: productType.enableVersioning
+            on: productType.enableVersioning,
+            disabled: readOnly,
         }) }}
 
-        {{ productTitleFormatField(productType) }}
+        {{ productTitleFormatField(productType, readOnly) }}
 
         {{ forms.textField({
             label: "Automatic SKU Format"|t('commerce'),
@@ -249,7 +272,8 @@
             class: 'code ltr',
             name: 'skuFormat',
             value: productType.skuFormat,
-            errors: productType.getErrors('skuFormat')
+            errors: productType.getErrors('skuFormat'),
+            disabled: readOnly,
         }) }}
 
         {{ forms.textField({
@@ -259,7 +283,8 @@
             class: 'code ltr',
             name: 'descriptionFormat',
             value: productType.descriptionFormat,
-            errors: productType.getErrors('descriptionFormat')
+            errors: productType.getErrors('descriptionFormat'),
+            disabled: readOnly,
         }) }}
 
         {{ forms.textField({
@@ -269,6 +294,7 @@
             value: productType.maxVariants,
             errors: productType.getErrors('maxVariants'),
             size: 2,
+            disabled: readOnly,
         }) }}
 
         {{ forms.lightswitchField({
@@ -276,11 +302,12 @@
             id: 'hasDimensions',
             name: 'hasDimensions',
             on: productType.hasDimensions,
+            disabled: readOnly,
         }) }}
 
         <hr>
 
-        {{ variantTitleFormatField(productType) }}
+        {{ variantTitleFormatField(productType, readOnly) }}
 
         <hr>
 
@@ -301,15 +328,18 @@
                         name: 'sites['~site.handle~'][enabled]',
                         on: brandNewProductType or siteSettings,
                         value: site.id,
-                        small: true
+                        small: true,
+                        disabled: readOnly,
                     }),
                     uriFormat: {
                         value: siteSettings ? siteSettings.uriFormat,
-                        hasErrors: (siteSettings ? siteSettings.hasErrors('uriFormat'))
+                        hasErrors: (siteSettings ? siteSettings.hasErrors('uriFormat')),
+                        disabled: readOnly,
                     },
                     template: not headlessMode ? {
                         value: siteSettings ? siteSettings.template,
                         hasErrors: siteSettings ? siteSettings.hasErrors('template'),
+                        disabled: readOnly,
                     },
                     enabledByDefault: siteSettings ? siteSettings.enabledByDefault : true,
                 }|filter
@@ -374,7 +404,8 @@
                         { value: 'all', label: 'Save product to all sites enabled for this product type'|t('commerce') },
                         { value: 'custom', label: 'Let each product choose which sites it should be saved to'|t('commerce') },
                     ],
-                    value: productType.propagationMethod.value
+                    value: productType.propagationMethod.value,
+                    disabled: readOnly,
                 }) }}
             </div>
         {% endif %}
@@ -408,6 +439,8 @@
 
         {{ forms.fieldLayoutDesignerField({
             fieldLayout: productType.getProductFieldLayout(),
+            withCardViewDesigner: true,
+            disabled: readOnly,
         }) }}
 
     </div>
@@ -417,6 +450,8 @@
         {% namespace "variant-layout" %}
             {{ forms.fieldLayoutDesignerField({
                 fieldLayout: productType.getVariantFieldLayout(),
+                withCardViewDesigner: true,
+                disabled: readOnly,
             }) }}
         {% endnamespace %}
 

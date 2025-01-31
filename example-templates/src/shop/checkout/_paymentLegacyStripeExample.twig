@@ -88,12 +88,6 @@
 
                 <button id="submit-button" type="submit">Submit Payment</button>
 
-
-
-
-              {# Force in some basic styling for the gateway-provided form markup (better to build your own form markup!) #}
-              {% include '[[folderName]]/checkout/_includes/base-payment-form-styles' %}
-
               {% if cart.gateway.supportsPaymentSources() and currentUser %}
                 <div class="checkbox">
                   <label>

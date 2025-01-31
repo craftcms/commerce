@@ -66,7 +66,7 @@ class Inventory extends Component
         $storeInventoryLocations = Plugin::getInstance()->getInventoryLocations()->getInventoryLocations($storeId);
 
         foreach ($storeInventoryLocations as $inventoryLocation) {
-            $inventoryLevel = $this->getInventoryLevel($purchasable->getInventoryItem(), $inventoryLocation);
+            $inventoryLevel = $this->getInventoryLevel($purchasable->inventoryItemId, $inventoryLocation->id);
 
             if (!$inventoryLevel) {
                 continue;
@@ -120,17 +120,20 @@ class Inventory extends Component
     /**
      * Returns an inventory level model which is the sum of all inventory movements types for an item in a location.
      *
-     * @param InventoryItem $inventoryItem
-     * @param InventoryLocation $inventoryLocation
+     * @param InventoryItem|int $inventoryItem
+     * @param InventoryLocation|int $inventoryLocation
      * @param bool $withTrashed
      * @return ?InventoryLevel
      */
-    public function getInventoryLevel(InventoryItem $inventoryItem, InventoryLocation $inventoryLocation, bool $withTrashed = false): ?InventoryLevel
+    public function getInventoryLevel(InventoryItem|int $inventoryItem, InventoryLocation|int $inventoryLocation, bool $withTrashed = false): ?InventoryLevel
     {
+        $inventoryItemId = $inventoryItem instanceof InventoryItem ? $inventoryItem->id : $inventoryItem;
+        $inventoryLocationId = $inventoryLocation instanceof InventoryLocation ? $inventoryLocation->id : $inventoryLocation;
+
         $result = $this->getInventoryLevelQuery(withTrashed: $withTrashed)
             ->andWhere([
-                'inventoryLocationId' => $inventoryLocation->id,
-                'inventoryItemId' => $inventoryItem->id,
+                'inventoryLocationId' => $inventoryLocationId,
+                'inventoryItemId' => $inventoryItemId,
             ])->one();
 
         if (!$result) {
@@ -303,6 +306,10 @@ class Inventory extends Component
      */
     public function executeUpdateInventoryLevels(UpdateInventoryLevelCollection $updateInventoryLevels): bool
     {
+        if ($updateInventoryLevels->count() < 1) {
+            return true;
+        }
+
         $transaction = Craft::$app->getDb()->beginTransaction();
 
         try {
@@ -316,8 +323,10 @@ class Inventory extends Component
 
             $transaction->commit();
 
-            foreach ($updateInventoryLevels->getPurchasables() as $purchasable) {
-                Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
+            // Update all purchasables stock
+            $purchasables = $updateInventoryLevels->getPurchasables();
+            if ($purchasables) {
+                Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasables[0], true);
             }
 
             return true;
@@ -325,6 +334,59 @@ class Inventory extends Component
             $transaction->rollBack();
             throw $e;
         }
+    }
+
+    /**
+     * @param int $inventoryItemId
+     * @param int $quantity
+     * @param array $updateInventoryLevelAttributes
+     * @return void
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @since 5.3.0
+     */
+    public function updateInventoryLevel(int $inventoryItemId, int $quantity, array $updateInventoryLevelAttributes = [])
+    {
+        $updateInventoryLevelAttributes += [
+            'quantity' => $quantity,
+            'updateAction' => InventoryUpdateQuantityType::SET,
+            'inventoryLocationId' => Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations()->first()->id,
+            'type' => InventoryTransactionType::AVAILABLE->value,
+        ];
+
+        $updateInventoryLevel = new UpdateInventoryLevel($updateInventoryLevelAttributes);
+        $updateInventoryLevel->inventoryItemId = $inventoryItemId;
+
+        $updateInventoryLevels = UpdateInventoryLevelCollection::make();
+        $updateInventoryLevels->push($updateInventoryLevel);
+
+        Plugin::getInstance()->getInventory()->executeUpdateInventoryLevels($updateInventoryLevels);
+    }
+
+    /**
+     * @param Purchasable $purchasable
+     * @param int $quantity
+     * @param array $updateInventoryLevelAttributes
+     * @return void
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws \craft\errors\DeprecationException
+     * @since 5.3.0
+     */
+    public function updatePurchasableInventoryLevel(Purchasable $purchasable, int $quantity, array $updateInventoryLevelAttributes = [])
+    {
+        $updateInventoryLevelAttributes += [
+            'quantity' => $quantity,
+            'updateAction' => InventoryUpdateQuantityType::SET,
+            'inventoryItemId' => $purchasable->inventoryItemId,
+            'inventoryLocationId' => $purchasable->getStore()->getInventoryLocations()->first()->id,
+            'type' => InventoryTransactionType::AVAILABLE->value,
+        ];
+
+        $this->updateInventoryLevel($purchasable->inventoryItemId, $quantity, $updateInventoryLevelAttributes);
+
+        // Clear the stock cache for the class instance
+        unset($purchasable->stock);
     }
 
     /**
@@ -345,8 +407,8 @@ class Inventory extends Component
             ->from($tableName)
             ->where([
                 'type' => $types,
-                'inventoryItemId' => $updateInventoryLevel->inventoryItem->id,
-                'inventoryLocationId' => $updateInventoryLevel->inventoryLocation->id,
+                'inventoryItemId' => $updateInventoryLevel->inventoryItemId,
+                'inventoryLocationId' => $updateInventoryLevel->inventoryLocationId,
             ])
             ->params([':quantity' => $updateInventoryLevel->quantity])
             ->scalar();
@@ -359,8 +421,8 @@ class Inventory extends Component
         $data = [
             'quantity' => $quantityQuery,
             'type' => $type,
-            'inventoryItemId' => $updateInventoryLevel->inventoryItem->id,
-            'inventoryLocationId' => $updateInventoryLevel->inventoryLocation->id,
+            'inventoryItemId' => $updateInventoryLevel->inventoryItemId,
+            'inventoryLocationId' => $updateInventoryLevel->inventoryLocationId,
             'note' => $updateInventoryLevel->note,
             'movementHash' => $this->getMovementHash(),
             'dateCreated' => Db::prepareDateForDb(new \DateTime()),
@@ -394,8 +456,8 @@ class Inventory extends Component
             ->insert($tableName, [
                 'quantity' => $updateInventoryLevel->quantity,
                 'type' => $type,
-                'inventoryItemId' => $updateInventoryLevel->inventoryItem->id,
-                'inventoryLocationId' => $updateInventoryLevel->inventoryLocation->id,
+                'inventoryItemId' => $updateInventoryLevel->inventoryItemId,
+                'inventoryLocationId' => $updateInventoryLevel->inventoryLocationId,
                 'movementHash' => $this->getMovementHash(),
                 'dateCreated' => Db::prepareDateForDb(new \DateTime()),
                 'note' => $updateInventoryLevel->note,
@@ -493,13 +555,16 @@ class Inventory extends Component
     }
 
     /**
-     * @param InventoryItem $inventoryItem
-     * @param InventoryLocation $inventoryLocation
+     * @param InventoryItem|int $inventoryItem
+     * @param InventoryLocation|int $inventoryLocation
      * @return array
      */
-    public function getUnfulfilledOrders(InventoryItem $inventoryItem, InventoryLocation $inventoryLocation): array
+    public function getUnfulfilledOrders(InventoryItem|int $inventoryItem, InventoryLocation|int $inventoryLocation): array
     {
-        $inventoryLevel = $this->getInventoryLevel($inventoryItem, $inventoryLocation);
+        $inventoryItemId = $inventoryItem instanceof InventoryItem ? $inventoryItem->id : $inventoryItem;
+        $inventoryLocationId = $inventoryLocation instanceof InventoryLocation ? $inventoryLocation->id : $inventoryLocation;
+
+        $inventoryLevel = $this->getInventoryLevel($inventoryItemId, $inventoryLocationId);
 
         if ($inventoryLevel->committedTotal <= 0) {
             return [];
@@ -512,8 +577,8 @@ class Inventory extends Component
             ->leftJoin(['orders' => Table::ORDERS], '[[lineItems.orderId]] = [[orders.id]]')
             ->leftJoin(['it' => Table::INVENTORYTRANSACTIONS], '[[it.lineItemId]] = [[lineItems.id]]')
             ->where(['orders.isCompleted' => true])
-            ->andWhere(['it.inventoryItemId' => $inventoryItem->id])
-            ->andWhere(['it.inventoryLocationId' => $inventoryLocation->id])
+            ->andWhere(['it.inventoryItemId' => $inventoryItemId])
+            ->andWhere(['it.inventoryLocationId' => $inventoryLocationId])
             ->andWhere(['it.type' => InventoryTransactionType::COMMITTED->value])
             ->groupBy(['lineItems.orderId', 'lineItems.id'])
             ->having(['>=', 'SUM(it.quantity)', 'lineItems.qty'])
@@ -625,6 +690,7 @@ class Inventory extends Component
      */
     public function orderCompleteHandler(Order $order)
     {
+        /** @var Collection<InventoryLevel>[] $allInventoryLevels */
         $allInventoryLevels = [];
         $qtyLineItem = [];
         foreach ($order->getLineItems() as $lineItem) {
@@ -635,6 +701,11 @@ class Inventory extends Component
 
             $purchasable = $lineItem->getPurchasable();
             // Don't reduce stock of unlimited items.
+
+            if (!$purchasable::hasInventory()) {
+                continue;
+            }
+
             if ($purchasable->inventoryTracked) {
                 if (!isset($qtyLineItem[$purchasable->id])) {
                     $qtyLineItem[$purchasable->id] = 0;
@@ -647,7 +718,7 @@ class Inventory extends Component
         $selectedInventoryLevelForItem = [];
         /**
          * @var  int $purchasableId
-         * @var  InventoryLevel $inventoryLevels
+         * @var  Collection<InventoryLevel> $inventoryLevels
          */
         foreach ($allInventoryLevels as $purchasableId => $inventoryLevels) {
             foreach ($inventoryLevels as $level) {
@@ -690,15 +761,16 @@ class Inventory extends Component
                     $availableTotalByPurchasableIdAndLocationId[$lineItem->purchasableId . '-' . $level->inventoryLocationId] -= $lineItem->qty;
                 }
 
-                $movements->push(new InventoryCommittedMovement([
-                    'inventoryItem' => $level->getInventoryItem(),
-                    'fromInventoryLocation' => $level->getInventoryLocation(),
-                    'toInventoryLocation' => $level->getInventoryLocation(),
-                    'fromInventoryTransactionType' => InventoryTransactionType::AVAILABLE,
-                    'toInventoryTransactionType' => InventoryTransactionType::COMMITTED,
-                    'quantity' => $lineItem->qty,
-                    'lineItemId' => $lineItem->id,
-                ]));
+                $inventoryCommittedMovement = new InventoryCommittedMovement();
+                $inventoryCommittedMovement->inventoryItemId = $level->inventoryItemId;
+                $inventoryCommittedMovement->fromInventoryLocation = $level->getInventoryLocation();
+                $inventoryCommittedMovement->toInventoryLocation = $level->getInventoryLocation();
+                $inventoryCommittedMovement->fromInventoryTransactionType = InventoryTransactionType::AVAILABLE;
+                $inventoryCommittedMovement->toInventoryTransactionType = InventoryTransactionType::COMMITTED;
+                $inventoryCommittedMovement->quantity = $lineItem->qty;
+                $inventoryCommittedMovement->lineItemId = $lineItem->id;
+
+                $movements->push($inventoryCommittedMovement);
             }
         }
 
@@ -723,15 +795,16 @@ class Inventory extends Component
 
                     $availableTotalByPurchasableIdAndLocationId[$purchasableId . '-' . $level->inventoryLocationId] -= $qtyToReserve;
 
-                    $movements->push(new InventoryManualMovement([
-                        'inventoryItem' => $level->getInventoryItem(),
-                        'fromInventoryLocation' => $level->getInventoryLocation(),
-                        'toInventoryLocation' => $level->getInventoryLocation(),
-                        'fromInventoryTransactionType' => InventoryTransactionType::AVAILABLE,
-                        'toInventoryTransactionType' => InventoryTransactionType::RESERVED,
-                        'quantity' => $qtyToReserve,
-                        'lineItemId' => $lineItemId,
-                    ]));
+                    $inventoryManualMovement = new InventoryManualMovement();
+                    $inventoryManualMovement->inventoryItemId = $level->inventoryItemId;
+                    $inventoryManualMovement->fromInventoryLocation = $level->getInventoryLocation();
+                    $inventoryManualMovement->toInventoryLocation = $level->getInventoryLocation();
+                    $inventoryManualMovement->fromInventoryTransactionType = InventoryTransactionType::AVAILABLE;
+                    $inventoryManualMovement->toInventoryTransactionType = InventoryTransactionType::RESERVED;
+                    $inventoryManualMovement->quantity = $qtyToReserve;
+                    $inventoryManualMovement->lineItemId = $lineItemId;
+
+                    $movements->push($inventoryManualMovement);
 
                     $qty -= $qtyToReserve;
                     if ($qty <= 0) {

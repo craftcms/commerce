@@ -2,7 +2,11 @@
 {% set selectedSubnavItem = 'settings' %}
 {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commercesettings" %}
 
-{% set title = "System Settings"|t('commerce') %}
+{% set title = "Settings"|t('app') %}
+
+{% if readOnly %}
+    {% set contentNotice = readOnlyNotice() %}
+{% endif %}
 
 {% set navItems = {} %}
 
@@ -14,18 +18,23 @@
     'sites': { title: "Sites"|t('app')},
     'products-heading': { heading: "Products"|t('commerce')},
     'producttypes': { title: "Product Types"|t('commerce')},
+
     'orders-heading': { heading: "Orders"|t('commerce')},
-    'ordersettings': { title: "Field Layout"|t('commerce')},
+    'ordersettings': { title: "Order Fields"|t('commerce')},
     'orderstatuses': { title: "Order Statuses"|t('commerce')},
     'lineitemstatuses': { title: "Line Item Statuses"|t('commerce')},
+
     'communication-heading': { heading: "PDFs & Emails"|t('commerce')},
     'pdfs': { title: "PDFs"|t('commerce')},
     'emails': { title: "Emails"|t('commerce')},
     'payments-heading': { heading: "Payments"|t('commerce')},
     'gateways': { title: "Gateways"|t('commerce')},
-    'field-layouts-heading': { heading: "Other Field Layouts"|t('commerce')},
-    'subscriptions/fields': { title: "Subscriptions"|t('commerce')},
-    'transfers': { title: "Transfers"|t('commerce')},
+
+    'subscriptions-heading': { heading: "Subscriptions"|t('commerce')},
+    'subscriptions': { title: "Subscription Fields"|t('commerce')},
+
+    'transfers-heading': { heading: "Transfers"|t('commerce')},
+    'transfers': { title: "Transfer Fields"|t('commerce')},
 } %}
 {% endif %}
 

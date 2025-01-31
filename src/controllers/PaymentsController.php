@@ -442,6 +442,10 @@ class PaymentsController extends BaseFrontEndController
             if ($isCpAndAllowed) {
                 // Payment amount in the CP accepts number based in the user's formatting locale
                 $cpPaymentAmount = $this->request->getBodyParam('paymentAmount');
+
+                if (is_array($cpPaymentAmount)) {
+                    $cpPaymentAmount = $cpPaymentAmount['value'];
+                }
                 $cpPaymentAmount = Localization::normalizeNumber($cpPaymentAmount);
 
                 $order->setPaymentAmount($cpPaymentAmount);

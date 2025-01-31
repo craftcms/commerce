@@ -994,14 +994,17 @@ class ProductTypes extends Component
 
         $suffix = ':' . $productType->uid;
 
+        if ($checkPermissionName !== null) {
+            $checkPermissionName = strtolower($checkPermissionName . $suffix);
+            if (!in_array(strtolower($checkPermissionName), $permissions)) {
+                return false;
+            }
+        }
+
         // Required for create and delete permission.
         $editProductType = strtolower('commerce-editProductType' . $suffix);
 
-        if ($checkPermissionName !== null) {
-            $checkPermissionName = strtolower($checkPermissionName . $suffix);
-        }
-
-        if (!in_array($editProductType, $permissions) || ($checkPermissionName !== null && !in_array(strtolower($checkPermissionName), $permissions))) {
+        if (!in_array($editProductType, $permissions)) {
             return false;
         }
 

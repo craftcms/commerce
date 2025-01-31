@@ -2,6 +2,8 @@
 {% set isIndex = false %}
 
 {% set crumbs = [
+    { label: 'Commerce'|t('commerce'), url: url('commerce') },
+    { label: "Store Management"|t('commerce'), url: url('commerce/store-management/#{storeHandle}') },
     { label: "Sales"|t('commerce'), url: url("commerce/store-management/#{storeHandle}/sales") },
 ] %}
 

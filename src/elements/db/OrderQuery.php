@@ -60,6 +60,12 @@ class OrderQuery extends ElementQuery
     public mixed $reference = null;
 
     /**
+     * @var mixed The order reference of the resulting order.
+     * @used-by couponCode()
+     */
+    public mixed $couponCode = null;
+
+    /**
      * @var mixed The email address the resulting orders must have.
      */
     public mixed $email = null;
@@ -369,6 +375,48 @@ class OrderQuery extends ElementQuery
     public function reference(mixed $value): OrderQuery
     {
         $this->reference = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the order's coupon code.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `':empty:'` | that don’t have a coupon code.
+     * | `':notempty:'` | that have a coupon code.
+     * | `'Foo'` | with a coupon code of `Foo`.
+     * | `'Foo*'` | with a coupon code that begins with `Foo`.
+     * | `'*Foo'` | with a coupon code that ends with `Foo`.
+     * | `'*Foo*'` | with a coupon code that contains `Foo`.
+     * | `'not *Foo*'` | with a coupon code that doesn’t contain `Foo`.
+     * | `['*Foo*', '*Bar*']` | with a coupon code that contains `Foo` or `Bar`.
+     * | `['not', '*Foo*', '*Bar*']` | with a coupon code that doesn’t contain `Foo` or `Bar`.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch the requested {element} #}
+     * {% set {element-var} = {twig-method}
+     *   .reference('foo')
+     *   .one() %}
+     * ```
+     *
+     * ```php
+     * // Fetch the requested {element}
+     * ${element-var} = {php-method}
+     *     ->reference('foo')
+     *     ->one();
+     * ```
+     *
+     * @param string|null $value The property value
+     * @return static self reference
+     */
+    public function couponCode(mixed $value): OrderQuery
+    {
+        $this->couponCode = $value;
         return $this;
     }
 
@@ -1549,6 +1597,9 @@ class OrderQuery extends ElementQuery
             'commerce_orders.registerUserOnOrderComplete',
             'commerce_orders.saveBillingAddressOnOrderComplete',
             'commerce_orders.saveShippingAddressOnOrderComplete',
+            'commerce_orders.saveShippingAddressOnOrderComplete',
+            'commerce_orders.makePrimaryShippingAddress',
+            'commerce_orders.makePrimaryBillingAddress',
             'commerce_orders.recalculationMode',
             'commerce_orders.origin',
             'commerce_orders.dateAuthorized',
@@ -1600,6 +1651,11 @@ class OrderQuery extends ElementQuery
 
         if (isset($this->reference) && $this->reference) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.reference', $this->reference));
+        }
+
+        if (isset($this->couponCode)) {
+            // Coupon code criteria is case-insensitive like in the adjuster
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.couponCode', $this->couponCode, caseInsensitive: true));
         }
 
         if (isset($this->email) && $this->email) {

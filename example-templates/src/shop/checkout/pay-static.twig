@@ -190,8 +190,8 @@
                     }) }}" class="[[classes.a]]">&larr; {{ 'Back'|t }}</a>
 
                     <div class="gateway-payment-form max-w-3/4">
-                      {% namespace cart.gateway.handle|commercePaymentFormNamespace %}
-                        {{ cart.gateway.getPaymentFormHtml(params)|raw }}
+                      {% namespace gateway.handle|commercePaymentFormNamespace %}
+                        {{ gateway.getPaymentFormHtml(params)|raw }}
                       {% endnamespace %}
                     </div>
 

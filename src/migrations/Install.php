@@ -504,7 +504,9 @@ class Install extends Migration
             'message' => $this->text(),
             'registerUserOnOrderComplete' => $this->boolean()->notNull()->defaultValue(false),
             'saveBillingAddressOnOrderComplete' => $this->boolean()->notNull()->defaultValue(false),
+            'makePrimaryBillingAddress' => $this->boolean()->notNull()->defaultValue(false),
             'saveShippingAddressOnOrderComplete' => $this->boolean()->notNull()->defaultValue(false),
+            'makePrimaryShippingAddress' => $this->boolean()->notNull()->defaultValue(false),
             'recalculationMode' => $this->enum('recalculationMode', ['all', 'none', 'adjustmentsOnly'])->notNull()->defaultValue('all'),
             'returnUrl' => $this->text(),
             'cancelUrl' => $this->text(),
@@ -701,6 +703,7 @@ class Install extends Migration
             'availableForPurchase' => $this->boolean()->notNull()->defaultValue(true),
             'freeShipping' => $this->boolean()->notNull()->defaultValue(true),
             'inventoryTracked' => $this->boolean()->notNull()->defaultValue(true),
+            'allowOutOfStockPurchases' => $this->boolean()->notNull()->defaultValue(false),
             'stock' => $this->integer(), // This is a summary value used for searching and sorting
             'tracked' => $this->boolean()->notNull()->defaultValue(false),
             'minQty' => $this->integer(),
@@ -937,10 +940,12 @@ class Install extends Migration
             'code' => $this->string(),
             'rate' => $this->decimal(14, 10)->notNull(),
             'include' => $this->boolean()->notNull()->defaultValue(false),
-            'isVat' => $this->boolean()->notNull()->defaultValue(false), // TODO rename to isEuVat #COM-45
+            'isVat' => $this->boolean()->notNull()->defaultValue(false), // Remove in Commerce 6
+            'taxIdValidators' => $this->text(),
             'removeIncluded' => $this->boolean()->notNull()->defaultValue(false),
             'removeVatIncluded' => $this->boolean()->notNull()->defaultValue(false),
             'taxable' => $this->enum('taxable', ['purchasable', 'price', 'shipping', 'price_shipping', 'order_total_shipping', 'order_total_price'])->notNull(),
+            'enabled' => $this->boolean()->defaultValue(true)->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),

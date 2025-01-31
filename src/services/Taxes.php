@@ -9,8 +9,13 @@ namespace craft\commerce\services;
 
 use craft\base\Component;
 use craft\commerce\base\TaxEngineInterface;
+use craft\commerce\base\TaxIdValidatorInterface;
 use craft\commerce\engines\Tax;
 use craft\commerce\events\TaxEngineEvent;
+use craft\commerce\events\TaxIdValidatorsEvent;
+use craft\commerce\taxidvalidators\EuVatIdValidator;
+use Illuminate\Support\Collection;
+use yii\base\InvalidConfigException;
 
 /**
  * Class Taxes
@@ -20,6 +25,27 @@ use craft\commerce\events\TaxEngineEvent;
  */
 class Taxes extends Component implements TaxEngineInterface
 {
+    /**
+     * @event TaxIdValidatorsEvent The event that is raised when tax ID validators are registered.
+     *
+     * Any validator added must be a TaxIdValidatorInterface.
+     *
+     * ```php
+     * use craft\commerce\events\TaxIdValidatorsEvent;
+     * use craft\commerce\services\Taxes;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Taxes::class,
+     *     Taxes::EVENT_REGISTER_TAX_ID_VALIDATORS,
+     *     function(TaxIdValidatorsEvent $event) {
+     *          $event->validators[] = new MyTaxIdValidator();
+     *     }
+     * );
+     * ```
+     */
+    public const EVENT_REGISTER_TAX_ID_VALIDATORS = 'registerTaxIdValidators';
+
     /**
      * @event TaxEngineEvent The event that is triggered when determining the tax engine.
      * @since 3.1
@@ -47,17 +73,69 @@ class Taxes extends Component implements TaxEngineInterface
     public const EVENT_REGISTER_TAX_ENGINE = 'registerTaxEngine';
 
     /**
+     * @var ?TaxEngineInterface $engine The tax engine
+     */
+    private ?TaxEngineInterface $_taxEngine = null;
+
+    /**
+     * @return Collection<TaxIdValidatorInterface>
+     * @throws InvalidConfigException
+     * @since 4.8.0
+     */
+    public function getTaxIdValidators(): Collection
+    {
+        $validators = [];
+        $validators[] = new EuVatIdValidator();
+
+        $event = new TaxIdValidatorsEvent([
+            'validators' => $validators,
+        ]);
+
+        if ($this->hasEventHandlers(self::EVENT_REGISTER_TAX_ID_VALIDATORS)) {
+            $this->trigger(self::EVENT_REGISTER_TAX_ID_VALIDATORS, $event);
+        }
+
+        foreach ($event->validators as $validator) {
+            if (!$validator instanceof TaxIdValidatorInterface) {
+                throw new InvalidConfigException('Tax ID validator must implement TaxIdValidatorInterface');
+            }
+        }
+
+        return collect($event->validators);
+    }
+
+    /**
+     * @return Collection<TaxIdValidatorInterface>
+     * @throws InvalidConfigException
+     */
+    public function getEnabledTaxIdValidators(): Collection
+    {
+        return $this->getTaxIdValidators()->filter(fn(TaxIdValidatorInterface $validator) => $validator::isEnabled());
+    }
+
+    /**
      * Get the current tax engine.
      */
     public function getEngine(): TaxEngineInterface
     {
+        if ($this->_taxEngine !== null) {
+            return $this->_taxEngine;
+        }
+
         $event = new TaxEngineEvent(['engine' => new Tax()]);
 
         if ($this->hasEventHandlers(self::EVENT_REGISTER_TAX_ENGINE)) {
             $this->trigger(self::EVENT_REGISTER_TAX_ENGINE, $event);
         }
 
-        return $event->engine;
+        // Give plugins a chance to register the tax engine
+        if (!$event->engine instanceof TaxEngineInterface) {
+            throw new InvalidConfigException('No tax engine has been registered.');
+        }
+
+        $this->_taxEngine = $event->engine;
+
+        return $this->_taxEngine;
     }
 
     /**

@@ -44,10 +44,12 @@ Outputs a form for collecting an order’s shipping and billing address.
           }) }}
 
           {% if currentUser and addresses|length %}
+            {{ hiddenInput('makePrimaryShippingAddress', 0) }}
             <div class="mt-3">
               <label>
                 {{ input('checkbox', 'makePrimaryShippingAddress', 1, {
                   id: 'makePrimaryShippingAddress',
+                  checked: cart.makePrimaryShippingAddress
                 }) }}
                 {{ 'Make this my default shipping address'|t }}
               </label>
@@ -79,10 +81,12 @@ Outputs a form for collecting an order’s shipping and billing address.
           </div>
 
           {% if currentUser and addresses|length %}
+            {{ hiddenInput('makePrimaryBillingAddress', 0) }}
             <div class="mt-3">
               <label>
                 {{ input('checkbox', 'makePrimaryBillingAddress', 1, {
                   id: 'makePrimaryBillingAddress',
+                  checked: cart.makePrimaryBillingAddress,
                 }) }}
                 {{ 'Make this my default billing address'|t }}
               </label>

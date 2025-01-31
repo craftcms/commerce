@@ -10,6 +10,7 @@ namespace craft\commerce\adjusters;
 use Craft;
 use craft\base\Component;
 use craft\commerce\base\AdjusterInterface;
+use craft\commerce\base\TaxIdValidatorInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\helpers\Currency;
@@ -18,6 +19,8 @@ use craft\commerce\models\TaxAddressZone;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
+use craft\commerce\services\Taxes;
+use craft\commerce\taxidvalidators\EuVatIdValidator;
 use craft\elements\Address;
 use DvK\Vat\Validator;
 use Exception;
@@ -37,11 +40,6 @@ use function in_array;
 class Tax extends Component implements AdjusterInterface
 {
     public const ADJUSTMENT_TYPE = 'tax';
-
-    /**
-     * @var Validator|null
-     */
-    private ?Validator $_vatValidator = null;
 
     /**
      * @var Order
@@ -101,6 +99,9 @@ class Tax extends Component implements AdjusterInterface
         $adjustments = [];
 
         foreach ($this->_taxRates as $rate) {
+            if (!$rate->enabled) {
+                continue;
+            }
             $newAdjustments = $this->_getAdjustments($rate);
             if ($newAdjustments) {
                 $adjustments[] = $newAdjustments;
@@ -121,17 +122,17 @@ class Tax extends Component implements AdjusterInterface
     private function _getAdjustments(TaxRate $taxRate): array
     {
         $adjustments = [];
-        $hasValidEuVatId = false;
+        $hasValidTaxId = false;
 
         $zoneMatches = $taxRate->getIsEverywhere() || ($taxRate->getTaxZone() && $this->_matchAddress($taxRate->getTaxZone()));
 
-        if ($zoneMatches && $taxRate->isVat) {
-            $hasValidEuVatId = $this->organizationTaxId();
+        if ($zoneMatches && $taxRate->hasTaxIdValidators()) {
+            $hasValidTaxId = $this->organizationTaxIdIsValidTaxId($taxRate->getSelectedEnabledTaxIdValidators());
         }
 
         $removeIncluded = (!$zoneMatches && $taxRate->removeIncluded);
-        $removeDueToVat = ($zoneMatches && $hasValidEuVatId && $taxRate->removeVatIncluded);
-        if ($removeIncluded || $removeDueToVat) {
+        $removeDueToVatId = ($zoneMatches && $hasValidTaxId && $taxRate->removeVatIncluded);
+        if ($removeIncluded || $removeDueToVatId) {
 
             // Is this an order level tax rate?
             if (in_array($taxRate->taxable, TaxRateRecord::ORDER_TAXABALES, false)) {
@@ -198,7 +199,7 @@ class Tax extends Component implements AdjusterInterface
             return $adjustments;
         }
 
-        if (!$zoneMatches || ($taxRate->isVat && $hasValidEuVatId)) {
+        if (!$zoneMatches || ($taxRate->hasTaxIdValidators() && $hasValidTaxId)) {
             return [];
         }
 
@@ -286,7 +287,7 @@ class Tax extends Component implements AdjusterInterface
      */
     protected function getTaxRates(?int $storeId = null): Collection
     {
-        return Plugin::getInstance()->getTaxRates()->getAllTaxRates($storeId);
+        return Plugin::getInstance()->getTaxRates()->getAllEnabledTaxRates($storeId);
     }
 
     /**
@@ -328,7 +329,7 @@ class Tax extends Component implements AdjusterInterface
     /**
      * @return bool
      */
-    private function organizationTaxId(): bool
+    private function organizationTaxIdIsValidTaxId(array $validators): bool
     {
         if (!$this->_address) {
             return false;
@@ -345,7 +346,7 @@ class Tax extends Component implements AdjusterInterface
 
         // If we do not have a valid VAT ID in cache, see if we can get one from the API
         if (!$validOrganizationTaxId) {
-            $validOrganizationTaxId = $this->validateVatNumber($this->_address->organizationTaxId);
+            $validOrganizationTaxId = $this->validateTaxIdNumber($this->_address->organizationTaxId, $validators);
         }
 
         if ($validOrganizationTaxId) {
@@ -360,25 +361,34 @@ class Tax extends Component implements AdjusterInterface
     /**
      * @param string $businessVatId
      * @return bool
+     * @deprecated in 4.8.0. Use `validateTaxIdNumber()` instead, passing the validators you want to check the ID with.
      */
     protected function validateVatNumber(string $businessVatId): bool
     {
+        $oldValidator = [new EuVatIdValidator()];
+        return $this->validateTaxIdNumber($businessVatId, $oldValidator);
+    }
+
+    /**
+     * @param string $organizationTaxId
+     * @param TaxIdValidatorInterface[] $validators
+     * @return bool
+     */
+    protected function validateTaxIdNumber(string $organizationTaxId, array $validators = []): bool
+    {
         try {
-            return $this->_getVatValidator()->validate($businessVatId);
+            foreach ($validators as $validator) {
+                if ($validator->validate($organizationTaxId)) {
+                    return true;
+                }
+            }
         } catch (Exception $e) {
             Craft::error('Communication with VAT API failed: ' . $e->getMessage(), __METHOD__);
 
             return false;
         }
-    }
 
-    private function _getVatValidator(): Validator
-    {
-        if ($this->_vatValidator === null) {
-            $this->_vatValidator = new Validator();
-        }
-
-        return $this->_vatValidator;
+        return false;
     }
 
     private function _createAdjustment(TaxRate $rate): OrderAdjustment

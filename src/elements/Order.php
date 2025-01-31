@@ -797,10 +797,11 @@ class Order extends Element implements HasStoreInterface
 
     /**
      * Whether the shipping address should be made the primary address of the
-     * order‘s customer. This is not persisted on the order, and is only used during the
-     * update order request.
+     * order‘s customer. This is persisted while the order is a cart, and is only used during the
+     * update cart request or on order completion and new addresses are being saved.
      *
-     * @var bool Make this the customer‘s primary shipping address
+     * @var bool Make this the customer’s primary shipping address
+     * @see \craft\commerce\services\Customers::_saveAddressesFromOrder()
      * ---
      * ```php
      * echo $order->makePrimaryShippingAddress;
@@ -813,10 +814,11 @@ class Order extends Element implements HasStoreInterface
 
     /**
      * Whether the billing address should be made the primary address of the
-     * order‘s customer. This is not persisted on the order, and is only used during the
-     * update order request.
-     *
+     * order‘s customer. This is persisted while the order is a cart, and is only used during the
+     * update cart request or on order completion and new addresses are being saved.
+ *
      * @var bool Make this the customer‘s primary billing address
+     * @see \craft\commerce\services\Customers::_saveAddressesFromOrder()
      * ---
      * ```php
      * echo $order->makePrimaryBillingAddress;
@@ -1542,9 +1544,9 @@ class Order extends Element implements HasStoreInterface
     /**
      * @return Teller
      * @throws InvalidConfigException
-     * @since 5.0.0
+     * @since 5.3.0
      */
-    private function _getTeller(): Teller
+    public function getTeller(): Teller
     {
         return Plugin::getInstance()->getCurrencies()->getTeller($this->currency);
     }
@@ -1700,7 +1702,8 @@ class Order extends Element implements HasStoreInterface
         $justPaid = $paidInFull && $this->datePaid == null;
         $justAuthorized = $authorizedInFull && $this->dateAuthorized == null;
 
-        $canComplete = ($this->getTotalAuthorized() + $this->getTotalPaid()) > 0;
+        $completeTotal = $this->getTeller()->add($this->getTotalAuthorized(), $this->getTotalPaid());
+        $canComplete = $this->getTeller()->greaterThan($completeTotal, 0);
 
         // If it is no longer paid in full, set datePaid to null
         if (!$paidInFull) {
@@ -2243,6 +2246,8 @@ class Order extends Element implements HasStoreInterface
         $orderRecord->recalculationMode = $this->getRecalculationMode();
         $orderRecord->sourceShippingAddressId = $this->sourceShippingAddressId;
         $orderRecord->sourceBillingAddressId = $this->sourceBillingAddressId;
+        $orderRecord->makePrimaryShippingAddress = $this->makePrimaryShippingAddress;
+        $orderRecord->makePrimaryBillingAddress = $this->makePrimaryBillingAddress;
 
         // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
         $orderRecord->dateUpdated = $this->dateUpdated;
@@ -2545,7 +2550,7 @@ class Order extends Element implements HasStoreInterface
 
         // Only convert if we have differing currencies
         if ($this->currency !== $this->getPaymentCurrency()) {
-            $teller = $this->_getTeller();
+            $teller = $this->getTeller();
             $tellerTo = Plugin::getInstance()->getCurrencies()->getTeller($this->getPaymentCurrency());
             $outstandingBalanceAmount = $teller->convertToMoney($this->getOutstandingBalance());
             $outstandingBalanceInPaymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertAmount($outstandingBalanceAmount, $this->getPaymentCurrency(), $this->getStore()->id);
@@ -2593,8 +2598,8 @@ class Order extends Element implements HasStoreInterface
     public function getPaidStatus(): string
     {
         if ($this->getIsPaid() &&
-            $this->_getTeller()->greaterThan($this->getTotalPrice(), 0) &&
-            $this->_getTeller()->greaterThan($this->getTotalPaid(), $this->getTotalPrice())
+            $this->getTeller()->greaterThan($this->getTotalPrice(), 0) &&
+            $this->getTeller()->greaterThan($this->getTotalPaid(), $this->getTotalPrice())
         ) {
             return self::PAID_STATUS_OVERPAID;
         }
@@ -2603,7 +2608,7 @@ class Order extends Element implements HasStoreInterface
             return self::PAID_STATUS_PAID;
         }
 
-        if ($this->_getTeller()->greaterThan($this->getTotalPaid(), 0)) {
+        if ($this->getTeller()->greaterThan($this->getTotalPaid(), 0)) {
             return self::PAID_STATUS_PARTIAL;
         }
 
@@ -2662,7 +2667,7 @@ class Order extends Element implements HasStoreInterface
      */
     public function getTotal(): float
     {
-        return Currency::round($this->getItemSubtotal() + $this->getAdjustmentsTotal());
+        return (float)$this->getTeller()->add($this->getItemSubtotal(), $this->getAdjustmentsTotal());
     }
 
     /**
@@ -2670,18 +2675,19 @@ class Order extends Element implements HasStoreInterface
      */
     public function getTotalPrice(): float
     {
-        $total = $this->getItemSubtotal() + $this->getAdjustmentsTotal(); // Don't get the pre-rounded total.
+        $total = (float)$this->getTeller()->add($this->getItemSubtotal(), $this->getAdjustmentsTotal());
+        // Don't get the pre-rounded total.
         $strategy = $this->getStore()->getMinimumTotalPriceStrategy();
 
         if ($strategy === Store::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO) {
-            return Currency::round(max(0, $total));
+            return (float)$this->getTeller()->max(0, $total);
         }
 
         if ($strategy === Store::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING) {
-            return Currency::round(max($this->getTotalShippingCost(), $total));
+            return (float)$this->getTeller()->max($this->getTotalShippingCost(), $total);
         }
 
-        return Currency::round($total);
+        return $total;
     }
 
     public function getItemTotal(): float
@@ -2716,7 +2722,7 @@ class Order extends Element implements HasStoreInterface
      */
     public function getOutstandingBalance(): float
     {
-        return (float)$this->_getTeller()->subtract($this->getTotalPrice(), $this->getTotalPaid());
+        return (float)$this->getTeller()->subtract($this->getTotalPrice(), $this->getTotalPaid());
     }
 
     /**
@@ -2724,7 +2730,7 @@ class Order extends Element implements HasStoreInterface
      */
     public function hasOutstandingBalance(): bool
     {
-        return $this->_getTeller()->greaterThan($this->getOutstandingBalance(), 0);
+        return $this->getTeller()->greaterThan($this->getOutstandingBalance(), 0);
     }
 
     /**
@@ -2754,7 +2760,7 @@ class Order extends Element implements HasStoreInterface
                 && $transaction->type == TransactionRecord::TYPE_REFUND;
         })->sum('amount');
 
-        return (float)$this->_getTeller()->subtract($paid, $refunded);
+        return (float)$this->getTeller()->subtract($paid, $refunded);
     }
 
     /**
@@ -2792,7 +2798,7 @@ class Order extends Element implements HasStoreInterface
             }
         }
 
-        return (float)$this->_getTeller()->subtract($authorized, $captured);
+        return (float)$this->getTeller()->subtract($authorized, $captured);
     }
 
     /**

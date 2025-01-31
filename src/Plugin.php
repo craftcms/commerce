@@ -257,7 +257,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.2.7.1';
+    public string $schemaVersion = '5.3.0.4';
 
     /**
      * @inheritdoc
@@ -278,6 +278,11 @@ class Plugin extends BasePlugin
      * @inheritdoc
      */
     public CmsEdition $minCmsEdition = CmsEdition::Pro;
+
+    /**
+     * @inheritdoc
+     */
+    public bool $hasReadOnlyCpSettings = true;
 
     use CommerceServices;
     use Variables;
@@ -347,6 +352,14 @@ class Plugin extends BasePlugin
      * @inheritdoc
      */
     public function getSettingsResponse(): mixed
+    {
+        return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('commerce/settings/general'));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getReadOnlySettingsResponse(): mixed
     {
         return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('commerce/settings/general'));
     }
@@ -428,9 +441,10 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (Craft::$app->getUser()->getIsAdmin() && Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
+        if (Craft::$app->getUser()->getIsAdmin()) {
             $ret['subnav']['settings'] = [
-                'label' => Craft::t('commerce', 'System Settings'),
+                'ariaLabel' => Craft::t('commerce', 'Commerce Settings'),
+                'label' => Craft::t('app', 'Settings'),
                 'url' => 'commerce/settings/general',
             ];
         }

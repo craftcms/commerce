@@ -24,3 +24,6 @@ define('CRAFT_VENDOR_PATH', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor');
 $devMode = true;
 
 TestSetup::configureCraft();
+
+// @TODO Remove this once it is in the next Craft 4.x release
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);

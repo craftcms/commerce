@@ -695,6 +695,7 @@ abstract class PurchasableQuery extends ElementQuery
             'purchasables_stores.maxQty',
             'purchasables_stores.minQty',
             'purchasables_stores.inventoryTracked',
+            'purchasables_stores.allowOutOfStockPurchases',
             'purchasables_stores.promotable',
             'purchasables_stores.shippingCategoryId',
             'subquery.price',

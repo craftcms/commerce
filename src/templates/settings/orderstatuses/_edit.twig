@@ -1,21 +1,29 @@
 {% extends "commerce/_layouts/cp" %}
 
 {% set crumbs = [
-    { label: 'Commerce ' ~ 'Settings'|t('commerce'), url: url('commerce/settings') },
+    { label: 'Commerce'|t('commerce'), url: url('commerce') },
+    { label: 'Settings'|t('app'), url: url('commerce/settings'), ariaLabel: 'Commerce Settings'|t('commerce') },
     { label: 'Order Statuses'|t('commerce'), url: url('commerce/settings/orderstatuses') }
 ] %}
 
 {% set selectedSubnavItem = 'settings' %}
 
-{% set fullPageForm = true %}
+{% set fullPageForm = not readOnly %}
+
+{% if readOnly %}
+    {% set contentNotice = readOnlyNotice() %}
+{% endif %}
 
 {% set selectedTab = 'settings' %}
 {% import "_includes/forms" as forms %}
 
 {% block content %}
+    {% if not readOnly %}
     {{ actionInput('commerce/order-statuses/save') }}
-    {{ hiddenInput('storeId', orderStatus.storeId) }}
     {{ redirectInput('commerce/settings/orderstatuses') }}
+    {% endif %}
+
+    {{ hiddenInput('storeId', orderStatus.storeId) }}
     {% if orderStatus.id %}
         {{ hiddenInput('sortOrder', orderStatus.sortOrder) }}
         {{ hiddenInput('id', orderStatus.id) }}
@@ -29,7 +37,8 @@
         name: 'name',
         value: orderStatus.name,
         errors: orderStatus.getErrors('name'),
-        required: true
+        required: true,
+        disabled: readOnly,
     }) }}
 
     {{ forms.textField({
@@ -40,7 +49,8 @@
         name: 'handle',
         value: orderStatus.handle,
         errors: orderStatus.getErrors('handle'),
-        required: true
+        required: true,
+        disabled: readOnly,
     }) }}
 
     {{ forms.textField({
@@ -50,6 +60,7 @@
         name: 'description',
         value: orderStatus.description,
         errors: orderStatus.getErrors('description'),
+        disabled: readOnly,
     }) }}
 
     {% set statusColor = not orderStatus.id and nextAvailableColor is defined and nextAvailableColor and not orderStatus.hasErrors() ? nextAvailableColor : orderStatus.color %}
@@ -57,11 +68,12 @@
         id: 'color',
         name: 'color',
         value: statusColor,
+        disabled: readOnly,
     }) }}
 
     {% set colorField %}
         <div>
-            <a id="color-menu-btn" class="btn menubtn" href="#">
+            <a id="color-menu-btn" class="btn menubtn" href="#"{% if readOnly %} disabled=""{% endif %}>
                 <span class="status {{ statusColor }}"></span>{{ statusColor|t('commerce')|title }}
             </a>
             <div class="menu">
@@ -79,7 +91,7 @@
     {% endset %}
     {{ forms.field({
         label: 'Color'|t('commerce'),
-        instructions: 'Choose a color to represent the order’s status'|t('commerce')
+        instructions: 'Choose a color to represent the order’s status'|t('commerce'),
     },colorField) }}
 
 
@@ -99,6 +111,7 @@
             values: emailIds is defined ? emailIds : orderStatus.getEmailIds(),
             errors: orderStatus.getErrors('emails'),
             class: 'selectize fullwidth',
+            disabled: readOnly,
         }) }}
     {% endif %}
 
@@ -118,7 +131,8 @@
             name: 'default',
             value: 1,
             on: isDefault,
-            errors: orderStatus.getErrors('default')
+            errors: orderStatus.getErrors('default'),
+            disabled: readOnly,
         }) }}
     {% endif %}
 

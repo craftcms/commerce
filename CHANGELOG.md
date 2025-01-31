@@ -1,10 +1,102 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.3.0.2 - 2025-01-31
 
-- Fixed a bug where a product’s default price was showing incorrectly on the Products index page. ([#3807](https://github.com/craftcms/commerce/issues/3807))
-- Fixed a bug where inline-editable Matrix fields weren’t saving content on product variants. ([#3805](https://github.com/craftcms/commerce/issues/3805))
-- Fixed a bug where order errors weren't showing on the Edit Order page.
+- Fixed a bug where gateways weren’t ensuring handle uniqueness. ([#3839](https://github.com/craftcms/commerce/issues/3839))
+
+## 5.3.0.1 - 2025-01-30
+
+- Fixed a bug where the `craft\commerce\events\CartPurgeEvent` could not be used in any event. ([#2721](https://github.com/craftcms/commerce/issues/2721)) 
+- Added `craft\commerce\services\Carts::EVENT_BEFORE_PURGE_INACTIVE_CARTS`.
+
+## 5.3.0 - 2025-01-30
+
+### Store Management
+- Archived gateways are now listed on the Gateways index page. ([#3839](https://github.com/craftcms/commerce/issues/3839))
+- Added card view designers for products and variants. ([#3809](https://github.com/craftcms/commerce/pull/3809))
+- Order conditions can now have “Coupon Code” and “Payment Gateway” rules. ([#3776](https://github.com/craftcms/commerce/discussions/3776), [#3722](https://github.com/craftcms/commerce/discussions/3722))
+- Product variant conditions can now have a “Product” rule.
+- Tax rates now have statuses. ([#3790](https://github.com/craftcms/commerce/discussions/3790))
+- It’s now possible to restore soft-deleted product variants.
+- Improved Craft Commerce navigation and breadcrumb labels.
+
+### Administration
+- The “Recipient”, “BCC’d Recipient”, and “CC’d Recipient” email settings now support being set to environment variables. ([#3738](https://github.com/craftcms/commerce/issues/3738))
+- It’s now possible to view (but not edit) system and plugin settings on environments where `allowAdminChanges` is disabled.
+
+### Development
+- Added the `couponCode` order query param.
+- Orders’ `makePrimaryShippingAddress` and `makePrimaryBillingAddress` property values now persist during checkout.
+- The `commerce/update-cart` action now includes an `originalCart` key in JSON responses. ([#430](https://github.com/craftcms/commerce/issues/430))
+
+### Extensibility
+- Added support for registering custom tax ID validators.
+- Added `craft\commerce\base\InventoryItemTrait`.
+- Added `craft\commerce\base\InventoryItemTrait`.
+- Added `craft\commerce\base\InventoryLocationTrait`.
+- Added `craft\commerce\base\InventoryLocationTrait`.
+- Added `craft\commerce\base\Purchasable::hasInventory()`.
+- Added `craft\commerce\base\Purchasable::loadSales()`.
+- Added `craft\commerce\base\TaxIdValidatorInterface`.
+- Added `craft\commerce\controllers\BaseStoreManagementController::getStoreSwitch()`.
+- Added `craft\commerce\elements\Purchasable::$allowOutOfStockPurchases`.
+- Added `craft\commerce\elements\Purchasable::getIsOutOfStockPurchasingAllowed()`.
+- Added `craft\commerce\elements\conditions\orders\CouponCodeConditionRule`.
+- Added `craft\commerce\elements\conditions\variants\ProductConditionRule`.
+- Added `craft\commerce\elements\db\OrderQuery::$couponCode`.
+- Added `craft\commerce\elements\db\OrderQuery::couponCode()`.
+- Added `craft\commerce\events\CartPurgeEvent`.
+- Added `craft\commerce\events\PurchasableOutOfStockPurchasesAllowedEvent`.
+- Added `craft\commerce\services\Gateways\getAllArchivedGateways()`.
+- Added `craft\commerce\services\Inventory::updateInventoryLevel()`.
+- Added `craft\commerce\services\Inventory::updateInventoryLevel()`.
+- Added `craft\commerce\services\Inventory::updatePurchasableInventoryLevel()`.
+- Added `craft\commerce\services\Inventory::updatePurchasableInventoryLevel()`.
+- Added `craft\commerce\services\Purchasables::EVENT_PURCHASABLE_OUT_OF_STOCK_PURCHASES_ALLOWED`.
+- Added `craft\commerce\services\Purchasables::isPurchasableOutOfStockPurchasingAllowed()`.
+- Added `craft\commerce\services\Taxes::EVENT_REGISTER_TAX_ID_VALIDATORS`.
+- Added `craft\commerce\services\Taxes::getEnabledTaxIdValidators()`.
+- Added `craft\commerce\services\Taxes::getTaxIdValidators()`.
+- Added `craft\commerce\taxidvalidators\EuVatIdValidator`.
+
+### System
+- Craft Commerce now requires Craft CMS 5.6.0 or later.
+- Fixed a bug where orders’ promotional prices could be calculated incorrectly when using sales.
+- Fixed a bug where the `commerce/cart/update-cart` action wasn’t respecting `makePrimaryShippingAddress` and `makePrimaryBillingAddress` params for newly-created addresses. ([#3864](https://github.com/craftcms/commerce/pull/3864))
+- Fixed a PHP error that could occur when viewing discounts. ([#3844](https://github.com/craftcms/commerce/issues/3844))
+
+## 5.2.12.1 - 2025-01-23
+
+- Fixed a JavaScript error that occurred when updating an order’s status for a non-primary store on order indexes. 
+
+## 5.2.12 - 2025-01-22
+
+- Fixed a bug where product types’ “Max Variants” settings weren’t being respected. ([#3845](https://github.com/craftcms/commerce/issues/3845))
+- Fixed a bug where products could be duplicated by users without the “Create products” permission for the product type. ([#3838](https://github.com/craftcms/commerce/issues/3838))
+- Fixed a PHP error that could occur when updating a cart. ([#3842](https://github.com/craftcms/commerce/issues/3842))
+- Fixed a PHP error that could occur when adding an invalid address to a cart. ([#3848](https://github.com/craftcms/commerce/issues/3848))
+
+## 5.2.11 - 2025-01-02
+
+- Fixed an error that occurred when rendering a Link field with a product selected on the front end. ([#3833](https://github.com/craftcms/commerce/issues/3833))
+
+## 5.2.10 - 2024-12-18
+
+- Fixed a PHP error that could occur when eager-loading variants’ owners. ([#3817](https://github.com/craftcms/commerce/issues/3817))
+- Fixed a bug where variant chips weren’t rendering correctly. ([#3813](https://github.com/craftcms/commerce/issues/3813))
+
+## 5.2.9.1 - 2024-12-13
+
+- Fixed a bug where line item promotional prices weren’t updated when upgrading to Commerce 5.
+
+## 5.2.9 - 2024-12-11
+
+- Fixed a PHP error that could occur when updating the inventory of a purchasable for a non-primary site. ([#3788](https://github.com/craftcms/commerce/issues/3788))
+- Fixed a PHP error that occurred when making a partial payment on an order from the control panel. ([#3804](https://github.com/craftcms/commerce/issues/3804))
+- Fixed a PHP error that could occur when calculating order totals. ([#3802](https://github.com/craftcms/commerce/issues/3802)) 
+- Fixed a bug where product indexes weren’t always showing the correct price. ([#3807](https://github.com/craftcms/commerce/issues/3807))
+- Fixed a bug where changes to inline-editable Matrix fields weren’t getting saved for product variants. ([#3805](https://github.com/craftcms/commerce/issues/3805))
+- Fixed a bug where the Edit Order page wasn’t showing order errors.
 
 ## 5.2.8 - 2024-12-04
 

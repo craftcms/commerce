@@ -199,11 +199,11 @@ Outputs address form fields for editing an address.
     <hr class="my-2">
     <div class="my-2">
       {{ hiddenInput('isPrimaryBilling', 0) }}
-      <label>{{ input('checkbox', 'isPrimaryBilling', 1, { checked: address.isPrimaryBilling }) }} {{ 'Use as the primary billing address'|t('commerce') }}</label>
+      <label>{{ input('checkbox', 'isPrimaryBilling', 1, { checked: address.isPrimaryBilling }) }} {{ 'Use as the primary billing address'|t }}</label>
     </div>
     <div class="my-2">
       {{ hiddenInput('isPrimaryShipping', 0) }}
-      <label>{{ input('checkbox', 'isPrimaryShipping', 1, { checked: address.isPrimaryShipping }) }} {{ 'Use as the primary shipping address'|t('commerce') }}</label>
+      <label>{{ input('checkbox', 'isPrimaryShipping', 1, { checked: address.isPrimaryShipping }) }} {{ 'Use as the primary shipping address'|t }}</label>
     </div>
   {% endif %}
 </div>

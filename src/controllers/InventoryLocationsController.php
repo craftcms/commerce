@@ -65,6 +65,7 @@ class InventoryLocationsController extends Controller
 
         $screen = $this->asCpScreen()
             ->title(Craft::t('commerce', 'Inventory Locations'))
+            ->addCrumb(Craft::t('commerce', 'Commerce'), 'commerce')
             ->selectedSubnavItem('inventory-locations')
             ->contentTemplate('commerce/inventory-locations/_index', $variables);
 
@@ -194,7 +195,8 @@ class InventoryLocationsController extends Controller
         return $this->asCpScreen()
             ->title($title)
             ->tabs($tabs)
-            ->addCrumb(Craft::t('app', 'Inventory Locations'), 'commerce/inventory-locations')
+            ->addCrumb(Craft::t('commerce', 'Commerce'), 'commerce')
+            ->addCrumb(Craft::t('commerce', 'Inventory Locations'), 'commerce/inventory-locations')
             ->action('commerce/inventory-locations/save')
             ->redirectUrl('commerce/inventory-locations')
             ->selectedSubnavItem('inventory-locations')

@@ -44,6 +44,9 @@ class PlansController extends BaseCpController
 
         return $this->asCpScreen()
             ->title(Craft::t('commerce', 'Subscription plans'))
+            ->crumbs([
+                ['label' => Craft::t('commerce', 'Commerce'), 'url' => 'commerce'],
+            ])
             ->redirectUrl('commerce/subscription-plans')
             ->selectedSubnavItem('subscription-plans')
             ->additionalButtonsHtml(Html::a(
@@ -130,12 +133,12 @@ class PlansController extends BaseCpController
         return $this->asCpScreen()
             ->title($variables['title'])
             ->selectedSubnavItem('subscription-plans')
+            ->addCrumb(Craft::t('commerce', 'Commerce'), 'commerce')
             ->addCrumb(Craft::t('commerce', 'Plans'), 'commerce/subscription-plans')
             ->contentTemplate('commerce/subscriptions/plans/_edit.twig', $variables)
             ->action('commerce/plans/save-plan')
             ->redirectUrl('commerce/subscription-plans')
-            ->metaSidebarHtml($sidebar)
-            ;
+            ->metaSidebarHtml($sidebar);
     }
 
     /**

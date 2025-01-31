@@ -43,7 +43,11 @@ class LineItemStatusesController extends BaseAdminController
         });
         $stores = $stores->all();
 
-        return $this->renderTemplate('commerce/settings/lineitemstatuses/index', compact('lineItemStatuses', 'stores'));
+        return $this->renderTemplate('commerce/settings/lineitemstatuses/index', [
+            'lineItemStatuses' => $lineItemStatuses,
+            'stores' => $stores,
+            'readOnly' => $this->isReadOnlyScreen(),
+        ]);
     }
 
     /**
@@ -93,6 +97,8 @@ class LineItemStatusesController extends BaseAdminController
 
             $variables['nextAvailableColor'] = !empty($statusColors) ? array_shift($statusColors) : 'green';
         }
+
+        $variables['readOnly'] = $this->isReadOnlyScreen();
 
         return $this->renderTemplate('commerce/settings/lineitemstatuses/_edit', $variables);
     }

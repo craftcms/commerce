@@ -43,7 +43,11 @@ class OrderStatusesController extends BaseAdminController
         });
         $stores = $stores->all();
 
-        return $this->renderTemplate('commerce/settings/orderstatuses/index', compact('orderStatuses', 'stores'));
+        return $this->renderTemplate('commerce/settings/orderstatuses/index', [
+            'orderStatuses' => $orderStatuses,
+            'stores' => $stores,
+            'readOnly' => $this->isReadOnlyScreen(),
+        ]);
     }
 
     /**
@@ -94,6 +98,8 @@ class OrderStatusesController extends BaseAdminController
         DebugPanel::prependOrAppendModelTab(model: $variables['orderStatus'], prepend: true);
 
         $variables['emails'] = Plugin::getInstance()->getEmails()->getAllEmails($store->id)->mapWithKeys(fn(Email $email) => [$email->id => $email->name])->all();
+
+        $variables['readOnly'] = $this->isReadOnlyScreen();
 
         return $this->renderTemplate('commerce/settings/orderstatuses/_edit', $variables);
     }
