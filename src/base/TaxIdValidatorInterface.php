@@ -11,7 +11,7 @@ namespace craft\commerce\base;
  * Interface for Tax ID Validators.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.8.0
+ * @since 5.3.0
  */
 interface TaxIdValidatorInterface
 {
@@ -19,7 +19,7 @@ interface TaxIdValidatorInterface
      * The display name of this tax ID type.
      *
      * @return string
-     * @since 4.8.0
+     * @since 5.3.0
      */
     public static function displayName(): string;
 
@@ -28,7 +28,7 @@ interface TaxIdValidatorInterface
      *
      * @param string $idNumber
      * @return bool
-     * @since 4.8.0
+     * @since 5.3.0
      */
     public function validateFormat(string $idNumber): bool;
 
@@ -37,7 +37,7 @@ interface TaxIdValidatorInterface
      *
      * @param string $idNumber
      * @return bool
-     * @since 4.8.0
+     * @since 5.3.0
      */
     public function validateExistence(string $idNumber): bool;
 
@@ -46,7 +46,7 @@ interface TaxIdValidatorInterface
      *
      * @param string $idNumber
      * @return bool
-     * @since 4.8.0
+     * @since 5.3.0
      */
     public function validate(string $idNumber): bool;
 
@@ -55,7 +55,7 @@ interface TaxIdValidatorInterface
      * This would usually be a check against the existence or settings or API keys so that the validator can be used.
      *
      * @return bool
-     * @since 4.8.0
+     * @since 5.3.0
      */
     public static function isEnabled(): bool;
 }

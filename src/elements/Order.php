@@ -816,7 +816,7 @@ class Order extends Element implements HasStoreInterface
      * Whether the billing address should be made the primary address of the
      * order‘s customer. This is persisted while the order is a cart, and is only used during the
      * update cart request or on order completion and new addresses are being saved.
- *
+     *
      * @var bool Make this the customer‘s primary billing address
      * @see \craft\commerce\services\Customers::_saveAddressesFromOrder()
      * ---
@@ -3708,7 +3708,7 @@ class Order extends Element implements HasStoreInterface
         }
 
         // Save the line items last, as we know that any possible duplicates are already removed.
-        // We also need to re-save any adjustments that didn't have an line item ID for a line item if it's new.
+        // We also need to re-save any adjustments that didn't have a line item ID for a line item if it's new.
         foreach ($this->getLineItems() as $lineItem) {
             $originalId = $lineItem->id;
             $lineItem->setOrder($this); // just in case.
@@ -3725,7 +3725,6 @@ class Order extends Element implements HasStoreInterface
                         'isNew' => true,
                     ]));
                 }
-            } else {
             }
 
             // Update any adjustments to this line item with the new line item ID.

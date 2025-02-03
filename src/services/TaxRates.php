@@ -212,7 +212,6 @@ class TaxRates extends Component
                 'dateUpdated',
                 'id',
                 'include',
-                'isVat',
                 'name',
                 'rate',
                 'removeIncluded',

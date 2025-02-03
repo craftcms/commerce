@@ -14,6 +14,7 @@ use craft\commerce\base\StoreTrait;
 use craft\commerce\base\TaxIdValidatorInterface;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
+use craft\errors\DeprecationException;
 use DateTime;
 use yii\base\InvalidConfigException;
 
@@ -249,13 +250,13 @@ class TaxRate extends Model implements HasStoreInterface
      */
     public function getIsVat(): bool
     {
-        Craft::$app->getDeprecator()->log(__METHOD__, 'TaxRate::setIsVat() is deprecated.');
-
+        // Don't throw deprecation log as `isVat` is still set as an attribute so will be called when the model is serialized.
         return $this->hasTaxIdValidators();
     }
 
     /**
      * @param bool $isVat
+     * @throws DeprecationException
      * @deprecated in 5.3.0
      */
     public function setIsVat(bool $isVat): void

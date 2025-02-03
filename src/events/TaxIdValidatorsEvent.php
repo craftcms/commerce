@@ -14,7 +14,7 @@ use yii\base\Event;
  * Class TaxIdValidatorsEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.8.0
+ * @since 5.3.0
  */
 class TaxIdValidatorsEvent extends Event
 {

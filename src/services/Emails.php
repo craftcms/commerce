@@ -12,6 +12,7 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\EmailEvent;
 use craft\commerce\events\MailEvent;
+use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\ProjectConfigData;
 use craft\commerce\models\Email;
 use craft\commerce\models\OrderHistory;
@@ -474,6 +475,10 @@ class Emails extends Component
         $newEmail = Craft::createObject(['class' => $mailer->messageClass, 'mailer' => $mailer]);
 
         $originalLanguage = Craft::$app->language;
+        $originalFormattingLanguage = Craft::$app->formattingLocale;
+        $emailLanguage = $email->getRenderLanguage($order);
+
+        Locale::switchAppLanguage($emailLanguage);
 
         $fromEmail = $email->getSenderAddress();
         $fromName = $email->getSenderName();
@@ -509,7 +514,7 @@ class Emails extends Component
                 ]);
                 Craft::error($error, __METHOD__);
 
-                Craft::$app->language = $originalLanguage;
+                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -521,7 +526,7 @@ class Emails extends Component
             $error = Craft::t('commerce', 'Email error. No email address found for order. Order: “{order}”', ['order' => $order->getShortNumber()]);
             Craft::error($error, __METHOD__);
 
-            Craft::$app->language = $originalLanguage;
+            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
             $view->setTemplateMode($oldTemplateMode);
             $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -548,7 +553,7 @@ class Emails extends Component
                 ]);
                 Craft::error($error, __METHOD__);
 
-                Craft::$app->language = $originalLanguage;
+                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -576,7 +581,7 @@ class Emails extends Component
                 ]);
                 Craft::error($error, __METHOD__);
 
-                Craft::$app->language = $originalLanguage;
+                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -598,7 +603,7 @@ class Emails extends Component
                 ]);
                 Craft::error($error, __METHOD__);
 
-                Craft::$app->language = $originalLanguage;
+                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -619,7 +624,7 @@ class Emails extends Component
             ]);
             Craft::error($error, __METHOD__);
 
-            Craft::$app->language = $originalLanguage;
+            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
             $view->setTemplateMode($oldTemplateMode);
             $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -639,7 +644,7 @@ class Emails extends Component
             ]);
             Craft::error($error, __METHOD__);
 
-            Craft::$app->language = $originalLanguage;
+            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
             $view->setTemplateMode($oldTemplateMode);
             $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -656,7 +661,7 @@ class Emails extends Component
             ]);
             Craft::error($error, __METHOD__);
 
-            Craft::$app->language = $originalLanguage;
+            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
             $view->setTemplateMode($oldTemplateMode);
             $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -678,7 +683,7 @@ class Emails extends Component
                 ]);
                 Craft::error($error, __METHOD__);
 
-                Craft::$app->language = $originalLanguage;
+                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -695,7 +700,7 @@ class Emails extends Component
                 ]);
                 Craft::error($error, __METHOD__);
 
-                Craft::$app->language = $originalLanguage;
+                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -713,7 +718,7 @@ class Emails extends Component
                 ]);
                 Craft::error($error, __METHOD__);
 
-                Craft::$app->language = $originalLanguage;
+                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -754,7 +759,7 @@ class Emails extends Component
                 ]);
                 Craft::error($error, __METHOD__);
 
-                Craft::$app->language = $originalLanguage;
+                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -776,7 +781,7 @@ class Emails extends Component
             ]);
             Craft::error($error, __METHOD__);
 
-            Craft::$app->language = $originalLanguage;
+            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
             $view->setTemplateMode($oldTemplateMode);
             $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -798,7 +803,7 @@ class Emails extends Component
                 ]);
                 Craft::error($error, __METHOD__);
 
-                Craft::$app->language = $originalLanguage;
+                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -825,7 +830,7 @@ class Emails extends Component
 
                 Craft::info($notice, __METHOD__);
 
-                Craft::$app->language = $originalLanguage;
+                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -844,7 +849,7 @@ class Emails extends Component
 
                 Craft::error($error, __METHOD__);
 
-                Craft::$app->language = $originalLanguage;
+                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -861,7 +866,7 @@ class Emails extends Component
 
             Craft::error($error, __METHOD__);
 
-            Craft::$app->language = $originalLanguage;
+            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
             $view->setTemplateMode($oldTemplateMode);
             $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -879,7 +884,7 @@ class Emails extends Component
             ]));
         }
 
-        Craft::$app->language = $originalLanguage;
+        Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
         $view->setTemplateMode($oldTemplateMode);
         $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 

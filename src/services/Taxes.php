@@ -80,7 +80,7 @@ class Taxes extends Component implements TaxEngineInterface
     /**
      * @return Collection<TaxIdValidatorInterface>
      * @throws InvalidConfigException
-     * @since 4.8.0
+     * @since 5.3.0
      */
     public function getTaxIdValidators(): Collection
     {

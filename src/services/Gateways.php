@@ -142,7 +142,7 @@ class Gateways extends Component
      * @return array
      * @throws DeprecationException
      * @throws InvalidConfigException
-     * @sine 4.8.0
+     * @sine 5.3.0
      */
     public function getAllArchivedGateways(): array
     {
