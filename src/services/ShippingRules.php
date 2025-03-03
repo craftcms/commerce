@@ -147,7 +147,7 @@ class ShippingRules extends Component
         ShippingRuleCategoryRecord::deleteAll(['shippingRuleId' => $model->id]);
 
         // Generate a rule category record for all categories regardless of data submitted
-        foreach (Plugin::getInstance()->getShippingCategories()->getAllShippingCategories() as $shippingCategory) {
+        foreach (Plugin::getInstance()->getShippingCategories()->getAllShippingCategories($model->storeId) as $shippingCategory) {
             $ruleCategory = $model->getShippingRuleCategories()[$shippingCategory->id] ?? null;
             if ($ruleCategory) {
                 $ruleCategory = new ShippingRuleCategory([

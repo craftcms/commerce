@@ -457,7 +457,7 @@ class OrderStatuses extends Component
      */
     public function statusChangeHandler(Order $order, OrderHistory $orderHistory): void
     {
-        $status = $this->getOrderStatusById($order->orderStatusId);
+        $status = $this->getOrderStatusById($order->orderStatusId, $order->storeId);
 
         if ($status === null) {
             return;

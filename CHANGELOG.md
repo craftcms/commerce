@@ -1,5 +1,17 @@
 # Release Notes for Craft Commerce
 
+## 5.3.4 - 2025-02-26
+
+- Fixed a bug where discounts weren’t applying if an order was recalculated more than once in the same request. ([#3896](https://github.com/craftcms/commerce/issues/3896))
+- Fixed a bug where shipping rules weren’t saving their shipping category conditions in non-primary stores. ([#3851](https://github.com/craftcms/commerce/issues/3851))
+- Fixed a PHP error that could occur on order completion, for orders with disabled variants in the non-primary store.
+- Fixed a bug where Edit Gateway pages were showing duplicate settings.
+
+## 5.3.3 - 2025-02-19
+
+- Fixed a bug where line item totals could be formatted in the wrong currency on Edit Order pages. ([#3891](https://github.com/craftcms/commerce/issues/3891)) 
+- Fixed a bug where email and order status change events weren’t getting triggered in non-primary stores.
+
 ## 5.3.2.2 - 2025-02-10
 
 - Fixed a bug where carts’ adjustment totals could be calculated incorrectly. ([#3888](https://github.com/craftcms/commerce/issues/3888))

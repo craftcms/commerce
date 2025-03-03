@@ -1229,7 +1229,7 @@ class Variant extends Purchasable implements NestedElementInterface
     public function getSearchKeywords(string $attribute): string
     {
         if ($attribute == 'productTitle') {
-            return $this->getOwner()->title;
+            return $this->getOwner()->title ?? '';
         }
 
         return parent::getSearchKeywords($attribute);

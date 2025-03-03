@@ -1302,7 +1302,6 @@ class Order extends Element implements HasStoreInterface
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
-            'defaultCurrency' => $this->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
             'currencyAttributes' => $this->currencyAttributes(),
         ];
 
