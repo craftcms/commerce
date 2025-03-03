@@ -668,7 +668,8 @@ abstract class PurchasableQuery extends ElementQuery
         $catalogPricesQuery = Plugin::getInstance()
             ->getCatalogPricing()
             ->createCatalogPricesQuery(userId: $customerId)
-            ->addSelect(['cp.purchasableId', 'cp.storeId']);
+            ->addSelect(['cp.purchasableId', 'cp.storeId', 'cp.catalogPricingRuleId'])
+            ->addGroupBy(['cp.catalogPricingRuleId']);
 
         $this->subQuery->leftJoin(['sitestores' => Table::SITESTORES], '[[elements_sites.siteId]] = [[sitestores.siteId]]');
         $this->subQuery->leftJoin(['purchasables_stores' => Table::PURCHASABLES_STORES], '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[commerce_purchasables.id]]');
@@ -705,6 +706,7 @@ abstract class PurchasableQuery extends ElementQuery
             'subquery.price',
             'subquery.promotionalPrice as promotionalPrice',
             'subquery.salePrice as salePrice',
+            'subquery.catalogPricingRuleId',
             'inventoryitems.id as inventoryItemId',
         ]);
 
@@ -716,6 +718,7 @@ abstract class PurchasableQuery extends ElementQuery
             'catalogprices.price',
             'catalogprices.promotionalPrice',
             'catalogprices.salePrice',
+            'catalogprices.catalogPricingRuleId',
         ]);
 
         if (isset($this->sku)) {

@@ -184,6 +184,13 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     private ?float $_basePromotionalPrice = null;
 
+    /**
+     * The ID of the catalog pricing rule that is affecting the sale price of this purchasable.
+     *
+     * @var int|null
+     * @since 5.4.0
+     */
+    public ?int $catalogPricingRuleId = null;
 
     /**
      * @var bool
@@ -705,7 +712,9 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function getSnapshot(): array
     {
-        return [];
+        return [
+            'catalogPricingRuleId' => $this->catalogPricingRuleId,
+        ];
     }
 
     /**
