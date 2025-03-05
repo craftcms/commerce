@@ -32,6 +32,22 @@ class Settings extends Model
 {
     public const VIEW_URI_ORDERS = 'commerce/orders';
     public const VIEW_URI_PRODUCTS = 'commerce/products';
+    public const VIEW_URI_SUBSCRIPTIONS = 'commerce/subscriptions';
+
+    /**
+     * @since 5.4.0
+     */
+    public const NAV_ITEM_ORDERS = 'orders';
+    public const NAV_ITEM_PRODUCTS = 'products';
+    public const NAV_ITEM_INVENTORY = 'inventory';
+    public const NAV_ITEM_INVENTORY_LOCATIONS = 'inventory-locations';
+    public const NAV_ITEM_INVENTORY_TRANSFERS = 'inventory-transfers';
+    public const NAV_ITEM_SUBSCRIPTIONS = 'subscriptions';
+    public const NAV_ITEM_SUBSCRIPTION_PLANS = 'subscription-plans';
+    public const NAV_ITEM_DONATIONS = 'donations';
+    public const NAV_ITEM_STORE_MANAGEMENT = 'store-management';
+    public const NAV_ITEM_SETTINGS = 'settings';
+
     /**
      * @since 5.0.0.
      */
@@ -61,7 +77,6 @@ class Settings extends Model
      * @deprecated in 5.0.0.
      */
     public const VIEW_URI_TAX = 'commerce/tax/taxrates';
-    public const VIEW_URI_SUBSCRIPTIONS = 'commerce/subscriptions';
 
     /**
      * @var mixed How long a cart should go without being updated before it’s considered inactive.
@@ -231,6 +246,13 @@ class Settings extends Model
      * @since 3.0.12
      */
     public bool $validateCartCustomFieldsOnSubmission = false;
+    
+    /**
+     * @var array Navigation items to hide from the Commerce control panel.
+     * @group System
+     * @since 5.3.5
+     */
+    public array $hideNavigationItems = [];
 
     /**
      * @inheritDoc
@@ -328,6 +350,27 @@ class Settings extends Model
             self::VIEW_URI_INVENTORY => Craft::t('commerce', 'Inventory'),
             self::VIEW_URI_STORE_MANAGEMENT => Craft::t('commerce', 'Store Management'),
             self::VIEW_URI_SUBSCRIPTIONS => Craft::t('commerce', 'Subscriptions'),
+        ];
+    }
+    
+    /**
+     * Returns a key-value array of navigation items that can be hidden.
+     * 
+     * @since 5.3.5
+     */
+    public function getNavigationItemOptions(): array
+    {
+        return [
+            self::NAV_ITEM_ORDERS => Craft::t('commerce', 'Orders'),
+            self::NAV_ITEM_PRODUCTS => Craft::t('commerce', 'Products'),
+            self::NAV_ITEM_INVENTORY => Craft::t('commerce', 'Inventory'),
+            self::NAV_ITEM_INVENTORY_LOCATIONS => Craft::t('commerce', 'Inventory Locations'),
+            self::NAV_ITEM_INVENTORY_TRANSFERS => Craft::t('commerce', 'Inventory Transfers'),
+            self::NAV_ITEM_SUBSCRIPTIONS => Craft::t('commerce', 'Subscriptions'),
+            self::NAV_ITEM_SUBSCRIPTION_PLANS => Craft::t('commerce', 'Subscription Plans'),
+            self::NAV_ITEM_DONATIONS => Craft::t('commerce', 'Donations'),
+            self::NAV_ITEM_STORE_MANAGEMENT => Craft::t('commerce', 'Store Management'),
+            self::NAV_ITEM_SETTINGS => Craft::t('commerce', 'Settings'),
         ];
     }
 

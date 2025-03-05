@@ -371,12 +371,14 @@ class Plugin extends BasePlugin
     {
         $ret = parent::getCpNavItem();
         $userService = Craft::$app->getUser();
+        $settings = $this->getSettings();
+        $hideNavItems = $settings->hideNavigationItems ?? [];
 
         if ($userService->checkPermission('accessPlugin-commerce')) {
             $ret['label'] = Craft::t('commerce', 'Commerce');
         }
 
-        if ($userService->checkPermission('commerce-manageOrders')) {
+        if ($userService->checkPermission('commerce-manageOrders') && !in_array(Settings::NAV_ITEM_ORDERS, $hideNavItems)) {
             $ret['subnav']['orders'] = [
                 'label' => Craft::t('commerce', 'Orders'),
                 'url' => 'commerce/orders',
@@ -384,21 +386,21 @@ class Plugin extends BasePlugin
         }
 
         $hasEditableProductTypes = Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds(true);
-        if ($hasEditableProductTypes) {
+        if ($hasEditableProductTypes && !in_array(Settings::NAV_ITEM_PRODUCTS, $hideNavItems)) {
             $ret['subnav']['products'] = [
                 'label' => Craft::t('commerce', 'Products'),
                 'url' => 'commerce/products',
             ];
         }
 
-        if (Craft::$app->getUser()->checkPermission('commerce-manageInventoryStockLevels')) {
+        if (Craft::$app->getUser()->checkPermission('commerce-manageInventoryStockLevels') && !in_array(Settings::NAV_ITEM_INVENTORY, $hideNavItems)) {
             $ret['subnav']['inventory'] = [
                 'label' => Craft::t('commerce', 'Inventory'),
                 'url' => 'commerce/inventory',
             ];
         }
 
-        if (Craft::$app->getUser()->checkPermission('commerce-manageInventoryLocations')) {
+        if (Craft::$app->getUser()->checkPermission('commerce-manageInventoryLocations') && !in_array(Settings::NAV_ITEM_INVENTORY_LOCATIONS, $hideNavItems)) {
             $ret['subnav']['inventory-locations'] = [
                 'label' => Craft::t('commerce', 'Inventory Locations'),
                 'url' => 'commerce/inventory-locations',
@@ -406,42 +408,42 @@ class Plugin extends BasePlugin
         }
 
         $multipleLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations()->count() > 1;
-        if ($multipleLocations && Craft::$app->getUser()->checkPermission('commerce-manageInventoryTransfers')) {
+        if ($multipleLocations && Craft::$app->getUser()->checkPermission('commerce-manageInventoryTransfers') && !in_array(Settings::NAV_ITEM_INVENTORY_TRANSFERS, $hideNavItems)) {
             $ret['subnav']['inventory-transfers'] = [
                 'label' => Craft::t('commerce', 'Inventory Transfers'),
                 'url' => 'commerce/inventory/transfers',
             ];
         }
 
-        if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions') && Plugin::getInstance()->getPlans()->getAllPlans()) {
+        if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions') && Plugin::getInstance()->getPlans()->getAllPlans() && !in_array(Settings::NAV_ITEM_SUBSCRIPTIONS, $hideNavItems)) {
             $ret['subnav']['subscriptions'] = [
                 'label' => Craft::t('commerce', 'Subscriptions'),
                 'url' => 'commerce/subscriptions',
             ];
         }
 
-        if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptionPlans')) {
+        if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptionPlans') && !in_array(Settings::NAV_ITEM_SUBSCRIPTION_PLANS, $hideNavItems)) {
             $ret['subnav']['subscription-plans'] = [
                 'label' => Craft::t('commerce', 'Subscription Plans'),
                 'url' => 'commerce/subscription-plans',
             ];
         }
 
-        if (Craft::$app->getUser()->checkPermission('commerce-manageDonationSettings')) {
+        if (Craft::$app->getUser()->checkPermission('commerce-manageDonationSettings') && !in_array(Settings::NAV_ITEM_DONATIONS, $hideNavItems)) {
             $ret['subnav']['donations'] = [
                 'label' => Craft::t('commerce', 'Donations'),
                 'url' => 'commerce/donations',
             ];
         }
 
-        if (Craft::$app->getUser()->checkPermission('commerce-manageStoreSettings')) {
+        if (Craft::$app->getUser()->checkPermission('commerce-manageStoreSettings') && !in_array(Settings::NAV_ITEM_STORE_MANAGEMENT, $hideNavItems)) {
             $ret['subnav']['store-management'] = [
                 'label' => Craft::t('commerce', 'Store Management'),
                 'url' => 'commerce/store-management',
             ];
         }
 
-        if (Craft::$app->getUser()->getIsAdmin()) {
+        if (Craft::$app->getUser()->getIsAdmin() && !in_array(Settings::NAV_ITEM_SETTINGS, $hideNavItems)) {
             $ret['subnav']['settings'] = [
                 'ariaLabel' => Craft::t('commerce', 'Commerce Settings'),
                 'label' => Craft::t('app', 'Settings'),

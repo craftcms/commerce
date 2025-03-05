@@ -55,6 +55,7 @@ class SettingsController extends BaseAdminController
         $settings->dimensionUnits = $data['dimensionUnits'] ?? key($settings->getDimensionUnits());
         $settings->updateBillingDetailsUrl = $data['updateBillingDetailsUrl'] ?? $settings->updateBillingDetailsUrl;
         $settings->defaultView = $data['defaultView'] ?? $settings->defaultView;
+        $settings->hideNavigationItems = $data['hideNavigationItems'] ?? [];
 
         if (!$settings->validate()) {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save settings.'));

@@ -77,6 +77,17 @@
             required: true,
             warning: configWarning('defaultView', 'commerce'),
         }) }}
+        
+        {{ forms.checkboxSelectField({
+            label: "Hide Navigation Items"|t('commerce'),
+            instructions: "Select navigation items to hide from the Commerce control panel."|t('commerce'),
+            name: 'settings[hideNavigationItems]',
+            values: settings.hideNavigationItems,
+            options: settings.getNavigationItemOptions(),
+            errors: settings.getErrors('hideNavigationItems'),
+            disabled: readOnly,
+            warning: configWarning('hideNavigationItems', 'commerce'),
+        }) }}
     </form>
 
 {% endblock %}
