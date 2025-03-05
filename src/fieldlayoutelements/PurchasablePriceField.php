@@ -40,17 +40,20 @@ class PurchasablePriceField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public ?string $label = '__blank__';
-
-    /**
-     * @inheritdoc
-     */
     public bool $required = true;
 
     /**
      * @inheritdoc
      */
     public string $attribute = 'price';
+
+    /**
+     * @inheritdoc
+     */
+    protected function defaultLabel(?ElementInterface $element = null, bool $static = false): ?string
+    {
+        return Craft::t('commerce', 'Price');
+    }
 
     /**
      * @inheritdoc

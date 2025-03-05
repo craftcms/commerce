@@ -32,11 +32,6 @@ class PurchasableSkuField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public ?string $label = 'SKU';
-
-    /**
-     * @inheritdoc
-     */
     public bool $required = true;
 
     /**

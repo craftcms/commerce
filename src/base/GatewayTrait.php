@@ -35,8 +35,14 @@ trait GatewayTrait
 
     /**
      * @var bool|string|null Enabled on the frontend
+     * @deprecated in 5.3.5. Use orderCondition instead.
      */
     public bool|string|null $_isFrontendEnabled = true;
+
+    /**
+     * @var string|array|null Order condition
+     */
+    public string|array|null $orderCondition = null;
 
     /**
      * @var bool Archived

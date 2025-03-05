@@ -35,7 +35,7 @@ class PurchasableAvailableForPurchaseField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public bool $required = true;
+    public bool $required = false;
 
     /**
      * @inheritdoc

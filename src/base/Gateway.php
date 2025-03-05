@@ -8,10 +8,15 @@
 namespace craft\commerce\base;
 
 use Craft;
+use craft\base\ElementInterface;
 use craft\base\SavableComponent;
+use craft\commerce\elements\conditions\orders\DiscountOrderCondition;
+use craft\commerce\elements\conditions\orders\GatewayOrderCondition;
 use craft\commerce\elements\Order;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
+use craft\elements\conditions\ElementConditionInterface;
+use craft\helpers\Json;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 
@@ -103,7 +108,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
         $rules = parent::defineRules();
         $rules[] = [['paymentType', 'handle'], 'required'];
 
-        $rules[] = [['name', 'handle', 'paymentType', 'isFrontendEnabled', 'sortOrder'], 'safe'];
+        $rules[] = [['name', 'handle', 'paymentType', 'isFrontendEnabled', 'orderCondition', 'sortOrder'], 'safe'];
 
         return $rules;
     }
@@ -120,10 +125,25 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     }
 
     /**
+     * @var ElementConditionInterface|null
+     */
+    private ?ElementConditionInterface $_orderCondition = null;
+
+    /**
      * @inheritdoc
      */
     public function availableForUseWithOrder(Order $order): bool
     {
+        // First check if the gateway has an order condition
+        if ($this->hasOrderCondition()) {
+            return $this->getOrderCondition()->matchElement($order);
+        } 
+        
+        // Fall back to the deprecated frontend enabled setting
+        if (method_exists($this, 'getIsFrontendEnabled')) {
+            return $this->getIsFrontendEnabled();
+        }
+        
         return true;
     }
 
@@ -133,6 +153,57 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     public function supportsPartialPayment(): bool
     {
         return true;
+    }
+    
+    /**
+     * Returns true if this gateway has an order condition
+     * 
+     * @since 5.3.5
+     */
+    public function hasOrderCondition(): bool
+    {
+        return $this->getOrderCondition()->getConditionRules() !== [];
+    }
+    
+    /**
+     * Gets the order condition for this gateway
+     * 
+     * @since 5.4.0
+     */
+    public function getOrderCondition(): ElementConditionInterface
+    {
+        /** @var DiscountOrderCondition $condition */
+        $condition = $this->_orderCondition ?? new GatewayOrderCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'orderCondition';
+
+        return $condition;
+    }
+    
+    /**
+     * Sets the order condition for this gateway
+     * 
+     * @since 5.3.5
+     */
+    public function setOrderCondition(ElementConditionInterface|string|array $condition): void
+    {
+        if (empty($condition)) {
+            $this->_orderCondition = null;
+            return;
+        }
+
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof DiscountOrderCondition) {
+            $condition['class'] = DiscountOrderCondition::class;
+            /** @var DiscountOrderCondition $condition */
+            $condition = Craft::$app->getConditions()->createCondition($condition);
+        }
+        $condition->forProjectConfig = true;
+
+        $this->_orderCondition = $condition;
     }
 
     /**

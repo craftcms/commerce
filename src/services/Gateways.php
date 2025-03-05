@@ -111,7 +111,17 @@ class Gateways extends Component
      */
     public function getAllCustomerEnabledGateways(): Collection
     {
-        return $this->getAllGateways()->where(fn(GatewayInterface $gateway) => $gateway->getIsFrontendEnabled());
+        return $this->getAllGateways()->filter(function(GatewayInterface $gateway) {
+            // New way: check if the gateway has the EnabledGatewayConditionRule or another order condition
+            if ($gateway->hasOrderCondition()) {
+                // Create a placeholder order just to test availability
+                $order = new Order();
+                return $gateway->availableForUseWithOrder($order);
+            }
+            
+            // Legacy way: check if isFrontendEnabled is true
+            return $gateway->getIsFrontendEnabled();
+        });
     }
 
     /**
@@ -266,6 +276,7 @@ class Gateways extends Component
                 'sortOrder' => ($gateway->sortOrder ?? 99),
                 'paymentType' => $gateway->paymentType,
                 'isFrontendEnabled' => $gateway->getIsFrontendEnabled(false),
+                'orderCondition' => $gateway->orderCondition,
             ];
         }
 
@@ -306,6 +317,7 @@ class Gateways extends Component
             }
 
             $gatewayRecord->isFrontendEnabled = $data['isFrontendEnabled'];
+            $gatewayRecord->orderCondition = $data['orderCondition'] ?? null;
             $gatewayRecord->isArchived = false;
             $gatewayRecord->dateArchived = null;
             $gatewayRecord->uid = $gatewayUid;
@@ -453,6 +465,7 @@ class Gateways extends Component
                 'id',
                 'isArchived',
                 'isFrontendEnabled',
+                'orderCondition',
                 'name',
                 'paymentType',
                 'settings',
