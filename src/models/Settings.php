@@ -250,7 +250,7 @@ class Settings extends Model
     /**
      * @var array Navigation items to hide from the Commerce control panel.
      * @group System
-     * @since 5.3.5
+     * @since 5.4.0
      */
     public array $hideNavigationItems = [];
 
@@ -355,8 +355,8 @@ class Settings extends Model
     
     /**
      * Returns a key-value array of navigation items that can be hidden.
-     * 
-     * @since 5.3.5
+     *
+     * @since 5.4.0
      */
     public function getNavigationItemOptions(): array
     {
