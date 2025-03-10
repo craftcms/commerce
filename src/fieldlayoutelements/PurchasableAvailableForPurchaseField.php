@@ -35,12 +35,16 @@ class PurchasableAvailableForPurchaseField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public bool $required = true;
+    public string $attribute = 'availableForPurchase';
 
     /**
      * @inheritdoc
      */
-    public string $attribute = 'availableForPurchase';
+    public function __construct(array $config = [])
+    {
+        unset($config['required']);
+        parent::__construct($config);
+    }
 
     /**
      * @inheritdoc

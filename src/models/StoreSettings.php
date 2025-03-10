@@ -27,7 +27,7 @@ use yii\base\InvalidConfigException;
  * @property-read array $administrativeAreasListByCountryCode
  * @property array|ZoneAddressCondition $marketAddressCondition
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.0
+ * @since 5.0
  */
 class StoreSettings extends Model
 {

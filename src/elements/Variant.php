@@ -47,6 +47,7 @@ use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
+use yii\validators\Validator;
 
 /**
  * Variant model.
@@ -206,12 +207,6 @@ class Variant extends Purchasable implements NestedElementInterface
     public ?int $sortOrder = null;
 
     /**
-     * @var bool Whether the variant was deleted along with its product
-     * @see beforeDelete()
-     */
-    public bool $deletedWithProduct = false;
-
-    /**
      * @var string|null
      * @see getProductSlug()
      * @see setProductSlug()
@@ -340,6 +335,27 @@ class Variant extends Purchasable implements NestedElementInterface
         }
 
         return $this->canSave($user);
+    }
+
+    /**
+     * @return bool
+     * TODO: Remove in next breakpoint
+     */
+    public function getDeletedWithProduct(): bool
+    {
+        Craft::$app->getDeprecator()->log('Variant::getDeletedWithProduct()', 'The “deletedWithProduct” property has been deprecated. Use “deletedWithOwner” instead.');
+
+        return $this->deletedWithOwner;
+    }
+
+    /**
+     * @param $value
+     * @return void
+     * TODO: Remove in next breakpoint
+     */
+    public function setDeletedWithProduct($value): void
+    {
+        return;
     }
 
     /**
@@ -1166,28 +1182,9 @@ class Variant extends Purchasable implements NestedElementInterface
      * @inheritdoc
      * @throws \yii\db\Exception
      */
-    public function beforeDelete(): bool
-    {
-        if (!parent::beforeDelete()) {
-            return false;
-        }
-
-        Craft::$app->getDb()->createCommand()
-            ->update(Table::VARIANTS, [
-                'deletedWithProduct' => $this->deletedWithProduct,
-            ], ['id' => $this->id], [], false)
-            ->execute();
-
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     * @throws \yii\db\Exception
-     */
     public function beforeRestore(): bool
     {
-        if (!parent::beforeDelete()) {
+        if (!parent::beforeRestore()) {
             return false;
         }
 
@@ -1227,28 +1224,13 @@ class Variant extends Purchasable implements NestedElementInterface
     }
 
     /**
-     * @throws \yii\db\Exception
-     */
-    public function afterRestore(): void
-    {
-        // Once restored, we no longer track if it was deleted with variant or not
-        $this->deletedWithProduct = false;
-        Craft::$app->getDb()->createCommand()->update(Table::VARIANTS,
-            ['deletedWithProduct' => false],
-            ['id' => $this->getId()]
-        )->execute();
-
-        parent::afterRestore();
-    }
-
-    /**
      * @throws InvalidConfigException
      * @since 2.2
      */
     public function getSearchKeywords(string $attribute): string
     {
         if ($attribute == 'productTitle') {
-            return $this->getOwner()->title;
+            return $this->getOwner()->title ?? '';
         }
 
         return parent::getSearchKeywords($attribute);
@@ -1258,14 +1240,28 @@ class Variant extends Purchasable implements NestedElementInterface
     {
         return array_merge(parent::defineRules(), [
             [['sku'], 'string', 'max' => 255],
-            [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE],
+            [['sku'], 'required', 'on' => self::SCENARIO_LIVE],
+            [['basePrice'], 'validatePrice', 'on' => self::SCENARIO_LIVE, 'skipOnEmpty' => false],
             [['price', 'weight', 'width', 'height', 'length'], 'number'],
             // maxQty must be greater than minQty and minQty must be less than maxQty
             [['minQty'], 'validateMinQtyRange', 'skipOnEmpty' => true],
             [['maxQty'], 'validateMaxQtyRange', 'skipOnEmpty' => true],
             [['stock', 'fieldId', 'ownerId', 'primaryOwnerId'], 'number'],
-            [['ownerId', 'primaryOwnerId', 'isDefault'], 'safe'],
+            [['ownerId', 'primaryOwnerId', 'isDefault', 'deletedWithProduct'], 'safe'],
         ]);
+    }
+
+    /**
+     * @param string $attribute
+     * @param $params
+     * @param Validator $validator
+     */
+    public function validatePrice(string $attribute, $params, Validator $validator): void
+    {
+        if ($this->$attribute === null) {
+            $message = Craft::t('yii', '{attribute} cannot be blank.', ['attribute' => $this->getAttributeLabel('price')]);
+            $validator->addError($this, 'price', $message);
+        }
     }
 
     /**

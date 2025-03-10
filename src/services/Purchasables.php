@@ -37,7 +37,7 @@ use yii\base\InvalidArgumentException;
 class Purchasables extends Component
 {
     /**
-     * @event PurchasableAllowOutOfStockPurchasesEvent The event that is triggered when checking if the purchasable can be purchased when out of stock.
+     * @event PurchasableOutOfStockPurchasesAllowedEvent The event that is triggered when checking if the purchasable can be purchased when out of stock.
      *
      * This example allows users of a certain group to purchase out of stock items.
      *
@@ -49,7 +49,7 @@ class Purchasables extends Component
      * Event::on(
      *     Purchasables::class,
      *     Purchasables::EVENT_PURCHASABLE_ALLOW_OUT_OF_STOCK_PURCHASES,
-     *     function(PurchasableAllowOutOfStockPurchasesEvent $event) {
+     *     function(PurchasableOutOfStockPurchasesAllowedEvent $event) {
      *         if($order && $user = $order->getUser()){
      *            if($user->isInGroup(1)){
      *                $event->outOfStockPurchasesAllowed = true;

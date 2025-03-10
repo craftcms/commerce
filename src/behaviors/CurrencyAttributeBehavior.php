@@ -9,8 +9,8 @@
 namespace craft\commerce\behaviors;
 
 use craft\commerce\base\HasStoreInterface;
-use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
+use craft\commerce\Plugin;
 use craft\events\DefineFieldsEvent;
 use craft\helpers\StringHelper;
 use yii\base\Behavior;
@@ -45,6 +45,8 @@ use yii\base\Behavior;
  * }
  * ```
  *
+ *
+ * @property string $defaultCurrency
  */
 class CurrencyAttributeBehavior extends Behavior
 {
@@ -62,11 +64,11 @@ class CurrencyAttributeBehavior extends Behavior
     public array $currencyAttributes;
 
     /**
-     * @var string default currency
+     * @var ?string default currency
      * @uses setDefaultCurrency()
      * @uses getDefaultCurrency()
      */
-    private string $_defaultCurrency;
+    private ?string $_defaultCurrency;
 
     /**
      * @var array mapping of attribute => currency if the default is not desired
@@ -79,7 +81,7 @@ class CurrencyAttributeBehavior extends Behavior
     public function events(): array
     {
         return [
-            Order::EVENT_DEFINE_FIELDS => 'defineFields',
+            \craft\base\Model::EVENT_DEFINE_FIELDS => 'defineFields',
         ];
     }
 
@@ -192,11 +194,11 @@ class CurrencyAttributeBehavior extends Behavior
     }
 
     /**
-     * @param string $value
+     * @param ?string $value
      * @return void
      * @since 5.0.0
      */
-    public function setDefaultCurrency(string $value): void
+    public function setDefaultCurrency(?string $value): void
     {
         $this->_defaultCurrency = $value;
     }
@@ -207,8 +209,14 @@ class CurrencyAttributeBehavior extends Behavior
      */
     public function getDefaultCurrency(): string
     {
+        // Should always be the owners currency
         if ($this->owner instanceof HasStoreInterface) {
-            return $this->owner->getStore()->getCurrency();
+            $this->_defaultCurrency = $this->owner->getStore()->getCurrency();
+        }
+
+        // Let's default to the current store primary currency
+        if (!isset($this->_defaultCurrency)) {
+            $this->_defaultCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         }
 
         return $this->_defaultCurrency;

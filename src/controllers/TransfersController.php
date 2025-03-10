@@ -177,7 +177,7 @@ class TransfersController extends BaseCpController
         $transferDetails = $transfer->getDetails();
 
         foreach ($transferDetails as $detail) {
-            if ($acceptedAmount = $details[$detail->uid]['accept']) {
+            if ($acceptedAmount = $details[$detail->uid]['accept'] ?? null) {
                 // Update the total accepted
                 $detail->quantityAccepted += $acceptedAmount;
 
@@ -193,7 +193,7 @@ class TransfersController extends BaseCpController
                 $inventoryMovementCollection->push($inventoryAcceptedMovement);
             }
 
-            if ($rejectedAmount = $details[$detail->uid]['reject']) {
+            if ($rejectedAmount = $details[$detail->uid]['reject'] ?? null) {
                 // Update the total rejected
                 $detail->quantityRejected += $rejectedAmount;
 
@@ -255,6 +255,7 @@ class TransfersController extends BaseCpController
 
         $tableRows = '';
         foreach ($transfer->getDetails() as $detail) {
+            $deleted = $detail->inventoryItemId == null;
             $key = $detail->uid;
             $purchasable = $detail->getInventoryItem()?->getPurchasable(CraftCp::requestedSite()->id);
             $label = $purchasable ? CraftCp::elementChipHtml($purchasable) : $detail->inventoryItemDescription;
@@ -262,11 +263,19 @@ class TransfersController extends BaseCpController
             $tableRows .= Html::tag('td', $label);
             $tableRows .= Html::tag('td', (string)$detail->quantityAccepted, ['class' => 'rightalign']);
             $tableRows .= Html::tag('td',
-                Html::input('number', 'details[' . $key . '][accept]', '', ['class' => 'text fullwidth'])
+                Html::input('number', 'details[' . $key . '][accept]', '', [
+                    'class' => 'text fullwidth',
+                    'disabled' => $deleted,
+                    'placeholder' => $deleted ? Craft::t('app', '“{name}” deleted.', ['name' => $detail->inventoryItemDescription]) : '',
+                ])
             );
             $tableRows .= Html::tag('td', (string)$detail->quantityRejected, ['class' => 'rightalign']);
             $tableRows .= Html::tag('td',
-                Html::input('number', 'details[' . $key . '][reject]', '', ['class' => 'text fullwidth'])
+                Html::input('number', 'details[' . $key . '][reject]', '', [
+                    'class' => 'text fullwidth',
+                    'disabled' => $deleted,
+                    'placeholder' => $deleted ? Craft::t('app', '“{name}” deleted.', ['name' => $detail->inventoryItemDescription]) : '',
+                ])
             );
         }
 

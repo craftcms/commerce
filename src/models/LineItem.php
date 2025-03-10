@@ -266,7 +266,7 @@ class LineItem extends Model
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
-            'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'defaultCurrency' => $this->getOrder()?->currency ?? null,
             'currencyAttributes' => $this->currencyAttributes(),
         ];
 

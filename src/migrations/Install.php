@@ -1020,7 +1020,7 @@ class Install extends Migration
             'id' => $this->integer()->notNull(),
             'primaryOwnerId' => $this->integer(),
             'isDefault' => $this->boolean()->notNull()->defaultValue(false),
-            'deletedWithProduct' => $this->boolean()->notNull()->defaultValue(false),
+            'deletedWithProduct' => $this->boolean()->notNull()->defaultValue(false), // TODO: Remove in 6.0
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),

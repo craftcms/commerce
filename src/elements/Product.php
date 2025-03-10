@@ -1656,6 +1656,16 @@ class Product extends Element implements HasStoreInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function afterRestore(): void
+    {
+        $this->getVariantManager()->restoreNestedElements($this);
+
+        parent::afterRestore();
+    }
+
+    /**
      * @inheritdoc
      */
     protected function defineRules(): array

@@ -35,12 +35,16 @@ class PurchasablePromotableField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public bool $required = true;
+    public string $attribute = 'promotable';
 
     /**
      * @inheritdoc
      */
-    public string $attribute = 'promotable';
+    public function __construct(array $config = [])
+    {
+        unset($config['required']);
+        parent::__construct($config);
+    }
 
     /**
      * @inheritdoc

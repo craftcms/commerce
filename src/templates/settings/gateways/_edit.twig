@@ -90,7 +90,6 @@
 
             {% namespace 'types['~gatewayType~']' %}
                 {% if isCurrent %}
-                    {{ gateway.getSettingsHtml()|raw }}
                     {{ readOnly ? gateway.getReadOnlySettingsHtml()|raw : gateway.getSettingsHtml()|raw }}
                 {% else %}
                     {{ readOnly ? gatewayInstances[gatewayType].getReadOnlySettingsHtml()|raw : gatewayInstances[gatewayType].getSettingsHtml()|raw }}

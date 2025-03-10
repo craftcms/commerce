@@ -83,9 +83,9 @@ class TransferQuery extends ElementQuery
 
         // add selects
         $this->query->select([
-            Table::TRANSFERS . '.transferStatus',
-            Table::TRANSFERS . '.originLocationId',
-            Table::TRANSFERS . '.destinationLocationId',
+            'commerce_transfers.transferStatus',
+            'commerce_transfers.originLocationId',
+            'commerce_transfers.destinationLocationId',
         ]);
 
         if ($this->transferStatus) {

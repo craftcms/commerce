@@ -36,12 +36,16 @@ class PurchasableAllowedQtyField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public bool $required = false;
+    public string $attribute = 'allowedQty';
 
     /**
      * @inheritdoc
      */
-    public string $attribute = 'allowedQty';
+    public function __construct(array $config = [])
+    {
+        unset($config['required']);
+        parent::__construct($config);
+    }
 
     /**
      * @inheritdoc
