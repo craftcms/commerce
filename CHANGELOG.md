@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where a line item’s sale price could be incorrectly calculated. ([#3928](https://github.com/craftcms/commerce/issues/3928))
+
 ## 4.8.1.2 - 2025-02-10
 
 - Fixed a bug where carts’ adjustment totals could be calculated incorrectly. ([#3888](https://github.com/craftcms/commerce/issues/3888))
