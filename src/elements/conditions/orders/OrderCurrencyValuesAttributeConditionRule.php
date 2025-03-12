@@ -60,12 +60,16 @@ abstract class OrderCurrencyValuesAttributeConditionRule extends MoneyFieldCondi
     {
         parent::setCondition($condition);
 
-        if ($this->getCondition() instanceof HasStoreInterface) {
-            $this->currency = $this->getCondition()->getStore()->getCurrency();
-        } else {
-            /** @var Site|StoreBehavior|null $currentSite */
-            $currentSite = Craft::$app->getSites()->getCurrentSite();
-            $this->currency = $currentSite?->getStore()->getCurrency();
+        $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
+
+        if ($commerce && version_compare($commerce['schemaVersion'], '5.0.1', '>=')) {
+            if ($this->getCondition() instanceof HasStoreInterface) {
+                $this->currency = $this->getCondition()->getStore()->getCurrency();
+            } else {
+                /** @var Site|StoreBehavior|null $currentSite */
+                $currentSite = Craft::$app->getSites()->getCurrentSite();
+                $this->currency = $currentSite?->getStore()->getCurrency();
+            }
         }
 
         if ($this->currency) {
@@ -80,7 +84,9 @@ abstract class OrderCurrencyValuesAttributeConditionRule extends MoneyFieldCondi
     {
         // Mock a Money field
         $field = new Money();
-        $field->currency = $this->currency?->getCode();
+        if ($this->currency) {
+            $field->currency = $this->currency->getCode();
+        }
 
         return $field;
     }
