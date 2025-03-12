@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.3.5 - 2025-03-12
 
 - Fixed a bug where line items’ sale prices could be calculated incorrectly. ([#3928](https://github.com/craftcms/commerce/issues/3928))
 - Fixed a bug where catalog pricing rules’ element selector modals didn’t have site selection menus. ([#3917](https://github.com/craftcms/commerce/issues/3917))
