@@ -3,16 +3,12 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\base\Purchasable;
 use craft\commerce\collections\UpdateInventoryLevelCollection;
 use craft\commerce\db\Table;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\InventoryUpdateQuantityType;
-use craft\commerce\models\inventory\InventoryManualMovement;
 use craft\commerce\models\inventory\UpdateInventoryLevel;
-use craft\commerce\models\InventoryImport;
 use craft\commerce\Plugin;
-use craft\helpers\ArrayHelper;
 use craft\web\Controller;
 use craft\web\UploadedFile;
 use League\Csv\Reader;
@@ -80,11 +76,10 @@ class InventoryImportexportController extends Controller
         $updateInventoryLevels = UpdateInventoryLevelCollection::make();
 
         foreach ($csv->getRecords() as $key => $record) {
-
             $inventoryLocation = null;
-            if(is_numeric($record['location'])) {
+            if (is_numeric($record['location'])) {
                 $inventoryLocation = $inventoryLocations->firstWhere('id', $record['location']);
-            }else{
+            } else {
                 $inventoryLocation = $inventoryLocations->firstWhere('handle', $record['location']);
             }
 
@@ -94,9 +89,9 @@ class InventoryImportexportController extends Controller
             }
 
             $item = null;
-            if(is_numeric($record['item'])) {
+            if (is_numeric($record['item'])) {
                 $item = Plugin::getInstance()->getInventory()->getInventoryItemById($record['item']);
-            }else{
+            } else {
                 $item = Plugin::getInstance()->getInventory()->getInventoryItemBySku($record['item']);
             }
 
@@ -107,14 +102,14 @@ class InventoryImportexportController extends Controller
 
             $updateAction = $record['action'];
 
-            if(!in_array($updateAction, ['set', 'adjust'])) {
+            if (!in_array($updateAction, ['set', 'adjust'])) {
                 $errors[$key][] = 'Invalid action type: ' . $record['action'];
                 continue;
             }
 
             $amount = $record['amount'];
 
-            if(!is_numeric($amount)) {
+            if (!is_numeric($amount)) {
                 $errors[$key][] = 'Invalid amount: ' . $record['amount'];
                 continue;
             }
@@ -167,7 +162,8 @@ class InventoryImportexportController extends Controller
         $inventoryLocationId = (int)Craft::$app->getRequest()->getParam('inventoryLocationId');
         $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($inventoryLocationId);
 
-        $dateTimeString = Craft::$app->getFormatter()->asDateTime(time(), 'yyyy-MM-dd_HHmmss');;
+        $dateTimeString = Craft::$app->getFormatter()->asDateTime(time(), 'yyyy-MM-dd_HHmmss');
+        ;
 
         $inventoryQuery = Plugin::getInstance()->getInventory()->getInventoryLevelQuery()
             ->andWhere(['inventoryLocationId' => $inventoryLocation->id]);

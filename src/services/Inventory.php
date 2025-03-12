@@ -113,7 +113,7 @@ class Inventory extends Component
             ->where(['id' => $subQuery])
             ->one();
 
-        if(!$inventoryItem) {
+        if (!$inventoryItem) {
             return null;
         }
 
