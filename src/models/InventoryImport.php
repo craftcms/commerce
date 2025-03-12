@@ -3,11 +3,7 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
-use craft\commerce\base\Purchasable;
-use craft\commerce\elements\Order;
-use craft\commerce\Plugin;
 use craft\helpers\Assets;
-use craft\web\UploadedFile;
 use yii\base\InvalidConfigException;
 
 /**

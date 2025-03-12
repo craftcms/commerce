@@ -6,12 +6,10 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\models\InventoryImport;
 use craft\commerce\Plugin;
-use craft\errors\DeprecationException;
 use craft\web\Controller;
 use craft\web\UploadedFile;
 use League\Csv\Writer;
 use yii\base\InvalidConfigException;
-use yii\web\BadRequestHttpException;
 use yii\web\Response;
 
 /**
@@ -54,7 +52,7 @@ class InventoryImportexportController extends Controller
         }
 
         $import = new InventoryImport([
-            'importFile' => $file->tempName
+            'importFile' => $file->tempName,
         ]);
 
         $inventory->importInventory($import);
@@ -77,7 +75,8 @@ class InventoryImportexportController extends Controller
         $inventoryLocationId = (int)Craft::$app->getRequest()->getParam('inventoryLocationId');
         $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($inventoryLocationId);
 
-        $dateTimeString = Craft::$app->getFormatter()->asDateTime(time(), 'yyyy-MM-dd_HHmmss');;
+        $dateTimeString = Craft::$app->getFormatter()->asDateTime(time(), 'yyyy-MM-dd_HHmmss');
+        ;
 
         $inventoryQuery = Plugin::getInstance()->getInventory()->getInventoryLevelQuery()
             ->andWhere(['inventoryLocationId' => $inventoryLocation->id]);
@@ -97,7 +96,7 @@ class InventoryImportexportController extends Controller
         // Create a CSV writer instance
         $csv = Writer::createFromStream($stream);
 
-        $csv->insertOne(['location', 'item', 'description','type', 'amount', 'notes']);
+        $csv->insertOne(['location', 'item', 'description', 'type', 'amount', 'notes']);
 
         foreach ($inventoryQuery->each() as $row) {
             $data = [
@@ -106,7 +105,7 @@ class InventoryImportexportController extends Controller
                 $row['description'],
                 'set',
                 $row['onHandTotal'],
-                ''
+                '',
             ];
             $csv->insertOne($data);
         }
@@ -131,5 +130,4 @@ class InventoryImportexportController extends Controller
             ['mimeType' => 'text/csv']
         );
     }
-
 }

@@ -31,11 +31,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\InventoryItem as InventoryItemRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
-use craft\helpers\FileHelper;
-use craft\helpers\StringHelper;
-use craft\web\UploadedFile;
 use Illuminate\Support\Collection;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
@@ -863,11 +859,9 @@ class Inventory extends Component
         }
 
         fclose($handle);
-
     }
 
     private function _processImportBatch($batch, InventoryImport $import)
     {
-
     }
 }
