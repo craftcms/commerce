@@ -35,9 +35,16 @@ class VariantCollection extends ElementCollection
                 continue;
             }
 
+            $attributes = $item;
+
             $item = \Craft::createObject(Variant::class, [
-                'config' => ['attributes' => $item],
+                'config' => ['attributes' => $attributes],
             ]);
+
+            // Set custom fields if provided
+            if (isset($attributes['fields'])) {
+                $item->setFieldValues($attributes['fields']);
+            }
         }
 
         /** @var static $collection */
