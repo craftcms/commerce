@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed a bug where a line item’s sale price could be incorrectly calculated. ([#3928](https://github.com/craftcms/commerce/issues/3928))
+- Fixed a bug where line items’ sale pricess could be calculated incorrectly. ([#3928](https://github.com/craftcms/commerce/issues/3928))
 
 ## 4.8.1.2 - 2025-02-10
 
