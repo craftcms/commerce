@@ -30,11 +30,6 @@ class PurchasableAvailableForPurchaseField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public ?string $label = 'Available for purchase';
-
-    /**
-     * @inheritdoc
-     */
     public string $attribute = 'availableForPurchase';
 
     /**

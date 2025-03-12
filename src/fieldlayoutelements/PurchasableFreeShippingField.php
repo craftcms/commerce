@@ -30,11 +30,6 @@ class PurchasableFreeShippingField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public ?string $label = 'Free Shipping';
-
-    /**
-     * @inheritdoc
-     */
     public string $attribute = 'freeShipping';
 
     /**

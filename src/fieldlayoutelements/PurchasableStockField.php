@@ -35,11 +35,6 @@ class PurchasableStockField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public ?string $label = 'Inventory';
-
-    /**
-     * @inheritdoc
-     */
     public string $attribute = 'stock';
 
     /**
