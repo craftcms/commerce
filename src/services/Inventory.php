@@ -96,6 +96,27 @@ class Inventory extends Component
     }
 
     /**
+     * @param string $sku
+     * @return InventoryItem
+     */
+    public function getInventoryItemBySku(string $sku): InventoryItem
+    {
+        $subQuery = (new Query())
+            ->select([
+                'items.id',
+            ])
+            ->where(['purchasables.sku' => $sku])
+            ->from(['purchasables' => Table::PURCHASABLES])
+            ->leftJoin(['items' => Table::INVENTORYITEMS], '[[purchasables.id]] = [[items.purchasableId]]');
+
+        $inventoryItem = $this->getInventoryItemQuery()
+            ->where(['id' => $subQuery])
+            ->one();
+
+        return $this->_populateInventoryItem($inventoryItem);
+    }
+
+    /**
      * @param array<int> $ids
      * @return Collection<InventoryItem>
      */

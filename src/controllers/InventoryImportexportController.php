@@ -3,11 +3,19 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\base\Purchasable;
+use craft\commerce\collections\UpdateInventoryLevelCollection;
 use craft\commerce\db\Table;
+use craft\commerce\enums\InventoryTransactionType;
+use craft\commerce\enums\InventoryUpdateQuantityType;
+use craft\commerce\models\inventory\InventoryManualMovement;
+use craft\commerce\models\inventory\UpdateInventoryLevel;
 use craft\commerce\models\InventoryImport;
 use craft\commerce\Plugin;
+use craft\helpers\ArrayHelper;
 use craft\web\Controller;
 use craft\web\UploadedFile;
+use League\Csv\Reader;
 use League\Csv\Writer;
 use yii\base\InvalidConfigException;
 use yii\web\Response;
@@ -28,7 +36,7 @@ class InventoryImportexportController extends Controller
         $params = [];
 
         return $this->asCpScreen()
-            ->action('commerce/inventory/import-inventory')
+            ->action('commerce/inventory-importexport/import-inventory')
             ->addCrumb(Craft::t('commerce', 'Inventory'), 'commerce/inventory')
             ->selectedSubnavItem('inventory')
             ->title(Craft::t('commerce', 'Import Inventory'))
@@ -48,17 +56,91 @@ class InventoryImportexportController extends Controller
         $file = UploadedFile::getInstanceByName('importFile');
 
         if (!$file) {
-            return $this->asError(Craft::t('commerce', 'No file uploaded.'));
+            return $this->asFailure('No file uploaded.');
         }
 
-        $import = new InventoryImport([
-            'importFile' => $file->tempName,
-        ]);
+        // check CSV file has certain headers
+        try {
+            $csv = Reader::createFromPath($file->tempName);
+            $csv->setHeaderOffset(0); //set the CSV header offset
+            $csv->setEscape(''); //required in PHP8.4+ to avoid deprecation notices
+        } catch (\Exception $e) {
+            return $this->asFailure('Invalid CSV file.');
+        }
 
-        $inventory->importInventory($import);
+        $headers = $csv->getHeader();
 
+        if (!in_array('location', $headers) || !in_array('item', $headers) || !in_array('action', $headers) || !in_array('amount', $headers)) {
+            return $this->asFailure('Invalid CSV file. Missing required headers.');
+        }
 
-        return $this->asSuccess(Craft::t('commerce', 'Inventory imported.'));
+        $inventoryLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
+
+        $errors = [];
+        $updateInventoryLevels = UpdateInventoryLevelCollection::make();
+
+        foreach ($csv->getRecords() as $key => $record) {
+
+            $inventoryLocation = null;
+            if(is_numeric($record['location'])) {
+                $inventoryLocation = $inventoryLocations->firstWhere('id', $record['location']);
+            }else{
+                $inventoryLocation = $inventoryLocations->firstWhere('handle', $record['location']);
+            }
+
+            if (!$inventoryLocation) {
+                $errors[$key]['errors'][] = 'Invalid location: ' . $record['location'];
+                continue;
+            }
+
+            $item = null;
+            if(is_numeric($record['item'])) {
+                $item = Plugin::getInstance()->getInventory()->getInventoryItemById($record['item']);
+            }else{
+                $item = Plugin::getInstance()->getInventory()->getInventoryItemBySku($record['item']);
+            }
+
+            if ($item === null) {
+                $errors[$key]['errors'][] = 'Invalid item: ' . $record['location'];
+                continue;
+            }
+
+            $updateAction = $record['action'];
+
+            if(!in_array($updateAction, ['set', 'adjust'])) {
+                $errors[$key]['errors'][] = 'Invalid action type: ' . $record['action'];
+                continue;
+            }
+
+            $amount = $record['amount'];
+
+            if(!is_numeric($amount)) {
+                $errors[$key]['errors'][] = 'Invalid amount: ' . $record['amount'];
+                continue;
+            }
+
+            $notes = $record['notes'] ?? '';
+
+            // if $errors[$key]['errors'] is not empty add the line to array
+            if (empty($errors[$key]['errors'])) {
+                $update = new UpdateInventoryLevel();
+                $update->inventoryLocationId = $inventoryLocation->id;
+                $update->inventoryItemId = $item->id;
+                $update->quantity = $amount;
+                $update->note = $notes;
+                $update->updateAction = InventoryUpdateQuantityType::from($updateAction);
+                $update->type = InventoryTransactionType::AVAILABLE->value;
+                $updateInventoryLevels->add($update);
+            }
+        }
+
+        if ($errors) {
+            return $this->asFailure('Errors found in CSV file.', ['errors' => $errors]);
+        }
+
+        Plugin::getInstance()->getInventory()->executeUpdateInventoryLevels($updateInventoryLevels);
+
+        return $this->asSuccess('Inventory Imported');
     }
 
     /**
@@ -75,8 +157,7 @@ class InventoryImportexportController extends Controller
         $inventoryLocationId = (int)Craft::$app->getRequest()->getParam('inventoryLocationId');
         $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($inventoryLocationId);
 
-        $dateTimeString = Craft::$app->getFormatter()->asDateTime(time(), 'yyyy-MM-dd_HHmmss');
-        ;
+        $dateTimeString = Craft::$app->getFormatter()->asDateTime(time(), 'yyyy-MM-dd_HHmmss');;
 
         $inventoryQuery = Plugin::getInstance()->getInventory()->getInventoryLevelQuery()
             ->andWhere(['inventoryLocationId' => $inventoryLocation->id]);
@@ -96,7 +177,7 @@ class InventoryImportexportController extends Controller
         // Create a CSV writer instance
         $csv = Writer::createFromStream($stream);
 
-        $csv->insertOne(['location', 'item', 'description', 'type', 'amount', 'notes']);
+        $csv->insertOne(['location', 'item', 'description', 'action', 'amount', 'notes']);
 
         foreach ($inventoryQuery->each() as $row) {
             $data = [
@@ -122,7 +203,7 @@ class InventoryImportexportController extends Controller
         // return csv example template
         $this->requirePermission('commerce-manageInventoryStockLevels');
 
-        $csvFile = Writer::createFromString('location,item,type,amount,notes');
+        $csvFile = Writer::createFromString('location,item,action,amount,notes');
 
         return Craft::$app->getResponse()->sendContentAsFile(
             $csvFile->toString(),
