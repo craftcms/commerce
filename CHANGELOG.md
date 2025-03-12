@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed a bug where line items’ sale pricess could be calculated incorrectly. ([#3928](https://github.com/craftcms/commerce/issues/3928))
+- Fixed a bug where line items’ sale prices could be calculated incorrectly. ([#3928](https://github.com/craftcms/commerce/issues/3928))
 - Fixed a bug where catalog pricing rules’ element selector modals didn’t have site selection menus. ([#3917](https://github.com/craftcms/commerce/issues/3917))
 - Fixed a bug where payment modals on Edit Order pages were showing incorrect payment currencies. ([#3919](https://github.com/craftcms/commerce/issues/3919))
 - Fixed a SQL error that could occur when querying inventory transfers.
