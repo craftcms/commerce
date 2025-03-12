@@ -7,3 +7,14 @@
         accept: '.csv'
     }
 }) }}
+
+{% if errors is defined %}
+{% for line, lineErrors in errors %}
+    <div>Errors Line {{ line }}:</div>
+    {% for error in lineErrors %}
+        <li>{{ error }}</li>
+    {% endfor %}
+{% endfor %}
+{% endif %}
+
+

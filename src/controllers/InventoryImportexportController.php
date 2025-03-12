@@ -39,6 +39,7 @@ class InventoryImportexportController extends Controller
             ->action('commerce/inventory-importexport/import-inventory')
             ->addCrumb(Craft::t('commerce', 'Inventory'), 'commerce/inventory')
             ->selectedSubnavItem('inventory')
+            ->redirectUrl('commerce/inventory')
             ->title(Craft::t('commerce', 'Import Inventory'))
             ->formAttributes(['enctype' => 'multipart/form-data'])
             ->metaSidebarTemplate('commerce/inventory/importexport/_importMeta')
@@ -46,7 +47,7 @@ class InventoryImportexportController extends Controller
             ->contentTemplate('commerce/inventory/importexport/_importScreen', $params);
     }
 
-    public function actionImportInventory(): Response
+    public function actionImportInventory()
     {
         $errors = [];
         $inventory = Plugin::getInstance()->getInventory();
@@ -76,7 +77,6 @@ class InventoryImportexportController extends Controller
 
         $inventoryLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
 
-        $errors = [];
         $updateInventoryLevels = UpdateInventoryLevelCollection::make();
 
         foreach ($csv->getRecords() as $key => $record) {
@@ -89,7 +89,7 @@ class InventoryImportexportController extends Controller
             }
 
             if (!$inventoryLocation) {
-                $errors[$key]['errors'][] = 'Invalid location: ' . $record['location'];
+                $errors[$key][] = 'Invalid location: ' . $record['location'];
                 continue;
             }
 
@@ -101,28 +101,28 @@ class InventoryImportexportController extends Controller
             }
 
             if ($item === null) {
-                $errors[$key]['errors'][] = 'Invalid item: ' . $record['location'];
+                $errors[$key][] = 'Invalid item: ' . $record['location'];
                 continue;
             }
 
             $updateAction = $record['action'];
 
             if(!in_array($updateAction, ['set', 'adjust'])) {
-                $errors[$key]['errors'][] = 'Invalid action type: ' . $record['action'];
+                $errors[$key][] = 'Invalid action type: ' . $record['action'];
                 continue;
             }
 
             $amount = $record['amount'];
 
             if(!is_numeric($amount)) {
-                $errors[$key]['errors'][] = 'Invalid amount: ' . $record['amount'];
+                $errors[$key][] = 'Invalid amount: ' . $record['amount'];
                 continue;
             }
 
             $notes = $record['notes'] ?? '';
 
             // if $errors[$key]['errors'] is not empty add the line to array
-            if (empty($errors[$key]['errors'])) {
+            if (empty($errors[$key])) {
                 $update = new UpdateInventoryLevel();
                 $update->inventoryLocationId = $inventoryLocation->id;
                 $update->inventoryItemId = $item->id;
@@ -135,7 +135,17 @@ class InventoryImportexportController extends Controller
         }
 
         if ($errors) {
-            return $this->asFailure('Errors found in CSV file.', ['errors' => $errors]);
+            $this->setFailFlash(Craft::t('commerce', 'There was a problem with the import.'));
+            return $this->asCpScreen()
+                ->action('commerce/inventory-importexport/import-inventory')
+                ->addCrumb(Craft::t('commerce', 'Inventory'), 'commerce/inventory')
+                ->selectedSubnavItem('inventory')
+                ->redirectUrl('commerce/inventory')
+                ->title(Craft::t('commerce', 'Import Inventory'))
+                ->formAttributes(['enctype' => 'multipart/form-data'])
+                ->metaSidebarTemplate('commerce/inventory/importexport/_importMeta')
+                ->submitButtonLabel(Craft::t('commerce', 'Import'))
+                ->contentTemplate('commerce/inventory/importexport/_importScreen', ['errors' => $errors]);
         }
 
         Plugin::getInstance()->getInventory()->executeUpdateInventoryLevels($updateInventoryLevels);

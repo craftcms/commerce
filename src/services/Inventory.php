@@ -97,9 +97,9 @@ class Inventory extends Component
 
     /**
      * @param string $sku
-     * @return InventoryItem
+     * @return ?InventoryItem
      */
-    public function getInventoryItemBySku(string $sku): InventoryItem
+    public function getInventoryItemBySku(string $sku): ?InventoryItem
     {
         $subQuery = (new Query())
             ->select([
@@ -112,6 +112,10 @@ class Inventory extends Component
         $inventoryItem = $this->getInventoryItemQuery()
             ->where(['id' => $subQuery])
             ->one();
+
+        if(!$inventoryItem) {
+            return null;
+        }
 
         return $this->_populateInventoryItem($inventoryItem);
     }
