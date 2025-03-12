@@ -29,6 +29,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Assets;
 use craft\helpers\Cp;
 use craft\helpers\Html;
+use craft\helpers\UrlHelper;
 use craft\web\assets\htmx\HtmxAsset;
 use craft\web\Controller;
 use craft\web\CpScreenResponseBehavior;
@@ -208,6 +209,14 @@ class InventoryController extends Controller
             'icon' => 'arrow-up',
             'label' => Craft::t('commerce', 'Import Inventory'),
         ];
+        $exportBtnId = sprintf("import-%s", mt_rand());
+        $items['export'] = [
+            'type' => MenuItemType::Link,
+            'id' => $exportBtnId,
+            'url' => UrlHelper::actionUrl('commerce/inventory-importexport/export', ['inventoryLocationId' => $currentLocation->id]),
+            'icon' => 'arrow-up',
+            'label' => Craft::t('commerce', 'Export Inventory'),
+        ];
 
         return $this->asCpScreen()
             ->title($title)
@@ -215,7 +224,7 @@ class InventoryController extends Controller
             ->selectableSites(Craft::$app->getSites()->getEditableSites())
             ->action(null)
             ->crumbs($crumbs)
-            ->actionMenuItems(fn () => $items)
+            ->actionMenuItems(fn() => $items)
             ->contentTemplate('commerce/inventory/levels/_index', compact(
                 'inventoryLocations',
                 'currentLocation',
@@ -545,7 +554,7 @@ JS, [
         }
 
         if (count($errors) > 0) {
-            return $this->asFailure(Craft::t('commerce', 'Inventory was not updated.',),
+            return $this->asFailure(Craft::t('commerce', 'Inventory was not updated.'),
                 ['errors' => $errors]
             );
         }
@@ -560,7 +569,7 @@ JS, [
             'updatedItems' => collect($resultingInventoryLevels)->toArray(),
         ]);
     }
-    
+
     /**
      * @return Response
      * @throws BadRequestHttpException

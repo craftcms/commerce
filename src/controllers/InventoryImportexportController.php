@@ -3,11 +3,13 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\models\InventoryImport;
 use craft\commerce\Plugin;
 use craft\errors\DeprecationException;
 use craft\web\Controller;
 use craft\web\UploadedFile;
+use League\Csv\Writer;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
 use yii\web\Response;
@@ -68,18 +70,66 @@ class InventoryImportexportController extends Controller
      * @throws \yii\web\HttpException
      * @throws \yii\web\RangeNotSatisfiableHttpException
      */
-    public function actionExport(): Response{
+    public function actionExport(): Response
+    {
         $this->requirePermission('commerce-manageInventoryStockLevels');
 
         $inventoryLocationId = (int)Craft::$app->getRequest()->getParam('inventoryLocationId');
         $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($inventoryLocationId);
 
-        $inventoryLevels = Plugin::getInstance()->getInventory()->getInventoryLevelsForLocation($inventoryLocation);
+        $dateTimeString = Craft::$app->getFormatter()->asDateTime(time(), 'yyyy-MM-dd_HHmmss');;
 
-        $csv = Plugin::getInstance()->getInventory()->exportInventoryLevelsToCsv($inventoryLevels);
+        $inventoryQuery = Plugin::getInstance()->getInventory()->getInventoryLevelQuery()
+            ->andWhere(['inventoryLocationId' => $inventoryLocation->id]);
 
-        return Craft::$app->getResponse()->sendContentAsFile($csv, 'inventory-export.csv', ['mimeType' => 'text/csv']);
+        $inventoryQuery->leftJoin(['purchasables' => Table::PURCHASABLES], '[[purchasables.id]] = [[ii.purchasableId]]');
+        $inventoryQuery->addSelect(['sku' => 'purchasables.sku']);
+        $inventoryQuery->addSelect(['description' => 'purchasables.description']);
+
+        $response = Craft::$app->getResponse();
+        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Disposition', 'attachment; filename="inventory.csv"');
+        $response->format = \yii\web\Response::FORMAT_RAW;
+
+        // Open output stream
+        $stream = fopen('php://output', 'w');
+
+        // Create a CSV writer instance
+        $csv = Writer::createFromStream($stream);
+
+        $csv->insertOne(['location', 'item', 'description','type', 'amount', 'notes']);
+
+        foreach ($inventoryQuery->each() as $row) {
+            $data = [
+                $row['inventoryLocationId'],
+                $row['sku'],
+                $row['description'],
+                'set',
+                $row['onHandTotal'],
+                ''
+            ];
+            $csv->insertOne($data);
+        }
+
+        // Close the stream (optional, but good practice)
+        fclose($stream);
+
+        // End the response to prevent further output
+        Craft::$app->end();
     }
 
+    public function actionExampleTemplate()
+    {
+        // return csv example template
+        $this->requirePermission('commerce-manageInventoryStockLevels');
+
+        $csvFile = Writer::createFromString('location,item,type,amount,notes');
+
+        return Craft::$app->getResponse()->sendContentAsFile(
+            $csvFile->toString(),
+            Craft::t('commerce', 'inventory-import-template') . '.csv',
+            ['mimeType' => 'text/csv']
+        );
+    }
 
 }
