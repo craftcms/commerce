@@ -23,6 +23,7 @@ use craft\commerce\records\CatalogPricingRule as PricingCatalogRuleRecord;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\User;
 use craft\helpers\Json;
+use craft\models\Site;
 use DateTime;
 use yii\base\InvalidConfigException;
 
@@ -237,10 +238,12 @@ class CatalogPricingRule extends Model implements HasStoreInterface
     public function getPurchasableIds(): ?array
     {
         if ($this->_purchasableIds === null) {
+            $siteIds = $this->getStore()->getSites()->map(fn(Site $site) => $site->id)->all();
             $productVariantIds = null;
 
             if (!empty($this->getProductCondition()->getConditionRules())) {
                 $productQuery = Product::find();
+                $productQuery->siteId($siteIds);
                 /** @var CatalogPricingRuleProductCondition $productCondition */
                 $productCondition = $this->getProductCondition();
                 $productCondition->modifyQuery($productQuery);
@@ -263,6 +266,7 @@ class CatalogPricingRule extends Model implements HasStoreInterface
             $variantIds = $productVariantIds;
             if (!empty($this->getVariantCondition()->getConditionRules())) {
                 $variantQuery = Variant::find();
+                $variantQuery->siteId($siteIds);
                 /** @var CatalogPricingRuleVariantCondition $variantCondition */
                 $variantCondition = $this->getVariantCondition();
                 $variantCondition->modifyQuery($variantQuery);
@@ -286,6 +290,7 @@ class CatalogPricingRule extends Model implements HasStoreInterface
 
             if (!empty($this->getPurchasableCondition()->getConditionRules())) {
                 $purchasableQuery = Purchasable::find();
+                $purchasableQuery->siteId($siteIds);
                 /** @var CatalogPricingRulePurchasableCondition $purchasableCondition */
                 $purchasableCondition = $this->getPurchasableCondition();
                 $purchasableCondition->modifyQuery($purchasableQuery);
