@@ -1995,7 +1995,7 @@ class Order extends Element
     {
         // Matching will contain the core shipping methods and any plugin dynamically returned shipping methods.
         $methods = Plugin::getInstance()->getShippingMethods()->getMatchingShippingMethods($this);
-        $matchingMethodHandles = ArrayHelper::getColumn($methods, 'handle');
+        $matchingMethodHandles = ArrayHelper::getColumn($methods, fn(ShippingMethodInterface $sm) => $sm->getHandle());
 
         // Get all regular methods and add them to the list, for use only when the order is complete.
         if ($this->isCompleted) {
