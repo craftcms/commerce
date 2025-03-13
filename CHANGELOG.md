@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where the SKU was being generated for draft variants. ([#3932](https://github.com/craftcms/commerce/issues/3932))
+
 ## 5.3.5 - 2025-03-12
 
 - Fixed a bug where line items’ sale prices could be calculated incorrectly. ([#3928](https://github.com/craftcms/commerce/issues/3928))
