@@ -105,6 +105,8 @@ class PurchasableConditionRule extends BaseConditionRule implements ElementCondi
             if (!empty($this->_elementIds) && isset($this->_elementIds[$purchasableType]) && !empty($this->_elementIds[$purchasableType])) {
                 $elements = $purchasableType::find()
                     ->id($this->_elementIds[$purchasableType])
+                    ->site('*')
+                    ->preferSites(array_filter([Cp::requestedSite()?->id]))
                     ->status(null)
                     ->all();
             }
@@ -120,6 +122,7 @@ class PurchasableConditionRule extends BaseConditionRule implements ElementCondi
                     'sources' => null,
                     'criteria' => null,
                     'single' => false,
+                    'showSiteMenu' => true,
                 ])
             );
         }

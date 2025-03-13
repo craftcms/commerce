@@ -35,17 +35,16 @@ class PurchasableStockField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public ?string $label = 'Inventory';
-
-    /**
-     * @inheritdoc
-     */
-    public bool $required = true;
-
-    /**
-     * @inheritdoc
-     */
     public string $attribute = 'stock';
+
+    /**
+     * @inheritdoc
+     */
+    public function __construct(array $config = [])
+    {
+        unset($config['required']);
+        parent::__construct($config);
+    }
 
     /**
      * @inheritdoc

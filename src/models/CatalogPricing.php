@@ -169,7 +169,7 @@ class CatalogPricing extends Model implements HasStoreInterface
             return null;
         }
 
-        $this->_catalogPricingRule = Plugin::getInstance()->getCatalogPricingRules()->getCatalogPricingRuleById($this->catalogPricingRuleId);
+        $this->_catalogPricingRule = Plugin::getInstance()->getCatalogPricingRules()->getCatalogPricingRuleById($this->catalogPricingRuleId, $this->storeId);
 
         return $this->_catalogPricingRule;
     }
