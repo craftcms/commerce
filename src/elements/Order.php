@@ -2138,10 +2138,16 @@ class Order extends Element implements HasStoreInterface
         foreach ($methods as $method) {
             $option = new ShippingMethodOption();
 
+            $storeId = $this->storeId;
+
             if ($method instanceof ShippingMethod) {
                 // TODO remove at a breaking change version
                 foreach (['dateCreated', 'dateUpdated'] as $attribute) {
                     $option->$attribute = $method->$attribute;
+                }
+
+                if ($method->storeId !== $storeId) {
+                    continue;
                 }
             }
 
@@ -2153,7 +2159,7 @@ class Order extends Element implements HasStoreInterface
             $option->matchesOrder = ArrayHelper::isIn($method->getHandle(), $matchingMethodHandles);
             $option->price = $method->getPriceForOrder($this);
             $option->shippingMethod = $method;
-            $option->storeId = $method->storeId;
+            $option->storeId = $storeId;
 
             // Add all methods if completed, and only the matching methods when it is not completed.
             if ($this->isCompleted || $option->matchesOrder) {
