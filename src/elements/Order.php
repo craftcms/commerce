@@ -2129,7 +2129,7 @@ class Order extends Element implements HasStoreInterface
 
         // Get all regular methods and add them to the list, for use only when the order is complete.
         if ($this->isCompleted) {
-            $allShippingMethods = ArrayHelper::index(Plugin::getInstance()->getShippingMethods()->getAllShippingMethods()->all(), 'handle');
+            $allShippingMethods = ArrayHelper::index(Plugin::getInstance()->getShippingMethods()->getAllShippingMethods()->all(), fn(ShippingMethodInterface $sm) => $sm->getHandle());
             $methods = ArrayHelper::merge($allShippingMethods, $methods);
         }
 
