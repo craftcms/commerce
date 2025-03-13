@@ -31,15 +31,7 @@ class InventoryImportexportController extends Controller
     {
         $params = [];
 
-        return $this->asCpScreen()
-            ->action('commerce/inventory-importexport/import-inventory')
-            ->addCrumb(Craft::t('commerce', 'Inventory'), 'commerce/inventory')
-            ->selectedSubnavItem('inventory')
-            ->redirectUrl('commerce/inventory')
-            ->title(Craft::t('commerce', 'Import Inventory'))
-            ->formAttributes(['enctype' => 'multipart/form-data'])
-            ->metaSidebarTemplate('commerce/inventory/importexport/_importMeta')
-            ->submitButtonLabel(Craft::t('commerce', 'Import'))
+        return $this->_importScreen()
             ->contentTemplate('commerce/inventory/importexport/_importScreen', $params);
     }
 
@@ -84,7 +76,7 @@ class InventoryImportexportController extends Controller
             }
 
             if (!$inventoryLocation) {
-                $errors[$key][] = 'Invalid location: ' . $record['location'];
+                $errors[$key][] = Craft::t('commerce','Invalid location: {error}', ['error' => $record['location']]);
                 continue;
             }
 
@@ -96,21 +88,22 @@ class InventoryImportexportController extends Controller
             }
 
             if ($item === null) {
-                $errors[$key][] = 'Invalid item: ' . $record['location'];
+                $errors[$key][] = Craft::t('commerce','Invalid item: {error}', ['error' => $record['item']]);
                 continue;
             }
 
             $updateAction = $record['action'];
 
             if (!in_array($updateAction, ['set', 'adjust'])) {
-                $errors[$key][] = 'Invalid action type: ' . $record['action'];
+                $errors[$key][] = Craft::t('commerce','Invalid action type: {error}', ['error' => $updateAction]);
                 continue;
             }
 
             $amount = $record['amount'];
 
             if (!is_numeric($amount)) {
-                $errors[$key][] = 'Invalid amount: ' . $record['amount'];
+                $error = $record['amount'] ?: Craft::t('commerce','Missing');
+                $errors[$key][] = Craft::t('commerce','Invalid amount: {error}', ['error' => $error]);
                 continue;
             }
 
@@ -130,22 +123,27 @@ class InventoryImportexportController extends Controller
         }
 
         if ($errors) {
-            $this->setFailFlash(Craft::t('commerce', 'There was a problem with the import.'));
-            return $this->asCpScreen()
-                ->action('commerce/inventory-importexport/import-inventory')
-                ->addCrumb(Craft::t('commerce', 'Inventory'), 'commerce/inventory')
-                ->selectedSubnavItem('inventory')
-                ->redirectUrl('commerce/inventory')
-                ->title(Craft::t('commerce', 'Import Inventory'))
-                ->formAttributes(['enctype' => 'multipart/form-data'])
-                ->metaSidebarTemplate('commerce/inventory/importexport/_importMeta')
-                ->submitButtonLabel(Craft::t('commerce', 'Import'))
+            $this->setFailFlash(Craft::t('commerce', 'Import could not begin due to errors.'));
+            return $this->_importScreen()
                 ->contentTemplate('commerce/inventory/importexport/_importScreen', ['errors' => $errors]);
         }
 
         Plugin::getInstance()->getInventory()->executeUpdateInventoryLevels($updateInventoryLevels);
 
         return $this->asSuccess('Inventory Imported');
+    }
+
+    private function _importScreen()
+    {
+        return $this->asCpScreen()
+            ->action('commerce/inventory-importexport/import-inventory')
+            ->addCrumb(Craft::t('commerce', 'Inventory'), 'commerce/inventory')
+            ->selectedSubnavItem('inventory')
+            ->redirectUrl('commerce/inventory')
+            ->title(Craft::t('commerce', 'Import Inventory'))
+            ->formAttributes(['enctype' => 'multipart/form-data'])
+            ->metaSidebarTemplate('commerce/inventory/importexport/_importMeta')
+            ->submitButtonLabel(Craft::t('commerce', 'Import'));
     }
 
     /**

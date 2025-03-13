@@ -10,10 +10,8 @@
 
 {% if errors is defined %}
 {% for line, lineErrors in errors %}
-    <div>Errors Line {{ line }}:</div>
-    {% for error in lineErrors %}
-        <li>{{ error }}</li>
-    {% endfor %}
+    <h6>{{ "Errors on Line {line}:"|t('commerce', {line: line}) }}</h6>
+    {{ forms.errorList(lineErrors) }}
 {% endfor %}
 {% endif %}
 
