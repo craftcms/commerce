@@ -286,7 +286,7 @@ class PaymentCurrencies extends Component
 
         // Reverse all the rates so we have to opposite conversions
         foreach ($nonPrimaryCurrencies->all() as $iso => $rate) {
-            $exchange[$iso] = [$storeCurrency->getCode() => (string)(1 / $rate)];
+            $exchange[$iso] = [$storeCurrency->getCode() => (string)(1 / (float)$rate)];
         }
 
         return new FixedExchange($exchange);
