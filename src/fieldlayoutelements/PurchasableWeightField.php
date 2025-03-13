@@ -32,11 +32,6 @@ class PurchasableWeightField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public ?string $label = 'Weight';
-
-    /**
-     * @inheritdoc
-     */
     public string $attribute = 'weight';
 
     /**
