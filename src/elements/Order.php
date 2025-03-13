@@ -1999,7 +1999,7 @@ class Order extends Element
 
         // Get all regular methods and add them to the list, for use only when the order is complete.
         if ($this->isCompleted) {
-            $allShippingMethods = ArrayHelper::index(Plugin::getInstance()->getShippingMethods()->getAllShippingMethods(), 'handle');
+            $allShippingMethods = ArrayHelper::index(Plugin::getInstance()->getShippingMethods()->getAllShippingMethods(), fn(ShippingMethodInterface $sm) => $sm->getHandle());
             $methods = ArrayHelper::merge($allShippingMethods, $methods);
         }
 
