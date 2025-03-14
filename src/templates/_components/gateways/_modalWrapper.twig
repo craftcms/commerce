@@ -30,8 +30,8 @@
                    step="any" min="1" max="{{ order.outstandingBalance }}"
                    value="{{ order.getPaymentAmount() }}" style="margin: 0 0 0 5px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
 
-            {% set currencies = craft.commerce.paymentCurrencies.getAllPaymentCurrencies() %}
-            {% set primaryCurrency = craft.commerce.paymentCurrencies.getPrimaryPaymentCurrency() %}
+            {% set currencies = craft.commerce.paymentCurrencies.getAllPaymentCurrencies(order.store.id) %}
+            {% set primaryCurrency = craft.commerce.paymentCurrencies.getPrimaryPaymentCurrency(order.store.id) %}
             {% if currencies|length > 1 %}
                 <select class="paymentCurrency text" name="paymentCurrency"  style="margin: 0 5px;">
                 {% for currency in currencies %}

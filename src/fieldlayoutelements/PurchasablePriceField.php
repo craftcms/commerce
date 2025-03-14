@@ -40,12 +40,17 @@ class PurchasablePriceField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public bool $required = true;
+    public ?string $label = '__blank__';
 
     /**
      * @inheritdoc
      */
     public string $attribute = 'price';
+
+    /**
+     * @inheritdoc
+     */
+    public bool $required = true;
 
     /**
      * @inheritdoc
@@ -170,6 +175,7 @@ JS;
                     'size' => 12,
                 ]), [
                     'id' => 'base-price',
+                    'required' => true,
                     'label' => Craft::t('commerce', 'Price'),
                 ]) .
 

@@ -47,6 +47,7 @@ use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
+use yii\validators\Validator;
 
 /**
  * Variant model.
@@ -1239,7 +1240,8 @@ class Variant extends Purchasable implements NestedElementInterface
     {
         return array_merge(parent::defineRules(), [
             [['sku'], 'string', 'max' => 255],
-            [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE],
+            [['sku'], 'required', 'on' => self::SCENARIO_LIVE],
+            [['basePrice'], 'validatePrice', 'on' => self::SCENARIO_LIVE, 'skipOnEmpty' => false],
             [['price', 'weight', 'width', 'height', 'length'], 'number'],
             // maxQty must be greater than minQty and minQty must be less than maxQty
             [['minQty'], 'validateMinQtyRange', 'skipOnEmpty' => true],
@@ -1247,6 +1249,19 @@ class Variant extends Purchasable implements NestedElementInterface
             [['stock', 'fieldId', 'ownerId', 'primaryOwnerId'], 'number'],
             [['ownerId', 'primaryOwnerId', 'isDefault', 'deletedWithProduct'], 'safe'],
         ]);
+    }
+
+    /**
+     * @param string $attribute
+     * @param $params
+     * @param Validator $validator
+     */
+    public function validatePrice(string $attribute, $params, Validator $validator): void
+    {
+        if ($this->$attribute === null) {
+            $message = Craft::t('yii', '{attribute} cannot be blank.', ['attribute' => $this->getAttributeLabel('price')]);
+            $validator->addError($this, 'price', $message);
+        }
     }
 
     /**
