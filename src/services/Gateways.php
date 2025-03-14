@@ -12,6 +12,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\db\Table;
+use craft\commerce\elements\Order;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\gateways\Manual;
 use craft\commerce\gateways\MissingGateway;
@@ -276,7 +277,7 @@ class Gateways extends Component
                 'sortOrder' => ($gateway->sortOrder ?? 99),
                 'paymentType' => $gateway->paymentType,
                 'isFrontendEnabled' => $gateway->getIsFrontendEnabled(false),
-                'orderCondition' => $gateway->orderCondition,
+                'orderCondition' => $gateway->getOrderCondition()->getConfig(),
             ];
         }
 

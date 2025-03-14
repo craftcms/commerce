@@ -7,7 +7,11 @@
 
 namespace craft\commerce\base;
 
+use craft\commerce\elements\conditions\orders\DiscountOrderCondition;
+use craft\commerce\elements\conditions\orders\GatewayOrderCondition;
+use craft\elements\conditions\ElementConditionInterface;
 use craft\helpers\App;
+use craft\helpers\Json;
 use DateTime;
 
 /**
@@ -35,14 +39,14 @@ trait GatewayTrait
 
     /**
      * @var bool|string|null Enabled on the frontend
-     * @deprecated in 5.3.5. Use orderCondition instead.
      */
     public bool|string|null $_isFrontendEnabled = true;
 
+
     /**
-     * @var string|array|null Order condition
+     * @var ElementConditionInterface|null
      */
-    public string|array|null $orderCondition = null;
+    private ?ElementConditionInterface $_orderCondition = null;
 
     /**
      * @var bool Archived
@@ -82,5 +86,46 @@ trait GatewayTrait
     public function getIsFrontendEnabled(bool $parse = true): bool|string|null
     {
         return $parse ? App::parseBooleanEnv($this->_isFrontendEnabled) : $this->_isFrontendEnabled;
+    }
+
+    /**
+     * Gets the order condition for this gateway
+     *
+     * @since 5.4.0
+     */
+    public function getOrderCondition(): ElementConditionInterface
+    {
+        /** @var DiscountOrderCondition $condition */
+        $condition = $this->_orderCondition ?? new GatewayOrderCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'orderCondition';
+
+        return $condition;
+    }
+
+    /**
+     * Sets the order condition for this gateway
+     *
+     * @since 5.4.0
+     */
+    public function setOrderCondition(ElementConditionInterface|string|array $condition): void
+    {
+        if (empty($condition)) {
+            $this->_orderCondition = null;
+            return;
+        }
+
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof GatewayOrderCondition) {
+            $condition['class'] = GatewayOrderCondition::class;
+            /** @var GatewayOrderCondition $condition */
+            $condition = \Craft::$app->getConditions()->createCondition($condition);
+        }
+        $condition->forProjectConfig = true;
+
+        $this->_orderCondition = $condition;
     }
 }
