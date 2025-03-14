@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where the SKU was being generated for draft variants. ([#3932](https://github.com/craftcms/commerce/issues/3932))
+- Fixed a PHP error that could occur when registering a custom shipping method.
 
 ## 5.3.5 - 2025-03-12
 
