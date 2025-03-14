@@ -146,7 +146,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     /**
      * Returns true if this gateway has an order condition
      *
-     * @since 5.3.5
+     * @since 5.4.0
      */
     public function hasOrderCondition(): bool
     {

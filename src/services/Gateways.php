@@ -119,9 +119,6 @@ class Gateways extends Component
                 $order = new Order();
                 return $gateway->availableForUseWithOrder($order);
             }
-            
-            // Legacy way: check if isFrontendEnabled is true
-            return $gateway->getIsFrontendEnabled();
         });
     }
 
