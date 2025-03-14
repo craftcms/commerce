@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a PHP error that could occur when making a payment in payment modals on Edit Order pages. ([#3919](https://github.com/craftcms/commerce/issues/3919))
 - Fixed a PHP error that could occur when registering a custom shipping method.
 
 ## 5.3.5 - 2025-03-12
