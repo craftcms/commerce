@@ -12,7 +12,6 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\db\Table;
-use craft\commerce\elements\Order;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\gateways\Manual;
 use craft\commerce\gateways\MissingGateway;
@@ -112,14 +111,7 @@ class Gateways extends Component
      */
     public function getAllCustomerEnabledGateways(): Collection
     {
-        return $this->getAllGateways()->filter(function(GatewayInterface $gateway) {
-            // New way: check if the gateway has the EnabledGatewayConditionRule or another order condition
-            if ($gateway->hasOrderCondition()) {
-                // Create a placeholder order just to test availability
-                $order = new Order();
-                return $gateway->availableForUseWithOrder($order);
-            }
-        });
+        return $this->getAllGateways()->filter(fn(GatewayInterface $gateway) => $gateway->getIsFrontendEnabled());
     }
 
     /**
