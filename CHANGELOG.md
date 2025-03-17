@@ -4,6 +4,7 @@
 
 - Fixed a bug where catalog pricing rules’ purchasables could be returned incorrectly. ([#3917](https://github.com/craftcms/commerce/issues/3917))
 - Fixed a PHP error that could occur when making a payment in payment modals on Edit Order pages. ([#3919](https://github.com/craftcms/commerce/issues/3919))
+- Fixed a bug where creating a `VariantCollection` could cause missing custom field data. ([#3931](https://github.com/craftcms/commerce/issues/3931))
 - Fixed a PHP error that could occur when registering a custom shipping method.
 
 ## 5.3.5 - 2025-03-12
