@@ -9,9 +9,13 @@ namespace craft\commerce\base;
 
 use Craft;
 use craft\base\SavableComponent;
+use craft\commerce\elements\conditions\orders\DiscountOrderCondition;
+use craft\commerce\elements\conditions\orders\GatewayOrderCondition;
 use craft\commerce\elements\Order;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
+use craft\elements\conditions\ElementConditionInterface;
+use craft\helpers\Json;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 
@@ -142,7 +146,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     {
         return true;
     }
-    
+
     /**
      * Returns true if this gateway has an order condition
      *
@@ -174,5 +178,63 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     public function transactionSupportsRefund(Transaction $transaction): bool
     {
         return true;
+    }
+
+
+    /**
+     * Gets the order condition for this gateway
+     *
+     * @since 5.4.0
+     */
+    public function getOrderCondition(): ElementConditionInterface
+    {
+        /** @var DiscountOrderCondition $condition */
+        $condition = $this->_orderCondition ?? new GatewayOrderCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'orderCondition';
+
+        return $condition;
+    }
+
+    /**
+     * Sets the order condition for this gateway
+     *
+     * @since 5.4.0
+     */
+    public function setOrderCondition(ElementConditionInterface|string|array $condition): void
+    {
+        if (empty($condition)) {
+            $this->_orderCondition = null;
+            return;
+        }
+
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof GatewayOrderCondition) {
+            $condition['class'] = GatewayOrderCondition::class;
+            /** @var GatewayOrderCondition $condition */
+            $condition = \Craft::$app->getConditions()->createCondition($condition);
+        }
+        $condition->forProjectConfig = true;
+
+        $this->_orderCondition = $condition;
+    }
+
+    public function getConfig(): array
+    {
+        $configData = [
+            'name' => $this->name,
+            'handle' => $this->handle,
+            'type' => get_class($this),
+            'settings' => $this->getSettings(),
+            'sortOrder' => ($this->sortOrder ?? 99),
+            'paymentType' => $this->paymentType,
+            'isFrontendEnabled' => $this->getIsFrontendEnabled(false),
+            'orderCondition' => $this->getOrderCondition()->getConfig(),
+        ];
+
+        return $configData;
     }
 }

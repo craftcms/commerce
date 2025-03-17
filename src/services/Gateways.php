@@ -448,14 +448,13 @@ class Gateways extends Component
      */
     private function _createGatewayQuery(): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'dateArchived',
                 'handle',
                 'id',
                 'isArchived',
                 'isFrontendEnabled',
-                'orderCondition',
                 'name',
                 'paymentType',
                 'settings',
@@ -465,6 +464,14 @@ class Gateways extends Component
             ])
             ->orderBy(['sortOrder' => SORT_ASC])
             ->from([Table::GATEWAYS]);
+
+        // TODO: remove after next breakpoint
+        $db = Craft::$app->getDb();
+        if ($db->columnExists(Table::GATEWAYS, 'orderCondition')) {
+            $query->addSelect('orderCondition');
+        }
+
+        return $query;
     }
 
     /**

@@ -116,29 +116,13 @@ class ProjectConfigData
      */
     private static function _rebuildGatewayProjectConfig(): array
     {
-        $gatewayData = (new Query())
-            ->select(['*'])
-            ->from([Table::GATEWAYS])
-            ->where(['isArchived' => false])
-            ->all();
 
-        $configData = [];
-
-        foreach ($gatewayData as $gatewayRow) {
-            $settings = Json::decodeIfJson($gatewayRow['settings']);
-            $configData[$gatewayRow['uid']] = [
-                'name' => $gatewayRow['name'],
-                'handle' => $gatewayRow['handle'],
-                'type' => $gatewayRow['type'],
-                'settings' => $settings,
-                'sortOrder' => (int)$gatewayRow['sortOrder'],
-                'paymentType' => $gatewayRow['paymentType'],
-                'isFrontendEnabled' => (bool)$gatewayRow['isFrontendEnabled'],
-            ];
+        $data = [];
+        foreach (Plugin::getInstance()->getGateways()->getAllGateways() as $gateway) {
+            $data[$gateway->uid] = $gateway->getConfig();
         }
+        return $data;
 
-
-        return $configData;
     }
 
     /**
