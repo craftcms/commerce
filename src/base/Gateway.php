@@ -38,6 +38,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
 
     /**
      * @var ElementConditionInterface|null
+     * @since 5.4.0
      */
     private ?ElementConditionInterface $_orderCondition = null;
 
@@ -133,10 +134,6 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      */
     public function availableForUseWithOrder(Order $order): bool
     {
-        if (Craft::$app->getRequest()->getIsSiteRequest() && !$this->getIsFrontendEnabled()) {
-            return false;
-        }
-
         if ($this->hasOrderCondition() && !$this->getOrderCondition()->matchElement($order)) {
             return false;
         }
