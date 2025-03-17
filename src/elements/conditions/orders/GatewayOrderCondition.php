@@ -8,6 +8,7 @@
 namespace craft\commerce\elements\conditions\orders;
 
 use craft\commerce\elements\Order;
+use craft\helpers\Html;
 
 /**
  * Gateway Order Condition
@@ -17,4 +18,11 @@ use craft\commerce\elements\Order;
  */
 class GatewayOrderCondition extends OrderCondition
 {
+    public function getBuilderHtml($readOnly = false): string
+    {
+        if ($readOnly) {
+            return Html::disableInputs(fn() => parent::getBuilderHtml());
+        }
+        return parent::getBuilderHtml();
+    }
 }

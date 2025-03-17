@@ -37,6 +37,11 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     use GatewayTrait;
 
     /**
+     * @var ElementConditionInterface|null
+     */
+    private ?ElementConditionInterface $_orderCondition = null;
+
+    /**
      * Returns the name of this payment method.
      *
      * @return string
@@ -222,6 +227,10 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
         $this->_orderCondition = $condition;
     }
 
+    /**
+     * @return array
+     * @since 5.4.0
+     */
     public function getConfig(): array
     {
         $configData = [

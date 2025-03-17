@@ -34,7 +34,6 @@ use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\web\ServerErrorHttpException;
-use function get_class;
 
 /**
  * Gateway service.

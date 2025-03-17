@@ -21,7 +21,6 @@ use craft\commerce\services\Pdfs;
 use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Stores;
 use craft\db\Query;
-use craft\helpers\Json;
 
 /**
  * Class ProjectConfigData

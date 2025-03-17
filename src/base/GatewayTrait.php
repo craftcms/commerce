@@ -7,7 +7,6 @@
 
 namespace craft\commerce\base;
 
-use craft\elements\conditions\ElementConditionInterface;
 use craft\helpers\App;
 use DateTime;
 
@@ -38,12 +37,6 @@ trait GatewayTrait
      * @var bool|string|null Enabled on the frontend
      */
     public bool|string|null $_isFrontendEnabled = true;
-
-
-    /**
-     * @var ElementConditionInterface|null
-     */
-    private ?ElementConditionInterface $_orderCondition = null;
 
     /**
      * @var bool Archived
