@@ -258,16 +258,7 @@ class Gateways extends Component
         if ($gateway->isArchived) {
             $configData = null;
         } else {
-            $configData = [
-                'name' => $gateway->name,
-                'handle' => $gateway->handle,
-                'type' => get_class($gateway),
-                'settings' => $gateway->getSettings(),
-                'sortOrder' => ($gateway->sortOrder ?? 99),
-                'paymentType' => $gateway->paymentType,
-                'isFrontendEnabled' => $gateway->getIsFrontendEnabled(false),
-                'orderCondition' => $gateway->getOrderCondition()->getConfig(),
-            ];
+            $configData = $gateway->getConfig();
         }
 
         $configPath = self::CONFIG_GATEWAY_KEY . '.' . $gatewayUid;

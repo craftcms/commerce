@@ -116,13 +116,11 @@ class ProjectConfigData
      */
     private static function _rebuildGatewayProjectConfig(): array
     {
-
         $data = [];
         foreach (Plugin::getInstance()->getGateways()->getAllGateways() as $gateway) {
             $data[$gateway->uid] = $gateway->getConfig();
         }
         return $data;
-
     }
 
     /**
