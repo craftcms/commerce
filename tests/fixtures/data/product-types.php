@@ -12,6 +12,8 @@ return [
         'productTitleFormat' => '',
         'hasProductTitleField' => true,
         'hasVariantTitleField' => false,
+        '_fieldLayout' => 'product-layout-1001--------------uid',
+        '_variantFieldLayout' => 'variant-layout-1001--------------uid',
     ],
     'tees' => [
         'id' => '2001',
@@ -24,5 +26,7 @@ return [
         'productTitleFormat' => '',
         'hasProductTitleField' => true,
         'hasVariantTitleField' => false,
+        '_fieldLayout' => 'product-layout-1001--------------uid',
+        '_variantFieldLayout' => 'variant-layout-1001--------------uid',
     ],
 ];

@@ -52,6 +52,70 @@ class ProductTest extends Unit
     }
 
     /**
+     * @group Product
+     * @dataProvider productMassAssignmentDataProvider
+     */
+    public function testProductMassAssignment(array $data, array $checkKeys): void
+    {
+        $data += ['class' => Product::class];
+        $product = \Craft::createObject($data);
+
+        foreach ($checkKeys as $checkKey) {
+            if ($checkKey === 'variants') {
+                self::assertCount(count($data[$checkKey]), $product->getVariants());
+                $variant = $product->getVariants()[0];
+
+                foreach (array_keys($data[$checkKey][0]) as $variantKey) {
+                    self::assertEquals($data[$checkKey][0][$variantKey], $variant->$variantKey);
+                }
+                continue;
+            }
+
+            self::assertEquals($data[$checkKey], $product->$checkKey);
+        }
+    }
+
+    public function productMassAssignmentDataProvider(): array
+    {
+        return [
+            // 'just-properties' => [
+            //     [
+            //         'title' => 'Test Product',
+            //         'typeId' => 2000,
+            //         'enabled' => true,
+            //         'variants' => [
+            //             [
+            //                 'title' => 'Test Variant',
+            //                 'basePrice' => 123,
+            //                 'sku' => '123',
+            //                 'enabled' => true,
+            //             ]
+            //         ]
+            //     ],
+            //     ['title', 'typeId', 'enabled', 'variants'],
+            // ],
+            'props-and-custom-fields' => [
+                [
+                    'title' => 'Test Product',
+                    'typeId' => 2000,
+                    'enabled' => true,
+                    'variants' => [
+                        [
+                            'title' => 'Test Variant',
+                            'basePrice' => 123,
+                            'sku' => '123',
+                            'enabled' => true,
+                            'myVariantHeadingField' => 'bar',
+                        ]
+                    ],
+                    'myHeadingField' => 'foo',
+                ],
+                ['title', 'typeId', 'enabled', 'variants'],
+            ],
+        ];
+    }
+
+    /**
      * @dataProvider productVariantMethodsDataProvider
      */
     public function testProductVariantMethods(int $productTypeId, array $variantData, array $expected): void

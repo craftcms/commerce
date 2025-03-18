@@ -60,4 +60,38 @@ return [
             ],
         ],
     ],
+    [
+        'uid' => 'product-layout-1001--------------uid',
+        'type' => 'craft\elements\Product',
+        'tabs' => [
+            [
+                'name' => 'Tab 1',
+                'fields' => [
+                    [
+                        'name' => 'My Heading Field',
+                        'handle' => 'myHeadingField',
+                        'type' => PlainText::class,
+                        'required' => false,
+                    ],
+                ],
+            ],
+        ],
+    ],
+    [
+        'uid' => 'variant-layout-1001--------------uid',
+        'type' => 'craft\elements\Variant',
+        'tabs' => [
+            [
+                'name' => 'Tab 1',
+                'fields' => [
+                    [
+                        'name' => 'My VariantHeading Field',
+                        'handle' => 'myVariantHeadingField',
+                        'type' => PlainText::class,
+                        'required' => false,
+                    ],
+                ],
+            ],
+        ],
+    ],
 ];

@@ -9,6 +9,7 @@ namespace craftcommercetests\fixtures;
 
 use craft\commerce\records\ProductType;
 use craft\test\ActiveFixture;
+use craft\test\fixtures\FieldLayoutFixture as FieldLayoutFixtureAlias;
 
 /**
  * Product Type Fixture
@@ -37,5 +38,28 @@ class ProductTypeFixture extends ActiveFixture
         TaxCategoryFixture::class,
         ProductTypesTaxCategoriesFixture::class,
         ProductTypeSitesFixture::class,
+        FieldLayoutFixture::class,
     ];
+
+    /**
+     * @inheritdoc
+     */
+    protected function getData()
+    {
+        $data = parent::getData();
+
+        foreach ($data as &$record) {
+            if (isset($record['_fieldLayout'])) {
+                $record['fieldLayoutId'] = \Craft::$app->getFields()->getLayoutByUid($record['_fieldLayout'])?->id ?? null;
+                unset($record['_fieldLayout']);
+            }
+
+            if (isset($record['_variantFieldLayout'])) {
+                $record['variantFieldLayoutId'] = \Craft::$app->getFields()->getLayoutByUid($record['_variantFieldLayout'])?->id ?? null;
+                unset($record['_variantFieldLayout']);
+            }
+        }
+
+        return $data;
+    }
 }
