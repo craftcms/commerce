@@ -78,22 +78,22 @@ class ProductTest extends Unit
     public function productMassAssignmentDataProvider(): array
     {
         return [
-            // 'just-properties' => [
-            //     [
-            //         'title' => 'Test Product',
-            //         'typeId' => 2000,
-            //         'enabled' => true,
-            //         'variants' => [
-            //             [
-            //                 'title' => 'Test Variant',
-            //                 'basePrice' => 123,
-            //                 'sku' => '123',
-            //                 'enabled' => true,
-            //             ]
-            //         ]
-            //     ],
-            //     ['title', 'typeId', 'enabled', 'variants'],
-            // ],
+            'just-properties' => [
+                [
+                    'title' => 'Test Product',
+                    'typeId' => 2000,
+                    'enabled' => true,
+                    'variants' => [
+                        [
+                            'title' => 'Test Variant',
+                            'basePrice' => 123,
+                            'sku' => '123',
+                            'enabled' => true,
+                        ]
+                    ]
+                ],
+                ['title', 'typeId', 'enabled', 'variants'],
+            ],
             'props-and-custom-fields' => [
                 [
                     'title' => 'Test Product',
