@@ -9,7 +9,6 @@ namespace craftcommercetests\fixtures;
 
 use craft\commerce\records\ProductType;
 use craft\test\ActiveFixture;
-use craft\test\fixtures\FieldLayoutFixture as FieldLayoutFixtureAlias;
 
 /**
  * Product Type Fixture

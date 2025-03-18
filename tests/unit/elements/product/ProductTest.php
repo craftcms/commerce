@@ -89,8 +89,8 @@ class ProductTest extends Unit
                             'basePrice' => 123,
                             'sku' => '123',
                             'enabled' => true,
-                        ]
-                    ]
+                        ],
+                    ],
                 ],
                 ['title', 'typeId', 'enabled', 'variants'],
             ],
@@ -106,7 +106,7 @@ class ProductTest extends Unit
                             'sku' => '123',
                             'enabled' => true,
                             'myVariantHeadingField' => 'bar',
-                        ]
+                        ],
                     ],
                     'myHeadingField' => 'foo',
                 ],
