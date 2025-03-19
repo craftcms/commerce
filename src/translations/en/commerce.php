@@ -564,6 +564,7 @@ return [
     'Invalid gateway: {value}' => 'Invalid gateway: {value}',
     'Invalid inventory movements.' => 'Invalid inventory movements.',
     'Invalid item: {error}' => 'Invalid item: {error}',
+    'Invalid location: {error}' => 'Invalid location: {error}',
     'Invalid order condition syntax.' => 'Invalid order condition syntax.',
     'Invalid payment or order. Please review.' => 'Invalid payment or order. Please review.',
     'Invalid payment source ID: {value}' => 'Invalid payment source ID: {value}',

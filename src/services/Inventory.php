@@ -22,7 +22,6 @@ use craft\commerce\models\inventory\InventoryManualMovement;
 use craft\commerce\models\inventory\UpdateInventoryLevel;
 use craft\commerce\models\inventory\UpdateInventoryLevelInTransfer;
 use craft\commerce\models\InventoryFulfillmentLevel;
-use craft\commerce\models\InventoryImport;
 use craft\commerce\models\InventoryItem;
 use craft\commerce\models\InventoryLevel;
 use craft\commerce\models\InventoryLocation;
@@ -851,42 +850,5 @@ class Inventory extends Component
                 }
             }
         }
-    }
-
-    /**
-     * @param InventoryImport $import
-     * @throws Exception
-     */
-    public function importInventory(InventoryImport $import): void
-    {
-        $handle = fopen($import->importFile, 'r');
-        if ($handle === false) {
-            throw new Exception("Could not open the import file.");
-        }
-
-        $header = fgetcsv($handle);
-        $batch = [];
-        $rowCount = 0;
-
-        while (($row = fgetcsv($handle)) !== false) {
-            $batch[] = array_combine($header, $row);
-            $rowCount++;
-
-            if ($rowCount === $import->batchSize) {
-                $this->_processImportBatch($batch, $import);
-                $batch = [];
-                $rowCount = 0;
-            }
-        }
-
-        if (!empty($batch)) {
-            $this->_processImportBatch($batch, $import);
-        }
-
-        fclose($handle);
-    }
-
-    private function _processImportBatch($batch, InventoryImport $import)
-    {
     }
 }

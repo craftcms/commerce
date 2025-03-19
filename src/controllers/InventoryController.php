@@ -200,13 +200,24 @@ class InventoryController extends Controller
 
         $importBtnId = sprintf("import-%s", mt_rand());
         $items['import'] = [
-            'type' => MenuItemType::Link,
+            'type' => MenuItemType::Button,
             'id' => $importBtnId,
-            'url' => 'commerce/inventory/import',
             'icon' => 'arrow-up',
             'label' => Craft::t('commerce', 'Import Inventory'),
         ];
-        $exportBtnId = sprintf("import-%s", mt_rand());
+
+        // make import button open a slideout
+        $view->registerJsWithVars(fn($id, $settings) => <<<JS
+$('#' + $id).on('click', (e) => {
+  e.preventDefault(); 
+  const slideout = new Craft.CpScreenSlideout('commerce/inventory-importexport', $settings);
+});
+JS, [
+            $view->namespaceInputId($importBtnId),
+            [],
+        ]);
+
+        $exportBtnId = sprintf("export-%s", mt_rand());
         $items['export'] = [
             'type' => MenuItemType::Link,
             'id' => $exportBtnId,

@@ -37,18 +37,19 @@ class InventoryImportexportController extends Controller
 
     public function actionImportInventory()
     {
-        $errors = [];
-        $inventory = Plugin::getInstance()->getInventory();
         $this->requirePostRequest();
         $this->requirePermission('commerce-manageInventoryStockLevels');
 
-        $file = UploadedFile::getInstanceByName('importFile');
+        $inventoryService = Plugin::getInstance()->getInventory();
 
+        $errors = [];
+
+        $file = UploadedFile::getInstanceByName('importFile');
         if (!$file) {
             return $this->asFailure('No file uploaded.');
         }
 
-        // check CSV file has certain headers
+        // check CSV file is OK
         try {
             $csv = Reader::createFromPath($file->tempName);
             $csv->setHeaderOffset(0); //set the CSV header offset
@@ -57,8 +58,8 @@ class InventoryImportexportController extends Controller
             return $this->asFailure('Invalid CSV file.');
         }
 
+        // Check required headers are all there
         $headers = $csv->getHeader();
-
         if (!in_array('location', $headers) || !in_array('item', $headers) || !in_array('action', $headers) || !in_array('amount', $headers)) {
             return $this->asFailure('Invalid CSV file. Missing required headers.');
         }
@@ -82,9 +83,9 @@ class InventoryImportexportController extends Controller
 
             $item = null;
             if (is_numeric($record['item'])) {
-                $item = Plugin::getInstance()->getInventory()->getInventoryItemById($record['item']);
+                $item = $inventoryService->getInventoryItemById($record['item']);
             } else {
-                $item = Plugin::getInstance()->getInventory()->getInventoryItemBySku($record['item']);
+                $item = $inventoryService->getInventoryItemBySku($record['item']);
             }
 
             if ($item === null) {
@@ -128,7 +129,7 @@ class InventoryImportexportController extends Controller
                 ->contentTemplate('commerce/inventory/importexport/_importScreen', ['errors' => $errors]);
         }
 
-        Plugin::getInstance()->getInventory()->executeUpdateInventoryLevels($updateInventoryLevels);
+        $inventoryService->executeUpdateInventoryLevels($updateInventoryLevels);
 
         return $this->asSuccess('Inventory Imported');
     }
@@ -141,7 +142,7 @@ class InventoryImportexportController extends Controller
             ->selectedSubnavItem('inventory')
             ->redirectUrl('commerce/inventory')
             ->title(Craft::t('commerce', 'Import Inventory'))
-            ->formAttributes(['enctype' => 'multipart/form-data'])
+            ->formAttributes(['enctype' => 'multipart/form-data', 'accept-charset'=>'UTF-8'])
             ->metaSidebarTemplate('commerce/inventory/importexport/_importMeta')
             ->submitButtonLabel(Craft::t('commerce', 'Import'));
     }

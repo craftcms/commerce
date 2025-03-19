@@ -37,11 +37,6 @@ use yii2tech\ar\softdelete\SoftDeleteBehavior;
 class InventoryLocations extends Component
 {
     /**
-     * @var array|null All inventory locations cached by ID.
-     */
-    private ?array $_allInventoryLocations = null;
-
-    /**
      * Returns all inventory locations.
      *
      * @param bool $withTrashed
