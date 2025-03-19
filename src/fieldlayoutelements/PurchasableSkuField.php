@@ -8,6 +8,7 @@
 namespace craft\commerce\fieldlayoutelements;
 
 use Craft;
+use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Variant;
@@ -48,17 +49,13 @@ class PurchasableSkuField extends BaseNativeField
             throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
         }
 
-        $html = '';
-
-        if ($element instanceof Variant && $element->getOwner()->getType()->skuFormat !== null && !$element->id) {
-            $html .= Html::hiddenInput('sku', '');
-        } else {
-            $html .= PurchasableHelper::skuInputHtml($element->getSkuAsText(), [
-                'disabled' => $static,
-            ]);
+        if($element->getIsDraft() && $this->getScenario() === Element::SCENARIO_DEFAULT) {
+            return null;
         }
 
-        return $html;
+        return PurchasableHelper::skuInputHtml($element->getSkuAsText(), [
+            'disabled' => $static,
+        ]);
     }
 
     /**

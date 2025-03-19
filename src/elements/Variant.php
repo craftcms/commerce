@@ -717,10 +717,6 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public function updateSku(Product $product): void
     {
-        if ($this->getIsDraft() || $this->getScenario() === self::SCENARIO_ESSENTIALS) {
-            return;
-        }
-
         $type = $product->getType();
         // If we have a blank SKU, generate from product type’s skuFormat
         if (!$this->sku && $type->skuFormat) {
