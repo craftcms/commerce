@@ -48,7 +48,8 @@ class PurchasableSkuField extends BaseNativeField
             throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
         }
 
-        if (($element instanceof Variant && $element->getOwner()->getType()->skuFormat !== null) && $element->getIsDraft() && $this->getScenario() === Element::SCENARIO_DEFAULT) {
+        $variantWithSkuFormula = $element instanceof Variant && $element->getOwner()->getType()->skuFormat !== null;
+        if ($variantWithSkuFormula && $element->getIsDraft() && $this->getScenario() === Element::SCENARIO_DEFAULT) {
             return null;
         }
 
