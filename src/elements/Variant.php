@@ -1152,10 +1152,8 @@ class Variant extends Purchasable implements NestedElementInterface
         $this->updateTitle($product);
         $this->updateSku($product);
 
-        if ($this->getScenario() === self::SCENARIO_DEFAULT) {
-            if (!$this->sku) {
-                $this->setSku(PurchasableHelper::tempSku());
-            }
+        if (!$this->sku && $this->getScenario() === self::SCENARIO_DEFAULT) {
+            $this->setSku(PurchasableHelper::tempSku());
         }
 
         return parent::beforeValidate();

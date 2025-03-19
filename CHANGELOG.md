@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a bug where the SKU was being generated for provisional draft. ([#3932](https://github.com/craftcms/commerce/issues/3932))
 - Fixed a PHP error that could occur with an invalid Postal Code condition rule twig formula. ([#3943](https://github.com/craftcms/commerce/issues/3943))
 - Fixed an SQL error that occurred when viewing variant element indexes containing product sources that have product types with structure sources. ([#3944](https://github.com/craftcms/commerce/issues/3944))
 - Fixed a bug where catalog pricing rules’ purchasables could be returned incorrectly. ([#3917](https://github.com/craftcms/commerce/issues/3917))
