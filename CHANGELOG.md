@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## 4.8.3 - 2025-03-19
+## 5.3.6 - 2025-03-19
 
 - Fixed a bug where SKUs were being generated for provisional drafts. ([#3932](https://github.com/craftcms/commerce/issues/3932))
 - Fixed a PHP error that occurred if a Postal Code Formula condition rule had invalid Twig code. ([#3943](https://github.com/craftcms/commerce/issues/3943))
