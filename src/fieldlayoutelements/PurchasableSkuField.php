@@ -14,7 +14,6 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Variant;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\fieldlayoutelements\BaseNativeField;
-use craft\helpers\Html;
 use yii\base\InvalidArgumentException;
 
 /**
@@ -49,7 +48,7 @@ class PurchasableSkuField extends BaseNativeField
             throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
         }
 
-        if($element->getIsDraft() && $this->getScenario() === Element::SCENARIO_DEFAULT) {
+        if ($element->getIsDraft() && $this->getScenario() === Element::SCENARIO_DEFAULT) {
             return null;
         }
 
