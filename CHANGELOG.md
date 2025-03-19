@@ -2,8 +2,13 @@
 
 ## Unreleased
 
-- Fixed a bug where the site selection menu wasn’t showing on catalog pricing rules’ element selection. ([#3917](https://github.com/craftcms/commerce/issues/3917))
-- Fixed a bug where payment modals were showing incorrect payment currencies on Edit Order pages. ([#3919](https://github.com/craftcms/commerce/issues/3919))
+- Fixed a PHP error that could occur when registering a custom shipping method.
+
+## 5.3.5 - 2025-03-12
+
+- Fixed a bug where line items’ sale prices could be calculated incorrectly. ([#3928](https://github.com/craftcms/commerce/issues/3928))
+- Fixed a bug where catalog pricing rules’ element selector modals didn’t have site selection menus. ([#3917](https://github.com/craftcms/commerce/issues/3917))
+- Fixed a bug where payment modals on Edit Order pages were showing incorrect payment currencies. ([#3919](https://github.com/craftcms/commerce/issues/3919))
 - Fixed a SQL error that could occur when querying inventory transfers.
 
 ## 5.3.4 - 2025-02-26
