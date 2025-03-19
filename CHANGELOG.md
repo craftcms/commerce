@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- Fixed a bug where the SKU was being generated for draft variants. ([#3932](https://github.com/craftcms/commerce/issues/3932))
+- Fixed a bug where the SKU was being generated for provisional draft. ([#3932](https://github.com/craftcms/commerce/issues/3932))
+- Fixed an SQL error that occurred when viewing variant element indexes containing product sources that have product types with structure sources. ([#3944](https://github.com/craftcms/commerce/issues/3944))
 - Fixed a bug where catalog pricing rules’ purchasables could be returned incorrectly. ([#3917](https://github.com/craftcms/commerce/issues/3917))
 - Fixed a PHP error that could occur when making a payment in payment modals on Edit Order pages. ([#3919](https://github.com/craftcms/commerce/issues/3919))
 - Fixed a PHP error that could occur when registering a custom shipping method.
