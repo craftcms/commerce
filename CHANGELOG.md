@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.8.3 - 2025-03-19
 
 - Fixed a PHP error that could occur when registering a custom shipping method.
 
