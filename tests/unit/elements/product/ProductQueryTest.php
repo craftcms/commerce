@@ -121,7 +121,7 @@ class ProductQueryTest extends Unit
         if (!empty($variantQuery)) {
             $query->hasVariant($variantQuery);
             $with = [
-                ['variants', $variantQuery]
+                ['variants', $variantQuery],
             ];
         }
 
