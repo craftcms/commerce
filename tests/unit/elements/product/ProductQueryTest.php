@@ -109,4 +109,40 @@ class ProductQueryTest extends Unit
             'specific-variant' => [Variant::find()->sku('rad-hood'), 1],
         ];
     }
+
+    /**
+     * @return void
+     * @dataProvider withVariantsDataProvider
+     */
+    public function testWithVariants(ProductQuery $query, int $count, ?array $variantQuery, ?string $title): void
+    {
+        $with = ['variants'];
+
+        if (!empty($variantQuery)) {
+            $query->hasVariant($variantQuery);
+            $with = [
+                ['variants', $variantQuery]
+            ];
+        }
+
+        $query->with($with);
+
+        $results = $query->all();
+
+        self::assertCount($count, $results);
+        if ($count) {
+            /** @var Product $product */
+            $product = $results[0];
+            self::assertInstanceOf(Variant::class, $product->getVariants()[0]);
+            self::assertEquals($title, $product->title);
+        }
+    }
+
+    public function withVariantsDataProvider(): array
+    {
+        return [
+            'no-params' => [Product::find(), 2, null, 'Hypercolor T-Shirt'],
+            'specific-variant' => [Product::find(), 1, ['sku' => 'rad-hood'], 'Rad Hoodie'],
+        ];
+    }
 }
