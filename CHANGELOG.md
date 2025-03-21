@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a PHP error that could occur when viewing a variant in the control panel. ([#3951](https://github.com/craftcms/commerce/issues/3951))
+
 ## 5.3.6 - 2025-03-19
 
 - Fixed a bug where SKUs were being generated for provisional drafts. ([#3932](https://github.com/craftcms/commerce/issues/3932))
