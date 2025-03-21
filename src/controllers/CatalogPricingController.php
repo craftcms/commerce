@@ -16,6 +16,7 @@ use craft\commerce\models\CatalogPricing;
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\catalogpricing\CatalogPricingAsset;
 use craft\errors\SiteNotFoundException;
+use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\models\Site;
 use craft\web\assets\htmx\HtmxAsset;
@@ -170,8 +171,13 @@ class CatalogPricingController extends BaseStoreManagementController
      */
     public function actionQueueStatus(): Response
     {
+        /** @var Site|StoreBehavior $site */
+        $site = Cp::requestedSite();
+        $storeHandle = $site?->getStore()->handle ?? null;
+
         return $this->renderTemplate('commerce/prices/_polling', [
             'areCatalogPricingJobsRunning' => Plugin::getInstance()->getCatalogPricing()->areCatalogPricingJobsRunning(),
+            'storeHandle' => $storeHandle,
         ]);
     }
 
