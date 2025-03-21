@@ -171,7 +171,7 @@ class CatalogPricingController extends BaseStoreManagementController
      */
     public function actionQueueStatus(): Response
     {
-        /** @var Site|StoreBehavior $site */
+        /** @var Site|StoreBehavior|null $site */
         $site = Cp::requestedSite();
         $storeHandle = $site?->getStore()->handle ?? null;
 
