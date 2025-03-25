@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a PHP error that could occur when viewing a variant in the control panel. ([#3951](https://github.com/craftcms/commerce/issues/3951))
+- Fixed a bug where catalog pricing rules’ purchasables could be returned incorrectly. ([#3954](https://github.com/craftcms/commerce/issues/3954))
 
 ## 5.3.6 - 2025-03-19
 
