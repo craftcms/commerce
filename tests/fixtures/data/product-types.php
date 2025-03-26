@@ -29,4 +29,18 @@ return [
         '_fieldLayout' => 'product-layout-1001--------------uid',
         '_variantFieldLayout' => 'variant-layout-1001--------------uid',
     ],
+    'ukOnly' => [
+        'id' => '2002',
+        'name' => 'UK Only Product type',
+        'handle' => 'ukOnly',
+        'hasDimensions' => false,
+        'maxVariants' => null,
+        'descriptionFormat' => '{product.title} - {title}',
+        'variantTitleFormat' => '{product.title}',
+        'productTitleFormat' => '',
+        'hasProductTitleField' => true,
+        'hasVariantTitleField' => false,
+        '_fieldLayout' => 'product-layout-1001--------------uid',
+        '_variantFieldLayout' => 'variant-layout-1001--------------uid',
+    ],
 ];

@@ -65,4 +65,12 @@ return [
         'template' => 'shop/products/_product',
         'uriFormat' => 'shop/products/{slug}',
     ],
+    [
+        'id' => '1008',
+        'hasUrls' => 1,
+        'productTypeId' => '2002',
+        'siteId' => '1002',
+        'template' => 'shop/products/_product',
+        'uriFormat' => 'shop/products/{slug}',
+    ],
 ];

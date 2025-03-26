@@ -318,7 +318,7 @@ class CatalogPricingRule extends Model implements HasStoreInterface
                 $this->_purchasableIds = $purchasableQuery->ids();
             }
 
-            $this->_purchasableIds = array_unique($this->_purchasableIds);
+            $this->_purchasableIds = $this->_purchasableIds !== null ? array_unique($this->_purchasableIds) : null;
         }
 
         return $this->_purchasableIds;
