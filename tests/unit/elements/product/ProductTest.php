@@ -206,4 +206,21 @@ class ProductTest extends Unit
             ],
         ];
     }
+
+    /**
+     * @return void
+     * @dataProvider productSavedInSitesDataProvider
+     */
+    public function testProductSavedInSites(int $siteId, int $count): void
+    {
+        self::assertCount($count, Product::find()->siteId($siteId)->all());
+    }
+
+    public function productSavedInSitesDataProvider(): array
+    {
+        return [
+            'primary' => [1, 2],
+            'uk' => [1002, 3],
+        ];
+    }
 }
