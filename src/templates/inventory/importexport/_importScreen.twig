@@ -1,12 +1,56 @@
 {% import '_includes/forms' as forms %}
 
-{{ forms.fileField({
-    label: 'Attach import file'|t('commerce'),
-    name: 'importFile',
-    inputAttributes: {
-        accept: '.csv'
-    }
-}) }}
+{% css %}
+.upload-container {
+    margin-bottom: 24px;
+}
+
+.upload-container .upload-prompt {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.upload-container .upload-prompt .spinner {
+    margin-left: 10px;
+}
+
+.upload-container .file-info {
+    display: none;
+    background: #f3f7fc;
+    padding: 10px;
+    border-radius: 3px;
+    margin-top: 10px;
+}
+
+.upload-container.has-file .file-info {
+    display: flex;
+}
+
+.upload-container .file-info .file-name {
+    flex-grow: 1;
+}
+
+.upload-container .file-info .remove-file {
+    color: #da5a47;
+}
+{% endcss %}
+
+<div class="inventory-uploader">
+    {# Hidden input to store the filename #}
+    <input type="hidden" class="import-filename" name="importFilename" value="">
+
+    <div class="upload-container">
+        <div class="upload-prompt">
+            <button type="button" class="btn upload-btn">{{ 'Select CSV File'|t('commerce') }}</button>
+        </div>
+        
+        <div class="file-info">
+            <div class="file-name uploaded-file"></div>
+            <a href="#" class="remove-file remove-file-btn">{{ 'Remove'|t('commerce') }}</a>
+        </div>
+    </div>
+</div>
 
 {{  forms.textField({
     name: 'another',
@@ -19,5 +63,3 @@
     {{ forms.errorList(lineErrors) }}
 {% endfor %}
 {% endif %}
-
-

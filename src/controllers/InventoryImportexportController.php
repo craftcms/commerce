@@ -9,7 +9,9 @@ use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\InventoryUpdateQuantityType;
 use craft\commerce\models\inventory\UpdateInventoryLevel;
 use craft\commerce\Plugin;
+use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\web\Controller;
+use craft\web\CpScreenResponseBehavior;
 use craft\web\UploadedFile;
 use League\Csv\Reader;
 use League\Csv\Writer;
@@ -43,15 +45,22 @@ class InventoryImportexportController extends Controller
         $inventoryService = Plugin::getInstance()->getInventory();
 
         $errors = [];
-
-        $file = UploadedFile::getInstanceByName('importFile');
-        if (!$file) {
-            return $this->asFailure('No file uploaded.');
+        
+        $tempFilename = Craft::$app->getRequest()->getBodyParam('importFilename');
+        if (!$tempFilename) {
+            return $this->asFailure(Craft::t('commerce', 'No file specified.'));
+        }
+        
+        $tempDirectory = Craft::$app->getPath()->getTempPath() . '/commerce-inventory-import';
+        $tempFilePath = $tempDirectory . '/' . $tempFilename;
+        
+        if (!file_exists($tempFilePath)) {
+            return $this->asFailure(Craft::t('commerce', 'File not found.'));
         }
 
         // check CSV file is OK
         try {
-            $csv = Reader::createFromPath($file->tempName);
+            $csv = Reader::createFromPath($tempFilePath);
             $csv->setHeaderOffset(0); //set the CSV header offset
             $csv->setEscape(''); //required in PHP8.4+ to avoid deprecation notices
         } catch (\Exception $e) {
@@ -136,6 +145,9 @@ class InventoryImportexportController extends Controller
 
     private function _importScreen()
     {
+        // Register Commerce CP Assets
+        $this->view->registerAssetBundle(CommerceCpAsset::class);
+        
         return $this->asCpScreen()
             ->action('commerce/inventory-importexport/import-inventory')
             ->addCrumb(Craft::t('commerce', 'Inventory'), 'commerce/inventory')
@@ -144,7 +156,22 @@ class InventoryImportexportController extends Controller
             ->title(Craft::t('commerce', 'Import Inventory'))
             ->formAttributes(['enctype' => 'multipart/form-data', 'accept-charset'=>'UTF-8'])
             ->metaSidebarTemplate('commerce/inventory/importexport/_importMeta')
-            ->submitButtonLabel(Craft::t('commerce', 'Import'));
+            ->submitButtonLabel(Craft::t('commerce', 'Import'))
+            ->prepareScreen(function(Response $response, string $containerId) {
+                /** @var CpScreenResponseBehavior $response */
+                $view = Craft::$app->getView();
+                $view->registerJsWithVars(
+                    fn($containerId) => <<<JS
+                        $(function() {
+                            var \$container = $('#' + $containerId);
+                            if (\$container.length) {
+                                new Craft.Commerce.InventoryImportFileUploader('#' + $containerId);
+                            }
+                        });
+                    JS,
+                    [$containerId]
+                );
+            });
     }
 
     /**
@@ -160,9 +187,6 @@ class InventoryImportexportController extends Controller
 
         $inventoryLocationId = (int)Craft::$app->getRequest()->getParam('inventoryLocationId');
         $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($inventoryLocationId);
-
-        $dateTimeString = Craft::$app->getFormatter()->asDateTime(time(), 'yyyy-MM-dd_HHmmss');
-        ;
 
         $inventoryQuery = Plugin::getInstance()->getInventory()->getInventoryLevelQuery()
             ->andWhere(['inventoryLocationId' => $inventoryLocation->id]);
@@ -215,5 +239,48 @@ class InventoryImportexportController extends Controller
             Craft::t('commerce', 'inventory-import-template') . '.csv',
             ['mimeType' => 'text/csv']
         );
+    }
+    
+    /**
+     * Upload a file to a temporary directory
+     * 
+     * @return Response
+     */
+    public function actionUploadTempFile(): Response
+    {
+        $this->requirePostRequest();
+        $this->requirePermission('commerce-manageInventoryStockLevels');
+        $this->requireAcceptsJson();
+        
+        $file = UploadedFile::getInstanceByName('file');
+        
+        if (!$file) {
+            return $this->asFailure(Craft::t('commerce', 'No file uploaded'));
+        }
+        
+        // Check file type
+        if ($file->extension !== 'csv') {
+            return $this->asFailure(Craft::t('commerce', 'Only CSV files are allowed'));
+        }
+        
+        // Create temp directory if it doesn't exist
+        $tempDirectory = Craft::$app->getPath()->getTempPath() . '/commerce-inventory-import';
+        if (!is_dir($tempDirectory)) {
+            mkdir($tempDirectory, 0777, true);
+        }
+        
+        // Generate unique filename
+        $filename = 'inventory-import-' . uniqid() . '.csv';
+        $tempPath = $tempDirectory . '/' . $filename;
+        
+        // Save the file
+        if (!$file->saveAs($tempPath)) {
+            return $this->asFailure(Craft::t('commerce', 'Could not save the file'));
+        }
+        
+        return $this->asJson([
+            'success' => true,
+            'filename' => $filename,
+        ]);
     }
 }

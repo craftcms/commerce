@@ -18,3 +18,4 @@ import './js/CommerceSubscriptionIndex';
 import './js/CommerceUpdateOrderStatusModal';
 import './js/DownloadOrderPdf';
 import './js/TableRowAdditionalInfoIcon';
+import './js/InventoryUploader';

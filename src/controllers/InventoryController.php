@@ -202,7 +202,7 @@ class InventoryController extends Controller
         $items['import'] = [
             'type' => MenuItemType::Button,
             'id' => $importBtnId,
-            'icon' => 'arrow-up',
+            'icon' => 'arrow-down',
             'label' => Craft::t('commerce', 'Import Inventory'),
         ];
 
