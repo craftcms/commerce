@@ -1152,10 +1152,8 @@ class Variant extends Purchasable implements NestedElementInterface
         $this->updateTitle($product);
         $this->updateSku($product);
 
-        if ($this->getScenario() === self::SCENARIO_DEFAULT) {
-            if (!$this->sku) {
-                $this->setSku(PurchasableHelper::tempSku());
-            }
+        if (!$this->sku && $this->getScenario() === self::SCENARIO_DEFAULT) {
+            $this->setSku(PurchasableHelper::tempSku());
         }
 
         return parent::beforeValidate();
@@ -1321,7 +1319,19 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     protected static function defineSources(string $context = null): array
     {
-        return Product::sources($context);
+        $sources = Product::defineSources($context);
+
+        // Ensure we don't inherit any product structure things from products.
+        foreach ($sources as $key => $source) {
+            $sources[$key]['defaultSort'] = ['postDate', 'desc'];
+            foreach (['structureId', 'structureEditable'] as $unsetKey) {
+                if (isset($sources[$key][$unsetKey])) {
+                    unset($sources[$key][$unsetKey]);
+                }
+            }
+        }
+
+        return $sources;
     }
 
     protected static function defineActions(string $source): array

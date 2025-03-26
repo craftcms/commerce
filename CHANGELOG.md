@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- Fixed a PHP error that could occur when viewing a variant in the control panel. ([#3951](https://github.com/craftcms/commerce/issues/3951))
+- Fixed a bug where catalog pricing rules’ purchasables could be returned incorrectly. ([#3954](https://github.com/craftcms/commerce/issues/3954))
+
+## 5.3.6 - 2025-03-19
+
+- Fixed a bug where SKUs were being generated for provisional drafts. ([#3932](https://github.com/craftcms/commerce/issues/3932))
+- Fixed a PHP error that occurred if a Postal Code Formula condition rule had invalid Twig code. ([#3943](https://github.com/craftcms/commerce/issues/3943))
+- Fixed a SQL error that could occur when there were structured product types. ([#3944](https://github.com/craftcms/commerce/issues/3944))
+- Fixed a bug where catalog pricing rules’ purchasables could be returned incorrectly. ([#3917](https://github.com/craftcms/commerce/issues/3917))
+- Fixed a PHP error that could occur when making payments on Edit Order pages. ([#3919](https://github.com/craftcms/commerce/issues/3919))
+- Fixed a bug where custom field data could go missing when creating `VariantCollection` instances. ([#3931](https://github.com/craftcms/commerce/issues/3931))
 - Fixed a PHP error that could occur when registering a custom shipping method.
 
 ## 5.3.5 - 2025-03-12
