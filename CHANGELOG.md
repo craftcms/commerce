@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.3.7 - 2025-03-26
 
 - Fixed a PHP error that could occur when editing a variant. ([#3951](https://github.com/craftcms/commerce/issues/3951))
 - Fixed a bug where catalog pricing rules’ purchasables could be returned incorrectly. ([#3954](https://github.com/craftcms/commerce/issues/3954))
