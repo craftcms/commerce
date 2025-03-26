@@ -52,11 +52,6 @@
     </div>
 </div>
 
-{{  forms.textField({
-    name: 'another',
-    value: 'aaa',
-}) }}
-
 {% if errors is defined %}
 {% for line, lineErrors in errors %}
     <h6>{{ "Errors on Line {line}:"|t('commerce', {line: line}) }}</h6>

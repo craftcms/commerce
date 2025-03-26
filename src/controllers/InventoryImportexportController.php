@@ -3,17 +3,13 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\collections\UpdateInventoryLevelCollection;
 use craft\commerce\db\Table;
-use craft\commerce\enums\InventoryTransactionType;
-use craft\commerce\enums\InventoryUpdateQuantityType;
-use craft\commerce\models\inventory\UpdateInventoryLevel;
 use craft\commerce\Plugin;
+use craft\commerce\queue\jobs\ImportInventory;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\web\Controller;
 use craft\web\CpScreenResponseBehavior;
 use craft\web\UploadedFile;
-use League\Csv\Reader;
 use League\Csv\Writer;
 use yii\base\InvalidConfigException;
 use yii\web\Response;
@@ -34,129 +30,6 @@ class InventoryImportexportController extends Controller
         $params = [];
 
         return $this->_importScreen()
-            ->contentTemplate('commerce/inventory/importexport/_importScreen', $params);
-    }
-
-    public function actionImportInventory()
-    {
-        $this->requirePostRequest();
-        $this->requirePermission('commerce-manageInventoryStockLevels');
-
-        $inventoryService = Plugin::getInstance()->getInventory();
-
-        $errors = [];
-        
-        $tempFilename = Craft::$app->getRequest()->getBodyParam('importFilename');
-        if (!$tempFilename) {
-            return $this->asFailure(Craft::t('commerce', 'No file specified.'));
-        }
-        
-        $tempDirectory = Craft::$app->getPath()->getTempPath() . '/commerce-inventory-import';
-        $tempFilePath = $tempDirectory . '/' . $tempFilename;
-        
-        if (!file_exists($tempFilePath)) {
-            return $this->asFailure(Craft::t('commerce', 'File not found.'));
-        }
-
-        // check CSV file is OK
-        try {
-            $csv = Reader::createFromPath($tempFilePath);
-            $csv->setHeaderOffset(0); //set the CSV header offset
-            $csv->setEscape(''); //required in PHP8.4+ to avoid deprecation notices
-        } catch (\Exception $e) {
-            return $this->asFailure('Invalid CSV file.');
-        }
-
-        // Check required headers are all there
-        $headers = $csv->getHeader();
-        if (!in_array('location', $headers) || !in_array('item', $headers) || !in_array('action', $headers) || !in_array('amount', $headers)) {
-            return $this->asFailure('Invalid CSV file. Missing required headers.');
-        }
-
-        $inventoryLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
-
-        $updateInventoryLevels = UpdateInventoryLevelCollection::make();
-
-        foreach ($csv->getRecords() as $key => $record) {
-            $inventoryLocation = null;
-            if (is_numeric($record['location'])) {
-                $inventoryLocation = $inventoryLocations->firstWhere('id', $record['location']);
-            } else {
-                $inventoryLocation = $inventoryLocations->firstWhere('handle', $record['location']);
-            }
-
-            if (!$inventoryLocation) {
-                $errors[$key][] = Craft::t('commerce','Invalid location: {error}', ['error' => $record['location']]);
-                continue;
-            }
-
-            $item = null;
-            if (is_numeric($record['item'])) {
-                $item = $inventoryService->getInventoryItemById($record['item']);
-            } else {
-                $item = $inventoryService->getInventoryItemBySku($record['item']);
-            }
-
-            if ($item === null) {
-                $errors[$key][] = Craft::t('commerce','Invalid item: {error}', ['error' => $record['item']]);
-                continue;
-            }
-
-            $updateAction = $record['action'];
-
-            if (!in_array($updateAction, ['set', 'adjust'])) {
-                $errors[$key][] = Craft::t('commerce','Invalid action type: {error}', ['error' => $updateAction]);
-                continue;
-            }
-
-            $amount = $record['amount'];
-
-            if (!is_numeric($amount)) {
-                $error = $record['amount'] ?: Craft::t('commerce','Missing');
-                $errors[$key][] = Craft::t('commerce','Invalid amount: {error}', ['error' => $error]);
-                continue;
-            }
-
-            $notes = $record['notes'] ?? '';
-
-            // if $errors[$key]['errors'] is not empty add the line to array
-            if (empty($errors[$key])) {
-                $update = new UpdateInventoryLevel();
-                $update->inventoryLocationId = $inventoryLocation->id;
-                $update->inventoryItemId = $item->id;
-                $update->quantity = $amount;
-                $update->note = $notes;
-                $update->updateAction = InventoryUpdateQuantityType::from($updateAction);
-                $update->type = InventoryTransactionType::AVAILABLE->value;
-                $updateInventoryLevels->add($update);
-            }
-        }
-
-        if ($errors) {
-            $this->setFailFlash(Craft::t('commerce', 'Import could not begin due to errors.'));
-            return $this->_importScreen()
-                ->contentTemplate('commerce/inventory/importexport/_importScreen', ['errors' => $errors]);
-        }
-
-        $inventoryService->executeUpdateInventoryLevels($updateInventoryLevels);
-
-        return $this->asSuccess('Inventory Imported');
-    }
-
-    private function _importScreen()
-    {
-        // Register Commerce CP Assets
-        $this->view->registerAssetBundle(CommerceCpAsset::class);
-        
-        return $this->asCpScreen()
-            ->action('commerce/inventory-importexport/import-inventory')
-            ->addCrumb(Craft::t('commerce', 'Inventory'), 'commerce/inventory')
-            ->selectedSubnavItem('inventory')
-            ->redirectUrl('commerce/inventory')
-            ->title(Craft::t('commerce', 'Import Inventory'))
-            ->formAttributes(['enctype' => 'multipart/form-data', 'accept-charset'=>'UTF-8'])
-            ->metaSidebarTemplate('commerce/inventory/importexport/_importMeta')
-            ->submitButtonLabel(Craft::t('commerce', 'Import'))
             ->prepareScreen(function(Response $response, string $containerId) {
                 /** @var CpScreenResponseBehavior $response */
                 $view = Craft::$app->getView();
@@ -171,7 +44,51 @@ class InventoryImportexportController extends Controller
                     JS,
                     [$containerId]
                 );
-            });
+            })
+            ->contentTemplate('commerce/inventory/importexport/_importScreen', $params);
+    }
+
+    public function actionImportInventory()
+    {
+        $this->requirePostRequest();
+        $this->requirePermission('commerce-manageInventoryStockLevels');
+        
+        $tempFilename = Craft::$app->getRequest()->getBodyParam('importFilename');
+        if (!$tempFilename) {
+            return $this->asFailure(Craft::t('commerce', 'No file specified.'));
+        }
+        
+        $tempDirectory = Craft::$app->getPath()->getTempPath() . '/commerce-inventory-import';
+        $tempFilePath = $tempDirectory . '/' . $tempFilename;
+        
+        if (!file_exists($tempFilePath)) {
+            return $this->asFailure(Craft::t('commerce', 'File not found.'));
+        }
+
+        // Create and queue the import job
+        $jobId = Craft::$app->getQueue()->push(new ImportInventory([
+            'description' => Craft::t('commerce', 'Import inventory from CSV'),
+            'filePath' => $tempFilePath,
+        ]));
+
+        $message = Craft::t('commerce', 'Inventory import has been queued.');
+        return $this->asSuccess($message);
+    }
+
+    private function _importScreen()
+    {
+        // Register Commerce CP Assets
+        $this->view->registerAssetBundle(CommerceCpAsset::class);
+
+        return $this->asCpScreen()
+            ->action('commerce/inventory-importexport/import-inventory')
+            ->addCrumb(Craft::t('commerce', 'Inventory'), 'commerce/inventory')
+            ->selectedSubnavItem('inventory')
+            ->redirectUrl('commerce/inventory')
+            ->title(Craft::t('commerce', 'Import Inventory'))
+            ->formAttributes(['enctype' => 'multipart/form-data', 'accept-charset' => 'UTF-8'])
+            ->metaSidebarTemplate('commerce/inventory/importexport/_importMeta')
+            ->submitButtonLabel(Craft::t('commerce', 'Import'));
     }
 
     /**
@@ -243,7 +160,7 @@ class InventoryImportexportController extends Controller
     
     /**
      * Upload a file to a temporary directory
-     * 
+     *
      * @return Response
      */
     public function actionUploadTempFile(): Response

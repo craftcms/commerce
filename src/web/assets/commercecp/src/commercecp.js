@@ -10,6 +10,7 @@ import './scss/subscriptions.scss';
 
 // JS
 import './js/Commerce';
+import './js/CommerceInventoryImportFileUploader';
 import './js/CommerceOrderEdit';
 import './js/CommerceOrderIndex';
 import './js/CommercePaymentModal';
@@ -18,4 +19,3 @@ import './js/CommerceSubscriptionIndex';
 import './js/CommerceUpdateOrderStatusModal';
 import './js/DownloadOrderPdf';
 import './js/TableRowAdditionalInfoIcon';
-import './js/InventoryUploader';
