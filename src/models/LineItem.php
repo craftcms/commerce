@@ -266,7 +266,7 @@ class LineItem extends Model
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
-            'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'defaultCurrency' => $this->getOrder()?->currency ?? null,
             'currencyAttributes' => $this->currencyAttributes(),
         ];
 
@@ -703,7 +703,7 @@ class LineItem extends Model
      */
     public function getTotal(): float
     {
-        return $this->getSubtotal() + $this->getAdjustmentsTotal();
+        return (float)$this->order->getTeller()->add($this->getSubtotal(), $this->getAdjustmentsTotal());
     }
 
     /**
@@ -714,10 +714,9 @@ class LineItem extends Model
     public function getTaxableSubtotal(string $taxable): float
     {
         return match ($taxable) {
-            TaxRateRecord::TAXABLE_PRICE => $this->getSubtotal() + $this->getDiscount(),
             TaxRateRecord::TAXABLE_SHIPPING => $this->getShippingCost(),
-            TaxRateRecord::TAXABLE_PRICE_SHIPPING => $this->getSubtotal() + $this->getDiscount() + $this->getShippingCost(),
-            default => $this->getSubtotal() + $this->getDiscount(),
+            TaxRateRecord::TAXABLE_PRICE_SHIPPING => (float)$this->order->getTeller()->sum($this->getSubtotal(), $this->getDiscount() , $this->getShippingCost()),
+            default => (float)$this->order->getTeller()->add($this->getSubtotal() , $this->getDiscount()), // TaxRateRecord::TAXABLE_PRICE is default
         };
     }
 
@@ -825,6 +824,14 @@ class LineItem extends Model
             $order = $this->getOrder();
             /** @var PurchasableInterface|null $purchasable */
             $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($this->purchasableId, $order?->orderSiteId, $order?->getCustomer()?->id);
+
+            // If we are still using sales we need to make sure that the promotional price is set.
+            if (!Plugin::getInstance()->getCatalogPricingRules()->canUseCatalogPricingRules()) {
+                if ($purchasable instanceof Purchasable) {
+                    $purchasable->loadSales($this->getOrder());
+                }
+            }
+
             $this->_purchasable = $purchasable;
         }
 
@@ -899,12 +906,18 @@ class LineItem extends Model
         $this->setSku($purchasable->getSku());
         $this->setDescription($purchasable->getDescription());
 
-        // Check to see if there is a discount applied that ignores Sales for this line item
+        // Check to see if there is a discount applied that ignores promotions for this line item
         $ignorePromotions = false;
         foreach (Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($this->getOrder()) as $discount) {
             if (Plugin::getInstance()->getDiscounts()->matchLineItem($this, $discount, true)) {
+                // Break if matched discount is set to ignore promotions.
                 $ignorePromotions = $discount->ignorePromotions;
                 if ($ignorePromotions) {
+                    break;
+                }
+
+                // Break if matched discount is set to not apply any subsequent discounts.
+                if ($discount->stopProcessing) {
                     break;
                 }
             }

@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\Plugin;
 use DvK\Vat\Validator;
 use Exception;
 use yii\base\Component;
@@ -42,7 +43,13 @@ class Vat extends Component
         // If we do not have a valid VAT ID in cache, see if we can get one from the API
         if (!$validOrganizationTaxId) {
             try {
-                $validOrganizationTaxId = $this->getVatValidator()->validate($vatId);
+                $validators = Plugin::getInstance()->getTaxes()->getEnabledTaxIdValidators();
+                foreach ($validators as $validator) {
+                    if ($validator->validateFormat($vatId) && $validator->validate($vatId)) {
+                        $validOrganizationTaxId = true;
+                        break;
+                    }
+                }
             } catch (Exception $e) {
                 Craft::error('Communication with VAT API failed: ' . $e->getMessage(), __METHOD__);
 
@@ -62,6 +69,7 @@ class Vat extends Component
 
     /**
      * @return Validator
+     * @deprecated in 5.3.0 use Taxes::getEnabledTaxIdValidators() instead
      */
     protected function getVatValidator(): Validator
     {

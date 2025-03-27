@@ -10,10 +10,14 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
+use craft\commerce\db\Table;
 use craft\commerce\gateways\Dummy;
+use craft\commerce\gateways\MissingGateway;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\Plugin;
+use craft\db\Query;
 use craft\errors\DeprecationException;
+use craft\helpers\Html;
 use craft\helpers\Json;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -31,8 +35,35 @@ class GatewaysController extends BaseAdminController
 {
     public function actionIndex(): Response
     {
+        $gateways = Plugin::getInstance()->getGateways()->getAllGateways();
+        $archivedGateways = Plugin::getInstance()->getGateways()->getAllArchivedGateways();
+
+        if (!empty($archivedGateways)) {
+            $gatewayIdsWithTransactions = (new Query())
+                ->select(['gatewayId'])
+                ->from(Table::TRANSACTIONS)
+                ->groupBy(['gatewayId'])
+                ->column();
+
+            foreach ($archivedGateways as &$gateway) {
+                $missing = $gateway instanceof MissingGateway;
+                $gateway = [
+                    'id' => $gateway->id,
+                    'title' => Craft::t('site', $gateway->name),
+                    'handle' => Html::encode($gateway->handle),
+                    'type' => [
+                        'missing' => $missing,
+                        'name' => $missing ? $gateway->expectedType : $gateway->displayName(),
+                    ],
+                    'hasTransactions' => in_array($gateway->id, $gatewayIdsWithTransactions),
+                ];
+            }
+        }
+
         return $this->renderTemplate('commerce/settings/gateways/index', [
-            'gateways' => Plugin::getInstance()->getGateways()->getAllGateways(),
+            'gateways' => $gateways,
+            'archivedGateways' => array_values($archivedGateways),
+            'readOnly' => $this->isReadOnlyScreen(),
         ]);
     }
 
@@ -101,6 +132,8 @@ class GatewaysController extends BaseAdminController
         }
 
         DebugPanel::prependOrAppendModelTab(model: $variables['gateway'], prepend: true);
+
+        $variables['readOnly'] = $this->isReadOnlyScreen();
 
         return $this->renderTemplate('commerce/settings/gateways/_edit', $variables);
     }

@@ -16,8 +16,8 @@ use craft\commerce\elements\Order;
 use craft\commerce\events\UpdatePrimaryPaymentSourceEvent;
 use craft\commerce\Plugin;
 use craft\commerce\records\Customer as CustomerRecord;
+use craft\commerce\records\Order as OrderRecord;
 use craft\db\Query;
-use craft\elements\Address;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
@@ -38,7 +38,26 @@ class Customers extends Component
     // -------------------------------------------------------------------------
 
     /**
-     * @event RegisterElementSourcesEvent The event that is triggered when a primary payment method is saved.
+     * @event UpdatePrimaryPaymentSourceEvent The event that is triggered when a primary payment method is saved.
+     *
+     * ```php
+     * use craft\elements\User;
+     * use craft\commerce\services\Customers;
+     * use craft\commerce\events\UpdatePrimaryPaymentSourceEvent;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *      Customers::class,
+     *      Customers::EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE,
+     *      function(UpdatePrimaryPaymentSourceEvent $event) {
+     *          $previousPrimaryPaymentSourceId = $event->previousPrimaryPaymentSourceId;
+     *          $newPrimaryPaymentSourceId = $event->newPrimaryPaymentSourceId;
+     *          // @var User|CustomerBehavior $customer
+     *          $customer = $event->customer;
+     *          // ...
+     *      }
+     * );
+     * ```
      */
     public const EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE = 'updatePrimaryPaymentSource';
 
@@ -141,8 +160,21 @@ class Customers extends Component
             $this->_activateUserFromOrder($order);
         }
 
+        // Did they want to save addresses to the customers address book?
         if ($order->saveBillingAddressOnOrderComplete || $order->saveShippingAddressOnOrderComplete) {
             $this->_saveAddressesFromOrder($order);
+        }
+
+        // clear the primary address flags if they were set as it only applies to the cart
+        if ($order->makePrimaryBillingAddress || $order->makePrimaryShippingAddress) {
+            OrderRecord::updateAll([
+                'makePrimaryBillingAddress' => false,
+                'makePrimaryShippingAddress' => false,
+            ],
+                [
+                    'id' => $order->id,
+                ]
+            );
         }
     }
 
@@ -285,6 +317,7 @@ class Customers extends Component
     }
 
     /**
+     *
      * @param Order $order
      * @return void
      * @throws \Throwable
@@ -348,6 +381,15 @@ class Customers extends Component
 
         if ($newSourceShippingAddressId) {
             $order->sourceShippingAddressId = $newSourceShippingAddressId;
+        }
+
+        // Since we saved the primary addresses, we can now set the primary if they chose that also
+        if ($order->makePrimaryShippingAddress && $order->sourceShippingAddressId) {
+            $this->savePrimaryShippingAddressId($order->getCustomer(), $order->sourceShippingAddressId);
+        }
+
+        if ($order->makePrimaryBillingAddress && $order->sourceBillingAddressId) {
+            $this->savePrimaryBillingAddressId($order->getCustomer(), $order->sourceBillingAddressId);
         }
 
         // Manually update the order DB record to avoid looped element saves

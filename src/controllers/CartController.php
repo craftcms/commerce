@@ -20,6 +20,7 @@ use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
 use craft\helpers\Json;
+use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use Illuminate\Support\Collection;
 use Throwable;
@@ -135,8 +136,13 @@ class CartController extends BaseFrontEndController
         }
 
         // Get the cart from the request or from the session.
-        // When we are about to update the cart, we consider it a real cart at this point, and want to actually create it in the DB.
         $this->_cart = $this->_getCart();
+
+        // When we are about to update the cart, we consider it a real cart at this point, and want to actually create it in the DB.
+        if ($this->_cart->id === null) {
+            // Make sure we have a fully saved cart before attempting any mutations.
+            $this->_cart = $this->_getCart(true);
+        }
 
         // Can clear line items when updating the cart
         $clearLineItems = $this->request->getParam('clearLineItems');
@@ -534,13 +540,21 @@ class CartController extends BaseFrontEndController
                 $this->_mutex->release($this->_mutexLockName);
             }
 
+            $data = [
+                $this->_cartVariable => $this->cartArray($this->_cart),
+            ];
+
+            $originalCart = Order::find()->id($this->_cart->id)->isCompleted(null)->one();
+
+            if ($originalCart && $this->_cart->number == $originalCart->number) {
+                $data['original' . StringHelper::toTitleCase($this->_cartVariable)] = $this->cartArray($originalCart);
+            }
+
             return $this->asModelFailure(
                 $this->_cart,
                 $message,
                 'cart',
-                [
-                    $this->_cartVariable => $this->cartArray($this->_cart),
-                ],
+                $data,
                 [
                     $this->_cartVariable => $this->_cart,
                 ]
@@ -652,20 +666,26 @@ class CartController extends BaseFrontEndController
                 // If a user's address ID has been submitted duplicate the address to the order
                 if ($userShippingAddress) {
                     $this->_cart->sourceShippingAddressId = $shippingAddressId;
+                    $validShippingAddress = $userShippingAddress->validate();
 
-                    /** @var Address $cartShippingAddress */
-                    $cartShippingAddress = Craft::$app->getElements()->duplicateElement(
-                        $userShippingAddress,
-                        [
-                            'primaryOwner' => $this->_cart,
-                            'owner' => $this->_cart,
-                        ]
-                    );
-                    $this->_cart->setShippingAddress($cartShippingAddress);
+                    if (!$validShippingAddress) {
+                        $this->_cart->addModelErrors($userShippingAddress, 'shippingAddress');
+                    } else {
+                        /** @var Address $cartShippingAddress */
+                        $cartShippingAddress = Craft::$app->getElements()->duplicateElement($userShippingAddress,
+                            [
+                                'primaryOwner' => $this->_cart,
+                                'owner' => $this->_cart,
+                            ]);
+                        $this->_cart->setShippingAddress($cartShippingAddress);
+                    }
 
                     if ($billingIsShipping) {
                         $this->_cart->sourceBillingAddressId = $userShippingAddress->id;
-                        $this->_cart->setBillingAddress($cartShippingAddress);
+
+                        if ($validShippingAddress) {
+                            $this->_cart->setBillingAddress($cartShippingAddress);
+                        }
                     }
                 }
             } elseif ($shippingAddress && !$shippingIsBilling) {
@@ -692,21 +712,25 @@ class CartController extends BaseFrontEndController
                 // If a user's address ID has been submitted duplicate the address to the order
                 if ($userBillingAddress) {
                     $this->_cart->sourceBillingAddressId = $billingAddressId;
+                    $validBillingAddress = $userBillingAddress->validate();
 
-                    /** @var Address $cartBillingAddress */
-                    $cartBillingAddress = Craft::$app->getElements()->duplicateElement(
-                        $userBillingAddress,
-                        [
+                    if (!$validBillingAddress) {
+                        $this->_cart->addModelErrors($userBillingAddress, 'billingAddress');
+                    } else {
+                        /** @var Address $cartBillingAddress */
+                        $cartBillingAddress = Craft::$app->getElements()->duplicateElement($userBillingAddress, [
                             'primaryOwner' => $this->_cart,
                             'owner' => $this->_cart,
-                        ]
-                    );
-
-                    $this->_cart->setBillingAddress($cartBillingAddress);
+                        ]);
+                        $this->_cart->setBillingAddress($cartBillingAddress);
+                    }
 
                     if ($shippingIsBilling) {
                         $this->_cart->sourceShippingAddressId = $userBillingAddress->id;
-                        $this->_cart->setShippingAddress($cartBillingAddress);
+
+                        if ($validBillingAddress) {
+                            $this->_cart->setShippingAddress($cartBillingAddress);
+                        }
                     }
                 }
             } elseif ($billingAddress && !$billingIsShipping) {
@@ -755,13 +779,15 @@ class CartController extends BaseFrontEndController
 
         // Set primary addresses
         if ($setShippingAddress) {
-            if ($this->request->getBodyParam('makePrimaryShippingAddress')) {
-                $this->_cart->makePrimaryShippingAddress = true;
+            $makePrimaryShippingAddress = $this->request->getBodyParam('makePrimaryShippingAddress');
+            if ($makePrimaryShippingAddress !== null) {
+                $this->_cart->makePrimaryShippingAddress = (bool)$makePrimaryShippingAddress;
             }
         }
         if ($setBillingAddress) {
-            if ($this->request->getBodyParam('makePrimaryBillingAddress')) {
-                $this->_cart->makePrimaryBillingAddress = true;
+            $makePrimaryBillingAddress = $this->request->getBodyParam('makePrimaryBillingAddress');
+            if ($makePrimaryBillingAddress !== null) {
+                $this->_cart->makePrimaryBillingAddress = (bool)$makePrimaryBillingAddress;
             }
         }
     }

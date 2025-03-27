@@ -4,11 +4,13 @@
     'Name',
     'Handle',
     'Primary',
+    'Are you sure you want to permanently delete this store and everything in it?',
 ]) %}
 {% set title = "Stores"|t('app') %}
 {% set stores = craft.commerce.stores.getAllStores() %}
+
 {% block actionButton %}
-    {% if stores|length < craft.app.sites.getAllSites()|length %}
+    {% if stores|length < craft.app.sites.getAllSites()|length and not readOnly%}
 
         {% set shownButton = false %}
         {% set addButton %}
@@ -81,15 +83,20 @@
         { name: '__slot:menu', title: Craft.t('app', 'Store Management') }
     ];
 
-    new Craft.VueAdminTable({
-        columns: columns,
-        container: '#stores-vue-admin-table',
-        deleteAction: 'commerce/stores/delete-store',
-        deleteConfirmationMessage: Craft.t('commerce', 'Are you sure you want to permanently delete this store and everything in it?'),
-        emptyMessage: Craft.t('commerce', 'No stores exist yet.'),
-        reorderAction: 'commerce/stores/reorder-stores',
-        reorderSuccessMessage: Craft.t('commerce', 'Stores reordered.') ,
-        reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder stores.'),
-        tableData: {{ tableData|json_encode|raw }},
-    });
+    let config = {
+      columns: columns,
+      container: '#stores-vue-admin-table',
+      emptyMessage: Craft.t('commerce', 'No stores exist yet.'),
+      tableData: {{ tableData|json_encode|raw }},
+    };
+
+    {% if not readOnly %}
+        config['reorderAction'] = 'commerce/stores/reorder-stores';
+        config['reorderSuccessMessage'] = Craft.t('commerce', 'Stores reordered.');
+        config['reorderFailMessage'] = Craft.t('commerce', 'Couldn’t reorder stores.');
+        config['deleteAction'] = 'commerce/stores/delete-store';
+        config['deleteConfirmationMessage'] = Craft.t('commerce', 'Are you sure you want to permanently delete this store and everything in it?');
+    {% endif %}
+
+    new Craft.VueAdminTable(config);
 {% endjs %}

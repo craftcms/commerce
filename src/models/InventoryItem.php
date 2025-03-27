@@ -2,9 +2,9 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
-use craft\helpers\UrlHelper;
 
 /**
  * Inventory Item model
@@ -52,25 +52,30 @@ class InventoryItem extends Model
      */
     public ?\DateTime $dateUpdated = null;
 
-    public function getCpEditUrl(): string
-    {
-        return UrlHelper::cpUrl('commerce/inventory/item/' . $this->id);
-    }
-
+    /**
+     * @var Purchasable|null
+     */
+    private ?Purchasable $_purchasable = null;
+    
     /**
      * @return ?Purchasable
      */
-    public function getPurchasable(): ?Purchasable
+    public function getPurchasable(null|string|int $siteId = null): ?Purchasable
     {
-        /** @var ?Purchasable $purchasable */
-        $purchasable = \Craft::$app->getElements()->getElementById($this->purchasableId);
+        if ($this->_purchasable !== null) {
+            return $this->_purchasable;
+        }
 
-        return $purchasable;
+        /** @phpstan-ignore-next-line */
+        $this->_purchasable = Craft::$app->getElements()->getElementById(elementId: $this->purchasableId, siteId: $siteId);
+
+        /** @phpstan-ignore-next-line */
+        return $this->_purchasable;
     }
 
     public function getSku(): string
     {
-        return $this->getPurchasable()->sku;
+        return $this->getPurchasable('*')->sku;
     }
 
     protected function defineRules(): array

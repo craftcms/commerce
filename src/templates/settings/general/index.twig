@@ -2,18 +2,25 @@
 {% extends "commerce/_layouts/settings" %}
 
 {% set selectedTab = 'settings' %}
+{% set fullPageForm = not readOnly %}
+
+{% set crumbs = [
+  { label: 'Commerce'|t('commerce'), url: url('commerce') },
+] %}
 
 {% import "_includes/forms" as forms %}
+
 {% from _self import configWarning %}
 
 {% block content %}
-
     <h2>{{ "General Settings"|t('commerce') }}</h2>
 
     <form action="" method="post" accept-charset="UTF-8" data-saveshortcut>
-        <input type="hidden" name="action" value="commerce/settings/save-settings">
-        {{ redirectInput('commerce/settings/general') }}
-        {{ csrfInput() }}
+
+        {% if not readOnly %}
+            {{ actionInput('commerce/settings/save-settings') }}
+            {{ redirectInput('commerce/settings/general') }}
+        {% endif %}
 
         <h3>{{ 'Units'|t('commerce') }}</h3>
         {{ forms.selectField({
@@ -24,6 +31,7 @@
             options: settings.getWeightUnitsOptions(),
             errors: settings.getErrors('weightUnits'),
             required: true,
+            disabled: readOnly,
             warning: configWarning('weightUnits', 'commerce'),
         }) }}
 
@@ -35,6 +43,7 @@
             options: settings.getDimensionUnits(),
             errors: settings.getErrors('dimensionUnits'),
             required: true,
+            disabled: readOnly,
             warning: configWarning('dimensionUnits', 'commerce'),
         }) }}
 
@@ -50,6 +59,7 @@
             required: false,
             suggestEnvVars: true,
             suggestAliases: true,
+            disabled: readOnly,
             placeholder: "//example.com/subscriptions/updateBillingDetails",
             warning: configWarning('updateBillingDetailsUrl', 'commerce'),
         }) }}
@@ -63,11 +73,10 @@
             value: settings.defaultView,
             options: settings.getDefaultViewOptions(),
             errors: settings.getErrors('defaultView'),
+            disabled: readOnly,
             required: true,
             warning: configWarning('defaultView', 'commerce'),
         }) }}
-
-        <input type="submit" class="btn submit" value="{{ 'Save'|t('commerce') }}">
     </form>
 
 {% endblock %}

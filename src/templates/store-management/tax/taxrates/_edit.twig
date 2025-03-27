@@ -4,11 +4,22 @@
     { label: "Tax Rates"|t('commerce'), url: store.getStoreSettingsUrl('taxrates') },
 ] %}
 
+{% import "_includes/forms" as forms %}
 {% set selectedSubnavItem = 'tax' %}
 
 {% set fullPageForm = true %}
 
 {% block details %}
+    <div class="meta">
+        {{ forms.lightSwitchField({
+            label: "Enable this tax rate"|t('commerce'),
+            id: 'enabled',
+            name: 'enabled',
+            on: taxRate.enabled,
+            errors: taxRate.getErrors('enabled')
+        }) }}
+    </div>
+
     {% if taxRate and taxRate.id %}
         <div class="meta read-only">
             <div class="data">

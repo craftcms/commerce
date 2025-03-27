@@ -45,7 +45,11 @@ class PdfsController extends BaseAdminController
         });
         $stores = $stores->all();
 
-        return $this->renderTemplate('commerce/settings/pdfs/index', compact('pdfs', 'stores'));
+        return $this->renderTemplate('commerce/settings/pdfs/index',[
+            'pdfs' => $pdfs,
+            'stores' => $stores,
+            'readOnly' => $this->isReadOnlyScreen(),
+        ]);
     }
 
     /**
@@ -98,6 +102,8 @@ class PdfsController extends BaseAdminController
         $variables['paperSizeOptions'] = Pdf::getPaperSizeOptions();
 
         DebugPanel::prependOrAppendModelTab(model: $variables['pdf'], prepend: true);
+
+        $variables['readOnly'] = $this->isReadOnlyScreen();
 
         return $this->renderTemplate('commerce/settings/pdfs/_edit', $variables);
     }

@@ -72,6 +72,8 @@ use yii\db\ActiveQueryInterface;
  * @property int $estimatedShippingAddressId
  * @property int $sourceBillingAddressId
  * @property int $sourceShippingAddressId
+ * @property bool $makePrimaryShippingAddress
+ * @property bool $makePrimaryBillingAddress
  * @property Transaction[] $transactions
  * @property string $orderCompletedEmail
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>

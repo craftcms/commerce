@@ -21,7 +21,7 @@ interface InventoryMovementInterface
     /**
      * @return InventoryItem
      */
-    public function getInventoryItem(): InventoryItem;
+    public function getInventoryItem(): ?InventoryItem;
 
     /**
      * @return InventoryLocation

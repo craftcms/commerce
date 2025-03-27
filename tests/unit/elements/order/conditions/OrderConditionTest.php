@@ -9,6 +9,7 @@ namespace craftcommercetests\unit\elements\order\conditions;
 
 use Codeception\Test\Unit;
 use craft\commerce\elements\conditions\orders\CompletedConditionRule;
+use craft\commerce\elements\conditions\orders\CouponCodeConditionRule;
 use craft\commerce\elements\conditions\orders\CustomerConditionRule;
 use craft\commerce\elements\conditions\orders\DateOrderedConditionRule;
 use craft\commerce\elements\conditions\orders\HasPurchasableConditionRule;
@@ -66,8 +67,9 @@ class OrderConditionTest extends Unit
         $rules = array_keys($rules);
 
         self::assertContains(DateOrderedConditionRule::class, $rules);
-        self::assertContains(CustomerConditionRule::class, $rules);
         self::assertContains(CompletedConditionRule::class, $rules);
+        self::assertContains(CouponCodeConditionRule::class, $rules);
+        self::assertContains(CustomerConditionRule::class, $rules);
         self::assertContains(PaidConditionRule::class, $rules);
         self::assertContains(HasPurchasableConditionRule::class, $rules);
         self::assertContains(ItemSubtotalConditionRule::class, $rules);

@@ -1,8 +1,14 @@
 {% extends "commerce/_layouts/cp" %}
 
-{% set fullPageForm = true %}
+{% set fullPageForm = not readOnly %}
+
 {% set selectedSubnavItem = 'settings' %}
+
 {% import '_includes/forms' as forms %}
+
+{% if readOnly %}
+    {% set contentNotice = readOnlyNotice() %}
+{% endif %}
 
 {% set tabs = {
   0: {'label':'Store'|t('commerce'),'url':'#store'},
@@ -23,7 +29,8 @@
             value: store.getName(false),
             errors: store.getErrors('name'),
             autofocus: true,
-            required: true
+            required: true,
+            disabled: readOnly,
         }) }}
 
         {{ forms.textField({
@@ -36,7 +43,8 @@
             autocapitalize: false,
             value: store.handle,
             errors: store.getErrors('handle'),
-            required: true
+            required: true,
+            disabled: readOnly,
         }) }}
 
         {% if brandNewStore %}
@@ -47,6 +55,7 @@
                 name: 'siteId',
                 value: null,
                 options: availableSiteOptions,
+                disabled: readOnly,
             }) }}
         {% endif %}
 
@@ -57,7 +66,7 @@
             value: store.currency,
             options: currencyOptions,
             errors: store.getErrors('currency'),
-            disabled: not allowCurrencyChange,
+            disabled: (not allowCurrencyChange) or readOnly,
             required: true,
             tip: not allowCurrencyChange ? 'The primary currency cannot be changed after orders are placed.'|t('commerce') : null,
         }) }}
@@ -69,7 +78,8 @@
                 name: 'primary',
                 value: 1,
                 on: store.primary,
-                errors: store.getErrors('primary')
+                errors: store.getErrors('primary'),
+                disabled: readOnly,
             }) }}
         {% endif %}
     </div>
@@ -84,6 +94,7 @@
             value: store.getAutoSetNewCartAddresses(false),
             errors: store.getErrors('autoSetNewCartAddresses'),
             includeEnvVars: true,
+            disabled: readOnly,
         }) }}
 
         {{ forms.booleanMenuField({
@@ -94,6 +105,7 @@
             value: store.getAutoSetCartShippingMethodOption(false),
             errors: store.getErrors('autoSetCartShippingMethodOption'),
             includeEnvVars: true,
+            disabled: readOnly,
         }) }}
 
         {{ forms.booleanMenuField({
@@ -104,6 +116,7 @@
             value: store.getAutoSetPaymentSource(false),
             errors: store.getErrors('autoSetPaymentSource'),
             includeEnvVars: true,
+            disabled: readOnly,
         }) }}
 
         {{ forms.booleanMenuField({
@@ -114,6 +127,7 @@
             value: store.getAllowEmptyCartOnCheckout(false),
             errors: store.getErrors('allowEmptyCartOnCheckout'),
             includeEnvVars: true,
+            disabled: readOnly,
         }) }}
 
         {{ forms.booleanMenuField({
@@ -124,6 +138,7 @@
             value: store.getAllowCheckoutWithoutPayment(false),
             errors: store.getErrors('allowCheckoutWithoutPayment'),
             includeEnvVars: true,
+            disabled: readOnly,
         }) }}
 
         {{ forms.booleanMenuField({
@@ -134,6 +149,7 @@
             value: store.getAllowPartialPaymentOnCheckout(false),
             errors: store.getErrors('allowPartialPaymentOnCheckout'),
             includeEnvVars: true,
+            disabled: readOnly,
         }) }}
 
         {{ forms.selectizeField({
@@ -146,6 +162,7 @@
             required: true,
             includeEnvVars: true,
             allowedEnvValues: freeOrderPaymentStrategyOptions|keys,
+            disabled: readOnly,
         }) }}
 
         {{ forms.selectizeField({
@@ -159,6 +176,7 @@
             required: true,
             includeEnvVars: true,
             allowedEnvValues: minimumTotalPriceStrategyOptions|keys,
+            disabled: readOnly,
         }) }}
 
         {{ forms.booleanMenuField({
@@ -169,6 +187,7 @@
             value: store.getRequireShippingAddressAtCheckout(false),
             errors: store.getErrors('requireShippingAddressAtCheckout'),
             includeEnvVars: true,
+            disabled: readOnly,
         }) }}
 
         {{ forms.booleanMenuField({
@@ -179,6 +198,7 @@
             value: store.getRequireBillingAddressAtCheckout(false),
             errors: store.getErrors('requireBillingAddressAtCheckout'),
             includeEnvVars: true,
+            disabled: readOnly,
         }) }}
 
         {{ forms.booleanMenuField({
@@ -189,6 +209,7 @@
             value: store.getRequireShippingMethodSelectionAtCheckout(false),
             errors: store.getErrors('requireShippingMethodSelectionAtCheckout'),
             includeEnvVars: true,
+            disabled: readOnly,
         }) }}
 
         {{ forms.booleanMenuField({
@@ -199,6 +220,7 @@
             value: store.getUseBillingAddressForTax(false),
             errors: store.getErrors('useBillingAddressForTax'),
             includeEnvVars: true,
+            disabled: readOnly,
         }) }}
 
         {{ forms.booleanMenuField({
@@ -209,6 +231,7 @@
             value: store.getValidateOrganizationTaxIdAsVatId(false),
             errors: store.getErrors('validateOrganizationTaxIdAsVatId'),
             includeEnvVars: true,
+            disabled: readOnly,
         }) }}
 
         {{ forms.autosuggestField({
@@ -223,6 +246,7 @@
             suggestEnvVars: true,
             value: store.getOrderReferenceFormat(false),
             errors: store.getErrors('orderReferenceForamt'),
+            disabled: readOnly,
         }) }}
     </div>
 {% endblock %}

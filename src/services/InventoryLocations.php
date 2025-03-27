@@ -180,7 +180,7 @@ class InventoryLocations extends Component
                         $inventoryMovement = new InventoryLocationDeactivatedMovement();
                         $inventoryMovement->fromInventoryLocation = $deactivateInventoryLocation->inventoryLocation;
                         $inventoryMovement->toInventoryLocation = $deactivateInventoryLocation->destinationInventoryLocation;
-                        $inventoryMovement->inventoryItem = $inventoryLevel->getInventoryItem();
+                        $inventoryMovement->inventoryItemId = $inventoryLevel->inventoryItemId;
                         $inventoryMovement->quantity = $inventoryLevel->getTotal($type);
                         $inventoryMovement->fromInventoryTransactionType = $type;
                         $inventoryMovement->toInventoryTransactionType = $type;
@@ -283,6 +283,7 @@ class InventoryLocations extends Component
                 'dateCreated',
                 'dateUpdated',
             ])
+            ->orderBy(['name' => SORT_ASC])
             ->from([Table::INVENTORYLOCATIONS]);
 
         if (!$withTrashed) {

@@ -20,12 +20,18 @@
         {{ formHtml|raw }}
 
         <fieldset>
-        <legend>Payment Amount</legend>
+        <legend>{{ "Payment Amount"|t('commerce') }}</legend>
         <div>
-            <input type="text"  class="paymentAmount text" name="paymentAmount" autocomplete="off" placeholder="{{ order.outstandingBalance }}" step="any" min="1" max="{{ order.outstandingBalance }}" value="{{ order.getPaymentAmount() }}" style="margin: 0 0 0 5px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
+            <input type="hidden" name="paymentAmount[locale]" value="{{ craft.app.formattingLocale.id }}" />
+            <input type="text"  class="paymentAmount text"
+                   name="paymentAmount[value]"
+                   autocomplete="off"
+                   placeholder="{{ order.outstandingBalance }}"
+                   step="any" min="1" max="{{ order.outstandingBalance }}"
+                   value="{{ order.getPaymentAmount() }}" style="margin: 0 0 0 5px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
 
-            {% set currencies = craft.commerce.paymentCurrencies.getAllPaymentCurrencies() %}
-            {% set primaryCurrency = craft.commerce.paymentCurrencies.getPrimaryPaymentCurrency() %}
+            {% set currencies = craft.commerce.paymentCurrencies.getAllPaymentCurrencies(order.store.id) %}
+            {% set primaryCurrency = craft.commerce.paymentCurrencies.getPrimaryPaymentCurrency(order.store.id) %}
             {% if currencies|length > 1 %}
                 <select class="paymentCurrency text" name="paymentCurrency"  style="margin: 0 5px;">
                 {% for currency in currencies %}
@@ -77,7 +83,8 @@
 
 
     function updatePrice(form) {
-        var price = form.find("input.paymentAmount").val();
+        var price = form.find("input[name='paymentAmount[value]']").val();
+        var locale = form.find("input[name='paymentAmount[locale]']").val();
 
         $.ajax({
             type: "POST",
@@ -89,6 +96,7 @@
             data: {
                 'action' : 'commerce/orders/payment-amount-data',
                 'paymentAmount': price,
+                'locale': locale,
                 'paymentCurrency': form.find(".paymentCurrency").val(),
                 'orderId' : orderId
             },

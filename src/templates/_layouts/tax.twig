@@ -4,6 +4,10 @@
 
 {% set title = "Tax"|t('commerce') %}
 
+{% set crumbs = [
+  { label: 'Commerce'|t('commerce'), url: url('commerce') },
+] %}
+
 {% set navItems = {} %}
 
 {% if currentUser.admin or currentUser.can('commerce-manageTaxes') %}

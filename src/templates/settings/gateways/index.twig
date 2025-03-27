@@ -14,20 +14,39 @@
     'Yes',
 ]) %}
 
+{% set crumbs = [
+  { label: 'Commerce'|t('commerce'), url: url('commerce') },
+] %}
+
 {% block actionButton %}
-    <div class="btngroup">
-        <a href="{{ url("commerce/settings/gateways/new") }}" class="btn submit add icon">{{ 'New gateway'|t('commerce') }}</a>
-    </div>
+    {% if not readOnly %}
+        <div class="btngroup">
+            <a href="{{ url("commerce/settings/gateways/new") }}" class="btn submit add icon">{{ 'New gateway'|t('commerce') }}</a>
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block main %}
-    <div id="content">
-        <div class="content-pane">
-            <div id="gateways-vue-admin-table"></div>
-        </div>
-    </div>
-{% endblock %}
+  <div id="content">
 
+    <div class="content-pane">
+      <div id="gateways-vue-admin-table"></div>
+    </div>
+    {% if archivedGateways|length %}
+      <p>
+        <a class="fieldtoggle"
+           data-target="archived-gateways">{{ 'Show archived gateways'|t('commerce') }}</a>
+      </p>
+
+      <div id="archived-gateways" class="hidden" style="margin-top: 22px;">
+        <div class="content-pane">
+          <div id="gateways-archived-vue-admin-table"></div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+{% endblock %}
 
     {% set tableData = [] %}
 
@@ -44,44 +63,6 @@
             customerEnabled: parseBooleanEnv(gateway.isFrontendEnabled),
         }]) %}
     {% endfor %}
-
-    {% js %}
-        var columns = [
-            { name: 'id', title: Craft.t('commerce', 'ID') },
-            { name: '__slot:title', title: Craft.t('commerce', 'Name') },
-            { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
-            {
-                name: 'type',
-                title: Craft.t('commerce', 'Type'),
-                callback: function(value) {
-                    if (value.missing) {
-                        return '<span class="error">'+value.name+'</span>';
-                    }
-
-                    return value.name;
-                }
-            },
-            {
-                name: 'customerEnabled',
-                title: Craft.t('commerce', 'Customer Enabled?'),
-                callback: function(value) {
-                    if (value) {
-                        return '<div data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></div>';
-                    }
-                }
-            }
-        ];
-
-        new Craft.VueAdminTable({
-            columns: columns,
-            container: '#gateways-vue-admin-table',
-            deleteAction: 'commerce/gateways/archive',
-            reorderAction: 'commerce/gateways/reorder',
-            reorderSuccessMessage: Craft.t('commerce', 'Gateways reordered.') ,
-            reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder gateways.'),
-            tableData: {{ tableData|json_encode|raw }}
-        });
-    {% endjs %}
 
 {% css %}
     table.data thead th.vuetable-th-slot-title,
@@ -103,3 +84,78 @@
       margin-top: var(--xl);
     }
 {% endcss %}
+
+{% js %}
+    var columns = [
+        { name: 'id', title: Craft.t('commerce', 'ID') },
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+        {
+            name: 'type',
+            title: Craft.t('commerce', 'Type'),
+            callback: function(value) {
+                if (value.missing) {
+                    return '<span class="error">'+value.name+'</span>';
+                }
+
+                return value.name;
+            }
+        },
+        {
+            name: 'customerEnabled',
+            title: Craft.t('commerce', 'Customer Enabled?'),
+            callback: function(value) {
+                if (value) {
+                    return '<div data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></div>';
+                }
+            }
+        }
+    ];
+
+    let config = {
+      columns: columns,
+      container: '#gateways-vue-admin-table',
+      tableData: {{ tableData|json_encode|raw }}
+    };
+
+    {% if not readOnly %}
+    config['deleteAction'] = 'commerce/gateways/archive';
+    config['reorderAction'] = 'commerce/gateways/reorder';
+    config['reorderSuccessMessage'] = Craft.t('commerce', 'Gateways reordered.') ;
+    config['reorderFailMessage'] = Craft.t('commerce', 'Couldn’t reorder gateways.');
+    {% endif %}
+
+    new Craft.VueAdminTable(config);
+
+    {% if archivedGateways|length %}
+      new Craft.VueAdminTable({
+          columns: [
+        { name: 'id', title: Craft.t('commerce', 'ID') },
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+        {
+            name: 'type',
+            title: Craft.t('commerce', 'Type'),
+            callback: function(value) {
+                if (value.missing) {
+                    return '<span class="error">'+value.name+'</span>';
+                }
+
+                return value.name;
+            }
+        },
+        {
+          name: 'hasTransactions',
+          title: Craft.t('commerce', 'Has Transactions?'),
+          callback: function(value) {
+                if (value) {
+                    return '<div data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></div>';
+                }
+            }
+        },
+    ],
+          container: '#gateways-archived-vue-admin-table',
+          tableData: {{ archivedGateways|json_encode|raw }}
+      });
+    {% endif %}
+{% endjs %}

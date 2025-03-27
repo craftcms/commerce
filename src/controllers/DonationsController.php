@@ -54,6 +54,9 @@ class DonationsController extends BaseCpController
 
         return $this->asCpScreen()
             ->title('Donation Settings')
+            ->crumbs([
+                ['label' => Craft::t('commerce', 'Commerce'), 'url' => 'commerce'],
+            ])
             ->selectedSubnavItem('donations')
             ->action('commerce/donations/save')
             ->submitButtonLabel(Craft::t('app', 'Save'))

@@ -9,10 +9,13 @@ namespace craft\commerce\elements\actions;
 
 use Craft;
 use craft\base\ElementAction;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\elements\db\ElementQueryInterface;
+use craft\helpers\Cp;
 use craft\helpers\Json;
+use craft\models\Site;
 
 /**
  * Class Update Order Status
@@ -52,7 +55,11 @@ class UpdateOrderStatus extends ElementAction
      */
     public function getTriggerHtml(): ?string
     {
-        $orderStatuses = Json::encode(array_values(Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses()->all()));
+        /** @var Site|StoreBehavior $cpSite */
+        $cpSite = Cp::requestedSite();
+        $storeOrderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($cpSite->getStore()->id)->all();
+
+        $orderStatuses = Json::encode(array_values($storeOrderStatuses));
         $type = Json::encode(static::class);
 
         $js = <<<EOT

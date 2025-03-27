@@ -41,7 +41,7 @@ class ProductTitleField extends TitleField
     protected function translatable(?ElementInterface $element = null, bool $static = false): bool
     {
         if (!$element instanceof Product) {
-            throw new \InvalidArgumentException(sprintf('%s can only be used in product field layouts.', __CLASS__));
+            throw new \InvalidArgumentException(sprintf('%s can only be used in product field layouts.', self::class));
         }
 
         return $element->getType()->productTitleTranslationMethod !== Field::TRANSLATION_METHOD_NONE;
@@ -53,7 +53,7 @@ class ProductTitleField extends TitleField
     protected function translationDescription(?ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Product) {
-            throw new \InvalidArgumentException(sprintf('%s can only be used in product field layouts.', __CLASS__));
+            throw new \InvalidArgumentException(sprintf('%s can only be used in product field layouts.', self::class));
         }
 
         return ElementHelper::translationDescription($element->getType()->productTitleTranslationMethod);

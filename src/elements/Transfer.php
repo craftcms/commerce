@@ -82,11 +82,17 @@ class Transfer extends Element
         ]);
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function hasDrafts(): bool
     {
         return false;
     }
 
+    /**
+     * @inheritdoc
+     */
     protected function metadata(): array
     {
         $additionalMeta = [];
@@ -191,7 +197,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public static function displayName(): string
     {
@@ -199,7 +205,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public static function lowerDisplayName(): string
     {
@@ -207,7 +213,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public static function pluralDisplayName(): string
     {
@@ -215,7 +221,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public static function pluralLowerDisplayName(): string
     {
@@ -223,7 +229,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public static function refHandle(): ?string
     {
@@ -231,7 +237,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public static function trackChanges(): bool
     {
@@ -239,7 +245,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public static function hasTitles(): bool
     {
@@ -247,7 +253,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public static function hasContent(): bool
     {
@@ -255,7 +261,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public static function hasUris(): bool
     {
@@ -263,7 +269,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public static function isLocalized(): bool
     {
@@ -271,7 +277,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public static function hasStatuses(): bool
     {
@@ -280,7 +286,7 @@ class Transfer extends Element
 
     /**
      * @return TransferQuery
-     * @inheritDoc
+     * @inheritdoc
      */
     public static function find(): ElementQueryInterface
     {
@@ -288,7 +294,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public static function createCondition(): ElementConditionInterface
     {
@@ -296,7 +302,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     protected static function includeSetStatusAction(): bool
     {
@@ -331,7 +337,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     protected static function defineTableAttributes(): array
     {
@@ -347,7 +353,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     protected static function defineDefaultTableAttributes(string $source): array
     {
@@ -359,7 +365,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     protected function attributeHtml(string $attribute): string
     {
@@ -384,7 +390,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     protected function defineRules(): array
     {
@@ -436,7 +442,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getUriFormat(): ?string
     {
@@ -480,7 +486,7 @@ class Transfer extends Element
 
     /**
      *
-     * @inheritDoc
+     * @inheritdoc
      */
     protected function previewTargets(): array
     {
@@ -497,6 +503,9 @@ class Transfer extends Element
         return $previewTargets;
     }
 
+    /**
+     * @inheritdoc
+     */
     protected function safeActionMenuItems(): array
     {
         $safeActions = parent::safeActionMenuItems();
@@ -516,9 +525,8 @@ class Transfer extends Element
         return $safeActions;
     }
 
-
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     protected function route(): array|string|null
     {
@@ -533,7 +541,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function canView(User $user): bool
     {
@@ -545,7 +553,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function canSave(User $user): bool
     {
@@ -557,7 +565,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function canDuplicate(User $user): bool
     {
@@ -565,7 +573,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function canDelete(User $user): bool
     {
@@ -583,7 +591,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function canCreateDrafts(User $user): bool
     {
@@ -591,7 +599,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     protected function cpEditUrl(): ?string
     {
@@ -599,7 +607,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getPostEditUrl(): ?string
     {
@@ -607,7 +615,7 @@ class Transfer extends Element
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function prepareEditScreen(Response $response, string $containerId): void
     {
@@ -652,14 +660,16 @@ JS, [
         /** @var Response|CpScreenResponseBehavior $response */
         $response->crumbs([
             [
-                'label' => Craft::t('commerce', 'Inventory'),
-                'url' => UrlHelper::cpUrl('commerce/inventory'),
+                'label' => Craft::t('commerce', 'Commerce'),
+                'url' => UrlHelper::cpUrl('commerce'),
             ],
             [
                 'label' => self::pluralDisplayName(),
                 'url' => UrlHelper::cpUrl('commerce/inventory/transfers'),
             ],
         ]);
+
+        $response->selectedSubnavItem('inventory-transfers');
     }
 
     /**
@@ -735,7 +745,7 @@ JS, [
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getFieldLayout(): ?FieldLayout
     {
@@ -743,7 +753,7 @@ JS, [
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function beforeValidate()
     {
@@ -755,7 +765,7 @@ JS, [
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function afterSave(bool $isNew): void
     {
@@ -779,26 +789,26 @@ JS, [
             if ($this->getTransferStatus() === TransferStatusType::PENDING && $originalTransferStatus == TransferStatusType::DRAFT->value) {
                 $inventoryUpdateCollection = new UpdateInventoryLevelCollection();
                 foreach ($this->getDetails() as $detail) {
-                    $inventoryUpdate1 = new UpdateInventoryLevelInTransfer([
-                        'type' => InventoryTransactionType::INCOMING->value,
-                        'updateAction' => InventoryUpdateQuantityType::ADJUST,
-                        'inventoryItem' => $detail->getInventoryItem(),
-                        'transferId' => $this->id,
-                        'inventoryLocation' => $this->getDestinationLocation(),
-                        'quantity' => $detail->quantity,
-                        'note' => Craft::t('commerce', 'Incoming transfer from Transfer ID: ') . $this->id,
-                    ]);
+                    $inventoryUpdate1 = new UpdateInventoryLevelInTransfer();
+                    $inventoryUpdate1->type = InventoryTransactionType::INCOMING->value;
+                    $inventoryUpdate1->updateAction = InventoryUpdateQuantityType::ADJUST;
+                    $inventoryUpdate1->inventoryItemId = $detail->inventoryItemId;
+                    $inventoryUpdate1->transferId = $this->id;
+                    $inventoryUpdate1->inventoryLocationId = $this->destinationLocationId;
+                    $inventoryUpdate1->quantity = $detail->quantity;
+                    $inventoryUpdate1->note = Craft::t('commerce', 'Incoming transfer from Transfer ID: ') . $this->id;
+
                     $inventoryUpdateCollection->push($inventoryUpdate1);
 
-                    $inventoryUpdate2 = new UpdateInventoryLevelInTransfer([
-                        'type' => 'onHand',
-                        'updateAction' => InventoryUpdateQuantityType::ADJUST,
-                        'inventoryItem' => $detail->getInventoryItem(),
-                        'transferId' => $this->id,
-                        'inventoryLocation' => $this->getOriginLocation(),
-                        'quantity' => $detail->quantity * -1,
-                        'note' => Craft::t('commerce', 'Outgoing transfer from Transfer ID: ') . $this->id,
-                    ]);
+                    $inventoryUpdate2 = new UpdateInventoryLevelInTransfer();
+                    $inventoryUpdate2->type = 'onHand';
+                    $inventoryUpdate2->updateAction = InventoryUpdateQuantityType::ADJUST;
+                    $inventoryUpdate2->inventoryItemId = $detail->inventoryItemId;
+                    $inventoryUpdate2->transferId = $this->id;
+                    $inventoryUpdate2->inventoryLocationId = $this->originLocationId;
+                    $inventoryUpdate2->quantity = $detail->quantity * -1;
+                    $inventoryUpdate2->note = Craft::t('commerce', 'Outgoing transfer from Transfer ID: ') . $this->id;
+
                     $inventoryUpdateCollection->push($inventoryUpdate2);
                 }
 

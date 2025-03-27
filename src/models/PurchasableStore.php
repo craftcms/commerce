@@ -74,6 +74,12 @@ class PurchasableStore extends Model
 
     /**
      * @var bool
+     * @since 5.3.0
+     */
+    public bool $allowOutOfStockPurchases = false;
+
+    /**
+     * @var bool
      */
     public bool $freeShipping = false;
 
@@ -91,7 +97,7 @@ class PurchasableStore extends Model
         $rules[] = [['purchasableId', 'storeId'], 'required'];
         $rules[] = [['purchasableId', 'storeId', 'stock', 'minQty', 'maxQty'], 'integer'];
         $rules[] = [['basePrice', 'basePromotionalPrice'], 'number'];
-        $rules[] = [['hasUnlimitedStock', 'promotable', 'availableForPurchase', 'freeShipping'], 'boolean'];
+        $rules[] = [['hasUnlimitedStock', 'promotable', 'availableForPurchase', 'freeShipping', 'allowOutOfStockPurchases'], 'boolean'];
         $rules[] = [['shippingCategoryId'], 'safe'];
 
         return $rules;

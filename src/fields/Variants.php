@@ -38,6 +38,14 @@ class Variants extends BaseRelationField
     /**
      * @inheritdoc
      */
+    public static function icon(): string
+    {
+        return 'tags';
+    }
+
+    /**
+     * @inheritdoc
+     */
     public static function defaultSelectionLabel(): string
     {
         return Craft::t('commerce', 'Add a variant');

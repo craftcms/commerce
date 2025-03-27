@@ -33,7 +33,10 @@ class ProductTypesController extends BaseAdminController
     public function actionProductTypeIndex(): Response
     {
         $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
-        return $this->renderTemplate('commerce/settings/producttypes/index', compact('productTypes'));
+        return $this->renderTemplate('commerce/settings/producttypes/index',[
+            'productTypes' => $productTypes,
+            'readOnly' => $this->isReadOnlyScreen(),
+        ]);
     }
 
     /**
@@ -92,6 +95,8 @@ class ProductTypesController extends BaseAdminController
         $variables['selectedTab'] = 'productTypeSettings';
 
         $this->getView()->registerAssetBundle(EditSectionAsset::class);
+
+        $variables['readOnly'] = $this->isReadOnlyScreen();
 
         return $this->renderTemplate('commerce/settings/producttypes/_edit', $variables);
     }

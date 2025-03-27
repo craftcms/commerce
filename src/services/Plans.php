@@ -129,6 +129,7 @@ class Plans extends Component
      *
      * @return Plan[]
      * @deprecated in 4.0. Use [[getPlansByGatewayId]] instead.
+     * TODO: remove in 6.0
      */
     public function getAllGatewayPlans(int $gatewayId): array
     {

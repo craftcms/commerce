@@ -18,6 +18,7 @@ use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\db\Table;
 use craft\commerce\elements\db\PurchasableQuery;
 use craft\commerce\elements\Order;
+use craft\commerce\elements\Variant;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\LineItemType;
 use craft\commerce\errors\CurrencyException;
@@ -259,10 +260,10 @@ class OrdersController extends Controller
             $qty = (int)$fulfillment['quantity'];
             if ($qty != 0) {
                 $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($fulfillment['inventoryLocationId']);
-                $inventoryItem = Plugin::getInstance()->getInventory()->getInventoryItemById($fulfillment['inventoryItemId']);
+
                 $movement = new InventoryFulfillMovement();
                 $movement->fromInventoryLocation = $inventoryLocation;
-                $movement->inventoryItem = $inventoryItem;
+                $movement->inventoryItemId = $fulfillment['inventoryItemId'];
                 $movement->toInventoryLocation = $inventoryLocation;
                 $movement->fromInventoryTransactionType = InventoryTransactionType::COMMITTED;
                 $movement->toInventoryTransactionType = InventoryTransactionType::FULFILLED;
@@ -613,8 +614,15 @@ JS, []);
                 continue;
             }
 
-            $purchasableCpEditUrlByPurchasableId[$purchasable->id] = $purchasable->getCpEditUrl();
+            if ($purchasable instanceof Variant) {
+                $product = $purchasable->getOwner();
+                $purchasableCpEditUrlByPurchasableId[$purchasable->id] = $product?->getCpEditUrl() ?? null;
+            } else {
+                $purchasableCpEditUrlByPurchasableId[$purchasable->id] = $purchasable->getCpEditUrl();
+            }
         }
+
+        $purchasableCpEditUrlByPurchasableId = array_filter($purchasableCpEditUrlByPurchasableId);
 
         $billingAddress = $order->getBillingAddress();
         $shippingAddress = $order->getShippingAddress();
@@ -1236,12 +1244,16 @@ JS, []);
         $paymentCurrencies = Plugin::getInstance()->getPaymentCurrencies();
         $paymentCurrency = $this->request->getRequiredParam('paymentCurrency');
         $paymentAmount = $this->request->getRequiredParam('paymentAmount');
+        $locale = $this->request->getRequiredParam('locale');
         $orderId = $this->request->getRequiredParam('orderId');
         /** @var Order $order */
         $order = Order::find()->id($orderId)->one();
         $baseCurrency = $order->currency;
 
-        $baseCurrencyPaymentAmount = $paymentCurrencies->convertCurrency($paymentAmount, $paymentCurrency, $baseCurrency);
+        $paymentAmount = MoneyHelper::toMoney(['value' => $paymentAmount, 'currency' => $baseCurrency, 'locale' => $locale]);
+        $paymentAmount = MoneyHelper::toDecimal($paymentAmount);
+
+        $baseCurrencyPaymentAmount = $paymentCurrencies->convertCurrency((float)$paymentAmount, $paymentCurrency, $baseCurrency);
         $baseCurrencyPaymentAmountAsCurrency = Craft::t('commerce', 'Pay {amount} of {currency} on the order.', ['amount' => Currency::formatAsCurrency($baseCurrencyPaymentAmount, $baseCurrency), 'currency' => $baseCurrency]);
 
         $outstandingBalance = $order->outstandingBalance;
@@ -1443,6 +1455,7 @@ JS, []);
 
         if ($order->hasErrors()) {
             $response['order']['errors'] = $order->getErrors();
+            $response['errors'] = $order->getErrors();
             $response['error'] = Craft::t('commerce', 'The order is not valid.');
         }
 

@@ -59,8 +59,12 @@ class VariantsField extends BaseNativeField
 
         Craft::$app->getView()->registerDeltaName($this->attribute());
 
+        $maxVariants = $element->getType()->maxVariants;
+
         return $element->getVariantManager()->getIndexHtml($element, [
             'canCreate' => !$static,
+            'minElements' => 0,
+            'maxElements' => $maxVariants ?? null,
             'allowedViewModes' => [ElementIndexViewMode::Cards, ElementIndexViewMode::Table],
             'sortable' => !$static,
             'fieldLayouts' => [$element->getType()->getVariantFieldLayout()],

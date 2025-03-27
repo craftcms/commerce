@@ -25,6 +25,7 @@ class VariantCondition extends ElementCondition
     protected function selectableConditionRules(): array
     {
         return array_merge(parent::selectableConditionRules(), [
+            ProductConditionRule::class,
             SkuConditionRule::class,
         ]);
     }

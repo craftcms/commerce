@@ -33,23 +33,39 @@ use yii\validators\Validator;
 class Donation extends Purchasable
 {
     /**
-     * @var bool Is the product available for purchase.
+     * By default the donation is not available for purchase.
+     *
+     * @inerhitdoc
      */
     public bool $availableForPurchase = false;
 
+
+    /**
+     * @inheritdoc
+     */
+    public static function hasInventory(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
-            'defaultCurrency' => $this->_order->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
             'currencyAttributes' => $this->currencyAttributes(),
         ];
 
         return $behaviors;
     }
 
+    /**
+     * @inheritdoc
+     */
     protected function defineRules(): array
     {
         $rules = parent::defineRules();
@@ -271,6 +287,7 @@ class Donation extends Purchasable
                 $purchasableStoreRecord->basePromotionalPrice = null;
                 $purchasableStoreRecord->stock = null;
                 $purchasableStoreRecord->inventoryTracked = false;
+                $purchasableStoreRecord->allowOutOfStockPurchases = false;
                 $purchasableStoreRecord->minQty = null;
                 $purchasableStoreRecord->maxQty = null;
                 $purchasableStoreRecord->promotable = false;

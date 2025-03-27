@@ -96,7 +96,7 @@ class OrderAdjustment extends Model
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
-            'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'defaultCurrency' => $this->getCurrency(),
             'currencyAttributes' => $this->currencyAttributes(),
         ];
 
@@ -137,13 +137,13 @@ class OrderAdjustment extends Model
         return $attributes;
     }
 
-    protected function getCurrency(): string
+    /**
+     * @return ?string
+     * @throws InvalidConfigException
+     */
+    protected function getCurrency(): ?string
     {
-        if (!isset($this->_order->currency)) {
-            throw new InvalidConfigException('Order doesn’t have a currency.');
-        }
-
-        return $this->_order->currency;
+        return $this->getOrder()?->currency;
     }
 
     /**

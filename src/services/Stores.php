@@ -38,6 +38,7 @@ use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 use yii\base\ErrorException;
+use yii\base\Event;
 use yii\base\Exception as YiiBaseException;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
@@ -57,29 +58,123 @@ use yii\web\ServerErrorHttpException;
 class Stores extends Component
 {
     /**
-     * @event DeleteStoreEvent The event that is triggered before a site is deleted.
+     * @event DeleteStoreEvent The event that is triggered before a store is deleted.
      *
-     * You may set [[\craft\events\CancelableEvent::$isValid]] to `false` to prevent the site from getting deleted.
+     * You may set [[\craft\events\CancelableEvent::$isValid]] to `false` to prevent the store from getting deleted.
+     *
+     * ```php
+     * use craft\commerce\events\DeleteStoreEvent;
+     * use craft\commerce\models\Store;
+     * use craft\commerce\services\Stores;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *      Stores::class,
+     *      Stores::EVENT_BEFORE_DELETE_STORE,
+     *      function(DeleteStoreEvent $event) {
+     *          // @var Store $store
+     *          $store = $event->store;
+     *
+     *          // ...
+     *      }
+     * );
+     * ```
      */
     public const EVENT_BEFORE_DELETE_STORE = 'beforeDeleteStore';
 
     /**
      * @event DeleteStoreEvent The event that is triggered after a store is deleted
+     *
+     * ```php
+     * use craft\commerce\events\DeleteStoreEvent;
+     * use craft\commerce\models\Store;
+     * use craft\commerce\services\Stores;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *      Stores::class,
+     *      Stores::EVENT_AFTER_DELETE_STORE,
+     *      function(DeleteStoreEvent $event) {
+     *          // @var Store $store
+     *          $store = $event->store;
+     *
+     *          // ...
+     *      }
+     * );
+     * ```
      */
     public const EVENT_AFTER_DELETE_STORE = 'afterDeleteStore';
 
     /**
      * @event DeleteStoreEvent The event that is triggered before a store delete is applied to the database.
+     *
+     * ```php
+     * use craft\commerce\events\DeleteStoreEvent;
+     * use craft\commerce\models\Store;
+     * use craft\commerce\services\Stores;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *      Stores::class,
+     *      Stores::EVENT_BEFORE_APPLY_STORE_DELETE,
+     *      function(DeleteStoreEvent $event) {
+     *          // @var Store $store
+     *          $store = $event->store;
+     *
+     *          // ...
+     *      }
+     * );
+     * ```
      */
     public const EVENT_BEFORE_APPLY_STORE_DELETE = 'beforeApplyStoreDelete';
 
     /**
      * @event StoreEvent The event that is triggered before a store is saved.
+     *
+     * ```php
+     * use craft\commerce\events\StoreEvent;
+     * use craft\commerce\models\Store;
+     * use craft\commerce\services\Stores;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *      Stores::class,
+     *      Stores::EVENT_BEFORE_SAVE_STORE,
+     *      function(StoreEvent $event) {
+     *          // @var Store $store
+     *          $store = $event->store;
+     *          // @var bool $isNew
+     *          $isNew = $event->isNew;
+     *
+     *          // ...
+     *      }
+     * );
+     * ```
      */
     public const EVENT_BEFORE_SAVE_STORE = 'beforeSaveStore';
 
     /**
      * @event StoreEvent The event that is triggered after a store is saved.
+     *
+     * ```php
+     * use craft\commerce\events\StoreEvent;
+     * use craft\commerce\models\Store;
+     * use craft\commerce\services\Stores;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *      Stores::class,
+     *      Stores::EVENT_AFTER_SAVE_STORE,
+     *      function(StoreEvent $event) {
+     *          // @var Store $store
+     *          $store = $event->store;
+     *          // @var bool $isNew
+     *          $isNew = $event->isNew;
+     *
+     *          // ...
+     *      }
+     * );
+     * ```
      */
     public const EVENT_AFTER_SAVE_STORE = 'afterSaveStore';
 

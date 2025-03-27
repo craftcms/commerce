@@ -31,6 +31,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
+use craft\elements\actions\Restore;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\EagerLoadPlan;
 use craft\elements\User;
@@ -46,6 +47,7 @@ use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
+use yii\validators\Validator;
 
 /**
  * Variant model.
@@ -60,8 +62,6 @@ use yii\base\InvalidConfigException;
  * @property-read string $gqlTypeName
  * @property-read string $skuAsText
  * @property string $salePriceAsCurrency
- * @method Product|null getOwner()
- * @method Product|null getPrimaryOwner()
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -207,12 +207,6 @@ class Variant extends Purchasable implements NestedElementInterface
     public ?int $sortOrder = null;
 
     /**
-     * @var bool Whether the variant was deleted along with its product
-     * @see beforeDelete()
-     */
-    public bool $deletedWithProduct = false;
-
-    /**
      * @var string|null
      * @see getProductSlug()
      * @see setProductSlug()
@@ -344,6 +338,27 @@ class Variant extends Purchasable implements NestedElementInterface
     }
 
     /**
+     * @return bool
+     * TODO: Remove in next breakpoint
+     */
+    public function getDeletedWithProduct(): bool
+    {
+        Craft::$app->getDeprecator()->log('Variant::getDeletedWithProduct()', 'The “deletedWithProduct” property has been deprecated. Use “deletedWithOwner” instead.');
+
+        return $this->deletedWithOwner;
+    }
+
+    /**
+     * @param $value
+     * @return void
+     * TODO: Remove in next breakpoint
+     */
+    public function setDeletedWithProduct($value): void
+    {
+        return;
+    }
+
+    /**
      * @inheritdoc
      */
     public function canDuplicate(User $user): bool
@@ -427,6 +442,17 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public function getFieldLayout(): ?FieldLayout
     {
+        $fieldLayout = parent::getFieldLayout();
+
+        if ($fieldLayout) {
+            // Variant field layouts are stored on the product type so retrieving the field layout by ID does not set the provider
+            $productType = collect(Plugin::getInstance()->getProductTypes()->getAllProductTypes())->firstWhere('variantFieldLayoutId', $fieldLayout->id);
+            if ($productType) {
+                $fieldLayout->provider = $productType;
+                return $fieldLayout;
+            }
+        }
+
         try {
             if ($this->getOwner() === null) {
                 return parent::getFieldLayout();
@@ -511,6 +537,59 @@ class Variant extends Purchasable implements NestedElementInterface
         $this->fieldLayoutId = $owner->getType()->variantFieldLayoutId;
 
         $this->traitSetOwner($owner);
+    }
+
+    /**
+     * @inheritdoc
+     * @TODO remove implementation when `NestedElementTrait::getOwner()` is updated
+     */
+    public function getPrimaryOwner(): ?Product
+    {
+        if (!isset($this->_primaryOwner)) {
+            $primaryOwnerId = $this->getPrimaryOwnerId();
+            if (!$primaryOwnerId) {
+                return null;
+            }
+
+            $this->_primaryOwner = Craft::$app->getElements()->getElementById($primaryOwnerId, Product::class, $this->siteId, [
+                'trashed' => null,
+            ]) ?? false;
+            if (!$this->_primaryOwner) {
+                throw new InvalidConfigException("Invalid owner ID: $primaryOwnerId");
+            }
+        }
+
+        /** @phpstan-ignore-next-line */
+        return $this->_primaryOwner ?: null;
+    }
+
+    /**
+     * @inheritdoc
+     * @TODO remove implementation when `NestedElementTrait::getOwner()` is updated
+     */
+    public function getOwner(): ?Product
+    {
+        if (!isset($this->_owner)) {
+            $ownerId = $this->getOwnerId();
+            if (!$ownerId) {
+                return null;
+            }
+
+            // If ownerId and primaryOwnerId are the same, return the primary owner
+            if ($ownerId === $this->getPrimaryOwnerId()) {
+                return $this->getPrimaryOwner();
+            }
+
+            $this->_owner = Craft::$app->getElements()->getElementById($ownerId, Product::class, $this->siteId, [
+                'trashed' => null,
+            ]) ?? false;
+            if (!$this->_owner) {
+                throw new InvalidConfigException("Invalid owner ID: $ownerId");
+            }
+        }
+
+        /** @phpstan-ignore-next-line */
+        return $this->_owner ?: null;
     }
 
     /**
@@ -817,7 +896,7 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
-        if ($handle == 'product') {
+        if (in_array($handle, ['product', 'owner', 'primaryOwner'])) {
             // Get the source element IDs
             $sourceElementIds = [];
 
@@ -998,6 +1077,7 @@ class Variant extends Purchasable implements NestedElementInterface
         parent::afterSave($isNew);
 
         if (!$this->propagating && $this->isDefault && $ownerId && $this->duplicateOf === null) {
+            // @TODO - this data is now joined in on the product query so can be removed at the next breaking change
             $defaultData = [
                 'defaultVariantId' => $this->id,
                 'defaultSku' => $this->getSkuAsText(),
@@ -1022,10 +1102,14 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public function setEagerLoadedElements(string $handle, array $elements, EagerLoadPlan $plan): void
     {
-        if ($handle == 'product') {
+        if (in_array($handle, ['product', 'owner', 'primaryOwner'])) {
             $product = $elements[0] ?? null;
             if ($product instanceof Product) {
-                $this->setOwner($product);
+                if ($handle == 'primaryOwner') {
+                    $this->setPrimaryOwner($product);
+                } else {
+                    $this->setOwner($product);
+                }
             }
         } else {
             $this->traitSetEagerLoadedElements($handle, $elements, $plan);
@@ -1098,28 +1182,9 @@ class Variant extends Purchasable implements NestedElementInterface
      * @inheritdoc
      * @throws \yii\db\Exception
      */
-    public function beforeDelete(): bool
-    {
-        if (!parent::beforeDelete()) {
-            return false;
-        }
-
-        Craft::$app->getDb()->createCommand()
-            ->update(Table::VARIANTS, [
-                'deletedWithProduct' => $this->deletedWithProduct,
-            ], ['id' => $this->id], [], false)
-            ->execute();
-
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     * @throws \yii\db\Exception
-     */
     public function beforeRestore(): bool
     {
-        if (!parent::beforeDelete()) {
+        if (!parent::beforeRestore()) {
             return false;
         }
 
@@ -1159,28 +1224,13 @@ class Variant extends Purchasable implements NestedElementInterface
     }
 
     /**
-     * @throws \yii\db\Exception
-     */
-    public function afterRestore(): void
-    {
-        // Once restored, we no longer track if it was deleted with variant or not
-        $this->deletedWithProduct = false;
-        Craft::$app->getDb()->createCommand()->update(Table::VARIANTS,
-            ['deletedWithProduct' => false],
-            ['id' => $this->getId()]
-        )->execute();
-
-        parent::afterRestore();
-    }
-
-    /**
      * @throws InvalidConfigException
      * @since 2.2
      */
     public function getSearchKeywords(string $attribute): string
     {
         if ($attribute == 'productTitle') {
-            return $this->getOwner()->title;
+            return $this->getOwner()->title ?? '';
         }
 
         return parent::getSearchKeywords($attribute);
@@ -1190,14 +1240,28 @@ class Variant extends Purchasable implements NestedElementInterface
     {
         return array_merge(parent::defineRules(), [
             [['sku'], 'string', 'max' => 255],
-            [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE],
+            [['sku'], 'required', 'on' => self::SCENARIO_LIVE],
+            [['basePrice'], 'validatePrice', 'on' => self::SCENARIO_LIVE, 'skipOnEmpty' => false],
             [['price', 'weight', 'width', 'height', 'length'], 'number'],
             // maxQty must be greater than minQty and minQty must be less than maxQty
             [['minQty'], 'validateMinQtyRange', 'skipOnEmpty' => true],
             [['maxQty'], 'validateMaxQtyRange', 'skipOnEmpty' => true],
             [['stock', 'fieldId', 'ownerId', 'primaryOwnerId'], 'number'],
-            [['ownerId', 'primaryOwnerId', 'isDefault'], 'safe'],
+            [['ownerId', 'primaryOwnerId', 'isDefault', 'deletedWithProduct'], 'safe'],
         ]);
+    }
+
+    /**
+     * @param string $attribute
+     * @param $params
+     * @param Validator $validator
+     */
+    public function validatePrice(string $attribute, $params, Validator $validator): void
+    {
+        if ($this->$attribute === null) {
+            $message = Craft::t('yii', '{attribute} cannot be blank.', ['attribute' => $this->getAttributeLabel('price')]);
+            $validator->addError($this, 'price', $message);
+        }
     }
 
     /**
@@ -1262,9 +1326,17 @@ class Variant extends Purchasable implements NestedElementInterface
 
     protected static function defineActions(string $source): array
     {
-        return [...parent::defineActions($source), ...[
-            ['type' => SetDefaultVariant::class],
-        ]];
+        $actions = parent::defineActions($source);
+        // Restore
+        $actions[] = Craft::$app->getElements()->createAction([
+            'type' => Restore::class,
+            'successMessage' => Craft::t('commerce', 'Variants restored.'),
+            'partialSuccessMessage' => Craft::t('commerce', 'Some variants restored.'),
+            'failMessage' => Craft::t('commerce', 'Variants not restored.'),
+        ]);
+
+        $actions[] = ['type' => SetDefaultVariant::class];
+        return $actions;
     }
 
     /**
@@ -1304,6 +1376,18 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
+    protected static function defineCardAttributes(): array
+    {
+        return array_merge(parent::defineCardAttributes(), [
+            'product' => [
+                'label' => Craft::t('commerce', 'Product'),
+            ],
+        ]);
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected function attributeHtml(string $attribute): string
     {
         if ($attribute === 'product') {
@@ -1316,5 +1400,13 @@ class Variant extends Purchasable implements NestedElementInterface
         }
 
         return parent::attributeHtml($attribute);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function ownerType(): ?string
+    {
+        return Product::class;
     }
 }

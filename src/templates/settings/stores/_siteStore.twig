@@ -1,14 +1,16 @@
 {% extends 'commerce/_layouts/settings' %}
 {% set title = "Sites"|t('app') %}
-{% set fullPageForm = true %}
+{% set fullPageForm = not readOnly %}
 
 {% do craft.app.view.registerTranslations('commerce', [
   "{storeNames} {num, plural, =1{has} other{have}} not been assigned to a site.",
 ]) %}
 
 {% block content %}
-    {{ actionInput('commerce/stores/save-site-stores') }}
-    {{ redirectInput('commerce/settings/sites') }}
+    {% if not readOnly %}
+        {{ actionInput('commerce/stores/save-site-stores') }}
+        {{ redirectInput('commerce/settings/sites') }}
+    {% endif %}
 
     {% import "_includes/forms" as forms %}
     <div class="tablepane">
@@ -30,10 +32,11 @@
                         {{ forms.selectField({
                             id: 'siteStores-' ~ site.id,
                             name: 'siteStores[' ~ site.id ~ '][storeId]',
-                          class: ['siteStores'],
+                            class: ['siteStores'],
                             options: stores|map((store) => ({ label: store.name, value: store.id })),
                             value: siteStore.storeId ?? primaryStoreId,
                             errors: siteStore.getErrors('storeId'),
+                            disabled: readOnly,
                         }) }}
                     </td>
                 </tr>

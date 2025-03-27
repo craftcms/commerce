@@ -25,9 +25,9 @@ class m240313_131445_tidy_shipping_methods extends Migration
 
         $this->dropForeignKeyIfExists(Table::SHIPPINGMETHODS, ['storeId']);
 
-        $this->addForeignKey(null, Table::SHIPPINGMETHODS, ['storeId'], Table::STORES, ['id'], 'CASCADE');
-
         $this->alterColumn(Table::SHIPPINGMETHODS, 'storeId', $this->integer()->notNull());
+
+        $this->addForeignKey(null, Table::SHIPPINGMETHODS, ['storeId'], Table::STORES, ['id'], 'CASCADE');
 
         return true;
     }

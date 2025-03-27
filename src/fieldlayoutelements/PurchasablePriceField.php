@@ -45,12 +45,12 @@ class PurchasablePriceField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public bool $required = true;
+    public string $attribute = 'price';
 
     /**
      * @inheritdoc
      */
-    public string $attribute = 'price';
+    public bool $required = true;
 
     /**
      * @inheritdoc
@@ -164,8 +164,10 @@ JS;
                     'required' => true,
                     'errors' => $element->getErrors('basePrice'),
                     'disabled' => $static,
+                    'size' => 12,
                 ]), [
                     'id' => 'base-price',
+                    'required' => true,
                     'label' => Craft::t('commerce', 'Price'),
                 ]) .
 
@@ -178,6 +180,7 @@ JS;
                         'currencyLabel' => $currency->getCode(),
                         'errors' => $element->getErrors('basePromotionalPrice'),
                         'disabled' => $static,
+                        'size' => 12,
                     ]), [
                         'id' => 'promotional-price',
                         'label' => Craft::t('commerce', 'Promotional Price'),

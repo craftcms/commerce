@@ -25,9 +25,9 @@ class m240308_133451_tidy_shipping_categories extends Migration
 
         $this->dropForeignKeyIfExists(Table::SHIPPINGCATEGORIES, ['storeId']);
 
-        $this->addForeignKey(null, Table::SHIPPINGCATEGORIES, ['storeId'], Table::STORES, ['id'], 'CASCADE');
-
         $this->alterColumn(Table::SHIPPINGCATEGORIES, 'storeId', $this->integer()->notNull());
+        
+        $this->addForeignKey(null, Table::SHIPPINGCATEGORIES, ['storeId'], Table::STORES, ['id'], 'CASCADE');
 
         return true;
     }

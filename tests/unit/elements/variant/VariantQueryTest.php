@@ -130,7 +130,7 @@ class VariantQueryTest extends Unit
             'non-matching-shipping-category' => [$nonMatchingShippingCategory, 0],
         ];
 
-        foreach ($tests as $key => list($criteria, $count)) {
+        foreach ($tests as $key => [$criteria, $count]) {
             $query = Variant::find();
             $query->shippingCategory($criteria);
 

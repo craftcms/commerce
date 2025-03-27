@@ -42,7 +42,7 @@
 {% for inventoryLevel in inventoryLevels %}
     <div class="flex">
         <div class="flex-grow">
-            <a href="{{ inventoryLevel.getPurchasable().cpEditUrl }}" target="_blank">{{ inventoryLevel.purchasable.title }}</a> <span class="code">{{ inventoryLevel.purchasable.sku }}</span>
+            <span class="code">{{ inventoryLevel.inventoryItem.getPurchasable('*').sku }}</span>
         </div>
 
         {% if updateAction == 'set' %}

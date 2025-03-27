@@ -5,6 +5,7 @@ namespace craft\commerce\elements\conditions\orders;
 use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\StoreTrait;
 use craft\elements\db\ElementQueryInterface;
+use craft\helpers\ArrayHelper;
 use yii\base\NotSupportedException;
 
 /**
@@ -41,7 +42,12 @@ class DiscountOrderCondition extends OrderCondition implements HasStoreInterface
      */
     protected function selectableConditionRules(): array
     {
-        return array_merge(parent::selectableConditionRules(), []);
+        $rules = array_merge(parent::selectableConditionRules(), []);
+
+        // We don't need the condition to have the coupon code rule
+        ArrayHelper::removeValue($rules, CouponCodeConditionRule::class);
+
+        return $rules;
     }
 
     /**

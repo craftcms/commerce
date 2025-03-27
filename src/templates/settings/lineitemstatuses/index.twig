@@ -12,7 +12,16 @@
     'Yes',
 ]) %}
 
+{% set crumbs = [
+  { label: 'Commerce'|t('commerce'), url: url('commerce') },
+] %}
+
+{% if readOnly %}
+    {% set contentNotice = readOnlyNotice() %}
+{% endif %}
+
 {% block actionButton %}
+    {% if not readOnly %}
     <div class="btngroup">
         <button type="button" class="btn submit add icon menubtn">{{ 'New line item status'|t('commerce') }}</button>
         <div class="menu">
@@ -25,17 +34,17 @@
             </ul>
         </div>
     </div>
+    {% endif %}
 {% endblock %}
 
-{% block main %}
-    <div id="content">
-        {% for store in stores %}
-            <h2 id="{{ store.handle }}" class="lis-margin-top">{{ store.name }}</h2>
-            <div class="content-pane">
-                <div id="statuses-vue-admin-table-{{ store.handle }}"></div>
-            </div>
-        {% endfor %}
-    </div>
+{% block content %}
+    {% for store in stores %}
+        {% if stores|length > 1 %}
+            <h2 id="{{ store.handle }}" class="{% if loop.first %}first{% endif %}">{{ store.name }}</h2>
+        {% endif %}
+            <div id="statuses-vue-admin-table-{{ store.handle }}"></div>
+        {% if not loop.last %}<hr>{% endif %}
+    {% endfor %}
 {% endblock %}
 
 {%  for handle, storeStatuses in lineItemStatuses %}
@@ -75,26 +84,22 @@
         }
     ];
 
-    new Craft.VueAdminTable({
+    let {{ handle }}Config = {
         columns: columns,
         container: '#statuses-vue-admin-table-{{ handle }}',
-        deleteAction: 'commerce/line-item-statuses/archive',
-        deleteConfirmationMessage: Craft.t('commerce', 'Are you sure you want to delete “{name}”, this will set all line items with this status to no status?'),
         padded: false,
-        reorderAction: 'commerce/line-item-statuses/reorder',
-        reorderSuccessMessage: Craft.t('commerce', 'Line item statuses reordered.'),
-        reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder statuses.'),
+        fullPane: false,
         tableData: {{ tableData|json_encode|raw }},
-        });
+    };
+
+    {% if not readOnly %}
+    {{ handle }}Config['deleteAction'] = 'commerce/line-item-statuses/archive';
+    {{ handle }}Config['deleteConfirmationMessage'] = Craft.t('commerce', 'Are you sure you want to delete “{name}”, this will set all line items with this status to no status?');
+    {{ handle }}Config['reorderAction'] = 'commerce/line-item-statuses/reorder';
+    {{ handle }}Config['reorderSuccessMessage'] = Craft.t('commerce', 'Line item statuses reordered.');
+    {{ handle }}Config['reorderFailMessage'] = Craft.t('commerce', 'Couldn’t reorder statuses.');
+    {% endif %}
+
+    new Craft.VueAdminTable({{ handle }}Config);
     {% endjs %}
 {% endfor %}
-
-{% css %}
-  .lis-margin-top {
-    margin-top: var(--xl);
-  }
-
-  table.data thead .vuetable-th-labelHtml {
-    width: 30%;
-  }
-{% endcss %}

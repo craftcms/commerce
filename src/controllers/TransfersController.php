@@ -21,6 +21,7 @@ use craft\commerce\models\inventory\UpdateInventoryLevel;
 use craft\commerce\models\TransferDetail;
 use craft\commerce\Plugin;
 use craft\commerce\services\Transfers;
+use craft\helpers\Cp as CraftCp;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
@@ -33,7 +34,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.1.0
  */
-class TransfersController extends BaseStoreManagementController
+class TransfersController extends BaseCpController
 {
     /**
      * @return void
@@ -115,20 +116,6 @@ class TransfersController extends BaseStoreManagementController
     }
 
     /**
-     * @param array $variables
-     * @return Response
-     */
-    public function actionEditSettings(array $variables = []): Response
-    {
-        $fieldLayout = Plugin::getInstance()->getTransfers()->getFieldLayout();
-
-        $variables['fieldLayout'] = $fieldLayout;
-        $variables['title'] = Craft::t('commerce', 'Transfer Settings');
-
-        return $this->renderTemplate('commerce/settings/transfers/settings', $variables);
-    }
-
-    /**
      * @return Response
      */
     public function actionSaveSettings(): Response
@@ -190,14 +177,14 @@ class TransfersController extends BaseStoreManagementController
         $transferDetails = $transfer->getDetails();
 
         foreach ($transferDetails as $detail) {
-            if ($acceptedAmount = $details[$detail->uid]['accept']) {
+            if ($acceptedAmount = $details[$detail->uid]['accept'] ?? null) {
                 // Update the total accepted
                 $detail->quantityAccepted += $acceptedAmount;
 
                 $inventoryAcceptedMovement = new InventoryTransferMovement();
                 $inventoryAcceptedMovement->quantity = $acceptedAmount;
                 $inventoryAcceptedMovement->transferId = $transfer->id;
-                $inventoryAcceptedMovement->inventoryItem = $detail->getInventoryItem();
+                $inventoryAcceptedMovement->setInventoryItem($detail->getInventoryItem());
                 $inventoryAcceptedMovement->toInventoryLocation = $transfer->getDestinationLocation();
                 $inventoryAcceptedMovement->fromInventoryLocation = $transfer->getDestinationLocation(); // we are moving from incoming to available
                 $inventoryAcceptedMovement->toInventoryTransactionType = InventoryTransactionType::AVAILABLE;
@@ -206,16 +193,16 @@ class TransfersController extends BaseStoreManagementController
                 $inventoryMovementCollection->push($inventoryAcceptedMovement);
             }
 
-            if ($rejectedAmount = $details[$detail->uid]['reject']) {
+            if ($rejectedAmount = $details[$detail->uid]['reject'] ?? null) {
                 // Update the total rejected
                 $detail->quantityRejected += $rejectedAmount;
 
                 $inventoryRejectedMovement = new UpdateInventoryLevel();
                 $inventoryRejectedMovement->quantity = $rejectedAmount * -1;
                 $inventoryRejectedMovement->updateAction = InventoryUpdateQuantityType::ADJUST;
-                $inventoryRejectedMovement->inventoryItem = $detail->getInventoryItem();
+                $inventoryRejectedMovement->inventoryItemId = $detail->inventoryItemId;
                 $inventoryRejectedMovement->transferId = $transfer->id;
-                $inventoryRejectedMovement->inventoryLocation = $transfer->getDestinationLocation();
+                $inventoryRejectedMovement->setInventoryLocation($transfer->getDestinationLocation());
                 $inventoryRejectedMovement->type = InventoryTransactionType::INCOMING->value;
 
                 $inventoryUpdateCollection->push($inventoryRejectedMovement);
@@ -225,7 +212,9 @@ class TransfersController extends BaseStoreManagementController
         $transfer->setDetails($transferDetails);
 
         try {
+            // Accepted movement
             Plugin::getInstance()->getInventory()->executeInventoryMovements($inventoryMovementCollection);
+            // Rejected updates
             Plugin::getInstance()->getInventory()->executeUpdateInventoryLevels($inventoryUpdateCollection);
             Craft::$app->getElements()->saveElement($transfer, false);
         } catch (\Throwable $e) {
@@ -266,18 +255,27 @@ class TransfersController extends BaseStoreManagementController
 
         $tableRows = '';
         foreach ($transfer->getDetails() as $detail) {
+            $deleted = $detail->inventoryItemId == null;
             $key = $detail->uid;
-            $purchasable = $detail->getInventoryItem()?->getPurchasable();
-            $label = $purchasable ? \craft\helpers\Cp::elementChipHtml($purchasable) : $detail->inventoryItemDescription;
+            $purchasable = $detail->getInventoryItem()?->getPurchasable(CraftCp::requestedSite()->id);
+            $label = $purchasable ? CraftCp::elementChipHtml($purchasable) : $detail->inventoryItemDescription;
             $tableRows .= Html::beginTag('tr');
             $tableRows .= Html::tag('td', $label);
             $tableRows .= Html::tag('td', (string)$detail->quantityAccepted, ['class' => 'rightalign']);
             $tableRows .= Html::tag('td',
-                Html::input('number', 'details[' . $key . '][accept]', '', ['class' => 'text fullwidth'])
+                Html::input('number', 'details[' . $key . '][accept]', '', [
+                    'class' => 'text fullwidth',
+                    'disabled' => $deleted,
+                    'placeholder' => $deleted ? Craft::t('app', '“{name}” deleted.', ['name' => $detail->inventoryItemDescription]) : '',
+                ])
             );
             $tableRows .= Html::tag('td', (string)$detail->quantityRejected, ['class' => 'rightalign']);
             $tableRows .= Html::tag('td',
-                Html::input('number', 'details[' . $key . '][reject]', '', ['class' => 'text fullwidth'])
+                Html::input('number', 'details[' . $key . '][reject]', '', [
+                    'class' => 'text fullwidth',
+                    'disabled' => $deleted,
+                    'placeholder' => $deleted ? Craft::t('app', '“{name}” deleted.', ['name' => $detail->inventoryItemDescription]) : '',
+                ])
             );
         }
 

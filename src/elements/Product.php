@@ -568,6 +568,45 @@ class Product extends Element implements HasStoreInterface
     /**
      * @inheritdoc
      */
+    public static function attributePreviewHtml(array $attribute): mixed
+    {
+        return match ($attribute['value']) {
+            'defaultSku' => $attribute['placeholder'],
+            default => parent::attributePreviewHtml($attribute)
+        };
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineCardAttributes(): array
+    {
+        return array_merge(parent::defineCardAttributes(), [
+            'defaultPrice' => [
+                'label' => Craft::t('commerce', 'Price'),
+                'placeholder' => '¤' . Craft::$app->getFormattingLocale()->getFormatter()->asDecimal(123.99),
+            ],
+            'defaultSku' => [
+                'label' => Craft::t('commerce', 'SKU'),
+                'placeholder' => Html::tag('code', 'SKU123'),
+            ],
+        ]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineDefaultCardAttributes(): array
+    {
+        return array_merge(parent::defineDefaultCardAttributes(), [
+            'defaultSku',
+            'defaultPrice',
+        ]);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
         if ($handle == 'variants') {
@@ -858,7 +897,7 @@ class Product extends Element implements HasStoreInterface
             return false;
         }
 
-        return $user->can('commerce-editProductType:' . $productType->uid);
+        return Plugin::getInstance()->getProductTypes()->hasPermission($user, $productType, 'commerce-createProducts');
     }
 
     /**
@@ -876,7 +915,7 @@ class Product extends Element implements HasStoreInterface
             return false;
         }
 
-        return $user->can('commerce-deleteProducts:' . $productType->uid);
+        return Plugin::getInstance()->getProductTypes()->hasPermission($user, $productType, 'commerce-deleteProducts');
     }
 
     /**
@@ -1045,9 +1084,36 @@ class Product extends Element implements HasStoreInterface
             }
 
             $this->_variants = self::createVariantQuery($this)->status(null)->collect();
+            $this->_variants->map(function(Variant $v) {
+                if (!$this->id) {
+                    return $v;
+                }
+
+                if ($v->primaryOwnerId === $this->id) {
+                    $v->setPrimaryOwner($this);
+                }
+
+                if ($v->ownerId === $this->id) {
+                    $v->setOwner($this);
+                }
+
+                return $v;
+            });
         }
 
         return $this->_variants->filter(fn(Variant $variant) => $includeDisabled || ($variant->getStatus() === self::STATUS_ENABLED));
+    }
+
+    /**
+     * @return VariantCollection
+     * @throws InvalidConfigException
+     * @internal Do not use. Temporary method until we get a nested element manager provider in core.
+     *
+     * TODO: Remove this once we have a nested element manager provider interface in core.
+     */
+    public function getAllVariants(): VariantCollection
+    {
+        return $this->getVariants(true);
     }
 
     /**
@@ -1172,9 +1238,9 @@ class Product extends Element implements HasStoreInterface
                 /** @phpstan-ignore-next-line */
                 fn(Product $product) => self::createVariantQuery($product),
                 [
-                    'attribute' => 'variants',
+                    'attribute' => 'allVariants', // TODO: can change this back to 'variants' once we have a nested element manager provider in core.
                     'propagationMethod' => $this->getType()->propagationMethod,
-                    'valueGetter' => fn(Product $product) => $product->getVariants(true),
+                    'valueSetter' => fn($variants) => $this->setVariants($variants), // TODO: can change this back to 'variants' once we have a nested element manager provider in core.
                 ],
             );
         }
@@ -1587,6 +1653,16 @@ class Product extends Element implements HasStoreInterface
         $this->getVariantManager()->deleteNestedElements($this, $this->hardDelete);
 
         return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function afterRestore(): void
+    {
+        $this->getVariantManager()->restoreNestedElements($this);
+
+        parent::afterRestore();
     }
 
     /**

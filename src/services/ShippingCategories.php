@@ -108,7 +108,9 @@ class ShippingCategories extends Component
      */
     public function getShippingCategoryById(int $shippingCategoryId, ?int $storeId = null): ?ShippingCategory
     {
-        return $this->getAllShippingCategories($storeId)->firstWhere('id', $shippingCategoryId);
+        $shippingCategories = $this->getAllShippingCategories($storeId);
+        $first = $shippingCategories->firstWhere('id', $shippingCategoryId);
+        return $first;
     }
 
     /**

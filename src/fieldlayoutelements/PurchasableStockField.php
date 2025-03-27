@@ -35,23 +35,28 @@ class PurchasableStockField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public ?string $label = 'Inventory';
-
-    /**
-     * @inheritdoc
-     */
-    public bool $required = true;
-
-    /**
-     * @inheritdoc
-     */
     public string $attribute = 'stock';
+
+    /**
+     * @inheritdoc
+     */
+    public function __construct(array $config = [])
+    {
+        unset($config['required']);
+        parent::__construct($config);
+    }
 
     /**
      * @inheritdoc
      */
     public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
+        // If this is a revision get the canonical element to show the stock for.
+        // @TODO re-evaluate this when we have a better way to handle revisions and inventory.
+        if ($element->getIsRevision()) {
+            $element = $element->getCanonical();
+        }
+
         $view = Craft::$app->getView();
         $view->registerAssetBundle(InventoryAsset::class);
 
@@ -201,10 +206,21 @@ JS, [
             'disabled' => $static,
         ];
 
+        $storeAllowOutOfStockPurchasesLightswitchConfig = [
+            'label' => Craft::t('commerce', 'Allow out of stock purchases'),
+            'id' => 'store-backorder-allowed',
+            'name' => 'allowOutOfStockPurchases',
+            'small' => true,
+            'on' => $element->getIsOutOfStockPurchasingAllowed(),
+            'disabled' => $static,
+        ];
+
+
         return Html::beginTag('div') .
                 Cp::lightswitchHtml($storeInventoryTrackedLightswitchConfig) .
                 Html::beginTag('div', ['id' => $inventoryItemTrackedId, 'class' => 'hidden']) .
                     $inventoryLevelsTable .
+                    Cp::lightswitchFieldHtml($storeAllowOutOfStockPurchasesLightswitchConfig) .
                 Html::endTag('div') .
             Html::endTag('div');
     }

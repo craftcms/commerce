@@ -27,6 +27,9 @@ use yii\base\InvalidConfigException;
  * @property-read string $pdfTemplatePath
  * @property-read null|Pdf $pdf
  * @property-read array $config
+ * @property ?string $bcc
+ * @property ?string $cc
+ * @property ?string $to
  * @property string|null $senderAddress
  */
 class Email extends Model implements HasStoreInterface
@@ -52,21 +55,6 @@ class Email extends Model implements HasStoreInterface
      * @var string Recipient Type
      */
     public string $recipientType = EmailRecord::TYPE_CUSTOMER;
-
-    /**
-     * @var string|null To
-     */
-    public ?string $to = null;
-
-    /**
-     * @var string|null Bcc
-     */
-    public ?string $bcc = null;
-
-    /**
-     * @var string|null Cc
-     */
-    public ?string $cc = null;
 
     /**
      * @var string|null Reply to
@@ -113,6 +101,30 @@ class Email extends Model implements HasStoreInterface
      * @see getSenderName()
      */
     private ?string $_senderName = null;
+
+    /**
+     * @var string|null
+     * @since 5.3.0
+     * @see setBcc()
+     * @see getBcc()
+     */
+    private ?string $_bcc = null;
+
+    /**
+     * @var string|null
+     * @since 5.3.0
+     * @see setBcc()
+     * @see getBcc()
+     */
+    private ?string $_cc = null;
+
+    /**
+     * @var string|null
+     * @since 5.3.0
+     * @see setTo()
+     * @see getTo()
+     */
+    private ?string $_to = null;
 
     /**
      * @var string|null UID
@@ -231,6 +243,81 @@ class Email extends Model implements HasStoreInterface
         }
 
         return $senderAddress;
+    }
+
+    /**
+     * @param string|null $bcc
+     * @return void
+     * @since 5.3.0
+     */
+    public function setBcc(?string $bcc): void
+    {
+        $this->_bcc = $bcc;
+    }
+
+    /**
+     * @param bool $parse
+     * @return string|null Default bcc email address Commerce emails should be sent to.
+     *
+     * @since 5.3.0
+     */
+    public function getBcc(bool $parse = true): ?string
+    {
+        if (!$parse) {
+            return $this->_bcc;
+        }
+
+        return App::parseEnv($this->_bcc);
+    }
+
+    /**
+     * @param string|null $cc
+     * @return void
+     * @since 5.3.0
+     */
+    public function setCc(?string $cc): void
+    {
+        $this->_cc = $cc;
+    }
+
+    /**
+     * @param bool $parse
+     * @return string|null Default cc email address Commerce emails should be sent to.
+     *
+     * @since 5.3.0
+     */
+    public function getCc(bool $parse = true): ?string
+    {
+        if (!$parse) {
+            return $this->_cc;
+        }
+
+        return App::parseEnv($this->_cc);
+    }
+
+    /**
+     * @param string|null $to
+     * @return void
+     * @since 5.3.0
+     */
+    public function setTo(?string $to): void
+    {
+        $this->_to = $to;
+    }
+
+    /**
+     * @param bool $parse
+     * @return string|null Default to email address Commerce emails should be sent to.
+     *
+     * @since 5.3.0
+     */
+    public function getTo(bool $parse = true): ?string
+    {
+        if (!$parse) {
+            return $this->_to;
+        }
+
+        return App::parseEnv($this->_to);
     }
 
     /**

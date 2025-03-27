@@ -47,7 +47,11 @@ class EmailsController extends BaseAdminController
         });
         $stores = $stores->all();
 
-        return $this->renderTemplate('commerce/settings/emails/index', compact('emails', 'stores'));
+        return $this->renderTemplate('commerce/settings/emails/index',[
+            'stores' => $stores,
+            'emails' => $emails,
+            'readOnly' => $this->isReadOnlyScreen(),
+        ]);
     }
 
     /**
@@ -98,6 +102,8 @@ class EmailsController extends BaseAdminController
         ];
 
         $variables['emailLanguageOptions'] = array_merge($emailLanguageOptions, LocaleHelper::getSiteAndOtherLanguages());
+
+        $variables['readOnly'] = $this->isReadOnlyScreen();
 
         return $this->renderTemplate('commerce/settings/emails/_edit', $variables);
     }

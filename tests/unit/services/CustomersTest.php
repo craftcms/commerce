@@ -180,7 +180,7 @@ class CustomersTest extends Unit
         $primaryCount = 0;
         foreach ($userAddresses as $userAddress) {
             if ($addressCount === 1) {
-                $addressTitle = \Craft::t('commerce', 'Address');
+                $addressTitle = \Craft::t('app', 'Address');
                 if ($isOnlyOneAddress) {
                     $addressTitle = !empty($billingAddress) ? \Craft::t('commerce', 'Billing Address') : \Craft::t('commerce', 'Shipping Address');
                 }

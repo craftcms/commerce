@@ -151,4 +151,14 @@ class HasPurchasableConditionRule extends BaseElementSelectConditionRule impleme
 
         return $options;
     }
+
+    /**
+     * @inerhitdoc
+     */
+    protected function elementSelectConfig(): array
+    {
+        return array_merge(parent::elementSelectConfig(), [
+            'showSiteMenu' => true,
+        ]);
+    }
 }

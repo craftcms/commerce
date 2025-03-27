@@ -10,7 +10,9 @@ namespace craft\commerce\base;
 use Craft;
 use craft\base\Element;
 use craft\base\NestedElementInterface;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\enums\LineItemType;
 use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Localization;
@@ -28,6 +30,7 @@ use craft\commerce\records\InventoryItem as InventoryItemRecord;
 use craft\commerce\records\Purchasable as PurchasableRecord;
 use craft\commerce\records\PurchasableStore;
 use craft\db\ActiveQuery;
+use craft\db\Table as CraftTable;
 use craft\errors\DeprecationException;
 use craft\errors\SiteNotFoundException;
 use craft\helpers\ArrayHelper;
@@ -227,6 +230,14 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     public bool $inventoryTracked = false;
 
     /**
+     * Should this purchases of this purchasable be allowed if it is out of stock.
+     *
+     * @var bool
+     * @since 5.3.0
+     */
+    public bool $allowOutOfStockPurchases = false;
+
+    /**
      * This is the cached total available stock across all inventory locations.
      *
      * @var int
@@ -252,6 +263,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         $names[] = 'sku';
         $names[] = 'stock';
         $names[] = 'inventoryTracked';
+        $names[] = 'allowOutOfStockPurchases';
+
         return $names;
     }
 
@@ -327,15 +340,30 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     protected function inlineAttributeInputHtml(string $attribute): string
     {
+        $localizePrice = function(string $attribute) {
+            $price = $this->{$attribute};
+            if (empty($this->getErrors($attribute))) {
+                if ($price === null && $attribute === 'basePromotionalPrice') {
+                    return null;
+                } elseif ($price === null) {
+                    $price = 0;
+                }
+
+                $price = Craft::$app->getFormatter()->asDecimal($price);
+            }
+
+            return $price;
+        };
+
         return match ($attribute) {
             'availableForPurchase' => PurchasableHelper::availableForPurchaseInputHtml($this->availableForPurchase),
-            'price' => Currency::moneyInputHtml($this->basePrice, [
+            'price' => Currency::moneyInputHtml($localizePrice('basePrice'), [
                 'id' => 'base-price',
                 'name' => 'basePrice',
                 'currency' => $this->getStore()->getCurrency()->getCode(),
                 'currencyLabel' => $this->getStore()->getCurrency()->getCode(),
             ]),
-            'promotionalPrice' => Currency::moneyInputHtml($this->basePromotionalPrice, [
+            'promotionalPrice' => Currency::moneyInputHtml($localizePrice('basePromotionalPrice'), [
                 'id' => 'base-promotional-price',
                 'name' => 'basePromotionalPrice',
                 'currency' => $this->getStore()->getCurrency()->getCode(),
@@ -364,6 +392,20 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     private function _getTeller(): Teller
     {
         return Plugin::getInstance()->getCurrencies()->getTeller($this->getStore()->getCurrency());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __unset($name)
+    {
+        // Allow clearing of specific memoized properties
+        if (in_array($name, ['stock', 'shippingCategory', 'taxCategory'])) {
+            $this->{'_' . $name} = null;
+            return;
+        }
+
+        parent::__unset($name);
     }
 
     /**
@@ -412,14 +454,15 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             return false;
         }
 
-        // Is the inventory tracked and is there stock?
-        if ($this->inventoryTracked && $this->getStock() < 1) {
-            return false;
-        }
-
         // Temporary SKU can not be added to the cart
         if (PurchasableHelper::isTempSku($this->getSku())) {
             return false;
+        }
+
+        if (static::hasInventory() && $this->inventoryTracked && $this->getStock() < 1) {
+            if (!Plugin::getInstance()->getPurchasables()->isPurchasableOutOfStockPurchasingAllowed($this)) {
+                return false;
+            }
         }
 
         return true;
@@ -545,7 +588,9 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         $price = $this->getPrice();
         if (!Plugin::getInstance()->getCatalogPricingRules()->canUseCatalogPricingRules()) {
             // Use the sales system to figure out the price
-            $this->_loadSales();
+            if (!isset($this->_sales)) {
+                $this->loadSales();
+            }
             $promotionalPrice = $this->_salesPrice ?? $this->basePromotionalPrice;
         } else {
             $promotionalPrice = $this->_promotionalPrice ?? $this->basePromotionalPrice;
@@ -715,7 +760,11 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         // Since we do not have a proper stock reservation system, we need deduct stock if they have more in the cart than is available, and to do this quietly.
         // If this occurs in the payment request, the user will be notified the order has changed.
         if (($order = $lineItem->getOrder()) && !$order->isCompleted) {
-            if ($this->inventoryTracked && ($lineItem->qty > $this->getStock())) {
+            if ($this::hasInventory() &&
+                !$this->getIsOutOfStockPurchasingAllowed() &&
+                $this->inventoryTracked &&
+                ($lineItem->qty > $this->getStock())
+            ) {
                 $message = Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $this->getStock()]);
                 /** @var OrderNotice $notice */
                 $notice = Craft::createObject([
@@ -770,7 +819,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                         $validator->addError($lineItem, $attribute, Craft::t('commerce', 'No purchasable available.'));
                     }
 
-                    if (!$purchasable->getIsAvailable()) {
+                    if (!Plugin::getInstance()->getPurchasables()->isPurchasableAvailable($lineItem->getPurchasable(), $lineItem->getOrder())) {
                         $validator->addError($lineItem, $attribute, Craft::t('commerce', 'The item is not enabled for sale.'));
                     }
                 },
@@ -778,16 +827,29 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             [
                 'qty',
                 function($attribute, $params, Validator $validator) use ($lineItem, $lineItemQuantitiesById, $lineItemQuantitiesByPurchasableId) {
+                    if ($lineItem->type == LineItemType::Custom) {
+                        return;
+                    }
+
+                    $lineItemPurchasable = $lineItem->getPurchasable();
+                    if (!$lineItemPurchasable instanceof Purchasable) {
+                        return;
+                    }
+
                     if (!$this->hasStock()) {
-                        $error = Craft::t('commerce', '“{description}” is currently out of stock.', ['description' => $lineItem->purchasable->getDescription()]);
-                        $validator->addError($lineItem, $attribute, $error);
+                        if (!Plugin::getInstance()->getPurchasables()->isPurchasableOutOfStockPurchasingAllowed($lineItemPurchasable, $lineItem->getOrder())) {
+                            $error = Craft::t('commerce', '“{description}” is currently out of stock.', ['description' => $lineItemPurchasable->getDescription()]);
+                            $validator->addError($lineItem, $attribute, $error);
+                        }
                     }
 
                     $lineItemQty = $lineItem->id !== null ? $lineItemQuantitiesById[$lineItem->id] : $lineItemQuantitiesByPurchasableId[$lineItem->purchasableId];
 
                     if ($this->hasStock() && $this->inventoryTracked && $lineItemQty > $this->getStock()) {
-                        $error = Craft::t('commerce', 'There are only {num} “{description}” items left in stock.', ['num' => $this->getStock(), 'description' => $lineItem->purchasable->getDescription()]);
-                        $validator->addError($lineItem, $attribute, $error);
+                        if (!Plugin::getInstance()->getPurchasables()->isPurchasableOutOfStockPurchasingAllowed($lineItemPurchasable, $lineItem->getOrder())) {
+                            $error = Craft::t('commerce', 'There are only {num} “{description}” items left in stock.', ['num' => $this->getStock(), 'description' => $lineItemPurchasable->getDescription()]);
+                            $validator->addError($lineItem, $attribute, $error);
+                        }
                     }
 
                     if ($this->minQty > 1 && $lineItemQty < $this->minQty) {
@@ -819,14 +881,16 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                 'targetClass' => PurchasableRecord::class,
                 'caseInsensitive' => true,
                 'filter' => function(ActiveQuery $query) {
-                    $query->leftJoin(\craft\db\Table::ELEMENTS . ' elements', '[[elements.id]] = [[commerce_purchasables.id]]');
+                    $targetRecordClassTableName = $query->modelClass::tableName();
+                    $elementsTable = CraftTable::ELEMENTS;
+                    $query->leftJoin(['elements' => $elementsTable], "[[elements.id]] = {$targetRecordClassTableName}.id");
                     $query->andWhere(['elements.revisionId' => null, 'elements.draftId' => null]);
                 },
                 'on' => self::SCENARIO_LIVE,
             ],
             [['basePrice'], 'number'],
             [['basePromotionalPrice', 'minQty', 'maxQty'], 'number', 'skipOnEmpty' => true],
-            [['freeShipping', 'inventoryTracked', 'promotable', 'availableForPurchase'], 'boolean'],
+            [['freeShipping', 'inventoryTracked', 'allowOutOfStockPurchases', 'promotable', 'availableForPurchase'], 'boolean'],
             [['taxCategoryId', 'shippingCategoryId', 'price', 'promotionalPrice', 'productSlug', 'productTypeHandle'], 'safe'],
         ]);
     }
@@ -889,7 +953,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function getHasUnlimitedStock(): bool
     {
-        return !$this->inventoryTracked;
+        return !$this::hasInventory() || !$this->inventoryTracked;
     }
 
     /**
@@ -916,6 +980,15 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     }
 
     /**
+     * @return bool
+     * @since 5.3.0
+     */
+    public function getIsOutOfStockPurchasingAllowed(): bool
+    {
+        return Plugin::getInstance()->getPurchasables()->isPurchasableOutOfStockPurchasingAllowed($this);
+    }
+
+    /**
      * Returns the cached total available stock across all inventory locations for this store.
      *
      * @return int
@@ -929,7 +1002,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
         return $this->_stock;
     }
-
 
     /**
      * Returns the total stock across all locations this purchasable is tracked in.
@@ -1003,27 +1075,29 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
             // Always create the inventory item even if it's a temporary draft (in the slide) since we want to allow stock to be
             // added to inventory before it is saved as a permanent variant.
-            if ($canonicalPurchasableId) {
-                if ($isOwnerDraftApplying && $this->duplicateOf !== null) {
-                    /** @var InventoryItemRecord|null $inventoryItem */
-                    $inventoryItem = InventoryItemRecord::find()->where(['purchasableId' => $this->duplicateOf->id])->one();
-                    if ($inventoryItem) {
-                        $inventoryItem->purchasableId = $canonicalPurchasableId;
-                        $inventoryItem->save();
-                        $this->inventoryItemId = $inventoryItem->id;
-                    }
-                } else {
-                    // Set the inventory item data
-                    /** @var InventoryItemRecord|null $inventoryItem */
-                    $inventoryItem = InventoryItemRecord::find()->where(['purchasableId' => $canonicalPurchasableId])->one();
-                    if (!$inventoryItem) {
-                        $inventoryItem = new InventoryItemRecord();
-                        $inventoryItem->purchasableId = $canonicalPurchasableId;
-                        $inventoryItem->countryCodeOfOrigin = '';
-                        $inventoryItem->administrativeAreaCodeOfOrigin = '';
-                        $inventoryItem->harmonizedSystemCode = '';
-                        $inventoryItem->save();
-                        $this->inventoryItemId = $inventoryItem->id;
+            if (static::hasInventory()) {
+                if ($canonicalPurchasableId) {
+                    if ($isOwnerDraftApplying && $this->duplicateOf !== null) {
+                        /** @var InventoryItemRecord|null $inventoryItem */
+                        $inventoryItem = InventoryItemRecord::find()->where(['purchasableId' => $this->duplicateOf->id])->one();
+                        if ($inventoryItem) {
+                            $inventoryItem->purchasableId = $canonicalPurchasableId;
+                            $inventoryItem->save();
+                            $this->inventoryItemId = $inventoryItem->id;
+                        }
+                    } else {
+                        // Set the inventory item data
+                        /** @var InventoryItemRecord|null $inventoryItem */
+                        $inventoryItem = InventoryItemRecord::find()->where(['purchasableId' => $canonicalPurchasableId])->one();
+                        if (!$inventoryItem) {
+                            $inventoryItem = new InventoryItemRecord();
+                            $inventoryItem->purchasableId = $canonicalPurchasableId;
+                            $inventoryItem->countryCodeOfOrigin = '';
+                            $inventoryItem->administrativeAreaCodeOfOrigin = '';
+                            $inventoryItem->harmonizedSystemCode = '';
+                            $inventoryItem->save();
+                            $this->inventoryItemId = $inventoryItem->id;
+                        }
                     }
                 }
             }
@@ -1044,6 +1118,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                     $purchasableStoreRecord->basePromotionalPrice = null;
                     $purchasableStoreRecord->stock = Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($this)->sum('availableTotal');
                     $purchasableStoreRecord->inventoryTracked = false;
+                    $purchasableStoreRecord->allowOutOfStockPurchases = false;
                     $purchasableStoreRecord->minQty = null;
                     $purchasableStoreRecord->maxQty = null;
                     $purchasableStoreRecord->promotable = false;
@@ -1064,6 +1139,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                             $purchasableStoreRecord->basePromotionalPrice = $purchasableStoreRecordDuplicate->basePromotionalPrice;
                             $purchasableStoreRecord->stock = Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($this)->sum('availableTotal');
                             $purchasableStoreRecord->inventoryTracked = $purchasableStoreRecordDuplicate->inventoryTracked;
+                            $purchasableStoreRecord->allowOutOfStockPurchases = $purchasableStoreRecordDuplicate->allowOutOfStockPurchases;
                             $purchasableStoreRecord->minQty = $purchasableStoreRecordDuplicate->minQty;
                             $purchasableStoreRecord->maxQty = $purchasableStoreRecordDuplicate->maxQty;
                             $purchasableStoreRecord->promotable = $purchasableStoreRecordDuplicate->promotable;
@@ -1079,7 +1155,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                 $purchasableStoreRecord->basePrice = $this->basePrice;
                 $purchasableStoreRecord->basePromotionalPrice = $this->basePromotionalPrice;
                 $purchasableStoreRecord->stock = Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($this)->sum('availableTotal');
-                $purchasableStoreRecord->inventoryTracked = $this->inventoryTracked;
+                $purchasableStoreRecord->inventoryTracked = $this::hasInventory() ? $this->inventoryTracked : false;
+                $purchasableStoreRecord->allowOutOfStockPurchases = $this->allowOutOfStockPurchases;
                 $purchasableStoreRecord->minQty = $this->minQty;
                 $purchasableStoreRecord->maxQty = $this->maxQty;
                 $purchasableStoreRecord->promotable = $this->promotable;
@@ -1100,6 +1177,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function afterPropagate(bool $isNew): void
     {
+        parent::afterPropagate($isNew);
+
         Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
             'purchasableIds' => [$this->getCanonicalId()],
             'storeId' => $this->getStoreId(),
@@ -1124,7 +1203,9 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function getSales(): array
     {
-        $this->_loadSales();
+        if (!isset($this->_sales)) {
+            $this->loadSales();
+        }
 
         return $this->_sales;
     }
@@ -1255,17 +1336,36 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             }
         }
 
+        $dimensions = [];
+        if ($attribute === 'dimensions') {
+            $dimensions = array_filter([
+                $this->length,
+                $this->width,
+                $this->height,
+            ]);
+        }
+
+        if ($attribute === 'priceView') {
+            $price = $this->basePriceAsCurrency;
+            if ($this->getBasePromotionalPrice() && $this->getBasePromotionalPrice() < $this->getBasePrice()) {
+                $price = Html::tag('del', $price, ['style' => 'opacity: .5']) . ' ' . $this->basePromotionalPriceAsCurrency;
+            }
+
+            return $price;
+        }
+
         return match ($attribute) {
             'sku' => (string)Html::encode($this->getSkuAsText()),
             'price' => $this->basePriceAsCurrency,
-            'promotionalPrice' => $this->basePromotionalPriceAsCurrency,
+            'promotionalPrice' => $this->basePromotionalPrice !== null ? $this->basePromotionalPriceAsCurrency : '',
             'weight' => $this->weight !== null ? Craft::$app->getFormattingLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits : '',
             'length' => $this->length !== null ? Craft::$app->getFormattingLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
             'width' => $this->width !== null ? Craft::$app->getFormattingLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
             'height' => $this->height !== null ? Craft::$app->getFormattingLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
             'minQty' => (string)$this->minQty,
             'maxQty' => (string)$this->maxQty,
-            'stock' => $stock,
+            'stock' => $this::hasInventory() ? $stock : '',
+            'dimensions' => !empty($dimensions) ? implode(' x ', $dimensions) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
             default => parent::attributeHtml($attribute),
         };
     }
@@ -1304,6 +1404,91 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     }
 
     /**
+     * @return bool
+     * @since 5.3.0
+     */
+    public static function hasInventory(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function attributePreviewHtml(array $attribute): mixed
+    {
+        return match ($attribute['value']) {
+            'sku', 'priceView', 'dimensions', 'weight' => $attribute['placeholder'],
+            'availableForPurchase', 'promotable' => Html::tag('span', '', [
+                    'class' => 'checkbox-icon',
+                    'role' => 'img',
+                    'title' => $attribute['label'],
+                    'aria' => [
+                        'label' => $attribute['label'],
+                    ],
+                ]) .
+                Html::tag('span', $attribute['label'], [
+                    'class' => 'checkbox-preview-label',
+                ]),
+            default => parent::attributePreviewHtml($attribute)
+        };
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineDefaultCardAttributes(): array
+    {
+        return array_merge(parent::defineDefaultCardAttributes(), [
+            'sku',
+            'priceView',
+        ]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineCardAttributes(): array
+    {
+        return array_merge(Element::defineCardAttributes(), [
+            'availableForPurchase' => [
+                'label' => Craft::t('commerce', 'Available for purchase'),
+            ],
+            'basePrice' => [
+                'label' => Craft::t('commerce', 'Base Price'),
+                'placeholder' => '¤' . Craft::$app->getFormattingLocale()->getFormatter()->asDecimal(123.99),
+            ],
+            'basePromotionalPrice' => [
+                'label' => Craft::t('commerce', 'Base Promotional Price'),
+                'placeholder' => '¤' . Craft::$app->getFormattingLocale()->getFormatter()->asDecimal(123.99),
+            ],
+            'dimensions' => [
+                'label' => Craft::t('commerce', 'Dimensions'),
+                'placeholder' => '1 x 2 x 3 ' . Plugin::getInstance()->getSettings()->dimensionUnits,
+            ],
+            'priceView' => [
+                'label' => Craft::t('commerce', 'Price'),
+                'placeholder' => Html::tag('del', '¤' . Craft::$app->getFormattingLocale()->getFormatter()->asDecimal(199.99), ['style' => 'opacity: .5']) . ' ¤' . Craft::$app->getFormattingLocale()->getFormatter()->asDecimal(123.99),
+            ],
+            'promotable' => [
+                'label' => Craft::t('commerce', 'Promotable'),
+            ],
+            'sku' => [
+                'label' => Craft::t('commerce', 'SKU'),
+                'placeholder' => Html::tag('code', 'SKU123'),
+            ],
+            'stock' => [
+                'label' => Craft::t('commerce', 'Stock'),
+                'placeholder' => 10,
+            ],
+            'weight' => [
+                'label' => Craft::t('commerce', 'Weight'),
+                'placeholder' => 123 . Plugin::getInstance()->getSettings()->weightUnits,
+            ],
+        ]);
+    }
+
+    /**
      * @inheritdoc
      */
     protected static function defineSortOptions(): array
@@ -1333,18 +1518,22 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     }
 
     /**
-     * Reloads any sales applicable to the purchasable for the current user.
+     * Reloads any sales applicable to the purchasable.
+     *
+     * @param Order|null $order
+     * @return void
+     * @throws InvalidConfigException
+     * @since 5.3.0
+     * @internal
      */
-    private function _loadSales(): void
+    public function loadSales(?Order $order = null): void
     {
-        if (!isset($this->_sales)) {
-            // Default the sales and salePrice to the original price without any sales
-            $this->_sales = [];
+        // Default the sales and salePrice to the original price without any sales
+        $this->_sales = [];
 
-            if ($this->getId()) {
-                $this->_sales = Plugin::getInstance()->getSales()->getSalesForPurchasable($this);
-                $this->_salesPrice = Plugin::getInstance()->getSales()->getSalePriceForPurchasable($this);
-            }
+        if ($this->getId()) {
+            $this->_sales = Plugin::getInstance()->getSales()->getSalesForPurchasable($this, $order);
+            $this->_salesPrice = Plugin::getInstance()->getSales()->getSalePriceForPurchasable($this, $order);
         }
     }
 }

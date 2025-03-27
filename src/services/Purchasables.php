@@ -15,6 +15,7 @@ use craft\commerce\elements\db\PurchasableQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
 use craft\commerce\events\PurchasableAvailableEvent;
+use craft\commerce\events\PurchasableOutOfStockPurchasesAllowedEvent;
 use craft\commerce\events\PurchasableShippableEvent;
 use craft\commerce\Plugin;
 use craft\elements\User;
@@ -35,6 +36,31 @@ use yii\base\InvalidArgumentException;
  */
 class Purchasables extends Component
 {
+    /**
+     * @event PurchasableOutOfStockPurchasesAllowedEvent The event that is triggered when checking if the purchasable can be purchased when out of stock.
+     *
+     * This example allows users of a certain group to purchase out of stock items.
+     *
+     * ```php
+     * use craft\commerce\events\PurchasableAvailableEvent;
+     * use craft\commerce\services\Purchasables;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Purchasables::class,
+     *     Purchasables::EVENT_PURCHASABLE_ALLOW_OUT_OF_STOCK_PURCHASES,
+     *     function(PurchasableOutOfStockPurchasesAllowedEvent $event) {
+     *         if($order && $user = $order->getUser()){
+     *            if($user->isInGroup(1)){
+     *                $event->outOfStockPurchasesAllowed = true;
+     *            }
+     *         }
+     *     }
+     * );
+     * ```
+     */
+    public const EVENT_PURCHASABLE_OUT_OF_STOCK_PURCHASES_ALLOWED = 'allowOutOfStockPurchases';
+
     /**
      * @event PurchasableAvailableEvent The event that is triggered when the availability of a purchasables is checked.
      *
@@ -109,6 +135,32 @@ class Purchasables extends Component
      */
     private ?Collection $_purchasableById = null;
 
+
+    /**
+     * @param Purchasable $purchasable
+     * @param Order|null $order
+     * @param User|null $currentUser
+     * @return bool
+     * @throws Throwable
+     * @since 5.3.0
+     */
+    public function isPurchasableOutOfStockPurchasingAllowed(Purchasable $purchasable, Order $order = null, User $currentUser = null): bool
+    {
+        if ($currentUser === null) {
+            $currentUser = Craft::$app->getUser()->getIdentity();
+        }
+
+        $outOfStockPurchasesAllowed = $purchasable->allowOutOfStockPurchases;
+
+        $event = new PurchasableOutOfStockPurchasesAllowedEvent(compact('order', 'purchasable', 'currentUser', 'outOfStockPurchasesAllowed'));
+
+        if ($this->hasEventHandlers(self::EVENT_PURCHASABLE_OUT_OF_STOCK_PURCHASES_ALLOWED)) {
+            $this->trigger(self::EVENT_PURCHASABLE_OUT_OF_STOCK_PURCHASES_ALLOWED, $event);
+        }
+
+        return $event->outOfStockPurchasesAllowed;
+    }
+
     /**
      * @param Order|null $order
      * @param User|null $currentUser
@@ -163,7 +215,10 @@ class Purchasables extends Component
     public function updateStoreStockCache(Purchasable $purchasable, bool $allSites = false): void
     {
         if ($allSites) {
-            $purchasables = $purchasable::find()->siteid('*')->id($purchasable->id)->status(null)->all();
+            $purchasables = $purchasable::find()
+                ->siteId('*')
+                ->id($purchasable->id)
+                ->status(null)->all();
         } else {
             $purchasables = [$purchasable];
         }

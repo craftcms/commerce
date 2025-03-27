@@ -9,6 +9,7 @@ namespace craftcommercetests\unit\controllers;
 
 use Codeception\Test\Unit;
 use Craft;
+use craft\base\Event;
 use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\controllers\CartController;
 use craft\commerce\elements\Product;
@@ -16,9 +17,13 @@ use craft\commerce\elements\Variant;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\services\Stores;
+use craft\db\Table;
+use craft\elements\Address;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidPluginException;
+use craft\events\DefineRulesEvent;
+use craft\helpers\Db;
 use craft\web\Request;
 use craftcommercetests\fixtures\CustomerAddressFixture;
 use craftcommercetests\fixtures\CustomerFixture;
@@ -464,6 +469,155 @@ class CartTest extends Unit
                 true, // save billing
                 true, // save shipping
                 false, // save both
+            ],
+        ];
+    }
+
+    /**
+     * @param string $whichAddress
+     * @param bool $validShipping
+     * @param bool $validBilling
+     * @return void
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidRouteException
+     * @throws Throwable
+     * @dataProvider setAddressesOnCartDataProvider
+     */
+    public function testSetAddressesOnCart(string $whichAddress = 'shipping', bool $validShipping = true, bool $validBilling = true): void
+    {
+        $this->request->headers->set('X-Http-Method-Override', 'POST');
+
+        $customerFixture = $this->tester->grabFixture('customer');
+        /** @var User|CustomerBehavior $customer */
+        $customer = $customerFixture->getElement('credentialed-user');
+        Craft::$app->getUser()->setIdentity(
+            Craft::$app->getUsers()->getUserById($customer->id)
+        );
+        $customerShippingAddress = $customer->getPrimaryShippingAddress();
+        $customerBillingAddress = $customer->getPrimaryBillingAddress();
+
+        Event::on(Address::class, Address::EVENT_DEFINE_RULES, function(DefineRulesEvent $event) {
+            $event->rules[] = [['addressLine1'], 'required'];
+        });
+
+        $productsFixture = $this->tester->grabFixture('products');
+        /** @var Product $product */
+        $product = $productsFixture->getElement('rad-hoodie');
+        $bodyParams = [
+            'purchasableId' => $product->getDefaultVariant()->id,
+            'qty' => 2,
+        ];
+
+        if ($whichAddress === 'shipping' || $whichAddress === 'both') {
+            $bodyParams['shippingAddressId'] = $customerShippingAddress->id;
+        }
+
+        if ($whichAddress === 'billing' || $whichAddress === 'both') {
+            $bodyParams['billingAddressId'] = $customerBillingAddress->id;
+        }
+
+        if (!$validShipping) {
+            Db::update(Table::ADDRESSES, ['addressLine1' => null], ['id' => $customerShippingAddress->id]);
+        }
+
+        if (!$validBilling) {
+            Db::update(Table::ADDRESSES, ['addressLine1' => null], ['id' => $customerBillingAddress->id]);
+        }
+
+        $this->request->setBodyParams($bodyParams);
+        $primaryStore = Plugin::getInstance()->getStores()->getPrimaryStore();
+        $originalSettingValue = $primaryStore->getAutoSetNewCartAddresses(false);
+        $primaryStore->setAutoSetNewCartAddresses(false);
+
+        $this->cartController->runAction('update-cart');
+
+        $cart = Plugin::getInstance()->getCarts()->getCart();
+
+        $shippingAddress = $cart->getShippingAddress();
+        $billingAddress = $cart->getBillingAddress();
+
+        if ($whichAddress === 'shipping' || $whichAddress === 'both') {
+            if (!$validShipping) {
+                self::assertNull($shippingAddress);
+                self::assertTrue($cart->hasErrors());
+                // loop through the error keys to make sure there is one starting with `shippingAddress`
+                $errorKeys = array_keys($cart->getErrors());
+                $found = false;
+                foreach ($errorKeys as $errorKey) {
+                    if (str_starts_with($errorKey, 'shippingAddress')) {
+                        $found = true;
+                        break;
+                    }
+                }
+
+                self::assertTrue($found);
+            } else {
+                self::assertEquals($customerShippingAddress->addressLine1, $shippingAddress->addressLine1);
+            }
+        }
+
+        if ($whichAddress === 'billing' || $whichAddress === 'both') {
+            if (!$validBilling) {
+                self::assertNull($billingAddress);
+                self::assertTrue($cart->hasErrors());
+                // loop through the error keys to make sure there is one starting with `billingAddress`
+                $errorKeys = array_keys($cart->getErrors());
+                $found = false;
+                foreach ($errorKeys as $errorKey) {
+                    if (str_starts_with($errorKey, 'billingAddress')) {
+                        $found = true;
+                        break;
+                    }
+                }
+
+                self::assertTrue($found);
+            } else {
+                self::assertEquals($customerBillingAddress->addressLine1, $billingAddress->addressLine1);
+            }
+        }
+
+        Plugin::getInstance()->getCarts()->forgetCart();
+
+        if (($whichAddress === 'shipping' || $whichAddress === 'both') && $validShipping) {
+            Craft::$app->getElements()->deleteElement($cart->getShippingAddress(), true);
+        }
+
+        if (($whichAddress === 'billing' || $whichAddress === 'both') && $validBilling) {
+            Craft::$app->getElements()->deleteElement($cart->getBillingAddress(), true);
+        }
+
+        Craft::$app->getElements()->deleteElement($cart, true);
+
+        $primaryStore->setAutoSetNewCartAddresses($originalSettingValue);
+    }
+
+    /**
+     * @return array[]
+     */
+    public function setAddressesOnCartDataProvider(): array
+    {
+        return [
+            'shipping' => [
+                'shipping',
+                true,
+                true,
+            ],
+            'billing' => [
+                'billing',
+                true,
+                true,
+            ],
+            'both' => [
+                'both',
+                true,
+                true,
+            ],
+            'invalid-shipping' => [
+                'shipping',
+                false,
+                true,
             ],
         ];
     }

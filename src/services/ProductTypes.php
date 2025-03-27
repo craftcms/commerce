@@ -475,7 +475,7 @@ class ProductTypes extends Component
                 $structureUid = $data['structure']['uid'];
                 $structure = Craft::$app->getStructures()->getStructureByUid($structureUid, true) ?? new Structure(['uid' => $structureUid]);
                 $isNewStructure = empty($structure->id);
-                $structure->maxLevels = $data['structure']['maxLevels'] ?? null;
+                $structure->maxLevels = $data['maxLevels'] ?? null;
                 Craft::$app->getStructures()->saveStructure($structure);
                 $productTypeRecord->structureId = $structure->id;
             } else {
@@ -994,14 +994,17 @@ class ProductTypes extends Component
 
         $suffix = ':' . $productType->uid;
 
+        if ($checkPermissionName !== null) {
+            $checkPermissionName = strtolower($checkPermissionName . $suffix);
+            if (!in_array(strtolower($checkPermissionName), $permissions)) {
+                return false;
+            }
+        }
+
         // Required for create and delete permission.
         $editProductType = strtolower('commerce-editProductType' . $suffix);
 
-        if ($checkPermissionName !== null) {
-            $checkPermissionName = strtolower($checkPermissionName . $suffix);
-        }
-
-        if (!in_array($editProductType, $permissions) || ($checkPermissionName !== null && !in_array(strtolower($checkPermissionName), $permissions))) {
+        if (!in_array($editProductType, $permissions)) {
             return false;
         }
 

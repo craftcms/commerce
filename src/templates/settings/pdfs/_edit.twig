@@ -1,20 +1,29 @@
 {% extends "commerce/_layouts/cp" %}
 
 {% set crumbs = [
-    { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+    { label: 'Commerce'|t('commerce'), url: url('commerce') },
+    { label: 'Settings'|t('app'), url: url('commerce/settings'), ariaLabel: 'Commerce Settings'|t('commerce') },
     { label: "PDFs"|t('commerce'), url: url('commerce/settings/pdfs') },
 ] %}
 
 {% set selectedSubnavItem = 'settings' %}
 
-{% set fullPageForm = true %}
+{% set fullPageForm = not readOnly %}
+
+{% if readOnly %}
+    {% set contentNotice = readOnlyNotice() %}
+{% endif %}
 
 {% import "_includes/forms" as forms %}
 
 {% block content %}
+    {% if not readOnly %}
     {{ actionInput('commerce/pdfs/save') }}
     {{ redirectInput('commerce/settings/pdfs') }}
+    {% endif %}
+
     {{ hiddenInput('storeId', pdf.storeId) }}
+
     {% if pdf.id %}
       {{ hiddenInput('id', pdf.id) }}
     {% endif %}
@@ -28,7 +37,8 @@
         value: pdf.name,
         errors: pdf.getErrors('name'),
         autofocus: true,
-        required: true
+        required: true,
+        disabled: readOnly,
     }) }}
 
     {{ forms.textField({
@@ -39,7 +49,8 @@
         name: 'handle',
         value: pdf.handle,
         errors: pdf.getErrors('handle'),
-        required: true
+        required: true,
+        disabled: readOnly,
     }) }}
 
     {{ forms.textField({
@@ -48,7 +59,8 @@
         id: 'description',
         name: 'description',
         value: pdf.description,
-        errors: pdf.getErrors('description')
+        errors: pdf.getErrors('description'),
+        disabled: readOnly,
     }) }}
 
     {{ forms.autoSuggestField({
@@ -60,21 +72,23 @@
         value: pdf.templatePath,
         errors: pdf.getErrors('templatePath'),
         required: true,
-        suggestions: craft.cp.getTemplateSuggestions()
+        suggestions: craft.cp.getTemplateSuggestions(),
+        disabled: readOnly,
     }) }}
 
-        {{ forms.textField({
-            label: "Order PDF Filename Format"|t('commerce'),
-            instructions: "What the order PDF filename should look like (sans extension). You can include tags that output order properties, such as {ex1} or {ex2}."|t('commerce', {
-                ex1: '<code>{number}</code>',
-                ex2: '<code>{myOrderCustomField}</code>'
-            }),
-            id: 'fileNameFormat',
-            name: 'fileNameFormat',
-            value: pdf.fileNameFormat,
-            class: 'code ltr',
-            errors: pdf.getErrors('fileNameFormat')
-        }) }}
+    {{ forms.textField({
+        label: "Order PDF Filename Format"|t('commerce'),
+        instructions: "What the order PDF filename should look like (sans extension). You can include tags that output order properties, such as {ex1} or {ex2}."|t('commerce', {
+            ex1: '<code>{number}</code>',
+            ex2: '<code>{myOrderCustomField}</code>'
+        }),
+        id: 'fileNameFormat',
+        name: 'fileNameFormat',
+        value: pdf.fileNameFormat,
+        class: 'code ltr',
+        errors: pdf.getErrors('fileNameFormat'),
+        disabled: readOnly,
+    }) }}
 
     {{ forms.selectField({
         label: 'Language'|t('commerce'),
@@ -84,7 +98,8 @@
         options : pdfLanguageOptions,
         value : pdf.language,
         errors: pdf.getErrors('language') ?? null,
-        hasOptgroups: true
+        hasOptgroups: true,
+        disabled: readOnly,
     }) }}
 
     {{ forms.selectField({
@@ -94,6 +109,7 @@
         options: paperOrientationOptions,
         value: pdf.paperOrientation,
         errors: pdf.getErrors('paperOrientation') ?? null,
+        disabled: readOnly,
     }) }}
 
     {{ forms.selectizeField({
@@ -103,6 +119,7 @@
         options: paperSizeOptions,
         value: pdf.paperSize,
         errors: pdf.getErrors('paperSize') ?? null,
+        disabled: readOnly,
     }) }}
 
     {{ forms.lightswitchField({
@@ -112,7 +129,8 @@
         name: 'enabled',
         value: 1,
         on: pdf.enabled,
-        errors: pdf.getErrors('enabled')
+        errors: pdf.getErrors('enabled'),
+        disabled: readOnly,
     }) }}
 
     {% if pdf.isDefault %}
@@ -124,7 +142,8 @@
         name: 'isDefault',
         value: 1,
         on: isDefault,
-        errors: pdf.getErrors('isDefault')
+        errors: pdf.getErrors('isDefault'),
+        disabled: readOnly,
     }) }}
     {% endif %}
 

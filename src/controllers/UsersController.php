@@ -63,20 +63,23 @@ class UsersController extends BaseFrontEndController
 
         $edge = Plugin::getInstance()->getCarts()->getActiveCartEdgeDuration();
 
-        $content = Html::tag('h2', Craft::t('commerce', 'Orders')) .
-            Html::beginTag('div', ['class' => 'commerce-user-orders']) .
+        $content = '';
+
+        if (Craft::$app->getUser()->getIdentity()->can('commerce-manageOrders')) {
+            $content .= Html::tag('h2', Craft::t('commerce', 'Orders')) .
+                Html::beginTag('div', ['class' => 'commerce-user-orders']) .
                 Cp::elementIndexHtml(Order::class, ArrayHelper::merge($config, [
                     'id' => sprintf('element-index-%s', mt_rand()),
                     'jsSettings' => [
                         'criteria' => ['isCompleted' => true],
                     ],
                 ])) .
-            Html::endTag('div') .
+                Html::endTag('div') .
 
-            Html::tag('hr') .
+                Html::tag('hr') .
 
-            Html::tag('h2', Craft::t('commerce', 'Active Carts')) .
-            Html::beginTag('div', ['class' => 'commerce-user-active-carts']) .
+                Html::tag('h2', Craft::t('commerce', 'Active Carts')) .
+                Html::beginTag('div', ['class' => 'commerce-user-active-carts']) .
                 Cp::elementIndexHtml(Order::class, ArrayHelper::merge($config, [
                     'id' => sprintf('element-index-%s', mt_rand()),
                     'jsSettings' => [
@@ -86,12 +89,12 @@ class UsersController extends BaseFrontEndController
                         ],
                     ],
                 ])) .
-            Html::endTag('div') .
+                Html::endTag('div') .
 
-            Html::tag('hr') .
+                Html::tag('hr') .
 
-            Html::tag('h2', Craft::t('commerce', 'Inactive Carts')) .
-            Html::beginTag('div', ['class' => 'commerce-user-active-carts']) .
+                Html::tag('h2', Craft::t('commerce', 'Inactive Carts')) .
+                Html::beginTag('div', ['class' => 'commerce-user-active-carts']) .
                 Cp::elementIndexHtml(Order::class, ArrayHelper::merge($config, [
                     'id' => sprintf('element-index-%s', mt_rand()),
                     'jsSettings' => [
@@ -101,7 +104,8 @@ class UsersController extends BaseFrontEndController
                         ],
                     ],
                 ])) .
-            Html::endTag('div');
+                Html::endTag('div');
+        }
 
 
         if (Craft::$app->getUser()->getIdentity()->can('commerce-manageSubscriptions') and !empty(Plugin::getInstance()->getPlans()->getAllPlans())) {

@@ -184,6 +184,7 @@ class InventoryController extends Controller
 
         if (count($locationMenuItems) > 1) {
             $crumbs[] = [
+                'icon' => 'warehouse',
                 'menu' => [
                     'label' => Craft::t('app', 'Select section'),
                     'items' => $locationMenuItems,
@@ -241,6 +242,8 @@ class InventoryController extends Controller
         $inventoryQuery->addSelect(['[[purchasables.description]]', '[[purchasables.sku]]']);
         $inventoryQuery->leftJoin(['purchasables' => Table::PURCHASABLES], '[[ii.purchasableId]] = [[purchasables.id]]');
         $inventoryQuery->addGroupBy(['[[purchasables.description]]', '[[purchasables.sku]]']);
+
+        $inventoryQuery->andWhere(['not', ['elements.id' => null]]);
 
         if ($search) {
             $inventoryQuery->andWhere(['or', ['like', 'purchasables.description', $search], ['like', 'purchasables.sku', $search]]);
@@ -501,7 +504,6 @@ JS, [
         $note = Craft::$app->getRequest()->getRequiredParam('note');
         $inventoryLocationId = (int)Craft::$app->getRequest()->getRequiredParam('inventoryLocationId');
         $inventoryItemIds = Craft::$app->getRequest()->getRequiredParam('ids');
-        $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($inventoryLocationId);
         $type = Craft::$app->getRequest()->getRequiredParam('type');
 
         // We don't add zero amounts as transactions movements
@@ -512,17 +514,16 @@ JS, [
         $errors = [];
         $updateInventoryLevels = UpdateInventoryLevelCollection::make();
         foreach ($inventoryItemIds as $inventoryItemId) {
-            $inventoryItem = Plugin::getInstance()->getInventory()->getInventoryItemById($inventoryItemId);
+            // Verbosely set property to show usages
+            $updateInventoryLevel = new UpdateInventoryLevel();
+            $updateInventoryLevel->type = $type;
+            $updateInventoryLevel->updateAction = $updateAction;
+            $updateInventoryLevel->inventoryItemId = $inventoryItemId;
+            $updateInventoryLevel->inventoryLocationId = $inventoryLocationId;
+            $updateInventoryLevel->quantity = $quantity;
+            $updateInventoryLevel->note = $note;
 
-            $updateInventoryLevels->push(new UpdateInventoryLevel([
-                    'type' => $type,
-                    'updateAction' => $updateAction,
-                    'inventoryItem' => $inventoryItem,
-                    'inventoryLocation' => $inventoryLocation,
-                    'quantity' => $quantity,
-                    'note' => $note,
-                ])
-            );
+            $updateInventoryLevels->push($updateInventoryLevel);
         }
 
 
@@ -538,7 +539,8 @@ JS, [
 
         $resultingInventoryLevels = [];
         foreach ($updateInventoryLevels as $updateInventoryLevel) {
-            $resultingInventoryLevels[] = Plugin::getInstance()->getInventory()->getInventoryLevel($updateInventoryLevel->inventoryItem, $updateInventoryLevel->inventoryLocation);
+            /** @var UpdateInventoryLevel $updateInventoryLevel */
+            $resultingInventoryLevels[] = Plugin::getInstance()->getInventory()->getInventoryLevel($updateInventoryLevel->inventoryItemId, $updateInventoryLevel->inventoryLocationId);
         }
 
         return $this->asSuccess(Craft::t('commerce', 'Inventory updated.'), [
@@ -563,12 +565,9 @@ JS, [
         $quantity = (int)$this->request->getParam('quantity', 0);
         $type = $this->request->getRequiredParam('type');
 
-        $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($inventoryLocationId);
-
         $inventoryLevels = [];
         foreach ($inventoryItemIds as $inventoryItemId) {
-            $item = Plugin::getInstance()->getInventory()->getInventoryItemById((int)$inventoryItemId);
-            $inventoryLevels[] = Plugin::getInstance()->getInventory()->getInventoryLevel($item, $inventoryLocation);
+            $inventoryLevels[] = Plugin::getInstance()->getInventory()->getInventoryLevel((int)$inventoryItemId, $inventoryLocationId);
         }
 
         $params = [
@@ -612,17 +611,14 @@ JS, [
             return $this->asSuccess(Craft::t('commerce', 'No inventory movements made.'));
         }
 
-        $inventoryMovement = new InventoryManualMovement(
-            [
-                'inventoryItem' => Plugin::getInstance()->getInventory()->getInventoryItemById($inventoryItemId),
-                'fromInventoryLocation' => Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($fromInventoryLocationId),
-                'toInventoryLocation' => Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($toInventoryLocationId),
-                'fromInventoryTransactionType' => InventoryTransactionType::from($fromInventoryTransactionType),
-                'toInventoryTransactionType' => InventoryTransactionType::from($toInventoryTransactionType),
-                'quantity' => $quantity,
-                'note' => $note,
-            ]
-        );
+        $inventoryMovement = new InventoryManualMovement();
+        $inventoryMovement->inventoryItemId = $inventoryItemId;
+        $inventoryMovement->fromInventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($fromInventoryLocationId);
+        $inventoryMovement->toInventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($toInventoryLocationId);
+        $inventoryMovement->fromInventoryTransactionType = InventoryTransactionType::from($fromInventoryTransactionType);
+        $inventoryMovement->toInventoryTransactionType = InventoryTransactionType::from($toInventoryTransactionType);
+        $inventoryMovement->quantity = $quantity;
+        $inventoryMovement->note = $note;
 
         if ($inventoryMovement->validate()) {
             /** @var InventoryMovementCollection $inventoryMovementCollection */
@@ -663,19 +659,16 @@ JS, [
             $toInventoryTransactionType = $toInventoryTransactionType->value;
         }
 
-        $inventoryMovement = new InventoryManualMovement(
-            [
-                'inventoryItem' => Plugin::getInstance()->getInventory()->getInventoryItemById($inventoryItemId),
-                'fromInventoryLocation' => Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($fromInventoryLocationId),
-                'toInventoryLocation' => Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($toInventoryLocationId),
-                'fromInventoryTransactionType' => InventoryTransactionType::from($fromInventoryTransactionType),
-                'toInventoryTransactionType' => InventoryTransactionType::from($toInventoryTransactionType),
-                'quantity' => $quantity,
-                'note' => $note,
-            ]
-        );
+        $inventoryMovement = new InventoryManualMovement();
+        $inventoryMovement->inventoryItemId = $inventoryItemId;
+        $inventoryMovement->fromInventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($fromInventoryLocationId);
+        $inventoryMovement->toInventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($toInventoryLocationId);
+        $inventoryMovement->fromInventoryTransactionType = InventoryTransactionType::from($fromInventoryTransactionType);
+        $inventoryMovement->toInventoryTransactionType = InventoryTransactionType::from($toInventoryTransactionType);
+        $inventoryMovement->quantity = $quantity;
+        $inventoryMovement->note = $note;
 
-        $fromLevel = Plugin::getInstance()->getInventory()->getInventoryLevel($inventoryMovement->inventoryItem, $inventoryMovement->fromInventoryLocation);
+        $fromLevel = Plugin::getInstance()->getInventory()->getInventoryLevel($inventoryMovement->inventoryItemId, $inventoryMovement->fromInventoryLocation);
         $fromTotal = $fromLevel->{$fromInventoryTransactionType . 'Total'};
 
         $movableTo = $movableTo->toArray();
@@ -703,10 +696,7 @@ JS, [
         $inventoryLocationId = Craft::$app->getRequest()->getParam('inventoryLocationId');
         $inventoryItemId = Craft::$app->getRequest()->getParam('inventoryItemId');
 
-        $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($inventoryLocationId);
-        $inventoryItem = Plugin::getInstance()->getInventory()->getInventoryItemById($inventoryItemId);
-
-        $orders = Plugin::getInstance()->getInventory()->getUnfulfilledOrders($inventoryItem, $inventoryLocation);
+        $orders = Plugin::getInstance()->getInventory()->getUnfulfilledOrders($inventoryItemId, $inventoryLocationId);
 
         $title = Craft::t('commerce', '{count} Unfulfilled Orders', [
             'count' => count($orders),

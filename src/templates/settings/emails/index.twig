@@ -10,30 +10,35 @@
     'To',
 ]) %}
 
+{% set crumbs = [
+  { label: 'Commerce'|t('commerce'), url: url('commerce') },
+] %}
+
 {% block actionButton %}
-    <div class="btngroup">
-        <button type="button" class="btn submit add icon menubtn">{{ 'New email'|t('commerce') }}</button>
-        <div class="menu">
-            <ul>
-                {% for store in stores %}
-                    <li>
-                        <a href="{{ url("commerce/settings/emails/#{store.handle}/new") }}">{{ store.name }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
+    {% if not readOnly %}
+        <div class="btngroup">
+            <button type="button" class="btn submit add icon menubtn">{{ 'New email'|t('commerce') }}</button>
+            <div class="menu">
+                <ul>
+                    {% for store in stores %}
+                        <li>
+                            <a href="{{ url("commerce/settings/emails/#{store.handle}/new") }}">{{ store.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
-    </div>
+    {% endif %}
 {% endblock %}
 
-{% block main %}
-    <div id="content">
-        {% for store in stores %}
-            <h2 id="{{ store.handle }}" class="emails-margin-top">{{ store.name }}</h2>
-            <div class="content-pane">
-                <div id="emails-vue-admin-table-{{ store.handle }}"></div>
-            </div>
-        {% endfor %}
-    </div>
+{% block content %}
+    {% for store in stores %}
+        {% if stores|length > 1 %}
+            <h2 id="{{ store.handle }}" class="{% if loop.first %}first{% endif %}">{{ store.name }}</h2>
+        {% endif %}
+        <div id="emails-vue-admin-table-{{ store.handle }}"></div>
+        {% if not loop.last %}<hr>{% endif %}
+    {% endfor %}
 {% endblock %}
 
 {% for storeHandle, storeEmails in emails %}
@@ -78,18 +83,18 @@
                     },
         ];
 
-        new Craft.VueAdminTable({
+        let {{ storeHandle }}Config = {
             columns: columns,
+            fullPane: false,
             container: '#emails-vue-admin-table-{{ storeHandle }}',
-            deleteAction: 'commerce/emails/delete',
             emptyMessage: Craft.t('commerce', 'No emails exist yet.'),
             tableData: {{ tableData|json_encode|raw }},
-        });
+        };
+
+        {% if not readOnly %}
+        {{ storeHandle }}Config['deleteAction'] = 'commerce/emails/delete';
+        {% endif %}
+
+        new Craft.VueAdminTable({{ storeHandle }}Config);
     {% endjs %}
 {% endfor %}
-
-{% css %}
-  .emails-margin-top {
-    margin-top: var(--xl);
-  }
-{% endcss %}

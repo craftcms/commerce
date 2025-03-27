@@ -83,7 +83,7 @@ class InventoryManualMovement extends InventoryMovement
             ->from(Table::INVENTORYTRANSACTIONS)
             ->where([
                 'type' => $this->fromInventoryTransactionType->value,
-                'inventoryItemId' => $this->inventoryItem->id,
+                'inventoryItemId' => $this->inventoryItemId,
                 'inventoryLocationId' => $this->fromInventoryLocation->id,
             ])
             ->params([':quantity' => $this->quantity])
@@ -112,7 +112,7 @@ class InventoryManualMovement extends InventoryMovement
             ->from(Table::INVENTORYTRANSACTIONS)
             ->where([
                 'type' => $this->toInventoryTransactionType->value,
-                'inventoryItemId' => $this->inventoryItem->id,
+                'inventoryItemId' => $this->inventoryItemId,
                 'inventoryLocationId' => $this->toInventoryLocation->id,
             ])
             ->params([':quantity' => $this->quantity])

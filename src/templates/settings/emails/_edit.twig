@@ -1,20 +1,31 @@
 {% extends "commerce/_layouts/cp" %}
 
 {% set crumbs = [
-    { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
-    { label: "Emails"|t('commerce'), url: url('commerce/settings/emails') },
+  { label: 'Commerce'|t('commerce'), url: url('commerce') },
+  { label: 'Settings'|t('app'), url: url('commerce/settings'), ariaLabel: 'Commerce Settings'|t('commerce') },
+  { label: "Emails"|t('commerce'), url: url('commerce/settings/emails') },
 ] %}
 
 {% set selectedSubnavItem = 'settings' %}
 
-{% set fullPageForm = true %}
+{% set fullPageForm = not readOnly %}
+
+
+
+{% if readOnly %}
+    {% set contentNotice = readOnlyNotice() %}
+{% endif %}
 
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    {{ actionInput('commerce/emails/save') }}
+
+    {% if not readOnly %}
+        {{ actionInput('commerce/emails/save') }}
+        {{ redirectInput('commerce/settings/emails') }}
+    {% endif %}
+
     {{ hiddenInput('storeId', email.storeId) }}
-    {{ redirectInput('commerce/settings/emails') }}
     {% if email.id %}
         {{ hiddenInput('emailId', email.id) }}
     {% endif %}
@@ -28,7 +39,8 @@
         value: email.name,
         errors: email.getErrors('name'),
         autofocus: true,
-        required: true
+        required: true,
+        disabled: readOnly,
     }) }}
 
     {{ forms.autosuggestField({
@@ -40,6 +52,7 @@
         value: email.getSenderAddress(false),
         errors: email.getErrors('senderAddress'),
         suggestEnvVars: true,
+        disabled: readOnly,
     }) }}
 
     {{ forms.autosuggestField({
@@ -51,6 +64,7 @@
         value: email.getSenderName(false),
         errors: email.getErrors('senderName'),
         suggestEnvVars: true,
+        disabled: readOnly,
     }) }}
 
     {{ forms.textField({
@@ -61,6 +75,7 @@
         value: email.subject,
         errors: email.getErrors('subject'),
         required: true,
+        disabled: readOnly,
     }) }}
 
     {{ forms.textField({
@@ -69,11 +84,12 @@
         id: 'replyTo',
         name: 'replyTo',
         value: email.replyTo,
-        errors: email.getErrors('replyTo')
+        errors: email.getErrors('replyTo'),
+        disabled: readOnly,
     }) }}
 
     {% set recipientInput %}
-        <div class="flex">
+        <div class="flex flex-start{% if readOnly %} disabled{% endif %}">
             <div>
                 {{ forms.select({
                     id: 'recipient-type',
@@ -84,16 +100,19 @@
                     ],
                     value: email.recipientType,
                     toggle: true,
-                    targetPrefix: 'to-option-'
+                    targetPrefix: 'to-option-',
+                    disabled: readOnly,
                 }) }}
             </div>
             <div id="to-option-custom"
                  class="flex-grow{% if email.recipientType != 'custom' %} hidden{% endif %}">
-                {{ forms.text({
+                {{ forms.autosuggestField({
                     id: 'to',
                     name: 'to',
-                    value: email.to,
-                    placeholder: 'jane@acme.com, joe@acme.com'
+                    value: email.getTo(false),
+                    errors: email.getErrors('to'),
+                    suggestEnvVars: true,
+                    disabled: readOnly,
                 }) }}
             </div>
         </div>
@@ -107,22 +126,26 @@
         required: true,
     }, recipientInput) }}
 
-    {{ forms.textField({
+    {{ forms.autosuggestField({
         label: 'BCC’d Recipient'|t('commerce'),
         instructions: 'Additional recipients that should receive this email. Twig code can be used here.'|t('commerce'),
         id: 'bcc',
         name: 'bcc',
-        value: email.bcc,
+        value: email.getBcc(false),
         errors: email.getErrors('bcc'),
+        suggestEnvVars: true,
+        disabled: readOnly,
     }) }}
 
-    {{ forms.textField({
+    {{ forms.autosuggestField({
         label: 'CC’d Recipient'|t('commerce'),
         instructions: 'Additional recipients that should receive this email. Twig code can be used here.'|t('commerce'),
         id: 'cc',
         name: 'cc',
-        value: email.cc,
+        value: email.getCc(false),
         errors: email.getErrors('cc'),
+        suggestEnvVars: true,
+        disabled: readOnly,
     }) }}
 
     {{ forms.autoSuggestField({
@@ -133,7 +156,8 @@
         value: email.templatePath,
         errors: email.getErrors('templatePath'),
         required: true,
-        suggestions: craft.cp.getTemplateSuggestions()
+        suggestions: craft.cp.getTemplateSuggestions(),
+        disabled: readOnly,
     }) }}
 
     {{ forms.textField({
@@ -143,6 +167,7 @@
         name: 'plainTextTemplatePath',
         value: email.plainTextTemplatePath,
         errors: email.getErrors('plainTextTemplatePath'),
+        disabled: readOnly,
     }) }}
 
     {{ forms.selectField({
@@ -151,7 +176,8 @@
         id: 'pdfId',
         name: 'pdfId',
         value: email.pdfId,
-        options: pdfList
+        options: pdfList,
+        disabled: readOnly,
     }) }}
 
     {{ forms.selectField({
@@ -162,7 +188,8 @@
         options : emailLanguageOptions,
         value : email.language,
         errors: email.getErrors('language') ?? null,
-        toggle: true
+        toggle: true,
+        disabled: readOnly,
     }) }}
 
     {{ forms.lightswitchField({
@@ -172,6 +199,7 @@
         name: 'enabled',
         value: 1,
         on: email.enabled,
-        errors: email.getErrors('enabled')
+        errors: email.getErrors('enabled'),
+        disabled: readOnly,
     }) }}
 {% endblock %}

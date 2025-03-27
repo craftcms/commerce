@@ -8,7 +8,9 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\models\Store;
 use craft\commerce\Plugin;
+use craft\web\UrlManager;
 use yii\base\InvalidConfigException;
 use yii\web\Response as YiiResponse;
 
@@ -40,7 +42,73 @@ class BaseStoreManagementController extends BaseCpController
     public function renderTemplate(string $template, array $variables = [], ?string $templateMode = null): YiiResponse
     {
         $variables['storeSettingsNav'] = $this->getStoreSettingsNav();
+
+        if (!isset($variables['storeHandle'])) {
+            /** @var UrlManager $urlManager */
+            $urlManager = Craft::$app->getUrlManager();
+            $routeParams = $urlManager->getRouteParams();
+
+            // Make sure store handle is always passed to the template
+            if (isset($routeParams['storeHandle'])) {
+                $variables['storeHandle'] = $routeParams['storeHandle'];
+            }
+        }
+
+        if (!isset($variables['storeSwitcher'])) {
+            $variables['storeSwitcher'] = $this->getStoreSwitcher($variables['storeHandle']);
+        }
+
         return parent::renderTemplate($template, $variables, $templateMode);
+    }
+
+    /**
+     * @param string|null $storeHandle
+     * @return array
+     * @throws InvalidConfigException
+     * @since 5.3.0
+     */
+    protected function getStoreSwitcher(?string $storeHandle = null): array
+    {
+        $stores = Plugin::getInstance()->getStores()->getAllStores();
+
+        $store = $storeHandle ? Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle) : null;
+
+        $storeItems = $stores->filter(function(Store $s) {
+            // Check that the user has permission to access a site that this store is related to
+            foreach ($s->getSites() as $site) {
+                if (Craft::$app->getUser()->checkPermission('editSite:' . $site->uid)) {
+                    return true;
+                }
+            }
+
+            return false;
+        })->map(function(Store $s) use ($storeHandle) {
+            $segments = Craft::$app->getRequest()->getSegments();
+            $storeSubSection = count($segments) >= 4 ? $segments[3] : null;
+
+            return [
+                'status' => null,
+                'label' => Craft::t('site', $s->getName()),
+                'url' => 'commerce/store-management/' . $s->handle . ($storeSubSection ? '/' . $storeSubSection : ''),
+                'selected' => $storeHandle === $s->handle,
+                'attributes' => [
+                    'data' => [
+                        'store-handle' => $s->handle,
+                    ],
+                ],
+            ];
+        })->all();
+
+        return [
+            'id' => 'site-crumb',
+            'iconAltText' => Craft::t('commerce', 'Store'),
+            'icon' => 'store',
+            'label' => $store?->getName() ?? Craft::t('commerce', 'Store Management'),
+            'menu' => [
+                'label' => Craft::t('app', 'Select site'),
+                'items' => $storeItems,
+            ],
+        ];
     }
 
     /**

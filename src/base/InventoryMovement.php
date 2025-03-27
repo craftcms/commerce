@@ -8,7 +8,6 @@
 namespace craft\commerce\base;
 
 use craft\commerce\enums\InventoryTransactionType;
-use craft\commerce\models\InventoryItem;
 use craft\commerce\models\InventoryLocation;
 
 /**
@@ -18,10 +17,7 @@ use craft\commerce\models\InventoryLocation;
  */
 abstract class InventoryMovement extends Model implements InventoryMovementInterface
 {
-    /**
-     * @var InventoryItem The inventory item
-     */
-    public InventoryItem $inventoryItem;
+    use InventoryItemTrait;
 
     /**
      * @var InventoryLocation
@@ -90,6 +86,18 @@ abstract class InventoryMovement extends Model implements InventoryMovementInter
     }
 
     /**
+     * @return array
+     */
+    protected function defineRules(): array
+    {
+        $rules = parent::defineRules();
+
+        $rules[] = [['inventoryItemId'], 'safe'];
+
+        return $rules;
+    }
+
+    /**
      * @inheritDoc
      */
     public function isValid(): bool
@@ -103,14 +111,6 @@ abstract class InventoryMovement extends Model implements InventoryMovementInter
     public function getInventoryMovementHash(): string
     {
         return $this->_inventoryMovementHash;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getInventoryItem(): InventoryItem
-    {
-        return $this->inventoryItem;
     }
 
     /**
