@@ -1150,6 +1150,7 @@ class Variant extends Purchasable implements NestedElementInterface
         $product = $this->getOwner();
 
         // hold off on updating the title and SKU if we are creating the shell of the variant ready for editing
+        /** @phpstan-ignore-next-line don't need the `$this->getIsDraft()` on the right side but leaving for readability */
         if (!$this->getIsDraft() || ($this->getIsDraft() && $this->getScenario() !== self::SCENARIO_ESSENTIALS)) {
             $this->updateTitle($product);
             $this->updateSku($product);
@@ -1170,6 +1171,7 @@ class Variant extends Purchasable implements NestedElementInterface
         $product = $this->getOwner();
 
         // hold off on updating the title and SKU if we are creating the shell of the variant ready for editing
+        /** @phpstan-ignore-next-line don't need the `$this->getIsDraft()` on the right side but leaving for readability */
         if (!$this->getIsDraft() || ($this->getIsDraft() && $this->getScenario() !== self::SCENARIO_ESSENTIALS)) {
             $this->updateTitle($product);
             $this->updateSku($product);
