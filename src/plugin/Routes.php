@@ -50,8 +50,8 @@ trait Routes
             $event->rules['commerce/products/<productType:{handle}>/new'] = 'commerce/products/create';
             $event->rules['commerce/products/<productTypeHandle:{handle}>/<elementId:\d+><slug:(?:-[^\/]*)?>'] = 'elements/edit';
 
-            $event->rules['commerce/reports'] = 'commerce/reports/index';
-            $event->rules['commerce/reports/<report:{handle}>'] = 'commerce/reports/view-report';
+            $event->rules['commerce/reporting'] = 'commerce/reporting/index';
+            $event->rules['commerce/reporting/<reportHandle:{slug}>'] = 'commerce/reporting/view';
 
             $event->rules['commerce/subscriptions'] = 'commerce/subscriptions/index';
             $event->rules['commerce/subscriptions/<plan:{handle}>'] = 'commerce/subscriptions/index';

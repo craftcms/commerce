@@ -3,6 +3,7 @@
 namespace craft\commerce\base;
 
 use craft\db\Query;
+use craft\helpers\UrlHelper;
 
 abstract class Report implements ReportInterface
 {
@@ -11,17 +12,18 @@ abstract class Report implements ReportInterface
      */
     abstract public function getTitle(): string;
 
+
     /**
      * @inheritDoc
      */
     public function getData(): mixed
     {
-        return [];
+        return $this->getQuery()->all();
     }
 
     public function getCpEditUrl(): ?string
     {
-        return 'commerce/reports/' . $this->getHandle();
+        return $this->getHandle() ? UrlHelper::cpUrl('commerce/reporting/' . $this->getHandle()) : null;
     }
 
     public function getHandle(): ?string
@@ -36,6 +38,6 @@ abstract class Report implements ReportInterface
 
     public function getQuery(): Query
     {
-        // TODO: Implement getQuery() method.
+        new Query();
     }
 }

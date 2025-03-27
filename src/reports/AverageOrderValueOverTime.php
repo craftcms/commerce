@@ -8,7 +8,7 @@ class AverageOrderValueOverTime extends Report
 {
     public function getHandle(): ?string
     {
-        return 'average-order-value-over-time';
+        return 'averageOrderValueOverTime';
     }
 
     public function getTitle(): string

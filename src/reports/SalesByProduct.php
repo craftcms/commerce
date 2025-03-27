@@ -8,7 +8,7 @@ class SalesByProduct extends Report
 {
     public function getHandle(): ?string
     {
-        return 'sales-by-product';
+        return 'salesByProduct';
     }
 
     public function getTitle(): string

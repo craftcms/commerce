@@ -8,9 +8,8 @@ class SalesBySku extends Report
 {
     public function getHandle(): ?string
     {
-        return 'sales-by-sku';
+        return 'salesBySku';
     }
-
 
     public function getTitle(): string
     {

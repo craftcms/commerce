@@ -3,14 +3,16 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\base\Report;
 use craft\commerce\Plugin;
+use craft\commerce\reports\SalesByProduct;
 use craft\web\Controller;
 use yii\web\Response;
 
 /**
  * Reports controller
  */
-class ReportsController extends Controller
+class ReportingController extends Controller
 {
     public $defaultAction = 'index';
     protected array|int|bool $allowAnonymous = self::ALLOW_ANONYMOUS_NEVER;
@@ -20,10 +22,10 @@ class ReportsController extends Controller
      */
     public function actionIndex(): Response
     {
-        $this->requirePermission('commerce-manageReports');
+        $this->requirePermission('commerce-manageReporting');
 
         $breadcrumbs = [
-            ['label' => Craft::t('commerce', 'Reports'), 'url' => 'commerce/reports'],
+            ['label' => Craft::t('commerce', 'Reporting'), 'url' => 'commerce/reporting'],
         ];
 
         $this->view->registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset');
@@ -32,17 +34,18 @@ class ReportsController extends Controller
             ->crumbs($breadcrumbs)
             ->title(Craft::t('commerce', 'Reports'))
             ->selectedSubnavItem('reports')
-            ->contentTemplate('commerce/reports/_index', [
-                'reportsTableEndpoint' => 'commerce/reports/reports-table',
+            ->contentTemplate('commerce/reporting/_index', [
+                'reportsTableEndpoint' => 'commerce/reporting/reports-table',
             ]);
     }
 
     public function actionReportsTable(): Response
     {
-        $this->requirePermission('commerce-manageReports');
+        $this->requirePermission('commerce-manageReporting');
 
         $this->requireAcceptsJson();
 
+        /** @var Report[] $reports */
         $reports = Plugin::getInstance()->getReports()->getAllReports();
 
         $data = [];
@@ -56,22 +59,22 @@ class ReportsController extends Controller
 
         return $this->asJson(['data' => $data]);
     }
-
-    public function actionViewReport(string $handle): Response
+    public function actionView(?string $reportHandle = null): Response
     {
-        $this->requirePermission('commerce-manageReports');
+        $this->requirePermission('commerce-manageReporting');
 
-        $report = Plugin::getInstance()->getReports()->getReportByHandle($handle);
+        $report = Plugin::getInstance()->getReports()->getReportByHandle($reportHandle);
 
         if (!$report) {
-            throw new NotFoundHttpException('Report not found');
+            throw new NotFoundHttpException('Report not found via route handle');
         }
 
-        $this->view->registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset');
-
         return $this->asCpScreen()
+            ->crumbs([
+                ['label' => Craft::t('commerce', 'Reporting'), 'url' => 'commerce/reporting'],
+            ])
             ->title($report->getTitle())
-            ->contentTemplate('commerce/reports/_view', [
+            ->contentTemplate('commerce/reporting/_view', [
                 'report' => $report,
             ]);
     }

@@ -393,10 +393,10 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if ($userService->checkPermission('commerce-manageReports')) {
-            $ret['subnav']['reports'] = [
+        if ($userService->checkPermission('commerce-manageReporting')) {
+            $ret['subnav']['reporting'] = [
                 'label' => Craft::t('commerce', 'Reporting'),
-                'url' => 'commerce/reports',
+                'url' => 'commerce/reporting',
             ];
         }
 
@@ -608,6 +608,7 @@ class Plugin extends BasePlugin
 
                             ],
                         ],
+                        'commerce-manageReporting' => ['label' => Craft::t('commerce', 'Manage reporting')],
                         'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
                         'commerce-manageSubscriptionPlans' => ['label' => Craft::t('commerce', 'Manage subscription plans')],
                         'commerce-manageInventoryStockLevels' => ['label' => Craft::t('commerce', 'Manage inventory stock levels')],
