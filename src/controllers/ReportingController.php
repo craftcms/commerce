@@ -8,6 +8,7 @@ use craft\commerce\Plugin;
 use craft\commerce\reports\SalesByProduct;
 use craft\web\Controller;
 use yii\web\Response;
+use craft\commerce\helpers\AdminTable;
 
 /**
  * Reports controller
@@ -29,13 +30,28 @@ class ReportingController extends Controller
         ];
 
         $this->view->registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset');
-
+        
+        // Set up the AdminTable configuration
+        $adminTable = new AdminTable();
+        $adminTable
+            ->container('#reports-vue-admin-table')
+            ->columns([
+                AdminTable::createTitleColumn(Craft::t('commerce', 'Title')),
+                AdminTable::createHandleColumn(Craft::t('commerce', 'Handle')),
+            ])
+            ->fullPane(true)
+            ->emptyMessage(Craft::t('commerce', 'No reports exist yet.'))
+            ->padded(fn () => true)
+            ->tableDataEndpoint('commerce/reporting/reports-table')
+            ->search(true);
+            
+        // Pass the table configuration to the template
         return $this->asCpScreen()
             ->crumbs($breadcrumbs)
             ->title(Craft::t('commerce', 'Reports'))
             ->selectedSubnavItem('reports')
             ->contentTemplate('commerce/reporting/_index', [
-                'reportsTableEndpoint' => 'commerce/reporting/reports-table',
+                'adminTable' => $adminTable,
             ]);
     }
 
@@ -53,6 +69,7 @@ class ReportingController extends Controller
         foreach ($reports as $report) {
             $data[] = [
                 'title' => $report->getTitle(),
+                'handle' => $report->getHandle(),
                 'url' => $report->getCpEditUrl(),
             ];
         }

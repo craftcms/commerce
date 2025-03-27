@@ -739,6 +739,7 @@ return [
     'No product available.' => 'No product available.',
     'No product types exist yet.' => 'No product types exist yet.',
     'No purchasable available.' => 'No purchasable available.',
+    'No reports exist yet.' => 'No reports exist yet.',
     'No sale exists with the ID “{id}”' => 'No sale exists with the ID “{id}”',
     'No sales exist yet.' => 'No sales exist yet.',
     'No shipping address' => 'No shipping address',

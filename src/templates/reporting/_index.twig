@@ -1,19 +1,5 @@
 <div id="reports-vue-admin-table"></div>
 
 {% js %}
-var columns = [
-    {
-      name: '__slot:title', title: Craft.t('commerce', 'Title')
-    }
-];
-
-new Craft.VueAdminTable({
-    columns: columns,
-    fullPane: true,
-    container: '#reports-vue-admin-table',
-    emptyMessage: Craft.t('commerce', 'No reports exist yet.'),
-    padded: true,
-    tableDataEndpoint: '{{ reportsTableEndpoint|raw }}',
-    search: true
-});
+{{ adminTable.getJsInit()|raw }}
 {% endjs %}
