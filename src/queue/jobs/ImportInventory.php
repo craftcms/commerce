@@ -24,7 +24,7 @@ use yii\queue\RetryableJobInterface;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.4
  */
-class ImportInventory extends BaseJob implements RetryableJobInterface
+class ImportInventory extends BaseJob
 {
     /**
      * @var string The path to the temporary file
@@ -126,32 +126,14 @@ class ImportInventory extends BaseJob implements RetryableJobInterface
         }
 
         if ($errors) {
-            Craft::error('Inventory import had errors: ' . print_r($errors, true), __METHOD__);
-            throw new Exception('Inventory import failed with ' . count($errors) . ' error(s).');
+            Craft::error('Inventory import had errors: ' . json_encode($errors), __METHOD__);
         }
 
-        // Execute the inventory updates
         $inventoryService->executeUpdateInventoryLevels($updateInventoryLevels);
 
         @unlink($this->filePath);
         
         $this->setProgress($queue, 1);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getTtr(): int
-    {
-        return 300; // 5 minutes
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function canRetry($attempt, $error): bool
-    {
-        return $attempt < 3;
     }
 
     /**
