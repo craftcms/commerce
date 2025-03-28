@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where SKUs with auto formats were not being generated. ([#3958](https://github.com/craftcms/commerce/issues/3958))
+
 ## 5.3.7 - 2025-03-26
 
 - Fixed a PHP error that could occur when editing a variant. ([#3951](https://github.com/craftcms/commerce/issues/3951))

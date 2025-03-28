@@ -1149,8 +1149,12 @@ class Variant extends Purchasable implements NestedElementInterface
     {
         $product = $this->getOwner();
 
-        $this->updateTitle($product);
-        $this->updateSku($product);
+        // hold off on updating the title and SKU if we are creating the shell of the variant ready for editing
+        /** @phpstan-ignore-next-line don't need the `$this->getIsDraft()` on the right side but leaving for readability */
+        if (!$this->getIsDraft() || ($this->getIsDraft() && $this->getScenario() !== self::SCENARIO_ESSENTIALS)) {
+            $this->updateTitle($product);
+            $this->updateSku($product);
+        }
 
         if (!$this->sku && $this->getScenario() === self::SCENARIO_DEFAULT) {
             $this->setSku(PurchasableHelper::tempSku());
@@ -1166,8 +1170,12 @@ class Variant extends Purchasable implements NestedElementInterface
     {
         $product = $this->getOwner();
 
-        $this->updateTitle($product);
-        $this->updateSku($product);
+        // hold off on updating the title and SKU if we are creating the shell of the variant ready for editing
+        /** @phpstan-ignore-next-line don't need the `$this->getIsDraft()` on the right side but leaving for readability */
+        if (!$this->getIsDraft() || ($this->getIsDraft() && $this->getScenario() !== self::SCENARIO_ESSENTIALS)) {
+            $this->updateTitle($product);
+            $this->updateSku($product);
+        }
 
         // Set the field layout
         $productType = $product->getType();
