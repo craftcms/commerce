@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a bug where PDF paper size could not be overridden by the render event. 
 - Fixed a bug where SKUs with auto formats were not being generated. ([#3958](https://github.com/craftcms/commerce/issues/3958))
 
 ## 5.3.7 - 2025-03-26
