@@ -9,6 +9,7 @@ namespace craft\commerce\base;
 
 use Craft;
 use craft\commerce\base\Model as BaseModel;
+use craft\commerce\elements\conditions\customers\ShippingMethodCustomerCondition;
 use craft\commerce\elements\conditions\orders\ShippingMethodOrderCondition;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\NotImplementedException;
@@ -27,6 +28,8 @@ use JsonSchema\Exception\InvalidConfigException;
  * @property-read array $shippingRules
  * @property-read bool $isEnabled
  * @property-read string $type
+ * @property ShippingMethodOrderCondition $orderCondition
+ * @property ShippingMethodCustomerCondition $customerCondition
  */
 abstract class ShippingMethod extends BaseModel implements ShippingMethodInterface, HasStoreInterface
 {
@@ -54,9 +57,19 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
 
     /**
      * @var ShippingMethodOrderCondition|null
+     * @see getOrderCondition()
+     * @see setOrderCondition()
      * @since 5.0.0
      */
     private ?ShippingMethodOrderCondition $_orderCondition = null;
+
+    /**
+     * @var ShippingMethodCustomerCondition|null
+     * @see getCustomerCondition()
+     * @see setCustomerCondition()
+     * @since 5.4.0
+     */
+    private ?ShippingMethodCustomerCondition $_customerCondition = null;
 
     /**
      * @var DateTime|null
@@ -138,6 +151,7 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
             'handle',
             'storeId',
             'orderCondition',
+            'customerCondition',
             'enabled',
             'dateCreated',
             'dateUpdated',
@@ -183,12 +197,58 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
     }
 
     /**
+     * @param ShippingMethodCustomerCondition|string|array|null $condition
+     * @return void
+     * @throws InvalidConfigException
+     * @since 5.4.0
+     */
+    public function setCustomerCondition(ShippingMethodCustomerCondition|string|array|null $condition): void
+    {
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof ShippingMethodCustomerCondition) {
+            $condition['class'] = ShippingMethodCustomerCondition::class;
+            $condition = Craft::$app->getConditions()->createCondition($condition);
+            /** @var ShippingMethodCustomerCondition $condition */
+        }
+        $condition->forProjectConfig = false;
+
+        $this->_customerCondition = $condition;
+    }
+
+    /**
+     * @return ShippingMethodCustomerCondition
+     * @since 5.0.0
+     */
+    public function getCustomerCondition(): ShippingMethodCustomerCondition
+    {
+        $condition = $this->_customerCondition ?? new ShippingMethodCustomerCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'customerCondition';
+
+        return $condition;
+    }
+
+    /**
      * @inheritdoc
      */
     public function matchOrder(Order $order): bool
     {
         // Match the method's order condition first to see if we need to even check the rules.
         if (!$this->getOrderCondition()->matchElement($order)) {
+            return false;
+        }
+
+        $customer = $order->getCustomer();
+        // If there is no customer on the order and there are customer conditions, we can't match.
+        if (!$customer && !empty($this->getCustomerCondition()->getConditionRules())) {
+            return false;
+        }
+
+        // Match the method's customer condition.
+        if ($customer && !$this->getCustomerCondition()->matchElement($customer)) {
             return false;
         }
 
