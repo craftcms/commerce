@@ -11,4 +11,9 @@ return [
         'productTypeId' => 2000,
         'taxCategoryId' => 101,
     ],
+    [
+        'id' => 2,
+        'productTypeId' => 2002,
+        'taxCategoryId' => 101,
+    ],
 ];

@@ -108,6 +108,7 @@ class PurchasableConditionRule extends BaseConditionRule implements ElementCondi
                     ->site('*')
                     ->preferSites(array_filter([Cp::requestedSite()?->id]))
                     ->status(null)
+                    ->unique()
                     ->all();
             }
 

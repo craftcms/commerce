@@ -529,8 +529,6 @@ class Pdfs extends Component
         // Restore the original template mode
         $view->setTemplateMode($oldTemplateMode);
 
-        $dompdf = new Dompdf();
-
         // Set the config options
         $pathService = Craft::$app->getPath();
         $dompdfTempDir = $pathService->getTempPath() . DIRECTORY_SEPARATOR . 'commerce_dompdf';
@@ -560,19 +558,20 @@ class Pdfs extends Component
         $options->setFontCache($dompdfFontCache);
         $options->setLogOutputFile($dompdfLogFile);
         $options->setIsRemoteEnabled($isRemoteEnabled);
+        $options->setDefaultPaperOrientation($pdf->paperOrientation);
+        $options->setDefaultPaperSize($pdf->paperSize);
+
+        $renderOptionsEvent = new PdfRenderOptionsEvent([
+            'options' => $options,
+        ]);
+
         // Set additional render options
         if ($this->hasEventHandlers(self::EVENT_MODIFY_RENDER_OPTIONS)) {
-            $this->trigger(self::EVENT_MODIFY_RENDER_OPTIONS, new PdfRenderOptionsEvent([
-                'options' => $options,
-            ]));
+            $this->trigger(self::EVENT_MODIFY_RENDER_OPTIONS, $renderOptionsEvent);
         }
 
-        // Set the options
-        $dompdf->setOptions($options);
-
-
-        $dompdf->setPaper($pdf->paperSize, $pdf->paperOrientation);
-
+        // Create and render the PDF
+        $dompdf = new Dompdf($renderOptionsEvent->options);
         $dompdf->loadHtml($html);
         $dompdf->render();
 

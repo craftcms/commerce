@@ -1221,6 +1221,19 @@ class Product extends Element implements HasStoreInterface
             return;
         }
 
+        // Make sure each variant has an owner set in case of mass assignment of product and variants
+        if (is_array($variants)) {
+            foreach ($variants as &$variant) {
+                if ($variant instanceof Variant) {
+                    continue;
+                }
+
+                if (is_array($variant) && !isset($variant['owner'])) {
+                    $variant = ['owner' => $this] + $variant;
+                }
+            }
+        }
+
         $this->_variants = $variants instanceof VariantCollection ? $variants : VariantCollection::make($variants);
     }
 
