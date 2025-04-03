@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.3.8 - 2025-04-02
 
 - Fixed a bug where it wasn’t possible to override the PDF paper size via `craft\commerce\services\Pdf::EVENT_MODIFY_RENDER_OPTIONS`. 
 - Fixed a bug where SKUs with auto formats weren’t getting generated. ([#3958](https://github.com/craftcms/commerce/issues/3958))
