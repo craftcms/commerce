@@ -22,8 +22,8 @@ use yii\db\ActiveQueryInterface;
  * @property int $methodId
  * @property string $orderConditionFormula
  * @property array|string $orderCondition
+ * @property array|string $customerCondition
  * @property float $maxRate
-
  * @property float $minRate
  * @property string $name
  * @property float $percentageRate

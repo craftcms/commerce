@@ -820,6 +820,7 @@ class Install extends Migration
             'enabled' => $this->boolean()->notNull()->defaultValue(true),
             'orderConditionFormula' => $this->text(),
             'orderCondition' => $this->text(),
+            'customerCondition' => $this->text(),
             'baseRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'perItemRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'weightRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
