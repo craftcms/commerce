@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where the account activation email template wasn’t always getting rendered in the correct site. 
+
 ## 5.3.8 - 2025-04-02
 
 - Fixed a bug where it wasn’t possible to override the PDF paper size via `craft\commerce\services\Pdf::EVENT_MODIFY_RENDER_OPTIONS`. 
