@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a PHP error that could occur when rendering a PDF. ([#3967](https://github.com/craftcms/commerce/issues/3967))
 - Fixed a bug where the account activation email template wasn’t always getting rendered in the correct site. 
 
 ## 5.3.8 - 2025-04-02
