@@ -345,6 +345,7 @@ class CatalogPricingRules extends Component
                 'purchasableCondition',
                 'storeId',
                 'variantCondition',
+                'metadata',
             ])
             ->from(Table::CATALOG_PRICING_RULES);
     }
