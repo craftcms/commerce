@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a bug where the customer selection UI was being hidden on the Edit Order page. ([#3968](https://github.com/craftcms/commerce/issues/3968))
 - Fixed a PHP error that could occur when rendering a PDF. ([#3967](https://github.com/craftcms/commerce/issues/3967))
 - Fixed a bug where the account activation email template wasn’t always getting rendered in the correct site. 
 
