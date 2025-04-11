@@ -58,7 +58,7 @@
 - Added `craft\commerce\collections\InventoryMovementCollection::getPurchasables()`.
 - Added `craft\commerce\base\Gateway::transactionSupportsRefund()`.
 - Fixed a bug where product variants weren’t getting restored when soft-deleted products were restored. ([#3815](https://github.com/craftcms/commerce/issues/3815))
-- Fixed a bug where purchables’ cached per-store stock totals weren’t getting updated when inventory was moved.
+- Fixed a bug where purchasables’ cached per-store stock totals weren’t getting updated when inventory was moved.
 - Fixed a bug where it wasn’t possible to update inventory transfers that contained deleted inventory items.
 - Fixed a bug where the `commerce/cart/update-cart` action could return unnecessary validation errors. ([3873](https://github.com/craftcms/commerce/issues/3873))
 
