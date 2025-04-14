@@ -372,6 +372,14 @@ class Variant extends Purchasable implements NestedElementInterface
 
     /**
      * @inheritdoc
+     */
+    protected static function includeSetStatusAction(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
      * @throws InvalidConfigException
      */
     public function getIsAvailable(): bool
@@ -1149,13 +1157,15 @@ class Variant extends Purchasable implements NestedElementInterface
     {
         $product = $this->getOwner();
 
-        $this->updateTitle($product);
-        $this->updateSku($product);
+        // hold off on updating the title and SKU if we are creating the shell of the variant ready for editing
+        /** @phpstan-ignore-next-line don't need the `$this->getIsDraft()` on the right side but leaving for readability */
+        if (!$this->getIsDraft() || ($this->getIsDraft() && $this->getScenario() !== self::SCENARIO_ESSENTIALS)) {
+            $this->updateTitle($product);
+            $this->updateSku($product);
+        }
 
-        if ($this->getScenario() === self::SCENARIO_DEFAULT) {
-            if (!$this->sku) {
-                $this->setSku(PurchasableHelper::tempSku());
-            }
+        if (!$this->sku && $this->getScenario() === self::SCENARIO_DEFAULT) {
+            $this->setSku(PurchasableHelper::tempSku());
         }
 
         return parent::beforeValidate();
@@ -1168,8 +1178,12 @@ class Variant extends Purchasable implements NestedElementInterface
     {
         $product = $this->getOwner();
 
-        $this->updateTitle($product);
-        $this->updateSku($product);
+        // hold off on updating the title and SKU if we are creating the shell of the variant ready for editing
+        /** @phpstan-ignore-next-line don't need the `$this->getIsDraft()` on the right side but leaving for readability */
+        if (!$this->getIsDraft() || ($this->getIsDraft() && $this->getScenario() !== self::SCENARIO_ESSENTIALS)) {
+            $this->updateTitle($product);
+            $this->updateSku($product);
+        }
 
         // Set the field layout
         $productType = $product->getType();
@@ -1321,7 +1335,19 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     protected static function defineSources(string $context = null): array
     {
-        return Product::sources($context);
+        $sources = Product::defineSources($context);
+
+        // Ensure we don't inherit any product structure things from products.
+        foreach ($sources as $key => $source) {
+            $sources[$key]['defaultSort'] = ['postDate', 'desc'];
+            foreach (['structureId', 'structureEditable'] as $unsetKey) {
+                if (isset($sources[$key][$unsetKey])) {
+                    unset($sources[$key][$unsetKey]);
+                }
+            }
+        }
+
+        return $sources;
     }
 
     protected static function defineActions(string $source): array
