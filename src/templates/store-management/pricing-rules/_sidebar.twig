@@ -16,6 +16,10 @@
 {% if catalogPricingRule and catalogPricingRule.id %}
   <div class="meta read-only">
     <div class="data">
+      <h5 class="heading">{{ "ID"|t('commerce') }}</h5>
+      <div class="value">{{ catalogPricingRule.id }}</div>
+    </div>
+    <div class="data">
       <h5 class="heading">{{ "Created at"|t('app') }}</h5>
       <div id="date-created-value" class="value">{{ catalogPricingRule.dateCreated|datetime('short') }}</div>
     </div>

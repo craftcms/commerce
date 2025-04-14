@@ -728,6 +728,7 @@ class Product extends Element implements HasStoreInterface
 
     /**
      * @var NestedElementManager|null
+     * @see getVariantManager()
      * @since 5.0.0
      */
     private ?NestedElementManager $_variantManager = null;
@@ -1219,6 +1220,19 @@ class Product extends Element implements HasStoreInterface
             // just unset our existing records
             $this->_variants = null;
             return;
+        }
+
+        // Make sure each variant has an owner set in case of mass assignment of product and variants
+        if (is_array($variants)) {
+            foreach ($variants as &$variant) {
+                if ($variant instanceof Variant) {
+                    continue;
+                }
+
+                if (is_array($variant) && !isset($variant['owner'])) {
+                    $variant = ['owner' => $this] + $variant;
+                }
+            }
         }
 
         $this->_variants = $variants instanceof VariantCollection ? $variants : VariantCollection::make($variants);

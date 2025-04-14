@@ -870,9 +870,11 @@ JS, []);
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $requestAddress = $this->request->getRequiredParam('address');
+        $attributes = $this->request->getRequiredParam('address');
 
-        $address = Craft::createObject(Address::class, ['config' => ['attributes' => $requestAddress]]);
+        $attributes += ['class' => Address::class];
+
+        $address = Craft::createObject($attributes);
 
         if (!$address->validate()) {
             return $this->asModelFailure(model: $address, message: Craft::t('commerce', 'Unable to validate address.'), modelName: 'address');
