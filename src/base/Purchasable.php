@@ -17,6 +17,7 @@ use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Localization;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
+use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\models\InventoryItem;
 use craft\commerce\models\InventoryLevel;
 use craft\commerce\models\LineItem;
@@ -191,6 +192,13 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      * @since 5.4.0
      */
     public ?int $catalogPricingRuleId = null;
+
+    /**
+     * @var CatalogPricingRule|null
+     * @since 5.4.0
+     * @see getCatalogPricingRule()
+     */
+    private ?CatalogPricingRule $_catalogPricingRule = null;
 
     /**
      * @var bool
@@ -619,6 +627,21 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     public function setPromotionalPrice(?float $price): void
     {
         $this->_promotionalPrice = $price;
+    }
+
+    /**
+     * @return CatalogPricingRule|null
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
+     * @since 5.4.0
+     */
+    public function getCatalogPricingRule(): ?CatalogPricingRule
+    {
+        if ($this->_catalogPricingRule === null && $this->catalogPricingRuleId !== null) {
+            $this->_catalogPricingRule = Plugin::getInstance()->getCatalogPricingRules()->getCatalogPricingRuleById($this->catalogPricingRuleId, $this->storeId);
+        }
+
+        return $this->_catalogPricingRule;
     }
 
     /**

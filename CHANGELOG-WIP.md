@@ -5,3 +5,4 @@
 
 ### Extensibility
 - Added `craft\commerce\base\Purchasable::$catalogPricingRuleId`.
+- Added `craft\commerce\base\Purchasable::getCatalogPricingRule()`.
