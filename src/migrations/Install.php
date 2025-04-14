@@ -297,6 +297,7 @@ class Install extends Migration
             'settings' => $this->text(),
             'paymentType' => $this->enum('paymentType', ['authorize', 'purchase'])->notNull()->defaultValue('purchase'),
             'isFrontendEnabled' => $this->string(500)->notNull()->defaultValue('1'),
+            'orderCondition' => $this->text(),
             'isArchived' => $this->boolean()->notNull()->defaultValue(false),
             'dateArchived' => $this->dateTime(),
             'sortOrder' => $this->integer(),
@@ -1425,6 +1426,7 @@ class Install extends Migration
             'name' => 'Dummy',
             'handle' => 'dummy',
             'isFrontendEnabled' => true,
+            'orderCondition' => [],
             'isArchived' => false,
         ];
         $gateway = new Dummy($data);

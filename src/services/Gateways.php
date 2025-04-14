@@ -34,7 +34,6 @@ use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\web\ServerErrorHttpException;
-use function get_class;
 
 /**
  * Gateway service.
@@ -111,7 +110,7 @@ class Gateways extends Component
      */
     public function getAllCustomerEnabledGateways(): Collection
     {
-        return $this->getAllGateways()->where(fn(GatewayInterface $gateway) => $gateway->getIsFrontendEnabled());
+        return $this->getAllGateways()->filter(fn(GatewayInterface $gateway) => $gateway->getIsFrontendEnabled());
     }
 
     /**
@@ -258,15 +257,7 @@ class Gateways extends Component
         if ($gateway->isArchived) {
             $configData = null;
         } else {
-            $configData = [
-                'name' => $gateway->name,
-                'handle' => $gateway->handle,
-                'type' => get_class($gateway),
-                'settings' => $gateway->getSettings(),
-                'sortOrder' => ($gateway->sortOrder ?? 99),
-                'paymentType' => $gateway->paymentType,
-                'isFrontendEnabled' => $gateway->getIsFrontendEnabled(false),
-            ];
+            $configData = $gateway->getConfig();
         }
 
         $configPath = self::CONFIG_GATEWAY_KEY . '.' . $gatewayUid;
@@ -306,6 +297,7 @@ class Gateways extends Component
             }
 
             $gatewayRecord->isFrontendEnabled = $data['isFrontendEnabled'];
+            $gatewayRecord->orderCondition = $data['orderCondition'] ?? null;
             $gatewayRecord->isArchived = false;
             $gatewayRecord->dateArchived = null;
             $gatewayRecord->uid = $gatewayUid;
@@ -446,7 +438,7 @@ class Gateways extends Component
      */
     private function _createGatewayQuery(): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'dateArchived',
                 'handle',
@@ -462,6 +454,14 @@ class Gateways extends Component
             ])
             ->orderBy(['sortOrder' => SORT_ASC])
             ->from([Table::GATEWAYS]);
+
+        // TODO: remove after next breakpoint
+        $db = Craft::$app->getDb();
+        if ($db->columnExists(Table::GATEWAYS, 'orderCondition')) {
+            $query->addSelect('orderCondition');
+        }
+
+        return $query;
     }
 
     /**

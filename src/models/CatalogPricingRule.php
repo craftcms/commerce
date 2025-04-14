@@ -8,6 +8,7 @@
 namespace craft\commerce\models;
 
 use Craft;
+use craft\base\Event;
 use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
@@ -21,8 +22,11 @@ use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingRule as PricingCatalogRuleRecord;
 use craft\elements\conditions\ElementConditionInterface;
+use craft\elements\db\ElementQuery;
 use craft\elements\User;
+use craft\events\CancelableEvent;
 use craft\helpers\Json;
+use craft\models\Site;
 use DateTime;
 use yii\base\InvalidConfigException;
 
@@ -237,17 +241,22 @@ class CatalogPricingRule extends Model implements HasStoreInterface
     public function getPurchasableIds(): ?array
     {
         if ($this->_purchasableIds === null) {
+            $siteIds = $this->getStore()->getSites()->map(fn(Site $site) => $site->id)->all();
             $productVariantIds = null;
 
             if (!empty($this->getProductCondition()->getConditionRules())) {
                 $productQuery = Product::find();
+                $productQuery->siteId($siteIds);
                 /** @var CatalogPricingRuleProductCondition $productCondition */
                 $productCondition = $this->getProductCondition();
                 $productCondition->modifyQuery($productQuery);
 
                 $productVariantIds = [];
                 if ($productIds = $productQuery->ids()) {
-                    $productVariantIds = Variant::find()->productId($productIds)->ids();
+                    $productVariantIds = Variant::find()
+                        ->siteId($siteIds)
+                        ->productId($productIds)
+                        ->ids();
                 }
             }
 
@@ -263,6 +272,7 @@ class CatalogPricingRule extends Model implements HasStoreInterface
             $variantIds = $productVariantIds;
             if (!empty($this->getVariantCondition()->getConditionRules())) {
                 $variantQuery = Variant::find();
+                $variantQuery->siteId($siteIds);
                 /** @var CatalogPricingRuleVariantCondition $variantCondition */
                 $variantCondition = $this->getVariantCondition();
                 $variantCondition->modifyQuery($variantQuery);
@@ -286,6 +296,7 @@ class CatalogPricingRule extends Model implements HasStoreInterface
 
             if (!empty($this->getPurchasableCondition()->getConditionRules())) {
                 $purchasableQuery = Purchasable::find();
+
                 /** @var CatalogPricingRulePurchasableCondition $purchasableCondition */
                 $purchasableCondition = $this->getPurchasableCondition();
                 $purchasableCondition->modifyQuery($purchasableQuery);
@@ -295,8 +306,19 @@ class CatalogPricingRule extends Model implements HasStoreInterface
                     $purchasableQuery->andWhere(['id' => $variantIds]);
                 }
 
+                // We are unable to use `siteId()` on the purchasable query as it is only the subquery part that is used.
+                Event::once(ElementQuery::class, ElementQuery::EVENT_AFTER_PREPARE, function(CancelableEvent $event) use ($siteIds) {
+                    foreach ($event->sender->subQuery->where as &$value) {
+                        if (is_array($value) && isset($value['elements_sites.siteId'])) {
+                            $value['elements_sites.siteId'] = $siteIds;
+                        }
+                    }
+                });
+
                 $this->_purchasableIds = $purchasableQuery->ids();
             }
+
+            $this->_purchasableIds = $this->_purchasableIds !== null ? array_unique($this->_purchasableIds) : null;
         }
 
         return $this->_purchasableIds;
