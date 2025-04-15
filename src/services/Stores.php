@@ -929,7 +929,12 @@ class Stores extends Component
     public function afterDeleteCraftSiteHandler(SiteEvent $event): void
     {
         $siteStores = $this->getAllSiteStores();
-        $siteStore = $this->getAllSiteStores()->firstWhere('siteId', $event->site->id);
+        $siteStore = $siteStores->firstWhere('siteId', $event->site->id);
+
+        if (!$siteStore) {
+            return;
+        }
+
         $store = $this->getStoreById($siteStore->storeId);
 
         $isStoreOrphaned = true;
