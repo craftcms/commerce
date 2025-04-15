@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce
 
+## 5.3.9 - 2025-04-15
+
+- Fixed a bug where the customer selection menu on Edit Order pgaes could be hidden behind an address card. ([#3968](https://github.com/craftcms/commerce/issues/3968))
+- Fixed a PHP error that could occur when rendering a PDF. ([#3967](https://github.com/craftcms/commerce/issues/3967))
+- Fixed a bug where account activation emails weren’t always getting rendered for the correct site. 
+
 ## 5.3.8 - 2025-04-02
 
 - Fixed a bug where it wasn’t possible to override the PDF paper size via `craft\commerce\services\Pdf::EVENT_MODIFY_RENDER_OPTIONS`. 
@@ -53,7 +59,7 @@
 - Added `craft\commerce\collections\InventoryMovementCollection::getPurchasables()`.
 - Added `craft\commerce\base\Gateway::transactionSupportsRefund()`.
 - Fixed a bug where product variants weren’t getting restored when soft-deleted products were restored. ([#3815](https://github.com/craftcms/commerce/issues/3815))
-- Fixed a bug where purchables’ cached per-store stock totals weren’t getting updated when inventory was moved.
+- Fixed a bug where purchasables’ cached per-store stock totals weren’t getting updated when inventory was moved.
 - Fixed a bug where it wasn’t possible to update inventory transfers that contained deleted inventory items.
 - Fixed a bug where the `commerce/cart/update-cart` action could return unnecessary validation errors. ([3873](https://github.com/craftcms/commerce/issues/3873))
 
