@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.3.9 - 2025-04-15
 
 - Fixed a bug where the customer selection menu on Edit Order pgaes could be hidden behind an address card. ([#3968](https://github.com/craftcms/commerce/issues/3968))
 - Fixed a PHP error that could occur when rendering a PDF. ([#3967](https://github.com/craftcms/commerce/issues/3967))
