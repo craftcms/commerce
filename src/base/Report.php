@@ -30,14 +30,14 @@ abstract class Report implements ReportInterface
 
     /**
      * Returns the report title
-     * 
+     *
      * @return string
      */
     abstract public function getTitle(): string;
 
     /**
      * Returns the report handle
-     * 
+     *
      * @return string|null
      */
     public function getHandle(): ?string
@@ -47,7 +47,7 @@ abstract class Report implements ReportInterface
 
     /**
      * Returns the report columns
-     * 
+     *
      * @return array
      */
     abstract public function getColumns(): array;
@@ -66,7 +66,7 @@ abstract class Report implements ReportInterface
 
     /**
      * Returns the CP URL for this report
-     * 
+     *
      * @return string|null
      */
     public function getCpEditUrl(): ?string
@@ -76,7 +76,7 @@ abstract class Report implements ReportInterface
 
     /**
      * Returns the icon for this report
-     * 
+     *
      * @return string|null
      */
     public function getIcon(): ?string
@@ -180,29 +180,8 @@ abstract class Report implements ReportInterface
     }
     
     /**
-     * Returns all parameters as URL query string
-     * 
-     * @return string
-     */
-    public function getParamsAsQueryString(): string
-    {
-        $params = $this->getParamValues();
-        
-        // Add date parameters
-        if ($this->getStartDate()) {
-            $params['startDate'] = $this->getStartDate()->format('Y-m-d');
-        }
-        
-        if ($this->getEndDate()) {
-            $params['endDate'] = $this->getEndDate()->format('Y-m-d');
-        }
-        
-        return http_build_query($params);
-    }
-    
-    /**
      * Returns the headers for CSV export
-     * 
+     *
      * @return array
      */
     public function getCsvHeaders(): array
@@ -218,7 +197,7 @@ abstract class Report implements ReportInterface
     
     /**
      * Returns the data formatted for CSV export
-     * 
+     *
      * @return array
      */
     public function getCsvData(): array

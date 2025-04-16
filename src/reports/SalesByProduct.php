@@ -25,15 +25,7 @@ class SalesByProduct extends Report
     {
         return Craft::t('commerce', 'Sales By Product');
     }
-    
-    /**
-     * @inheritDoc
-     */
-    public function getIcon(): ?string
-    {
-        return 'package';
-    }
-    
+
     /**
      * @inheritDoc
      */
@@ -43,28 +35,28 @@ class SalesByProduct extends Report
             [
                 'label' => Craft::t('commerce', 'Product Title'),
                 'value' => 'productTitle',
-                'type' => 'string'
+                'type' => 'string',
             ],
             [
                 'label' => Craft::t('commerce', 'Quantity Sold'),
                 'value' => 'quantitySold',
-                'type' => 'number'
+                'type' => 'number',
             ],
             [
                 'label' => Craft::t('commerce', 'Total Revenue'),
                 'value' => 'totalRevenue',
-                'type' => 'money'
+                'type' => 'money',
             ],
             [
                 'label' => Craft::t('commerce', 'Average Price'),
                 'value' => 'averagePrice',
-                'type' => 'money'
+                'type' => 'money',
             ],
             [
                 'label' => Craft::t('commerce', 'Order Count'),
                 'value' => 'orderCount',
-                'type' => 'number'
-            ]
+                'type' => 'number',
+            ],
         ];
     }
     
@@ -75,13 +67,6 @@ class SalesByProduct extends Report
     {
         return [
             [
-                'type' => 'text',
-                'label' => Craft::t('commerce', 'Product Title Filter'),
-                'handle' => 'titleFilter',
-                'default' => '',
-                'required' => false
-            ],
-            [
                 'type' => 'select',
                 'label' => Craft::t('commerce', 'Sort By'),
                 'handle' => 'sortBy',
@@ -90,9 +75,9 @@ class SalesByProduct extends Report
                     ['value' => 'quantitySold', 'label' => Craft::t('commerce', 'Quantity Sold')],
                     ['value' => 'orderCount', 'label' => Craft::t('commerce', 'Order Count')],
                     ['value' => 'averagePrice', 'label' => Craft::t('commerce', 'Average Price')],
-                    ['value' => 'productTitle', 'label' => Craft::t('commerce', 'Product Title')]
+                    ['value' => 'productTitle', 'label' => Craft::t('commerce', 'Product Title')],
                 ],
-                'default' => 'totalRevenue'
+                'default' => 'totalRevenue',
             ],
             [
                 'type' => 'select',
@@ -100,16 +85,10 @@ class SalesByProduct extends Report
                 'handle' => 'sortDir',
                 'options' => [
                     ['value' => 'desc', 'label' => Craft::t('commerce', 'Descending')],
-                    ['value' => 'asc', 'label' => Craft::t('commerce', 'Ascending')]
+                    ['value' => 'asc', 'label' => Craft::t('commerce', 'Ascending')],
                 ],
-                'default' => 'desc'
+                'default' => 'desc',
             ],
-            [
-                'type' => 'number',
-                'label' => Craft::t('commerce', 'Minimum Orders'),
-                'handle' => 'minOrders',
-                'default' => 0
-            ]
         ];
     }
     
@@ -128,29 +107,19 @@ class SalesByProduct extends Report
                 'quantitySold' => 'SUM(li.qty)',
                 'totalRevenue' => 'SUM(li.total)',
                 'averagePrice' => 'ROUND(SUM(li.total) / SUM(li.qty), 2)',
-                'orderCount' => 'COUNT(DISTINCT o.id)'
+                'orderCount' => 'COUNT(DISTINCT o.id)',
             ])
             ->from(['li' => Table::LINEITEMS])
             ->innerJoin(['o' => Table::ORDERS], '[[o.id]] = [[li.orderId]]')
             ->where([
                 'o.isCompleted' => true,
             ])
-            ->andWhere(['between', 'o.dateOrdered', 
-                $startDate ? Db::prepareDateForDb($startDate) : Db::prepareDateForDb(new \DateTime('-30 days')), 
-                $endDate ? Db::prepareDateForDb($endDate) : Db::prepareDateForDb(new \DateTime())
+            ->andWhere(['between', 'o.dateOrdered',
+                $startDate ? Db::prepareDateForDb($startDate) : Db::prepareDateForDb(new \DateTime('-30 days')),
+                $endDate ? Db::prepareDateForDb($endDate) : Db::prepareDateForDb(new \DateTime()),
             ])
             ->andWhere(['not', ['li.purchasableId' => null]]) // Ensure we're only looking at actual product line items
             ->groupBy(['productTitle']);
-            
-        // Apply title filter if provided
-        if (!empty($params['titleFilter'])) {
-            $query->andWhere(['like', 'li.description', $params['titleFilter']]);
-        }
-        
-        // Apply minimum orders filter if provided
-        if (isset($params['minOrders']) && $params['minOrders'] > 0) {
-            $query->having(['>=', 'COUNT(DISTINCT o.id)', $params['minOrders']]);
-        }
         
         // Apply sorting
         $sortBy = $params['sortBy'] ?? 'totalRevenue';

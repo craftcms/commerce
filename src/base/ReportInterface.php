@@ -21,7 +21,7 @@ interface ReportInterface extends Grippable, Iconic, CpEditable
     
     /**
      * Returns the column definitions for the report
-     * 
+     *
      * @return array Array of columns with keys:
      * - label: The user-facing column label
      * - value: The data key for this column
@@ -51,7 +51,7 @@ interface ReportInterface extends Grippable, Iconic, CpEditable
     
     /**
      * Returns custom parameter definitions for the report
-     * 
+     *
      * @return array Array of parameter definitions with keys:
      * - type: The parameter type (select, text, number, checkbox)
      * - label: The user-facing parameter label
@@ -64,14 +64,14 @@ interface ReportInterface extends Grippable, Iconic, CpEditable
     
     /**
      * Set parameters from request data
-     * 
+     *
      * @param array $params The parameter values to set
      */
     public function setParams(array $params): void;
     
     /**
      * Get current parameter values as key-value array
-     * 
+     *
      * @return array Parameter values
      */
     public function getParamValues(): array;

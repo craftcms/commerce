@@ -29,37 +29,29 @@ class AverageOrderValueOverTime extends Report
     /**
      * @inheritDoc
      */
-    public function getIcon(): ?string
-    {
-        return 'chart-line';
-    }
-    
-    /**
-     * @inheritDoc
-     */
     public function getColumns(): array
     {
         return [
             [
                 'label' => Craft::t('commerce', 'Date'),
                 'value' => 'date',
-                'type' => 'date'
+                'type' => 'date',
             ],
             [
                 'label' => Craft::t('commerce', 'Average Order Value'),
                 'value' => 'averageOrderValue',
-                'type' => 'money'
+                'type' => 'money',
             ],
             [
                 'label' => Craft::t('commerce', 'Number of Orders'),
                 'value' => 'orderCount',
-                'type' => 'number'
+                'type' => 'number',
             ],
             [
                 'label' => Craft::t('commerce', 'Total Revenue'),
                 'value' => 'totalRevenue',
-                'type' => 'money'
-            ]
+                'type' => 'money',
+            ],
         ];
     }
     
@@ -77,16 +69,16 @@ class AverageOrderValueOverTime extends Report
                     ['value' => 'day', 'label' => Craft::t('commerce', 'Day')],
                     ['value' => 'week', 'label' => Craft::t('commerce', 'Week')],
                     ['value' => 'month', 'label' => Craft::t('commerce', 'Month')],
-                    ['value' => 'year', 'label' => Craft::t('commerce', 'Year')]
+                    ['value' => 'year', 'label' => Craft::t('commerce', 'Year')],
                 ],
-                'default' => 'auto'
+                'default' => 'auto',
             ],
             [
                 'type' => 'number',
                 'label' => Craft::t('commerce', 'Minimum Orders'),
                 'handle' => 'minOrders',
-                'default' => 0
-            ]
+                'default' => 0,
+            ],
         ];
     }
     
@@ -140,15 +132,15 @@ class AverageOrderValueOverTime extends Report
                 'date' => $dateFormat,
                 'totalRevenue' => 'SUM(o.totalPaid)',
                 'orderCount' => 'COUNT(o.id)',
-                'averageOrderValue' => 'ROUND(SUM(o.totalPaid) / COUNT(o.id), 2)'
+                'averageOrderValue' => 'ROUND(SUM(o.totalPaid) / COUNT(o.id), 2)',
             ])
             ->from(['o' => Table::ORDERS])
             ->where([
                 'o.isCompleted' => true,
             ])
-            ->andWhere(['between', 'o.dateOrdered', 
-                $startDate ? Db::prepareDateForDb($startDate) : Db::prepareDateForDb(new \DateTime('-30 days')), 
-                $endDate ? Db::prepareDateForDb($endDate) : Db::prepareDateForDb(new \DateTime())
+            ->andWhere(['between', 'o.dateOrdered',
+                $startDate ? Db::prepareDateForDb($startDate) : Db::prepareDateForDb(new \DateTime('-30 days')),
+                $endDate ? Db::prepareDateForDb($endDate) : Db::prepareDateForDb(new \DateTime()),
             ])
             ->groupBy(['date']);
             

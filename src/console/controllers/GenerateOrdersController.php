@@ -9,23 +9,18 @@ namespace craft\commerce\console\controllers;
 
 use Craft;
 use craft\commerce\console\Controller;
-use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
 use craft\commerce\enums\LineItemType;
-use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
-use craft\db\Query;
 use craft\elements\Address;
 use craft\elements\User;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
-use craft\records\Element;
 use Exception;
 use Faker\Factory;
 use Faker\Generator;
@@ -137,7 +132,7 @@ class GenerateOrdersController extends Controller
             
             $this->stdout('Found ' . count($variants) . ' variants to use in orders.' . PHP_EOL, Console::FG_GREEN);
             
-            // Get payment gateway 
+            // Get payment gateway
             $gateway = Plugin::getInstance()->getGateways()->getGatewayByHandle('manual');
             
             if (!$gateway && $this->withTransactions) {
@@ -175,7 +170,6 @@ class GenerateOrdersController extends Controller
             if ($failed > 0) {
                 $this->stderr('Failed to generate ' . $failed . ' orders.' . PHP_EOL, Console::FG_RED);
             }
-            
         } catch (Throwable $e) {
             $this->stderr('Error: ' . $e->getMessage() . PHP_EOL, Console::FG_RED);
             return ExitCode::UNSPECIFIED_ERROR;
@@ -186,7 +180,7 @@ class GenerateOrdersController extends Controller
     
     /**
      * Get available users for order customer assignment
-     * 
+     *
      * @return User[]
      */
     private function _getUsers(): array
@@ -215,7 +209,7 @@ class GenerateOrdersController extends Controller
     
     /**
      * Get available variants for order line items
-     * 
+     *
      * @return Variant[]
      */
     private function _getAvailableVariants(): array
@@ -227,7 +221,7 @@ class GenerateOrdersController extends Controller
     
     /**
      * Create a fake address for an order
-     * 
+     *
      * @return Address
      */
     private function _createFakeAddress(): Address
@@ -248,7 +242,7 @@ class GenerateOrdersController extends Controller
     
     /**
      * Create a fake order with random data
-     * 
+     *
      * @param Variant[] $variants Available variants to add to the order
      * @return Order The created order
      * @throws Throwable
@@ -325,7 +319,7 @@ class GenerateOrdersController extends Controller
         }
         
         // Complete the order
-        $orderStatus =Plugin::getInstance()->getOrderStatuses()->getDefaultOrderStatus($this->store->id);
+        $orderStatus = Plugin::getInstance()->getOrderStatuses()->getDefaultOrderStatus($this->store->id);
         
         if ($orderStatus) {
             $order->orderStatusId = $orderStatus->id;
@@ -340,7 +334,7 @@ class GenerateOrdersController extends Controller
     
     /**
      * Create a manual transaction for an order
-     * 
+     *
      * @param Order $order The order to create a transaction for
      * @param \craft\commerce\base\Gateway $gateway The manual gateway
      * @return Transaction The created transaction
