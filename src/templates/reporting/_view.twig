@@ -1,1 +1,218 @@
-{{ report.title }}
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("craft\\web\\assets\\cp\\CpAsset") %}
+{% do view.registerAssetBundle("craft\\web\\assets\\timepicker\\TimepickerAsset") %}
+
+<div class="flex-fields mb-4">
+    <form method="get" class="w-full">
+        <div class="field-layout">
+            {# Date Range Filter #}
+            <div class="field" id="date-range-wrapper">
+                <input type="hidden" name="startDate" value="{{ startDate ? startDate|date('Y-m-d') : '' }}" data-start-date>
+                <input type="hidden" name="endDate" value="{{ endDate ? endDate|date('Y-m-d') : '' }}" data-end-date>
+                <input type="hidden" name="dateRange" value="{{ dateRange ?? 'custom' }}" data-date-range>
+
+                {% set dateRangeHtml %}<div data-date-range-picker></div>{% endset %}
+
+                {{ forms.field({
+                    label: 'Date Range'|t('commerce'),
+                }, dateRangeHtml) }}
+            </div>
+
+            {% js %}
+                var options = {
+                    selected: '{{ dateRange ?? 'custom' }}',
+                    onChange: function(start, end, handle) {
+                        var $startDate = $('#date-range-wrapper [data-start-date]');
+                        var $endDate = $('#date-range-wrapper [data-end-date]');
+                        var $dateRange = $('#date-range-wrapper [data-date-range]');
+                        $startDate.val('');
+                        $endDate.val('');
+                        $dateRange.val('');
+
+                        if (start) {
+                            $startDate.val(start.getFullYear() + '-' + (start.getMonth() + 1) + '-' + start.getDate());
+                        }
+
+                        if (end) {
+                            $endDate.val(end.getFullYear() + '-' + (end.getMonth() + 1) + '-' + end.getDate());
+                        }
+
+                        if (handle) {
+                            $dateRange.val(handle);
+                        }
+                    }
+                };
+
+                {% if dateRange == 'custom' and startDate %}
+                  options['startDate'] = new Date({{ startDate|date('Y') }}, {{ startDate|date('m') - 1 }}, {{ startDate|date('d') }});
+                {% endif %}
+
+                {% if dateRange == 'custom' and endDate %}
+                  options['endDate'] = new Date({{ endDate|date('Y') }}, {{ endDate|date('m') - 1 }}, {{ endDate|date('d') }});
+                {% endif %}
+
+                var $container = $('#date-range-wrapper [data-date-range-picker]');
+                var $picker = Craft.ui.createDateRangePicker(options).appendTo($container);
+            {% endjs %}
+            
+            {# Display custom parameters if available #}
+            {% if params is defined and params|length > 0 %}
+                {% for param in params %}
+                    {% set value = paramValues[param.handle] ?? param.default ?? null %}
+                    
+                    {% if param.type == 'select' %}
+                        {{ forms.selectField({
+                            id: param.handle,
+                            name: param.handle, 
+                            label: param.label,
+                            options: param.options,
+                            value: value
+                        }) }}
+                    {% elseif param.type == 'text' %}
+                        {{ forms.textField({
+                            id: param.handle,
+                            name: param.handle,
+                            label: param.label,
+                            value: value
+                        }) }}
+                    {% elseif param.type == 'number' %}
+                        {{ forms.textField({
+                            id: param.handle,
+                            name: param.handle,
+                            label: param.label,
+                            type: 'number',
+                            value: value,
+                            size: 10
+                        }) }}
+                    {% elseif param.type == 'checkbox' %}
+                        {{ forms.checkboxField({
+                            id: param.handle,
+                            name: param.handle,
+                            label: param.label,
+                            checked: value ? true : false,
+                            value: 1
+                        }) }}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            
+            <div class="field">
+                <div class="buttons">
+                    <input type="submit" class="btn submit" value="{{ 'Apply'|t('commerce') }}">
+                    
+                    <a href="{{ actionUrl('commerce/reporting/download', { 
+                            reportHandle: report.handle, 
+                            startDate: startDate ? startDate|atom : null,
+                            endDate: endDate ? endDate|atom : null,
+                            dateRange: dateRange ?? 'custom'
+                        }|merge(paramValues)) }}" 
+                        class="btn">
+                        {{ 'Download CSV'|t('commerce') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+{# Report Table #}
+<div class="report-content">
+    <div class="report-summary">
+        <p class="light">
+            {{ 'Showing data from {start} to {end}'|t('commerce', {
+                start: startDate ? startDate|date('medium') : 'N/A',
+                end: endDate ? endDate|date('medium') : 'N/A'
+            }) }}
+        </p>
+    </div>
+    
+    {% if reportData is empty %}
+        <div class="zilch">
+            <p>{{ 'No data available for the selected time period.'|t('commerce') }}</p>
+        </div>
+    {% else %}
+        <div class="tableview">
+            <div class="tablepane">
+                <table class="data fullwidth">
+                    <thead>
+                        <tr>
+                            {% for column in report.columns %}
+                                <th scope="col">{{ column.label }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in reportData %}
+                            <tr>
+                                {% for column in report.columns %}
+                                    <td>
+                                        {% if column.type == 'money' %}
+                                            {{ row[column.value]|currency }}
+                                        {% elseif column.type == 'date' %}
+                                            {{ row[column.value] is defined ? row[column.value]|date('short') : '' }}
+                                        {% elseif column.type == 'percent' %}
+                                            {{ row[column.value] }}%
+                                        {% else %}
+                                            {{ row[column.value] }}
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+{% css %}
+    /* Date range field */
+    #date-range-wrapper {
+        min-width: 320px;
+    }
+    
+    /* Report layout */
+    .report-content {
+        margin-top: 24px;
+        padding-top: 12px;
+        border-top: 1px solid #e3e5e8;
+    }
+    
+    /* Report summary */
+    .report-summary {
+        margin-bottom: 24px;
+    }
+    .report-summary p.light {
+        color: #8f98a3;
+        font-size: 13px;
+        margin: 0 0 12px 0;
+    }
+    
+    /* Table styling */
+    .tableview {
+        border-radius: 4px;
+        margin-bottom: 24px;
+    }
+    
+    /* Field layout */
+    .field-layout {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 24px;
+        align-items: end;
+    }
+    
+    .field-layout .buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 24px;
+    }
+    
+    @media (max-width: 768px) {
+        .field-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+{% endcss %}

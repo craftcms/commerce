@@ -5,8 +5,11 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\base\Report;
 use craft\commerce\Plugin;
-use craft\commerce\reports\SalesByProduct;
+use craft\helpers\DateTimeHelper;
 use craft\web\Controller;
+use DateTime;
+use yii\web\BadRequestHttpException;
+use yii\web\NotFoundHttpException;
 use yii\web\Response;
 use craft\commerce\helpers\AdminTable;
 
@@ -55,10 +58,12 @@ class ReportingController extends Controller
             ]);
     }
 
+    /**
+     * Returns the data for the reports admin table
+     */
     public function actionReportsTable(): Response
     {
         $this->requirePermission('commerce-manageReporting');
-
         $this->requireAcceptsJson();
 
         /** @var Report[] $reports */
@@ -71,11 +76,16 @@ class ReportingController extends Controller
                 'title' => $report->getTitle(),
                 'handle' => $report->getHandle(),
                 'url' => $report->getCpEditUrl(),
+                'icon' => $report->getIcon(),
             ];
         }
 
         return $this->asJson(['data' => $data]);
     }
+
+    /**
+     * Displays a report
+     */
     public function actionView(?string $reportHandle = null): Response
     {
         $this->requirePermission('commerce-manageReporting');
@@ -85,7 +95,34 @@ class ReportingController extends Controller
         if (!$report) {
             throw new NotFoundHttpException('Report not found via route handle');
         }
-
+        
+        // Get the date range filters
+        $startDate = $this->request->getParam('startDate');
+        $endDate = $this->request->getParam('endDate');
+        $dateRange = $this->request->getParam('dateRange', 'custom');
+        
+        // Set date ranges on the report if provided
+        if ($startDate) {
+            $report->setStartDate(DateTimeHelper::toDateTime($startDate));
+        }
+        
+        if ($endDate) {
+            $report->setEndDate(DateTimeHelper::toDateTime($endDate));
+        }
+        
+        // Get custom parameters from request
+        $paramValues = [];
+        foreach ($report->getParams() as $param) {
+            $handle = $param['handle'];
+            $paramValues[$handle] = $this->request->getParam($handle);
+        }
+        
+        // Set parameters on report
+        $report->setParams($paramValues);
+        
+        // Get report data
+        $reportData = $report->getData();
+        
         return $this->asCpScreen()
             ->crumbs([
                 ['label' => Craft::t('commerce', 'Reporting'), 'url' => 'commerce/reporting'],
@@ -93,6 +130,84 @@ class ReportingController extends Controller
             ->title($report->getTitle())
             ->contentTemplate('commerce/reporting/_view', [
                 'report' => $report,
+                'reportData' => $reportData,
+                'startDate' => $report->getStartDate(),
+                'endDate' => $report->getEndDate(),
+                'dateRange' => $dateRange,
+                'params' => $report->getParams(),
+                'paramValues' => $report->getParamValues(),
             ]);
+    }
+    
+    /**
+     * Downloads a report as CSV
+     */
+    public function actionDownload(string $reportHandle): Response
+    {
+        $this->requirePermission('commerce-manageReporting');
+        
+        $report = Plugin::getInstance()->getReports()->getReportByHandle($reportHandle);
+        
+        if (!$report) {
+            throw new NotFoundHttpException('Report not found');
+        }
+        
+        // Get the date range filters
+        $startDate = $this->request->getParam('startDate');
+        $endDate = $this->request->getParam('endDate');
+        $dateRange = $this->request->getParam('dateRange', 'custom');
+        
+        // Set date ranges on the report if provided
+        if ($startDate) {
+            $report->setStartDate(DateTimeHelper::toDateTime($startDate));
+        }
+        
+        if ($endDate) {
+            $report->setEndDate(DateTimeHelper::toDateTime($endDate));
+        }
+        
+        // Get custom parameters from request
+        $paramValues = [];
+        foreach ($report->getParams() as $param) {
+            $handle = $param['handle'];
+            $paramValues[$handle] = $this->request->getParam($handle);
+        }
+        
+        // Set parameters on report
+        $report->setParams($paramValues);
+        
+        $filename = $report->getHandle() . '_' . date('Y-m-d') . '.csv';
+        
+        // Get CSV headers and data
+        $headers = $report->getCsvHeaders();
+        $rows = $report->getCsvData();
+        
+        return $this->response->sendContentAsFile(
+            $this->generateCsv($headers, $rows),
+            $filename,
+            ['mimeType' => 'text/csv']
+        );
+    }
+    
+    /**
+     * Generates a CSV file from headers and rows
+     */
+    private function generateCsv(array $headers, array $rows): string
+    {
+        $csv = fopen('php://temp', 'r+');
+        
+        // Add headers
+        fputcsv($csv, $headers);
+        
+        // Add data rows
+        foreach ($rows as $row) {
+            fputcsv($csv, $row);
+        }
+        
+        rewind($csv);
+        $csvContent = stream_get_contents($csv);
+        fclose($csv);
+        
+        return $csvContent;
     }
 }
