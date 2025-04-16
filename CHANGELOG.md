@@ -3,6 +3,7 @@
 ## Unreleased
 
 = Fixed a PHP error that occurred when applying project config changes after deleting a store. ([#3969](https://github.com/craftcms/commerce/issues/3969))
+- Fixed a bug where a cart could be retrieved of a credentialed user while logged out if cart cookie was still present. ([#3960](https://github.com/craftcms/commerce/issues/3960))
 
 ## 5.3.9 - 2025-04-15
 
