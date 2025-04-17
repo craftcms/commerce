@@ -27,5 +27,20 @@
       <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
       <div id="date-updated-value" class="value">{{ catalogPricingRule.dateUpdated|datetime('short') }}</div>
     </div>
+
+    {% if catalogPricingRule.metadata|length %}
+      {% for key, val in catalogPricingRule.metadata %}
+        <div class="data">
+          <h5 class="heading">{{ key|e }}</h5>
+          <div class="value">
+            {% if val is iterable %}
+              <pre><code>{{ val|json_encode|e }}</code></pre>
+            {% else %}
+              {{ val|e }}
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    {% endif %}
   </div>
 {% endif %}
