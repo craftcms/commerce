@@ -340,6 +340,7 @@ class CatalogPricingRules extends Component
                 'enabled',
                 'id',
                 'isPromotionalPrice',
+                'metadata',
                 'name',
                 'productCondition',
                 'purchasableCondition',
