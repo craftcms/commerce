@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a PHP error that occurred when applying project config changes after deleting a store. ([#3969](https://github.com/craftcms/commerce/issues/3969))
+- Fixed a SQL error that could occur when upgrading to Commerce 5. ([#3741](https://github.com/craftcms/commerce/issues/3741))
 - Fixed a bug where Address field action’s UI displayed incorrectly on Edit Order pages. 
 
 ## 5.3.9 - 2025-04-15

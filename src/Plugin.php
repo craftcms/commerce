@@ -817,14 +817,17 @@ class Plugin extends BasePlugin
             }
         });
 
-        // Site models are instantiated early meaning we have to manually attach the behavior alongside using the event
-        $sites = Craft::$app->getSites()->getAllSites(true);
-        foreach ($sites as $site) {
-            $site->attachBehavior('commerce:store', StoreBehavior::class);
+        // Don't attach behavior if Craft is in the middle of an update
+        if (!Craft::$app->getUpdates()->getIsCraftUpdatePending()) {
+            // Site models are instantiated early meaning we have to manually attach the behavior alongside using the event
+            $sites = Craft::$app->getSites()->getAllSites(true);
+            foreach ($sites as $site) {
+                $site->attachBehavior('commerce:store', StoreBehavior::class);
+            }
+            Event::on(Site::class, Site::EVENT_DEFINE_BEHAVIORS, function(DefineBehaviorsEvent $event) {
+                $event->behaviors['commerce:store'] = StoreBehavior::class;
+            });
         }
-        Event::on(Site::class, Site::EVENT_DEFINE_BEHAVIORS, function(DefineBehaviorsEvent $event) {
-            $event->behaviors['commerce:store'] = StoreBehavior::class;
-        });
 
         Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCatalogPricingRules(), 'afterSaveUserHandler']);
         Event::on(Users::class, Users::EVENT_AFTER_ASSIGN_USER_TO_GROUPS, [$this->getCatalogPricingRules(), 'afterSaveUserHandler']);
