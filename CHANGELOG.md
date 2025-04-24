@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.3.10 - 2025-04-24
 
 - Fixed a PHP error that occurred when applying project config changes after deleting a store. ([#3969](https://github.com/craftcms/commerce/issues/3969))
 - Fixed a SQL error that could occur when upgrading to Commerce 5. ([#3741](https://github.com/craftcms/commerce/issues/3741))
