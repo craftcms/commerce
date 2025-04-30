@@ -11,7 +11,6 @@ use Codeception\Test\Unit;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
-use craft\commerce\Plugin;
 use craft\db\Query;
 use craftcommercetests\fixtures\ProductFixture;
 use DateTime;
