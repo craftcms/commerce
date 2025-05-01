@@ -7,9 +7,12 @@
 
 namespace craft\commerce\test\fixtures\elements;
 
+use Craft;
 use craft\base\ElementInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
+use craft\commerce\elements\Variant;
+use craft\commerce\elements\VariantCollection;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\test\fixtures\elements\BaseElementFixture;
@@ -31,6 +34,8 @@ class ProductFixture extends BaseElementFixture
      * @var array
      */
     protected array $productTypeIds = [];
+
+    private ?VariantCollection $_variants = null;
 
     /**
      * {@inheritdoc}
@@ -81,5 +86,65 @@ class ProductFixture extends BaseElementFixture
             ->from([Table::PRODUCTTYPES . ' productTypes'])
             ->indexBy('handle')
             ->column();
+    }
+
+    /**
+     * @inheritdoc
+     * @param Product $element
+     */
+    protected function populateElement(ElementInterface $element, array $attributes): void
+    {
+        foreach ($attributes as $name => $value) {
+            if ($name !== '_variants') {
+                $element->$name = $value;
+            } else {
+                $this->_variants = VariantCollection::make($value);
+                $element->setVariants($value);
+            }
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function saveElement(ElementInterface $element): bool
+    {
+        $return = parent::saveElement($element);
+
+        // Save the variants
+        $this->_variants->each(function(Variant $v) use ($element) {
+            if ((new Query())
+                ->from(Table::VARIANTS . ' v')
+                ->leftJoin(Table::PURCHASABLES . ' p', '[[p.id]] = [[v.id]]')
+                ->where(['primaryOwnerId' => $element->id])
+                ->andWhere(['p.sku' => $v->getSku()])
+                ->exists()
+            ) {
+                return;
+            }
+
+            $v->setPrimaryOwnerId($element->id);
+            $v->setOwnerId($element->id);
+            \Craft::$app->getElements()->saveElement($v,false);
+        });
+
+        $this->_variants = null;
+
+        return $return;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function deleteElement(ElementInterface $element): bool
+    {
+        /** @var Product $element */
+        $variants = $element->getVariants(true);
+
+        foreach ($variants as $variant) {
+            Craft::$app->getElements()->deleteElement($variant, true);
+        }
+
+        return parent::deleteElement($element);
     }
 }

@@ -2,12 +2,18 @@
 
 ## Unreleased
 
-= Fixed a PHP error that occurred when applying project config changes after deleting a store. ([#3969](https://github.com/craftcms/commerce/issues/3969))
-- Fixed a bug where a cart could be retrieved of a credentialed user while logged out if cart cookie was still present. ([#3960](https://github.com/craftcms/commerce/issues/3960))
+- Fixed a bug where max qty and stock validation was not working with multiple items in the cart with different options. ([#3990](https://github.com/craftcms/commerce/issues/3990)) 
+
+## 5.3.10 - 2025-04-24
+
+- Fixed a PHP error that occurred when applying project config changes after deleting a store. ([#3969](https://github.com/craftcms/commerce/issues/3969))
+- Fixed a SQL error that could occur when upgrading to Commerce 5. ([#3741](https://github.com/craftcms/commerce/issues/3741))
+- Fixed a bug where it was possible to retrieve a credentialed user’s cart based on the cart cookie, even if the user was no longer signed in. ([#3960](https://github.com/craftcms/commerce/issues/3960))
+- Fixed a bug where the Address field action’s UI displayed incorrectly on Edit Order pages. 
 
 ## 5.3.9 - 2025-04-15
 
-- Fixed a bug where the customer selection menu on Edit Order pgaes could be hidden behind an address card. ([#3968](https://github.com/craftcms/commerce/issues/3968))
+- Fixed a bug where the customer selection menu on Edit Order pages could be hidden behind an address card. ([#3968](https://github.com/craftcms/commerce/issues/3968))
 - Fixed a PHP error that could occur when rendering a PDF. ([#3967](https://github.com/craftcms/commerce/issues/3967))
 - Fixed a bug where account activation emails weren’t always getting rendered for the correct site. 
 

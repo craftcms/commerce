@@ -8,9 +8,12 @@
 namespace craftcommercetests\unit\elements\product;
 
 use Codeception\Test\Unit;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\db\Query;
 use craftcommercetests\fixtures\ProductFixture;
+use DateTime;
 
 /**
  * ProductTest
@@ -222,5 +225,135 @@ class ProductTest extends Unit
             'primary' => [1, 2],
             'uk' => [1002, 3],
         ];
+    }
+
+    /**
+     * @return void
+     * @throws \Throwable
+     * @throws \craft\errors\ElementNotFoundException
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function testSaveProductAndVariants(): void
+    {
+        $product = new Product();
+        $product->title = 'Test Product';
+        $product->typeId = 2000;
+        $product->slug = 'test-product';
+        $product->enabled = true;
+        $product->enabledForSite = true;
+        $product->postDate = (new DateTime('now'));
+
+        $variants = [];
+        $variant = new Variant();
+        $variant->title = 'Test Variant';
+        $variant->slug = 'test-variant';
+        $variant->sku = 'test-variant-sku';
+        $variant->price = 99.99;
+        $variant->sortOrder = 0;
+        $variant->width = null;
+        $variant->height = null;
+        $variant->length = null;
+        $variant->weight = null;
+        $variant->inventoryTracked = false;
+        $variant->minQty = null;
+        $variant->maxQty = null;
+        $variant->isDefault = true;
+
+        $variants[] = $variant;
+
+        $variant = new Variant();
+        $variant->title = 'Test Variant 2';
+        $variant->slug = 'test-variant 2';
+        $variant->sku = 'test-variant-sku2';
+        $variant->price = 100.99;
+        $variant->sortOrder = 1;
+        $variant->width = null;
+        $variant->height = null;
+        $variant->length = null;
+        $variant->weight = null;
+        $variant->inventoryTracked = false;
+        $variant->minQty = null;
+        $variant->maxQty = null;
+        $variant->isDefault = false;
+        $variants[] = $variant;
+
+        $product->setVariants($variants);
+
+        \Craft::$app->getElements()->saveElement($product, false);
+
+        // Check default data when the variant is saved as part of the product save
+        $productData = (new Query())
+            ->select([
+                'defaultVariantId',
+                'defaultSku',
+                'defaultPrice',
+                'defaultWidth',
+                'defaultHeight',
+                'defaultLength',
+                'defaultWeight',
+            ])
+            ->from(Table::PRODUCTS)
+            ->where(['id' => $product->id])
+            ->one();
+
+        $defaultVariantData = (new Query())
+            ->select([
+                'id',
+            ])
+            ->from(Table::VARIANTS)
+            ->where(['productId' => $product->id])
+            ->andWhere(['sku' => 'test-variant-sku'])
+            ->one();
+
+        // Check the product object
+        self::assertEquals($defaultVariantData['id'], $product->defaultVariantId);
+        self::assertEquals('test-variant-sku', $product->defaultSku);
+        self::assertEquals(99.99, $product->defaultPrice);
+        self::assertEquals(0, $product->defaultWidth);
+        self::assertEquals(0, $product->defaultHeight);
+        self::assertEquals(0, $product->defaultLength);
+        self::assertEquals(0, $product->defaultWeight);
+
+        // Check the product data in the database
+        self::assertEquals($defaultVariantData['id'], $productData['defaultVariantId']);
+        self::assertEquals('test-variant-sku', $productData['defaultSku']);
+        self::assertEquals(99.99, $productData['defaultPrice']);
+        self::assertEquals(0, $productData['defaultWidth']);
+        self::assertEquals(0, $productData['defaultHeight']);
+        self::assertEquals(0, $productData['defaultLength']);
+        self::assertEquals(0, $productData['defaultWeight']);
+
+        // Make changes and independently save the default variant to check the product data is updated
+        $variant = $product->getDefaultVariant();
+        $variant->setSku('test-variant-sku-updated');
+        $variant->price = 199.99;
+
+        \Craft::$app->getElements()->saveElement($variant, false);
+
+        $newProductData = (new Query())
+            ->select([
+                'defaultVariantId',
+                'defaultSku',
+                'defaultPrice',
+                'defaultWidth',
+                'defaultHeight',
+                'defaultLength',
+                'defaultWeight',
+            ])
+            ->from(Table::PRODUCTS)
+            ->where(['id' => $product->id])
+            ->one();
+
+        self::assertEquals($defaultVariantData['id'], $newProductData['defaultVariantId']);
+        self::assertEquals('test-variant-sku-updated', $newProductData['defaultSku']);
+        self::assertEquals(199.99, $newProductData['defaultPrice']);
+        self::assertEquals(0, $newProductData['defaultWidth']);
+        self::assertEquals(0, $newProductData['defaultHeight']);
+        self::assertEquals(0, $newProductData['defaultLength']);
+        self::assertEquals(0, $newProductData['defaultWeight']);
+
+        // Remove the product
+        \Craft::$app->getElements()->deleteElementById($product->id, Product::class, null, true);
     }
 }
