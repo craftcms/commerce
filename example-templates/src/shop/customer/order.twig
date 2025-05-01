@@ -285,27 +285,50 @@
         </h3>
         <table class="w-full">
           <tbody>
-          {% for transaction in order.transactions %}
-            <tr>
-              <td>
-                <span class="mr-1 uppercase text-xs border rounded-sm px-2 py-1 tracking-wide{{ transaction.status == 'success' ? ' text-green-500 border-green-500' : '' }}">
-                  {{- transaction.status -}}
-                </span>
-              </td>
-              <td class="text-left align-text-top pt-3 pr-3 {% if transaction.getParent() %}pl-5{% endif %}">
-                <span>
-                  {{- transaction.amountAsCurrency }} {{ transaction.currency }} {{ transaction.type -}}
-                </span>
-                <br>
-                <span class="text-gray-600 text-sm">
-                  ({{ transaction.paymentAmountAsCurrency }} {{ transaction.paymentCurrency }} {{ 'paid'|t }})
-                </span>
-              </td>
-              <td class="text-left align-text-top pt-3 pr-3 text-right">
-                {{ transaction.dateCreated|datetime }}
-              </td>
-            </tr>
-          {% endfor %}
+            {% set parentTransactions = craft.commerce.transactions.getAllTopLevelTransactionsByOrderId(order.id) %}
+            {% for transaction in parentTransactions %}
+              <tr>
+                <td>
+                  <span class="mr-1 uppercase text-xs border rounded-sm px-2 py-1 tracking-wide{{ transaction.status == 'success' ? ' text-green-500 border-green-500' : '' }} tracking-wide{{ transaction.status == 'failed' ? ' text-red-500 border-red-500' : '' }}">
+                    {{- transaction.status -}}
+                  </span>
+                </td>
+                <td class="text-left align-text-top pt-3 pr-3">
+                  <span>
+                    {{- transaction.amountAsCurrency }} {{ transaction.currency }} {{ transaction.type -}}
+                  </span>
+                  <br>
+                  <span class="text-gray-600 text-sm">
+                    ({{ transaction.paymentAmountAsCurrency }} {{ transaction.paymentCurrency }} {{ 'paid'|t }})
+                  </span>
+                </td>
+                <td class="text-left align-text-top pt-3 pr-3 text-right">
+                  {{ transaction.dateCreated|datetime }}
+                </td>
+              </tr>
+              {% set childTransactions = craft.commerce.transactions.getChildrenByTransactionId(transaction.id) %}
+              {% for transaction in childTransactions %}
+                <tr>
+                  <td>
+                    <span class="mr-1 uppercase text-xs border rounded-sm px-2 py-1 tracking-wide{{ transaction.status == 'success' ? ' text-green-500 border-green-500' : '' }} tracking-wide{{ transaction.status == 'failed' ? ' text-red-500 border-red-500' : '' }}">
+                      {{- transaction.status -}}
+                    </span>
+                  </td>
+                  <td class="text-left align-text-top pt-3 pr-3 pl-5">
+                    <span>
+                      {{- transaction.amountAsCurrency }} {{ transaction.currency }} {{ transaction.type -}}
+                    </span>
+                    <br>
+                    <span class="text-gray-600 text-sm">
+                      ({{ transaction.paymentAmountAsCurrency }} {{ transaction.paymentCurrency }} {{ 'paid'|t }})
+                    </span>
+                  </td>
+                  <td class="text-left align-text-top pt-3 pr-3 text-right">
+                    {{ transaction.dateCreated|datetime }}
+                  </td>
+                </tr>
+              {% endfor %}
+            {% endfor %}
           </tbody>
         </table>
       </div>
