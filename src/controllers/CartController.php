@@ -269,6 +269,9 @@ class CartController extends BaseFrontEndController
                 try {
                     $user = Craft::$app->getUsers()->ensureUserByEmail($email);
                     $this->_cart->setCustomer($user);
+                    if ($user->getIsCredentialed()) {
+                        Craft::$app->getSession()->set('commerce:anonymousCartWithCredentialedCustomer:' . $this->_cart->number, true);
+                    }
                 } catch (\Exception $e) {
                     $this->_cart->addError('email', $e->getMessage());
                 }
