@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- Fixed a bug where max qty and stock validation was not working with multiple items in the cart with different options. ([#3990](https://github.com/craftcms/commerce/issues/3990)) 
+- Fixed a bug where line item quantity validation wasn’t accounting for the whole cart. ([#3990](https://github.com/craftcms/commerce/issues/3990))
+- Fixed a bug where it wasn’t possible to create a guest cart with a credentialed user’s email address. ([#3960](https://github.com/craftcms/commerce/issues/3960)) 
 
 ## 5.3.10 - 2025-04-24
 
