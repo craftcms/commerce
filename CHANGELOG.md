@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where max qty and stock validation was not working with multiple items in the cart with different options. ([#3990](https://github.com/craftcms/commerce/issues/3990)) 
+
 ## 5.3.10 - 2025-04-24
 
 - Fixed a PHP error that occurred when applying project config changes after deleting a store. ([#3969](https://github.com/craftcms/commerce/issues/3969))
