@@ -276,6 +276,8 @@ class CartController extends BaseFrontEndController
                     $this->_cart->addError('email', $e->getMessage());
                 }
             }
+        } else {
+            Craft::$app->getSession()->remove('commerce:anonymousCartWithCredentialedCustomer:' . $this->_cart->number);
         }
 
         // Set if the customer should be registered on order completion
