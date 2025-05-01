@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.3.11 - 2025-05-01
 
 - Fixed a bug where line item quantity validation wasn’t accounting for the whole cart. ([#3990](https://github.com/craftcms/commerce/issues/3990))
 - Fixed a bug where it wasn’t possible to create a guest cart with a credentialed user’s email address. ([#3960](https://github.com/craftcms/commerce/issues/3960))
