@@ -798,16 +798,12 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             return [];
         }
 
-        $lineItemQuantitiesById = [];
         $lineItemQuantitiesByPurchasableId = [];
         foreach ($order->getLineItems() as $item) {
-            if ($item->id !== null) {
-                $lineItemQuantitiesById[$item->id] = isset($lineItemQuantitiesById[$item->id]) ? $lineItemQuantitiesById[$item->id] + $item->qty : $item->qty;
-            } else {
+            if ($item->purchasableId) {
                 $lineItemQuantitiesByPurchasableId[$item->purchasableId] = isset($lineItemQuantitiesByPurchasableId[$item->purchasableId]) ? $lineItemQuantitiesByPurchasableId[$item->purchasableId] + $item->qty : $item->qty;
             }
         }
-
 
         return [
             // an inline validator defined as an anonymous function
@@ -826,7 +822,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             ],
             [
                 'qty',
-                function($attribute, $params, Validator $validator) use ($lineItem, $lineItemQuantitiesById, $lineItemQuantitiesByPurchasableId) {
+                function($attribute, $params, Validator $validator) use ($lineItem, $lineItemQuantitiesByPurchasableId) {
                     if ($lineItem->type == LineItemType::Custom) {
                         return;
                     }
@@ -843,7 +839,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                         }
                     }
 
-                    $lineItemQty = $lineItem->id !== null ? $lineItemQuantitiesById[$lineItem->id] : $lineItemQuantitiesByPurchasableId[$lineItem->purchasableId];
+                    $lineItemQty = $lineItem->purchasableId ? $lineItemQuantitiesByPurchasableId[$lineItem->purchasableId] : $lineItem->qty;
 
                     if ($this->hasStock() && $this->inventoryTracked && $lineItemQty > $this->getStock()) {
                         if (!Plugin::getInstance()->getPurchasables()->isPurchasableOutOfStockPurchasingAllowed($lineItemPurchasable, $lineItem->getOrder())) {
