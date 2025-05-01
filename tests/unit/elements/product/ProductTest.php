@@ -249,7 +249,7 @@ class ProductTest extends Unit
         $variant->title = 'Test Variant';
         $variant->slug = 'test-variant';
         $variant->sku = 'test-variant-sku';
-        $variant->price = 99.99;
+        $variant->basePrice = 99.99;
         $variant->sortOrder = 0;
         $variant->width = null;
         $variant->height = null;
@@ -266,7 +266,7 @@ class ProductTest extends Unit
         $variant->title = 'Test Variant 2';
         $variant->slug = 'test-variant 2';
         $variant->sku = 'test-variant-sku2';
-        $variant->price = 100.99;
+        $variant->basePrice = 100.99;
         $variant->sortOrder = 1;
         $variant->width = null;
         $variant->height = null;
@@ -299,15 +299,16 @@ class ProductTest extends Unit
 
         $defaultVariantData = (new Query())
             ->select([
-                'id',
+                'v.id',
             ])
-            ->from(Table::VARIANTS)
-            ->where(['productId' => $product->id])
-            ->andWhere(['sku' => 'test-variant-sku'])
+            ->from(Table::VARIANTS . ' v')
+            ->leftJoin(Table::PURCHASABLES . ' p', '[[p.id]] = [[v.id]]')
+            ->where(['primaryOwnerId' => $product->id])
+            ->andWhere(['p.sku' => 'test-variant-sku'])
             ->one();
 
         // Check the product object
-        self::assertEquals($defaultVariantData['id'], $product->defaultVariantId);
+        self::assertEquals($defaultVariantData['id'], $product->getDefaultVariant()->id);
         self::assertEquals('test-variant-sku', $product->defaultSku);
         self::assertEquals(99.99, $product->defaultPrice);
         self::assertEquals(0, $product->defaultWidth);
@@ -327,7 +328,7 @@ class ProductTest extends Unit
         // Make changes and independently save the default variant to check the product data is updated
         $variant = $product->getDefaultVariant();
         $variant->setSku('test-variant-sku-updated');
-        $variant->price = 199.99;
+        $variant->basePrice = 199.99;
 
         \Craft::$app->getElements()->saveElement($variant, false);
 
