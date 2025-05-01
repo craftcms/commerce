@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed a bug where product’s default variant data wasn’t being updated when specifically saving the default variant. ([#3988](https://github.com/craftcms/commerce/issues/3988))
+- Fixed a bug where products weren’t getting updated when default variants were saved directly. ([#3988](https://github.com/craftcms/commerce/issues/3988))
 
 ## 4.8.3 - 2025-03-19
 
