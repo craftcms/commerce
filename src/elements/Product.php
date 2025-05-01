@@ -1548,8 +1548,8 @@ class Product extends Element implements HasStoreInterface
 
             // Make sure to update the object
             $this->defaultVariantId = $defaultVariant->id ?? null;
-            $this->defaultSku = $defaultVariant->getSkuAsText() ?? '';
-            $this->defaultPrice = $defaultVariant->getBasePrice() ?? 0.0;
+            $this->defaultSku = $defaultVariant?->getSkuAsText();
+            $this->defaultPrice = $defaultVariant?->getBasePrice() ?? 0.0;
             $this->defaultHeight = $defaultVariant->height ?? 0;
             $this->defaultLength = $defaultVariant->length ?? 0;
             $this->defaultWidth = $defaultVariant->width ?? 0;
