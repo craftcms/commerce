@@ -30,11 +30,6 @@ class PurchasablePromotableField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public ?string $label = 'Promotable';
-
-    /**
-     * @inheritdoc
-     */
     public string $attribute = 'promotable';
 
     /**

@@ -31,11 +31,6 @@ class PurchasableAllowedQtyField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public ?string $label = 'Allowed Qty';
-
-    /**
-     * @inheritdoc
-     */
     public string $attribute = 'allowedQty';
 
     /**

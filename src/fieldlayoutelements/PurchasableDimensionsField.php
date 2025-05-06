@@ -33,11 +33,6 @@ class PurchasableDimensionsField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public ?string $label = 'Dimensions';
-
-    /**
-     * @inheritdoc
-     */
     public string $attribute = 'dimensions';
 
     /**

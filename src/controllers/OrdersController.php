@@ -636,11 +636,15 @@ JS, []);
         }
 
         if ($billingAddress) {
-            $orderArray['billingAddressHtml'] = Cp::elementCardHtml($billingAddress);
+            $orderArray['billingAddressHtml'] = Cp::elementCardHtml($billingAddress, [
+                'showEditButton' => false,
+            ]);
         }
 
         if ($shippingAddress) {
-            $orderArray['shippingAddressHtml'] = Cp::elementCardHtml($shippingAddress);
+            $orderArray['shippingAddressHtml'] = Cp::elementCardHtml($shippingAddress, [
+                'showEditButton' => false,
+            ]);
         }
 
         if (!empty($orderArray['lineItems'])) {
@@ -870,9 +874,11 @@ JS, []);
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $requestAddress = $this->request->getRequiredParam('address');
+        $attributes = $this->request->getRequiredParam('address');
 
-        $address = Craft::createObject(Address::class, ['config' => ['attributes' => $requestAddress]]);
+        $attributes += ['class' => Address::class];
+
+        $address = Craft::createObject($attributes);
 
         if (!$address->validate()) {
             return $this->asModelFailure(model: $address, message: Craft::t('commerce', 'Unable to validate address.'), modelName: 'address');
@@ -1283,6 +1289,12 @@ JS, []);
     {
         /** @var Order $order */
         $order = $variables['order'];
+
+        $variables['ordersBodyClass'] = '';
+
+        if (version_compare(Craft::$app->getVersion(), '5.7.0', '>=')) {
+            $variables['ordersBodyClass'] .= ' commerceorders-post-57';
+        }
 
         $variables['title'] = Craft::t('commerce', 'Order') . ' ' . $order->reference;
 
