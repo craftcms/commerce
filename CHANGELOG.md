@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a PHP error that could occur when calculating discount adjustments. ([#3997](https://github.com/craftcms/commerce/issues/3997))
+
 ## 5.3.11 - 2025-05-01
 
 - Fixed a bug where line item quantity validation wasn’t accounting for the whole cart. ([#3990](https://github.com/craftcms/commerce/issues/3990))
