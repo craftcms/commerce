@@ -229,6 +229,13 @@ class Carts extends Component
             return null;
         }
 
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $cartCustomer = $cart?->getCustomer();
+        if ($cart && $cartCustomer && $cartCustomer->getIsCredentialed() && (!$currentUser || $currentUser->id != $cartCustomer->id)) {
+            $this->forgetCart();
+            return null;
+        }
+
         return $cart;
     }
 
