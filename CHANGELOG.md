@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a PHP error that could occur when calculating discount adjustments. ([#3997](https://github.com/craftcms/commerce/issues/3997))
 - Fixed a PHP error that could occur on Edit Plan pages. ([#3998](https://github.com/craftcms/commerce/issues/3998))
 - Fixed a PHP error that could occur when upgrading to Commerce 5. ([#3933](https://github.com/craftcms/commerce/pull/3933))
 
