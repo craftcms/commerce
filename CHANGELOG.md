@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.3.12 - 2025-05-07
 
 - Fixed a PHP error that could occur when calculating discount adjustments. ([#3997](https://github.com/craftcms/commerce/issues/3997))
 - Fixed a PHP error that could occur on Edit Plan pages. ([#3998](https://github.com/craftcms/commerce/issues/3998))
