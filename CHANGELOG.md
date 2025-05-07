@@ -5,6 +5,7 @@
 - Fixed a PHP error that could occur when calculating discount adjustments. ([#3997](https://github.com/craftcms/commerce/issues/3997))
 - Fixed a PHP error that could occur on Edit Plan pages. ([#3998](https://github.com/craftcms/commerce/issues/3998))
 - Fixed a PHP error that could occur when upgrading to Commerce 5. ([#3933](https://github.com/craftcms/commerce/pull/3933))
+- Fixed a bug where some purchasables were not being returned in the add a line item table on the Edit Order page. ([#3986](https://github.com/craftcms/commerce/issues/3986))
 
 ## 5.3.11 - 2025-05-01
 
