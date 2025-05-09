@@ -1057,7 +1057,7 @@ class LineItem extends Model
         $teller = $this->_getTeller();
         foreach ($this->getAdjustments() as $adjustment) {
             if ($adjustment->included == $included) {
-                $amount = $teller->add($amount, $adjustment->amount);
+                $amount = (float)$teller->add($amount, $adjustment->amount);
             }
         }
 
@@ -1073,7 +1073,7 @@ class LineItem extends Model
         $teller = $this->_getTeller();
         foreach ($this->getAdjustments() as $adjustment) {
             if ($adjustment->included == $included && $adjustment->type === $type) {
-                $amount = $teller->add($amount, $adjustment->amount);
+                $amount = (float)$teller->add($amount, $adjustment->amount);
             }
         }
 
