@@ -28,6 +28,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use DateTime;
 use LitEmoji\LitEmoji;
+use Money\Teller;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 
@@ -1053,9 +1054,10 @@ class LineItem extends Model
     public function getAdjustmentsTotal(bool $included = false): float
     {
         $amount = 0;
+        $teller = $this->_getTeller();
         foreach ($this->getAdjustments() as $adjustment) {
             if ($adjustment->included == $included) {
-                $amount += $adjustment->amount;
+                $amount = (float)$teller->add($amount, $adjustment->amount);
             }
         }
 
@@ -1068,10 +1070,10 @@ class LineItem extends Model
     private function _getAdjustmentsTotalByType(string $type, bool $included = false): float|int
     {
         $amount = 0;
-
+        $teller = $this->_getTeller();
         foreach ($this->getAdjustments() as $adjustment) {
             if ($adjustment->included == $included && $adjustment->type === $type) {
-                $amount += $adjustment->amount;
+                $amount = (float)$teller->add($amount, $adjustment->amount);
             }
         }
 
@@ -1160,5 +1162,18 @@ class LineItem extends Model
     public function getDiscount(): float
     {
         return $this->_getAdjustmentsTotalByType('discount');
+    }
+
+    /**
+     * @return Teller
+     * @throws InvalidConfigException
+     */
+    private function _getTeller(): Teller
+    {
+        if (!$order = $this->getOrder()) {
+            throw new InvalidConfigException('Line Item requires an order to calculate costs.');
+        }
+
+        return $order->getTeller();
     }
 }
