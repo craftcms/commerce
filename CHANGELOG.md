@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Added `craft\commerce\taxidvalidators\EuVatIdValidator::API_URL`.
+
 ## 4.8.4 - 2025-05-01
 
 - Fixed a bug where products weren’t getting updated when default variants were saved directly. ([#3988](https://github.com/craftcms/commerce/issues/3988))
