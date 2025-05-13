@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed a bug where email settings weren’t respecting the “Recipient” environment variable. ([#4004](https://github.com/craftcms/commerce/issues/4004))
+- Fixed a bug where email settings weren’t respecting the “Recipient”, “BCC”, and “CC” environment variable. ([#4004](https://github.com/craftcms/commerce/issues/4004), [#4002](https://github.com/craftcms/commerce/issues/4002))
 
 ## 5.3.12 - 2025-05-07
 
