@@ -1,0 +1,2 @@
+#commerce-catalog-prices{position:relative}#commerce-catalog-prices.busy{min-height:200px}#commerce-catalog-prices.busy:after{background:hsla(0,0%,100%,.75);border-radius:var(--large-border-radius);content:"";display:block;font-size:0;height:100%;left:-24px;position:absolute;top:0;width:calc(100% + 48px)}#commerce-catalog-prices.busy .update-spinner{z-index:1}
+/*# sourceMappingURL=CatalogPricing.css.map*/

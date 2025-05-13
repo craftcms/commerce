@@ -1,0 +1,14 @@
+.commerce-promotional-price {
+  &::before {
+    content: '';
+    // @TODO replace this with an approved icon and do it the same way as Craft
+    background-image: url(../images/promotional_price.png);
+    background-repeat: no-repeat;
+    background-size: contain;
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    opacity: 0.6;
+    margin-right: 0.25em;
+  }
+}

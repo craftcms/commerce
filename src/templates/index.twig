@@ -1,12 +1,27 @@
 {% set permissionsToView = {
     'commerce/orders': 'commerce-manageOrders',
+    'commerce/subscriptions': 'commerce-manageSubscriptions',
+    'commerce/inventory' : 'commerce-manageInventoryStockLevels',
+    'commerce/store-management' : 'commerce-manageStoreSettings',
+
     'commerce/promotions': 'commerce-managePromotions',
     'commerce/shipping/shippingmethods': 'commerce-manageShipping',
     'commerce/tax/taxrates': 'commerce-manageTaxes',
-    'commerce/subscriptions': 'commerce-manageSubscriptions',
 } %}
+
+{% set primaryStore = craft.commerce.stores.getPrimaryStore() %}
+{% set deprecatedRoutesToNewRoute = {
+    'commerce/promotions': "commerce/store-management/#{primaryStore.handle}/discounts",
+    'commerce/shipping/shippingmethods': "commerce/store-management/#{primaryStore.handle}/shippingmethods",
+    'commerce/tax/taxrates': "commerce/store-management/#{primaryStore.handle}/taxrates",
+} %}
+
 {% set permission = permissionsToView[craft.commerce.settings.defaultView] ?? null %}
 {% if craft.commerce.settings.defaultView and permission and currentUser.can(permission) %}
+    {% if craft.commerce.settings.defaultView in deprecatedRoutesToNewRoute|keys %}
+      {% redirect deprecatedRoutesToNewRoute[craft.commerce.settings.defaultView] %}
+    {% endif %}
+
     {% redirect craft.commerce.settings.defaultView %}
 {% endif %}
 
@@ -22,16 +37,24 @@
     {% redirect 'commerce/products' %}
 {% endif %}
 
+{% if currentUser.can('commerce-manageStoreSettings') %}
+    {% redirect "commerce/store-management" %}
+{% endif %}
+
+{% if currentUser.can('commerce-manageInventoryStockLevels') %}
+    {% redirect "commerce/inventory" %}
+{% endif %}
+
 {% if currentUser.can('commerce-managePromotions') %}
-    {% redirect 'commerce/promotions' %}
+    {% redirect "commerce/store-management/#{primaryStore.handle}/discounts" %}
 {% endif %}
 
 {% if currentUser.can('commerce-manageShipping') %}
- {% redirect 'commerce/shipping/shippingmethods' %}
+ {% redirect "commerce/store-management/#{primaryStore.handle}/shippingmethods" %}
 {% endif %}
 
 {% if currentUser.can('commerce-manageTaxes') %}
-    {% redirect 'commerce/tax/taxrates' %}
+    {% redirect "commerce/store-management/#{primaryStore.handle}/taxrates" %}
 {% endif %}
 
 {% if currentUser.can('commerce-manageSubscriptions') %}

@@ -5,9 +5,21 @@
   <meta charset="UTF-8">
   <title>{{ 'Receipt'|t }}</title>
 
-  <style type="text/css">
-    * {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  {% set isJapanese =
+    (order.billingAddress and order.billingAddress.countryCode == 'JP')
+    or (order.shippingAddress and order.shippingAddress.countryCode == 'JP')
+    or (order.orderLanguage and order.orderLanguage[0:2] == 'ja')
+  %}
+  {% if isJapanese %}
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+  {% endif %}
+
+  <style>
+    body {
+      font-family: "Noto Sans JP", -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;
+      font-optical-sizing: auto;
+      font-weight: 200;
+      font-style: normal;
     }
 
     table {

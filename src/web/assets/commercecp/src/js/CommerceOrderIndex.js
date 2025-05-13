@@ -29,12 +29,15 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
       window.orderEdit &&
       window.orderEdit.currentUserPermissions['commerce-editOrders']
     ) {
-      // Add the New Order button
-      var $btn = $('<a/>', {
+      const $btn = $('<a/>', {
+        type: 'button',
         class: 'btn submit icon add',
-        href: Craft.getUrl('commerce/orders/create'),
+        href: Craft.getUrl(
+          'commerce/orders/' + this.settings.store.handle + '/create'
+        ),
         text: Craft.t('commerce', 'New Order'),
       });
+      // Add the New Order button
       this.addButton($btn);
     }
   },
@@ -88,6 +91,11 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
       }
     }
 
+    if (this.siteId) {
+      // Automatically set `storeId` criteria based on the selected site
+      params.criteria.storeId = Craft.Commerce.sitesStores[this.siteId];
+    }
+
     return params;
   },
 
@@ -96,12 +104,12 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
       url: Craft.getActionUrl('commerce/orders/get-index-sources-badge-counts'),
       type: 'GET',
       dataType: 'json',
-      success: $.proxy(function (data) {
+      success: function (data) {
         if (data.counts) {
           var $sidebar = this.$sidebar;
           $.each(data.counts, function (key, row) {
             var $item = $sidebar.find(
-              'nav a[data-key="orderStatus:' + row.handle + '"]'
+              'nav a[data-key="*/orderStatus:' + row.handle + '"]'
             );
 
             if ($item) {
@@ -119,7 +127,7 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
                 $badge = $('<span class="badge"/>').appendTo($item);
               }
 
-              $item.find('.badge').text(row.orderCount);
+              $badge.text(row.orderCount);
             }
           });
         }
@@ -128,6 +136,10 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
           var $total = this.$sidebar.find('nav a[data-key="*"]');
           if ($total) {
             let $totalBadge = $total.find('.badge');
+
+            if (!$totalBadge.length) {
+              $totalBadge = $('<span class="badge"/>').appendTo($total);
+            }
 
             if (data.total === 0) {
               if ($totalBadge.length) {
@@ -141,10 +153,10 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
               $totalBadge = $('<span class="badge"/>').appendTo($total);
             }
 
-            $total.find('.badge').text(data.total);
+            $totalBadge.text(data.total);
           }
         }
-      }, this),
+      }.bind(this), // Use .bind(this) to maintain the context of `this` within the success function
     });
   },
 

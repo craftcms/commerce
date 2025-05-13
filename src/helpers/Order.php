@@ -8,6 +8,7 @@
 namespace craft\commerce\helpers;
 
 use craft\commerce\elements\Order as OrderElement;
+use craft\commerce\enums\LineItemType;
 
 /**
  * Order helper
@@ -23,25 +24,27 @@ class Order
     public static function mergeDuplicateLineItems(OrderElement $order): bool
     {
         $lineItems = $order->getLineItems();
-        // Ensure no duplicate line items exist, and if they do, combine them.
         $lineItemsByKey = [];
+
         foreach ($lineItems as $lineItem) {
-            $key = $lineItem->orderId . '-' . $lineItem->purchasableId . '-' . $lineItem->getOptionsSignature();
-            if (isset($lineItemsByKey[$key])) {
-                $lineItemsByKey[$key]->qty += $lineItem->qty;
-                // If a note already exists, merge it.
-                if ($lineItemsByKey[$key]->note && $lineItem->note) {
-                    $lineItemsByKey[$key]->note .= ' - ' . $lineItem->note;
-                } else {
-                    $lineItemsByKey[$key]->note = $lineItem->note;
-                }
+            // Generate a key depending on line item type
+            if ($lineItem->type === LineItemType::Purchasable) {
+                $key = $lineItem->orderId . '-' . LineItemType::Purchasable->value . '-' . $lineItem->purchasableId . '-' . $lineItem->getOptionsSignature();
             } else {
-                $lineItemsByKey[$key] = $lineItem;
+                $key = $lineItem->orderId . '-' . LineItemType::Custom->value . '-' . $lineItem->getSku() . '-' . $lineItem->getOptionsSignature();
             }
+
+            if (!isset($lineItemsByKey[$key])) {
+                $lineItemsByKey[$key] = $lineItem;
+                continue;
+            }
+
+            $lineItemsByKey[$key]->qty += $lineItem->qty;
+            $lineItemsByKey[$key]->note = trim(($lineItemsByKey[$key]->note ? $lineItemsByKey[$key]->note . ' - ' : '') . $lineItem->note, ' -');
         }
 
         $order->setLineItems(array_values($lineItemsByKey));
 
-        return $lineItems > $lineItemsByKey;
+        return count($lineItems) > count($lineItemsByKey);
     }
 }

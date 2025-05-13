@@ -1,11 +1,10 @@
-{% extends "commerce/_layouts/cp" %}
-
-{% set selectedSubnavItem = "promotions" %}
+{% extends "commerce/_layouts/store-management" %}
+{% set isIndex = false %}
 
 {% set crumbs = [
     { label: 'Commerce'|t('commerce'), url: url('commerce') },
-    { label: "Promotions"|t('commerce'), url: url('commerce/promotions') },
-    { label: "Sales"|t('commerce'), url: url('commerce/promotions/sales') },
+    { label: "Store Management"|t('commerce'), url: url('commerce/store-management/#{storeHandle}') },
+    { label: "Sales"|t('commerce'), url: url("commerce/store-management/#{storeHandle}/sales") },
 ] %}
 
 {% set fullPageForm = true %}
@@ -19,14 +18,12 @@
     'accept-charset': 'UTF-8'
 } %}
 
-{% set formActions = [
-    {
+{% set formActions = [{
         label: 'Save and continue editing'|t('app'),
-        redirect: (isNewSale ? 'commerce/promotions/sales/{id}' : sale.getCpEditUrl())|hash,
+        redirect: (isNewSale ? "commerce/store-management/#{storeHandle}/sales/{id}" : sale.getCpEditUrl())|hash,
         retainScroll: true,
         shortcut: true,
-    }]
-%}
+}] %}
 
 {% set actionClasses = "" %}
 {% if (sale.getErrors('applyAmount') or sale.getErrors('apply')) %}
@@ -85,7 +82,7 @@
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/sales/save">
-    {{ redirectInput('commerce/promotions/sales') }}
+    {{ redirectInput("commerce/store-management/#{storeHandle}/sales") }}
     {% if sale.id %}
         <input type="hidden" name="id" value="{{ sale.id }}">
         <input type="hidden" name="sortOrder" value="{{ sale.sortOrder }}">

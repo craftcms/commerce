@@ -2,7 +2,7 @@
 
 namespace craft\commerce\behaviors;
 
-use craft\commerce\records\Store;
+use craft\commerce\records\StoreSettings;
 use craft\elements\Address;
 use craft\events\AuthorizationCheckEvent;
 use craft\events\ModelEvent;
@@ -53,8 +53,8 @@ class StoreLocationBehavior extends Behavior
     public function saveStoreLocation(ModelEvent $event): void
     {
         $address = $event->sender;
-        /** @var Store $store */
-        $store = Store::find()->one(); // we only have one store right now, and we assume it is the first one
+        /** @var StoreSettings $store */
+        $store = StoreSettings::find()->one(); // we only have one store right now, and we assume it is the first one
         $store->locationAddressId = $address->id;
         $store->save();
     }

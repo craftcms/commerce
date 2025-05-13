@@ -48,6 +48,10 @@ export default new Vuex.Store({
       return window.orderEdit.countries;
     },
 
+    currencyConfig() {
+      return window.orderEdit.currencyConfig;
+    },
+
     forceEdit() {
       return window.orderEdit.forceEdit;
     },
@@ -68,12 +72,28 @@ export default new Vuex.Store({
       return window.orderEdit.orderId;
     },
 
+    totalCommittedStock(state) {
+      if (!state.draft) {
+        return 0;
+      }
+
+      return state.draft.order.totalCommittedStock;
+    },
+
     taxCategories() {
       return window.orderEdit.taxCategories;
     },
 
+    defaultTaxCategoryId() {
+      return window.orderEdit.defaultTaxCategoryId;
+    },
+
     shippingCategories() {
       return window.orderEdit.shippingCategories;
+    },
+
+    defaultShippingCategoryId() {
+      return window.orderEdit.defaultShippingCategoryId;
     },
 
     statesByCountryId() {
@@ -149,6 +169,10 @@ export default new Vuex.Store({
       return window.orderEdit.lineItemStatuses;
     },
 
+    lineItemTypes() {
+      return window.orderEdit.lineItemTypes;
+    },
+
     shippingMethods(state) {
       const shippingMethodsObject = JSON.parse(
         JSON.stringify(state.draft.order.availableShippingMethodOptions)
@@ -216,6 +240,11 @@ export default new Vuex.Store({
 
   actions: {
     displayError(context, msg) {
+      // Check if `msg` is instance of JavaScript Error object
+      if (msg instanceof Error) {
+        msg = msg.message;
+      }
+
       Craft.cp.displayError(msg);
     },
 
@@ -253,7 +282,7 @@ export default new Vuex.Store({
 
       // for the dropdown tab menu
       const tabManager = Craft.cp.tabManager;
-      const tabsDropdownMenu = tabManager.$menuBtn.data('menubtn').menu;
+      const tabsDropdownMenu = tabManager.$menuBtn.data('disclosureMenu');
       const transactionsOption = tabsDropdownMenu.$container.find(
         '[data-id="order-transactions"]'
       );
@@ -278,7 +307,7 @@ export default new Vuex.Store({
       tabsDropdownMenu.on('optionselect', function (ev) {
         let $selectedOption = $(ev.selectedOption);
         if ($selectedOption.data('id') === 'order-transactions') {
-          $prevSelectedTab.trigger('click');
+          $prevSelectedTab.trigger('activate');
         }
       });
     },
@@ -355,8 +384,9 @@ export default new Vuex.Store({
     },
 
     handleTabs({state}) {
-      const tabManagerMenuBtn = Craft.cp.tabManager.$menuBtn.data('menubtn');
-      const tabsDropdownMenu = tabManagerMenuBtn.menu;
+      const tabManagerMenuBtn =
+        Craft.cp.tabManager.$menuBtn.data('disclosureMenu');
+      const tabsDropdownMenu = tabManagerMenuBtn;
       if (tabsDropdownMenu !== undefined) {
         const optionSelector =
           '[id^="' + tabsDropdownMenu.menuId + '-option-"]';
@@ -473,23 +503,6 @@ export default new Vuex.Store({
 
     sendEmail(context, emailTemplateId) {
       return ordersApi.sendEmail(emailTemplateId);
-    },
-
-    getAddressById(context, id) {
-      return addressesApi
-        .getById(id)
-        .then((response) => {
-          if (response.data && response.data.success && response.data.address) {
-            return response.data.address;
-          }
-
-          return null;
-        })
-        .catch(() => {
-          let errorMsg = 'Couldn’t retrieve address.';
-
-          throw errorMsg;
-        });
     },
 
     validateAddress(context, address) {

@@ -1,0 +1,41 @@
+/* Purchasable Cards */
+.purchasable-cards {
+  display: grid;
+  gap: var(--m) var(--m);
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.purchasable-cards__add-btn {
+}
+
+.purchasable-card.error {
+  border: 1px solid #cf1124;
+}
+
+.purchasable-card.error:hover {
+  border-color: #cf1124;
+}
+
+.purchasable-card {
+  border: 1px solid #eee;
+  border-radius: 0.375rem;
+  padding: 1rem;
+}
+
+.purchasable-card:hover {
+  border-color: #ddd;
+  background-color: #fafafa;
+  cursor: pointer;
+}
+
+.purchasable-card .purchasable-card-header {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.purchasable-card .purchasable-card-header-actions {
+  display: flex;
+  justify-content: flex-end;
+}

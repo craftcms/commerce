@@ -12,6 +12,7 @@ use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\elements\Variant;
+use craft\commerce\Plugin;
 use craft\commerce\stats\TopPurchasables;
 use craftcommercetests\fixtures\OrdersFixture;
 use DateTime;
@@ -57,10 +58,11 @@ class TopPurchasablesTest extends Unit
      */
     public function testGetData(string $dateRange,  string $type, DateTime $startDate, DateTime $endDate, int $count, $getVariantData): void
     {
+        $storeId = Plugin::getInstance()->getStores()->getPrimaryStore()->id;
         Craft::$app->getUser()->setIdentity(
             Craft::$app->getUsers()->getUserById('1')
         );
-        $stat = new TopPurchasables($dateRange, $type, $startDate, $endDate);
+        $stat = new TopPurchasables($dateRange, $type, $startDate, $endDate, $storeId);
         $data = $stat->get();
 
         self::assertIsArray($data);

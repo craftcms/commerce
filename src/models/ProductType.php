@@ -8,6 +8,8 @@
 namespace craft\commerce\models;
 
 use Craft;
+use craft\base\Field;
+use craft\base\FieldLayoutProviderInterface;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Product;
@@ -15,8 +17,12 @@ use craft\commerce\elements\Variant;
 use craft\commerce\fieldlayoutelements\VariantsField;
 use craft\commerce\Plugin;
 use craft\commerce\records\ProductType as ProductTypeRecord;
+use craft\db\Table;
+use craft\db\Table as CraftTable;
+use craft\enums\PropagationMethod;
 use craft\errors\DeprecationException;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
@@ -28,7 +34,6 @@ use yii\base\InvalidConfigException;
 /**
  * Product type model.
  * @method null setFieldLayout(FieldLayout $fieldLayout)
- * @method FieldLayout getFieldLayout()
  *
  * @property string $cpEditUrl
  * @property string $cpEditVariantUrl
@@ -42,8 +47,13 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ProductType extends Model
+class ProductType extends Model implements FieldLayoutProviderInterface
 {
+    /** @since 5.2.0 */
+    public const DEFAULT_PLACEMENT_BEGINNING = 'beginning';
+    /** @since 5.2.0 */
+    public const DEFAULT_PLACEMENT_END = 'end';
+    
     /**
      * @var int|null ID
      */
@@ -60,14 +70,20 @@ class ProductType extends Model
     public ?string $handle = null;
 
     /**
+     * @var bool Whether versioning should be enabled for this product type.
+     * @since 5.0.0
+     */
+    public bool $enableVersioning = false;
+
+    /**
      * @var bool Has dimension
      */
     public bool $hasDimensions = false;
 
     /**
-     * @var bool Has variants
+     * @var int|null Maximum number of variants
      */
-    public bool $hasVariants = false;
+    public ?int $maxVariants = null;
 
     /**
      * @var bool Has variant title field
@@ -80,6 +96,19 @@ class ProductType extends Model
     public string $variantTitleFormat = '{product.title}';
 
     /**
+     * @var string Variant title translation method
+     * @phpstan-var Field::TRANSLATION_METHOD_NONE|Field::TRANSLATION_METHOD_SITE|Field::TRANSLATION_METHOD_SITE_GROUP|Field::TRANSLATION_METHOD_LANGUAGE|Field::TRANSLATION_METHOD_CUSTOM
+     * @since 5.1.0
+     */
+    public string $variantTitleTranslationMethod = Field::TRANSLATION_METHOD_SITE;
+
+    /**
+     * @var string|null Variant title translation key format
+     * @since 5.1.0
+     */
+    public ?string $variantTitleTranslationKeyFormat = null;
+
+    /**
      * @var bool Has product title field?
      */
     public bool $hasProductTitleField = true;
@@ -88,6 +117,19 @@ class ProductType extends Model
      * @var string Product title format
      */
     public string $productTitleFormat = '';
+
+    /**
+     * @var string Product title translation method
+     * @phpstan-var Field::TRANSLATION_METHOD_NONE|Field::TRANSLATION_METHOD_SITE|Field::TRANSLATION_METHOD_SITE_GROUP|Field::TRANSLATION_METHOD_LANGUAGE|Field::TRANSLATION_METHOD_CUSTOM
+     * @since 5.1.0
+     */
+    public string $productTitleTranslationMethod = Field::TRANSLATION_METHOD_SITE;
+
+    /**
+     * @var string|null Product title translation key format
+     * @since 5.1.0
+     */
+    public ?string $productTitleTranslationKeyFormat = null;
 
     /**
      * @var string|null SKU format
@@ -103,6 +145,31 @@ class ProductType extends Model
      * @var string|null Template
      */
     public ?string $template = null;
+
+    /**
+     * @var bool Is this a structure product type
+     * @since 5.2.0
+     */
+    public bool $isStructure = false;
+
+    /**
+     * @var ?int max levels of structure
+     * @since 5.2.0
+     */
+    public ?int $maxLevels = null;
+
+    /**
+     * @var string Default placement
+     * @phpstan-var self::DEFAULT_PLACEMENT_BEGINNING|self::DEFAULT_PLACEMENT_END
+     * @since 5.2.0
+     */
+    public string $defaultPlacement = self::DEFAULT_PLACEMENT_END;
+
+    /**
+     * @var int|null Structure ID
+     * @since 5.2.0
+     */
+    public ?int $structureId = null;
 
     /**
      * @var int|null Field layout ID
@@ -135,6 +202,21 @@ class ProductType extends Model
     private ?array $_siteSettings = null;
 
     /**
+     * @var PropagationMethod Propagation method
+     *
+     * This will be set to one of the following:
+     *
+     *  - [[PropagationMethod::None]] – Only save products in the site they were created in
+     *  - [[PropagationMethod::SiteGroup]] – Save  products to other sites in the same site group
+     *  - [[PropagationMethod::Language]] – Save products to other sites with the same language
+     *  - [[PropagationMethod::Custom]] – Save products to other sites based on a custom [[$propagationKeyFormat|propagation key format]]
+     *  - [[PropagationMethod::All]] – Save products to all sites supported by the owner element
+     *
+     * @since 5.1.0
+     */
+    public PropagationMethod $propagationMethod = PropagationMethod::All;
+
+    /**
      * @return null|string
      */
     public function __toString()
@@ -143,19 +225,27 @@ class ProductType extends Model
     }
 
     /**
+     * @inerhitdoc
+     */
+    public function getHandle(): ?string
+    {
+        return $this->handle;
+    }
+
+    /**
      * @inheritdoc
      */
     protected function defineRules(): array
     {
         return [
-            [['id', 'fieldLayoutId', 'variantFieldLayoutId'], 'number', 'integerOnly' => true],
+            [['id', 'fieldLayoutId', 'variantFieldLayoutId', 'structureId'], 'number', 'integerOnly' => true],
             [['name', 'handle'], 'required'],
             [
                 ['variantTitleFormat'],
                 'required',
                 'when' => static function($model) {
                     /** @var static $model */
-                    return !$model->hasVariantTitleField && $model->hasVariants;
+                    return !$model->hasVariantTitleField;
                 },
             ],
             [
@@ -169,8 +259,10 @@ class ProductType extends Model
             [['name', 'handle', 'descriptionFormat'], 'string', 'max' => 255],
             [['handle'], UniqueValidator::class, 'targetClass' => ProductTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'],
             [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']],
+            [['maxVariants'], 'integer', 'min' => 1],
             ['fieldLayout', 'validateFieldLayout'],
             ['variantFieldLayout', 'validateVariantFieldLayout'],
+            ['siteSettings', 'required', 'message' => Craft::t('commerce','At least one site must be enabled for the product type.')],
         ];
     }
 
@@ -182,6 +274,17 @@ class ProductType extends Model
     public function getCpEditVariantUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/producttypes/' . $this->id . '/variant');
+    }
+
+    /**
+     * Returns the site IDs that are enabled for the product type.
+     *
+     * @return int[]
+     * @since 5.1.0
+     */
+    public function getSiteIds(): array
+    {
+        return array_keys($this->getSiteSettings());
     }
 
     /**
@@ -294,6 +397,14 @@ class ProductType extends Model
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getFieldLayout(): FieldLayout
+    {
+        return $this->getProductFieldLayout();
+    }
+
+    /**
      * @throws InvalidConfigException
      */
     public function getProductFieldLayout(): FieldLayout
@@ -303,21 +414,20 @@ class ProductType extends Model
         $fieldLayout = $behavior->getFieldLayout();
 
         // If this product type has variants, make sure the Variants field is in the layout somewhere
-        if ($this->hasVariants && !$fieldLayout->isFieldIncluded('variants')) {
+        if (!$fieldLayout->isFieldIncluded('variants')) {
             $layoutTabs = $fieldLayout->getTabs();
             $variantTabName = Craft::t('commerce', 'Variants');
             if (ArrayHelper::contains($layoutTabs, 'name', $variantTabName)) {
                 $variantTabName .= ' ' . StringHelper::randomString(10);
             }
-            $contentTab = new FieldLayoutTab([
-                'name' => $variantTabName,
-                'elements' => [
-                    [
-                        'type' => VariantsField::class,
-                    ],
-                ],
-            ]);
+
+            $contentTab = new FieldLayoutTab();
             $contentTab->setLayout($fieldLayout);
+            $contentTab->name = $variantTabName;
+            $contentTab->setElements([
+                ['type' => VariantsField::class],
+            ]);
+
             $layoutTabs[] = $contentTab;
             $fieldLayout->setTabs($layoutTabs);
         }
@@ -355,10 +465,22 @@ class ProductType extends Model
         $variantFieldLayout = $this->getVariantFieldLayout();
 
         $variantFieldLayout->reservedFieldHandles = [
+            'availableForPurchase',
             'description',
+            'freeShipping',
+            'hasUnlimitedStock',
+            'height',
+            'length',
+            'maxQty',
+            'minQty',
             'price',
             'product',
+            'promotable',
+            'promotionalPrice',
             'sku',
+            'stock',
+            'weight',
+            'width',
         ];
 
         if (!$variantFieldLayout->validate()) {
@@ -399,11 +521,20 @@ class ProductType extends Model
     }
 
     /**
+     * @return bool
+     * @deprecated 5.0.0
+     */
+    public function getHasVariants(): bool
+    {
+        Craft::$app->getDeprecator()->log('craft\commerce\models\ProductType::hasVariants', 'Use `ProductType::maxVariants > 1` instead.');
+        return $this->maxVariants > 1;
+    }
+
+    /**
      * @inheritdoc
      */
-    public function behaviors(): array
+    protected function defineBehaviors(): array
     {
-        $behaviors = parent::behaviors();
         $behaviors['productFieldLayout'] = [
             'class' => FieldLayoutBehavior::class,
             'elementType' => Product::class,
@@ -430,5 +561,85 @@ class ProductType extends Model
         $fields[] = 'siteSettings';
 
         return $fields;
+    }
+
+    /**
+     * Returns the product types’s config.
+     *
+     * @return array
+     * @since 5.2.0
+     */
+    public function getConfig(): array
+    {
+        $config = [
+                'name' => $this->name,
+                'handle' => $this->handle,
+                'enableVersioning' => $this->enableVersioning,
+                'hasDimensions' => $this->hasDimensions,
+                'maxVariants' => $this->maxVariants,
+
+                // Variant title field
+                'hasVariantTitleField' => $this->hasVariantTitleField,
+                'variantTitleFormat' => $this->variantTitleFormat,
+                'variantTitleTranslationMethod' => $this->variantTitleTranslationMethod,
+                'variantTitleTranslationKeyFormat' => $this->variantTitleTranslationKeyFormat,
+
+                // Product title field
+                'hasProductTitleField' => $this->hasProductTitleField,
+                'productTitleFormat' => $this->productTitleFormat,
+                'productTitleTranslationMethod' => $this->productTitleTranslationMethod,
+                'productTitleTranslationKeyFormat' => $this->productTitleTranslationKeyFormat,
+
+                'propagationMethod' => $this->propagationMethod->value,
+
+                'skuFormat' => $this->skuFormat,
+                'descriptionFormat' => $this->descriptionFormat,
+                'siteSettings' => [],
+
+                'isStructure' => $this->isStructure,
+                'maxLevels' => $this->maxLevels,
+                'defaultPlacement' => $this->defaultPlacement,
+        ];
+
+        if ($this->isStructure) {
+            $config['structure'] = [
+                'uid' => $this->structureId ? Db::uidById(Table::STRUCTURES, $this->structureId) : StringHelper::UUID(),
+            ];
+        }
+
+        $generateLayoutConfig = function(FieldLayout $fieldLayout): array {
+            $fieldLayoutConfig = $fieldLayout->getConfig();
+
+            if ($fieldLayoutConfig) {
+                if (empty($fieldLayout->id)) {
+                    $layoutUid = StringHelper::UUID();
+                    $fieldLayout->uid = $layoutUid;
+                } else {
+                    $layoutUid = Db::uidById(CraftTable::FIELDLAYOUTS, $fieldLayout->id);
+                }
+
+                return [$layoutUid => $fieldLayoutConfig];
+            }
+
+            return [];
+        };
+
+        $config['productFieldLayouts'] = $generateLayoutConfig($this->getFieldLayout());
+        $config['variantFieldLayouts'] = $generateLayoutConfig($this->getVariantFieldLayout());
+
+        // Get the site settings
+        $allSiteSettings = $this->getSiteSettings();
+
+        foreach ($allSiteSettings as $siteId => $settings) {
+            $siteUid = Db::uidById(CraftTable::SITES, $siteId);
+            $config['siteSettings'][$siteUid] = [
+                'hasUrls' => $settings['hasUrls'],
+                'enabledByDefault' => $settings['enabledByDefault'],
+                'uriFormat' => $settings['uriFormat'],
+                'template' => $settings['template'],
+            ];
+        }
+
+        return $config;
     }
 }

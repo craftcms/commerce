@@ -1,12 +1,10 @@
 {% extends "_layouts/elementindex" %}
 
+{% set showSiteMenu = true %}
 {% set title = "Orders"|t('commerce') %}
 {% set elementType = 'craft\\commerce\\elements\\Order' %}
 {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceorders commerceordersindex" %}
-
-{% set crumbs = [
-  { label: 'Commerce'|t('commerce'), url: url('commerce') },
-] %}
+{% set selectedSubnavItem = 'orders' %}
 
 {% do craft.app.view.registerTranslations('commerce', [
     "Apply",
@@ -21,6 +19,17 @@
     "This URL will load the cart into the user’s session, making it the active cart.",
     "Total Revenue",
 ]) %}
+
+{% block initJs %}
+    Craft.elementIndex = Craft.createElementIndex('{{ elementType|e("js") }}', $('#page-container'), {
+        elementTypeName: '{{ elementDisplayName ?? (elementInstance.displayName())|e("js") }}',
+        elementTypePluralName: '{{ elementPluralDisplayName ?? (elementInstance.pluralDisplayName())|e("js") }}',
+        context: '{{ context }}',
+        storageKey: 'elementindex.{{ elementType|e("js") }}',
+        toolbarSelector: '#toolbar',
+        store: {{ store|json_encode|raw }},
+    });
+{% endblock %}
 
 {% if orderStatusHandle is defined and orderStatusHandle %}
     {% js %}

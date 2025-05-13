@@ -22,6 +22,7 @@ use Throwable;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ * @phpstan-require-extends Gateway
  * @todo remove ignore: https://github.com/phpstan/phpstan/issues/6778
  * @phpstan-ignore-next-line
  * @mixin GatewayTrait

@@ -1,5 +1,5 @@
 <template>
-    <div :id="'field-' + id" class="order-field field">
+    <div :id="'field-' + id" class="order-field field" :class="classes">
         <div class="heading" v-if="label || instructions">
             <label
                 v-if="label"
@@ -54,6 +54,10 @@
             required: {
                 type: Boolean,
                 default: false,
+            },
+            classes: {
+                type: Object,
+                default: () => {},
             },
         },
     };

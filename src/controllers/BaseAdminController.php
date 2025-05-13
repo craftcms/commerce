@@ -7,6 +7,7 @@
 
 namespace craft\commerce\controllers;
 
+use Craft;
 use yii\web\ForbiddenHttpException;
 
 /**
@@ -24,6 +25,11 @@ class BaseAdminController extends BaseCpController
     public function init(): void
     {
         parent::init();
-        $this->requireAdmin();
+        $this->requireAdmin(false);
+    }
+
+    protected function isReadOnlyScreen(): bool
+    {
+        return !Craft::$app->getConfig()->getGeneral()->allowAdminChanges;
     }
 }

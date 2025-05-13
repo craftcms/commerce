@@ -4,29 +4,37 @@
 
 {% set title = "Settings"|t('app') %}
 
-{% set crumbs = [
-  { label: "Commerce"|t('commerce'), url: url('commerce') },
-] %}
+{% if readOnly %}
+    {% set contentNotice = readOnlyNotice() %}
+{% endif %}
 
 {% set navItems = {} %}
 
 {% if currentUser.admin %}
 {% set navItems = {
     'general': { title: "General Settings"|t('commerce')},
-    'emails': { title: "Emails"|t('commerce')},
-    'pdfs': { title: "PDFs"|t('commerce')},
-    'gateways': { title: "Gateways"|t('commerce')},
+    'Stores': { heading: "Stores & Sites"|t('commerce')},
+    'stores': { title: "Stores"|t('commerce')},
+    'sites': { title: "Sites"|t('app')},
+    'products-heading': { heading: "Products"|t('commerce')},
+    'producttypes': { title: "Product Types"|t('commerce')},
 
-    'orders-heading': { heading: 'Orders'|t('commerce')},
+    'orders-heading': { heading: "Orders"|t('commerce')},
     'ordersettings': { title: "Order Fields"|t('commerce')},
     'orderstatuses': { title: "Order Statuses"|t('commerce')},
     'lineitemstatuses': { title: "Line Item Statuses"|t('commerce')},
 
-    'products-heading': { heading: "Products"|t('commerce')},
-    'producttypes': { title: "Product Types"|t('commerce')},
+    'communication-heading': { heading: "PDFs & Emails"|t('commerce')},
+    'pdfs': { title: "PDFs"|t('commerce')},
+    'emails': { title: "Emails"|t('commerce')},
+    'payments-heading': { heading: "Payments"|t('commerce')},
+    'gateways': { title: "Gateways"|t('commerce')},
 
     'subscriptions-heading': { heading: "Subscriptions"|t('commerce')},
-    'subscriptions/fields': { title: "Subscription Fields"|t('commerce')},
+    'subscriptions': { title: "Subscription Fields"|t('commerce')},
+
+    'transfers-heading': { heading: "Transfers"|t('commerce')},
+    'transfers': { title: "Transfer Fields"|t('commerce')},
 } %}
 {% endif %}
 
@@ -35,7 +43,6 @@
 {% endif %}
 
 {% set docTitle = navItems[selectedItem].title~' - '~title %}
-
 
 {% macro configWarning(setting, file) -%}
     {%- apply spaceless %}

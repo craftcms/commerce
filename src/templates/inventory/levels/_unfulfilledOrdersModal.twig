@@ -1,0 +1,8 @@
+{% import '_includes/forms' as forms %}
+
+<div>
+    <h3>{{ title }}</h3>
+    {% for order in orders %}
+        {{ order.getLink(order.reference, { 'data-icon': 'external', target: '_blank' }) }}<br>
+    {% endfor %}
+</div>

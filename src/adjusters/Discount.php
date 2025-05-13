@@ -18,6 +18,8 @@ use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
 use craft\helpers\ArrayHelper;
+use Money\Teller;
+use yii\base\InvalidConfigException;
 
 /**
  * Discount Adjuster
@@ -91,6 +93,7 @@ class Discount extends Component implements AdjusterInterface
     public function adjust(Order $order): array
     {
         $this->_order = $order;
+        $teller = $this->_getTeller();
 
         $adjustments = [];
         $availableDiscounts = [];
@@ -102,11 +105,18 @@ class Discount extends Component implements AdjusterInterface
             }
         }
 
+        if (!$availableDiscounts) {
+            return [];
+        }
+
         foreach ($this->_order->getLineItems() as $lineItem) {
             $lineItemHashId = spl_object_hash($lineItem);
             $lineItemDiscountAmount = $lineItem->getDiscount();
             if ($lineItemDiscountAmount) {
-                $discountedUnitPrice = $lineItem->salePrice + Currency::round($lineItemDiscountAmount / $lineItem->qty);
+                $discountedUnitPrice = (float)$teller->add(
+                    $lineItem->salePrice,
+                    $teller->divide($lineItemDiscountAmount, $lineItem->qty)
+                );
                 $this->_discountUnitPricesByLineItem[$lineItemHashId] = $discountedUnitPrice;
             }
         }
@@ -126,7 +136,7 @@ class Discount extends Component implements AdjusterInterface
             $priceByLineItem = [];
             foreach ($this->_order->getLineItems() as $lineItem) {
                 $lineItemHashId = spl_object_hash($lineItem);
-                $priceByLineItem[$lineItemHashId] = $lineItem->getSubtotal() + $lineItem->getDiscount();
+                $priceByLineItem[$lineItemHashId] = (float)$teller->add($lineItem->getSubtotal(), $lineItem->getDiscount());
             }
 
             $orderLevelAdjustments = [];
@@ -146,7 +156,7 @@ class Discount extends Component implements AdjusterInterface
                 if ($adjustment->getLineItem()) {
                     $lineItemHashId = spl_object_hash($adjustment->getLineItem());
                     // Reduce the price of the line item by the amount of discount from the adjuster
-                    $priceByLineItem[$lineItemHashId] += $adjustment->amount;
+                    $priceByLineItem[$lineItemHashId] = (float)$teller->add($priceByLineItem[$lineItemHashId] ?? 0, $adjustment->amount);
                 } else {
                     // If it's an order level adjustment lets track it, but remove it from the standard adjustments.
                     $orderLevelAdjustments[] = $adjustment;
@@ -164,8 +174,7 @@ class Discount extends Component implements AdjusterInterface
 
             // Remove non-promotable line items
             $lineItemsByPrice = ArrayHelper::where($lineItemsByPrice, function(LineItem $lineItem) {
-                $purchasable = $lineItem->getPurchasable();
-                return $purchasable && $purchasable->getIsPromotable();
+                return $lineItem->getIsPromotable();
             }, true, true);
 
             // Loop over each order level adjustment and add an adjustment to each line item until it runs out.
@@ -187,15 +196,15 @@ class Discount extends Component implements AdjusterInterface
 
                         // Is the amount of discount greater than the price of the item
                         if ($currentDiscountAmountRemaining >= $priceByLineItem[$lineItemHashId]) {
-                            $amount = $priceByLineItem[$lineItemHashId] * -1; // Take the full price of the item off
+                            $amount = (float)$teller->multiply($priceByLineItem[$lineItemHashId], -1); // Take the full price of the item off
                             $priceByLineItem[$lineItemHashId] = 0; // Price is now free
-                            $currentDiscountAmountRemaining += $amount; // Reduce the price of the discount remaining so it can still be used
+                            $currentDiscountAmountRemaining = (float)$teller->add($currentDiscountAmountRemaining, $amount); // Reduce the price of the discount remaining so it can still be used
                         } else {
                             // Is the current amount of discount remaining less than the current price of the item? Take the whole discount remainder off the item.
                             if ($currentDiscountAmountRemaining < $priceByLineItem[$lineItemHashId]) {
-                                $amount = $currentDiscountAmountRemaining * -1; // The adjustment amount is always a negative number
+                                $amount = (float)$teller->multiply($currentDiscountAmountRemaining, -1); // The adjustment amount is always a negative number
                                 $currentDiscountAmountRemaining = 0; // Reduce the amount of discount to zero since there is none left
-                                $priceByLineItem[$lineItemHashId] += $amount; // Reduce the price of the item that we are tracking
+                                $priceByLineItem[$lineItemHashId] = (float)$teller->add($priceByLineItem[$lineItemHashId], $amount); // Reduce the price of the item that we are tracking
                             }
                         }
 
@@ -237,6 +246,7 @@ class Discount extends Component implements AdjusterInterface
     private function _getAdjustments(DiscountModel $discount): array|false
     {
         $adjustments = [];
+        $teller = $this->_getTeller();
 
         $matchingLineIds = [];
         foreach ($this->_order->getLineItems() as $item) {
@@ -256,24 +266,28 @@ class Discount extends Component implements AdjusterInterface
                 $amountPerItem = Currency::round($discount->perItemDiscount);
 
                 if ($discount->percentageOffSubject == DiscountRecord::TYPE_ORIGINAL_SALEPRICE) {
-                    $discountAmountPerItemPreDiscounts = ($discount->percentDiscount * $item->salePrice);
+                    $discountAmountPerItemPreDiscounts = (float)$teller->multiply($item->salePrice, $discount->percentDiscount);
                 }
 
                 $unitPrice = $this->_discountUnitPricesByLineItem[$lineItemHashId] ?? $item->salePrice;
 
-                $lineItemSubtotal = Currency::round($unitPrice * $item->qty);
+                $lineItemSubtotal = (float)$teller->multiply($item->qty, $unitPrice);
 
-                $unitPrice = max($unitPrice + $amountPerItem, 0);
+
+                $unitPrice = max((float)$teller->add($unitPrice, $amountPerItem), 0);
 
                 if ($unitPrice > 0) {
                     if ($discount->percentageOffSubject == DiscountRecord::TYPE_ORIGINAL_SALEPRICE) {
-                        $discountedUnitPrice = $unitPrice + $discountAmountPerItemPreDiscounts;
+                        $discountedUnitPrice = (float)$teller->add($unitPrice, $discountAmountPerItemPreDiscounts);
                     } else {
-                        $discountedUnitPrice = $unitPrice + ($discount->percentDiscount * $unitPrice);
+                        $discountedUnitPrice = (float)$teller->add(
+                            $unitPrice,
+                            $teller->multiply($unitPrice, $discount->percentDiscount)
+                        );
                     }
 
-                    $discountedSubtotal = Currency::round($discountedUnitPrice * $item->qty);
-                    $amountOfPercentDiscount = $discountedSubtotal - $lineItemSubtotal;
+                    $discountedSubtotal = (float)$teller->multiply($discountedUnitPrice, $item->qty);
+                    $amountOfPercentDiscount = (float)$teller->subtract($discountedSubtotal, $lineItemSubtotal);
                     $this->_discountUnitPricesByLineItem[$lineItemHashId] = $discountedUnitPrice;
                     $adjustment->amount = $amountOfPercentDiscount; //Adding already rounded
                 } else {
@@ -282,7 +296,7 @@ class Discount extends Component implements AdjusterInterface
                 }
 
                 if ($adjustment->amount != 0) {
-                    $this->_discountTotal += $adjustment->amount;
+                    $this->_discountTotal = (float)$teller->add($this->_discountTotal, $adjustment->amount);
                     $adjustments[] = $adjustment;
                 }
             }
@@ -290,7 +304,7 @@ class Discount extends Component implements AdjusterInterface
 
         if ($discount->baseDiscount !== null && $discount->baseDiscount != 0) {
             $baseDiscountAdjustment = $this->_createOrderAdjustment($discount);
-            $baseDiscountAdjustment->amount = $this->_getBaseDiscountAmount($discount);
+            $baseDiscountAdjustment->amount = $discount->baseDiscount;
             $adjustments[] = $baseDiscountAdjustment;
         }
 
@@ -316,25 +330,11 @@ class Discount extends Component implements AdjusterInterface
     }
 
     /**
-     * @param DiscountModel $discount
-     * @return float
+     * @return Teller
+     * @throws InvalidConfigException
      */
-    private function _getBaseDiscountAmount(DiscountModel $discount): float
+    private function _getTeller(): Teller
     {
-        if ($discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_VALUE) {
-            return $discount->baseDiscount;
-        }
-
-        $total = $this->_order->getItemSubtotal();
-
-        if ($discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED || $discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED) {
-            $total += $this->_discountTotal;
-        }
-
-        if ($discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED || $discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL) {
-            $total += $this->_order->getTotalShippingCost();
-        }
-
-        return ($total / 100) * $discount->baseDiscount;
+        return Plugin::getInstance()->getCurrencies()->getTeller($this->_order->currency);
     }
 }

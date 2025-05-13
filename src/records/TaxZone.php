@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\base\StoreRecordTrait;
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 
@@ -18,11 +19,14 @@ use craft\db\ActiveRecord;
  * @property string $name
  * @property string $description
  * @property array $condition
+ * @property int $storeId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 class TaxZone extends ActiveRecord
 {
+    use StoreRecordTrait;
+
     /**
      * @inheritdoc
      */

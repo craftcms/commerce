@@ -19,5 +19,6 @@ return [
         'plainTextTemplatePath' => '',
         'pdfId' => null,
         'language' => 'orderLanguage',
+        'storeId' => 1, // Primary
     ],
 ];

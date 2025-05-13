@@ -14,16 +14,22 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
+use craft\commerce\enums\LineItemType;
+use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
+use craft\errors\DeprecationException;
+use craft\errors\SiteNotFoundException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use DateTime;
 use LitEmoji\LitEmoji;
+use Money\Teller;
+use yii\base\Exception;
 use yii\base\InvalidConfigException;
 
 /**
@@ -31,8 +37,9 @@ use yii\base\InvalidConfigException;
  *
  * @property array|OrderAdjustment[] $adjustments
  * @property float $discount
- * @property bool $onSale
+ * @property bool $onPromotion
  * @property array $options
+ * @property array $snapshot
  * @property Order $order
  * @property Purchasable $purchasable
  * @property ShippingCategory $shippingCategory
@@ -43,7 +50,6 @@ use yii\base\InvalidConfigException;
  * @property int $taxIncluded
  * @property-read string $optionsSignature the unique hash of the options
  * @property-read float $subtotal the Purchasable’s sale price multiplied by the quantity of the line item
- * @property-read float $saleAmount
  * @property float $salePrice
  * @property float $price
  * @property-read string $priceAsCurrency
@@ -55,7 +61,16 @@ use yii\base\InvalidConfigException;
  * @property-read string $shippingCostAsCurrency
  * @property-read string $taxAsCurrency
  * @property-read string $taxIncludedAsCurrency
+ * @property bool $isShippable
+ * @property string $sku
+ * @property LineItemStatus|null $lineItemStatus
+ * @property string $description
+ * @property bool $isTaxable
+ * @property float|int $promotionalPrice
+ * @property-read float $promotionalAmount
  * @property-read string $adjustmentsTotalAsCurrency
+ * @property bool $hasFreeShipping
+ * @property bool $isPromotable
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -67,9 +82,15 @@ class LineItem extends Model
     public ?int $id = null;
 
     /**
-     * @var string Description
+     * @var LineItemType
+     * @since 5.1.0
      */
-    private string $_description;
+    public LineItemType $type = LineItemType::Purchasable;
+
+    /**
+     * @var string|null Description
+     */
+    private ?string $_description = null;
 
     /**
      * @var float Price is the original price of the purchasable
@@ -77,9 +98,15 @@ class LineItem extends Model
     private float $_price = 0;
 
     /**
-     * @var float Sale price is the price of the line item. Sale price is price + saleAmount
+     * @var float|null
+     * @since 5.0.0
      */
-    private float $_salePrice = 0;
+    private ?float $_promotionalPrice = null;
+
+    /**
+     * @var float|null Sale price is the price the line item will be sold for.
+     */
+    private ?float $_salePrice = null;
 
     /**
      * @var float Weight
@@ -107,15 +134,14 @@ class LineItem extends Model
     public int $qty;
 
     /**
-     * @var mixed Snapshot
-     * @TODO add get and set methods in 5.0.0. Strict typing will be enforced.
+     * @var array|null Snapshot
      */
-    public mixed $snapshot = null;
+    private ?array $_snapshot = null;
 
     /**
      * @var string SKU
      */
-    private string $_sku;
+    private ?string $_sku = null;
 
     /**
      * @var string Note
@@ -143,14 +169,14 @@ class LineItem extends Model
     public ?int $lineItemStatusId = null;
 
     /**
-     * @var int Tax category ID
+     * @var int|null Tax category ID
      */
-    public int $taxCategoryId;
+    public ?int $taxCategoryId = null;
 
     /**
-     * @var int Shipping category ID
+     * @var int|null Shipping category ID
      */
-    public int $shippingCategoryId;
+    public ?int $shippingCategoryId = null;
 
     /**
      * @var DateTime|null
@@ -165,9 +191,9 @@ class LineItem extends Model
     public ?DateTime $dateUpdated = null;
 
     /**
-     * @var string UID
+     * @var string|null UID
      */
-    public string $uid;
+    public ?string $uid = null;
 
     /**
      * @var PurchasableInterface|null Purchasable
@@ -190,6 +216,38 @@ class LineItem extends Model
     private array $_options = [];
 
     /**
+     * @var bool|null
+     * @see setIsPromotable()
+     * @see getIsPromotable()
+     * @since 5.1.0
+     */
+    private ?bool $_isPromotable = null;
+
+    /**
+     * @var bool|null
+     * @see setHasFreeShipping()
+     * @see getHasFreeShipping()
+     * @since 5.1.0
+     */
+    private ?bool $_hasFreeShipping = null;
+
+    /**
+     * @var bool|null
+     * @see setIsTaxable()
+     * @see getIsTaxable()
+     * @since 5.1.0
+     */
+    private ?bool $_isTaxable = null;
+
+    /**
+     * @var bool|null
+     * @see setIsShippable()
+     * @see getIsShippable()
+     * @since 5.1.0
+     */
+    private ?bool $_isShippable = null;
+
+    /**
      * @inheritDoc
      */
     public function init(): void
@@ -209,7 +267,7 @@ class LineItem extends Model
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
-            'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'defaultCurrency' => $this->getOrder()?->currency ?? null,
             'currencyAttributes' => $this->currencyAttributes(),
         ];
 
@@ -228,6 +286,10 @@ class LineItem extends Model
         return $this->_order;
     }
 
+    /**
+     * @param Order $order
+     * @return void
+     */
     public function setOrder(Order $order): void
     {
         $this->orderId = $order->id;
@@ -241,7 +303,7 @@ class LineItem extends Model
     {
         if (!isset($this->_lineItemStatus) && isset($this->lineItemStatusId)) {
             $lineItemStatus = Plugin::getInstance()->getLineItemStatuses();
-            $this->_lineItemStatus = $lineItemStatus->getLineItemStatusById($this->lineItemStatusId);
+            $this->_lineItemStatus = $lineItemStatus->getLineItemStatusById($this->lineItemStatusId, $this->getOrder()?->getStore()->id);
         }
 
         return $this->_lineItemStatus;
@@ -304,12 +366,41 @@ class LineItem extends Model
     }
 
     /**
+     * Returns the snapshot for the line item.
+     *
+     * @return array
+     * @since 5.0.0
+     */
+    public function getSnapshot(): array
+    {
+        return $this->_snapshot ?? [];
+    }
+
+    /**
+     * Set the snapshot array on the line item.
+     *
+     * @param array|string $snapshot
+     * @return void
+     * @since 5.0.0
+     */
+    public function setSnapshot(array|string $snapshot): void
+    {
+        $snapshot = Json::decodeIfJson($snapshot);
+
+        if (!is_array($snapshot)) {
+            $snapshot = [];
+        }
+
+        $this->_snapshot = $snapshot;
+    }
+
+    /**
      * @return string
      */
     public function getDescription(): string
     {
         if (!$this->_description) {
-            $snapshot = Json::decodeIfJson($this->snapshot, true);
+            $snapshot = $this->getSnapshot();
             $this->_description = $snapshot['description'] ?? '';
         }
 
@@ -330,12 +421,12 @@ class LineItem extends Model
      */
     public function getSku(): string
     {
-        if (!$this->_sku) {
-            $snapshot = Json::decodeIfJson($this->snapshot, true);
+        if ($this->_sku === null) {
+            $snapshot = $this->getSnapshot();
             $this->_sku = $snapshot['sku'] ?? '';
         }
 
-        return $this->_sku;
+        return $this->_sku ?? '';
     }
 
     /**
@@ -352,7 +443,9 @@ class LineItem extends Model
      */
     public function getOptionsSignature(): string
     {
-        return LineItemHelper::generateOptionsSignature($this->_options);
+        $orderId = $this->getOrder()?->isCompleted ? $this->id : null;
+
+        return LineItemHelper::generateOptionsSignature($this->_options, $orderId);
     }
 
     /**
@@ -369,6 +462,33 @@ class LineItem extends Model
     public function setPrice(float|int $price): void
     {
         $this->_price = $price;
+        // clear sale price cache
+        $this->_salePrice = null;
+    }
+
+    /**
+     * @return float|null
+     * @since 5.0.0
+     */
+    public function getPromotionalPrice(): ?float
+    {
+        if ($this->_promotionalPrice === null) {
+            return null;
+        }
+
+        return CurrencyHelper::round($this->_promotionalPrice);
+    }
+
+    /**
+     * @param float|int|null $price
+     * @return void
+     * @since 5.0.0
+     */
+    public function setPromotionalPrice(float|int|null $price): void
+    {
+        $this->_promotionalPrice = $price;
+        // clear sale price cache
+        $this->_salePrice = null;
     }
 
     /**
@@ -376,23 +496,35 @@ class LineItem extends Model
      */
     public function getSalePrice(): float
     {
-        return CurrencyHelper::round($this->_salePrice);
+        if ($this->_salePrice === null) {
+            $this->_salePrice = $this->getOnPromotion() ? $this->getPromotionalPrice() : $this->getPrice();
+        }
+
+        return $this->_salePrice;
     }
 
     /**
-     * @since 3.1.1
-     */
-    public function setSalePrice(float|int $salePrice): void
-    {
-        $this->_salePrice = $salePrice;
-    }
-
-    /**
-     * @since 3.1.1
+     * @return float
+     * @throws DeprecationException
+     * @deprecated in 5.0.0. Use `getPromotionalAmount()` instead.)
      */
     public function getSaleAmount(): float
     {
-        return Currency::round($this->price - $this->salePrice);
+        Craft::$app->getDeprecator()->log(__METHOD__, 'LineItem `getSaleAmount()` method has been deprecated. Use `getPromotionalAmount()` instead.');
+        return $this->getPromotionalAmount();
+    }
+
+    /**
+     * @return float
+     * @since 5.0.0
+     */
+    public function getPromotionalAmount(): float
+    {
+        if ($this->getPromotionalPrice() === null) {
+            return 0;
+        }
+
+        return Currency::round($this->getPrice() - $this->getPromotionalPrice());
     }
 
     /**
@@ -405,26 +537,29 @@ class LineItem extends Model
                 [
                     'optionsSignature',
                     'price',
-                    'salePrice',
-                    'saleAmount',
+                    'promotionalAmount',
                     'weight',
                     'length',
                     'height',
                     'width',
                     'qty',
-                    'snapshot',
                     'taxCategoryId',
+                    'type',
                     'shippingCategoryId',
                 ], 'required',
             ],
+            [['snapshot'], 'required', 'when' => fn() => $this->type === LineItemType::Purchasable],
             [['qty'], 'integer', 'min' => 1],
             [['shippingCategoryId', 'taxCategoryId'], 'integer'],
-            [['price', 'salePrice'], 'number'],
+            [['price'], 'number', 'min' => 0],
+            [['promotionalPrice'], 'number', 'min' => 0, 'skipOnEmpty' => true],
+            [['orderId', 'purchasableId', 'hasFreeShipping', 'isPromotable', 'isShippable', 'isTaxable', 'type'], 'safe'],
         ];
 
-        if ($this->purchasableId) {
+        if ($this->type === LineItemType::Purchasable && $this->purchasableId) {
+            $order = $this->getOrder();
             /** @var PurchasableInterface|null $purchasable */
-            $purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
+            $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($this->purchasableId, $order?->orderSiteId, $order?->getCustomer()?->id);
             if ($purchasable && !empty($purchasableRules = $purchasable->getLineItemRules($this))) {
                 foreach ($purchasableRules as $rule) {
                     $rules[] = $this->_normalizePurchasableRule($rule, $purchasable);
@@ -432,7 +567,26 @@ class LineItem extends Model
             }
         }
 
+        // TODO: If order is complete, qty can not be less that total fulfilled across locations
+
         return $rules;
+    }
+
+    /**
+     * @return int
+     * @throws DeprecationException
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    public function getFulfilledTotalQuantity(): int
+    {
+        if ($order = $this->getOrder()) {
+            return Plugin::getInstance()->getInventory()->getInventoryFulfillmentLevels($order)
+                ->filter(fn($fulfillment) => $fulfillment->getLineItem()->id === $this->id)
+                ->sum('fulfilledQuantity');
+        }
+
+        return 0;
     }
 
     /**
@@ -463,16 +617,22 @@ class LineItem extends Model
         $names = parent::attributes();
         ArrayHelper::removeValue($names, 'snapshot');
 
+        $names[] = 'type';
         $names[] = 'adjustments';
         $names[] = 'description';
+        $names[] = 'hasFreeShipping';
+        $names[] = 'isPromotable';
+        $names[] = 'isShippable';
+        $names[] = 'isTaxable';
         $names[] = 'options';
         $names[] = 'optionsSignature';
-        $names[] = 'onSale';
+        $names[] = 'onPromotion';
         $names[] = 'price';
-        $names[] = 'saleAmount';
+        $names[] = 'promotionalPrice';
         $names[] = 'salePrice';
         $names[] = 'sku';
         $names[] = 'total';
+        $names[] = 'fulfilledTotalQuantity';
 
         return $names;
     }
@@ -510,7 +670,8 @@ class LineItem extends Model
     {
         $attributes = [];
         $attributes[] = 'price';
-        $attributes[] = 'saleAmount';
+        $attributes[] = 'promotionalPrice';
+        $attributes[] = 'promotionalAmount';
         $attributes[] = 'salePrice';
         $attributes[] = 'subtotal';
         $attributes[] = 'total';
@@ -543,25 +704,71 @@ class LineItem extends Model
      */
     public function getTotal(): float
     {
-        return $this->getSubtotal() + $this->getAdjustmentsTotal();
+        return (float)$this->order->getTeller()->add($this->getSubtotal(), $this->getAdjustmentsTotal());
     }
 
+    /**
+     * @param string $taxable
+     * @return float
+     * @throws InvalidConfigException
+     */
     public function getTaxableSubtotal(string $taxable): float
     {
         return match ($taxable) {
-            TaxRateRecord::TAXABLE_PRICE => $this->getSubtotal() + $this->getDiscount(),
             TaxRateRecord::TAXABLE_SHIPPING => $this->getShippingCost(),
-            TaxRateRecord::TAXABLE_PRICE_SHIPPING => $this->getSubtotal() + $this->getDiscount() + $this->getShippingCost(),
-            default => $this->getSubtotal() + $this->getDiscount(),
+            TaxRateRecord::TAXABLE_PRICE_SHIPPING => (float)$this->order->getTeller()->sum($this->getSubtotal(), $this->getDiscount() , $this->getShippingCost()),
+            default => (float)$this->order->getTeller()->add($this->getSubtotal() , $this->getDiscount()), // TaxRateRecord::TAXABLE_PRICE is default
         };
     }
 
     /**
-     * @return bool False when no related purchasable exists
+     * @return bool
      * @throws InvalidConfigException
+     * @throws SiteNotFoundException
+     * @throws Exception
+     * @since 5.1.0
+     */
+    public function refresh(): bool
+    {
+        if ($this->type === LineItemType::Custom) {
+            return true;
+        }
+
+        return $this->_refreshFromPurchasable();
+    }
+
+    /**
+     * @return bool False when no related purchasable exists
+     * @throws DeprecationException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
+     * @deprecated in 5.1.0. Use `refresh()` instead.
      */
     public function refreshFromPurchasable(): bool
     {
+        Craft::$app->getDeprecator()->log(__METHOD__, '`LineItem::refreshFromPurchasable()` has been deprecated. Use `LineItem::refresh()` instead.');
+
+        if ($this->type === LineItemType::Custom) {
+            Craft::warning('Cannot refresh a custom line item from a purchasable', 'commerce');
+            return true;
+        }
+
+        return $this->_refreshFromPurchasable();
+    }
+
+    /**
+     * @return bool False when no related purchasable exists
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
+     */
+    private function _refreshFromPurchasable(): bool
+    {
+        if ($this->type === LineItemType::Custom) {
+            throw new Exception('Cannot refresh a custom line item from a purchasable');
+        }
+
         if ($this->qty <= 0 && $this->id) {
             return false;
         }
@@ -572,54 +779,154 @@ class LineItem extends Model
             return false;
         }
 
-        $this->populateFromPurchasable($purchasable);
+        $this->_populateFromPurchasable($purchasable);
 
         return true;
     }
 
+    /**
+     * @param bool|null $hasFreeShipping
+     * @return void
+     * @since 5.1.0
+     */
+    public function setHasFreeShipping(?bool $hasFreeShipping): void
+    {
+        $this->_hasFreeShipping = $hasFreeShipping;
+    }
+
+    /**
+     * @return bool
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
+     * @since 5.1.0
+     */
+    public function getHasFreeShipping(): bool
+    {
+        // For purchasable line item types try and get the live data
+        if ($this->type === LineItemType::Purchasable && $this->getPurchasable()) {
+            return $this->getPurchasable()->hasFreeShipping();
+        }
+
+        return $this->_hasFreeShipping ?? false;
+    }
+
+    /**
+     * @return PurchasableInterface|null
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
+     */
     public function getPurchasable(): ?PurchasableInterface
     {
+        if ($this->type === LineItemType::Custom) {
+            throw new InvalidConfigException('Cannot get a purchasable for a custom line item');
+        }
+
         if (!isset($this->_purchasable) && isset($this->purchasableId)) {
+            $order = $this->getOrder();
             /** @var PurchasableInterface|null $purchasable */
-            $purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
+            $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($this->purchasableId, $order?->orderSiteId, $order?->getCustomer()?->id);
+
+            // If we are still using sales we need to make sure that the promotional price is set.
+            if (!Plugin::getInstance()->getCatalogPricingRules()->canUseCatalogPricingRules()) {
+                if ($purchasable instanceof Purchasable) {
+                    $purchasable->loadSales($this->getOrder());
+                }
+            }
+
             $this->_purchasable = $purchasable;
         }
 
         return $this->_purchasable;
     }
 
+    /**
+     * @param PurchasableInterface $purchasable
+     * @return void
+     * @throws InvalidConfigException
+     */
     public function setPurchasable(PurchasableInterface $purchasable): void
     {
         $this->purchasableId = $purchasable->getId();
         $this->_purchasable = $purchasable;
+        $this->type = LineItemType::Purchasable;
     }
 
     /**
+     * @param mixed|null $data
+     * @return void
      * @throws InvalidConfigException
+     * @since 5.1.0
+     */
+    public function populate(mixed $data = null): void
+    {
+        if ($this->type === LineItemType::Custom) {
+            return;
+        }
+
+        if ($data) {
+            $this->_populateFromPurchasable($data);
+        }
+    }
+
+    /**
+     * @param PurchasableInterface $purchasable
+     * @return void
+     * @throws InvalidConfigException
+     * @deprecated in 5.0.0. Use `populate()` instead.
      */
     public function populateFromPurchasable(PurchasableInterface $purchasable): void
     {
-        $this->price = $purchasable->getPrice();
-        $this->salePrice = Plugin::getInstance()->getSales()->getSalePriceForPurchasable($purchasable, $this->order);
-        $this->taxCategoryId = $purchasable->getTaxCategoryId();
-        $this->shippingCategoryId = $purchasable->getShippingCategoryId();
+        Craft::$app->getDeprecator()->log(__METHOD__, '`LineItem::populateFromPurchasable()` has been deprecated. Use `LineItem::populate()` instead.');
+
+        if ($this->type === LineItemType::Custom) {
+            // @TODO: Throw exception at next breaking change release
+            Craft::warning('Cannot populate a custom line item from a purchasable', 'commerce');
+            return;
+        }
+
+        $this->_populateFromPurchasable($purchasable);
+    }
+
+    /**
+     * @param PurchasableInterface $purchasable
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
+    private function _populateFromPurchasable(PurchasableInterface $purchasable): void
+    {
+        if ($this->type === LineItemType::Custom) {
+            throw new Exception('Cannot populate a custom line item from a purchasable');
+        }
+
+        // Set all things from the purchasable interface that are applicable to the line item.
+        $this->purchasableId = $purchasable->getId();
+        $this->setPrice($purchasable->getPrice());
+        $this->setPromotionalPrice($purchasable->getPromotionalPrice());
+        $this->taxCategoryId = $purchasable->getTaxCategory()->id;
+        $this->shippingCategoryId = $purchasable->getShippingCategory()->id;
         $this->setSku($purchasable->getSku());
         $this->setDescription($purchasable->getDescription());
 
-        // Check to see if there is a discount applied that ignores Sales for this line item
-        $ignoreSales = false;
+        // Check to see if there is a discount applied that ignores promotions for this line item
+        $ignorePromotions = false;
         foreach (Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($this->getOrder()) as $discount) {
             if (Plugin::getInstance()->getDiscounts()->matchLineItem($this, $discount, true)) {
-                $ignoreSales = $discount->ignoreSales;
-                if ($ignoreSales) {
+                // Break if matched discount is set to ignore promotions.
+                $ignorePromotions = $discount->ignorePromotions;
+                if ($ignorePromotions) {
+                    break;
+                }
+
+                // Break if matched discount is set to not apply any subsequent discounts.
+                if ($discount->stopProcessing) {
                     break;
                 }
             }
         }
 
-        // One of the matching discounts has ignored sales, so we don't want the salePrice to be the original price.
-        if ($ignoreSales) {
-            $this->salePrice = $this->price;
+        // One of the matching discounts has ignored promotions, so we want to remove any promotional price.
+        if ($ignorePromotions) {
+            $this->setPromotionalPrice(null);
         }
 
         $snapshot = [
@@ -629,12 +936,13 @@ class LineItem extends Model
             'purchasableId' => $purchasable->getId(),
             'cpEditUrl' => '#',
             'options' => $this->getOptions(),
-            'sales' => $ignoreSales ? [] : Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order),
+            // Only add sales information to the snapshot if we are not ignoring promotions and they are still using the sales system.
+            'sales' => $ignorePromotions || Plugin::getInstance()->getCatalogPricingRules()->canUseCatalogPricingRules() ? [] : Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order),
         ];
 
         // Add our purchasable data to the snapshot, save our sales.
         $purchasableSnapshot = $purchasable->getSnapshot();
-        $this->snapshot = array_merge($purchasableSnapshot, $snapshot);
+        $this->setSnapshot(array_merge($purchasableSnapshot, $snapshot));
 
         $purchasable->populateLineItem($this);
 
@@ -648,9 +956,50 @@ class LineItem extends Model
         }
     }
 
+    /**
+     * @param bool|null $isPromotable
+     * @return void
+     * @since 5.1.0
+     */
+    public function setIsPromotable(?bool $isPromotable): void
+    {
+        $this->_isPromotable = $isPromotable;
+    }
+
+    /**
+     * @return bool
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
+     * @since 5.1.0
+     */
+    public function getIsPromotable(): bool
+    {
+        // For purchasable line item types try and get the live data
+        if ($this->type === LineItemType::Purchasable && $this->getPurchasable()) {
+            return $this->getPurchasable()->getIsPromotable();
+        }
+
+        return $this->_isPromotable ?? false;
+    }
+
+    /**
+     * @return bool
+     * @since 5.0.0
+     */
+    public function getOnPromotion(): bool
+    {
+        return $this->getPromotionalAmount() > 0;
+    }
+
+    /**
+     * @return bool
+     * @throws DeprecationException
+     * @deprecated in 5.0.0. Use `getOnPromotion()` instead.
+     */
     public function getOnSale(): bool
     {
-        return $this->getSaleAmount() > 0;
+        Craft::$app->getDeprecator()->log(__METHOD__, 'LineItem `' . __METHOD__ . '()` method has been deprecated. Use `getOnPromotion()` instead.');
+        return $this->getOnPromotion();
     }
 
     /**
@@ -664,7 +1013,9 @@ class LineItem extends Model
     }
 
     /**
+     * @return ShippingCategory
      * @throws InvalidConfigException
+     * @throws StoreNotFoundException
      */
     public function getShippingCategory(): ShippingCategory
     {
@@ -673,7 +1024,7 @@ class LineItem extends Model
         }
 
         // Category may have been archived
-        $categories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories(true);
+        $categories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories(withTrashed: true);
         return ArrayHelper::firstWhere($categories, 'id', $this->shippingCategoryId);
     }
 
@@ -703,9 +1054,10 @@ class LineItem extends Model
     public function getAdjustmentsTotal(bool $included = false): float
     {
         $amount = 0;
+        $teller = $this->_getTeller();
         foreach ($this->getAdjustments() as $adjustment) {
             if ($adjustment->included == $included) {
-                $amount += $adjustment->amount;
+                $amount = (float)$teller->add($amount, $adjustment->amount);
             }
         }
 
@@ -718,10 +1070,10 @@ class LineItem extends Model
     private function _getAdjustmentsTotalByType(string $type, bool $included = false): float|int
     {
         $amount = 0;
-
+        $teller = $this->_getTeller();
         foreach ($this->getAdjustments() as $adjustment) {
             if ($adjustment->included == $included && $adjustment->type === $type) {
-                $amount += $adjustment->amount;
+                $amount = (float)$teller->add($amount, $adjustment->amount);
             }
         }
 
@@ -729,15 +1081,39 @@ class LineItem extends Model
     }
 
     /**
+     * @param bool|null $isTaxable
+     * @return void
+     * @since 5.1.0
+     */
+    public function setIsTaxable(?bool $isTaxable): void
+    {
+        $this->_isTaxable = $isTaxable;
+    }
+
+    /**
      * @since 3.3.4
      */
     public function getIsTaxable(): bool
     {
+        if ($this->type === LineItemType::Custom) {
+            return $this->_isTaxable ?? false;
+        }
+
         if (!$this->getPurchasable()) {
-            return true; // we have a default tax category so assume so.
+            return $this->_isTaxable ?? true; // we have a default tax category so assume so.
         }
 
         return $this->getPurchasable()->getIsTaxable();
+    }
+
+    /**
+     * @param bool|null $isShippable
+     * @return void
+     * @since 5.1.0
+     */
+    public function setIsShippable(?bool $isShippable): void
+    {
+        $this->_isShippable = $isShippable;
     }
 
     /**
@@ -745,11 +1121,15 @@ class LineItem extends Model
      */
     public function getIsShippable(): bool
     {
-        if (!$this->getPurchasable()) {
-            return true; // we have a default shipping category so assume so.
+        if ($this->type === LineItemType::Custom) {
+            return $this->_isShippable ?? false;
         }
 
-        return $this->getPurchasable()->getIsShippable();
+        if (!$this->getPurchasable()) {
+            return $this->_isShippable ?? true; // we have a default shipping category so assume so.
+        }
+
+        return Plugin::getInstance()->getPurchasables()->isPurchasableShippable($this->getPurchasable(), $this->getOrder());
     }
 
     /**
@@ -782,5 +1162,18 @@ class LineItem extends Model
     public function getDiscount(): float
     {
         return $this->_getAdjustmentsTotalByType('discount');
+    }
+
+    /**
+     * @return Teller
+     * @throws InvalidConfigException
+     */
+    private function _getTeller(): Teller
+    {
+        if (!$order = $this->getOrder()) {
+            throw new InvalidConfigException('Line Item requires an order to calculate costs.');
+        }
+
+        return $order->getTeller();
     }
 }

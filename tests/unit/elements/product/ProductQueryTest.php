@@ -12,8 +12,6 @@ use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
-use craft\commerce\models\ShippingCategory;
-use craft\commerce\models\TaxCategory;
 use craftcommercetests\fixtures\ProductFixture;
 use UnitTester;
 
@@ -113,164 +111,38 @@ class ProductQueryTest extends Unit
     }
 
     /**
-     * @param mixed $shippingCategoryId
-     * @param int $count
      * @return void
-     * @dataProvider shippingCategoryIdDataProvider
+     * @dataProvider withVariantsDataProvider
      */
-    public function testShippingCategoryId(mixed $shippingCategoryId, int $count): void
+    public function testWithVariants(ProductQuery $query, int $count, ?array $variantQuery, ?string $title): void
     {
-        $query = Product::find();
+        $with = ['variants'];
 
-        self::assertTrue(method_exists($query, 'shippingCategoryId'));
-        $query->shippingCategoryId($shippingCategoryId);
+        if (!empty($variantQuery)) {
+            $query->hasVariant($variantQuery);
+            $with = [
+                ['variants', $variantQuery],
+            ];
+        }
 
-        self::assertCount($count, $query->all());
+        $query->with($with);
+
+        $results = $query->all();
+
+        self::assertCount($count, $results);
+        if ($count) {
+            /** @var Product $product */
+            $product = $results[0];
+            self::assertInstanceOf(Variant::class, $product->getVariants()[0]);
+            self::assertEquals($title, $product->title);
+        }
     }
 
-    /**
-     * @param mixed $shippingCategoryId
-     * @param int $count
-     * @return void
-     * @dataProvider shippingCategoryIdDataProvider
-     */
-    public function testShippingCategoryIdProperty(mixed $shippingCategoryId, int $count): void
-    {
-        $query = Product::find();
-
-        self::assertTrue(method_exists($query, 'shippingCategoryId'));
-        $query->shippingCategoryId = $shippingCategoryId;
-
-        self::assertCount($count, $query->all());
-    }
-
-    /**
-     * @return array
-     */
-    public function shippingCategoryIdDataProvider(): array
+    public function withVariantsDataProvider(): array
     {
         return [
-            'no-params' => [null, 2],
-            'specific-id' => [101, 1],
-            'in' => [[101, 102], 1],
-            'not-in' => [['not', 102, 103], 2],
-            'greater-than' => ['> 100', 1],
-            'less-than' => ['< 100', 1],
-        ];
-    }
-
-    /**
-     * @param mixed $shippingCategory
-     * @param int $count
-     * @return void
-     * @dataProvider shippingCategoryDataProvider
-     */
-    public function testShippingCategory(mixed $shippingCategory, int $count): void
-    {
-        $query = Product::find();
-
-        self::assertTrue(method_exists($query, 'shippingCategoryId'));
-        $query->shippingCategory($shippingCategory);
-
-        self::assertCount($count, $query->all());
-    }
-
-    /**
-     * @return array
-     */
-    public function shippingCategoryDataProvider(): array
-    {
-        $matchingShippingCategory = new ShippingCategory(['id' => 101]);
-        $nonMatchingShippingCategory = new ShippingCategory(['id' => 999]);
-
-        return [
-            'no-params' => [null, 2],
-            'specific-handle' => ['anotherShippingCategory', 1],
-            'in' => [['anotherShippingCategory', 'general'], 2],
-            'not-in' => [['not', 'foo', 'bar'], 2],
-            'matching-shipping-category' => [$matchingShippingCategory, 1],
-            'non-matching-shipping-category' => [$nonMatchingShippingCategory, 0],
-        ];
-    }
-
-    /**
-     * @param mixed $taxCategoryId
-     * @param int $count
-     * @return void
-     * @dataProvider taxCategoryIdDataProvider
-     */
-    public function testTaxCategoryId(mixed $taxCategoryId, int $count): void
-    {
-        $query = Product::find();
-
-        self::assertTrue(method_exists($query, 'taxCategoryId'));
-        $query->taxCategoryId($taxCategoryId);
-
-        self::assertCount($count, $query->all());
-    }
-
-    /**
-     * @param mixed $taxCategoryId
-     * @param int $count
-     * @return void
-     * @dataProvider taxCategoryIdDataProvider
-     */
-    public function testTaxCategoryIdProperty(mixed $taxCategoryId, int $count): void
-    {
-        $query = Product::find();
-
-        self::assertTrue(method_exists($query, 'taxCategoryId'));
-        $query->taxCategoryId = $taxCategoryId;
-
-        self::assertCount($count, $query->all());
-    }
-
-    /**
-     * @return array
-     */
-    public function taxCategoryIdDataProvider(): array
-    {
-        return [
-            'no-params' => [null, 2],
-            'specific-id' => [101, 1],
-            'in' => [[101, 102], 1],
-            'not-in' => [['not', 102, 103], 2],
-            'greater-than' => ['> 100', 1],
-            'less-than' => ['< 100', 1],
-        ];
-    }
-
-    /**
-     * @param mixed $taxCategory
-     * @param int $count
-     * @return void
-     * @dataProvider taxCategoryDataProvider
-     */
-    public function testTaxCategory(mixed $taxCategory, int $count): void
-    {
-        $query = Product::find();
-
-        self::assertTrue(method_exists($query, 'taxCategoryId'));
-        $query->taxCategory($taxCategory);
-
-        self::assertCount($count, $query->all());
-    }
-
-    /**
-     * @return array
-     */
-    public function taxCategoryDataProvider(): array
-    {
-        $matchingTaxCategory = new TaxCategory(['id' => 101]);
-        $nonMatchingTaxCategory = new TaxCategory(['id' => 999]);
-
-        return [
-            'no-params' => [null, 2],
-            'specific-handle' => ['anotherTaxCategory', 1],
-            'in' => [['anotherTaxCategory', 'general'], 2],
-            'not-in' => [['not', 'foo', 'bar'], 2],
-            'matching-tax-category' => [$matchingTaxCategory, 1],
-            'non-matching-tax-category' => [$nonMatchingTaxCategory, 0],
+            'no-params' => [Product::find(), 2, null, 'Hypercolor T-Shirt'],
+            'specific-variant' => [Product::find(), 1, ['sku' => 'rad-hood'], 'Rad Hoodie'],
         ];
     }
 }

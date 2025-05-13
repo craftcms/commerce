@@ -4,6 +4,7 @@ return [
     [
         // This order status starts in the DB
         'id' => '1',
+        'storeId' => 1, // Primary
         'name' => 'New',
         'handle' => 'new',
         'color' => 'green',
@@ -13,6 +14,7 @@ return [
         'uid' => \craft\commerce\records\OrderStatus::find()->where(['id' => '1'])->one()->uid,
     ],
     [
+        'storeId' => 1, // Primary
         'name' => 'Processing',
         'handle' => 'processing',
         'color' => 'yellow',
@@ -20,6 +22,7 @@ return [
         'default' => 0,
     ],
     [
+        'storeId' => 1, // Primary
         'name' => 'Shipped',
         'handle' => 'shipped',
         'color' => 'purple',
@@ -27,6 +30,7 @@ return [
         'default' => 0,
     ],
     [
+        'storeId' => 1, // Primary
         'name' => 'Delivered',
         'handle' => 'delivered',
         'color' => 'black',

@@ -8,9 +8,10 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Zone;
-use craft\commerce\records\ShippingZone as ShippingZoneRecord;
+use craft\commerce\records\ShippingZone;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
+use yii\base\InvalidConfigException;
 
 /**
  * Shipping zone model.
@@ -23,22 +24,22 @@ use craft\validators\UniqueValidator;
 class ShippingAddressZone extends Zone
 {
     /**
-     * @return string
-     */
-    public function getCpEditUrl(): string
-    {
-        return UrlHelper::cpUrl('commerce/shipping/shippingzones/' . $this->id);
-    }
-
-    /**
      * @inheritdoc
      */
     protected function defineRules(): array
     {
-        return [
-            [['name'], 'required'],
-            [['condition'], 'required'],
-            [['name'], UniqueValidator::class, 'targetClass' => ShippingZoneRecord::class, 'targetAttribute' => ['name']],
-        ];
+        $rules = parent::defineRules();
+        $rules[] = [['name'], UniqueValidator::class, 'targetClass' => ShippingZone::class, 'targetAttribute' => ['name', 'storeId']];
+
+        return $rules;
+    }
+
+    /**
+     * @return string
+     * @throws InvalidConfigException
+     */
+    public function getCpEditUrl(): string
+    {
+        return UrlHelper::cpUrl('commerce/store-management/' . $this->getStore()->handle . '/shippingzones/' . $this->id);
     }
 }

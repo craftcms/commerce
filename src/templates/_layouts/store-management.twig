@@ -1,0 +1,30 @@
+{% extends "commerce/_layouts/cp" %}
+{% set isIndex = isIndex is not defined ? true : isIndex %}
+{% set hasStoreSelector = hasStoreSelector is not defined ? true : hasStoreSelector %}
+{% set selectedSubnavItem = 'store-management' %}
+{% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commercesettings" %}
+
+{% if selectedItem is not defined %}
+    {% set selectedItem = craft.app.request.getSegment((craft.app.config.general.cpTrigger ? 4 : 3)) ?? 'general' %}
+{% endif %}
+{% if storeHandle is not defined %}
+    {% set storeHandle = craft.app.request.getSegment((craft.app.config.general.cpTrigger ? 3 : 2)) ?? craft.commerce.stores.getPrimaryStore().handle %}
+{% endif %}
+{% set store = craft.commerce.stores.getStoreByHandle(storeHandle) %}
+{% set defaultCrumbs = [
+  { label: 'Commerce'|t('commerce'), url: url('commerce') },
+] %}
+
+{% if craft.commerce.stores.getAllStores().count() > 1 %}
+    {% set defaultCrumbs = defaultCrumbs|merge({storeSwitcher}) %}
+{% endif %}
+
+{% set crumbs = not isIndex ? defaultCrumbs|merge(crumbs is not defined ? [] : crumbs) : defaultCrumbs %}
+
+{% set title = title is not defined ? 'Store Management'|t('commerce') : title %}
+
+{% block sidebar %}
+    {% if isIndex %}
+        {% include 'commerce/_includes/_storeManagementNav' with { store: store, storeSettingsNav: storeSettingsNav, selectedItem: selectedItem } %}
+    {% endif %}
+{% endblock %}

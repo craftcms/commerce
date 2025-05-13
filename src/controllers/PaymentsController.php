@@ -13,6 +13,7 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\PaymentException;
 use craft\commerce\errors\PaymentSourceCreatedLaterException;
 use craft\commerce\errors\PaymentSourceException;
+use craft\commerce\helpers\Localization;
 use craft\commerce\helpers\PaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\Plugin;
@@ -146,21 +147,21 @@ class PaymentsController extends BaseFrontEndController
             ]);
         }
 
-        if ($plugin->getSettings()->requireShippingAddressAtCheckout && !$order->shippingAddressId) {
+        if ($order->getStore()->getRequireShippingAddressAtCheckout() && !$order->shippingAddressId) {
             $error = Craft::t('commerce', 'Shipping address required.');
             return $this->asFailure($error, data: [
                 $this->_cartVariableName => $this->cartArray($order),
             ]);
         }
 
-        if ($plugin->getSettings()->requireBillingAddressAtCheckout && !$order->billingAddressId) {
+        if ($order->getStore()->getRequireBillingAddressAtCheckout() && !$order->billingAddressId) {
             $error = Craft::t('commerce', 'Billing address required.');
             return $this->asFailure($error, data: [
                 $this->_cartVariableName => $this->cartArray($order),
             ]);
         }
 
-        if (!$plugin->getSettings()->allowEmptyCartOnCheckout && $order->getIsEmpty()) {
+        if (!$order->getStore()->getAllowEmptyCartOnCheckout() && $order->getIsEmpty()) {
             $error = Craft::t('commerce', 'Order can not be empty.');
             return $this->asFailure($error, data: [
                 $this->_cartVariableName => $this->cartArray($order),
@@ -348,7 +349,7 @@ class PaymentsController extends BaseFrontEndController
         }
 
         // Does the order require shipping
-        if ($order->hasShippableItems() && $plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$order->shippingMethodHandle) {
+        if ($order->hasShippableItems() && $order->getStore()->getRequireShippingMethodSelectionAtCheckout() && !$order->shippingMethodHandle) {
             $error = Craft::t('commerce', 'There is no shipping method selected for this order.');
 
             return $this->asModelFailure(
@@ -435,11 +436,19 @@ class PaymentsController extends BaseFrontEndController
         $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
 
         // set a partial payment amount on the order in the orders currency (not payment currency)
-        $partialAllowed = (($this->request->isSiteRequest && Plugin::getInstance()->getSettings()->allowPartialPaymentOnCheckout) || $this->request->isCpRequest);
+        $partialAllowed = (($this->request->isSiteRequest && $order->getStore()->getAllowPartialPaymentOnCheckout()) || $this->request->isCpRequest);
 
         if ($partialAllowed) {
             if ($isCpAndAllowed) {
-                $order->setPaymentAmount($this->request->getBodyParam('paymentAmount'));
+                // Payment amount in the CP accepts number based in the user's formatting locale
+                $cpPaymentAmount = $this->request->getBodyParam('paymentAmount');
+
+                if (is_array($cpPaymentAmount)) {
+                    $cpPaymentAmount = $cpPaymentAmount['value'];
+                }
+                $cpPaymentAmount = Localization::normalizeNumber($cpPaymentAmount);
+
+                $order->setPaymentAmount($cpPaymentAmount);
             } elseif ($this->request->getBodyParam('paymentAmount')) {
                 $paymentAmount = (float)$this->request->getValidatedBodyParam('paymentAmount');
                 $order->setPaymentAmount($paymentAmount);

@@ -1,0 +1,18 @@
+{% extends '_layouts/elementindex' %}
+{% set title = 'Transfers'|t('app') %}
+{% set elementType = 'craft\\commerce\\elements\\Transfer' %}
+{% set canHaveDrafts = true %}
+{% set selectedSubnavItem = "inventory-transfers" %}
+{% set crumbs = [
+    { label: 'Commerce'|t('commerce'), url: url('commerce') },
+] %}
+
+{% block actionButton %}
+    {{ tag('a', {
+        class: 'btn submit add icon',
+        href: actionUrl('elements/create', {
+            elementType: elementType
+        }),
+        text: 'New transfer'|t('commerce'),
+    }) }}
+{% endblock %}

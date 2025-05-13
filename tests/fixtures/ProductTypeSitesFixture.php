@@ -27,4 +27,8 @@ class ProductTypeSitesFixture extends ActiveFixture
      * @inheritdoc
      */
     public $modelClass = ProductTypeSite::class;
+
+    public $depends = [
+        StoreFixture::class,
+    ];
 }

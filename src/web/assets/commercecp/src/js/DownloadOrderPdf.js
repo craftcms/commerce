@@ -3,17 +3,17 @@ if (typeof Craft.Commerce === typeof undefined) {
 }
 
 Craft.Commerce.DownloadOrderPdfAction = Garnish.Base.extend({
+  action: null,
   $btn: null,
-  $actionForm: null,
   hud: null,
   types: null,
   $hudBody: null,
 
-  init: function (btn, pdfs, types) {
+  init: function (btn, pdfs, types, action) {
+    this.action = action;
     this.$btn = btn;
     this.pdfs = pdfs;
     this.types = types;
-    this.$actionForm = this.$btn.closest('form');
 
     this.$hudBody = $('<div/>', {
       class: 'export-form',
@@ -73,13 +73,15 @@ Craft.Commerce.DownloadOrderPdfAction = Garnish.Base.extend({
 
           var $pdfField = this.$hudBody.find('[name="pdfId"]');
           var $typeField = this.$hudBody.find('[name="type"]');
-          this.$actionForm.find('input#pdf-id').val($pdfField.val());
-          this.$actionForm.find('input#download-type').val($typeField.val());
-
-          this.$actionForm.submit();
-
-          submitting = false;
-          this.hud.hide();
+          Craft.elementIndex
+            .submitAction(this.action, {
+              pdfId: $pdfField.val(),
+              downloadType: $typeField.val(),
+            })
+            .finally(() => {
+              submitting = false;
+              this.hud.hide();
+            });
         }, this)
       );
     } else {

@@ -61,7 +61,7 @@ class OrderPaymentAmountTest extends Unit
         $this->order->id = 1000;
 
         $lineItem = new LineItem();
-        $lineItem->salePrice = 10;
+        $lineItem->price = 10;
         $lineItem->qty = 2;
         $this->order->setLineItems([$lineItem]);
 
@@ -133,11 +133,11 @@ class OrderPaymentAmountTest extends Unit
         $lineItems = [
             'first' => [
                 'qty' => 1,
-                'salePrice' => 10,
+                'price' => 10,
             ],
             'second' => [
                 'qty' => 1,
-                'salePrice' => 20,
+                'price' => 20,
             ],
         ];
 
@@ -149,7 +149,7 @@ class OrderPaymentAmountTest extends Unit
                 true,
             ],
             'full-payment-specified' => [
-                array_merge($lineItems, ['second' => ['salePrice' => 7.75, 'qty' => 1]]),
+                array_merge($lineItems, ['second' => ['price' => 7.75, 'qty' => 1]]),
                 23.08,
                 'AUD',
                 false,

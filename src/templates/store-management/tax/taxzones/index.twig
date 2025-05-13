@@ -1,0 +1,50 @@
+{% extends "commerce/_layouts/store-management" %}
+
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Name',
+    'Description',
+    'Default Zone'
+]) %}
+
+{% block actionButton %}
+    <a href="{{ store.getStoreSettingsUrl('taxzones/new') }}" class="btn submit add icon">{{ 'New tax zone'|t('commerce') }}</a>
+{% endblock %}
+
+{% block content %}
+    <div id="tax-vue-admin-table"></div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for taxZone in taxZones %}
+    {% set tableData = tableData|merge([{
+        id: taxZone.id,
+        title: taxZone.name|t('site'),
+        url: taxZone.getCpEditUrl(),
+        description: taxZone.description|t('site')|e,
+        default: taxZone.default,
+    }]) %}
+{% endfor %}
+
+{% js %}
+var columns = [
+    { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+    { name: 'description', title: Craft.t('commerce', 'Description') },
+    {
+        name: 'default',
+        title: Craft.t('commerce', 'Default Zone'),
+        callback: function(value) {
+            if (value) {
+                return '<div data-icon="check"></div>';
+            }
+        }
+    },
+];
+
+new Craft.VueAdminTable({
+    columns: columns,
+    container: '#tax-vue-admin-table',
+    deleteAction: 'commerce/tax-zones/delete',
+    tableData: {{ tableData|json_encode|raw }},
+    });
+{% endjs %}

@@ -136,6 +136,7 @@ class PaymentSource extends Model
         return [
             [['token'], UniqueValidator::class, 'targetAttribute' => ['gatewayId', 'token'], 'targetClass' => PaymentSourceRecord::class],
             [['gatewayId', 'customerId', 'token', 'description'], 'required'],
+            [['id', 'response'], 'safe'],
         ];
     }
 }

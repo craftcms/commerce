@@ -11,7 +11,37 @@
             <order-block class="order-flex order-box-sizing">
                 <div class="w-1/4">
                     <!-- Description -->
-                    <order-title>
+                    <div
+                        v-if="
+                            editing &&
+                            editMode &&
+                            lineItem.type &&
+                            lineItem.type.value === lineItemTypes.Custom.value
+                        "
+                    >
+                        <field
+                            :label="
+                                $options.filters.t('Description', 'commerce')
+                            "
+                            v-slot:default="slotProps"
+                        >
+                            <input
+                                :id="slotProps.id"
+                                type="text"
+                                class="text"
+                                size="10"
+                                v-model="description"
+                                :class="{
+                                    error: getErrors(
+                                        'lineItems.' +
+                                            lineItemKey +
+                                            '.description'
+                                    ).length,
+                                }"
+                            />
+                        </field>
+                    </div>
+                    <order-title v-else>
                         <a
                             :href="lineItem.purchasableCpEditUrl"
                             v-if="lineItem.purchasableCpEditUrl"
@@ -23,8 +53,46 @@
                         </span>
                     </order-title>
                     <!-- SKU -->
-                    <div>
-                        <code class="extralight">{{ lineItem.sku }}</code>
+                    <div
+                        :class="{
+                            'mt-s':
+                                editing &&
+                                editMode &&
+                                lineItem.type &&
+                                lineItem.type.value ===
+                                    lineItemTypes.Custom.value,
+                        }"
+                    >
+                        <template
+                            v-if="
+                                editing &&
+                                editMode &&
+                                lineItem.type &&
+                                lineItem.type.value ===
+                                    lineItemTypes.Custom.value
+                            "
+                        >
+                            <field
+                                :label="$options.filters.t('SKU', 'commerce')"
+                                v-slot:default="slotProps"
+                            >
+                                <input
+                                    :id="slotProps.id"
+                                    type="text"
+                                    class="text"
+                                    size="4"
+                                    v-model="sku"
+                                    :class="{
+                                        error: getErrors(
+                                            'lineItems.' + lineItemKey + '.sku'
+                                        ).length,
+                                    }"
+                                />
+                            </field>
+                        </template>
+                        <code class="extralight" v-else>{{
+                            lineItem.sku
+                        }}</code>
                     </div>
 
                     <!-- Status -->
@@ -50,7 +118,13 @@
                         }}</btn-link>
                     </div>
                     <!-- Edit-->
-                    <div v-if="canEdit">
+                    <div
+                        v-if="
+                            canEdit &&
+                            (totalCommittedStock === 0 ||
+                                lineItem.fulfilledTotalQuantity < 1)
+                        "
+                    >
                         <btn-link
                             button-class="btn-link btn-link--danger"
                             @click="removeLineItem"
@@ -60,62 +134,120 @@
                 </div>
                 <div class="w-3/4">
                     <div class="order-flex pb">
-                        <ul class="line-item-section">
+                        <ul class="line-item-section line-item-price">
                             <li class="order-flex order-flex-wrap">
-                                <template
-                                    v-if="
-                                        editing &&
-                                        editMode &&
-                                        recalculationMode === 'none'
-                                    "
-                                >
-                                    <field v-slot:default="slotProps">
-                                        <input
-                                            :id="slotProps.id"
-                                            type="text"
-                                            class="text"
-                                            size="10"
-                                            v-model="salePrice"
-                                            :class="{
-                                                error: getErrors(
-                                                    'lineItems.' +
-                                                        lineItemKey +
-                                                        '.salePrice'
-                                                ).length,
-                                            }"
-                                        />
-                                    </field>
-                                </template>
-                                <template v-else>
-                                    <label class="light" for="salePrice">{{
-                                        'Sale Price' | t('commerce')
-                                    }}</label>
-                                    <div>
-                                        {{ lineItem.salePriceAsCurrency }}
-                                    </div>
-                                </template>
+                                <div class="order-flex">
+                                    <template
+                                        v-if="
+                                            editing &&
+                                            editMode &&
+                                            (recalculationMode === 'none' ||
+                                                lineItem.type.value ===
+                                                    lineItemTypes.Custom.value)
+                                        "
+                                    >
+                                        <field
+                                            :label="
+                                                $options.filters.t(
+                                                    'Promotional Price',
+                                                    'commerce'
+                                                )
+                                            "
+                                            v-slot:default="slotProps"
+                                        >
+                                            <input
+                                                :id="slotProps.id"
+                                                type="text"
+                                                class="text"
+                                                size="10"
+                                                v-model="promotionalPrice"
+                                                :class="{
+                                                    error: getErrors(
+                                                        'lineItems.' +
+                                                            lineItemKey +
+                                                            '.promotionalPrice'
+                                                    ).length,
+                                                }"
+                                                ref="promotionalPrice"
+                                            />
+                                        </field>
+                                    </template>
+                                    <template v-else>
+                                        <label class="light" for="salePrice">{{
+                                            'Sale Price' | t('commerce')
+                                        }}</label>
+                                        <div>
+                                            {{ lineItem.salePriceAsCurrency }}
+                                        </div>
+                                    </template>
+                                    <template
+                                        v-if="
+                                            editing &&
+                                            editMode &&
+                                            (recalculationMode === 'none' ||
+                                                lineItem.type.value ===
+                                                    lineItemTypes.Custom.value)
+                                        "
+                                    >
+                                        <div>
+                                            <field
+                                                :label="
+                                                    $options.filters.t(
+                                                        'Price',
+                                                        'commerce'
+                                                    )
+                                                "
+                                                v-slot:default="slotProps"
+                                            >
+                                                <input
+                                                    :id="slotProps.id"
+                                                    type="text"
+                                                    class="text"
+                                                    size="10"
+                                                    v-model="price"
+                                                    :class="{
+                                                        error: getErrors(
+                                                            'lineItems.' +
+                                                                lineItemKey +
+                                                                '.price'
+                                                        ).length,
+                                                    }"
+                                                    ref="price"
+                                                />
+                                            </field>
+                                        </div>
+                                    </template>
+                                </div>
                             </li>
-                            <template v-if="lineItem.onSale">
+                            <template v-if="lineItem.onPromotion">
                                 <li>
                                     <span class="light">{{
                                         'Original Price' | t('commerce')
                                     }}</span
-                                    >&nbsp;<strike>{{
+                                    >&nbsp;<del>{{
                                         lineItem.priceAsCurrency
-                                    }}</strike>
+                                    }}</del>
                                 </li>
                                 <li>
                                     <span class="light">{{
-                                        'Sale Amount Off' | t('commerce')
+                                        'Promotional Amount' | t('commerce')
                                     }}</span>
-                                    {{ lineItem.saleAmountAsCurrency }}
+                                    {{ lineItem.promotionalAmountAsCurrency }}
                                 </li>
                             </template>
                         </ul>
                         <div class="line-item-section">
                             <div class="order-flex">
                                 <template v-if="editing && editMode">
-                                    <field v-slot:default="slotProps">
+                                    <field
+                                        :label="
+                                            $options.filters.t(
+                                                'Quantity',
+                                                'commerce'
+                                            )
+                                        "
+                                        v-slot:default="slotProps"
+                                    >
                                         <input
                                             :id="slotProps.id"
                                             type="text"
@@ -143,6 +275,157 @@
                     </div>
 
                     <div>
+                        <order-block
+                            class="order-flex"
+                            v-if="
+                                lineItem.type.value ===
+                                lineItemTypes.Custom.value
+                            "
+                        >
+                            <line-item-property
+                                :editing="editing && editMode"
+                                :line-item="lineItem"
+                                :attribute="'hasFreeShipping'"
+                                :label="
+                                    $options.filters.t(
+                                        'Has Free Shipping',
+                                        'commerce'
+                                    )
+                                "
+                                :classes="{'order-flex': true}"
+                                @updateLineItem="
+                                    $emit('updateLineItem', $event)
+                                "
+                            />
+                        </order-block>
+                        <order-block
+                            class="order-flex"
+                            v-if="
+                                lineItem.type.value ===
+                                lineItemTypes.Custom.value
+                            "
+                        >
+                            <line-item-property
+                                :editing="editing && editMode"
+                                :line-item="lineItem"
+                                :attribute="'isShippable'"
+                                :label="
+                                    $options.filters.t(
+                                        'Is Shippable',
+                                        'commerce'
+                                    )
+                                "
+                                classes="order-flex line-item-no-margin"
+                                @updateLineItem="
+                                    $emit('updateLineItem', $event)
+                                "
+                            >
+                                <field
+                                    :label="
+                                        fieldLabel(
+                                            $options.filters.t(
+                                                'Shipping Category',
+                                                'commerce'
+                                            )
+                                        )
+                                    "
+                                    style="
+                                        margin-top: 0;
+                                        margin-left: auto;
+                                        width: 60%;
+                                    "
+                                    classes="order-flex"
+                                    input-class="flex-grow"
+                                >
+                                    <template v-if="editing && editMode">
+                                        <select-input
+                                            label="name"
+                                            :options="shippingCategoryOptions"
+                                            :filterable="true"
+                                            :placeholder="shippingCategory"
+                                            v-model="shippingCategoryId"
+                                        />
+                                    </template>
+                                    <template v-else>
+                                        {{ shippingCategory }}
+                                    </template>
+                                </field>
+                            </line-item-property>
+                        </order-block>
+                        <order-block
+                            class="order-flex"
+                            v-if="
+                                lineItem.type.value ===
+                                lineItemTypes.Custom.value
+                            "
+                        >
+                            <line-item-property
+                                :editing="editing && editMode"
+                                :line-item="lineItem"
+                                :attribute="'isPromotable'"
+                                :label="
+                                    $options.filters.t(
+                                        'Is Promotable',
+                                        'commerce'
+                                    )
+                                "
+                                :classes="{'order-flex': true}"
+                                @updateLineItem="
+                                    $emit('updateLineItem', $event)
+                                "
+                            />
+                        </order-block>
+                        <order-block
+                            class="order-flex"
+                            v-if="
+                                lineItem.type.value ===
+                                lineItemTypes.Custom.value
+                            "
+                        >
+                            <line-item-property
+                                :editing="editing && editMode"
+                                :line-item="lineItem"
+                                :attribute="'isTaxable'"
+                                :label="
+                                    $options.filters.t('Is Taxable', 'commerce')
+                                "
+                                classes="order-flex line-item-no-margin"
+                                @updateLineItem="
+                                    $emit('updateLineItem', $event)
+                                "
+                            >
+                                <field
+                                    :label="
+                                        fieldLabel(
+                                            $options.filters.t(
+                                                'Tax Category',
+                                                'commerce'
+                                            )
+                                        )
+                                    "
+                                    style="
+                                        margin-top: 0;
+                                        margin-left: auto;
+                                        width: 60%;
+                                    "
+                                    classes="order-flex"
+                                    input-class="flex-grow"
+                                >
+                                    <template v-if="editing && editMode">
+                                        <select-input
+                                            label="name"
+                                            :options="taxCategoryOptions"
+                                            :filterable="true"
+                                            :placeholder="taxCategory"
+                                            v-model="taxCategoryId"
+                                        />
+                                    </template>
+                                    <template v-else>
+                                        {{ taxCategory }}
+                                    </template>
+                                </field>
+                            </line-item-property>
+                        </order-block>
                         <line-item-adjustments
                             :order-id="orderId"
                             :line-item="lineItem"
@@ -245,7 +528,9 @@
     import LineItemOptions from './LineItemOptions';
     import LineItemNotes from './LineItemNotes';
     import LineItemAdjustments from './LineItemAdjustments';
+    import LineItemProperty from './LineItemProperty.vue';
     import Snapshot from './Snapshot';
+    import SelectInput from '../../../base/components/SelectInput';
 
     export default {
         components: {
@@ -254,6 +539,8 @@
             LineItemOptions,
             LineItemNotes,
             LineItemAdjustments,
+            LineItemProperty,
+            SelectInput,
             Snapshot,
         },
 
@@ -275,37 +562,112 @@
         data() {
             return {
                 editMode: false,
+                highlight: false,
+                maskOptions: {
+                    alias: 'currency',
+                    autoGroup: false,
+                    clearMaskOnLostFocus: false,
+                    digits: 2,
+                    digitsOptional: false,
+                    groupSeparator: ',',
+                    placeholder: '0',
+                    prefix: '',
+                    radixPoint: '.',
+                },
                 modal: {
                     ref: 'snapshots',
                     modal: null,
                     isVisible: false,
                 },
                 originalLineItem: null,
-                highlight: false,
+                priceInput: null,
+                promotionalPriceInput: null,
             };
         },
 
         computed: {
             ...mapState({
+                draft: (state) => state.draft,
                 recentlyAddedLineItems: (state) => state.recentlyAddedLineItems,
             }),
 
             ...mapGetters([
+                'currencyConfig',
                 'canEdit',
                 'getErrors',
                 'hasLineItemErrors',
+                'lineItemTypes',
                 'orderId',
                 'shippingCategories',
                 'taxCategories',
+                'totalCommittedStock',
             ]),
 
-            salePrice: {
+            description: {
                 get() {
-                    return this.lineItem.salePrice;
+                    return this.lineItem.description;
                 },
                 set: debounce(function (val) {
                     const lineItem = this.lineItem;
-                    lineItem.salePrice = val;
+                    lineItem.description = val;
+                    this.$emit('updateLineItem', lineItem);
+                }, 1000),
+            },
+
+            sku: {
+                get() {
+                    return this.lineItem.sku;
+                },
+                set: debounce(function (val) {
+                    const lineItem = this.lineItem;
+                    lineItem.sku = val;
+                    this.$emit('updateLineItem', lineItem);
+                }, 1000),
+            },
+
+            shippingCategoryId: {
+                get() {
+                    return {
+                        name: this.shippingCategories[
+                            this.lineItem.shippingCategoryId
+                        ],
+                        value: this.lineItem.shippingCategoryId,
+                    };
+                },
+                set: debounce(function (shippingCategoryOption) {
+                    const lineItem = this.lineItem;
+                    lineItem.shippingCategoryId = shippingCategoryOption.value;
+                    this.$emit('updateLineItem', lineItem);
+                }, 1000),
+            },
+
+            taxCategoryId: {
+                get() {
+                    return {
+                        name: this.taxCategories[this.lineItem.taxCategoryId],
+                        value: this.lineItem.taxCategoryId,
+                    };
+                },
+                set: debounce(function (taxCategoryOption) {
+                    const lineItem = this.lineItem;
+                    lineItem.taxCategoryId = taxCategoryOption.value;
+                    this.$emit('updateLineItem', lineItem);
+                }, 1000),
+            },
+
+            promotionalPrice: {
+                get() {
+                    return this.lineItem.promotionalPrice;
+                },
+            },
+
+            price: {
+                get() {
+                    return this.lineItem.price;
+                },
+                set: debounce(function (val) {
+                    const lineItem = this.lineItem;
+                    lineItem.price = val;
                     this.$emit('updateLineItem', lineItem);
                 }, 1000),
             },
@@ -339,6 +701,24 @@
                 return this.shippingCategories[
                     this.lineItem.shippingCategoryId
                 ];
+            },
+
+            shippingCategoryOptions() {
+                return Object.keys(this.shippingCategories).map((id) => {
+                    return {
+                        name: this.shippingCategories[id],
+                        value: id,
+                    };
+                });
+            },
+
+            taxCategoryOptions() {
+                return Object.keys(this.taxCategories).map((id) => {
+                    return {
+                        name: this.taxCategories[id],
+                        value: id,
+                    };
+                });
             },
 
             taxCategory() {
@@ -440,6 +820,84 @@
                 lineItem.lineItemStatusId = lineItemStatusId;
                 this.$emit('updateLineItem', lineItem);
             },
+
+            onPriceChange: debounce(function () {
+                const lineItem = this.lineItem;
+                let price = this.priceInput.val();
+                if (price === '') {
+                    price = null;
+                }
+
+                lineItem.price = price;
+                this.$emit('updateLineItem', lineItem);
+            }, 1000),
+
+            onPromotionalPriceChange: debounce(function () {
+                const lineItem = this.lineItem;
+                let promotionalPrice = this.promotionalPriceInput.val();
+                if (promotionalPrice === '') {
+                    promotionalPrice = null;
+                }
+
+                lineItem.promotionalPrice = promotionalPrice;
+                this.$emit('updateLineItem', lineItem);
+            }, 1000),
+
+            initPriceInputs() {
+                if (
+                    this.promotionalPriceInput === null &&
+                    this.$refs.promotionalPrice
+                ) {
+                    this.promotionalPriceInput = $(this.$refs.promotionalPrice);
+                    this.promotionalPriceInput.on(
+                        'keyup',
+                        this.onPromotionalPriceChange
+                    );
+
+                    // Make sure mask is cleared when input is empty
+                    this.promotionalPriceInput.inputmask({
+                        ...this.maskOptions,
+                        ...{nullable: true, clearMaskOnLostFocus: true},
+                    });
+                }
+
+                if (this.priceInput === null && this.$refs.price) {
+                    this.priceInput = $(this.$refs.price);
+                    this.priceInput.on('keyup', this.onPriceChange);
+
+                    this.priceInput.inputmask(this.maskOptions);
+                }
+            },
+
+            fieldLabel(label) {
+                if (document.querySelector('body').dir === 'rtl') {
+                    return ':' + label;
+                }
+
+                return label + ':';
+            },
+        },
+
+        watch: {
+            editMode(val) {
+                if (val) {
+                    this.$nextTick(() => {
+                        this.initPriceInputs();
+                    });
+                }
+            },
+        },
+
+        mounted() {
+            // Setup mask settings passed from the controller
+            this.maskOptions.digits = this.currencyConfig.decimals;
+            this.maskOptions.groupSeparator =
+                this.currencyConfig.groupSeparator;
+            this.maskOptions.radixPoint = this.currencyConfig.decimalSeparator;
+
+            this.$nextTick(() => {
+                this.initPriceInputs();
+            });
         },
     };
 </script>
@@ -464,7 +922,11 @@
         }
 
         &-section {
-            width: 33.3333%;
+            width: 20%;
+        }
+
+        &-price {
+            width: 60%;
         }
 
         &-buttons::after {
@@ -473,6 +935,10 @@
             height: 0;
             clear: both;
             visibility: hidden;
+        }
+
+        &-no-margin {
+            margin: 0;
         }
 
         label {

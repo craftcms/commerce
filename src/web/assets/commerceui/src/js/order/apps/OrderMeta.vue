@@ -228,6 +228,11 @@
             </div>
 
             <div class="data">
+                <h5 class="heading">{{ 'Store' | t('commerce') }}</h5>
+                <p class="value">{{ draft.order.store.name }}</p>
+            </div>
+
+            <div class="data">
                 <h5 class="heading">{{ 'Paid Status' | t('commerce') }}</h5>
                 <span class="value" v-html="draft.order.paidStatusHtml"></span>
             </div>

@@ -12,19 +12,22 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\EmailEvent;
 use craft\commerce\events\MailEvent;
+use craft\commerce\helpers\Locale;
+use craft\commerce\helpers\ProjectConfigData;
 use craft\commerce\models\Email;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
 use craft\db\Query;
+use craft\errors\SiteNotFoundException;
 use craft\events\ConfigEvent;
-use craft\helpers\App;
 use craft\helpers\Assets;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\mail\Message;
 use DateTime;
+use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 use yii\base\ErrorException;
@@ -205,51 +208,74 @@ class Emails extends Component
 
     public const CONFIG_EMAILS_KEY = 'commerce.emails';
 
+    /**
+     * @var Collection[]|null
+     * @since 5.0.0
+     */
+    private ?array $_allEmails = null;
 
     /**
      * Get an email by its ID.
      */
-    public function getEmailById(int $id): ?Email
+    public function getEmailById(int $id, ?int $storeId = null): ?Email
     {
-        $result = $this->_createEmailQuery()
-            ->where(['id' => $id])
-            ->one();
-
-        return $result ? new Email($result) : null;
+        return $this->getAllEmails($storeId)->firstWhere('id', $id);
     }
 
     /**
      * Get all emails.
      *
-     * @return Email[]
+     * @param int|null $storeId
+     * @return Collection<Email>
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
      */
-    public function getAllEmails(): array
+    public function getAllEmails(?int $storeId = null): Collection
     {
-        $rows = $this->_createEmailQuery()->all();
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-        $emails = [];
-        foreach ($rows as $row) {
-            $emails[] = new Email($row);
+        if ($this->_allEmails === null || !isset($this->_allEmails[$storeId])) {
+            $results = $this->_createEmailQuery()
+                ->where(['storeId' => $storeId])
+                ->all();
+
+            // Start with a blank slate if it isn't memoized
+            if ($this->_allEmails === null) {
+                $this->_allEmails = [];
+            }
+
+            foreach ($results as $result) {
+                $email = Craft::createObject([
+                    'class' => Email::class,
+                    'attributes' => $result,
+                ]);
+
+                if (!isset($this->_allEmails[$email->storeId])) {
+                    $this->_allEmails[$email->storeId] = collect();
+                }
+
+                $this->_allEmails[$email->storeId]->push($email);
+            }
         }
 
-        return $emails;
+        if (!isset($this->_allEmails[$storeId])) {
+            return collect();
+        }
+
+        return $this->_allEmails[$storeId];
     }
 
     /**
      * Get all emails that are enabled.
      *
-     * @return Email[]
+     * @param int|null $storeId
+     * @return Collection<Email>
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
      */
-    public function getAllEnabledEmails(): array
+    public function getAllEnabledEmails(?int $storeId = null): Collection
     {
-        $rows = $this->_createEmailQuery()->andWhere(['enabled' => true])->all();
-
-        $emails = [];
-        foreach ($rows as $row) {
-            $emails[] = new Email($row);
-        }
-
-        return $emails;
+        return $this->getAllEmails($storeId)->where('enabled', true);
     }
 
     /**
@@ -300,6 +326,8 @@ class Emails extends Component
      */
     public function handleChangedEmail(ConfigEvent $event): void
     {
+        ProjectConfigData::ensureAllStoresProcessed();
+
         $emailUid = $event->tokenMatches[0];
         $data = $event->newValue;
 
@@ -312,7 +340,9 @@ class Emails extends Component
         try {
             $emailRecord = $this->_getEmailRecord($emailUid);
             $isNewEmail = $emailRecord->getIsNewRecord();
+            $store = Plugin::getInstance()->getStores()->getStoreByUid($data['store']);
 
+            $emailRecord->storeId = $store->id;
             $emailRecord->name = $data['name'];
             $emailRecord->subject = $data['subject'];
             $emailRecord->recipientType = $data['recipientType'];
@@ -321,6 +351,8 @@ class Emails extends Component
             $emailRecord->cc = $data['cc'] ?? null;
             $emailRecord->replyTo = $data['replyTo'] ?? null;
             $emailRecord->enabled = $data['enabled'];
+            $emailRecord->senderAddress = $data['senderAddress'];
+            $emailRecord->senderName = $data['senderName'];
             $emailRecord->templatePath = $data['templatePath'];
             $emailRecord->plainTextTemplatePath = $data['plainTextTemplatePath'] ?? null;
             $emailRecord->uid = $emailUid;
@@ -338,10 +370,12 @@ class Emails extends Component
         // Fire a 'afterSaveEmail' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_EMAIL)) {
             $this->trigger(self::EVENT_AFTER_SAVE_EMAIL, new EmailEvent([
-                'email' => $this->getEmailById($emailRecord->id),
+                'email' => $this->getEmailById($emailRecord->id, $emailRecord->storeId),
                 'isNew' => $isNewEmail,
             ]));
         }
+
+        $this->clearCache();
     }
 
     /**
@@ -355,7 +389,7 @@ class Emails extends Component
             // Fire a 'beforeDeleteEmail' event
             if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE_EMAIL)) {
                 $this->trigger(self::EVENT_BEFORE_DELETE_EMAIL, new EmailEvent([
-                    'email' => $this->getEmailById($id),
+                    'email' => $this->getEmailById($id, $email->storeId),
                 ]));
             }
 
@@ -380,7 +414,7 @@ class Emails extends Component
             return;
         }
 
-        $email = $this->getEmailById($emailRecord->id);
+        $email = $this->getEmailById($emailRecord->id, $emailRecord->storeId);
         $emailRecord->delete();
 
         // Fire a 'beforeDeleteEmail' event
@@ -389,6 +423,8 @@ class Emails extends Component
                 'email' => $email,
             ]));
         }
+
+        $this->clearCache();
     }
 
     /**
@@ -405,6 +441,11 @@ class Emails extends Component
     {
         if (!$email->enabled) {
             $error = Craft::t('commerce', 'Email is not enabled.');
+            return false;
+        }
+
+        if ($email->storeId !== $order->getStore()->id) {
+            $error = Craft::t('commerce', 'Email unavailable.');
             return false;
         }
 
@@ -434,20 +475,20 @@ class Emails extends Component
         $newEmail = Craft::createObject(['class' => $mailer->messageClass, 'mailer' => $mailer]);
 
         $originalLanguage = Craft::$app->language;
-        $craftMailSettings = App::mailSettings();
+        $originalFormattingLanguage = Craft::$app->formattingLocale;
+        $emailLanguage = $email->getRenderLanguage($order);
 
-        $fromEmail = Plugin::getInstance()->getSettings()->emailSenderAddress ?: $craftMailSettings->fromEmail;
-        $fromEmail = App::parseEnv($fromEmail);
+        Locale::switchAppLanguage($emailLanguage);
 
-        $fromName = Plugin::getInstance()->getSettings()->emailSenderName ?: $craftMailSettings->fromName;
-        $fromName = App::parseEnv($fromName);
+        $fromEmail = $email->getSenderAddress();
+        $fromName = $email->getSenderName();
 
         if ($fromEmail) {
             $newEmail->setFrom($fromEmail);
         }
 
         if ($fromName && $fromEmail) {
-            $newEmail->setFrom([(string)$fromEmail => (string)$fromName]);
+            $newEmail->setFrom([$fromEmail => $fromName]);
         }
 
         if ($email->recipientType == EmailRecord::TYPE_CUSTOMER) {
@@ -464,6 +505,8 @@ class Emails extends Component
 
                 $newEmail->setTo($emails);
             } catch (\Exception $e) {
+                Craft::$app->getErrorHandler()->logException($e);
+
                 $error = Craft::t('commerce', 'Email template parse error for custom email “{email}” in “To:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -473,7 +516,7 @@ class Emails extends Component
                 ]);
                 Craft::error($error, __METHOD__);
 
-                Craft::$app->language = $originalLanguage;
+                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -485,7 +528,7 @@ class Emails extends Component
             $error = Craft::t('commerce', 'Email error. No email address found for order. Order: “{order}”', ['order' => $order->getShortNumber()]);
             Craft::error($error, __METHOD__);
 
-            Craft::$app->language = $originalLanguage;
+            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
             $view->setTemplateMode($oldTemplateMode);
             $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -503,6 +546,8 @@ class Emails extends Component
                     $newEmail->setBcc($bcc);
                 }
             } catch (\Exception $e) {
+                Craft::$app->getErrorHandler()->logException($e);
+                
                 $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “BCC:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -512,7 +557,7 @@ class Emails extends Component
                 ]);
                 Craft::error($error, __METHOD__);
 
-                Craft::$app->language = $originalLanguage;
+                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -531,6 +576,8 @@ class Emails extends Component
                     $newEmail->setCc($cc);
                 }
             } catch (\Exception $e) {
+                Craft::$app->getErrorHandler()->logException($e);
+                
                 $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “CC:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -540,7 +587,7 @@ class Emails extends Component
                 ]);
                 Craft::error($error, __METHOD__);
 
-                Craft::$app->language = $originalLanguage;
+                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -553,6 +600,8 @@ class Emails extends Component
             try {
                 $newEmail->setReplyTo($view->renderString($email->replyTo, $renderVariables));
             } catch (\Exception $e) {
+                Craft::$app->getErrorHandler()->logException($e);
+                
                 $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “ReplyTo:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -562,7 +611,7 @@ class Emails extends Component
                 ]);
                 Craft::error($error, __METHOD__);
 
-                Craft::$app->language = $originalLanguage;
+                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -574,6 +623,8 @@ class Emails extends Component
         try {
             $newEmail->setSubject($view->renderString($email->subject, $renderVariables));
         } catch (\Exception $e) {
+            Craft::$app->getErrorHandler()->logException($e);
+            
             $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “Subject:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
                 'order' => $order->getShortNumber(),
@@ -583,7 +634,7 @@ class Emails extends Component
             ]);
             Craft::error($error, __METHOD__);
 
-            Craft::$app->language = $originalLanguage;
+            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
             $view->setTemplateMode($oldTemplateMode);
             $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -594,6 +645,8 @@ class Emails extends Component
         try {
             $templatePath = $view->renderString($email->templatePath, $renderVariables);
         } catch (\Exception $e) {
+            Craft::$app->getErrorHandler()->logException($e);
+            
             $error = Craft::t('commerce', 'Email template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
                 'order' => $order->getShortNumber(),
@@ -603,7 +656,7 @@ class Emails extends Component
             ]);
             Craft::error($error, __METHOD__);
 
-            Craft::$app->language = $originalLanguage;
+            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
             $view->setTemplateMode($oldTemplateMode);
             $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -620,7 +673,7 @@ class Emails extends Component
             ]);
             Craft::error($error, __METHOD__);
 
-            Craft::$app->language = $originalLanguage;
+            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
             $view->setTemplateMode($oldTemplateMode);
             $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -633,6 +686,8 @@ class Emails extends Component
             try {
                 $plainTextTemplatePath = $view->renderString($email->plainTextTemplatePath, $renderVariables);
             } catch (\Exception $e) {
+                Craft::$app->getErrorHandler()->logException($e);
+                
                 $error = Craft::t('commerce', 'Email plain text template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -642,7 +697,7 @@ class Emails extends Component
                 ]);
                 Craft::error($error, __METHOD__);
 
-                Craft::$app->language = $originalLanguage;
+                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -659,7 +714,7 @@ class Emails extends Component
                 ]);
                 Craft::error($error, __METHOD__);
 
-                Craft::$app->language = $originalLanguage;
+                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -677,7 +732,7 @@ class Emails extends Component
                 ]);
                 Craft::error($error, __METHOD__);
 
-                Craft::$app->language = $originalLanguage;
+                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -709,6 +764,8 @@ class Emails extends Component
                 $options = ['fileName' => $fileName . '.pdf', 'contentType' => 'application/pdf'];
                 $newEmail->attach($tempPath, $options);
             } catch (\Exception $e) {
+                Craft::$app->getErrorHandler()->logException($e);
+                
                 $error = Craft::t('commerce', 'Email PDF generation error for email “{email}”. Order: “{order}”. PDF Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -718,7 +775,7 @@ class Emails extends Component
                 ]);
                 Craft::error($error, __METHOD__);
 
-                Craft::$app->language = $originalLanguage;
+                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -731,6 +788,8 @@ class Emails extends Component
             $body = $view->renderTemplate($templatePath, $renderVariables);
             $newEmail->setHtmlBody($body);
         } catch (\Exception $e) {
+            Craft::$app->getErrorHandler()->logException($e);
+            
             $error = Craft::t('commerce', 'Email template parse error for email “{email}”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
                 'order' => $order->getShortNumber(),
@@ -740,7 +799,7 @@ class Emails extends Component
             ]);
             Craft::error($error, __METHOD__);
 
-            Craft::$app->language = $originalLanguage;
+            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
             $view->setTemplateMode($oldTemplateMode);
             $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -753,6 +812,8 @@ class Emails extends Component
                 $plainTextBody = $view->renderTemplate($plainTextTemplatePath, $renderVariables);
                 $newEmail->setTextBody($plainTextBody);
             } catch (\Exception $e) {
+                Craft::$app->getErrorHandler()->logException($e);
+                
                 $error = Craft::t('commerce', 'Email plain text template parse error for email “{email}”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -762,7 +823,7 @@ class Emails extends Component
                 ]);
                 Craft::error($error, __METHOD__);
 
-                Craft::$app->language = $originalLanguage;
+                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -789,7 +850,7 @@ class Emails extends Component
 
                 Craft::info($notice, __METHOD__);
 
-                Craft::$app->language = $originalLanguage;
+                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -808,13 +869,15 @@ class Emails extends Component
 
                 Craft::error($error, __METHOD__);
 
-                Craft::$app->language = $originalLanguage;
+                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
         } catch (\Exception $e) {
+            Craft::$app->getErrorHandler()->logException($e);
+            
             $error = Craft::t('commerce', 'Email “{email}” could not be sent for order “{order}”. Error: {error} {file}:{line}', [
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
@@ -825,7 +888,7 @@ class Emails extends Component
 
             Craft::error($error, __METHOD__);
 
-            Craft::$app->language = $originalLanguage;
+            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
             $view->setTemplateMode($oldTemplateMode);
             $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -843,7 +906,7 @@ class Emails extends Component
             ]));
         }
 
-        Craft::$app->language = $originalLanguage;
+        Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
         $view->setTemplateMode($oldTemplateMode);
         $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
@@ -895,6 +958,9 @@ class Emails extends Component
                 'emails.plainTextTemplatePath',
                 'emails.recipientType',
                 'emails.replyTo',
+                'emails.senderAddress',
+                'emails.senderName',
+                'emails.storeId',
                 'emails.subject',
                 'emails.templatePath',
                 'emails.to',
@@ -915,5 +981,14 @@ class Emails extends Component
         }
 
         return new EmailRecord();
+    }
+
+    /**
+     * @return void
+     * @since 5.0.0
+     */
+    protected function clearCache(): void
+    {
+        $this->_allEmails = null;
     }
 }

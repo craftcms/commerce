@@ -9,11 +9,19 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\base\Element;
+use craft\base\ElementInterface;
 use craft\base\Field;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable as PurchasableElement;
+use craft\commerce\base\PurchasableInterface;
+use craft\commerce\behaviors\StoreBehavior;
+use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\db\Table;
+use craft\commerce\elements\db\PurchasableQuery;
 use craft\commerce\elements\Order;
+use craft\commerce\elements\Variant;
+use craft\commerce\enums\InventoryTransactionType;
+use craft\commerce\enums\LineItemType;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\errors\RefundException;
@@ -26,8 +34,10 @@ use craft\commerce\helpers\LineItem;
 use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\PaymentForm;
 use craft\commerce\helpers\Purchasable;
+use craft\commerce\models\inventory\InventoryFulfillMovement;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderNotice;
+use craft\commerce\models\Pdf;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
@@ -37,6 +47,7 @@ use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\Address;
+use craft\elements\db\ElementQuery;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
@@ -48,8 +59,13 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\Localization;
+use craft\helpers\MoneyHelper;
+use craft\helpers\Number;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
+use craft\models\Site;
+use craft\web\assets\inputmask\InputmaskAsset;
+use craft\web\assets\money\MoneyAsset;
 use craft\web\Controller;
 use craft\web\View;
 use DateTime;
@@ -59,6 +75,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use yii\base\Exception;
+use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 use yii\db\Expression;
 use yii\web\BadRequestHttpException;
@@ -115,6 +132,10 @@ class OrdersController extends Controller
     {
         Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
 
+        $site = Cp::requestedSite();
+        /** @var StoreBehavior $site */
+        $store = $site->getStore();
+
         Craft::$app->getView()->registerJs('window.orderEdit = {};', View::POS_BEGIN);
         $permissions = [
             'commerce-manageOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-manageOrders'),
@@ -124,7 +145,7 @@ class OrdersController extends Controller
 
         Craft::$app->getView()->registerJs('window.orderEdit.currentUserPermissions = ' . Json::encode($permissions) . ';', View::POS_BEGIN);
 
-        return $this->renderTemplate('commerce/orders/_index', compact('orderStatusHandle'));
+        return $this->renderTemplate('commerce/orders/_index', compact('orderStatusHandle', 'store'));
     }
 
     /**
@@ -135,9 +156,15 @@ class OrdersController extends Controller
      * @throws ForbiddenHttpException
      * @throws Throwable
      */
-    public function actionCreate(): Response
+    public function actionCreate(string $storeHandle): Response
     {
         $this->requirePermission('commerce-manageOrders');
+
+        $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
+
+        if (!$store) {
+            throw new InvalidArgumentException('Invalid store handle: ' . $storeHandle);
+        }
 
         $userId = $this->request->getParam('customerId');
         $user = $userId ? Craft::$app->getUsers()->getUserById($userId) : null;
@@ -146,16 +173,25 @@ class OrdersController extends Controller
             throw new BadRequestHttpException("Invalid user ID: $userId");
         }
 
-        $order = new Order();
+        $attributes = [
+            'number' => Plugin::getInstance()->getCarts()->generateCartNumber(),
+            'origin' => Order::ORIGIN_CP,
+            'storeId' => $store->id,
+        ];
         if ($user) {
-            $order->setCustomer($user);
+            $attributes['customer'] = $user;
+        }
 
+        $order = Craft::createObject([
+            'class' => Order::class,
+            'attributes' => $attributes,
+        ]);
+
+        if ($user) {
             // Try to set defaults
             $order->autoSetAddresses();
             $order->autoSetShippingMethod();
         }
-        $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
-        $order->origin = Order::ORIGIN_CP;
 
         if (!Craft::$app->getElements()->saveElement($order, false)) {
             throw new Exception(Craft::t('commerce', 'Can not create a new order'));
@@ -206,6 +242,98 @@ class OrdersController extends Controller
         $this->_registerJavascript($variables);
 
         return $this->renderTemplate('commerce/orders/_edit', $variables);
+    }
+
+    /**
+     * @return Response
+     * @throws InvalidConfigException
+     * @throws \yii\db\Exception
+     * @throws \yii\web\MethodNotAllowedHttpException
+     * @since 5.0.0
+     */
+    public function actionFulfill(): Response
+    {
+        $this->requirePostRequest();
+
+        $fulfillments = $this->request->getBodyParam('fulfillment');
+        $movements = [];
+        foreach ($fulfillments as $fulfillment) {
+            $qty = (int)$fulfillment['quantity'];
+            if ($qty != 0) {
+                $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($fulfillment['inventoryLocationId']);
+
+                $movement = new InventoryFulfillMovement();
+                $movement->fromInventoryLocation = $inventoryLocation;
+                $movement->inventoryItemId = $fulfillment['inventoryItemId'];
+                $movement->toInventoryLocation = $inventoryLocation;
+                $movement->fromInventoryTransactionType = InventoryTransactionType::COMMITTED;
+                $movement->toInventoryTransactionType = InventoryTransactionType::FULFILLED;
+                $movement->lineItemId = $fulfillment['lineItemId'];
+                $movement->quantity = $qty;
+                $movement->userId = Craft::$app->getUser()->getId();
+                $movements[] = $movement;
+            }
+        }
+
+        foreach ($movements as $movement) {
+            if (!$movement->isValid()) {
+                return $this->asFailure(Craft::t('commerce', 'Invalid inventory movements.'),
+                    [
+                        'errors' => ['fulfillment' => $movement->getErrors() ],
+                    ]);
+            }
+        }
+
+        /** @var InventoryMovementCollection $movements */
+        $movements = InventoryMovementCollection::make($movements);
+
+        if (!Plugin::getInstance()->getInventory()->executeInventoryMovements($movements)) {
+            return $this->asFailure(Craft::t('commerce', 'Invalid inventory movements.'));
+        }
+
+        return $this->asSuccess(Craft::t('commerce', 'Updated committed stock successfully.'));
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     * @throws \craft\errors\DeprecationException
+     * @since 5.0.0
+     */
+    public function actionFulfillmentModal(): Response
+    {
+        $this->requireAcceptsJson();
+
+        $orderId = $this->request->getRequiredParam('orderId');
+        $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
+        $inventoryFulfillmentLevels = Plugin::getInstance()->getInventory()->getInventoryFulfillmentLevels($order)->groupBy('inventoryLocationId');
+
+        /** @phpstan-ignore-next-line */
+        $response = $this->asCpModal()
+            ->action('commerce/orders/fulfill')
+            ->submitButtonLabel(Craft::t('commerce', 'Update'))
+            ->contentTemplate('commerce/orders/modals/_fulfillmentModal', [
+                'inventoryFulfillmentLevels' => $inventoryFulfillmentLevels,
+                'order' => $order,
+            ])->prepareModal(function() {
+                $view = Craft::$app->getView();
+                $view->registerJsWithVars(fn() => <<<JS
+document.querySelector('input.fulfillment-quantity').addEventListener('input', e=>{
+  const el = e.target || e
+  if(el.type == "number" && el.max && el.min ){
+    let value = parseInt(el.value)
+    el.value = value // for 000 like input cleanup to 0
+    let max = parseInt(el.max)
+    let min = parseInt(el.min)
+    if ( value > max ) el.value = el.max
+    if ( value < min ) el.value = el.min
+  }
+});
+JS, []);
+            });
+
+        return $response;
     }
 
     /**
@@ -455,7 +583,7 @@ class OrdersController extends Controller
             ArrayHelper::removeValue($orderFields, $removeProp);
         }
 
-        if ($order::hasContent() && ($fieldLayout = $order->getFieldLayout()) !== null) {
+        if (($fieldLayout = $order->getFieldLayout()) !== null) {
             foreach ($fieldLayout->getCustomFields() as $field) {
                 /** @var Field $field */
                 ArrayHelper::removeValue($orderFields, $field->handle);
@@ -470,22 +598,37 @@ class OrdersController extends Controller
             'orderSite',
             'notices',
             'loadCartUrl',
+            'store',
+            'totalCommittedStock',
         ];
 
         $lineItems = $order->getLineItems();
         $purchasableCpEditUrlByPurchasableId = [];
         foreach ($lineItems as $lineItem) {
+            if ($lineItem->type === LineItemType::Custom) {
+                continue;
+            }
+
             /** @var Purchasable|PurchasableElement|null $purchasable */
             $purchasable = $lineItem->getPurchasable();
             if (!$purchasable || isset($purchasableCpEditUrlByPurchasableId[$purchasable->id])) {
                 continue;
             }
 
-            $purchasableCpEditUrlByPurchasableId[$purchasable->id] = $purchasable->getCpEditUrl();
+            if ($purchasable instanceof Variant) {
+                $product = $purchasable->getOwner();
+                $purchasableCpEditUrlByPurchasableId[$purchasable->id] = $product?->getCpEditUrl() ?? null;
+            } else {
+                $purchasableCpEditUrlByPurchasableId[$purchasable->id] = $purchasable->getCpEditUrl();
+            }
         }
+
+        $purchasableCpEditUrlByPurchasableId = array_filter($purchasableCpEditUrlByPurchasableId);
 
         $billingAddress = $order->getBillingAddress();
         $shippingAddress = $order->getShippingAddress();
+
+        $subUnit = Plugin::getInstance()->getCurrencies()->getSubunitFor($order->currency);
 
         $orderArray = $order->toArray($orderFields, $extraFields);
 
@@ -494,15 +637,22 @@ class OrdersController extends Controller
         }
 
         if ($billingAddress) {
-            $orderArray['billingAddressHtml'] = Cp::addressCardHtml(address: $billingAddress);
+            $orderArray['billingAddressHtml'] = Cp::elementCardHtml($billingAddress, [
+                'showEditButton' => false,
+            ]);
         }
 
         if ($shippingAddress) {
-            $orderArray['shippingAddressHtml'] = Cp::addressCardHtml(address: $shippingAddress);
+            $orderArray['shippingAddressHtml'] = Cp::elementCardHtml($shippingAddress, [
+                'showEditButton' => false,
+            ]);
         }
 
         if (!empty($orderArray['lineItems'])) {
             foreach ($orderArray['lineItems'] as &$lineItem) {
+                $lineItem['price'] = $lineItem['price'] !== null ? Craft::$app->getFormatter()->asDecimal($lineItem['price'], $subUnit) : null;
+                $lineItem['promotionalPrice'] = $lineItem['promotionalPrice'] !== null ? Craft::$app->getFormatter()->asDecimal($lineItem['promotionalPrice'], $subUnit) : null;
+
                 $lineItem['showForm'] = ArrayHelper::isAssociative($lineItem['options']) || (is_array($lineItem['options']) && empty($lineItem['options']));
                 $lineItem['purchasableCpEditUrl'] = $purchasableCpEditUrlByPurchasableId[$lineItem['purchasableId']] ?? null;
             }
@@ -526,17 +676,41 @@ class OrdersController extends Controller
         $sort = $this->request->getParam('sort');
         $limit = $this->request->getParam('per_page', 10);
         $search = $this->request->getParam('search');
+        $siteId = $this->request->getQueryParam('siteId');
+        $customerId = $this->request->getQueryParam('customerId', false);
+
+        if (!$siteId) {
+            throw new InvalidArgumentException('siteId is required');
+        }
+
+        $store = Plugin::getInstance()->getStores()->getStoreBySiteId($siteId);
+        if (!$store) {
+            throw new InvalidArgumentException('Store not found');
+        }
+
         $offset = ($page - 1) * $limit;
 
         // Prepare purchasables query
         $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
         $sqlQuery = (new Query())
-            ->select(['purchasables.id', 'purchasables.price', 'purchasables.description', 'purchasables.sku'])
+            ->select(['purchasables.id', 'pstores.basePrice', 'purchasables.description', 'purchasables.sku', 'elements.type'])
             ->leftJoin(['elements' => CraftTable::ELEMENTS], [
                 'and',
                 '[[elements.id]] = [[purchasables.id]]',
             ])
+            // Make sure this purchasable is enabled for the site
+            ->innerJoin(['es' => CraftTable::ELEMENTS_SITES], [
+                'and',
+                '[[es.elementId]] = [[purchasables.id]]',
+                '[[es.siteId]] = :siteId',
+            ], [
+                ':siteId' => $siteId,
+            ])
+            ->innerJoin(Table::PURCHASABLES_STORES . ' pstores', '[[purchasables.id]] = [[pstores.purchasableId]]')
             ->where(['elements.enabled' => true])
+            ->andWhere(['pstores.storeId' => $store->id])
+            ->andWhere(['elements.revisionId' => null])
+            ->andWhere(['elements.draftId' => null])
             ->from(['purchasables' => Table::PURCHASABLES]);
 
         // Are they searching for a SKU or purchasable description?
@@ -581,11 +755,9 @@ class OrdersController extends Controller
 
         $result = $sqlQuery->all();
 
-        $purchasables = $this->_addLivePurchasableInfo($result);
-
         return $this->asSuccess(data: [
             'pagination' => AdminTable::paginationLinks($page, $total, $limit),
-            'data' => $purchasables,
+            'data' => $this->_addLivePurchasableInfo($result, $siteId, $customerId),
         ]);
     }
 
@@ -650,7 +822,7 @@ class OrdersController extends Controller
 
         $addresses = $addressElements->map(function(Address $address) {
             return $address->toArray() + [
-                    'html' => Cp::addressCardHtml(address: $address),
+                    'html' => Cp::elementCardHtml($address),
                 ];
         });
 
@@ -687,7 +859,7 @@ class OrdersController extends Controller
 
         return $this->asSuccess(data: [
             'address' => $address->toArray() + [
-                    'html' => Cp::addressCardHtml(address: $address),
+                    'html' => Cp::elementCardHtml($address),
                 ],
         ]);
     }
@@ -703,9 +875,11 @@ class OrdersController extends Controller
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $requestAddress = $this->request->getRequiredParam('address');
+        $attributes = $this->request->getRequiredParam('address');
 
-        $address = Craft::createObject(Address::class, ['config' => ['attributes' => $requestAddress]]);
+        $attributes += ['class' => Address::class];
+
+        $address = Craft::createObject($attributes);
 
         if (!$address->validate()) {
             return $this->asModelFailure(model: $address, message: Craft::t('commerce', 'Unable to validate address.'), modelName: 'address');
@@ -751,15 +925,14 @@ class OrdersController extends Controller
             return $this->asFailure(Craft::t('commerce', 'Bad Request'));
         }
 
-        $email = Plugin::getInstance()->getEmails()->getEmailById($id);
         $order = Order::find()->id($orderId)->one();
-
-        if ($email === null || !$email->enabled) {
-            return $this->asFailure(Craft::t('commerce', 'Can not find enabled email.'));
-        }
-
         if ($order === null) {
             return $this->asFailure(Craft::t('commerce', 'Can not find order'));
+        }
+
+        $email = Plugin::getInstance()->getEmails()->getEmailById($id, $order->storeId);
+        if ($email === null || !$email->enabled) {
+            return $this->asFailure(Craft::t('commerce', 'Can not find enabled email.'));
         }
 
         $originalLanguage = Craft::$app->language;
@@ -782,7 +955,7 @@ class OrdersController extends Controller
         }
 
         // Set previous language back
-        Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale);
+        Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale->id);
 
         if (!$success) {
             $error = $error ?: Craft::t('commerce', 'Could not send email');
@@ -847,7 +1020,11 @@ class OrdersController extends Controller
     {
         $this->requireAcceptsJson();
 
-        $counts = Plugin::getInstance()->getOrderStatuses()->getOrderCountByStatus();
+        /** @var Site|StoreBehavior|null $site */
+        $site = Cp::requestedSite();
+        $storeId = $site?->getStore()->id ?? null;
+
+        $counts = Plugin::getInstance()->getOrderStatuses()->getOrderCountByStatus($storeId);
 
         $total = array_reduce($counts, static function($sum, $thing) {
             return $sum + (int)$thing['orderCount'];
@@ -940,6 +1117,8 @@ class OrdersController extends Controller
             $formHtml .= $paymentFormHtml;
         }
 
+        $view->registerAssetBundle(InputmaskAsset::class);
+
         $modalHtml = $view->renderTemplate('commerce/orders/_paymentmodal', [
             'gateways' => $gateways,
             'order' => $order,
@@ -1005,7 +1184,9 @@ class OrdersController extends Controller
         $transaction = Plugin::getInstance()->getTransactions()->getTransactionById($id);
 
         $amount = $this->request->getParam('amount');
-        $amount = Localization::normalizeNumber($amount);
+        $amount = MoneyHelper::toMoney(array_merge($amount,['currency' => $transaction->paymentCurrency]));
+        $amount = MoneyHelper::toDecimal($amount);
+
         $note = $this->request->getRequiredBodyParam('note');
 
         if (!$transaction) {
@@ -1070,12 +1251,16 @@ class OrdersController extends Controller
         $paymentCurrencies = Plugin::getInstance()->getPaymentCurrencies();
         $paymentCurrency = $this->request->getRequiredParam('paymentCurrency');
         $paymentAmount = $this->request->getRequiredParam('paymentAmount');
+        $locale = $this->request->getRequiredParam('locale');
         $orderId = $this->request->getRequiredParam('orderId');
         /** @var Order $order */
         $order = Order::find()->id($orderId)->one();
         $baseCurrency = $order->currency;
 
-        $baseCurrencyPaymentAmount = $paymentCurrencies->convertCurrency($paymentAmount, $paymentCurrency, $baseCurrency);
+        $paymentAmount = MoneyHelper::toMoney(['value' => $paymentAmount, 'currency' => $baseCurrency, 'locale' => $locale]);
+        $paymentAmount = MoneyHelper::toDecimal($paymentAmount);
+
+        $baseCurrencyPaymentAmount = $paymentCurrencies->convertCurrency((float)$paymentAmount, $paymentCurrency, $baseCurrency);
         $baseCurrencyPaymentAmountAsCurrency = Craft::t('commerce', 'Pay {amount} of {currency} on the order.', ['amount' => Currency::formatAsCurrency($baseCurrencyPaymentAmount, $baseCurrency), 'currency' => $baseCurrency]);
 
         $outstandingBalance = $order->outstandingBalance;
@@ -1106,6 +1291,12 @@ class OrdersController extends Controller
         /** @var Order $order */
         $order = $variables['order'];
 
+        $variables['ordersBodyClass'] = '';
+
+        if (version_compare(Craft::$app->getVersion(), '5.7.0', '>=')) {
+            $variables['ordersBodyClass'] .= ' commerceorders-post-57';
+        }
+
         $variables['title'] = Craft::t('commerce', 'Order') . ' ' . $order->reference;
 
         if (!$order->isCompleted && $order->origin == Order::ORIGIN_CP) {
@@ -1113,7 +1304,7 @@ class OrdersController extends Controller
         }
 
         if (!$order->isCompleted && $order->origin == Order::ORIGIN_WEB) {
-            $variables['title'] = Craft::t('commerce', 'Cart') . ' ' . $order->getShortNumber();
+            $variables['title'] = Craft::t('commerce', 'Cart {number}', ['number' => $order->getShortNumber()]);
         }
 
         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Order::class);
@@ -1169,7 +1360,7 @@ class OrdersController extends Controller
             if ($gateway && !$gateway instanceof MissingGateway) {
                 $variables['paymentForm'] = $gateway->getPaymentFormModel();
             } else {
-                $gateway = ArrayHelper::firstValue(Plugin::getInstance()->getGateways()->getAllGateways());
+                $gateway = Plugin::getInstance()->getGateways()->getAllGateways()->first();
 
                 if ($gateway && !$gateway instanceof MissingGateway) {
                     $variables['paymentForm'] = $gateway->getPaymentFormModel();
@@ -1188,81 +1379,107 @@ class OrdersController extends Controller
      */
     private function _registerJavascript(array $variables): void
     {
+        /** @var Order $order */
+        $order = $variables['order'];
         Craft::$app->getView()->registerAssetBundle(CommerceOrderAsset::class);
+        // Include the input mask asset for use in pricing fields
+        Craft::$app->getView()->registerAssetBundle(MoneyAsset::class);
 
         Craft::$app->getView()->registerJs('window.orderEdit = {};', View::POS_BEGIN);
 
-        Craft::$app->getView()->registerJs('window.orderEdit.autoSetNewCartAddresses = ' . Json::encode(Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) . ';', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.autoSetNewCartAddresses = ' . Json::encode($order->getStore()->getAutoSetNewCartAddresses()) . ';', View::POS_BEGIN);
 
-        Craft::$app->getView()->registerJs('window.orderEdit.orderId = ' . $variables['order']->id . ';', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.orderId = ' . $order->id . ';', View::POS_BEGIN);
 
-        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
-        Craft::$app->getView()->registerJs('window.orderEdit.orderStatuses = ' . Json::encode(ArrayHelper::toArray($orderStatuses)) . ';', View::POS_BEGIN);
+        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($order->storeId)->all();
+        Craft::$app->getView()->registerJs('window.orderEdit.orderStatuses = ' . Json::encode($orderStatuses) . ';', View::POS_BEGIN);
 
-        $orderSites = Craft::$app->getSites()->getAllSites();
-        Craft::$app->getView()->registerJs('window.orderEdit.orderSites = ' . Json::encode(ArrayHelper::toArray($orderSites)) . ';', View::POS_BEGIN);
+        $orderSites = $order->getStore()->getSites()->all();
+        Craft::$app->getView()->registerJs('window.orderEdit.orderSites = ' . Json::encode(array_values($orderSites)) . ';', View::POS_BEGIN);
 
-        $lineItemStatuses = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses();
-        Craft::$app->getView()->registerJs('window.orderEdit.lineItemStatuses = ' . Json::encode(array_values($lineItemStatuses)) . ';', View::POS_BEGIN);
+        $lineItemStatuses = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses($order->storeId)->all();
+        Craft::$app->getView()->registerJs('window.orderEdit.lineItemStatuses = ' . Json::encode($lineItemStatuses) . ';', View::POS_BEGIN);
+
+        $lineItemTypes = LineItemType::types();
+
+        Craft::$app->getView()->registerJs('window.orderEdit.lineItemTypes = ' . Json::encode($lineItemTypes) . ';', View::POS_BEGIN);
 
         $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategoriesAsList();
         Craft::$app->getView()->registerJs('window.orderEdit.taxCategories = ' . Json::encode(ArrayHelper::toArray($taxCategories)) . ';', View::POS_BEGIN);
 
-        $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList();
+        $defaultTaxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
+        Craft::$app->getView()->registerJs('window.orderEdit.defaultTaxCategoryId = ' . Json::encode($defaultTaxCategoryId) . ';', View::POS_BEGIN);
+
+        $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList($order->storeId);
         Craft::$app->getView()->registerJs('window.orderEdit.shippingCategories = ' . Json::encode(ArrayHelper::toArray($shippingCategories)) . ';', View::POS_BEGIN);
 
+        $defaultShippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($order->storeId)->id;
+        Craft::$app->getView()->registerJs('window.orderEdit.defaultShippingCategoryId = ' . Json::encode($defaultShippingCategoryId) . ';', View::POS_BEGIN);
+
         $currentUser = Craft::$app->getUser()->getIdentity();
-        $permissions = [
-            'commerce-manageOrders' => $currentUser->can('commerce-manageOrders'),
-            'commerce-editOrders' => $currentUser->can('commerce-editOrders'),
-            'commerce-deleteOrders' => $currentUser->can('commerce-deleteOrders'),
-        ];
+
+        $permissions = ArrayHelper::map([
+            'editUsers',
+            'commerce-manageOrders',
+            'commerce-editOrders',
+            'commerce-deleteOrders',
+        ], fn($permission) => $permission, fn($permission) => Craft::$app->getUser()->getIdentity()->can($permission));
+
         Craft::$app->getView()->registerJs('window.orderEdit.currentUserPermissions = ' . Json::encode($permissions) . ';', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.currentUserId = ' . Json::encode($currentUser->id) . ';', View::POS_BEGIN);
 
         Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrl = "' . UrlHelper::cpUrl('commerce/orders') . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrlHashed = "' . Craft::$app->getSecurity()->hashData('commerce/orders') . '"', View::POS_BEGIN);
-        Craft::$app->getView()->registerJs('window.orderEdit.continueEditingUrl = "' . $variables['order']->cpEditUrl . '"', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.continueEditingUrl = "' . $order->cpEditUrl . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.userPhotoFallback = "' . Craft::$app->getAssetManager()->getPublishedUrl('@app/web/assets/cp/dist', true, 'images/user.svg') . '"', View::POS_BEGIN);
 
-        $customer = $variables['order']->customerId ? $variables['order']->getCustomer() : null;
+        // Pad the decimal mask with `#` to match the number of decimal places in the currency
+        $subUnit = Plugin::getInstance()->getCurrencies()->getSubunitFor($order->currency);
+        $formattingLocale = Craft::$app->getFormattingLocale();
+
+        $currencyConfig = [
+            'currency' => $order->currency,
+            'decimals' => $subUnit,
+            'decimalSeparator' => $formattingLocale->getNumberSymbol($formattingLocale::SYMBOL_DECIMAL_SEPARATOR),
+            'groupSeparator' => $formattingLocale->getNumberSymbol($formattingLocale::SYMBOL_GROUPING_SEPARATOR),
+        ];
+
+        Craft::$app->getView()->registerJs('window.orderEdit.currencyConfig = ' . Json::encode($currencyConfig) , View::POS_BEGIN);
+
+        $customer = $order->customerId ? $order->getCustomer() : null;
         if ($customer) {
             $customer = $this->_customerToArray($customer);
         }
 
         Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = ' . Json::encode($customer, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), View::POS_BEGIN);
 
-        $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
-        $pdfUrls = [];
-        foreach ($pdfs as $pdf) {
-            $pdfUrls[] = [
-                'name' => $pdf->name,
-                'url' => $variables['order']->getPdfUrl(null, $pdf->handle),
-            ];
-        }
+        $pdfUrls = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs($order->storeId)->map(fn(Pdf $pdf) => [
+            'name' => $pdf->name,
+            'url' => $order->getPdfUrl(null, $pdf->handle),
+        ])->all();
 
-        Craft::$app->getView()->registerJs('window.orderEdit.pdfUrls = ' . Json::encode(ArrayHelper::toArray($pdfUrls)) . ';', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.pdfUrls = ' . Json::encode($pdfUrls) . ';', View::POS_BEGIN);
 
-        $emails = Plugin::getInstance()->getEmails()->getAllEnabledEmails();
+        $emails = Plugin::getInstance()->getEmails()->getAllEnabledEmails($order->storeId);
         Craft::$app->getView()->registerJs('window.orderEdit.emailTemplates = ' . Json::encode(ArrayHelper::toArray($emails)) . ';', View::POS_BEGIN);
 
         $response = [];
-        $response['order'] = $this->_orderToArray($variables['order']);
+        $response['order'] = $this->_orderToArray($order);
 
-        if ($variables['order']->hasErrors()) {
-            $response['order']['errors'] = $variables['order']->getErrors();
-            $response['errors'] = $variables['order']->getErrors();
+        if ($order->hasErrors()) {
+            $response['order']['errors'] = $order->getErrors();
+            $response['errors'] = $order->getErrors();
             $response['error'] = Craft::t('commerce', 'The order is not valid.');
         }
 
         Craft::$app->getView()->registerJs('window.orderEdit.data = ' . Json::encode($response, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT) . ';', View::POS_BEGIN);
 
-        $forceEdit = ($variables['order']->hasErrors() || !$variables['order']->isCompleted);
+        $forceEdit = ($order->hasErrors() || !$order->isCompleted);
 
         Craft::$app->getView()->registerJs('window.orderEdit.forceEdit = ' . Json::encode($forceEdit) . ';', View::POS_BEGIN);
 
-        $store = Plugin::getInstance()->getStore()->getStore();
-        Craft::$app->getView()->registerJs('window.orderEdit.store = ' . Json::encode($store->toArray([], ['locationAddress'])) . ';', View::POS_BEGIN);
+        $store = $order->getStore();
+        Craft::$app->getView()->registerJs('window.orderEdit.store = ' . Json::encode($store->toArray([], ['settings.locationAddress'])) . ';', View::POS_BEGIN);
     }
 
     /**
@@ -1321,6 +1538,7 @@ class OrdersController extends Controller
                     $address = Craft::$app->getElements()->getElementById($address['id'], Address::class);
                     $address = Craft::$app->getElements()->duplicateElement($address, [
                         'owner' => $order,
+                        'primaryOwner' => $order,
                         'title' => $title,
                     ]);
                 } elseif ($address && ($address['id'] && $address['ownerId'] == $order->id)) {
@@ -1394,6 +1612,15 @@ class OrdersController extends Controller
 
         foreach ($orderRequestData['order']['lineItems'] as $lineItemData) {
             // Normalize data
+            $type = $lineItemData['type'] ?? LineItemType::Purchasable;
+            if (is_string($type)) {
+                $type = LineItemType::from($type);
+            } elseif (is_array($type) && isset($type['value'])) {
+                $type = LineItemType::from($type['value']);
+            }
+
+            $description = $lineItemData['description'] ?? null;
+            $sku = $lineItemData['sku'] ?? null;
             $lineItemId = $lineItemData['id'] ?? null;
             $note = $lineItemData['note'] ?? '';
             $privateNote = $lineItemData['privateNote'] ?? '';
@@ -1401,18 +1628,31 @@ class OrdersController extends Controller
             $lineItemStatusId = $lineItemData['lineItemStatusId'];
             $options = $lineItemData['options'] ?? [];
             $qty = $lineItemData['qty'] ?? 1;
+            $shippingCategoryId = $lineItemData['shippingCategoryId'] ?? null;
+            $taxCategoryId = $lineItemData['taxCategoryId'] ?? null;
+            $hasFreeShipping = $lineItemData['hasFreeShipping'] ?? null;
+            $isPromotable = $lineItemData['isPromotable'] ?? null;
+            $isShippable = $lineItemData['isShippable'] ?? null;
+            $isTaxable = $lineItemData['isTaxable'] ?? null;
             $uid = $lineItemData['uid'] ?? StringHelper::UUID();
 
             if ($lineItemId) {
                 $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
             } else {
                 try {
-                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order, $purchasableId, $options, $qty, $note, $uid);
+                    $params = compact('options', 'qty', 'note', 'uid');
+                    if ($type === LineItemType::Purchasable) {
+                        $params['purchasableId'] = $purchasableId;
+                    }
+
+                    $lineItem = Plugin::getInstance()->getLineItems()->create($order, $params, $type);
                 } catch (\Exception $exception) {
                     $order->addError('lineItems', $exception->getMessage());
                     continue;
                 }
             }
+
+            $lineItem->type = $type;
 
             $lineItem->purchasableId = $purchasableId;
             $lineItem->qty = $qty;
@@ -1424,13 +1664,51 @@ class OrdersController extends Controller
 
             $lineItem->setOrder($order);
 
+            if ($lineItem->type === LineItemType::Custom) {
+                if ($description) {
+                    $lineItem->setDescription($description);
+                }
+
+                if ($sku) {
+                    $lineItem->setSku($sku);
+                }
+
+                if ($shippingCategoryId) {
+                    $lineItem->shippingCategoryId = $shippingCategoryId;
+                }
+
+                if ($taxCategoryId) {
+                    $lineItem->taxCategoryId = $taxCategoryId;
+                }
+
+                if ($hasFreeShipping !== null) {
+                    $lineItem->setHasFreeShipping($hasFreeShipping);
+                }
+
+                if ($isPromotable !== null) {
+                    $lineItem->setIsPromotable($isPromotable);
+                }
+
+                if ($isShippable !== null) {
+                    $lineItem->setIsShippable($isShippable);
+                }
+
+                if ($isTaxable !== null) {
+                    $lineItem->setIsTaxable($isTaxable);
+                }
+            }
+
             // Deleted a purchasable while we had a purchasable ID in memory on the order edit page, unset it.
-            if ($purchasableId && !Craft::$app->getElements()->getElementById($purchasableId)) {
+            if ($lineItem->type === LineItemType::Purchasable && $purchasableId && !Plugin::getInstance()->getPurchasables()->getPurchasableById($purchasableId, $orderRequestData['order']['orderSiteId'], $orderRequestData['order']['customerId'] ?? false)) {
                 $lineItem->purchasableId = null;
             }
 
-            if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
-                $lineItem->salePrice = $lineItemData['salePrice'];
+            if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE || $lineItem->type === LineItemType::Custom) {
+                $promotionalPrice = $lineItemData['promotionalPrice'] ? Localization::normalizeNumber($lineItemData['promotionalPrice']) : null;
+                $price = $lineItemData['price'] ? Localization::normalizeNumber($lineItemData['price']) : 0;
+
+                $lineItem->setPromotionalPrice($promotionalPrice);
+                $lineItem->setPrice($price);
             }
 
             if ($qty !== null && $qty > 0) {
@@ -1558,7 +1836,7 @@ class OrdersController extends Controller
                         ['label' => Html::encode(Craft::t('commerce', 'Gateway Message')), 'type' => 'text', 'value' => $transactionMessage],
                         ['label' => Html::encode(Craft::t('commerce', 'Note')), 'type' => 'text', 'value' => Html::encode($transaction->note)],
                         ['label' => Html::encode(Craft::t('commerce', 'Gateway Code')), 'type' => 'code', 'value' => $transaction->code],
-                        ['label' => Html::encode(Craft::t('commerce', 'Converted Price')), 'type' => 'text', 'value' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>' . ' <small class="light">(1 ' . $transaction->currency . ' = ' . number_format($transaction->paymentRate) . ' ' . $transaction->paymentCurrency . ')</small>'],
+                        ['label' => Html::encode(Craft::t('commerce', 'Converted Price')), 'type' => 'text', 'value' => $transaction->paymentAmountAsCurrency . ' <small class="light">(1 ' . $transaction->currency . ' = ' . $transaction->paymentRate . ' ' . $transaction->paymentCurrency . ')</small>'],
                         ['label' => Html::encode(Craft::t('commerce', 'Gateway Response')), 'type' => 'response', 'value' => $transactionResponse],
                     ],
                     'actions' => $refundCapture,
@@ -1580,19 +1858,52 @@ class OrdersController extends Controller
     /**
      * @throws InvalidConfigException
      */
-    private function _addLivePurchasableInfo(array $results): array
+    private function _addLivePurchasableInfo(array $results, int $siteId, int|false|null $customerId = null): array
     {
-        $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $purchasables = [];
+        $store = Plugin::getInstance()->getStores()->getStoreBySiteId($siteId);
+        $baseCurrency = $store->getCurrency();
+
+        $elementIdsByType = [];
+        foreach ($results as $r) {
+            if (!array_key_exists($r['type'], $elementIdsByType)) {
+                $elementIdsByType[$r['type']] = [];
+            }
+            $elementIdsByType[$r['type']][] = $r['id'];
+        }
+
+        $purchasablesById = [];
+        foreach ($elementIdsByType as $type => $ids) {
+            /** @var ElementInterface $type */
+
+            if (!class_exists($type)) {
+                continue;
+            }
+
+            /** @var ElementQuery $query */
+            $query = $type::find();
+
+            if ($type::isLocalized()) {
+                $query->siteId($siteId);
+            }
+
+            $query->status(null);
+
+            if ($query instanceof PurchasableQuery) {
+                $query->forCustomer($customerId);
+            }
+
+            $purchasablesById = [...$purchasablesById, ...$query->id($ids)->all()];
+        }
+
         foreach ($results as $row) {
-            /** @var PurchasableElement|null $purchasable */
-            $purchasable = Craft::$app->getElements()->getElementById($row['id']);
+            /** @var PurchasableInterface|null $purchasable */
+            $purchasable = ArrayHelper::firstWhere($purchasablesById, 'id', $row['id']);
             if ($purchasable) {
-                if ($purchasable->getBehavior('currencyAttributes')) {
-                    $row['priceAsCurrency'] = $purchasable->priceAsCurrency;
-                } else {
-                    $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
-                }
+                // @TODO revisit when updating currencies for stores
+                $row['price'] = $purchasable->getSalePrice();
+                $row['promotionalPrice'] = $purchasable->getPromotionalPrice();
+                $row['priceAsCurrency'] = MoneyHelper::toString(MoneyHelper::toMoney(['value' => $purchasable->getSalePrice(), 'currency' => $baseCurrency]));
                 $row['isAvailable'] = Plugin::getInstance()->getPurchasables()->isPurchasableAvailable($purchasable);
                 $row['detail'] = [
                     'title' => Craft::t('commerce', 'Information'),
@@ -1607,6 +1918,7 @@ class OrdersController extends Controller
                 $purchasables[] = $row;
             }
         }
+
         return $purchasables;
     }
 
@@ -1623,7 +1935,10 @@ class OrdersController extends Controller
         return $customer->toArray(expand: ['photo']) + [
                 'cpEditUrl' => $customer->getCpEditUrl(),
                 'totalAddresses' => $totalAddresses,
-                'photoThumbUrl' => $customer->getThumbUrl(100),
+                'photoThumbHtml' => $customer->getThumbHtml(100),
+
+                // @TODO remove when update order edit to use `photoThumbHtml`
+                'photoThumbUrl' => '',
             ];
     }
 

@@ -1,0 +1,57 @@
+{% extends "commerce/_layouts/store-management" %}
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Base',
+    'Code',
+    'Conversion Rate',
+    'Currency',
+    'No additional payment currencies exist yet.',
+    'Warning, deleting this currency will stop all payments and refunds in this currency, are you sure you want to delete “{name}”?',
+]) %}
+
+{% block actionButton %}
+    <a href="{{ url("commerce/store-management/#{storeHandle}/payment-currencies/new") }}" class="btn submit add icon">{{ 'New currency'|t('commerce') }}</a>
+{% endblock %}
+
+{% block content %}
+    <div id="currencies-vue-admin-table"></div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for currency in currencies %}
+	{% set tableData = tableData|merge([{
+        id: currency.id,
+        title: currency.primary ? "{name} (Primary)"|t('commerce', { name: currency.name })|e : currency.name|t('site'),
+        url: currency.primary ? null : currency.cpEditUrl,
+        handle: currency.iso,
+        rate: currency.primary ? 'base' : currency.rate|number,
+        _showDelete: (not currency.primary),
+    }]) %}
+{% endfor %}
+
+{% js %}
+    var columns = [
+        { name: '__slot:title', title: Craft.t('commerce', 'Currency') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Code') },
+        {
+            name: 'rate',
+            title: Craft.t('commerce', 'Conversion Rate'),
+            callback: function(value) {
+                if (value == 'base') {
+                    return '<span class="token">'+Craft.escapeHtml(Craft.t('commerce', 'Base'))+'</span>'
+                }
+
+                return value;
+            }
+        },
+    ];
+
+    new Craft.VueAdminTable({
+        columns: columns,
+        container: '#currencies-vue-admin-table',
+        emptyMessage: Craft.t('commerce', 'No additional payment currencies exist yet.'),
+        deleteAction: 'commerce/payment-currencies/delete',
+        deleteConfirmationMessage: Craft.t('commerce', 'Warning, deleting this currency will stop all payments and refunds in this currency, are you sure you want to delete “{name}”?'),
+        tableData: {{ tableData|json_encode|raw }},
+    });
+{% endjs %}

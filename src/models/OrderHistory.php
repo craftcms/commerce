@@ -81,7 +81,7 @@ class OrderHistory extends Model
      */
     public function getPrevStatus(): ?OrderStatus
     {
-        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses(true);
+        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($this->getOrder()?->storeId);
         return ArrayHelper::firstWhere($orderStatuses, 'id', $this->prevStatusId);
     }
 
@@ -90,7 +90,7 @@ class OrderHistory extends Model
      */
     public function getNewStatus(): ?OrderStatus
     {
-        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses(true);
+        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($this->getOrder()?->storeId);
         return ArrayHelper::firstWhere($orderStatuses, 'id', $this->newStatusId);
     }
 

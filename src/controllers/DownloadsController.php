@@ -50,13 +50,13 @@ class DownloadsController extends BaseFrontEndController
         }
 
         if ($pdfHandle) {
-            $pdf = Plugin::getInstance()->getPdfs()->getPdfByHandle($pdfHandle);
+            $pdf = Plugin::getInstance()->getPdfs()->getPdfByHandle($pdfHandle, $order->storeId);
 
             if (!$pdf) {
                 throw new InvalidCallException("Can not find the PDF to render based on the handle supplied.");
             }
         } else {
-            $pdf = Plugin::getInstance()->getPdfs()->getDefaultPdf();
+            $pdf = Plugin::getInstance()->getPdfs()->getDefaultPdf($order->storeId);
         }
 
         if (!$pdf) {
@@ -72,7 +72,7 @@ class DownloadsController extends BaseFrontEndController
         $renderedPdf = Plugin::getInstance()->getPdfs()->renderPdfForOrder($order, $option, null, [], $pdf);
 
         // Set previous language back
-        Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale);
+        Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale->id);
 
         $fileName = $this->getView()->renderObjectTemplate((string)$pdf->fileNameFormat, $order);
         if (!$fileName) {

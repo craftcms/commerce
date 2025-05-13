@@ -8,6 +8,7 @@
 namespace craftcommercetests\unit\stats;
 
 use Codeception\Test\Unit;
+use craft\commerce\Plugin;
 use craft\commerce\stats\TotalOrdersByCountry;
 use craftcommercetests\fixtures\OrdersFixture;
 use DateTime;
@@ -53,7 +54,8 @@ class TotalOrdersByCountryTest extends Unit
      */
     public function testGetData(string $dateRange, string $type, DateTime $startDate, DateTime $endDate, int $count, array $countryData): void
     {
-        $stat = new TotalOrdersByCountry($dateRange, $type, $startDate, $endDate);
+        $storeId = Plugin::getInstance()->getStores()->getPrimaryStore()->id;
+        $stat = new TotalOrdersByCountry($dateRange, $type, $startDate, $endDate, $storeId);
         $data = $stat->get();
 
         self::assertIsArray($data);

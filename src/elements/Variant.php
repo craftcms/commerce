@@ -9,9 +9,14 @@ namespace craft\commerce\elements;
 
 use Craft;
 use craft\base\Element;
+use craft\base\ElementInterface;
+use craft\base\Field;
+use craft\base\NestedElementInterface;
+use craft\base\NestedElementTrait;
 use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
+use craft\commerce\elements\actions\SetDefaultVariant;
 use craft\commerce\elements\conditions\variants\VariantCondition;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\events\CustomizeProductSnapshotDataEvent;
@@ -19,35 +24,40 @@ use craft\commerce\events\CustomizeProductSnapshotFieldsEvent;
 use craft\commerce\events\CustomizeVariantSnapshotDataEvent;
 use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
-use craft\commerce\models\LineItem;
-use craft\commerce\models\OrderNotice;
 use craft\commerce\models\ProductType;
-use craft\commerce\models\Sale;
+use craft\commerce\models\ShippingCategory;
+use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
+use craft\elements\actions\Restore;
 use craft\elements\conditions\ElementConditionInterface;
+use craft\elements\db\EagerLoadPlan;
+use craft\elements\User;
 use craft\gql\types\DateTime;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
+use craft\helpers\Db;
+use craft\helpers\ElementHelper;
 use craft\helpers\Html;
+use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use Throwable;
 use yii\base\Exception;
+use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
-use yii\db\Expression;
 use yii\validators\Validator;
 
 /**
  * Variant model.
  *
  * @property string $eagerLoadedElements some eager-loaded elements on a given handle
- * @property bool $onSale
- * @property Product $product the product associated with this variant
- * @property Sale[] $sales sales models which are currently affecting the salePrice of this purchasable
  * @property string $priceAsCurrency
  * @property DateTime|null $dateUpdated
  * @property DateTime|null $dateCreated
+ * @property Product|null $owner
+ * @property Product|null $primaryOwner
  * @property-read string[] $cacheTags
  * @property-read string $gqlTypeName
  * @property-read string $skuAsText
@@ -55,8 +65,15 @@ use yii\validators\Validator;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class Variant extends Purchasable
+class Variant extends Purchasable implements NestedElementInterface
 {
+    use NestedElementTrait {
+        eagerLoadingMap as traitEagerLoadingMap;
+        setPrimaryOwner as traitSetPrimaryOwner;
+        setOwner as traitSetOwner;
+        setEagerLoadedElements as traitSetEagerLoadedElements;
+    }
+
     /**
      * @event craft\commerce\events\CustomizeVariantSnapshotFieldsEvent The event that is triggered before a variant’s field data is captured, which makes it possible to customize which fields are included in the snapshot. Custom fields are not included by default.
      *
@@ -179,21 +196,10 @@ class Variant extends Purchasable
      */
     public const EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT = 'afterCaptureProductSnapshot';
 
-
-    /**
-     * @var int|null $productId
-     */
-    public ?int $productId = null;
-
     /**
      * @var bool $isDefault
      */
     public bool $isDefault = false;
-
-    /**
-     * @inheritdoc
-     */
-    public ?float $price = null;
 
     /**
      * @var int|null $sortOrder
@@ -201,64 +207,18 @@ class Variant extends Purchasable
     public ?int $sortOrder = null;
 
     /**
-     * @var float|null $width
+     * @var string|null
+     * @see getProductSlug()
+     * @see setProductSlug()
      */
-    public ?float $width = null;
+    private ?string $_productSlug = null;
 
     /**
-     * @var float|null $height
+     * @var string|null
+     * @see getProductTypeHandle()
+     * @see setProductTypeHandle()
      */
-    public ?float $height = null;
-
-    /**
-     * @var float|null $length
-     */
-    public ?float $length = null;
-
-    /**
-     * @var float|null $weight
-     */
-    public ?float $weight = null;
-
-    /**
-     * @var int|null $stock
-     */
-    public ?int $stock = null;
-
-    /**
-     * @var bool $hasUnlimitedStock
-     */
-    public bool $hasUnlimitedStock = false;
-
-    /**
-     * @var int|null $minQty
-     */
-    public ?int $minQty = null;
-
-    /**
-     * @var int|null $maxQty
-     */
-    public ?int $maxQty = null;
-
-    /**
-     * @var bool Whether the variant was deleted along with its product
-     * @see beforeDelete()
-     */
-    public bool $deletedWithProduct = false;
-
-    /**
-     * @var Product|null The product that this variant is associated with.
-     * @see getProduct()
-     * @see setProduct()
-     */
-    private ?Product $_product = null;
-
-    /**
-     * @var string SKU
-     * @see getSku()
-     * @see setSku()
-     */
-    private string $_sku = '';
+    private ?string $_productTypeHandle = null;
 
     /**
      * @throws InvalidConfigException
@@ -269,37 +229,18 @@ class Variant extends Purchasable
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
-            'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
             'currencyAttributes' => $this->currencyAttributes(),
         ];
 
         return $behaviors;
     }
 
-    /**
-     * @return array
-     */
-    public function currencyAttributes(): array
+    public function safeAttributes()
     {
-        return [
-            'price',
-            'salePrice',
-        ];
-    }
+        $attributes = parent::safeAttributes();
+        $attributes[] = 'productId';
 
-    /**
-     * @inheritdoc
-     */
-    public function __toString(): string
-    {
-        $product = $this->getProduct();
-
-        // Use a combined Product and Variant title, if the variant belongs to a product with other variants.
-        if ($product && $product->getType()->hasVariants) {
-            return "$this->product: $this->title";
-        }
-
-        return parent::__toString();
+        return $attributes;
     }
 
     /**
@@ -344,36 +285,124 @@ class Variant extends Purchasable
 
     /**
      * @inheritdoc
-     * @return VariantCondition
      */
-    public static function createCondition(): ElementConditionInterface
+    public function getIsTitleTranslatable(): bool
     {
-        return Craft::createObject(VariantCondition::class, [static::class]);
+        return ($this->getOwner()->getType()->variantTitleTranslationMethod !== Field::TRANSLATION_METHOD_NONE);
     }
 
     /**
      * @inheritdoc
      */
-    protected function defineRules(): array
+    public function getTitleTranslationDescription(): ?string
     {
-        return array_merge(parent::defineRules(), [
-            [['sku'], 'string', 'max' => 255],
-            [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE],
-            [['price', 'weight', 'width', 'height', 'length'], 'number'],
-            // maxQty must be greater than minQty and minQty must be less than maxQty
-            [['minQty'], 'validateMinQtyRange', 'skipOnEmpty' => true],
-            [['maxQty'], 'validateMaxQtyRange', 'skipOnEmpty' => true],
-            [
-                ['stock'],
-                'required',
-                'when' => static function($model) {
-                    /** @var Variant $model */
-                    return !$model->hasUnlimitedStock;
-                },
-                'on' => self::SCENARIO_LIVE,
-            ],
-            [['stock'], 'number'],
-        ]);
+        return ElementHelper::translationDescription($this->getOwner()->getType()->variantTitleTranslationMethod);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getTitleTranslationKey(): string
+    {
+        $type = $this->getOwner()->getType();
+        return ElementHelper::translationKey($this, $type->variantTitleTranslationMethod, $type->variantTitleTranslationKeyFormat);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canSave(User $user): bool
+    {
+        if (parent::canSave($user)) {
+            return true;
+        }
+
+        $product = $this->getOwner();
+        if ($product === null) {
+            return false;
+        }
+
+        return $product->canSave($user);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canDelete(User $user): bool
+    {
+        if (parent::canDelete($user)) {
+            return true;
+        }
+
+        return $this->canSave($user);
+    }
+
+    /**
+     * @return bool
+     * TODO: Remove in next breakpoint
+     */
+    public function getDeletedWithProduct(): bool
+    {
+        Craft::$app->getDeprecator()->log('Variant::getDeletedWithProduct()', 'The “deletedWithProduct” property has been deprecated. Use “deletedWithOwner” instead.');
+
+        return $this->deletedWithOwner;
+    }
+
+    /**
+     * @param $value
+     * @return void
+     * TODO: Remove in next breakpoint
+     */
+    public function setDeletedWithProduct($value): void
+    {
+        return;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canDuplicate(User $user): bool
+    {
+        if (parent::canDuplicate($user)) {
+            return true;
+        }
+
+        return $this->canSave($user);
+    }
+
+    /**
+     * @inheritdoc
+     * @throws InvalidConfigException
+     */
+    public function getIsAvailable(): bool
+    {
+        if ($this->getIsRevision()) {
+            return false;
+        }
+
+        if ($this->getIsDraft()) {
+            return false;
+        }
+
+        if ($this->getPrimaryOwner()->getIsDraft()) {
+            return false;
+        }
+
+        if ($this->getPrimaryOwner()->status != Product::STATUS_LIVE) {
+            return false;
+        }
+
+        return parent::getIsAvailable();
+    }
+
+    /**
+     * @inheritdoc
+     * @return VariantCondition
+     * @throws InvalidConfigException
+     */
+    public static function createCondition(): ElementConditionInterface
+    {
+        return Craft::createObject(VariantCondition::class, [static::class]);
     }
 
     /**
@@ -415,77 +444,227 @@ class Variant extends Purchasable
     {
         $fieldLayout = parent::getFieldLayout();
 
-        // TODO: If we ever resave all products in a migration, we can remove this fallback and just use the default getFieldLayout() #COM-41
-        if (!$fieldLayout && $this->productId) {
-            $fieldLayout = $this->getProduct()->getType()->getVariantFieldLayout();
+        if ($fieldLayout) {
+            // Variant field layouts are stored on the product type so retrieving the field layout by ID does not set the provider
+            $productType = collect(Plugin::getInstance()->getProductTypes()->getAllProductTypes())->firstWhere('variantFieldLayoutId', $fieldLayout->id);
+            if ($productType) {
+                $fieldLayout->provider = $productType;
+                return $fieldLayout;
+            }
         }
 
-        return $fieldLayout;
+        try {
+            if ($this->getOwner() === null) {
+                return parent::getFieldLayout();
+            }
+
+            return $this->getOwner()->getType()->getVariantFieldLayout();
+        } catch (InvalidConfigException) {
+            // The product type was probably deleted
+            return null;
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function metadata(): array
+    {
+        $metadata = parent::metadata();
+
+        $product = $this->getOwner();
+
+        if ($product) {
+            $metadata[Craft::t('commerce', 'Product')] = Cp::elementChipHtml($product, ['showActionMenu' => true]);
+        }
+
+        return $metadata;
+    }
+
+    /**
+     * @param int|null $productId
+     * @return void
+     * @since 5.0.0
+     * @deprecated in 5.0.0. Use [[setOwnerId()]] instead.
+     */
+    public function setProductId(?int $productId)
+    {
+        $this->setOwnerId($productId);
+    }
+
+    /**
+     * @return int|null
+     * @throws InvalidConfigException
+     * @deprecated in 5.0.0. Use [[getOwnerId()]] instead.
+     * @since 5.0.0
+     */
+    public function getProductId(): ?int
+    {
+        return $this->getOwnerId();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setPrimaryOwner(?ElementInterface $owner): void
+    {
+        if (!$owner instanceof Product) {
+            throw new InvalidArgumentException('Product variants can only be assigned to products.');
+        }
+
+        if ($owner->siteId) {
+            $this->siteId = $owner->siteId;
+        }
+
+        $this->fieldLayoutId = $owner->getType()->variantFieldLayoutId;
+
+        $this->traitSetPrimaryOwner($owner);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setOwner(?ElementInterface $owner): void
+    {
+        if (!$owner instanceof Product) {
+            throw new InvalidArgumentException('Product variants can only be assigned to products.');
+        }
+
+        if ($owner->siteId) {
+            $this->siteId = $owner->siteId;
+        }
+
+        $this->fieldLayoutId = $owner->getType()->variantFieldLayoutId;
+
+        $this->traitSetOwner($owner);
+    }
+
+    /**
+     * @inheritdoc
+     * @TODO remove implementation when `NestedElementTrait::getOwner()` is updated
+     */
+    public function getPrimaryOwner(): ?Product
+    {
+        if (!isset($this->_primaryOwner)) {
+            $primaryOwnerId = $this->getPrimaryOwnerId();
+            if (!$primaryOwnerId) {
+                return null;
+            }
+
+            $this->_primaryOwner = Craft::$app->getElements()->getElementById($primaryOwnerId, Product::class, $this->siteId, [
+                'trashed' => null,
+            ]) ?? false;
+            if (!$this->_primaryOwner) {
+                throw new InvalidConfigException("Invalid owner ID: $primaryOwnerId");
+            }
+        }
+
+        /** @phpstan-ignore-next-line */
+        return $this->_primaryOwner ?: null;
+    }
+
+    /**
+     * @inheritdoc
+     * @TODO remove implementation when `NestedElementTrait::getOwner()` is updated
+     */
+    public function getOwner(): ?Product
+    {
+        if (!isset($this->_owner)) {
+            $ownerId = $this->getOwnerId();
+            if (!$ownerId) {
+                return null;
+            }
+
+            // If ownerId and primaryOwnerId are the same, return the primary owner
+            if ($ownerId === $this->getPrimaryOwnerId()) {
+                return $this->getPrimaryOwner();
+            }
+
+            $this->_owner = Craft::$app->getElements()->getElementById($ownerId, Product::class, $this->siteId, [
+                'trashed' => null,
+            ]) ?? false;
+            if (!$this->_owner) {
+                throw new InvalidConfigException("Invalid owner ID: $ownerId");
+            }
+        }
+
+        /** @phpstan-ignore-next-line */
+        return $this->_owner ?: null;
     }
 
     /**
      * Returns the product associated with this variant.
      *
      * @return Product|null The product associated with this variant, or null if it isn’t known
-     * @throws InvalidConfigException if the product ID is missing from the variant
+     * @deprecated in 5.0.0. Use [[getOwner()]] instead.
      */
     public function getProduct(): ?Product
     {
-        if ($this->_product !== null) {
-            return $this->_product;
-        }
-
-        if ($this->productId === null) {
-            throw new InvalidConfigException('Variant is missing its product');
-        }
-
-        /** @var Product|null $product */
-        $product = Product::find()
-            ->id($this->productId)
-            ->siteId($this->siteId)
-            ->status(null)
-            ->trashed(null)
-            ->one();
-
-        // A variant should always have a product owner of the same site.
-        // Sometimes there may not be a product of that site if it doesn't exist yet,
-        // which usually only happens during propagation of the product, or if propagation queue jobs fail after making a new site.
-        if ($product === null) {
-            /** @var Product|null $product */
-            $product = Product::find()
-                ->id($this->productId)
-                ->status(null)
-                ->trashed(null)
-                ->one();
-        }
-
-        // If we still don't have a product, there is something configured wrong.
-        if ($product === null) {
-            throw new InvalidConfigException('Invalid product ID: ' . $this->productId . ', Try re-saving all products.');
-        }
-
-        return $this->_product = $product;
+        /** @var Product|null */
+        return $this->getOwner();
     }
 
     /**
      * Sets the product associated with this variant.
      *
      * @param Product $product The product associated with this variant
-     * @throws InvalidConfigException
+     * @deprecated in 5.0.0. Use [[setOwner()]] instead.
      */
     public function setProduct(Product $product): void
     {
-        if ($product->siteId) {
-            $this->siteId = $product->siteId;
+        $this->setOwner($product);
+    }
+
+    /**
+     * @param string|null $productSlug
+     * @return void
+     * @since 5.0.0
+     */
+    public function setProductSlug(?string $productSlug): void
+    {
+        $this->_productSlug = $productSlug;
+    }
+
+    /**
+     * @return string|null
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    public function getProductSlug(): ?string
+    {
+        if ($this->_productSlug === null) {
+            $product = $this->getOwner();
+
+            $this->_productSlug = $product?->slug ?? null;
         }
 
-        if ($product->id) {
-            $this->productId = $product->id;
+        return $this->_productSlug;
+    }
+
+    /**
+     * @param string|null $productTypeHandle
+     * @return void
+     * @since 5.0.0
+     */
+    public function setProductTypeHandle(?string $productTypeHandle): void
+    {
+        $this->_productTypeHandle = $productTypeHandle;
+    }
+
+    /**
+     * @return string|null
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    public function getProductTypeHandle(): ?string
+    {
+        if ($this->_productTypeHandle === null) {
+            $product = $this->getOwner();
+
+            $this->_productTypeHandle = $product ? ($product->getType()?->handle ?? null) : null;
         }
 
-        $this->fieldLayoutId = $product->getType()->variantFieldLayoutId;
-
-        $this->_product = $product;
+        return $this->_productTypeHandle;
     }
 
     /**
@@ -499,7 +678,7 @@ class Variant extends Purchasable
     {
         $description = $this->title;
 
-        if ($format = $this->getProduct()->getType()->descriptionFormat) {
+        if ($format = $this->getOwner()->getType()->descriptionFormat) {
             if ($rendered = Craft::$app->getView()->renderObjectTemplate($format, $this)) {
                 $description = $rendered;
             }
@@ -521,18 +700,14 @@ class Variant extends Purchasable
     {
         $type = $product->getType();
         // Use the product type's titleFormat if the title field is not shown
-        if (!$type->hasVariantTitleField && $type->hasVariants && $type->variantTitleFormat) {
+        if (!$type->hasVariantTitleField && $type->variantTitleFormat) {
             // Make sure that the locale has been loaded in case the title format has any Date/Time fields
             Craft::$app->getLocale();
-            // Set Craft to the products's site's language, in case the title format has any static translations
+            // Set Craft to the product's site's language, in case the title format has any static translations
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
             $this->title = Craft::$app->getView()->renderObjectTemplate($type->variantTitleFormat, $this);
             Craft::$app->language = $language;
-        }
-
-        if (!$type->hasVariants) {
-            $this->title = $product->title;
         }
     }
 
@@ -558,29 +733,28 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function attributeLabels(): array
-    {
-        $labels = parent::attributeLabels();
-
-        return array_merge($labels, ['sku' => 'SKU']);
-    }
-
-    /**
-     * @inheritdoc
-     */
     protected function cacheTags(): array
     {
         return [
-            "product:$this->productId",
+            "product:$this->primaryOwnerId",
         ];
     }
 
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl(): ?string
+    public function canView(User $user): bool
     {
-        return $this->getProduct() ? $this->getProduct()->getCpEditUrl() : '';
+        if (parent::canView($user)) {
+            return true;
+        }
+
+        $product = $this->getOwner();
+        if ($product === null) {
+            return false;
+        }
+
+        return $product->canView($user);
     }
 
     /**
@@ -588,17 +762,8 @@ class Variant extends Purchasable
      */
     public function getUrl(): ?string
     {
-        return $this->product->url . '?variant=' . $this->id;
-    }
-
-    /**
-     * Cache on the purchasable table.
-     *
-     * @inheritdoc
-     */
-    public function getPrice(): float
-    {
-        return (float)$this->price;
+        $productUrl = $this->getOwner()?->getUrl();
+        return $productUrl ? UrlHelper::urlWithParams($productUrl, ['variant' => $this->id]) : null;
     }
 
     /**
@@ -607,14 +772,13 @@ class Variant extends Purchasable
      */
     public function getSnapshot(): array
     {
-        $data = [];
-        $data['onSale'] = $this->getOnSale();
+        $data = parent::getSnapshot();
         $data['cpEditUrl'] = $this->getCpEditUrl();
 
         // Default Product custom field handles
         $productFields = [];
         $productFieldsEvent = new CustomizeProductSnapshotFieldsEvent([
-            'product' => $this->getProduct(),
+            'product' => $this->getOwner(),
             'fields' => $productFields,
         ]);
 
@@ -624,7 +788,7 @@ class Variant extends Purchasable
         }
 
         // Product Attributes
-        if ($product = $this->getProduct()) {
+        if ($product = $this->getOwner()) {
             $productAttributes = $product->attributes();
 
             // Remove custom fields
@@ -639,15 +803,15 @@ class Variant extends Purchasable
                 $productAttributes[] = $field;
             }
 
-            $data['product'] = $this->getProduct()->toArray($productAttributes, [], false);
+            $data['product'] = $this->getOwner()->toArray($productAttributes, [], false);
 
             $productDataEvent = new CustomizeProductSnapshotDataEvent([
-                'product' => $this->getProduct(),
+                'product' => $this->getOwner(),
                 'fieldData' => $data['product'],
             ]);
         } else {
             $productDataEvent = new CustomizeProductSnapshotDataEvent([
-                'product' => $this->getProduct(),
+                'product' => $this->getOwner(),
                 'fieldData' => [],
             ]);
         }
@@ -702,128 +866,12 @@ class Variant extends Purchasable
 
     /**
      * @inheritdoc
-     */
-    public function getSku(): string
-    {
-        return $this->_sku ?? '';
-    }
-
-    /**
-     * Returns the SKU as text but returns a blank string if it’s a temp SKU.
-     */
-    public function getSkuAsText(): string
-    {
-        $sku = $this->getSku();
-
-        if (PurchasableHelper::isTempSku($sku)) {
-            $sku = '';
-        }
-
-        return $sku;
-    }
-
-    /**
-     * @param string|null $sku
-     */
-    public function setSku(string $sku = null): void
-    {
-        $this->_sku = $sku;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getTaxCategoryId(): int
-    {
-        return $this->getProduct()->getTaxCategory()->id;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getShippingCategoryId(): int
-    {
-        return $this->getProduct()->getShippingCategory()->id;
-    }
-
-    /**
-     * Returns whether this variant has stock.
-     */
-    public function hasStock(): bool
-    {
-        return $this->stock > 0 || $this->hasUnlimitedStock;
-    }
-
-    /**
-     * @inheritdoc
+     * @throws InvalidConfigException
      */
     public function hasFreeShipping(): bool
     {
         $isShippable = $this->getIsShippable(); // Same as Plugin::getInstance()->getPurchasables()->isPurchasableShippable since this has no context
-        return $isShippable && $this->getProduct()->freeShipping;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getLineItemRules(LineItem $lineItem): array
-    {
-        $order = $lineItem->getOrder();
-
-        // After the order is complete shouldn't check things like stock being available or the purchasable being around since they are irrelevant.
-        if ($order && $order->isCompleted) {
-            return [];
-        }
-
-        $getQty = function(LineItem $lineItem) {
-            $qty = 0;
-            foreach ($lineItem->getOrder()->getLineItems() as $item) {
-                if ($item->id !== null && $item->id == $lineItem->id) {
-                    $qty += $lineItem->qty;
-                } elseif ($item->purchasableId == $lineItem->purchasableId) {
-                    $qty += $item->qty;
-                }
-            }
-            return $qty;
-        };
-
-        return [
-            // an inline validator defined as an anonymous function
-            [
-                'purchasableId',
-                function($attribute, $params, Validator $validator) use ($lineItem) {
-                    /** @var Purchasable $purchasable */
-                    $purchasable = $lineItem->getPurchasable();
-                    if ($purchasable->getStatus() != Element::STATUS_ENABLED) {
-                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'The item is not enabled for sale.'));
-                    }
-                },
-            ],
-            [
-                'qty',
-                function($attribute, $params, Validator $validator) use ($lineItem, $getQty) {
-                    if (!$this->hasStock()) {
-                        $error = Craft::t('commerce', '“{description}” is currently out of stock.', ['description' => $lineItem->purchasable->getDescription()]);
-                        $validator->addError($lineItem, $attribute, $error);
-                    }
-
-                    if ($this->hasStock() && !$this->hasUnlimitedStock && $getQty($lineItem) > $this->stock) {
-                        $error = Craft::t('commerce', 'There are only {num} “{description}” items left in stock.', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
-                        $validator->addError($lineItem, $attribute, $error);
-                    }
-
-                    if ($this->minQty > 1 && $getQty($lineItem) < $this->minQty) {
-                        $error = Craft::t('commerce', 'Minimum order quantity for this item is {num}.', ['num' => $this->minQty]);
-                        $validator->addError($lineItem, $attribute, $error);
-                    }
-
-                    if ($this->maxQty != 0 && $getQty($lineItem) > $this->maxQty) {
-                        $error = Craft::t('commerce', 'Maximum order quantity for this item is {num}.', ['num' => $this->maxQty]);
-                        $validator->addError($lineItem, $attribute, $error);
-                    }
-                },
-            ],
-        ];
+        return $isShippable && $this->freeShipping;
     }
 
     /**
@@ -848,7 +896,7 @@ class Variant extends Purchasable
      */
     public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
-        if ($handle == 'product') {
+        if (in_array($handle, ['product', 'owner', 'primaryOwner'])) {
             // Get the source element IDs
             $sourceElementIds = [];
 
@@ -857,7 +905,7 @@ class Variant extends Purchasable
             }
 
             $map = (new Query())
-                ->select('id as source, productId as target')
+                ->select('id as source, primaryOwnerId as target')
                 ->from(Table::VARIANTS)
                 ->where(['in', 'id', $sourceElementIds])
                 ->all();
@@ -871,54 +919,17 @@ class Variant extends Purchasable
             ];
         }
 
-        return parent::eagerLoadingMap($sourceElements, $handle);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function populateLineItem(LineItem $lineItem): void
-    {
-        // Since we do not have a proper stock reservation system, we need deduct stock if they have more in the cart than is available, and to do this quietly.
-        // If this occurs in the payment request, the user will be notified the order has changed.
-        if (($order = $lineItem->getOrder()) && !$order->isCompleted) {
-            if (($lineItem->qty > $this->stock) && !$this->hasUnlimitedStock) {
-                /** @var Order $order */
-                $message = Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $this->stock]);
-                /** @var OrderNotice $notice */
-                $notice = Craft::createObject([
-                    'class' => OrderNotice::class,
-                    'attributes' => [
-                        'type' => 'lineItemSalePriceChanged',
-                        'attribute' => "lineItems.$lineItem->id.qty",
-                        'message' => $message,
-                    ],
-                ]);
-                $order->addNotice($notice);
-                $lineItem->qty = $this->stock;
-            }
-        }
-
-        $lineItem->weight = (float)$this->weight; //converting nulls
-        $lineItem->height = (float)$this->height; //converting nulls
-        $lineItem->length = (float)$this->length; //converting nulls
-        $lineItem->width = (float)$this->width; //converting nulls
+        return self::traitEagerLoadingMap($sourceElements, $handle);
     }
 
     /**
      * Returns a promotion category related to this element if the category is related to the product OR the variant.
+     *
+     * @throws InvalidConfigException
      */
     public function getPromotionRelationSource(): array
     {
-        return [$this->id, $this->getProduct()->id];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIsPromotable(): bool
-    {
-        return $this->getProduct()->promotable;
+        return [$this->id, $this->getOwner()->id];
     }
 
     /**
@@ -927,7 +938,7 @@ class Variant extends Purchasable
      */
     public function getGqlTypeName(): string
     {
-        $product = $this->getProduct();
+        $product = $this->getOwner();
 
         if (!$product) {
             return 'Variant';
@@ -966,8 +977,25 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
+    public function getSupportedSites(): array
+    {
+        $owner = $this->getOwner();
+
+        if (!$owner) {
+            return [Craft::$app->getSites()->getPrimarySite()->id];
+        }
+
+        return $this->getOwner()->getSupportedSites();
+    }
+
+    /**
+     * @inheritdoc
+     * @throws Exception
+     */
     public function afterSave(bool $isNew): void
     {
+        $ownerId = $this->getOwnerId();
+
         if (!$this->propagating) {
             if (!$isNew) {
                 $record = VariantRecord::findOne($this->id);
@@ -980,121 +1008,112 @@ class Variant extends Purchasable
                 $record->id = $this->id;
             }
 
-            $record->productId = $this->productId;
-            $record->sku = $this->sku;
-            $record->price = $this->price;
-            $record->width = $this->width;
-            $record->height = $this->height;
-            $record->length = $this->length;
-            $record->weight = $this->weight;
-            $record->minQty = $this->minQty;
-            $record->maxQty = $this->maxQty;
-            $record->stock = (int)$this->stock;
-            $record->isDefault = $this->isDefault;
-            $record->sortOrder = $this->sortOrder;
-            $record->hasUnlimitedStock = $this->hasUnlimitedStock;
+            $record->primaryOwnerId = $this->getPrimaryOwnerId();
+
+            if ($this->getOwner()->getIsCanonical()) {
+                $record->isDefault = $this->isDefault;
+            }
 
             // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
             $record->dateUpdated = $this->dateUpdated;
             $record->dateCreated = $this->dateCreated;
 
-            if (!$this->getProduct()->getType()->hasDimensions) {
-                $record->width = $this->width = 0;
-                $record->height = $this->height = 0;
-                $record->length = $this->length = 0;
-                $record->weight = $this->weight = 0;
-            }
-
             $record->save(false);
+
+            if ($ownerId && $this->saveOwnership) {
+                if (!isset($this->sortOrder) && (!$isNew || $this->duplicateOf)) {
+                    // figure out if we should proceed this way
+                    // if we're dealing with an element that's being duplicated, and it has a draftId
+                    // it means we're creating a draft of something
+                    // if we're duplicating element via duplicate action - draftId would be empty
+                    // Same as https://github.com/craftcms/cms/pull/14497/files
+                    $elementId = null;
+                    if ($this->duplicateOf) {
+                        if ($this->draftId) {
+                            $elementId = $this->duplicateOf->id;
+                        }
+                    } else {
+                        // if we're not duplicating - use element's id
+                        $elementId = $this->id;
+                    }
+                    if ($elementId) {
+                        $this->sortOrder = (new Query())
+                            ->select('sortOrder')
+                            ->from(CraftTable::ELEMENTS_OWNERS)
+                            ->where([
+                                'elementId' => $elementId,
+                                'ownerId' => $ownerId,
+                            ])
+                            ->scalar() ?: null;
+                    }
+                }
+                if (!isset($this->sortOrder)) {
+                    $max = (new Query())
+                        ->from(['eo' => CraftTable::ELEMENTS_OWNERS])
+                        ->innerJoin(['v' => Table::VARIANTS], '[[v.id]] = [[eo.elementId]]')
+                        ->where([
+                            'eo.ownerId' => $ownerId,
+                        ])
+                        ->max('[[eo.sortOrder]]');
+                    $this->sortOrder = $max ? $max + 1 : 1;
+                }
+                if ($isNew) {
+                    Db::insert(CraftTable::ELEMENTS_OWNERS, [
+                        'elementId' => $this->id,
+                        'ownerId' => $ownerId,
+                        'sortOrder' => $this->sortOrder,
+                    ]);
+                } else {
+                    Db::update(CraftTable::ELEMENTS_OWNERS, [
+                        'sortOrder' => $this->sortOrder,
+                    ], [
+                        'elementId' => $this->id,
+                        'ownerId' => $ownerId,
+                    ]);
+                }
+            }
         }
 
         parent::afterSave($isNew);
-    }
 
-    /**
-     * Updates Stock count from completed order.
-     *
-     * @inheritdoc
-     */
-    public function afterOrderComplete(Order $order, LineItem $lineItem): void
-    {
-        // Don't reduce stock of unlimited items.
-        if (!$this->hasUnlimitedStock) {
-            // Update the qty in the db directly
-            Craft::$app->getDb()->createCommand()->update(Table::VARIANTS,
-                ['stock' => new Expression('stock - :qty', [':qty' => $lineItem->qty])],
-                ['id' => $this->id])->execute();
-
-            // Update the stock
-            $this->stock = (new Query())
-                ->select(['stock'])
-                ->from(Table::VARIANTS)
-                ->where('id = :variantId', [':variantId' => $this->id])
-                ->scalar();
-
-            Craft::$app->getElements()->invalidateCachesForElement($this);
+        if (!$this->propagating && $this->isDefault && $ownerId && $this->duplicateOf === null) {
+            // @TODO - this data is now joined in on the product query so can be removed at the next breaking change
+            $defaultData = [
+                'defaultVariantId' => $this->id,
+                'defaultSku' => $this->getSkuAsText(),
+                'defaultPrice' => $this->getBasePrice(),
+                'defaultHeight' => $this->height,
+                'defaultLength' => $this->length,
+                'defaultWidth' => $this->width,
+                'defaultWeight' => $this->weight,
+            ];
+            DB::update(Table::PRODUCTS, $defaultData, [
+                // Update the default variant data for the product and any other product that use this variant as their default
+                'or',
+                ['id' => $ownerId],
+                ['defaultVariantId' => $this->id],
+            ]);
         }
     }
 
     /**
      * @inheritdoc
+     * @throws InvalidConfigException
      */
-    public function getIsAvailable(): bool
+    public function setEagerLoadedElements(string $handle, array $elements, EagerLoadPlan $plan): void
     {
-        $product = $this->getProduct();
-
-        if (!$product) {
-            return false;
-        }
-
-        // is the parent product available for sale?
-        if (!$product->availableForPurchase) {
-            return false;
-        }
-
-        // is the variant enabled?
-        if ($this->getStatus() !== Element::STATUS_ENABLED) {
-            return false;
-        }
-
-        // is parent product enabled?
-        if ($product->getStatus() !== Product::STATUS_LIVE) {
-            return false;
-        }
-
-        if (!$this->hasUnlimitedStock && $this->stock < 1) {
-            return false;
-        }
-
-        // Temporary SKU can not be added to the cart
-        if (PurchasableHelper::isTempSku($this->getSku())) {
-            return false;
-        }
-
-        return $this->stock >= 1 || $this->hasUnlimitedStock;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setEagerLoadedElements(string $handle, array $elements): void
-    {
-        if ($handle == 'product') {
+        if (in_array($handle, ['product', 'owner', 'primaryOwner'])) {
             $product = $elements[0] ?? null;
             if ($product instanceof Product) {
-                $this->setProduct($product);
+                if ($handle == 'primaryOwner') {
+                    $this->setPrimaryOwner($product);
+                } else {
+                    $this->setOwner($product);
+                }
             }
         } else {
-            parent::setEagerLoadedElements($handle, $elements);
+            $this->traitSetEagerLoadedElements($handle, $elements, $plan);
         }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function hasContent(): bool
-    {
-        return true;
     }
 
     /**
@@ -1123,32 +1142,22 @@ class Variant extends Purchasable
 
     /**
      * @inheritdoc
+     * @throws Throwable
+     * @throws InvalidConfigException
      */
     public function beforeValidate(): bool
     {
-        /** @var Product $product */
-        $product = $this->getProduct();
+        $product = $this->getOwner();
 
-        $this->updateTitle($product);
-        $this->updateSku($product);
-
-        if ($this->getScenario() === self::SCENARIO_DEFAULT) {
-            if (!$this->sku) {
-                $this->setSku(PurchasableHelper::tempSku());
-            }
-
-            if (!$this->price) {
-                $this->price = 0;
-            }
-
-            if (!$this->stock) {
-                $this->stock = 0;
-            }
+        // hold off on updating the title and SKU if we are creating the shell of the variant ready for editing
+        /** @phpstan-ignore-next-line don't need the `$this->getIsDraft()` on the right side but leaving for readability */
+        if (!$this->getIsDraft() || ($this->getIsDraft() && $this->getScenario() !== self::SCENARIO_ESSENTIALS)) {
+            $this->updateTitle($product);
+            $this->updateSku($product);
         }
 
-        // Zero out stock if unlimited stock is turned on
-        if ($this->hasUnlimitedStock) {
-            $this->stock = 0;
+        if (!$this->sku && $this->getScenario() === self::SCENARIO_DEFAULT) {
+            $this->setSku(PurchasableHelper::tempSku());
         }
 
         return parent::beforeValidate();
@@ -1159,11 +1168,14 @@ class Variant extends Purchasable
      */
     public function beforeSave(bool $isNew): bool
     {
-        /** @var Product $product */
-        $product = $this->getProduct();
+        $product = $this->getOwner();
 
-        $this->updateTitle($product);
-        $this->updateSku($product);
+        // hold off on updating the title and SKU if we are creating the shell of the variant ready for editing
+        /** @phpstan-ignore-next-line don't need the `$this->getIsDraft()` on the right side but leaving for readability */
+        if (!$this->getIsDraft() || ($this->getIsDraft() && $this->getScenario() !== self::SCENARIO_ESSENTIALS)) {
+            $this->updateTitle($product);
+            $this->updateSku($product);
+        }
 
         // Set the field layout
         $productType = $product->getType();
@@ -1174,28 +1186,11 @@ class Variant extends Purchasable
 
     /**
      * @inheritdoc
-     */
-    public function beforeDelete(): bool
-    {
-        if (!parent::beforeDelete()) {
-            return false;
-        }
-
-        Craft::$app->getDb()->createCommand()
-            ->update(Table::VARIANTS, [
-                'deletedWithProduct' => $this->deletedWithProduct,
-            ], ['id' => $this->id], [], false)
-            ->execute();
-
-        return true;
-    }
-
-    /**
-     * @inheritdoc
+     * @throws \yii\db\Exception
      */
     public function beforeRestore(): bool
     {
-        if (!parent::beforeDelete()) {
+        if (!parent::beforeRestore()) {
             return false;
         }
 
@@ -1220,7 +1215,7 @@ class Variant extends Purchasable
             if ($this->isDefault) {
                 Craft::$app->getDb()->createCommand()->update(Table::PRODUCTS,
                     ['defaultSku' => $this->sku],
-                    ['id' => $this->productId]
+                    ['id' => $this->primaryOwnerId]
                 )->execute();
             }
 
@@ -1235,40 +1230,131 @@ class Variant extends Purchasable
     }
 
     /**
-     * @throws \yii\db\Exception
-     */
-    public function afterRestore(): void
-    {
-        // Once restored, we no longer track if it was deleted with variant or not
-        $this->deletedWithProduct = false;
-        Craft::$app->getDb()->createCommand()->update(Table::VARIANTS,
-            ['deletedWithProduct' => false],
-            ['id' => $this->getId()]
-        )->execute();
-
-        parent::afterRestore();
-    }
-
-    /**
      * @throws InvalidConfigException
      * @since 2.2
      */
     public function getSearchKeywords(string $attribute): string
     {
         if ($attribute == 'productTitle') {
-            return $this->getProduct()->title;
+            return $this->getOwner()->title ?? '';
         }
 
         return parent::getSearchKeywords($attribute);
     }
 
+    public function defineRules(): array
+    {
+        return array_merge(parent::defineRules(), [
+            [['sku'], 'string', 'max' => 255],
+            [['sku'], 'required', 'on' => self::SCENARIO_LIVE],
+            [['basePrice'], 'validatePrice', 'on' => self::SCENARIO_LIVE, 'skipOnEmpty' => false],
+            [['price', 'weight', 'width', 'height', 'length'], 'number'],
+            // maxQty must be greater than minQty and minQty must be less than maxQty
+            [['minQty'], 'validateMinQtyRange', 'skipOnEmpty' => true],
+            [['maxQty'], 'validateMaxQtyRange', 'skipOnEmpty' => true],
+            [['stock', 'fieldId', 'ownerId', 'primaryOwnerId'], 'number'],
+            [['ownerId', 'primaryOwnerId', 'isDefault', 'deletedWithProduct'], 'safe'],
+        ]);
+    }
+
+    /**
+     * @param string $attribute
+     * @param $params
+     * @param Validator $validator
+     */
+    public function validatePrice(string $attribute, $params, Validator $validator): void
+    {
+        if ($this->$attribute === null) {
+            $message = Craft::t('yii', '{attribute} cannot be blank.', ['attribute' => $this->getAttributeLabel('price')]);
+            $validator->addError($this, 'price', $message);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function availableShippingCategories(): array
+    {
+        $allAvailableShippingCategories = parent::availableShippingCategories();
+
+        $productTypeId = $this->getPrimaryOwner()?->getType()->id;
+
+        if (!$productTypeId) {
+            return [Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->storeId)];
+        }
+
+        // Limit to only those for this product type
+        $categoryIds = collect(Plugin::getInstance()->getShippingCategories()->getShippingCategoriesByProductTypeId($productTypeId))->pluck('id')->toArray();
+        $available = collect($allAvailableShippingCategories)->filter(function(ShippingCategory $category) use ($categoryIds) {
+            return in_array($category->id, $categoryIds);
+        });
+
+        if ($available->isEmpty()) {
+            return [Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->storeId)];
+        }
+
+        return $available->toArray();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function availableTaxCategories(): array
+    {
+        $allAvailableTaxCategories = parent::availableTaxCategories();
+
+        $productTypeId = $this->getPrimaryOwner()?->getType()->id;
+
+        if (!$productTypeId) {
+            return [Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()];
+        }
+
+        // Limit to only those for this product type
+        $categoryIds = collect(Plugin::getInstance()->getTaxCategories()->getTaxCategoriesByProductTypeId($productTypeId))->pluck('id')->toArray();
+        $available = collect($allAvailableTaxCategories)->filter(function(TaxCategory $category) use ($categoryIds) {
+            return in_array($category->id, $categoryIds);
+        });
+
+        if ($available->isEmpty()) {
+            return [Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()];
+        }
+
+        return $available->toArray();
+    }
 
     /**
      * @inheritdoc
      */
     protected static function defineSources(string $context = null): array
     {
-        return Product::sources($context);
+        $sources = Product::defineSources($context);
+
+        // Ensure we don't inherit any product structure things from products.
+        foreach ($sources as $key => $source) {
+            $sources[$key]['defaultSort'] = ['postDate', 'desc'];
+            foreach (['structureId', 'structureEditable'] as $unsetKey) {
+                if (isset($sources[$key][$unsetKey])) {
+                    unset($sources[$key][$unsetKey]);
+                }
+            }
+        }
+
+        return $sources;
+    }
+
+    protected static function defineActions(string $source): array
+    {
+        $actions = parent::defineActions($source);
+        // Restore
+        $actions[] = Craft::$app->getElements()->createAction([
+            'type' => Restore::class,
+            'successMessage' => Craft::t('commerce', 'Variants restored.'),
+            'partialSuccessMessage' => Craft::t('commerce', 'Some variants restored.'),
+            'failMessage' => Craft::t('commerce', 'Variants not restored.'),
+        ]);
+
+        $actions[] = ['type' => SetDefaultVariant::class];
+        return $actions;
     }
 
     /**
@@ -1276,18 +1362,11 @@ class Variant extends Purchasable
      */
     protected static function defineTableAttributes(): array
     {
-        return [
-            'title' => Craft::t('commerce', 'Title'),
+        return array_merge(parent::defineTableAttributes(), [
             'product' => Craft::t('commerce', 'Product'),
-            'sku' => Craft::t('commerce', 'SKU'),
-            'price' => Craft::t('commerce', 'Price'),
-            'width' => Craft::t('commerce', 'Width ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
-            'height' => Craft::t('commerce', 'Height ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
-            'length' => Craft::t('commerce', 'Length ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
-            'weight' => Craft::t('commerce', 'Weight ({unit})', ['unit' => Plugin::getInstance()->getSettings()->weightUnits]),
-            'stock' => Craft::t('commerce', 'Stock'),
-            'minQty' => Craft::t('commerce', 'Quantities'),
-        ];
+            'isDefault' => Craft::t('commerce', 'Default'),
+            'promotable' => Craft::t('commerce', 'Promotable'),
+        ]);
     }
 
     /**
@@ -1295,14 +1374,13 @@ class Variant extends Purchasable
      */
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = [];
+        // Only add product as a `product` if we are viewing an implicit table
+        if ($source !== "__IMP__") {
+            $extras[] = 'product';
+        }
+        $extras = ['isDefault'];
 
-        $attributes[] = 'title';
-        $attributes[] = 'product';
-        $attributes[] = 'sku';
-        $attributes[] = 'price';
-
-        return $attributes;
+        return [...parent::defineDefaultTableAttributes($source), ...$extras];
     }
 
     /**
@@ -1310,78 +1388,43 @@ class Variant extends Purchasable
      */
     protected static function defineSearchableAttributes(): array
     {
-        return [
-            'sku',
-            'price',
-            'width',
-            'height',
-            'length',
-            'weight',
-            'stock',
-            'hasUnlimitedStock',
-            'minQty',
-            'maxQty',
-            'productTitle',
-        ];
+        return [...parent::defineSearchableAttributes(), ...['productTitle']];
     }
 
     /**
      * @inheritdoc
      */
-    protected static function defineSortOptions(): array
+    protected static function defineCardAttributes(): array
     {
-        return [
-            'title' => Craft::t('commerce', 'Title'),
-        ];
+        return array_merge(parent::defineCardAttributes(), [
+            'product' => [
+                'label' => Craft::t('commerce', 'Product'),
+            ],
+        ]);
     }
 
     /**
      * @inheritdoc
      */
-    protected function tableAttributeHtml(string $attribute): string
+    protected function attributeHtml(string $attribute): string
     {
-        $productType = $this->product->getType();
-
-        switch ($attribute) {
-            case 'sku':
-            {
-                return Html::encode($this->getSkuAsText());
-            }
-            case 'product':
-            {
-                $product = $this->getProduct();
-                if (!$product) {
-                    return '';
-                }
-
-                return sprintf('<span class="status %s"></span> %s', $product->getStatus(), Html::encode($product->title));
-            }
-            case 'price':
-            {
-                return $this->priceAsCurrency;
-            }
-            case 'weight':
-            {
-                if ($productType->hasDimensions) {
-                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits;
-                }
-
+        if ($attribute === 'product') {
+            $product = $this->getOwner();
+            if (!$product) {
                 return '';
             }
-            case 'length':
-            case 'width':
-            case 'height':
-            {
-                if ($productType->hasDimensions) {
-                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits;
-                }
 
-                return '';
-            }
-            default:
-            {
-                return parent::tableAttributeHtml($attribute);
-            }
+            return sprintf('<span class="status %s"></span> %s', $product->getStatus(), Html::encode($product->title));
         }
+
+        return parent::attributeHtml($attribute);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function ownerType(): ?string
+    {
+        return Product::class;
     }
 }

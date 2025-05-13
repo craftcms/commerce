@@ -3,22 +3,41 @@
         <template v-if="!showForm">
             <template v-if="lineItems.length > 0">
                 <div class="text-left">
-                    <btn-link
-                        @click="showForm = true"
-                        button-class="btn icon add"
-                        >{{ 'Add a line item' | t('commerce') }}</btn-link
-                    >
+                    <div class="flex">
+                        <btn-link
+                            @click="showForm = true"
+                            button-class="btn icon add"
+                            >{{ 'Add a line item' | t('commerce') }}</btn-link
+                        >
+                        <btn-link
+                            @click="addLineItem"
+                            button-class="btn icon add"
+                            >{{
+                                'Add a custom line item' | t('commerce')
+                            }}</btn-link
+                        >
+                    </div>
                 </div>
             </template>
             <template v-else>
                 <div class="starter">
                     <div data-icon="info"></div>
                     <h2>{{ 'Your order is empty' | t('commerce') }}</h2>
-                    <btn-link
-                        @click="showForm = true"
-                        button-class="btn icon add"
-                        >{{ 'Add a line item' | t('commerce') }}</btn-link
-                    >
+
+                    <div class="flex">
+                        <btn-link
+                            @click="showForm = true"
+                            button-class="btn icon add"
+                            >{{ 'Add a line item' | t('commerce') }}</btn-link
+                        >
+                        <btn-link
+                            @click="addLineItem"
+                            button-class="btn icon add"
+                            >{{
+                                'Add a custom line item' | t('commerce')
+                            }}</btn-link
+                        >
+                    </div>
                 </div>
             </template>
         </template>
@@ -58,7 +77,7 @@
                 <admin-table
                     ref="addAdminTable"
                     :allow-multiple-selections="true"
-                    table-data-endpoint="commerce/orders/purchasables-table"
+                    :table-data-endpoint="endpoint"
                     :checkboxes="true"
                     :checkbox-status="isCheckboxEnabled"
                     :columns="purchasableTableColumns"
@@ -167,9 +186,17 @@
         computed: {
             ...mapState({
                 purchasables: (state) => state.purchasables,
+                draft: (state) => state.draft,
             }),
 
-            ...mapGetters(['getErrors', 'canAddLineItem', 'orderId']),
+            ...mapGetters([
+                'canAddLineItem',
+                'defaultShippingCategoryId',
+                'defaultTaxCategoryId',
+                'getErrors',
+                'lineItemTypes',
+                'orderId',
+            ]),
 
             formDisabled() {
                 return !this.canAddLineItem;
@@ -185,6 +212,19 @@
 
             lineItems() {
                 return this.$store.state.draft.order.lineItems;
+            },
+
+            endpoint() {
+                let endpoint =
+                    'commerce/orders/purchasables-table?siteId=' +
+                    this.draft.order.orderSiteId;
+
+                if (this.draft.order.customerId) {
+                    endpoint =
+                        endpoint + '&customerId=' + this.draft.order.customerId;
+                }
+
+                return endpoint;
             },
         },
 
@@ -206,15 +246,17 @@
             },
 
             addLineItem() {
+                let lineItems = [];
                 if (this.selectedPurchasables.length) {
-                    let lineItems = [];
                     for (let i = 0; i < this.selectedPurchasables.length; i++) {
                         let purchasable = this.selectedPurchasables[i];
                         if (purchasable && purchasable.isAvailable) {
                             lineItems.push({
                                 id: null,
+                                type: this.lineItemTypes.Purchasable,
                                 lineItemStatusId: null,
-                                salePrice: purchasable.price,
+                                price: purchasable.price,
+                                promotionalPrice: purchasable.promotionalPrice,
                                 qty: purchasable.qty,
                                 note: '',
                                 privateNote: '',
@@ -234,10 +276,64 @@
                             );
                         }
                     }
-
-                    if (lineItems.length) {
-                        this.$emit('addLineItem', lineItems);
+                } else {
+                    // If we aren't adding a purchasable line item we need to add a custom one
+                    var lut = [];
+                    for (var i = 0; i < 256; i++) {
+                        lut[i] = (i < 16 ? '0' : '') + i.toString(16);
                     }
+                    var d0 = (Math.random() * 0xffffffff) | 0;
+                    var d1 = (Math.random() * 0xffffffff) | 0;
+                    var d2 = (Math.random() * 0xffffffff) | 0;
+                    var d3 = (Math.random() * 0xffffffff) | 0;
+                    const UUID =
+                        lut[d0 & 0xff] +
+                        lut[(d0 >> 8) & 0xff] +
+                        lut[(d0 >> 16) & 0xff] +
+                        lut[(d0 >> 24) & 0xff] +
+                        '-' +
+                        lut[d1 & 0xff] +
+                        lut[(d1 >> 8) & 0xff] +
+                        '-' +
+                        lut[((d1 >> 16) & 0x0f) | 0x40] +
+                        lut[(d1 >> 24) & 0xff] +
+                        '-' +
+                        lut[(d2 & 0x3f) | 0x80] +
+                        lut[(d2 >> 8) & 0xff] +
+                        '-' +
+                        lut[(d2 >> 16) & 0xff] +
+                        lut[(d2 >> 24) & 0xff] +
+                        lut[d3 & 0xff] +
+                        lut[(d3 >> 8) & 0xff] +
+                        lut[(d3 >> 16) & 0xff] +
+                        lut[(d3 >> 24) & 0xff];
+
+                    const newLineItem = {
+                        adjustments: [],
+                        description: Craft.t('commerce', 'Custom'),
+                        id: null,
+                        isNew: true,
+                        lineItemStatusId: null,
+                        note: '',
+                        options: [],
+                        orderId: this.orderId,
+                        price: 0,
+                        privateNote: '',
+                        promotionalPrice: null,
+                        purchasableId: null,
+                        qty: 1,
+                        sku: Math.random().toString(36).substring(2, 8), // Random SKU
+                        shippingCategoryId: this.defaultShippingCategoryId,
+                        type: this.lineItemTypes.Custom,
+                        taxCategoryId: this.defaultTaxCategoryId,
+                        uid: UUID,
+                    };
+
+                    lineItems.push(newLineItem);
+                }
+
+                if (lineItems.length) {
+                    this.$emit('addLineItem', lineItems);
                 }
 
                 this.selectedPurchasables = [];

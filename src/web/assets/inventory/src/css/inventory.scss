@@ -1,0 +1,52 @@
+.inventory-headers,
+.inventory-cell {
+  .ltr & {
+    text-align: right;
+  }
+
+  .rtl & {
+    text-align: left;
+  }
+}
+
+.ltr {
+  .inventory-cell {
+    text-align: right;
+  }
+
+  .inventory-cell .action-btn {
+    right: calc(var(--touch-target-size) * -1 / 1.5);
+  }
+}
+
+.rtl {
+  .inventory-cell {
+    text-align: left;
+  }
+
+  .inventory-cell .action-btn {
+    left: calc(var(--touch-target-size) * -1 / 1.5);
+  }
+}
+
+#inventory-levels {
+  .inventory-cell {
+    position: relative;
+  }
+
+  .inventory-cell .action-btn {
+    opacity: 0;
+    position: absolute;
+    z-index: 99;
+  }
+
+  .inventory-cell .action-btn[aria-expanded='true'] {
+    opacity: 1;
+  }
+
+  .vue-admin-table tbody tr:hover {
+    .inventory-cell .action-btn {
+      opacity: 1;
+    }
+  }
+}

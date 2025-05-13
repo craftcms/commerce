@@ -45,7 +45,7 @@ class LineItemExport extends ElementExporter
             'lineitems.options',
             'lineitems.optionsSignature',
             'lineitems.price',
-            'lineitems.saleAmount',
+            'lineitems.promotionalAmount',
             'lineitems.salePrice',
             'lineitems.qty',
             'lineitems.subtotal',

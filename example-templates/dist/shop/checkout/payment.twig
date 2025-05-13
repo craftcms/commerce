@@ -10,7 +10,7 @@
 
   <div class="md:flex md:-mx-8">
     <div class="md:w-2/3 md:px-8">
-      {% if craft.commerce.settings.allowCheckoutWithoutPayment %}
+      {% if cart.store.allowCheckoutWithoutPayment %}
         <div class="border-b border-gray-300 pb-10 mb-10">
           <h1 class="font-bold text-xl">
             {{- 'Pay Later'|t -}}
@@ -90,7 +90,7 @@
                   },
                   order: cart,
                   submitButtonClasses: 'cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white my-2',
-                  submitButtonLabel: 'Pay',
+                  submitButtonText: 'Pay',
                   errorMessageClasses: 'bg-red-200 text-red-600 my-2 p-2 rounded',
                 } %}
               {% endif %}

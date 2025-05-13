@@ -23,6 +23,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $siteId
  * @property string|null $template
  * @property string|null $uriFormat
+ * @property bool $enabledByDefault
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

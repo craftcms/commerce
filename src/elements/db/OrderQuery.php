@@ -60,6 +60,12 @@ class OrderQuery extends ElementQuery
     public mixed $reference = null;
 
     /**
+     * @var mixed The order reference of the resulting order.
+     * @used-by couponCode()
+     */
+    public mixed $couponCode = null;
+
+    /**
      * @var mixed The email address the resulting orders must have.
      */
     public mixed $email = null;
@@ -120,6 +126,11 @@ class OrderQuery extends ElementQuery
     public mixed $gatewayId = null;
 
     /**
+     * @var int|null The store ID that the resulting orders must have.
+     */
+    public ?int $storeId = null;
+
+    /**
      * @var mixed The total of the order resulting orders must have.
      * @since 4.2.0
      */
@@ -142,6 +153,12 @@ class OrderQuery extends ElementQuery
      * @since 4.2.0
      */
     public mixed $totalQty = null;
+
+    /**
+     * @var mixed The total weight of the order resulting orders must have.
+     * @since 5.0.0
+     */
+    public mixed $totalWeight = null;
 
     /**
      * @var mixed The total discount of the order resulting orders must have.
@@ -358,6 +375,48 @@ class OrderQuery extends ElementQuery
     public function reference(mixed $value): OrderQuery
     {
         $this->reference = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the order's coupon code.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `':empty:'` | that don’t have a coupon code.
+     * | `':notempty:'` | that have a coupon code.
+     * | `'Foo'` | with a coupon code of `Foo`.
+     * | `'Foo*'` | with a coupon code that begins with `Foo`.
+     * | `'*Foo'` | with a coupon code that ends with `Foo`.
+     * | `'*Foo*'` | with a coupon code that contains `Foo`.
+     * | `'not *Foo*'` | with a coupon code that doesn’t contain `Foo`.
+     * | `['*Foo*', '*Bar*']` | with a coupon code that contains `Foo` or `Bar`.
+     * | `['not', '*Foo*', '*Bar*']` | with a coupon code that doesn’t contain `Foo` or `Bar`.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch the requested {element} #}
+     * {% set {element-var} = {twig-method}
+     *   .reference('foo')
+     *   .one() %}
+     * ```
+     *
+     * ```php
+     * // Fetch the requested {element}
+     * ${element-var} = {php-method}
+     *     ->reference('foo')
+     *     ->one();
+     * ```
+     *
+     * @param string|null $value The property value
+     * @return static self reference
+     */
+    public function couponCode(mixed $value): OrderQuery
+    {
+        $this->couponCode = $value;
         return $this;
     }
 
@@ -1066,6 +1125,26 @@ class OrderQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results based on the total weight of items.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `10` | with a total weight of 10.
+     * | `[10, 20]` | an order with a total weight of 10 or 20.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     * @since 4.2.0
+     */
+    public function totalWeight(mixed $value): OrderQuery
+    {
+        $this->totalWeight = $value;
+        return $this;
+    }
+
+    /**
      * Narrows the query results based on the total discount.
      *
      * Possible values include:
@@ -1271,7 +1350,7 @@ class OrderQuery extends ElementQuery
      * | a [[PurchasableInterface|PurchasableInterface]] object | with a purchasable represented by the object.
      * | an array of [[PurchasableInterface|PurchasableInterface]] objects | with all the purchasables represented by the objects.
      *
-     * @param PurchasableInterface|int[]|PurchasableInterface[]|null $value The property value
+     * @param PurchasableInterface|array<int, (int|PurchasableInterface)>|null $value The property value
      * @return static self reference
      */
     public function hasPurchasables(mixed $value): OrderQuery
@@ -1282,11 +1361,30 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Eager loads all relational data (addresses, adjustents, customers, line items, transactions) for the resulting orders.
+     * Narrows the query results to only orders that are related to the given store.
      *
      * Possible values include:
      *
-     * | Value | Fetches addresses, adjustents, customers, line items, transactions
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | with a `storeId` of `1`.
+     *
+     * @param int|null $value
+     * @return static self reference
+     */
+    public function storeId(?int $value): OrderQuery
+    {
+        $this->storeId = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads all relational data (addresses, adjustments, customers, line items, transactions) for the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches addresses, adjustments, customers, line items, transactions
      * | - | -
      * | bool | `true` to eager-load, `false` to not eager load.
      *
@@ -1303,7 +1401,7 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Eager loads the the shipping and billing addressees on the resulting orders.
+     * Eager loads the shipping and billing addressees on the resulting orders.
      *
      * Possible values include:
      *
@@ -1466,6 +1564,7 @@ class OrderQuery extends ElementQuery
 
         $this->query->select([
             'commerce_orders.id',
+            'commerce_orders.storeId',
             'commerce_orders.number',
             'commerce_orders.reference',
             'commerce_orders.couponCode',
@@ -1498,6 +1597,9 @@ class OrderQuery extends ElementQuery
             'commerce_orders.registerUserOnOrderComplete',
             'commerce_orders.saveBillingAddressOnOrderComplete',
             'commerce_orders.saveShippingAddressOnOrderComplete',
+            'commerce_orders.saveShippingAddressOnOrderComplete',
+            'commerce_orders.makePrimaryShippingAddress',
+            'commerce_orders.makePrimaryBillingAddress',
             'commerce_orders.recalculationMode',
             'commerce_orders.origin',
             'commerce_orders.dateAuthorized',
@@ -1539,13 +1641,21 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere(new Expression('LEFT([[commerce_orders.number]], 7) = :shortNumber', [':shortNumber' => $this->shortNumber]));
         }
 
+        if (isset($this->storeId) && $this->storeId) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.storeId', $this->storeId));
+        }
+
         if (isset($this->origin) && $this->origin) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.origin', $this->origin));
         }
 
         if (isset($this->reference) && $this->reference) {
-            // $this->subQuery->andWhere(['commerce_orders.reference' => $this->reference]);
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.reference', $this->reference));
+        }
+
+        if (isset($this->couponCode)) {
+            // Coupon code criteria is case-insensitive like in the adjuster
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.couponCode', $this->couponCode, caseInsensitive: true));
         }
 
         if (isset($this->email) && $this->email) {
@@ -1553,9 +1663,8 @@ class OrderQuery extends ElementQuery
             $this->subQuery->leftJoin(CraftTable::USERS . ' users', '[[users.id]] = [[commerce_orders.customerId]]');
             $this->subQuery->andWhere(Db::parseParam('users.email', $this->email, '=', true));
         }
-
-        // Allow true ot false but not null
-        if (isset($this->isCompleted) && $this->isCompleted !== null) {
+        
+        if (isset($this->isCompleted)) {
             $this->subQuery->andWhere(Db::parseBooleanParam('commerce_orders.isCompleted', $this->isCompleted, false));
         }
 
@@ -1623,6 +1732,10 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.totalQty', $this->totalQty));
         }
 
+        if (isset($this->totalWeight)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.totalWeight', $this->totalWeight));
+        }
+
         if (isset($this->totalDiscount)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.totalDiscount', $this->totalDiscount));
         }
@@ -1665,7 +1778,7 @@ class OrderQuery extends ElementQuery
                 (new Query())
                     ->from(['lineitems' => Table::LINEITEMS])
                     ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]'))
-                    ->andWhere(['lineitems.purchasableId' => $purchasableIds]),
+                    ->andWhere(['[[lineitems.purchasableId]]' => $purchasableIds]),
             ]);
         }
 

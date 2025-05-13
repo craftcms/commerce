@@ -8,12 +8,13 @@
 namespace craft\commerce\models;
 
 use Craft;
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
+use craft\commerce\base\StoreTrait;
 use craft\commerce\base\TaxIdValidatorInterface;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\errors\DeprecationException;
-use craft\helpers\UrlHelper;
 use DateTime;
 use yii\base\InvalidConfigException;
 
@@ -25,12 +26,13 @@ use yii\base\InvalidConfigException;
  * @property-read bool $isEverywhere
  * @property TaxAddressZone|null $taxZone
  * @property TaxCategory|null $taxCategory
- * @property bool $isLite
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class TaxRate extends Model
+class TaxRate extends Model implements HasStoreInterface
 {
+    use StoreTrait;
+
     /**
      * @var int|null ID
      */
@@ -108,6 +110,11 @@ class TaxRate extends Model
     public ?DateTime $dateUpdated = null;
 
     /**
+     * @var bool Whether the tax rate is enabled
+     */
+    public bool $enabled = true;
+
+    /**
      * @var TaxCategory|null
      */
     private ?TaxCategory $_taxCategory = null;
@@ -132,16 +139,33 @@ class TaxRate extends Model
      */
     protected function defineRules(): array
     {
-        return [
-            [['name'], 'required'],
-            [
-                ['taxCategoryId'],
-                'required',
-                'when' => function($model): bool {
-                    return !in_array($model->taxable, TaxRateRecord::ORDER_TAXABALES, true);
-                },
-            ],
+        $rules = parent::defineRules();
+        $rules[] = [['name'], 'required'];
+        $rules[] = [
+            ['taxCategoryId'],
+            'required',
+            'when' => function($model): bool {
+                return !in_array($model->taxable, TaxRateRecord::ORDER_TAXABALES, true);
+            },
         ];
+        $rules[] = [[
+            'code',
+            'id',
+            'include',
+            'isVat',
+            'name',
+            'rate',
+            'taxIdValidators',
+            'removeIncluded',
+            'removeVatIncluded',
+            'storeId',
+            'taxable',
+            'taxCategoryId',
+            'taxZoneId',
+            'enabled',
+        ], 'safe'];
+
+        return $rules;
     }
 
     /**
@@ -162,10 +186,11 @@ class TaxRate extends Model
      * Returns the tax rate’s control panel edit page URL.
      *
      * @return string
+     * @throws InvalidConfigException
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/tax/taxrates/' . $this->id);
+        return $this->getStore()->getStoreSettingsUrl('taxrates/' . $this->id);
     }
 
     /**
@@ -187,7 +212,7 @@ class TaxRate extends Model
     public function getTaxZone(): ?TaxAddressZone
     {
         if ($this->_taxZone === null && $this->taxZoneId) {
-            $this->_taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($this->taxZoneId);
+            $this->_taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($this->taxZoneId, $this->storeId);
         }
 
         return $this->_taxZone;
@@ -221,7 +246,7 @@ class TaxRate extends Model
 
     /**
      * @return bool
-     * @deprecated in 4.8.0.
+     * @deprecated in 5.3.0
      */
     public function getIsVat(): bool
     {
@@ -232,7 +257,7 @@ class TaxRate extends Model
     /**
      * @param bool $isVat
      * @throws DeprecationException
-     * @deprecated in 4.8.0.
+     * @deprecated in 5.3.0
      */
     public function setIsVat(bool $isVat): void
     {
@@ -241,7 +266,7 @@ class TaxRate extends Model
 
     /**
      * @return bool
-     * @since 4.8.0
+     * @since 5.3.0
      */
     public function hasTaxIdValidators(): bool
     {
@@ -251,7 +276,7 @@ class TaxRate extends Model
     /**
      * @param string $className
      * @return bool
-     * @since 4.8.0
+     * @since 5.3.0
      */
     public function hasTaxIdValidator(string $className): bool
     {
@@ -261,7 +286,7 @@ class TaxRate extends Model
     /**
      * @return TaxIdValidatorInterface[]
      * @throws InvalidConfigException
-     * @since 4.8.0
+     * @since 5.3.0
      */
     public function getSelectedEnabledTaxIdValidators(): array
     {
@@ -274,29 +299,5 @@ class TaxRate extends Model
             }
         }
         return $activeValidators;
-    }
-
-    /**
-     * @return bool
-     * @throws DeprecationException
-     * @since 4.5.0
-     * @deprecated in 4.5.0.
-     */
-    public function getIsLite(): bool
-    {
-        Craft::$app->getDeprecator()->log(__METHOD__, 'TaxRate::getIsLite() is deprecated.');
-        return false;
-    }
-
-    /**
-     * @param bool $isLite
-     * @return void
-     * @throws DeprecationException
-     * @since 4.5.0
-     * @deprecated in 4.5.0.
-     */
-    public function setIsLite(bool $isLite): void
-    {
-        Craft::$app->getDeprecator()->log(__METHOD__, 'TaxRate::setIsLite() is deprecated.');
     }
 }

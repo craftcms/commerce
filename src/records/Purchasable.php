@@ -21,6 +21,11 @@ use yii\db\ActiveQueryInterface;
  * @property string $description
  * @property float $price
  * @property string $sku
+ * @property float $width
+ * @property float $height
+ * @property float $length
+ * @property float $weight
+ * @property int $taxCategoryId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

@@ -16,21 +16,13 @@ use yii\db\ActiveQueryInterface;
  * Variant record.
  *
  * @property ActiveQueryInterface $element
- * @property float $height
  * @property int $id
  * @property bool $isDefault
- * @property float $length
  * @property int $maxQty
  * @property int $minQty
- * @property float $price
  * @property Product $product
- * @property int $productId
- * @property string $sku
- * @property int $sortOrder
- * @property int $stock
- * @property bool $hasUnlimitedStock
- * @property float $weight
- * @property float $width
+ * @property int $primaryOwnerId
+ * @property int $sku
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -42,16 +34,6 @@ class Variant extends ActiveRecord
     public static function tableName(): string
     {
         return Table::VARIANTS;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules(): array
-    {
-        return [
-            [['sku'], 'unique'],
-        ];
     }
 
     public function getProduct(): ActiveQueryInterface

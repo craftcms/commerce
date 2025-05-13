@@ -157,12 +157,6 @@ class m210901_211323_not_null_booleans extends Migration
     {
         $projectConfig = Craft::$app->getProjectConfig();
 
-        // Don't make the same config changes twice
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
-        if (version_compare($schemaVersion, '4.0.0', '>=')) {
-            return;
-        }
-
         $projectConfig->muteEvents = true;
 
         $keys = [

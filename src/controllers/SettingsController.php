@@ -8,10 +8,12 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\elements\Subscription;
+use craft\commerce\elements\Transfer;
 use craft\commerce\models\Settings;
 use craft\commerce\Plugin;
 use craft\commerce\services\Subscriptions;
-use craft\helpers\App;
+use craft\commerce\services\Transfers;
 use craft\helpers\StringHelper;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -30,17 +32,11 @@ class SettingsController extends BaseAdminController
      */
     public function actionEdit(): Response
     {
-        $settings = Plugin::getInstance()->getSettings();
-
-        $craftSettings = App::mailSettings();
-        $settings->emailSenderAddressPlaceholder = $craftSettings['fromEmail'] ?? '';
-        $settings->emailSenderNamePlaceholder = $craftSettings['fromName'] ?? '';
-
-        $variables = [
-            'settings' => $settings,
-        ];
-
-        return $this->renderTemplate('commerce/settings/general', $variables);
+        $readOnly = $this->isReadOnlyScreen();
+        return $this->renderTemplate('commerce/settings/general', [
+            'settings' => Plugin::getInstance()->getSettings(),
+            'readOnly' => $this->isReadOnlyScreen(),
+        ]);
     }
 
     /**
@@ -55,13 +51,8 @@ class SettingsController extends BaseAdminController
         $data = $params['settings'];
 
         $settings = Plugin::getInstance()->getSettings();
-        $settings->emailSenderAddress = $data['emailSenderAddress'] ?? $settings->emailSenderAddress;
-        $settings->emailSenderName = $data['emailSenderName'] ?? $settings->emailSenderName;
         $settings->weightUnits = $data['weightUnits'] ?? key($settings->getWeightUnitsOptions());
         $settings->dimensionUnits = $data['dimensionUnits'] ?? key($settings->getDimensionUnits());
-        $settings->minimumTotalPriceStrategy = $data['minimumTotalPriceStrategy'] ?? Settings::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT;
-        $settings->freeOrderPaymentStrategy = $data['freeOrderPaymentStrategy'] ?? Settings::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE;
-        $settings->orderReferenceFormat = $data['orderReferenceFormat'] ?? $settings->orderReferenceFormat;
         $settings->updateBillingDetailsUrl = $data['updateBillingDetailsUrl'] ?? $settings->updateBillingDetailsUrl;
         $settings->defaultView = $data['defaultView'] ?? $settings->defaultView;
 
@@ -83,22 +74,142 @@ class SettingsController extends BaseAdminController
     }
 
     /**
-     * Saves the field layout.
-     *
-     * @return Response|null
+     * @return Response
+     * @throws InvalidConfigException
      */
-    public function actionSaveSubscriptionFieldLayout(): ?Response
+    public function actionSites(): Response
+    {
+        $sites = Craft::$app->getSites()->getAllSites();
+
+        return $this->renderTemplate('commerce/settings/sites/_edit', [
+            'sites' => $sites,
+            'primaryStoreId' => Plugin::getInstance()->getStores()->getPrimaryStore()->id,
+            'stores' => Plugin::getInstance()->getStores()->getAllStores(),
+            'storesList' => Plugin::getInstance()->getStores()->getAllStores()->map(function($store) {
+                return [
+                    'label' => $store->name . ($store->primary ? ' (' . Craft::t('commerce', 'Primary') . ')' : ''),
+                    'value' => $store->id,
+                ];
+            }),
+        ]);
+    }
+
+    /**
+     * @return Response
+     */
+    public function actionSaveTransferSettings(): Response
     {
         $this->requirePostRequest();
-        $this->requireAdmin();
 
         $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
-        $configData = [StringHelper::UUID() => $fieldLayout->getConfig()];
 
-        Craft::$app->getProjectConfig()->set(Subscriptions::CONFIG_FIELDLAYOUT_KEY, $configData);
+        $fieldLayout->reservedFieldHandles = [
+            'originLocationId',
+            'originLocation',
+            'destinationLocationId',
+            'destinationLocation',
+        ];
 
-        $this->setSuccessFlash(Craft::t('commerce', 'Subscription fields saved.'));
+        $fieldLayout->type = Transfer::class;
 
-        return $this->redirectToPostedUrl();
+        if (!$fieldLayout->validate()) {
+            Craft::info('Field layout not saved due to validation error.', __METHOD__);
+
+            Craft::$app->getUrlManager()->setRouteParams([
+                'variables' => [
+                    'fieldLayout' => $fieldLayout,
+                ],
+            ]);
+
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t save transfer fields.'));
+        }
+
+        if ($currentTransfersFieldLayout = Craft::$app->getProjectConfig()->get(Transfers::CONFIG_FIELDLAYOUT_KEY)) {
+            $uid = array_key_first($currentTransfersFieldLayout);
+        } else {
+            $uid = StringHelper::UUID();
+        }
+
+        $configData = [$uid => $fieldLayout->getConfig()];
+        $result = Craft::$app->getProjectConfig()->set(Transfers::CONFIG_FIELDLAYOUT_KEY, $configData, force: true);
+
+        if (!$result) {
+            return $this->asFailure(Craft::t('app', 'Couldn’t save transfer fields.'));
+        }
+
+        return $this->asSuccess(Craft::t('commerce', 'Transfer fields saved.'));
+    }
+
+    /**
+     * @return Response
+     */
+    public function actionSaveSubscriptionSettings(): Response
+    {
+        $this->requirePostRequest();
+
+        $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
+
+        $fieldLayout->reservedFieldHandles = [
+        ];
+
+        $fieldLayout->type = Subscription::class;
+
+        if (!$fieldLayout->validate()) {
+            Craft::info('Field layout not saved due to validation error.', __METHOD__);
+
+            Craft::$app->getUrlManager()->setRouteParams([
+                'variables' => [
+                    'fieldLayout' => $fieldLayout,
+                ],
+            ]);
+
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t save subscription fields.'));
+        }
+
+        if ($currentSubscriptionsFieldLayout = Craft::$app->getProjectConfig()->get(Subscriptions::CONFIG_FIELDLAYOUT_KEY)) {
+            $uid = array_key_first($currentSubscriptionsFieldLayout);
+        } else {
+            $uid = StringHelper::UUID();
+        }
+
+        $configData = [$uid => $fieldLayout->getConfig()];
+        $result = Craft::$app->getProjectConfig()->set(Subscriptions::CONFIG_FIELDLAYOUT_KEY, $configData, force: true);
+
+        if (!$result) {
+            return $this->asFailure(Craft::t('app', 'Couldn’t save subscription fields.'));
+        }
+
+        return $this->asSuccess(Craft::t('commerce', 'Subscription fields saved.'));
+    }
+
+
+    /**
+     * @param array $variables
+     * @return Response
+     */
+    public function actionEditTransferSettings(array $variables = []): Response
+    {
+        $fieldLayout = Plugin::getInstance()->getTransfers()->getFieldLayout();
+
+        $variables['fieldLayout'] = $fieldLayout;
+        $variables['title'] = Craft::t('commerce', 'Transfer Settings');
+        $variables['readOnly'] = $this->isReadOnlyScreen();
+
+        return $this->renderTemplate('commerce/settings/transfers/_edit', $variables);
+    }
+
+    /**
+     * @param array $variables
+     * @return Response
+     */
+    public function actionEditSubscriptionSettings(array $variables = []): Response
+    {
+        $fieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
+
+        $variables['fieldLayout'] = $fieldLayout;
+        $variables['title'] = Craft::t('commerce', 'Subscription Settings');
+        $variables['readOnly'] = $this->isReadOnlyScreen();
+
+        return $this->renderTemplate('commerce/settings/subscriptions/_edit', $variables);
     }
 }

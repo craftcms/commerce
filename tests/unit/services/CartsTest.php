@@ -12,6 +12,7 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\services\Carts;
+use craft\commerce\services\Stores;
 use craftcommercetests\fixtures\CustomerAddressFixture;
 use craftcommercetests\fixtures\CustomerFixture;
 use UnitTester;
@@ -57,7 +58,15 @@ class CartsTest extends Unit
     public function testGetCartAutoSetAddresses(string $email, bool $autoSet, bool $hasBillingAddress, bool $hasShippingAddress, bool $loggedIn): void
     {
         $cartNumber = Plugin::getInstance()->getCarts()->generateCartNumber();
-        Plugin::getInstance()->getSettings()->autoSetNewCartAddresses = $autoSet;
+
+        $store = Plugin::getInstance()->getStores()->getCurrentStore();
+        Plugin::getInstance()->set('stores', $this->make(Stores::class, [
+            'getStoreById' => function(int $id) use ($autoSet, $store) {
+                $store->setAutoSetNewCartAddresses($autoSet);
+                return $store;
+            },
+        ]));
+
         Plugin::getInstance()->set('carts', $this->make(Carts::class, [
             'getSessionCartNumber' => function() use ($cartNumber) {
                 return $cartNumber;

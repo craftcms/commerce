@@ -9,11 +9,13 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\helpers\DebugPanel;
+use craft\commerce\models\Store;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -26,10 +28,19 @@ use yii\web\Response;
  */
 class TaxCategoriesController extends BaseTaxSettingsController
 {
-    public function actionIndex(): Response
+    /**
+     * @param string|null $storeHandle
+     * @return Response
+     * @throws InvalidConfigException
+     */
+    public function actionIndex(?string $storeHandle = null): Response
     {
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
         $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategories();
-        return $this->renderTemplate('commerce/tax/taxcategories/index', compact('taxCategories'));
+        return $this->renderTemplate('commerce/store-management/tax/taxcategories/index', compact('taxCategories', 'store'));
     }
 
     /**
@@ -37,12 +48,17 @@ class TaxCategoriesController extends BaseTaxSettingsController
      * @param TaxCategory|null $taxCategory
      * @throws HttpException
      */
-    public function actionEdit(int $id = null, TaxCategory $taxCategory = null): Response
+    public function actionEdit(?string $storeHandle = null, int $id = null, TaxCategory $taxCategory = null): Response
     {
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
         $variables = [
             'id' => $id,
             'taxCategory' => $taxCategory,
             'productTypes' => Plugin::getInstance()->getProductTypes()->getAllProductTypes(),
+            'store' => $store,
         ];
 
         if (!$variables['taxCategory']) {
@@ -75,7 +91,12 @@ class TaxCategoriesController extends BaseTaxSettingsController
         $allTaxCategoryIds = array_keys(Plugin::getInstance()->getTaxCategories()->getAllTaxCategories());
         $variables['isDefaultAndOnlyCategory'] = $variables['id'] && count($allTaxCategoryIds) === 1 && in_array($variables['id'], $allTaxCategoryIds);
 
-        return $this->renderTemplate('commerce/tax/taxcategories/_edit', $variables);
+        // Get all tax rates for all stores
+        $taxRates = collect();
+        Plugin::getInstance()->getStores()->getAllStores()->each(fn(Store $s) => $taxRates->push(...Plugin::getInstance()->getTaxRates()->getAllTaxRates($s->id)->all()));
+        $variables['taxRates'] = $taxRates;
+
+        return $this->renderTemplate('commerce/store-management/tax/taxcategories/_edit', $variables);
     }
 
     /**
@@ -125,18 +146,37 @@ class TaxCategoriesController extends BaseTaxSettingsController
     /**
      * @throws HttpException
      */
-    public function actionDelete(): Response
+    public function actionDelete(): ?Response
     {
         $this->requirePostRequest();
-        $this->requireAcceptsJson();
 
-        $id = $this->request->getRequiredBodyParam('id');
+        $id = $this->request->getBodyParam('id');
+        $ids = $this->request->getBodyParam('ids');
 
-        if (!Plugin::getInstance()->getTaxCategories()->deleteTaxCategoryById($id)) {
-            return $this->asFailure(Craft::t('commerce', 'Could not delete tax category'));
+        if ((!$id && empty($ids)) || ($id && !empty($ids))) {
+            throw new BadRequestHttpException('id or ids must be specified.');
         }
 
-        return $this->asSuccess();
+        if ($id) {
+            // If it is just the one id we know it has come from an ajax request on the table
+            $this->requireAcceptsJson();
+            $ids = [$id];
+        }
+
+        $failedIds = [];
+        foreach ($ids as $id) {
+            if (!Plugin::getInstance()->getTaxCategories()->deleteTaxCategoryById($id)) {
+                $failedIds[] = $id;
+            }
+        }
+
+        if (!empty($failedIds)) {
+            return $this->asFailure(Craft::t('commerce', 'Could not delete {count, number} tax {count, plural, one{category} other{categories}}.', [
+                'count' => count($failedIds),
+            ]));
+        }
+
+        return $this->asSuccess(Craft::t('commerce', 'Tax categories deleted.'));
     }
 
     /**

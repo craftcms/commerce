@@ -1,0 +1,116 @@
+{% set applyId = 'apply'|namespaceInputId %}
+{% set applyPriceTypeId = 'applyPriceType'|namespaceInputId %}
+{% set applyAmountCurrencyId = 'applyAmountCurrency'|namespaceInputId %}
+{% set applyAmountCurrencyInputId = 'applyAmountCurrencyInput'|namespaceInputId %}
+{% set applyAmountPercentId = 'applyAmountPercent'|namespaceInputId %}
+{% set applyAmountPercentInputId = 'applyAmountPercentInput'|namespaceInputId %}
+{% set isPercent = catalogPricingRule.apply == 'byPercent' or catalogPricingRule.apply == 'toPercent' or not catalogPricingRule.apply ? true : false  %}
+{% set currency = catalogPricingRule.getStore().getCurrency() %}
+
+{% import "_includes/forms" as forms %}
+{% set applyAmountInput %}
+  <table class="inputs">
+    <tr>
+      <td>
+        {{ forms.select({
+          id: 'apply',
+          name: 'apply',
+          options: applyOptions,
+          value: catalogPricingRule.apply
+        }) }}
+      </td>
+      <td>
+        <div id="applyPriceType-input" class="{{ catalogPricingRule.applyPriceType == 'toFlat' ? 'hidden' : '' }}">
+          {{ forms.select({
+            id: 'applyPriceType',
+            name: 'applyPriceType',
+            options: applyPriceTypeOptions,
+            value: catalogPricingRule.applyPriceType,
+          }) }}
+        </div>
+      </td>
+      <td>
+        <div
+            id="applyAmountCurrency"
+            class="{{ isPercent ? 'hidden' : '' }}"
+        >
+          {{ forms.money({
+            id: 'applyAmountCurrencyInput',
+            name: 'applyAmount',
+            value: applyAmount,
+            size: 5,
+            showCurrency: true,
+            currencyLabel: currency,
+            decimals: craft.commerce.currencies.getSubunitFor(currency),
+            inputAttributes: {
+              disabled: isPercent,
+            },
+          }) }}
+        </div>
+        <div
+            id="applyAmountPercent"
+            class="{{ isPercent ? '' : 'hidden' }}"
+        >
+          {{ forms.text({
+            id: 'applyAmountPercentInput',
+            name: 'applyAmount',
+            value: applyAmount,
+            class: 'code ltr',
+            size: 5,
+            disabled: not isPercent,
+          }) }}
+          <span>{{ percentSymbol }}</span>
+        </div>
+      </td>
+    </tr>
+  </table>
+{% endset %}
+
+{{ forms.field({
+  label: "Effect"|t('commerce'),
+  instructions: "Select how the catalog pricing rule will be applied to the purchasable(s)."|t('commerce'),
+  id: 'applyAmount',
+  errors: catalogPricingRule.getErrors('applyAmount')
+}, applyAmountInput) }}
+
+{{ forms.lightswitchField({
+  label: 'Is Promotional Price?'|t('commerce'),
+  id: 'isPromotionalPrice',
+  name: 'isPromotionalPrice',
+  value: 1,
+  on: catalogPricingRule.isPromotionalPrice ? true : false,
+  errors: catalogPricingRule.getErrors('isPromotionalPrice'),
+}) }}
+
+{% js %}
+$(function() {
+  $('#{{ applyId }}').change(function() {
+    const $currencyWrapper = document.querySelector('#{{ applyAmountCurrencyId }}');
+    const $currencyInput = document.querySelector('#{{ applyAmountCurrencyInputId }}');
+    const $percentWrapper = document.querySelector('#{{ applyAmountPercentId }}');
+    const $percentInput = document.querySelector('#{{ applyAmountPercentInputId }}');
+
+    if (this.value == 'byPercent' || this.value == 'toPercent') {
+      $currencyWrapper.classList.add('hidden');
+      $currencyInput.disabled = true
+
+      $percentWrapper.classList.remove('hidden');
+      $percentInput.classList.remove('hidden');
+      $percentInput.disabled = false;
+    } else {
+      $currencyWrapper.classList.remove('hidden');
+      $currencyInput.disabled = false
+
+      $percentWrapper.classList.add('hidden');
+      $percentInput.classList.add('hidden');
+      $percentInput.disabled = true;
+    }
+
+    if (this.value == 'toFlat') {
+      $('#{{ applyPriceTypeId }}').addClass('hidden');
+    } else {
+      $('#{{ applyPriceTypeId }}').removeClass('hidden');
+    }
+  });
+});
+{% endjs %}

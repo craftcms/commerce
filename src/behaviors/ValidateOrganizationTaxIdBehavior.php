@@ -6,9 +6,9 @@ use Craft;
 use craft\commerce\Plugin;
 use craft\elements\Address;
 use craft\events\DefineRulesEvent;
-use Exception;
 use RuntimeException;
 use yii\base\Behavior;
+use yii\base\InvalidConfigException;
 
 class ValidateOrganizationTaxIdBehavior extends Behavior
 {
@@ -50,49 +50,14 @@ class ValidateOrganizationTaxIdBehavior extends Behavior
 
     /**
      * @return void
+     * @throws InvalidConfigException
      */
     public function validateOrganizationTaxId(): void
     {
-        if (!Plugin::getInstance()->getSettings()->validateBusinessTaxIdAsVatId) {
-            return;
-        }
+        $validOrganizationTaxId = Plugin::getInstance()->getVat()->isValidVatId($this->owner->organizationTaxId);
 
-        // Do we have a valid VAT ID in our cache?
-        $validOrganizationTaxId = Craft::$app->getCache()->exists('commerce:validVatId:' . $this->owner->organizationTaxId);
-
-        // If we do not have a valid VAT ID in cache, see if we can get one from the API
         if (!$validOrganizationTaxId) {
-            $validOrganizationTaxId = $this->_validateVatNumber($this->owner->organizationTaxId);
-        }
-
-        if ($validOrganizationTaxId) {
-            Craft::$app->getCache()->set('commerce:validVatId:' . $this->owner->organizationTaxId, '1');
-        }
-
-        // Clean up if the API returned false and the item was still in cache
-        if (!$validOrganizationTaxId) {
-            Craft::$app->getCache()->delete('commerce:validVatId:' . $this->owner->organizationTaxId);
             $this->owner->addError('organizationTaxId', Craft::t('commerce', 'Invalid VAT ID.'));
         }
-    }
-
-    /**
-     * @param string $businessVatId
-     * @return bool
-     */
-    private function _validateVatNumber(string $businessVatId): bool
-    {
-        try {
-            $validators = Plugin::getInstance()->getTaxes()->getEnabledTaxIdValidators();
-            foreach ($validators as $validator) {
-                if ($validator->validate($businessVatId)) {
-                    return true;
-                }
-            }
-        } catch (Exception $e) {
-            Craft::error('Communication with Tax ID validators failed: ' . $e->getMessage(), __METHOD__);
-        }
-
-        return false;
     }
 }

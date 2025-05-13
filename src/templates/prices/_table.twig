@@ -1,0 +1,58 @@
+{% set showPurchasable = showPurchasable is defined ? showPurchasable : true %}
+{% set groupPurchasables = groupPurchasables is defined ? groupPurchasables : true %}
+{% set removeMargin = removeMargin is defined ? removeMargin : false %}
+
+<div class="tableview tablepane" {% if removeMargin %}style="margin: 0;"{% endif %}>
+  <table class="data fullwidth">
+    <thead>
+    <tr>
+      {% if showPurchasable %}
+        <th scope="col">{{ 'Name'|t('commerce') }}</th>
+      {% endif %}
+      <th scope="col">{{ 'Catalog Pricing Rule'|t('commerce') }}</th>
+      <th scope="col" style="text-align: right;">{{ 'Price'|t('commerce') }}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% set lastPurchasable = null %}
+    {% for price in catalogPrices %}
+      <tr>
+        {% if showPurchasable %}
+          <td>
+            {% if (groupPurchasables and lastPurchasable != price.purchasable.id) or (not groupPurchasables) %}
+              <div
+                  class="element small hasstatus"
+                  title="{{ price.purchasable.title }}"
+                  data-status="{{ price.purchasable.getStatus() }}"
+                  data-label="{{ price.purchasable.title }}">
+                <div class="label">
+                  <span class="title">
+                    <a href="{{ price.purchasable.cpEditUrl }}">{{ price.purchasable.title }}</a>
+                  </span>
+                </div>
+                <span class="status live" role="img" aria-label="Status: Live"></span>
+              </div>
+            {% endif %}
+          </td>
+        {% endif %}
+        <td>
+          {% if price.catalogPricingRule %}
+            <a href="{{ price.catalogPricingRule.cpEditUrl }}"
+               class="js-cpr-slideout"
+               data-store-id="{{ price.catalogPricingRule.storeId }}"
+               data-store-handle="{{ price.catalogPricingRule.getStore().handle }}"
+               data-purchasable-id="{{ price.purchasable.id }}"
+               data-catalog-pricing-rule-id="{{ price.catalogPricingRule.id }}"
+            >{{ price.catalogPricingRule.name }}</a>
+
+          {% else %}
+            <span class="extralight">{{ price.isPromotionalPrice ? 'Base Promotional Price'|t('commerce') : 'Base Price'|t('commerce') }}</span>
+          {% endif %}
+        </td>
+        <td class="{{ price.isPromotionalPrice ? 'commerce-promotional-price' : '' }}" style="text-align: right;">{{ price.priceAsCurrency }}</td>
+      </tr>
+      {% set lastPurchasable = price.purchasable.id %}
+    {% endfor %}
+    </tbody>
+  </table>
+</div>

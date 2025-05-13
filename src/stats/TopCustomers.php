@@ -38,13 +38,13 @@ class TopCustomers extends Stat
     /**
      * @inheritDoc
      */
-    public function __construct(string $dateRange = null, string $type = null, $startDate = null, $endDate = null)
+    public function __construct(string $dateRange = null, string $type = null, $startDate = null, $endDate = null, ?int $storeId = null)
     {
         if ($type) {
             $this->type = $type;
         }
 
-        parent::__construct($dateRange, $startDate, $endDate);
+        parent::__construct($dateRange, $startDate, $endDate, $storeId);
     }
 
     /**

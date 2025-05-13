@@ -80,7 +80,7 @@ class Taxes extends Component implements TaxEngineInterface
     /**
      * @return Collection<TaxIdValidatorInterface>
      * @throws InvalidConfigException
-     * @since 4.8.0
+     * @since 5.3.0
      */
     public function getTaxIdValidators(): Collection
     {
@@ -124,7 +124,6 @@ class Taxes extends Component implements TaxEngineInterface
 
         $event = new TaxEngineEvent(['engine' => new Tax()]);
 
-        // Only allow third party tax engines for PRO edition
         if ($this->hasEventHandlers(self::EVENT_REGISTER_TAX_ENGINE)) {
             $this->trigger(self::EVENT_REGISTER_TAX_ENGINE, $event);
         }

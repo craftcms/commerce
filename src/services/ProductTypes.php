@@ -8,7 +8,6 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\base\Field;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
@@ -22,16 +21,19 @@ use craft\commerce\records\ProductTypeSite as ProductTypeSiteRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\User;
+use craft\enums\PropagationMethod;
 use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;
 use craft\events\SiteEvent;
 use craft\helpers\App;
-use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\helpers\Db;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
+use craft\models\Structure;
 use craft\queue\jobs\ResaveElements;
+use craft\services\Structures;
 use Throwable;
 use yii\base\Component;
 use yii\base\ErrorException;
@@ -43,10 +45,10 @@ use yii\web\ServerErrorHttpException;
 /**
  * Product type service.
  *
- * @property array|ProductType[] $allProductTypes all product types
- * @property array $allProductTypeIds all of the product type IDs
- * @property array|ProductType[] $editableProductTypes all editable product types
- * @property array $editableProductTypeIds all of the product type IDs that are editable by the current user
+ * @property array|ProductType[] $allProductTypes All product types
+ * @property-read array $allProductTypeIds All the product type IDs
+ * @property-read array|ProductType[] $editableProductTypes all editable product types
+ * @property-read array $editableProductTypeIds all the product type IDs that are editable by the current user
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -103,34 +105,9 @@ class ProductTypes extends Component
     public const CONFIG_PRODUCTTYPES_KEY = 'commerce.productTypes';
 
     /**
-     * @var bool
+     * @var array|null
      */
-    private bool $_fetchedAllProductTypes = false;
-
-    /**
-     * @var ProductType[]|null
-     */
-    private ?array $_productTypesById = null;
-
-    /**
-     * @var ProductType[]|null
-     */
-    private ?array $_productTypesByHandle = null;
-
-    /**
-     * @var int[]|null
-     */
-    private ?array $_allProductTypeIds = null;
-
-    /**
-     * @var int[]|null
-     */
-    private ?array $_editableProductTypeIds = null;
-
-    /**
-     * @var int[]|null
-     */
-    private ?array $_creatableProductTypeIds = null;
+    private ?array $_allProductTypes = null;
 
     /**
      * @var ProductTypeSite[][]
@@ -164,7 +141,7 @@ class ProductTypes extends Component
         $editableProductTypes = [];
 
         foreach ($this->getAllProductTypes() as $productTypes) {
-            if (in_array($productTypes->id, $editableProductTypeIds, false)) {
+            if (in_array($productTypes->id, $editableProductTypeIds)) {
                 $editableProductTypes[] = $productTypes;
             }
         }
@@ -177,21 +154,27 @@ class ProductTypes extends Component
      *
      * @return array An array of all the editable product types’ IDs.
      */
-    public function getEditableProductTypeIds(): array
+    public function getEditableProductTypeIds(bool $anySite = false): array
     {
-        if (!isset($this->_editableProductTypeIds)) {
-            $this->_editableProductTypeIds = [];
-            $allProductTypes = $this->getAllProductTypes();
+        $editableIds = [];
+        $user = Craft::$app->getUser()->getIdentity();
+        $allProductTypes = $this->getAllProductTypes();
 
-            $user = Craft::$app->getUser()->getIdentity();
-            foreach ($allProductTypes as $productType) {
-                if (Plugin::getInstance()->getProductTypes()->hasPermission($user, $productType, 'commerce-editProductType')) {
-                    $this->_editableProductTypeIds[] = $productType->id;
-                }
+        $cpSite = Cp::requestedSite();
+
+        foreach ($allProductTypes as $productType) {
+            if (!Plugin::getInstance()->getProductTypes()->hasPermission($user, $productType, 'commerce-editProductType')) {
+                continue;
             }
+
+            if (!$anySite && $cpSite && !isset($productType->getSiteSettings()[$cpSite->id])) {
+                continue;
+            }
+
+            $editableIds[] = $productType->id;
         }
 
-        return $this->_editableProductTypeIds;
+        return $editableIds;
     }
 
     /**
@@ -202,20 +185,17 @@ class ProductTypes extends Component
      */
     public function getCreatableProductTypeIds(): array
     {
-        if (null === $this->_creatableProductTypeIds) {
-            $this->_creatableProductTypeIds = [];
-            $allProductTypes = $this->getAllProductTypes();
+        $creatableIds = [];
+        $user = Craft::$app->getUser()->getIdentity();
+        $allProductTypes = $this->getAllProductTypes();
 
-            $user = Craft::$app->getUser()->getIdentity();
-
-            foreach ($allProductTypes as $productType) {
-                if (Plugin::getInstance()->getProductTypes()->hasPermission($user, $productType, 'commerce-createProducts')) {
-                    $this->_creatableProductTypeIds[] = $productType->id;
-                }
+        foreach ($allProductTypes as $productType) {
+            if ($this->hasPermission($user, $productType, 'commerce-createProducts')) {
+                $creatableIds[] = $productType->id;
             }
         }
 
-        return $this->_creatableProductTypeIds;
+        return $creatableIds;
     }
 
     /**
@@ -229,7 +209,7 @@ class ProductTypes extends Component
         $creatableProductTypes = [];
 
         foreach ($this->getAllProductTypes() as $productTypes) {
-            if (in_array($productTypes->id, $creatableProductTypeIds, false)) {
+            if (in_array($productTypes->id, $creatableProductTypeIds)) {
                 $creatableProductTypes[] = $productTypes;
             }
         }
@@ -244,16 +224,7 @@ class ProductTypes extends Component
      */
     public function getAllProductTypeIds(): array
     {
-        if (!isset($this->_allProductTypeIds)) {
-            $this->_allProductTypeIds = [];
-            $productTypes = $this->getAllProductTypes();
-
-            foreach ($productTypes as $productType) {
-                $this->_allProductTypeIds[] = $productType->id;
-            }
-        }
-
-        return $this->_allProductTypeIds;
+        return collect($this->getAllProductTypes())->pluck('id')->all();
     }
 
     /**
@@ -263,17 +234,18 @@ class ProductTypes extends Component
      */
     public function getAllProductTypes(): array
     {
-        if (!$this->_fetchedAllProductTypes) {
-            $results = $this->_createProductTypeQuery()->all();
-
-            foreach ($results as $result) {
-                $this->_memoizeProductType(new ProductType($result));
-            }
-
-            $this->_fetchedAllProductTypes = true;
+        if ($this->_allProductTypes !== null) {
+            return $this->_allProductTypes;
         }
 
-        return $this->_productTypesById ?: [];
+        $this->_allProductTypes = [];
+
+        $results = $this->_createProductTypeQuery()->all();
+        foreach ($results as $result) {
+            $this->_allProductTypes[] = new ProductType($result);
+        }
+
+        return $this->_allProductTypes;
     }
 
     /**
@@ -284,25 +256,7 @@ class ProductTypes extends Component
      */
     public function getProductTypeByHandle(string $handle): ?ProductType
     {
-        if (isset($this->_productTypesByHandle[$handle])) {
-            return $this->_productTypesByHandle[$handle];
-        }
-
-        if ($this->_fetchedAllProductTypes) {
-            return null;
-        }
-
-        $result = $this->_createProductTypeQuery()
-            ->where(['handle' => $handle])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        $this->_memoizeProductType(new ProductType($result));
-
-        return $this->_productTypesByHandle[$handle];
+        return collect($this->getAllProductTypes())->where('handle', $handle)->first();
     }
 
     /**
@@ -313,8 +267,9 @@ class ProductTypes extends Component
      */
     public function getProductTypeSites(int $productTypeId): array
     {
+        $db = Craft::$app->getDb();
         if (!isset($this->_siteSettingsByProductId[$productTypeId])) {
-            $rows = (new Query())
+            $query = (new Query())
                 ->select([
                     'hasUrls',
                     'id',
@@ -324,8 +279,13 @@ class ProductTypes extends Component
                     'uriFormat',
                 ])
                 ->from(Table::PRODUCTTYPES_SITES)
-                ->where(['productTypeId' => $productTypeId])
-                ->all();
+                ->where(['productTypeId' => $productTypeId]);
+
+            if ($db->columnExists(Table::PRODUCTTYPES_SITES, 'enabledByDefault')) {
+                $query->addSelect('enabledByDefault');
+            }
+
+            $rows = $query->all();
 
             $this->_siteSettingsByProductId[$productTypeId] = [];
 
@@ -380,74 +340,9 @@ class ProductTypes extends Component
 
         $this->_savingProductTypes[$productType->uid] = $productType;
 
-        // If the product type does not have variants, default the title format.
-        if (!$isNewProductType && !$productType->hasVariants) {
-            $productType->hasVariantTitleField = false;
-            $productType->variantTitleFormat = '{product.title}';
-        }
-
         $projectConfig = Craft::$app->getProjectConfig();
-        $configData = [
-            'name' => $productType->name,
-            'handle' => $productType->handle,
-            'hasDimensions' => $productType->hasDimensions,
-            'hasVariants' => $productType->hasVariants,
 
-            // Variant title field
-            'hasVariantTitleField' => $productType->hasVariantTitleField,
-            'variantTitleFormat' => $productType->variantTitleFormat,
-
-            // Prouduct title field
-            'hasProductTitleField' => $productType->hasProductTitleField,
-            'productTitleFormat' => $productType->productTitleFormat,
-
-            'skuFormat' => $productType->skuFormat,
-            'descriptionFormat' => $productType->descriptionFormat,
-            'siteSettings' => [],
-        ];
-
-        $generateLayoutConfig = function(FieldLayout $fieldLayout): array {
-            $fieldLayoutConfig = $fieldLayout->getConfig();
-
-            if ($fieldLayoutConfig) {
-                if (empty($fieldLayout->id)) {
-                    $layoutUid = StringHelper::UUID();
-                    $fieldLayout->uid = $layoutUid;
-                } else {
-                    $layoutUid = Db::uidById('{{%fieldlayouts}}', $fieldLayout->id);
-                }
-
-                return [$layoutUid => $fieldLayoutConfig];
-            }
-
-            return [];
-        };
-
-        $configData['productFieldLayouts'] = $generateLayoutConfig($productType->getFieldLayout());
-        $configData['variantFieldLayouts'] = [];
-        if ($productType->hasVariants) {
-            $configData['variantFieldLayouts'] = $generateLayoutConfig($productType->getVariantFieldLayout());
-        }
-
-
-        // Get the site settings
-        $allSiteSettings = $productType->getSiteSettings();
-
-        // Make sure they're all there
-        foreach (Craft::$app->getSites()->getAllSiteIds() as $siteId) {
-            if (!isset($allSiteSettings[$siteId])) {
-                throw new Exception('Tried to save a product type that is missing site settings');
-            }
-        }
-
-        foreach ($allSiteSettings as $siteId => $settings) {
-            $siteUid = Db::uidById(CraftTable::SITES, $siteId);
-            $configData['siteSettings'][$siteUid] = [
-                'hasUrls' => $settings['hasUrls'],
-                'uriFormat' => $settings['uriFormat'],
-                'template' => $settings['template'],
-            ];
-        }
+        $configData = $productType->getConfig();
 
         $configPath = self::CONFIG_PRODUCTTYPES_KEY . '.' . $productType->uid;
         $projectConfig->set($configPath, $configData);
@@ -488,12 +383,27 @@ class ProductTypes extends Component
             $productTypeRecord->uid = $productTypeUid;
             $productTypeRecord->name = $data['name'];
             $productTypeRecord->handle = $data['handle'];
+            $productTypeRecord->enableVersioning = $data['enableVersioning'] ?? false;
             $productTypeRecord->hasDimensions = $data['hasDimensions'];
+
+            $productTypeRecord->productTitleTranslationMethod = $data['productTitleTranslationMethod'] ?? 'site';
+            $productTypeRecord->productTitleTranslationKeyFormat = $data['productTitleTranslationKeyFormat'] ?? '';
+
+            $productTypeRecord->propagationMethod = $data['propagationMethod'] ?? PropagationMethod::All->value;
+
+            // Resave products if propagation method has changed
+            if ($productTypeRecord->propagationMethod != $productTypeRecord->getOldAttribute('propagationMethod')) {
+                $shouldResaveProducts = true;
+            }
+
+            $productTypeRecord->variantTitleTranslationMethod = $data['variantTitleTranslationMethod'] ?? 'site';
+            $productTypeRecord->variantTitleTranslationKeyFormat = $data['variantTitleTranslationKeyFormat'] ?? '';
 
             // Variant title fields
             $hasVariantTitleField = $data['hasVariantTitleField'];
             $variantTitleFormat = $data['variantTitleFormat'] ?? '{product.title}';
-            if ($productTypeRecord->variantTitleFormat != $variantTitleFormat || $productTypeRecord->hasVariantTitleField != $hasVariantTitleField) {
+            if ($productTypeRecord->variantTitleFormat != $variantTitleFormat ||
+                $productTypeRecord->hasVariantTitleField != $hasVariantTitleField) {
                 $shouldResaveProducts = true;
             }
             $productTypeRecord->variantTitleFormat = $variantTitleFormat;
@@ -502,16 +412,17 @@ class ProductTypes extends Component
             // Product title fields
             $hasProductTitleField = $data['hasProductTitleField'];
             $productTitleFormat = $data['productTitleFormat'] ?? 'Title';
-            if ($productTypeRecord->productTitleFormat != $productTitleFormat || $productTypeRecord->hasProductTitleField != $hasProductTitleField) {
+            if ($productTypeRecord->productTitleFormat != $productTitleFormat ||
+                $productTypeRecord->hasProductTitleField != $hasProductTitleField) {
                 $shouldResaveProducts = true;
             }
             $productTypeRecord->productTitleFormat = $productTitleFormat;
             $productTypeRecord->hasProductTitleField = $hasProductTitleField;
 
-            if ($productTypeRecord->hasVariants != $data['hasVariants']) {
+            if ($productTypeRecord->maxVariants != $data['maxVariants']) {
                 $shouldResaveProducts = true;
             }
-            $productTypeRecord->hasVariants = $data['hasVariants'];
+            $productTypeRecord->maxVariants = $data['maxVariants'];
 
             $skuFormat = $data['skuFormat'] ?? '';
             if ($productTypeRecord->skuFormat != $skuFormat) {
@@ -524,6 +435,12 @@ class ProductTypes extends Component
                 $shouldResaveProducts = true;
             }
             $productTypeRecord->descriptionFormat = $descriptionFormat;
+            $productTypeRecord->isStructure = $data['isStructure'] ?? false;
+            $productTypeRecord->maxLevels = $data['maxLevels'] ?? null;
+            $productTypeRecord->defaultPlacement = $data['defaultPlacement'] ?? ProductType::DEFAULT_PLACEMENT_BEGINNING;
+            if ($productTypeRecord->isStructure != $productTypeRecord->getOldAttribute('isStructure')) {
+                $shouldResaveProducts = true;
+            }
 
             if (!empty($data['productFieldLayouts']) && !empty($config = reset($data['productFieldLayouts']))) {
                 // Save the main field layout
@@ -551,6 +468,24 @@ class ProductTypes extends Component
                 // Delete the variant field layout
                 $fieldsService->deleteLayoutById($productTypeRecord->variantFieldLayoutId);
                 $productTypeRecord->variantFieldLayoutId = null;
+            }
+
+            if ($productTypeRecord->isStructure) {
+                // Save the structure
+                $structureUid = $data['structure']['uid'];
+                $structure = Craft::$app->getStructures()->getStructureByUid($structureUid, true) ?? new Structure(['uid' => $structureUid]);
+                $isNewStructure = empty($structure->id);
+                $structure->maxLevels = $data['maxLevels'] ?? null;
+                Craft::$app->getStructures()->saveStructure($structure);
+                $productTypeRecord->structureId = $structure->id;
+            } else {
+                if ($productTypeRecord->structureId) {
+                    // Delete the old one
+                    Craft::$app->getStructures()->deleteStructureById($productTypeRecord->structureId);
+                }
+
+                $productTypeRecord->structureId = null;
+                $isNewStructure = false;
             }
 
             $productTypeRecord->save(false);
@@ -586,6 +521,8 @@ class ProductTypes extends Component
                     $siteSettingsRecord->siteId = $siteId;
                 }
 
+                $siteSettingsRecord->enabledByDefault = (bool)($siteSettings['enabledByDefault'] ?? true);
+
                 if ($siteSettingsRecord->hasUrls = $siteSettings['hasUrls']) {
                     $siteSettingsRecord->uriFormat = $siteSettings['uriFormat'];
                     $siteSettingsRecord->template = $siteSettings['template'];
@@ -618,15 +555,28 @@ class ProductTypes extends Component
                     $siteUid = array_search($siteId, $siteIdMap, false);
                     if (!in_array($siteUid, $affectedSiteUids, false)) {
                         $siteSettingsRecord->delete();
+                        $shouldResaveProducts = true;
                     }
                 }
+            }
+
+            // If the section was just converted to a Structure,
+            // add the existing entries to the structure
+            // -----------------------------------------------------------------
+
+            if (
+                $productTypeRecord->isStructure &&
+                !$isNewProductType &&
+                $isNewStructure
+            ) {
+                $this->_populateNewStructure($productTypeRecord);
             }
 
             // Finally, deal with the existing products...
             // -----------------------------------------------------------------
 
             if (!$isNewProductType) {
-                // Get all of the product IDs in this group
+                // Get all the product IDs in this group
                 $productIds = Product::find()
                     ->typeId($productTypeRecord->id)
                     ->status(null)
@@ -686,14 +636,8 @@ class ProductTypes extends Component
         }
 
         // Clear caches
-        $this->_allProductTypeIds = null;
-        $this->_editableProductTypeIds = null;
-        $this->_fetchedAllProductTypes = false;
-        unset(
-            $this->_productTypesById[$productTypeRecord->id],
-            $this->_productTypesByHandle[$productTypeRecord->handle],
-            $this->_siteSettingsByProductId[$productTypeRecord->id]
-        );
+        $this->_allProductTypes = null;
+        unset($this->_siteSettingsByProductId[$productTypeRecord->id]);
 
         // Fire an 'afterSaveProductType' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_PRODUCTTYPE)) {
@@ -701,6 +645,34 @@ class ProductTypes extends Component
                 'productType' => $this->getProductTypeById($productTypeRecord->id),
                 'isNew' => empty($this->_savingProductTypes[$productTypeUid]),
             ]));
+        }
+    }
+
+    /**
+     * Adds existing products to a newly-created structure, if the product type was just converted to Orderable.
+     *
+     * @param ProductTypeRecord $productTypeRecord
+     * @throws Exception if reasons
+     * @see saveProductType()
+     */
+    private function _populateNewStructure(ProductTypeRecord $productTypeRecord): void
+    {
+        // Add all the products to the structure
+        $query = Product::find()
+            ->typeId($productTypeRecord->id)
+            ->drafts(null)
+            ->draftOf(false)
+            ->site('*')
+            ->unique()
+            ->status(null)
+            ->orderBy(['id' => SORT_ASC])
+            ->withStructure(false);
+
+        $structuresService = Craft::$app->getStructures();
+
+        foreach (Db::each($query) as $product) {
+            /** @var Product $product */
+            $structuresService->appendToRoot($productTypeRecord->structureId, $product, Structures::MODE_INSERT);
         }
     }
 
@@ -801,14 +773,8 @@ class ProductTypes extends Component
         }
 
         // Clear caches
-        $this->_allProductTypeIds = null;
-        $this->_editableProductTypeIds = null;
-        $this->_fetchedAllProductTypes = false;
-        unset(
-            $this->_productTypesById[$productTypeRecord->id],
-            $this->_productTypesByHandle[$productTypeRecord->handle],
-            $this->_siteSettingsByProductId[$productTypeRecord->id]
-        );
+        $this->_allProductTypes = null;
+        unset($this->_siteSettingsByProductId[$productTypeRecord->id]);
     }
 
     /**
@@ -844,25 +810,7 @@ class ProductTypes extends Component
      */
     public function getProductTypeById(int $productTypeId): ?ProductType
     {
-        if (isset($this->_productTypesById[$productTypeId])) {
-            return $this->_productTypesById[$productTypeId];
-        }
-
-        if ($this->_fetchedAllProductTypes) {
-            return null;
-        }
-
-        $result = $this->_createProductTypeQuery()
-            ->where(['id' => $productTypeId])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        $this->_memoizeProductType(new ProductType($result));
-
-        return $this->_productTypesById[$productTypeId];
+        return collect($this->getAllProductTypes())->where('id', $productTypeId)->first();
     }
 
     /**
@@ -873,7 +821,7 @@ class ProductTypes extends Component
      */
     public function getProductTypeByUid(string $uid): ?ProductType
     {
-        return ArrayHelper::firstWhere($this->getAllProductTypes(), 'uid', $uid, true);
+        return collect($this->getAllProductTypes())->where('uid', $uid)->first();
     }
 
     /**
@@ -936,17 +884,6 @@ class ProductTypes extends Component
     }
 
     /**
-     * Memoize a product type
-     *
-     * @param ProductType $productType The product type to memoize.
-     */
-    private function _memoizeProductType(ProductType $productType): void
-    {
-        $this->_productTypesById[$productType->id] = $productType;
-        $this->_productTypesByHandle[$productType->handle] = $productType;
-    }
-
-    /**
      * Returns a Query object prepped for retrieving purchasables.
      *
      * @return Query The query object.
@@ -960,10 +897,10 @@ class ProductTypes extends Component
                 'productTypes.handle',
                 'productTypes.hasDimensions',
                 'productTypes.hasProductTitleField',
-                'productTypes.hasVariants',
                 'productTypes.hasVariantTitleField',
                 'productTypes.id',
                 'productTypes.name',
+                'productTypes.maxVariants',
                 'productTypes.productTitleFormat',
                 'productTypes.skuFormat',
                 'productTypes.uid',
@@ -971,12 +908,57 @@ class ProductTypes extends Component
             ])
             ->from([Table::PRODUCTTYPES . ' productTypes']);
 
-        // in 4.0 `craft\commerce\model\ProductType::$titleFormat` was renamed to `$variantTitleFormat`.
-        $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
-        if (version_compare($commerce['schemaVersion'], '4.0.0', '>=')) {
+        // todo: remove after the next breakpoint
+        $db = Craft::$app->getDb();
+        if ($db->columnExists(Table::PRODUCTTYPES, 'variantTitleFormat')) {
             $query->addSelect('productTypes.variantTitleFormat');
         } else {
             $query->addSelect('productTypes.titleFormat');
+        }
+
+        /** @since 5.0 */
+        if ($db->columnExists(Table::PRODUCTTYPES, 'enableVersioning')) {
+            $query->addSelect('productTypes.enableVersioning');
+        }
+
+        /** @since 5.2 */
+        if ($db->columnExists(Table::PRODUCTTYPES, 'isStructure')) {
+            $query->addSelect('productTypes.isStructure');
+            $query->addSelect('productTypes.maxLevels');
+        }
+
+        /** @since 5.2 */
+        if ($db->columnExists(Table::PRODUCTTYPES, 'defaultPlacement')) {
+            $query->addSelect('productTypes.defaultPlacement');
+        }
+
+        /** @since 5.2 */
+        if ($db->columnExists(Table::PRODUCTTYPES, 'structureId')) {
+            $query->addSelect('productTypes.structureId');
+        }
+
+        /** @since 5.1 */
+        if ($db->columnExists(Table::PRODUCTTYPES, 'productTitleTranslationMethod')) {
+            $query->addSelect('productTypes.productTitleTranslationMethod');
+        }
+
+        /** @since 5.1 */
+        if ($db->columnExists(Table::PRODUCTTYPES, 'productTitleTranslationKeyFormat')) {
+            $query->addSelect('productTypes.productTitleTranslationKeyFormat');
+        }
+
+        if ($db->columnExists(Table::PRODUCTTYPES, 'variantTitleTranslationMethod')) {
+            $query->addSelect('productTypes.variantTitleTranslationMethod');
+        }
+
+        /** @since 5.1 */
+        if ($db->columnExists(Table::PRODUCTTYPES, 'variantTitleTranslationKeyFormat')) {
+            $query->addSelect('productTypes.variantTitleTranslationKeyFormat');
+        }
+
+        /** @since 5.1 */
+        if ($db->columnExists(Table::PRODUCTTYPES, 'propagationMethod')) {
+            $query->addSelect('productTypes.propagationMethod');
         }
 
         return $query;
@@ -1004,7 +986,7 @@ class ProductTypes extends Component
      */
     public function hasPermission(User $user, ProductType $productType, ?string $checkPermissionName = null): bool
     {
-        if ($user->admin == true) {
+        if ($user->admin) {
             return true;
         }
 
@@ -1012,14 +994,17 @@ class ProductTypes extends Component
 
         $suffix = ':' . $productType->uid;
 
+        if ($checkPermissionName !== null) {
+            $checkPermissionName = strtolower($checkPermissionName . $suffix);
+            if (!in_array(strtolower($checkPermissionName), $permissions)) {
+                return false;
+            }
+        }
+
         // Required for create and delete permission.
         $editProductType = strtolower('commerce-editProductType' . $suffix);
 
-        if ($checkPermissionName !== null) {
-            $checkPermissionName = strtolower($checkPermissionName . $suffix);
-        }
-
-        if (!in_array($editProductType, $permissions) || ($checkPermissionName !== null && !in_array(strtolower($checkPermissionName), $permissions))) {
+        if (!in_array($editProductType, $permissions)) {
             return false;
         }
 

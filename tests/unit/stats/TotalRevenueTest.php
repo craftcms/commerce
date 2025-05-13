@@ -8,6 +8,7 @@
 namespace craftcommercetests\unit\stats;
 
 use Codeception\Test\Unit;
+use craft\commerce\Plugin;
 use craft\commerce\stats\TotalRevenue;
 use craftcommercetests\fixtures\OrdersFixture;
 use DateTime;
@@ -53,7 +54,8 @@ class TotalRevenueTest extends Unit
      */
     public function testGetData(string $dateRange, DateTime $startDate, DateTime $endDate, int $count, $revenue, string $type): void
     {
-        $stat = new TotalRevenue($dateRange, $startDate, $endDate);
+        $storeId = Plugin::getInstance()->getStores()->getPrimaryStore()->id;
+        $stat = new TotalRevenue($dateRange, $startDate, $endDate, $storeId);
         $stat->type = $type;
         $data = $stat->get();
 

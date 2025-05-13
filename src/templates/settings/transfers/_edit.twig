@@ -1,0 +1,31 @@
+{% extends "commerce/_layouts/settings" %}
+
+{% import "_includes/forms" as forms %}
+
+{% set selectedItem = 'transfers' %}
+
+{% set crumbs = [
+  { label: 'Commerce'|t('commerce'), url: url('commerce') },
+] %}
+
+{% set fullPageForm = not readOnly %}
+
+{% if readOnly %}
+    {% set contentNotice = readOnlyNotice() %}
+{% endif %}
+
+{% block content %}
+    {% if not readOnly %}
+    {{ actionInput('commerce/settings/save-transfer-settings') }}
+    {{ csrfInput() }}
+    {% endif %}
+    {{ redirectInput('commerce/settings/transfers') }}
+
+    {{ forms.fieldLayoutDesignerField({
+        fieldLayout: fieldLayout,
+        withCardViewDesigner: true,
+        disabled: readOnly,
+    }) }}
+
+
+{% endblock %}

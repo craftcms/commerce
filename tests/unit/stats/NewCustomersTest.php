@@ -8,6 +8,7 @@
 namespace craftcommercetests\unit\stats;
 
 use Codeception\Test\Unit;
+use craft\commerce\Plugin;
 use craft\commerce\stats\NewCustomers;
 use craftcommercetests\fixtures\OrdersFixture;
 use DateTime;
@@ -51,7 +52,8 @@ class NewCustomersTest extends Unit
      */
     public function testGetData(string $dateRange, DateTime $startDate, DateTime $endDate, ?float $count): void
     {
-        $stat = new NewCustomers($dateRange, $startDate, $endDate);
+        $storeId = Plugin::getInstance()->getStores()->getPrimaryStore()->id;
+        $stat = new NewCustomers($dateRange, $startDate, $endDate, $storeId);
         $data = $stat->get();
 
         self::assertIsNumeric($data);

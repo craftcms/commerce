@@ -8,6 +8,7 @@
 namespace craft\commerce\test\mockclasses;
 
 use craft\commerce\base\Purchasable as BasePurchasable;
+use craft\commerce\models\Store;
 
 /**
  * Purchasable
@@ -27,7 +28,7 @@ class Purchasable extends BasePurchasable
         return $this->isPromotable;
     }
 
-    public function getPrice(): float
+    public function getPrice(string|Store|null $store = null): ?float
     {
         return 25.10;
     }

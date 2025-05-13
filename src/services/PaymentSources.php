@@ -17,6 +17,8 @@ use craft\commerce\models\PaymentSource;
 use craft\commerce\Plugin;
 use craft\commerce\records\PaymentSource as PaymentSourceRecord;
 use craft\db\Query;
+use craft\errors\SiteNotFoundException;
+use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
@@ -105,16 +107,19 @@ class PaymentSources extends Component
      *
      * @param int|null $customerId the user's ID
      * @param int|null $gatewayId the gateway's ID
-     * @return PaymentSource[]
+     * @return Collection<PaymentSource>
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
      * @noinspection PhpUnused
      */
-    public function getAllPaymentSourcesByCustomerId(int $customerId = null, ?int $gatewayId = null): array
+    public function getAllPaymentSourcesByCustomerId(?int $customerId = null, ?int $gatewayId = null): Collection
     {
         if ($customerId === null) {
-            return [];
+            return collect();
         }
 
         $query = $this->_createPaymentSourcesQuery()
+            ->innerJoin(['gateways' => Table::GATEWAYS], 'gateways.id = [[ps.gatewayId]]')
             ->where(['customerId' => $customerId]);
 
         if ($gatewayId) {
@@ -126,35 +131,26 @@ class PaymentSources extends Component
         $sources = [];
 
         foreach ($results as $result) {
-            $sources[] = new PaymentSource($result);
+            $sources[] = Craft::createObject([
+                'class' => PaymentSource::class,
+                'attributes' => $result,
+            ]);
         }
 
-        return $sources;
-    }
-
-    /**
-     * @deprecated in 4.0.0. Use [[getAllPaymentSourcesByCustomerId()]] instead.
-     */
-    public function getAllPaymentSourcesByUserId(int $userId = null): array
-    {
-        Craft::$app->getDeprecator()->log('PaymentSources::getAllPaymentSourcesByUserId()', 'The `PaymentSources::getAllPaymentSourcesByUserId()` is deprecated, use the `PaymentSources::getAllPaymentSourcesByCustomerId()` instead.');
-        if ($userId === null) {
-            return [];
-        }
-
-        return $this->getAllPaymentSourcesByCustomerId($userId);
+        return collect($sources);
     }
 
     /**
      * Returns all payment sources for a gateway.
      *
      * @param int|null $gatewayId the gateway's ID
-     * @return PaymentSource[]
+     * @return Collection
+     * @throws InvalidConfigException
      */
-    public function getAllPaymentSourcesByGatewayId(int $gatewayId = null): array
+    public function getAllPaymentSourcesByGatewayId(int $gatewayId = null): Collection
     {
         if ($gatewayId === null) {
-            return [];
+            return collect();
         }
 
         $results = $this->_createPaymentSourcesQuery()
@@ -164,10 +160,13 @@ class PaymentSources extends Component
         $sources = [];
 
         foreach ($results as $result) {
-            $sources[] = new PaymentSource($result);
+            $sources[] = Craft::createObject([
+                'class' => PaymentSource::class,
+                'attributes' => $result,
+            ]);
         }
 
-        return $sources;
+        return collect($sources);
     }
 
     /**
@@ -175,12 +174,13 @@ class PaymentSources extends Component
      *
      * @param int|null $gatewayId the gateway's ID
      * @param int|null $customerId the user's ID
-     * @return PaymentSource[]
+     * @return Collection<PaymentSource>
+     * @throws InvalidConfigException
      */
-    public function getAllGatewayPaymentSourcesByCustomerId(int $gatewayId = null, int $customerId = null): array
+    public function getAllGatewayPaymentSourcesByCustomerId(int $gatewayId = null, int $customerId = null): Collection
     {
         if ($gatewayId === null || $customerId === null) {
-            return [];
+            return collect();
         }
 
         $results = $this->_createPaymentSourcesQuery()
@@ -191,21 +191,13 @@ class PaymentSources extends Component
         $sources = [];
 
         foreach ($results as $result) {
-            $sources[] = new PaymentSource($result);
+            $sources[] = Craft::createObject([
+                'class' => PaymentSource::class,
+                'attributes' => $result,
+            ]);
         }
 
-        return $sources;
-    }
-
-    /**
-     * @param int|null $gatewayId the gateway's ID
-     * @param int|null $userId the user's ID
-     * @deprecated in 4.0.0. Use [[getAllPaymentSourcesByCustomerId()]] instead.
-     */
-    public function getAllGatewayPaymentSourcesByUserId(?int $gatewayId = null, ?int $userId = null): array
-    {
-        Craft::$app->getDeprecator()->log('PaymentSources::getAllGatewayPaymentSourcesByUserId()', 'The `PaymentSources::getAllGatewayPaymentSourcesByUserId()` is deprecated, use the `PaymentSources::getAllGatewayPaymentSourcesByCustomerId()` instead.');
-        return $this->getAllPaymentSourcesByCustomerId($userId);
+        return collect($sources);
     }
 
     /**
@@ -214,6 +206,7 @@ class PaymentSources extends Component
      * @param string $token the payment gateway's token
      * @param int $gatewayId the gateway's ID
      * @return PaymentSource|null
+     * @throws InvalidConfigException
      */
     public function getPaymentSourceByTokenAndGatewayId(string $token, int $gatewayId): ?PaymentSource
     {
@@ -222,21 +215,25 @@ class PaymentSources extends Component
             ->andWhere(['gatewayId' => $gatewayId])
             ->one();
 
-        return $result ? new PaymentSource($result) : null;
+        return $result ? Craft::createObject(['class' => PaymentSource::class, 'attributes' => $result]) : null;
     }
 
     /**
      * Returns a payment source by its ID.
      *
      * @param int $sourceId the source ID
+     * @return PaymentSource|null
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
      */
     public function getPaymentSourceById(int $sourceId): ?PaymentSource
     {
         $result = $this->_createPaymentSourcesQuery()
-            ->where(['id' => $sourceId])
+            ->where(['[[ps.id]]' => $sourceId])
+            ->innerJoin(['gateways' => Table::GATEWAYS], 'gateways.id = [[ps.gatewayId]]') // ensure it is a gateway payment source
             ->one();
 
-        return $result ? new PaymentSource($result) : null;
+        return $result ? Craft::createObject(['class' => PaymentSource::class, 'attributes' => $result]) : null;
     }
 
     /**
@@ -382,13 +379,13 @@ class PaymentSources extends Component
     {
         return (new Query())
             ->select([
-                'description',
-                'gatewayId',
-                'id',
-                'response',
-                'token',
-                'customerId',
+                'ps.description',
+                'ps.gatewayId',
+                'ps.id',
+                'ps.response',
+                'ps.token',
+                'ps.customerId',
             ])
-            ->from(Table::PAYMENTSOURCES);
+            ->from(['ps' => Table::PAYMENTSOURCES]);
     }
 }

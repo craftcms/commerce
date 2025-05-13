@@ -7,6 +7,12 @@
 
 namespace craft\commerce\web\assets\commercecp;
 
+use Craft;
+use craft\commerce\behaviors\StoreBehavior;
+use craft\commerce\models\ProductType;
+use craft\commerce\Plugin;
+use craft\helpers\Json;
+use craft\models\Site;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
 use craft\web\View;
@@ -54,8 +60,6 @@ class CommerceCpAsset extends AssetBundle
                 'Address Line 2',
                 'Address Updated.',
                 'Alternative Phone',
-                'Organization Name',
-                'Organization Tax ID',
                 'Cancel',
                 'City',
                 'Country',
@@ -66,9 +70,12 @@ class CommerceCpAsset extends AssetBundle
                 'Last Name',
                 'Message',
                 'New product',
+                'New product, choose a type',
                 'New {productType} product',
                 'New',
                 'No Address',
+                'Organization Name',
+                'Organization Tax ID',
                 'PDF',
                 'Phone (Alt)',
                 'Phone',
@@ -82,5 +89,39 @@ class CommerceCpAsset extends AssetBundle
                 'Zip Code',
             ]);
         }
+
+        // Define the Craft.Commerce object
+        $commerceData = $this->_commerceData();
+        $editableProductTypes = Json::encode($commerceData['editableProductTypes']);
+        $sitesStores = Json::encode($commerceData['sitesStores']);
+
+        $js = <<<JS
+if (typeof window.Craft.Commerce === typeof undefined) {
+    window.Craft.Commerce = {};
+}
+
+window.Craft.Commerce.editableProductTypes = $editableProductTypes;
+window.Craft.Commerce.sitesStores = $sitesStores;
+JS;
+        $view->registerJs($js, View::POS_HEAD);
+    }
+
+    private function _commerceData(): array
+    {
+        $sitesStores = [];
+        foreach (Craft::$app->getSites()->getAllSites() as $site) {
+            /** @var Site|StoreBehavior $site */
+            $sitesStores[$site->id] = $site->getStore()->id;
+        }
+
+        return [
+            'editableProductTypes' => array_map(fn(ProductType $productType) => [
+                'id' => $productType->id,
+                'uid' => $productType->uid,
+                'name' => Craft::t('site', $productType->name),
+                'handle' => $productType->handle,
+            ], Plugin::getInstance()->getProductTypes()->getCreatableProductTypes()),
+            'sitesStores' => $sitesStores,
+        ];
     }
 }

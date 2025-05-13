@@ -8,9 +8,9 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Zone;
-use craft\commerce\records\TaxZone as TaxZoneRecord;
-use craft\helpers\UrlHelper;
+use craft\commerce\records\TaxZone;
 use craft\validators\UniqueValidator;
+use yii\base\InvalidConfigException;
 
 /**
  * Tax zone model.
@@ -29,10 +29,11 @@ class TaxAddressZone extends Zone
 
     /**
      * @return string
+     * @throws InvalidConfigException
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/tax/taxzones/' . $this->id);
+        return $this->getStore()->getStoreSettingsUrl('taxzones/' . $this->id);
     }
 
     /**
@@ -40,10 +41,10 @@ class TaxAddressZone extends Zone
      */
     protected function defineRules(): array
     {
-        return [
-            [['name'], 'required'],
-            [['condition'], 'required'],
-            [['name'], UniqueValidator::class, 'targetClass' => TaxZoneRecord::class, 'targetAttribute' => ['name']],
-        ];
+        $rules = parent::defineRules();
+        $rules[] = [['name'], UniqueValidator::class, 'targetClass' => TaxZone::class, 'targetAttribute' => ['name', 'storeId']];
+        $rules[] = [['default'], 'safe'];
+
+        return $rules;
     }
 }

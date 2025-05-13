@@ -8,7 +8,7 @@ use DvK\Vat\Validator;
 /**
  * EuVatIdValidator checks if a given VAT ID is valid in the EU.
  * Valid Test number: PL7272445205
- * @since 4.8.0
+ * @since 5.3.0
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  */
 class EuVatIdValidator implements TaxIdValidatorInterface

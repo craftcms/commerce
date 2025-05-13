@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\base\StoreRecordTrait;
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use yii\db\ActiveQueryInterface;
@@ -22,6 +23,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $name
  * @property string $code
  * @property float $rate
+ * @property int $storeId
  * @property string $taxable
  * @property TaxCategory $taxCategory
  * @property int $taxCategoryId
@@ -29,11 +31,14 @@ use yii\db\ActiveQueryInterface;
  * @property bool $isEverywhere
  * @property array $taxIdValidators
  * @property int $taxZoneId
+ * @property bool $enabled
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 class TaxRate extends ActiveRecord
 {
+    use StoreRecordTrait;
+
     /**
      * @var string Tax subject is line item price.
      */

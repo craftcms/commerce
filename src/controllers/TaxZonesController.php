@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\Plugin;
@@ -15,6 +16,7 @@ use craft\helpers\Cp;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -27,10 +29,20 @@ use yii\web\Response;
  */
 class TaxZonesController extends BaseTaxSettingsController
 {
-    public function actionIndex(): Response
+    /**
+     * @param string|null $storeHandle
+     * @return Response
+     * @throws StoreNotFoundException
+     * @throws InvalidConfigException
+     */
+    public function actionIndex(?string $storeHandle = null): Response
     {
-        $taxZones = Plugin::getInstance()->getTaxZones()->getAllTaxZones();
-        return $this->renderTemplate('commerce/tax/taxzones/index', compact('taxZones'));
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
+        $taxZones = Plugin::getInstance()->getTaxZones()->getAllTaxZones($store->id);
+        return $this->renderTemplate('commerce/store-management/tax/taxzones/index', compact('taxZones', 'store'));
     }
 
     /**
@@ -38,19 +50,26 @@ class TaxZonesController extends BaseTaxSettingsController
      * @param TaxAddressZone|null $taxZone
      * @throws HttpException
      */
-    public function actionEdit(int $id = null, TaxAddressZone $taxZone = null): Response
+    public function actionEdit(?string $storeHandle = null, int $id = null, TaxAddressZone $taxZone = null): Response
     {
-        $variables = compact('id', 'taxZone');
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
+        $variables = compact('id', 'taxZone', 'store');
 
         if (!$variables['taxZone']) {
             if ($variables['id']) {
-                $variables['taxZone'] = Plugin::getInstance()->getTaxZones()->getTaxZoneById($variables['id']);
+                $variables['taxZone'] = Plugin::getInstance()->getTaxZones()->getTaxZoneById($variables['id'], $store->id);
 
                 if (!$variables['taxZone']) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['taxZone'] = new TaxAddressZone();
+                $variables['taxZone'] = Craft::createObject([
+                    'class' => TaxAddressZone::class,
+                    'storeId' => $store->id,
+                ]);
             }
         }
 
@@ -67,10 +86,11 @@ class TaxZonesController extends BaseTaxSettingsController
         $variables['conditionField'] = Cp::fieldHtml($condition->getBuilderHtml(), [
             'label' => Craft::t('app', 'Address Condition'),
         ]);
+        $variables['store'] = $store;
 
         DebugPanel::prependOrAppendModelTab(model: $variables['taxZone'], prepend: true);
 
-        return $this->renderTemplate('commerce/tax/taxzones/_edit', $variables);
+        return $this->renderTemplate('commerce/store-management/tax/taxzones/_edit', $variables);
     }
 
     /**
@@ -84,6 +104,7 @@ class TaxZonesController extends BaseTaxSettingsController
         $taxZone = new TaxAddressZone();
 
         $taxZone->id = $this->request->getBodyParam('taxZoneId');
+        $taxZone->storeId = $this->request->getBodyParam('storeId');
         $taxZone->name = $this->request->getBodyParam('name');
         $taxZone->description = $this->request->getBodyParam('description');
         $taxZone->default = (bool)$this->request->getBodyParam('default');

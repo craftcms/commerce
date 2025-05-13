@@ -16,6 +16,8 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Customer;
 use craft\elements\Address;
 use craft\elements\User;
+use craft\events\DefineFieldsEvent;
+use craft\events\DefineRulesEvent;
 use craft\events\ModelEvent;
 use craft\helpers\ArrayHelper;
 use RuntimeException;
@@ -82,13 +84,35 @@ class CustomerBehavior extends Behavior
     }
 
     /**
+     * @param DefineFieldsEvent $event
+     * @return void
+     * @since 5.0.10
+     */
+    public function defineFields(DefineFieldsEvent $event): void
+    {
+        $event->fields['primaryBillingAddressId'] = 'primaryBillingAddressId';
+        $event->fields['primaryShippingAddressId'] = 'primaryShippingAddressId';
+    }
+
+    /**
      * @inheritdoc
      */
     public function events(): array
     {
         return [
             User::EVENT_AFTER_SAVE => 'afterSaveUserHandler',
+            User::EVENT_DEFINE_RULES => 'defineRules',
+            User::EVENT_DEFINE_FIELDS => 'defineFields',
         ];
+    }
+
+    /**
+     * @param DefineRulesEvent $event
+     * @throws InvalidConfigException
+     */
+    public function defineRules(DefineRulesEvent $event): void
+    {
+        $event->rules[] = [['primaryBillingAddressId', 'primaryShippingAddressId'], 'safe'];
     }
 
     /**
@@ -291,16 +315,16 @@ class CustomerBehavior extends Behavior
      */
     public function getPrimaryPaymentSource(): ?PaymentSource
     {
-        $paymentSources = Plugin::getInstance()->getPaymentSources()->getAllPaymentSourcesByCustomerId($this->owner->id);
-        if (empty($paymentSources)) {
+        $paymentSources = Plugin::getInstance()->getPaymentSources()->getAllPaymentSourcesByCustomerId(customerId: $this->owner->id);
+        if ($paymentSources->isEmpty()) {
             return null;
         }
 
         if (!$this->_primaryPaymentSourceId) {
-            return ArrayHelper::firstValue($paymentSources);
+            return $paymentSources->first();
         }
 
-        return ArrayHelper::firstWhere($paymentSources, 'id', $this->_primaryPaymentSourceId);
+        return $paymentSources->firstWhere('id', $this->_primaryPaymentSourceId);
     }
 
     /**

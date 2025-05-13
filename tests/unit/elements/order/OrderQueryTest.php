@@ -57,9 +57,48 @@ class OrderQueryTest extends Unit
     public function emailDataProvider(): array
     {
         return [
-            'normal' => ['email' => 'customer1@crafttest.com', 3],
-            'case-insensitive' => ['email' => 'CuStOmEr1@crafttest.com', 3],
-            'no-results' => ['email' => 'null@craftcms.com', 0],
+            'normal' => ['customer1@crafttest.com', 3],
+            'case-insensitive' => ['CuStOmEr1@crafttest.com', 3],
+            'no-results' => ['null@craftcms.com', 0],
+        ];
+    }
+
+    /**
+     * @param string $couponCode
+     * @param int $count
+     * @return void
+     * @dataProvider couponCodeDataProvider
+     */
+    public function testCouponCode(?string $couponCode, int $count): void
+    {
+        $ordersFixture = $this->tester->grabFixture('orders');
+        /** @var Order $order */
+        $order = $ordersFixture->getElement('completed-new');
+
+        // Temporarily add a coupon code to an order
+        \craft\commerce\records\Order::updateAll(['couponCode' => 'foo'], ['id' => $order->id]);
+
+        $orderQuery = Order::find();
+        $orderQuery->couponCode($couponCode);
+
+        self::assertCount($count, $orderQuery->all());
+
+        // Remove temporary coupon code
+        \craft\commerce\records\Order::updateAll(['couponCode' => null], ['id' => $order->id]);
+    }
+
+    /**
+     * @return array[]
+     */
+    public function couponCodeDataProvider(): array
+    {
+        return [
+            'normal' => ['foo', 1],
+            'case-insensitive' => ['fOo', 1],
+            'using-null' => [null, 3],
+            'empty-code' => [':empty:', 2],
+            'not-empty-code' => [':notempty:', 1],
+            'no-results' => ['nope', 0],
         ];
     }
 

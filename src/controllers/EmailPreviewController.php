@@ -9,10 +9,11 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Order;
+use craft\commerce\helpers\Locale;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
-use craft\commerce\records\Email as EmailRecord;
 use craft\helpers\ArrayHelper;
+use craft\helpers\StringHelper;
 use craft\web\Controller;
 use craft\web\View;
 use yii\base\Exception;
@@ -33,10 +34,12 @@ class EmailPreviewController extends Controller
      */
     public function actionRender(): Response
     {
-        $this->requireAdmin();
+        $this->requireAdmin(false);
 
-        $emailId = $this->request->getParam('emailId');
-        $email = Plugin::getInstance()->getEmails()->getEmailById($emailId);
+        $email = $this->request->getParam('email');
+        $emailId = (int)StringHelper::split($email, ':')[0];
+        $storeId = (int)StringHelper::split($email, ':')[1];
+        $email = Plugin::getInstance()->getEmails()->getEmailById($emailId, $storeId);
 
         $orderNumber = $this->request->getParam('number');
 
@@ -59,16 +62,16 @@ class EmailPreviewController extends Controller
         }
 
         if ($email && $template = $email->templatePath) {
-            if ($email->recipientType == EmailRecord::TYPE_CUSTOMER) {
-                // use the order's language for template rendering the email.
-                $orderLanguage = $order->orderLanguage ?: Craft::$app->language;
-                Craft::$app->language = $orderLanguage;
-            }
+            $emailLanguage = $email->getRenderLanguage($order);
+
+            Locale::switchAppLanguage($emailLanguage);
 
             $orderHistory = ArrayHelper::firstValue($order->getHistories()) ?: new OrderHistory();
             $orderData = $order->toArray();
             $option = 'email';
-            return $this->renderTemplate($template, compact('order', 'orderHistory', 'option', 'orderData'), View::TEMPLATE_MODE_SITE);
+            $result = $this->renderTemplate($template, compact('order', 'orderHistory', 'option', 'orderData'), View::TEMPLATE_MODE_SITE);
+
+            return $result;
         }
 
         $errors = [];

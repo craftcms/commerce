@@ -9,6 +9,7 @@ namespace craft\commerce\elements\actions;
 
 use Craft;
 use craft\base\ElementAction;
+use craft\commerce\Plugin;
 use craft\helpers\Json;
 
 /**
@@ -35,7 +36,9 @@ class CreateDiscount extends ElementAction
      */
     public function getTriggerHtml(): ?string
     {
+        $currentStore = Plugin::getInstance()->getStores()->getCurrentStore();
         $type = Json::encode(static::class);
+        $url = Json::encode('commerce/store-management/' . $currentStore->handle . '/discounts/new');
         $js = <<<EOT
 (function()
 {
@@ -44,7 +47,7 @@ class CreateDiscount extends ElementAction
         batch: true,
         activate: function(\$selectedItems)
         {
-            Craft.redirectTo(Craft.getUrl('commerce/promotions/discounts/new', 'purchasableIds='+Craft.elementIndex.getSelectedElementIds().join('|')));
+            Craft.redirectTo(Craft.getUrl($url, 'purchasableIds='+Craft.elementIndex.getSelectedElementIds().join('|')));
         }
     });
 })();

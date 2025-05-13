@@ -19,6 +19,8 @@ use craft\elements\Address;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
+use craft\helpers\Json;
+use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use Illuminate\Support\Collection;
 use Throwable;
@@ -165,7 +167,7 @@ class CartController extends BaseFrontEndController
             if ($qty > 0) {
                 // We only want a new line item if they cleared the cart
                 if ($clearLineItems) {
-                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($this->_cart, $purchasableId, $options);
+                    $lineItem = Plugin::getInstance()->getLineItems()->create($this->_cart, compact('purchasableId', 'options'));
                 } else {
                     $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasableId, $options);
                 }
@@ -217,7 +219,10 @@ class CartController extends BaseFrontEndController
 
                     // We only want a new line item if they cleared the cart
                     if ($clearLineItems) {
-                        $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($this->_cart, $purchasable['id'], $purchasable['options']);
+                        $lineItem = Plugin::getInstance()->getLineItems()->create($this->_cart, [
+                            'purchasableId' => $purchasable['id'],
+                            'options' => $purchasable['options'],
+                        ]);
                     } else {
                         $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasable['id'], $purchasable['options']);
                     }
@@ -264,10 +269,15 @@ class CartController extends BaseFrontEndController
                 try {
                     $user = Craft::$app->getUsers()->ensureUserByEmail($email);
                     $this->_cart->setCustomer($user);
+                    if ($user->getIsCredentialed()) {
+                        Craft::$app->getSession()->set('commerce:anonymousCartWithCredentialedCustomer:' . $this->_cart->number, true);
+                    }
                 } catch (\Exception $e) {
                     $this->_cart->addError('email', $e->getMessage());
                 }
             }
+        } else {
+            Craft::$app->getSession()->remove('commerce:anonymousCartWithCredentialedCustomer:' . $this->_cart->number);
         }
 
         // Set if the customer should be registered on order completion
@@ -412,31 +422,31 @@ class CartController extends BaseFrontEndController
         $plugin = Plugin::getInstance();
         $this->requirePostRequest();
 
-        if (!$plugin->getSettings()->allowCheckoutWithoutPayment) {
-            throw new HttpException(401, Craft::t('commerce', 'You must make a payment to complete the order.'));
-        }
-
         $this->_cart = $this->_getCart();
         $errors = [];
+
+        if (!$this->_cart->getStore()->getAllowCheckoutWithoutPayment()) {
+            throw new HttpException(401, Craft::t('commerce', 'You must make a payment to complete the order.'));
+        }
 
         // Check email address exists on order.
         if (empty($this->_cart->email)) {
             $errors['email'] = Craft::t('commerce', 'No customer email address exists on this cart.');
         }
 
-        if ($plugin->getSettings()->allowEmptyCartOnCheckout && $this->_cart->getIsEmpty()) {
+        if ($this->_cart->getStore()->getAllowEmptyCartOnCheckout() && $this->_cart->getIsEmpty()) {
             $errors['lineItems'] = Craft::t('commerce', 'Order can not be empty.');
         }
 
-        if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$this->_cart->shippingMethodHandle) {
+        if ($this->_cart->getStore()->getRequireShippingMethodSelectionAtCheckout() && !$this->_cart->shippingMethodHandle) {
             $errors['shippingMethodHandle'] = Craft::t('commerce', 'There is no shipping method selected for this order.');
         }
 
-        if ($plugin->getSettings()->requireBillingAddressAtCheckout && !$this->_cart->billingAddressId) {
+        if ($this->_cart->getStore()->getRequireBillingAddressAtCheckout() && !$this->_cart->billingAddressId) {
             $errors['billingAddressId'] = Craft::t('commerce', 'Billing address required.');
         }
 
-        if ($plugin->getSettings()->requireShippingAddressAtCheckout && !$this->_cart->shippingAddressId) {
+        if ($this->_cart->getStore()->getRequireShippingAddressAtCheckout() && !$this->_cart->shippingAddressId) {
             $errors['shippingAddressId'] = Craft::t('commerce', 'Shipping address required.');
         }
 
@@ -535,13 +545,21 @@ class CartController extends BaseFrontEndController
                 $this->_mutex->release($this->_mutexLockName);
             }
 
+            $data = [
+                $this->_cartVariable => $this->cartArray($this->_cart),
+            ];
+
+            $originalCart = Order::find()->id($this->_cart->id)->isCompleted(null)->one();
+
+            if ($originalCart && $this->_cart->number == $originalCart->number) {
+                $data['original' . StringHelper::toTitleCase($this->_cartVariable)] = $this->cartArray($originalCart);
+            }
+
             return $this->asModelFailure(
                 $this->_cart,
                 $message,
                 'cart',
-                [
-                    $this->_cartVariable => $this->cartArray($this->_cart),
-                ],
+                $data,
                 [
                     $this->_cartVariable => $this->_cart,
                 ]
@@ -661,6 +679,7 @@ class CartController extends BaseFrontEndController
                         /** @var Address $cartShippingAddress */
                         $cartShippingAddress = Craft::$app->getElements()->duplicateElement($userShippingAddress,
                             [
+                                'primaryOwner' => $this->_cart,
                                 'owner' => $this->_cart,
                             ]);
                         $this->_cart->setShippingAddress($cartShippingAddress);
@@ -705,6 +724,7 @@ class CartController extends BaseFrontEndController
                     } else {
                         /** @var Address $cartBillingAddress */
                         $cartBillingAddress = Craft::$app->getElements()->duplicateElement($userBillingAddress, [
+                            'primaryOwner' => $this->_cart,
                             'owner' => $this->_cart,
                         ]);
                         $this->_cart->setBillingAddress($cartBillingAddress);
@@ -764,13 +784,15 @@ class CartController extends BaseFrontEndController
 
         // Set primary addresses
         if ($setShippingAddress) {
-            if ($this->request->getBodyParam('makePrimaryShippingAddress')) {
-                $this->_cart->makePrimaryShippingAddress = true;
+            $makePrimaryShippingAddress = $this->request->getBodyParam('makePrimaryShippingAddress');
+            if ($makePrimaryShippingAddress !== null) {
+                $this->_cart->makePrimaryShippingAddress = (bool)$makePrimaryShippingAddress;
             }
         }
         if ($setBillingAddress) {
-            if ($this->request->getBodyParam('makePrimaryBillingAddress')) {
-                $this->_cart->makePrimaryBillingAddress = true;
+            $makePrimaryBillingAddress = $this->request->getBodyParam('makePrimaryBillingAddress');
+            if ($makePrimaryBillingAddress !== null) {
+                $this->_cart->makePrimaryBillingAddress = (bool)$makePrimaryBillingAddress;
             }
         }
     }

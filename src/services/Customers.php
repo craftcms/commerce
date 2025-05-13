@@ -10,13 +10,14 @@ namespace craft\commerce\services;
 use Craft;
 use craft\base\Component;
 use craft\base\Element;
+use craft\base\Event;
 use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\UpdatePrimaryPaymentSourceEvent;
 use craft\commerce\Plugin;
 use craft\commerce\records\Customer as CustomerRecord;
-use craft\commerce\web\assets\commercecp\CommerceCpAsset;
+use craft\commerce\records\Order as OrderRecord;
 use craft\db\Query;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
@@ -24,7 +25,10 @@ use craft\errors\InvalidElementException;
 use craft\errors\UnsupportedSiteException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
+use craft\mail\Mailer;
+use craft\mail\Message;
 use yii\db\Expression;
+use yii\mail\MailEvent;
 
 /**
  * Customer service.
@@ -38,7 +42,26 @@ class Customers extends Component
     // -------------------------------------------------------------------------
 
     /**
-     * @event RegisterElementSourcesEvent The event that is triggered when a primary payment method is saved.
+     * @event UpdatePrimaryPaymentSourceEvent The event that is triggered when a primary payment method is saved.
+     *
+     * ```php
+     * use craft\elements\User;
+     * use craft\commerce\services\Customers;
+     * use craft\commerce\events\UpdatePrimaryPaymentSourceEvent;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *      Customers::class,
+     *      Customers::EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE,
+     *      function(UpdatePrimaryPaymentSourceEvent $event) {
+     *          $previousPrimaryPaymentSourceId = $event->previousPrimaryPaymentSourceId;
+     *          $newPrimaryPaymentSourceId = $event->newPrimaryPaymentSourceId;
+     *          // @var User|CustomerBehavior $customer
+     *          $customer = $event->customer;
+     *          // ...
+     *      }
+     * );
+     * ```
      */
     public const EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE = 'updatePrimaryPaymentSource';
 
@@ -125,35 +148,6 @@ class Customers extends Component
     }
 
     /**
-     * Add customer info tab to the Edit User page in the control panel.
-     */
-    public function addEditUserCommerceTab(array &$context): void
-    {
-        $currentUser = Craft::$app->getUser()->getIdentity();
-        if (!$context['isNewUser'] && ($currentUser->can('commerce-manageOrders') || $currentUser->can('commerce-manageSubscriptions'))) {
-            $context['tabs']['customerInfo'] = [
-                'label' => Craft::t('commerce', 'Commerce'),
-                'url' => '#commerce',
-            ];
-        }
-    }
-
-    /**
-     * Add customer info to the Edit User page in the control panel.
-     */
-    public function addEditUserCommerceTabContent(array $context): string
-    {
-        if (!$context['user'] || $context['isNewUser']) {
-            return '';
-        }
-
-        Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
-        return Craft::$app->getView()->renderTemplate('commerce/_includes/users/_editUserTab', [
-            'user' => $context['user'],
-        ]);
-    }
-
-    /**
      * Sets the last used addresses on the customer on order completion.
      *
      * Consolidates any other orders using the same email address.
@@ -170,8 +164,21 @@ class Customers extends Component
             $this->_activateUserFromOrder($order);
         }
 
+        // Did they want to save addresses to the customers address book?
         if ($order->saveBillingAddressOnOrderComplete || $order->saveShippingAddressOnOrderComplete) {
             $this->_saveAddressesFromOrder($order);
+        }
+
+        // clear the primary address flags if they were set as it only applies to the cart
+        if ($order->makePrimaryBillingAddress || $order->makePrimaryShippingAddress) {
+            OrderRecord::updateAll([
+                'makePrimaryBillingAddress' => false,
+                'makePrimaryShippingAddress' => false,
+            ],
+                [
+                    'id' => $order->id,
+                ]
+            );
         }
     }
 
@@ -314,6 +321,7 @@ class Customers extends Component
     }
 
     /**
+     *
      * @param Order $order
      * @return void
      * @throws \Throwable
@@ -339,8 +347,10 @@ class Customers extends Component
 
         if ($saveBillingAddress && $saveShippingAddress && $order->hasMatchingAddresses()) {
             // Only save one address if they are matching
-            $newAddress = Craft::$app->getElements()->duplicateElement($order->getBillingAddress(),
+            $newAddress = Craft::$app->getElements()->duplicateElement(
+                $order->getBillingAddress(),
                 [
+                    'primaryOwner' => $order->getCustomer(),
                     'owner' => $order->getCustomer(),
                 ]
             );
@@ -350,15 +360,21 @@ class Customers extends Component
             if ($saveBillingAddress) {
                 $newBillingAddress = Craft::$app->getElements()->duplicateElement($order->getBillingAddress(),
                     [
+                        'primaryOwner' => $order->getCustomer(),
                         'owner' => $order->getCustomer(),
-                    ]);
+                    ]
+                );
                 $newSourceBillingAddressId = $newBillingAddress->id;
             }
 
             if ($saveShippingAddress) {
-                $newShippingAddress = Craft::$app->getElements()->duplicateElement($order->getShippingAddress(), [
-                    'owner' => $order->getCustomer(),
-                ]);
+                $newShippingAddress = Craft::$app->getElements()->duplicateElement(
+                    $order->getShippingAddress(),
+                    [
+                        'primaryOwner' => $order->getCustomer(),
+                        'owner' => $order->getCustomer(),
+                    ]
+                );
                 $newSourceShippingAddressId = $newShippingAddress->id;
             }
         }
@@ -369,6 +385,15 @@ class Customers extends Component
 
         if ($newSourceShippingAddressId) {
             $order->sourceShippingAddressId = $newSourceShippingAddressId;
+        }
+
+        // Since we saved the primary addresses, we can now set the primary if they chose that also
+        if ($order->makePrimaryShippingAddress && $order->sourceShippingAddressId) {
+            $this->savePrimaryShippingAddressId($order->getCustomer(), $order->sourceShippingAddressId);
+        }
+
+        if ($order->makePrimaryBillingAddress && $order->sourceBillingAddressId) {
+            $this->savePrimaryBillingAddressId($order->getCustomer(), $order->sourceBillingAddressId);
         }
 
         // Manually update the order DB record to avoid looped element saves
@@ -405,8 +430,28 @@ class Customers extends Component
         $user->pending = true;
         $user->setScenario(Element::SCENARIO_ESSENTIALS);
 
+        // @TODO remove check at next major Craft version bump
+        if (property_exists($user, 'affiliatedSiteId')) {
+            $user->affiliatedSiteId = $order->orderSiteId;
+        }
+
         if (Craft::$app->getElements()->saveElement($user)) {
             Craft::$app->getUsers()->assignUserToDefaultGroup($user);
+
+            Event::once(Mailer::class, Mailer::EVENT_BEFORE_PREP, function(MailEvent $event) use ($user) {
+                if (!$event->message instanceof Message) {
+                    return;
+                }
+
+                if ($event->message->key !== 'account_activation') {
+                    return;
+                }
+
+                if ($event->message->siteId === null && property_exists($user, 'affiliatedSiteId') && $user->affiliatedSiteId) {
+                    $event->message->siteId = $user->affiliatedSiteId;
+                }
+            });
+
             $emailSent = Craft::$app->getUsers()->sendActivationEmail($user);
 
             if (!$emailSent) {
@@ -416,6 +461,7 @@ class Customers extends Component
             if ($billingAddress || $shippingAddress) {
                 $newAttributes = [
                     'owner' => $user,
+                    'primaryOwner' => $user,
                 ];
 
                 // If there is only one address make sure we don't add duplicates to the user

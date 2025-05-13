@@ -2,6 +2,7 @@
 
 namespace craft\commerce\elements\conditions\variants;
 
+use craft\commerce\elements\conditions\purchasables\SkuConditionRule;
 use craft\commerce\elements\Variant;
 use craft\elements\conditions\ElementCondition;
 
@@ -21,9 +22,11 @@ class VariantCondition extends ElementCondition
     /**
      * @inheritdoc
      */
-    protected function conditionRuleTypes(): array
+    protected function selectableConditionRules(): array
     {
-        return array_merge(parent::conditionRuleTypes(), [
+        return array_merge(parent::selectableConditionRules(), [
+            ProductConditionRule::class,
+            SkuConditionRule::class,
         ]);
     }
 }

@@ -38,11 +38,11 @@ class TopPurchasables extends Stat
     /**
      * @inheritDoc
      */
-    public function __construct(string $dateRange = null, string $type = null, $startDate = null, $endDate = null)
+    public function __construct(string $dateRange = null, string $type = null, $startDate = null, $endDate = null, ?int $storeId = null)
     {
         $this->type = $type ?? $this->type;
 
-        parent::__construct($dateRange, $startDate, $endDate);
+        parent::__construct($dateRange, $startDate, $endDate, $storeId);
     }
 
     /**
@@ -68,7 +68,7 @@ class TopPurchasables extends Stat
             ->leftJoin(Table::LINEITEMS . ' li', '[[li.orderId]] = [[orders.id]]')
             ->leftJoin(Table::PURCHASABLES . ' p', '[[p.id]] = [[li.purchasableId]]')
             ->leftJoin(Table::VARIANTS . ' v', '[[v.id]] = [[p.id]]')
-            ->leftJoin(Table::PRODUCTS . ' pr', '[[pr.id]] = [[v.productId]]')
+            ->leftJoin(Table::PRODUCTS . ' pr', '[[pr.id]] = [[v.primaryOwnerId]]')
             ->leftJoin(Table::PRODUCTTYPES . ' pt', '[[pt.id]] = [[pr.typeId]]')
             ->andWhere(['pt.id' => $editableProductTypeIds])
             ->groupBy('[[li.purchasableId]], [[p.sku]], [[p.description]]')

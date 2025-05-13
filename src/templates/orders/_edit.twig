@@ -2,16 +2,18 @@
 {% import "_includes/forms" as forms %}
 
 {% set selectedSubnavItem = "orders" %}
-{% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceorders commerceordersedit" %}
+{% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceorders commerceordersedit " ~ ordersBodyClass %}
 
 {% set crumbs = [
     { label: 'Commerce'|t('commerce'), url: url('commerce') },
-    { label: "Orders"|t('commerce'), url: url('commerce/orders') }
+    { label: "Orders"|t('commerce'), url: url('commerce/orders') },
+    { label: order.getStore().name|t('site'), url: url('commerce/orders') },
 ] %}
 
 {% do view.registerTranslations('commerce', [
     "A valid email is required to create a customer.",
     "Actions",
+    "Add a custom line item",
     "Add a line item",
     "Add an adjustment",
     "Add an option",
@@ -72,7 +74,9 @@
     "Enter coupon code",
     "Enter reference",
     "First Name",
+    "Fulfillment",
     "Full Name",
+    "Has Free Shipping",
     "Hide snapshot",
     "ID",
     "IP Address",
@@ -80,6 +84,9 @@
     "Invalid JSON",
     "Invalid email.",
     "Item",
+    "Is Promotable",
+    "Is Shippable",
+    "Is Taxable",
     "Label",
     "Last Name",
     "Last Updated",
@@ -89,6 +96,7 @@
     "Name",
     "New Customer",
     "New address",
+    "No",
     "No address",
     "No billing address",
     "No description",
@@ -110,6 +118,8 @@
     "Primary Billing Address",
     "Primary Shipping Address",
     "Private Note",
+    "Promotional Amount",
+    "Promotional Price",
     "Quantity",
     "Qty",
     "Recalculate order",
@@ -117,7 +127,6 @@
     "Remove address",
     "Remove",
     "SKU",
-    "Sale Amount Off",
     "Sale Price",
     "Save and continue editing",
     "Save and return to all orders",
@@ -128,6 +137,7 @@
     "Send Email",
     "Share cart…",
     "Shipping Address",
+    "Shipping Category",
     "Shipping Method",
     "Shipping",
     "Short Number",
@@ -136,7 +146,9 @@
     "Sorry, no matching options.",
     "State",
     "Status",
+    "Store",
     "Suppress emails",
+    "Tax Category",
     "Tax",
     "There are errors on the order",
     "This URL will load the cart into the user’s session, making it the active cart.",
@@ -169,6 +181,12 @@
     <input type="hidden" name="action" value="commerce/orders/save">
     <input type="hidden" name="orderId" value="{{ order.id }}">
     {{ redirectInput('commerce/orders/'~order.id) }}
+
+    {% if order.getAdditionalButtons() %}
+      <div id="order-additional-buttons" class="flex">
+        {{ order.getAdditionalButtons()|raw }}
+      </div>
+    {% endif %}
 
     <div id="order-secondary-actions" class="flex">
         {% hook "cp.commerce.order.edit.order-secondary-actions" %}

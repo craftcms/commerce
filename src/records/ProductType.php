@@ -19,9 +19,10 @@ use yii\db\ActiveQueryInterface;
  * @property FieldLayout $fieldLayout
  * @property int|null $fieldLayoutId
  * @property string $handle
+ * @property bool $enableVersioning
  * @property bool $hasDimensions
- * @property bool $hasVariants
  * @property int $id
+ * @property int $maxVariants
  * @property string $name
  * @property ActiveQueryInterface $productTypesShippingCategories
  * @property ActiveQueryInterface $productTypesTaxCategories
@@ -30,10 +31,19 @@ use yii\db\ActiveQueryInterface;
  * @property ActiveQueryInterface $taxCategories
  * @property bool $hasVariantTitleField
  * @property string $variantTitleFormat
+ * @property string $variantTitleTranslationMethod
+ * @property string $variantTitleTranslationKeyFormat
  * @property bool $hasProductTitleField
  * @property string $productTitleFormat
+ * @property string $productTitleTranslationMethod
+ * @property string $productTitleTranslationKeyFormat
+ * @property string $propagationMethod
  * @property ActiveQueryInterface $variantFieldLayout
  * @property int|null $variantFieldLayoutId
+ * @property bool $isStructure
+ * @property int|null $maxLevels
+ * @property string $defaultPlacement
+ * @property int|null $structureId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

@@ -65,6 +65,35 @@ export default {
         lineItem.lineItemStatusId
       );
       _lineItem.id = this.parseInputValue('int', lineItem.id);
+      _lineItem.type = lineItem.type;
+
+      // Set line item properties for custom line items
+      if (lineItem.type.value === 'custom') {
+        if (lineItem.description) {
+          _lineItem.description = lineItem.description;
+        }
+
+        if (lineItem.sku) {
+          _lineItem.sku = lineItem.sku;
+        }
+
+        if (lineItem.hasFreeShipping !== undefined) {
+          _lineItem.hasFreeShipping = lineItem.hasFreeShipping;
+        }
+
+        if (lineItem.isPromotable !== undefined) {
+          _lineItem.isPromotable = lineItem.isPromotable;
+        }
+
+        if (lineItem.isShippable !== undefined) {
+          _lineItem.isShippable = lineItem.isShippable;
+        }
+
+        if (lineItem.isTaxable !== undefined) {
+          _lineItem.isTaxable = lineItem.isTaxable;
+        }
+      }
+
       _lineItem.purchasableId = this.parseInputValue(
         'int',
         lineItem.purchasableId
@@ -73,7 +102,13 @@ export default {
         'int',
         lineItem.shippingCategoryId
       );
-      _lineItem.salePrice = this.parseInputValue('float', lineItem.salePrice);
+      _lineItem.taxCategoryId = this.parseInputValue(
+        'int',
+        lineItem.taxCategoryId
+      );
+      _lineItem.promotionalPrice =
+        lineItem.promotionalPrice === '' ? null : lineItem.promotionalPrice;
+      _lineItem.price = lineItem.price;
       _lineItem.qty = this.parseInputValue('int', lineItem.qty);
       _lineItem.note = lineItem.note;
       _lineItem.privateNote = lineItem.privateNote;

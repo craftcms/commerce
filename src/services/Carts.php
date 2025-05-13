@@ -10,18 +10,20 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\events\CartPurgeEvent;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
+use craft\errors\SiteNotFoundException;
 use craft\helpers\ConfigHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
-use craft\helpers\StringHelper;
 use DateTime;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\web\Cookie;
 
 /**
@@ -36,6 +38,28 @@ use yii\web\Cookie;
  */
 class Carts extends Component
 {
+    /**
+     * @event CartPurgeEvent The event that is triggered before the carts are purged.
+     *
+     * This example modifies the query to only purge carts with a total price of 0.
+     * You can also set the `isValid` property to `false` to prevent the carts from being purged.
+     *
+     * ```php
+     * use craft\commerce\events\CartPurgeEvent;
+     * use craft\commerce\services\Carts;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Carts::class,
+     *     Carts::EVENT_BEFORE_PURGE_INACTIVE_CARTS,
+     *     function(CartPurgeEvent $event) {
+     *         $event->inactiveCartsQuery = $event->inactiveCartsQuery->andWhere(['totalPrice' => 0]);
+     *     }
+     * );
+     * ```
+     */
+    public const EVENT_BEFORE_PURGE_INACTIVE_CARTS = 'beforePurgeInactiveCarts';
+
     /**
      * @var array The configuration of the cart cookie.
      * @since 4.0.0
@@ -77,9 +101,11 @@ class Carts extends Component
     {
         parent::init();
 
+        $currentStore = Plugin::getInstance()->getStores()->getCurrentStore();
+
         // Complete the cart cookie config
         if (!isset($this->cartCookie['name'])) {
-            $this->cartCookie['name'] = md5(sprintf('Craft.%s.%s', self::class, Craft::$app->id)) . '_commerce_cart';
+            $this->cartCookie['name'] = md5(sprintf('Craft.%s.%s.%s', self::class, Craft::$app->id, $currentStore->handle)) . '_commerce_cart';
         }
 
         $request = Craft::$app->getRequest();
@@ -106,16 +132,30 @@ class Carts extends Component
      */
     public function getCart(bool $forceSave = false): Order
     {
+        $this->loadCookie(); // TODO: need to see if this should be added to other runtime methods too
+
         $this->_getCartCount++; //useful when debugging
         $currentUser = Craft::$app->getUser()->getIdentity();
 
         // If there is no cart set for this request, and we can't get a cart from session, create one.
         if (!isset($this->_cart) && !$this->_cart = $this->_getCart()) {
-            $this->_cart = new Order();
-            $this->_cart->number = $this->generateCartNumber();
+            $cartAttributes = [
+                'number' => $this->getSessionCartNumber(),
+                'orderSiteId' => Craft::$app->getSites()->getCurrentSite()->id,
+                'storeId' => Plugin::getInstance()->getStores()->getCurrentStore()->id,
+            ];
+
             if ($currentUser) {
-                $this->_cart->setCustomer($currentUser); // Will ensure the email is also set
+                $cartAttributes['customer'] = $currentUser; // Will ensure the email is also set
             }
+
+            $this->_cart = Craft::createObject([
+                'class' => Order::class,
+                'attributes' => $cartAttributes,
+            ]);
+        } elseif ($this->_cart->orderSiteId != Craft::$app->getSites()->getCurrentSite()->id) {
+            $this->_cart->orderSiteId = Craft::$app->getSites()->getCurrentSite()->id;
+            $forceSave = true;
         }
 
         $autoSetAddresses = false;
@@ -178,12 +218,34 @@ class Carts extends Component
             ->withLineItems()
             ->withAdjustments()
             ->number($number)
+            ->storeId(Plugin::getInstance()->getStores()->getCurrentStore()->id)
             ->trashed(null)
             ->status(null)
             ->one();
 
         // If the cart is already completed or trashed, forget the cart and start again.
         if ($cart && ($cart->isCompleted || $cart->trashed)) {
+            $this->forgetCart();
+            return null;
+        }
+
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        $cartCustomer = $cart?->getCustomer();
+
+        // Did an anonymous user provide an email that belonged to a credentialed user?
+        // See CartController::actionUpdate()
+        $anonymousCartWithCredentialedCustomer = $cart && Craft::$app->getSession()->get('commerce:anonymousCartWithCredentialedCustomer:' . $cart->number, false);
+
+        if ($cart && $cartCustomer && $cartCustomer->getIsCredentialed() &&
+            (
+                // Forget cart if they are not logged-in, and they didn't submit the credentialed users email to the cart.
+                (!$currentUser && !$anonymousCartWithCredentialedCustomer)
+                ||
+                // Forget cart if the logged-in user is not the same as the cart customer.
+                ($currentUser && $currentUser->id != $cartCustomer->id)
+            )
+        ) {
             $this->forgetCart();
             return null;
         }
@@ -321,6 +383,8 @@ class Carts extends Component
     public function restorePreviousCartForCurrentUser(): void
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentStoreId = Plugin::getInstance()->getStores()->getCurrentStore()->id;
+
         if (!$currentUser) {
             return;
         }
@@ -333,6 +397,7 @@ class Carts extends Component
             ->isCompleted(false)
             ->hasLineItems()
             ->trashed(false)
+            ->storeId($currentStoreId)
             ->one();
 
         /** @var Order|null $anyPreviousCart */
@@ -340,6 +405,7 @@ class Carts extends Component
             ->customer($currentUser)
             ->isCompleted(false)
             ->trashed(false)
+            ->storeId($currentStoreId)
             ->one();
 
         /** @var Order|null $currentCartInSession */
@@ -348,6 +414,7 @@ class Carts extends Component
             ->isCompleted(false)
             ->hasLineItems()
             ->trashed(false)
+            ->storeId($currentStoreId)
             ->one();
 
         /**
@@ -382,7 +449,7 @@ class Carts extends Component
     {
         if (!Plugin::getInstance()->getSettings()->purgeInactiveCarts) {
             return 0;
-        }
+        };
 
         $configInterval = ConfigHelper::durationInSeconds(Plugin::getInstance()->getSettings()->purgeInactiveCartsDuration);
         $edge = new DateTime();
@@ -395,33 +462,73 @@ class Carts extends Component
             ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => Db::prepareDateForDb($edge)])
             ->from(['orders' => Table::ORDERS]);
 
+        $event = new CartPurgeEvent([
+            'inactiveCartsQuery' => $cartIdsQuery,
+        ]);
+
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_PURGE_INACTIVE_CARTS)) {
+            $this->trigger(self::EVENT_BEFORE_PURGE_INACTIVE_CARTS, $event);
+        }
+
+        if (!$event->isValid) {
+            return 0;
+        }
+
         // Taken from craft\services\Elements::deleteElement(); Using the method directly
         // takes too many resources since it retrieves the order before deleting it.
         // Delete the elements table rows, which will cascade across all other InnoDB tables
         Craft::$app->getDb()->createCommand()
-            ->delete('{{%elements}}', ['id' => $cartIdsQuery])
+            ->delete('{{%elements}}', ['id' => $event->inactiveCartsQuery])
             ->execute();
 
         // The searchindex table is probably MyISAM, though
         Craft::$app->getDb()->createCommand()
-            ->delete('{{%searchindex}}', ['elementId' => $cartIdsQuery])
+            ->delete('{{%searchindex}}', ['elementId' => $event->inactiveCartsQuery])
             ->execute();
 
         return $cartIdsQuery->count();
     }
 
     /**
+     * @return void
+     * @throws SiteNotFoundException
+     * @throws InvalidConfigException
+     */
+    protected function loadCookie(): void
+    {
+        $currentStore = Plugin::getInstance()->getStores()->getCurrentStore();
+
+        // Complete the cart cookie config
+        if (!isset($this->cartCookie['name'])) {
+            $this->cartCookie['name'] = md5(sprintf('Craft.%s.%s.%s', self::class, Craft::$app->id, $currentStore->handle)) . '_commerce_cart';
+        }
+
+        $request = Craft::$app->getRequest();
+        if (!$request->getIsConsoleRequest()) {
+            $this->cartCookie = Craft::cookieConfig($this->cartCookie);
+
+            $requestCookies = $request->getCookies();
+
+            // If we have a cart cookie, assign it to the cart number.
+            if ($requestCookies->has($this->cartCookie['name'])) {
+                $this->setSessionCartNumber($requestCookies->getValue($this->cartCookie['name']));
+            }
+        }
+    }
+
+    /**
      * Gets the current payment currency ISO code
+     * @TODO: Fix this for next breaking change version
      */
     private function _getCartPaymentCurrencyIso(): string
     {
         if ($this->_cart) {
             // Is the payment currency locked to the constant
             if (defined('COMMERCE_PAYMENT_CURRENCY')) {
-                $currency = StringHelper::toUpperCase(COMMERCE_PAYMENT_CURRENCY);
-                $allCurrencies = Plugin::getInstance()->getCurrencies()->getAllCurrencies();
-                if (in_array($currency, $allCurrencies, false)) {
-                    return $currency;
+                $paymentCurrencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies($this->_cart->storeId);
+                // if not in array
+                if (!$paymentCurrencies->contains('iso', '==', COMMERCE_PAYMENT_CURRENCY)) {
+                    throw new InvalidConfigException('The COMMERCE_PAYMENT_CURRENCY constant is not set to a valid payment currency.');
                 }
             }
 

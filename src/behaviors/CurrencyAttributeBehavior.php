@@ -8,8 +8,9 @@
 
 namespace craft\commerce\behaviors;
 
-use craft\commerce\elements\Order;
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\helpers\Currency;
+use craft\commerce\Plugin;
 use craft\events\DefineFieldsEvent;
 use craft\helpers\StringHelper;
 use yii\base\Behavior;
@@ -44,6 +45,8 @@ use yii\base\Behavior;
  * }
  * ```
  *
+ *
+ * @property string $defaultCurrency
  */
 class CurrencyAttributeBehavior extends Behavior
 {
@@ -61,9 +64,11 @@ class CurrencyAttributeBehavior extends Behavior
     public array $currencyAttributes;
 
     /**
-     * @var string default currency
+     * @var ?string default currency
+     * @uses setDefaultCurrency()
+     * @uses getDefaultCurrency()
      */
-    public string $defaultCurrency;
+    private ?string $_defaultCurrency;
 
     /**
      * @var array mapping of attribute => currency if the default is not desired
@@ -76,7 +81,7 @@ class CurrencyAttributeBehavior extends Behavior
     public function events(): array
     {
         return [
-            Order::EVENT_DEFINE_FIELDS => 'defineFields',
+            \craft\base\Model::EVENT_DEFINE_FIELDS => 'defineFields',
         ];
     }
 
@@ -100,7 +105,7 @@ class CurrencyAttributeBehavior extends Behavior
             if (in_array($attributeName, $this->currencyAttributes, false)) {
                 $amount = $this->owner->$attributeName ?? 0;
 
-                $currency = $params[0] ?? $this->attributeCurrencyMap[$attributeName] ?? $this->defaultCurrency;
+                $currency = $params[0] ?? $this->attributeCurrencyMap[$attributeName] ?? $this->getDefaultCurrency();
                 $convert = $params[1] ?? false;
                 $format = $params[2] ?? true;
                 $stripZeros = $params[3] ?? false;
@@ -150,7 +155,7 @@ class CurrencyAttributeBehavior extends Behavior
             $attributeName = $this->_attributeNameWithoutAsCurrency($name);
             if (in_array($attributeName, $this->currencyAttributes, false)) {
                 $amount = $this->owner->$attributeName ?? 0;
-                $currency = $this->attributeCurrencyMap[$attributeName] ?? $this->defaultCurrency;
+                $currency = $this->attributeCurrencyMap[$attributeName] ?? $this->getDefaultCurrency();
                 return Currency::formatAsCurrency($amount, $currency);
             }
         }
@@ -180,12 +185,41 @@ class CurrencyAttributeBehavior extends Behavior
             $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
                 $attributeName = $this->_attributeNameWithoutAsCurrency($attribute);
                 $amount = $this->owner->$attributeName ?? 0;
-                $currency = $this->attributeCurrencyMap[$attributeName] ?? $this->defaultCurrency;
+                $currency = $this->attributeCurrencyMap[$attributeName] ?? $this->getDefaultCurrency();
                 return Currency::formatAsCurrency($amount, $currency);
             };
         }
 
         return $fields;
+    }
+
+    /**
+     * @param ?string $value
+     * @return void
+     * @since 5.0.0
+     */
+    public function setDefaultCurrency(?string $value): void
+    {
+        $this->_defaultCurrency = $value;
+    }
+
+    /**
+     * @return string
+     * @since 5.0.0
+     */
+    public function getDefaultCurrency(): string
+    {
+        // Should always be the owners currency
+        if ($this->owner instanceof HasStoreInterface) {
+            $this->_defaultCurrency = $this->owner->getStore()->getCurrency();
+        }
+
+        // Let's default to the current store primary currency
+        if (!isset($this->_defaultCurrency)) {
+            $this->_defaultCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        }
+
+        return $this->_defaultCurrency;
     }
 
     /**

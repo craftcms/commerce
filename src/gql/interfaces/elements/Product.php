@@ -68,21 +68,6 @@ class Product extends Element
     public static function getFieldDefinitions(): array
     {
         return Craft::$app->getGql()->prepareFieldDefinitions(array_merge(parent::getFieldDefinitions(), [
-            'promotable' => [
-                'name' => 'promotable',
-                'type' => Type::boolean(),
-                'description' => 'If the product is promotable.',
-            ],
-            'availableForPurchase' => [
-                'name' => 'availableForPurchase',
-                'type' => Type::boolean(),
-                'description' => 'If the product is available for purchase.',
-            ],
-            'freeShipping' => [
-                'name' => 'freeShipping',
-                'type' => Type::boolean(),
-                'description' => 'If the product has free shipping.',
-            ],
             'defaultSku' => [
                 'name' => 'defaultSku',
                 'type' => Type::string(),

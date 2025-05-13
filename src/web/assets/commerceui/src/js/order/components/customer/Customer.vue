@@ -27,7 +27,14 @@
                     {{ getDisplayName(false) }}
                 </div>
                 <div class="w-full light">{{ customer.email }}</div>
-                <div class="w-full" v-if="display && customer.cpEditUrl">
+                <div
+                    class="w-full"
+                    v-if="
+                        display &&
+                        customer.cpEditUrl &&
+                        currentUserPermissions.editUsers
+                    "
+                >
                     <a :href="customer.cpEditUrl" v-if="customer.cpEditUrl">{{
                         $options.filters.t('View customer', 'commerce')
                     }}</a>
@@ -46,6 +53,8 @@
 </template>
 
 <script>
+    import {mapGetters} from 'vuex';
+
     export default {
         props: {
             customer: {
@@ -114,6 +123,8 @@
         },
 
         computed: {
+            ...mapGetters(['currentUserPermissions']),
+
             initialChar() {
                 const displayName = this.getDisplayName();
                 if (!displayName) {

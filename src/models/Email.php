@@ -7,10 +7,14 @@
 
 namespace craft\commerce\models;
 
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
+use craft\commerce\base\StoreTrait;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
+use craft\helpers\App;
+use craft\helpers\UrlHelper;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 
@@ -23,9 +27,15 @@ use yii\base\InvalidConfigException;
  * @property-read string $pdfTemplatePath
  * @property-read null|Pdf $pdf
  * @property-read array $config
+ * @property ?string $bcc
+ * @property ?string $cc
+ * @property ?string $to
+ * @property string|null $senderAddress
  */
-class Email extends Model
+class Email extends Model implements HasStoreInterface
 {
+    use StoreTrait;
+
     /**
      * @var int|null ID
      */
@@ -45,21 +55,6 @@ class Email extends Model
      * @var string Recipient Type
      */
     public string $recipientType = EmailRecord::TYPE_CUSTOMER;
-
-    /**
-     * @var string|null To
-     */
-    public ?string $to = null;
-
-    /**
-     * @var string|null Bcc
-     */
-    public ?string $bcc = null;
-
-    /**
-     * @var string|null Cc
-     */
-    public ?string $cc = null;
 
     /**
      * @var string|null Reply to
@@ -90,6 +85,46 @@ class Email extends Model
      * @var string The language.
      */
     public string $language = EmailRecord::LOCALE_ORDER_LANGUAGE;
+
+    /**
+     * @var string|null
+     * @since 5.0.0
+     * @see setSenderAddress()
+     * @see getSenderAddress()
+     */
+    private ?string $_senderAddress = null;
+
+    /**
+     * @var string|null
+     * @since 5.0.0
+     * @see setSenderName()
+     * @see getSenderName()
+     */
+    private ?string $_senderName = null;
+
+    /**
+     * @var string|null
+     * @since 5.3.0
+     * @see setBcc()
+     * @see getBcc()
+     */
+    private ?string $_bcc = null;
+
+    /**
+     * @var string|null
+     * @since 5.3.0
+     * @see setBcc()
+     * @see getBcc()
+     */
+    private ?string $_cc = null;
+
+    /**
+     * @var string|null
+     * @since 5.3.0
+     * @see setTo()
+     * @see getTo()
+     */
+    private ?string $_to = null;
 
     /**
      * @var string|null UID
@@ -143,6 +178,28 @@ class Email extends Model
                     return $model->recipientType == EmailRecord::TYPE_CUSTOM;
                 },
             ],
+            [
+                [
+                    'bcc',
+                    'cc',
+                    'enabled',
+                    'id',
+                    'language',
+                    'name',
+                    'pdfId',
+                    'plainTextTemplatePath',
+                    'recipientType',
+                    'replyTo',
+                    'senderAddress',
+                    'senderName',
+                    'storeId',
+                    'subject',
+                    'templatePath',
+                    'to',
+                    'uid',
+                ],
+                'safe',
+            ],
         ];
     }
 
@@ -154,7 +211,144 @@ class Email extends Model
         if (!$this->pdfId) {
             return null;
         }
-        return Plugin::getInstance()->getPdfs()->getPdfById($this->pdfId);
+        return Plugin::getInstance()->getPdfs()->getPdfById($this->pdfId, $this->storeId);
+    }
+
+    /**
+     * @param string|null $senderAddress
+     * @return void
+     * @since 5.0.0
+     */
+    public function setSenderAddress(?string $senderAddress): void
+    {
+        $this->_senderAddress = $senderAddress;
+    }
+
+    /**
+     * @param bool $parse
+     * @return string|null Default email address Commerce system messages should be sent from.
+     *
+     * If `null` (default), Craft’s [MailSettings::$fromEmail](craft4:craft\models\MailSettings::$fromEmail) will be used.
+     *
+     * @since 5.0.0
+     */
+    public function getSenderAddress(bool $parse = true): ?string
+    {
+        if (!$parse) {
+            return $this->_senderAddress;
+        }
+
+        if (!$senderAddress = App::parseEnv($this->_senderAddress)) {
+            $senderAddress = App::parseEnv(App::mailSettings()->fromEmail);
+        }
+
+        return $senderAddress;
+    }
+
+    /**
+     * @param string|null $bcc
+     * @return void
+     * @since 5.3.0
+     */
+    public function setBcc(?string $bcc): void
+    {
+        $this->_bcc = $bcc;
+    }
+
+    /**
+     * @param bool $parse
+     * @return string|null Default bcc email address Commerce emails should be sent to.
+     *
+     * @since 5.3.0
+     */
+    public function getBcc(bool $parse = true): ?string
+    {
+        if (!$parse) {
+            return $this->_bcc;
+        }
+
+        return App::parseEnv($this->_bcc);
+    }
+
+    /**
+     * @param string|null $cc
+     * @return void
+     * @since 5.3.0
+     */
+    public function setCc(?string $cc): void
+    {
+        $this->_cc = $cc;
+    }
+
+    /**
+     * @param bool $parse
+     * @return string|null Default cc email address Commerce emails should be sent to.
+     *
+     * @since 5.3.0
+     */
+    public function getCc(bool $parse = true): ?string
+    {
+        if (!$parse) {
+            return $this->_cc;
+        }
+
+        return App::parseEnv($this->_cc);
+    }
+
+    /**
+     * @param string|null $to
+     * @return void
+     * @since 5.3.0
+     */
+    public function setTo(?string $to): void
+    {
+        $this->_to = $to;
+    }
+
+    /**
+     * @param bool $parse
+     * @return string|null Default to email address Commerce emails should be sent to.
+     *
+     * @since 5.3.0
+     */
+    public function getTo(bool $parse = true): ?string
+    {
+        if (!$parse) {
+            return $this->_to;
+        }
+
+        return App::parseEnv($this->_to);
+    }
+
+    /**
+     * @param string|null $senderName
+     * @return void
+     * @since 5.0.0
+     */
+    public function setSenderName(?string $senderName): void
+    {
+        $this->_senderName = $senderName;
+    }
+
+    /**
+     * @param bool $parse
+     * @return string|null Placeholder value displayed for the sender name control panel settings field.
+     *
+     * If `null` (default), Craft’s [MailSettings::$fromName](craft4:craft\models\MailSettings::$fromName) will be used.
+
+     * @since 5.0.0
+     */
+    public function getSenderName(bool $parse = true): ?string
+    {
+        if (!$parse) {
+            return $this->_senderName;
+        }
+
+        if (!$senderName = App::parseEnv($this->_senderName)) {
+            $senderName = App::parseEnv(App::mailSettings()->fromName);
+        }
+
+        return $senderName;
     }
 
     /**
@@ -165,24 +359,32 @@ class Email extends Model
      */
     public function getConfig(): array
     {
-        $config = [
-            'name' => $this->name,
-            'subject' => $this->subject,
-            'recipientType' => $this->recipientType,
-            'to' => $this->to ?: null,
+        return [
             'bcc' => $this->bcc ?: null,
             'cc' => $this->cc ?: null,
-            'replyTo' => $this->replyTo ?: null,
+            'senderAddress' => $this->getSenderAddress(false) ?: null,
+            'senderName' => $this->getSenderName(false) ?: null,
             'enabled' => $this->enabled,
-            'plainTextTemplatePath' => $this->plainTextTemplatePath ?? null,
-            'templatePath' => $this->templatePath ?: null,
             'language' => $this->language,
+            'name' => $this->name,
+            'pdf' => $this->getPdf()?->uid,
+            'plainTextTemplatePath' => $this->plainTextTemplatePath ?? null,
+            'recipientType' => $this->recipientType,
+            'replyTo' => $this->replyTo ?: null,
+            'store' => $this->getStore()->uid,
+            'subject' => $this->subject,
+            'templatePath' => $this->templatePath ?: null,
+            'to' => $this->to ?: null,
         ];
+    }
 
-        if ($pdf = $this->getPdf()) {
-            $config['pdf'] = $pdf->uid;
-        }
-
-        return $config;
+    /**
+     * @return string
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    public function getCpEditUrl(): string
+    {
+        return UrlHelper::cpUrl('commerce/settings/emails/' . $this->getStore()->handle . '/' . $this->id);
     }
 }

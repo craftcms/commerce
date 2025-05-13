@@ -3,11 +3,17 @@
 {% set selectedTab = 'settings' %}
 {% import "_includes/forms" as forms %}
 
+{% set crumbs = [
+  { label: 'Commerce'|t('commerce'), url: url('commerce') },
+] %}
+
 {% set fullPageForm = true %}
 
-{% block content %}
-    <h2>{{ "Order Fields"|t('commerce') }}</h2>
+{% if readOnly %}
+    {% set contentNotice = readOnlyNotice() %}
+{% endif %}
 
+{% block content %}
     <input type="hidden" name="action" value="commerce/order-settings/save">
     {{ redirectInput('commerce/settings/ordersettings') }}
 
@@ -15,5 +21,7 @@
 
     {{ forms.fieldLayoutDesignerField({
         fieldLayout: fieldLayout,
+        disabled: readOnly,
+        withCardViewDesigner: true,
     }) }}
 {% endblock %}

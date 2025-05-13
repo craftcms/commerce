@@ -9,42 +9,28 @@
 
 {% set selectedSubnavItem = 'settings' %}
 
-{% set fullPageForm = true %}
+{% set headlessMode = craft.app.config.general.headlessMode %}
+
+{% set fullPageForm = not readOnly %}
+
+{% if readOnly %}
+    {% set contentNotice = readOnlyNotice() %}
+{% endif %}
 
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    <input type="hidden" name="action"
-           value="commerce/product-types/save-product-type">
+
+    {% if not readOnly %}
+    {{ actionInput('commerce/product-types/save-product-type') }}
     {{ redirectInput('commerce/settings/producttypes') }}
+    {% endif %}
+
     {% if productType.id %}
         <input type="hidden" name="productTypeId" value="{{ productType.id }}">
     {% endif %}
 
     <div id="product-type-settings">
-        {% macro hasVariantsField(productType) %}
-            {% from "_includes/forms" import checkboxField %}
-
-            {% set hasVariantsInstructions %}
-                {%- apply spaceless %}
-                    {% if productType.id and productType.hasVariants %}
-                        <span class="error">{{ "Careful—your existing variant data will be deleted if you change this." }}</span>
-                    {% endif %}
-                {% endapply -%}
-            {% endset %}
-
-            {{ checkboxField({
-                label: "Products of this type have multiple variants"|t('commerce'),
-                instructions: hasVariantsInstructions,
-                id: 'hasVariants',
-                name: 'hasVariants',
-                checked: productType.hasVariants,
-                toggle: '#variant-settings',
-                reverseToggle: '.fld-variants-field-icon',
-            }) }}
-        {% endmacro %}
-
-
         {% macro templateField(productType) %}
             {% from "_includes/forms" import textField %}
 
@@ -55,61 +41,157 @@
                 class: 'ltr',
                 name: 'template',
                 value: productType.template,
-                errors: productType.getErrors('template')
+                errors: productType.getErrors('template'),
+                disabled: readOnly,
             }) }}
         {% endmacro %}
 
-        {% macro productTitleFormatField(productType) %}
-            {% from "_includes/forms" import textField, checkboxField %}
+        {% macro productTitleFormatField(productType, disabled) %}
+            {% import '_includes/forms' as forms %}
 
-                {{ checkboxField({
+                {{ forms.lightswitchField({
                     label: "Show the Title field for products"|t('commerce'),
                     name: 'hasProductTitleField',
+                    toggle: '#productTitle-container',
                     reverseToggle: '#productTitleFormat-container, .fld-product-title-field-icon',
-                    checked: productType.hasProductTitleField
+                    on: productType.hasProductTitleField,
+                    disabled: disabled,
                 }) }}
 
+            {% if craft.app.getIsMultiSite() %}
+                <div id="productTitle-container"{% if not productType.hasProductTitleField %} class="hidden"{% endif %}>
+                    {{ forms.selectField({
+                        label: '{name} Translation Method'|t('app', {
+                            name: 'Title'|t('app'),
+                        }),
+                        instructions: 'How should {name} values be translated?'|t('app', {
+                            name: 'Title'|t('app'),
+                        }),
+                        id: 'product-translation-method',
+                        name: 'productTitleTranslationMethod',
+                        options: [
+                            { value: 'none', label: 'Not translatable'|t('app') },
+                            { value: 'site', label: 'Translate for each site'|t('app') },
+                            { value: 'siteGroup', label: 'Translate for each site group'|t('app') },
+                            { value: 'language', label: 'Translate for each language'|t('app') },
+                            { value: 'custom', label: 'Custom…'|t('app') },
+                        ]|filter,
+                        value: productType.productTitleTranslationMethod,
+                        toggle: true,
+                        targetPrefix: 'product-translation-method-',
+                        disabled: disabled,
+                    }) }}
+
+                    <div id="product-translation-method-custom" {% if productType.productTitleTranslationMethod != 'custom' %}class="hidden"{% endif %}>
+                        {{ forms.textField({
+                            label: '{name} Translation Key Format'|t('app', {
+                                name: 'Title'|t('app'),
+                            }),
+                            instructions: 'Template that defines the {name} field’s custom “translation key” format. Values will be copied to all sites that produce the same key.'|t('app', {
+                                name: 'Title'|t('app'),
+                            }),
+                            id: 'product-translation-key-format',
+                            name: 'productTitleTranslationKeyFormat',
+                            value: productType.productTitleTranslationKeyFormat,
+                            errors: productType.getErrors('productTitleTranslationKeyFormat'),
+                            data: {
+                                'error-key': 'productTitleTranslationKeyFormat',
+                            },
+                            disabled: disabled,
+                        }) }}
+                    </div>
+                </div>
+            {% endif %}
+
                 <div id="productTitleFormat-container"{% if productType.hasProductTitleField %} class="hidden"{% endif %}>
-                    {{ textField({
+                    {{ forms.textField({
                         label: "Product Title Format"|t('commerce'),
                         instructions: "What the auto-generated product titles should look like. You can include tags that output product properties, such as {ex1} or {ex2}. All custom fields used must be set to required."|t('commerce', { ex1: '<code>{sku}</code>', ex2: '<code>{myProductsCustomField}</code>' }),
                         id: 'productTitleFormat',
                         class: 'code ltr',
                         name: 'productTitleFormat',
                         value: productType.productTitleFormat,
-                        errors: productType.getErrors('productTitleFormat')
+                        errors: productType.getErrors('productTitleFormat'),
+                        disabled: disabled,
                     }) }}
                 </div>
         {% endmacro %}
 
-        {% macro variantTitleFormatField(productType) %}
-            {% from "_includes/forms" import textField, checkboxField %}
+        {% macro variantTitleFormatField(productType, disabled) %}
+            {% import '_includes/forms' as forms %}
 
-            <div id="variant-settings"{% if not productType.hasVariants %} class="hidden"{% endif %}>
-
-                {{ checkboxField({
+            <div id="variant-settings">
+                {{ forms.lightswitchField({
                     label: "Show the Title field for variants"|t('commerce'),
                     name: 'hasVariantTitleField',
+                    toggle: '#variantTitle-container',
                     reverseToggle: '#variantTitleFormat-container, .fld-variant-title-field-icon',
-                    checked: productType.hasVariantTitleField
+                    on: productType.hasVariantTitleField,
+                    disabled: disabled,
                 }) }}
 
+                {% if craft.app.getIsMultiSite() %}
+                    <div id="variantTitle-container"{% if not productType.hasVariantTitleField %} class="hidden"{% endif %}>
+                        {{ forms.selectField({
+                            label: '{name} Translation Method'|t('app', {
+                                name: 'Title'|t('app'),
+                            }),
+                            instructions: 'How should {name} values be translated?'|t('app', {
+                                name: 'Title'|t('app'),
+                            }),
+                            id: 'variant-translation-method',
+                            name: 'variantTitleTranslationMethod',
+                            options: [
+                                { value: 'none', label: 'Not translatable'|t('app') },
+                                { value: 'site', label: 'Translate for each site'|t('app') },
+                                { value: 'siteGroup', label: 'Translate for each site group'|t('app') },
+                                { value: 'language', label: 'Translate for each language'|t('app') },
+                                { value: 'custom', label: 'Custom…'|t('app') },
+                            ]|filter,
+                            value: productType.variantTitleTranslationMethod,
+                            toggle: true,
+                            targetPrefix: 'variant-translation-method-',
+                            disabled: disabled,
+                        }) }}
+
+                        <div id="variant-translation-method-custom" {% if productType.variantTitleTranslationMethod != 'custom' %}class="hidden"{% endif %}>
+                            {{ forms.textField({
+                                label: '{name} Translation Key Format'|t('app', {
+                                    name: 'Title'|t('app'),
+                                }),
+                                instructions: 'Template that defines the {name} field’s custom “translation key” format. Values will be copied to all sites that produce the same key.'|t('app', {
+                                    name: 'Title'|t('app'),
+                                }),
+                                id: 'variant-translation-key-format',
+                                name: 'variantTitleTranslationKeyFormat',
+                                value: productType.variantTitleTranslationKeyFormat,
+                                errors: productType.getErrors('variantTitleTranslationKeyFormat'),
+                                data: {
+                                    'error-key': 'variantTitleTranslationKeyFormat',
+                                },
+                                disabled: disabled,
+                            }) }}
+                        </div>
+                    </div>
+                {% endif %}
+
                 <div id="variantTitleFormat-container"{% if productType.hasVariantTitleField %} class="hidden"{% endif %}>
-                    {{ textField({
+                    {{ forms.textField({
                         label: "Variant Title Format"|t('commerce'),
                         instructions: "What the auto-generated variant titles should look like. You can include tags that output variant properties, such as {ex1} or {ex2}. All custom fields used must be set to required."|t('commerce', { ex1: '<code>{sku}</code>', ex2: '<code>{myVariantsCustomField}</code>' }),
                         id: 'variantTitleFormat',
                         class: 'code ltr',
                         name: 'variantTitleFormat',
                         value: productType.variantTitleFormat,
-                        errors: productType.getErrors('variantTitleFormat')
+                        errors: productType.getErrors('variantTitleFormat'),
+                        disabled: disabled,
                     }) }}
                 </div>
 
             </div>
         {% endmacro %}
 
-        {% from _self import hasVariantsField, variantTitleFormatField, productTitleFormatField, uriFormatText %}
+        {% from _self import variantTitleFormatField, productTitleFormatField, uriFormatText %}
 
 
         {{ forms.textField({
@@ -121,7 +203,8 @@
             value: productType.name,
             errors: productType.getErrors('name'),
             autofocus: true,
-            required: true
+            required: true,
+            disabled: readOnly,
         }) }}
 
         {{ forms.textField({
@@ -132,10 +215,55 @@
             name: 'handle',
             value: productType.handle,
             errors: productType.getErrors('handle'),
-            required: true
+            required: true,
+            disabled: readOnly,
         }) }}
 
-        {{ productTitleFormatField(productType) }}
+        {{ forms.lightswitchField({
+            label: "Enable structure for products of this type"|t('commerce'),
+            warning: productType.id ? 'Changing this may result in data loss.'|t('app'),
+            id: 'isStructure',
+            name: 'isStructure',
+            on: productType.isStructure,
+            toggle: 'isStructureFields',
+            disabled: readOnly,
+        }) }}
+
+        <div id="isStructureFields" class="field {% if not productType.isStructure %}hidden{% endif %}">
+            {{ forms.selectField({
+                label: 'Default {type} Placement'|t('app', {type: 'Product'|t('commerce')}),
+                instructions: 'Where new {type} should be placed by default in the structure.'|t('app', {type: 'products'|t('commerce')}),
+                id: 'default-placement',
+                name: 'defaultPlacement',
+                options: [
+                    {label: 'Before other {type}'|t('app', {type: 'products'|t('commerce')}), value: 'beginning'},
+                    {label: 'After other {type}'|t('app', {type: 'products'|t('commerce')}), value: 'end'},
+                ],
+                value: productType.defaultPlacement,
+                disabled: readOnly,
+            }) }}
+
+            {{ forms.textField({
+                label: "Max Levels"|t('app'),
+                instructions: "The maximum number of levels this product type can have. Leave blank if you don’t care."|t('commerce'),
+                id: 'maxLevels',
+                name: 'maxLevels',
+                value: productType.maxLevels,
+                size: 5,
+                errors: productType.getErrors('maxLevels'),
+                disabled: readOnly,
+            }) }}
+        </div>
+
+        {{ forms.lightswitchField({
+            label: 'Enable versioning for products of this type'|t('app'),
+            id: 'enableVersioning',
+            name: 'enableVersioning',
+            on: productType.enableVersioning,
+            disabled: readOnly,
+        }) }}
+
+        {{ productTitleFormatField(productType, readOnly) }}
 
         {{ forms.textField({
             label: "Automatic SKU Format"|t('commerce'),
@@ -144,7 +272,8 @@
             class: 'code ltr',
             name: 'skuFormat',
             value: productType.skuFormat,
-            errors: productType.getErrors('skuFormat')
+            errors: productType.getErrors('skuFormat'),
+            disabled: readOnly,
         }) }}
 
         {{ forms.textField({
@@ -154,21 +283,32 @@
             class: 'code ltr',
             name: 'descriptionFormat',
             value: productType.descriptionFormat,
-            errors: productType.getErrors('descriptionFormat')
+            errors: productType.getErrors('descriptionFormat'),
+            disabled: readOnly,
         }) }}
 
+        {{ forms.textField({
+            label: 'Max Variants'|t('commerce'),
+            id: 'maxVariants',
+            name: 'maxVariants',
+            value: productType.maxVariants,
+            errors: productType.getErrors('maxVariants'),
+            size: 2,
+            disabled: readOnly,
+        }) }}
 
-        {{ forms.checkboxField({
+        {{ forms.lightswitchField({
             label: "Show the Dimensions and Weight fields for products of this type"|t('commerce'),
             id: 'hasDimensions',
             name: 'hasDimensions',
-            checked: productType.hasDimensions,
+            on: productType.hasDimensions,
+            disabled: readOnly,
         }) }}
 
         <hr>
-        {{ hasVariantsField(productType) }}
 
-        {{ variantTitleFormatField(productType) }}
+        {{ variantTitleFormatField(productType, readOnly) }}
+
         <hr>
 
         {% set siteRows = [] %}
@@ -183,29 +323,44 @@
             {% endif %}
             {% set siteRows = siteRows|merge({
                 (site.handle): {
-                    heading: site.name|t('site'),
+                    heading: site.name|t('site')|e,
+                    enabled: include('_includes/forms/lightswitch.twig', {
+                        name: 'sites['~site.handle~'][enabled]',
+                        on: brandNewProductType or siteSettings,
+                        value: site.id,
+                        small: true,
+                        disabled: readOnly,
+                    }),
                     uriFormat: {
-                        value: siteSettings.uriFormat ?? null,
-                        hasErrors: siteSettings.hasErrors('uriFormat') ?? false
+                        value: siteSettings ? siteSettings.uriFormat,
+                        hasErrors: (siteSettings ? siteSettings.hasErrors('uriFormat')),
+                        disabled: readOnly,
                     },
-                    template: {
-                        value: siteSettings.template ?? null,
-                        hasErrors: siteSettings.hasErrors('template') ?? false,
-                    }
-                }
+                    template: not headlessMode ? {
+                        value: siteSettings ? siteSettings.template,
+                        hasErrors: siteSettings ? siteSettings.hasErrors('template'),
+                        disabled: readOnly,
+                    },
+                    enabledByDefault: siteSettings ? siteSettings.enabledByDefault : true,
+                }|filter
             }) %}
         {% endfor %}
 
         {{ forms.editableTableField({
             label: "Site Settings"|t('app'),
-            instructions: "Configure the product types’s site-specific settings."|t('commerce'),
+            instructions: "Choose which sites this product type should be available in, and configure the site-specific settings."|t('commerce'),
             id: 'sites',
             name: 'sites',
             cols: {
                 heading: {
                     type: 'heading',
                     heading: "Site"|t('app'),
-                    class: 'thin'
+                    thin: true
+                },
+                enabled: {
+                    type: 'heading',
+                    thin: true,
+                    class: not craft.app.getIsMultiSite() ? 'hidden'
                 },
                 uriFormat: {
                     type: 'singleline',
@@ -220,30 +375,54 @@
                     info: "Which template should be loaded when a product’s URL is requested."|t('commerce'),
                     code: true
                 },
-            },
+                enabledByDefault: {
+                    type: 'lightswitch',
+                    heading: "Default Status"|t('app'),
+                    thin: true,
+                }
+            }|filter,
             rows: siteRows,
-            staticRows: true,
+            fullWidth: true,
+            allowAdd: false,
+            allowDelete: false,
+            allowReorder: false,
             errors: siteErrors|unique
         }) }}
 
-
+        {% if craft.app.getIsMultiSite() %}
+            <div class="field">
+                {{ forms.selectField({
+                    label: 'Propagation Method'|t('app'),
+                    instructions: 'Of the enabled sites above, which sites should products in this product type be saved to?'|t('commerce'),
+                    warning: productType.id and productType.propagationMethod.value != 'none' and productType.siteSettings|length > 1 ? 'Changing this may result in data loss.'|t('app'),
+                    id: 'propagationMethod',
+                    name: 'propagationMethod',
+                    options: [
+                        { value: 'none', label: 'Only save product to the site they were created in'|t('commerce') },
+                        { value: 'siteGroup', label: 'Save product to other sites in the same site group'|t('commerce') },
+                        { value: 'language', label: 'Save product to other sites with the same language'|t('commerce') },
+                        { value: 'all', label: 'Save product to all sites enabled for this product type'|t('commerce') },
+                        { value: 'custom', label: 'Let each product choose which sites it should be saved to'|t('commerce') },
+                    ],
+                    value: productType.propagationMethod.value,
+                    disabled: readOnly,
+                }) }}
+            </div>
+        {% endif %}
     </div>
 
     <div id="tax-and-shipping" class="hidden">
         <h3>{{ 'Available Shipping Categories'|t('commerce') }} </h3>
+
         {% for cat in productType.getShippingCategories() %}
             {% if loop.first %}<ul class="bullets">{% endif %}
             {% if currentUser.can('commerce-manageShipping') %}
-                <li><a href="{{ cat.getCpEditUrl() }}">{{ cat.name }}</a></li>
+                <li><a href="{{ cat.getCpEditUrl() }}">{{ cat.name }} ({{ cat.store.name }})</a></li>
             {% else %}
-                <li>{{ cat.name }}</li>
+                <li>{{ cat.name }} ({{ cat.store.name }})</li>
             {% endif %}
             {% if loop.last %}</ul>{% endif %}
         {% endfor %}
-        <br>
-        {% if currentUser.can('commerce-manageShipping') %}<a
-            href="{{ url('commerce/shipping/shippingcategories') }}">{{ 'Manage All Shipping Categories'|t('commerce') }}</a>{% endif %}
-        <hr>
 
         <h3>{{ 'Available Tax Categories'|t('commerce') }} </h3>
         {% for cat in productType.getTaxCategories() %}
@@ -255,14 +434,13 @@
             {% endif %}
             {% if loop.last %}</ul>{% endif %}
         {% endfor %}
-        <br>
-        {% if currentUser.can('commerce-manageTax') %}<a
-            href="{{ url('commerce/tax/taxcategories') }}">{{ 'Manage All Tax Categories'|t('commerce') }}</a>{% endif %}
     </div>
     <div id="product-fields" class="hidden">
 
         {{ forms.fieldLayoutDesignerField({
             fieldLayout: productType.getProductFieldLayout(),
+            withCardViewDesigner: true,
+            disabled: readOnly,
         }) }}
 
     </div>
@@ -272,7 +450,8 @@
         {% namespace "variant-layout" %}
             {{ forms.fieldLayoutDesignerField({
                 fieldLayout: productType.getVariantFieldLayout(),
-                customizableTabs: false
+                withCardViewDesigner: true,
+                disabled: readOnly,
             }) }}
         {% endnamespace %}
 
@@ -289,10 +468,3 @@
         {% endfor %}
     {% endjs %}
 {% endif %}
-
-{% js %}
-    $('#hasVariants').on('change', function() {
-        $("#tab-variantFields").toggleClass('hidden');
-        Craft.cp.tabManager.updateMenuBtn();
-    });
-{% endjs %}

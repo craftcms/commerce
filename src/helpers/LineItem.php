@@ -20,8 +20,11 @@ class LineItem
     /**
      * @return string The generated options signature
      */
-    public static function generateOptionsSignature(array $options = []): string
+    public static function generateOptionsSignature(array $options = [], ?int $lineItemId = null): string
     {
+        if ($lineItemId) {
+            $options['lineItemId'] = $lineItemId;
+        }
         ksort($options);
         return md5(Json::encode($options));
     }

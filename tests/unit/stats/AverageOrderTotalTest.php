@@ -8,6 +8,7 @@
 namespace craftcommercetests\unit\stats;
 
 use Codeception\Test\Unit;
+use craft\commerce\Plugin;
 use craft\commerce\stats\AverageOrderTotal;
 use craftcommercetests\fixtures\OrdersFixture;
 use DateTime;
@@ -48,7 +49,8 @@ class AverageOrderTotalTest extends Unit
      */
     public function testGetData(string $dateRange, DateTime $startDate, DateTime $endDate, $average): void
     {
-        $stat = new AverageOrderTotal($dateRange, $startDate, $endDate);
+        $storeId = Plugin::getInstance()->getStores()->getPrimaryStore()->id;
+        $stat = new AverageOrderTotal($dateRange, $startDate, $endDate, $storeId);
         $data = $stat->get();
 
         if ($average === null) {

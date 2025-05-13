@@ -56,6 +56,12 @@ class DownloadOrderPdfAction extends ElementAction
     public string $downloadType = 'pdfCollated';
 
     /**
+     * @var int|null
+     * @since 5.0.0
+     */
+    public ?int $storeId = null;
+
+    /**
      * @inheritdoc
      */
     public function getTriggerLabel(): string
@@ -68,7 +74,11 @@ class DownloadOrderPdfAction extends ElementAction
      */
     public function getTriggerHtml(): ?string
     {
-        $allPdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
+        if ($this->storeId === null) {
+            return '';
+        }
+
+        $allPdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs($this->storeId);
 
         $pdfs = [];
         foreach ($allPdfs as $pdf) {
@@ -81,10 +91,12 @@ class DownloadOrderPdfAction extends ElementAction
             ['label' => Craft::t('commerce', 'Collated PDF'), 'value' => self::TYPE_PDF_COLLATED],
         ]);
 
+        $action = Json::encode(static::class);
+
         if (count($allPdfs) > 0) {
             $js = <<<JS
 (() => {
-    new Craft.Commerce.DownloadOrderPdfAction($('#download-order-pdf'), $pdfOptions, $typeOptions);
+    new Craft.Commerce.DownloadOrderPdfAction($('#download-order-pdf'), $pdfOptions, $typeOptions, $action);
 })();
 JS;
             Craft::$app->getView()->registerJs($js);
@@ -104,6 +116,10 @@ JS;
      */
     public function performAction(ElementQueryInterface $query): bool
     {
+        if ($this->storeId === null) {
+            throw new InvalidConfigException('Invalid store ID');
+        }
+
         $pdfsService = Plugin::getInstance()->getPdfs();
 
         $pdfId = $this->pdfId;
@@ -111,7 +127,7 @@ JS;
             throw new InvalidConfigException("Invalid PDF ID");
         }
 
-        $pdf = $pdfsService->getPdfById($pdfId);
+        $pdf = $pdfsService->getPdfById($pdfId, $this->storeId);
 
         if (!$pdf) {
             throw new InvalidConfigException("Invalid PDF ID: '" . $pdfId . "'");

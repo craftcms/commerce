@@ -7,6 +7,9 @@
 {% set selectedSubnavItem = "subscriptions" %}
 {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commercesubscriptions commercesubscriptionsindex" %}
 
+{% set crumbs = [
+  { label: 'Commerce'|t('commerce'), url: url('commerce') },
+] %}
 
 {% js %}
     if (typeof Craft.Commerce === 'undefined') {

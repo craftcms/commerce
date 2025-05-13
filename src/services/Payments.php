@@ -8,7 +8,6 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
@@ -21,7 +20,7 @@ use craft\commerce\events\RefundTransactionEvent;
 use craft\commerce\events\TransactionEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\payments\BasePaymentForm;
-use craft\commerce\models\Settings;
+use craft\commerce\models\Store;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
@@ -258,8 +257,8 @@ class Payments extends Component
         }
 
         // Order could have zero totalPrice and already considered 'paid'. Free orders complete immediately.
-        $paymentStrategy = Plugin::getInstance()->getSettings()->freeOrderPaymentStrategy;
-        if (!$order->hasOutstandingBalance() && !$order->datePaid && $paymentStrategy === Settings::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE) {
+        $paymentStrategy = $order->getStore()->getFreeOrderPaymentStrategy();
+        if (!$order->hasOutstandingBalance() && !$order->datePaid && $paymentStrategy === Store::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE) {
             $order->updateOrderPaidInformation();
 
             if ($order->isCompleted) {
@@ -578,13 +577,12 @@ class Payments extends Component
             }
 
             $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent, TransactionRecord::TYPE_REFUND);
-            $currency = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($child->currency);
 
             // If amount is not supplied refund the full amount
-            $child->paymentAmount = Currency::round($amount, $currency) ?: $parent->getRefundableAmount();
+            $child->paymentAmount = Currency::round($amount, $child->currency) ?: $parent->getRefundableAmount();
 
             // Calculate amount in the primary currency
-            $child->amount = Currency::round($child->paymentAmount / $parent->paymentRate, $currency);
+            $child->amount = Currency::round($child->paymentAmount / $parent->paymentRate, $child->currency);
             $child->note = $note;
 
             $gateway = $parent->getGateway();

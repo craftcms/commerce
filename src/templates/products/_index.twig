@@ -1,28 +1,12 @@
 {% extends "_layouts/elementindex" %}
-
 {% set title = "Products"|t('commerce') %}
 {% set docTitle = title~' - '~'Commerce' %}
 {% set elementType = 'craft\\commerce\\elements\\Product' %}
 {% set selectedTab = 'products' %}
 {% set selectedSubnavItem = "products" %}
-{% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceproducts commerceproductsindex" %}
 
-{% set crumbs = [
-  { label: 'Commerce'|t('commerce'), url: url('commerce') },
-] %}
-
-{% js %}
-    if (typeof Craft.Commerce === 'undefined') {
-        Craft.Commerce = {};
-    }
-
-    Craft.Commerce.editableProductTypes = [
-        {% for productType in craft.commerce.productTypes.creatableProductTypes %}
-            {id: "{{ productType.uid }}", name: "{{ productType.name|t('commerce')|e('js') }}", handle: "{{ productType.handle|e('js') }}"}{% if not loop.last %},{% endif %}
-        {% endfor %}
-    ];
-
-    {% if productTypeHandle is defined %}
-        window.defaultProductTypeHandle = '{{ productTypeHandle }}';
-    {% endif %}
-{% endjs %}
+{% if productTypeHandle is defined %}
+  {% js %}
+    window.defaultProductTypeHandle = '{{ productTypeHandle }}';
+  {% endjs %}
+{% endif %}

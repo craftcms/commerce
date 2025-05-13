@@ -1,0 +1,47 @@
+{% extends "commerce/_layouts/store-management" %}
+{% set isIndex = false %}
+{% set crumbs = [
+    { label: "Tax Rates"|t('commerce'), url: store.getStoreSettingsUrl('taxrates') },
+] %}
+
+{% import "_includes/forms" as forms %}
+{% set selectedSubnavItem = 'tax' %}
+
+{% set fullPageForm = true %}
+
+{% block details %}
+    <div class="meta">
+        {{ forms.lightSwitchField({
+            label: "Enable this tax rate"|t('commerce'),
+            id: 'enabled',
+            name: 'enabled',
+            on: taxRate.enabled,
+            errors: taxRate.getErrors('enabled')
+        }) }}
+    </div>
+
+    {% if taxRate and taxRate.id %}
+        <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                <div id="date-created-value" class="value">{{ taxRate.dateCreated|datetime('short') }}</div>
+            </div>
+            <div class="data">
+                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                <div id="date-updated-value" class="value">{{ taxRate.dateUpdated|datetime('short') }}</div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {{ hiddenInput('storeId', taxRate.storeId) }}
+    {{ actionInput('commerce/tax-rates/save') }}
+    {{ redirectInput(store.getStoreSettingsUrl('taxrates')) }}
+    {% if taxRate.id %}
+      {{ hiddenInput('taxRateId', taxRate.id) }}
+    {% endif %}
+
+    {% include "commerce/store-management/tax/taxrates/_fields" %}
+{% endblock %}
+

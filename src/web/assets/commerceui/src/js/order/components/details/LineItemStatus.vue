@@ -10,12 +10,20 @@
 
         <template v-else>
             <span
-                class="status"
-                :class="{[lineItemStatus.color]: true}"
-                v-if="lineItemStatus.color"
-            ></span>
-            <span class="status" v-else></span>
-            {{ lineItemStatus.name }}
+                class="status-label"
+                :class="{
+                    [lineItemStatus.color]: lineItemStatus.color ? true : false,
+                    gray: lineItemStatus.color ? false : true,
+                }"
+            >
+                <span
+                    class="status"
+                    :class="{[lineItemStatus.color]: true}"
+                    v-if="lineItemStatus.color"
+                ></span>
+                <span class="status disabled" v-else></span>
+                <span class="status-label-text">{{ lineItemStatus.name }}</span>
+            </span>
         </template>
     </div>
 </template>

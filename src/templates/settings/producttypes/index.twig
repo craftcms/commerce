@@ -11,8 +11,14 @@
     'Yes',
 ]) %}
 
+{% set crumbs = [
+  { label: 'Commerce'|t('commerce'), url: url('commerce') },
+] %}
+
 {% block actionButton %}
+    {% if not readOnly %}
     <a href="{{ url('commerce/settings/producttypes/new') }}" class="btn submit add icon">{{ 'New product type'|t('commerce') }}</a>
+    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -38,7 +44,7 @@
         title: type.name|t('site'),
         url: type.cpEditUrl,
         handle: type.handle|e,
-        hasVariants: type.hasVariants ? true : false,
+        maxVariants: type.maxVariants ?? '',
         shipping: shipping,
         tax: tax,
     }]) %}
@@ -48,13 +54,7 @@
     var columns = [
         { name: '__slot:title', title: Craft.t('commerce', 'Name') },
         { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
-        { name: 'hasVariants', title: Craft.t('commerce', 'Has Variants?'),
-            callback: function(value) {
-                if (value) {
-                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
-                }
-            }
-        },
+        { name: 'maxVariants', title: Craft.t('commerce', 'Max Variants') },
         { name: 'shipping', title: Craft.t('commerce', 'Available Shipping Categories'),
             callback: function(value) {
                 return value;
@@ -67,13 +67,17 @@
         }
     ];
 
-    new Craft.VueAdminTable({
-        columns: columns,
-        container: '#types-vue-admin-table',
-        deleteAction: 'commerce/product-types/delete-product-type',
-        deleteConfirmationMessage: Craft.t('commerce', 'Are you sure you want to delete “{name}” and all its products? Please make sure you have a backup of your database before performing this destructive action.'),
-        emptyMessage: Craft.t('commerce', 'No product types exist yet.'),
-        tableData: {{ tableData|json_encode|raw }}
-    });
+    let config = {
+      columns: columns,
+      container: '#types-vue-admin-table',
+      emptyMessage: Craft.t('commerce', 'No product types exist yet.'),
+      tableData: {{ tableData|json_encode|raw }}
+    };
 
+    {% if not readOnly %}
+    config['deleteAction'] = 'commerce/product-types/delete-product-type';
+    config['deleteConfirmationMessage'] = Craft.t('commerce', 'Are you sure you want to delete “{name}” and all its products? Please make sure you have a backup of your database before performing this destructive action.');
+    {% endif %}
+
+    new Craft.VueAdminTable(config);
 {% endjs %}

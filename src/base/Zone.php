@@ -15,8 +15,10 @@ use yii\base\InvalidConfigException;
  * @property string $cpEditUrl
  * @property ConditionInterface|string $condition
  */
-abstract class Zone extends BaseModel implements ZoneInterface
+abstract class Zone extends BaseModel implements ZoneInterface, HasStoreInterface
 {
+    use StoreTrait;
+
     /**
      * @var int|null ID
      */
@@ -86,5 +88,16 @@ abstract class Zone extends BaseModel implements ZoneInterface
         $condition->forProjectConfig = false;
 
         $this->_condition = $condition;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function defineRules(): array
+    {
+        return [
+            [['name', 'condition', 'storeId'], 'required'],
+            [['storeId', 'id', 'description', 'dateCreated', 'dateUpdated'], 'safe'],
+        ];
     }
 }
