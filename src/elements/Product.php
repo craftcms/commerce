@@ -751,6 +751,7 @@ class Product extends Element implements HasStoreInterface
 
     /**
      * @var NestedElementManager|null
+     * @see getVariantManager()
      * @since 5.0.0
      */
     private ?NestedElementManager $_variantManager = null;

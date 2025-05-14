@@ -126,6 +126,6 @@ class Currencies extends Component
             $currency = $this->getCurrencyByIso($currency);
         }
 
-        return $this->_isoCurrencies->subunitFor($currency);
+        return $this->_isoCurrencies->numericCodeFor($currency);
     }
 }
