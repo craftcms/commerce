@@ -229,6 +229,27 @@ class Carts extends Component
             return null;
         }
 
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        $cartCustomer = $cart?->getCustomer();
+
+        // Did an anonymous user provide an email that belonged to a credentialed user?
+        // See CartController::actionUpdate()
+        $anonymousCartWithCredentialedCustomer = $cart && Craft::$app->getSession()->get('commerce:anonymousCartWithCredentialedCustomer:' . $cart->number, false);
+
+        if ($cart && $cartCustomer && $cartCustomer->getIsCredentialed() &&
+            (
+                // Forget cart if they are not logged-in, and they didn't submit the credentialed users email to the cart.
+                (!$currentUser && !$anonymousCartWithCredentialedCustomer)
+                ||
+                // Forget cart if the logged-in user is not the same as the cart customer.
+                ($currentUser && $currentUser->id != $cartCustomer->id)
+            )
+        ) {
+            $this->forgetCart();
+            return null;
+        }
+
         return $cart;
     }
 

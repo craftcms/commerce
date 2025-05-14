@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\base\Component;
 use craft\base\Element;
+use craft\base\Event;
 use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
@@ -24,7 +25,10 @@ use craft\errors\InvalidElementException;
 use craft\errors\UnsupportedSiteException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
+use craft\mail\Mailer;
+use craft\mail\Message;
 use yii\db\Expression;
+use yii\mail\MailEvent;
 
 /**
  * Customer service.
@@ -426,8 +430,28 @@ class Customers extends Component
         $user->pending = true;
         $user->setScenario(Element::SCENARIO_ESSENTIALS);
 
+        // @TODO remove check at next major Craft version bump
+        if (property_exists($user, 'affiliatedSiteId')) {
+            $user->affiliatedSiteId = $order->orderSiteId;
+        }
+
         if (Craft::$app->getElements()->saveElement($user)) {
             Craft::$app->getUsers()->assignUserToDefaultGroup($user);
+
+            Event::once(Mailer::class, Mailer::EVENT_BEFORE_PREP, function(MailEvent $event) use ($user) {
+                if (!$event->message instanceof Message) {
+                    return;
+                }
+
+                if ($event->message->key !== 'account_activation') {
+                    return;
+                }
+
+                if ($event->message->siteId === null && property_exists($user, 'affiliatedSiteId') && $user->affiliatedSiteId) {
+                    $event->message->siteId = $user->affiliatedSiteId;
+                }
+            });
+
             $emailSent = Craft::$app->getUsers()->sendActivationEmail($user);
 
             if (!$emailSent) {

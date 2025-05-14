@@ -2167,11 +2167,11 @@ class Order extends Element implements HasStoreInterface
     {
         // Matching will contain the core shipping methods and any plugin dynamically returned shipping methods.
         $methods = Plugin::getInstance()->getShippingMethods()->getMatchingShippingMethods($this);
-        $matchingMethodHandles = ArrayHelper::getColumn($methods, 'handle');
+        $matchingMethodHandles = ArrayHelper::getColumn($methods, fn(ShippingMethodInterface $sm) => $sm->getHandle());
 
         // Get all regular methods and add them to the list, for use only when the order is complete.
         if ($this->isCompleted) {
-            $allShippingMethods = ArrayHelper::index(Plugin::getInstance()->getShippingMethods()->getAllShippingMethods()->all(), 'handle');
+            $allShippingMethods = ArrayHelper::index(Plugin::getInstance()->getShippingMethods()->getAllShippingMethods()->all(), fn(ShippingMethodInterface $sm) => $sm->getHandle());
             $methods = ArrayHelper::merge($allShippingMethods, $methods);
         }
 
@@ -2180,10 +2180,16 @@ class Order extends Element implements HasStoreInterface
         foreach ($methods as $method) {
             $option = new ShippingMethodOption();
 
+            $storeId = $this->storeId;
+
             if ($method instanceof ShippingMethod) {
                 // TODO remove at a breaking change version
                 foreach (['dateCreated', 'dateUpdated'] as $attribute) {
                     $option->$attribute = $method->$attribute;
+                }
+
+                if ($method->storeId !== $storeId) {
+                    continue;
                 }
             }
 
@@ -2195,7 +2201,7 @@ class Order extends Element implements HasStoreInterface
             $option->matchesOrder = ArrayHelper::isIn($method->getHandle(), $matchingMethodHandles);
             $option->price = $method->getPriceForOrder($this);
             $option->shippingMethod = $method;
-            $option->storeId = $method->storeId;
+            $option->storeId = $storeId;
 
             // Add all methods if completed, and only the matching methods when it is not completed.
             if ($this->isCompleted || $option->matchesOrder) {
@@ -2708,7 +2714,9 @@ class Order extends Element implements HasStoreInterface
      */
     public function getTotal(): float
     {
-        return (float)$this->getTeller()->add($this->getItemSubtotal(), $this->getAdjustmentsTotal());
+        $itemSubtotal = $this->getItemSubtotal();
+        $adjustmentsTotal = $this->getAdjustmentsTotal();
+        return (float)$this->getTeller()->add($itemSubtotal, $adjustmentsTotal);
     }
 
     /**
@@ -2734,9 +2742,9 @@ class Order extends Element implements HasStoreInterface
     public function getItemTotal(): float
     {
         $total = 0;
-
+        $teller = $this->getTeller();
         foreach ($this->getLineItems() as $lineItem) {
-            $total += $lineItem->getTotal();
+            $total = (float)$teller->add($total, $lineItem->getTotal());
         }
 
         return $total;
@@ -2929,6 +2937,7 @@ class Order extends Element implements HasStoreInterface
     public function _getAdjustmentsTotalByType(array|string $types, bool $included = false): float|int
     {
         $amount = 0;
+        $teller = $this->getTeller();
 
         if (is_string($types)) {
             $types = StringHelper::split($types);
@@ -2936,7 +2945,7 @@ class Order extends Element implements HasStoreInterface
 
         foreach ($this->getAdjustments() as $adjustment) {
             if ($adjustment->included == $included && in_array($adjustment->type, $types, false)) {
-                $amount += $adjustment->amount;
+                $amount = (float)$teller->add($amount, $adjustment->amount);
             }
         }
 
@@ -3003,8 +3012,12 @@ class Order extends Element implements HasStoreInterface
     public function getTotalPromotionalAmount(): float
     {
         $value = 0;
+        $teller = $this->getTeller();
         foreach ($this->getLineItems() as $item) {
-            $value += ($item->qty * $item->getPromotionalAmount());
+            $value = (float)$teller->add(
+                $value,
+                $teller->multiply($item->qty, $item->getPromotionalAmount()),
+            );
         }
 
         return $value;
@@ -3026,8 +3039,9 @@ class Order extends Element implements HasStoreInterface
     public function getItemSubtotal(): float
     {
         $value = 0;
+        $teller = $this->getTeller();
         foreach ($this->getLineItems() as $item) {
-            $value += $item->getSubtotal();
+            $value = (float)$teller->add($value, $item->getSubtotal());
         }
 
         return $value;
@@ -3043,9 +3057,10 @@ class Order extends Element implements HasStoreInterface
     public function getAdjustmentSubtotal(): float
     {
         $value = 0;
+        $teller = $this->getTeller();
         foreach ($this->getAdjustments() as $adjustment) {
             if (!$adjustment->included) {
-                $value += $adjustment->amount;
+                $value = (float)$teller->add($value, $adjustment->amount);
             }
         }
 
@@ -3116,10 +3131,10 @@ class Order extends Element implements HasStoreInterface
     public function getAdjustmentsTotal(): float
     {
         $amount = 0;
-
+        $teller = $this->getTeller();
         foreach ($this->getAdjustments() as $adjustment) {
             if (!$adjustment->included) {
-                $amount += $adjustment->amount;
+                $amount = (float)$teller->add($amount, $adjustment->amount);
             }
         }
 

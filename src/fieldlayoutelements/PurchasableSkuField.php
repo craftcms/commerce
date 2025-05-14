@@ -8,12 +8,12 @@
 namespace craft\commerce\fieldlayoutelements;
 
 use Craft;
+use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Variant;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\fieldlayoutelements\BaseNativeField;
-use craft\helpers\Html;
 use yii\base\InvalidArgumentException;
 
 /**
@@ -28,11 +28,6 @@ class PurchasableSkuField extends BaseNativeField
      * @inheritdoc
      */
     public bool $mandatory = true;
-
-    /**
-     * @inheritdoc
-     */
-    public ?string $label = 'SKU';
 
     /**
      * @inheritdoc
@@ -53,17 +48,14 @@ class PurchasableSkuField extends BaseNativeField
             throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
         }
 
-        $html = '';
-
-        if ($element instanceof Variant && $element->getOwner()->getType()->skuFormat !== null && !$element->id) {
-            $html .= Html::hiddenInput('sku', '');
-        } else {
-            $html .= PurchasableHelper::skuInputHtml($element->getSkuAsText(), [
-                'disabled' => $static,
-            ]);
+        $variantWithSkuFormula = $element instanceof Variant && $element->getOwner()->getType()->skuFormat !== null;
+        if ($variantWithSkuFormula && $element->getIsDraft() && $this->getScenario() === Element::SCENARIO_DEFAULT) {
+            return null;
         }
 
-        return $html;
+        return PurchasableHelper::skuInputHtml($element->getSkuAsText(), [
+            'disabled' => $static,
+        ]);
     }
 
     /**
