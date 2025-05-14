@@ -77,6 +77,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property Variant[]|array $variants an array of the product's variants
  * @property-read string $defaultPriceAsCurrency
  * @property-read string $defaultBasePriceAsCurrency
+ * @property-read string $defaultBasePromotionalPriceAsCurrency
  * @property float|null $defaultPrice
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -95,12 +96,6 @@ class Product extends Element implements HasStoreInterface
      * @since 5.2.0
      */
     public const EVENT_DEFINE_PARENT_SELECTION_CRITERIA = 'defineParentSelectionCriteria';
-
-    /**
-     * @var float|null
-     * @since 5.1.0
-     */
-    public ?float $defaultBasePrice = null;
 
     /**
      * @inheritdoc
@@ -535,6 +530,7 @@ class Product extends Element implements HasStoreInterface
             'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],
             'dateUpdated' => ['label' => Craft::t('commerce', 'Date Updated')],
             'defaultPrice' => ['label' => Craft::t('commerce', 'Price')],
+            'defaultPromotionalPrice' => ['label' => Craft::t('commerce', 'Promotional Price')],
             'defaultSku' => ['label' => Craft::t('commerce', 'SKU')],
             'defaultWeight' => ['label' => Craft::t('commerce', 'Weight')],
             'defaultLength' => ['label' => Craft::t('commerce', 'Length')],
@@ -584,6 +580,10 @@ class Product extends Element implements HasStoreInterface
         return array_merge(parent::defineCardAttributes(), [
             'defaultPrice' => [
                 'label' => Craft::t('commerce', 'Price'),
+                'placeholder' => '¤' . Craft::$app->getFormattingLocale()->getFormatter()->asDecimal(123.99),
+            ],
+            'defaultPromotionalPrice' => [
+                'label' => Craft::t('commerce', 'Promotional Price'),
                 'placeholder' => '¤' . Craft::$app->getFormattingLocale()->getFormatter()->asDecimal(123.99),
             ],
             'defaultSku' => [
@@ -652,7 +652,18 @@ class Product extends Element implements HasStoreInterface
      */
     public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
     {
-        if ($attribute === 'variants') {
+        $variantAttributes = [
+            'variants',
+            'defaultPrice',
+            'defaultPromotionalPrice',
+            'defaultSku',
+            'defaultWeight',
+            'defaultLength',
+            'defaultWidth',
+            'defaultHeight',
+        ];
+
+        if (in_array($attribute, $variantAttributes, false)) {
             $elementQuery->andWith('variants');
         } else {
             parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
@@ -692,6 +703,18 @@ class Product extends Element implements HasStoreInterface
     private ?float $_defaultPrice = null;
 
     /**
+     * @var float|null
+     * @since 5.1.0
+     */
+    public ?float $defaultBasePrice = null;
+
+    /**
+     * @var float|null
+     * @since 5.4.0
+     */
+    public ?float $defaultBasePromotionalPrice = null;
+
+    /**
      * @var float|null Default height
      */
     public ?float $defaultHeight = null;
@@ -728,6 +751,7 @@ class Product extends Element implements HasStoreInterface
 
     /**
      * @var NestedElementManager|null
+     * @see getVariantManager()
      * @since 5.0.0
      */
     private ?NestedElementManager $_variantManager = null;
@@ -738,7 +762,7 @@ class Product extends Element implements HasStoreInterface
      */
     public function currencyAttributes(): array
     {
-        return ['defaultPrice', 'defaultBasePrice'];
+        return ['defaultPrice', 'defaultBasePrice', 'defaultBasePromotionalPrice'];
     }
 
     /**
@@ -1900,7 +1924,11 @@ class Product extends Element implements HasStoreInterface
             }
             case 'defaultPrice':
             {
-                return $this->defaultBasePriceAsCurrency;
+                return $this->defaultBasePrice ? $this->defaultBasePriceAsCurrency : '';
+            }
+            case 'defaultPromotionalPrice':
+            {
+                return $this->defaultBasePromotionalPrice ? $this->defaultBasePromotionalPriceAsCurrency : '';
             }
             case 'stock':
             {

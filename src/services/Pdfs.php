@@ -558,8 +558,11 @@ class Pdfs extends Component
         $options->setFontCache($dompdfFontCache);
         $options->setLogOutputFile($dompdfLogFile);
         $options->setIsRemoteEnabled($isRemoteEnabled);
-        $options->setDefaultPaperOrientation($pdf->paperOrientation);
-        $options->setDefaultPaperSize($pdf->paperSize);
+
+        if ($pdf instanceof Pdf) {
+            $options->setDefaultPaperOrientation($pdf->paperOrientation);
+            $options->setDefaultPaperSize($pdf->paperSize);
+        }
 
         $renderOptionsEvent = new PdfRenderOptionsEvent([
             'options' => $options,

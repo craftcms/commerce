@@ -55,6 +55,14 @@ class PurchasablePriceField extends BaseNativeField
     /**
      * @inheritdoc
      */
+    protected function defaultLabel(?ElementInterface $element = null, bool $static = false): ?string
+    {
+        return Craft::t('commerce', 'Price');
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         $view = Craft::$app->getView();
