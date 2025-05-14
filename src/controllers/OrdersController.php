@@ -636,11 +636,15 @@ JS, []);
         }
 
         if ($billingAddress) {
-            $orderArray['billingAddressHtml'] = Cp::elementCardHtml($billingAddress);
+            $orderArray['billingAddressHtml'] = Cp::elementCardHtml($billingAddress, [
+                'showEditButton' => false,
+            ]);
         }
 
         if ($shippingAddress) {
-            $orderArray['shippingAddressHtml'] = Cp::elementCardHtml($shippingAddress);
+            $orderArray['shippingAddressHtml'] = Cp::elementCardHtml($shippingAddress, [
+                'showEditButton' => false,
+            ]);
         }
 
         if (!empty($orderArray['lineItems'])) {
@@ -1285,6 +1289,12 @@ JS, []);
     {
         /** @var Order $order */
         $order = $variables['order'];
+
+        $variables['ordersBodyClass'] = '';
+
+        if (version_compare(Craft::$app->getVersion(), '5.7.0', '>=')) {
+            $variables['ordersBodyClass'] .= ' commerceorders-post-57';
+        }
 
         $variables['title'] = Craft::t('commerce', 'Order') . ' ' . $order->reference;
 

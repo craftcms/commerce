@@ -157,6 +157,18 @@
 
         <hr>
 
+        {% set customerConditionInput %}
+          {{ shippingRule.customerCondition.getBuilderHtml()|raw }}
+        {% endset %}
+
+        {{ forms.field({
+          id: 'customerCondition',
+          label: 'Match Customer'|t('commerce'),
+          errors: shippingRule.getErrors('customerCondition')
+        }, customerConditionInput) }}
+
+      <hr>
+
         <h3>{{ "Shipping Category Conditions"|t('commerce') }}</h3>
         {% set shippingCategories = craft.commerce.shippingCategories.allShippingCategories(shippingMethod.storeId) %}
         {% if shippingCategories %}

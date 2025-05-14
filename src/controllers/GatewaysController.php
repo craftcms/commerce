@@ -160,6 +160,12 @@ class GatewaysController extends BaseAdminController
             'isFrontendEnabled' => $this->request->getParam('isFrontendEnabled'),
             'settings' => $this->request->getBodyParam('types.' . $type),
         ];
+        
+        // Handle order condition if it's in the request
+        $orderCondition = $this->request->getBodyParam('orderCondition');
+        if ($orderCondition !== null) {
+            $config['orderCondition'] = $orderCondition;
+        }
 
         // For new gateway avoid NULL value.
         if (!$this->request->getBodyParam('id')) {

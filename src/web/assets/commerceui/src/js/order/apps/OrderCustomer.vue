@@ -16,7 +16,10 @@
                     }}</btn-link>
                 </template>
             </div>
-            <div class="customer-select-wrapper">
+            <div
+                class="customer-select-wrapper"
+                :class="{'customer-select-wrapper--selecting': !hasCustomer}"
+            >
                 <customer
                     v-if="hasCustomer"
                     :customer="customer"
@@ -386,6 +389,11 @@
         @media only screen and (max-width: 767px) {
             width: 100%;
             padding-right: 0;
+        }
+
+        &--selecting {
+            z-index: 1;
+            position: relative;
         }
     }
 </style>
