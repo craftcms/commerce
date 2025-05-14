@@ -176,7 +176,7 @@ class LineItems extends Component
      * @return LineItem
      * @throws \Exception
      */
-    public function resolveLineItem(Order $order, int $purchasableId, array $options = []): LineItem
+    public function resolveLineItem(Order $order, int $purchasableId, array $options = [], array $params = []): LineItem
     {
         $signature = LineItemHelper::generateOptionsSignature($options);
 
@@ -191,7 +191,14 @@ class LineItems extends Component
         if ($result) {
             $lineItem = new LineItem($result);
         } else {
-            $lineItem = $this->create($order, compact('purchasableId', 'options'));
+            $params = array_merge([
+                'qty' => 1,
+                'options' => $options,
+                'note' => '',
+                'purchasableId' => $purchasableId,
+            ], $params);
+
+            $lineItem = $this->create($order, $params);
         }
 
         return $lineItem;
