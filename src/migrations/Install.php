@@ -297,6 +297,7 @@ class Install extends Migration
             'settings' => $this->text(),
             'paymentType' => $this->enum('paymentType', ['authorize', 'purchase'])->notNull()->defaultValue('purchase'),
             'isFrontendEnabled' => $this->string(500)->notNull()->defaultValue('1'),
+            'orderCondition' => $this->text(),
             'isArchived' => $this->boolean()->notNull()->defaultValue(false),
             'dateArchived' => $this->dateTime(),
             'sortOrder' => $this->integer(),
@@ -789,6 +790,7 @@ class Install extends Migration
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'orderCondition' => $this->text(),
+            'customerCondition' => $this->text(),
             'enabled' => $this->boolean()->notNull()->defaultValue(true),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -819,6 +821,7 @@ class Install extends Migration
             'enabled' => $this->boolean()->notNull()->defaultValue(true),
             'orderConditionFormula' => $this->text(),
             'orderCondition' => $this->text(),
+            'customerCondition' => $this->text(),
             'baseRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'perItemRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'weightRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
@@ -1425,6 +1428,7 @@ class Install extends Migration
             'name' => 'Dummy',
             'handle' => 'dummy',
             'isFrontendEnabled' => true,
+            'orderCondition' => [],
             'isArchived' => false,
         ];
         $gateway = new Dummy($data);

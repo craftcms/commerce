@@ -818,9 +818,12 @@ class Inventory extends Component
 
         $this->executeInventoryMovements($movements);
 
-        foreach ($selectedInventoryLevelForItem as $inventoryLevel) {
-            $purchasable = $inventoryLevel->getPurchasable();
-            Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
+        foreach ($selectedInventoryLevelForItem as $key => $inventoryLevel) {
+            if ($purchasable = Craft::$app->getElements()->getElementById($key)) {
+                if ($purchasable instanceof Purchasable) {
+                    Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
+                }
+            }
         }
     }
 }

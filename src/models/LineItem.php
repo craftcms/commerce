@@ -266,7 +266,7 @@ class LineItem extends Model
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
-            'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'defaultCurrency' => $this->getOrder()?->currency ?? null,
             'currencyAttributes' => $this->currencyAttributes(),
         ];
 
@@ -906,12 +906,18 @@ class LineItem extends Model
         $this->setSku($purchasable->getSku());
         $this->setDescription($purchasable->getDescription());
 
-        // Check to see if there is a discount applied that ignores Sales for this line item
+        // Check to see if there is a discount applied that ignores promotions for this line item
         $ignorePromotions = false;
         foreach (Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($this->getOrder()) as $discount) {
             if (Plugin::getInstance()->getDiscounts()->matchLineItem($this, $discount, true)) {
+                // Break if matched discount is set to ignore promotions.
                 $ignorePromotions = $discount->ignorePromotions;
                 if ($ignorePromotions) {
+                    break;
+                }
+
+                // Break if matched discount is set to not apply any subsequent discounts.
+                if ($discount->stopProcessing) {
                     break;
                 }
             }

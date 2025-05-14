@@ -76,7 +76,7 @@ class DonationQueryTest extends Unit
 
         if (isset($donation) || count($all)) {
             // Delete donation
-            $donation = isset($donation) ? $donation : $all[0];
+            $donation = $donation ?? $all[0];
             Craft::$app->getElements()->deleteElement($donation, true);
         }
     }

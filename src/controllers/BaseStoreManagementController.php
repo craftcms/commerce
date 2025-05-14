@@ -101,6 +101,7 @@ class BaseStoreManagementController extends BaseCpController
 
         return [
             'id' => 'site-crumb',
+            'iconAltText' => Craft::t('commerce', 'Store'),
             'icon' => 'store',
             'label' => $store?->getName() ?? Craft::t('commerce', 'Store Management'),
             'menu' => [

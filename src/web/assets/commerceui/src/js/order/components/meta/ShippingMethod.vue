@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="order-edit-shipping-method-wrapper">
         <select-input
             label="name"
             :options="shippingMethods"
@@ -142,3 +142,9 @@
         },
     };
 </script>
+
+<style lang="scss">
+    #order-edit-shipping-method-wrapper {
+        width: 100%;
+    }
+</style>

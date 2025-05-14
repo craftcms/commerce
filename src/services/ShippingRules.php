@@ -128,6 +128,7 @@ class ShippingRules extends Component
         }
 
         $record->orderCondition = $model->getOrderCondition()->getConfig();
+        $record->customerCondition = $model->getCustomerCondition()->getConfig();
 
         if (empty($record->priority) && empty($model->priority)) {
             $count = ShippingRuleRecord::find()->where(['methodId' => $model->methodId])->count();
@@ -147,7 +148,7 @@ class ShippingRules extends Component
         ShippingRuleCategoryRecord::deleteAll(['shippingRuleId' => $model->id]);
 
         // Generate a rule category record for all categories regardless of data submitted
-        foreach (Plugin::getInstance()->getShippingCategories()->getAllShippingCategories() as $shippingCategory) {
+        foreach (Plugin::getInstance()->getShippingCategories()->getAllShippingCategories($model->storeId) as $shippingCategory) {
             $ruleCategory = $model->getShippingRuleCategories()[$shippingCategory->id] ?? null;
             if ($ruleCategory) {
                 $ruleCategory = new ShippingRuleCategory([
@@ -225,6 +226,7 @@ class ShippingRules extends Component
                 'shippingrules.name',
                 'shippingrules.orderConditionFormula',
                 'shippingrules.orderCondition',
+                'shippingrules.customerCondition',
                 'shippingrules.percentageRate',
                 'shippingrules.perItemRate',
                 'shippingrules.priority',

@@ -30,17 +30,16 @@ class PurchasableFreeShippingField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public ?string $label = 'Free Shipping';
-
-    /**
-     * @inheritdoc
-     */
-    public bool $required = true;
-
-    /**
-     * @inheritdoc
-     */
     public string $attribute = 'freeShipping';
+
+    /**
+     * @inheritdoc
+     */
+    public function __construct(array $config = [])
+    {
+        unset($config['required']);
+        parent::__construct($config);
+    }
 
     /**
      * @inheritdoc

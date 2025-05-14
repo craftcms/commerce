@@ -8,6 +8,7 @@
 namespace craftcommercetests\unit\elements\variant;
 
 use Codeception\Test\Unit;
+use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\elements\VariantCollection;
 use craft\elements\ElementCollection;
@@ -54,5 +55,35 @@ class VariantCollectionTest extends Unit
         self::assertInstanceOf(VariantCollection::class, $collection);
         self::assertNotNull($collection->cheapest());
         self::assertEquals('hct-white', $collection->cheapest()->sku);
+    }
+
+    public function testMake(): void
+    {
+        $product = Product::find()->slug('rad-hoodie')->one();
+        $attrs = [
+            'ownerId' => $product->id,
+            'owner' => $product,
+            'primaryOwnerId' => $product->id,
+            'primaryOwner' => $product,
+            'title' => 'Test Variant',
+            'basePrice' => 123,
+            'sku' => '123',
+            'enabled' => true,
+            'myVariantHeadingField' => 'bar',
+        ];
+
+        $collection = VariantCollection::make([$attrs]);
+
+        self::assertInstanceOf(VariantCollection::class, $collection);
+
+        $variant = $collection->first();
+        foreach ([
+            'title',
+            'basePrice',
+            'sku',
+            'myVariantHeadingField',
+        ] as $key) {
+            self::assertEquals($attrs[$key], $variant->$key);
+        }
     }
 }
