@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\base\Element;
+use craft\base\ElementInterface;
 use craft\base\Field;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable as PurchasableElement;
@@ -1873,12 +1874,20 @@ JS, []);
 
         $purchasablesById = [];
         foreach ($elementIdsByType as $type => $ids) {
+            /** @var ElementInterface $type */
+
             if (!class_exists($type)) {
                 continue;
             }
 
             /** @var ElementQuery $query */
             $query = $type::find();
+
+            if ($type::isLocalized()) {
+                $query->siteId($siteId);
+            }
+
+            $query->status(null);
 
             if ($query instanceof PurchasableQuery) {
                 $query->forCustomer($customerId);

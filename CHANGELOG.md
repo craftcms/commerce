@@ -1,21 +1,37 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where email settings weren’t respecting the “Recipient”, “BCC”, and “CC” environment variable. ([#4004](https://github.com/craftcms/commerce/issues/4004), [#4002](https://github.com/craftcms/commerce/issues/4002))
+
+## 5.3.12 - 2025-05-07
+
+- Fixed a PHP error that could occur when calculating discount adjustments. ([#3997](https://github.com/craftcms/commerce/issues/3997))
+- Fixed a PHP error that could occur on Edit Plan pages. ([#3998](https://github.com/craftcms/commerce/issues/3998))
+- Fixed a PHP error that could occur when upgrading to Commerce 5. ([#3933](https://github.com/craftcms/commerce/pull/3933))
+- Fixed a bug where some purchasables weren’t selectable when adding new line items on Edit Order pages. ([#3986](https://github.com/craftcms/commerce/issues/3986))
+
+## 5.3.11 - 2025-05-01
+
+- Fixed a bug where line item quantity validation wasn’t accounting for the whole cart. ([#3990](https://github.com/craftcms/commerce/issues/3990))
+- Fixed a bug where it wasn’t possible to create a guest cart with a credentialed user’s email address. ([#3960](https://github.com/craftcms/commerce/issues/3960))
+
 ## 5.3.10 - 2025-04-24
 
 - Fixed a PHP error that occurred when applying project config changes after deleting a store. ([#3969](https://github.com/craftcms/commerce/issues/3969))
 - Fixed a SQL error that could occur when upgrading to Commerce 5. ([#3741](https://github.com/craftcms/commerce/issues/3741))
 - Fixed a bug where it was possible to retrieve a credentialed user’s cart based on the cart cookie, even if the user was no longer signed in. ([#3960](https://github.com/craftcms/commerce/issues/3960))
-- Fixed a bug where the Address field action’s UI displayed incorrectly on Edit Order pages. 
+- Fixed a bug where the Address field action’s UI displayed incorrectly on Edit Order pages.
 
 ## 5.3.9 - 2025-04-15
 
 - Fixed a bug where the customer selection menu on Edit Order pages could be hidden behind an address card. ([#3968](https://github.com/craftcms/commerce/issues/3968))
 - Fixed a PHP error that could occur when rendering a PDF. ([#3967](https://github.com/craftcms/commerce/issues/3967))
-- Fixed a bug where account activation emails weren’t always getting rendered for the correct site. 
+- Fixed a bug where account activation emails weren’t always getting rendered for the correct site.
 
 ## 5.3.8 - 2025-04-02
 
-- Fixed a bug where it wasn’t possible to override the PDF paper size via `craft\commerce\services\Pdf::EVENT_MODIFY_RENDER_OPTIONS`. 
+- Fixed a bug where it wasn’t possible to override the PDF paper size via `craft\commerce\services\Pdf::EVENT_MODIFY_RENDER_OPTIONS`.
 - Fixed a bug where SKUs with auto formats weren’t getting generated. ([#3958](https://github.com/craftcms/commerce/issues/3958))
 
 ## 5.3.7 - 2025-03-26
@@ -49,7 +65,7 @@
 
 ## 5.3.3 - 2025-02-19
 
-- Fixed a bug where line item totals could be formatted in the wrong currency on Edit Order pages. ([#3891](https://github.com/craftcms/commerce/issues/3891)) 
+- Fixed a bug where line item totals could be formatted in the wrong currency on Edit Order pages. ([#3891](https://github.com/craftcms/commerce/issues/3891))
 - Fixed a bug where email and order status change events weren’t getting triggered in non-primary stores.
 
 ## 5.3.2.2 - 2025-02-10
@@ -86,7 +102,7 @@
 
 ## 5.3.0.1 - 2025-01-30
 
-- Fixed a bug where the `craft\commerce\events\CartPurgeEvent` could not be used in any event. ([#2721](https://github.com/craftcms/commerce/issues/2721)) 
+- Fixed a bug where the `craft\commerce\events\CartPurgeEvent` could not be used in any event. ([#2721](https://github.com/craftcms/commerce/issues/2721))
 - Added `craft\commerce\services\Carts::EVENT_BEFORE_PURGE_INACTIVE_CARTS`. ([#3684](https://github.com/craftcms/commerce/discussions/3684))
 
 ## 5.3.0 - 2025-01-30
@@ -146,7 +162,7 @@
 
 ## 5.2.12.1 - 2025-01-23
 
-- Fixed a JavaScript error that occurred when updating an order’s status for a non-primary store on order indexes. 
+- Fixed a JavaScript error that occurred when updating an order’s status for a non-primary store on order indexes.
 
 ## 5.2.12 - 2025-01-22
 
@@ -172,7 +188,7 @@
 
 - Fixed a PHP error that could occur when updating the inventory of a purchasable for a non-primary site. ([#3788](https://github.com/craftcms/commerce/issues/3788))
 - Fixed a PHP error that occurred when making a partial payment on an order from the control panel. ([#3804](https://github.com/craftcms/commerce/issues/3804))
-- Fixed a PHP error that could occur when calculating order totals. ([#3802](https://github.com/craftcms/commerce/issues/3802)) 
+- Fixed a PHP error that could occur when calculating order totals. ([#3802](https://github.com/craftcms/commerce/issues/3802))
 - Fixed a bug where product indexes weren’t always showing the correct price. ([#3807](https://github.com/craftcms/commerce/issues/3807))
 - Fixed a bug where changes to inline-editable Matrix fields weren’t getting saved for product variants. ([#3805](https://github.com/craftcms/commerce/issues/3805))
 - Fixed a bug where the Edit Order page wasn’t showing order errors.
@@ -481,9 +497,9 @@
 ## 5.0.10.1 - 2024-06-14
 
 - Fixed a bug where duplicate Store location addresses were being created.
-- Fixed a bug where a customers’ primary address selections weren’t being saved. 
+- Fixed a bug where a customers’ primary address selections weren’t being saved.
 
-## 5.0.10 - 2024-06-13 
+## 5.0.10 - 2024-06-13
 
 - `craft\elements\User::toArray()` now includes `primaryBillingAddressId` and `primaryShippingAddressId` values in response arrays.
 - `craft\elements\Address::toArray()` now includes `isPrimaryBilling` and `isPrimaryShipping` values in response arrays for user addresses.
@@ -537,7 +553,7 @@
 - Added `craft\commerce\models\OrderStatus::getConfig()`.
 - Fixed a bug where it wasn’t possible to download PDFs from the Orders index page. ([#3477](https://github.com/craftcms/commerce/issues/3477))
 - Fixed an error that could occur when installing Craft CMS + Craft Commerce with an existing project config. ([#3472](https://github.com/craftcms/commerce/issues/3472))
-- Fixed a bug where order status configs were missing their store assignments after rebuilding the project config. 
+- Fixed a bug where order status configs were missing their store assignments after rebuilding the project config.
 
 ## 5.0.2 - 2024-05-01
 

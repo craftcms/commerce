@@ -2672,7 +2672,9 @@ class Order extends Element implements HasStoreInterface
      */
     public function getTotal(): float
     {
-        return (float)$this->getTeller()->add($this->getItemSubtotal(), $this->getAdjustmentsTotal());
+        $itemSubtotal = $this->getItemSubtotal();
+        $adjustmentsTotal = $this->getAdjustmentsTotal();
+        return (float)$this->getTeller()->add($itemSubtotal, $adjustmentsTotal);
     }
 
     /**
@@ -2698,9 +2700,9 @@ class Order extends Element implements HasStoreInterface
     public function getItemTotal(): float
     {
         $total = 0;
-
+        $teller = $this->getTeller();
         foreach ($this->getLineItems() as $lineItem) {
-            $total += $lineItem->getTotal();
+            $total = (float)$teller->add($total, $lineItem->getTotal());
         }
 
         return $total;
@@ -2893,6 +2895,7 @@ class Order extends Element implements HasStoreInterface
     public function _getAdjustmentsTotalByType(array|string $types, bool $included = false): float|int
     {
         $amount = 0;
+        $teller = $this->getTeller();
 
         if (is_string($types)) {
             $types = StringHelper::split($types);
@@ -2900,7 +2903,7 @@ class Order extends Element implements HasStoreInterface
 
         foreach ($this->getAdjustments() as $adjustment) {
             if ($adjustment->included == $included && in_array($adjustment->type, $types, false)) {
-                $amount += $adjustment->amount;
+                $amount = (float)$teller->add($amount, $adjustment->amount);
             }
         }
 
@@ -2967,8 +2970,12 @@ class Order extends Element implements HasStoreInterface
     public function getTotalPromotionalAmount(): float
     {
         $value = 0;
+        $teller = $this->getTeller();
         foreach ($this->getLineItems() as $item) {
-            $value += ($item->qty * $item->getPromotionalAmount());
+            $value = (float)$teller->add(
+                $value,
+                $teller->multiply($item->qty, $item->getPromotionalAmount()),
+            );
         }
 
         return $value;
@@ -2990,8 +2997,9 @@ class Order extends Element implements HasStoreInterface
     public function getItemSubtotal(): float
     {
         $value = 0;
+        $teller = $this->getTeller();
         foreach ($this->getLineItems() as $item) {
-            $value += $item->getSubtotal();
+            $value = (float)$teller->add($value, $item->getSubtotal());
         }
 
         return $value;
@@ -3007,9 +3015,10 @@ class Order extends Element implements HasStoreInterface
     public function getAdjustmentSubtotal(): float
     {
         $value = 0;
+        $teller = $this->getTeller();
         foreach ($this->getAdjustments() as $adjustment) {
             if (!$adjustment->included) {
-                $value += $adjustment->amount;
+                $value = (float)$teller->add($value, $adjustment->amount);
             }
         }
 
@@ -3080,10 +3089,10 @@ class Order extends Element implements HasStoreInterface
     public function getAdjustmentsTotal(): float
     {
         $amount = 0;
-
+        $teller = $this->getTeller();
         foreach ($this->getAdjustments() as $adjustment) {
             if (!$adjustment->included) {
-                $amount += $adjustment->amount;
+                $amount = (float)$teller->add($amount, $adjustment->amount);
             }
         }
 
