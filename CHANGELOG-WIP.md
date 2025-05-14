@@ -11,6 +11,7 @@
 - Added `craft\commerce\base\Gateway::getOrderCondition()`.
 - Added `craft\commerce\base\Gateway::getConfig()`.
 - Added `craft\commerce\base\Gateway::hasOrderCondition()`.
+- Added `craft\commerce\elements\Product::$defaultBasePromotionalPrice`
 
 ### System
 - Fixed a bug where gateway settings weren’t storing project config values consistently. ([#3941](https://github.com/craftcms/commerce/issues/3941))
