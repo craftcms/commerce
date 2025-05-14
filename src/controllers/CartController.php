@@ -531,9 +531,6 @@ class CartController extends BaseFrontEndController
 
         $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
 
-        $this->_cart->recalculate();
-        $this->_cart->recalculationMode = Order::RECALCULATION_MODE_NONE;
-
         // Do not clear errors, as errors could be added to the cart before _returnCart is called.
         if (!$this->_cart->validate($attributes, false) || !Craft::$app->getElements()->saveElement($this->_cart, false, false, $updateCartSearchIndexes)) {
             $error = Craft::t('commerce', 'Unable to update cart.');
@@ -574,8 +571,6 @@ class CartController extends BaseFrontEndController
         if ($this->_mutex && $this->_mutexLockName) {
             $this->_mutex->release($this->_mutexLockName);
         }
-
-        $this->_cart->recalculationMode = Order::RECALCULATION_MODE_ALL;
 
         return $this->asModelSuccess(
             $this->_cart,

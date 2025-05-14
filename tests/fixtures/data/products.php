@@ -11,6 +11,19 @@ $shippingCategoryId = (new \craft\db\Query())
     ->where(['handle' => 'anotherShippingCategory'])
     ->scalar();
 
+$ukStoreId = (new \craft\db\Query())
+    ->select('id')
+    ->from(\craft\commerce\db\Table::STORES)
+    ->where(['handle' => 'ukStore'])
+    ->scalar();
+
+$ukShippingCategoryId = (new \craft\db\Query())
+    ->select('id')
+    ->from(\craft\commerce\db\Table::SHIPPINGCATEGORIES)
+    ->where(['handle' => 'anotherShippingCategory'])
+    ->andWhere(['storeId' => $ukStoreId])
+    ->scalar();
+
 return [
     'rad-hoodie' => [
         'typeId' => '2000',
@@ -79,6 +92,37 @@ return [
                 'sku' => 'hct-blue',
                 'basePrice' => 21.99,
                 'sortOrder' => 1,
+                'width' => null,
+                'height' => null,
+                'length' => null,
+                'weight' => null,
+                'inventoryTracked' => 0,
+                'minQty' => null,
+                'maxQty' => null,
+            ],
+        ],
+    ],
+    'double-decker-bus-toy' => [
+        'typeId' => '2002',
+        'title' => 'Double Decker Bus Toy',
+        'slug' => 'double-decker-bus-toy',
+        'enabled' => 1,
+        'enabledForSite' => 1,
+        'siteId' => 1002,
+        'postDate' => (new DateTime('now')),
+        '_variants' => [
+            'new1' => [
+                'siteId' => 1002,
+                'availableForPurchase' => 1,
+                'promotable' => 1,
+                'shippingCategoryId' => $ukShippingCategoryId,
+                'taxCategoryId' => 101,
+                'title' => 'Red Bus',
+                'slug' => 'red-buss',
+                'isDefault' => 1,
+                'sku' => 'ddb-red',
+                'basePrice' => 24.99,
+                'sortOrder' => 0,
                 'width' => null,
                 'height' => null,
                 'length' => null,

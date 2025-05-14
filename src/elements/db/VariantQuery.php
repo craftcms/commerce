@@ -29,7 +29,6 @@ use yii\db\Expression;
 /**
  * VariantQuery represents a SELECT SQL statement for variants in a way that is independent of DBMS.
  *
- *
  * @template TKey of array-key
  * @template TElement of Variant
  *

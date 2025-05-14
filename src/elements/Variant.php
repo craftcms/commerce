@@ -47,6 +47,7 @@ use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
+use yii\validators\Validator;
 
 /**
  * Variant model.
@@ -367,6 +368,14 @@ class Variant extends Purchasable implements NestedElementInterface
         }
 
         return $this->canSave($user);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function includeSetStatusAction(): bool
+    {
+        return true;
     }
 
     /**
@@ -1148,13 +1157,15 @@ class Variant extends Purchasable implements NestedElementInterface
     {
         $product = $this->getOwner();
 
-        $this->updateTitle($product);
-        $this->updateSku($product);
+        // hold off on updating the title and SKU if we are creating the shell of the variant ready for editing
+        /** @phpstan-ignore-next-line don't need the `$this->getIsDraft()` on the right side but leaving for readability */
+        if (!$this->getIsDraft() || ($this->getIsDraft() && $this->getScenario() !== self::SCENARIO_ESSENTIALS)) {
+            $this->updateTitle($product);
+            $this->updateSku($product);
+        }
 
-        if ($this->getScenario() === self::SCENARIO_DEFAULT) {
-            if (!$this->sku) {
-                $this->setSku(PurchasableHelper::tempSku());
-            }
+        if (!$this->sku && $this->getScenario() === self::SCENARIO_DEFAULT) {
+            $this->setSku(PurchasableHelper::tempSku());
         }
 
         return parent::beforeValidate();
@@ -1167,8 +1178,12 @@ class Variant extends Purchasable implements NestedElementInterface
     {
         $product = $this->getOwner();
 
-        $this->updateTitle($product);
-        $this->updateSku($product);
+        // hold off on updating the title and SKU if we are creating the shell of the variant ready for editing
+        /** @phpstan-ignore-next-line don't need the `$this->getIsDraft()` on the right side but leaving for readability */
+        if (!$this->getIsDraft() || ($this->getIsDraft() && $this->getScenario() !== self::SCENARIO_ESSENTIALS)) {
+            $this->updateTitle($product);
+            $this->updateSku($product);
+        }
 
         // Set the field layout
         $productType = $product->getType();
@@ -1229,7 +1244,7 @@ class Variant extends Purchasable implements NestedElementInterface
     public function getSearchKeywords(string $attribute): string
     {
         if ($attribute == 'productTitle') {
-            return $this->getOwner()->title;
+            return $this->getOwner()->title ?? '';
         }
 
         return parent::getSearchKeywords($attribute);
@@ -1239,7 +1254,8 @@ class Variant extends Purchasable implements NestedElementInterface
     {
         return array_merge(parent::defineRules(), [
             [['sku'], 'string', 'max' => 255],
-            [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE],
+            [['sku'], 'required', 'on' => self::SCENARIO_LIVE],
+            [['basePrice'], 'validatePrice', 'on' => self::SCENARIO_LIVE, 'skipOnEmpty' => false],
             [['price', 'weight', 'width', 'height', 'length'], 'number'],
             // maxQty must be greater than minQty and minQty must be less than maxQty
             [['minQty'], 'validateMinQtyRange', 'skipOnEmpty' => true],
@@ -1247,6 +1263,19 @@ class Variant extends Purchasable implements NestedElementInterface
             [['stock', 'fieldId', 'ownerId', 'primaryOwnerId'], 'number'],
             [['ownerId', 'primaryOwnerId', 'isDefault', 'deletedWithProduct'], 'safe'],
         ]);
+    }
+
+    /**
+     * @param string $attribute
+     * @param $params
+     * @param Validator $validator
+     */
+    public function validatePrice(string $attribute, $params, Validator $validator): void
+    {
+        if ($this->$attribute === null) {
+            $message = Craft::t('yii', '{attribute} cannot be blank.', ['attribute' => $this->getAttributeLabel('price')]);
+            $validator->addError($this, 'price', $message);
+        }
     }
 
     /**
@@ -1306,7 +1335,19 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     protected static function defineSources(string $context = null): array
     {
-        return Product::sources($context);
+        $sources = Product::defineSources($context);
+
+        // Ensure we don't inherit any product structure things from products.
+        foreach ($sources as $key => $source) {
+            $sources[$key]['defaultSort'] = ['postDate', 'desc'];
+            foreach (['structureId', 'structureEditable'] as $unsetKey) {
+                if (isset($sources[$key][$unsetKey])) {
+                    unset($sources[$key][$unsetKey]);
+                }
+            }
+        }
+
+        return $sources;
     }
 
     protected static function defineActions(string $source): array

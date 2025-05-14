@@ -90,7 +90,6 @@
 
             {% namespace 'types['~gatewayType~']' %}
                 {% if isCurrent %}
-                    {{ gateway.getSettingsHtml()|raw }}
                     {{ readOnly ? gateway.getReadOnlySettingsHtml()|raw : gateway.getSettingsHtml()|raw }}
                 {% else %}
                     {{ readOnly ? gatewayInstances[gatewayType].getReadOnlySettingsHtml()|raw : gatewayInstances[gatewayType].getSettingsHtml()|raw }}
@@ -98,8 +97,6 @@
             {% endnamespace %}
         </div>
     {% endfor %}
-
-    <hr>
 
     {{ forms.booleanMenuField({
         label: "Enabled for customers to select during checkout?"|t('commerce'),
@@ -110,6 +107,18 @@
         errors: gateway.getErrors('isFrontendEnabled'),
         disabled: readOnly,
     }) }}
+
+
+    <hr>
+    {% set orderConditionInput %}
+        {{ gateway.getOrderCondition().getBuilderHtml(readOnly)|raw }}
+    {% endset %}
+
+    {{ forms.field({
+        label: 'Match Order'|t('commerce'),
+        instructions: 'Create rules that allow this gateway to match the order.'|t('commerce'),
+        errors: gateway.getErrors('orderCondition'),
+    }, orderConditionInput) }}
 
 {% endblock %}
 

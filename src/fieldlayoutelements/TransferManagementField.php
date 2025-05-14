@@ -35,7 +35,7 @@ class TransferManagementField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public ?string $label = 'Transfer Management';
+    public ?string $label = '__blank__';
 
     /**
      * @inheritdoc
