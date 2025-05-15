@@ -1,5 +1,17 @@
 # Release Notes for Craft Commerce
 
+## 4.8.4 - 2025-05-01
+
+- Fixed a bug where products weren’t getting updated when default variants were saved directly. ([#3988](https://github.com/craftcms/commerce/issues/3988))
+
+## 4.8.3 - 2025-03-19
+
+- Fixed a PHP error that could occur when registering a custom shipping method.
+
+## 4.8.2 - 2025-03-12
+
+- Fixed a bug where line items’ sale prices could be calculated incorrectly. ([#3928](https://github.com/craftcms/commerce/issues/3928))
+
 ## 4.8.1.2 - 2025-02-10
 
 - Fixed a bug where carts’ adjustment totals could be calculated incorrectly. ([#3888](https://github.com/craftcms/commerce/issues/3888))
