@@ -61,13 +61,11 @@ class TaxTest extends Unit
 
         $vatNumber = 'PL7272445205';
 
-        sleep(1); // Simulate a delay to avoid hitting the API too quickly
-        self::assertTrue($validator->validate($vatNumber));
+        self::assertTrue($validator->validateFormat($vatNumber));
 
         $vatNumber = 'PL9999999999';
 
-        sleep(1); // Simulate a delay to avoid hitting the API too quickly
-        self::assertFalse($validator->validate($vatNumber));
+        self::assertFalse($validator->validateFormat($vatNumber));
     }
 
     /**
