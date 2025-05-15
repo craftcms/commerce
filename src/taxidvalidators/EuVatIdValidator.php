@@ -51,7 +51,7 @@ class EuVatIdValidator implements TaxIdValidatorInterface
         'SE' => '\d{12}',
         'SI' => '\d{8}',
         'SK' => '\d{10}',
-        'SM' => '\d{5}'
+        'SM' => '\d{5}',
     ];
 
     public static function displayName(): string
@@ -59,13 +59,20 @@ class EuVatIdValidator implements TaxIdValidatorInterface
         return \Craft::t('commerce', 'EU VAT ID');
     }
 
-    public function validateFormat(string $idNumber): bool
+    private function _splitNumber(string $idNumber): array
     {
         $vatNumber = strtoupper($idNumber);
         $country = substr($vatNumber, 0, 2);
         $number = substr($vatNumber, 2);
 
-        if( ! isset($this->_patterns[$country]) ) {
+        return [$country, $number];
+    }
+
+    public function validateFormat(string $idNumber): bool
+    {
+        list($country, $number) = $this->_splitNumber($idNumber);
+
+        if (!isset($this->_patterns[$country])) {
             return false;
         }
 
@@ -74,9 +81,7 @@ class EuVatIdValidator implements TaxIdValidatorInterface
 
     public function validateExistence(string $idNumber): bool
     {
-        $vatNumber = strtoupper($idNumber);
-        $country = substr($vatNumber, 0, 2);
-        $number = substr($vatNumber, 2);
+        list($country, $number) = $this->_splitNumber($idNumber);
 
         try {
             $client = Craft::createGuzzleClient();

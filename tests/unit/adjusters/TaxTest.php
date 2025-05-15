@@ -55,6 +55,21 @@ class TaxTest extends Unit
         parent::_after();
     }
 
+    public function testEuValidator(): void
+    {
+        $validator = new EuVatIdValidator();
+
+        $vatNumber = 'PL7272445205';
+
+        sleep(1); // Simulate a delay to avoid hitting the API too quickly
+        self::assertTrue($validator->validate($vatNumber));
+
+        $vatNumber = 'PL9999999999';
+
+        sleep(1); // Simulate a delay to avoid hitting the API too quickly
+        self::assertFalse($validator->validate($vatNumber));
+    }
+
     /**
      * @dataProvider dataCases
      */
