@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where email settings weren’t respecting the “Recipient”, “BCC”, and “CC” environment variables. ([#4004](https://github.com/craftcms/commerce/issues/4004), [#4002](https://github.com/craftcms/commerce/issues/4002))
+- Fixed a bug where a discount’s related entries weren’t being returned for a non-primary site. ([#4010](https://github.com/craftcms/commerce/issues/4010))
 
 ## 5.3.12 - 2025-05-07
 
