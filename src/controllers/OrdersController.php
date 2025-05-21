@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\base\Element;
+use craft\base\ElementInterface;
 use craft\base\Field;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable as PurchasableElement;
@@ -636,11 +637,15 @@ JS, []);
         }
 
         if ($billingAddress) {
-            $orderArray['billingAddressHtml'] = Cp::elementCardHtml($billingAddress);
+            $orderArray['billingAddressHtml'] = Cp::elementCardHtml($billingAddress, [
+                'showEditButton' => false,
+            ]);
         }
 
         if ($shippingAddress) {
-            $orderArray['shippingAddressHtml'] = Cp::elementCardHtml($shippingAddress);
+            $orderArray['shippingAddressHtml'] = Cp::elementCardHtml($shippingAddress, [
+                'showEditButton' => false,
+            ]);
         }
 
         if (!empty($orderArray['lineItems'])) {
@@ -1286,6 +1291,12 @@ JS, []);
         /** @var Order $order */
         $order = $variables['order'];
 
+        $variables['ordersBodyClass'] = '';
+
+        if (version_compare(Craft::$app->getVersion(), '5.7.0', '>=')) {
+            $variables['ordersBodyClass'] .= ' commerceorders-post-57';
+        }
+
         $variables['title'] = Craft::t('commerce', 'Order') . ' ' . $order->reference;
 
         if (!$order->isCompleted && $order->origin == Order::ORIGIN_CP) {
@@ -1863,12 +1874,20 @@ JS, []);
 
         $purchasablesById = [];
         foreach ($elementIdsByType as $type => $ids) {
+            /** @var ElementInterface $type */
+
             if (!class_exists($type)) {
                 continue;
             }
 
             /** @var ElementQuery $query */
             $query = $type::find();
+
+            if ($type::isLocalized()) {
+                $query->siteId($siteId);
+            }
+
+            $query->status(null);
 
             if ($query instanceof PurchasableQuery) {
                 $query->forCustomer($customerId);

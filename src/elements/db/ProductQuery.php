@@ -773,6 +773,7 @@ class ProductQuery extends ElementQuery
             'commerce_products.expiryDate',
             'subquery.price as defaultPrice',
             'purchasablesstores.basePrice as defaultBasePrice',
+            'purchasablesstores.basePromotionalPrice as defaultBasePromotionalPrice',
             'commerce_products.defaultVariantId',
             'purchasables.sku as defaultSku',
             'purchasables.weight as defaultWeight',

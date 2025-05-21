@@ -164,12 +164,15 @@ class CartController extends BaseFrontEndController
             $options = $this->request->getParam('options', []); // TODO Commerce 4 should only support key value only #COM-55
             $qty = (int)$this->request->getParam('qty', 1);
 
+            $params = compact('qty', 'note', 'purchasableId', 'options');
+
             if ($qty > 0) {
                 // We only want a new line item if they cleared the cart
                 if ($clearLineItems) {
-                    $lineItem = Plugin::getInstance()->getLineItems()->create($this->_cart, compact('purchasableId', 'options'));
+                    $lineItem = Plugin::getInstance()->getLineItems()->create($this->_cart, params: $params);
                 } else {
-                    $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasableId, $options);
+                    // we are passing everything into params but need to pass purchasableId and options for now until we refactor
+                    $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $params['purchasableId'], $params['options'], params: $params);
                 }
 
                 // New line items already have a qty of one.
@@ -216,15 +219,18 @@ class CartController extends BaseFrontEndController
 
                 // Ignore zero value qty for multi-add forms https://github.com/craftcms/commerce/issues/330#issuecomment-384533139
                 if ($purchasable['qty'] > 0) {
+                    $params = [
+                        'purchasableId' => $purchasable['id'],
+                        'options' => $purchasable['options'],
+                        'note' => $purchasable['note'],
+                        'qty' => $purchasable['qty'],
+                    ];
 
                     // We only want a new line item if they cleared the cart
                     if ($clearLineItems) {
-                        $lineItem = Plugin::getInstance()->getLineItems()->create($this->_cart, [
-                            'purchasableId' => $purchasable['id'],
-                            'options' => $purchasable['options'],
-                        ]);
+                        $lineItem = Plugin::getInstance()->getLineItems()->create($this->_cart, params: $params);
                     } else {
-                        $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasable['id'], $purchasable['options']);
+                        $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $params['purchasableId'], $params['options'], $params);
                     }
 
                     // New line items already have a qty of one.
@@ -269,10 +275,15 @@ class CartController extends BaseFrontEndController
                 try {
                     $user = Craft::$app->getUsers()->ensureUserByEmail($email);
                     $this->_cart->setCustomer($user);
+                    if ($user->getIsCredentialed()) {
+                        Craft::$app->getSession()->set('commerce:anonymousCartWithCredentialedCustomer:' . $this->_cart->number, true);
+                    }
                 } catch (\Exception $e) {
                     $this->_cart->addError('email', $e->getMessage());
                 }
             }
+        } else {
+            Craft::$app->getSession()->remove('commerce:anonymousCartWithCredentialedCustomer:' . $this->_cart->number);
         }
 
         // Set if the customer should be registered on order completion

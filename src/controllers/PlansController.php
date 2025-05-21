@@ -110,24 +110,34 @@ class PlansController extends BaseCpController
         }
 
         $sidebar = Html::beginTag('div', ['class' => 'meta']) .
-                Cp::lightswitchFieldHtml([
-                    'label' => Craft::t('commerce', 'Enabled for customers to select?'),
-                    'name' => 'enabled',
-                    'on' => $variables['plan']?->enabled ?? false,
-                    'errors' => $variables['plan']?->getErrors('enabled') ?? null,
-                ]) .
+            Cp::lightswitchFieldHtml([
+                'label' => Craft::t('commerce', 'Enabled for customers to select?'),
+                'name' => 'enabled',
+                'on' => $variables['plan']?->enabled ?? false,
+                'errors' => $variables['plan']?->getErrors('enabled') ?? null,
+            ]) .
             Html::endTag('div');
 
         if ($variables['plan']?->id) {
-            $sidebar .= Html::beginTag('div', ['class' => 'meta readonly']) .
-                Html::beginTag('div', ['class' => 'data']) .
+            $dateCreated = $variables['plan']->dateCreated;
+            $dateUpdated = $variables['plan']->dateUpdated;
+            $sidebar .= Html::beginTag('div', ['class' => 'meta read-only']);
+            if ($dateCreated) {
+                $sidebar .=
+                    Html::beginTag('div', ['class' => 'data', 'attribute' => 'dateCreated']) .
                     Html::tag('h5', Craft::t('app', 'Created at'), ['class' => 'heading']) .
-                    Html::tag('div', Craft::$app->getFormatter()->asDate($variables['plan']->dateCreated, Locale::LENGTH_SHORT), ['class' => 'value', 'id' => 'date-created-value']) .
-                Html::endTag('div') .
-                Html::beginTag('div', ['class' => 'data']) .
+                    Html::tag('div', Craft::$app->getFormatter()->asDate($dateCreated, Locale::LENGTH_SHORT), ['class' => 'value', 'id' => 'date-created-value']) .
+                    Html::endTag('div');
+            }
+
+            if ($dateUpdated) {
+                $sidebar .=
+                    Html::beginTag('div', ['class' => 'data', 'attribute' => 'dateUpdated']) .
                     Html::tag('h5', Craft::t('app', 'Updated at'), ['class' => 'heading']) .
-                    Html::tag('div', Craft::$app->getFormatter()->asDate($variables['plan']->dateUpdated, Locale::LENGTH_SHORT), ['class' => 'value', 'id' => 'date-updated-value']) .
-                Html::endTag('div');
+                    Html::tag('div', Craft::$app->getFormatter()->asDate($dateUpdated, Locale::LENGTH_SHORT), ['class' => 'value', 'id' => 'date-updated-value']) .
+                    Html::endTag('div');
+            }
+            $sidebar .= Html::endTag('div');
         }
 
         return $this->asCpScreen()
