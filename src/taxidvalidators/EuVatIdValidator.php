@@ -70,7 +70,7 @@ class EuVatIdValidator implements TaxIdValidatorInterface
 
     public function validateFormat(string $idNumber): bool
     {
-        list($country, $number) = $this->_splitNumber($idNumber);
+        [$country, $number] = $this->_splitNumber($idNumber);
 
         if (!isset($this->_patterns[$country])) {
             return false;
@@ -81,7 +81,7 @@ class EuVatIdValidator implements TaxIdValidatorInterface
 
     public function validateExistence(string $idNumber): bool
     {
-        list($country, $number) = $this->_splitNumber($idNumber);
+        [$country, $number] = $this->_splitNumber($idNumber);
 
         try {
             $client = Craft::createGuzzleClient();
