@@ -2,9 +2,9 @@
 
 ## Unreleased
 
-- Fixed a bug where email settings weren’t respecting the “Recipient”, “BCC”, and “CC” environment variables. ([#4004](https://github.com/craftcms/commerce/issues/4004), [#4002](https://github.com/craftcms/commerce/issues/4002))
-- Fixed a bug where a discount’s related entries weren’t being returned for a non-primary site. ([#4010](https://github.com/craftcms/commerce/issues/4010))
-- Fixed a bug where the “Send Email” button wasn’t being displayed on Edit Order pages.
+- Fixed a bug where the “Recipient”, “BCC’d Recipient”, and “CC’d Recipient” email settings weren’t working properly if set to environment variables. ([#4004](https://github.com/craftcms/commerce/issues/4004), [#4002](https://github.com/craftcms/commerce/issues/4002))
+- Fixed a bug where discounts’ related entries weren’t being returned for non-primary sites. ([#4010](https://github.com/craftcms/commerce/issues/4010))
+- Fixed a bug where Edit Order pages weren’t displaying the “Send Email” button.
 
 ## 5.3.12 - 2025-05-07
 
