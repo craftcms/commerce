@@ -63,7 +63,7 @@ class TaxTest extends Unit
 
         self::assertTrue($validator->validateFormat($vatNumber));
 
-        $vatNumber = 'PL9999999999';
+        $vatNumber = 'PL99999999999';
 
         self::assertFalse($validator->validateFormat($vatNumber));
     }
