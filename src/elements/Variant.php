@@ -1181,6 +1181,17 @@ class Variant extends Purchasable implements NestedElementInterface
         $productType = $product->getType();
         $this->fieldLayoutId = $productType->variantFieldLayoutId;
 
+        // Validate shipping category ID is available for this product type
+        $availableShippingCategories = $this->availableShippingCategories();
+        $availableShippingCategoryIds = ArrayHelper::getColumn($availableShippingCategories, 'id');
+        
+        // If the current shipping category ID is not in the available categories, set it to the default one
+        $currentShippingCategoryId = $this->getShippingCategoryId();
+        if (!in_array($currentShippingCategoryId, $availableShippingCategoryIds)) {
+            $defaultShippingCategory = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->getStoreId());
+            $this->setShippingCategoryId($defaultShippingCategory->id);
+        }
+
         return parent::beforeSave($isNew);
     }
 
