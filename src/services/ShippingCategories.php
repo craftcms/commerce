@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
+use craft\commerce\elements\Variant;
 use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\Plugin;
@@ -206,7 +207,7 @@ class ShippingCategories extends Component
             // If we are removing a product type for this shipping category the products of that type should be re-saved
             if (!in_array($oldProductTypeId, $newProductTypeIds, false)) {
                 // Re-save all products that no longer have this shipping category available to them
-                $this->_resaveProductsByProductTypeId($oldProductTypeId);
+                $this->_resaveVariantsByProductTypeId($oldProductTypeId);
             }
         }
 
@@ -214,7 +215,7 @@ class ShippingCategories extends Component
             // If we are adding a product type for this shipping category the products of that type should be re-saved
             if (!in_array($newProductTypeId, $currentProductTypeIds, false)) {
                 // Re-save all products when assigning this shipping category available to them
-                $this->_resaveProductsByProductTypeId($newProductTypeId);
+                $this->_resaveVariantsByProductTypeId($newProductTypeId);
             }
         }
 
@@ -234,12 +235,13 @@ class ShippingCategories extends Component
     }
 
     /**
-     * Re-save products by product type id
+     * Re-save variants by product type id
      */
-    private function _resaveProductsByProductTypeId(int $productTypeId): void
+    private function _resaveVariantsByProductTypeId(int $productTypeId): void
     {
         Craft::$app->getQueue()->push(new ResaveElements([
-            'elementType' => Product::class,
+            'elementType' => Variant::class,
+            'updateSearchIndex' => false,
             'criteria' => [
                 'typeId' => $productTypeId,
                 'siteId' => '*',
