@@ -206,7 +206,7 @@ class ShippingCategories extends Component
         foreach ($currentProductTypeIds as $oldProductTypeId) {
             // If we are removing a product type for this shipping category the products of that type should be re-saved
             if (!in_array($oldProductTypeId, $newProductTypeIds, false)) {
-                // Re-save all products that no longer have this shipping category available to them
+                // Re-save all variants that no longer have this shipping category available to them
                 $this->_resaveVariantsByProductTypeId($oldProductTypeId);
             }
         }
@@ -214,7 +214,7 @@ class ShippingCategories extends Component
         foreach ($newProductTypeIds as $newProductTypeId) {
             // If we are adding a product type for this shipping category the products of that type should be re-saved
             if (!in_array($newProductTypeId, $currentProductTypeIds, false)) {
-                // Re-save all products when assigning this shipping category available to them
+                // Re-save all variants when assigning this shipping category available to them
                 $this->_resaveVariantsByProductTypeId($newProductTypeId);
             }
         }

@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed a bug where variants were not getting a default shipping category set if a shipping no longer made its category available to the product type. ([#4018](https://github.com/craftcms/commerce/issues/4018))
+- Fixed a bug where variants were not getting the default shipping category set when the currently set category was no longer available. ([#4018](https://github.com/craftcms/commerce/issues/4018))
 - Fixed a PHP error that could occur when sending emails. ([#4017](https://github.com/craftcms/commerce/issues/4017))
 
 ## 5.3.13 - 2025-05-21
