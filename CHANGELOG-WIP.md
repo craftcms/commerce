@@ -3,9 +3,8 @@
 ### Store Management
 
 - It is now possible to set a variant’s status from the Product Edit screen. ([#3953](https://github.com/craftcms/commerce/discussions/3953))
-- Coupons that are not valid due to order, customer, or address conditions will now return relevent explaination for coupon disqualification within the coupon error. ([#3935](https://github.com/craftcms/commerce/issues/3935))
+- Coupons that are not valid due to order, customer, or address conditions will now return a relevant explanation for coupon disqualification within the coupon error. ([#3935](https://github.com/craftcms/commerce/issues/3935))
 - Shipping methods and shipping rules now support flexible customer matching, based on a customer condition. ([#3925](https://github.com/craftcms/commerce/issues/3925))
-- It is now possible to set a variant’s status from the Product Edit screen. ([#3953](https://github.com/craftcms/commerce/discussions/3953))
 - Added an Order condition builder to gateways. ([#3913](https://github.com/craftcms/commerce/discussions/3913))
 - Custom metadata is now displayed on the Catalog Pricing Rule Edit screen. ([#3975](https://github.com/craftcms/commerce/pull/3975))
 - Added Promotional Price column to product index.
