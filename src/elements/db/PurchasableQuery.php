@@ -705,12 +705,32 @@ abstract class PurchasableQuery extends ElementQuery
             'subquery.price',
             'subquery.promotionalPrice as promotionalPrice',
             'subquery.salePrice as salePrice',
+            'catprice.catalogPricingRuleId as catalogPricingRuleId',
             'inventoryitems.id as inventoryItemId',
         ]);
 
         $this->query->leftJoin(Table::SITESTORES . ' sitestores', '[[elements_sites.siteId]] = [[sitestores.siteId]]');
         $this->query->leftJoin(Table::PURCHASABLES_STORES . ' purchasables_stores', '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[commerce_purchasables.id]]');
         $this->query->leftJoin(['inventoryitems' => Table::INVENTORYITEMS], '[[inventoryitems.purchasableId]] = [[commerce_purchasables.id]]');
+
+        // Retrieve the catalog pricing rule ID used to determine the price
+        $customerId = $this->forCustomer;
+        if ($customerId === null) {
+            $customerId = Craft::$app->getUser()->getIdentity()?->id;
+        } elseif ($customerId === false) {
+            $customerId = null;
+        }
+        $cprIdQuery = Plugin::getInstance()
+            ->getCatalogPricing()
+            ->createCatalogPricesQuery(userId: $customerId)
+            ->select([
+                'purchasableId',
+                'storeId',
+                'price',
+                new Expression('MIN([[catalogPricingRuleId]]) as [[catalogPricingRuleId]]'),
+            ])
+            ->groupBy(['cp.purchasableId', 'cp.storeId', 'cp.price']);
+        $this->query->leftJoin(['catprice' => $cprIdQuery], '[[catprice.purchasableId]] = [[commerce_purchasables.id]] AND [[catprice.storeId]] = [[sitestores.storeId]] AND [[catprice.price]] = [[subquery.salePrice]]');
 
         $this->subQuery->addSelect([
             'catalogprices.price',
