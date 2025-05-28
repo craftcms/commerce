@@ -158,7 +158,7 @@ class OrderAdjustments extends Component
             $record = OrderAdjustmentRecord::findOne($orderAdjustment->id);
 
             if (!$record) {
-                Craft::info('Order Adjustment ID:'.$orderAdjustment->id.' does not exist and can not be saved.', __METHOD__);
+                Craft::info('Order Adjustment ID:' . $orderAdjustment->id . ' does not exist and can not be saved.', __METHOD__);
                 return false;
             }
         }

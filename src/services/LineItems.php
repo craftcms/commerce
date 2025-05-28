@@ -249,9 +249,8 @@ class LineItems extends Component
             $lineItemRecord = LineItemRecord::findOne($lineItem->id);
 
             if (!$lineItemRecord) {
-                Craft::info('Line Item ID:'.$lineItem->id.' does not exist and can not be saved.', __METHOD__);
+                Craft::info('Line Item ID:' . $lineItem->id . ' does not exist and can not be saved.', __METHOD__);
                 return false;
-
             }
         }
 
