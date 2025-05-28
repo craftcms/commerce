@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a PHP error that could occur when sending emails. ([#4017](https://github.com/craftcms/commerce/issues/4017))
+
 ## 5.3.13 - 2025-05-21
 
 - Fixed a bug where the “Recipient”, “BCC’d Recipient”, and “CC’d Recipient” email settings weren’t working properly if set to environment variables. ([#4004](https://github.com/craftcms/commerce/issues/4004), [#4002](https://github.com/craftcms/commerce/issues/4002))
