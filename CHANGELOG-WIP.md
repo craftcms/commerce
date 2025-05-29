@@ -34,4 +34,3 @@
 - Added the `resave/variants` command.
 - Fixed a bug where gateway settings weren’t storing project config values consistently. ([#3941](https://github.com/craftcms/commerce/issues/3941))
 - Fixed a bug where new line items did not expose their submitted quantity to the `craft\commerce\services\LineItems::EVENT_POPULATE_LINE_ITEM` event. ([#3883](https://github.com/craftcms/commerce/issues/3883))
-- Craft Commerce no longer requires `ibericode/vat`.
