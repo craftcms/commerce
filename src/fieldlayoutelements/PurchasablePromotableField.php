@@ -59,7 +59,7 @@ class PurchasablePromotableField extends BaseNativeField
             'id' => 'promotable',
             'name' => 'promotable',
             'small' => true,
-            'on' => $element->getIsDraft() ? $this->defaultPromotable : $element->promotable,
+            'on' => $element->getIsFresh() ? $this->defaultPromotable : $element->promotable,
             'disabled' => $static,
         ]);
     }
