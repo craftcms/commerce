@@ -22,6 +22,7 @@
 - Added `craft\commerce\base\Purchasable::getCatalogPricingRule()`.
 - Added `craft\commerce\base\Gateway::setOrderCondition()`.
 - Added `craft\commerce\base\Gateway::getOrderCondition()`.
+- Added `craft\commerce\controllers\OrdersController::actionCopyAddressToUser()`.
 - Added `craft\commerce\elements\Product::$defaultBasePromotionalPrice`
 - Added `craft\commerce\elements\conditions\customers\ShippingMethodCustomerCondition`.
 - Added `craft\commerce\elements\conditions\customers\ShippingRuleCustomerCondition`.
