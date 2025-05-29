@@ -1013,17 +1013,10 @@ JS, []);
     }
 
     /**
-     * @param int $addressId
-     * @param int $userId
      * @return Response
      * @throws BadRequestHttpException
-     * @throws ElementNotFoundException
-     * @throws Exception
-     * @throws ForbiddenHttpException
-     * @throws InvalidElementException
-     * @throws Throwable
-     * @throws UnsupportedSiteException
      * @throws MethodNotAllowedHttpException
+     * @throws Throwable
      * @since 5.4.0
      */
     public function actionCopyAddressToUser(): Response
