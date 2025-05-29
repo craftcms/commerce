@@ -22,6 +22,10 @@ export default {
   copyAddressToUser(addressId, userId) {
     const data = {addressId: addressId, userId: userId};
 
-    return Craft.sendActionRequest('POST', 'commerce/orders/copy-address-to-user', {data});
+    return Craft.sendActionRequest(
+      'POST',
+      'commerce/orders/copy-address-to-user',
+      {data}
+    );
   },
 };

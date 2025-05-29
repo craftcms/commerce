@@ -219,9 +219,7 @@
         },
 
         methods: {
-            ...mapActions([
-                'copyAddressToUser'
-            ]),
+            ...mapActions(['copyAddressToUser']),
 
             handleEditAddress() {
                 if (!this.address) {

@@ -121,8 +121,8 @@
                         $options.filters.t('billing address', 'commerce')
                     "
                     :can-copy-to-user="
-                        draft.order.sourceShippingAddressId == null
-                        && customerId
+                        draft.order.sourceShippingAddressId == null &&
+                        customerId
                     "
                     :customer-id="draft.order.customerId"
                     :empty-message="
@@ -216,11 +216,7 @@
         },
 
         methods: {
-            ...mapActions([
-                'copyAddressToUser',
-                'edit',
-                'recalculateOrder'
-            ]),
+            ...mapActions(['copyAddressToUser', 'edit', 'recalculateOrder']),
 
             enableEditMode() {
                 this.editMode = true;
@@ -266,22 +262,26 @@
             },
 
             copyToUser(address) {
-                let addressId = null
+                let addressId = null;
                 if (address == 'shipping') {
                     addressId = this.draft.order.shippingAddress.id;
                 } else {
                     addressId = this.draft.order.billingAddress.id;
                 }
 
-                const data = this.copyAddressToUser({addressId, userId: this.customerId})
+                const data = this.copyAddressToUser({
+                    addressId,
+                    userId: this.customerId,
+                })
                     .then((data) => {
-
                         let draft = this.draft;
 
-                        if (address =='shipping') {
-                            draft.order.sourceShippingAddressId = data.address.id;
+                        if (address == 'shipping') {
+                            draft.order.sourceShippingAddressId =
+                                data.address.id;
                         } else {
-                            draft.order.sourceBillingAddressId = data.address.id;
+                            draft.order.sourceBillingAddressId =
+                                data.address.id;
                         }
 
                         this.$store.commit('updateDraft', draft);
@@ -294,10 +294,7 @@
                         );
                     })
                     .catch((errorMsg) => {
-                        this.$store.dispatch(
-                            'displayError',
-                            errorMsg
-                        )
+                        this.$store.dispatch('displayError', errorMsg);
                     });
             },
 
