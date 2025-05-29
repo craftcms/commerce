@@ -526,6 +526,27 @@ export default new Vuex.Store({
         });
     },
 
+    copyAddressToUser(context, {addressId, userId}) {
+      return addressesApi
+        .copyAddressToUser(addressId, userId)
+        .then((response) => {
+          if (response.data) {
+            return response.data;
+          }
+
+          return response;
+        })
+        .catch((error) => {
+          let errorMsg = 'Couldn’t copy address.';
+
+          if (error.response.data.message) {
+            errorMsg = error.response.data.message;
+          }
+
+          throw errorMsg;
+        });
+    },
+
     clearRecentlyAddedLineItems({state}) {
       state.recentlyAddedLineItems = [];
     },

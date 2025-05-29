@@ -81,6 +81,7 @@ use yii\db\Expression;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
+use yii\web\MethodNotAllowedHttpException;
 use yii\web\Response;
 
 /**
@@ -1009,6 +1010,55 @@ JS, []);
         }
 
         return $this->asSuccess();
+    }
+
+    /**
+     * @param int $addressId
+     * @param int $userId
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws ForbiddenHttpException
+     * @throws InvalidElementException
+     * @throws Throwable
+     * @throws UnsupportedSiteException
+     * @throws MethodNotAllowedHttpException
+     * @since 5.4.0
+     */
+    public function actionCopyAddressToUser(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $addressId = $this->request->getRequiredBodyParam('addressId');
+        $userId = $this->request->getRequiredBodyParam('userId');
+
+        $address = Address::find()->id($addressId)->one();
+
+        if (!$address) {
+            return $this->asFailure(Craft::t('commerce', 'Address not found.'));
+        }
+
+        $user = Craft::$app->getUsers()->getUserById($userId);
+
+        if (!$user || !$user->getIsCredentialed()) {
+            return $this->asFailure(Craft::t('commerce', 'Invalid user.'));
+        }
+
+        try {
+            // Clone the address
+            $newAddress = Craft::$app->getElements()->duplicateElement($address, [
+                'owner' => $user,
+                'primaryOwner' => $user,
+            ]);
+        } catch (\Exception $exception) {
+            return $this->asFailure($exception->getMessage());
+        }
+
+        return $this->asSuccess(data: [
+            'address' => $newAddress->toArray(),
+        ]);
     }
 
     /**

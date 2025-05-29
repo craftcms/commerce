@@ -89,6 +89,9 @@
                     :copy-to-address="
                         $options.filters.t('shipping address', 'commerce')
                     "
+                    :can-copy-to-user="
+                        draft.order.sourceBillingAddressId == null
+                    "
                     :customer-id="draft.order.customerId"
                     :empty-message="
                         $options.filters.t('No billing address', 'commerce')
@@ -96,6 +99,7 @@
                     :customer-updated="customerUpdatedTime"
                     @update="updateBillingAddress"
                     @copy="copyAddress('shipping')"
+                    @copyAddressToUser="copyToUser('billing')"
                     @remove="removeBillingAddress"
                 ></address-edit>
             </div>
@@ -116,6 +120,10 @@
                     :copy-to-address="
                         $options.filters.t('billing address', 'commerce')
                     "
+                    :can-copy-to-user="
+                        draft.order.sourceShippingAddressId == null
+                        && customerId
+                    "
                     :customer-id="draft.order.customerId"
                     :empty-message="
                         $options.filters.t('No shipping address', 'commerce')
@@ -123,6 +131,7 @@
                     :customer-updated="customerUpdatedTime"
                     @update="updateShippingAddress"
                     @copy="copyAddress('billing')"
+                    @copyAddressToUser="copyToUser('shipping')"
                     @remove="removeShippingAddress"
                 ></address-edit>
             </div>
@@ -207,7 +216,11 @@
         },
 
         methods: {
-            ...mapActions(['edit', 'recalculateOrder']),
+            ...mapActions([
+                'copyAddressToUser',
+                'edit',
+                'recalculateOrder'
+            ]),
 
             enableEditMode() {
                 this.editMode = true;
@@ -250,6 +263,42 @@
                         _copy: true,
                     });
                 }
+            },
+
+            copyToUser(address) {
+                let addressId = null
+                if (address == 'shipping') {
+                    addressId = this.draft.order.shippingAddress.id;
+                } else {
+                    addressId = this.draft.order.billingAddress.id;
+                }
+
+                const data = this.copyAddressToUser({addressId, userId: this.customerId})
+                    .then((data) => {
+
+                        let draft = this.draft;
+
+                        if (address =='shipping') {
+                            draft.order.sourceShippingAddressId = data.address.id;
+                        } else {
+                            draft.order.sourceBillingAddressId = data.address.id;
+                        }
+
+                        this.$store.commit('updateDraft', draft);
+                        this.$store.dispatch(
+                            'displayNotice',
+                            this.$options.filters.t(
+                                'Address copied to user.',
+                                'commerce'
+                            )
+                        );
+                    })
+                    .catch((errorMsg) => {
+                        this.$store.dispatch(
+                            'displayError',
+                            errorMsg
+                        )
+                    });
             },
 
             updateBillingAddress(address) {
