@@ -500,7 +500,7 @@ class Emails extends Component
         if ($email->recipientType == EmailRecord::TYPE_CUSTOM) {
             // To:
             try {
-                $emails = $view->renderString($email->to, $renderVariables);
+                $emails = $view->renderString($email->getTo(), $renderVariables);
                 $emails = preg_split('/[\s,]+/', $emails);
 
                 $newEmail->setTo($emails);
@@ -536,9 +536,9 @@ class Emails extends Component
         }
 
         // BCC:
-        if ($email->bcc) {
+        if ($bccSetting = $email->getBcc()) {
             try {
-                $bcc = $view->renderString($email->bcc, $renderVariables);
+                $bcc = $view->renderString($bccSetting, $renderVariables);
                 $bcc = str_replace(';', ',', $bcc);
                 $bcc = preg_split('/[\s,]+/', $bcc);
 
@@ -566,9 +566,9 @@ class Emails extends Component
         }
 
         // CC:
-        if ($email->cc) {
+        if ($ccSetting = $email->getCc()) {
             try {
-                $cc = $view->renderString($email->cc, $renderVariables);
+                $cc = $view->renderString($ccSetting, $renderVariables);
                 $cc = str_replace(';', ',', $cc);
                 $cc = preg_split('/[\s,]+/', $cc);
 

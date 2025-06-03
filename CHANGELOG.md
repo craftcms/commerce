@@ -3,6 +3,14 @@
 ## Unreleased
 
 - `\craft\commerce\services\LineItems::saveLineItem` and `\craft\commerce\services\OrderAdjustments::saveOrderAdjustment` no longer throws an exception when a line item is not found. Instead, it returns `false` and logs an error. ([#3901](https://github.com/craftcms/commerce/pull/3901))
+- Fixed a PHP error that could occur when sending emails. ([#4017](https://github.com/craftcms/commerce/issues/4017))
+
+## 5.3.13 - 2025-05-21
+
+- Fixed a bug where the “Recipient”, “BCC’d Recipient”, and “CC’d Recipient” email settings weren’t working properly if set to environment variables. ([#4004](https://github.com/craftcms/commerce/issues/4004), [#4002](https://github.com/craftcms/commerce/issues/4002))
+- Fixed a bug where discounts’ related entries weren’t being returned for non-primary sites. ([#4010](https://github.com/craftcms/commerce/issues/4010))
+- Fixed a bug where Edit Order pages weren’t displaying the “Send Email” button.
+
 
 ## 5.3.12 - 2025-05-07
 

@@ -37,23 +37,19 @@ class SendEmail extends BaseJob implements RetryableJobInterface
     public int $orderHistoryId;
 
     /**
-     * @var Order|null
-     */
-    private ?Order $_order = null;
-
-
-    /**
      * @inheritDoc
      */
     public function execute($queue): void
     {
         $this->setProgress($queue, 0.2);
 
-        if (!$this->_getOrder()) {
+        $order = $this->_getOrder();
+
+        if (!$order) {
             throw new InvalidConfigException('Invalid order ID: ' . $this->orderId);
         }
 
-        $email = Plugin::getInstance()->getEmails()->getEmailById($this->commerceEmailId, $this->_getOrder()->getStore()->id);
+        $email = Plugin::getInstance()->getEmails()->getEmailById($this->commerceEmailId, $order->getStore()->id);
         if (!$email) {
             throw new InvalidConfigException('Invalid email ID: ' . $this->commerceEmailId);
         }
@@ -62,7 +58,7 @@ class SendEmail extends BaseJob implements RetryableJobInterface
         $this->setProgress($queue, 0.5);
 
         $error = '';
-        if (!Plugin::getInstance()->getEmails()->sendEmail($email, $this->_getOrder(), $orderHistory, $this->orderData, $error)) {
+        if (!Plugin::getInstance()->getEmails()->sendEmail($email, $order, $orderHistory, $this->orderData, $error)) {
             throw new EmailException($error);
         }
 
@@ -74,11 +70,7 @@ class SendEmail extends BaseJob implements RetryableJobInterface
      */
     private function _getOrder(): ?Order
     {
-        if ($this->_order === null) {
-            $this->_order = Order::find()->id($this->orderId)->one();
-        }
-
-        return $this->_order;
+        return Order::find()->id($this->orderId)->one();
     }
 
     /**

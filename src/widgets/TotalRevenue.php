@@ -106,7 +106,7 @@ class TotalRevenue extends Widget
         $revenue = ArrayHelper::getColumn($stats, 'revenue', false);
         $total = round(array_sum($revenue), 0, PHP_ROUND_HALF_DOWN);
 
-        $formattedTotal = Currency::formatAsCurrency($total, null, false, true, true);
+        $formattedTotal = Currency::formatAsCurrency($total, $this->getStore()->getCurrency()->getCode(), false, true, true);
 
         return Craft::t('commerce', '{total} in total revenue', ['total' => $formattedTotal]);
     }
