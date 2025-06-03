@@ -237,7 +237,6 @@ class LineItems extends Component
      *
      * @param LineItem $lineItem The line item to save.
      * @param bool $runValidation Whether the Line Item should be validated.
-     * @throws Throwable
      */
     public function saveLineItem(LineItem $lineItem, bool $runValidation = true): bool
     {

@@ -146,7 +146,6 @@ class OrderAdjustments extends Component
      * Save an order adjustment.
      *
      * @param bool $runValidation Whether the Order Adjustment should be validated
-     * @throws Exception
      */
     public function saveOrderAdjustment(OrderAdjustment $orderAdjustment, bool $runValidation = true): bool
     {
