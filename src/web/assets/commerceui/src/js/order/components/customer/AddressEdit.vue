@@ -304,7 +304,7 @@
                                 },
                             }
                         ).then((response) => {
-                            this.$emit('update', response.data.address);
+                            this.$emit('update', response.data.address, true);
                         });
                     });
                 });
@@ -312,7 +312,7 @@
 
             handleSelect(address) {
                 if (address) {
-                    this.$emit('update', address);
+                    this.$emit('update', address, false);
                 }
             },
 

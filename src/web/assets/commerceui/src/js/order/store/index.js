@@ -44,6 +44,10 @@ export default new Vuex.Store({
       return getters.currentUserPermissions['commerce-editOrders'];
     },
 
+    canEditUsers(state, getters) {
+      return getters.currentUserPermissions['editUsers'];
+    },
+
     countries() {
       return window.orderEdit.countries;
     },

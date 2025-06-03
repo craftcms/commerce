@@ -1021,6 +1021,7 @@ JS, []);
      */
     public function actionCopyAddressToUser(): Response
     {
+        $this->requirePermission('editUsers');
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
@@ -1597,11 +1598,11 @@ JS, []);
             $shippingAddress = $getAddress($submittedShippingAddress, $order, Craft::t('commerce', 'Shipping Address'));
             $order->setShippingAddress($shippingAddress);
 
-            if (isset($orderRequestData['order']['sourceBillingAddressId'])) {
+            if (array_key_exists('sourceBillingAddressId',$orderRequestData['order'])) {
                 $order->sourceBillingAddressId = $orderRequestData['order']['sourceBillingAddressId'];
             }
 
-            if (isset($orderRequestData['order']['sourceShippingAddressId'])) {
+            if (array_key_exists('sourceShippingAddressId',$orderRequestData['order'])) {
                 $order->sourceShippingAddressId = $orderRequestData['order']['sourceShippingAddressId'];
             }
         }
