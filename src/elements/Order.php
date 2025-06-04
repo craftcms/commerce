@@ -23,6 +23,7 @@ use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderNoticesTrait;
 use craft\commerce\elements\traits\OrderValidatorsTrait;
 use craft\commerce\errors\CurrencyException;
+use craft\commerce\errors\OrderAdjustmentNotFoundException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\events\AddLineItemEvent;
 use craft\commerce\events\LineItemEvent;
@@ -50,6 +51,7 @@ use craft\elements\Address as AddressElement;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
+use craft\errors\LineItemNotFoundException;
 use craft\errors\UnsupportedSiteException;
 use craft\fields\BaseRelationField;
 use craft\helpers\ArrayHelper;
@@ -3404,8 +3406,16 @@ class Order extends Element
         $newAdjustmentIds = [];
 
         foreach ($this->getAdjustments() as $adjustment) {
-            // Don't run validation as validation of the adjustments should happen before saving the order
-            Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
+
+            try {
+                // Don't run validation as validation of the adjustment should happen before saving the order
+                Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
+            }catch(OrderAdjustmentNotFoundException){
+                // If the adjustment was not found, it means it may have previously existed but was already deleted (race condition).
+                // See: https://github.com/craftcms/commerce/issues/3283
+                continue;
+            }
+
             $newAdjustmentIds[] = $adjustment->id;
             $adjustment->orderId = $this->id;
         }
@@ -3507,8 +3517,14 @@ class Order extends Element
             $originalId = $lineItem->id;
             $lineItem->setOrder($this); // just in case.
 
-            // Don't run validation as validation of the line item should happen before saving the order
-            Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
+            try {
+                // Don't run validation as validation of the line item should happen before saving the order
+                Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
+            }catch(LineItemNotFoundException){
+                // If the line item was not found, it means it may have previously existed but was already deleted (race condition).
+                // See: https://github.com/craftcms/commerce/issues/3283
+                continue;
+            }
 
             // Is this a new line item?
             if ($originalId === null) {
@@ -3528,7 +3544,12 @@ class Order extends Element
                     // Re-save the adjustment with the new line item ID, since it exists now.
                     $adjustment->lineItemId = $lineItem->id;
                     // Validation not needed as the adjustments are validated before the order is saved
-                    Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
+                    try {
+                        Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
+                    }catch(OrderAdjustmentNotFoundException){
+                        // This can happen if the adjustment was removed during a race condition recalculation.
+                        continue;
+                    }
                 }
             }
         }

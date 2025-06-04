@@ -17,6 +17,7 @@ use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\db\Query;
+use craft\errors\LineItemNotFoundException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
@@ -212,9 +213,7 @@ class LineItems extends Component
             $lineItemRecord = LineItemRecord::findOne($lineItem->id);
 
             if (!$lineItemRecord) {
-                Craft::info('Line Item ID:' . $lineItem->id . ' does not exist and can not be saved.', __METHOD__);
-                return false;
-
+                throw new LineItemNotFoundException('Line with ID ”' . $lineItem->id . '“ not found!');
             }
         }
 
