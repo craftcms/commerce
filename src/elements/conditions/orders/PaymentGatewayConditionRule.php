@@ -40,9 +40,7 @@ class PaymentGatewayConditionRule extends BaseSelectConditionRule implements Ele
      */
     protected function options(): array
     {
-        return Plugin::getInstance()->getGateways()->getAllGateways()->mapWithKeys(function($gateway) {
-            return [$gateway->uid => $gateway->name];
-        })->all();
+        return Plugin::getInstance()->getGateways()->getAllGateways()->mapWithKeys(fn($gateway) => [$gateway->uid => $gateway->name])->all();
     }
 
     /**

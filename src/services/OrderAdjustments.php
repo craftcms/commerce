@@ -150,19 +150,21 @@ class OrderAdjustments extends Component
      */
     public function saveOrderAdjustment(OrderAdjustment $orderAdjustment, bool $runValidation = true): bool
     {
-        if ($orderAdjustment->id) {
+        $newAdjustment = !$orderAdjustment->id;
+
+        if ($newAdjustment) {
+            $record = new OrderAdjustmentRecord();
+        } else {
             $record = OrderAdjustmentRecord::findOne($orderAdjustment->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No order Adjustment exists with the ID “{id}”',
-                    ['id' => $orderAdjustment->id]));
+                Craft::info('Order Adjustment ID:' . $orderAdjustment->id . ' does not exist and can not be saved.', __METHOD__);
+                return false;
             }
-        } else {
-            $record = new OrderAdjustmentRecord();
         }
 
         if ($runValidation && !$orderAdjustment->validate()) {
-            Craft::info('Order Adjustment not saved due to validation error.', __METHOD__);
+            Craft::info('Order Adjustment not saved due to validation error(s).', __METHOD__);
             return false;
         }
 
@@ -231,7 +233,7 @@ class OrderAdjustments extends Component
             $result['sourceSnapshot'] = Json::decodeIfJson($result['sourceSnapshot']);
             $adjustment = new OrderAdjustment($result);
 
-            $orderAdjustments[$adjustment->orderId] = $orderAdjustments[$adjustment->orderId] ?? [];
+            $orderAdjustments[$adjustment->orderId] ??= [];
             $orderAdjustments[$adjustment->orderId][] = $adjustment;
         }
 

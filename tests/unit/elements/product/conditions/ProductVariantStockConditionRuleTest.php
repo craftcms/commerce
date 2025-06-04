@@ -55,14 +55,12 @@ class ProductVariantStockConditionRuleTest extends Unit
 
 
         $product = $this->make(Product::class, [
-            'getVariants' => function() {
-                return VariantCollection::make([
-                    $this->make(Variant::class, [
-                        'getStock' => 9,
-                        'inventoryTracked' => true,
-                    ]),
-                ]);
-            },
+            'getVariants' => fn() => VariantCollection::make([
+                $this->make(Variant::class, [
+                    'getStock' => 9,
+                    'inventoryTracked' => true,
+                ]),
+            ]),
         ]);
 
         self::assertTrue($condition->matchElement($product));

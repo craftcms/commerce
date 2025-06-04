@@ -54,9 +54,7 @@ class OrderStatusConditionRule extends BaseMultiSelectConditionRule implements E
         $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
 
         /** @var OrderQuery $query */
-        $query->orderStatus($this->paramValue(function(string $value) use ($orderStatuses) {
-            return ArrayHelper::firstWhere($orderStatuses, 'uid', $value)?->handle;
-        }));
+        $query->orderStatus($this->paramValue(fn(string $value) => ArrayHelper::firstWhere($orderStatuses, 'uid', $value)?->handle));
     }
 
     /**
@@ -73,8 +71,6 @@ class OrderStatusConditionRule extends BaseMultiSelectConditionRule implements E
 
     protected function options(): array
     {
-        return Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses()->mapWithKeys(function($status) {
-            return [$status->uid => $status->name];
-        })->all();
+        return Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses()->mapWithKeys(fn($status) => [$status->uid => $status->name])->all();
     }
 }

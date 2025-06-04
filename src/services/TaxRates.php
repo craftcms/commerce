@@ -45,7 +45,7 @@ class TaxRates extends Component
      */
     public function getAllTaxRates(?int $storeId = null): Collection
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         if ($this->_allTaxRates === null || !isset($this->_allTaxRates[$storeId])) {
             $results = $this->_createTaxRatesQuery()

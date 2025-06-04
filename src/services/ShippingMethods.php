@@ -72,7 +72,7 @@ class ShippingMethods extends Component
      */
     public function getAllShippingMethods(?int $storeId = null): Collection
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         if ($this->_allShippingMethods === null || !isset($this->_allShippingMethods[$storeId])) {
             $results = $this->_createShippingMethodQuery()
@@ -149,9 +149,7 @@ class ShippingMethods extends Component
         }
 
         // Sort by price. Using the cached price and don't call `$method->getPriceForOrder($order);` again.
-        uasort($matchingMethods, static function($a, $b) {
-            return $a['price'] <=> $b['price'];
-        });
+        uasort($matchingMethods, static fn($a, $b) => $a['price'] <=> $b['price']);
 
         $shippingMethods = [];
         foreach ($matchingMethods as $shippingMethod) {

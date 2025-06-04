@@ -128,23 +128,13 @@ class VariantQuery extends PurchasableQuery
      */
     public function __set($name, $value)
     {
-        switch ($name) {
-            case 'product':
-                $this->product($value);
-                break;
-            case 'productId':
-                // Added due to the removal of the `$productId` property
-                $this->ownerId($value);
-                break;
-            case 'owner':
-                $this->owner($value);
-                break;
-            case 'primaryOwner':
-                $this->primaryOwner($value);
-                break;
-            default:
-                parent::__set($name, $value);
-        }
+        match ($name) {
+            'product' => $this->product($value),
+            'productId' => $this->ownerId($value),
+            'owner' => $this->owner($value),
+            'primaryOwner' => $this->primaryOwner($value),
+            default => parent::__set($name, $value),
+        };
     }
 
     /**
@@ -156,7 +146,6 @@ class VariantQuery extends PurchasableQuery
      * | - | -
      * | a [[Product|Product]] object | for a product represented by the object.
      *
-     * @param mixed $value
      * @return static self reference
      */
     public function product(mixed $value): VariantQuery
@@ -178,7 +167,6 @@ class VariantQuery extends PurchasableQuery
      * | - | -
      * | a [[Product|Product]] object | for a product represented by the object.
      *
-     * @param mixed $value
      * @return static self reference
      */
     public function owner(mixed $value): VariantQuery
@@ -200,7 +188,6 @@ class VariantQuery extends PurchasableQuery
      * | - | -
      * | a [[ElementInterface|ElementInterface]] object | for a product represented by the object.
      *
-     * @param mixed $value
      * @return static self reference
      */
     public function primaryOwner(mixed $value): VariantQuery
@@ -224,7 +211,6 @@ class VariantQuery extends PurchasableQuery
      * | `[1, 2]` | for product with an ID of 1 or 2.
      * | `['not', 1, 2]` | for product not with an ID of 1 or 2.
      *
-     * @param mixed $value
      * @return static self reference
      */
     public function productId(mixed $value): VariantQuery
@@ -244,7 +230,6 @@ class VariantQuery extends PurchasableQuery
      * | `[1, 2]` | for primary owner with an ID of 1 or 2.
      * | `['not', 1, 2]` | for primary owner not with an ID of 1 or 2.
      *
-     * @param mixed $value
      * @return static self reference
      */
     public function primaryOwnerId(mixed $value): VariantQuery
@@ -264,7 +249,6 @@ class VariantQuery extends PurchasableQuery
      * | `[1, 2]` | for owner with an ID of 1 or 2.
      * | `['not', 1, 2]` | for owner not with an ID of 1 or 2.
      *
-     * @param mixed $value
      * @return static self reference
      */
     public function ownerId(mixed $value): VariantQuery
@@ -284,7 +268,6 @@ class VariantQuery extends PurchasableQuery
      * | `[1, 2]` | for product of a type with an ID of 1 or 2.
      * | `['not', 1, 2]` | for product of a type not with an ID of 1 or 2.
      *
-     * @param mixed $value
      * @return static self reference
      */
     public function typeId(mixed $value): VariantQuery
@@ -702,7 +685,6 @@ class VariantQuery extends PurchasableQuery
     /**
      * Normalizes the primaryOwnerId param to an array of IDs or null
      *
-     * @param mixed $value
      * @return int[]|null
      * @throws InvalidArgumentException
      */

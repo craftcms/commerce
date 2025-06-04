@@ -59,7 +59,7 @@ class PostalCodeFormulaConditionRule extends BaseTextConditionRule implements El
 
         try {
             return (bool)$formulasService->evaluateCondition($formula, ['postalCode' => $postalCode], 'Postal code formula matching address');
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             Craft::error('Error evaluating postal code formula: ' . $formula,'commerce');
             return false;
         }

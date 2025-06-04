@@ -157,9 +157,7 @@ class TaxCategory extends Model
         return [
             [['handle'], 'required'],
             [['handle'], UniqueValidator::class, 'targetClass' => TaxCategoryRecord::class],
-            [['handle'], HandleValidator::class, 'when' => function($model) use ($isStandardTaxEngine) {
-                return $isStandardTaxEngine;
-            }],
+            [['handle'], HandleValidator::class, 'when' => fn($model) => $isStandardTaxEngine],
         ];
     }
 

@@ -1979,9 +1979,7 @@ class Product extends Element implements HasStoreInterface
 
                 if ($value->isNotEmpty() && $value->count() > 1) {
                     $otherItems = $value->filter(fn($v, $k) => $k > 0);
-                    $otherHtml = $otherItems->map(function($v) {
-                        return Cp::elementChipHtml($v);
-                    })->join('');
+                    $otherHtml = $otherItems->map(fn($v) => Cp::elementChipHtml($v))->join('');
 
                     $html .= Html::tag('span', '+' . Craft::$app->getFormatter()->asInteger($otherItems->count()), [
                         'title' => $otherItems->map(fn($v) => $v->title)->join(', '),

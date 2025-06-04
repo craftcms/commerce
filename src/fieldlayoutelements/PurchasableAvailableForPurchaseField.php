@@ -12,6 +12,7 @@ use craft\base\ElementInterface;
 use craft\commerce\base\Purchasable;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\fieldlayoutelements\BaseNativeField;
+use craft\helpers\Cp;
 use yii\base\InvalidArgumentException;
 
 /**
@@ -33,6 +34,11 @@ class PurchasableAvailableForPurchaseField extends BaseNativeField
     public string $attribute = 'availableForPurchase';
 
     /**
+     * @var bool Whether the field should be checked by default when creating a new purchasable.
+     */
+    public bool $defaultAvailableForPurchase = false;
+
+    /**
      * @inheritdoc
      */
     public function __construct(array $config = [])
@@ -50,9 +56,21 @@ class PurchasableAvailableForPurchaseField extends BaseNativeField
             throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
         }
 
-        return PurchasableHelper::availableForPurchaseInputHtml($element->availableForPurchase, [
+        return PurchasableHelper::availableForPurchaseInputHtml($element->getIsFresh() ? $this->defaultAvailableForPurchase : $element->availableForPurchase, [
             'disabled' => $static,
         ]);
+    }
+
+    public function settingsHtml(): string
+    {
+        return parent::settingsHtml() . Cp::lightswitchHtml(
+            [
+                'id' => 'defaultAvailableForPurchase',
+                'name' => 'defaultAvailableForPurchase',
+                'label' => Craft::t('app', 'Default Value'),
+                'on' => $this->defaultAvailableForPurchase,
+            ]
+        );
     }
 
     /**

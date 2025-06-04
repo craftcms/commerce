@@ -43,7 +43,7 @@ class ShippingZones extends Component
      */
     public function getAllShippingZones(?int $storeId = null): Collection
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         if ($this->_allZones === null || !isset($this->_allZones[$storeId])) {
             $results = $this->_createQuery()->where(['storeId' => $storeId])->all();

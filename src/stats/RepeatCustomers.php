@@ -39,9 +39,7 @@ class RepeatCustomers extends Stat
             ->column();
 
 
-        $repeat = count(array_filter($repeatRows, static function($row) {
-            return $row > 1;
-        }));
+        $repeat = count(array_filter($repeatRows, static fn($row) => $row > 1));
 
         $percentage = round($total ? ($repeat / $total) * 100 : 0);
 

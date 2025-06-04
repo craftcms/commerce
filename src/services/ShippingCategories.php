@@ -52,7 +52,7 @@ class ShippingCategories extends Component
      */
     public function getAllShippingCategories(?int $storeId = null, bool $withTrashed = false): Collection
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         if ($this->_allShippingCategories === null || !isset($this->_allShippingCategories[$storeId])) {
             $results = $this->_createShippingCategoryQuery(true)
@@ -93,9 +93,7 @@ class ShippingCategories extends Component
     {
         $categories = $this->getAllShippingCategories($storeId);
 
-        return $categories->mapWithKeys(function(ShippingCategory $category) {
-            return [$category->id => $category->name];
-        })->all();
+        return $categories->mapWithKeys(fn(ShippingCategory $category) => [$category->id => $category->name])->all();
     }
 
     /**

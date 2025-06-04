@@ -29,7 +29,7 @@ class OrderMarkAsCompleteTest extends Unit
     /**
      * @var Plugin|null
      */
-    protected ?Plugin $pluginInstance;
+    protected ?Plugin $pluginInstance = null;
 
     /**
      * @var array
