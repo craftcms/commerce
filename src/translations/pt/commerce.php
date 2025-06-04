@@ -1065,6 +1065,7 @@ return [
     'Strategy to apply when calculating the minimum order price.' => 'Estratégia a aplicar ao calcular o preço mínimo do pedido.',
     'Subject' => 'Assunto',
     'Subscribing user' => 'Utilizador com subscrição ativa',
+    'Subscription Fields' => 'Campos de subscrição',
     'Subscription Plans' => 'Planos de subscrição',
     'Subscription Settings' => 'Definições da subscrição',
     'Subscription cancelled.' => 'Subscrição cancelada.',
