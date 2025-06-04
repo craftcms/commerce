@@ -1065,6 +1065,7 @@ return [
     'Strategy to apply when calculating the minimum order price.' => 'Strategy to apply when calculating the minimum order price.',
     'Subject' => 'Subject',
     'Subscribing user' => 'Subscribing user',
+    'Subscription Fields' => 'Subscription Fields',
     'Subscription Plans' => 'Subscription Plans',
     'Subscription Settings' => 'Subscription Settings',
     'Subscription cancelled.' => 'Subscription cancelled.',

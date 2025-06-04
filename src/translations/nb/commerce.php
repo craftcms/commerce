@@ -1065,6 +1065,7 @@ return [
     'Strategy to apply when calculating the minimum order price.' => 'Strategi å bruke når du beregner minimumspris for ordre.',
     'Subject' => 'Emne',
     'Subscribing user' => 'Abonnerende bruker',
+    'Subscription Fields' => 'Abonnementsfelt',
     'Subscription Plans' => 'Abonnementsplaner',
     'Subscription Settings' => 'Abonnementsinnstillinger',
     'Subscription cancelled.' => 'Abonnement kansellert.',
