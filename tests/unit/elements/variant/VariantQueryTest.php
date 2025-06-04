@@ -102,8 +102,8 @@ class VariantQueryTest extends Unit
             $shippingCategoryId,
             [
                 'no-params' => [null, 3],
-                'specific-id' => [$shippingCategoryId, 3],
-                'in' => [[$shippingCategoryId, 99999], 3],
+                'specific-id' => [$shippingCategoryId, 1],
+                'in' => [[$shippingCategoryId, 99999], 1],
                 'not-in' => [['not', 99998, 99999], 3],
             ],
         ];
@@ -116,15 +116,17 @@ class VariantQueryTest extends Unit
     {
         self::assertTrue(method_exists(Variant::find(), 'shippingCategoryId'));
         $fixture = $this->tester->grabFixture('shippingCategories');
-        $matchingShippingCategory = new ShippingCategory(['id' => $fixture->data['anotherShippingCategory']['id']]);
+        $shippingCategoryId = $fixture->data['anotherShippingCategory']['id'];
+
+        $matchingShippingCategory = new ShippingCategory(['id' => $shippingCategoryId]);
         $nonMatchingShippingCategory = new ShippingCategory(['id' => 99999]);
 
         $tests = [
             'no-params' => [null, 3],
-            'specific-handle' => ['anotherShippingCategory', 3],
+            'specific-handle' => ['anotherShippingCategory', 1],
             'in' => [['anotherShippingCategory', 'general'], 3],
             'not-in' => [['not', 'foo', 'bar'], 3],
-            'matching-shipping-category' => [$matchingShippingCategory, 3],
+            'matching-shipping-category' => [$matchingShippingCategory, 1],
             'non-matching-shipping-category' => [$nonMatchingShippingCategory, 0],
         ];
 
