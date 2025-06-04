@@ -24,7 +24,6 @@ use craft\helpers\StringHelper;
 use LitEmoji\LitEmoji;
 use Throwable;
 use yii\base\Component;
-use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 
 /**
@@ -214,7 +213,6 @@ class LineItems extends Component
             if (!$lineItemRecord) {
                 Craft::info('Line Item ID:' . $lineItem->id . ' does not exist and can not be saved.', __METHOD__);
                 return false;
-
             }
         }
 
