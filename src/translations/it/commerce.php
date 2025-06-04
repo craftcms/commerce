@@ -181,7 +181,7 @@ return [
     'Completed' => 'Completato',
     'Completing order failed.' => 'Completamento dell\'ordine fallito.',
     'Condition' => 'Condizione',
-    'Conditions here are matched against an order before looking through the rules. This is useful if you want qualify a method’s availability early or if there are common conditions to all rules for this method.' => 'Conditions here are matched against an order before looking through the rules. This is useful if you want qualify a method’s availability early or if there are common conditions to all rules for this method.',
+    'Conditions here are matched against an order before looking through the rules. This is useful if you want to qualify a method’s availability early, or if there are common conditions to all rules for this method.' => 'Le condizioni vengono confrontate con un ordine prima di esaminare le regole. Ciò è utile se si desidera qualificare in anticipo la disponibilità di un metodo o se esistono condizioni comuni per tutte le regole per questo metodo.',
     'Conditions here are matched against the order’s customer before looking through the rules. This is useful if you want qualify a method’s availability early or if there are common conditions to all rules for this method.' => 'Conditions here are matched against the order’s customer before looking through the rules. This is useful if you want qualify a method’s availability early or if there are common conditions to all rules for this method.',
     'Conditions' => 'Condizioni',
     'Control Panel Settings' => 'Impostazioni del pannello di controllo',
