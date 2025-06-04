@@ -81,6 +81,7 @@ use yii\db\Expression;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
+use yii\web\MethodNotAllowedHttpException;
 use yii\web\Response;
 
 /**
@@ -1008,6 +1009,49 @@ JS, []);
     }
 
     /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws MethodNotAllowedHttpException
+     * @throws Throwable
+     * @since 5.4.0
+     */
+    public function actionCopyAddressToUser(): Response
+    {
+        $this->requirePermission('editUsers');
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $addressId = $this->request->getRequiredBodyParam('addressId');
+        $userId = $this->request->getRequiredBodyParam('userId');
+
+        $address = Address::find()->id($addressId)->one();
+
+        if (!$address) {
+            return $this->asFailure(Craft::t('commerce', 'Address not found.'));
+        }
+
+        $user = Craft::$app->getUsers()->getUserById($userId);
+
+        if (!$user || !$user->getIsCredentialed()) {
+            return $this->asFailure(Craft::t('commerce', 'Invalid user.'));
+        }
+
+        try {
+            // Clone the address
+            $newAddress = Craft::$app->getElements()->duplicateElement($address, [
+                'owner' => $user,
+                'primaryOwner' => $user,
+            ]);
+        } catch (\Exception $exception) {
+            return $this->asFailure($exception->getMessage());
+        }
+
+        return $this->asSuccess(data: [
+            'address' => $newAddress->toArray(),
+        ]);
+    }
+
+    /**
      * @throws BadRequestHttpException
      * @throws InvalidConfigException
      * @since 3.0.11
@@ -1550,11 +1594,11 @@ JS, []);
             $shippingAddress = $getAddress($submittedShippingAddress, $order, Craft::t('commerce', 'Shipping Address'));
             $order->setShippingAddress($shippingAddress);
 
-            if (isset($orderRequestData['order']['sourceBillingAddressId'])) {
+            if (array_key_exists('sourceBillingAddressId',$orderRequestData['order'])) {
                 $order->sourceBillingAddressId = $orderRequestData['order']['sourceBillingAddressId'];
             }
 
-            if (isset($orderRequestData['order']['sourceShippingAddressId'])) {
+            if (array_key_exists('sourceShippingAddressId',$orderRequestData['order'])) {
                 $order->sourceShippingAddressId = $orderRequestData['order']['sourceShippingAddressId'];
             }
         }

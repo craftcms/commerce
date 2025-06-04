@@ -46,6 +46,7 @@ class PdfRenderEvent extends Event
 
     /**
      * @var Pdf|null The configured PDF model used to render the PDF
+     * @since 5.0.12
      */
     public ?Pdf $sourcePdf = null;
 }

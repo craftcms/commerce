@@ -467,10 +467,32 @@ class Discounts extends Component
             return false;
         }
 
+        if ($discount->hasOrderCondition() && !$discount->getOrderCondition()->matchElement($order)) {
+            $explanation = Craft::t('commerce', 'Coupon can not apply discount to this order.');
+
+            return false;
+        }
+
+        if ($discount->hasCustomerCondition() && (!$order->getCustomer() || !$discount->getCustomerCondition()->matchElement($order->getCustomer()))) {
+            $explanation = Craft::t('commerce', 'Coupon can not apply discount to this order due to customer mismatch.');
+            return false;
+        }
+
+        if ($discount->hasShippingAddressCondition() && (!$order->getShippingAddress() || !$discount->getShippingAddressCondition()->matchElement($order->getShippingAddress()))) {
+            $explanation = Craft::t('commerce', 'Coupon can not apply discount to this order due to address mismatch.');
+            return false;
+        }
+
+        if ($discount->hasBillingAddressCondition() && (!$order->getBillingAddress() || !$discount->getBillingAddressCondition()->matchElement($order->getBillingAddress()))) {
+            $explanation = Craft::t('commerce', 'Coupon can not apply discount to this order due to address mismatch.');
+            return false;
+        }
+
         if (!$this->_isDiscountConditionFormulaValid($order, $discount)) {
             $explanation = Craft::t('commerce', 'Discount is not allowed for the order');
             return false;
         }
+
 
         if (!$this->_isDiscountDateValid($order, $discount)) {
             $explanation = Craft::t('commerce', 'Discount is out of date.');

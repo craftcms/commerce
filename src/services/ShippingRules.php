@@ -128,6 +128,7 @@ class ShippingRules extends Component
         }
 
         $record->orderCondition = $model->getOrderCondition()->getConfig();
+        $record->customerCondition = $model->getCustomerCondition()->getConfig();
 
         if (empty($record->priority) && empty($model->priority)) {
             $count = ShippingRuleRecord::find()->where(['methodId' => $model->methodId])->count();
@@ -225,6 +226,7 @@ class ShippingRules extends Component
                 'shippingrules.name',
                 'shippingrules.orderConditionFormula',
                 'shippingrules.orderCondition',
+                'shippingrules.customerCondition',
                 'shippingrules.percentageRate',
                 'shippingrules.perItemRate',
                 'shippingrules.priority',

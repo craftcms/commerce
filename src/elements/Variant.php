@@ -372,6 +372,14 @@ class Variant extends Purchasable implements NestedElementInterface
 
     /**
      * @inheritdoc
+     */
+    protected static function includeSetStatusAction(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
      * @throws InvalidConfigException
      */
     public function getIsAvailable(): bool

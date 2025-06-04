@@ -44,6 +44,10 @@ export default new Vuex.Store({
       return getters.currentUserPermissions['commerce-editOrders'];
     },
 
+    canEditUsers(state, getters) {
+      return getters.currentUserPermissions['editUsers'];
+    },
+
     countries() {
       return window.orderEdit.countries;
     },
@@ -520,6 +524,27 @@ export default new Vuex.Store({
 
           if (error.response.data.error) {
             errorMsg = error.response.data.error;
+          }
+
+          throw errorMsg;
+        });
+    },
+
+    copyAddressToUser(context, {addressId, userId}) {
+      return addressesApi
+        .copyAddressToUser(addressId, userId)
+        .then((response) => {
+          if (response.data) {
+            return response.data;
+          }
+
+          return response;
+        })
+        .catch((error) => {
+          let errorMsg = 'Couldn’t copy address.';
+
+          if (error.response.data.message) {
+            errorMsg = error.response.data.message;
           }
 
           throw errorMsg;
