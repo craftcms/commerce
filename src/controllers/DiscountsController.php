@@ -640,7 +640,7 @@ class DiscountsController extends BaseStoreManagementController
 
         foreach ($categoryIds as $categoryId) {
             $id = (int)$categoryId;
-            $element = Craft::$app->getElements()->getElementById($id);
+            $element = Craft::$app->getElements()->getElementById($id, siteId: '*');
 
             if ($element instanceof Category) {
                 $categories[] = $element;

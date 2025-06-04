@@ -1499,6 +1499,8 @@ JS, []);
         Craft::$app->getView()->registerJs('window.orderEdit.pdfUrls = ' . Json::encode($pdfUrls) . ';', View::POS_BEGIN);
 
         $emails = Plugin::getInstance()->getEmails()->getAllEnabledEmails($order->storeId);
+        // Reset keys in case any have been removed, so the JS doesn't think it is an object
+        $emails = array_values($emails->all());
         Craft::$app->getView()->registerJs('window.orderEdit.emailTemplates = ' . Json::encode(ArrayHelper::toArray($emails)) . ';', View::POS_BEGIN);
 
         $response = [];
