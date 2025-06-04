@@ -180,7 +180,7 @@ return [
     'Completed' => 'Fullført',
     'Completing order failed.' => 'Fullføring av ordre mislyktes.',
     'Condition' => 'Tilstand',
-    'Conditions here are matched against an order before looking through the rules. This is useful if you want to qualify a method’s availability early, or if there are common conditions to all rules for this method.' => 'Conditions here are matched against an order before looking through the rules. This is useful if you want to qualify a method’s availability early, or if there are common conditions to all rules for this method.',
+    'Conditions here are matched against an order before looking through the rules. This is useful if you want to qualify a method’s availability early, or if there are common conditions to all rules for this method.' => 'Her matches betingelsene mot en ordre før reglene blir vurdert. Dette er nyttig hvis du ønsker å kvalifisere en metodes tilgjengelighet tidlig, eller hvis det finnes felles betingelser for alle reglene for denne metoden.',
     'Conditions' => 'Betingelser',
     'Control Panel Settings' => 'Kontrollpanelinnstillinger',
     'Control panel' => 'Kontrollpanel',
