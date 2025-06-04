@@ -297,11 +297,25 @@ class Discounts extends Component
         $couponKey = ($order && $order->couponCode) ? $order->couponCode : '*';
         $dateKey = DateTimeHelper::toIso8601($date);
         $storeKey = $order ? $order->getStore()->id : '*';
-        $purchasablesKey = !empty($purchasableIds) ? md5(serialize($purchasableIds)) : '';
-        $cacheKey = implode(':', array_filter([$dateKey, $couponKey, $storeKey, $purchasablesKey]));
+        $purchasablesKey = !empty($purchasableIds) ? md5(serialize($purchasableIds)) : '*';
+        $itemSubtotalKey = $order ? $order->getItemSubtotal() : '*';
+        $orderTotalQtyKey = $order ? $order->getTotalQty() : '*';
+        $orderEmailKey = ($order && $order->getEmail()) ? $order->getEmail() : '*';
 
-        if (isset($this->_activeDiscountsByKey[$cacheKey])) {
-            return $this->_activeDiscountsByKey[$cacheKey];
+        $cacheKey = implode(':', [
+            $couponKey,
+            $dateKey,
+            $storeKey,
+            $purchasablesKey,
+            $itemSubtotalKey,
+            $orderTotalQtyKey,
+            $orderEmailKey,
+        ]);
+
+        $cacheKeyMd5 = md5($cacheKey);
+
+        if (isset($this->_activeDiscountsByKey[$cacheKeyMd5])) {
+            return $this->_activeDiscountsByKey[$cacheKeyMd5];
         }
 
         $discountQuery = $this->_createDiscountQuery()
@@ -345,6 +359,7 @@ class Discounts extends Component
             } else {
                 $discountQuery->andWhere(['perEmailLimit' => 0]);
             }
+
 
             $discountQuery->andWhere([
                 'or',
@@ -419,9 +434,11 @@ class Discounts extends Component
             );
         }
 
-        $this->_activeDiscountsByKey[$cacheKey] = $this->_populateDiscounts($discountQuery->all());
+        $discountResults = $discountQuery->all();
+        $discounts = $this->_populateDiscounts($discountResults);
+        $this->_activeDiscountsByKey[$cacheKeyMd5] = $discounts;
 
-        return $this->_activeDiscountsByKey[$cacheKey];
+        return $this->_activeDiscountsByKey[$cacheKeyMd5];
     }
 
     /**

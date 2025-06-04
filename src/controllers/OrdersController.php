@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\base\Element;
+use craft\base\ElementInterface;
 use craft\base\Field;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable as PurchasableElement;
@@ -636,11 +637,15 @@ JS, []);
         }
 
         if ($billingAddress) {
-            $orderArray['billingAddressHtml'] = Cp::elementCardHtml($billingAddress);
+            $orderArray['billingAddressHtml'] = Cp::elementCardHtml($billingAddress, [
+                'showEditButton' => false,
+            ]);
         }
 
         if ($shippingAddress) {
-            $orderArray['shippingAddressHtml'] = Cp::elementCardHtml($shippingAddress);
+            $orderArray['shippingAddressHtml'] = Cp::elementCardHtml($shippingAddress, [
+                'showEditButton' => false,
+            ]);
         }
 
         if (!empty($orderArray['lineItems'])) {
@@ -866,9 +871,11 @@ JS, []);
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $requestAddress = $this->request->getRequiredParam('address');
+        $attributes = $this->request->getRequiredParam('address');
 
-        $address = Craft::createObject(Address::class, ['config' => ['attributes' => $requestAddress]]);
+        $attributes += ['class' => Address::class];
+
+        $address = Craft::createObject($attributes);
 
         if (!$address->validate()) {
             return $this->asModelFailure(model: $address, message: Craft::t('commerce', 'Unable to validate address.'), modelName: 'address');
@@ -1278,6 +1285,12 @@ JS, []);
         /** @var Order $order */
         $order = $variables['order'];
 
+        $variables['ordersBodyClass'] = '';
+
+        if (version_compare(Craft::$app->getVersion(), '5.7.0', '>=')) {
+            $variables['ordersBodyClass'] .= ' commerceorders-post-57';
+        }
+
         $variables['title'] = Craft::t('commerce', 'Order') . ' ' . $order->reference;
 
         if (!$order->isCompleted && $order->origin == Order::ORIGIN_CP) {
@@ -1442,6 +1455,8 @@ JS, []);
         Craft::$app->getView()->registerJs('window.orderEdit.pdfUrls = ' . Json::encode($pdfUrls) . ';', View::POS_BEGIN);
 
         $emails = Plugin::getInstance()->getEmails()->getAllEnabledEmails($order->storeId);
+        // Reset keys in case any have been removed, so the JS doesn't think it is an object
+        $emails = array_values($emails->all());
         Craft::$app->getView()->registerJs('window.orderEdit.emailTemplates = ' . Json::encode(ArrayHelper::toArray($emails)) . ';', View::POS_BEGIN);
 
         $response = [];
@@ -1855,12 +1870,20 @@ JS, []);
 
         $purchasablesById = [];
         foreach ($elementIdsByType as $type => $ids) {
+            /** @var ElementInterface $type */
+
             if (!class_exists($type)) {
                 continue;
             }
 
             /** @var ElementQuery $query */
             $query = $type::find();
+
+            if ($type::isLocalized()) {
+                $query->siteId($siteId);
+            }
+
+            $query->status(null);
 
             if ($query instanceof PurchasableQuery) {
                 $query->forCustomer($customerId);

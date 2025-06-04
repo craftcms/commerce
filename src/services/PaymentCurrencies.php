@@ -277,9 +277,15 @@ class PaymentCurrencies extends Component
 
         $storeCurrency = Plugin::getInstance()->getStores()->getStoreById($storeId)->getCurrency();
         $nonPrimaryCurrencies = $this->getNonPrimaryPaymentCurrencies($storeId)->mapWithKeys(fn(PaymentCurrency $currency) => [$currency->iso => (string)$currency->rate]);
-        return new FixedExchange([
-            $storeCurrency->getCode() => $nonPrimaryCurrencies->all(),
-        ]);
+
+        $exchange = [$storeCurrency->getCode() => $nonPrimaryCurrencies->all()];
+
+        // Reverse all the rates so we have to opposite conversions
+        foreach ($nonPrimaryCurrencies->all() as $iso => $rate) {
+            $exchange[$iso] = [$storeCurrency->getCode() => (string)(1 / (float)$rate)];
+        }
+
+        return new FixedExchange($exchange);
     }
 
     /**

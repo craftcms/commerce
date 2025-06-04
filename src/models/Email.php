@@ -358,8 +358,8 @@ class Email extends Model implements HasStoreInterface
     public function getConfig(): array
     {
         return [
-            'bcc' => $this->bcc ?: null,
-            'cc' => $this->cc ?: null,
+            'bcc' => $this->getBcc(false) ?: null,
+            'cc' => $this->getCc(false) ?: null,
             'senderAddress' => $this->getSenderAddress(false) ?: null,
             'senderName' => $this->getSenderName(false) ?: null,
             'enabled' => $this->enabled,
@@ -372,7 +372,7 @@ class Email extends Model implements HasStoreInterface
             'store' => $this->getStore()->uid,
             'subject' => $this->subject,
             'templatePath' => $this->templatePath ?: null,
-            'to' => $this->to ?: null,
+            'to' => $this->getTo(false) ?: null,
         ];
     }
 

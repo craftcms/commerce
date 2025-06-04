@@ -25,11 +25,6 @@ use yii\db\StaleObjectException;
 class ShippingRuleCategories extends Component
 {
     /**
-     * @var ShippingRuleCategory[][]
-     */
-    private array $_shippingRuleCategoriesByRuleId = [];
-
-    /**
      * Returns an array of shipping rules categories per the rule's ID.
      *
      * @param int $ruleId the rule's ID
@@ -37,19 +32,18 @@ class ShippingRuleCategories extends Component
      */
     public function getShippingRuleCategoriesByRuleId(int $ruleId): array
     {
-        if (empty($this->_shippingRuleCategoriesByRuleId)) {
-            $rows = $this->_createShippingRuleCategoriesQuery()
-                ->all();
+        $rules = [];
 
-            foreach ($rows as $row) {
-                if (!isset($this->_shippingRuleCategoriesByRuleId[$row['shippingRuleId']])) {
-                    $this->_shippingRuleCategoriesByRuleId[$row['shippingRuleId']] = [];
-                }
-                $this->_shippingRuleCategoriesByRuleId[$row['shippingRuleId']][$row['shippingCategoryId']] = new ShippingRuleCategory($row);
-            }
+        $rows = $this->_createShippingRuleCategoriesQuery()
+            ->where(['shippingRuleId' => $ruleId])
+            ->all();
+
+        foreach ($rows as $row) {
+            $id = $row['shippingCategoryId'];
+            $rules[$id] = new ShippingRuleCategory($row);
         }
 
-        return $this->_shippingRuleCategoriesByRuleId[$ruleId] ?? [];
+        return $rules;
     }
 
     /**

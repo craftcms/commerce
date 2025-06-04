@@ -205,8 +205,8 @@ class Transactions extends Component
             $transaction->reference = $parentTransaction->reference;
             $transaction->type = $parentTransaction->type;
         } else {
-            $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($order->paymentCurrency);
-            $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($order->currency);
+            $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($order->paymentCurrency, $order->getStore()->id);
+            $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($order->currency, $order->getStore()->id);
 
             /** @var Gateway $gateway */
             $gateway = $order->getGateway();
@@ -218,10 +218,17 @@ class Transactions extends Component
 
             // Payment amount is the amount in the paymentCurrency
             $transaction->paymentAmount = Currency::round($order->getPaymentAmount(), $paymentCurrency);
+            $amount = $transaction->paymentAmount;
+
+            if ($currency->iso !== $paymentCurrency->iso) {
+                $tellerTo = Plugin::getInstance()->getCurrencies()->getTeller($paymentCurrency);
+                $paymentAmount = $tellerTo->convertToMoney($transaction->paymentAmount);
+                $amount = Plugin::getInstance()->getPaymentCurrencies()->convertAmount($paymentAmount, $currency, $order->getStore()->id);
+                $amount = (float)$tellerTo->convertToString($amount);
+            }
 
             // Amount is always in the base currency
-            $amount = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($transaction->paymentAmount, $transaction->paymentCurrency, $transaction->currency);
-            $transaction->amount = Currency::round($amount, $currency);
+            $transaction->amount = $amount;
 
             // Capture historical rate
             $transaction->paymentRate = $paymentCurrency->rate;

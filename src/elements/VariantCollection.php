@@ -35,9 +35,8 @@ class VariantCollection extends ElementCollection
                 continue;
             }
 
-            $item = \Craft::createObject(Variant::class, [
-                'config' => ['attributes' => $item],
-            ]);
+            $item += ['class' => Variant::class];
+            $item = \Craft::createObject($item);
         }
 
         /** @var static $collection */

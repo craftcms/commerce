@@ -1221,6 +1221,19 @@ class Product extends Element implements HasStoreInterface
             return;
         }
 
+        // Make sure each variant has an owner set in case of mass assignment of product and variants
+        if (is_array($variants)) {
+            foreach ($variants as &$variant) {
+                if ($variant instanceof Variant) {
+                    continue;
+                }
+
+                if (is_array($variant) && !isset($variant['owner'])) {
+                    $variant = ['owner' => $this] + $variant;
+                }
+            }
+        }
+
         $this->_variants = $variants instanceof VariantCollection ? $variants : VariantCollection::make($variants);
     }
 
@@ -1532,6 +1545,15 @@ class Product extends Element implements HasStoreInterface
             $record->defaultLength = $defaultVariant->length ?? 0.0;
             $record->defaultWidth = $defaultVariant->width ?? 0.0;
             $record->defaultWeight = $defaultVariant->weight ?? 0.0;
+
+            // Make sure to update the object
+            $this->defaultVariantId = $defaultVariant->id ?? null;
+            $this->defaultSku = $defaultVariant?->getSkuAsText();
+            $this->defaultPrice = $defaultVariant?->getBasePrice() ?? 0.0;
+            $this->defaultHeight = $defaultVariant->height ?? 0;
+            $this->defaultLength = $defaultVariant->length ?? 0;
+            $this->defaultWidth = $defaultVariant->width ?? 0;
+            $this->defaultWeight = $defaultVariant->weight ?? 0;
 
             // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
             $record->dateUpdated = $this->dateUpdated;

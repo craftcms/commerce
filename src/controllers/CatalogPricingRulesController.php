@@ -17,6 +17,7 @@ use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Localization;
 use craft\helpers\MoneyHelper;
@@ -105,7 +106,7 @@ class CatalogPricingRulesController extends BaseStoreManagementController
 
                 $purchasableId = Craft::$app->getRequest()->getParam('purchasableId');
                 if ($purchasableId && $purchasableType = Craft::$app->getElements()->getElementTypeById($purchasableId)) {
-                    $purchasable = Craft::$app->getElements()->getElementById($purchasableId, $purchasableType);
+                    $purchasable = Craft::$app->getElements()->getElementById($purchasableId, $purchasableType, Cp::requestedSite()->id);
 
                     // Create a "first pass" name for the rule
                     if ($purchasable && $purchasable->title) {

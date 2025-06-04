@@ -55,7 +55,8 @@ class Purchasable
      */
     public static function catalogPricingRulesTableByPurchasableId(int $purchasableId, int $storeId, ?Collection $catalogPricing = null): string
     {
-        $catalogPricing ??= Plugin::getInstance()->getCatalogPricing()->getCatalogPricesByPurchasableId($purchasableId);
+        $catalogPricing ??= Plugin::getInstance()->getCatalogPricing()->getCatalogPricesByPurchasableId($purchasableId, $storeId);
+
         $catalogPricingRules = Plugin::getInstance()->getCatalogPricingRules()->getAllCatalogPricingRulesByPurchasableId($purchasableId, $storeId);
 
         if ($catalogPricingRules->isEmpty()) {

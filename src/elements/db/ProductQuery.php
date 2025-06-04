@@ -25,6 +25,10 @@ use yii\db\Expression;
 /**
  * ProductQuery represents a SELECT SQL statement for products in a way that is independent of DBMS.
  *
+ * @template TKey of array-key
+ * @template TElement of Product
+ * @extends ElementQuery<TKey,TElement>
+ *
  * @method Product[]|array all($db = null)
  * @method Product|array|null one($db = null)
  * @method Product|array|null nth(int $n, Connection $db = null)

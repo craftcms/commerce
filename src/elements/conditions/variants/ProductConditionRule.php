@@ -65,4 +65,14 @@ class ProductConditionRule extends BaseElementSelectConditionRule implements Ele
         /** @var Variant $element */
         return $element->getOwnerId() == $this->getElementId();
     }
+
+    /**
+     * @inerhitdoc
+     */
+    protected function elementSelectConfig(): array
+    {
+        return array_merge(parent::elementSelectConfig(), [
+            'showSiteMenu' => true,
+        ]);
+    }
 }

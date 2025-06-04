@@ -65,7 +65,10 @@ abstract class OrderCurrencyValuesAttributeConditionRule extends MoneyFieldCondi
         } else {
             /** @var Site|StoreBehavior|null $currentSite */
             $currentSite = Craft::$app->getSites()->getCurrentSite();
-            $this->currency = $currentSite?->getStore()->getCurrency();
+
+            if ($currentSite->getBehavior(StoreBehavior::class)) {
+                $this->currency = $currentSite?->getStore()->getCurrency();
+            }
         }
 
         if ($this->currency) {
@@ -80,7 +83,7 @@ abstract class OrderCurrencyValuesAttributeConditionRule extends MoneyFieldCondi
     {
         // Mock a Money field
         $field = new Money();
-        $field->currency = $this->currency?->getCode();
+        $field->currency = $this->currency?->getCode() ?? $field->currency;
 
         return $field;
     }

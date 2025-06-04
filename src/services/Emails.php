@@ -500,11 +500,13 @@ class Emails extends Component
         if ($email->recipientType == EmailRecord::TYPE_CUSTOM) {
             // To:
             try {
-                $emails = $view->renderString($email->to, $renderVariables);
+                $emails = $view->renderString($email->getTo(), $renderVariables);
                 $emails = preg_split('/[\s,]+/', $emails);
 
                 $newEmail->setTo($emails);
             } catch (\Exception $e) {
+                Craft::$app->getErrorHandler()->logException($e);
+
                 $error = Craft::t('commerce', 'Email template parse error for custom email “{email}” in “To:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -534,9 +536,9 @@ class Emails extends Component
         }
 
         // BCC:
-        if ($email->bcc) {
+        if ($bccSetting = $email->getBcc()) {
             try {
-                $bcc = $view->renderString($email->bcc, $renderVariables);
+                $bcc = $view->renderString($bccSetting, $renderVariables);
                 $bcc = str_replace(';', ',', $bcc);
                 $bcc = preg_split('/[\s,]+/', $bcc);
 
@@ -544,6 +546,8 @@ class Emails extends Component
                     $newEmail->setBcc($bcc);
                 }
             } catch (\Exception $e) {
+                Craft::$app->getErrorHandler()->logException($e);
+                
                 $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “BCC:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -562,9 +566,9 @@ class Emails extends Component
         }
 
         // CC:
-        if ($email->cc) {
+        if ($ccSetting = $email->getCc()) {
             try {
-                $cc = $view->renderString($email->cc, $renderVariables);
+                $cc = $view->renderString($ccSetting, $renderVariables);
                 $cc = str_replace(';', ',', $cc);
                 $cc = preg_split('/[\s,]+/', $cc);
 
@@ -572,6 +576,8 @@ class Emails extends Component
                     $newEmail->setCc($cc);
                 }
             } catch (\Exception $e) {
+                Craft::$app->getErrorHandler()->logException($e);
+                
                 $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “CC:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -594,6 +600,8 @@ class Emails extends Component
             try {
                 $newEmail->setReplyTo($view->renderString($email->replyTo, $renderVariables));
             } catch (\Exception $e) {
+                Craft::$app->getErrorHandler()->logException($e);
+                
                 $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “ReplyTo:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -615,6 +623,8 @@ class Emails extends Component
         try {
             $newEmail->setSubject($view->renderString($email->subject, $renderVariables));
         } catch (\Exception $e) {
+            Craft::$app->getErrorHandler()->logException($e);
+            
             $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “Subject:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
                 'order' => $order->getShortNumber(),
@@ -635,6 +645,8 @@ class Emails extends Component
         try {
             $templatePath = $view->renderString($email->templatePath, $renderVariables);
         } catch (\Exception $e) {
+            Craft::$app->getErrorHandler()->logException($e);
+            
             $error = Craft::t('commerce', 'Email template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
                 'order' => $order->getShortNumber(),
@@ -674,6 +686,8 @@ class Emails extends Component
             try {
                 $plainTextTemplatePath = $view->renderString($email->plainTextTemplatePath, $renderVariables);
             } catch (\Exception $e) {
+                Craft::$app->getErrorHandler()->logException($e);
+                
                 $error = Craft::t('commerce', 'Email plain text template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -750,6 +764,8 @@ class Emails extends Component
                 $options = ['fileName' => $fileName . '.pdf', 'contentType' => 'application/pdf'];
                 $newEmail->attach($tempPath, $options);
             } catch (\Exception $e) {
+                Craft::$app->getErrorHandler()->logException($e);
+                
                 $error = Craft::t('commerce', 'Email PDF generation error for email “{email}”. Order: “{order}”. PDF Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -772,6 +788,8 @@ class Emails extends Component
             $body = $view->renderTemplate($templatePath, $renderVariables);
             $newEmail->setHtmlBody($body);
         } catch (\Exception $e) {
+            Craft::$app->getErrorHandler()->logException($e);
+            
             $error = Craft::t('commerce', 'Email template parse error for email “{email}”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
                 'order' => $order->getShortNumber(),
@@ -794,6 +812,8 @@ class Emails extends Component
                 $plainTextBody = $view->renderTemplate($plainTextTemplatePath, $renderVariables);
                 $newEmail->setTextBody($plainTextBody);
             } catch (\Exception $e) {
+                Craft::$app->getErrorHandler()->logException($e);
+                
                 $error = Craft::t('commerce', 'Email plain text template parse error for email “{email}”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -856,6 +876,8 @@ class Emails extends Component
                 return false;
             }
         } catch (\Exception $e) {
+            Craft::$app->getErrorHandler()->logException($e);
+            
             $error = Craft::t('commerce', 'Email “{email}” could not be sent for order “{order}”. Error: {error} {file}:{line}', [
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),

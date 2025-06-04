@@ -22,6 +22,10 @@ use yii\db\Expression;
 /**
  * PurchasableQuery represents a SELECT SQL statement for purchasables in a way that is independent of DBMS.
  *
+ * @template TKey of array-key
+ * @template TElement of Purchasable
+ * @extends ElementQuery<TKey,TElement>
+ *
  * @method Purchasable[]|array all($db = null)
  * @method Purchasable|array|null one($db = null)
  * @method Purchasable|array|null nth(int $n, Connection $db = null)
