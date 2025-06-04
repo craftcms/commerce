@@ -1065,6 +1065,7 @@ return [
     'Strategy to apply when calculating the minimum order price.' => 'Toe te passen strategie bij het berekenen van de minimale bestelprijs.',
     'Subject' => 'Onderwerp',
     'Subscribing user' => 'Geabonneerde gebruiker',
+    'Subscription Fields' => 'Abonnementsvelden',
     'Subscription Plans' => 'Abonnementsplannen',
     'Subscription Settings' => 'Abonnementsinstellingen',
     'Subscription cancelled.' => 'Abonnement geannuleerd.',
