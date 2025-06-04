@@ -121,13 +121,10 @@ abstract class PurchasableQuery extends ElementQuery
      */
     public function __set($name, $value)
     {
-        switch ($name) {
-            case 'shippingCategory':
-                $this->shippingCategory($value);
-                break;
-            default:
-                parent::__set($name, $value);
-        }
+        match ($name) {
+            'shippingCategory' => $this->shippingCategory($value),
+            default => parent::__set($name, $value),
+        };
     }
 
     /**
@@ -195,7 +192,6 @@ abstract class PurchasableQuery extends ElementQuery
      *     ->one();
      * ```
      *
-     * @param mixed $value
      * @return static self reference
      */
     public function sku(mixed $value): static

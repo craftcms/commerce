@@ -45,7 +45,7 @@ class PurchasableTypeConditionRule extends BaseMultiSelectConditionRule implemen
     public function matchElement(ElementInterface $element): bool
     {
         /** @var Purchasable $element */
-        return $this->matchValue(get_class($element));
+        return $this->matchValue($element::class);
     }
 
     /**

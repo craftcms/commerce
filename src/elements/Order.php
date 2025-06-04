@@ -2755,15 +2755,11 @@ class Order extends Element implements HasStoreInterface
 
         $transactions = collect($this->_transactions);
 
-        $paid = $transactions->filter(function($transaction) {
-            return $transaction->status == TransactionRecord::STATUS_SUCCESS
-                && in_array($transaction->type, [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]);
-        })->sum('amount');
+        $paid = $transactions->filter(fn($transaction) => $transaction->status == TransactionRecord::STATUS_SUCCESS
+            && in_array($transaction->type, [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]))->sum('amount');
 
-        $refunded = $transactions->filter(function($transaction) {
-            return $transaction->status == TransactionRecord::STATUS_SUCCESS
-                && $transaction->type == TransactionRecord::TYPE_REFUND;
-        })->sum('amount');
+        $refunded = $transactions->filter(fn($transaction) => $transaction->status == TransactionRecord::STATUS_SUCCESS
+            && $transaction->type == TransactionRecord::TYPE_REFUND)->sum('amount');
 
         return (float)$this->getTeller()->subtract($paid, $refunded);
     }

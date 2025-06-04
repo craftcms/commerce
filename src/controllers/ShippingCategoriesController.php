@@ -65,7 +65,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
             $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
         }
 
-        $store = $store ?? Plugin::getInstance()->getStores()->getPrimaryStore();
+        $store ??= Plugin::getInstance()->getStores()->getPrimaryStore();
 
         if (!$variables['shippingCategory']) {
             if ($variables['id']) {

@@ -819,11 +819,9 @@ JS, []);
 
         $total = $addressElements->count();
 
-        $addresses = $addressElements->map(function(Address $address) {
-            return $address->toArray() + [
-                    'html' => Cp::elementCardHtml($address),
-                ];
-        });
+        $addresses = $addressElements->map(fn(Address $address) => $address->toArray() + [
+                'html' => Cp::elementCardHtml($address),
+            ]);
 
         return $this->asSuccess(data: compact('addresses', 'total'));
     }

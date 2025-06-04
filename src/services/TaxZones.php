@@ -45,7 +45,7 @@ class TaxZones extends Component
      */
     public function getAllTaxZones(?int $storeId = null): Collection
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         if ($this->_allZones === null || !isset($this->_allZones[$storeId])) {
             $results = $this->_createQuery()

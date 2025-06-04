@@ -390,7 +390,7 @@ trait OrderElementTrait
             $site = Cp::requestedSite();
             $store = $site->getStore();
             // Remove nested "all" prefix if it exists at the start of the string
-            $source = strpos($source, '*/') === 0 ? substr($source, 2) : $source;
+            $source = str_starts_with($source, '*/') ? substr($source, 2) : $source;
 
 
             $elementService = Craft::$app->getElements();

@@ -53,7 +53,7 @@ class ShippingRules extends Component
         $allShippingRules = [];
 
         foreach ($results as $result) {
-            $result['orderCondition'] = $result['orderCondition'] ?? '';
+            $result['orderCondition'] ??= '';
             $allShippingRules[] = Craft::createObject([
                 'class' => ShippingRule::class,
                 'attributes' => $result,

@@ -49,7 +49,6 @@ class ProductQueryTest extends Unit
     }
 
     /**
-     * @param mixed $price
      * @param int $count
      * @return void
      * @dataProvider defaultPriceDataProvider

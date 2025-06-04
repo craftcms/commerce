@@ -98,7 +98,7 @@ class PurchasablePriceField extends BaseNativeField
 
         $purchasableConditionRule = Craft::$app->getConditions()->createConditionRule([
             'class' => CatalogPricingPurchasableConditionRule::class,
-            'elementIds' => [get_class($element) => [$element->id]],
+            'elementIds' => [$element::class => [$element->id]],
         ]);
         $catalogPricingCondition->addConditionRule($purchasableConditionRule);
         $conditionBuilderConfig = Json::encode($catalogPricingCondition->getConfig());

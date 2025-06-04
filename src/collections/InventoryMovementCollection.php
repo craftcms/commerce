@@ -29,8 +29,6 @@ class InventoryMovementCollection extends Collection
      */
     public function getPurchasables(): array
     {
-        return $this->map(function(InventoryMovementInterface $updateInventoryLevel) {
-            return $updateInventoryLevel->getInventoryItem()->getPurchasable();
-        })->all();
+        return $this->map(fn(InventoryMovementInterface $updateInventoryLevel) => $updateInventoryLevel->getInventoryItem()->getPurchasable())->all();
     }
 }

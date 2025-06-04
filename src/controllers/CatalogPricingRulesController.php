@@ -86,7 +86,7 @@ class CatalogPricingRulesController extends BaseStoreManagementController
             $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
         }
 
-        $store = $store ?? Plugin::getInstance()->getStores()->getPrimaryStore();
+        $store ??= Plugin::getInstance()->getStores()->getPrimaryStore();
 
         $variables = compact('id', 'catalogPricingRule', 'storeHandle');
 
@@ -326,7 +326,7 @@ class CatalogPricingRulesController extends BaseStoreManagementController
 
         /** @var CatalogPricingRuleRecord $rule */
         foreach ($rules as $rule) {
-            $storeId = $storeId ?? $rule->storeId;
+            $storeId ??= $rule->storeId;
             $rule->enabled = ($status == 'enabled');
             $rule->save();
         }

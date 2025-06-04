@@ -219,7 +219,7 @@ class Discounts extends Component
      */
     public function getDiscountById(int $id, ?int $storeId = null): ?Discount
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         // Keep this as a query for the performance boost
         $discounts = $this->_createDiscountQuery()
@@ -244,7 +244,7 @@ class Discounts extends Component
      */
     public function getAllDiscounts(?int $storeId = null): Collection
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         if ($this->_allDiscounts === null || !isset($this->_allDiscounts[$storeId])) {
             $discounts = $this->_createDiscountQuery()
@@ -537,7 +537,7 @@ class Discounts extends Component
             return null;
         }
 
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         $query = $this->_createDiscountQuery()->where(['storeId' => $storeId]);
         $query->innerJoin(Table::COUPONS . ' coupons', '[[coupons.discountId]] = [[discounts.id]]');
@@ -946,7 +946,7 @@ class Discounts extends Component
     public function ensureSortOrder(?int $storeId = null): void
     {
         // @TODO ensure sort order per store
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         $table = Table::DISCOUNTS;
 

@@ -265,7 +265,7 @@ class Purchasables extends Component
             return $this->_purchasableById->get($purchasableId);
         }
 
-        $siteId = $siteId ?? Craft::$app->getSites()->getCurrentSite()->id;
+        $siteId ??= Craft::$app->getSites()->getCurrentSite()->id;
         $elementType = Craft::$app->getElements()->getElementTypeById($purchasableId);
 
         if ($elementType === null || !class_exists($elementType)) {

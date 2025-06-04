@@ -233,7 +233,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
         $configData = [
             'name' => $this->name,
             'handle' => $this->handle,
-            'type' => get_class($this),
+            'type' => static::class,
             'settings' => $this->getSettings(),
             'sortOrder' => ($this->sortOrder ?? 99),
             'paymentType' => $this->paymentType,

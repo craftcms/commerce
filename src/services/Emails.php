@@ -232,7 +232,7 @@ class Emails extends Component
      */
     public function getAllEmails(?int $storeId = null): Collection
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         if ($this->_allEmails === null || !isset($this->_allEmails[$storeId])) {
             $results = $this->_createEmailQuery()

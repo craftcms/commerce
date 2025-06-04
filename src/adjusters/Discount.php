@@ -173,9 +173,7 @@ class Discount extends Component implements AdjusterInterface
             }, SORT_DESC);
 
             // Remove non-promotable line items
-            $lineItemsByPrice = ArrayHelper::where($lineItemsByPrice, function(LineItem $lineItem) {
-                return $lineItem->getIsPromotable();
-            }, true, true);
+            $lineItemsByPrice = ArrayHelper::where($lineItemsByPrice, fn(LineItem $lineItem) => $lineItem->getIsPromotable(), true, true);
 
             // Loop over each order level adjustment and add an adjustment to each line item until it runs out.
             foreach ($orderLevelAdjustments as $orderLevelAdjustment) {

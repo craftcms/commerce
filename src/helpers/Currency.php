@@ -122,7 +122,6 @@ class Currency
     }
 
     /**
-     * @param mixed $value
      * @param array $config
      * @return string
      * @throws InvalidConfigException

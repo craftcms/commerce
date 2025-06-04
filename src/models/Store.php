@@ -310,9 +310,7 @@ class Store extends Model
      */
     public function getSiteNames(): Collection
     {
-        return collect($this->getSites())->map(function(Site $site) {
-            return $site->getName();
-        });
+        return collect($this->getSites())->map(fn(Site $site) => $site->getName());
     }
 
     /**
@@ -682,7 +680,6 @@ class Store extends Model
     }
 
     /**
-     * @param mixed $countries
      * @return void
      * @throws DeprecationException
      * @throws InvalidConfigException
@@ -775,8 +772,6 @@ class Store extends Model
      */
     public function getInventoryLocationsOptions(): array
     {
-        return Plugin::getInstance()->getInventoryLocations()->getInventoryLocations($this->id)->map(function($location) {
-            return ['value' => $location->id, 'label' => $location->getUiLabel()];
-        })->toArray();
+        return Plugin::getInstance()->getInventoryLocations()->getInventoryLocations($this->id)->map(fn($location) => ['value' => $location->id, 'label' => $location->getUiLabel()])->toArray();
     }
 }
