@@ -22,6 +22,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
+use Exception;
 use LitEmoji\LitEmoji;
 use Throwable;
 use yii\base\Component;
