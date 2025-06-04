@@ -609,8 +609,14 @@ class LineItem extends Model
         $ignoreSales = false;
         foreach (Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($this->getOrder()) as $discount) {
             if (Plugin::getInstance()->getDiscounts()->matchLineItem($this, $discount, true)) {
+                // Break if matched discount is set to ignore sales.
                 $ignoreSales = $discount->ignoreSales;
                 if ($ignoreSales) {
+                    break;
+                }
+
+                // Break if matched discount is set to not apply any subsequent discounts.
+                if ($discount->stopProcessing) {
                     break;
                 }
             }

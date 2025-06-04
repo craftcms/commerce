@@ -30,6 +30,7 @@ use craft\db\Table as CraftTable;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\gql\types\DateTime;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Db;
 use craft\helpers\Html;
 use craft\models\FieldLayout;
 use Throwable;
@@ -1005,6 +1006,19 @@ class Variant extends Purchasable
             }
 
             $record->save(false);
+
+            // Fallback updating of default variant data if the variant is being saved in isolation
+            if ($this->duplicateOf === null && $this->isDefault) {
+                Db::update(Table::PRODUCTS, [
+                    'defaultVariantId' => $this->id,
+                    'defaultSku' => $this->getSkuAsText(),
+                    'defaultPrice' => $this->price ?? 0.0,
+                    'defaultHeight' => $this->height ?? 0,
+                    'defaultLength' => $this->length ?? 0,
+                    'defaultWidth' => $this->width ?? 0,
+                    'defaultWeight' => $this->weight ?? 0,
+                ], ['id' => $this->productId]);
+            }
         }
 
         parent::afterSave($isNew);
