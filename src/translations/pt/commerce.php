@@ -180,7 +180,7 @@ return [
     'Completed' => 'Concluído',
     'Completing order failed.' => 'Erro ao concluir o pedido.',
     'Condition' => 'Condição',
-    'Conditions here are matched against an order before looking through the rules. This is useful if you want to qualify a method’s availability early, or if there are common conditions to all rules for this method.' => 'Conditions here are matched against an order before looking through the rules. This is useful if you want to qualify a method’s availability early, or if there are common conditions to all rules for this method.',
+    'Conditions here are matched against an order before looking through the rules. This is useful if you want to qualify a method’s availability early, or if there are common conditions to all rules for this method.' => 'As condições são comparadas com uma ordem antes de examinar as regras. É útil para qualificar antecipadamente a disponibilidade de um método ou se houver condições comuns a todas as regras para esse método.',
     'Conditions' => 'Condições',
     'Control Panel Settings' => 'Definições do painel de controlo',
     'Control panel' => 'Painel de controlo',
