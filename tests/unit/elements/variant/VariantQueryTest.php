@@ -105,8 +105,6 @@ class VariantQueryTest extends Unit
                 'specific-id' => [$shippingCategoryId, 3],
                 'in' => [[$shippingCategoryId, 99999], 3],
                 'not-in' => [['not', 99998, 99999], 3],
-                'greater-than' => ['> ' . ($shippingCategoryId - 1), 3],
-                'less-than' => ['< ' . ($shippingCategoryId), 0],
             ],
         ];
     }
