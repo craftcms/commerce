@@ -180,7 +180,7 @@ return [
     'Completed' => 'Completed',
     'Completing order failed.' => 'Failed to complete order.',
     'Condition' => 'Condition',
-    'Conditions here are matched against an order before looking through the rules. This is useful if you want qualify a method’s availabililty early or if there are common conditions to all rules for this method.' => 'Conditions here are matched against an order before looking through the rules. This is useful if you want to qualify a method’s availabililty early or if there are common conditions to all rules for this method.',
+    'Conditions here are matched against an order before looking through the rules. This is useful if you want to qualify a method’s availability early, or if there are common conditions to all rules for this method.' => 'Conditions here are matched against an order before looking through the rules. This is useful if you want to qualify a method’s availability early, or if there are common conditions to all rules for this method.',
     'Conditions' => 'Conditions',
     'Control Panel Settings' => 'Control Panel Settings',
     'Control panel' => 'Control panel',
