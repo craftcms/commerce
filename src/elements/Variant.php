@@ -31,6 +31,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
+use craft\elements\actions\Copy;
 use craft\elements\actions\Restore;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\EagerLoadPlan;
@@ -323,6 +324,14 @@ class Variant extends Purchasable implements NestedElementInterface
         }
 
         return $product->canSave($user);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canCopy(User $user): bool
+    {
+        return true;
     }
 
     /**
@@ -1362,6 +1371,7 @@ class Variant extends Purchasable implements NestedElementInterface
         ]);
 
         $actions[] = ['type' => SetDefaultVariant::class];
+        $actions[] = ['type' => Copy::class];
         return $actions;
     }
 
