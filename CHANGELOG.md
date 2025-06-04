@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Added `craft\commerce\taxidvalidators\EuVatIdValidator::API_URL`.
+- Fixed a PHP error that could occur when saving an Order. ([#3283](https://github.com/craftcms/commerce/issues/3283))
 
 ## 4.8.4 - 2025-05-01
 
