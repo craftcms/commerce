@@ -438,7 +438,6 @@ class LineItem extends Model
     /**
      * Normalizes a purchasable’s validation rule.
      *
-     * @param mixed $rule
      * @param PurchasableInterface $purchasable
      * @return mixed
      */

@@ -136,16 +136,11 @@ class SubscriptionQuery extends ElementQuery
      */
     public function __set($name, $value)
     {
-        switch ($name) {
-            case 'user':
-                $this->user($value);
-                break;
-            case 'plan':
-                $this->plan($value);
-                break;
-            default:
-                parent::__set($name, $value);
-        }
+        match ($name) {
+            'user' => $this->user($value),
+            'plan' => $this->plan($value),
+            default => parent::__set($name, $value),
+        };
     }
 
     /**
@@ -176,7 +171,6 @@ class SubscriptionQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param mixed $value
      * @return static self reference
      */
     public function user(mixed $value): SubscriptionQuery
@@ -223,7 +217,6 @@ class SubscriptionQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param mixed $value
      * @return static self reference
      */
     public function plan(mixed $value): SubscriptionQuery

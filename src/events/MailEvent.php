@@ -44,5 +44,5 @@ class MailEvent extends CancelableEvent
     /**
      * @var array Order data at the time the email sends.
      */
-    public ?array $orderData;
+    public ?array $orderData = null;
 }

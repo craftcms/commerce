@@ -2,7 +2,7 @@
 use craft\helpers\ArrayHelper;
 
 if (isset($model)): ?>
-    <h2 style="font-size: 0.75rem;"><?= get_class($model) ?></h2>
+    <h2 style="font-size: 0.75rem;"><?= $model::class ?></h2>
     <div class="table-responsive">
         <table class="table table-condensed table-bordered table-striped table-hover"
                style="table-layout: fixed;">

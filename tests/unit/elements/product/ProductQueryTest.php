@@ -51,7 +51,6 @@ class ProductQueryTest extends Unit
     }
 
     /**
-     * @param mixed $price
      * @param int $count
      * @return void
      * @dataProvider defaultPriceDataProvider
@@ -113,7 +112,6 @@ class ProductQueryTest extends Unit
     }
 
     /**
-     * @param mixed $shippingCategoryId
      * @param int $count
      * @return void
      * @dataProvider shippingCategoryIdDataProvider
@@ -129,7 +127,6 @@ class ProductQueryTest extends Unit
     }
 
     /**
-     * @param mixed $shippingCategoryId
      * @param int $count
      * @return void
      * @dataProvider shippingCategoryIdDataProvider
@@ -160,7 +157,6 @@ class ProductQueryTest extends Unit
     }
 
     /**
-     * @param mixed $shippingCategory
      * @param int $count
      * @return void
      * @dataProvider shippingCategoryDataProvider
@@ -194,7 +190,6 @@ class ProductQueryTest extends Unit
     }
 
     /**
-     * @param mixed $taxCategoryId
      * @param int $count
      * @return void
      * @dataProvider taxCategoryIdDataProvider
@@ -210,7 +205,6 @@ class ProductQueryTest extends Unit
     }
 
     /**
-     * @param mixed $taxCategoryId
      * @param int $count
      * @return void
      * @dataProvider taxCategoryIdDataProvider
@@ -241,7 +235,6 @@ class ProductQueryTest extends Unit
     }
 
     /**
-     * @param mixed $taxCategory
      * @param int $count
      * @return void
      * @dataProvider taxCategoryDataProvider

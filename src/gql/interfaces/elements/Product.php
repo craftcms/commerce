@@ -46,9 +46,7 @@ class Product extends Element
             'name' => static::getName(),
             'fields' => self::class . '::getFieldDefinitions',
             'description' => 'This is the interface implemented by all products.',
-            'resolveType' => function(ProductElement $value) {
-                return $value->getGqlTypeName();
-            },
+            'resolveType' => fn(ProductElement $value) => $value->getGqlTypeName(),
         ]));
 
         ProductType::generateTypes();

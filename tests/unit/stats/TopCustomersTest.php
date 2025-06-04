@@ -49,11 +49,10 @@ class TopCustomersTest extends Unit
      * @param string $type
      * @param DateTime $startDate
      * @param DateTime $endDate
-     * @param mixed $count
      * @param $customerData
      * @throws \yii\base\Exception
      */
-    public function testGetData(string $dateRange, string $type, DateTime $startDate, DateTime $endDate, $count, $customerData): void
+    public function testGetData(string $dateRange, string $type, DateTime $startDate, DateTime $endDate, mixed $count, $customerData): void
     {
         $stat = new TopCustomers($dateRange, $type, $startDate, $endDate);
         $data = $stat->get();

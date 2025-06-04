@@ -613,9 +613,7 @@ class OrdersController extends Controller
             $userQuery->search(urldecode($query));
         }
 
-        $customers = $userQuery->collect()->map(function(User $user) {
-            return $this->_customerToArray($user);
-        });
+        $customers = $userQuery->collect()->map(fn(User $user) => $this->_customerToArray($user));
 
         return $this->asSuccess(data: compact('customers'));
     }
@@ -648,11 +646,9 @@ class OrdersController extends Controller
 
         $total = $addressElements->count();
 
-        $addresses = $addressElements->map(function(Address $address) {
-            return $address->toArray() + [
-                    'html' => Cp::addressCardHtml(address: $address),
-                ];
-        });
+        $addresses = $addressElements->map(fn(Address $address) => $address->toArray() + [
+                'html' => Cp::addressCardHtml(address: $address),
+            ]);
 
         return $this->asSuccess(data: compact('addresses', 'total'));
     }
@@ -849,9 +845,7 @@ class OrdersController extends Controller
 
         $counts = Plugin::getInstance()->getOrderStatuses()->getOrderCountByStatus();
 
-        $total = array_reduce($counts, static function($sum, $thing) {
-            return $sum + (int)$thing['orderCount'];
-        }, 0);
+        $total = array_reduce($counts, static fn($sum, $thing) => $sum + (int)$thing['orderCount'], 0);
 
         return $this->asSuccess(data: compact('counts', 'total'));
     }

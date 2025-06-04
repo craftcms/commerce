@@ -28,18 +28,14 @@ class m240306_091057_move_element_ids_on_discount_to_columns extends Migration
             ->from([$discountPurchasablesTables])
             ->collect();
 
-        $purchasableIdsByDiscountId = $purchasableIdsByDiscountId->groupBy('discountId')->map(function($row) {
-            return array_column($row->toArray(), 'purchasableId');
-        });
+        $purchasableIdsByDiscountId = $purchasableIdsByDiscountId->groupBy('discountId')->map(fn($row) => array_column($row->toArray(), 'purchasableId'));
 
         $categoryIdsByDiscountId = (new Query())
             ->select(['discountId', 'categoryId'])
             ->from([$discountCategoriesTable])
             ->collect();
 
-        $categoryIdsByDiscountId = $categoryIdsByDiscountId->groupBy('discountId')->map(function($row) {
-            return array_column($row->toArray(), 'categoryId');
-        });
+        $categoryIdsByDiscountId = $categoryIdsByDiscountId->groupBy('discountId')->map(fn($row) => array_column($row->toArray(), 'categoryId'));
 
         foreach ($purchasableIdsByDiscountId as $discountId => $purchasableIds) {
             $this->update($discountsTable, ['purchasableIds' => Json::encode($purchasableIds)], ['id' => $discountId]);

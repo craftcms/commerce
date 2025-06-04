@@ -524,42 +524,14 @@ trait OrderElementTrait
     {
         /** @var OrderQuery $elementQuery */
 
-        switch ($attribute) {
-            case 'totals':
-            case 'total':
-            case 'totalPrice':
-            case 'totalDiscount':
-            case 'totalShippingCost':
-            case 'totalTax':
-            case 'totalIncludedTax':
-                $elementQuery->withAdjustments();
-                break;
-            case 'totalPaid':
-            case 'paidStatus':
-                $elementQuery->withTransactions();
-                break;
-            case 'shippingFullName':
-            case 'shippingFirstName':
-            case 'shippingLastName':
-            case 'billingFullName':
-            case 'billingFirstName':
-            case 'billingLastName':
-            case 'shippingOrganizationName':
-            case 'billingOrganizationName':
-            case 'shippingMethodName':
-                $elementQuery->withAddresses();
-                break;
-            case 'email':
-            case 'customer':
-                $elementQuery->withCustomer();
-                break;
-            case 'itemTotal':
-            case 'itemSubtotal':
-                $elementQuery->withLineItems();
-                break;
-            default:
-                parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
-        }
+        match ($attribute) {
+            'totals', 'total', 'totalPrice', 'totalDiscount', 'totalShippingCost', 'totalTax', 'totalIncludedTax' => $elementQuery->withAdjustments(),
+            'totalPaid', 'paidStatus' => $elementQuery->withTransactions(),
+            'shippingFullName', 'shippingFirstName', 'shippingLastName', 'billingFullName', 'billingFirstName', 'billingLastName', 'shippingOrganizationName', 'billingOrganizationName', 'shippingMethodName' => $elementQuery->withAddresses(),
+            'email', 'customer' => $elementQuery->withCustomer(),
+            'itemTotal', 'itemSubtotal' => $elementQuery->withLineItems(),
+            default => parent::prepElementQueryForTableAttribute($elementQuery, $attribute),
+        };
     }
 
     /**

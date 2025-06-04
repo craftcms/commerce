@@ -67,9 +67,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
 
         $variables['productTypesOptions'] = [];
         if (!empty($variables['productTypes'])) {
-            $variables['productTypesOptions'] = ArrayHelper::map($variables['productTypes'], 'id', function($row) {
-                return ['label' => $row->name, 'value' => $row->id];
-            });
+            $variables['productTypesOptions'] = ArrayHelper::map($variables['productTypes'], 'id', fn($row) => ['label' => $row->name, 'value' => $row->id]);
         }
 
         $allTaxCategoryIds = array_keys(Plugin::getInstance()->getTaxCategories()->getAllTaxCategories());
