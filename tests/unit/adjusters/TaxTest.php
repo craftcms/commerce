@@ -33,7 +33,7 @@ class TaxTest extends Unit
     /**
      * @var Plugin|null
      */
-    public ?Plugin $pluginInstance;
+    public ?Plugin $pluginInstance = null;
 
     /**
      * @inheritdoc
@@ -124,9 +124,7 @@ class TaxTest extends Unit
 
         $taxAdjuster = $this->make(Tax::class, [
             'getTaxRates' => collect($taxRates),
-            'validateTaxIdNumber' => function($vatNum) use ($addressData) {
-                return $addressData['_validateVat'] ?? false;
-            },
+            'validateTaxIdNumber' => fn($vatNum) => $addressData['_validateVat'] ?? false,
         ]);
 
         $adjustments = $taxAdjuster->adjust($order);

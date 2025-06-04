@@ -156,7 +156,6 @@ class VariantQuery extends PurchasableQuery
      * | - | -
      * | a [[Product|Product]] object | for a product represented by the object.
      *
-     * @param mixed $value
      * @return static self reference
      */
     public function product(mixed $value): VariantQuery
@@ -224,7 +223,6 @@ class VariantQuery extends PurchasableQuery
      * | `[1, 2]` | for product with an ID of 1 or 2.
      * | `['not', 1, 2]` | for product not with an ID of 1 or 2.
      *
-     * @param mixed $value
      * @return static self reference
      */
     public function productId(mixed $value): VariantQuery
@@ -284,7 +282,6 @@ class VariantQuery extends PurchasableQuery
      * | `[1, 2]` | for product of a type with an ID of 1 or 2.
      * | `['not', 1, 2]` | for product of a type not with an ID of 1 or 2.
      *
-     * @param mixed $value
      * @return static self reference
      */
     public function typeId(mixed $value): VariantQuery

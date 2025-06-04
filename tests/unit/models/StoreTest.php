@@ -20,7 +20,6 @@ use yii\base\InvalidConfigException;
 class StoreTest extends Unit
 {
     /**
-     * @param mixed $countries
      * @param bool $expectException
      * @param array $expected
      * @return void

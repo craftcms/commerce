@@ -431,9 +431,7 @@ abstract class Stat implements StatInterface, HasStoreInterface
                 continue;
             }
 
-            $orderStatus = ArrayHelper::firstWhere($allOrderStatuses, function(OrderStatus $os) use ($orderStatus) {
-                return $orderStatus === $os->handle || $orderStatus === $os->uid;
-            });
+            $orderStatus = ArrayHelper::firstWhere($allOrderStatuses, fn(OrderStatus $os) => $orderStatus === $os->handle || $orderStatus === $os->uid);
             if (!$orderStatus) {
                 unset($this->_orderStatuses[$key]);
                 continue;

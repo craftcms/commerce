@@ -786,9 +786,7 @@ JS, []);
             $userQuery->search(urldecode($query));
         }
 
-        $customers = $userQuery->collect()->map(function(User $user) {
-            return $this->_customerToArray($user);
-        });
+        $customers = $userQuery->collect()->map(fn(User $user) => $this->_customerToArray($user));
 
         return $this->asSuccess(data: compact('customers'));
     }
@@ -1070,9 +1068,7 @@ JS, []);
 
         $counts = Plugin::getInstance()->getOrderStatuses()->getOrderCountByStatus($storeId);
 
-        $total = array_reduce($counts, static function($sum, $thing) {
-            return $sum + (int)$thing['orderCount'];
-        }, 0);
+        $total = array_reduce($counts, static fn($sum, $thing) => $sum + (int)$thing['orderCount'], 0);
 
         return $this->asSuccess(data: compact('counts', 'total'));
     }

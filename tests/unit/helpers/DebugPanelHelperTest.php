@@ -48,12 +48,10 @@ class DebugPanelHelperTest extends Unit
         );
 
         $usersServices = $this->make(Users::class, [
-            'getUserPreferences' => function($userId) {
-                return [
-                    'enableDebugToolbarForSite' => true,
-                    'enableDebugToolbarForCp' => true,
-                ];
-            },
+            'getUserPreferences' => fn($userId) => [
+                'enableDebugToolbarForSite' => true,
+                'enableDebugToolbarForCp' => true,
+            ],
         ]);
         Craft::$app->set('users', $usersServices);
 
@@ -134,13 +132,12 @@ class DebugPanelHelperTest extends Unit
 
     /**
      * @param string $attr
-     * @param mixed $value
      * @param string|null $label
      * @param string $expected
      * @return void
      * @dataProvider renderModelAttributeRowDataProvider
      */
-    public function testRenderModelAttributeRow(string $attr, mixed $value, ?string $label = null, string $expected): void
+    public function testRenderModelAttributeRow(string $attr, mixed $value, ?string $label = null, string $expected = ''): void
     {
         self::assertEquals($expected, DebugPanel::renderModelAttributeRow($attr, $value, $label));
     }
