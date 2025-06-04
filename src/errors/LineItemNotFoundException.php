@@ -25,4 +25,3 @@ class LineItemNotFoundException extends Exception
         return 'Line Item not found';
     }
 }
-

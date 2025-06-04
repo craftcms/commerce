@@ -25,4 +25,3 @@ class OrderAdjustmentNotFoundException extends Exception
         return 'Line Item not found';
     }
 }
-

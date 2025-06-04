@@ -25,7 +25,6 @@ use craft\helpers\StringHelper;
 use LitEmoji\LitEmoji;
 use Throwable;
 use yii\base\Component;
-use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 
 /**

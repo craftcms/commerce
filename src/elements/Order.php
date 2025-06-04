@@ -3406,11 +3406,10 @@ class Order extends Element
         $newAdjustmentIds = [];
 
         foreach ($this->getAdjustments() as $adjustment) {
-
             try {
                 // Don't run validation as validation of the adjustment should happen before saving the order
                 Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
-            }catch(OrderAdjustmentNotFoundException){
+            } catch (OrderAdjustmentNotFoundException) {
                 // If the adjustment was not found, it means it may have previously existed but was already deleted (race condition).
                 // See: https://github.com/craftcms/commerce/issues/3283
                 continue;
@@ -3520,7 +3519,7 @@ class Order extends Element
             try {
                 // Don't run validation as validation of the line item should happen before saving the order
                 Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
-            }catch(LineItemNotFoundException){
+            } catch (LineItemNotFoundException) {
                 // If the line item was not found, it means it may have previously existed but was already deleted (race condition).
                 // See: https://github.com/craftcms/commerce/issues/3283
                 continue;
@@ -3546,7 +3545,7 @@ class Order extends Element
                     // Validation not needed as the adjustments are validated before the order is saved
                     try {
                         Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
-                    }catch(OrderAdjustmentNotFoundException){
+                    } catch (OrderAdjustmentNotFoundException) {
                         // This can happen if the adjustment was removed during a race condition recalculation.
                         continue;
                     }
