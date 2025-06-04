@@ -181,7 +181,7 @@ return [
     'Completed' => 'Abgeschlossen',
     'Completing order failed.' => 'Bestellungsabschluss fehlgeschlagen.',
     'Condition' => 'Bedingung',
-    'Conditions here are matched against an order before looking through the rules. This is useful if you want qualify a method’s availability early or if there are common conditions to all rules for this method.' => 'Conditions here are matched against an order before looking through the rules. This is useful if you want qualify a method’s availability early or if there are common conditions to all rules for this method.',
+    'Conditions here are matched against an order before looking through the rules. This is useful if you want to qualify a method’s availability early, or if there are common conditions to all rules for this method.' => 'Die Bedingungen werden hier mit einer Bestellung abgeglichen, bevor die Regeln abgesucht werden. Dies ist nützlich, wenn Sie die Verfügbarkeit einer Methode frühzeitig prüfen möchten oder wenn es gemeinsame Bedingungen für alle Regeln für diese Methode gibt.',
     'Conditions here are matched against the order’s customer before looking through the rules. This is useful if you want qualify a method’s availability early or if there are common conditions to all rules for this method.' => 'Conditions here are matched against the order’s customer before looking through the rules. This is useful if you want qualify a method’s availability early or if there are common conditions to all rules for this method.',
     'Conditions' => 'Bedingungen',
     'Control Panel Settings' => 'Control Panel Einstellungen',
