@@ -180,7 +180,7 @@ return [
     'Completed' => 'Dokončené',
     'Completing order failed.' => 'Nepodarilo sa dokončiť objednávku.',
     'Condition' => 'Stav',
-    'Conditions here are matched against an order before looking through the rules. This is useful if you want to qualify a method’s availability early, or if there are common conditions to all rules for this method.' => 'Conditions here are matched against an order before looking through the rules. This is useful if you want to qualify a method’s availability early, or if there are common conditions to all rules for this method.',
+    'Conditions here are matched against an order before looking through the rules. This is useful if you want to qualify a method’s availability early, or if there are common conditions to all rules for this method.' => 'Podmienky sa tu porovnávajú s príkazom pred vyhľadaním pravidiel. To je užitočné, ak chcete predčasne overiť dostupnosť spôsobu alebo ak existujú spoločné podmienky pre všetky pravidlá pre tento spôsob.',
     'Conditions' => 'Podmienky',
     'Control Panel Settings' => 'Nastavenia ovládacieho panela',
     'Control panel' => 'Ovládací panel',
