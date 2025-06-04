@@ -180,7 +180,7 @@ return [
     'Completed' => 'Voltooid',
     'Completing order failed.' => 'Uitvoering bestelling mislukt.',
     'Condition' => 'Conditie',
-    'Conditions here are matched against an order before looking through the rules. This is useful if you want qualify a method’s availabililty early or if there are common conditions to all rules for this method.' => 'Voorwaarden worden hier vergeleken met een bestelling voordat de regels worden bekeken. Dit is handig als u de beschikbaarheid van een methode vroegtijdig wilt kwalificeren of als er gemeenschappelijke voorwaarden zijn voor alle regels voor deze methode.',
+    'Conditions here are matched against an order before looking through the rules. This is useful if you want to qualify a method’s availability early, or if there are common conditions to all rules for this method.' => 'Voorwaarden worden hier vergeleken met een bestelling voordat de regels worden bekeken. Dit is handig als u de beschikbaarheid van een methode vroegtijdig wilt kwalificeren of als er gemeenschappelijke voorwaarden zijn voor alle regels voor deze methode.',
     'Conditions' => 'Voorwaarden',
     'Control Panel Settings' => 'Instellingen configuratiescherm',
     'Control panel' => 'Configuratiescherm',
