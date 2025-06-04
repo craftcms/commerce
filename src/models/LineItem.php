@@ -930,6 +930,7 @@ class LineItem extends Model
         }
 
         $snapshot = [
+            // @TODO move these to base purchasable on next breaking change
             'price' => $purchasable->getPrice(),
             'sku' => $purchasable->getSku(),
             'description' => $purchasable->getDescription(),
