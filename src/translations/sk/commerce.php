@@ -1065,6 +1065,7 @@ return [
     'Strategy to apply when calculating the minimum order price.' => 'Ktorú stratégiu použiť pri počítaní minimálnej ceny objednávky.',
     'Subject' => 'Predmet',
     'Subscribing user' => 'Používateľ prihlasujúci odber',
+    'Subscription Fields' => 'Polia prihlásenia na odber',
     'Subscription Plans' => 'Plány prihlásení na odber',
     'Subscription Settings' => 'Nastavenie predplatného',
     'Subscription cancelled.' => 'Predplatné zrušené.',

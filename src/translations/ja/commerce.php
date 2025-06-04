@@ -1065,6 +1065,7 @@ return [
     'Strategy to apply when calculating the minimum order price.' => '最低の注文価格を算出する方法',
     'Subject' => '件名',
     'Subscribing user' => '定期支払い中のユーザー',
+    'Subscription Fields' => '定期支払いフィールド',
     'Subscription Plans' => '定期支払いプラン',
     'Subscription Settings' => '定期支払い設定',
     'Subscription cancelled.' => '定期支払いをキャンセルしました。',
