@@ -303,7 +303,7 @@ return [
     'Create rules that allow this discount to match the order’s billing address.' => 'Maak regels waardoor deze korting bij het factuuradres van de bestelling past.',
     'Create rules that allow this discount to match the order’s customer.' => 'Maak regels waardoor deze korting bij de klant van de bestelling past.',
     'Create rules that allow this discount to match the order’s shipping address.' => 'Maak regels waardoor deze korting bij het verzendadres van de bestelling past.',
-    'Create rules that allow this gateway to match the order.' => 'Maak regels waarmee deze gateway de juiste bestelling kan zoeken.',
+    'Create rules that allow this gateway to match the order.' => 'Maak regels waardoor deze gateway bij de bestelling past.',
     'Create sales' => 'Verkopen aanmaken',
     'Create sale…' => 'Aanbieding aanmaken ...',
     'Created' => 'Gemaakt',
