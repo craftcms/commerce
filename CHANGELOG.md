@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a PHP error that could occur when sending emails. ([#4017](https://github.com/craftcms/commerce/issues/4017))
+- Improved store query performance. ([#4029](https://github.com/craftcms/commerce/issues/4029))
 
 ## 5.3.13 - 2025-05-21
 
