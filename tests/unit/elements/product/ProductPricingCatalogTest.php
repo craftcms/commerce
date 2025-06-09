@@ -15,8 +15,6 @@ use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
-use craft\commerce\services\CatalogPricingRules;
-use craft\commerce\services\Sales;
 use craftcommercetests\fixtures\ProductFixture;
 use Throwable;
 use yii\base\Exception;
