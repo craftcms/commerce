@@ -4,6 +4,7 @@
 
 - Fixed a bug where purchasable cache was not cleared when stock was updated.
 - Fixed a PHP error that could occur when sending emails. ([#4017](https://github.com/craftcms/commerce/issues/4017))
+- Fixed a bug where order emails weren’t always getting rendered for the correct site.
 
 ## 5.3.13 - 2025-05-21
 
