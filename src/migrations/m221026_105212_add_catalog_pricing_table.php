@@ -105,7 +105,7 @@ class m221026_105212_add_catalog_pricing_table extends Migration
                 });
 
                 // Chunk the insert to avoid memory issues with large datasets
-                $batchPurchasablePrices = array_chunk($purchasablePrices, 1000);
+                $batchPurchasablePrices = array_chunk($purchasablePrices, 500);
 
                 foreach ($batchPurchasablePrices as $batchPurchasablePrice) {
                     $this->batchInsert($this->_tableName, ['purchasableId', 'price', 'dateCreated', 'dateUpdated', 'storeId', 'uid'], $batchPurchasablePrice);
