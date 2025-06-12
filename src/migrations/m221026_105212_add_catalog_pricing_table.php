@@ -110,7 +110,6 @@ class m221026_105212_add_catalog_pricing_table extends Migration
                 foreach ($batchPurchasablePrices as $batchPurchasablePrice) {
                     $this->batchInsert($this->_tableName, ['purchasableId', 'price', 'dateCreated', 'dateUpdated', 'storeId', 'uid'], $batchPurchasablePrice);
                 }
-
             }
             $this->dropColumn('{{%commerce_purchasables}}', 'price');
         }
