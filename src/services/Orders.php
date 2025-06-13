@@ -193,7 +193,7 @@ class Orders extends Component
         if (Order::find()->customerId($user->id)->status(null)->exists()) {
             $event->isValid = false;
 
-            Craft::error(Craft::t('commerce', 'Unable to delete user {user}: the user has a Craft Commerce order.', [
+            Craft::info(Craft::t('commerce', 'Unable to delete user {user}: the user has a Craft Commerce order.', [
                 'user' => $user->id,
             ]));
         }

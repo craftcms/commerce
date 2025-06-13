@@ -206,14 +206,15 @@ class LineItems extends Component
     {
         $isNewLineItem = !$lineItem->id;
 
-        if (!$lineItem->id) {
+        if ($isNewLineItem) {
             $lineItemRecord = new LineItemRecord();
         } else {
             $lineItemRecord = LineItemRecord::findOne($lineItem->id);
 
             if (!$lineItemRecord) {
-                throw new Exception(Craft::t('commerce', 'No line item exists with the ID “{id}”',
-                    ['id' => $lineItem->id]));
+                Craft::info('Line Item ID:' . $lineItem->id . ' does not exist and can not be saved.', __METHOD__);
+                return false;
+
             }
         }
 
@@ -226,7 +227,7 @@ class LineItems extends Component
         }
 
         if ($runValidation && !$lineItem->validate()) {
-            Craft::info('Line item not saved due to validation error.', __METHOD__);
+            Craft::info('Line Item not saved due to validation error(s).', __METHOD__);
             return false;
         }
 

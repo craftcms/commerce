@@ -1,5 +1,40 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a PHP error that could occur when saving an Order. ([#3283](https://github.com/craftcms/commerce/issues/3283))
+
+## 4.8.4 - 2025-05-01
+
+- Fixed a bug where products weren’t getting updated when default variants were saved directly. ([#3988](https://github.com/craftcms/commerce/issues/3988))
+
+## 4.8.3 - 2025-03-19
+
+- Fixed a PHP error that could occur when registering a custom shipping method.
+
+## 4.8.2 - 2025-03-12
+
+- Fixed a bug where line items’ sale prices could be calculated incorrectly. ([#3928](https://github.com/craftcms/commerce/issues/3928))
+
+## 4.8.1.2 - 2025-02-10
+
+- Fixed a bug where carts’ adjustment totals could be calculated incorrectly. ([#3888](https://github.com/craftcms/commerce/issues/3888))
+
+## 4.8.1.1 - 2025-02-07
+
+- Fixed a bug where taxes and shipping totals weren’t being recalculated in `commerce/cart/*` action requests. ([#3888](https://github.com/craftcms/commerce/issues/3888))
+
+## 4.8.1 - 2025-02-05
+
+- Improved logging when a user deletion is prevented due to the user having Commerce orders. ([#3686](https://github.com/craftcms/commerce/issues/3686))
+- Added `craft\commerce\base\Gateway::transactionSupportsRefund()`.
+- Fixed a bug where the `commerce/cart/update-cart` action could return unnecessary validation errors. ([3873](https://github.com/craftcms/commerce/issues/3873))
+
+## 4.8.0.1 - 2025-02-03
+
+- Fixed a bug where the deprecated `craft\commerce\models\TaxRate::$isVat` property was still being set. ([#3874](https://github.com/craftcms/commerce/issues/3874))
+- Fixed a PHP error that could occur when updating an order’s status from the CLI. ([#3858](https://github.com/craftcms/commerce/issues/3858))
+
 ## 4.8.0 - 2025-01-30
 
 ### Store Management

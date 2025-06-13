@@ -11,6 +11,7 @@ use Craft;
 use craft\base\SavableComponent;
 use craft\commerce\elements\Order;
 use craft\commerce\models\payments\BasePaymentForm;
+use craft\commerce\models\Transaction;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 
@@ -145,5 +146,15 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     public function getTransactionHashFromWebhook(): ?string
     {
         return null;
+    }
+
+    /**
+     * @param Transaction $transaction
+     * @return bool
+     * @since 4.8.1
+     */
+    public function transactionSupportsRefund(Transaction $transaction): bool
+    {
+        return true;
     }
 }

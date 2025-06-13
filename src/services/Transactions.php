@@ -144,6 +144,11 @@ class Transactions extends Component
             return false;
         }
 
+        // Allow gateways to help determine if a transaction can be refunded
+        if (!$gateway->transactionSupportsRefund($transaction)) {
+            return false;
+        }
+
         return ($this->refundableAmountForTransaction($transaction) > 0);
     }
 

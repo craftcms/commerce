@@ -225,13 +225,13 @@ class TaxRate extends Model
      */
     public function getIsVat(): bool
     {
-        Craft::$app->getDeprecator()->log(__METHOD__, 'TaxRate::setIsVat() is deprecated.');
-
+        // Don't throw deprecation log as `isVat` is still set as an attribute so will be called when the model is serialized.
         return $this->hasTaxIdValidators();
     }
 
     /**
      * @param bool $isVat
+     * @throws DeprecationException
      * @deprecated in 4.8.0.
      */
     public function setIsVat(bool $isVat): void

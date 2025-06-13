@@ -42,7 +42,6 @@ use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\records\Order as OrderRecord;
-use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\commerce\records\OrderNotice as OrderNoticeRecord;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\validators\StoreCountryValidator;
@@ -1995,11 +1994,11 @@ class Order extends Element
     {
         // Matching will contain the core shipping methods and any plugin dynamically returned shipping methods.
         $methods = Plugin::getInstance()->getShippingMethods()->getMatchingShippingMethods($this);
-        $matchingMethodHandles = ArrayHelper::getColumn($methods, 'handle');
+        $matchingMethodHandles = ArrayHelper::getColumn($methods, fn(ShippingMethodInterface $sm) => $sm->getHandle());
 
         // Get all regular methods and add them to the list, for use only when the order is complete.
         if ($this->isCompleted) {
-            $allShippingMethods = ArrayHelper::index(Plugin::getInstance()->getShippingMethods()->getAllShippingMethods(), 'handle');
+            $allShippingMethods = ArrayHelper::index(Plugin::getInstance()->getShippingMethods()->getAllShippingMethods(), fn(ShippingMethodInterface $sm) => $sm->getHandle());
             $methods = ArrayHelper::merge($allShippingMethods, $methods);
         }
 
@@ -3402,11 +3401,6 @@ class Order extends Element
      */
     private function _saveAdjustments(): void
     {
-        /** @var null|array|OrderAdjustmentRecord[] $previousAdjustments */
-        $previousAdjustments = OrderAdjustmentRecord::find()
-            ->where(['orderId' => $this->id])
-            ->all();
-
         $newAdjustmentIds = [];
 
         foreach ($this->getAdjustments() as $adjustment) {
@@ -3414,12 +3408,6 @@ class Order extends Element
             Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
             $newAdjustmentIds[] = $adjustment->id;
             $adjustment->orderId = $this->id;
-        }
-
-        foreach ($previousAdjustments as $previousAdjustment) {
-            if (!in_array($previousAdjustment->id, $newAdjustmentIds, false)) {
-                $previousAdjustment->delete();
-            }
         }
 
         // Make sure all other adjustments have been cleaned up.

@@ -56,7 +56,7 @@ class OrderHistory extends Model
     /**
      * @var int|null User ID
      */
-    public ?int $userId;
+    public ?int $userId = null;
 
     /**
      * @var string|null User name or email
