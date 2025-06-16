@@ -580,6 +580,10 @@ class LineItem extends Model
      */
     public function getFulfilledTotalQuantity(): int
     {
+        if (!$this->purchasable->inventoryTracked) {
+            return 0;
+        }
+
         if ($order = $this->getOrder()) {
             return Plugin::getInstance()->getInventory()->getInventoryFulfillmentLevels($order)
                 ->filter(fn($fulfillment) => $fulfillment->getLineItem()->id === $this->id)

@@ -46,6 +46,21 @@ use yii\db\Expression;
 class Inventory extends Component
 {
     /**
+     * @var array<non-empty-string, InventoryLevel>
+     */
+    private array $_inventoryLevelCache = [];
+
+    /**
+     * @var array<non-empty-string, Collection<string|int, InventoryTransaction>>
+     */
+    private array $_inventoryTransactionsCache = [];
+
+    /**
+     * @var array<int, Collection<string|int, InventoryFulfillmentLevel>>
+     */
+    private array $_inventoryFulfillmentCache = [];
+
+    /**
      * @param Purchasable $purchasable
      * @return Collection<InventoryLevel>
      */
@@ -125,6 +140,12 @@ class Inventory extends Component
         $inventoryItemId = $inventoryItem instanceof InventoryItem ? $inventoryItem->id : $inventoryItem;
         $inventoryLocationId = $inventoryLocation instanceof InventoryLocation ? $inventoryLocation->id : $inventoryLocation;
 
+        $cacheKey = "{$inventoryItemId}|{$inventoryLocationId}|" . ($withTrashed ? '1' : '0');
+
+        if (isset($this->_inventoryLevelCache[$cacheKey])) {
+            return $this->_inventoryLevelCache[$cacheKey];
+        }
+
         $result = $this->getInventoryLevelQuery(withTrashed: $withTrashed)
             ->andWhere([
                 'inventoryLocationId' => $inventoryLocationId,
@@ -135,8 +156,11 @@ class Inventory extends Component
             return null;
         }
 
-        return $this->_populateInventoryLevel($result);
+        $this->_inventoryLevelCache[$cacheKey] = $this->_populateInventoryLevel($result);
+        return $this->_inventoryLevelCache[$cacheKey];
     }
+
+
 
     /**
      * @param InventoryItem $inventoryItem
@@ -199,6 +223,7 @@ class Inventory extends Component
     {
         return new InventoryFulfillmentLevel($data);
     }
+
 
     /**
      * @param InventoryLocation $inventoryLocation
@@ -620,15 +645,22 @@ class Inventory extends Component
      */
     public function getInventoryTransactions(InventoryItem $inventoryItem, InventoryLocation $inventoryLocation): Collection
     {
-        $transactions = $this->getTransactionQuery()
+        $itemId = $inventoryItem->id;
+        $locationId = $inventoryLocation->id;
+        $cacheKey = "$itemId|$locationId";
+
+        if (isset($this->_inventoryTransactionsCache[$cacheKey])) {
+            return $this->_inventoryTransactionsCache[$cacheKey];
+        }
+
+        $rows = $this->getTransactionQuery()
             ->where(['inventoryItemId' => $inventoryItem->id, 'inventoryLocationId' => $inventoryLocation->id])
             ->all();
 
-        foreach ($transactions as $key => $transaction) {
-            $transactions[$key] = $this->_populateInventoryTransaction($transaction);
-        }
+        $transactions = collect($rows)->map(fn(array $row) => $this->_populateInventoryTransaction($row));
 
-        return collect($transactions);
+        $this->_inventoryTransactionsCache[$cacheKey] = $transactions;
+        return $this->_inventoryTransactionsCache[$cacheKey];
     }
 
     /**
@@ -639,10 +671,14 @@ class Inventory extends Component
      */
     public function getInventoryFulfillmentLevels(Order $order): Collection
     {
-        // We don’t limit this to the orders store locations since we want to show all locations that have historical inventory for the order.
-        $locations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
+        $orderId = $order->id;
+        if (isset($this->_inventoryFulfillmentCache[$orderId])) {
+            return $this->_inventoryFulfillmentCache[$orderId];
+        }
 
+        $locations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
         $inventoryFulfillmentLevels = [];
+
         foreach ($locations as $location) {
             $data = (new Query())
                 ->select([
@@ -657,7 +693,7 @@ class Inventory extends Component
                 ])
                 ->from(['it' => Table::INVENTORYTRANSACTIONS])
                 ->andWhere([
-                    '[[li.orderId]]' => $order->id,
+                    '[[li.orderId]]' => $orderId,
                     '[[it.inventoryLocationId]]' => $location->id,
                 ])
                 ->andWhere(['or',
@@ -681,7 +717,9 @@ class Inventory extends Component
             }
         }
 
-        return collect($inventoryFulfillmentLevels);
+
+        $this->_inventoryFulfillmentCache[$orderId] = collect($inventoryFulfillmentLevels);
+        return $this->_inventoryFulfillmentCache[$orderId];
     }
 
     /**

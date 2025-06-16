@@ -994,6 +994,10 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function getStock(): int
     {
+        if (!$this->inventoryTracked) {
+            return 0;
+        }
+
         if ($this->_stock === null) {
             $this->_stock = $this->_getStock();
         }
@@ -1008,6 +1012,10 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function getInventoryLevels(): Collection
     {
+        if (!$this->inventoryTracked) {
+            return collect([]);
+        }
+
         return Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($this);
     }
 
