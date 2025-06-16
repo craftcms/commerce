@@ -233,6 +233,9 @@ class Purchasables extends Component
                     columns: ['stock' => $stock],
                     condition: ['purchasableId' => $purchasable->id, 'storeId' => $purchasable->getStore()->id])
                 ->execute();
+
+            // Since we are updating the stock directly in the database, clear the cache
+            Craft::$app->getElements()->invalidateCachesForElement($purchasable);
         }
     }
 
