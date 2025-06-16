@@ -4,11 +4,8 @@
 
 - Fixed a bug where purchasable cache was not cleared when stock was updated.
 - Fixed a PHP error that could occur when sending emails. ([#4017](https://github.com/craftcms/commerce/issues/4017))
-<<<<<<< bugfix/send-email-with-current-site-set-to-order-site
 - Fixed a bug where order emails weren’t always getting rendered for the correct site.
-=======
 - Fixed a SQL error that could occur when upgrading to Commerce 5. ([#4044](https://github.com/craftcms/commerce/issues/4044))
->>>>>>> 5.x
 
 ## 5.3.13 - 2025-05-21
 
