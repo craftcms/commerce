@@ -34,6 +34,7 @@
 - Added `craft\commerce\models\ShippingMethod::setCustomerCondition()`.
 - Added `craft\commerce\models\ShippingRule::getCustomerCondition()`.
 - Added `craft\commerce\models\ShippingRule::setCustomerCondition()`.
+- Added `craft\commerce\taxidvalidators\EuVatIdValidator::API_URL`.
 
 ### System
 - Improved store query performance. ([#4029](https://github.com/craftcms/commerce/issues/4029))
@@ -44,3 +45,4 @@
 - Fixed a bug where purchasables’ `shippingCategoryId` and `taxCategoryId` properties couldn’t be set via `setAttributes()`. ([#4046](https://github.com/craftcms/commerce/issues/4046))
 - Fixed a bug where gateway settings weren’t storing project config values consistently. ([#3941](https://github.com/craftcms/commerce/issues/3941))
 - Fixed a bug where new line items did not expose their submitted quantity to the `craft\commerce\services\LineItems::EVENT_POPULATE_LINE_ITEM` event. ([#3883](https://github.com/craftcms/commerce/issues/3883))
+- Fixed a PHP error that could occur when saving an order. ([#3283](https://github.com/craftcms/commerce/issues/3283))
