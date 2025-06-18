@@ -5,3 +5,4 @@
 
 ### Extensibility
 - Added `craft\commerce\taxidvalidators\EuVatIdValidator::API_URL`.
+- Fixed a PHP error that could occur when saving an Order. ([#3283](https://github.com/craftcms/commerce/issues/3283))
