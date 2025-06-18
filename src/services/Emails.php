@@ -969,6 +969,7 @@ class Emails extends Component
                 'emails.pdfId',
                 'emails.plainTextTemplatePath',
                 'emails.recipientType',
+                'emails.renderSiteId',
                 'emails.replyTo',
                 'emails.senderAddress',
                 'emails.senderName',

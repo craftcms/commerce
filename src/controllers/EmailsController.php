@@ -104,10 +104,10 @@ class EmailsController extends BaseAdminController
 
         $variables['emailLanguageOptions'] = array_merge($emailLanguageOptions, LocaleHelper::getSiteAndOtherLanguages());
 
-        $variables['emailRenderSiteOptions'] = array_merge([
+        $variables['emailRenderSiteOptions'] = [
             null => Craft::t('commerce', 'The site the order was made in.'),
             ['optgroup' => Craft::t('commerce', 'Sites')],
-        ], collect(Craft::$app->getSites()->getAllSites())->mapWithKeys(fn(Site $site) => [$site->id => $site->name])->all());
+        ] + collect(Craft::$app->getSites()->getAllSites())->mapWithKeys(fn(Site $site) => [$site->id => $site->name])->all();
 
         $variables['readOnly'] = $this->isReadOnlyScreen();
 
@@ -142,6 +142,8 @@ class EmailsController extends BaseAdminController
             $email = new Email();
         }
 
+        $renderSiteId = $this->request->getBodyParam('renderSiteId');
+
         // Shared attributes
         $email->storeId = $storeId;
         $email->name = $this->request->getBodyParam('name');
@@ -157,6 +159,7 @@ class EmailsController extends BaseAdminController
         $pdfId = $this->request->getBodyParam('pdfId');
         $email->pdfId = $pdfId ?: null;
         $email->language = $this->request->getBodyParam('language');
+        $email->renderSiteId = $renderSiteId ? (int)$renderSiteId : null;
         $email->setSenderAddress($this->request->getBodyParam('senderAddress'));
         $email->setSenderName($this->request->getBodyParam('senderName'));
 

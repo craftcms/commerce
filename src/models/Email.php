@@ -182,7 +182,7 @@ class Email extends Model implements HasStoreInterface
      */
     public function getRenderSite(Order $order = null): Site
     {
-       $renderSiteId = $this->renderSiteId ?? $order?->getSiteId();
+       $renderSiteId = $this->renderSiteId ?? $order?->orderSiteId;
 
        if ($renderSiteId !== null) {
            return Craft::$app->getSites()->getSiteById($renderSiteId);
@@ -397,7 +397,7 @@ class Email extends Model implements HasStoreInterface
             'pdf' => $this->getPdf()?->uid,
             'plainTextTemplatePath' => $this->plainTextTemplatePath ?? null,
             'recipientType' => $this->recipientType,
-            'renderSite' => $this->renderSiteId ? Craft::$app->getSites()->getSiteById($this->renderSiteId) ?? null : null,
+            'renderSite' => $this->renderSiteId ? Craft::$app->getSites()->getSiteById($this->renderSiteId)?->uid ?? null : null,
             'replyTo' => $this->replyTo ?: null,
             'store' => $this->getStore()->uid,
             'subject' => $this->subject,
