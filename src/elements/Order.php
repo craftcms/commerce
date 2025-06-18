@@ -1816,7 +1816,7 @@ class Order extends Element implements HasStoreInterface
 
             try {
                 $baseReference = Craft::$app->getView()->renderObjectTemplate($referenceTemplate, $this);
-                
+
                 // Check if this reference already exists and append suffix if needed
                 $suffix = 0;
                 $testReference = $baseReference;
@@ -1827,13 +1827,13 @@ class Order extends Element implements HasStoreInterface
                         ->from([Table::ORDERS])
                         ->where(['reference' => $testReference])
                         ->exists();
-                    
+
                     if (!$existingReference) {
                         // Reference is unique, use it
                         $this->reference = $testReference;
                         break;
                     }
-                    
+
                     // Reference exists, increment suffix and try again
                     $suffix++;
                     $testReference = $baseReference . '-' . $suffix;
@@ -2233,7 +2233,7 @@ class Order extends Element implements HasStoreInterface
 
             $oldStatusId = $orderRecord->orderStatusId;
 
-        $orderRecord->storeId = $this->storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+            $orderRecord->storeId = $this->storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
             $orderRecord->number = $this->number;
             $orderRecord->reference = $this->reference;
             $orderRecord->itemTotal = $this->getItemTotal();
@@ -2264,7 +2264,7 @@ class Order extends Element implements HasStoreInterface
             $orderRecord->totalTax = $this->getTotalTax();
             $orderRecord->totalTaxIncluded = $this->getTotalTaxIncluded();
             $orderRecord->totalQty = $this->getTotalQty();
-        $orderRecord->totalWeight = $this->getTotalWeight();
+            $orderRecord->totalWeight = $this->getTotalWeight();
             $orderRecord->currency = $this->currency;
             $orderRecord->lastIp = $this->lastIp;
             $orderRecord->orderLanguage = $this->orderLanguage;
@@ -2282,8 +2282,8 @@ class Order extends Element implements HasStoreInterface
             $orderRecord->recalculationMode = $this->getRecalculationMode();
             $orderRecord->sourceShippingAddressId = $this->sourceShippingAddressId;
             $orderRecord->sourceBillingAddressId = $this->sourceBillingAddressId;
-        $orderRecord->makePrimaryShippingAddress = $this->makePrimaryShippingAddress;
-        $orderRecord->makePrimaryBillingAddress = $this->makePrimaryBillingAddress;
+            $orderRecord->makePrimaryShippingAddress = $this->makePrimaryShippingAddress;
+            $orderRecord->makePrimaryBillingAddress = $this->makePrimaryBillingAddress;
 
             // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
             $orderRecord->dateUpdated = $this->dateUpdated;
@@ -2292,18 +2292,18 @@ class Order extends Element implements HasStoreInterface
             $currentUser = Craft::$app->getUser()->getIdentity();
             $currentUserIsCustomer = ($currentUser && $this->getCustomer() && $currentUser->id == $this->getCustomer()->id);
 
-        if ($shippingAddress = $this->getShippingAddress()) {
-            // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
-            // This is because the order record has not been saved.
-            // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
-            $shippingAddress->setPrimaryOwner($this); // Always ensure the address is owned by the order
-            $shippingAddress->title = Craft::t('commerce', 'Shipping Address'); // Ensure the address is labelled correctly
-            Craft::$app->getElements()->saveElement($shippingAddress, false);
-            $orderRecord->shippingAddressId = $shippingAddress->id;
-            $this->setShippingAddress($shippingAddress);
-            // Set primary shipping if asked
-            if ($this->makePrimaryShippingAddress && $currentUserIsCustomer && $this->sourceShippingAddressId) {
-                Plugin::getInstance()->getCustomers()->savePrimaryShippingAddressId($this->getCustomer(), $this->sourceShippingAddressId);
+            if ($shippingAddress = $this->getShippingAddress()) {
+                // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
+                // This is because the order record has not been saved.
+                // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
+                $shippingAddress->setPrimaryOwner($this); // Always ensure the address is owned by the order
+                $shippingAddress->title = Craft::t('commerce', 'Shipping Address'); // Ensure the address is labelled correctly
+                Craft::$app->getElements()->saveElement($shippingAddress, false);
+                $orderRecord->shippingAddressId = $shippingAddress->id;
+                $this->setShippingAddress($shippingAddress);
+                // Set primary shipping if asked
+                if ($this->makePrimaryShippingAddress && $currentUserIsCustomer && $this->sourceShippingAddressId) {
+                    Plugin::getInstance()->getCustomers()->savePrimaryShippingAddressId($this->getCustomer(), $this->sourceShippingAddressId);
                 }
             } else {
                 $orderRecord->shippingAddressId = null;
@@ -2328,10 +2328,8 @@ class Order extends Element implements HasStoreInterface
                 $this->setBillingAddress($billingAddress);
                 // Set primary billing if asked
                 if ($this->makePrimaryBillingAddress && $currentUserIsCustomer && $this->sourceBillingAddressId) {
-                $billingAddress = Craft::$app->getElements()->duplicateElement(
-                    $billingAddress,
-                    ['primaryOwner' => $this, 'title' => Craft::t('commerce', 'Billing Address')]
-                );
+                    Plugin::getInstance()->getCustomers()->savePrimaryBillingAddressId($this->getCustomer(), $this->sourceBillingAddressId);
+                }
             } else {
                 $orderRecord->billingAddressId = null;
                 $this->setBillingAddress(null);
@@ -2364,40 +2362,18 @@ class Order extends Element implements HasStoreInterface
             }
 
             $orderRecord->save(false);
-            // This is because the order record has not been saved.
-            // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
-            $estimatedShippingAddress->setPrimaryOwner($this); // Always ensure the address is owned by the order
-            Craft::$app->getElements()->saveElement($estimatedShippingAddress, false);
-            $orderRecord->estimatedShippingAddressId = $estimatedShippingAddress->id;
-            $this->setEstimatedShippingAddress($estimatedShippingAddress);
 
             $this->_saveAdjustments();
             $this->_saveLineItems();
             $this->_saveNotices();
             $this->_saveOrderHistory($oldStatusId, $orderRecord->orderStatusId);
             $this->_deleteOrphanedOrderAddresses();
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $mutex->release($lockKey);
             throw $exception;
         }
 
         $mutex->release($lockKey);
-            // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
-            // This is because the order record has not been saved.
-            // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
-            $estimatedBillingAddress->setPrimaryOwner($this); // Always ensure the address is owned by the order
-            Craft::$app->getElements()->saveElement($estimatedBillingAddress, false);
-            $orderRecord->estimatedBillingAddressId = $estimatedBillingAddress->id;
-            $this->setEstimatedBillingAddress($estimatedBillingAddress);
-        }
-
-        $orderRecord->save(false);
-
-        $this->_saveAdjustments();
-        $this->_saveLineItems();
-        $this->_saveNotices();
-        $this->_saveOrderHistory($oldStatusId, $orderRecord->orderStatusId);
-        $this->_deleteOrphanedOrderAddresses();
 
         parent::afterSave($isNew);
     }
