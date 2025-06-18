@@ -27,10 +27,13 @@
 - Added `craft\commerce\elements\Product::$defaultBasePromotionalPrice`
 - Added `craft\commerce\elements\conditions\customers\ShippingMethodCustomerCondition`.
 - Added `craft\commerce\elements\conditions\customers\ShippingRuleCustomerCondition`.
+- Added `craft\commerce\models\Email::$renderSiteId`.
+- Added `craft\commerce\models\Email::getRenderSite()`.
 - Added `craft\commerce\models\ShippingMethod::getCustomerCondition()`.
 - Added `craft\commerce\models\ShippingMethod::setCustomerCondition()`.
 - Added `craft\commerce\models\ShippingRule::getCustomerCondition()`.
 - Added `craft\commerce\models\ShippingRule::setCustomerCondition()`.
+- Added `craft\commerce\records\Email::$renderSiteId`.
 
 ### System
 - Added the `resave/variants` command.
