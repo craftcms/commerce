@@ -5,7 +5,6 @@ namespace craft\commerce\migrations;
 use Craft;
 use craft\commerce\db\Table;
 use craft\db\Migration;
-use craft\db\Query;
 use craft\db\Table as CraftTable;
 
 /**

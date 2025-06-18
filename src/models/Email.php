@@ -182,13 +182,13 @@ class Email extends Model implements HasStoreInterface
      */
     public function getRenderSite(Order $order = null): Site
     {
-       $renderSiteId = $this->renderSiteId ?? $order?->orderSiteId;
+        $renderSiteId = $this->renderSiteId ?? $order?->orderSiteId;
 
-       if ($renderSiteId !== null) {
-           return Craft::$app->getSites()->getSiteById($renderSiteId);
-       }
+        if ($renderSiteId !== null) {
+            return Craft::$app->getSites()->getSiteById($renderSiteId);
+        }
 
-       return Craft::$app->getSites()->getPrimarySite();
+        return Craft::$app->getSites()->getPrimarySite();
     }
 
     /**
