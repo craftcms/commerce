@@ -17,7 +17,7 @@ use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\db\Query;
-use craft\errors\LineItemNotFoundException;
+use craft\commerce\errors\LineItemNotFoundException;
 use craft\errors\SiteNotFoundException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;

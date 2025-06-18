@@ -24,6 +24,7 @@
 - Added `craft\commerce\base\Gateway::hasOrderCondition()`.
 - Added `craft\commerce\base\Gateway::setOrderCondition()`.
 - Added `craft\commerce\base\Gateway::setOrderCondition()`.
+- Added `craft\commerce\base\Gateway::setOrderCondition()`.
 - Added `craft\commerce\base\Purchasable::$catalogPricingRuleId`.
 - Added `craft\commerce\base\Purchasable::getCatalogPricingRule()`.
 - Added `craft\commerce\controllers\OrdersController::actionCopyAddressToUser()`.

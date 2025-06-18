@@ -55,7 +55,7 @@ use craft\elements\User;
 use craft\errors\DeprecationException;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
-use craft\errors\LineItemNotFoundException;
+use craft\commerce\errors\LineItemNotFoundException;
 use craft\errors\MutexException;
 use craft\errors\UnsupportedSiteException;
 use craft\fields\BaseRelationField;
