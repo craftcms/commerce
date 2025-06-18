@@ -45,9 +45,7 @@ class Variant extends Element
             'name' => static::getName(),
             'fields' => self::class . '::getFieldDefinitions',
             'description' => 'This is the interface implemented by all variants.',
-            'resolveType' => function(VariantElement $value) {
-                return $value->getGqlTypeName();
-            },
+            'resolveType' => fn(VariantElement $value) => $value->getGqlTypeName(),
         ]));
 
         VariantType::generateTypes();

@@ -155,7 +155,7 @@ class Dummy extends SubscriptionGateway
      */
     public function processWebHook(): WebResponse
     {
-        throw new NotSupportedException(__CLASS__ . ' does not support processWebhook()');
+        throw new NotSupportedException(self::class . ' does not support processWebhook()');
     }
 
     /**

@@ -66,9 +66,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
 
         $variables['productTypesOptions'] = [];
         if (!empty($variables['productTypes'])) {
-            $variables['productTypesOptions'] = ArrayHelper::map($variables['productTypes'], 'id', function($row) {
-                return ['label' => $row->name, 'value' => $row->id];
-            });
+            $variables['productTypesOptions'] = ArrayHelper::map($variables['productTypes'], 'id', fn($row) => ['label' => $row->name, 'value' => $row->id]);
         }
 
         $allShippingCategoryIds = ArrayHelper::getColumn(Plugin::getInstance()->getShippingCategories()->getAllShippingCategories(), 'id');

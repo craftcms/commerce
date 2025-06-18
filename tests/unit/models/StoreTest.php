@@ -20,7 +20,6 @@ use yii\base\InvalidConfigException;
 class StoreTest extends Unit
 {
     /**
-     * @param mixed $countries
      * @param bool $expectException
      * @param array $expected
      * @return void
@@ -353,6 +352,11 @@ class StoreTest extends Unit
                     "Worcestershire" => "Worcestershire",
                     "Wrexham" => "Wrexham",
                     "York" => "York",
+                    "Aberdeen City" => "Aberdeen City",
+                    "Aberdeenshire" => "Aberdeenshire",
+                    "Angus" => "Angus",
+                    "Argyll and Bute" => "Argyll and Bute",
+                    "Westmorland and Furness" => "Westmorland and Furness",
                 ],
             ]],
             [['AU', 'US'], [

@@ -480,12 +480,8 @@ class Discounts extends Component
             return null;
         }
 
-        return ArrayHelper::firstWhere($this->_populateDiscounts($discounts), function(Discount $discount) use ($code) {
-            return (
-                $discount->enabled &&
-                ArrayHelper::contains($discount->getCoupons(), fn(Coupon $coupon) => strcasecmp($coupon->code, $code) === 0)
-            );
-        });
+        return ArrayHelper::firstWhere($this->_populateDiscounts($discounts), fn(Discount $discount) => $discount->enabled &&
+        ArrayHelper::contains($discount->getCoupons(), fn(Coupon $coupon) => strcasecmp($coupon->code, $code) === 0));
     }
 
     /**
@@ -796,7 +792,7 @@ class Discounts extends Component
             foreach ($model->getPurchasableIds() as $purchasableId) {
                 $relation = new DiscountPurchasableRecord();
                 $element = Craft::$app->getElements()->getElementById($purchasableId);
-                $relation->purchasableType = get_class($element);
+                $relation->purchasableType = $element::class;
                 $relation->purchasableId = $purchasableId;
                 $relation->discountId = $model->id;
                 $relation->save(false);
@@ -1259,10 +1255,10 @@ SQL;
             $discount['purchasableIds'] = !empty($discount['purchasableIds']) ? Json::decodeIfJson($discount['purchasableIds'], true) : [];
             // IDs can be either category ID or entry ID due to the entryfication
             $discount['categoryIds'] = !empty($discount['categoryIds']) ? Json::decodeIfJson($discount['categoryIds'], true) : [];
-            $discount['orderCondition'] = $discount['orderCondition'] ?? '';
-            $discount['customerCondition'] = $discount['customerCondition'] ?? '';
-            $discount['billingAddressCondition'] = $discount['billingAddressCondition'] ?? '';
-            $discount['shippingAddressCondition'] = $discount['shippingAddressCondition'] ?? '';
+            $discount['orderCondition'] ??= '';
+            $discount['customerCondition'] ??= '';
+            $discount['billingAddressCondition'] ??= '';
+            $discount['shippingAddressCondition'] ??= '';
 
             $discount = Craft::createObject([
                 'class' => Discount::class,

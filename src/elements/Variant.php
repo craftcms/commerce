@@ -367,10 +367,9 @@ class Variant extends Purchasable
             [
                 ['stock'],
                 'required',
-                'when' => static function($model) {
+                'when' => static fn($model) =>
                     /** @var Variant $model */
-                    return !$model->hasUnlimitedStock;
-                },
+                    !$model->hasUnlimitedStock,
                 'on' => self::SCENARIO_LIVE,
             ],
             [['stock'], 'number'],

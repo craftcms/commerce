@@ -57,9 +57,7 @@ class VariantType implements GeneratorInterface
             // Generate a type for each product type
             $gqlTypes[$typeName] = GqlEntityRegistry::getEntity($typeName) ?: GqlEntityRegistry::createEntity($typeName, new Variant([
                 'name' => $typeName,
-                'fields' => function() use ($fields) {
-                    return $fields;
-                },
+                'fields' => fn() => $fields,
             ]));
         }
 

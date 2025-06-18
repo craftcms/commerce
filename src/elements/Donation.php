@@ -71,10 +71,9 @@ class Donation extends Purchasable
 
         $rules[] = [['sku'], 'trim'];
         $rules[] = [
-            ['sku'], 'required', 'when' => function($model) {
+            ['sku'], 'required', 'when' => fn($model) =>
                 /** @var self $model */
-                return $model->availableForPurchase && $model->enabled;
-            },
+                $model->availableForPurchase && $model->enabled,
         ];
 
         return $rules;

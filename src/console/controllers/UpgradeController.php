@@ -263,14 +263,12 @@ class UpgradeController extends Controller
             ->all();
 
         // Filter out the address columns we don't need to migrate to custom fields
-        $this->neededCustomAddressFields = array_filter($this->neededCustomAddressFields, static function($fieldHandle) {
-            return (new Query())
-                ->select($fieldHandle)
-                ->where(['not', [$fieldHandle => null]])
-                ->andWhere(['not', [$fieldHandle => '']])
-                ->from(['{{%commerce_addresses}}'])
-                ->exists();
-        }, ARRAY_FILTER_USE_KEY);
+        $this->neededCustomAddressFields = array_filter($this->neededCustomAddressFields, static fn($fieldHandle) => (new Query())
+            ->select($fieldHandle)
+            ->where(['not', [$fieldHandle => null]])
+            ->andWhere(['not', [$fieldHandle => '']])
+            ->from(['{{%commerce_addresses}}'])
+            ->exists(), ARRAY_FILTER_USE_KEY);
 
         $startTime = DateTimeHelper::currentUTCDateTime();
 
@@ -395,7 +393,7 @@ class UpgradeController extends Controller
             $firstTab = $this->_addressFieldLayout->getTabs()[0];
             $layoutElements = $firstTab->getElements();
 
-            $list = implode(array_map(fn($label) => " - $label\n", $this->neededCustomAddressFields));
+            $list = implode('', array_map(fn($label) => " - $label\n", $this->neededCustomAddressFields));
             $this->stdout(<<<EOL
 Customer and order addresses will be migrated to native Craft address elements.
 Some of the existing addresses contain data that will need to be stored in custom fields:

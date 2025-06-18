@@ -23,6 +23,7 @@ use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderNoticesTrait;
 use craft\commerce\elements\traits\OrderValidatorsTrait;
 use craft\commerce\errors\CurrencyException;
+use craft\commerce\errors\OrderAdjustmentNotFoundException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\events\AddLineItemEvent;
 use craft\commerce\events\LineItemEvent;
@@ -50,6 +51,8 @@ use craft\elements\Address as AddressElement;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
+use craft\errors\LineItemNotFoundException;
+use craft\errors\MutexException;
 use craft\errors\UnsupportedSiteException;
 use craft\fields\BaseRelationField;
 use craft\helpers\ArrayHelper;
@@ -1475,10 +1478,9 @@ class Order extends Element
             // Are the addresses both being set to each other.
             [
                 ['billingAddress', 'shippingAddress'], 'validateAddressReuse',
-                'when' => function($model) {
+                'when' => fn($model) =>
                     /** @var Order $model */
-                    return !$model->isCompleted;
-                },
+                    !$model->isCompleted,
             ],
 
             // Line items are valid?
@@ -2037,164 +2039,178 @@ class Order extends Element
      */
     public function afterSave(bool $isNew): void
     {
-        // Make sure addresses are set before recalculation so that on the next page load
-        // the correct adjustments and totals are shown
-        if ($this->shippingSameAsBilling) {
-            $this->setShippingAddress($this->getBillingAddress());
+        $lockKey = "order-after-save:$this->number";
+        $mutex = Craft::$app->getMutex();
+        if (!$mutex->acquire($lockKey, 15)) {
+            throw new MutexException($lockKey, 'Could not acquire a lock to save the order.');
         }
 
-        if ($this->billingSameAsShipping) {
-            $this->setBillingAddress($this->getShippingAddress());
-        }
+        try {
 
-        // TODO: Move the recalculate to somewhere else. Saving should be for saving only #COM-40
-        // Right now orders always recalc when saved and not completed but that shouldn't always be the case.
-        $this->recalculate();
-
-        if (!$isNew) {
-            $orderRecord = OrderRecord::findOne($this->id);
-
-            if (!$orderRecord) {
-                throw new Exception('Invalid order ID: ' . $this->id);
+            // Make sure addresses are set before recalculation so that on the next page load
+            // the correct adjustments and totals are shown
+            if ($this->shippingSameAsBilling) {
+                $this->setShippingAddress($this->getBillingAddress());
             }
-        } else {
-            $orderRecord = new OrderRecord();
-            $orderRecord->id = $this->id;
-        }
 
-        $oldStatusId = $orderRecord->orderStatusId;
-
-        $orderRecord->number = $this->number;
-        $orderRecord->reference = $this->reference;
-        $orderRecord->itemTotal = $this->getItemTotal();
-        $orderRecord->itemSubtotal = $this->getItemSubtotal();
-        $orderRecord->email = $this->getEmail() ?: '';
-        $orderRecord->orderCompletedEmail = $this->orderCompletedEmail;
-        $orderRecord->isCompleted = $this->isCompleted;
-
-        $dateOrdered = $this->dateOrdered;
-        if (!$dateOrdered && $orderRecord->isCompleted) {
-            $dateOrdered = Db::prepareDateForDb(new DateTime());
-        }
-        $orderRecord->dateOrdered = $dateOrdered;
-
-        $orderRecord->datePaid = $this->datePaid ?: null;
-        $orderRecord->dateAuthorized = $this->dateAuthorized ?: null;
-        $orderRecord->shippingMethodHandle = $this->shippingMethodHandle ?? '';
-        $orderRecord->shippingMethodName = $this->shippingMethodName ?? '';
-        $orderRecord->paymentSourceId = $this->getPaymentSource() ? $this->getPaymentSource()->id : null;
-        $orderRecord->gatewayId = $this->gatewayId;
-        $orderRecord->orderStatusId = $this->orderStatusId;
-        $orderRecord->couponCode = $this->couponCode;
-        $orderRecord->total = $this->getTotal();
-        $orderRecord->totalPrice = $this->getTotalPrice();
-        $orderRecord->totalPaid = $this->getTotalPaid();
-        $orderRecord->totalDiscount = $this->getTotalDiscount();
-        $orderRecord->totalShippingCost = $this->getTotalShippingCost();
-        $orderRecord->totalTax = $this->getTotalTax();
-        $orderRecord->totalTaxIncluded = $this->getTotalTaxIncluded();
-        $orderRecord->totalQty = $this->getTotalQty();
-        $orderRecord->currency = $this->currency;
-        $orderRecord->lastIp = $this->lastIp;
-        $orderRecord->orderLanguage = $this->orderLanguage;
-        $orderRecord->orderSiteId = $this->orderSiteId;
-        $orderRecord->origin = $this->origin;
-        $orderRecord->paymentCurrency = $this->paymentCurrency;
-        $orderRecord->customerId = $this->getCustomerId();
-        $orderRecord->registerUserOnOrderComplete = $this->registerUserOnOrderComplete;
-        $orderRecord->saveBillingAddressOnOrderComplete = $this->saveBillingAddressOnOrderComplete;
-        $orderRecord->saveShippingAddressOnOrderComplete = $this->saveShippingAddressOnOrderComplete;
-        $orderRecord->returnUrl = $this->returnUrl;
-        $orderRecord->cancelUrl = $this->cancelUrl;
-        $orderRecord->message = $this->message;
-        $orderRecord->paidStatus = $this->getPaidStatus();
-        $orderRecord->recalculationMode = $this->getRecalculationMode();
-        $orderRecord->sourceShippingAddressId = $this->sourceShippingAddressId;
-        $orderRecord->sourceBillingAddressId = $this->sourceBillingAddressId;
-
-        // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
-        $orderRecord->dateUpdated = $this->dateUpdated;
-        $orderRecord->dateCreated = $this->dateCreated;
-
-        $currentUser = Craft::$app->getUser()->getIdentity();
-        $currentUserIsCustomer = ($currentUser && $this->getCustomer() && $currentUser->id == $this->getCustomer()->id);
-
-        if ($shippingAddress = $this->getShippingAddress()) {
-            // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
-            // This is because the order record has not been saved.
-            // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
-            $shippingAddress->setOwner($this); // Always ensure the address is owned by the order
-            $shippingAddress->title = Craft::t('commerce', 'Shipping Address'); // Ensure the address is labelled correctly
-            Craft::$app->getElements()->saveElement($shippingAddress, false);
-            $orderRecord->shippingAddressId = $shippingAddress->id;
-            $this->setShippingAddress($shippingAddress);
-            // Set primary shipping if asked
-            if ($this->makePrimaryShippingAddress && $currentUserIsCustomer && $this->sourceShippingAddressId) {
-                Plugin::getInstance()->getCustomers()->savePrimaryShippingAddressId($this->getCustomer(), $this->sourceShippingAddressId);
+            if ($this->billingSameAsShipping) {
+                $this->setBillingAddress($this->getShippingAddress());
             }
-        } else {
-            $orderRecord->shippingAddressId = null;
-            $this->setShippingAddress(null);
-        }
 
-        if ($billingAddress = $this->getBillingAddress()) {
-            // If these were set to the same address element, we don't want the same address IDs
-            if ($shippingAddress && $billingAddress->id == $shippingAddress->id) {
-                $billingAddress = Craft::$app->getElements()->duplicateElement($billingAddress,
-                    ['owner' => $this, 'title' => Craft::t('commerce', 'Billing Address')]);
+            // TODO: Move the recalculate to somewhere else. Saving should be for saving only #COM-40
+            // Right now orders always recalc when saved and not completed but that shouldn't always be the case.
+            $this->recalculate();
+
+            if (!$isNew) {
+                $orderRecord = OrderRecord::findOne($this->id);
+
+                if (!$orderRecord) {
+                    throw new Exception('Invalid order ID: ' . $this->id);
+                }
             } else {
+                $orderRecord = new OrderRecord();
+                $orderRecord->id = $this->id;
+            }
+
+            $oldStatusId = $orderRecord->orderStatusId;
+
+            $orderRecord->number = $this->number;
+            $orderRecord->reference = $this->reference;
+            $orderRecord->itemTotal = $this->getItemTotal();
+            $orderRecord->itemSubtotal = $this->getItemSubtotal();
+            $orderRecord->email = $this->getEmail() ?: '';
+            $orderRecord->orderCompletedEmail = $this->orderCompletedEmail;
+            $orderRecord->isCompleted = $this->isCompleted;
+
+            $dateOrdered = $this->dateOrdered;
+            if (!$dateOrdered && $orderRecord->isCompleted) {
+                $dateOrdered = Db::prepareDateForDb(new DateTime());
+            }
+            $orderRecord->dateOrdered = $dateOrdered;
+
+            $orderRecord->datePaid = $this->datePaid ?: null;
+            $orderRecord->dateAuthorized = $this->dateAuthorized ?: null;
+            $orderRecord->shippingMethodHandle = $this->shippingMethodHandle ?? '';
+            $orderRecord->shippingMethodName = $this->shippingMethodName ?? '';
+            $orderRecord->paymentSourceId = $this->getPaymentSource() ? $this->getPaymentSource()->id : null;
+            $orderRecord->gatewayId = $this->gatewayId;
+            $orderRecord->orderStatusId = $this->orderStatusId;
+            $orderRecord->couponCode = $this->couponCode;
+            $orderRecord->total = $this->getTotal();
+            $orderRecord->totalPrice = $this->getTotalPrice();
+            $orderRecord->totalPaid = $this->getTotalPaid();
+            $orderRecord->totalDiscount = $this->getTotalDiscount();
+            $orderRecord->totalShippingCost = $this->getTotalShippingCost();
+            $orderRecord->totalTax = $this->getTotalTax();
+            $orderRecord->totalTaxIncluded = $this->getTotalTaxIncluded();
+            $orderRecord->totalQty = $this->getTotalQty();
+            $orderRecord->currency = $this->currency;
+            $orderRecord->lastIp = $this->lastIp;
+            $orderRecord->orderLanguage = $this->orderLanguage;
+            $orderRecord->orderSiteId = $this->orderSiteId;
+            $orderRecord->origin = $this->origin;
+            $orderRecord->paymentCurrency = $this->paymentCurrency;
+            $orderRecord->customerId = $this->getCustomerId();
+            $orderRecord->registerUserOnOrderComplete = $this->registerUserOnOrderComplete;
+            $orderRecord->saveBillingAddressOnOrderComplete = $this->saveBillingAddressOnOrderComplete;
+            $orderRecord->saveShippingAddressOnOrderComplete = $this->saveShippingAddressOnOrderComplete;
+            $orderRecord->returnUrl = $this->returnUrl;
+            $orderRecord->cancelUrl = $this->cancelUrl;
+            $orderRecord->message = $this->message;
+            $orderRecord->paidStatus = $this->getPaidStatus();
+            $orderRecord->recalculationMode = $this->getRecalculationMode();
+            $orderRecord->sourceShippingAddressId = $this->sourceShippingAddressId;
+            $orderRecord->sourceBillingAddressId = $this->sourceBillingAddressId;
+
+            // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
+            $orderRecord->dateUpdated = $this->dateUpdated;
+            $orderRecord->dateCreated = $this->dateCreated;
+
+            $currentUser = Craft::$app->getUser()->getIdentity();
+            $currentUserIsCustomer = ($currentUser && $this->getCustomer() && $currentUser->id == $this->getCustomer()->id);
+
+            if ($shippingAddress = $this->getShippingAddress()) {
                 // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
                 // This is because the order record has not been saved.
                 // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
-                $billingAddress->setOwner($this); // Always ensure the address is owned by the order
-                $billingAddress->title = Craft::t('commerce', 'Billing Address'); // Ensure the address is labelled correctly
-                Craft::$app->getElements()->saveElement($billingAddress, false);
+                $shippingAddress->setOwner($this); // Always ensure the address is owned by the order
+                $shippingAddress->title = Craft::t('commerce', 'Shipping Address'); // Ensure the address is labelled correctly
+                Craft::$app->getElements()->saveElement($shippingAddress, false);
+                $orderRecord->shippingAddressId = $shippingAddress->id;
+                $this->setShippingAddress($shippingAddress);
+                // Set primary shipping if asked
+                if ($this->makePrimaryShippingAddress && $currentUserIsCustomer && $this->sourceShippingAddressId) {
+                    Plugin::getInstance()->getCustomers()->savePrimaryShippingAddressId($this->getCustomer(), $this->sourceShippingAddressId);
+                }
+            } else {
+                $orderRecord->shippingAddressId = null;
+                $this->setShippingAddress(null);
             }
 
-            $orderRecord->billingAddressId = $billingAddress->id;
-            $this->setBillingAddress($billingAddress);
-            // Set primary billing if asked
-            if ($this->makePrimaryBillingAddress && $currentUserIsCustomer && $this->sourceBillingAddressId) {
-                Plugin::getInstance()->getCustomers()->savePrimaryBillingAddressId($this->getCustomer(), $this->sourceBillingAddressId);
+            if ($billingAddress = $this->getBillingAddress()) {
+                // If these were set to the same address element, we don't want the same address IDs
+                if ($shippingAddress && $billingAddress->id == $shippingAddress->id) {
+                    $billingAddress = Craft::$app->getElements()->duplicateElement($billingAddress,
+                        ['owner' => $this, 'title' => Craft::t('commerce', 'Billing Address')]);
+                } else {
+                    // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
+                    // This is because the order record has not been saved.
+                    // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
+                    $billingAddress->setOwner($this); // Always ensure the address is owned by the order
+                    $billingAddress->title = Craft::t('commerce', 'Billing Address'); // Ensure the address is labelled correctly
+                    Craft::$app->getElements()->saveElement($billingAddress, false);
+                }
+
+                $orderRecord->billingAddressId = $billingAddress->id;
+                $this->setBillingAddress($billingAddress);
+                // Set primary billing if asked
+                if ($this->makePrimaryBillingAddress && $currentUserIsCustomer && $this->sourceBillingAddressId) {
+                    Plugin::getInstance()->getCustomers()->savePrimaryBillingAddressId($this->getCustomer(), $this->sourceBillingAddressId);
+                }
+            } else {
+                $orderRecord->billingAddressId = null;
+                $this->setBillingAddress(null);
             }
-        } else {
-            $orderRecord->billingAddressId = null;
-            $this->setBillingAddress(null);
-        }
 
-        if ($estimatedShippingAddress = $this->getEstimatedShippingAddress()) {
-            // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
-            // This is because the order record has not been saved.
-            // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
-            $estimatedShippingAddress->setOwner($this); // Always ensure the address is owned by the order
-            Craft::$app->getElements()->saveElement($estimatedShippingAddress, false);
-            $orderRecord->estimatedShippingAddressId = $estimatedShippingAddress->id;
-            $this->setEstimatedShippingAddress($estimatedShippingAddress);
+            if ($estimatedShippingAddress = $this->getEstimatedShippingAddress()) {
+                // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
+                // This is because the order record has not been saved.
+                // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
+                $estimatedShippingAddress->setOwner($this); // Always ensure the address is owned by the order
+                Craft::$app->getElements()->saveElement($estimatedShippingAddress, false);
+                $orderRecord->estimatedShippingAddressId = $estimatedShippingAddress->id;
+                $this->setEstimatedShippingAddress($estimatedShippingAddress);
 
-            // If estimate billing same as shipping set it here
-            if ($this->estimatedBillingSameAsShipping) {
-                $orderRecord->estimatedBillingAddressId = $estimatedShippingAddress->id;
-                $this->setEstimatedBillingAddress($estimatedShippingAddress);
+                // If estimate billing same as shipping set it here
+                if ($this->estimatedBillingSameAsShipping) {
+                    $orderRecord->estimatedBillingAddressId = $estimatedShippingAddress->id;
+                    $this->setEstimatedBillingAddress($estimatedShippingAddress);
+                }
             }
+
+            if (!$this->estimatedBillingSameAsShipping && $estimatedBillingAddress = $this->getEstimatedBillingAddress()) {
+                // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
+                // This is because the order record has not been saved.
+                // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
+                $estimatedBillingAddress->setOwner($this); // Always ensure the address is owned by the order
+                Craft::$app->getElements()->saveElement($estimatedBillingAddress, false);
+                $orderRecord->estimatedBillingAddressId = $estimatedBillingAddress->id;
+                $this->setEstimatedBillingAddress($estimatedBillingAddress);
+            }
+
+            $orderRecord->save(false);
+
+            $this->_saveAdjustments();
+            $this->_saveLineItems();
+            $this->_saveNotices();
+            $this->_saveOrderHistory($oldStatusId, $orderRecord->orderStatusId);
+            $this->_deleteOrphanedOrderAddresses();
+        } catch (\Exception $exception) {
+            $mutex->release($lockKey);
+            throw $exception;
         }
 
-        if (!$this->estimatedBillingSameAsShipping && $estimatedBillingAddress = $this->getEstimatedBillingAddress()) {
-            // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
-            // This is because the order record has not been saved.
-            // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
-            $estimatedBillingAddress->setOwner($this); // Always ensure the address is owned by the order
-            Craft::$app->getElements()->saveElement($estimatedBillingAddress, false);
-            $orderRecord->estimatedBillingAddressId = $estimatedBillingAddress->id;
-            $this->setEstimatedBillingAddress($estimatedBillingAddress);
-        }
-
-        $orderRecord->save(false);
-
-        $this->_saveAdjustments();
-        $this->_saveLineItems();
-        $this->_saveNotices();
-        $this->_saveOrderHistory($oldStatusId, $orderRecord->orderStatusId);
-        $this->_deleteOrphanedOrderAddresses();
+        $mutex->release($lockKey);
 
         parent::afterSave($isNew);
     }
@@ -2583,13 +2599,9 @@ class Order extends Element
             $this->_transactions = Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id);
         }
 
-        $paidTransactions = ArrayHelper::where($this->_transactions, static function(Transaction $transaction) {
-            return $transaction->status == TransactionRecord::STATUS_SUCCESS && ($transaction->type == TransactionRecord::TYPE_PURCHASE || $transaction->type == TransactionRecord::TYPE_CAPTURE);
-        });
+        $paidTransactions = ArrayHelper::where($this->_transactions, static fn(Transaction $transaction) => $transaction->status == TransactionRecord::STATUS_SUCCESS && ($transaction->type == TransactionRecord::TYPE_PURCHASE || $transaction->type == TransactionRecord::TYPE_CAPTURE));
 
-        $refundedTransactions = ArrayHelper::where($this->_transactions, static function(Transaction $transaction) {
-            return $transaction->status == TransactionRecord::STATUS_SUCCESS && $transaction->type == TransactionRecord::TYPE_REFUND;
-        });
+        $refundedTransactions = ArrayHelper::where($this->_transactions, static fn(Transaction $transaction) => $transaction->status == TransactionRecord::STATUS_SUCCESS && $transaction->type == TransactionRecord::TYPE_REFUND);
 
         $paid = array_sum(ArrayHelper::getColumn($paidTransactions, 'amount', false));
         $refunded = array_sum(ArrayHelper::getColumn($refundedTransactions, 'amount', false));
@@ -3063,10 +3075,9 @@ class Order extends Element
     public function hasMatchingAddresses(?array $attributes = null): bool
     {
         $addressAttributes = (new ReflectionClass(AddressInterface::class))->getMethods();
-        $addressAttributes = array_map(static function(ReflectionMethod $method) {
+        $addressAttributes = array_map(static fn(ReflectionMethod $method) =>
             // Remove `get` and lower case first character
-            return lcfirst(substr($method->name, 3));
-        }, $addressAttributes);
+            lcfirst(substr($method->name, 3)), $addressAttributes);
 
         $relationCustomFieldHandles = [];
         $customFieldHandles = array_map(static function(FieldInterface $field) use (&$relationCustomFieldHandles) {
@@ -3077,9 +3088,7 @@ class Order extends Element
             return $field->handle;
         }, (new AddressElement())->getFieldLayout()->getCustomFields());
 
-        $nameTraitProperties = array_map(static function(ReflectionProperty $property) {
-            return $property->name;
-        }, (new ReflectionClass(NameTrait::class))->getProperties());
+        $nameTraitProperties = array_map(static fn(ReflectionProperty $property) => $property->name, (new ReflectionClass(NameTrait::class))->getProperties());
 
         $toArrayHandles = [...$nameTraitProperties, ...$addressAttributes, ...$customFieldHandles];
 
@@ -3404,8 +3413,15 @@ class Order extends Element
         $newAdjustmentIds = [];
 
         foreach ($this->getAdjustments() as $adjustment) {
-            // Don't run validation as validation of the adjustments should happen before saving the order
-            Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
+            try {
+                // Don't run validation as validation of the adjustment should happen before saving the order
+                Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
+            } catch (OrderAdjustmentNotFoundException) {
+                // If the adjustment was not found, it means it may have previously existed but was already deleted (race condition).
+                // See: https://github.com/craftcms/commerce/issues/3283
+                continue;
+            }
+
             $newAdjustmentIds[] = $adjustment->id;
             $adjustment->orderId = $this->id;
         }
@@ -3507,8 +3523,14 @@ class Order extends Element
             $originalId = $lineItem->id;
             $lineItem->setOrder($this); // just in case.
 
-            // Don't run validation as validation of the line item should happen before saving the order
-            Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
+            try {
+                // Don't run validation as validation of the line item should happen before saving the order
+                Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
+            } catch (LineItemNotFoundException) {
+                // If the line item was not found, it means it may have previously existed but was already deleted (race condition).
+                // See: https://github.com/craftcms/commerce/issues/3283
+                continue;
+            }
 
             // Is this a new line item?
             if ($originalId === null) {
@@ -3528,7 +3550,12 @@ class Order extends Element
                     // Re-save the adjustment with the new line item ID, since it exists now.
                     $adjustment->lineItemId = $lineItem->id;
                     // Validation not needed as the adjustments are validated before the order is saved
-                    Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
+                    try {
+                        Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
+                    } catch (OrderAdjustmentNotFoundException) {
+                        // This can happen if the adjustment was removed during a race condition recalculation.
+                        continue;
+                    }
                 }
             }
         }

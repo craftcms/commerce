@@ -30,7 +30,6 @@ use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\db\StaleObjectException;
-use function get_class;
 use function in_array;
 
 /**
@@ -599,7 +598,7 @@ class Sales extends Component
                 $relation = new SalePurchasableRecord();
                 $relation->purchasableId = $purchasableId;
                 $purchasable = Craft::$app->getElements()->getElementById($purchasableId, null, null, ['trashed' => null]);
-                $relation->purchasableType = get_class($purchasable);
+                $relation->purchasableType = $purchasable::class;
                 $relation->saleId = $model->id;
                 $relation->save();
 
