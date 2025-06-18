@@ -1211,7 +1211,7 @@ return [
     '{pct} off the original item price' => '{pct} avslag på opprinnelig pris',
     '{pct} off total discounted price (deprecated)' => '{pct} avslag på samlet rabattert pris (utfasing)',
     '{pct} off total discounted price and shipping total (deprecated)' => '{pct} rabatt på total rabattert pris og frakttotal (utfasing)',
-    '{pct} off total original price (deprecated)' => '{pct} avslag på samlet opprinnelig pris (utfasing)',
+    '{pct} off total original price (deprecated)' => '{pct} rabatt på samlet opprinnelig pris (utfasing)',
     '{pct} off total original price and shipping total (deprecated)' => '{pct} rabatt på total opprinnelig pris og frakttotal (utfasing)',
     '{total} in total revenue' => '{total} i total inntekt',
     '{total} orders' => '{total} ordrer',

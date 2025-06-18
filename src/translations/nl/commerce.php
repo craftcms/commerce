@@ -752,7 +752,7 @@ return [
     'Plan' => 'Plan',
     'Plans reordered.' => 'Plannen herschikt.',
     'Plans' => 'Abonnementen',
-    'Please ensure the <a href="{url}">upgrade command</a> has finished running.' => 'Zorg dat het <a href="{url}">upgradeopdracht</a> is voltooid.',
+    'Please ensure the <a href="{url}">upgrade command</a> has finished running.' => 'Zorg dat de <a href="{url}">upgradeopdracht</a> is voltooid.',
     'Post Date' => 'Post datum',
     'Postal Code Formula' => 'Postcodeformule',
     'Pounds (lb)' => 'Pond (lb)',
