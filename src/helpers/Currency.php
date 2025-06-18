@@ -52,7 +52,6 @@ class Currency
      * Formats and optionally converts a currency amount into the supplied valid payment currency as per the rate setup in payment currencies.
      *
      * @param      $amount
-     * @param mixed $currency
      * @param bool $convert
      * @param bool $format
      * @param bool $stripZeros

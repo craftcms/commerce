@@ -745,15 +745,10 @@ class Subscription extends Element
      */
     protected static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
     {
-        switch ($attribute) {
-            case 'subscriber':
-                $elementQuery->andWith('subscriber');
-                break;
-            case 'orderLink':
-                $elementQuery->andWith('order');
-                break;
-            default:
-                parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
-        }
+        match ($attribute) {
+            'subscriber' => $elementQuery->andWith('subscriber'),
+            'orderLink' => $elementQuery->andWith('order'),
+            default => parent::prepElementQueryForTableAttribute($elementQuery, $attribute),
+        };
     }
 }

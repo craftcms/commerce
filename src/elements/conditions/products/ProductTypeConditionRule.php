@@ -61,9 +61,7 @@ class ProductTypeConditionRule extends BaseMultiSelectConditionRule implements E
         $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
 
         /** @var string[] $value */
-        $value = $this->paramValue(function(string $value) use ($productTypes) {
-            return ArrayHelper::firstWhere($productTypes, 'uid', $value)?->handle;
-        });
+        $value = $this->paramValue(fn(string $value) => ArrayHelper::firstWhere($productTypes, 'uid', $value)?->handle);
 
         /** @var ProductQuery $query */
         $query->type($value);

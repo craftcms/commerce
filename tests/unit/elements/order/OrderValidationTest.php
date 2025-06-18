@@ -34,7 +34,7 @@ class OrderValidationTest extends Unit
     /**
      * @var Plugin|null
      */
-    protected ?Plugin $pluginInstance;
+    protected ?Plugin $pluginInstance = null;
 
     /**
      *

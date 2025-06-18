@@ -1477,10 +1477,9 @@ class Order extends Element
             // Are the addresses both being set to each other.
             [
                 ['billingAddress', 'shippingAddress'], 'validateAddressReuse',
-                'when' => function($model) {
+                'when' => fn($model) =>
                     /** @var Order $model */
-                    return !$model->isCompleted;
-                },
+                    !$model->isCompleted,
             ],
 
             // Line items are valid?
@@ -2585,13 +2584,9 @@ class Order extends Element
             $this->_transactions = Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id);
         }
 
-        $paidTransactions = ArrayHelper::where($this->_transactions, static function(Transaction $transaction) {
-            return $transaction->status == TransactionRecord::STATUS_SUCCESS && ($transaction->type == TransactionRecord::TYPE_PURCHASE || $transaction->type == TransactionRecord::TYPE_CAPTURE);
-        });
+        $paidTransactions = ArrayHelper::where($this->_transactions, static fn(Transaction $transaction) => $transaction->status == TransactionRecord::STATUS_SUCCESS && ($transaction->type == TransactionRecord::TYPE_PURCHASE || $transaction->type == TransactionRecord::TYPE_CAPTURE));
 
-        $refundedTransactions = ArrayHelper::where($this->_transactions, static function(Transaction $transaction) {
-            return $transaction->status == TransactionRecord::STATUS_SUCCESS && $transaction->type == TransactionRecord::TYPE_REFUND;
-        });
+        $refundedTransactions = ArrayHelper::where($this->_transactions, static fn(Transaction $transaction) => $transaction->status == TransactionRecord::STATUS_SUCCESS && $transaction->type == TransactionRecord::TYPE_REFUND);
 
         $paid = array_sum(ArrayHelper::getColumn($paidTransactions, 'amount', false));
         $refunded = array_sum(ArrayHelper::getColumn($refundedTransactions, 'amount', false));
@@ -3065,10 +3060,9 @@ class Order extends Element
     public function hasMatchingAddresses(?array $attributes = null): bool
     {
         $addressAttributes = (new ReflectionClass(AddressInterface::class))->getMethods();
-        $addressAttributes = array_map(static function(ReflectionMethod $method) {
+        $addressAttributes = array_map(static fn(ReflectionMethod $method) =>
             // Remove `get` and lower case first character
-            return lcfirst(substr($method->name, 3));
-        }, $addressAttributes);
+            lcfirst(substr($method->name, 3)), $addressAttributes);
 
         $relationCustomFieldHandles = [];
         $customFieldHandles = array_map(static function(FieldInterface $field) use (&$relationCustomFieldHandles) {
@@ -3079,9 +3073,7 @@ class Order extends Element
             return $field->handle;
         }, (new AddressElement())->getFieldLayout()->getCustomFields());
 
-        $nameTraitProperties = array_map(static function(ReflectionProperty $property) {
-            return $property->name;
-        }, (new ReflectionClass(NameTrait::class))->getProperties());
+        $nameTraitProperties = array_map(static fn(ReflectionProperty $property) => $property->name, (new ReflectionClass(NameTrait::class))->getProperties());
 
         $toArrayHandles = [...$nameTraitProperties, ...$addressAttributes, ...$customFieldHandles];
 

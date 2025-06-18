@@ -34,7 +34,6 @@ use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\web\ServerErrorHttpException;
-use function get_class;
 
 /**
  * Gateway service.
@@ -110,9 +109,7 @@ class Gateways extends Component
      */
     public function getAllCustomerEnabledGateways(): array
     {
-        return ArrayHelper::where($this->getAllGateways(), function($gateway) {
-            return $gateway->getIsFrontendEnabled();
-        });
+        return ArrayHelper::where($this->getAllGateways(), fn($gateway) => $gateway->getIsFrontendEnabled());
     }
 
     /**
@@ -122,9 +119,7 @@ class Gateways extends Component
      */
     public function getAllSubscriptionGateways(): array
     {
-        return ArrayHelper::where($this->_getAllGateways(), function($gateway) {
-            return $gateway instanceof SubscriptionGateway && !$gateway->isArchived;
-        });
+        return ArrayHelper::where($this->_getAllGateways(), fn($gateway) => $gateway instanceof SubscriptionGateway && !$gateway->isArchived);
     }
 
     /**
@@ -256,7 +251,7 @@ class Gateways extends Component
             $configData = [
                 'name' => $gateway->name,
                 'handle' => $gateway->handle,
-                'type' => get_class($gateway),
+                'type' => $gateway::class,
                 'settings' => $gateway->getSettings(),
                 'sortOrder' => ($gateway->sortOrder ?? 99),
                 'paymentType' => $gateway->paymentType,

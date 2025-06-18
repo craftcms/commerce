@@ -104,9 +104,7 @@ class ProductPermissionTest extends Unit
             Craft::$app,
             'userPermissions',
             [
-                'getPermissionsByUserId' => function() use ($permissions) {
-                    return $permissions;
-                },
+                'getPermissionsByUserId' => fn() => $permissions,
             ],
             []
         );

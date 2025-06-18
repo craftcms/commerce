@@ -142,7 +142,7 @@ class Formulas extends Component
     private function _hasDisallowedStrings(string $code, array $disallowedStrings = []): bool
     {
         foreach ($disallowedStrings as $disallowedString) {
-            if (stripos($code, $disallowedString) !== false) {
+            if (stripos($code, (string) $disallowedString) !== false) {
                 return true;
             }
         }
