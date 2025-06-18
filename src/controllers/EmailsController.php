@@ -17,6 +17,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
 use craft\helpers\App;
 use craft\helpers\ArrayHelper;
+use craft\models\Site;
 use yii\base\ErrorException;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -102,6 +103,11 @@ class EmailsController extends BaseAdminController
         ];
 
         $variables['emailLanguageOptions'] = array_merge($emailLanguageOptions, LocaleHelper::getSiteAndOtherLanguages());
+
+        $variables['emailRenderSiteOptions'] = array_merge([
+            null => Craft::t('commerce', 'The site the order was made in.'),
+            ['optgroup' => Craft::t('commerce', 'Sites')],
+        ], collect(Craft::$app->getSites()->getAllSites())->mapWithKeys(fn(Site $site) => [$site->id => $site->name])->all());
 
         $variables['readOnly'] = $this->isReadOnlyScreen();
 

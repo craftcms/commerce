@@ -192,6 +192,17 @@
         disabled: readOnly,
     }) }}
 
+    {{ forms.selectField({
+        label: 'Site'|t('commerce'),
+        instructions: "The site to be used when email is rendered."|t,
+        id: 'renderSiteId',
+        name: 'renderSiteId',
+        options : emailRenderSiteOptions,
+        value : email.renderSiteId,
+        errors: email.getErrors('renderSiteId') ?? null,
+        disabled: readOnly,
+    }) }}
+
     {{ forms.lightswitchField({
         label: "Enabled?"|t('commerce'),
         instructions: 'If disabled, this email will not send.'|t('commerce'),

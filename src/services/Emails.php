@@ -341,6 +341,7 @@ class Emails extends Component
             $emailRecord = $this->_getEmailRecord($emailUid);
             $isNewEmail = $emailRecord->getIsNewRecord();
             $store = Plugin::getInstance()->getStores()->getStoreByUid($data['store']);
+            $renderSite = array_key_exists('renderSite', $data) && $data['renderSite'] !== null ? Craft::$app->getSites()->getSiteByUid($data['renderSite']) : null;
 
             $emailRecord->storeId = $store->id;
             $emailRecord->name = $data['name'];
@@ -358,6 +359,7 @@ class Emails extends Component
             $emailRecord->uid = $emailUid;
             $emailRecord->pdfId = $pdfUid ? Db::idByUid(Table::PDFS, $pdfUid) : null;
             $emailRecord->language = $data['language'] ?? EmailRecord::LOCALE_ORDER_LANGUAGE;
+            $emailRecord->renderSiteId = $renderSite?->id ?? null;
 
             $emailRecord->save(false);
 
@@ -477,6 +479,7 @@ class Emails extends Component
         $originalLanguage = Craft::$app->language;
         $originalFormattingLanguage = Craft::$app->formattingLocale;
         $emailLanguage = $email->getRenderLanguage($order);
+        $emailSite = $email->getRenderSite($order);
 
         Locale::switchAppLanguage($emailLanguage);
 
@@ -783,9 +786,8 @@ class Emails extends Component
             }
         }
 
-        // Switch to the site the order was placed on
         $originalSiteId = Craft::$app->getSites()->getCurrentSite()->id;
-        Craft::$app->getSites()->setCurrentSite($order->orderSiteId);
+        Craft::$app->getSites()->setCurrentSite($emailSite);
 
         // Render HTML body
         try {
