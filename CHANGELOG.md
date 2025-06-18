@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce
 
+## 4.9.0 - 2025-06-18
+
+- Added the `localized` field to products’ GraphQL data. ([#3783](https://github.com/craftcms/commerce/discussions/3783))
+- Added `craft\commerce\taxidvalidators\EuVatIdValidator::API_URL`.
+- Fixed a PHP error that could occur when saving an order. ([#3283](https://github.com/craftcms/commerce/issues/3283))
+
 ## 4.8.4 - 2025-05-01
 
 - Fixed a bug where products weren’t getting updated when default variants were saved directly. ([#3988](https://github.com/craftcms/commerce/issues/3988))
