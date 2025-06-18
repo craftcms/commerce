@@ -53,7 +53,7 @@ class Store extends Model
     /**
      * @var ?ZoneAddressCondition
      */
-    private ?ZoneAddressCondition $_marketAddressCondition;
+    private ?ZoneAddressCondition $_marketAddressCondition = null;
 
     /**
      * Sets the store location address ID.
@@ -163,13 +163,12 @@ class Store extends Model
     }
 
     /**
-     * @param mixed $countries
      * @return void
      * @throws InvalidConfigException
      */
     public function setCountries(mixed $countries): void
     {
-        $countries = $countries ?? [];
+        $countries ??= [];
         $countries = Json::decodeIfJson($countries);
 
         if (!is_array($countries)) {
@@ -185,9 +184,7 @@ class Store extends Model
     public function getCountriesList(): array
     {
         $all = Craft::$app->getAddresses()->getCountryRepository()->getList(Craft::$app->language);
-        return array_filter($all, function($fieldHandle) {
-            return in_array($fieldHandle, $this->getCountries(), true);
-        }, ARRAY_FILTER_USE_KEY);
+        return array_filter($all, fn($fieldHandle) => in_array($fieldHandle, $this->getCountries(), true), ARRAY_FILTER_USE_KEY);
     }
 
     /**

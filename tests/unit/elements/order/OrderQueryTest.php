@@ -64,7 +64,6 @@ class OrderQueryTest extends Unit
     }
 
     /**
-     * @param mixed $handle
      * @param int $count
      * @return void
      * @dataProvider shippingMethodHandleDataProvider

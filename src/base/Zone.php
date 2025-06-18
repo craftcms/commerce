@@ -47,7 +47,7 @@ abstract class Zone extends BaseModel implements ZoneInterface
     /**
      * @var ?ZoneAddressCondition
      */
-    private ?ZoneAddressCondition $_condition;
+    private ?ZoneAddressCondition $_condition = null;
 
     abstract public function getCpEditUrl(): string;
 

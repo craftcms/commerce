@@ -140,37 +140,18 @@ class ProductQuery extends ElementQuery
      */
     public function __set($name, $value)
     {
-        switch ($name) {
-            case 'type':
-                $this->type($value);
-                break;
-            case 'before':
-                $this->before($value);
-                break;
-            case 'after':
-                $this->after($value);
-                break;
-            case 'defaultHeight':
-                $this->defaultHeight($value);
-                break;
-            case 'defaultLength':
-                $this->defaultLength($value);
-                break;
-            case 'defaultWidth':
-                $this->defaultWidth($value);
-                break;
-            case 'defaultWeight':
-                $this->defaultWeight($value);
-                break;
-            case 'defaultSku':
-                $this->defaultSku($value);
-                break;
-            case 'shippingCategory':
-                $this->shippingCategory($value);
-                break;
-            default:
-                parent::__set($name, $value);
-        }
+        match ($name) {
+            'type' => $this->type($value),
+            'before' => $this->before($value),
+            'after' => $this->after($value),
+            'defaultHeight' => $this->defaultHeight($value),
+            'defaultLength' => $this->defaultLength($value),
+            'defaultWidth' => $this->defaultWidth($value),
+            'defaultWeight' => $this->defaultWeight($value),
+            'defaultSku' => $this->defaultSku($value),
+            'shippingCategory' => $this->shippingCategory($value),
+            default => parent::__set($name, $value),
+        };
     }
 
     /**

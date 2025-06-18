@@ -696,7 +696,7 @@ class Emails extends Component
                 if ($pdf->fileNameFormat) {
                     try {
                         $fileName = $view->renderObjectTemplate($pdf->fileNameFormat, $order);
-                    } catch (\Throwable $e) {
+                    } catch (\Throwable) {
                         $fileName = $defaultFileName;
                     }
                 }

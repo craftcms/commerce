@@ -232,9 +232,7 @@ class ShippingCategories extends Component
 
         // Find the shipping category and check it isn't the default
         /** @var ShippingCategory $shippingCategory */
-        $shippingCategory = ArrayHelper::firstWhere($all, function(ShippingCategory $s) use ($id) {
-            return $s->id == $id;
-        });
+        $shippingCategory = ArrayHelper::firstWhere($all, fn(ShippingCategory $s) => $s->id == $id);
 
         if ($shippingCategory->default) {
             return false;

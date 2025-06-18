@@ -202,7 +202,6 @@ class VariantQuery extends ElementQuery
      *     ->one();
      * ```
      *
-     * @param mixed $value
      * @return static self reference
      */
     public function sku(mixed $value): VariantQuery
@@ -220,7 +219,6 @@ class VariantQuery extends ElementQuery
      * | - | -
      * | a [[Product|Product]] object | for a product represented by the object.
      *
-     * @param mixed $value
      * @return static self reference
      */
     public function product(mixed $value): VariantQuery
@@ -244,7 +242,6 @@ class VariantQuery extends ElementQuery
      * | `[1, 2]` | for product with an ID of 1 or 2.
      * | `['not', 1, 2]` | for product not with an ID of 1 or 2.
      *
-     * @param mixed $value
      * @return static self reference
      */
     public function productId(mixed $value): VariantQuery
@@ -264,7 +261,6 @@ class VariantQuery extends ElementQuery
      * | `[1, 2]` | for product of a type with an ID of 1 or 2.
      * | `['not', 1, 2]` | for product of a type not with an ID of 1 or 2.
      *
-     * @param mixed $value
      * @return static self reference
      */
     public function typeId(mixed $value): VariantQuery

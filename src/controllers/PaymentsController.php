@@ -292,7 +292,7 @@ class PaymentsController extends BaseFrontEndController
 
                     // Last line of try block we have a successful payment source creation
                     $sourceCreated = true;
-                } catch (PaymentSourceCreatedLaterException $exception) {
+                } catch (PaymentSourceCreatedLaterException) {
                     if (property_exists($paymentForm, 'paymentSource')) {
                         $paymentForm->savePaymentSource = true;
                     }

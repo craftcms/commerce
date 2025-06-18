@@ -30,12 +30,12 @@ class DiscountTest extends Unit
     /**
      * @var Plugin|null
      */
-    public ?Plugin $pluginInstance;
+    public ?Plugin $pluginInstance = null;
 
     /**
      * @var string|null
      */
-    public ?string $originalEdition;
+    public ?string $originalEdition = null;
 
     /**
      * @inheritdoc
@@ -69,12 +69,8 @@ class DiscountTest extends Unit
 
         // Mock discounts service
         $this->pluginInstance->set('discounts', $this->make(Discounts::class, [
-            'getAllActiveDiscounts' => function($o) use ($discount) {
-                return [$discount];
-            },
-            'matchOrder' => function($o, $d) {
-                return true;
-            },
+            'getAllActiveDiscounts' => fn($o) => [$discount],
+            'matchOrder' => fn($o, $d) => true,
         ]));
 
         $order = new Order();
@@ -84,9 +80,7 @@ class DiscountTest extends Unit
             $lineItem = $this->make(LineItem::class, [
                 'qty' => $item['qty'],
                 'salePrice' => $item['salePrice'],
-                'getPurchasable' => function() use ($item) {
-                    return $item['purchasable'];
-                },
+                'getPurchasable' => fn() => $item['purchasable'],
             ]);
             $lineItems[] = $lineItem;
         }
