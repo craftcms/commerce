@@ -144,9 +144,7 @@ class TaxRate extends Model implements HasStoreInterface
         $rules[] = [
             ['taxCategoryId'],
             'required',
-            'when' => function($model): bool {
-                return !in_array($model->taxable, TaxRateRecord::ORDER_TAXABALES, true);
-            },
+            'when' => fn($model): bool => !in_array($model->taxable, TaxRateRecord::ORDER_TAXABALES, true),
         ];
         $rules[] = [[
             'code',

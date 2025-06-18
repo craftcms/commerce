@@ -68,7 +68,7 @@ class CurrencyAttributeBehavior extends Behavior
      * @uses setDefaultCurrency()
      * @uses getDefaultCurrency()
      */
-    private ?string $_defaultCurrency;
+    private ?string $_defaultCurrency = null;
 
     /**
      * @var array mapping of attribute => currency if the default is not desired

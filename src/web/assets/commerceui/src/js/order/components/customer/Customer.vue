@@ -29,11 +29,7 @@
                 <div class="w-full light">{{ customer.email }}</div>
                 <div
                     class="w-full"
-                    v-if="
-                        display &&
-                        customer.cpEditUrl &&
-                        currentUserPermissions.editUsers
-                    "
+                    v-if="display && customer.cpEditUrl && canEditUsers"
                 >
                     <a :href="customer.cpEditUrl" v-if="customer.cpEditUrl">{{
                         $options.filters.t('View customer', 'commerce')
@@ -123,7 +119,7 @@
         },
 
         computed: {
-            ...mapGetters(['currentUserPermissions']),
+            ...mapGetters(['canEditUsers']),
 
             initialChar() {
                 const displayName = this.getDisplayName();

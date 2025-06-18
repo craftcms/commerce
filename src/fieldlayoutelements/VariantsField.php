@@ -63,6 +63,7 @@ class VariantsField extends BaseNativeField
 
         return $element->getVariantManager()->getIndexHtml($element, [
             'canCreate' => !$static,
+            'canPaste' => !$static,
             'minElements' => 0,
             'maxElements' => $maxVariants ?? null,
             'allowedViewModes' => [ElementIndexViewMode::Cards, ElementIndexViewMode::Table],

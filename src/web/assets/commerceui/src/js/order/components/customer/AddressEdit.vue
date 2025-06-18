@@ -64,6 +64,28 @@
                             }}
                         </button>
                     </li>
+                    <li>
+                        <button
+                            class="menu-item"
+                            :class="{disabled: !address || !canCopyToUser}"
+                            :disabled="!address"
+                            data-icon="clipboard"
+                            @click.prevent="handleCopyToUser"
+                        >
+                            {{
+                                $options.filters.t(
+                                    'Copy to {location}',
+                                    'commerce',
+                                    {
+                                        location: $options.filters.t(
+                                            'User',
+                                            'commerce'
+                                        ),
+                                    }
+                                )
+                            }}
+                        </button>
+                    </li>
                 </ul>
                 <hr class="padded" />
                 <ul class="padded">
@@ -140,7 +162,7 @@
 
 <script>
     /* global Garnish */
-    import {mapGetters} from 'vuex';
+    import {mapActions, mapGetters} from 'vuex';
     import AddressSelect from './AddressSelect';
 
     export default {
@@ -152,6 +174,10 @@
             address: {
                 type: [String, null],
                 default: null,
+            },
+            canCopyToUser: {
+                type: Boolean,
+                default: false,
             },
             copyToAddress: {
                 type: [String, null],
@@ -193,6 +219,8 @@
         },
 
         methods: {
+            ...mapActions(['copyAddressToUser']),
+
             handleEditAddress() {
                 if (!this.address) {
                     return;
@@ -276,7 +304,7 @@
                                 },
                             }
                         ).then((response) => {
-                            this.$emit('update', response.data.address);
+                            this.$emit('update', response.data.address, true);
                         });
                     });
                 });
@@ -284,7 +312,7 @@
 
             handleSelect(address) {
                 if (address) {
-                    this.$emit('update', address);
+                    this.$emit('update', address, false);
                 }
             },
 
@@ -292,6 +320,12 @@
                 this.hideDisclosureMenu();
 
                 this.$emit('copy');
+            },
+
+            handleCopyToUser() {
+                this.hideDisclosureMenu();
+
+                this.$emit('copyAddressToUser');
             },
 
             handleRemove() {

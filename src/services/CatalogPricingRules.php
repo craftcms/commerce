@@ -78,7 +78,7 @@ class CatalogPricingRules extends Component
      */
     public function getAllCatalogPricingRules(?int $storeId = null): Collection
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         if ($this->_allCatalogPricingRules === null || !isset($this->_allCatalogPricingRules[$storeId])) {
             $query = $this->_createCatalogPricingRuleQuery()
@@ -106,7 +106,7 @@ class CatalogPricingRules extends Component
      */
     public function getAllCatalogPricingRulesByPurchasableId(int $purchasableId, ?int $storeId = null): Collection
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
         // @TODO figure out if memoization is needed here
         $catalogPricingRules = $this->_createCatalogPricingRuleQuery()
             ->andWhere(['id' => (new Query())
@@ -137,10 +137,9 @@ class CatalogPricingRules extends Component
      */
     public function getAllActiveCatalogPricingRules(?int $storeId = null): Collection
     {
-        return $this->getAllEnabledCatalogPricingRules($storeId)->where(function(CatalogPricingRule $pcr) {
+        return $this->getAllEnabledCatalogPricingRules($storeId)->where(fn(CatalogPricingRule $pcr) =>
             // If there are no dates or rule is currently in the date range add it to the active list
-            return (($pcr->dateFrom === null || $pcr->dateFrom->getTimestamp() <= time()) && ($pcr->dateTo === null || $pcr->dateTo->getTimestamp() >= time()));
-        });
+            ($pcr->dateFrom === null || $pcr->dateFrom->getTimestamp() <= time()) && ($pcr->dateTo === null || $pcr->dateTo->getTimestamp() >= time()));
     }
 
     /**
@@ -150,9 +149,7 @@ class CatalogPricingRules extends Component
      */
     public function getAllCatalogPricingRulesWithUserConditions(?int $storeId = null): Collection
     {
-        return $this->getAllCatalogPricingRules($storeId)->where(function(CatalogPricingRule $pcr) {
-            return !empty($pcr->getCustomerCondition()->getConditionRules());
-        });
+        return $this->getAllCatalogPricingRules($storeId)->where(fn(CatalogPricingRule $pcr) => !empty($pcr->getCustomerCondition()->getConditionRules()));
     }
 
     /**
@@ -340,6 +337,7 @@ class CatalogPricingRules extends Component
                 'enabled',
                 'id',
                 'isPromotionalPrice',
+                'metadata',
                 'name',
                 'productCondition',
                 'purchasableCondition',
@@ -366,10 +364,10 @@ class CatalogPricingRules extends Component
     protected function _createCatalogPricingRuleModels(array $rows): Collection
     {
         return collect($rows)->map(function($row) {
-            $row['customerCondition'] = $row['customerCondition'] ?? '';
-            $row['productCondition'] = $row['productCondition'] ?? '';
-            $row['purchasableCondition'] = $row['purchasableCondition'] ?? '';
-            $row['variantCondition'] = $row['variantCondition'] ?? '';
+            $row['customerCondition'] ??= '';
+            $row['productCondition'] ??= '';
+            $row['purchasableCondition'] ??= '';
+            $row['variantCondition'] ??= '';
 
             return Craft::createObject(CatalogPricingRule::class, ['config' => ['attributes' => $row]]);
         })->keyBy('id');

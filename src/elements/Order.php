@@ -46,7 +46,6 @@ use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\records\Order as OrderRecord;
-use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\commerce\records\OrderNotice as OrderNoticeRecord;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
@@ -1563,10 +1562,9 @@ class Order extends Element implements HasStoreInterface
             // Are the addresses both being set to each other.
             [
                 ['billingAddress', 'shippingAddress'], 'validateAddressReuse',
-                'when' => function($model) {
+                'when' => fn($model) =>
                     /** @var Order $model */
-                    return !$model->isCompleted;
-                },
+                    !$model->isCompleted,
             ],
 
             [['shippingAddress'], 'validateOrganizationTaxIdAsVatId', 'when' => fn(Order $order) => $order->getStore()->getValidateOrganizationTaxIdAsVatId() && !$order->getStore()->getUseBillingAddressForTax()],
@@ -2757,15 +2755,11 @@ class Order extends Element implements HasStoreInterface
 
         $transactions = collect($this->_transactions);
 
-        $paid = $transactions->filter(function($transaction) {
-            return $transaction->status == TransactionRecord::STATUS_SUCCESS
-                && in_array($transaction->type, [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]);
-        })->sum('amount');
+        $paid = $transactions->filter(fn($transaction) => $transaction->status == TransactionRecord::STATUS_SUCCESS
+            && in_array($transaction->type, [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]))->sum('amount');
 
-        $refunded = $transactions->filter(function($transaction) {
-            return $transaction->status == TransactionRecord::STATUS_SUCCESS
-                && $transaction->type == TransactionRecord::TYPE_REFUND;
-        })->sum('amount');
+        $refunded = $transactions->filter(fn($transaction) => $transaction->status == TransactionRecord::STATUS_SUCCESS
+            && $transaction->type == TransactionRecord::TYPE_REFUND)->sum('amount');
 
         return (float)$this->getTeller()->subtract($paid, $refunded);
     }
@@ -3271,10 +3265,9 @@ class Order extends Element implements HasStoreInterface
     public function hasMatchingAddresses(?array $attributes = null): bool
     {
         $addressAttributes = (new ReflectionClass(AddressInterface::class))->getMethods();
-        $addressAttributes = array_map(static function(ReflectionMethod $method) {
+        $addressAttributes = array_map(static fn(ReflectionMethod $method) =>
             // Remove `get` and lower case first character
-            return lcfirst(substr($method->name, 3));
-        }, $addressAttributes);
+            lcfirst(substr($method->name, 3)), $addressAttributes);
 
         $relationCustomFieldHandles = [];
         $customFieldHandles = array_map(static function(FieldInterface $field) use (&$relationCustomFieldHandles) {
@@ -3285,9 +3278,7 @@ class Order extends Element implements HasStoreInterface
             return $field->handle;
         }, (new AddressElement())->getFieldLayout()->getCustomFields());
 
-        $nameTraitProperties = array_map(static function(ReflectionProperty $property) {
-            return $property->name;
-        }, (new ReflectionClass(NameTrait::class))->getProperties());
+        $nameTraitProperties = array_map(static fn(ReflectionProperty $property) => $property->name, (new ReflectionClass(NameTrait::class))->getProperties());
 
         $toArrayHandles = [...$nameTraitProperties, ...$addressAttributes, ...$customFieldHandles];
 
@@ -3609,11 +3600,6 @@ class Order extends Element implements HasStoreInterface
      */
     private function _saveAdjustments(): void
     {
-        /** @var null|array|OrderAdjustmentRecord[] $previousAdjustments */
-        $previousAdjustments = OrderAdjustmentRecord::find()
-            ->where(['orderId' => $this->id])
-            ->all();
-
         $newAdjustmentIds = [];
 
         foreach ($this->getAdjustments() as $adjustment) {
@@ -3621,12 +3607,6 @@ class Order extends Element implements HasStoreInterface
             Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
             $newAdjustmentIds[] = $adjustment->id;
             $adjustment->orderId = $this->id;
-        }
-
-        foreach ($previousAdjustments as $previousAdjustment) {
-            if (!in_array($previousAdjustment->id, $newAdjustmentIds, false)) {
-                $previousAdjustment->delete();
-            }
         }
 
         // Make sure all other adjustments have been cleaned up.

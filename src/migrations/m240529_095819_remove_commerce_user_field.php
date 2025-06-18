@@ -27,7 +27,7 @@ class m240529_095819_remove_commerce_user_field extends Migration
             $newFields = [];
 
             foreach ($tab->elements as $element) {
-                if (get_class($element) !== $fieldClassName) {
+                if ($element::class !== $fieldClassName) {
                     $newFields[] = $element;
                 }
             }

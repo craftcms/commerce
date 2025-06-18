@@ -74,9 +74,7 @@ class Currencies extends Component
      */
     public function getCurrencyByIso(string $iso): ?\Money\Currency
     {
-        return $this->getAllCurrencies()->first(function(\Money\Currency $currency) use ($iso) {
-            return $currency->getCode() == $iso;
-        });
+        return $this->getAllCurrencies()->first(fn(\Money\Currency $currency) => $currency->getCode() == $iso);
     }
 
 
@@ -95,12 +93,10 @@ class Currencies extends Component
      */
     public function getAllCurrenciesList(): array
     {
-        return $this->getAllCurrencies()->map(function($currency) {
-            return [
-                'label' => $currency->getCode(), // TODO get name somehow
-                'value' => $currency->getCode(),
-            ];
-        })->toArray();
+        return $this->getAllCurrencies()->map(fn($currency) => [
+            'label' => $currency->getCode(), // TODO get name somehow
+            'value' => $currency->getCode(),
+        ])->toArray();
     }
 
     /**

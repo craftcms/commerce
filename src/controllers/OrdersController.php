@@ -81,6 +81,7 @@ use yii\db\Expression;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
+use yii\web\MethodNotAllowedHttpException;
 use yii\web\Response;
 
 /**
@@ -785,9 +786,7 @@ JS, []);
             $userQuery->search(urldecode($query));
         }
 
-        $customers = $userQuery->collect()->map(function(User $user) {
-            return $this->_customerToArray($user);
-        });
+        $customers = $userQuery->collect()->map(fn(User $user) => $this->_customerToArray($user));
 
         return $this->asSuccess(data: compact('customers'));
     }
@@ -820,11 +819,9 @@ JS, []);
 
         $total = $addressElements->count();
 
-        $addresses = $addressElements->map(function(Address $address) {
-            return $address->toArray() + [
-                    'html' => Cp::elementCardHtml($address),
-                ];
-        });
+        $addresses = $addressElements->map(fn(Address $address) => $address->toArray() + [
+                'html' => Cp::elementCardHtml($address),
+            ]);
 
         return $this->asSuccess(data: compact('addresses', 'total'));
     }
@@ -1012,6 +1009,49 @@ JS, []);
     }
 
     /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws MethodNotAllowedHttpException
+     * @throws Throwable
+     * @since 5.4.0
+     */
+    public function actionCopyAddressToUser(): Response
+    {
+        $this->requirePermission('editUsers');
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $addressId = $this->request->getRequiredBodyParam('addressId');
+        $userId = $this->request->getRequiredBodyParam('userId');
+
+        $address = Address::find()->id($addressId)->one();
+
+        if (!$address) {
+            return $this->asFailure(Craft::t('commerce', 'Address not found.'));
+        }
+
+        $user = Craft::$app->getUsers()->getUserById($userId);
+
+        if (!$user || !$user->getIsCredentialed()) {
+            return $this->asFailure(Craft::t('commerce', 'Invalid user.'));
+        }
+
+        try {
+            // Clone the address
+            $newAddress = Craft::$app->getElements()->duplicateElement($address, [
+                'owner' => $user,
+                'primaryOwner' => $user,
+            ]);
+        } catch (\Exception $exception) {
+            return $this->asFailure($exception->getMessage());
+        }
+
+        return $this->asSuccess(data: [
+            'address' => $newAddress->toArray(),
+        ]);
+    }
+
+    /**
      * @throws BadRequestHttpException
      * @throws InvalidConfigException
      * @since 3.0.11
@@ -1026,9 +1066,7 @@ JS, []);
 
         $counts = Plugin::getInstance()->getOrderStatuses()->getOrderCountByStatus($storeId);
 
-        $total = array_reduce($counts, static function($sum, $thing) {
-            return $sum + (int)$thing['orderCount'];
-        }, 0);
+        $total = array_reduce($counts, static fn($sum, $thing) => $sum + (int)$thing['orderCount'], 0);
 
         return $this->asSuccess(data: compact('counts', 'total'));
     }
@@ -1556,11 +1594,11 @@ JS, []);
             $shippingAddress = $getAddress($submittedShippingAddress, $order, Craft::t('commerce', 'Shipping Address'));
             $order->setShippingAddress($shippingAddress);
 
-            if (isset($orderRequestData['order']['sourceBillingAddressId'])) {
+            if (array_key_exists('sourceBillingAddressId',$orderRequestData['order'])) {
                 $order->sourceBillingAddressId = $orderRequestData['order']['sourceBillingAddressId'];
             }
 
-            if (isset($orderRequestData['order']['sourceShippingAddressId'])) {
+            if (array_key_exists('sourceShippingAddressId',$orderRequestData['order'])) {
                 $order->sourceShippingAddressId = $orderRequestData['order']['sourceShippingAddressId'];
             }
         }

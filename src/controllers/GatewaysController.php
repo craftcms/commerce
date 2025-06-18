@@ -103,15 +103,15 @@ class GatewaysController extends BaseAdminController
         $allGatewayTypes = $gatewayService->getAllGatewayTypes();
 
         // Make sure the selected gateway class is in there
-        if ($gateway && !in_array(get_class($gateway), $allGatewayTypes, true)) {
-            $allGatewayTypes[] = get_class($gateway);
+        if ($gateway && !in_array($gateway::class, $allGatewayTypes, true)) {
+            $allGatewayTypes[] = $gateway::class;
         }
 
         $gatewayInstances = [];
         $gatewayOptions = [];
 
         foreach ($allGatewayTypes as $class) {
-            if (($gateway && $class === get_class($gateway)) || $class::isSelectable()) {
+            if (($gateway && $class === $gateway::class) || $class::isSelectable()) {
                 $gatewayInstances[$class] = $gatewayService->createGateway($class);
 
                 $gatewayOptions[] = [
@@ -160,6 +160,12 @@ class GatewaysController extends BaseAdminController
             'isFrontendEnabled' => $this->request->getParam('isFrontendEnabled'),
             'settings' => $this->request->getBodyParam('types.' . $type),
         ];
+        
+        // Handle order condition if it's in the request
+        $orderCondition = $this->request->getBodyParam('orderCondition');
+        if ($orderCondition !== null) {
+            $config['orderCondition'] = $orderCondition;
+        }
 
         // For new gateway avoid NULL value.
         if (!$this->request->getBodyParam('id')) {

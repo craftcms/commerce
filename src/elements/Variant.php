@@ -31,6 +31,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
+use craft\elements\actions\Copy;
 use craft\elements\actions\Restore;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\EagerLoadPlan;
@@ -328,6 +329,14 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
+    public function canCopy(User $user): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function canDelete(User $user): bool
     {
         if (parent::canDelete($user)) {
@@ -368,6 +377,14 @@ class Variant extends Purchasable implements NestedElementInterface
         }
 
         return $this->canSave($user);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function includeSetStatusAction(): bool
+    {
+        return true;
     }
 
     /**
@@ -954,7 +971,6 @@ class Variant extends Purchasable implements NestedElementInterface
     }
 
     /**
-     * @param mixed $context
      * @return string
      * @since 3.1
      */
@@ -1285,9 +1301,7 @@ class Variant extends Purchasable implements NestedElementInterface
 
         // Limit to only those for this product type
         $categoryIds = collect(Plugin::getInstance()->getShippingCategories()->getShippingCategoriesByProductTypeId($productTypeId))->pluck('id')->toArray();
-        $available = collect($allAvailableShippingCategories)->filter(function(ShippingCategory $category) use ($categoryIds) {
-            return in_array($category->id, $categoryIds);
-        });
+        $available = collect($allAvailableShippingCategories)->filter(fn(ShippingCategory $category) => in_array($category->id, $categoryIds));
 
         if ($available->isEmpty()) {
             return [Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->storeId)];
@@ -1311,9 +1325,7 @@ class Variant extends Purchasable implements NestedElementInterface
 
         // Limit to only those for this product type
         $categoryIds = collect(Plugin::getInstance()->getTaxCategories()->getTaxCategoriesByProductTypeId($productTypeId))->pluck('id')->toArray();
-        $available = collect($allAvailableTaxCategories)->filter(function(TaxCategory $category) use ($categoryIds) {
-            return in_array($category->id, $categoryIds);
-        });
+        $available = collect($allAvailableTaxCategories)->filter(fn(TaxCategory $category) => in_array($category->id, $categoryIds));
 
         if ($available->isEmpty()) {
             return [Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()];
@@ -1354,6 +1366,7 @@ class Variant extends Purchasable implements NestedElementInterface
         ]);
 
         $actions[] = ['type' => SetDefaultVariant::class];
+        $actions[] = ['type' => Copy::class];
         return $actions;
     }
 

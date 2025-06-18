@@ -109,9 +109,7 @@ class TopProductsTest extends Unit
                 (new DateTime('7 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 (new DateTime('5 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 0,
-                function() {
-                    return [];
-                },
+                fn() => [],
             ],
         ];
     }

@@ -9,7 +9,9 @@ namespace craft\commerce\gql\interfaces\elements;
 
 use Craft;
 use craft\commerce\elements\Product as ProductElement;
+use craft\commerce\gql\arguments\elements\Product as ProductArguments;
 use craft\commerce\gql\types\generators\ProductType;
+use craft\commerce\helpers\Gql;
 use craft\gql\GqlEntityRegistry;
 use craft\gql\interfaces\Element;
 use GraphQL\Type\Definition\InterfaceType;
@@ -44,9 +46,7 @@ class Product extends Element
             'name' => static::getName(),
             'fields' => self::class . '::getFieldDefinitions',
             'description' => 'This is the interface implemented by all products.',
-            'resolveType' => function(ProductElement $value) {
-                return $value->getGqlTypeName();
-            },
+            'resolveType' => fn(ProductElement $value) => $value->getGqlTypeName(),
         ]));
 
         ProductType::generateTypes();
@@ -127,6 +127,13 @@ class Product extends Element
                 'name' => 'variants',
                 'type' => Type::listOf(Variant::getType()),
                 'description' => 'The product’s variants.',
+            ],
+            'localized' => [
+                'name' => 'localized',
+                'args' => ProductArguments::getArguments(),
+                'type' => Type::nonNull(Type::listOf(Type::nonNull(static::getType()))),
+                'description' => 'The same element in other locales.',
+                'complexity' => Gql::eagerLoadComplexity(),
             ],
         ]), self::getName());
     }

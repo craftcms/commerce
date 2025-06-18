@@ -126,7 +126,7 @@ class OrderStatuses extends Component
      */
     public function getAllOrderStatuses(?int $storeId = null, bool $withTrashed = false): Collection
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         if ($this->_allOrderStatuses === null || !isset($this->_allOrderStatuses[$storeId])) {
             $results = $this->_createOrderStatusesQuery(true)
@@ -224,7 +224,7 @@ class OrderStatuses extends Component
      */
     public function getOrderCountByStatus(?int $storeId = null): array
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         $countGroupedByStatusId = (new Query())
             ->select(['[[o.orderStatusId]]', 'count(o.id) as orderCount'])

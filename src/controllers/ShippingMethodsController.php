@@ -102,6 +102,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
         $shippingMethod->handle = $this->request->getBodyParam('handle');
         $shippingMethod->storeId = $this->request->getBodyParam('storeId');
         $shippingMethod->setOrderCondition($this->request->getBodyParam('orderCondition'));
+        $shippingMethod->setCustomerCondition($this->request->getBodyParam('customerCondition'));
         $shippingMethod->enabled = (bool)$this->request->getBodyParam('enabled');
 
         // Save it

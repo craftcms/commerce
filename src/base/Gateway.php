@@ -9,9 +9,13 @@ namespace craft\commerce\base;
 
 use Craft;
 use craft\base\SavableComponent;
+use craft\commerce\elements\conditions\orders\DiscountOrderCondition;
+use craft\commerce\elements\conditions\orders\GatewayOrderCondition;
 use craft\commerce\elements\Order;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
+use craft\elements\conditions\ElementConditionInterface;
+use craft\helpers\Json;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 
@@ -31,6 +35,12 @@ use craft\helpers\UrlHelper;
 abstract class Gateway extends SavableComponent implements GatewayInterface
 {
     use GatewayTrait;
+
+    /**
+     * @var ElementConditionInterface|null
+     * @since 5.4.0
+     */
+    private ?ElementConditionInterface $_orderCondition = null;
 
     /**
      * Returns the name of this payment method.
@@ -103,7 +113,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
         $rules = parent::defineRules();
         $rules[] = [['paymentType', 'handle'], 'required'];
 
-        $rules[] = [['name', 'handle', 'paymentType', 'isFrontendEnabled', 'sortOrder'], 'safe'];
+        $rules[] = [['name', 'handle', 'paymentType', 'isFrontendEnabled', 'orderCondition', 'sortOrder'], 'safe'];
 
         return $rules;
     }
@@ -124,6 +134,10 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      */
     public function availableForUseWithOrder(Order $order): bool
     {
+        if ($this->hasOrderCondition() && !$this->getOrderCondition()->matchElement($order)) {
+            return false;
+        }
+
         return true;
     }
 
@@ -133,6 +147,16 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     public function supportsPartialPayment(): bool
     {
         return true;
+    }
+
+    /**
+     * Returns true if this gateway has an order condition
+     *
+     * @since 5.4.0
+     */
+    public function hasOrderCondition(): bool
+    {
+        return $this->getOrderCondition()->getConditionRules() !== [];
     }
 
     /**
@@ -156,5 +180,67 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     public function transactionSupportsRefund(Transaction $transaction): bool
     {
         return true;
+    }
+
+
+    /**
+     * Gets the order condition for this gateway
+     *
+     * @since 5.4.0
+     */
+    public function getOrderCondition(): ElementConditionInterface
+    {
+        /** @var DiscountOrderCondition $condition */
+        $condition = $this->_orderCondition ?? new GatewayOrderCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'orderCondition';
+
+        return $condition;
+    }
+
+    /**
+     * Sets the order condition for this gateway
+     *
+     * @since 5.4.0
+     */
+    public function setOrderCondition(ElementConditionInterface|string|array $condition): void
+    {
+        if (empty($condition)) {
+            $this->_orderCondition = null;
+            return;
+        }
+
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof GatewayOrderCondition) {
+            $condition['class'] = GatewayOrderCondition::class;
+            /** @var GatewayOrderCondition $condition */
+            $condition = \Craft::$app->getConditions()->createCondition($condition);
+        }
+        $condition->forProjectConfig = true;
+
+        $this->_orderCondition = $condition;
+    }
+
+    /**
+     * @return array
+     * @since 5.4.0
+     */
+    public function getConfig(): array
+    {
+        $configData = [
+            'name' => $this->name,
+            'handle' => $this->handle,
+            'type' => static::class,
+            'settings' => $this->getSettings(),
+            'sortOrder' => ($this->sortOrder ?? 99),
+            'paymentType' => $this->paymentType,
+            'isFrontendEnabled' => $this->getIsFrontendEnabled(false),
+            'orderCondition' => $this->getOrderCondition()->getConfig(),
+        ];
+
+        return $configData;
     }
 }

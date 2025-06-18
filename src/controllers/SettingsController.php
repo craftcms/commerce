@@ -85,12 +85,10 @@ class SettingsController extends BaseAdminController
             'sites' => $sites,
             'primaryStoreId' => Plugin::getInstance()->getStores()->getPrimaryStore()->id,
             'stores' => Plugin::getInstance()->getStores()->getAllStores(),
-            'storesList' => Plugin::getInstance()->getStores()->getAllStores()->map(function($store) {
-                return [
-                    'label' => $store->name . ($store->primary ? ' (' . Craft::t('commerce', 'Primary') . ')' : ''),
-                    'value' => $store->id,
-                ];
-            }),
+            'storesList' => Plugin::getInstance()->getStores()->getAllStores()->map(fn($store) => [
+                'label' => $store->name . ($store->primary ? ' (' . Craft::t('commerce', 'Primary') . ')' : ''),
+                'value' => $store->id,
+            ]),
         ]);
     }
 

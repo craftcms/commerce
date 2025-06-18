@@ -139,7 +139,6 @@ class VariantQueryTest extends Unit
     }
 
     /**
-     * @param mixed $taxCategoryId
      * @param int $count
      * @return void
      * @dataProvider taxCategoryIdDataProvider
@@ -155,7 +154,6 @@ class VariantQueryTest extends Unit
     }
 
     /**
-     * @param mixed $taxCategoryId
      * @param int $count
      * @return void
      * @dataProvider taxCategoryIdDataProvider
@@ -186,7 +184,6 @@ class VariantQueryTest extends Unit
     }
 
     /**
-     * @param mixed $taxCategory
      * @param int $count
      * @return void
      * @dataProvider taxCategoryDataProvider
@@ -375,7 +372,6 @@ class VariantQueryTest extends Unit
     }
 
     /**
-     * @param mixed $orderBy
      * @param array $expectedSkuOrder
      * @return void
      * @dataProvider orderByDataProvider
