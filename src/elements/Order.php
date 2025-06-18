@@ -1812,7 +1812,29 @@ class Order extends Element implements HasStoreInterface
             $referenceTemplate = $this->getStore()->getOrderReferenceFormat();
 
             try {
-                $this->reference = Craft::$app->getView()->renderObjectTemplate($referenceTemplate, $this);
+                $baseReference = Craft::$app->getView()->renderObjectTemplate($referenceTemplate, $this);
+                
+                // Check if this reference already exists and append suffix if needed
+                $suffix = 0;
+                $testReference = $baseReference;
+
+                while (true) {
+                    $existingReference = (new Query())
+                        ->select('id')
+                        ->from([Table::ORDERS])
+                        ->where(['reference' => $testReference])
+                        ->exists();
+                    
+                    if (!$existingReference) {
+                        // Reference is unique, use it
+                        $this->reference = $testReference;
+                        break;
+                    }
+                    
+                    // Reference exists, increment suffix and try again
+                    $suffix++;
+                    $testReference = $baseReference . '-' . $suffix;
+                }
             } catch (Throwable $exception) {
                 $mutex->release($lockName);
                 Craft::error('Unable to generate order completion reference for order ID: ' . $this->id . ', with format: ' . $referenceTemplate . ', error: ' . $exception->getMessage());
