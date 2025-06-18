@@ -9,6 +9,7 @@
 - Added an Order condition builder to gateways. ([#3913](https://github.com/craftcms/commerce/discussions/3913))
 - Custom metadata is now displayed on the Catalog Pricing Rule Edit screen. ([#3975](https://github.com/craftcms/commerce/pull/3975))
 - Added Promotional Price column to product index.
+- All native Order attributes are now available as card attributes. ([#4019](https://github.com/craftcms/commerce/issues/4019))
 
 ### Development
 - Line item snapshots now contain the `catalogPricingRuleId` field. ([#3910](https://github.com/craftcms/commerce/issues/3910))
