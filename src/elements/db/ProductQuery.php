@@ -724,9 +724,7 @@ class ProductQuery extends ElementQuery
         $catalogPricesQuery = Plugin::getInstance()
             ->getCatalogPricing()
             ->createCatalogPricesQuery(userId: $customerId)
-            ->addSelect(['cp.purchasableId', 'cp.storeId'])
-            ->leftJoin(['purvariants' => Table::VARIANTS], '[[purvariants.id]] = [[cp.purchasableId]]')
-            ->andWhere(['purvariants.isDefault' => true]);
+            ->addSelect(['cp.purchasableId', 'cp.storeId']);
 
         $this->subQuery->leftJoin(['sitestores' => Table::SITESTORES], '[[elements_sites.siteId]] = [[sitestores.siteId]]');
         $this->subQuery->leftJoin(['catalogprices' => $catalogPricesQuery], '[[catalogprices.purchasableId]] = [[commerce_products.defaultVariantId]] AND [[catalogprices.storeId]] = [[sitestores.storeId]]');
