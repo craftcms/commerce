@@ -279,6 +279,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         $names[] = 'stock';
         $names[] = 'inventoryTracked';
         $names[] = 'allowOutOfStockPurchases';
+        $names[] = 'shippingCategoryId';
+        $names[] = 'taxCategoryId';
 
         return $names;
     }
