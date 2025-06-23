@@ -343,7 +343,7 @@ class Plugin extends BasePlugin
             throw new Exception('Craft Commerce 5 requires Craft CMS 5.1+ in order to run.');
         }
 
-        if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 82000) {
+        if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 80200) {
             Craft::error('Craft Commerce requires PHP 8.2.0+ in order to run.');
         }
     }
