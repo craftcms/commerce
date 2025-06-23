@@ -166,6 +166,8 @@ class CatalogPricingRule extends Model implements HasStoreInterface
                 'applyAmount',
                 'applyPriceType',
                 'customerCondition',
+                'dateUpdated',
+                'dateCreated',
                 'dateFrom',
                 'dateTo',
                 'description',

@@ -307,7 +307,7 @@ class CatalogPricing extends Component
      */
     public function getCatalogPrice(int $purchasableId, ?int $storeId = null, ?int $userId = null, bool $isPromotionalPrice = false): ?float
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
         $userKey = $userId ?? 'all';
         $promoKey = $isPromotionalPrice ? 'promo' : 'standard';
         $key = 'catalog-price-' . implode('-', [$storeId, $userKey, $promoKey]);
@@ -333,7 +333,7 @@ class CatalogPricing extends Component
      */
     public function getCatalogPricesByPurchasableId(int $purchasableId, ?int $storeId = null): Collection
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         $allPriceRows = $this->createCatalogPricesQuery(storeId: $storeId, allPrices: true)
             // Override select to prevent `min`/grouping
@@ -567,7 +567,7 @@ class CatalogPricing extends Component
             ->from([Table::CATALOG_PRICING . ' cp']);
 
         // Use condition builder to tweak the query for reusability
-        $condition = $condition ?? Craft::$app->getConditions()->createCondition([
+        $condition ??= Craft::$app->getConditions()->createCondition([
             'class' => CatalogPricingCondition::class,
             'allPrices' => $allPrices,
         ]);
@@ -624,7 +624,7 @@ class CatalogPricing extends Component
             ->from([Table::CATALOG_PRICING . ' cp']);
 
         // Use condition builder to tweak the query for reusability
-        $condition = $condition ?? Craft::$app->getConditions()->createCondition([
+        $condition ??= Craft::$app->getConditions()->createCondition([
             'class' => CatalogPricingCondition::class,
             'allPrices' => $allPrices,
         ]);

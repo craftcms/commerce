@@ -46,7 +46,7 @@ class OrderNotices extends Component
                 'attributes' => $result,
             ]);
 
-            $orderNotices[$notice->orderId] = $orderNotices[$notice->orderId] ?? [];
+            $orderNotices[$notice->orderId] ??= [];
             $orderNotices[$notice->orderId][] = $notice;
         }
 

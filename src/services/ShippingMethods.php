@@ -72,7 +72,7 @@ class ShippingMethods extends Component
      */
     public function getAllShippingMethods(?int $storeId = null): Collection
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         if ($this->_allShippingMethods === null || !isset($this->_allShippingMethods[$storeId])) {
             $results = $this->_createShippingMethodQuery()
@@ -149,9 +149,7 @@ class ShippingMethods extends Component
         }
 
         // Sort by price. Using the cached price and don't call `$method->getPriceForOrder($order);` again.
-        uasort($matchingMethods, static function($a, $b) {
-            return $a['price'] <=> $b['price'];
-        });
+        uasort($matchingMethods, static fn($a, $b) => $a['price'] <=> $b['price']);
 
         $shippingMethods = [];
         foreach ($matchingMethods as $shippingMethod) {
@@ -224,6 +222,7 @@ class ShippingMethods extends Component
         $record->name = $model->name;
         $record->handle = $model->handle;
         $record->orderCondition = $model->getOrderCondition()->getConfig();
+        $record->customerCondition = $model->getCustomerCondition()->getConfig();
         $record->enabled = $model->enabled;
 
         $record->validate();
@@ -287,6 +286,7 @@ class ShippingMethods extends Component
                 'id',
                 'name',
                 'orderCondition',
+                'customerCondition',
                 'storeId',
             ])
             ->from([Table::SHIPPINGMETHODS]);

@@ -35,12 +35,12 @@ export default {
       draftData.order.shippingAddress = draft.order.shippingAddress;
     }
 
-    if (draft.order.sourceBillingAddressId != undefined) {
+    if (Object.keys(draft.order).indexOf('sourceBillingAddressId') !== -1) {
       draftData.order.sourceBillingAddressId =
         draft.order.sourceBillingAddressId;
     }
 
-    if (draft.order.sourceShippingAddressId != undefined) {
+    if (Object.keys(draft.order).indexOf('sourceShippingAddressId') !== -1) {
       draftData.order.sourceShippingAddressId =
         draft.order.sourceShippingAddressId;
     }

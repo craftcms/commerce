@@ -174,9 +174,7 @@ class Email extends Model implements HasStoreInterface
             [
                 ['to'],
                 'required',
-                'when' => static function($model) {
-                    return $model->recipientType == EmailRecord::TYPE_CUSTOM;
-                },
+                'when' => static fn($model) => $model->recipientType == EmailRecord::TYPE_CUSTOM,
             ],
             [
                 [

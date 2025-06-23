@@ -98,8 +98,6 @@ class m230215_114552_migrate_shipping_rule_conditions_to_condition_builder exten
     /**
      * @param OrderValuesAttributeConditionRule|OrderCurrencyValuesAttributeConditionRule $rule
      * @param ShippingRuleOrderCondition $orderCondition
-     * @param mixed $min
-     * @param mixed $max
      * @param bool $adjustValues
      * @return ShippingRuleOrderCondition
      */

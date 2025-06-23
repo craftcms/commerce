@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\enums\LineItemType;
+use craft\commerce\errors\LineItemNotFoundException;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\models\LineItem;
@@ -22,10 +23,10 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
+use Exception;
 use LitEmoji\LitEmoji;
 use Throwable;
 use yii\base\Component;
-use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 
@@ -176,7 +177,7 @@ class LineItems extends Component
      * @return LineItem
      * @throws \Exception
      */
-    public function resolveLineItem(Order $order, int $purchasableId, array $options = []): LineItem
+    public function resolveLineItem(Order $order, int $purchasableId, array $options = [], array $params = []): LineItem
     {
         $signature = LineItemHelper::generateOptionsSignature($options);
 
@@ -191,7 +192,14 @@ class LineItems extends Component
         if ($result) {
             $lineItem = new LineItem($result);
         } else {
-            $lineItem = $this->create($order, compact('purchasableId', 'options'));
+            $params = array_merge([
+                'qty' => 1,
+                'options' => $options,
+                'note' => '',
+                'purchasableId' => $purchasableId,
+            ], $params);
+
+            $lineItem = $this->create($order, $params);
         }
 
         return $lineItem;
@@ -243,14 +251,13 @@ class LineItems extends Component
     {
         $isNewLineItem = !$lineItem->id;
 
-        if (!$lineItem->id) {
+        if ($isNewLineItem) {
             $lineItemRecord = new LineItemRecord();
         } else {
             $lineItemRecord = LineItemRecord::findOne($lineItem->id);
 
             if (!$lineItemRecord) {
-                throw new Exception(Craft::t('commerce', 'No line item exists with the ID “{id}”',
-                    ['id' => $lineItem->id]));
+                throw new LineItemNotFoundException('Line with ID ”' . $lineItem->id . '“ not found!');
             }
         }
 
@@ -263,7 +270,7 @@ class LineItems extends Component
         }
 
         if ($runValidation && !$lineItem->validate()) {
-            Craft::info('Line item not saved due to validation error.', __METHOD__);
+            Craft::info('Line Item not saved due to validation error(s).', __METHOD__);
             return false;
         }
 
@@ -499,7 +506,7 @@ class LineItems extends Component
         foreach ($lineItemsResults as $result) {
             $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
             $lineItem = new LineItem($result);
-            $lineItems[$lineItem->orderId] = $lineItems[$lineItem->orderId] ?? [];
+            $lineItems[$lineItem->orderId] ??= [];
             $lineItems[$lineItem->orderId][] = $lineItem;
         }
 

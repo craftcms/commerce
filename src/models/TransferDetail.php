@@ -81,9 +81,7 @@ class TransferDetail extends Model
     public function defineRules(): array
     {
         return [
-            [['quantity'], 'number', 'integerOnly' => true, 'min' => 1, 'max' => 99999, 'when' => function() {
-                return $this->getTransfer()->transferStatus === TransferStatusType::DRAFT;
-            }],
+            [['quantity'], 'number', 'integerOnly' => true, 'min' => 1, 'max' => 99999, 'when' => fn() => $this->getTransfer()->transferStatus === TransferStatusType::DRAFT],
         ];
     }
 }

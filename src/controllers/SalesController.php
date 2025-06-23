@@ -31,7 +31,6 @@ use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 use function explode;
-use function get_class;
 
 /**
  * Class Sales Controller
@@ -544,8 +543,8 @@ class SalesController extends BaseStoreManagementController
         foreach ($purchasableIds as $purchasableId) {
             $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
             if ($purchasable instanceof PurchasableInterface) {
-                $class = get_class($purchasable);
-                $purchasables[$class] = $purchasables[$class] ?? [];
+                $class = $purchasable::class;
+                $purchasables[$class] ??= [];
                 $purchasables[$class][] = $purchasable;
             }
         }

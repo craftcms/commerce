@@ -592,7 +592,6 @@ class LineItem extends Model
     /**
      * Normalizes a purchasable’s validation rule.
      *
-     * @param mixed $rule
      * @param PurchasableInterface $purchasable
      * @return mixed
      */
@@ -930,6 +929,7 @@ class LineItem extends Model
         }
 
         $snapshot = [
+            // @TODO move these to base purchasable on next breaking change
             'price' => $purchasable->getPrice(),
             'sku' => $purchasable->getSku(),
             'description' => $purchasable->getDescription(),

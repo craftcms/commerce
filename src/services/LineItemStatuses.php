@@ -263,7 +263,7 @@ class LineItemStatuses extends Component
      */
     public function getAllLineItemStatuses(?int $storeId = null): Collection
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         if ($this->_allLineItemStatuses === null || !isset($this->_allLineItemStatuses[$storeId])) {
             $results = $this->_createLineItemStatusesQuery()

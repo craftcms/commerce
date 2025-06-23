@@ -55,7 +55,7 @@ class DiscountsTest extends Unit
     /**
      * @var User|null
      */
-    private ?User $_user;
+    private ?User $_user = null;
 
     /**
      * @return array
@@ -519,17 +519,15 @@ class DiscountsTest extends Unit
 
         function _createDiscounts($discounts)
         {
-            return collect($discounts)->mapWithKeys(function(array $d, string $key) {
-                return [$key => array_merge([
-                    'name' => 'Discount - ' . $key,
-                    'perItemDiscount' => '1',
-                    'enabled' => true,
-                    'allCategories' => true,
-                    'allPurchasables' => true,
-                    'percentageOffSubject' => 'original',
-                    'storeId' => 1,
-                ], $d)];
-            })->all();
+            return collect($discounts)->mapWithKeys(fn(array $d, string $key) => [$key => array_merge([
+                'name' => 'Discount - ' . $key,
+                'perItemDiscount' => '1',
+                'enabled' => true,
+                'allCategories' => true,
+                'allPurchasables' => true,
+                'percentageOffSubject' => 'original',
+                'storeId' => 1,
+            ], $d)])->all();
         }
 
         return [
