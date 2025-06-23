@@ -601,7 +601,7 @@ JS, []);
             'loadCartUrl',
             'store',
             'totalCommittedStock',
-            'lineItems.fulfilledTotalQuantity'
+            'lineItems.fulfilledTotalQuantity',
         ];
 
         $lineItems = $order->getLineItems();
