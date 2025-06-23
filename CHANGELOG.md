@@ -4,7 +4,7 @@
 
 - Improved the performance of retrieving the cart over Ajax.
 
-## 5.4.0 - 2025-06-32
+## 5.4.0 - 2025-06-23
 
 ### Store Management
 - It’s now possible to set variants’ statuses from Edit Product screens. ([#3953](https://github.com/craftcms/commerce/discussions/3953))
