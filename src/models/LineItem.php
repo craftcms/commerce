@@ -631,7 +631,6 @@ class LineItem extends Model
         $names[] = 'salePrice';
         $names[] = 'sku';
         $names[] = 'total';
-        $names[] = 'fulfilledTotalQuantity';
 
         return $names;
     }
@@ -659,6 +658,7 @@ class LineItem extends Model
             'shippingCategory',
             'snapshot',
             'taxCategory',
+            'fulfilledTotalQuantity',
         ];
     }
 

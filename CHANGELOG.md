@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Improved the performance of retrieving the cart over Ajax.
+
 ## 5.4.0 - 2025-06-32
 
 ### Store Management
