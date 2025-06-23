@@ -999,6 +999,10 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     private function _getStock(): int
     {
+        if (!$this->inventoryTracked) {
+            return 0;
+        }
+
         $saleableAmount = 0;
         foreach ($this->getInventoryLevels() as $inventoryLevel) {
             if ($inventoryLevel->availableTotal > 0) {
