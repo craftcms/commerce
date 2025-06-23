@@ -2339,7 +2339,7 @@ class Order extends Element implements HasStoreInterface
                 // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
                 // This is because the order record has not been saved.
                 // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
-                $billingAddress->setPrimaryOwner($this); // Always ensure the address is owned by the order
+                $estimatedShippingAddress->setPrimaryOwner($this); // Always ensure the address is owned by the order
                 Craft::$app->getElements()->saveElement($estimatedShippingAddress, false);
                 $orderRecord->estimatedShippingAddressId = $estimatedShippingAddress->id;
                 $this->setEstimatedShippingAddress($estimatedShippingAddress);
