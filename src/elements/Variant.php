@@ -1369,7 +1369,12 @@ class Variant extends Purchasable implements NestedElementInterface
         ]);
 
         $actions[] = ['type' => SetDefaultVariant::class];
-        $actions[] = ['type' => Copy::class];
+
+        // In case they are not running Craft 5.7+
+        if (class_exists(Copy::class)) {
+            $actions[] = ['type' => Copy::class];
+        }
+
         return $actions;
     }
 
