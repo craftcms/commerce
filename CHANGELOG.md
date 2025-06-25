@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Improved the performance of retrieving the cart over Ajax.
+- Fixed a PHP error that could occur when viewing variant indexes and using Craft CMS 5.6.17 or earlier. ([#4060](https://github.com/craftcms/commerce/issues/4060))
 
 ## 5.4.0 - 2025-06-23
 
