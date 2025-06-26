@@ -17,6 +17,8 @@ use craft\commerce\elements\Order;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\InventoryUpdateQuantityType;
 use craft\commerce\enums\LineItemType;
+use craft\commerce\events\InventoryMovementEvent;
+use craft\commerce\events\UpdateInventoryLevelEvent;
 use craft\commerce\models\inventory\InventoryCommittedMovement;
 use craft\commerce\models\inventory\InventoryManualMovement;
 use craft\commerce\models\inventory\UpdateInventoryLevel;
@@ -45,6 +47,48 @@ use yii\db\Expression;
  */
 class Inventory extends Component
 {
+    /**
+     * @event UpdateInventoryLevelEvent The event that is triggered after an inventory level update is executed.
+     *
+     * ```php
+     * use craft\commerce\events\UpdateInventoryLevelEvent;
+     * use craft\commerce\services\Inventory;
+     * use craft\commerce\models\inventory\UpdateInventoryLevel;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Inventory::class,
+     *     Inventory::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL,
+     *     function(UpdateInventoryLevelEvent $event) {
+     *         // @var UpdateInventoryLevel $updateInventoryLevel
+     *         $updateInventoryLevel = $event->updateInventoryLevel;
+     *     }
+     * );
+     * ```
+     */
+    public const EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL = 'afterExecuteUpdateInventoryLevel';
+
+    /**
+     * @event InventoryMovementEvent The event that is triggered after an inventory movement is executed.
+     *
+     * ```php
+     * use craft\commerce\events\InventoryMovementEvent;
+     * use craft\commerce\services\Inventory;
+     * use craft\commerce\base\InventoryMovementInterface;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Inventory::class,
+     *     Inventory::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT,
+     *     function(InventoryMovementEvent $event) {
+     *         // @var InventoryMovementInterface $inventoryMovement
+     *         $inventoryMovement = $event->inventoryMovement;
+     *     }
+     * );
+     * ```
+     */
+    public const EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT = 'afterExecuteInventoryMovement';
+
     /**
      * @param Purchasable $purchasable
      * @return Collection<InventoryLevel>
@@ -325,6 +369,15 @@ class Inventory extends Component
                 Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasables[0], true);
             }
 
+            // Trigger event for each successful update
+            foreach ($updateInventoryLevels as $updateInventoryLevel) {
+                if ($this->hasEventHandlers(self::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL)) {
+                    $this->trigger(self::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL, new UpdateInventoryLevelEvent([
+                        'updateInventoryLevel' => $updateInventoryLevel,
+                    ]));
+                }
+            }
+
             return true;
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -537,6 +590,15 @@ class Inventory extends Component
                 $purchasable = $inventoryMovement->getInventoryItem()->getPurchasable();
                 if ($purchasable) {
                     Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
+                }
+            }
+
+            // Trigger event for each successful movement
+            foreach ($inventoryMovements as $inventoryMovement) {
+                if ($this->hasEventHandlers(self::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT)) {
+                    $this->trigger(self::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT, new InventoryMovementEvent([
+                        'inventoryMovement' => $inventoryMovement,
+                    ]));
                 }
             }
 
