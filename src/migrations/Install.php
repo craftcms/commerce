@@ -1248,6 +1248,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::PLANS, ['planInformationId'], '{{%elements}}', 'id', 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PRODUCTS, ['typeId'], Table::PRODUCTTYPES, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::PRODUCTS, ['defaultVariantId'], '{{%elements}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTTYPES, ['fieldLayoutId'], '{{%fieldlayouts}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTTYPES, ['variantFieldLayoutId'], '{{%fieldlayouts}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTTYPES, ['structureId'], CraftTable::STRUCTURES, ['id'], 'SET NULL', null);
