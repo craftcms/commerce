@@ -5,6 +5,7 @@
 - Improved the performance of retrieving the cart over Ajax.
 - Fixed a PHP error that could occur when viewing variant indexes and using Craft CMS 5.6.17 or earlier. ([#4060](https://github.com/craftcms/commerce/issues/4060))
 - Fixed a bug where currency based order condition rules incorrectly showed up as custom fields.
+- Fixed a bug where Subscription and Transfer elements’ field layouts were not deleted when Commerce was uninstalled.
 
 ## 5.4.0 - 2025-06-23
 
