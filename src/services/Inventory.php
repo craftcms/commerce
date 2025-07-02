@@ -375,6 +375,7 @@ class Inventory extends Component
         
         if (!$inventoryLocation) {
             // If no inventory location exists, we can't update inventory
+            // TODO change method to return false or throw an exception
             return;
         }
         
