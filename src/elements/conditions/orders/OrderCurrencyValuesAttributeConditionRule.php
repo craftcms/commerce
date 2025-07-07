@@ -56,6 +56,14 @@ abstract class OrderCurrencyValuesAttributeConditionRule extends MoneyFieldCondi
     /**
      * @inheritdoc
      */
+    public function getGroupLabel(): ?string
+    {
+        return null;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function setCondition(ConditionInterface $condition): void
     {
         parent::setCondition($condition);
