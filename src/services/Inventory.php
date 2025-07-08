@@ -372,13 +372,13 @@ class Inventory extends Component
     public function updatePurchasableInventoryLevel(Purchasable $purchasable, int $quantity, array $updateInventoryLevelAttributes = [])
     {
         $inventoryLocation = $purchasable->getStore()->getInventoryLocations()->first();
-        
+
         if (!$inventoryLocation) {
             // If no inventory location exists, we can't update inventory
             // TODO change method to return false or throw an exception
             return;
         }
-        
+
         $updateInventoryLevelAttributes += [
             'quantity' => $quantity,
             'updateAction' => InventoryUpdateQuantityType::SET,
