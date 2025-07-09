@@ -2,6 +2,7 @@
 
 namespace craft\commerce\migrations;
 
+use craft\commerce\db\Table;
 use craft\db\Migration;
 
 /**
@@ -14,12 +15,11 @@ class m250701_054128_add_defaultVariant_idex_to_products extends Migration
      */
     public function safeUp(): bool
     {
-        // Add foreign key for defaultVariantId if it doesn't exist
         $this->addForeignKey(
             null,
-            '{{%commerce_products}}',
+            Table::PRODUCTS,
             'defaultVariantId',
-            '{{%elements}}',
+            \craft\db\Table::ELEMENTS,
             'id',
             'SET NULL',
             null
