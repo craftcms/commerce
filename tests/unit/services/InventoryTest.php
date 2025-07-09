@@ -48,6 +48,8 @@ class InventoryTest extends Unit
     public function testUpdatePurchasableInventoryLevel(array $updateConfigs, int $expected): void
     {
         $variant = Variant::find()->sku('rad-hood')->one();
+        $originalInventoryTracked = $variant->inventoryTracked;
+        $variant->inventoryTracked = true;
         $originalStock = $variant->getStock();
 
         foreach ($updateConfigs as $updateConfig) {
@@ -60,6 +62,7 @@ class InventoryTest extends Unit
         self::assertEquals($expected, $variant->getStock());
 
         Plugin::getInstance()->getInventory()->updatePurchasableInventoryLevel($variant, $originalStock);
+        $variant->inventoryTracked = $originalInventoryTracked;
     }
 
     /**

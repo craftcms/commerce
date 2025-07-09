@@ -11,6 +11,8 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
+use craft\commerce\elements\Subscription;
+use craft\commerce\elements\Transfer;
 use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\models\ProductType;
@@ -64,7 +66,13 @@ class Install extends Migration
         $this->dropTables();
         $this->dropProjectConfig();
 
-        $this->delete(CraftTable::FIELDLAYOUTS, ['type' => [Order::class, Product::class, Variant::class]]);
+        $this->delete(CraftTable::FIELDLAYOUTS, ['type' => [
+            Order::class,
+            Product::class,
+            Variant::class,
+            Subscription::class,
+            Transfer::class,
+        ]]);
 
         return true;
     }
