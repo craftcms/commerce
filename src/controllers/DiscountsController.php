@@ -227,11 +227,9 @@ class DiscountsController extends BaseStoreManagementController
         $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
         $this->getView()->registerAssetBundle(CouponsAsset::class);
 
-        $coupons = $variables['discount']->getCoupons();
-        if (!empty($coupons)) {
-            // convert to array
-            $variables['coupons'] = Json::decode(Json::encode($coupons));
-        }
+        $variables['coupons'] = collect($variables['discount']->getCoupons())
+            ->map(fn(Coupon $coupon) => $coupon->toArray())
+            ->all();
 
         return $this->renderTemplate('commerce/store-management/discounts/_edit', $variables);
     }
