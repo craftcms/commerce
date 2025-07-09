@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.4.1 - 2025-07-09
 
 - Improved the performance of loading carts via Ajax.
 - Improved the performance of saving variants. ([#4064](https://github.com/craftcms/commerce/issues/4064))
