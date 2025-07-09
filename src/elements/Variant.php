@@ -1225,19 +1225,6 @@ class Variant extends Purchasable implements NestedElementInterface
             // Set new SKU in memory
             $this->sku = $this->getSku() . '-1';
 
-            // Update variant table with new SKU
-            Craft::$app->getDb()->createCommand()->update(Table::VARIANTS,
-                ['sku' => $this->sku],
-                ['id' => $this->getId()]
-            )->execute();
-
-            if ($this->isDefault) {
-                Craft::$app->getDb()->createCommand()->update(Table::PRODUCTS,
-                    ['defaultSku' => $this->sku],
-                    ['id' => $this->primaryOwnerId]
-                )->execute();
-            }
-
             // Update purchasable table with new SKU
             Craft::$app->getDb()->createCommand()->update(Table::PURCHASABLES,
                 ['sku' => $this->sku],
