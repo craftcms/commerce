@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.4.1.1 - 2025-07-10
 
 - Fixed a bug where the pricing catalog wasn’t getting updated when saving a product. ([#4054](https://github.com/craftcms/commerce/issues/4054))
 - Fixed a bug where unavailable gateways were being automatically set on orders.
