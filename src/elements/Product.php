@@ -2018,6 +2018,12 @@ class Product extends Element implements HasStoreInterface
         $this->getVariantManager()->maintainNestedElements($this, $isNew);
         parent::afterPropagate($isNew);
 
+        // @TODO improve performance by collating all purchasable IDs updated during request
+        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+            'purchasableIds' => $this->getVariants()->pluck('id')->all(),
+            'storeId' => $this->storeId,
+        ]);
+
         // Save a new revision?
         if ($this->_shouldSaveRevision()) {
             Craft::$app->getRevisions()->createRevision($this, notes: $this->revisionNotes);

@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where the pricing catalog wasn’t getting updated when saving a product. ([#4054](https://github.com/craftcms/commerce/issues/4054))
+
 ## 5.4.1 - 2025-07-09
 
 - Improved the performance of loading carts via Ajax.
