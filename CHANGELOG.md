@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where the pricing catalog wasn’t getting updated when saving a product. ([#4054](https://github.com/craftcms/commerce/issues/4054))
+- Fixed a bug where unavailable gateways were being automatically set on orders. 
 
 ## 5.4.1 - 2025-07-09
 
@@ -356,7 +357,7 @@
 - Fixed a bug where variants weren’t respecting their product’s propagation method.
 - Fixed a PHP error that could occur when creating a new product.
 - Fixed a bug where Edit Product screens were showing shipping categories that weren’t available to the current store. ([#3690](https://github.com/craftcms/commerce/issues/3690))
-- Fixed a bug where Edit Product screens were showing tax categories that weren’t available to the product type.. ([#3690](https://github.com/craftcms/commerce/issues/3690))
+- Fixed a bug where Edit Product screens were showing tax categories that weren’t available to the product type. ([#3690](https://github.com/craftcms/commerce/issues/3690))
 - Fixed a bug where Edit Order screens were displaying the store name twice.
 - Fixed a bug where `craft\commerce\models\CatalogPricingRule::$description` was not being populated. ([#3699](https://github.com/craftcms/commerce/issues/3699))
 - Fixed a bug where catalog pricing rules were generating prices incorrectly. ([#3700](https://github.com/craftcms/commerce/issues/3700))

@@ -1391,7 +1391,11 @@ class Order extends Element implements HasStoreInterface
         if (!$this->gatewayId && !$this->paymentSourceId) {
             $gateways = Plugin::getInstance()->getGateways()->getAllCustomerEnabledGateways();
             if ($gateways->isNotEmpty()) {
-                $this->gatewayId = $gateways->first()->id;
+                $gateway = $gateways->filter(fn (GatewayInterface $g) => $g->availableForUseWithOrder($this))->first();
+
+                if ($gateway) {
+                    $this->gatewayId = $gateway->id;
+                }
             }
         }
 
