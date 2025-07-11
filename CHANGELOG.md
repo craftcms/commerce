@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where the control panel trigger was exposed when copying a load cart URL. ([#4073](https://github.com/craftcms/commerce/issues/4073))
+
 ## 5.4.1.1 - 2025-07-10
 
 - Fixed a bug where the pricing catalog wasn’t getting updated when saving a product. ([#4054](https://github.com/craftcms/commerce/issues/4054))

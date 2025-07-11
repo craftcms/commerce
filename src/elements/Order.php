@@ -2446,12 +2446,12 @@ class Order extends Element implements HasStoreInterface
             return null;
         }
 
-        $path = 'commerce/cart/load-cart';
+        $originalCpRequest = Craft::$app->getRequest()->getIsCpRequest();
+        Craft::$app->getRequest()->setIsCpRequest(false);
+        $url = UrlHelper::actionUrl('commerce/cart/load-cart', ['number' => $this->number]);
+        Craft::$app->getRequest()->setIsCpRequest($originalCpRequest);
 
-        $params = [];
-        $params['number'] = $this->number;
-
-        return UrlHelper::actionUrl($path, $params);
+        return $url;
     }
 
     /**
