@@ -3,6 +3,7 @@
 namespace craft\commerce\migrations;
 
 use craft\commerce\db\Table;
+use craft\commerce\elements\Variant;
 use craft\db\Migration;
 
 /**
@@ -15,6 +16,18 @@ class m250701_054128_add_defaultVariant_idex_to_products extends Migration
      */
     public function safeUp(): bool
     {
+        $subQuery = (new \craft\db\Query())
+            ->select(['id'])
+            ->from(\craft\db\Table::ELEMENTS)
+            ->where(['type' => Variant::class]);
+
+        $this->update(
+            Table::PRODUCTS,
+            ['defaultVariantId' => null],
+            ['not', ['defaultVariantId' => $subQuery]],
+            [],
+        );
+
         $this->addForeignKey(
             null,
             Table::PRODUCTS,

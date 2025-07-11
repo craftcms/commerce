@@ -2,7 +2,11 @@
 
 ## Unreleased
 
+<<<<<<< Updated upstream
 - Fixed a bug where the control panel trigger was exposed when copying a load cart URL. ([#4073](https://github.com/craftcms/commerce/issues/4073))
+=======
+- Fixed a SQL error that could occur while migrating to Craft Commerce 5.4.1. ([#4074](https://github.com/craftcms/commerce/issues/4074))
+>>>>>>> Stashed changes
 
 ## 5.4.1.1 - 2025-07-10
 
