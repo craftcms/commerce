@@ -176,6 +176,7 @@
                     elements: purchasables[purchasableType.elementType] ?? null,
                     elementType: purchasableType.elementType,
                     limit: null,
+                    showSiteMenu: true,
                     errors: discount.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-')),
                 }) }}
             {% endfor %}
