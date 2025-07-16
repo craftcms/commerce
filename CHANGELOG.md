@@ -2,9 +2,9 @@
 
 ## Unreleased
 
-- Fixed a bug where the control panel trigger was exposed when copying a load cart URL. ([#4073](https://github.com/craftcms/commerce/issues/4073))
-- Fixed a SQL error that could occur while migrating to Craft Commerce 5.4.1. ([#4074](https://github.com/craftcms/commerce/issues/4074))
-- Fixed a bug where discounts’ purchasable element selector modals didn’t have site selection menus. ([#4059](https://github.com/craftcms/commerce/issues/4059))
+- Fixed a bug where the control panel trigger was exposed when copying a load-cart URL. ([#4073](https://github.com/craftcms/commerce/issues/4073))
+- Fixed a SQL error that could occur when updating to Craft Commerce 5.4.1. ([#4074](https://github.com/craftcms/commerce/issues/4074))
+- Fixed a bug where purchasable selector modals for discounts didn’t have site menus. ([#4059](https://github.com/craftcms/commerce/issues/4059))
 
 ## 5.4.1.1 - 2025-07-10
 
