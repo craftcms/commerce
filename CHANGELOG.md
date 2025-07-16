@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.4.2 - 2025-07-16
 
 - Fixed a bug where the control panel trigger was exposed when copying a load-cart URL. ([#4073](https://github.com/craftcms/commerce/issues/4073))
 - Fixed a SQL error that could occur when updating to Craft Commerce 5.4.1. ([#4074](https://github.com/craftcms/commerce/issues/4074))
