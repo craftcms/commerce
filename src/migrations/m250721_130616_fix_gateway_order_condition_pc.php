@@ -2,7 +2,6 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\services\Gateways;
 use craft\db\Migration;
