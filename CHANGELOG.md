@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a PHP error that could occur when upgrading to Commerce 5. ([#4077](https://github.com/craftcms/commerce/issues/4077))
+
 ## 5.4.2 - 2025-07-16
 
 - Fixed a bug where the control panel trigger was exposed when copying a load-cart URL. ([#4073](https://github.com/craftcms/commerce/issues/4073))
