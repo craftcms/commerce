@@ -216,8 +216,8 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
 
         if (!$condition instanceof GatewayOrderCondition) {
             $condition['class'] = GatewayOrderCondition::class;
-            /** @var GatewayOrderCondition $condition */
             $condition = \Craft::$app->getConditions()->createCondition($condition);
+            /** @var GatewayOrderCondition $condition */
         }
         $condition->forProjectConfig = true;
 
