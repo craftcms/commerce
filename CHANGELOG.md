@@ -49,10 +49,7 @@
 ### Extensibility
 - Added `craft\commerce\base\Gateway::getConfig()`.
 - Added `craft\commerce\base\Gateway::getOrderCondition()`.
-- Added `craft\commerce\base\Gateway::getOrderCondition()`.
 - Added `craft\commerce\base\Gateway::hasOrderCondition()`.
-- Added `craft\commerce\base\Gateway::setOrderCondition()`.
-- Added `craft\commerce\base\Gateway::setOrderCondition()`.
 - Added `craft\commerce\base\Gateway::setOrderCondition()`.
 - Added `craft\commerce\base\Purchasable::$catalogPricingRuleId`.
 - Added `craft\commerce\base\Purchasable::getCatalogPricingRule()`.
