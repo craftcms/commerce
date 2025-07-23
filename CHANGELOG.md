@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where outdated transaction data could be used when completing a payment.
+
 ## 4.9.0 - 2025-06-18
 
 - Added the `localized` field to products’ GraphQL data. ([#3783](https://github.com/craftcms/commerce/discussions/3783))
