@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed a bug where outdated transaction data could be used when completing a payment.
+- Fixed a bug where outdated transaction data could be used when completing a payment. ([craftcms/commerce-stripe#353](https://github.com/craftcms/commerce-stripe/issues/353))
 
 ## 4.9.0 - 2025-06-18
 
