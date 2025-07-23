@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.9.1 - 2025-07-23
 
 - Fixed a bug where outdated transaction data could be used when completing a payment. ([craftcms/commerce-stripe#353](https://github.com/craftcms/commerce-stripe/issues/353))
 
