@@ -4,7 +4,7 @@
 
 - Fixed a PHP error that could occur when upgrading to Commerce 5. ([#4077](https://github.com/craftcms/commerce/issues/4077))
 - Fixed a bug where shipping rules weren’t saving their customer conditions correctly. ([#4079](https://github.com/craftcms/commerce/issues/4079))
-- Fixed a bug where outdated transaction data could be used when completing a payment.
+- Fixed a bug where outdated transaction data could be used when completing a payment. ([craftcms/commerce-stripe#353](https://github.com/craftcms/commerce-stripe/issues/353))
 
 ## 5.4.2 - 2025-07-16
 
