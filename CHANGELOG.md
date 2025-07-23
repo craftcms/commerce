@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.4.3 - 2025-07-23
 
 - Fixed a PHP error that could occur when upgrading to Commerce 5. ([#4077](https://github.com/craftcms/commerce/issues/4077))
 - Fixed a bug where shipping rules weren’t saving their customer conditions correctly. ([#4079](https://github.com/craftcms/commerce/issues/4079))
