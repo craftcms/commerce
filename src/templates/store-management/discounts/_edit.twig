@@ -176,6 +176,7 @@
                     elements: purchasables[purchasableType.elementType] ?? null,
                     elementType: purchasableType.elementType,
                     limit: null,
+                    showSiteMenu: true,
                     errors: discount.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-')),
                 }) }}
             {% endfor %}
@@ -269,7 +270,7 @@
                             id: 'commerce-coupons-table',
                             name: couponsTable.name,
                             cols: couponsTable.cols,
-                            rows: discount.coupons,
+                            rows: coupons,
                             addRowLabel: 'Add a coupon'|t('commerce'),
                             allowAdd: true,
                             allowDelete: true,

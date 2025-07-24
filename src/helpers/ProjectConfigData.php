@@ -148,6 +148,7 @@ class ProjectConfigData
      */
     private static function _getProductTypeData(): array
     {
+        // @TODO refactor to us `getAllProductTypes()` and call `getConfig()` on each type.
         $productTypeRows = (new Query())
             ->select([
                 'descriptionFormat',
@@ -169,6 +170,10 @@ class ProjectConfigData
                 'variantTitleTranslationMethod',
                 'variantTitleTranslationKeyFormat',
                 'propagationMethod',
+                'isStructure',
+                'structureId',
+                'defaultPlacement',
+                'maxLevels',
             ])
             ->from([Table::PRODUCTTYPES . ' productTypes'])
             ->all();

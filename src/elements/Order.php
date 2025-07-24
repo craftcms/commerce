@@ -1391,7 +1391,11 @@ class Order extends Element implements HasStoreInterface
         if (!$this->gatewayId && !$this->paymentSourceId) {
             $gateways = Plugin::getInstance()->getGateways()->getAllCustomerEnabledGateways();
             if ($gateways->isNotEmpty()) {
-                $this->gatewayId = $gateways->first()->id;
+                $gateway = $gateways->filter(fn(GatewayInterface $g) => $g->availableForUseWithOrder($this))->first();
+
+                if ($gateway) {
+                    $this->gatewayId = $gateway->id;
+                }
             }
         }
 
@@ -2442,12 +2446,12 @@ class Order extends Element implements HasStoreInterface
             return null;
         }
 
-        $path = 'commerce/cart/load-cart';
+        $originalCpRequest = Craft::$app->getRequest()->getIsCpRequest();
+        Craft::$app->getRequest()->setIsCpRequest(false);
+        $url = UrlHelper::actionUrl('commerce/cart/load-cart', ['number' => $this->number]);
+        Craft::$app->getRequest()->setIsCpRequest($originalCpRequest);
 
-        $params = [];
-        $params['number'] = $this->number;
-
-        return UrlHelper::actionUrl($path, $params);
+        return $url;
     }
 
     /**

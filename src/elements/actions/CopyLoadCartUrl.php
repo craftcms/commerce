@@ -41,7 +41,11 @@ class CopyLoadCartUrl extends ElementAction
     {
         $type = Json::encode(static::class);
 
+        $originalCpRequest = Craft::$app->getRequest()->getIsCpRequest();
+        Craft::$app->getRequest()->setIsCpRequest(false);
         $url = UrlHelper::actionUrl('commerce/cart/load-cart', ['number' => '{number}']);
+        Craft::$app->getRequest()->setIsCpRequest($originalCpRequest);
+
         $js = <<<JS
 (() => {
     var url = "$url";
