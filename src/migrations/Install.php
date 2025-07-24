@@ -11,6 +11,8 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
+use craft\commerce\elements\Subscription;
+use craft\commerce\elements\Transfer;
 use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\models\ProductType;
@@ -64,7 +66,13 @@ class Install extends Migration
         $this->dropTables();
         $this->dropProjectConfig();
 
-        $this->delete(CraftTable::FIELDLAYOUTS, ['type' => [Order::class, Product::class, Variant::class]]);
+        $this->delete(CraftTable::FIELDLAYOUTS, ['type' => [
+            Order::class,
+            Product::class,
+            Variant::class,
+            Subscription::class,
+            Transfer::class,
+        ]]);
 
         return true;
     }
@@ -297,6 +305,7 @@ class Install extends Migration
             'settings' => $this->text(),
             'paymentType' => $this->enum('paymentType', ['authorize', 'purchase'])->notNull()->defaultValue('purchase'),
             'isFrontendEnabled' => $this->string(500)->notNull()->defaultValue('1'),
+            'orderCondition' => $this->text(),
             'isArchived' => $this->boolean()->notNull()->defaultValue(false),
             'dateArchived' => $this->dateTime(),
             'sortOrder' => $this->integer(),
@@ -789,6 +798,7 @@ class Install extends Migration
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'orderCondition' => $this->text(),
+            'customerCondition' => $this->text(),
             'enabled' => $this->boolean()->notNull()->defaultValue(true),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -819,6 +829,7 @@ class Install extends Migration
             'enabled' => $this->boolean()->notNull()->defaultValue(true),
             'orderConditionFormula' => $this->text(),
             'orderCondition' => $this->text(),
+            'customerCondition' => $this->text(),
             'baseRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'perItemRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'weightRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
@@ -1245,6 +1256,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::PLANS, ['planInformationId'], '{{%elements}}', 'id', 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PRODUCTS, ['typeId'], Table::PRODUCTTYPES, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::PRODUCTS, ['defaultVariantId'], '{{%elements}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTTYPES, ['fieldLayoutId'], '{{%fieldlayouts}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTTYPES, ['variantFieldLayoutId'], '{{%fieldlayouts}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTTYPES, ['structureId'], CraftTable::STRUCTURES, ['id'], 'SET NULL', null);
@@ -1425,6 +1437,7 @@ class Install extends Migration
             'name' => 'Dummy',
             'handle' => 'dummy',
             'isFrontendEnabled' => true,
+            'orderCondition' => [],
             'isArchived' => false,
         ];
         $gateway = new Dummy($data);

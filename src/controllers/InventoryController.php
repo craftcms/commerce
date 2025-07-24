@@ -575,9 +575,7 @@ JS, [
             'inventoryItemIds' => $inventoryItemIds,
             'inventoryLevels' => $inventoryLevels,
             'updateAction' => $updateAction,
-            'inventoryLocationOptions' => Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations()->mapWithKeys(function($location) {
-                return [$location->id => $location->getUiLabel()];
-            })->all(),
+            'inventoryLocationOptions' => Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations()->mapWithKeys(fn($location) => [$location->id => $location->getUiLabel()])->all(),
             'type' => $type,
             'quantity' => $quantity,
             'note' => $note,

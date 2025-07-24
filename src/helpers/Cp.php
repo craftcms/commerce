@@ -26,7 +26,7 @@ class Cp
      */
     public static function inventoryLocationFieldHtml(array $config): string
     {
-        $config['id'] = $config['id'] ?? 'inventorylocationselect' . mt_rand();
+        $config['id'] ??= 'inventorylocationselect' . mt_rand();
         return CraftCp::fieldHtml('template:commerce/_includes/forms/inventoryLocationSelect.twig', $config);
     }
 }

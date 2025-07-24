@@ -218,9 +218,7 @@ class CatalogPricingTest extends Unit
                             [
                                 'class' => ProductTypeConditionRule::class,
                                 'operator' => 'in',
-                                'values' => function(): array {
-                                    return [(new Query())->select('uid')->from(Table::PRODUCTTYPES)->where(['handle' => 'tShirts'])->scalar()];
-                                },
+                                'values' => fn(): array => [(new Query())->select('uid')->from(Table::PRODUCTTYPES)->where(['handle' => 'tShirts'])->scalar()],
                             ],
                         ],
                     ],
@@ -243,9 +241,7 @@ class CatalogPricingTest extends Unit
                             [
                                 'class' => ProductTypeConditionRule::class,
                                 'operator' => 'in',
-                                'values' => function(): array {
-                                    return [(new Query())->select('uid')->from(Table::PRODUCTTYPES)->where(['handle' => 'ukOnly'])->scalar()];
-                                },
+                                'values' => fn(): array => [(new Query())->select('uid')->from(Table::PRODUCTTYPES)->where(['handle' => 'ukOnly'])->scalar()],
                             ],
                         ],
                     ],

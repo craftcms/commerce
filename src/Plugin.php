@@ -257,7 +257,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.3.2.1';
+    public string $schemaVersion = '5.4.0.5';
 
     /**
      * @inheritdoc
@@ -343,7 +343,7 @@ class Plugin extends BasePlugin
             throw new Exception('Craft Commerce 5 requires Craft CMS 5.1+ in order to run.');
         }
 
-        if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 82000) {
+        if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 80200) {
             Craft::error('Craft Commerce requires PHP 8.2.0+ in order to run.');
         }
     }
@@ -1156,7 +1156,7 @@ class Plugin extends BasePlugin
     }
 
     /**
-     * Defines the `resave/products` command.
+     * Defines the `resave/products`, `resave/variants`, `resave/carts` and `resave/orders` commands.
      */
     private function _defineResaveCommand(): void
     {
@@ -1171,10 +1171,9 @@ class Plugin extends BasePlugin
                         $criteria['type'] = explode(',', $controller->type);
                     }
 
-                    // @TODO Remove this check when Commerce requires Craft 5.5
-                    if (version_compare(Craft::$app->getInfo()->version, '5.5.0', '>=') && !empty($controller->withFields)) {
+                    if (!empty($controller->withFields)) {
                         $handles = Collection::make(self::getInstance()->getProductTypes()->getAllProductTypes())
-                            ->filter(fn(ProductType $productType) => $controller->hasTheFields($productType->getFieldLayout()))
+                            ->filter(fn(ProductType $productType) => $controller->hasTheFields($productType->getProductFieldLayout()))
                             ->map(fn(ProductType $productType) => $productType->handle)
                             ->all();
                         if (isset($criteria['type'])) {
@@ -1195,6 +1194,41 @@ class Plugin extends BasePlugin
                 'helpSummary' => 'Re-saves Commerce products.',
                 'optionsHelp' => [
                     'type' => 'The product type handle(s) of the products to resave.',
+                ],
+            ];
+
+            $e->actions['variants'] = [
+                'action' => function(): int {
+                    /** @var ResaveController $controller */
+                    $controller = Craft::$app->controller;
+                    $criteria = [];
+
+                    if ($controller->type !== null) {
+                        $criteria['type'] = explode(',', $controller->type);
+                    }
+                    if (!empty($controller->withFields)) {
+                        $handles = Collection::make(self::getInstance()->getProductTypes()->getAllProductTypes())
+                            ->filter(fn(ProductType $productType) => $controller->hasTheFields($productType->getVariantFieldLayout()))
+                            ->map(fn(ProductType $productType) => $productType->handle)
+                            ->all();
+                        if (isset($criteria['type'])) {
+                            $criteria['type'] = array_intersect($criteria['type'], $handles);
+                        } else {
+                            $criteria['type'] = $handles;
+                        }
+
+                        if (empty($criteria['type'])) {
+                            $controller->output($controller->markdownToAnsi('No variant types satisfy `--with-fields`.'));
+                            return ExitCode::UNSPECIFIED_ERROR;
+                        }
+                    }
+
+                    return $controller->resaveElements(Variant::class, $criteria);
+                },
+                'options' => array_filter(['type', (property_exists(ResaveController::class, 'withFields') ? 'withFields' : null)]),
+                'helpSummary' => 'Re-saves Commerce variants.',
+                'optionsHelp' => [
+                    'type' => 'The product type handle(s) of the variants to resave.',
                 ],
             ];
 

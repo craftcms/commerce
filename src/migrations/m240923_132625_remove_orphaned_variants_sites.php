@@ -23,9 +23,7 @@ class m240923_132625_remove_orphaned_variants_sites extends Migration
             ->collect();
 
         // Group them by product ID
-        $siteIdsByProductId = $allProductsSites->groupBy('elementId')->map(function($row) {
-            return collect($row)->pluck('siteId')->toArray();
-        }
+        $siteIdsByProductId = $allProductsSites->groupBy('elementId')->map(fn($row) => collect($row)->pluck('siteId')->toArray()
         );
 
         // Find all existing combinations of variant and site IDs
@@ -36,9 +34,7 @@ class m240923_132625_remove_orphaned_variants_sites extends Migration
             ->collect();
 
         // Find all variants that are not associated with any of their product's sites
-        $orphanedVariantsSites = array_values($allVariantsSites->filter(function($row) use ($siteIdsByProductId) {
-            return !in_array($row['siteId'], $siteIdsByProductId[$row['primaryOwnerId']]);
-        })->map(fn($row) => $row['id'])->toArray());
+        $orphanedVariantsSites = array_values($allVariantsSites->filter(fn($row) => !in_array($row['siteId'], $siteIdsByProductId[$row['primaryOwnerId']]))->map(fn($row) => $row['id'])->toArray());
 
         if (empty($orphanedVariantsSites)) {
             return true;

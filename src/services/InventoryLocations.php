@@ -60,9 +60,7 @@ class InventoryLocations extends Component
      */
     public function getAllInventoryLocationsAsList(bool $withTrashed = false): array
     {
-        return $this->getAllInventoryLocations($withTrashed)->mapWithKeys(function(InventoryLocation $location) {
-            return [$location->id => $location->getUiLabel()];
-        })->toArray();
+        return $this->getAllInventoryLocations($withTrashed)->mapWithKeys(fn(InventoryLocation $location) => [$location->id => $location->getUiLabel()])->toArray();
     }
 
     /**
@@ -86,7 +84,7 @@ class InventoryLocations extends Component
      */
     public function getInventoryLocations(?int $storeId = null, bool $withTrashed = false): Collection
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         $locationIds = (new Query())
             ->select(['inventoryLocationId'])
@@ -96,9 +94,7 @@ class InventoryLocations extends Component
             ->column();
 
         // Keep the order of the locationIds
-        return $this->_getAllInventoryLocations($withTrashed)->whereIn('id', $locationIds)->sortBy(function($inventoryLocation) use ($locationIds) {
-            return array_search($inventoryLocation->id, $locationIds);
-        });
+        return $this->_getAllInventoryLocations($withTrashed)->whereIn('id', $locationIds)->sortBy(fn($inventoryLocation) => array_search($inventoryLocation->id, $locationIds));
     }
 
     /**

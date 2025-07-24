@@ -32,7 +32,7 @@ class DebugPanel
     public static function prependOrAppendModelTab(object $model, ?string $name = null, bool $prepend = false): void
     {
         if (!$name) {
-            $classSegments = explode('\\', get_class($model));
+            $classSegments = explode('\\', $model::class);
             $name = array_pop($classSegments);
 
             if (property_exists($model, 'id')) {
@@ -67,7 +67,6 @@ class DebugPanel
 
     /**
      * @param string $attr
-     * @param mixed $value
      * @param string|null $label
      * @return string
      */

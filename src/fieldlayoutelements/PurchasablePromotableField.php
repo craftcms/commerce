@@ -33,6 +33,11 @@ class PurchasablePromotableField extends BaseNativeField
     public string $attribute = 'promotable';
 
     /**
+     * @var bool Whether the field should be checked by default when creating a new purchasable.
+     */
+    public bool $defaultPromotable = false;
+
+    /**
      * @inheritdoc
      */
     public function __construct(array $config = [])
@@ -54,9 +59,21 @@ class PurchasablePromotableField extends BaseNativeField
             'id' => 'promotable',
             'name' => 'promotable',
             'small' => true,
-            'on' => $element->promotable,
+            'on' => $element->getIsFresh() ? $this->defaultPromotable : $element->promotable,
             'disabled' => $static,
         ]);
+    }
+
+    public function settingsHtml(): string
+    {
+        return parent::settingsHtml() . Cp::lightswitchHtml(
+            [
+                'id' => 'defaultPromotable',
+                'name' => 'defaultPromotable',
+                'label' => Craft::t('app', 'Default Value'),
+                'on' => $this->defaultPromotable,
+            ]
+        );
     }
 
     /**

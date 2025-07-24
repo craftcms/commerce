@@ -38,7 +38,7 @@ class OrderPaymentAmountTest extends Unit
     /**
      * @var Plugin|null
      */
-    protected ?Plugin $pluginInstance;
+    protected ?Plugin $pluginInstance = null;
 
     /**
      * @return array

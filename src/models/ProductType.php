@@ -53,7 +53,7 @@ class ProductType extends Model implements FieldLayoutProviderInterface
     public const DEFAULT_PLACEMENT_BEGINNING = 'beginning';
     /** @since 5.2.0 */
     public const DEFAULT_PLACEMENT_END = 'end';
-    
+
     /**
      * @var int|null ID
      */
@@ -243,18 +243,16 @@ class ProductType extends Model implements FieldLayoutProviderInterface
             [
                 ['variantTitleFormat'],
                 'required',
-                'when' => static function($model) {
+                'when' => static fn($model) =>
                     /** @var static $model */
-                    return !$model->hasVariantTitleField;
-                },
+                    !$model->hasVariantTitleField,
             ],
             [
                 ['productTitleFormat'],
                 'required',
-                'when' => static function($model) {
+                'when' => static fn($model) =>
                     /** @var static $model */
-                    return !$model->hasProductTitleField;
-                },
+                    !$model->hasProductTitleField,
             ],
             [['name', 'handle', 'descriptionFormat'], 'string', 'max' => 255],
             [['handle'], UniqueValidator::class, 'targetClass' => ProductTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'],
@@ -263,6 +261,7 @@ class ProductType extends Model implements FieldLayoutProviderInterface
             ['fieldLayout', 'validateFieldLayout'],
             ['variantFieldLayout', 'validateVariantFieldLayout'],
             ['siteSettings', 'required', 'message' => Craft::t('commerce','At least one site must be enabled for the product type.')],
+            [['isStructure', 'defaultPlacement', 'maxLevels', 'structureId'], 'safe'],
         ];
     }
 

@@ -68,9 +68,7 @@ class CartsTest extends Unit
         ]));
 
         Plugin::getInstance()->set('carts', $this->make(Carts::class, [
-            'getSessionCartNumber' => function() use ($cartNumber) {
-                return $cartNumber;
-            },
+            'getSessionCartNumber' => fn() => $cartNumber,
         ]));
 
         $user = Craft::$app->getUsers()->getUserByUsernameOrEmail($email);
@@ -114,9 +112,7 @@ class CartsTest extends Unit
     {
         $cartNumber = Plugin::getInstance()->getCarts()->generateCartNumber();
         Plugin::getInstance()->set('carts', $this->make(Carts::class, [
-            'getSessionCartNumber' => function() use ($cartNumber) {
-                return $cartNumber;
-            },
+            'getSessionCartNumber' => fn() => $cartNumber,
         ]));
 
         $inactiveUser = $this->tester->grabFixture('customer')->getElement('inactive-user');

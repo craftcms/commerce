@@ -31,6 +31,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
+use craft\elements\actions\Copy;
 use craft\elements\actions\Restore;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\EagerLoadPlan;
@@ -328,6 +329,14 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
+    public function canCopy(User $user): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function canDelete(User $user): bool
     {
         if (parent::canDelete($user)) {
@@ -368,6 +377,14 @@ class Variant extends Purchasable implements NestedElementInterface
         }
 
         return $this->canSave($user);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function includeSetStatusAction(): bool
+    {
+        return true;
     }
 
     /**
@@ -444,23 +461,26 @@ class Variant extends Purchasable implements NestedElementInterface
     {
         $fieldLayout = parent::getFieldLayout();
 
+        // If we have a field layout, try to set its provider from product type
         if ($fieldLayout) {
-            // Variant field layouts are stored on the product type so retrieving the field layout by ID does not set the provider
-            $productType = collect(Plugin::getInstance()->getProductTypes()->getAllProductTypes())->firstWhere('variantFieldLayoutId', $fieldLayout->id);
+            $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+            $productType = collect($productTypes)->firstWhere('variantFieldLayoutId', $fieldLayout->id);
+
             if ($productType) {
                 $fieldLayout->provider = $productType;
                 return $fieldLayout;
             }
         }
 
+        // Try to get field layout from owner's product type
         try {
-            if ($this->getOwner() === null) {
-                return parent::getFieldLayout();
-            }
+            $owner = $this->getOwner();
 
-            return $this->getOwner()->getType()->getVariantFieldLayout();
+            return $owner === null
+                ? $fieldLayout
+                : $owner->getType()->getVariantFieldLayout();
         } catch (InvalidConfigException) {
-            // The product type was probably deleted
+            // Product type was likely deleted
             return null;
         }
     }
@@ -954,7 +974,6 @@ class Variant extends Purchasable implements NestedElementInterface
     }
 
     /**
-     * @param mixed $context
      * @return string
      * @since 3.1
      */
@@ -1217,19 +1236,6 @@ class Variant extends Purchasable implements NestedElementInterface
             // Set new SKU in memory
             $this->sku = $this->getSku() . '-1';
 
-            // Update variant table with new SKU
-            Craft::$app->getDb()->createCommand()->update(Table::VARIANTS,
-                ['sku' => $this->sku],
-                ['id' => $this->getId()]
-            )->execute();
-
-            if ($this->isDefault) {
-                Craft::$app->getDb()->createCommand()->update(Table::PRODUCTS,
-                    ['defaultSku' => $this->sku],
-                    ['id' => $this->primaryOwnerId]
-                )->execute();
-            }
-
             // Update purchasable table with new SKU
             Craft::$app->getDb()->createCommand()->update(Table::PURCHASABLES,
                 ['sku' => $this->sku],
@@ -1296,9 +1302,7 @@ class Variant extends Purchasable implements NestedElementInterface
 
         // Limit to only those for this product type
         $categoryIds = collect(Plugin::getInstance()->getShippingCategories()->getShippingCategoriesByProductTypeId($productTypeId))->pluck('id')->toArray();
-        $available = collect($allAvailableShippingCategories)->filter(function(ShippingCategory $category) use ($categoryIds) {
-            return in_array($category->id, $categoryIds);
-        });
+        $available = collect($allAvailableShippingCategories)->filter(fn(ShippingCategory $category) => in_array($category->id, $categoryIds));
 
         if ($available->isEmpty()) {
             return [Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->storeId)];
@@ -1322,9 +1326,7 @@ class Variant extends Purchasable implements NestedElementInterface
 
         // Limit to only those for this product type
         $categoryIds = collect(Plugin::getInstance()->getTaxCategories()->getTaxCategoriesByProductTypeId($productTypeId))->pluck('id')->toArray();
-        $available = collect($allAvailableTaxCategories)->filter(function(TaxCategory $category) use ($categoryIds) {
-            return in_array($category->id, $categoryIds);
-        });
+        $available = collect($allAvailableTaxCategories)->filter(fn(TaxCategory $category) => in_array($category->id, $categoryIds));
 
         if ($available->isEmpty()) {
             return [Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()];
@@ -1365,6 +1367,12 @@ class Variant extends Purchasable implements NestedElementInterface
         ]);
 
         $actions[] = ['type' => SetDefaultVariant::class];
+
+        // In case they are not running Craft 5.7+
+        if (class_exists(Copy::class)) {
+            $actions[] = ['type' => Copy::class];
+        }
+
         return $actions;
     }
 

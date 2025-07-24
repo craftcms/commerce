@@ -24,11 +24,9 @@ class CatalogPricingRulePurchasableCondition extends ElementCondition
      */
     protected function selectableConditionRules(): array
     {
-        $types = array_filter(parent::selectableConditionRules(), static function($type) {
-            return !in_array($type, [
-                SiteConditionRule::class,
-            ], true);
-        });
+        $types = array_filter(parent::selectableConditionRules(), static fn($type) => !in_array($type, [
+            SiteConditionRule::class,
+        ], true));
 
         $types[] = PurchasableConditionRule::class;
         $types[] = SkuConditionRule::class;

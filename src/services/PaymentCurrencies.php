@@ -52,7 +52,7 @@ class PaymentCurrencies extends Component
      */
     public function getPaymentCurrencyById(int $id, ?int $storeId = null): ?PaymentCurrency
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         $all = $this->getAllPaymentCurrencies($storeId);
 
@@ -69,7 +69,7 @@ class PaymentCurrencies extends Component
      */
     public function getAllPaymentCurrencies(?int $storeId = null): Collection
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         if ($this->_allPaymentCurrencies === null || !isset($this->_allPaymentCurrencies[$storeId])) {
             $results = $this->_createPaymentCurrencyQuery()
@@ -110,7 +110,7 @@ class PaymentCurrencies extends Component
      */
     public function getPaymentCurrencyByIso(string $iso, ?int $storeId = null): ?PaymentCurrency
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         return $this->getAllPaymentCurrencies($storeId)->firstWhere('iso', $iso);
     }
@@ -131,13 +131,11 @@ class PaymentCurrencies extends Component
      */
     public function getPrimaryPaymentCurrency(?int $storeId = null): ?PaymentCurrency
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         $storeCurrency = Plugin::getInstance()->getStores()->getStoreById($storeId)->getCurrency();
 
-        return $this->getAllPaymentCurrencies($storeId)->firstWhere(function(PaymentCurrency $currency) use ($storeCurrency) {
-            return $currency->getCode() == $storeCurrency->getCode();
-        });
+        return $this->getAllPaymentCurrencies($storeId)->firstWhere(fn(PaymentCurrency $currency) => $currency->getCode() == $storeCurrency->getCode());
     }
 
     /**
@@ -151,9 +149,7 @@ class PaymentCurrencies extends Component
     {
         $storeCurrency = Plugin::getInstance()->getStores()->getStoreById($storeId)->getCurrency();
 
-        return $this->getAllPaymentCurrencies($storeId)->where(function(PaymentCurrency $currency) use ($storeCurrency) {
-            return $currency->getCode() != $storeCurrency->getCode();
-        });
+        return $this->getAllPaymentCurrencies($storeId)->where(fn(PaymentCurrency $currency) => $currency->getCode() != $storeCurrency->getCode());
     }
 
     /**
@@ -277,7 +273,7 @@ class PaymentCurrencies extends Component
 
     private function _getExchange(?int $storeId = null)
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         $storeCurrency = Plugin::getInstance()->getStores()->getStoreById($storeId)->getCurrency();
         $nonPrimaryCurrencies = $this->getNonPrimaryPaymentCurrencies($storeId)->mapWithKeys(fn(PaymentCurrency $currency) => [$currency->iso => (string)$currency->rate]);
@@ -308,7 +304,7 @@ class PaymentCurrencies extends Component
             $currency = new Currency($currency);
         }
 
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         $fromPaymentCurrency = $this->getPaymentCurrencyByIso($amount->getCurrency(), $storeId);
         $toPaymentCurrency = $this->getPaymentCurrencyByIso($currency, $storeId);

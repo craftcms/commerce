@@ -39,7 +39,6 @@ use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 use function explode;
-use function get_class;
 
 /**
  * Class Discounts Controller
@@ -227,6 +226,10 @@ class DiscountsController extends BaseStoreManagementController
         $this->_populateVariables($variables);
         $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
         $this->getView()->registerAssetBundle(CouponsAsset::class);
+
+        $variables['coupons'] = collect($variables['discount']->getCoupons())
+            ->map(fn(Coupon $coupon) => $coupon->toArray())
+            ->all();
 
         return $this->renderTemplate('commerce/store-management/discounts/_edit', $variables);
     }
@@ -506,17 +509,11 @@ class DiscountsController extends BaseStoreManagementController
             return $this->asFailure(Craft::t('commerce', 'Type not in allowed options.'));
         }
 
-        switch ($type) {
-            case self::DISCOUNT_COUNTER_TYPE_EMAIL:
-                Plugin::getInstance()->getDiscounts()->clearEmailUsageHistoryById($id);
-                break;
-            case self::DISCOUNT_COUNTER_TYPE_CUSTOMER:
-                Plugin::getInstance()->getDiscounts()->clearCustomerUsageHistoryById($id);
-                break;
-            case self::DISCOUNT_COUNTER_TYPE_TOTAL:
-                Plugin::getInstance()->getDiscounts()->clearDiscountUsesById($id);
-                break;
-        }
+        match ($type) {
+            self::DISCOUNT_COUNTER_TYPE_EMAIL => Plugin::getInstance()->getDiscounts()->clearEmailUsageHistoryById($id),
+            self::DISCOUNT_COUNTER_TYPE_CUSTOMER => Plugin::getInstance()->getDiscounts()->clearCustomerUsageHistoryById($id),
+            self::DISCOUNT_COUNTER_TYPE_TOTAL => Plugin::getInstance()->getDiscounts()->clearDiscountUsesById($id),
+        };
 
         return $this->asSuccess();
     }
@@ -693,8 +690,8 @@ class DiscountsController extends BaseStoreManagementController
         foreach ($purchasableIds as $purchasableId) {
             $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
             if ($purchasable instanceof PurchasableInterface) {
-                $class = get_class($purchasable);
-                $purchasables[$class] = $purchasables[$class] ?? [];
+                $class = $purchasable::class;
+                $purchasables[$class] ??= [];
                 $purchasables[$class][] = $purchasable;
             }
         }

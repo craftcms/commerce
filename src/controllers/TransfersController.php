@@ -326,9 +326,7 @@ class TransfersController extends BaseCpController
             $details = $this->request->getParam('details', []);
 
             if ($this->request->getParam('removeInventoryItemUid')) {
-                $details = array_filter($details, function($detail) {
-                    return $detail['uid'] !== $this->request->getParam('removeInventoryItemUid');
-                });
+                $details = array_filter($details, fn($detail) => $detail['uid'] !== $this->request->getParam('removeInventoryItemUid'));
             }
             $transfer->setDetails($details);
 

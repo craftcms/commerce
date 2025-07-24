@@ -21,6 +21,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $storeId
  * @property string $name
  * @property array|string $orderCondition
+ * @property array|string $customerCondition
  * @property ShippingRule[] $rules
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0

@@ -17,6 +17,7 @@ use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Localization;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
+use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\models\InventoryItem;
 use craft\commerce\models\InventoryLevel;
 use craft\commerce\models\LineItem;
@@ -184,6 +185,20 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     private ?float $_basePromotionalPrice = null;
 
+    /**
+     * The ID of the catalog pricing rule that is affecting the sale price of this purchasable.
+     *
+     * @var int|null
+     * @since 5.4.0
+     */
+    public ?int $catalogPricingRuleId = null;
+
+    /**
+     * @var CatalogPricingRule|null
+     * @since 5.4.0
+     * @see getCatalogPricingRule()
+     */
+    private ?CatalogPricingRule $_catalogPricingRule = null;
 
     /**
      * @var bool
@@ -264,6 +279,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         $names[] = 'stock';
         $names[] = 'inventoryTracked';
         $names[] = 'allowOutOfStockPurchases';
+        $names[] = 'shippingCategoryId';
+        $names[] = 'taxCategoryId';
 
         return $names;
     }
@@ -615,6 +632,21 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     }
 
     /**
+     * @return CatalogPricingRule|null
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
+     * @since 5.4.0
+     */
+    public function getCatalogPricingRule(): ?CatalogPricingRule
+    {
+        if ($this->_catalogPricingRule === null && $this->catalogPricingRuleId !== null) {
+            $this->_catalogPricingRule = Plugin::getInstance()->getCatalogPricingRules()->getCatalogPricingRuleById($this->catalogPricingRuleId, $this->storeId);
+        }
+
+        return $this->_catalogPricingRule;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getSalePrice(): ?float
@@ -705,7 +737,9 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function getSnapshot(): array
     {
-        return [];
+        return [
+            'catalogPricingRuleId' => $this->catalogPricingRuleId,
+        ];
     }
 
     /**
@@ -965,6 +999,10 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     private function _getStock(): int
     {
+        if (!$this->inventoryTracked) {
+            return 0;
+        }
+
         $saleableAmount = 0;
         foreach ($this->getInventoryLevels() as $inventoryLevel) {
             if ($inventoryLevel->availableTotal > 0) {

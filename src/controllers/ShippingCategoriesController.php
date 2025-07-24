@@ -65,7 +65,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
             $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
         }
 
-        $store = $store ?? Plugin::getInstance()->getStores()->getPrimaryStore();
+        $store ??= Plugin::getInstance()->getStores()->getPrimaryStore();
 
         if (!$variables['shippingCategory']) {
             if ($variables['id']) {
@@ -94,9 +94,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
 
         $variables['productTypesOptions'] = [];
         if (!empty($variables['productTypes'])) {
-            $variables['productTypesOptions'] = ArrayHelper::map($variables['productTypes'], 'id', function($row) {
-                return ['label' => $row->name, 'value' => $row->id];
-            });
+            $variables['productTypesOptions'] = ArrayHelper::map($variables['productTypes'], 'id', fn($row) => ['label' => $row->name, 'value' => $row->id]);
         }
 
         $allShippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories($store->id);

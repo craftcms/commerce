@@ -56,7 +56,7 @@
 
 {% set defaultInput %}
     {{ forms.lightswitchField({
-        label: "New products default to the first shipping category available to them. If none are available, this category will be used."|t('commerce'),
+        instructions: "This category will be used as the default for all purchasables in this store."|t('commerce'),
         id: 'default',
         name: 'default',
         value: 1,

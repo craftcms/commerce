@@ -216,7 +216,7 @@ class Pdfs extends Component
      */
     public function getAllPdfs(?int $storeId = null): Collection
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         if ($this->_allPdfs === null || !isset($this->_allPdfs[$storeId])) {
             $results = $this->_createPdfsQuery()

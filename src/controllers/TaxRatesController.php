@@ -171,9 +171,7 @@ class TaxRatesController extends BaseTaxSettingsController
         $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
         $productTypesOptions = [];
         if (!empty($productTypes)) {
-            $productTypesOptions = ArrayHelper::map($productTypes, 'id', function(ProductType $row) {
-                return ['label' => $row->name, 'value' => $row->id];
-            });
+            $productTypesOptions = ArrayHelper::map($productTypes, 'id', fn(ProductType $row) => ['label' => $row->name, 'value' => $row->id]);
         }
         $variables['newTaxCategoryFields'] = $view->namespaceInputs(
             $view->renderTemplate('commerce/store-management/tax/taxcategories/_fields', compact('productTypes', 'productTypesOptions'))

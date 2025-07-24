@@ -21,7 +21,6 @@ use craft\commerce\services\Pdfs;
 use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Stores;
 use craft\db\Query;
-use craft\helpers\Json;
 
 /**
  * Class ProjectConfigData
@@ -116,29 +115,11 @@ class ProjectConfigData
      */
     private static function _rebuildGatewayProjectConfig(): array
     {
-        $gatewayData = (new Query())
-            ->select(['*'])
-            ->from([Table::GATEWAYS])
-            ->where(['isArchived' => false])
-            ->all();
-
-        $configData = [];
-
-        foreach ($gatewayData as $gatewayRow) {
-            $settings = Json::decodeIfJson($gatewayRow['settings']);
-            $configData[$gatewayRow['uid']] = [
-                'name' => $gatewayRow['name'],
-                'handle' => $gatewayRow['handle'],
-                'type' => $gatewayRow['type'],
-                'settings' => $settings,
-                'sortOrder' => (int)$gatewayRow['sortOrder'],
-                'paymentType' => $gatewayRow['paymentType'],
-                'isFrontendEnabled' => (bool)$gatewayRow['isFrontendEnabled'],
-            ];
+        $data = [];
+        foreach (Plugin::getInstance()->getGateways()->getAllGateways() as $gateway) {
+            $data[$gateway->uid] = $gateway->getConfig();
         }
-
-
-        return $configData;
+        return $data;
     }
 
     /**
@@ -167,6 +148,7 @@ class ProjectConfigData
      */
     private static function _getProductTypeData(): array
     {
+        // @TODO refactor to us `getAllProductTypes()` and call `getConfig()` on each type.
         $productTypeRows = (new Query())
             ->select([
                 'descriptionFormat',
@@ -188,6 +170,10 @@ class ProjectConfigData
                 'variantTitleTranslationMethod',
                 'variantTitleTranslationKeyFormat',
                 'propagationMethod',
+                'isStructure',
+                'structureId',
+                'defaultPlacement',
+                'maxLevels',
             ])
             ->from([Table::PRODUCTTYPES . ' productTypes'])
             ->all();
