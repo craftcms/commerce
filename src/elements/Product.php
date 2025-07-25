@@ -1137,6 +1137,7 @@ class Product extends Element implements HasStoreInterface
      */
     public function getAllVariants(): VariantCollection
     {
+        $this->_variants = null;
         return $this->getVariants(true);
     }
 

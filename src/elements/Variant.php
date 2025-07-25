@@ -73,6 +73,7 @@ class Variant extends Purchasable implements NestedElementInterface
         setPrimaryOwner as traitSetPrimaryOwner;
         setOwner as traitSetOwner;
         setEagerLoadedElements as traitSetEagerLoadedElements;
+        extraFields as traitExtraFields;
     }
 
     /**
@@ -242,6 +243,15 @@ class Variant extends Purchasable implements NestedElementInterface
         $attributes[] = 'productId';
 
         return $attributes;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function init(): void
+    {
+        parent::init();
+        $this->ownerType = Product::class;
     }
 
     /**
@@ -447,10 +457,11 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
-    public function attributes(): array
+    public function extraFields(): array
     {
-        $names = parent::attributes();
+        $names = $this->traitExtraFields();
         $names[] = 'product';
+
         return $names;
     }
 
@@ -557,59 +568,6 @@ class Variant extends Purchasable implements NestedElementInterface
         $this->fieldLayoutId = $owner->getType()->variantFieldLayoutId;
 
         $this->traitSetOwner($owner);
-    }
-
-    /**
-     * @inheritdoc
-     * @TODO remove implementation when `NestedElementTrait::getOwner()` is updated
-     */
-    public function getPrimaryOwner(): ?Product
-    {
-        if (!isset($this->_primaryOwner)) {
-            $primaryOwnerId = $this->getPrimaryOwnerId();
-            if (!$primaryOwnerId) {
-                return null;
-            }
-
-            $this->_primaryOwner = Craft::$app->getElements()->getElementById($primaryOwnerId, Product::class, $this->siteId, [
-                'trashed' => null,
-            ]) ?? false;
-            if (!$this->_primaryOwner) {
-                throw new InvalidConfigException("Invalid owner ID: $primaryOwnerId");
-            }
-        }
-
-        /** @phpstan-ignore-next-line */
-        return $this->_primaryOwner ?: null;
-    }
-
-    /**
-     * @inheritdoc
-     * @TODO remove implementation when `NestedElementTrait::getOwner()` is updated
-     */
-    public function getOwner(): ?Product
-    {
-        if (!isset($this->_owner)) {
-            $ownerId = $this->getOwnerId();
-            if (!$ownerId) {
-                return null;
-            }
-
-            // If ownerId and primaryOwnerId are the same, return the primary owner
-            if ($ownerId === $this->getPrimaryOwnerId()) {
-                return $this->getPrimaryOwner();
-            }
-
-            $this->_owner = Craft::$app->getElements()->getElementById($ownerId, Product::class, $this->siteId, [
-                'trashed' => null,
-            ]) ?? false;
-            if (!$this->_owner) {
-                throw new InvalidConfigException("Invalid owner ID: $ownerId");
-            }
-        }
-
-        /** @phpstan-ignore-next-line */
-        return $this->_owner ?: null;
     }
 
     /**
