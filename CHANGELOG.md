@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a PHP error that could occur when using partial payments in the example templates. ([#3989](https://github.com/craftcms/commerce/issues/3989))
+
 ## 5.4.3 - 2025-07-23
 
 - Fixed a PHP error that could occur when upgrading to Commerce 5. ([#4077](https://github.com/craftcms/commerce/issues/4077))
