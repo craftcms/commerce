@@ -63,6 +63,8 @@ use yii\validators\Validator;
  * @property-read string $gqlTypeName
  * @property-read string $skuAsText
  * @property string $salePriceAsCurrency
+ * @method getOwner() Product|null
+ * @method getPrimaryOwner() Product|null
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
