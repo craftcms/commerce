@@ -1044,6 +1044,10 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function getInventoryLevels(): Collection
     {
+        if (!$this->inventoryTracked) {
+            return collect();
+        }
+
         return Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($this);
     }
 
