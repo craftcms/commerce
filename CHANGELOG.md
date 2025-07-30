@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Improved the performance of loading the Edit Order page.
+- Fixed a bug where empty variant collections could be incorrectly memoized when duplicating a product. ([#4075](https://github.com/craftcms/commerce/issues/4075))
 - Fixed a bug where matching custom shipping methods that don’t use shipping rules weren’t having shipping adjustments applied to carts.
 
 ## 5.4.3 - 2025-07-23
