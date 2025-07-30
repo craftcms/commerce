@@ -27,4 +27,7 @@ Outputs radio inputs for currency selection.
       </span>
     </label>
   {% endfor %}
+{% elseif currencies|length == 1 %}
+  {# If there's only one currency, include it as a hidden field #}
+  {{ hiddenInput('paymentCurrency', currencies[0].iso) }}
 {% endif %}
