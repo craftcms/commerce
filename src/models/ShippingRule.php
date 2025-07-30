@@ -363,6 +363,17 @@ class ShippingRule extends Model implements ShippingRuleInterface, HasStoreInter
             return false;
         }
 
+        $customer = $order->getCustomer();
+        // If there is no customer on the order and there are customer conditions, we can't match.
+        if (!$customer && !empty($this->getCustomerCondition()->getConditionRules())) {
+            return false;
+        }
+
+        // Match the method's customer condition.
+        if ($customer && !$this->getCustomerCondition()->matchElement($customer)) {
+            return false;
+        }
+
         // all rules match
         return true;
     }

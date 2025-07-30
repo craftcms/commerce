@@ -69,11 +69,26 @@ class OrderHistory extends Model
     public ?DateTime $dateCreated = null;
 
     /**
+     * @var Order|null
+     */
+    private ?Order $_order = null;
+
+    /**
      * @throws InvalidConfigException
      */
     public function getOrder(): ?Order
     {
-        return Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
+        if ($this->_order === null) {
+            $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
+        }
+
+        return $this->_order;
+    }
+
+    public function setOrder(Order $order): void
+    {
+        $this->_order = $order;
+        $this->orderId = $order->id;
     }
 
     /**
