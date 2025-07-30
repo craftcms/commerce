@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Improved the performance of loading the Edit Order page.
+- Improved the performance of loading the Edit Order page. ([#4056](https://github.com/craftcms/commerce/issues/4056))
 - Fixed a bug where matching custom shipping methods that don’t use shipping rules weren’t having shipping adjustments applied to carts.
 
 ## 5.4.3 - 2025-07-23
