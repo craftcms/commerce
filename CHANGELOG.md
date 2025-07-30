@@ -3,10 +3,10 @@
 ## Unreleased
 
 - Fixed a bug where cart errors weren’t being returned in `commerce/payments/pay` action requests. ([#4026](https://github.com/craftcms/commerce/issues/4026))
+- Fixed a bug where `craft\commerce\elements\Variant::getUrl()` did not trigger the standard element url events.
 - Improved the performance of loading the Edit Order page. ([#4056](https://github.com/craftcms/commerce/issues/4056))
 - Fixed a PHP error that could occur when using partial payments in the example templates. ([#3989](https://github.com/craftcms/commerce/issues/3989))
-- Fixed a bug where `craft\commerce\elements\Variant::getUrl()` did not trigger the standard element url events.
-- Fixed a bug where matching custom shipping methods that don’t use shipping rules weren’t having shipping adjustments applied to carts.
+- Fixed a bug where custom shipping methods that don’t use shipping rules weren’t having shipping adjustments applied to carts.
 
 ## 5.4.3 - 2025-07-23
 
