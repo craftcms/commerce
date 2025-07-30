@@ -742,6 +742,11 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public function getUrl(): ?string
     {
+        if ($url = parent::getUrl()) {
+            return $url;
+        }
+        
+        // Default URL is the product's URL with the variant ID as a query parameter
         $productUrl = $this->getOwner()?->getUrl();
         return $productUrl ? UrlHelper::urlWithParams($productUrl, ['variant' => $this->id]) : null;
     }
