@@ -177,6 +177,24 @@ class Shipping extends Component implements AdjusterInterface
             }
         }
 
+        // Might be a shipping method that matches but does not have any shipping rules.
+        if($rule === null){
+            $adjustment = new OrderAdjustment();
+            $adjustment->type = self::ADJUSTMENT_TYPE;
+            $adjustment->setOrder($this->_order);
+            $adjustment->name = $shippingMethod->getName();
+            $adjustment->description = '';
+            $adjustment->isEstimated = $this->_isEstimated;
+            $adjustment->sourceSnapshot = [
+                'shippingMethodHandle' => $shippingMethod->getHandle(),
+                'shippingMethodId' => $shippingMethod->getId(),
+                'shippingMethodName' => $shippingMethod->getName(),
+                'shippingMethodType' => $shippingMethod->getType(),
+            ];
+            $adjustment->amount = Currency::round($shippingMethod->getPriceForOrder($this->_order), $this->_order->getCurrency());
+            $adjustments[] = $adjustment;
+        }
+
         if ($this->_consolidateShippingToSingleAdjustment) {
             $amount = 0;
             foreach ($adjustments as $adjustment) {
