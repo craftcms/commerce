@@ -178,7 +178,7 @@ class Shipping extends Component implements AdjusterInterface
         }
 
         // Might be a shipping method that matches but does not have any shipping rules.
-        if($rule === null){
+        if ($rule === null) {
             $adjustment = new OrderAdjustment();
             $adjustment->type = self::ADJUSTMENT_TYPE;
             $adjustment->setOrder($this->_order);
@@ -191,7 +191,7 @@ class Shipping extends Component implements AdjusterInterface
                 'shippingMethodName' => $shippingMethod->getName(),
                 'shippingMethodType' => $shippingMethod->getType(),
             ];
-            $adjustment->amount = Currency::round($shippingMethod->getPriceForOrder($this->_order), $this->_order->getCurrency());
+            $adjustment->amount = Currency::round($shippingMethod->getPriceForOrder($this->_order), $this->_order->getStore()->getCurrency());
             $adjustments[] = $adjustment;
         }
 
