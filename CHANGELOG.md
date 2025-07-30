@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a bug where `craft\commerce\elements\Variant::getUrl()` did not trigger the standard element url events.
 - Improved the performance of loading the Edit Order page. ([#4056](https://github.com/craftcms/commerce/issues/4056))
 - Fixed a bug where matching custom shipping methods that don’t use shipping rules weren’t having shipping adjustments applied to carts.
 
