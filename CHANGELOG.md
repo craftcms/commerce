@@ -25,7 +25,7 @@
 
 ## 5.4.1 - 2025-07-09
 
-- Improved the performance of loading carts via Ajax.
+- Improved the performance of loading carts via Ajax. ([#4056](https://github.com/craftcms/commerce/issues/4056))
 - Improved the performance of saving variants. ([#4064](https://github.com/craftcms/commerce/issues/4064))
 - Fixed a PHP error that could occur when viewing variant indexes on Craft CMS 5.6.17 or earlier. ([#4060](https://github.com/craftcms/commerce/issues/4060))
 - Fixed a bug where currency-based order condition rules were incorrectly listed under “Fields” in the selection menu.
