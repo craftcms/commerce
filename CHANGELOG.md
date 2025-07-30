@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Improved the performance of loading the order edit page.
+- Improved the performance of loading the Edit Order page.
 
 ## 5.4.3 - 2025-07-23
 
