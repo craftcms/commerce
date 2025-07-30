@@ -3509,7 +3509,13 @@ class Order extends Element implements HasStoreInterface
             return [];
         }
 
-        return Plugin::getInstance()->getOrderHistories()->getAllOrderHistoriesByOrderId($this->id);
+        $histories = Plugin::getInstance()->getOrderHistories()->getAllOrderHistoriesByOrderId($this->id);
+
+        foreach ($histories as $history) {
+            $history->setOrder($this);
+        }
+
+        return $histories;
     }
 
     /**
@@ -3533,7 +3539,13 @@ class Order extends Element implements HasStoreInterface
         }
 
         if ($this->_transactions === null) {
-            $this->_transactions = Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id);
+            $transactions = Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id);
+
+            foreach ($transactions as $transaction) {
+                $transaction->setOrder($this);
+            }
+
+            $this->_transactions = $transactions;
         }
 
         return $this->_transactions;

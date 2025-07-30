@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Improved the performance of loading the Edit Order page.
+- Fixed a bug where matching custom shipping methods that don’t use shipping rules weren’t having shipping adjustments applied to carts.
+
 ## 5.4.3 - 2025-07-23
 
 - Fixed a PHP error that could occur when upgrading to Commerce 5. ([#4077](https://github.com/craftcms/commerce/issues/4077))
