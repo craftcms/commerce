@@ -17,6 +17,8 @@ use yii\base\Event;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
+ *
+ * @property array|\Illuminate\Support\Collection $shippingMethods
  */
 class RegisterAvailableShippingMethodsEvent extends Event
 {

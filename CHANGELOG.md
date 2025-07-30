@@ -1,7 +1,12 @@
 # Release Notes for Craft Commerce
 
 ## Unreleased
+
 - Fixed a bug where cart errors weren’t being returned in `commerce/payments/pay` action requests. ([#4026](https://github.com/craftcms/commerce/issues/4026))
+- Improved the performance of loading the Edit Order page. ([#4056](https://github.com/craftcms/commerce/issues/4056))
+- Fixed a PHP error that could occur when using partial payments in the example templates. ([#3989](https://github.com/craftcms/commerce/issues/3989))
+- Fixed a bug where `craft\commerce\elements\Variant::getUrl()` did not trigger the standard element url events.
+- Fixed a bug where matching custom shipping methods that don’t use shipping rules weren’t having shipping adjustments applied to carts.
 
 ## 5.4.3 - 2025-07-23
 
@@ -23,7 +28,7 @@
 
 ## 5.4.1 - 2025-07-09
 
-- Improved the performance of loading carts via Ajax.
+- Improved the performance of loading carts via Ajax. ([#4056](https://github.com/craftcms/commerce/issues/4056))
 - Improved the performance of saving variants. ([#4064](https://github.com/craftcms/commerce/issues/4064))
 - Fixed a PHP error that could occur when viewing variant indexes on Craft CMS 5.6.17 or earlier. ([#4060](https://github.com/craftcms/commerce/issues/4060))
 - Fixed a bug where currency-based order condition rules were incorrectly listed under “Fields” in the selection menu.
