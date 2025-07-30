@@ -37,6 +37,16 @@ use yii2tech\ar\softdelete\SoftDeleteBehavior;
 class InventoryLocations extends Component
 {
     /**
+     * @var Collection<InventoryLocation>|null
+     */
+    private ?Collection $_allLocations = null;
+
+    /**
+     * @var Collection<InventoryLocation>|null
+     */
+    private ?Collection $_allLocationsWithTrashed = null;
+
+    /**
      * Returns all inventory locations.
      *
      * @param bool $withTrashed
@@ -194,8 +204,12 @@ class InventoryLocations extends Component
             }
 
             $transaction->commit();
-            // Finally soft delete it now that it’s all migrated
+            // Finally soft delete it now that it's all migrated
             $inventoryLocationRecord->softDelete();
+
+            // Clear memoization cache
+            $this->_allLocations = null;
+            $this->_allLocationsWithTrashed = null;
         } catch (Throwable $e) {
             $transaction->rollBack();
 
@@ -255,6 +269,10 @@ class InventoryLocations extends Component
             }
 
             $transaction->commit();
+
+            // Clear memoization cache
+            $this->_allLocations = null;
+            $this->_allLocationsWithTrashed = null;
         } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
@@ -294,15 +312,35 @@ class InventoryLocations extends Component
      */
     private function _getAllInventoryLocations(bool $withTrashed = false): Collection
     {
-        $results = $this->_createInventoryLocationsQuery($withTrashed)
-            ->all();
+        if ($withTrashed) {
+            if ($this->_allLocationsWithTrashed === null) {
+                $results = $this->_createInventoryLocationsQuery($withTrashed)
+                    ->all();
 
-        $locations = [];
-        foreach ($results as $result) {
-            $locations[] = new InventoryLocation($result);
+                $locations = [];
+                foreach ($results as $result) {
+                    $locations[] = new InventoryLocation($result);
+                }
+
+                $this->_allLocationsWithTrashed = collect($locations);
+            }
+
+            return $this->_allLocationsWithTrashed;
         }
 
-        return collect($locations);
+        if ($this->_allLocations === null) {
+            $results = $this->_createInventoryLocationsQuery($withTrashed)
+                ->all();
+
+            $locations = [];
+            foreach ($results as $result) {
+                $locations[] = new InventoryLocation($result);
+            }
+
+            $this->_allLocations = collect($locations);
+        }
+
+        return $this->_allLocations;
     }
 
     /**
