@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.4.4 - 2025-07-31
 
 - Improved the performance of loading Edit Order pages. ([#4056](https://github.com/craftcms/commerce/issues/4056))
 - Fixed a bug where cart errors weren’t being returned in `commerce/payments/pay` action requests. ([#4026](https://github.com/craftcms/commerce/issues/4026))
