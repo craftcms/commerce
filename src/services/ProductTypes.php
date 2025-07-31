@@ -419,6 +419,11 @@ class ProductTypes extends Component
             $productTypeRecord->productTitleFormat = $productTitleFormat;
             $productTypeRecord->hasProductTitleField = $hasProductTitleField;
 
+            // Slug fields
+            $productTypeRecord->showSlugField = $data['showSlugField'] ?? true;
+            $productTypeRecord->slugTranslationMethod = $data['slugTranslationMethod'] ?? 'site';
+            $productTypeRecord->slugTranslationKeyFormat = $data['slugTranslationKeyFormat'] ?? '';
+
             if ($productTypeRecord->maxVariants != $data['maxVariants']) {
                 $shouldResaveProducts = true;
             }
@@ -959,6 +964,21 @@ class ProductTypes extends Component
         /** @since 5.1 */
         if ($db->columnExists(Table::PRODUCTTYPES, 'propagationMethod')) {
             $query->addSelect('productTypes.propagationMethod');
+        }
+
+        /** @since 5.3 */
+        if ($db->columnExists(Table::PRODUCTTYPES, 'showSlugField')) {
+            $query->addSelect('productTypes.showSlugField');
+        }
+
+        /** @since 5.3 */
+        if ($db->columnExists(Table::PRODUCTTYPES, 'slugTranslationMethod')) {
+            $query->addSelect('productTypes.slugTranslationMethod');
+        }
+
+        /** @since 5.3 */
+        if ($db->columnExists(Table::PRODUCTTYPES, 'slugTranslationKeyFormat')) {
+            $query->addSelect('productTypes.slugTranslationKeyFormat');
         }
 
         return $query;
