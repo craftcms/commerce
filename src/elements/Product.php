@@ -865,6 +865,31 @@ class Product extends Element implements HasStoreInterface
     /**
      * @inheritdoc
      */
+    public function getIsSlugTranslatable(): bool
+    {
+        return ($this->getType()->slugTranslationMethod !== Field::TRANSLATION_METHOD_NONE);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSlugTranslationDescription(): ?string
+    {
+        return ElementHelper::translationDescription($this->getType()->slugTranslationMethod);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSlugTranslationKey(): string
+    {
+        $type = $this->getType();
+        return ElementHelper::translationKey($this, $type->slugTranslationMethod, $type->slugTranslationKeyFormat);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function __toString(): string
     {
         return (string)$this->title;
@@ -1373,7 +1398,9 @@ class Product extends Element implements HasStoreInterface
         $view = Craft::$app->getView();
         $productType = $this->getType();
         // Slug
-        $fields[] = $this->slugFieldHtml($static);
+        if ($productType->showSlugField) {
+            $fields[] = $this->slugFieldHtml($static);
+        }
 
         if ($productType->isStructure && $productType->maxLevels !== 1) {
             $fields[] = (function() use ($static, $productType) {
