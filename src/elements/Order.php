@@ -2203,7 +2203,6 @@ class Order extends Element
             $this->_saveAdjustments();
             $this->_saveLineItems();
             $this->_saveNotices();
-            $this->_saveOrderHistory($oldStatusId, $orderRecord->orderStatusId);
             $this->_deleteOrphanedOrderAddresses();
         } catch (\Exception $exception) {
             $mutex->release($lockKey);
@@ -2211,6 +2210,9 @@ class Order extends Element
         }
 
         $mutex->release($lockKey);
+
+        // We can do this after the lock
+        $this->_saveOrderHistory($oldStatusId, $orderRecord->orderStatusId);
 
         parent::afterSave($isNew);
     }
