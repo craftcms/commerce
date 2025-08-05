@@ -410,6 +410,8 @@ class Payments extends Component
         if (!$mutex->acquire($transactionLockName, 15)) {
             throw new Exception('Unable to acquire a lock for transaction: ' . $transaction->hash);
         }
+        // Make sure we have the latest transaction data
+        $transaction = Plugin::getInstance()->getTransactions()->getTransactionByHash($transaction->hash);
 
         // If it's successful already, we're good.
         if (Plugin::getInstance()->getTransactions()->isTransactionSuccessful($transaction)) {
