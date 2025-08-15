@@ -162,6 +162,9 @@ use yii\log\Logger;
  * @property float $paymentAmount
  * @property-read null|string $loadCartUrl
  * @property-read array $metadata
+ * @property-read int $totalCommittedStock
+ * @property-read \Money\Teller $teller
+ * @property-read float $totalSaleAmount
  * @property-read Transaction[] $transactions
  * @customer Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
