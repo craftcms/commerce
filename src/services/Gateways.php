@@ -298,6 +298,8 @@ class Gateways extends Component
 
             $gatewayRecord->isFrontendEnabled = $data['isFrontendEnabled'];
             $gatewayRecord->orderCondition = $data['orderCondition'] ?? null;
+            $gatewayRecord->billingAddressCondition = $data['billingAddressCondition'] ?? null;
+            $gatewayRecord->shippingAddressCondition = $data['shippingAddressCondition'] ?? null;
             $gatewayRecord->isArchived = false;
             $gatewayRecord->dateArchived = null;
             $gatewayRecord->uid = $gatewayUid;
@@ -459,6 +461,12 @@ class Gateways extends Component
         $db = Craft::$app->getDb();
         if ($db->columnExists(Table::GATEWAYS, 'orderCondition')) {
             $query->addSelect('orderCondition');
+        }
+        if ($db->columnExists(Table::GATEWAYS, 'billingAddressCondition')) {
+            $query->addSelect('billingAddressCondition');
+        }
+        if ($db->columnExists(Table::GATEWAYS, 'shippingAddressCondition')) {
+            $query->addSelect('shippingAddressCondition');
         }
 
         return $query;
