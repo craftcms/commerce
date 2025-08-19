@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where empty variant collections could be incorrectly memoized when duplicating a product. ([#4075](https://github.com/craftcms/commerce/issues/4075))
+- Fixed a PHP error that could occur when saving the order inside a `EVENT_ORDER_STATUS_CHANGE` event. ([#4101](https://github.com/craftcms/commerce/issues/4101))
 
 ## 5.4.4 - 2025-07-31
 
