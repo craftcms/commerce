@@ -549,11 +549,12 @@ class Carts extends Component
     {
         $segments = Craft::$app->getRequest()->getActionSegments();
         $userSaveSegments = ['users', 'save-user'];
+        $isUserSaveAction = $segments == $userSaveSegments;
 
         // we have a cart number, currently anon, and the current action being executed is user save
         if (!Craft::$app->getUser()->getIdentity() &&
             !Craft::$app->getRequest()->getIsCpRequest() &&
-            sort($segments) == sort($userSaveSegments)
+            $isUserSaveAction
         ) {
             $currentCartNumber = $this->getSessionCartNumber();
             // Set the session flag to preserve the cart for this user
