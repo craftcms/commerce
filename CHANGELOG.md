@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## 5.4.5.1 - 2025-08-20
+
+- Fixed a PHP type error.
+
 ## 5.4.5 - 2025-08-20
 
 - Fixed a bug where order indexes didn’t have customizable table columns when an order status’ source was selected.
