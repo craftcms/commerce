@@ -759,13 +759,8 @@ class Plugin extends BasePlugin
         if (!Craft::$app->getRequest()->isConsoleRequest) {
             Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getCustomers(), 'loginHandler']);
             Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getCarts(), 'forgetCart']);
-            
-            // Handle user registration to preserve anonymous cart (only once per request)
-            Event::once(UserElement::class, UserElement::EVENT_AFTER_SAVE, function(\craft\events\ModelEvent $event) {
-                /** @var UserElement $user */
-                $user = $event->sender;
-                $this->getCarts()->customerRegisteredHandler($user);
-            });
+
+            Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCarts(), 'afterSaveUserHandler']);
         }
 
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'afterSaveSiteHandler']);
