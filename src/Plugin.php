@@ -8,6 +8,7 @@
 namespace craft\commerce;
 
 use Craft;
+use craft\base\Event;
 use craft\base\Model;
 use craft\base\Plugin as BasePlugin;
 use craft\ckeditor\events\DefineLinkOptionsEvent;
@@ -167,7 +168,6 @@ use craft\web\Application;
 use craft\web\twig\variables\CraftVariable;
 use Exception;
 use Illuminate\Support\Collection;
-use craft\base\Event;
 use yii\console\ExitCode;
 use yii\web\User;
 
