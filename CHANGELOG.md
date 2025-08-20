@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed a bug where order status element sources weren’t showing “View > Table Columns” on the Orders index page. ([#4089](https://github.com/craftcms/commerce/issues/4089))
+- Fixed a bug where order indexes didn’t have customizable table columns when an order status’ source was selected.
 - Fixed a bug where the current cart could be lost when registering a new user during checkout. ([#4089](https://github.com/craftcms/commerce/issues/4089))
 - Fixed a bug where variant titles weren’t being generated for product types with a Variant Title Format that referenced the product when a product was saved. ([#4090](https://github.com/craftcms/commerce/issues/4090))
 - Fixed a bug where empty variant collections could be incorrectly memoized when duplicating products. ([#4075](https://github.com/craftcms/commerce/issues/4075))
