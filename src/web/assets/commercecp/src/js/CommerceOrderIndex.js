@@ -108,9 +108,8 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
         if (data.counts) {
           var $sidebar = this.$sidebar;
           $.each(data.counts, function (key, row) {
-            var $item = $sidebar.find(
-              'nav a[data-key="*/orderStatus:' + row.handle + '"]'
-            );
+            const selector = 'a[data-key="orderStatus:' + row.handle + '"]';
+            var $item = $sidebar.find(selector);
 
             if ($item) {
               let $badge = $item.find('.badge');
