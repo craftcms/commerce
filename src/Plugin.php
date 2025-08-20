@@ -149,7 +149,6 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
-use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\models\Site;
@@ -856,15 +855,6 @@ class Plugin extends BasePlugin
         Event::on(Elements::class, Elements::EVENT_AUTHORIZE_VIEW, [$this->getInventoryLocations(), 'authorizeInventoryLocationAddressView']);
         Event::on(Elements::class, Elements::EVENT_AUTHORIZE_SAVE, [$this->getInventoryLocations(), 'authorizeInventoryLocationAddressEdit']);
         Event::on(Elements::class, Elements::EVENT_AUTHORIZE_CREATE_DRAFTS, [$this->getInventoryLocations(), 'authorizeInventoryLocationAddressEdit']);
-
-        Event::on(craft\commerce\elements\Product::class, \craft\base\Element::EVENT_BEFORE_SAVE, function(\craft\events\ModelEvent $event) {
-            /** @var Product $product */
-            $product = $event->sender;
-            $productType = $product->getType();
-            if (!$productType->hasVariantTitleField && $productType->variantTitleFormat && StringHelper::contains($productType->variantTitleFormat, 'product.')) {
-                $product->setDirtyAttributes(['allVariants'], true);
-            }
-        });
     }
 
     /**

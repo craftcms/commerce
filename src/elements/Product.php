@@ -50,9 +50,9 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\ElementHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
+use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
-use craft\models\Section;
 use craft\models\Site;
 use craft\services\Structures;
 use craft\validators\DateTimeValidator;
@@ -1798,6 +1798,13 @@ class Product extends Element implements HasStoreInterface
     public function beforeSave(bool $isNew): bool
     {
         $productType = $this->getType();
+
+        if (!$productType->hasVariantTitleField &&
+            $productType->variantTitleFormat &&
+            StringHelper::containsAny($productType->variantTitleFormat, ['product.', 'owner.', 'primaryOwner.'])
+        ) {
+            $this->setDirtyAttributes(['allVariants'], true);
+        }
 
         // Make sure the entry has at least one revision if the section has versioning enabled
         if ($this->_shouldSaveRevision()) {
