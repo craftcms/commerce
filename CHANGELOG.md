@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed a PHP error that could occur when saving an order inside an `EVENT_ORDER_STATUS_CHANGE` event. ([#4101](https://github.com/craftcms/commerce/issues/4101))
+- Fixed a PHP error that could occur when saving an order from an `EVENT_ORDER_STATUS_CHANGE` event handler. ([#4101](https://github.com/craftcms/commerce/issues/4101))
 
 ## 4.9.1 - 2025-07-23
 
