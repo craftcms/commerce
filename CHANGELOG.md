@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.4.5 - 2025-08-20
 
 - Fixed a bug where order indexes didn’t have customizable table columns when an order status’ source was selected.
 - Fixed a bug where the current cart could be lost when registering a new user during checkout. ([#4089](https://github.com/craftcms/commerce/issues/4089))
