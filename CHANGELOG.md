@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.9.2 - 2025-08-20
 
 - Fixed a PHP error that could occur when saving an order from an `EVENT_ORDER_STATUS_CHANGE` event handler. ([#4101](https://github.com/craftcms/commerce/issues/4101))
 
