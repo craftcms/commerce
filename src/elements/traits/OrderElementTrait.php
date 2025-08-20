@@ -325,7 +325,7 @@ trait OrderElementTrait
         $sources[] = ['heading' => $store->getName()];
 
         foreach ($orderStatuses as $orderStatus) {
-            $key = 'orderStatus:' . $orderStatus->handle;;
+            $key = 'orderStatus:' . $orderStatus->handle;
 
             $sources[$key] = [
                 'key' => $key,
