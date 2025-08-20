@@ -8,6 +8,7 @@
 namespace craft\commerce;
 
 use Craft;
+use craft\base\Event;
 use craft\base\Model;
 use craft\base\Plugin as BasePlugin;
 use craft\ckeditor\events\DefineLinkOptionsEvent;
@@ -167,7 +168,6 @@ use craft\web\Application;
 use craft\web\twig\variables\CraftVariable;
 use Exception;
 use Illuminate\Support\Collection;
-use yii\base\Event;
 use yii\console\ExitCode;
 use yii\web\User;
 
@@ -759,6 +759,8 @@ class Plugin extends BasePlugin
         if (!Craft::$app->getRequest()->isConsoleRequest) {
             Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getCustomers(), 'loginHandler']);
             Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getCarts(), 'forgetCart']);
+
+            Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCarts(), 'afterSaveUserHandler']);
         }
 
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'afterSaveSiteHandler']);
