@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a PHP error that could occur when saving an order inside an `EVENT_ORDER_STATUS_CHANGE` event. ([#4101](https://github.com/craftcms/commerce/issues/4101))
+
 ## 4.9.1 - 2025-07-23
 
 - Fixed a bug where outdated transaction data could be used when completing a payment. ([craftcms/commerce-stripe#353](https://github.com/craftcms/commerce-stripe/issues/353))
