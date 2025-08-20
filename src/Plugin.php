@@ -8,7 +8,6 @@
 namespace craft\commerce;
 
 use Craft;
-use craft\base\Element;
 use craft\base\Event;
 use craft\base\Model;
 use craft\base\Plugin as BasePlugin;
