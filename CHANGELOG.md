@@ -6,7 +6,7 @@
 - Fixed a bug where the current cart could be lost when registering a new user during checkout. ([#4089](https://github.com/craftcms/commerce/issues/4089))
 - Fixed a bug where variant titles weren’t being generated for product types with a Variant Title Format that referenced the product when a product was saved. ([#4090](https://github.com/craftcms/commerce/issues/4090))
 - Fixed a bug where empty variant collections could be incorrectly memoized when duplicating products. ([#4075](https://github.com/craftcms/commerce/issues/4075))
-- Fixed a PHP error that could occur when saving an order inside an `EVENT_ORDER_STATUS_CHANGE` event. ([#4101](https://github.com/craftcms/commerce/issues/4101))
+- Fixed a PHP error that could occur when saving an order from an `EVENT_ORDER_STATUS_CHANGE` event handler. ([#4101](https://github.com/craftcms/commerce/issues/4101))
 
 ## 5.4.4 - 2025-07-31
 
