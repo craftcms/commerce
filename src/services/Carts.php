@@ -13,6 +13,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\events\CartPurgeEvent;
 use craft\commerce\Plugin;
 use craft\db\Query;
+use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
 use craft\errors\SiteNotFoundException;
@@ -536,5 +537,27 @@ class Carts extends Component
         }
 
         return Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+    }
+
+    /**
+     * @param User $user
+     * @return void
+     * @throws MissingComponentException
+     * @throws Throwable
+     */
+    public function customerRegisteredHandler(User $user): void
+    {
+        $segments = Craft::$app->getRequest()->getActionSegments();
+        $userSaveSegments = ['users', 'save-user'];
+
+        // we have a cart number, currently anon, and the current action being executed is user save
+        if (!Craft::$app->getUser()->getIdentity() &&
+            !Craft::$app->getRequest()->getIsCpRequest() &&
+            sort($segments) == sort($userSaveSegments)
+        ) {
+            $currentCartNumber = $this->getSessionCartNumber();
+            // Set the session flag to preserve the cart for this user
+            Craft::$app->getSession()->set('commerce:anonymousCartWithCredentialedCustomer:' . $currentCartNumber, true);
+        }
     }
 }
