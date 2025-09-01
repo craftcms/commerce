@@ -12,6 +12,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\db\Table;
+use craft\commerce\elements\Order;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\gateways\Manual;
 use craft\commerce\gateways\MissingGateway;
@@ -110,7 +111,19 @@ class Gateways extends Component
      */
     public function getAllCustomerEnabledGateways(): Collection
     {
-        return $this->getAllGateways()->filter(fn(GatewayInterface $gateway) => $gateway->getIsFrontendEnabled());
+        return $this->getAllGateways()->filter(fn(Gateway $gateway) => $gateway->getIsFrontendEnabled());
+    }
+
+    /**
+     * Returns all customer enabled gateways and allowed for the order/cart.
+     *
+     * @return Collection All gateways that are enabled for frontend and allowed for the order/cart.
+     * @throws DeprecationException
+     * @throws InvalidConfigException
+     */
+    public function getAllCustomerEnabledGatewaysAndAvailableForUseWithOrder(Order $order): Collection
+    {
+        return $this->getAllCustomerEnabledGateways()->filter(fn(Gateway $gateway) => $gateway->availableForUseWithOrder($order));
     }
 
     /**
@@ -122,7 +135,7 @@ class Gateways extends Component
      */
     public function getAllSubscriptionGateways(): Collection
     {
-        return $this->getAllGateways()->where(fn(GatewayInterface $gateway) => $gateway instanceof SubscriptionGateway);
+        return $this->getAllGateways()->where(fn(Gateway $gateway) => $gateway instanceof SubscriptionGateway);
     }
 
     /**

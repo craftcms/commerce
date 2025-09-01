@@ -2198,6 +2198,17 @@ class Order extends Element implements HasStoreInterface
     }
 
     /**
+     * @return Collection
+     * @throws DeprecationException
+     * @throws InvalidConfigException
+     * @since 5.5
+     */
+    public function getAvailableGateways(): Collection
+    {
+        return Plugin::getInstance()->getGateways()->getAllCustomerEnabledGatewaysAndAvailableForUseWithOrder($this);
+    }
+
+    /**
      * @inheritdoc
      */
     public function afterSave(bool $isNew): void
