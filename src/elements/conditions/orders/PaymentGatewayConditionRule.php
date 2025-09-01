@@ -3,7 +3,7 @@
 namespace craft\commerce\elements\conditions\orders;
 
 use Craft;
-use craft\base\conditions\BaseSelectConditionRule;
+use craft\base\conditions\BaseMultiSelectConditionRule;
 use craft\base\ElementInterface;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
@@ -17,7 +17,7 @@ use yii\db\QueryInterface;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.3.0
  */
-class PaymentGatewayConditionRule extends BaseSelectConditionRule implements ElementConditionRuleInterface
+class PaymentGatewayConditionRule extends BaseMultiSelectConditionRule implements ElementConditionRuleInterface
 {
     /**
      * @inheritdoc
@@ -48,9 +48,20 @@ class PaymentGatewayConditionRule extends BaseSelectConditionRule implements Ele
      */
     public function modifyQuery(QueryInterface $query): void
     {
-        $gateway = Plugin::getInstance()->getGateways()->getAllGateways()->firstWhere('uid', $this->value);
-        /** @var OrderQuery $query */
-        $query->gatewayId($gateway->id);
+        $gatewayIds = [];
+        $gateways = Plugin::getInstance()->getGateways()->getAllGateways();
+        
+        foreach ($this->getValues() as $uid) {
+            $gateway = $gateways->firstWhere('uid', $uid);
+            if ($gateway) {
+                $gatewayIds[] = $gateway->id;
+            }
+        }
+        
+        if (!empty($gatewayIds)) {
+            /** @var OrderQuery $query */
+            $query->gatewayId($this->paramValue(fn($uid) => $gateways->firstWhere('uid', $uid)?->id));
+        }
     }
 
     /**
