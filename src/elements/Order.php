@@ -162,6 +162,9 @@ use yii\log\Logger;
  * @property float $paymentAmount
  * @property-read null|string $loadCartUrl
  * @property-read array $metadata
+ * @property-read int $totalCommittedStock
+ * @property-read \Money\Teller $teller
+ * @property-read float $totalSaleAmount
  * @property-read Transaction[] $transactions
  * @customer Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -2370,7 +2373,6 @@ class Order extends Element implements HasStoreInterface
             $this->_saveAdjustments();
             $this->_saveLineItems();
             $this->_saveNotices();
-            $this->_saveOrderHistory($oldStatusId, $orderRecord->orderStatusId);
             $this->_deleteOrphanedOrderAddresses();
         } catch (Exception $exception) {
             $mutex->release($lockKey);
@@ -2378,6 +2380,9 @@ class Order extends Element implements HasStoreInterface
         }
 
         $mutex->release($lockKey);
+
+        // We can do this after the lock
+        $this->_saveOrderHistory($oldStatusId, $orderRecord->orderStatusId);
 
         parent::afterSave($isNew);
     }
@@ -3509,7 +3514,13 @@ class Order extends Element implements HasStoreInterface
             return [];
         }
 
-        return Plugin::getInstance()->getOrderHistories()->getAllOrderHistoriesByOrderId($this->id);
+        $histories = Plugin::getInstance()->getOrderHistories()->getAllOrderHistoriesByOrderId($this->id);
+
+        foreach ($histories as $history) {
+            $history->setOrder($this);
+        }
+
+        return $histories;
     }
 
     /**
@@ -3533,7 +3544,13 @@ class Order extends Element implements HasStoreInterface
         }
 
         if ($this->_transactions === null) {
-            $this->_transactions = Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id);
+            $transactions = Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id);
+
+            foreach ($transactions as $transaction) {
+                $transaction->setOrder($this);
+            }
+
+            $this->_transactions = $transactions;
         }
 
         return $this->_transactions;

@@ -50,9 +50,9 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\ElementHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
+use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
-use craft\models\Section;
 use craft\models\Site;
 use craft\services\Structures;
 use craft\validators\DateTimeValidator;
@@ -1102,12 +1102,19 @@ class Product extends Element implements HasStoreInterface
      */
     public function getVariants(bool $includeDisabled = false): VariantCollection
     {
-        if (!isset($this->_variants)) {
+        if ($this->_variants === null) {
             if (!$this->id) {
                 return VariantCollection::make();
             }
 
-            $this->_variants = self::createVariantQuery($this)->status(null)->collect();
+            $variants = self::createVariantQuery($this)->status(null)->collect();
+
+            // Don't memoize empty collections in favour of a new query next time
+            if ($variants->isEmpty()) {
+                return $variants;
+            }
+
+            $this->_variants = $variants;
             $this->_variants->map(function(Variant $v) {
                 if (!$this->id) {
                     return $v;
@@ -1792,6 +1799,13 @@ class Product extends Element implements HasStoreInterface
     {
         $productType = $this->getType();
 
+        if (!$productType->hasVariantTitleField &&
+            $productType->variantTitleFormat &&
+            StringHelper::containsAny($productType->variantTitleFormat, ['product.', 'owner.', 'primaryOwner.'])
+        ) {
+            $this->setDirtyAttributes(['allVariants'], true);
+        }
+
         // Make sure the entry has at least one revision if the section has versioning enabled
         if ($this->_shouldSaveRevision()) {
             $hasRevisions = self::find()
@@ -1871,9 +1885,12 @@ class Product extends Element implements HasStoreInterface
      */
     private static function createVariantQuery(Product $product): VariantQuery
     {
+        $productId = $product->duplicateOf?->id ?? $product->id;
+        $productSiteId = $product->duplicateOf?->siteId ?? $product->siteId;
+
         $query = Variant::find()
-            ->productId($product->id)
-            ->siteId($product->siteId)
+            ->productId($productId)
+            ->siteId($productSiteId)
             ->orderBy(['sortOrder' => SORT_ASC]);
 
         if ($product->getIsRevision()) {

@@ -1,5 +1,25 @@
 # Release Notes for Craft Commerce
 
+## 5.4.5.1 - 2025-08-20
+
+- Fixed a PHP type error.
+
+## 5.4.5 - 2025-08-20
+
+- Fixed a bug where order indexes didn’t have customizable table columns when an order status’ source was selected.
+- Fixed a bug where the current cart could be lost when registering a new user during checkout. ([#4089](https://github.com/craftcms/commerce/issues/4089))
+- Fixed a bug where variant titles weren’t being generated for product types with a Variant Title Format that referenced the product when a product was saved. ([#4090](https://github.com/craftcms/commerce/issues/4090))
+- Fixed a bug where empty variant collections could be incorrectly memoized when duplicating products. ([#4075](https://github.com/craftcms/commerce/issues/4075))
+- Fixed a PHP error that could occur when saving an order from an `EVENT_ORDER_STATUS_CHANGE` event handler. ([#4101](https://github.com/craftcms/commerce/issues/4101))
+
+## 5.4.4 - 2025-07-31
+
+- Improved the performance of loading Edit Order pages. ([#4056](https://github.com/craftcms/commerce/issues/4056))
+- Fixed a bug where cart errors weren’t being returned in `commerce/payments/pay` action requests. ([#4026](https://github.com/craftcms/commerce/issues/4026))
+- Fixed a bug where the `EVENT_BEFORE_DEFINE_URL` and `EVENT_DEFINE_URL` events weren’t getting triggered for variants.
+- Fixed a PHP error that could occur when submitting a partial payment using the example templates. ([#3989](https://github.com/craftcms/commerce/issues/3989))
+- Fixed a bug where shipping adjustments weren’t getting applied to carts that used a custom shipping method.
+
 ## 5.4.3 - 2025-07-23
 
 - Fixed a PHP error that could occur when upgrading to Commerce 5. ([#4077](https://github.com/craftcms/commerce/issues/4077))
@@ -20,7 +40,7 @@
 
 ## 5.4.1 - 2025-07-09
 
-- Improved the performance of loading carts via Ajax.
+- Improved the performance of loading carts via Ajax. ([#4056](https://github.com/craftcms/commerce/issues/4056))
 - Improved the performance of saving variants. ([#4064](https://github.com/craftcms/commerce/issues/4064))
 - Fixed a PHP error that could occur when viewing variant indexes on Craft CMS 5.6.17 or earlier. ([#4060](https://github.com/craftcms/commerce/issues/4060))
 - Fixed a bug where currency-based order condition rules were incorrectly listed under “Fields” in the selection menu.

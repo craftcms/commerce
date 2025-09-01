@@ -13,9 +13,11 @@ use craft\commerce\elements\Order;
 use craft\commerce\events\CartPurgeEvent;
 use craft\commerce\Plugin;
 use craft\db\Query;
+use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
 use craft\errors\SiteNotFoundException;
+use craft\events\ModelEvent;
 use craft\helpers\ConfigHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
@@ -536,5 +538,28 @@ class Carts extends Component
         }
 
         return Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+    }
+
+    /**
+     * @param ModelEvent $event
+     * @return void
+     * @throws MissingComponentException
+     * @throws Throwable
+     */
+    public function afterSaveUserHandler(ModelEvent $event): void
+    {
+        $segments = Craft::$app->getRequest()->getActionSegments();
+        $userSaveSegments = ['users', 'save-user'];
+        $isUserSaveAction = $segments == $userSaveSegments;
+
+        // we have a cart number, currently anon, and the current action being executed is user save
+        if (!Craft::$app->getUser()->getIdentity() &&
+            !Craft::$app->getRequest()->getIsCpRequest() &&
+            $isUserSaveAction
+        ) {
+            $currentCartNumber = $this->getSessionCartNumber();
+            // Set the session flag to preserve the cart for this user
+            Craft::$app->getSession()->set('commerce:anonymousCartWithCredentialedCustomer:' . $currentCartNumber, true);
+        }
     }
 }
