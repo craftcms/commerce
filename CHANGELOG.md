@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where the `commerce/cart/update-cart` action could return unnecessary validation errors. ([3873](https://github.com/craftcms/commerce/issues/3873))
+- Added `craft\commerce\helpers\Order::normalizeLineItemPurchasableAvailability()`.
+
 ## 5.4.5.1 - 2025-08-20
 
 - Fixed a PHP type error.
