@@ -10,7 +10,6 @@ namespace craft\commerce\helpers;
 use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Order as OrderElement;
-use craft\commerce\elements\Variant;
 use craft\commerce\enums\LineItemType;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\Plugin;
@@ -91,8 +90,13 @@ class Order
                 ]);
                 $order->addNotice($notice);
                 $order->removeLineItem($lineItem);
-            } elseif ($purchasable instanceof Variant && ($lineItem->qty > $purchasable->stock) && !$purchasable->hasUnlimitedStock && $purchasable->stock > 0) {
-                $message = Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $purchasable->stock]);
+            } elseif ($purchasable::hasInventory() &&
+                !$purchasable->getIsOutOfStockPurchasingAllowed() &&
+                $purchasable->inventoryTracked &&
+                ($lineItem->qty > $purchasable->getStock()) &&
+                $purchasable->getStock() > 0
+            ) {
+                $message = Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $purchasable->getStock()]);
                 /** @var OrderNotice $notice */
                 $notice = Craft::createObject([
                     'class' => OrderNotice::class,
@@ -103,7 +107,7 @@ class Order
                     ],
                 ]);
                 $order->addNotice($notice);
-                $lineItem->qty = $purchasable->stock;
+                $lineItem->qty = $purchasable->getStock();
             }
         }
     }
