@@ -882,7 +882,7 @@ class Variant extends Purchasable
         // Since we do not have a proper stock reservation system, we need deduct stock if they have more in the cart than is available, and to do this quietly.
         // If this occurs in the payment request, the user will be notified the order has changed.
         if (($order = $lineItem->getOrder()) && !$order->isCompleted) {
-            if (($lineItem->qty > $this->stock) && !$this->hasUnlimitedStock) {
+            if (($lineItem->qty > $this->stock) && !$this->hasUnlimitedStock && $this->stock > 0) {
                 /** @var Order $order */
                 $message = Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $this->stock]);
                 /** @var OrderNotice $notice */
