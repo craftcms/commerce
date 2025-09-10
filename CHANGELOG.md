@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where catalog pricing rules could generate promotional prices for non-promotable purchasables. ([#4118](https://github.com/craftcms/commerce/issues/4118))
+
 ## 5.4.6 - 2025-09-04
 
 - Fixed a bug where the `commerce/cart/update-cart` action could return unnecessary validation errors. ([3873](https://github.com/craftcms/commerce/issues/3873))
