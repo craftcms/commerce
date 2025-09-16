@@ -3,6 +3,9 @@
 ## Unreleased
 
 - Fixed a bug where catalog pricing rules could generate promotional prices for non-promotable purchasables. ([#4118](https://github.com/craftcms/commerce/issues/4118))
+- Improved product and variant query performance.
+- Improved the performance of retrieving a line item’s catalog pricing rule ID. 
+- Added `craft\commerce\services\CatalogPricingRules::hasCatalogPricingRules()`.
 
 ## 5.4.6 - 2025-09-04
 

@@ -37,6 +37,28 @@ use yii\db\StaleObjectException;
 class CatalogPricingRules extends Component
 {
     /**
+     * @var bool|null
+     */
+    private ?bool $_hasCatalogPricingRules = null;
+
+    /**
+     * @return bool
+     * @throws InvalidConfigException
+     */
+    public function hasCatalogPricingRules(): bool
+    {
+        if (!$this->canUseCatalogPricingRules()) {
+            return false;
+        }
+
+        if ($this->_hasCatalogPricingRules === null) {
+            $this->_hasCatalogPricingRules = $this->_createCatalogPricingRuleQuery()->exists();
+        }
+
+        return (bool)$this->_hasCatalogPricingRules;
+    }
+
+    /**
      * @var Collection[]|null
      */
     private ?array $_allCatalogPricingRules = null;
