@@ -375,6 +375,7 @@ class CatalogPricingRules extends Component
     protected function _clearCaches(): void
     {
         $this->_allCatalogPricingRules = null;
+        $this->_hasCatalogPricingRules = null;
     }
 
     /**
