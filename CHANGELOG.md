@@ -3,6 +3,8 @@
 ## Unreleased
 
 - Fixed a bug where catalog pricing rules could generate promotional prices for non-promotable purchasables. ([#4118](https://github.com/craftcms/commerce/issues/4118))
+- Added the `children`, `parent`, `ancestors` and `descendants` fields to products’ GraphQL data. ([#4122](https://github.com/craftcms/commerce/issues/4122))
+- Added `craft\commerce\helpers\Gql::getSchemaContainedProductTypes()`.
 
 ## 5.4.6 - 2025-09-04
 
