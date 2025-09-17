@@ -752,6 +752,12 @@ abstract class PurchasableQuery extends ElementQuery
                 new Expression('null as [[catalogPricingRuleId]]'),
             ]);
 
+            $this->subQuery->addSelect([
+                'purchasables_stores.basePrice as price',
+                'purchasables_stores.basePromotionalPrice as promotionalPrice',
+                new Expression('CASE WHEN [[purchasables_stores.basePromotionalPrice]] < [[purchasables_stores.basePrice]] THEN [[purchasables_stores.basePromotionalPrice]] ELSE [[purchasables_stores.basePrice]] END as [[salePrice]]'),
+            ]);
+
             if (isset($this->price)) {
                 $this->subQuery->andWhere(Db::parseNumericParam('purchasables_stores.basePrice', $this->price));
             }
