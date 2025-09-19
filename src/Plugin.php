@@ -125,7 +125,7 @@ use craft\debug\Module;
 use craft\elements\Address;
 use craft\elements\db\UserQuery;
 use craft\elements\User as UserElement;
-use craft\enums\CmsEdition;
+use CraftCms\Cms\Edition as CmsEdition;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineEditUserScreensEvent;
