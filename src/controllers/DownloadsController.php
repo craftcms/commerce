@@ -138,13 +138,13 @@ class DownloadsController extends BaseFrontEndController
         $inline = (bool) $this->request->getBodyParam('inline', false);
 
         if (!$orderNumber || !$email) {
-            throw new HttpInvalidParamException(Craft::t('commerce', 'Order number and email are required'));
+            throw new HttpInvalidParamException('Order number and email are required');
         }
 
         $order = Plugin::getInstance()->getOrders()->getOrderByNumber($orderNumber);
 
         if (!$order) {
-            throw new HttpException(404, Craft::t('commerce', 'Order not found'));
+            throw new HttpException(404,'Order not found');
         }
 
         // Check if the provided email matches the order's email
