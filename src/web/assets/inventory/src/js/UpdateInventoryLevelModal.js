@@ -12,7 +12,7 @@ Craft.Commerce.UpdateInventoryLevelModal = Craft.CpModal.extend({
 
   init: function (settings) {
     this.desiredWidth = 400;
-    console.log(this.desiredWidth);
+
     this.base('commerce/inventory/edit-update-levels-modal', settings);
 
     this.debouncedRefresh = this.debounce(this.refresh, 500);

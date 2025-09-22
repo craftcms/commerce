@@ -267,7 +267,11 @@ class LineItem extends Model
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
-            'defaultCurrency' => $this->getOrder()?->currency ?? null,
+            // We don’t want to get the currency from the order now, as this will cause additional order queries
+            // as the order is not set on the line item at the time of bahaviors attaching.
+            // Let’s let \craft\commerce\behaviors\CurrencyAttributeBehavior::getDefaultCurrency look it up at
+            // runtime when the order is likely already eager loaded.
+            'defaultCurrency' => null,
             'currencyAttributes' => $this->currencyAttributes(),
         ];
 
@@ -631,7 +635,6 @@ class LineItem extends Model
         $names[] = 'salePrice';
         $names[] = 'sku';
         $names[] = 'total';
-        $names[] = 'fulfilledTotalQuantity';
 
         return $names;
     }
@@ -659,6 +662,7 @@ class LineItem extends Model
             'shippingCategory',
             'snapshot',
             'taxCategory',
+            'fulfilledTotalQuantity',
         ];
     }
 

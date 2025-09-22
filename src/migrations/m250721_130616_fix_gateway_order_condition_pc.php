@@ -8,25 +8,25 @@ use craft\db\Migration;
 use craft\db\Query;
 
 /**
- * m250301_120000_add_gateway_order_condition migration.
+ * m250721_130616_fix_gateway_order_condition_pc migration.
  */
-class m250301_120000_add_gateway_order_condition extends Migration
+class m250721_130616_fix_gateway_order_condition_pc extends Migration
 {
     /**
      * @inheritdoc
      */
     public function safeUp(): bool
     {
-        // Add the order condition column to the gateways table
-        $this->addColumn(Table::GATEWAYS, 'orderCondition', $this->text());
-
+        // This is almost a duplicate of `m250301_120000_add_gateway_order_condition` to fix for those already migrated
         $projectConfig = \Craft::$app->getProjectConfig();
 
         $projectConfig->muteEvents = true;
 
+        // Fix gateways with missing order conditions
         $gateways = (new Query())
             ->select(['id', 'uid'])
             ->from(Table::GATEWAYS)
+            ->where(['orderCondition' => null])
             ->all();
 
         foreach ($gateways as $gateway) {
@@ -56,7 +56,7 @@ class m250301_120000_add_gateway_order_condition extends Migration
      */
     public function safeDown(): bool
     {
-        echo "m250301_120000_add_gateway_order_condition cannot be reverted.\n";
+        echo "m250721_130616_fix_gateway_order_condition_pc cannot be reverted.\n";
         return false;
     }
 }

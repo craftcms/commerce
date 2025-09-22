@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\enums\LineItemType;
+use craft\commerce\errors\LineItemNotFoundException;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\models\LineItem;
@@ -256,8 +257,7 @@ class LineItems extends Component
             $lineItemRecord = LineItemRecord::findOne($lineItem->id);
 
             if (!$lineItemRecord) {
-                Craft::info('Line Item ID:' . $lineItem->id . ' does not exist and can not be saved.', __METHOD__);
-                return false;
+                throw new LineItemNotFoundException('Line with ID ”' . $lineItem->id . '“ not found!');
             }
         }
 

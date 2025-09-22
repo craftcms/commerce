@@ -257,7 +257,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.4.0.3';
+    public string $schemaVersion = '5.5.0.1';
 
     /**
      * @inheritdoc
@@ -343,7 +343,7 @@ class Plugin extends BasePlugin
             throw new Exception('Craft Commerce 5 requires Craft CMS 5.1+ in order to run.');
         }
 
-        if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 82000) {
+        if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 80200) {
             Craft::error('Craft Commerce requires PHP 8.2.0+ in order to run.');
         }
     }
@@ -759,6 +759,8 @@ class Plugin extends BasePlugin
         if (!Craft::$app->getRequest()->isConsoleRequest) {
             Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getCustomers(), 'loginHandler']);
             Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getCarts(), 'forgetCart']);
+
+            Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCarts(), 'afterSaveUserHandler']);
         }
 
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'afterSaveSiteHandler']);

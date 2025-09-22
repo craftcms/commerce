@@ -13,6 +13,7 @@ use craft\commerce\adjusters\Shipping;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\OrderAdjustmentNotFoundException;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
@@ -158,8 +159,7 @@ class OrderAdjustments extends Component
             $record = OrderAdjustmentRecord::findOne($orderAdjustment->id);
 
             if (!$record) {
-                Craft::info('Order Adjustment ID:' . $orderAdjustment->id . ' does not exist and can not be saved.', __METHOD__);
-                return false;
+                throw new OrderAdjustmentNotFoundException('Order Adjustment with ID ”' . $orderAdjustment->id . '“ not found!');
             }
         }
 

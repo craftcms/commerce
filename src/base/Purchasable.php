@@ -797,7 +797,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             if ($this::hasInventory() &&
                 !$this->getIsOutOfStockPurchasingAllowed() &&
                 $this->inventoryTracked &&
-                ($lineItem->qty > $this->getStock())
+                ($lineItem->qty > $this->getStock()) &&
+                $this->getStock() > 0
             ) {
                 $message = Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $this->getStock()]);
                 /** @var OrderNotice $notice */
@@ -999,6 +1000,10 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     private function _getStock(): int
     {
+        if (!$this->inventoryTracked) {
+            return 0;
+        }
+
         $saleableAmount = 0;
         foreach ($this->getInventoryLevels() as $inventoryLevel) {
             if ($inventoryLevel->availableTotal > 0) {
@@ -1040,6 +1045,10 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function getInventoryLevels(): Collection
     {
+        if (!$this->inventoryTracked) {
+            return collect();
+        }
+
         return Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($this);
     }
 
