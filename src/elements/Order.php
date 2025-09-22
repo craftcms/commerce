@@ -1572,9 +1572,8 @@ class Order extends Element implements HasStoreInterface
             // Are the addresses both being set to each other.
             [
                 ['billingAddress', 'shippingAddress'], 'validateAddressReuse',
-                'when' => fn($model) =>
-                    /** @var Order $model */
-                    !$model->isCompleted,
+                'when' => fn($model) => /** @var Order $model */
+                !$model->isCompleted,
             ],
 
             [['shippingAddress'], 'validateOrganizationTaxIdAsVatId', 'when' => fn(Order $order) => $order->getStore()->getValidateOrganizationTaxIdAsVatId() && !$order->getStore()->getUseBillingAddressForTax()],
@@ -2573,6 +2572,34 @@ class Order extends Element implements HasStoreInterface
     }
 
     /**
+     * Returns a masked version of the email for this order.
+     *
+     * @param $length
+     * @return string
+     */
+    public function getMaskedEmail(): string
+    {
+        if ($email = $this->getEmail()) {
+            return $this->_maskEmail($email);
+        }
+
+        return '';
+    }
+
+    private function _maskEmail($email, $minLength = 3, $maxLength = 10, $mask = "***")
+    {
+        $atPos = strrpos($email, "@");
+        $name = substr($email, 0, $atPos);
+        $len = strlen($name);
+        $domain = substr($email, $atPos);
+
+        if (($len / 2) < $maxLength) $maxLength = ($len / 2);
+
+        $shortenedEmail = (($len > $minLength) ? substr($name, 0, $maxLength) : "");
+        return "{$shortenedEmail}{$mask}{$domain}";
+    }
+
+    /**
      * @return bool
      */
     public function getIsPaid(): bool
@@ -3311,9 +3338,8 @@ class Order extends Element implements HasStoreInterface
     public function hasMatchingAddresses(?array $attributes = null): bool
     {
         $addressAttributes = (new ReflectionClass(AddressInterface::class))->getMethods();
-        $addressAttributes = array_map(static fn(ReflectionMethod $method) =>
-            // Remove `get` and lower case first character
-            lcfirst(substr($method->name, 3)), $addressAttributes);
+        $addressAttributes = array_map(static fn(ReflectionMethod $method) => // Remove `get` and lower case first character
+        lcfirst(substr($method->name, 3)), $addressAttributes);
 
         $relationCustomFieldHandles = [];
         $customFieldHandles = array_map(static function(FieldInterface $field) use (&$relationCustomFieldHandles) {

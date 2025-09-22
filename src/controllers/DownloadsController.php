@@ -57,7 +57,14 @@ class DownloadsController extends BaseFrontEndController
         if ($token) {
             $tokenData = Craft::$app->getTokens()->getTokenRoute($token);
             if (!$tokenData || (!isset($tokenData[1]['orderNumber']) || $tokenData[1]['orderNumber'] !== $number)) {
-                throw new HttpException(403, 'Invalid or expired token');
+                return $this->renderTemplate('commerce/_downloads/email-challenge', [
+                    'errors' => ['token' => ['The download link is invalid or has expired. Please request a new one.']],
+                    'order' => $order,
+                    'orderNumber' => $number,
+                    'pdfHandle' => $pdfHandle,
+                    'option' => $option,
+                    'inline' => $inline,
+                ]);
             }
         } else {
             // No token provided, check user permissions
@@ -68,7 +75,8 @@ class DownloadsController extends BaseFrontEndController
                 }
             } else {
                 // Anonymous user without token - show email challenge form
-                return $this->renderTemplate('commerce/_frontend/downloads/email-challenge', [
+                return $this->renderTemplate('commerce/_downloads/email-challenge', [
+                    'order' => $order,
                     'orderNumber' => $number,
                     'pdfHandle' => $pdfHandle,
                     'option' => $option,
@@ -141,9 +149,9 @@ class DownloadsController extends BaseFrontEndController
 
         // Check if the provided email matches the order's email
         if (strcasecmp($order->email, $email) !== 0) {
-            // Return to the form with an error
-            Craft::$app->getSession()->setError('The email address does not match the order.');
-            return $this->renderTemplate('commerce/_frontend/downloads/email-challenge', [
+            return $this->renderTemplate('commerce/_downloads/email-challenge', [
+                'errors' => ['email' => ['The provided email does not match our records for this order.']],
+                'order' => $order,
                 'orderNumber' => $orderNumber,
                 'pdfHandle' => $pdfHandle,
                 'option' => $option,
@@ -174,7 +182,8 @@ class DownloadsController extends BaseFrontEndController
             'link' => $downloadUrl,
         ])->setTo($order->email)->send()) {
             Craft::$app->getSession()->setError('Failed to send email. Please try again.');
-            return $this->renderTemplate('commerce/_frontend/downloads/email-challenge', [
+            return $this->renderTemplate('commerce/_downloads/email-challenge', [
+                'order' => $order,
                 'orderNumber' => $orderNumber,
                 'pdfHandle' => $pdfHandle,
                 'option' => $option,
@@ -186,7 +195,7 @@ class DownloadsController extends BaseFrontEndController
         Craft::$app->getSession()->setNotice('A download link has been sent to ' . $email);
 
         // Render a success page
-        return $this->renderTemplate('commerce/_frontend/downloads/email-sent', [
+        return $this->renderTemplate('commerce/_downloads/email-sent', [
             'email' => $email,
         ]);
     }
