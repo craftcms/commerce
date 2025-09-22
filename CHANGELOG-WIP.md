@@ -1,7 +1,5 @@
 # WIP Release Notes for Craft Commerce
 
-## Unreleased
-
 ### Store Management
 
 ### Administration
