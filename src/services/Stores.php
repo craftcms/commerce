@@ -463,7 +463,7 @@ class Stores extends Component
      * @throws Throwable
      * @throws YiiDbException
      */
-    public function handleChangedStore(ConfigEvent $event): void
+    public function handleChangedStore(\CraftCms\Cms\ProjectConfig\Events\ConfigEvent $event): void
     {
         $storeUid = $event->tokenMatches[0];
         $data = $event->newValue;
