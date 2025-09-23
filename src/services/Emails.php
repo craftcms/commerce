@@ -324,7 +324,7 @@ class Emails extends Component
      *
      * @throws Throwable if reasons
      */
-    public function handleChangedEmail(ConfigEvent $event): void
+    public function handleChangedEmail(\CraftCms\Cms\ProjectConfig\Events\ConfigEvent $event): void
     {
         ProjectConfigData::ensureAllStoresProcessed();
 
@@ -405,7 +405,7 @@ class Emails extends Component
      * @throws Throwable
      * @throws StaleObjectException
      */
-    public function handleDeletedEmail(ConfigEvent $event): void
+    public function handleDeletedEmail(\CraftCms\Cms\ProjectConfig\Events\ConfigEvent $event): void
     {
         $uid = $event->tokenMatches[0];
         $emailRecord = $this->_getEmailRecord($uid);

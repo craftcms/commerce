@@ -171,7 +171,7 @@ class LineItemStatuses extends Component
      *
      * @throws Throwable if reasons
      */
-    public function handleChangedLineItemStatus(ConfigEvent $event): void
+    public function handleChangedLineItemStatus(\CraftCms\Cms\ProjectConfig\Events\ConfigEvent $event): void
     {
         ProjectConfigData::ensureAllStoresProcessed();
 
@@ -230,7 +230,7 @@ class LineItemStatuses extends Component
      *
      * @throws Throwable if reasons
      */
-    public function handleArchivedLineItemStatus(ConfigEvent $event): void
+    public function handleArchivedLineItemStatus(\CraftCms\Cms\ProjectConfig\Events\ConfigEvent $event): void
     {
         $lineItemStatusUid = $event->tokenMatches[0];
 

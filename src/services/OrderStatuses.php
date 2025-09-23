@@ -319,7 +319,7 @@ class OrderStatuses extends Component
      * @return void
      * @throws Throwable if reasons
      */
-    public function handleChangedOrderStatus(ConfigEvent $event)
+    public function handleChangedOrderStatus(\CraftCms\Cms\ProjectConfig\Events\ConfigEvent $event)
     {
         ProjectConfigData::ensureAllStoresProcessed();
 
@@ -409,7 +409,7 @@ class OrderStatuses extends Component
      * @return void
      * @throws Throwable if reasons
      */
-    public function handleDeletedOrderStatus(ConfigEvent $event)
+    public function handleDeletedOrderStatus(\CraftCms\Cms\ProjectConfig\Events\ConfigEvent $event)
     {
         $orderStatusUid = $event->tokenMatches[0];
 

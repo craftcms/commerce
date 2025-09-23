@@ -547,7 +547,7 @@ class Stores extends Component
      * @throws Throwable
      * @throws YiiDbException
      */
-    public function handleDeletedStore(ConfigEvent $event): void
+    public function handleDeletedStore(\CraftCms\Cms\ProjectConfig\Events\ConfigEvent $event): void
     {
         $storeUid = $event->tokenMatches[0];
         $storeRecord = $this->_getStoreRecord($storeUid);
@@ -824,7 +824,7 @@ class Stores extends Component
      * @throws Throwable
      * @throws YiiDbException
      */
-    public function handleChangedSiteStore(ConfigEvent $event): void
+    public function handleChangedSiteStore(\CraftCms\Cms\ProjectConfig\Events\ConfigEvent $event): void
     {
         ProjectConfigHelper::ensureAllSitesProcessed();
         ProjectConfigData::ensureAllStoresProcessed();
@@ -862,7 +862,7 @@ class Stores extends Component
      * @throws Throwable
      * @throws YiiDbException
      */
-    public function handleDeletedSiteStore(ConfigEvent $event): void
+    public function handleDeletedSiteStore(\CraftCms\Cms\ProjectConfig\Events\ConfigEvent $event): void
     {
         $storeStoreUid = $event->tokenMatches[0];
         $siteStoreRecord = SiteStoreRecord::findOne(['uid' => $storeStoreUid]); // site_stores uses the site UID

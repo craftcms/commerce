@@ -21,7 +21,7 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "php": "^8.2",
+    "php": "^8.4",
     "craftcms/cms": "6.x-dev",
     "dompdf/dompdf": "^2.0.2",
     "ibericode/vat": "^1.2.2",
@@ -35,8 +35,6 @@
     "codeception/module-phpbrowser": "^3.0.0",
     "codeception/module-rest": "^3.3.2",
     "codeception/module-yii2": "^1.1.9",
-    "craftcms/ckeditor": "^4.0.0",
-    "craftcms/redactor": "*",
     "craftcms/ecs": "dev-main",
     "craftcms/phpstan": "dev-main",
     "fakerphp/faker": "^1.19.0",
