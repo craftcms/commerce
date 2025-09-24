@@ -357,7 +357,7 @@ class Subscriptions extends Component
      *
      * @throws Exception
      */
-    public function handleChangedFieldLayout(\CraftCms\Cms\ProjectConfig\Events\ConfigEvent $event): void
+    public function handleChangedFieldLayout(ConfigEvent $event): void
     {
         $data = $event->newValue;
 

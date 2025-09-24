@@ -277,7 +277,7 @@ class Gateways extends Component
      *
      * @throws Throwable if reasons
      */
-    public function handleChangedGateway(\CraftCms\Cms\ProjectConfig\Events\ConfigEvent $event): void
+    public function handleChangedGateway(ConfigEvent $event): void
     {
         $gatewayUid = $event->tokenMatches[0];
         $data = $event->newValue;
@@ -317,7 +317,7 @@ class Gateways extends Component
      *
      * @throws Throwable if reasons
      */
-    public function handleArchivedGateway(\CraftCms\Cms\ProjectConfig\Events\ConfigEvent $event): void
+    public function handleArchivedGateway(ConfigEvent $event): void
     {
         $gatewayUid = $event->tokenMatches[0];
 

@@ -359,7 +359,7 @@ class ProductTypes extends Component
      *
      * @throws Throwable if reasons
      */
-    public function handleChangedProductType(\CraftCms\Cms\ProjectConfig\Events\ConfigEvent $event): void
+    public function handleChangedProductType(ConfigEvent $event): void
     {
         $productTypeUid = $event->tokenMatches[0];
         $data = $event->newValue;
@@ -733,7 +733,7 @@ class ProductTypes extends Component
      *
      * @throws Throwable if reasons
      */
-    public function handleDeletedProductType(\CraftCms\Cms\ProjectConfig\Events\ConfigEvent $event): void
+    public function handleDeletedProductType(ConfigEvent $event): void
     {
         $uid = $event->tokenMatches[0];
         $productTypeRecord = $this->_getProductTypeRecord($uid);

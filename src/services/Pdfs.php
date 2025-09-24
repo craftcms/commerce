@@ -336,7 +336,7 @@ class Pdfs extends Component
      * @throws \yii\db\Exception
      * @since 3.2
      */
-    public function handleChangedPdf(\CraftCms\Cms\ProjectConfig\Events\ConfigEvent $event): void
+    public function handleChangedPdf(ConfigEvent $event): void
     {
         ProjectConfigData::ensureAllStoresProcessed();
 
@@ -419,7 +419,7 @@ class Pdfs extends Component
      * @throws StaleObjectException
      * @since 3.2
      */
-    public function handleDeletedPdf(\CraftCms\Cms\ProjectConfig\Events\ConfigEvent $event): void
+    public function handleDeletedPdf(ConfigEvent $event): void
     {
         $uid = $event->tokenMatches[0];
         $pdfRecord = $this->_getPdfRecord($uid);
