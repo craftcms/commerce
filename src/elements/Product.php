@@ -1108,6 +1108,7 @@ class Product extends Element implements HasStoreInterface
             }
 
             if ($this->duplicateOf) {
+                /** @phpstan-ignore-next-line */
                 $query = self::createVariantQuery($this->duplicateOf)->status(null);
             } else {
                 $query = self::createVariantQuery($this)->status(null);
