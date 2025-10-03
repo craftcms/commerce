@@ -44,6 +44,7 @@ use yii\db\ActiveQueryInterface;
  * @property int|null $maxLevels
  * @property string $defaultPlacement
  * @property int|null $structureId
+ * @property array|null $previewTargets
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

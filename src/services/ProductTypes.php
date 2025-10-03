@@ -442,6 +442,13 @@ class ProductTypes extends Component
                 $shouldResaveProducts = true;
             }
 
+            // Preview targets
+            if (!empty($data['previewTargets'])) {
+                $productTypeRecord->previewTargets = ProjectConfigHelper::unpackAssociativeArray($data['previewTargets']);
+            } else {
+                $productTypeRecord->previewTargets = null;
+            }
+
             if (!empty($data['productFieldLayouts']) && !empty($config = reset($data['productFieldLayouts']))) {
                 // Save the main field layout
                 $layout = FieldLayout::createFromConfig($config);
