@@ -904,7 +904,10 @@ class Variant extends Purchasable implements NestedElementInterface
                     ],
                 ];
             default:
-                return self::traitEagerLoadingMap($sourceElements, $handle);
+                return array_merge(
+                    self::traitEagerLoadingMap($sourceElements, $handle),
+                    ['elementType' => Product::class],
+                );
         }
     }
 
@@ -1042,18 +1045,24 @@ class Variant extends Purchasable implements NestedElementInterface
                         ->max('[[eo.sortOrder]]');
                     $this->sortOrder = $max ? $max + 1 : 1;
                 }
-                if ($isNew) {
-                    Db::insert(CraftTable::ELEMENTS_OWNERS, [
+
+                $ownerIds = array_unique([
+                    $ownerId,
+                    $this->getPrimaryOwnerId(),
+                ]);
+
+                if (!$isNew) {
+                    Db::delete(CraftTAble::ELEMENTS_OWNERS, [
                         'elementId' => $this->id,
-                        'ownerId' => $ownerId,
-                        'sortOrder' => $this->sortOrder,
+                        'ownerId' => $ownerIds,
                     ]);
-                } else {
-                    Db::update(CraftTable::ELEMENTS_OWNERS, [
-                        'sortOrder' => $this->sortOrder,
-                    ], [
+                }
+
+                foreach ($ownerIds as $ownerId) {
+                    Db::insert(CraftTAble::ELEMENTS_OWNERS, [
                         'elementId' => $this->id,
                         'ownerId' => $ownerId,
+                        'sortOrder' => $this->sortOrder,
                     ]);
                 }
             }
