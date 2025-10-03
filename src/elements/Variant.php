@@ -881,30 +881,31 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
-        if (in_array($handle, ['product', 'owner', 'primaryOwner'])) {
-            // Get the source element IDs
-            $sourceElementIds = [];
+        switch ($handle) {
+            case 'product':
+                // Get the source element IDs
+                $sourceElementIds = [];
 
-            foreach ($sourceElements as $sourceElement) {
-                $sourceElementIds[] = $sourceElement->id;
-            }
+                foreach ($sourceElements as $sourceElement) {
+                    $sourceElementIds[] = $sourceElement->id;
+                }
 
-            $map = (new Query())
-                ->select('id as source, primaryOwnerId as target')
-                ->from(Table::VARIANTS)
-                ->where(['in', 'id', $sourceElementIds])
-                ->all();
+                $map = (new Query())
+                    ->select('id as source, primaryOwnerId as target')
+                    ->from(Table::VARIANTS)
+                    ->where(['in', 'id', $sourceElementIds])
+                    ->all();
 
-            return [
-                'elementType' => Product::class,
-                'map' => $map,
-                'criteria' => [
-                    'status' => null,
-                ],
-            ];
+                return [
+                    'elementType' => Product::class,
+                    'map' => $map,
+                    'criteria' => [
+                        'status' => null,
+                    ],
+                ];
+            default:
+                return self::traitEagerLoadingMap($sourceElements, $handle);
         }
-
-        return self::traitEagerLoadingMap($sourceElements, $handle);
     }
 
     /**
