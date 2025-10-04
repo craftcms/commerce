@@ -113,7 +113,7 @@ class ProductGetVariantsTest extends Unit
     }
 
     /**
-     * Test that createVariantQuery does now use duplicateOf product ID when available
+     * Test that createVariantQuery does not use duplicateOf product ID when available
      */
     public function testCreateVariantQueryDoesNotUseDuplicateOfId(): void
     {
