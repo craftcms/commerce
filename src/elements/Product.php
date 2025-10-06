@@ -1807,7 +1807,8 @@ class Product extends Element implements HasStoreInterface
     {
         $productType = $this->getType();
 
-        if (!$productType->hasVariantTitleField &&
+        if ($this->getIsCanonical() &&
+            !$productType->hasVariantTitleField &&
             $productType->variantTitleFormat &&
             StringHelper::containsAny($productType->variantTitleFormat, ['product.', 'owner.', 'primaryOwner.'])
         ) {
