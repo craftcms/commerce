@@ -1,6 +1,8 @@
-# Release Notes for Craft Commerce 5.4 (WIP)
+# Release Notes for Craft Commerce 5.5 (WIP)
 
 ### Store Management
+
+### Administration
 
 ### Development
 

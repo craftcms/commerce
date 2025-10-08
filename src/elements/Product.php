@@ -1107,7 +1107,15 @@ class Product extends Element implements HasStoreInterface
                 return VariantCollection::make();
             }
 
-            $variants = self::createVariantQuery($this)->status(null)->collect();
+            /** @var self|null $duplicatingProduct */
+            $duplicatingProduct = $this->duplicateOf;
+            if ($duplicatingProduct) {
+                $query = self::createVariantQuery($duplicatingProduct)->status(null);
+            } else {
+                $query = self::createVariantQuery($this)->status(null);
+            }
+
+            $variants = $query->collect();
 
             // Don't memoize empty collections in favour of a new query next time
             if ($variants->isEmpty()) {
@@ -1885,12 +1893,9 @@ class Product extends Element implements HasStoreInterface
      */
     private static function createVariantQuery(Product $product): VariantQuery
     {
-        $productId = $product->duplicateOf?->id ?? $product->id;
-        $productSiteId = $product->duplicateOf?->siteId ?? $product->siteId;
-
         $query = Variant::find()
-            ->productId($productId)
-            ->siteId($productSiteId)
+            ->productId($product->id)
+            ->siteId($product->siteId)
             ->orderBy(['sortOrder' => SORT_ASC]);
 
         if ($product->getIsRevision()) {
