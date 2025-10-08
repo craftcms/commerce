@@ -3,7 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where catalog pricing rules could generate promotional prices for non-promotable purchasables. ([#4118](https://github.com/craftcms/commerce/issues/4118))
-- Fixed a bug where variants weren’t duplicating correctly. ([#4125](https://github.com/craftcms/commerce/issues/4125))
+- Fixed a bug where variants weren’t getting duplicated correctly. ([#4125](https://github.com/craftcms/commerce/issues/4125))
 - Fixed a SQL error that could occur when deleting a shipping method.
 
 ## 5.4.6 - 2025-09-04
