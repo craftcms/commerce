@@ -65,7 +65,7 @@ class DiscountsController extends BaseStoreManagementController
     /**
      * @throws HttpException
      */
-    public function actionIndex(string $storeHandle = null): Response
+    public function actionIndex(?string $storeHandle = null): Response
     {
         if ($storeHandle) {
             $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
@@ -178,7 +178,7 @@ class DiscountsController extends BaseStoreManagementController
      * @param Discount|null $discount
      * @throws HttpException
      */
-    public function actionEdit(int $id = null, Discount $discount = null, string $storeHandle = null): Response
+    public function actionEdit(?int $id = null, ?Discount $discount = null, ?string $storeHandle = null): Response
     {
         if ($id === null) {
             $this->requirePermission('commerce-createDiscounts');

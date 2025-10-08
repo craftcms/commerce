@@ -41,7 +41,7 @@ abstract class Stat implements StatInterface, HasStoreInterface
      * @param DateTime|bool|null $endDate
      * @throws \Exception
      */
-    public function __construct(string $dateRange = null, mixed $startDate = null, mixed $endDate = null, ?int $storeId = null)
+    public function __construct(?string $dateRange = null, mixed $startDate = null, mixed $endDate = null, ?int $storeId = null)
     {
         $user = Craft::$app->getUser()->getIdentity();
         if ($user) {

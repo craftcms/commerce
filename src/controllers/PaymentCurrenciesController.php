@@ -47,7 +47,7 @@ class PaymentCurrenciesController extends BaseStoreManagementController
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    public function actionEdit(int $id = null, PaymentCurrency $currency = null, string $storeHandle = null): Response
+    public function actionEdit(?int $id = null, ?PaymentCurrency $currency = null, ?string $storeHandle = null): Response
     {
         $variables = compact('id', 'currency');
 

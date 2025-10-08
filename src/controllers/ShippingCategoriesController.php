@@ -51,7 +51,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
      * @param ShippingCategory|null $shippingCategory
      * @throws HttpException
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, ShippingCategory $shippingCategory = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?ShippingCategory $shippingCategory = null): Response
     {
         $variables = [
             'id' => $id,

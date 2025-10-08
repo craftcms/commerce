@@ -71,7 +71,7 @@ class TaxRatesController extends BaseTaxSettingsController
      * @throws SyntaxError
      * @throws Exception
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, TaxRate $taxRate = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?TaxRate $taxRate = null): Response
     {
         if (!Plugin::getInstance()->getTaxes()->viewTaxRates()) {
             throw new ForbiddenHttpException('Tax engine does not permit you to perform this action');

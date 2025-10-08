@@ -74,7 +74,7 @@ class SalesController extends BaseStoreManagementController
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    public function actionEdit(int $id = null, Sale $sale = null, ?string $storeHandle = null): Response
+    public function actionEdit(?int $id = null, ?Sale $sale = null, ?string $storeHandle = null): Response
     {
         if ($id === null) {
             $this->requirePermission('commerce-createSales');

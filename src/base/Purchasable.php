@@ -683,7 +683,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     /**
      * @param string|null $sku
      */
-    public function setSku(string $sku = null): void
+    public function setSku(?string $sku = null): void
     {
         $this->_sku = $sku;
     }

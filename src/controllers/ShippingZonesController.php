@@ -42,7 +42,7 @@ class ShippingZonesController extends BaseShippingSettingsController
      * @param ShippingAddressZone|null $shippingZone
      * @throws HttpException
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, ShippingAddressZone $shippingZone = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?ShippingAddressZone $shippingZone = null): Response
     {
         if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();

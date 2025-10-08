@@ -75,7 +75,7 @@ class GatewaysController extends BaseAdminController
      * @throws DeprecationException
      * @throws InvalidConfigException
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, ?GatewayInterface $gateway = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?GatewayInterface $gateway = null): Response
     {
         /** @var Gateway|null $gateway */
         $variables = compact('id', 'gateway');

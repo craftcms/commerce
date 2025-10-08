@@ -59,7 +59,7 @@ class EmailsController extends BaseAdminController
      * @param Email|null $email
      * @throws HttpException
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, Email $email = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?Email $email = null): Response
     {
         if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();

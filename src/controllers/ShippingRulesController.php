@@ -48,7 +48,7 @@ class ShippingRulesController extends BaseShippingSettingsController
      * @throws SyntaxError
      * @throws Exception
      */
-    public function actionEdit(?string $storeHandle = null, int $methodId = null, int $ruleId = null, ShippingRule $shippingRule = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $methodId = null, ?int $ruleId = null, ?ShippingRule $shippingRule = null): Response
     {
         if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();

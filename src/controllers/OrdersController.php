@@ -129,7 +129,7 @@ class OrdersController extends Controller
      *
      * @throws Throwable
      */
-    public function actionOrderIndex(string $orderStatusHandle = ''): Response
+    public function actionOrderIndex(?string $orderStatusHandle = ''): Response
     {
         Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
 

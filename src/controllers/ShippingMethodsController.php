@@ -45,7 +45,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, ShippingMethod $shippingMethod = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?ShippingMethod $shippingMethod = null): Response
     {
         if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();

@@ -55,7 +55,7 @@ class LineItemStatusesController extends BaseAdminController
      * @param LineItemStatus|null $lineItemStatus
      * @throws HttpException
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, LineItemStatus $lineItemStatus = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?LineItemStatus $lineItemStatus = null): Response
     {
         if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();

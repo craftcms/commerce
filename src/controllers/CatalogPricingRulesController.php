@@ -73,7 +73,7 @@ class CatalogPricingRulesController extends BaseStoreManagementController
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, CatalogPricingRule $catalogPricingRule = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?CatalogPricingRule $catalogPricingRule = null): Response
     {
         if ($id === null) {
             $this->requirePermission('commerce-createCatalogPricingRules');

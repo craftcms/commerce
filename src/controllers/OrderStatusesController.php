@@ -55,7 +55,7 @@ class OrderStatusesController extends BaseAdminController
      * @param OrderStatus|null $orderStatus
      * @throws HttpException
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, OrderStatus $orderStatus = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?OrderStatus $orderStatus = null): Response
     {
         $variables = compact('id', 'orderStatus');
         if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
