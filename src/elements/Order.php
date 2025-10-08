@@ -2593,7 +2593,9 @@ class Order extends Element implements HasStoreInterface
         $len = strlen($name);
         $domain = substr($email, $atPos);
 
-        if (($len / 2) < $maxLength) $maxLength = ($len / 2);
+        if (($len / 2) < $maxLength) {
+            $maxLength = ($len / 2);
+        }
 
         $shortenedEmail = (($len > $minLength) ? substr($name, 0, $maxLength) : "");
         return "{$shortenedEmail}{$mask}{$domain}";

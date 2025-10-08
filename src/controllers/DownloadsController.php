@@ -163,7 +163,7 @@ class DownloadsController extends BaseFrontEndController
         // Create a one-time token for PDF download
         $token = Craft::$app->getTokens()->createToken([
             'commerce/downloads/pdf',
-            ['orderNumber' => $orderNumber]
+            ['orderNumber' => $orderNumber],
         ]);
 
         // Build the download URL with the token
