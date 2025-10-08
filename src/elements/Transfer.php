@@ -443,7 +443,7 @@ class Transfer extends Element
      * @param string|null $context
      * @return array
      */
-    protected static function defineSources(string $context = null): array
+    protected static function defineSources(?string $context = null): array
     {
         $transferStatuses = TransferStatusType::cases();
         $transferStatusSources = [];

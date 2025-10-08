@@ -42,7 +42,7 @@ class PurchasableSkuField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
+    public function inputHtml(?ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Purchasable) {
             throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');

@@ -332,7 +332,7 @@ class StoresController extends BaseAdminController
      * @return Response
      * @throws InvalidConfigException
      */
-    public function actionEditSiteStores(Collection $sitesStores = null): Response
+    public function actionEditSiteStores(?Collection $sitesStores = null): Response
     {
         // Breadcrumbs
         $crumbs = [

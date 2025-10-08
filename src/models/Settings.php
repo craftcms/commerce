@@ -297,7 +297,7 @@ class Settings extends Model
      * @throws InvalidConfigException if the currency in the config file is not set up
      * @throws SiteNotFoundException
      */
-    public function getPaymentCurrency(string $siteHandle = null): ?string
+    public function getPaymentCurrency(?string $siteHandle = null): ?string
     {
         /** @var Site|StoreBehavior|null $site */
         $site = $siteHandle ? Craft::$app->getSites()->getSiteByHandle($siteHandle) : Craft::$app->getSites()->getPrimarySite();

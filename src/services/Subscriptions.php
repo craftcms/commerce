@@ -422,7 +422,7 @@ class Subscriptions extends Component
      * @throws Exception
      * @throws Throwable if cannot expire subscription
      */
-    public function expireSubscription(Subscription $subscription, DateTime $dateTime = null): bool
+    public function expireSubscription(Subscription $subscription, ?DateTime $dateTime = null): bool
     {
         $subscription->isExpired = true;
         $subscription->dateExpired = $dateTime;

@@ -147,7 +147,7 @@ class PaymentSources extends Component
      * @return Collection
      * @throws InvalidConfigException
      */
-    public function getAllPaymentSourcesByGatewayId(int $gatewayId = null): Collection
+    public function getAllPaymentSourcesByGatewayId(?int $gatewayId = null): Collection
     {
         if ($gatewayId === null) {
             return collect();
@@ -177,7 +177,7 @@ class PaymentSources extends Component
      * @return Collection<PaymentSource>
      * @throws InvalidConfigException
      */
-    public function getAllGatewayPaymentSourcesByCustomerId(int $gatewayId = null, int $customerId = null): Collection
+    public function getAllGatewayPaymentSourcesByCustomerId(?int $gatewayId = null, ?int $customerId = null): Collection
     {
         if ($gatewayId === null || $customerId === null) {
             return collect();
@@ -263,7 +263,7 @@ class PaymentSources extends Component
      * @throws InvalidConfigException
      * @throws PaymentSourceException If unable to create the payment source
      */
-    public function createPaymentSource(int $customerId, GatewayInterface $gateway, BasePaymentForm $paymentForm, string $sourceDescription = null, bool $makePrimarySource = false): PaymentSource
+    public function createPaymentSource(int $customerId, GatewayInterface $gateway, BasePaymentForm $paymentForm, ?string $sourceDescription = null, bool $makePrimarySource = false): PaymentSource
     {
         $source = $gateway->createPaymentSource($paymentForm, $customerId);
 

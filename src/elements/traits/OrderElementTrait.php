@@ -294,7 +294,7 @@ trait OrderElementTrait
      * @inheritdoc
      * @throws Exception
      */
-    protected static function defineSources(string $context = null): array
+    protected static function defineSources(?string $context = null): array
     {
         $siteHandle = Craft::$app->getRequest()->getParam('site');
         $site = $siteHandle ? Craft::$app->getSites()->getSiteByHandle($siteHandle) : Craft::$app->getSites()->getCurrentSite();
@@ -505,7 +505,7 @@ trait OrderElementTrait
     /**
      * @inheritdoc
      */
-    protected static function defineDefaultTableAttributes(string $source = null): array
+    protected static function defineDefaultTableAttributes(?string $source = null): array
     {
         $attributes = [];
         $attributes[] = 'order';

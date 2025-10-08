@@ -448,7 +448,7 @@ class Discounts extends Component
      * @throws InvalidConfigException
      * @throws \Exception
      */
-    public function orderCouponAvailable(Order $order, string &$explanation = null): bool
+    public function orderCouponAvailable(Order $order, ?string &$explanation = null): bool
     {
         $discount = $this->getDiscountByCode($order->couponCode, $order->storeId);
 

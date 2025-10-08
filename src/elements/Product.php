@@ -219,7 +219,7 @@ class Product extends Element implements HasStoreInterface
     /**
      * @inheritdoc
      */
-    protected static function defineSources(string $context = null): array
+    protected static function defineSources(?string $context = null): array
     {
         if ($context == 'index') {
             $productTypes = Plugin::getInstance()->getProductTypes()->getEditableProductTypes();
@@ -334,7 +334,7 @@ class Product extends Element implements HasStoreInterface
     /**
      * @inheritdoc
      */
-    protected static function defineActions(string $source = null): array
+    protected static function defineActions(?string $source = null): array
     {
         $elementsService = Craft::$app->getElements();
         // Get the selected site

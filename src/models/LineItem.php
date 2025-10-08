@@ -317,7 +317,7 @@ class LineItem extends Model
      * @param LineItemStatus|null $status
      * @since 3.2.2
      */
-    public function setLineItemStatus(LineItemStatus $status = null): void
+    public function setLineItemStatus(?LineItemStatus $status = null): void
     {
         if ($status !== null) {
             $this->_lineItemStatus = $status;

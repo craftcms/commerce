@@ -62,7 +62,7 @@ class PdfsController extends BaseAdminController
      * @throws InvalidConfigException
      * @since 3.2
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, Pdf $pdf = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?Pdf $pdf = null): Response
     {
         if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();

@@ -63,7 +63,7 @@ class PurchasablePriceField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
+    public function inputHtml(?ElementInterface $element = null, bool $static = false): ?string
     {
         $view = Craft::$app->getView();
         $view->registerAssetBundle(HtmxAsset::class);

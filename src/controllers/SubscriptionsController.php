@@ -53,7 +53,7 @@ class SubscriptionsController extends BaseController
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    public function actionEdit(int $subscriptionId = null, Subscription $subscription = null): Response
+    public function actionEdit(?int $subscriptionId = null, ?Subscription $subscription = null): Response
     {
         $variables = [];
 

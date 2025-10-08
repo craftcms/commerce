@@ -213,7 +213,7 @@ class OrdersController extends Controller
      * @throws RuntimeError
      * @throws SyntaxError
      */
-    public function actionEditOrder(int $orderId, Order $order = null, $paymentForm = null): Response
+    public function actionEditOrder(int $orderId, ?Order $order = null, $paymentForm = null): Response
     {
         $plugin = Plugin::getInstance();
         $variables = [];

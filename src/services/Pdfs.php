@@ -466,7 +466,7 @@ class Pdfs extends Component
      * @return string The PDF data.
      * @throws Exception
      */
-    public function renderPdfForOrder(Order $order, string $option = '', string $templatePath = null, array $variables = [], Pdf $pdf = null): string
+    public function renderPdfForOrder(Order $order, string $option = '', ?string $templatePath = null, array $variables = [], ?Pdf $pdf = null): string
     {
         if ($pdf instanceof Pdf) {
             $templatePath = $pdf->templatePath;

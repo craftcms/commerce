@@ -183,7 +183,7 @@ class Transactions extends Component
      * @throws CurrencyException
      * @throws InvalidConfigException
      */
-    public function createTransaction(Order $order = null, Transaction $parentTransaction = null, ?string $typeOverride = null): Transaction
+    public function createTransaction(?Order $order = null, ?Transaction $parentTransaction = null, ?string $typeOverride = null): Transaction
     {
         if (!$order && !$parentTransaction) {
             throw new TransactionException('Tried to create a transaction without order or parent transaction');

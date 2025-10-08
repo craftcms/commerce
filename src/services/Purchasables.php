@@ -144,7 +144,7 @@ class Purchasables extends Component
      * @throws Throwable
      * @since 5.3.0
      */
-    public function isPurchasableOutOfStockPurchasingAllowed(Purchasable $purchasable, Order $order = null, User $currentUser = null): bool
+    public function isPurchasableOutOfStockPurchasingAllowed(Purchasable $purchasable, ?Order $order = null, ?User $currentUser = null): bool
     {
         if ($currentUser === null) {
             $currentUser = Craft::$app->getUser()->getIdentity();
@@ -166,7 +166,7 @@ class Purchasables extends Component
      * @param User|null $currentUser
      * @since 3.3.1
      */
-    public function isPurchasableAvailable(PurchasableInterface $purchasable, Order $order = null, User $currentUser = null): bool
+    public function isPurchasableAvailable(PurchasableInterface $purchasable, ?Order $order = null, ?User $currentUser = null): bool
     {
         if ($currentUser === null) {
             $currentUser = Craft::$app->getUser()->getIdentity();
@@ -187,7 +187,7 @@ class Purchasables extends Component
      * @param User|null $currentUser
      * @since 3.3.2
      */
-    public function isPurchasableShippable(PurchasableInterface $purchasable, Order $order = null, User $currentUser = null): bool
+    public function isPurchasableShippable(PurchasableInterface $purchasable, ?Order $order = null, ?User $currentUser = null): bool
     {
         if ($currentUser === null) {
             $currentUser = Craft::$app->getUser()->getIdentity();

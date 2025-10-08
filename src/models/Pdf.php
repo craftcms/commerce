@@ -165,7 +165,7 @@ class Pdf extends Model implements HasStoreInterface
      *
      * @param Order|null $order
      */
-    public function getRenderLanguage(Order $order = null): string
+    public function getRenderLanguage(?Order $order = null): string
     {
         $language = $this->language;
 

@@ -391,7 +391,7 @@ class LineItems extends Component
      * @throws \Exception
      * @deprecated in 5.1.0. Use [[create()]] instead.
      */
-    public function createLineItem(Order $order, int $purchasableId, array $options, int $qty = 1, string $note = '', string $uid = null): LineItem
+    public function createLineItem(Order $order, int $purchasableId, array $options, int $qty = 1, string $note = '', ?string $uid = null): LineItem
     {
         Craft::$app->getDeprecator()->log(__METHOD__, 'LineItems::createLineItem() has been deprecated. Use LineItems::create() instead.');
         $lineItem = new LineItem();

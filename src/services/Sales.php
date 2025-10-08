@@ -273,7 +273,7 @@ class Sales extends Component
      * @return Sale[]
      * @throws InvalidConfigException
      */
-    public function getSalesForPurchasable(PurchasableInterface $purchasable, Order $order = null): array
+    public function getSalesForPurchasable(PurchasableInterface $purchasable, ?Order $order = null): array
     {
         $matchedSales = [];
 
@@ -335,7 +335,7 @@ class Sales extends Component
      *
      * @param Order|null $order
      */
-    public function getSalePriceForPurchasable(PurchasableInterface $purchasable, Order $order = null): float
+    public function getSalePriceForPurchasable(PurchasableInterface $purchasable, ?Order $order = null): float
     {
         $sales = $this->getSalesForPurchasable($purchasable, $order);
         $originalPrice = $purchasable->getPrice();
@@ -398,7 +398,7 @@ class Sales extends Component
      * @param Order|null $order
      * @throws InvalidConfigException
      */
-    public function matchPurchasableAndSale(PurchasableInterface $purchasable, Sale $sale, Order $order = null): bool
+    public function matchPurchasableAndSale(PurchasableInterface $purchasable, Sale $sale, ?Order $order = null): bool
     {
         /** @var Purchasable $purchasable */
         $purchasableId = $purchasable->id;

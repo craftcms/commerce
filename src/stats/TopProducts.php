@@ -103,7 +103,7 @@ class TopProducts extends Stat
     /**
      * @inheritDoc
      */
-    public function __construct(string $dateRange = null, string $type = null, $startDate = null, $endDate = null, array $revenueOptions = null, ?int $storeId = null)
+    public function __construct(?string $dateRange = null, ?string $type = null, $startDate = null, $endDate = null, ?array $revenueOptions = null, ?int $storeId = null)
     {
         $this->_ifNullDbFunc = Craft::$app->getDb()->getIsPgsql() ? 'COALESCE' : 'IFNULL';
 

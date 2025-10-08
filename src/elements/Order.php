@@ -2422,7 +2422,7 @@ class Order extends Element implements HasStoreInterface
      * @param string|null $pdfHandle The handle of the PDF to use. If none is passed the default PDF is used.
      * @return string|null The URL to the order’s PDF invoice, or null if the PDF template doesn’t exist
      */
-    public function getPdfUrl(string $option = null, string $pdfHandle = null): ?string
+    public function getPdfUrl(?string $option = null, ?string $pdfHandle = null): ?string
     {
         $path = "commerce/downloads/pdf";
         $params = [];

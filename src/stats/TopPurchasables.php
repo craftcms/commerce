@@ -38,7 +38,7 @@ class TopPurchasables extends Stat
     /**
      * @inheritDoc
      */
-    public function __construct(string $dateRange = null, string $type = null, $startDate = null, $endDate = null, ?int $storeId = null)
+    public function __construct(?string $dateRange = null, ?string $type = null, $startDate = null, $endDate = null, ?int $storeId = null)
     {
         $this->type = $type ?? $this->type;
 

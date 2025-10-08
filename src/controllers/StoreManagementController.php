@@ -67,7 +67,7 @@ class StoreManagementController extends BaseStoreManagementController
      * @throws TemplateLoaderException
      * @throws InvalidConfigException
      */
-    public function actionEdit(StoreSettings $storeSettings = null, ?string $storeHandle = null): Response
+    public function actionEdit(?StoreSettings $storeSettings = null, ?string $storeHandle = null): Response
     {
         $this->requirePermission('commerce-manageGeneralStoreSettings');
 

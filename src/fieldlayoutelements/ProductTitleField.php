@@ -62,7 +62,7 @@ class ProductTitleField extends TitleField
     /**
      * @inheritdoc
      */
-    public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
+    public function inputHtml(?ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Product) {
             throw new InvalidArgumentException('ProductTitleField can only be used in product field layouts.');

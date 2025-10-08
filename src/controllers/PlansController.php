@@ -66,7 +66,7 @@ class PlansController extends BaseCpController
      * @throws DeprecationException
      * @throws ForbiddenHttpException
      */
-    public function actionEditPlan(int $planId = null, Plan $plan = null): Response
+    public function actionEditPlan(?int $planId = null, ?Plan $plan = null): Response
     {
         $this->requirePermission('commerce-manageSubscriptions');
 

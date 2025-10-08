@@ -435,7 +435,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public static function defineSources(string $context = null): array
+    public static function defineSources(?string $context = null): array
     {
         $plans = Plugin::getInstance()->getPlans()->getAllPlans();
 

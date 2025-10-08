@@ -50,7 +50,7 @@ class TaxZonesController extends BaseTaxSettingsController
      * @param TaxAddressZone|null $taxZone
      * @throws HttpException
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, TaxAddressZone $taxZone = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?TaxAddressZone $taxZone = null): Response
     {
         if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
