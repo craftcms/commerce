@@ -6,6 +6,9 @@
 - Improved product and variant query performance.
 - Improved the performance of retrieving a line item’s catalog pricing rule ID. 
 - Added `craft\commerce\services\CatalogPricingRules::hasCatalogPricingRules()`.
+- Fixed a bug where variants weren’t duplicating correctly. ([#4125](https://github.com/craftcms/commerce/issues/4125))
+- Fixed a SQL error that could occur when deleting a shipping method.
+
 
 ## 5.4.6 - 2025-09-04
 
