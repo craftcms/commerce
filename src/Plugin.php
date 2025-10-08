@@ -125,7 +125,7 @@ use craft\debug\Module;
 use craft\elements\Address;
 use craft\elements\db\UserQuery;
 use craft\elements\User as UserElement;
-use craft\enums\CmsEdition;
+use CraftCms\Cms\Edition as CmsEdition;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineEditUserScreensEvent;
@@ -165,6 +165,7 @@ use craft\services\Users;
 use craft\utilities\ClearCaches;
 use craft\web\Application;
 use craft\web\twig\variables\CraftVariable;
+use CraftCms\Cms\Updates\Updates;
 use Exception;
 use Illuminate\Support\Collection;
 use yii\base\Event;
@@ -820,7 +821,7 @@ class Plugin extends BasePlugin
         });
 
         // Don't attach behavior if Craft is in the middle of an update
-        if (!Craft::$app->getUpdates()->getIsCraftUpdatePending()) {
+        if (! app(Updates::class)->isCraftUpdatePending()) {
             // Site models are instantiated early meaning we have to manually attach the behavior alongside using the event
             $sites = Craft::$app->getSites()->getAllSites(true);
             foreach ($sites as $site) {
