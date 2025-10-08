@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.4.7 - 2025-10-08
 
 - Fixed a bug where catalog pricing rules could generate promotional prices for non-promotable purchasables. ([#4118](https://github.com/craftcms/commerce/issues/4118))
 - Fixed a bug where variants weren’t getting duplicated correctly. ([#4125](https://github.com/craftcms/commerce/issues/4125))
