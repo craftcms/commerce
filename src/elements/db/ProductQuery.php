@@ -781,28 +781,32 @@ class ProductQuery extends ElementQuery
 
         $this->_applyProductTypeIdParam();
 
+        if (isset($this->defaultHeight) || isset($this->defaultLength) || isset($this->defaultWidth) || isset($this->defaultWeight) || isset($this->defaultSku)) {
+            $this->subQuery->leftJoin(['purchasables' => Table::PURCHASABLES], '[[purchasables.id]] = [[commerce_products.defaultVariantId]]');
+        }
+
         if (isset($this->defaultPrice)) {
             $this->subQuery->andWhere(Db::parseParam('catalogprices.price', $this->defaultPrice));
         }
 
         if (isset($this->defaultHeight)) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultHeight', $this->defaultHeight));
+            $this->subQuery->andWhere(Db::parseParam('purchasables.height', $this->defaultHeight));
         }
 
         if (isset($this->defaultLength)) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultLength', $this->defaultLength));
+            $this->subQuery->andWhere(Db::parseParam('purchasables.length', $this->defaultLength));
         }
 
         if (isset($this->defaultWidth)) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultWidth', $this->defaultWidth));
+            $this->subQuery->andWhere(Db::parseParam('purchasables.width', $this->defaultWidth));
         }
 
         if (isset($this->defaultWeight)) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultWeight', $this->defaultWeight));
+            $this->subQuery->andWhere(Db::parseParam('purchasables.weight', $this->defaultWeight));
         }
 
         if (isset($this->defaultSku)) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultSku', $this->defaultSku));
+            $this->subQuery->andWhere(Db::parseParam('purchasables.sku', $this->defaultSku));
         }
 
         $this->_applyHasVariantParam();

@@ -50,9 +50,9 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\ElementHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
+use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
-use craft\models\Section;
 use craft\models\Site;
 use craft\services\Structures;
 use craft\validators\DateTimeValidator;
@@ -1102,12 +1102,27 @@ class Product extends Element implements HasStoreInterface
      */
     public function getVariants(bool $includeDisabled = false): VariantCollection
     {
-        if (!isset($this->_variants)) {
+        if ($this->_variants === null) {
             if (!$this->id) {
                 return VariantCollection::make();
             }
 
-            $this->_variants = self::createVariantQuery($this)->status(null)->collect();
+            /** @var self|null $duplicatingProduct */
+            $duplicatingProduct = $this->duplicateOf;
+            if ($duplicatingProduct) {
+                $query = self::createVariantQuery($duplicatingProduct)->status(null);
+            } else {
+                $query = self::createVariantQuery($this)->status(null);
+            }
+
+            $variants = $query->collect();
+
+            // Don't memoize empty collections in favour of a new query next time
+            if ($variants->isEmpty()) {
+                return $variants;
+            }
+
+            $this->_variants = $variants;
             $this->_variants->map(function(Variant $v) {
                 if (!$this->id) {
                     return $v;
@@ -1792,6 +1807,13 @@ class Product extends Element implements HasStoreInterface
     {
         $productType = $this->getType();
 
+        if (!$productType->hasVariantTitleField &&
+            $productType->variantTitleFormat &&
+            StringHelper::containsAny($productType->variantTitleFormat, ['product.', 'owner.', 'primaryOwner.'])
+        ) {
+            $this->setDirtyAttributes(['allVariants'], true);
+        }
+
         // Make sure the entry has at least one revision if the section has versioning enabled
         if ($this->_shouldSaveRevision()) {
             $hasRevisions = self::find()
@@ -2017,6 +2039,12 @@ class Product extends Element implements HasStoreInterface
     {
         $this->getVariantManager()->maintainNestedElements($this, $isNew);
         parent::afterPropagate($isNew);
+
+        // @TODO improve performance by collating all purchasable IDs updated during request
+        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+            'purchasableIds' => $this->getVariants()->pluck('id')->all(),
+            'storeId' => $this->storeId,
+        ]);
 
         // Save a new revision?
         if ($this->_shouldSaveRevision()) {

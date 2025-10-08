@@ -2,8 +2,62 @@
 
 ## Unreleased
 
-- Improved the performance of retrieving the cart over Ajax.
-- Fixed a PHP error that could occur when viewing variant indexes and using Craft CMS 5.6.17 or earlier. ([#4060](https://github.com/craftcms/commerce/issues/4060))
+- Fixed a bug where catalog pricing rules could generate promotional prices for non-promotable purchasables. ([#4118](https://github.com/craftcms/commerce/issues/4118))
+- Fixed a bug where variants weren’t duplicating correctly. ([#4125](https://github.com/craftcms/commerce/issues/4125))
+- Fixed a SQL error that could occur when deleting a shipping method.
+
+## 5.4.6 - 2025-09-04
+
+- Fixed a bug where the `commerce/cart/update-cart` action could return unnecessary validation errors. ([3873](https://github.com/craftcms/commerce/issues/3873))
+- Added `craft\commerce\helpers\Order::normalizeLineItemPurchasableAvailability()`.
+
+## 5.4.5.1 - 2025-08-20
+
+- Fixed a PHP type error.
+
+## 5.4.5 - 2025-08-20
+
+- Fixed a bug where order indexes didn’t have customizable table columns when an order status’ source was selected.
+- Fixed a bug where the current cart could be lost when registering a new user during checkout. ([#4089](https://github.com/craftcms/commerce/issues/4089))
+- Fixed a bug where variant titles weren’t being generated for product types with a Variant Title Format that referenced the product when a product was saved. ([#4090](https://github.com/craftcms/commerce/issues/4090))
+- Fixed a bug where empty variant collections could be incorrectly memoized when duplicating products. ([#4075](https://github.com/craftcms/commerce/issues/4075))
+- Fixed a PHP error that could occur when saving an order from an `EVENT_ORDER_STATUS_CHANGE` event handler. ([#4101](https://github.com/craftcms/commerce/issues/4101))
+
+## 5.4.4 - 2025-07-31
+
+- Improved the performance of loading Edit Order pages. ([#4056](https://github.com/craftcms/commerce/issues/4056))
+- Fixed a bug where cart errors weren’t being returned in `commerce/payments/pay` action requests. ([#4026](https://github.com/craftcms/commerce/issues/4026))
+- Fixed a bug where the `EVENT_BEFORE_DEFINE_URL` and `EVENT_DEFINE_URL` events weren’t getting triggered for variants.
+- Fixed a PHP error that could occur when submitting a partial payment using the example templates. ([#3989](https://github.com/craftcms/commerce/issues/3989))
+- Fixed a bug where shipping adjustments weren’t getting applied to carts that used a custom shipping method.
+
+## 5.4.3 - 2025-07-23
+
+- Fixed a PHP error that could occur when upgrading to Commerce 5. ([#4077](https://github.com/craftcms/commerce/issues/4077))
+- Fixed a bug where shipping rules weren’t saving their customer conditions correctly. ([#4079](https://github.com/craftcms/commerce/issues/4079))
+- Fixed a bug where outdated transaction data could be used when completing a payment. ([craftcms/commerce-stripe#353](https://github.com/craftcms/commerce-stripe/issues/353))
+
+## 5.4.2 - 2025-07-16
+
+- Fixed a bug where the control panel trigger was exposed when copying a load-cart URL. ([#4073](https://github.com/craftcms/commerce/issues/4073))
+- Fixed a SQL error that could occur when updating to Craft Commerce 5.4.1. ([#4074](https://github.com/craftcms/commerce/issues/4074))
+- Fixed a bug where purchasable selector modals for discounts didn’t have site menus. ([#4059](https://github.com/craftcms/commerce/issues/4059))
+
+## 5.4.1.1 - 2025-07-10
+
+- Fixed a bug where the pricing catalog wasn’t getting updated when saving a product. ([#4054](https://github.com/craftcms/commerce/issues/4054))
+- Fixed a bug where unavailable gateways were being automatically set on orders.
+- Fixed a bug where product type configs were missing their structure properties after rebuilding the project config.
+
+## 5.4.1 - 2025-07-09
+
+- Improved the performance of loading carts via Ajax. ([#4056](https://github.com/craftcms/commerce/issues/4056))
+- Improved the performance of saving variants. ([#4064](https://github.com/craftcms/commerce/issues/4064))
+- Fixed a PHP error that could occur when viewing variant indexes on Craft CMS 5.6.17 or earlier. ([#4060](https://github.com/craftcms/commerce/issues/4060))
+- Fixed a bug where currency-based order condition rules were incorrectly listed under “Fields” in the selection menu.
+- Fixed a SQL error that could occur when restoring soft-deleted variants. ([#4065](https://github.com/craftcms/commerce/issues/4065))
+- Fixed a bug where subscription and inventory transfer elements’ field layouts weren’t getting deleted on uninstall.
+- Fixed a PHP error that could occur when editing discounts. ([#4069](https://github.com/craftcms/commerce/issues/4069))
 
 ## 5.4.0 - 2025-06-23
 
@@ -27,10 +81,7 @@
 ### Extensibility
 - Added `craft\commerce\base\Gateway::getConfig()`.
 - Added `craft\commerce\base\Gateway::getOrderCondition()`.
-- Added `craft\commerce\base\Gateway::getOrderCondition()`.
 - Added `craft\commerce\base\Gateway::hasOrderCondition()`.
-- Added `craft\commerce\base\Gateway::setOrderCondition()`.
-- Added `craft\commerce\base\Gateway::setOrderCondition()`.
 - Added `craft\commerce\base\Gateway::setOrderCondition()`.
 - Added `craft\commerce\base\Purchasable::$catalogPricingRuleId`.
 - Added `craft\commerce\base\Purchasable::getCatalogPricingRule()`.
@@ -347,7 +398,7 @@
 - Fixed a bug where variants weren’t respecting their product’s propagation method.
 - Fixed a PHP error that could occur when creating a new product.
 - Fixed a bug where Edit Product screens were showing shipping categories that weren’t available to the current store. ([#3690](https://github.com/craftcms/commerce/issues/3690))
-- Fixed a bug where Edit Product screens were showing tax categories that weren’t available to the product type.. ([#3690](https://github.com/craftcms/commerce/issues/3690))
+- Fixed a bug where Edit Product screens were showing tax categories that weren’t available to the product type. ([#3690](https://github.com/craftcms/commerce/issues/3690))
 - Fixed a bug where Edit Order screens were displaying the store name twice.
 - Fixed a bug where `craft\commerce\models\CatalogPricingRule::$description` was not being populated. ([#3699](https://github.com/craftcms/commerce/issues/3699))
 - Fixed a bug where catalog pricing rules were generating prices incorrectly. ([#3700](https://github.com/craftcms/commerce/issues/3700))

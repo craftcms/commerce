@@ -11,6 +11,8 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
+use craft\commerce\elements\Subscription;
+use craft\commerce\elements\Transfer;
 use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\models\ProductType;
@@ -64,7 +66,13 @@ class Install extends Migration
         $this->dropTables();
         $this->dropProjectConfig();
 
-        $this->delete(CraftTable::FIELDLAYOUTS, ['type' => [Order::class, Product::class, Variant::class]]);
+        $this->delete(CraftTable::FIELDLAYOUTS, ['type' => [
+            Order::class,
+            Product::class,
+            Variant::class,
+            Subscription::class,
+            Transfer::class,
+        ]]);
 
         return true;
     }
@@ -1248,6 +1256,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::PLANS, ['planInformationId'], '{{%elements}}', 'id', 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PRODUCTS, ['typeId'], Table::PRODUCTTYPES, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::PRODUCTS, ['defaultVariantId'], '{{%elements}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTTYPES, ['fieldLayoutId'], '{{%fieldlayouts}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTTYPES, ['variantFieldLayoutId'], '{{%fieldlayouts}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTTYPES, ['structureId'], CraftTable::STRUCTURES, ['id'], 'SET NULL', null);
@@ -1271,7 +1280,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::SALE_USERGROUPS, ['userGroupId'], '{{%usergroups}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGCATEGORIES, ['storeId'], Table::STORES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGMETHODS, ['storeId'], Table::STORES, ['id'], 'CASCADE');
-        $this->addForeignKey(null, Table::SHIPPINGRULES, ['methodId'], Table::SHIPPINGMETHODS, ['id']);
+        $this->addForeignKey(null, Table::SHIPPINGRULES, ['methodId'], Table::SHIPPINGMETHODS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGRULE_CATEGORIES, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGRULE_CATEGORIES, ['shippingRuleId'], Table::SHIPPINGRULES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGZONES, ['storeId'], Table::STORES, ['id'], 'CASCADE');

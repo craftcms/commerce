@@ -128,7 +128,9 @@
             </form>
           {% endif %}
         {% else %}
-          {% do cart.setPaymentCurrency(paymentCurrency) %}
+          {# Set payment currency, using cart's existing currency as fallback #}
+          {% set finalPaymentCurrency = paymentCurrency ?? cart.paymentCurrency %}
+          {% do cart.setPaymentCurrency(finalPaymentCurrency) %}
           {% set canPay = true %}
           <div class="mt-3">
             <form id="paymentForm"
@@ -141,7 +143,7 @@
               {{ hiddenInput('cancelUrl', craft.app.request.getUrl()|hash) }}
               {{ hiddenInput('email', email) }}
               {{ hiddenInput('number', cart.number) }}
-              {{ hiddenInput('paymentCurrency', paymentCurrency) }}
+              {{ hiddenInput('paymentCurrency', finalPaymentCurrency) }}
 
               <fieldset>
                 {% if gatewayId %}
@@ -190,8 +192,8 @@
                     }) }}" class="text-blue-500 hover:text-blue-600">&larr; {{ 'Back'|t }}</a>
 
                     <div class="gateway-payment-form max-w-3/4">
-                      {% namespace cart.gateway.handle|commercePaymentFormNamespace %}
-                        {{ cart.gateway.getPaymentFormHtml(params)|raw }}
+                      {% namespace gateway.handle|commercePaymentFormNamespace %}
+                        {{ gateway.getPaymentFormHtml(params)|raw }}
                       {% endnamespace %}
                     </div>
 

@@ -172,6 +172,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         $shippingRule->orderConditionFormula = trim($this->request->getBodyParam('orderConditionFormula', ''));
         $shippingRule->percentageRate = Localization::normalizeNumber($this->request->getBodyParam('percentageRate'));
         $shippingRule->setOrderCondition($this->request->getBodyParam('orderCondition'));
+        $shippingRule->setCustomerCondition($this->request->getBodyParam('customerCondition'));
 
         $ruleCategories = [];
         $allRulesCategories = $this->request->getBodyParam('ruleCategories');
