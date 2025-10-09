@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a PHP error that could occur when querying variants. ([#4129](https://github.com/craftcms/commerce/pull/4129))
+
 ## 5.4.7 - 2025-10-08
 
 - Fixed a bug where catalog pricing rules could generate promotional prices for non-promotable purchasables. ([#4118](https://github.com/craftcms/commerce/issues/4118))
