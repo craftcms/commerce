@@ -293,12 +293,12 @@ class DiscountsController extends BaseStoreManagementController
             // Invert non-purchaseTotal values
             if ($attr !== 'purchaseTotal') {
                 // Sanitize the input from the user - we store negative values, expecting the user to enter positive values
-                $attrValue = str_replace('-', '', $attrValue);
+                $attrValue = (float)str_replace('-', '', $attrValue);
 
                 $attrValue = $attrValue * -1;
             }
 
-            $discount->{$attr} = $attrValue;
+            $discount->{$attr} = (float)$attrValue;
         }
 
         $date = $this->request->getBodyParam('dateFrom');
