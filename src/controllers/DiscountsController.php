@@ -292,10 +292,14 @@ class DiscountsController extends BaseStoreManagementController
 
             // Invert non-purchaseTotal values
             if ($attr !== 'purchaseTotal') {
-                $attrValue = $attrValue * -1;
+                // Sanitize the input from the user - we store negative values, expecting the user to enter positive values
+                $attrValue = (float)$attrValue;
+                if ($attrValue > 0) {
+                    $attrValue = $attrValue * -1;
+                }
             }
 
-            $discount->{$attr} = $attrValue;
+            $discount->{$attr} = (float)$attrValue;
         }
 
         $date = $this->request->getBodyParam('dateFrom');
@@ -356,13 +360,6 @@ class DiscountsController extends BaseStoreManagementController
             return $this->redirectToPostedUrl($discount);
         } else {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save discount.'));
-
-            // Set back to original input value of the text field to prevent negative value.
-            $baseDiscountParam = Json::decodeIfJson($this->request->getBodyParam('baseDiscount'));
-            $perItemDiscountParam = Json::decodeIfJson($this->request->getBodyParam('perItemDiscount'));
-
-            $discount->baseDiscount = $baseDiscountParam['value'];
-            $discount->perItemDiscount = $perItemDiscountParam['value'];
         }
 
         // Send the model back to the template
@@ -609,9 +606,10 @@ class DiscountsController extends BaseStoreManagementController
                 continue;
             }
 
-            if ($variables['discount']->{$attr} != 0) {
+            if ($variables['discount']->{$attr} < 0) {
+                // Flip negative numbers for display to the user
                 $variables['discount']->{$attr} *= -1;
-            } else {
+            } elseif ($variables['discount']->{$attr} == 0) {
                 $variables['discount']->{$attr} = 0;
             }
         }
