@@ -2,9 +2,16 @@
 
 ## Unreleased
 
+- Fixed a bug where variant titles were being incorrectly updated when the Variant Title Format referenced the product. ([#4126](https://github.com/craftcms/commerce/issues/4126))
+
+## 5.4.7.1 - 2025-10-09
+
+- Fixed a PHP error that could occur when querying variants. ([#4129](https://github.com/craftcms/commerce/pull/4129))
+
+## 5.4.7 - 2025-10-08
+
 - Fixed a bug where catalog pricing rules could generate promotional prices for non-promotable purchasables. ([#4118](https://github.com/craftcms/commerce/issues/4118))
 - Fixed a bug where variants weren't duplicating correctly. ([#4125](https://github.com/craftcms/commerce/issues/4125))
-- Fixed a bug where variant titles were being incorrectly updated when the Variant Title Format referenced the product. ([#4126](https://github.com/craftcms/commerce/issues/4126))
 - Fixed a SQL error that could occur when deleting a shipping method.
 
 ## 5.4.6 - 2025-09-04

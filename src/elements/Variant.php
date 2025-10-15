@@ -903,11 +903,14 @@ class Variant extends Purchasable implements NestedElementInterface
                         'status' => null,
                     ],
                 ];
-            default:
+            case 'owner':
+            case 'primaryOwner':
                 return array_merge(
                     self::traitEagerLoadingMap($sourceElements, $handle),
                     ['elementType' => Product::class],
                 );
+            default:
+                return self::traitEagerLoadingMap($sourceElements, $handle);
         }
     }
 
