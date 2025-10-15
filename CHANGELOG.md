@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a PHP error that could occur when saving a discount. ([#4134](https://github.com/craftcms/commerce/issues/4134))
+- Fixed a PHP error that could occur when editing an order. ([#4139](https://github.com/craftcms/commerce/issues/4139))
 
 ## 5.4.7.1 - 2025-10-09
 
