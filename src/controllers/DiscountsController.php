@@ -293,9 +293,10 @@ class DiscountsController extends BaseStoreManagementController
             // Invert non-purchaseTotal values
             if ($attr !== 'purchaseTotal') {
                 // Sanitize the input from the user - we store negative values, expecting the user to enter positive values
-                $attrValue = (float)str_replace('-', '', $attrValue);
-
-                $attrValue = $attrValue * -1;
+                $attrValue = (float)$attrValue;
+                if ($attrValue > 0) {
+                    $attrValue = $attrValue * -1;
+                }
             }
 
             $discount->{$attr} = (float)$attrValue;
