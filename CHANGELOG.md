@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.9.4 - 2025-10-15
 
 - Fixed a PHP error that could occur when saving a discount. ([#4134](https://github.com/craftcms/commerce/issues/4134))
 - Fixed a PHP error that could occur when editing an order. ([#4139](https://github.com/craftcms/commerce/issues/4139))
