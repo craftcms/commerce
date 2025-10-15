@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.9.4 - 2025-10-15
 
 - Fixed a SQL error that could occur when deleting a shipping method.
 
