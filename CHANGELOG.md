@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a PHP error that occurred when applying project config changes after adding a new site. 
+
 ## 5.4.8 - 2025-10-15
 
 - Fixed a PHP error that could occur when saving a discount. ([#4134](https://github.com/craftcms/commerce/issues/4134))
