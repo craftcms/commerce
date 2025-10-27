@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a PHP error that could occur when saving a discount. ([#4146](https://github.com/craftcms/commerce/issues/4146), [#4059](https://github.com/craftcms/commerce/issues/4059))
 - Fixed a PHP error that occurred when applying project config changes after adding a new site. 
 
 ## 5.4.8 - 2025-10-15

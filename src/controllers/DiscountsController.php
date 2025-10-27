@@ -197,6 +197,8 @@ class DiscountsController extends BaseStoreManagementController
         } else {
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
+
+        $variables['siteIds'] = $store->getSites()->pluck('id')->all();
         $variables['storeHandle'] = $store->handle;
         $variables['currency'] = $store->getCurrency();
         $variables['decimals'] = Plugin::getInstance()->getCurrencies()->getSubunitFor($store->getCurrency());
@@ -670,7 +672,7 @@ class DiscountsController extends BaseStoreManagementController
         if (empty($variables['id']) && $this->request->getParam('purchasableIds')) {
             $purchasableIdsFromUrl = explode('|', $this->request->getParam('purchasableIds'));
             foreach ($purchasableIdsFromUrl as $purchasableId) {
-                $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
+                $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId, siteId: $variables['siteIds']);
                 if ($purchasable instanceof Product) {
                     $purchasableIds[] = $purchasable->defaultVariantId; // this would only be null if we are duplicating a variant, otherwise should never be null
                 } else {
@@ -686,7 +688,7 @@ class DiscountsController extends BaseStoreManagementController
 
         $purchasables = [];
         foreach ($purchasableIds as $purchasableId) {
-            $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
+            $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId, siteId: $variables['siteIds']);
             if ($purchasable instanceof PurchasableInterface) {
                 $class = $purchasable::class;
                 $purchasables[$class] ??= [];
