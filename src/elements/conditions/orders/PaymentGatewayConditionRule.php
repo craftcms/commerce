@@ -59,7 +59,7 @@ class PaymentGatewayConditionRule extends BaseSelectConditionRule implements Ele
     public function matchElement(ElementInterface $element): bool
     {
         /** @var Order $element */
-        $gatewayUid = $element->getGateway()?->uid;
+        $gatewayUid = $element->getGateway()?->uid ?? '';
         return $this->matchValue($gatewayUid);
     }
 }
