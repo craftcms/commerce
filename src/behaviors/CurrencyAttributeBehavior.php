@@ -64,11 +64,11 @@ class CurrencyAttributeBehavior extends Behavior
     public array $currencyAttributes;
 
     /**
-     * @var ?string default currency
+     * @var string|\Closure|null default currency - can be a string or a Closure that returns a string
      * @uses setDefaultCurrency()
      * @uses getDefaultCurrency()
      */
-    private ?string $_defaultCurrency = null;
+    private string|\Closure|null $_defaultCurrency = null;
 
     /**
      * @var array mapping of attribute => currency if the default is not desired
@@ -155,7 +155,8 @@ class CurrencyAttributeBehavior extends Behavior
             $attributeName = $this->_attributeNameWithoutAsCurrency($name);
             if (in_array($attributeName, $this->currencyAttributes, false)) {
                 $amount = $this->owner->$attributeName ?? 0;
-                $currency = $this->attributeCurrencyMap[$attributeName] ?? $this->getDefaultCurrency();
+                $currencyFromMap = $this->attributeCurrencyMap[$attributeName] ?? null;
+                $currency = $currencyFromMap ?? $this->getDefaultCurrency();
                 return Currency::formatAsCurrency($amount, $currency);
             }
         }
@@ -194,11 +195,11 @@ class CurrencyAttributeBehavior extends Behavior
     }
 
     /**
-     * @param ?string $value
+     * @param string|\Closure|null $value - can be a string, a Closure that returns a string, or null
      * @return void
      * @since 5.0.0
      */
-    public function setDefaultCurrency(?string $value): void
+    public function setDefaultCurrency(string|\Closure|null $value): void
     {
         $this->_defaultCurrency = $value;
     }
@@ -209,17 +210,26 @@ class CurrencyAttributeBehavior extends Behavior
      */
     public function getDefaultCurrency(): string
     {
+        // If a Closure was provided, resolve it first
+        if ($this->_defaultCurrency instanceof \Closure) {
+            $result = ($this->_defaultCurrency)();
+            if (is_string($result)) {
+                return $result;
+            }
+        }
+
+        // If already set as a string, return it
+        if (is_string($this->_defaultCurrency)) {
+            return $this->_defaultCurrency;
+        }
+
         // Should always be the owners currency
         if ($this->owner instanceof HasStoreInterface) {
-            $this->_defaultCurrency = $this->owner->getStore()->getCurrency();
+            return $this->owner->getStore()->getCurrency()->getCode();
         }
 
         // Let's default to the current store primary currency
-        if (!isset($this->_defaultCurrency)) {
-            $this->_defaultCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-        }
-
-        return $this->_defaultCurrency;
+        return Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
     }
 
     /**
