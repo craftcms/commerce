@@ -155,8 +155,7 @@ class CurrencyAttributeBehavior extends Behavior
             $attributeName = $this->_attributeNameWithoutAsCurrency($name);
             if (in_array($attributeName, $this->currencyAttributes, false)) {
                 $amount = $this->owner->$attributeName ?? 0;
-                $currencyFromMap = $this->attributeCurrencyMap[$attributeName] ?? null;
-                $currency = $currencyFromMap ?? $this->getDefaultCurrency();
+                $currency = $this->attributeCurrencyMap[$attributeName] ?? $this->getDefaultCurrency();
                 return Currency::formatAsCurrency($amount, $currency);
             }
         }
