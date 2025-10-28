@@ -1,0 +1,44 @@
+{% extends '_layouts/basecp.twig' %}
+{% set title = "Email Sent"|t('app') %}
+{% set bodyClass = 'login' %}
+
+{% set hasLogo = CraftEdition >= CraftPro and craft.rebrand.isLogoUploaded %}
+
+{% if hasLogo %}
+    {% set logo = craft.rebrand.logo %}
+{% endif %}
+
+{% block body %}
+    <main>
+        {% if hasLogo %}
+        <h1>
+            {{ tag('img', {
+                id: 'login-logo',
+                src: logo.url,
+                alt: systemName,
+                width: logo.width,
+                height: logo.height,
+            }) }}
+        </h1>
+        {% endif %}
+
+        <div class="pane secondary">
+            <p>
+                {{ 'A download link has been sent to'|t('commerce') }}<br>
+                <strong>{{ email }}</strong>
+            </p>
+
+            <div>
+                {{ 'Please check your email inbox for the PDF download link.'|t('commerce') }}<br>
+                {{ 'The link will expire after one use for security purposes.'|t('commerce') }}<br><br>
+                {{ "If you don't receive the email within a few minutes, please check your spam folder."|t('commerce') }}
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% css %}
+html {
+    height: 100%;
+}
+{% endcss %}
