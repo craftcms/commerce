@@ -1,5 +1,18 @@
 # Release Notes for Craft Commerce
 
+## 4.9.4 - 2025-10-15
+
+- Fixed a SQL error that could occur when deleting a shipping method.
+
+## 4.9.3 - 2025-09-04
+
+- Fixed a bug where the `commerce/cart/update-cart` action could return unnecessary validation errors. ([3873](https://github.com/craftcms/commerce/issues/3873))
+- Added `craft\commerce\helpers\Order::normalizeLineItemPurchasableAvailability()`.
+
+## 4.9.2 - 2025-08-20
+
+- Fixed a PHP error that could occur when saving an order from an `EVENT_ORDER_STATUS_CHANGE` event handler. ([#4101](https://github.com/craftcms/commerce/issues/4101))
+
 ## 4.9.1 - 2025-07-23
 
 - Fixed a bug where outdated transaction data could be used when completing a payment. ([craftcms/commerce-stripe#353](https://github.com/craftcms/commerce-stripe/issues/353))
