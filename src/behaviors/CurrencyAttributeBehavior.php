@@ -64,11 +64,11 @@ class CurrencyAttributeBehavior extends Behavior
     public array $currencyAttributes;
 
     /**
-     * @var string|null default currency
+     * @var ?string default currency
      * @uses setDefaultCurrency()
      * @uses getDefaultCurrency()
      */
-    private string|null $_defaultCurrency = null;
+    private ?string $_defaultCurrency = null;
 
     /**
      * @var array mapping of attribute => currency if the default is not desired
@@ -194,11 +194,11 @@ class CurrencyAttributeBehavior extends Behavior
     }
 
     /**
-     * @param string|null $value
+     * @param ?string $value
      * @return void
      * @since 5.0.0
      */
-    public function setDefaultCurrency(string|null $value): void
+    public function setDefaultCurrency(?string $value): void
     {
         $this->_defaultCurrency = $value;
     }
