@@ -1,6 +1,6 @@
 {% extends '_layouts/basecp.twig' %}
 {% import '_includes/forms.twig' as forms %}
-{% set title = "Sign In"|t('app') %}
+{% set title = "Download PDF"|t('commerce') %}
 {% set bodyClass = 'login' %}
 
 {% set hasLogo = CraftEdition >= CraftPro and craft.rebrand.isLogoUploaded %}
@@ -11,6 +11,7 @@
 
 {% block body %}
     <main>
+        <div id="downloadpdf">
         {% if hasLogo %}
         <h1>
             {{ tag('img', {
@@ -68,12 +69,30 @@
             {% endtag %}
 
         </div>
-    </div>
+
+        </div>
     </main>
 {% endblock %}
 
 {% css %}
-html {
-    height: 100%;
+
+main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1rem;
+}
+
+#downloadpdf {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    #downloadpdf {
+        max-width: 100%;
+    }
 }
 {% endcss %}

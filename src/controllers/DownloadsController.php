@@ -8,13 +8,15 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\elements\Order;
 use craft\commerce\helpers\Locale;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
-use HttpInvalidParamException;
+use craft\web\View;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidCallException;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\RangeNotSatisfiableHttpException;
 use yii\web\Response;
@@ -27,6 +29,47 @@ use yii\web\Response;
  */
 class DownloadsController extends BaseFrontEndController
 {
+    /**
+     * Renders the email challenge template with the provided parameters.
+     *
+     * @param Order $order The order to display
+     * @param string $orderNumber The order number
+     * @param string|null $pdfHandle The PDF handle
+     * @param string $option The PDF option
+     * @param bool $inline Whether to display inline
+     * @param array $errors Optional errors to display
+     * @param string|null $email Optional email value to pre-fill
+     * @return Response
+     * @since 4.9.5
+     */
+    private function renderEmailChallenge(
+        Order $order,
+        string $orderNumber,
+        ?string $pdfHandle,
+        string $option,
+        bool $inline,
+        array $errors = [],
+        ?string $email = null,
+    ): Response {
+        $params = [
+            'order' => $order,
+            'orderNumber' => $orderNumber,
+            'pdfHandle' => $pdfHandle,
+            'option' => $option,
+            'inline' => $inline,
+        ];
+
+        if (!empty($errors)) {
+            $params['errors'] = $errors;
+        }
+
+        if ($email !== null) {
+            $params['email'] = $email;
+        }
+
+        return $this->renderTemplate('commerce/_downloads/email-challenge', $params, View::TEMPLATE_MODE_CP);
+    }
+
     /**
      * @throws HttpException
      * @throws Throwable
@@ -42,7 +85,7 @@ class DownloadsController extends BaseFrontEndController
         $token = $this->request->getQueryParam('token');
 
         if (!$number) {
-            throw new HttpInvalidParamException('Order number required');
+            throw new BadRequestHttpException('Order number required');
         }
 
         $order = Plugin::getInstance()->getOrders()->getOrderByNumber($number);
@@ -51,37 +94,68 @@ class DownloadsController extends BaseFrontEndController
             throw new HttpException(404, 'Order not found');
         }
 
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        // Don't allow PDF downloads for carts without an email
+        if (!$order->getEmail()) {
+            throw new HttpException(404, 'Order not found');
+        }
 
-        // Check if token is provided and valid
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $hasValidToken = false;
+
+        // Check if token is provided and valid (works for anyone, logged in or not)
         if ($token) {
             $tokenData = Craft::$app->getTokens()->getTokenRoute($token);
-            if (!$tokenData || (!isset($tokenData[1]['orderNumber']) || $tokenData[1]['orderNumber'] !== $number)) {
-                return $this->renderTemplate('commerce/_downloads/email-challenge', [
-                    'errors' => ['token' => [Craft::t('commerce', 'The download link is invalid or has expired. Please request a new one.')]],
-                    'order' => $order,
-                    'orderNumber' => $number,
+
+            // Validate token structure and order number
+            if (!$tokenData || !isset($tokenData[1]['orderNumber']) || $tokenData[1]['orderNumber'] !== $number) {
+                // Invalid token - redirect to challenge form with error
+                Craft::$app->getSession()->setError(Craft::t('commerce', 'The download link is invalid. Please request a new one.'));
+                return $this->redirect(UrlHelper::actionUrl('commerce/downloads/email-challenge', [
+                    'number' => $number,
                     'pdfHandle' => $pdfHandle,
                     'option' => $option,
                     'inline' => $inline,
-                ]);
+                ]));
             }
-        } else {
-            // No token provided, check user permissions
+
+            // Check if token has expired based on the timestamp in the token data
+            if (isset($tokenData[1]['expiresAt'])) {
+                $expiresAt = $tokenData[1]['expiresAt'];
+                $now = (new \DateTime())->getTimestamp();
+
+                if ($now > $expiresAt) {
+                    // Token expired - redirect to email challenge form
+                    return $this->redirect(UrlHelper::actionUrl('commerce/downloads/email-challenge', [
+                        'number' => $number,
+                        'pdfHandle' => $pdfHandle,
+                        'option' => $option,
+                        'inline' => $inline,
+                    ]));
+                }
+            }
+
+            // Token is valid
+            $hasValidToken = true;
+        }
+
+        // Check user permissions if no valid token
+        if (!$hasValidToken) {
             if ($currentUser) {
-                // Check if user is admin or can view the order
-                if (!$currentUser->admin && !$order->canView($currentUser)) {
-                    throw new HttpException(403,'You do not have permission to view this order');
+                // Check if user is the order customer, admin, or has permission to manage orders
+                $isOrderCustomer = $order->getCustomer() && $order->getCustomer()->id === $currentUser->id;
+                $hasPermission = $currentUser->admin || $order->canView($currentUser);
+
+                if (!($isOrderCustomer || $hasPermission)) {
+                    throw new HttpException(403, 'You do not have permission to view this order');
                 }
             } else {
-                // Anonymous user without token - show email challenge form
-                return $this->renderTemplate('commerce/_downloads/email-challenge', [
-                    'order' => $order,
-                    'orderNumber' => $number,
+                // Anonymous user without valid token - redirect to email challenge form
+                return $this->redirect(UrlHelper::actionUrl('commerce/downloads/email-challenge', [
+                    'number' => $number,
                     'pdfHandle' => $pdfHandle,
                     'option' => $option,
                     'inline' => $inline,
-                ]);
+                ]));
             }
         }
 
@@ -122,7 +196,38 @@ class DownloadsController extends BaseFrontEndController
     }
 
     /**
-     * Handles the email challenge for anonymous users trying to download an order PDF
+     * Displays the email challenge form for anonymous users trying to download an order PDF
+     *
+     * @return Response
+     * @throws HttpException
+     */
+    public function actionEmailChallenge(): Response
+    {
+        $number = $this->request->getQueryParam('number');
+        $pdfHandle = $this->request->getQueryParam('pdfHandle');
+        $option = $this->request->getQueryParam('option', '');
+        $inline = (bool) $this->request->getQueryParam('inline', false);
+
+        if (!$number) {
+            throw new BadRequestHttpException('Order number required');
+        }
+
+        $order = Plugin::getInstance()->getOrders()->getOrderByNumber($number);
+
+        if (!$order) {
+            throw new HttpException(404, 'Order not found');
+        }
+
+        // Don't allow PDF downloads for carts without an email
+        if (!$order->getEmail()) {
+            throw new HttpException(404, 'Order not found');
+        }
+
+        return $this->renderEmailChallenge($order, $number, $pdfHandle, $option, $inline);
+    }
+
+    /**
+     * Handles the email challenge form submission for anonymous users trying to download an order PDF
      *
      * @throws HttpException
      * @throws Exception
@@ -138,7 +243,7 @@ class DownloadsController extends BaseFrontEndController
         $inline = (bool) $this->request->getBodyParam('inline', false);
 
         if (!$orderNumber || !$email) {
-            throw new HttpInvalidParamException('Order number and email are required');
+            throw new BadRequestHttpException('Order number and email are required');
         }
 
         $order = Plugin::getInstance()->getOrders()->getOrderByNumber($orderNumber);
@@ -149,31 +254,19 @@ class DownloadsController extends BaseFrontEndController
 
         // Check if the provided email matches the order's email
         if (strcasecmp($order->email, $email) !== 0) {
-            return $this->renderTemplate('commerce/_downloads/email-challenge', [
-                'errors' => ['email' => [Craft::t('commerce', 'The provided email does not match our records for this order.')]],
-                'order' => $order,
-                'orderNumber' => $orderNumber,
-                'pdfHandle' => $pdfHandle,
-                'option' => $option,
-                'inline' => $inline,
-                'email' => $email,
-            ]);
+            return $this->renderEmailChallenge(
+                $order,
+                $orderNumber,
+                $pdfHandle,
+                $option,
+                $inline,
+                ['email' => [Craft::t('commerce', 'The provided email does not match our records for this order.')]],
+                $email
+            );
         }
 
-        // Create a one-time token for PDF download
-        $token = Craft::$app->getTokens()->createToken([
-            'commerce/downloads/pdf',
-            ['orderNumber' => $orderNumber],
-        ]);
-
-        // Build the download URL with the token
-        $downloadUrl = UrlHelper::siteUrl('actions/commerce/downloads/pdf', [
-            'number' => $orderNumber,
-            'token' => $token,
-            'pdfHandle' => $pdfHandle,
-            'option' => $option,
-            'inline' => $inline,
-        ]);
+        // Build the download URL with the token using the Pdfs service
+        $downloadUrl = Plugin::getInstance()->getPdfs()->getPdfUrl($order, $option, $pdfHandle, $inline);
 
         // Send email using system message
         $systemMessage = Craft::$app->getSystemMessages()->getMessage('commerce_pdf_download', $order->siteId);
@@ -182,21 +275,41 @@ class DownloadsController extends BaseFrontEndController
             'link' => $downloadUrl,
         ])->setTo($order->email)->send()) {
             Craft::$app->getSession()->setError(Craft::t('commerce', 'Failed to send email. Please try again.'));
-            return $this->renderTemplate('commerce/_downloads/email-challenge', [
-                'order' => $order,
-                'orderNumber' => $orderNumber,
-                'pdfHandle' => $pdfHandle,
-                'option' => $option,
-                'inline' => $inline,
-                'email' => $email,
-            ]);
+            return $this->renderEmailChallenge($order, $orderNumber, $pdfHandle, $option, $inline, [], $email);
         }
 
         Craft::$app->getSession()->setNotice(Craft::t('commerce', 'A download link has been sent to {email}', ['email' => $email]));
 
-        // Render a success page
+        // Hash the email to obscure it in the URL
+        $emailHash = Craft::$app->getSecurity()->hashData($email);
+
+        // Redirect to success page to prevent duplicate submissions on refresh
+        return $this->redirect(UrlHelper::actionUrl('commerce/downloads/pdf-sent', ['hash' => $emailHash]));
+    }
+
+    /**
+     * Displays the success page after email challenge is completed
+     *
+     * @return Response
+     * @throws HttpException
+     */
+    public function actionPdfSent(): Response
+    {
+        $emailHash = $this->request->getQueryParam('hash');
+
+        if (!$emailHash) {
+            throw new BadRequestHttpException('Hash parameter required');
+        }
+
+        // Validate and extract the email from the hash
+        $email = Craft::$app->getSecurity()->validateData($emailHash);
+
+        if ($email === false) {
+            throw new HttpException(400, 'Invalid hash parameter');
+        }
+
         return $this->renderTemplate('commerce/_downloads/email-sent', [
             'email' => $email,
-        ]);
+        ], View::TEMPLATE_MODE_CP);
     }
 }

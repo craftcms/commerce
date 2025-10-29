@@ -10,35 +10,48 @@
 
 {% block body %}
     <main>
-        {% if hasLogo %}
-        <h1>
-            {{ tag('img', {
-                id: 'login-logo',
-                src: logo.url,
-                alt: systemName,
-                width: logo.width,
-                height: logo.height,
-            }) }}
-        </h1>
-        {% endif %}
+        <div id="emailsent">
+            {% if hasLogo %}
+            <h1>
+                {{ tag('img', {
+                    id: 'login-logo',
+                    src: logo.url,
+                    alt: systemName,
+                    width: logo.width,
+                    height: logo.height,
+                }) }}
+            </h1>
+            {% endif %}
 
-        <div class="pane secondary">
-            <p>
-                {{ 'A download link has been sent to'|t('commerce') }}<br>
-                <strong>{{ email }}</strong>
-            </p>
-
-            <div>
-                {{ 'Please check your email inbox for the PDF download link.'|t('commerce') }}<br>
-                {{ 'The link will expire after one use for security purposes.'|t('commerce') }}<br><br>
-                {{ "If you don't receive the email within a few minutes, please check your spam folder."|t('commerce') }}
+            <div class="pane secondary">
+                <p>
+                    {{ 'A download link has been sent to'|t('commerce') }}<br>
+                    <strong>{{ email }}</strong>
+                </p>
             </div>
         </div>
     </main>
 {% endblock %}
 
 {% css %}
-html {
-    height: 100%;
+
+main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1rem;
+}
+
+#emailsent {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    #emailsent {
+        max-width: 100%;
+    }
 }
 {% endcss %}

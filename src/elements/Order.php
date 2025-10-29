@@ -2239,27 +2239,16 @@ class Order extends Element
     }
 
     /**
-     * Returns the URL to the order’s PDF invoice.
+     * Returns the URL to the order's PDF invoice.
      *
-     * @param string|null $option The option that should be available to the PDF template (e.g. “receipt”)
+     * @param string|null $option The option that should be available to the PDF template (e.g. "receipt")
      * @param string|null $pdfHandle The handle of the PDF to use. If none is passed the default PDF is used.
-     * @return string|null The URL to the order’s PDF invoice, or null if the PDF template doesn’t exist
+     * @param bool $inline Whether the PDF should be displayed inline in the browser (default: false)
+     * @return string The URL to the order's PDF invoice with a secure token
      */
-    public function getPdfUrl(string $option = null, string $pdfHandle = null): ?string
+    public function getPdfUrl(string $option = null, string $pdfHandle = null, bool $inline = false): string
     {
-        $path = "commerce/downloads/pdf";
-        $params = [];
-        $params['number'] = $this->number;
-
-        if ($option) {
-            $params['option'] = $option;
-        }
-
-        if ($pdfHandle !== null) {
-            $params['pdfHandle'] = $pdfHandle;
-        }
-
-        return UrlHelper::actionUrl($path, $params);
+        return Plugin::getInstance()->getPdfs()->getPdfUrl($this, $option, $pdfHandle, $inline);
     }
 
     /**
@@ -2392,7 +2381,7 @@ class Order extends Element
      */
     public function getEmail(): ?string
     {
-        return $this->getCustomer()?->email ?? null;
+        return $this->getCustomer()?->email ?? $this->email ?? null;
     }
 
     /**
