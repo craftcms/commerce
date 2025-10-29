@@ -269,7 +269,7 @@ class DownloadsController extends BaseFrontEndController
         $downloadUrl = Plugin::getInstance()->getPdfs()->getPdfUrl($order, $option, $pdfHandle, $inline);
 
         // Send email using system message
-        $systemMessage = Craft::$app->getSystemMessages()->getMessage('commerce_pdf_download', $order->siteId);
+        $systemMessage = Craft::$app->getSystemMessages()->getMessage('commerce_pdf_download', $order->getOrderSite()->language);
 
         if (!Craft::$app->getMailer()->composeFromKey('commerce_pdf_download', [
             'link' => $downloadUrl,
