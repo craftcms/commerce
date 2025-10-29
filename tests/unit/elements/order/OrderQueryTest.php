@@ -7,13 +7,21 @@
 
 namespace craftcommercetests\unit\elements\order;
 
+use Codeception\Exception\ModuleException;
 use Codeception\Test\Unit;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\CurrencyException;
+use craft\commerce\errors\OrderStatusException;
+use craft\commerce\errors\TransactionException;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
+use craft\errors\ElementNotFoundException;
 use craft\helpers\DateTimeHelper;
 use craftcommercetests\fixtures\OrdersFixture;
 use UnitTester;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 
 /**
  * OrderQueryTest
@@ -67,9 +75,10 @@ class OrderQueryTest extends Unit
     }
 
     /**
-     * @param string $couponCode
+     * @param string|null $couponCode
      * @param int $count
      * @return void
+     * @throws ModuleException
      * @dataProvider couponCodeDataProvider
      */
     public function testCouponCode(?string $couponCode, int $count): void
@@ -132,9 +141,16 @@ class OrderQueryTest extends Unit
 
     /**
      * @param string $property
-     * @param mixed $value
-     * @param mixed $expected
+     * @param int $expected
      * @return void
+     * @throws \Throwable
+     * @throws CurrencyException
+     * @throws OrderStatusException
+     * @throws TransactionException
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws StaleObjectException
      * @since 5.5.0
      * @dataProvider paidDatesDataProvider
      */
