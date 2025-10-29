@@ -64,11 +64,11 @@ class CurrencyAttributeBehavior extends Behavior
     public array $currencyAttributes;
 
     /**
-     * @var string|\Closure|null default currency - can be a string or a Closure that returns a string
+     * @var string|null default currency
      * @uses setDefaultCurrency()
      * @uses getDefaultCurrency()
      */
-    private string|\Closure|null $_defaultCurrency = null;
+    private string|null $_defaultCurrency = null;
 
     /**
      * @var array mapping of attribute => currency if the default is not desired
@@ -194,11 +194,11 @@ class CurrencyAttributeBehavior extends Behavior
     }
 
     /**
-     * @param string|\Closure|null $value - can be a string, a Closure that returns a string, or null
+     * @param string|null $value
      * @return void
      * @since 5.0.0
      */
-    public function setDefaultCurrency(string|\Closure|null $value): void
+    public function setDefaultCurrency(string|null $value): void
     {
         $this->_defaultCurrency = $value;
     }
@@ -209,26 +209,17 @@ class CurrencyAttributeBehavior extends Behavior
      */
     public function getDefaultCurrency(): string
     {
-        // If a Closure was provided, resolve it first
-        if ($this->_defaultCurrency instanceof \Closure) {
-            $result = ($this->_defaultCurrency)();
-            if (is_string($result)) {
-                return $result;
-            }
-        }
-
-        // If already set as a string, return it
-        if (is_string($this->_defaultCurrency)) {
-            return $this->_defaultCurrency;
-        }
-
         // Should always be the owners currency
         if ($this->owner instanceof HasStoreInterface) {
-            return $this->owner->getStore()->getCurrency()->getCode();
+            $this->_defaultCurrency = $this->owner->getStore()->getCurrency();
         }
 
         // Let's default to the current store primary currency
-        return Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        if (!isset($this->_defaultCurrency)) {
+            $this->_defaultCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        }
+
+        return $this->_defaultCurrency;
     }
 
     /**

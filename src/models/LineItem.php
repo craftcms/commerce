@@ -9,6 +9,7 @@ namespace craft\commerce\models;
 
 use Closure;
 use Craft;
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
@@ -74,7 +75,7 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class LineItem extends Model
+class LineItem extends Model implements HasStoreInterface
 {
     /**
      * @var int|null ID
@@ -267,14 +268,28 @@ class LineItem extends Model
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
-            // Use a callable to lazily evaluate the currency at runtime when the order is loaded.
-            // This avoids additional order queries during behavior attachment when the order
-            // is not yet set on the line item.
-            'defaultCurrency' => fn() => $this->getOrder()?->getStore()->getCurrency()->getCode(),
+            // We don’t want to get the currency from the order now, as this will cause additional order queries
+            // as the order is not set on the line item at the time of bahaviors attaching.
+            // Let’s let \craft\commerce\behaviors\CurrencyAttributeBehavior::getDefaultCurrency look it up at
+            // runtime when the order is likely already eager loaded.
+            'defaultCurrency' => null,
             'currencyAttributes' => $this->currencyAttributes(),
         ];
 
         return $behaviors;
+    }
+
+    /**
+     * @inheritdoc
+     * @throws StoreNotFoundException
+     */
+    public function getStore(): Store
+    {
+        if(!$this->getOrder()) {
+            throw new StoreNotFoundException('Cannot determine line item store without an order assigned to the line item.');
+        }
+
+        return $this->getOrder()->getStore();
     }
 
     /**
