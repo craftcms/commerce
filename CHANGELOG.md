@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a bug where line items could display values in the wrong currency on Edit Order pages. ([#4147](https://github.com/craftcms/commerce/issues/4147))
 - Fixed a PHP error that could occur when saving a discount. ([#4146](https://github.com/craftcms/commerce/issues/4146), [#4059](https://github.com/craftcms/commerce/issues/4059))
 - Fixed a PHP error that occurred when applying project config changes after adding a new site. 
 
