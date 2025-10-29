@@ -36,7 +36,8 @@
                 method: 'post',
                 'accept-charset': 'UTF-8',
             } %}
-            <p>{{ 'Please confirm the email associated with this order.'|t('commerce') }}</p>
+                <h1>Expired Link </h1>
+                <p class="confirmInfo">{{ 'Please confirm the email associated with this order: {reference}'|t('commerce', {'reference': order.reference }) }}</p>
 
             {{ csrfInput() }}
             {{ actionInput('commerce/downloads/pdf-challenge') }}
@@ -86,7 +87,7 @@ main {
 
 #downloadpdf {
     width: 100%;
-    max-width: 600px;
+    max-width: 400px;
     margin: 0 auto;
 }
 
@@ -94,5 +95,9 @@ main {
     #downloadpdf {
         max-width: 100%;
     }
+}
+
+.confirmInfo{
+    text-wrap: balance;
 }
 {% endcss %}

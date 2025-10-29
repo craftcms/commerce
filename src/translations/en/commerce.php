@@ -757,7 +757,7 @@ return [
     'Plan' => 'Plan',
     'Plans reordered.' => 'Plans reordered.',
     'Plans' => 'Plans',
-    'Please confirm the email associated with this order.' => 'Please confirm the email associated with this order.',
+    'Please confirm the email associated with this order: {reference}.' => 'Please confirm the email associated with this order: {reference}.',
     'Please ensure the <a href="{url}">upgrade command</a> has finished running.' => 'Please ensure the <a href="{url}">upgrade command</a> has finished running.',
     'Post Date' => 'Post Date',
     'Postal Code Formula' => 'Postal Code Formula',
