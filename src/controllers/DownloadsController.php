@@ -273,6 +273,7 @@ class DownloadsController extends BaseFrontEndController
 
         if (!Craft::$app->getMailer()->composeFromKey('commerce_pdf_download', [
             'link' => $downloadUrl,
+            'order' => $order,
         ])->setTo($order->email)->send()) {
             Craft::$app->getSession()->setError(Craft::t('commerce', 'Failed to send email. Please try again.'));
             return $this->renderEmailChallenge($order, $orderNumber, $pdfHandle, $option, $inline, [], $email);
