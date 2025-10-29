@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.4.9 - 2025-10-29
 
 - Fixed a bug where line items could display values in the wrong currency on Edit Order pages. ([#4147](https://github.com/craftcms/commerce/issues/4147))
 - Fixed a PHP error that could occur when saving a discount. ([#4146](https://github.com/craftcms/commerce/issues/4146), [#4059](https://github.com/craftcms/commerce/issues/4059))
