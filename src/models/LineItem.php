@@ -285,7 +285,7 @@ class LineItem extends Model implements HasStoreInterface
      */
     public function getStore(): Store
     {
-        if(!$this->getOrder()) {
+        if (!$this->getOrder()) {
             throw new StoreNotFoundException('Cannot determine line item store without an order assigned to the line item.');
         }
 
