@@ -42,5 +42,4 @@ class Gql extends GqlHelper
             fn(ProductType $productType) => static::isSchemaAwareOf("productTypes.$productType->uid", $schema),
         );
     }
-
 }
