@@ -14,6 +14,7 @@ use craft\commerce\base\StoreTrait;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
+use craft\errors\SiteNotFoundException;
 use craft\helpers\App;
 use craft\helpers\UrlHelper;
 use craft\models\Site;
@@ -92,7 +93,7 @@ class Email extends Model implements HasStoreInterface
      * The site the email should be rendered in. Set to `null` to use the site the order was placed in.
      *
      * @var int|null
-     * @since 5.4.0
+     * @since 5.5.0
      */
     public ?int $renderSiteId = null;
 
@@ -178,7 +179,8 @@ class Email extends Model implements HasStoreInterface
      *
      * @param Order|null $order
      * @return Site
-     * @since 5.4.0
+     * @throws SiteNotFoundException
+     * @since 5.5.0
      */
     public function getRenderSite(Order $order = null): Site
     {
