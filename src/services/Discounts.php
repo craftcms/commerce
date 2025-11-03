@@ -855,6 +855,8 @@ class Discounts extends Component
             DiscountPurchasableRecord::deleteAll(['discountId' => $model->id]);
             DiscountCategoryRecord::deleteAll(['discountId' => $model->id]);
 
+            $siteIds = $model->getStore()->getSites()->pluck('id')->all();
+
             foreach ($model->getCategoryIds() as $categoryId) {
                 $relation = new DiscountCategoryRecord();
                 $relation->categoryId = $categoryId;
@@ -864,7 +866,7 @@ class Discounts extends Component
 
             foreach ($model->getPurchasableIds() as $purchasableId) {
                 $relation = new DiscountPurchasableRecord();
-                $element = Craft::$app->getElements()->getElementById($purchasableId);
+                $element = Craft::$app->getElements()->getElementById($purchasableId, siteId: $siteIds);
                 $relation->purchasableType = $element::class;
                 $relation->purchasableId = $purchasableId;
                 $relation->discountId = $model->id;

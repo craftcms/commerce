@@ -137,6 +137,9 @@ class ProductTypesController extends BaseAdminController
         $productType->productTitleFormat = $this->request->getBodyParam('productTitleFormat');
         $productType->productTitleTranslationMethod = $this->request->getBodyParam('productTitleTranslationMethod', $productType->productTitleTranslationMethod);
         $productType->productTitleTranslationKeyFormat = $this->request->getBodyParam('productTitleTranslationKeyFormat', $productType->productTitleTranslationKeyFormat);
+        $productType->showSlugField = (bool)$this->request->getBodyParam('showSlugField', $productType->showSlugField);
+        $productType->slugTranslationMethod = $this->request->getBodyParam('slugTranslationMethod', $productType->slugTranslationMethod);
+        $productType->slugTranslationKeyFormat = $this->request->getBodyParam('slugTranslationKeyFormat', $productType->slugTranslationKeyFormat);
         $productType->maxVariants = $this->request->getBodyParam('maxVariants') ?: null;
         $productType->hasVariantTitleField = $this->request->getBodyParam('hasVariantTitleField', false);
         $productType->variantTitleFormat = $this->request->getBodyParam('variantTitleFormat');

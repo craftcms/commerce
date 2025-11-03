@@ -50,9 +50,9 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\ElementHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
+use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
-use craft\models\Section;
 use craft\models\Site;
 use craft\services\Structures;
 use craft\validators\DateTimeValidator;
@@ -865,6 +865,31 @@ class Product extends Element implements HasStoreInterface
     /**
      * @inheritdoc
      */
+    public function getIsSlugTranslatable(): bool
+    {
+        return ($this->getType()->slugTranslationMethod !== Field::TRANSLATION_METHOD_NONE);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSlugTranslationDescription(): ?string
+    {
+        return ElementHelper::translationDescription($this->getType()->slugTranslationMethod);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSlugTranslationKey(): string
+    {
+        $type = $this->getType();
+        return ElementHelper::translationKey($this, $type->slugTranslationMethod, $type->slugTranslationKeyFormat);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function __toString(): string
     {
         return (string)$this->title;
@@ -1102,12 +1127,27 @@ class Product extends Element implements HasStoreInterface
      */
     public function getVariants(bool $includeDisabled = false): VariantCollection
     {
-        if (!isset($this->_variants)) {
+        if ($this->_variants === null) {
             if (!$this->id) {
                 return VariantCollection::make();
             }
 
-            $this->_variants = self::createVariantQuery($this)->status(null)->collect();
+            /** @var self|null $duplicatingProduct */
+            $duplicatingProduct = $this->duplicateOf;
+            if ($duplicatingProduct) {
+                $query = self::createVariantQuery($duplicatingProduct)->status(null);
+            } else {
+                $query = self::createVariantQuery($this)->status(null);
+            }
+
+            $variants = $query->collect();
+
+            // Don't memoize empty collections in favour of a new query next time
+            if ($variants->isEmpty()) {
+                return $variants;
+            }
+
+            $this->_variants = $variants;
             $this->_variants->map(function(Variant $v) {
                 if (!$this->id) {
                     return $v;
@@ -1373,7 +1413,9 @@ class Product extends Element implements HasStoreInterface
         $view = Craft::$app->getView();
         $productType = $this->getType();
         // Slug
-        $fields[] = $this->slugFieldHtml($static);
+        if ($productType->showSlugField) {
+            $fields[] = $this->slugFieldHtml($static);
+        }
 
         if ($productType->isStructure && $productType->maxLevels !== 1) {
             $fields[] = (function() use ($static, $productType) {
@@ -1791,6 +1833,13 @@ class Product extends Element implements HasStoreInterface
     public function beforeSave(bool $isNew): bool
     {
         $productType = $this->getType();
+
+        if (!$productType->hasVariantTitleField &&
+            $productType->variantTitleFormat &&
+            StringHelper::containsAny($productType->variantTitleFormat, ['product.', 'owner.', 'primaryOwner.'])
+        ) {
+            $this->setDirtyAttributes(['allVariants'], true);
+        }
 
         // Make sure the entry has at least one revision if the section has versioning enabled
         if ($this->_shouldSaveRevision()) {

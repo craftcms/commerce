@@ -37,6 +37,9 @@ use yii\db\ActiveQueryInterface;
  * @property string $productTitleFormat
  * @property string $productTitleTranslationMethod
  * @property string $productTitleTranslationKeyFormat
+ * @property bool $showSlugField
+ * @property string $slugTranslationMethod
+ * @property string $slugTranslationKeyFormat
  * @property string $propagationMethod
  * @property ActiveQueryInterface $variantFieldLayout
  * @property int|null $variantFieldLayoutId

@@ -132,6 +132,25 @@ class ProductType extends Model implements FieldLayoutProviderInterface
     public ?string $productTitleTranslationKeyFormat = null;
 
     /**
+     * @var bool Whether to show the Slug field
+     * @since 5.5.0
+     */
+    public bool $showSlugField = true;
+
+    /**
+     * @var string Slug translation method
+     * @phpstan-var Field::TRANSLATION_METHOD_NONE|Field::TRANSLATION_METHOD_SITE|Field::TRANSLATION_METHOD_SITE_GROUP|Field::TRANSLATION_METHOD_LANGUAGE|Field::TRANSLATION_METHOD_CUSTOM
+     * @since 5.5.0
+     */
+    public string $slugTranslationMethod = Field::TRANSLATION_METHOD_SITE;
+
+    /**
+     * @var string|null Slug translation key format
+     * @since 5.5.0
+     */
+    public ?string $slugTranslationKeyFormat = null;
+
+    /**
      * @var string|null SKU format
      */
     public ?string $skuFormat = null;
@@ -215,6 +234,26 @@ class ProductType extends Model implements FieldLayoutProviderInterface
      * @since 5.1.0
      */
     public PropagationMethod $propagationMethod = PropagationMethod::All;
+
+    /**
+     * @inheritdoc
+     */
+    public function init(): void
+    {
+        parent::init();
+
+        if ($this->productTitleTranslationKeyFormat === '') {
+            $this->productTitleTranslationKeyFormat = null;
+        }
+
+        if ($this->variantTitleTranslationKeyFormat === '') {
+            $this->variantTitleTranslationKeyFormat = null;
+        }
+
+        if ($this->slugTranslationKeyFormat === '') {
+            $this->slugTranslationKeyFormat = null;
+        }
+    }
 
     /**
      * @return null|string
@@ -588,6 +627,11 @@ class ProductType extends Model implements FieldLayoutProviderInterface
                 'productTitleFormat' => $this->productTitleFormat,
                 'productTitleTranslationMethod' => $this->productTitleTranslationMethod,
                 'productTitleTranslationKeyFormat' => $this->productTitleTranslationKeyFormat,
+
+                // Slug field
+                'showSlugField' => $this->showSlugField,
+                'slugTranslationMethod' => $this->slugTranslationMethod,
+                'slugTranslationKeyFormat' => $this->slugTranslationKeyFormat,
 
                 'propagationMethod' => $this->propagationMethod->value,
 

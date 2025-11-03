@@ -1,4 +1,18 @@
-# Release Notes for Craft Commerce 5.5 (WIP)
+# WIP Release Notes for Craft Commerce
+
+### Store Management
+
+### Administration
+
+- Added slug translation options to product types. ([#4088](https://github.com/craftcms/commerce/pull/4088))
+- Gateway condition rules now allow multiple gateways to be selected. ([#4112](https://github.com/craftcms/commerce/issues/4112))
+
+### Development
+
+- Added the `--force` option to the `commerce/reset-data` command. ([#4115](https://github.com/craftcms/commerce/discussions/4115))
 
 ### Extensibility
-- Added `\craft\commerce\services\Discounts::appendCouponCode()`.
+
+- Added `\craft\commerce\services\Discounts::appendCouponCode()`. ([#4084](https://github.com/craftcms/commerce/pull/4084))
+
+### System
