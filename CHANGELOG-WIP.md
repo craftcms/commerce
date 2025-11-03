@@ -13,4 +13,6 @@
 
 ### Extensibility
 
+- Added `\craft\commerce\services\Discounts::appendCouponCode()`. ([#4084](https://github.com/craftcms/commerce/pull/4084))
+
 ### System
