@@ -271,6 +271,7 @@ class Install extends Migration
             'plainTextTemplatePath' => $this->string(),
             'pdfId' => $this->integer(),
             'language' => $this->string(),
+            'renderSiteId' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -306,6 +307,8 @@ class Install extends Migration
             'paymentType' => $this->enum('paymentType', ['authorize', 'purchase'])->notNull()->defaultValue('purchase'),
             'isFrontendEnabled' => $this->string(500)->notNull()->defaultValue('1'),
             'orderCondition' => $this->text(),
+            'shippingAddressCondition' => $this->text(),
+            'billingAddressCondition' => $this->text(),
             'isArchived' => $this->boolean()->notNull()->defaultValue(false),
             'dateArchived' => $this->dateTime(),
             'sortOrder' => $this->integer(),
@@ -504,6 +507,7 @@ class Install extends Migration
             'isCompleted' => $this->boolean()->notNull()->defaultValue(false),
             'dateOrdered' => $this->dateTime(),
             'datePaid' => $this->dateTime(),
+            'dateFirstPaid' => $this->dateTime(),
             'dateAuthorized' => $this->dateTime(),
             'currency' => $this->string(),
             'paymentCurrency' => $this->string(),
@@ -643,7 +647,13 @@ class Install extends Migration
             'productTitleTranslationMethod' => $this->string()->defaultValue('site')->notNull(),
             'productTitleTranslationKeyFormat' => $this->string(),
 
+            // Slug stuff
+            'showSlugField' => $this->boolean()->notNull()->defaultValue(true),
+            'slugTranslationMethod' => $this->string()->notNull()->defaultValue('site'),
+            'slugTranslationKeyFormat' => $this->string(),
+
             'propagationMethod' => $this->string()->defaultValue(PropagationMethod::All->value)->notNull(),
+            'previewTargets' => $this->json(),
 
             'skuFormat' => $this->string(),
             'descriptionFormat' => $this->string(),
@@ -1213,6 +1223,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::DONATIONS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::EMAILS, ['pdfId'], Table::PDFS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::EMAILS, ['storeId'], Table::STORES, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::EMAILS, ['renderSiteId'], CraftTable::SITES, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::INVENTORYITEMS, 'purchasableId', Table::PURCHASABLES, 'id', 'CASCADE', null);
         $this->addForeignKey(null, Table::INVENTORYLOCATIONS, 'addressId', CraftTable::ELEMENTS, 'id', 'CASCADE', null);

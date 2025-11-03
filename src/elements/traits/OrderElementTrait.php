@@ -480,6 +480,7 @@ trait OrderElementTrait
             'totalIncludedTax' => ['label' => Craft::t('commerce', 'Total Included Tax')],
             'dateOrdered' => ['label' => Craft::t('commerce', 'Date Ordered')],
             'datePaid' => ['label' => Craft::t('commerce', 'Date Paid')],
+            'dateFirstPaid' => ['label' => Craft::t('commerce', 'Date First Paid')],
             'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],
             'dateUpdated' => ['label' => Craft::t('commerce', 'Date Updated')],
             'email' => ['label' => Craft::t('commerce', 'Email')],
@@ -520,6 +521,7 @@ trait OrderElementTrait
             $attributes[] = 'customer';
             $attributes[] = 'dateOrdered';
             $attributes[] = 'datePaid';
+            $attributes[] = 'dateFirstPaid';
             $attributes[] = 'totalPaid';
             $attributes[] = 'paidStatus';
             $attributes[] = 'totals';
@@ -614,6 +616,11 @@ trait OrderElementTrait
             [
                 'label' => Craft::t('commerce', 'Date Paid'),
                 'orderBy' => 'datePaid',
+                'defaultDir' => 'desc',
+            ],
+            [
+                'label' => Craft::t('commerce', 'Date First Paid'),
+                'orderBy' => 'dateFirstPaid',
                 'defaultDir' => 'desc',
             ],
             'couponCode' => Craft::t('commerce', 'Coupon Code'),
@@ -746,6 +753,10 @@ trait OrderElementTrait
             ],
             'datePaid' => [
                 'label' => Craft::t('commerce', 'Date Paid'),
+                'placeholder' => Craft::$app->getFormattingLocale()->getFormatter()->asDate(time(), 'short'),
+            ],
+            'dateFirstPaid' => [
+                'label' => Craft::t('commerce', 'Date First Paid'),
                 'placeholder' => Craft::$app->getFormattingLocale()->getFormatter()->asDate(time(), 'short'),
             ],
             'dateUpdated' => [
