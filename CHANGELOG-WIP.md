@@ -23,4 +23,4 @@
 
 ### System
 
-- Fixed a bug where purchasables could have a shipping category that was no longer available to their product type. ([#4099](https://github.com/craftcms/commerce/pull/4099))
+- Fixed a bug where purchasables could have a shipping category that was no longer available to their product type. ([#4018](https://github.com/craftcms/commerce/issues/4018))
