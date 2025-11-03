@@ -326,6 +326,7 @@ return [
     'Data shown might be outdated.' => 'Data shown might be outdated.',
     'Date Authorized' => 'Date Authorized',
     'Date Created' => 'Date Created',
+    'Date First Paid' => 'Date First Paid',
     'Date Ordered' => 'Date Ordered',
     'Date Paid' => 'Date Paid',
     'Date Updated' => 'Date Updated',
