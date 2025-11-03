@@ -21,6 +21,7 @@
 - Fixed a bug where variants weren’t getting duplicated correctly. ([#4125](https://github.com/craftcms/commerce/issues/4125))
 - Fixed a SQL error that could occur when deleting a shipping method.
 
+
 ## 5.4.6 - 2025-09-04
 
 - Fixed a bug where the `commerce/cart/update-cart` action could return unnecessary validation errors. ([3873](https://github.com/craftcms/commerce/issues/3873))

@@ -11,6 +11,8 @@
 
 ### Development
 - Orders now have a `dateFirstPaid` property that records the date and time when the order was first paid in full.
+- Improved product and variant query performance.
+- Improved the performance of retrieving a line item’s catalog pricing rule ID.
 - Added the `children`, `parent`, `ancestors` and `descendants` fields to products’ GraphQL data. ([#4122](https://github.com/craftcms/commerce/issues/4122))
 - Added the `--force` option to the `commerce/reset-data` command. ([#4115](https://github.com/craftcms/commerce/discussions/4115))
 
@@ -22,6 +24,7 @@
 - Added `craft\commerce\events\UpdateInventoryLevelEvent`. ([#4063](https://github.com/craftcms/commerce/pull/4063))
 - Added `craft\commerce\helpers\Gql::getSchemaContainedProductTypes()`.
 - Added `craft\commerce\records\Order::$dateFirstPaid`.
+- Added `craft\commerce\services\CatalogPricingRules::hasCatalogPricingRules()`.
 - Added `craft\commerce\services\Discounts::appendCouponCode()`. ([#4084](https://github.com/craftcms/commerce/pull/4084))
 - Added `craft\commerce\services\Inventory::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT`. ([#4063](https://github.com/craftcms/commerce/pull/4063))
 - Added `craft\commerce\services\Inventory::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL`. ([#4063](https://github.com/craftcms/commerce/pull/4063))
