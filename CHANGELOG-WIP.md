@@ -3,7 +3,6 @@
 ### Store Management
 
 ### Administration
-
 - Added billing and shipping address conditions to gateways. ([#4100](https://github.com/craftcms/commerce/pull/4100))
 - Added preview targets for products. ([#4128](https://github.com/craftcms/commerce/pull/4128))
 - Added slug translation options to product types. ([#4088](https://github.com/craftcms/commerce/pull/4088))
@@ -11,7 +10,6 @@
 
 ### Development
 - Orders now have a `dateFirstPaid` property that records the date and time when the order was first paid in full.
-
 - Added the `--force` option to the `commerce/reset-data` command. ([#4115](https://github.com/craftcms/commerce/discussions/4115))
 
 ### Extensibility
@@ -19,7 +17,6 @@
 - Added `craft\commerce\elements\db\OrderQuery::$dateFirstPaid`.
 - Added `craft\commerce\elements\db\OrderQuery::dateFirstPaid()`.
 - Added `craft\commerce\records\Order::$dateFirstPaid`.
-
 - Added `\craft\commerce\services\Discounts::appendCouponCode()`. ([#4084](https://github.com/craftcms/commerce/pull/4084))
 - Added `\craft\commerce\events\InventoryMovementEvent`. ([#4063](https://github.com/craftcms/commerce/pull/4063))
 - Added `\craft\commerce\events\UpdateInventoryLevelEvent`. ([#4063](https://github.com/craftcms/commerce/pull/4063))
@@ -27,5 +24,4 @@
 - Added `\craft\commerce\services\Inventory::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT`. ([#4063](https://github.com/craftcms/commerce/pull/4063))
 
 ### System
-
-- Fixed a bug where purchasables could have a shipping category that was no longer available to their product type. ([#4018](https://github.com/craftcms/commerce/issues/4018))
+- Fixed a bug where purchasables could have a shipping category that was no longer available to their product type. ([#4018](https://github.com/craftcms/commerce/issues/4018)) 
