@@ -257,7 +257,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.4.0.5';
+    public string $schemaVersion = '5.5.0';
 
     /**
      * @inheritdoc
@@ -759,6 +759,8 @@ class Plugin extends BasePlugin
         if (!Craft::$app->getRequest()->isConsoleRequest) {
             Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getCustomers(), 'loginHandler']);
             Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getCarts(), 'forgetCart']);
+
+            Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCarts(), 'afterSaveUserHandler']);
         }
 
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'afterSaveSiteHandler']);

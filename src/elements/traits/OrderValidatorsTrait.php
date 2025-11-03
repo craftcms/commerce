@@ -127,6 +127,7 @@ trait OrderValidatorsTrait
      */
     public function validateLineItems(): void
     {
+        OrderHelper::normalizeLineItemPurchasableAvailability($this);
         OrderHelper::mergeDuplicateLineItems($this);
 
         foreach ($this->getLineItems() as $key => $lineItem) {

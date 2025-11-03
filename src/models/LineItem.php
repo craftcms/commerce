@@ -9,6 +9,7 @@ namespace craft\commerce\models;
 
 use Closure;
 use Craft;
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
@@ -74,7 +75,7 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class LineItem extends Model
+class LineItem extends Model implements HasStoreInterface
 {
     /**
      * @var int|null ID
@@ -276,6 +277,19 @@ class LineItem extends Model
         ];
 
         return $behaviors;
+    }
+
+    /**
+     * @inheritdoc
+     * @throws StoreNotFoundException
+     */
+    public function getStore(): Store
+    {
+        if (!$this->getOrder()) {
+            throw new StoreNotFoundException('Cannot determine line item store without an order assigned to the line item.');
+        }
+
+        return $this->getOrder()->getStore();
     }
 
     /**

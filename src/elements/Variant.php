@@ -745,7 +745,7 @@ class Variant extends Purchasable implements NestedElementInterface
         if ($url = parent::getUrl()) {
             return $url;
         }
-        
+
         // Default URL is the product's URL with the variant ID as a query parameter
         $productUrl = $this->getOwner()?->getUrl();
         return $productUrl ? UrlHelper::urlWithParams($productUrl, ['variant' => $this->id]) : null;
@@ -881,30 +881,37 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
-        if (in_array($handle, ['product', 'owner', 'primaryOwner'])) {
-            // Get the source element IDs
-            $sourceElementIds = [];
+        switch ($handle) {
+            case 'product':
+                // Get the source element IDs
+                $sourceElementIds = [];
 
-            foreach ($sourceElements as $sourceElement) {
-                $sourceElementIds[] = $sourceElement->id;
-            }
+                foreach ($sourceElements as $sourceElement) {
+                    $sourceElementIds[] = $sourceElement->id;
+                }
 
-            $map = (new Query())
-                ->select('id as source, primaryOwnerId as target')
-                ->from(Table::VARIANTS)
-                ->where(['in', 'id', $sourceElementIds])
-                ->all();
+                $map = (new Query())
+                    ->select('id as source, primaryOwnerId as target')
+                    ->from(Table::VARIANTS)
+                    ->where(['in', 'id', $sourceElementIds])
+                    ->all();
 
-            return [
-                'elementType' => Product::class,
-                'map' => $map,
-                'criteria' => [
-                    'status' => null,
-                ],
-            ];
+                return [
+                    'elementType' => Product::class,
+                    'map' => $map,
+                    'criteria' => [
+                        'status' => null,
+                    ],
+                ];
+            case 'owner':
+            case 'primaryOwner':
+                return array_merge(
+                    self::traitEagerLoadingMap($sourceElements, $handle),
+                    ['elementType' => Product::class],
+                );
+            default:
+                return self::traitEagerLoadingMap($sourceElements, $handle);
         }
-
-        return self::traitEagerLoadingMap($sourceElements, $handle);
     }
 
     /**
@@ -1041,18 +1048,24 @@ class Variant extends Purchasable implements NestedElementInterface
                         ->max('[[eo.sortOrder]]');
                     $this->sortOrder = $max ? $max + 1 : 1;
                 }
-                if ($isNew) {
-                    Db::insert(CraftTable::ELEMENTS_OWNERS, [
+
+                $ownerIds = array_unique([
+                    $ownerId,
+                    $this->getPrimaryOwnerId(),
+                ]);
+
+                if (!$isNew) {
+                    Db::delete(CraftTAble::ELEMENTS_OWNERS, [
                         'elementId' => $this->id,
-                        'ownerId' => $ownerId,
-                        'sortOrder' => $this->sortOrder,
+                        'ownerId' => $ownerIds,
                     ]);
-                } else {
-                    Db::update(CraftTable::ELEMENTS_OWNERS, [
-                        'sortOrder' => $this->sortOrder,
-                    ], [
+                }
+
+                foreach ($ownerIds as $ownerId) {
+                    Db::insert(CraftTAble::ELEMENTS_OWNERS, [
                         'elementId' => $this->id,
                         'ownerId' => $ownerId,
+                        'sortOrder' => $this->sortOrder,
                     ]);
                 }
             }
