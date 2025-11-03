@@ -14,6 +14,8 @@ use craft\commerce\gql\types\generators\ProductType;
 use craft\commerce\helpers\Gql;
 use craft\gql\GqlEntityRegistry;
 use craft\gql\interfaces\Element;
+use craft\gql\interfaces\elements\Entry as EntryInterface;
+use craft\services\Gql as GqlService;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\Type;
 
@@ -67,6 +69,16 @@ class Product extends Element
      */
     public static function getFieldDefinitions(): array
     {
+        $productArguments = ProductArguments::getArguments();
+        $structureProductTypeFieldArguments = [...$productArguments];
+
+        foreach (Gql::getSchemaContainedProductTypes() as $productType) {
+            $productTypeArguments = Craft::$app->getGql()->getFieldLayoutArguments($productType->getProductFieldLayout());
+            if ($productType->isStructure) {
+                $structureProductTypeFieldArguments += $productTypeArguments;
+            }
+        }
+
         return Craft::$app->getGql()->prepareFieldDefinitions(array_merge(parent::getFieldDefinitions(), [
             'defaultSku' => [
                 'name' => 'defaultSku',
@@ -130,10 +142,38 @@ class Product extends Element
             ],
             'localized' => [
                 'name' => 'localized',
-                'args' => ProductArguments::getArguments(),
+                'args' => $productArguments,
                 'type' => Type::nonNull(Type::listOf(Type::nonNull(static::getType()))),
                 'description' => 'The same element in other locales.',
                 'complexity' => Gql::eagerLoadComplexity(),
+            ],
+            'children' => [
+                'name' => 'children',
+                'args' => $structureProductTypeFieldArguments,
+                'type' => Type::nonNull(Type::listOf(Type::nonNull(static::getType()))),
+                'description' => 'The products’s children, if the product type is a structure. Accepts the same arguments as the `products` query.',
+                'complexity' => Gql::relatedArgumentComplexity(GqlService::GRAPHQL_COMPLEXITY_EAGER_LOAD),
+            ],
+            'descendants' => [
+                'name' => 'descendants',
+                'args' => $structureProductTypeFieldArguments,
+                'type' => Type::nonNull(Type::listOf(Type::nonNull(static::getType()))),
+                'description' => 'The products’s descendants, if the product type is a structure. Accepts the same arguments as the `products` query.',
+                'complexity' => Gql::relatedArgumentComplexity(GqlService::GRAPHQL_COMPLEXITY_EAGER_LOAD),
+            ],
+            'parent' => [
+                'name' => 'parent',
+                'args' => $structureProductTypeFieldArguments,
+                'type' => EntryInterface::getType(),
+                'description' => 'The products’s parent, if the product type is a structure.',
+                'complexity' => Gql::relatedArgumentComplexity(GqlService::GRAPHQL_COMPLEXITY_EAGER_LOAD),
+            ],
+            'ancestors' => [
+                'name' => 'ancestors',
+                'args' => $structureProductTypeFieldArguments,
+                'type' => Type::nonNull(Type::listOf(Type::nonNull(static::getType()))),
+                'description' => 'The products’s ancestors, if the product type is a structure. Accepts the same arguments as the `products` query.',
+                'complexity' => Gql::relatedArgumentComplexity(GqlService::GRAPHQL_COMPLEXITY_EAGER_LOAD),
             ],
         ]), self::getName());
     }
