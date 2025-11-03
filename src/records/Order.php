@@ -25,6 +25,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $customerId
  * @property DateTime $dateOrdered
  * @property DateTime $datePaid
+ * @property DateTime $dateFirstPaid
  * @property DateTime $dateAuthorized
  * @property ActiveQueryInterface $discount
  * @property ActiveQueryInterface $element
