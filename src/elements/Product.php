@@ -1963,6 +1963,17 @@ class Product extends Element implements HasStoreInterface
     /**
      * @inheritdoc
      */
+    protected function previewTargets(): array
+    {
+        return array_map(function($previewTarget) {
+            $previewTarget['label'] = Craft::t('site', $previewTarget['label']);
+            return $previewTarget;
+        }, $this->getType()->previewTargets ?? []);
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected function attributeHtml(string $attribute): string
     {
         $productType = $this->getType();

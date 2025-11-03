@@ -23,6 +23,7 @@ use craft\enums\PropagationMethod;
 use craft\errors\DeprecationException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
+use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
@@ -206,6 +207,12 @@ class ProductType extends Model implements FieldLayoutProviderInterface
     public ?string $uid = null;
 
     /**
+     * @var array|null Preview targets
+     * @since 5.5.0
+     */
+    public ?array $previewTargets = null;
+
+    /**
      * @var TaxCategory[]|null
      */
     private ?array $_taxCategories = null;
@@ -241,6 +248,17 @@ class ProductType extends Model implements FieldLayoutProviderInterface
     public function init(): void
     {
         parent::init();
+
+        if (!isset($this->previewTargets)) {
+            $this->previewTargets = [
+                [
+                    'label' => Craft::t('commerce', 'Primary {type} page', [
+                        'type' => Product::lowerDisplayName(),
+                    ]),
+                    'urlFormat' => '{url}',
+                ],
+            ];
+        }
 
         if ($this->productTitleTranslationKeyFormat === '') {
             $this->productTitleTranslationKeyFormat = null;
@@ -301,6 +319,7 @@ class ProductType extends Model implements FieldLayoutProviderInterface
             ['variantFieldLayout', 'validateVariantFieldLayout'],
             ['siteSettings', 'required', 'message' => Craft::t('commerce','At least one site must be enabled for the product type.')],
             [['isStructure', 'defaultPlacement', 'maxLevels', 'structureId'], 'safe'],
+            [['previewTargets'], 'validatePreviewTargets'],
         ];
     }
 
@@ -527,6 +546,31 @@ class ProductType extends Model implements FieldLayoutProviderInterface
     }
 
     /**
+     * Validates the preview targets.
+     *
+     * @since 5.5.0
+     */
+    public function validatePreviewTargets(): void
+    {
+        $hasErrors = false;
+
+        foreach ($this->previewTargets as &$target) {
+            $target['label'] = trim($target['label']);
+            $target['urlFormat'] = trim($target['urlFormat']);
+
+            if ($target['label'] === '') {
+                $target['label'] = ['value' => $target['label'], 'hasErrors' => true];
+                $hasErrors = true;
+            }
+        }
+        unset($target);
+
+        if ($hasErrors) {
+            $this->addError('previewTargets', Craft::t('commerce', 'All targets must have a label.'));
+        }
+    }
+
+    /**
      * @throws InvalidConfigException
      */
     public function getVariantFieldLayout(): FieldLayout
@@ -643,6 +687,10 @@ class ProductType extends Model implements FieldLayoutProviderInterface
                 'maxLevels' => $this->maxLevels,
                 'defaultPlacement' => $this->defaultPlacement,
         ];
+
+        if (!empty($this->previewTargets)) {
+            $config['previewTargets'] = ProjectConfigHelper::packAssociativeArray(array_values($this->previewTargets));
+        }
 
         if ($this->isStructure) {
             $config['structure'] = [

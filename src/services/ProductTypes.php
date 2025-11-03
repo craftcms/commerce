@@ -447,6 +447,13 @@ class ProductTypes extends Component
                 $shouldResaveProducts = true;
             }
 
+            // Preview targets
+            if (!empty($data['previewTargets'])) {
+                $productTypeRecord->previewTargets = ProjectConfigHelper::unpackAssociativeArray($data['previewTargets']);
+            } else {
+                $productTypeRecord->previewTargets = null;
+            }
+
             if (!empty($data['productFieldLayouts']) && !empty($config = reset($data['productFieldLayouts']))) {
                 // Save the main field layout
                 $layout = FieldLayout::createFromConfig($config);
@@ -983,6 +990,11 @@ class ProductTypes extends Component
         /** @since 5.5 */
         if ($db->columnExists(Table::PRODUCTTYPES, 'slugTranslationKeyFormat')) {
             $query->addSelect('productTypes.slugTranslationKeyFormat');
+        }
+
+        /** @since 5.5 */
+        if ($db->columnExists(Table::PRODUCTTYPES, 'previewTargets')) {
+            $query->addSelect('productTypes.previewTargets');
         }
 
         return $query;
