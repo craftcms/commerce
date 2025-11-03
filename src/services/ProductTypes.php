@@ -992,6 +992,11 @@ class ProductTypes extends Component
             $query->addSelect('productTypes.slugTranslationKeyFormat');
         }
 
+        /** @since 5.5 */
+        if ($db->columnExists(Table::PRODUCTTYPES, 'previewTargets')) {
+            $query->addSelect('productTypes.previewTargets');
+        }
+
         return $query;
     }
 
