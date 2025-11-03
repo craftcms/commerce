@@ -647,7 +647,13 @@ class Install extends Migration
             'productTitleTranslationMethod' => $this->string()->defaultValue('site')->notNull(),
             'productTitleTranslationKeyFormat' => $this->string(),
 
+            // Slug stuff
+            'showSlugField' => $this->boolean()->notNull()->defaultValue(true),
+            'slugTranslationMethod' => $this->string()->notNull()->defaultValue('site'),
+            'slugTranslationKeyFormat' => $this->string(),
+
             'propagationMethod' => $this->string()->defaultValue(PropagationMethod::All->value)->notNull(),
+            'previewTargets' => $this->json(),
 
             'skuFormat' => $this->string(),
             'descriptionFormat' => $this->string(),
