@@ -63,6 +63,8 @@ use yii\validators\Validator;
  * @property-read string $gqlTypeName
  * @property-read string $skuAsText
  * @property string $salePriceAsCurrency
+ * @method getOwner() Product|null
+ * @method getPrimaryOwner() Product|null
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -73,6 +75,7 @@ class Variant extends Purchasable implements NestedElementInterface
         setPrimaryOwner as traitSetPrimaryOwner;
         setOwner as traitSetOwner;
         setEagerLoadedElements as traitSetEagerLoadedElements;
+        extraFields as traitExtraFields;
     }
 
     /**
@@ -242,6 +245,15 @@ class Variant extends Purchasable implements NestedElementInterface
         $attributes[] = 'productId';
 
         return $attributes;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function init(): void
+    {
+        parent::init();
+        $this->ownerType = Product::class;
     }
 
     /**
@@ -447,10 +459,11 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
-    public function attributes(): array
+    public function extraFields(): array
     {
-        $names = parent::attributes();
+        $names = $this->traitExtraFields();
         $names[] = 'product';
+
         return $names;
     }
 
@@ -557,59 +570,6 @@ class Variant extends Purchasable implements NestedElementInterface
         $this->fieldLayoutId = $owner->getType()->variantFieldLayoutId;
 
         $this->traitSetOwner($owner);
-    }
-
-    /**
-     * @inheritdoc
-     * @TODO remove implementation when `NestedElementTrait::getOwner()` is updated
-     */
-    public function getPrimaryOwner(): ?Product
-    {
-        if (!isset($this->_primaryOwner)) {
-            $primaryOwnerId = $this->getPrimaryOwnerId();
-            if (!$primaryOwnerId) {
-                return null;
-            }
-
-            $this->_primaryOwner = Craft::$app->getElements()->getElementById($primaryOwnerId, Product::class, $this->siteId, [
-                'trashed' => null,
-            ]) ?? false;
-            if (!$this->_primaryOwner) {
-                throw new InvalidConfigException("Invalid owner ID: $primaryOwnerId");
-            }
-        }
-
-        /** @phpstan-ignore-next-line */
-        return $this->_primaryOwner ?: null;
-    }
-
-    /**
-     * @inheritdoc
-     * @TODO remove implementation when `NestedElementTrait::getOwner()` is updated
-     */
-    public function getOwner(): ?Product
-    {
-        if (!isset($this->_owner)) {
-            $ownerId = $this->getOwnerId();
-            if (!$ownerId) {
-                return null;
-            }
-
-            // If ownerId and primaryOwnerId are the same, return the primary owner
-            if ($ownerId === $this->getPrimaryOwnerId()) {
-                return $this->getPrimaryOwner();
-            }
-
-            $this->_owner = Craft::$app->getElements()->getElementById($ownerId, Product::class, $this->siteId, [
-                'trashed' => null,
-            ]) ?? false;
-            if (!$this->_owner) {
-                throw new InvalidConfigException("Invalid owner ID: $ownerId");
-            }
-        }
-
-        /** @phpstan-ignore-next-line */
-        return $this->_owner ?: null;
     }
 
     /**
@@ -782,6 +742,11 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public function getUrl(): ?string
     {
+        if ($url = parent::getUrl()) {
+            return $url;
+        }
+
+        // Default URL is the product's URL with the variant ID as a query parameter
         $productUrl = $this->getOwner()?->getUrl();
         return $productUrl ? UrlHelper::urlWithParams($productUrl, ['variant' => $this->id]) : null;
     }
@@ -916,30 +881,37 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
-        if (in_array($handle, ['product', 'owner', 'primaryOwner'])) {
-            // Get the source element IDs
-            $sourceElementIds = [];
+        switch ($handle) {
+            case 'product':
+                // Get the source element IDs
+                $sourceElementIds = [];
 
-            foreach ($sourceElements as $sourceElement) {
-                $sourceElementIds[] = $sourceElement->id;
-            }
+                foreach ($sourceElements as $sourceElement) {
+                    $sourceElementIds[] = $sourceElement->id;
+                }
 
-            $map = (new Query())
-                ->select('id as source, primaryOwnerId as target')
-                ->from(Table::VARIANTS)
-                ->where(['in', 'id', $sourceElementIds])
-                ->all();
+                $map = (new Query())
+                    ->select('id as source, primaryOwnerId as target')
+                    ->from(Table::VARIANTS)
+                    ->where(['in', 'id', $sourceElementIds])
+                    ->all();
 
-            return [
-                'elementType' => Product::class,
-                'map' => $map,
-                'criteria' => [
-                    'status' => null,
-                ],
-            ];
+                return [
+                    'elementType' => Product::class,
+                    'map' => $map,
+                    'criteria' => [
+                        'status' => null,
+                    ],
+                ];
+            case 'owner':
+            case 'primaryOwner':
+                return array_merge(
+                    self::traitEagerLoadingMap($sourceElements, $handle),
+                    ['elementType' => Product::class],
+                );
+            default:
+                return self::traitEagerLoadingMap($sourceElements, $handle);
         }
-
-        return self::traitEagerLoadingMap($sourceElements, $handle);
     }
 
     /**
@@ -1076,18 +1048,24 @@ class Variant extends Purchasable implements NestedElementInterface
                         ->max('[[eo.sortOrder]]');
                     $this->sortOrder = $max ? $max + 1 : 1;
                 }
-                if ($isNew) {
-                    Db::insert(CraftTable::ELEMENTS_OWNERS, [
+
+                $ownerIds = array_unique([
+                    $ownerId,
+                    $this->getPrimaryOwnerId(),
+                ]);
+
+                if (!$isNew) {
+                    Db::delete(CraftTAble::ELEMENTS_OWNERS, [
                         'elementId' => $this->id,
-                        'ownerId' => $ownerId,
-                        'sortOrder' => $this->sortOrder,
+                        'ownerId' => $ownerIds,
                     ]);
-                } else {
-                    Db::update(CraftTable::ELEMENTS_OWNERS, [
-                        'sortOrder' => $this->sortOrder,
-                    ], [
+                }
+
+                foreach ($ownerIds as $ownerId) {
+                    Db::insert(CraftTAble::ELEMENTS_OWNERS, [
                         'elementId' => $this->id,
                         'ownerId' => $ownerId,
+                        'sortOrder' => $this->sortOrder,
                     ]);
                 }
             }

@@ -419,6 +419,11 @@ class ProductTypes extends Component
             $productTypeRecord->productTitleFormat = $productTitleFormat;
             $productTypeRecord->hasProductTitleField = $hasProductTitleField;
 
+            // Slug fields
+            $productTypeRecord->showSlugField = $data['showSlugField'] ?? true;
+            $productTypeRecord->slugTranslationMethod = $data['slugTranslationMethod'] ?? 'site';
+            $productTypeRecord->slugTranslationKeyFormat = $data['slugTranslationKeyFormat'] ?? null;
+
             if ($productTypeRecord->maxVariants != $data['maxVariants']) {
                 $shouldResaveProducts = true;
             }
@@ -440,6 +445,13 @@ class ProductTypes extends Component
             $productTypeRecord->defaultPlacement = $data['defaultPlacement'] ?? ProductType::DEFAULT_PLACEMENT_BEGINNING;
             if ($productTypeRecord->isStructure != $productTypeRecord->getOldAttribute('isStructure')) {
                 $shouldResaveProducts = true;
+            }
+
+            // Preview targets
+            if (!empty($data['previewTargets'])) {
+                $productTypeRecord->previewTargets = ProjectConfigHelper::unpackAssociativeArray($data['previewTargets']);
+            } else {
+                $productTypeRecord->previewTargets = null;
             }
 
             if (!empty($data['productFieldLayouts']) && !empty($config = reset($data['productFieldLayouts']))) {
@@ -875,7 +887,11 @@ class ProductTypes extends Component
 
             if (!$projectConfig->getIsApplyingExternalChanges() && is_array($existingProductTypeSettings)) {
                 foreach ($existingProductTypeSettings as $productTypeUid => $settings) {
-                    $primarySiteSettings = $settings['siteSettings'][$oldPrimarySiteUid];
+                    $primarySiteSettings = $settings['siteSettings'][$oldPrimarySiteUid] ?? null;
+                    if ($primarySiteSettings === null) {
+                        continue;
+                    }
+
                     $configPath = self::CONFIG_PRODUCTTYPES_KEY . '.' . $productTypeUid . '.siteSettings.' . $event->site->uid;
                     $projectConfig->set($configPath, $primarySiteSettings);
                 }
@@ -959,6 +975,26 @@ class ProductTypes extends Component
         /** @since 5.1 */
         if ($db->columnExists(Table::PRODUCTTYPES, 'propagationMethod')) {
             $query->addSelect('productTypes.propagationMethod');
+        }
+
+        /** @since 5.5 */
+        if ($db->columnExists(Table::PRODUCTTYPES, 'showSlugField')) {
+            $query->addSelect('productTypes.showSlugField');
+        }
+
+        /** @since 5.5 */
+        if ($db->columnExists(Table::PRODUCTTYPES, 'slugTranslationMethod')) {
+            $query->addSelect('productTypes.slugTranslationMethod');
+        }
+
+        /** @since 5.5 */
+        if ($db->columnExists(Table::PRODUCTTYPES, 'slugTranslationKeyFormat')) {
+            $query->addSelect('productTypes.slugTranslationKeyFormat');
+        }
+
+        /** @since 5.5 */
+        if ($db->columnExists(Table::PRODUCTTYPES, 'previewTargets')) {
+            $query->addSelect('productTypes.previewTargets');
         }
 
         return $query;

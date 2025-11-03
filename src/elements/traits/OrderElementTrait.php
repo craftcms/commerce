@@ -300,12 +300,13 @@ trait OrderElementTrait
         $site = $siteHandle ? Craft::$app->getSites()->getSiteByHandle($siteHandle) : Craft::$app->getSites()->getCurrentSite();
         /** @var StoreBehavior $site */
         $store = $site->getStore();
+        $orderCriteria = ['isCompleted' => true, 'storeId' => $store->id];
 
         $sources = [
             '*' => [
                 'key' => '*',
                 'label' => Craft::t('commerce', 'All Orders'),
-                'criteria' => ['isCompleted' => true, 'storeId' => $store->id],
+                'criteria' => $orderCriteria,
                 'defaultSort' => ['dateOrdered', 'desc'],
                 'data' => [
                     'date-attr' => 'dateOrdered',
@@ -325,16 +326,13 @@ trait OrderElementTrait
 
         foreach ($orderStatuses as $orderStatus) {
             $key = 'orderStatus:' . $orderStatus->handle;
-            $criteriaStatus = [
-                'storeId' => $store->id,
-                'orderStatusId' => $orderStatus->id,
-            ];
 
-            $sources['*']['nested'][] = [
+            $sources[$key] = [
                 'key' => $key,
                 'status' => $orderStatus->color,
                 'label' => Craft::t('site', $orderStatus->name),
-                'criteria' => $criteriaStatus,
+                'badgeCount' => 0,
+                'criteria' => ArrayHelper::merge($orderCriteria, ['orderStatusId' => $orderStatus->id]),
                 'defaultSort' => ['dateOrdered', 'desc'],
                 'data' => [
                     'handle' => $orderStatus->handle,
@@ -465,7 +463,7 @@ trait OrderElementTrait
      */
     protected static function defineTableAttributes(): array
     {
-        return [
+        return array_merge(parent::defineTableAttributes(), [
             'reference' => ['label' => Craft::t('commerce', 'Reference')],
             'shortNumber' => ['label' => Craft::t('commerce', 'Short Number')],
             'number' => ['label' => Craft::t('commerce', 'Number')],
@@ -501,7 +499,7 @@ trait OrderElementTrait
             'itemTotal' => ['label' => Craft::t('commerce', 'Item Total')],
             'itemSubtotal' => ['label' => Craft::t('commerce', 'Item Subtotal')],
             'orderSite' => ['label' => Craft::t('commerce', 'Order Site')],
-        ];
+        ]);
     }
 
     /**
@@ -513,14 +511,20 @@ trait OrderElementTrait
         $attributes[] = 'order';
 
         if (!str_starts_with($source, 'carts:')) {
+            // For orders (including order status sources)
             $attributes[] = 'reference';
-            $attributes[] = 'orderStatus';
+            if (!str_starts_with($source, 'orderStatus:')) {
+                // Only show status column when not filtered by status
+                $attributes[] = 'orderStatus';
+            }
+            $attributes[] = 'customer';
             $attributes[] = 'dateOrdered';
             $attributes[] = 'datePaid';
             $attributes[] = 'totalPaid';
             $attributes[] = 'paidStatus';
             $attributes[] = 'totals';
         } else {
+            // For carts
             $attributes[] = 'shortNumber';
             $attributes[] = 'dateUpdated';
             $attributes[] = 'totalPrice';
