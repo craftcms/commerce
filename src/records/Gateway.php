@@ -21,6 +21,8 @@ use DateTime;
  * @property bool $isArchived
  * @property string $name
  * @property string $orderCondition
+ * @property string $shippingAddressCondition
+ * @property string $billingAddressCondition
  * @property string $paymentType
  * @property array $settings
  * @property int $sortOrder
