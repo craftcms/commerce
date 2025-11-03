@@ -1,4 +1,4 @@
-# WIP Release Notes for Craft Commerce
+# Release Notes for Craft Commerce 5.5 (WIP)
 
 ### Store Management
 - It is now possible to suppress order emails when marking an order as complete in the control panel. ([#4144](https://github.com/craftcms/commerce/issues/4144))
@@ -23,6 +23,9 @@
 - Added `craft\commerce\events\InventoryMovementEvent`. ([#4063](https://github.com/craftcms/commerce/pull/4063))
 - Added `craft\commerce\events\UpdateInventoryLevelEvent`. ([#4063](https://github.com/craftcms/commerce/pull/4063))
 - Added `craft\commerce\helpers\Gql::getSchemaContainedProductTypes()`.
+- Added `craft\commerce\models\Email::$renderSiteId`.
+- Added `craft\commerce\models\Email::getRenderSite()`.
+- Added `craft\commerce\records\Email::$renderSiteId`.
 - Added `craft\commerce\records\Order::$dateFirstPaid`.
 - Added `craft\commerce\services\CatalogPricingRules::hasCatalogPricingRules()`.
 - Added `craft\commerce\services\Discounts::appendCouponCode()`. ([#4084](https://github.com/craftcms/commerce/pull/4084))
@@ -31,3 +34,4 @@
 
 ### System
 - Fixed a bug where purchasables could have a shipping category that was no longer available to their product type. ([#4018](https://github.com/craftcms/commerce/issues/4018))
+- Fixed a bug where order emails weren’t always getting rendered for the correct site.

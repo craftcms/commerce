@@ -1140,6 +1140,8 @@ return [
     'The purchasable is related by another element' => 'The purchasable is related by another element',
     'The recipient of the email. Twig code can be used here.' => 'The recipient of the email. Twig code can be used here.',
     'The reply to email address. Leave blank for normal reply to of email sender. Twig code can be used here.' => 'The reply to email address. Leave blank for normal reply to of email sender. Twig code can be used here.',
+    'The site the order was made in.' => 'The site the order was made in.',
+    'The site to be used when email is rendered.' => 'The site to be used when email is rendered.',
     'The subject line of the email. Twig code can be used here.' => 'The subject line of the email. Twig code can be used here.',
     'The template that the PDF should be generated from.' => 'The template that the PDF should be generated from.',
     'The template to be used for HTML emails.' => 'The template to be used for HTML emails.',

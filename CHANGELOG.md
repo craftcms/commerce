@@ -115,6 +115,7 @@
 - Improved store query performance. ([#4029](https://github.com/craftcms/commerce/issues/4029))
 - Fixed a bug where the purchasable cache was not cleared when stock was updated.
 - Fixed a PHP error that could occur when sending emails. ([#4017](https://github.com/craftcms/commerce/issues/4017))
+- Fixed a bug where order emails weren’t always getting rendered for the correct site.
 - Fixed a SQL error that could occur when upgrading to Commerce 5. ([#4044](https://github.com/craftcms/commerce/issues/4044))
 - Fixed a bug where duplicate order references could be generated. ([#4050](https://github.com/craftcms/commerce/issues/4050))
 - Fixed a bug where purchasables’ `shippingCategoryId` and `taxCategoryId` properties couldn’t be set via `setAttributes()`. ([#4046](https://github.com/craftcms/commerce/issues/4046))
