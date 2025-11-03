@@ -34,6 +34,7 @@ class Gql extends GqlHelper
      * @param GqlSchema|null $schema
      * @return array|ProductType[]
      * @throws InvalidConfigException
+     * @since 5.5.0
      */
     public static function getSchemaContainedProductTypes(?GqlSchema $schema = null): array
     {
