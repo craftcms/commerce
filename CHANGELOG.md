@@ -4,6 +4,17 @@
 
 - Fixed a bug where variant titles were being incorrectly updated when the Variant Title Format referenced the product. ([#4126](https://github.com/craftcms/commerce/issues/4126))
 
+## 5.4.9 - 2025-10-29
+
+- Fixed a bug where line items could display values in the wrong currency on Edit Order pages. ([#4147](https://github.com/craftcms/commerce/issues/4147))
+- Fixed a PHP error that could occur when saving a discount. ([#4146](https://github.com/craftcms/commerce/issues/4146), [#4059](https://github.com/craftcms/commerce/issues/4059))
+- Fixed a PHP error that occurred when applying project config changes after adding a new site. 
+
+## 5.4.8 - 2025-10-15
+
+- Fixed a PHP error that could occur when saving a discount. ([#4134](https://github.com/craftcms/commerce/issues/4134))
+- Fixed a PHP error that could occur when editing an order. ([#4139](https://github.com/craftcms/commerce/issues/4139))
+
 ## 5.4.7.1 - 2025-10-09
 
 - Fixed a PHP error that could occur when querying variants. ([#4129](https://github.com/craftcms/commerce/pull/4129))
