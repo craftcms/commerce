@@ -1,5 +1,26 @@
 # Release Notes for Craft Commerce
 
+## 5.4.9 - 2025-10-29
+
+- Fixed a bug where line items could display values in the wrong currency on Edit Order pages. ([#4147](https://github.com/craftcms/commerce/issues/4147))
+- Fixed a PHP error that could occur when saving a discount. ([#4146](https://github.com/craftcms/commerce/issues/4146), [#4059](https://github.com/craftcms/commerce/issues/4059))
+- Fixed a PHP error that occurred when applying project config changes after adding a new site. 
+
+## 5.4.8 - 2025-10-15
+
+- Fixed a PHP error that could occur when saving a discount. ([#4134](https://github.com/craftcms/commerce/issues/4134))
+- Fixed a PHP error that could occur when editing an order. ([#4139](https://github.com/craftcms/commerce/issues/4139))
+
+## 5.4.7.1 - 2025-10-09
+
+- Fixed a PHP error that could occur when querying variants. ([#4129](https://github.com/craftcms/commerce/pull/4129))
+
+## 5.4.7 - 2025-10-08
+
+- Fixed a bug where catalog pricing rules could generate promotional prices for non-promotable purchasables. ([#4118](https://github.com/craftcms/commerce/issues/4118))
+- Fixed a bug where variants weren’t getting duplicated correctly. ([#4125](https://github.com/craftcms/commerce/issues/4125))
+- Fixed a SQL error that could occur when deleting a shipping method.
+
 ## 5.4.6 - 2025-09-04
 
 - Fixed a bug where the `commerce/cart/update-cart` action could return unnecessary validation errors. ([3873](https://github.com/craftcms/commerce/issues/3873))
