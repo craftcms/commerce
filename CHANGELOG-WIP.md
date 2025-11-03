@@ -6,7 +6,7 @@
 
 ### Development
 
-- Added the `--force` option to the `commerce/reset-data` command. ([#4116](https://github.com/craftcms/commerce/pull/4116))
+- Added the `--force` option to the `commerce/reset-data` command. ([#4115](https://github.com/craftcms/commerce/discussions/4115))
 
 ### Extensibility
 
