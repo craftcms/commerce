@@ -506,6 +506,7 @@ class Install extends Migration
             'isCompleted' => $this->boolean()->notNull()->defaultValue(false),
             'dateOrdered' => $this->dateTime(),
             'datePaid' => $this->dateTime(),
+            'dateFirstPaid' => $this->dateTime(),
             'dateAuthorized' => $this->dateTime(),
             'currency' => $this->string(),
             'paymentCurrency' => $this->string(),
