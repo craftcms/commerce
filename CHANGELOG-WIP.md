@@ -22,3 +22,5 @@
 - Added `\craft\commerce\services\Inventory::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT`. ([#4063](https://github.com/craftcms/commerce/pull/4063))
 
 ### System
+
+- Fixed a bug where purchasables could have a shipping category that was no longer available to their product type. ([#4018](https://github.com/craftcms/commerce/issues/4018))
