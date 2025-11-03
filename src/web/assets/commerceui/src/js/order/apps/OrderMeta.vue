@@ -71,7 +71,7 @@
                         'Completed' | t('commerce')
                     }}</label>
                 </div>
-                <div class="input ltr">
+                <div class="input ltr order-edit-mark-completed">
                     <div class="buttons">
                         <input
                             type="button"
@@ -88,6 +88,19 @@
                             :disabled="!hasCustomer || recalculateLoading"
                             @click="markAsCompleted"
                         />
+                    </div>
+                    <div>
+                        <label
+                            class="order-edit-suppress-emails"
+                            for="suppressEmails"
+                        >
+                            <lightswitch
+                                name="suppressEmails"
+                                :value="suppressEmails"
+                                @change="handleSuppressEmailsChange"
+                            ></lightswitch>
+                            {{ 'Suppress emails' | t('commerce') }}
+                        </label>
                     </div>
                 </div>
             </div>
@@ -318,16 +331,18 @@
     import DateOrderedInput from '../components/meta/DateOrderedInput';
     import Field from '../../base/components/Field';
     import mixins from '../mixins';
+    import Lightswitch from '../../base/components/Lightswitch.vue';
 
     export default {
         name: 'order-meta-app',
 
         components: {
-            OrderStatus,
-            OrderSite,
-            ShippingMethod,
             DateOrderedInput,
             Field,
+            Lightswitch,
+            OrderSite,
+            OrderStatus,
+            ShippingMethod,
         },
 
         mixins: [mixins],
@@ -391,6 +406,16 @@
                             this.$store.dispatch('displayError', error);
                         });
                 }, 1000),
+            },
+
+            suppressEmails: {
+                get() {
+                    return this.draft.order.suppressEmails;
+                },
+
+                set: function (value) {
+                    this.$store.commit('updateDraftSuppressEmails', value);
+                },
             },
 
             order: {
@@ -518,6 +543,10 @@
                         return origin.charAt(0).toUpperCase() + origin.slice(1);
                 }
             },
+
+            handleSuppressEmailsChange(value) {
+                this.$store.commit('updateDraftSuppressEmails', value);
+            },
         },
     };
 </script>
@@ -574,6 +603,20 @@
     .meta .data.order-meta-shipping-method .value {
         align-items: start;
         flex-direction: column;
+    }
+
+    .meta > .field > .input.order-edit-mark-completed {
+        display: block;
+
+        .buttons {
+            margin-bottom: var(--s);
+        }
+
+        .order-edit-suppress-emails {
+            display: flex;
+            align-items: center;
+            gap: var(--s);
+        }
     }
 
     .shipping-method-handle {

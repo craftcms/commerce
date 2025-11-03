@@ -462,7 +462,7 @@ class Emails extends Component
         $generalConfig->generateTransformsBeforePageLoad = true;
 
         // Make sure date vars are in the correct format
-        $dateFields = ['dateOrdered', 'datePaid'];
+        $dateFields = ['dateOrdered', 'datePaid', 'dateFirstPaid'];
         foreach ($dateFields as $dateField) {
             if (isset($order->{$dateField}) && !($order->{$dateField} instanceof DateTime) && $order->{$dateField}) {
                 $order->{$dateField} = DateTimeHelper::toDateTime($order->{$dateField});
