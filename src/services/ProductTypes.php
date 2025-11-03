@@ -882,7 +882,11 @@ class ProductTypes extends Component
 
             if (!$projectConfig->getIsApplyingExternalChanges() && is_array($existingProductTypeSettings)) {
                 foreach ($existingProductTypeSettings as $productTypeUid => $settings) {
-                    $primarySiteSettings = $settings['siteSettings'][$oldPrimarySiteUid];
+                    $primarySiteSettings = $settings['siteSettings'][$oldPrimarySiteUid] ?? null;
+                    if ($primarySiteSettings === null) {
+                        continue;
+                    }
+
                     $configPath = self::CONFIG_PRODUCTTYPES_KEY . '.' . $productTypeUid . '.siteSettings.' . $event->site->uid;
                     $projectConfig->set($configPath, $primarySiteSettings);
                 }
