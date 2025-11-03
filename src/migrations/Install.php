@@ -306,6 +306,8 @@ class Install extends Migration
             'paymentType' => $this->enum('paymentType', ['authorize', 'purchase'])->notNull()->defaultValue('purchase'),
             'isFrontendEnabled' => $this->string(500)->notNull()->defaultValue('1'),
             'orderCondition' => $this->text(),
+            'shippingAddressCondition' => $this->text(),
+            'billingAddressCondition' => $this->text(),
             'isArchived' => $this->boolean()->notNull()->defaultValue(false),
             'dateArchived' => $this->dateTime(),
             'sortOrder' => $this->integer(),
