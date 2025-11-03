@@ -4,6 +4,7 @@
 
 ### Administration
 
+- Added billing and shipping address conditions to gateways. ([#4100](https://github.com/craftcms/commerce/pull/4100))
 - Added preview targets for products. ([#4128](https://github.com/craftcms/commerce/pull/4128))
 - Added slug translation options to product types. ([#4088](https://github.com/craftcms/commerce/pull/4088))
 - Gateway condition rules now allow multiple gateways to be selected. ([#4112](https://github.com/craftcms/commerce/issues/4112))
