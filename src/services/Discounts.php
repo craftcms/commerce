@@ -1061,6 +1061,53 @@ SQL;
     }
 
     /**
+     * Appends a coupon code to an existing discount.
+     *
+     * @param int $discountId The discount ID
+     * @param string|Coupon $coupon The coupon code to append or a Coupon model
+     * @param int|null $maxUses The maximum number of times this coupon can be used (null for unlimited) - only used if $coupon is a string
+     * @return bool Whether the coupon was successfully added
+     * @throws Exception if the discount doesn't exist or doesn't require a coupon code
+     * @throws InvalidConfigException
+     */
+    public function appendCouponCode(int $discountId, string|Coupon $coupon, ?int $maxUses = null): bool
+    {
+        $discount = $this->getDiscountById($discountId);
+        
+        if (!$discount) {
+            throw new Exception('No discount exists with the ID "' . $discountId . '"');
+        }
+        
+        if (!$discount->requireCouponCode) {
+            throw new Exception('The discount with ID "' . $discountId . '" does not require a coupon code');
+        }
+        
+        // If a string was passed, create a new coupon model
+        if (is_string($coupon)) {
+            $couponModel = new Coupon();
+            $couponModel->discountId = $discountId;
+            $couponModel->code = $coupon;
+            $couponModel->maxUses = $maxUses;
+            $couponModel->uses = 0;
+        } else {
+            // Use the provided coupon model
+            $couponModel = $coupon;
+            $couponModel->discountId = $discountId;
+        }
+        
+        // Save the coupon
+        $result = Plugin::getInstance()->getCoupons()->saveCoupon($couponModel);
+        
+        if ($result) {
+            // Reset internal cache
+            $this->_allDiscounts = null;
+            $this->_activeDiscountsByKey = null;
+        }
+        
+        return $result;
+    }
+
+    /**
      * Email usage stats for discount
      *
      * @return array return in the format ['uses' => int, 'emails' => int]

@@ -25,22 +25,41 @@ use yii\console\ExitCode;
 class ResetDataController extends Controller
 {
     /**
+     * @var bool Whether to force the reset without confirmation
+     */
+    public bool $force = false;
+
+    /**
+     * @inheritdoc
+     */
+    public function options($actionID): array
+    {
+        $options = parent::options($actionID);
+        $options[] = 'force';
+        return $options;
+    }
+
+    /**
      * Reset Commerce data.
      */
     public function actionIndex(): int
     {
-        $reset = $this->prompt('Resetting Commerce data will permanently delete all orders, subscriptions, payment sources, customers, addresses and reset discount usages ... do you wish to continue?', [
-            'required' => true,
-            'default' => 'no',
-            'validator' => function($input) {
-                if (!in_array($input, ['yes', 'no'])) {
-                    $this->stderr('You must answer either "yes" or "no".' . PHP_EOL, Console::FG_RED);
-                    return false;
-                }
+        if ($this->force) {
+            $reset = 'yes';
+        } else {
+            $reset = $this->prompt('Resetting Commerce data will permanently delete all orders, subscriptions, payment sources, customers, addresses and reset discount usages ... do you wish to continue?', [
+                'required' => true,
+                'default' => 'no',
+                'validator' => function($input) {
+                    if (!in_array($input, ['yes', 'no'])) {
+                        $this->stderr('You must answer either "yes" or "no".' . PHP_EOL, Console::FG_RED);
+                        return false;
+                    }
 
-                return true;
-            },
-        ]);
+                    return true;
+                },
+            ]);
+        }
 
         if ($reset == 'yes') {
             $transaction = Craft::$app->getDb()->beginTransaction();
