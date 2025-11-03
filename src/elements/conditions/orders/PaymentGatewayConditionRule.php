@@ -118,20 +118,10 @@ class PaymentGatewayConditionRule extends BaseMultiSelectConditionRule implement
      */
     public function modifyQuery(QueryInterface $query): void
     {
-        $gatewayIds = [];
         $gateways = Plugin::getInstance()->getGateways()->getAllGateways();
-        
-        foreach ($this->getValues() as $uid) {
-            $gateway = $gateways->firstWhere('uid', $uid);
-            if ($gateway) {
-                $gatewayIds[] = $gateway->id;
-            }
-        }
-        
-        if (!empty($gatewayIds)) {
-            /** @var OrderQuery $query */
-            $query->gatewayId($this->paramValue(fn($uid) => $gateways->firstWhere('uid', $uid)?->id));
-        }
+
+        /** @var OrderQuery $query */
+        $query->gatewayId($this->paramValue(fn($uid) => $gateways->firstWhere('uid', $uid)?->id));
     }
 
     /**
