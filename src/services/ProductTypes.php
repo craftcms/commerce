@@ -970,17 +970,17 @@ class ProductTypes extends Component
             $query->addSelect('productTypes.propagationMethod');
         }
 
-        /** @since 5.3 */
+        /** @since 5.5 */
         if ($db->columnExists(Table::PRODUCTTYPES, 'showSlugField')) {
             $query->addSelect('productTypes.showSlugField');
         }
 
-        /** @since 5.3 */
+        /** @since 5.5 */
         if ($db->columnExists(Table::PRODUCTTYPES, 'slugTranslationMethod')) {
             $query->addSelect('productTypes.slugTranslationMethod');
         }
 
-        /** @since 5.3 */
+        /** @since 5.5 */
         if ($db->columnExists(Table::PRODUCTTYPES, 'slugTranslationKeyFormat')) {
             $query->addSelect('productTypes.slugTranslationKeyFormat');
         }
