@@ -422,7 +422,7 @@ class ProductTypes extends Component
             // Slug fields
             $productTypeRecord->showSlugField = $data['showSlugField'] ?? true;
             $productTypeRecord->slugTranslationMethod = $data['slugTranslationMethod'] ?? 'site';
-            $productTypeRecord->slugTranslationKeyFormat = $data['slugTranslationKeyFormat'] ?? '';
+            $productTypeRecord->slugTranslationKeyFormat = $data['slugTranslationKeyFormat'] ?? null;
 
             if ($productTypeRecord->maxVariants != $data['maxVariants']) {
                 $shouldResaveProducts = true;
