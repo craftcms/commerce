@@ -13,6 +13,7 @@ use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\StoreTrait;
+use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\customers\CatalogPricingRuleCustomerCondition;
 use craft\commerce\elements\conditions\products\CatalogPricingRuleProductCondition;
 use craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasableCondition;
@@ -25,6 +26,7 @@ use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\ElementQuery;
 use craft\elements\User;
 use craft\events\CancelableEvent;
+use craft\helpers\Db;
 use craft\helpers\Json;
 use craft\models\Site;
 use DateTime;
@@ -255,10 +257,16 @@ class CatalogPricingRule extends Model implements HasStoreInterface
 
                 $productVariantIds = [];
                 if ($productIds = $productQuery->ids()) {
-                    $productVariantIds = Variant::find()
+                    $productVariantIdsQuery = Variant::find()
                         ->siteId($siteIds)
-                        ->productId($productIds)
-                        ->ids();
+                        ->productId($productIds);
+
+                    // If the rule is generating a promotional price, we need to make sure the purchasable is promotable
+                    if ($this->isPromotionalPrice) {
+                        $productVariantIdsQuery->andWhere(Db::parseBooleanParam('purchasables_stores.promotable', true));
+                    }
+
+                    $productVariantIds = $productVariantIdsQuery->ids();
                 }
             }
 
@@ -278,6 +286,11 @@ class CatalogPricingRule extends Model implements HasStoreInterface
                 /** @var CatalogPricingRuleVariantCondition $variantCondition */
                 $variantCondition = $this->getVariantCondition();
                 $variantCondition->modifyQuery($variantQuery);
+
+                // If the rule is generating a promotional price, we need to make sure the purchasable is promotable
+                if ($this->isPromotionalPrice) {
+                    $variantQuery->andWhere(Db::parseBooleanParam('purchasables_stores.promotable', true));
+                }
 
                 // If there are product condition rules we need to ensure the variant is in the list of product variants
                 if ($productVariantIds !== null) {
@@ -315,7 +328,15 @@ class CatalogPricingRule extends Model implements HasStoreInterface
                             $value['elements_sites.siteId'] = $siteIds;
                         }
                     }
+
+                    $event->sender->subQuery->join[] = ['LEFT JOIN', ['sitestores' => Table::SITESTORES], '[[elements_sites.siteId]] = [[sitestores.siteId]]'];
+                    $event->sender->subQuery->join[] = ['LEFT JOIN', ['purchasables_stores' => Table::PURCHASABLES_STORES], '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[elements.id]]'];
                 });
+
+                // If the rule is generating a promotional price, we need to make sure the purchasable is promotable
+                if ($this->isPromotionalPrice) {
+                    $purchasableQuery->andWhere(Db::parseBooleanParam('purchasables_stores.promotable', true));
+                }
 
                 $this->_purchasableIds = $purchasableQuery->ids();
             }
