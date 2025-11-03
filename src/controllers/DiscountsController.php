@@ -197,6 +197,8 @@ class DiscountsController extends BaseStoreManagementController
         } else {
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
+
+        $variables['siteIds'] = $store->getSites()->pluck('id')->all();
         $variables['storeHandle'] = $store->handle;
         $variables['currency'] = $store->getCurrency();
         $variables['decimals'] = Plugin::getInstance()->getCurrencies()->getSubunitFor($store->getCurrency());
@@ -292,10 +294,14 @@ class DiscountsController extends BaseStoreManagementController
 
             // Invert non-purchaseTotal values
             if ($attr !== 'purchaseTotal') {
-                $attrValue = $attrValue * -1;
+                // Sanitize the input from the user - we store negative values, expecting the user to enter positive values
+                $attrValue = (float)$attrValue;
+                if ($attrValue > 0) {
+                    $attrValue = $attrValue * -1;
+                }
             }
 
-            $discount->{$attr} = $attrValue;
+            $discount->{$attr} = (float)$attrValue;
         }
 
         $date = $this->request->getBodyParam('dateFrom');
@@ -356,13 +362,6 @@ class DiscountsController extends BaseStoreManagementController
             return $this->redirectToPostedUrl($discount);
         } else {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save discount.'));
-
-            // Set back to original input value of the text field to prevent negative value.
-            $baseDiscountParam = Json::decodeIfJson($this->request->getBodyParam('baseDiscount'));
-            $perItemDiscountParam = Json::decodeIfJson($this->request->getBodyParam('perItemDiscount'));
-
-            $discount->baseDiscount = $baseDiscountParam['value'];
-            $discount->perItemDiscount = $perItemDiscountParam['value'];
         }
 
         // Send the model back to the template
@@ -609,9 +608,10 @@ class DiscountsController extends BaseStoreManagementController
                 continue;
             }
 
-            if ($variables['discount']->{$attr} != 0) {
+            if ($variables['discount']->{$attr} < 0) {
+                // Flip negative numbers for display to the user
                 $variables['discount']->{$attr} *= -1;
-            } else {
+            } elseif ($variables['discount']->{$attr} == 0) {
                 $variables['discount']->{$attr} = 0;
             }
         }
@@ -672,7 +672,7 @@ class DiscountsController extends BaseStoreManagementController
         if (empty($variables['id']) && $this->request->getParam('purchasableIds')) {
             $purchasableIdsFromUrl = explode('|', $this->request->getParam('purchasableIds'));
             foreach ($purchasableIdsFromUrl as $purchasableId) {
-                $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
+                $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId, siteId: $variables['siteIds']);
                 if ($purchasable instanceof Product) {
                     $purchasableIds[] = $purchasable->defaultVariantId; // this would only be null if we are duplicating a variant, otherwise should never be null
                 } else {
@@ -688,7 +688,7 @@ class DiscountsController extends BaseStoreManagementController
 
         $purchasables = [];
         foreach ($purchasableIds as $purchasableId) {
-            $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
+            $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId, siteId: $variables['siteIds']);
             if ($purchasable instanceof PurchasableInterface) {
                 $class = $purchasable::class;
                 $purchasables[$class] ??= [];
