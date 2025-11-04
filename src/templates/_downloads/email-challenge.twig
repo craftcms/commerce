@@ -37,7 +37,7 @@
                 'accept-charset': 'UTF-8',
             } %}
                 <h1>{{ 'Expired Link'|t('commerce') }}</h1>
-                <p class="confirmInfo">{{ 'A new download link will be sent to {email}'|t('commerce', {email: order.maskedEmail}) }}</p>
+                <p class="confirmInfo">{{ 'A new download link will be sent to {email}'|t('commerce', {email: order.getMaskedEmail()}) }}</p>
 
             {{ csrfInput() }}
             {{ actionInput('commerce/downloads/pdf-challenge') }}

@@ -272,7 +272,7 @@ class DownloadsController extends BaseFrontEndController
             return $this->renderEmailChallenge($order, $orderNumber, $pdfHandle, $option, $inline);
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'A new download link has been sent to {email}', ['email' => $order->maskedEmail]));
+        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'A new download link has been sent to {email}', ['email' => $order->getMaskedEmail()]));
 
         // Redirect to success page to prevent duplicate submissions on refresh
         return $this->redirect(UrlHelper::actionUrl('commerce/downloads/pdf-sent', ['hash' => $orderNumberHash]));
