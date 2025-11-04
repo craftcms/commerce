@@ -201,6 +201,42 @@ class ShippingCategories extends Component
         // Newly set product types this shipping category is available to
         $newProductTypeIds = ArrayHelper::getColumn($shippingCategory->getProductTypes(), 'id');
 
+        // Find product types that are being removed from this shipping category
+        $removedProductTypeIds = array_diff($currentProductTypeIds, $newProductTypeIds);
+        
+        // Update purchasables to default shipping category when product types are removed
+        if (!empty($removedProductTypeIds)) {
+            $defaultShippingCategory = $this->getDefaultShippingCategory($shippingCategory->storeId);
+            
+            // Get all variant purchasables that currently have this shipping category but whose product type is being removed
+            $purchasableIds = (new Query())
+                ->select(['ps.purchasableId'])
+                ->from(['ps' => Table::PURCHASABLES_STORES])
+                ->innerJoin(['v' => Table::VARIANTS], '[[ps.purchasableId]] = [[v.id]]')
+                ->innerJoin(['p' => Table::PRODUCTS], '[[v.primaryOwnerId]] = [[p.id]]')
+                ->where([
+                    'ps.shippingCategoryId' => $shippingCategory->id,
+                    'ps.storeId' => $shippingCategory->storeId,
+                    'p.typeId' => $removedProductTypeIds,
+                ])
+                ->column();
+            
+            if (!empty($purchasableIds)) {
+                // Update these purchasables to use the default shipping category
+                Craft::$app->getDb()->createCommand()
+                    ->update(
+                        Table::PURCHASABLES_STORES,
+                        ['shippingCategoryId' => $defaultShippingCategory->id],
+                        [
+                            'purchasableId' => $purchasableIds,
+                            'storeId' => $shippingCategory->storeId,
+                            'shippingCategoryId' => $shippingCategory->id,
+                        ]
+                    )
+                    ->execute();
+            }
+        }
+
         foreach ($currentProductTypeIds as $oldProductTypeId) {
             // If we are removing a product type for this shipping category the products of that type should be re-saved
             if (!in_array($oldProductTypeId, $newProductTypeIds, false)) {

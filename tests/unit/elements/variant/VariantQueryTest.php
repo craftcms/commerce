@@ -397,6 +397,8 @@ class VariantQueryTest extends Unit
             'price-desc' => ['price DESC', array_reverse(['hct-white', 'hct-blue', 'rad-hood'])],
             'sale-price-asc' => ['salePrice ASC', ['hct-white', 'hct-blue', 'rad-hood']],
             'sale-price-desc' => ['salePrice DESC', array_reverse(['hct-white', 'hct-blue', 'rad-hood'])],
+            'base-price-asc' => ['basePrice ASC', ['hct-white', 'hct-blue', 'rad-hood']],
+            'base-price-desc' => ['basePrice DESC', array_reverse(['hct-white', 'hct-blue', 'rad-hood'])],
         ];
     }
 }

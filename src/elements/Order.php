@@ -580,6 +580,20 @@ class Order extends Element implements HasStoreInterface
     public ?DateTime $datePaid = null;
 
     /**
+     * The date and time this order was first paid in full.
+     *
+     * @var DateTime|null Date first paid
+     * ---
+     * ```php
+     * echo $order->dateFirstPaid;
+     * ```
+     * ```twig
+     * {{ order.dateFirstPaid }}
+     * ```
+     */
+    public ?DateTime $dateFirstPaid = null;
+
+    /**
      * The date and time this order was authorized in full.
      * This may the same date as datePaid if the order was paid immediately.
      *
@@ -1727,6 +1741,11 @@ class Order extends Element implements HasStoreInterface
             $this->datePaid = new DateTime();
         }
 
+        // If it was just paid and this is the first time, set the date first paid to now.
+        if ($justPaid && $this->dateFirstPaid === null) {
+            $this->dateFirstPaid = new DateTime();
+        }
+
         // If it was just authorized set the date authorized to now.
         if ($justAuthorized) {
             $this->dateAuthorized = new DateTime();
@@ -2201,6 +2220,17 @@ class Order extends Element implements HasStoreInterface
     }
 
     /**
+     * @return Collection
+     * @throws DeprecationException
+     * @throws InvalidConfigException
+     * @since 5.5
+     */
+    public function getAvailableGateways(): Collection
+    {
+        return Plugin::getInstance()->getGateways()->getAllCustomerEnabledGatewaysAndAvailableForUseWithOrder($this);
+    }
+
+    /**
      * @inheritdoc
      */
     public function afterSave(bool $isNew): void
@@ -2256,6 +2286,7 @@ class Order extends Element implements HasStoreInterface
             $orderRecord->dateOrdered = $dateOrdered;
 
             $orderRecord->datePaid = $this->datePaid ?: null;
+            $orderRecord->dateFirstPaid = $this->dateFirstPaid ?: null;
             $orderRecord->dateAuthorized = $this->dateAuthorized ?: null;
             $orderRecord->shippingMethodHandle = $this->shippingMethodHandle ?? '';
             $orderRecord->shippingMethodName = $this->shippingMethodName ?? '';

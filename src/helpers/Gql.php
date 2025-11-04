@@ -7,7 +7,11 @@
 
 namespace craft\commerce\helpers;
 
+use craft\commerce\models\ProductType;
+use craft\commerce\Plugin;
 use craft\helpers\Gql as GqlHelper;
+use craft\models\GqlSchema;
+use yii\base\InvalidConfigException;
 
 /**
  * Class Commerce Gql
@@ -24,5 +28,19 @@ class Gql extends GqlHelper
     {
         $allowedEntities = self::extractAllowedEntitiesFromSchema();
         return isset($allowedEntities['productTypes']);
+    }
+
+    /**
+     * @param GqlSchema|null $schema
+     * @return array|ProductType[]
+     * @throws InvalidConfigException
+     * @since 5.5.0
+     */
+    public static function getSchemaContainedProductTypes(?GqlSchema $schema = null): array
+    {
+        return array_filter(
+            Plugin::getInstance()->getProductTypes()->getAllProductTypes(),
+            fn(ProductType $productType) => static::isSchemaAwareOf("productTypes.$productType->uid", $schema),
+        );
     }
 }
