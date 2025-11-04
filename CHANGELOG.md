@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where variants were not getting the default shipping category set when the currently set category was no longer available. ([#4018](https://github.com/craftcms/commerce/issues/4018))
+
 ## 5.4.9 - 2025-10-29
 
 - Fixed a bug where line items could display values in the wrong currency on Edit Order pages. ([#4147](https://github.com/craftcms/commerce/issues/4147))
