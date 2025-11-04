@@ -1834,7 +1834,7 @@ class Product extends Element implements HasStoreInterface
     {
         $productType = $this->getType();
 
-        if ($this->getIsCanonical() &&
+        if (($this->getIsCanonical() || $this->updatingFromDerivative) &&
             !$productType->hasVariantTitleField &&
             $productType->variantTitleFormat &&
             StringHelper::containsAny($productType->variantTitleFormat, ['product.', 'owner.', 'primaryOwner.'])
