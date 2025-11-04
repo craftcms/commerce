@@ -1,11 +1,38 @@
 {% extends '[[folderName]]/_private/layouts' %}
 
+{% set searchTerm = craft.app.request.getQueryParam('search', null) %}
+
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
-  <h1 class="text-3xl block sm:inline">
-    {{- 'Products'|t -}}
-  </h1>
-  {% paginate craft.products.limit(6) as pageInfo, pageProducts %}
+  <div class="sm:flex">
+    <div class="sm:w-1/3 w-full">
+      <h1 class="text-3xl block sm:inline">
+        {{- 'Products'|t -}}
+      </h1>
+    </div>
+    <div class="flex-grow">
+      <form action="" method="get" class="flex w-full">
+        <div class="flex-grow pr-4">
+          {{ tag('input', {
+            name: 'search',
+            type: 'text',
+            placeholder: 'Search products…'|t,
+            value: searchTerm,
+            class: 'w-full border border-gray-200 hover:border-gray-500 focus:border-gray-500 rounded px-4 py-2',
+          }) }}
+        </div>
+        <div>
+          {{ tag('button', {
+            type: 'submit',
+            class: ['m-0', 'text-center', '[[classes.btn.base]] [[classes.btn.mainColor]]'],
+            text: 'Search'|t
+          }) }}
+        </div>
+      </form>
+
+    </div>
+  </div>
+  {% paginate craft.products.limit(6).search(searchTerm) as pageInfo, pageProducts %}
 
   {{ include('[[folderName]]/products/_includes/grid', {
     products: pageProducts
