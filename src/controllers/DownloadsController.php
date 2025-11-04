@@ -146,7 +146,13 @@ class DownloadsController extends BaseFrontEndController
                 $hasPermission = $currentUser->admin || $order->canView($currentUser);
 
                 if (!($isOrderCustomer || $hasPermission)) {
-                    throw new HttpException(403, 'You do not have permission to view this order');
+                    // Logged-in user without permission - redirect to email challenge form
+                    return $this->redirect(UrlHelper::actionUrl('commerce/downloads/email-challenge', [
+                        'number' => $number,
+                        'pdfHandle' => $pdfHandle,
+                        'option' => $option,
+                        'inline' => $inline,
+                    ]));
                 }
             } else {
                 // Anonymous user without valid token - redirect to email challenge form
