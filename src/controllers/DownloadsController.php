@@ -236,33 +236,26 @@ class DownloadsController extends BaseFrontEndController
     {
         $this->requirePostRequest();
 
-        $orderNumber = $this->request->getBodyParam('orderNumber');
-        $email = $this->request->getBodyParam('email');
+        $orderNumberHash = $this->request->getBodyParam('orderNumberHash');
         $pdfHandle = $this->request->getBodyParam('pdfHandle');
         $option = $this->request->getBodyParam('option', '');
         $inline = (bool) $this->request->getBodyParam('inline', false);
 
-        if (!$orderNumber || !$email) {
-            throw new BadRequestHttpException('Order number and email are required');
+        if (!$orderNumberHash) {
+            throw new BadRequestHttpException('Order number hash is required');
+        }
+
+        // Validate the order number hash
+        $orderNumber = Craft::$app->getSecurity()->validateData($orderNumberHash);
+
+        if ($orderNumber === false) {
+            throw new BadRequestHttpException('Invalid order number hash');
         }
 
         $order = Plugin::getInstance()->getOrders()->getOrderByNumber($orderNumber);
 
         if (!$order) {
-            throw new HttpException(404,'Order not found');
-        }
-
-        // Check if the provided email matches the order's email
-        if (strcasecmp($order->email, $email) !== 0) {
-            return $this->renderEmailChallenge(
-                $order,
-                $orderNumber,
-                $pdfHandle,
-                $option,
-                $inline,
-                ['email' => [Craft::t('commerce', 'The provided email does not match our records for this order.')]],
-                $email
-            );
+            throw new HttpException(404, 'Order not found');
         }
 
         // Build the download URL with the token using the Pdfs service
@@ -276,16 +269,13 @@ class DownloadsController extends BaseFrontEndController
             'order' => $order,
         ])->setTo($order->email)->send()) {
             Craft::$app->getSession()->setError(Craft::t('commerce', 'Failed to send email. Please try again.'));
-            return $this->renderEmailChallenge($order, $orderNumber, $pdfHandle, $option, $inline, [], $email);
+            return $this->renderEmailChallenge($order, $orderNumber, $pdfHandle, $option, $inline);
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'A download link has been sent to {email}', ['email' => $email]));
-
-        // Hash the email to obscure it in the URL
-        $emailHash = Craft::$app->getSecurity()->hashData($email);
+        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'A new download link has been sent to {email}', ['email' => $order->maskedEmail]));
 
         // Redirect to success page to prevent duplicate submissions on refresh
-        return $this->redirect(UrlHelper::actionUrl('commerce/downloads/pdf-sent', ['hash' => $emailHash]));
+        return $this->redirect(UrlHelper::actionUrl('commerce/downloads/pdf-sent', ['hash' => $orderNumberHash]));
     }
 
     /**
@@ -296,21 +286,27 @@ class DownloadsController extends BaseFrontEndController
      */
     public function actionPdfSent(): Response
     {
-        $emailHash = $this->request->getQueryParam('hash');
+        $orderNumberHash = $this->request->getQueryParam('hash');
 
-        if (!$emailHash) {
+        if (!$orderNumberHash) {
             throw new BadRequestHttpException('Hash parameter required');
         }
 
-        // Validate and extract the email from the hash
-        $email = Craft::$app->getSecurity()->validateData($emailHash);
+        // Validate and extract the order number from the hash
+        $orderNumber = Craft::$app->getSecurity()->validateData($orderNumberHash);
 
-        if ($email === false) {
+        if ($orderNumber === false) {
             throw new HttpException(400, 'Invalid hash parameter');
         }
 
+        $order = Plugin::getInstance()->getOrders()->getOrderByNumber($orderNumber);
+
+        if (!$order) {
+            throw new HttpException(404, 'Order not found');
+        }
+
         return $this->renderTemplate('commerce/_downloads/email-sent', [
-            'email' => $email,
+            'email' => $order->getMaskedEmail(),
         ], View::TEMPLATE_MODE_CP);
     }
 }

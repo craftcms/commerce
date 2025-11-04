@@ -37,34 +37,18 @@
                 'accept-charset': 'UTF-8',
             } %}
                 <h1>{{ 'Expired Link'|t('commerce') }}</h1>
-                <p class="confirmInfo">{{ 'Please confirm the email associated with this order.'|t('commerce') }}</p>
+                <p class="confirmInfo">{{ 'A new download link will be sent to {email}'|t('commerce', {email: order.maskedEmail}) }}</p>
 
             {{ csrfInput() }}
             {{ actionInput('commerce/downloads/pdf-challenge') }}
-            {{ hiddenInput('orderNumber', order.number) }}
+            {{ hiddenInput('orderNumberHash', craft.app.security.hashData(order.number)) }}
             {{ hiddenInput('pdfHandle', pdfHandle) }}
             {{ hiddenInput('option', option) }}
             {{ hiddenInput('inline', inline) }}
 
-            {{ forms.textField({
-                label: 'Email Address'|t('app'),
-                name: 'email',
-                value: '',
-                autocomplete: 'email',
-                placeholder: order.maskedEmail,
-                type: 'email',
-                errors: errors.email ?? null,
-                autofocus: true,
-                inputAttributes: {
-                    aria: {
-                        required: 'true',
-                    },
-                },
-            }) }}
-
             {{ forms.submitButton({
                 class: ['fullwidth', 'last'],
-                label: 'Submit'|t('app'),
+                label: 'Send'|t('app'),
                 spinner: true,
             }) }}
             {% endtag %}

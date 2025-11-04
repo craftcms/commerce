@@ -1103,7 +1103,7 @@ class Plugin extends BasePlugin
         return "Hello,\n\n" .
             "You requested a PDF download for your order. Click the link below to download your PDF:\n\n" .
             "[Download PDF]({{ link }})\n\n" .
-            "**Please note:** This link will expire after 24 hours for security purposes.\n\n" .
+            "**Please note:** This link will expire for security purposes.\n\n" .
             "Thank you!";
     }
 }

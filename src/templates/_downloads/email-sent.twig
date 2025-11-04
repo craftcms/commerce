@@ -12,21 +12,21 @@
     <main>
         <div id="emailsent">
             {% if hasLogo %}
-            <h1>
-                {{ tag('img', {
-                    id: 'login-logo',
-                    src: logo.url,
-                    alt: systemName,
-                    width: logo.width,
-                    height: logo.height,
-                }) }}
-            </h1>
+                <h1>
+                    {{ tag('img', {
+                        id: 'login-logo',
+                        src: logo.url,
+                        alt: systemName,
+                        width: logo.width,
+                        height: logo.height,
+                    }) }}
+                </h1>
             {% endif %}
 
             <div class="pane secondary">
-                <p>
-                    {{ 'A download link has been sent to'|t('commerce') }}<br>
-                    <strong>{{ email }}</strong>
+                <h1>{{ 'Link Sent'|t('commerce') }}</h1>
+                <p class="sentInfo">
+                    {{ 'A new download link has been sent to {email}'|t('commerce', {email: email}) }}
                 </p>
             </div>
         </div>
@@ -53,5 +53,9 @@ main {
     #emailsent {
         max-width: 100%;
     }
+}
+
+.sentInfo {
+    text-wrap: balance;
 }
 {% endcss %}

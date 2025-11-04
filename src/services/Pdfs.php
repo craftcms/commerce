@@ -439,7 +439,18 @@ class Pdfs extends Component
      */
     public function getPdfUrl(Order $order, string $option = null, string $pdfHandle = null, bool $inline = false): string
     {
-        $expiryTimestamp = (new \DateTime())->add(new \DateInterval('PT24H'))->getTimestamp();
+        // Load the PDF to get its link expiry setting
+        if ($pdfHandle) {
+            $pdf = $this->getPdfByHandle($pdfHandle);
+        } else {
+            $pdf = $this->getDefaultPdf();
+        }
+
+        if (!$pdf) {
+            throw new \InvalidArgumentException("Can not find a PDF to generate URL.");
+        }
+
+        $expiryTimestamp = (new \DateTime())->add(new \DateInterval('PT' . $pdf->linkExpiry . 'S'))->getTimestamp();
 
         // Create a token for secure PDF access with expiry in the data payload
         // This way the token itself never expires, but we validate the timestamp in the download controller
