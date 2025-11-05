@@ -8,6 +8,7 @@
 - Added preview targets for products. ([#4128](https://github.com/craftcms/commerce/pull/4128))
 - Added slug translation options to product types. ([#4088](https://github.com/craftcms/commerce/pull/4088))
 - Gateway condition rules now allow multiple gateways to be selected. ([#4112](https://github.com/craftcms/commerce/issues/4112))
+- Product action menus now have “Product type settings” action, for admin users on environments that allow admin changes. ([#4157](https://github.com/craftcms/commerce/issues/4157))
 
 ### Development
 - Orders now have a `dateFirstPaid` property that records the date and time when the order was first paid in full.

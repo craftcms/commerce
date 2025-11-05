@@ -1,12 +1,3 @@
-{% extends "commerce/_layouts/cp" %}
-{% set title = productType.id ? productType.name : 'Create a new product type'|t('commerce') %}
-
-{% set crumbs = [
-    { label: 'Commerce'|t('commerce'), url: url('commerce') },
-    { label: 'Settings'|t('app'), url: url('commerce/settings'), ariaLabel: 'Commerce Settings'|t('commerce') },
-    { label: "Product Types"|t('commerce'), url: url('commerce/settings/producttypes') },
-] %}
-
 {% set selectedSubnavItem = 'settings' %}
 
 {% set headlessMode = craft.app.config.general.headlessMode %}

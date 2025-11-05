@@ -466,6 +466,42 @@ class Product extends Element implements HasStoreInterface
     /**
      * @inheritdoc
      */
+    protected function safeActionMenuItems(): array
+    {
+        $actions = parent::safeActionMenuItems();
+
+        if (
+            Craft::$app->getUser()->getIsAdmin() &&
+            Craft::$app->getConfig()->getGeneral()->allowAdminChanges
+        ) {
+            // Product type settings
+            $productTypeEditId = sprintf('edit-product-type-%s', mt_rand());
+            $actions[] = [
+                'id' => $productTypeEditId,
+                'icon' => 'gear',
+                'label' => Craft::t('commerce', 'Product type settings'),
+            ];
+
+            $view = Craft::$app->getView();
+            $view->registerJsWithVars(fn($id, $params) => <<<JS
+(() => {
+  $('#' + $id).on('activate', function() {
+    const params = $params;
+    new Craft.CpScreenSlideout('commerce/product-types/edit-product-type', {params});
+  });
+})();
+JS, [
+                $view->namespaceInputId($productTypeEditId),
+                ['productTypeId' => $this->typeId],
+            ]);
+        }
+
+        return $actions;
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected static function includeSetStatusAction(): bool
     {
         return true;
