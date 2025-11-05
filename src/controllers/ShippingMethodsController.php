@@ -12,6 +12,8 @@ use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
+use craft\helpers\Cp;
+use craft\helpers\Html;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
 use yii\web\BadRequestHttpException;
@@ -36,7 +38,31 @@ class ShippingMethodsController extends BaseShippingSettingsController
         }
 
         $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods($store->id);
-        return $this->renderTemplate('commerce/store-management/shipping/shippingmethods/index', compact('shippingMethods', 'store'));
+
+        // Generate table data with chips
+        $tableData = [];
+        foreach ($shippingMethods as $shippingMethod) {
+            $label = Craft::t('site', $shippingMethod->name);
+            $tableData[] = [
+                'id' => $shippingMethod->id,
+                'title' => $label,
+                'chip' => Cp::chipHtml($shippingMethod, [
+                    'labelHtml' => Html::a($label, $shippingMethod->getCpEditUrl(), [
+                        'class' => ['chip-label', 'cell-bold'],
+                    ]),
+                ]),
+                'url' => $shippingMethod->getCpEditUrl(),
+                'handle' => $shippingMethod->handle,
+                'type' => $shippingMethod->getType(),
+                'status' => $shippingMethod->enabled,
+            ];
+        }
+
+        return $this->renderTemplate('commerce/store-management/shipping/shippingmethods/index', [
+            'shippingMethods' => $shippingMethods,
+            'tableData' => $tableData,
+            'store' => $store,
+        ]);
     }
 
     /**

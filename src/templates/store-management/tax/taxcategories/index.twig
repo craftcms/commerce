@@ -23,23 +23,10 @@
     <div id="tax-vue-admin-table"></div>
 {% endblock %}
 
-{% set tableData = [] %}
-{% for taxCategory in taxCategories %}
-    {% set tableData = tableData|merge([{
-        id: taxCategory.id,
-        title: taxCategory.name|t('site'),
-        url: taxCategory.getCpEditUrl(store.id),
-        handle: taxCategory.handle,
-        description: taxCategory.description|t('site')|e,
-        default: taxCategory.default ? true : false,
-        _showDelete: not taxCategory.taxRates|length and (taxCategories|length > 1 and not taxCategory.default)
-    }]) %}
-{% endfor %}
-
 {% js %}
     var columns = [
-        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
-        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+        { name: 'chip', title: Craft.t('commerce', 'Name') },
+        { name: 'handle', title: Craft.t('commerce', 'Handle') },
         { name: 'description', title: Craft.t('commerce', 'Description') },
         {
             name: 'default',

@@ -13,6 +13,7 @@ use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\Plugin;
 use craft\helpers\Cp;
+use craft\helpers\Html;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use yii\base\Exception;
@@ -42,7 +43,30 @@ class TaxZonesController extends BaseTaxSettingsController
         }
 
         $taxZones = Plugin::getInstance()->getTaxZones()->getAllTaxZones($store->id);
-        return $this->renderTemplate('commerce/store-management/tax/taxzones/index', compact('taxZones', 'store'));
+
+        // Generate table data with chips
+        $tableData = [];
+        foreach ($taxZones as $taxZone) {
+            $label = Craft::t('site', $taxZone->name);
+            $tableData[] = [
+                'id' => $taxZone->id,
+                'title' => $label,
+                'chip' => Cp::chipHtml($taxZone, [
+                    'labelHtml' => Html::a($label, $taxZone->getCpEditUrl(), [
+                        'class' => ['chip-label', 'cell-bold'],
+                    ]),
+                ]),
+                'url' => $taxZone->getCpEditUrl(),
+                'description' => Craft::t('site', $taxZone->description),
+                'default' => $taxZone->default,
+            ];
+        }
+
+        return $this->renderTemplate('commerce/store-management/tax/taxzones/index', [
+            'taxZones' => $taxZones,
+            'tableData' => $tableData,
+            'store' => $store,
+        ]);
     }
 
     /**
@@ -56,41 +80,61 @@ class TaxZonesController extends BaseTaxSettingsController
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
 
-        $variables = compact('id', 'taxZone', 'store');
+        if (!$taxZone) {
+            if ($id) {
+                $taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($id, $store->id);
 
-        if (!$variables['taxZone']) {
-            if ($variables['id']) {
-                $variables['taxZone'] = Plugin::getInstance()->getTaxZones()->getTaxZoneById($variables['id'], $store->id);
-
-                if (!$variables['taxZone']) {
+                if (!$taxZone) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['taxZone'] = Craft::createObject([
+                $taxZone = Craft::createObject([
                     'class' => TaxAddressZone::class,
                     'storeId' => $store->id,
                 ]);
             }
         }
 
-        if ($variables['taxZone']->id) {
-            $variables['title'] = $variables['taxZone']->name;
-        } else {
-            $variables['title'] = Craft::t('commerce', 'Create a tax zone');
-        }
+        $title = $taxZone->id ? $taxZone->name : Craft::t('commerce', 'Create a tax zone');
 
-        $condition = $variables['taxZone']->getCondition();
+        $condition = $taxZone->getCondition();
         $condition->mainTag = 'div';
         $condition->name = 'condition';
         $condition->id = 'condition';
-        $variables['conditionField'] = Cp::fieldHtml($condition->getBuilderHtml(), [
+        $conditionField = Cp::fieldHtml($condition->getBuilderHtml(), [
             'label' => Craft::t('app', 'Address Condition'),
         ]);
-        $variables['store'] = $store;
 
-        DebugPanel::prependOrAppendModelTab(model: $variables['taxZone'], prepend: true);
+        DebugPanel::prependOrAppendModelTab(model: $taxZone, prepend: true);
 
-        return $this->renderTemplate('commerce/store-management/tax/taxzones/_edit', $variables);
+        $metaSidebar = '';
+        if ($taxZone->id) {
+            $metaSidebar = '<div class="meta read-only">' .
+                '<div class="data">' .
+                '<h5 class="heading">' . Craft::t('app', 'Created at') . '</h5>' .
+                '<div id="date-created-value" class="value">' . Craft::$app->getFormatter()->asDatetime($taxZone->dateCreated, 'short') . '</div>' .
+                '</div>' .
+                '<div class="data">' .
+                '<h5 class="heading">' . Craft::t('app', 'Updated at') . '</h5>' .
+                '<div id="date-updated-value" class="value">' . Craft::$app->getFormatter()->asDatetime($taxZone->dateUpdated, 'short') . '</div>' .
+                '</div>' .
+                '</div>';
+        }
+
+        return $this->asCpScreen()
+            ->title($title)
+            ->crumbs([
+                ['label' => Craft::t('commerce', 'Tax Zones'), 'url' => $store->getStoreSettingsUrl('taxzones')],
+            ])
+            ->selectedSubnavItem('tax')
+            ->action('commerce/tax-zones/save')
+            ->redirectUrl($store->getStoreSettingsUrl('taxzones'))
+            ->metaSidebarHtml($metaSidebar)
+            ->contentTemplate('commerce/store-management/tax/taxzones/_edit', [
+                'taxZone' => $taxZone,
+                'store' => $store,
+                'conditionField' => $conditionField,
+            ]);
     }
 
     /**

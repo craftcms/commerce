@@ -24,25 +24,10 @@
     <div id="taxrate-vue-admin-table"></div>
 {% endblock %}
 
-{% set tableData = [] %}
-{% for taxRate in taxRates -%}
-    {%- set tableData = tableData|merge([{
-        id: taxRate.id,
-        status: taxRate.enabled,
-        title: taxRate.name|t('site'),
-        url: taxRate.getCpEditUrl(),
-        rate: taxRate.rateAsPercent,
-        included: taxRate.include ? true : false,
-        removeIncluded: taxRate.removeIncluded ? true : false,
-        vat: taxRate.isVat ? true : false,
-        zone: taxRate.isEverywhere ? 'Everywhere'|t('commerce') : { label: taxRate.taxZone.name|t('site')|e, url: taxRate.taxZone.cpEditUrl },
-        category: taxRate.taxCategory ? { label: taxRate.taxCategory.name|t('site')|e, url: taxRate.taxCategory.cpEditUrl } : false,
-    }]) -%}
-{%- endfor %}
 
 {% js %}
 var columns = [
-    { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+    { name: 'chip', title: Craft.t('commerce', 'Name') },
     { name: 'rate', title: Craft.t('commerce', 'Rate') },
     { name: 'included', title: Craft.t('commerce', 'Include in price?'), callback: function(value) {
       if (value) {
@@ -54,18 +39,8 @@ var columns = [
                 return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
             }
         } },
-    { name: 'zone', title: Craft.t('commerce', 'Tax Zone'), callback: function(value) {
-        if (value && value.url) {
-            return '<a href="'+value.url+'">'+value.label+'</a>';
-        } else if (value) {
-            return value;
-        }
-    } },
-    { name: 'category', title: Craft.t('commerce', 'Tax Category'), callback: function(value) {
-        if (value) {
-            return '<a href="'+value.url+'">'+value.label+'</a>';
-        }
-    } }
+    { name: 'zone', title: Craft.t('commerce', 'Tax Zone') },
+    { name: 'category', title: Craft.t('commerce', 'Tax Category') }
 ];
 
 var actions = [

@@ -1,0 +1,26 @@
+{% import "_includes/forms" as forms %}
+
+<div class="meta">
+  {{ forms.lightSwitchField({
+    label: "Enable this tax rate"|t('commerce'),
+    id: 'enabled',
+    name: 'enabled',
+    value: 1,
+    on: taxRate.enabled,
+    checked: taxRate.enabled,
+    errors: taxRate.getErrors('enabled')
+  }) }}
+</div>
+
+{% if taxRate and taxRate.id %}
+  <div class="meta read-only">
+    <div class="data">
+      <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+      <div id="date-created-value" class="value">{{ taxRate.dateCreated|datetime('short') }}</div>
+    </div>
+    <div class="data">
+      <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+      <div id="date-updated-value" class="value">{{ taxRate.dateUpdated|datetime('short') }}</div>
+    </div>
+  </div>
+{% endif %}

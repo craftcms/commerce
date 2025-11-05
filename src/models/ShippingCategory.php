@@ -7,6 +7,9 @@
 
 namespace craft\commerce\models;
 
+use Craft;
+use craft\base\Chippable;
+use craft\base\Iconic;
 use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\StoreTrait;
@@ -27,7 +30,7 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ShippingCategory extends Model implements HasStoreInterface
+class ShippingCategory extends Model implements HasStoreInterface, Chippable, Iconic
 {
     use StoreTrait;
 
@@ -92,6 +95,39 @@ class ShippingCategory extends Model implements HasStoreInterface
     public function getCpEditUrl(): string
     {
         return $this->getStore()->getStoreSettingsUrl('shippingcategories/' . $this->id);
+    }
+
+    /**
+     * @param int|string $id
+     * @return static|null
+     */
+    public static function get(int|string $id): ?static
+    {
+        return Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($id);
+    }
+
+    /**
+     * @return string
+     */
+    public function getUiLabel(): string
+    {
+        return Craft::t('site', $this->name);
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getIcon(): ?string
+    {
+        return 'list-tree';
     }
 
     /**

@@ -8,6 +8,8 @@
 namespace craft\commerce\models;
 
 use Craft;
+use craft\base\Chippable;
+use craft\base\Iconic;
 use craft\commerce\base\ShippingMethod as BaseShippingMethod;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
@@ -25,7 +27,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ShippingMethod extends BaseShippingMethod
+class ShippingMethod extends BaseShippingMethod implements Chippable, Iconic
 {
     public function behaviors(): array
     {
@@ -102,6 +104,31 @@ class ShippingMethod extends BaseShippingMethod
     public function getCpEditUrl(): string
     {
         return $this->getStore()->getStoreSettingsUrl('shippingmethods/' . $this->id);
+    }
+
+    /**
+     * @param int|string $id
+     * @return static|null
+     */
+    public static function get(int|string $id): ?static
+    {
+        return Plugin::getInstance()->getShippingMethods()->getShippingMethodById($id);
+    }
+
+    /**
+     * @return string
+     */
+    public function getUiLabel(): string
+    {
+        return Craft::t('site', $this->name);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getIcon(): ?string
+    {
+        return 'truck';
     }
 
     /**

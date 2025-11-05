@@ -8,6 +8,8 @@
 namespace craft\commerce\models;
 
 use Craft;
+use craft\base\Chippable;
+use craft\base\Iconic;
 use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\StoreTrait;
@@ -29,7 +31,7 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class TaxRate extends Model implements HasStoreInterface
+class TaxRate extends Model implements HasStoreInterface, Chippable, Iconic
 {
     use StoreTrait;
 
@@ -181,7 +183,40 @@ class TaxRate extends Model implements HasStoreInterface
     }
 
     /**
-     * Returns the tax rate’s control panel edit page URL.
+     * @param int|string $id
+     * @return static|null
+     */
+    public static function get(int|string $id): ?static
+    {
+        return Plugin::getInstance()->getTaxRates()->getTaxRateById($id);
+    }
+
+    /**
+     * @return string
+     */
+    public function getUiLabel(): string
+    {
+        return Craft::t('site', $this->name);
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getIcon(): ?string
+    {
+        return 'percent';
+    }
+
+    /**
+     * Returns the tax rate's control panel edit page URL.
      *
      * @return string
      * @throws InvalidConfigException

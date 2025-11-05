@@ -12,6 +12,8 @@ use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
+use craft\helpers\Html;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -38,12 +40,33 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         }
 
         $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories($store->id);
-        $variables = [
+
+        // Generate table data with chips
+        $tableData = [];
+        foreach ($shippingCategories as $shippingCategory) {
+            $label = Craft::t('site', $shippingCategory->name);
+            $tableData[] = [
+                'id' => $shippingCategory->id,
+                'title' => $label,
+                'chip' => Cp::chipHtml($shippingCategory, [
+                    'labelHtml' => Html::a($label, $shippingCategory->getCpEditUrl(), [
+                        'class' => ['chip-label', 'cell-bold'],
+                    ]),
+                ]),
+                'url' => $shippingCategory->getCpEditUrl(),
+                'handle' => $shippingCategory->handle,
+                'description' => Craft::t('site', $shippingCategory->description),
+                'default' => $shippingCategory->default,
+                '_showDelete' => (count($shippingCategories) > 1 && !$shippingCategory->default),
+            ];
+        }
+
+        return $this->renderTemplate('commerce/store-management/shipping/shippingcategories/index', [
             'shippingCategories' => $shippingCategories,
+            'tableData' => $tableData,
             'storeHandle' => $store->handle,
             'store' => $store,
-        ];
-        return $this->renderTemplate('commerce/store-management/shipping/shippingcategories/index', $variables);
+        ]);
     }
 
     /**

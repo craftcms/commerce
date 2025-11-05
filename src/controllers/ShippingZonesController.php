@@ -12,6 +12,7 @@ use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\Plugin;
 use craft\helpers\Cp;
+use craft\helpers\Html;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use yii\base\Exception;
@@ -34,7 +35,29 @@ class ShippingZonesController extends BaseShippingSettingsController
         }
 
         $shippingZones = Plugin::getInstance()->getShippingZones()->getAllShippingZones($store->id);
-        return $this->renderTemplate('commerce/store-management/shipping/shippingzones/index', compact('shippingZones', 'store'));
+
+        // Generate table data with chips
+        $tableData = [];
+        foreach ($shippingZones as $shippingZone) {
+            $label = Craft::t('site', $shippingZone->name);
+            $tableData[] = [
+                'id' => $shippingZone->id,
+                'title' => $label,
+                'chip' => Cp::chipHtml($shippingZone, [
+                    'labelHtml' => Html::a($label, $shippingZone->getCpEditUrl(), [
+                        'class' => ['chip-label', 'cell-bold'],
+                    ]),
+                ]),
+                'url' => $shippingZone->getCpEditUrl(),
+                'description' => Craft::t('site', $shippingZone->description),
+            ];
+        }
+
+        return $this->renderTemplate('commerce/store-management/shipping/shippingzones/index', [
+            'shippingZones' => $shippingZones,
+            'tableData' => $tableData,
+            'store' => $store,
+        ]);
     }
 
     /**

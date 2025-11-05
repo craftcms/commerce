@@ -17,24 +17,10 @@
     <div id="shipping-vue-admin-table"></div>
 {% endblock %}
 
-{% set tableData = [] %}
-{% for shippingCategory in shippingCategories %}
-    {% set tableData = tableData|merge([{
-        id: shippingCategory.id,
-        title: shippingCategory.name|t('site'),
-        url: shippingCategory.cpEditUrl,
-        handle: shippingCategory.handle|e,
-        description: shippingCategory.description ? shippingCategory.description|t('site')|e,
-        default: shippingCategory.default ? true : false,
-
-        _showDelete: (shippingCategories|length > 1 and not shippingCategory.default)
-    }]) %}
-{% endfor %}
-
 {% js %}
     var columns = [
-        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
-        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+        { name: 'chip', title: Craft.t('commerce', 'Name') },
+        { name: 'handle', title: Craft.t('commerce', 'Handle') },
         { name: 'description', title: Craft.t('commerce', 'Description') },
         {
             name: 'default',

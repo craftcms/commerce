@@ -14,19 +14,9 @@
     <div id="shipping-vue-admin-table"></div>
 {% endblock %}
 
-{% set tableData = [] %}
-{% for shippingZone in shippingZones %}
-	{% set tableData = tableData|merge([{
-        id: shippingZone.id,
-        title: shippingZone.name|t('site'),
-        url: shippingZone.getCpEditUrl(),
-        description: shippingZone.description|t('site')|e,
-    }]) %}
-{% endfor %}
-
 {% js %}
     var columns = [
-        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: 'chip', title: Craft.t('commerce', 'Name') },
         { name: 'description', title: Craft.t('commerce', 'Description') },
     ];
 

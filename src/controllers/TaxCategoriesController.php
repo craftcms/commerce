@@ -14,6 +14,8 @@ use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
+use craft\helpers\Html;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -40,7 +42,33 @@ class TaxCategoriesController extends BaseTaxSettingsController
         }
 
         $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategories();
-        return $this->renderTemplate('commerce/store-management/tax/taxcategories/index', compact('taxCategories', 'store'));
+
+        // Generate table data with chips
+        $tableData = [];
+        foreach ($taxCategories as $taxCategory) {
+            $label = Craft::t('site', $taxCategory->name);
+            $taxRates = $taxCategory->getTaxRates($store->id);
+            $tableData[] = [
+                'id' => $taxCategory->id,
+                'title' => $label,
+                'chip' => Cp::chipHtml($taxCategory, [
+                    'labelHtml' => Html::a($label, $taxCategory->getCpEditUrl($store->id), [
+                        'class' => ['chip-label', 'cell-bold'],
+                    ]),
+                ]),
+                'url' => $taxCategory->getCpEditUrl($store->id),
+                'handle' => $taxCategory->handle,
+                'description' => Craft::t('site', $taxCategory->description),
+                'default' => $taxCategory->default,
+                '_showDelete' => $taxRates->isEmpty() && (count($taxCategories) > 1 && !$taxCategory->default),
+            ];
+        }
+
+        return $this->renderTemplate('commerce/store-management/tax/taxcategories/index', [
+            'taxCategories' => $taxCategories,
+            'tableData' => $tableData,
+            'store' => $store,
+        ]);
     }
 
     /**
@@ -54,47 +82,66 @@ class TaxCategoriesController extends BaseTaxSettingsController
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
 
-        $variables = [
-            'id' => $id,
-            'taxCategory' => $taxCategory,
-            'productTypes' => Plugin::getInstance()->getProductTypes()->getAllProductTypes(),
-            'store' => $store,
-        ];
+        $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
 
-        if (!$variables['taxCategory']) {
-            if ($variables['id']) {
-                $variables['taxCategory'] = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($variables['id']);
+        if (!$taxCategory) {
+            if ($id) {
+                $taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($id);
 
-                if (!$variables['taxCategory']) {
+                if (!$taxCategory) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['taxCategory'] = new TaxCategory();
+                $taxCategory = new TaxCategory();
             }
         }
 
-        if ($variables['taxCategory']->id) {
-            $variables['title'] = $variables['taxCategory']->name;
-        } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new tax category');
-        }
+        $title = $taxCategory->id ? $taxCategory->name : Craft::t('commerce', 'Create a new tax category');
 
-        DebugPanel::prependOrAppendModelTab(model: $variables['taxCategory'], prepend: true);
+        DebugPanel::prependOrAppendModelTab(model: $taxCategory, prepend: true);
 
-        $variables['productTypesOptions'] = [];
-        if (!empty($variables['productTypes'])) {
-            $variables['productTypesOptions'] = ArrayHelper::map($variables['productTypes'], 'id', fn($row) => ['label' => $row->name, 'value' => $row->id]);
+        $productTypesOptions = [];
+        if (!empty($productTypes)) {
+            $productTypesOptions = ArrayHelper::map($productTypes, 'id', fn($row) => ['label' => $row->name, 'value' => $row->id]);
         }
 
         $allTaxCategoryIds = array_keys(Plugin::getInstance()->getTaxCategories()->getAllTaxCategories());
-        $variables['isDefaultAndOnlyCategory'] = $variables['id'] && count($allTaxCategoryIds) === 1 && in_array($variables['id'], $allTaxCategoryIds);
+        $isDefaultAndOnlyCategory = $id && count($allTaxCategoryIds) === 1 && in_array($id, $allTaxCategoryIds);
 
         // Get all tax rates for all stores
         $taxRates = collect();
         Plugin::getInstance()->getStores()->getAllStores()->each(fn(Store $s) => $taxRates->push(...Plugin::getInstance()->getTaxRates()->getAllTaxRates($s->id)->all()));
-        $variables['taxRates'] = $taxRates;
 
-        return $this->renderTemplate('commerce/store-management/tax/taxcategories/_edit', $variables);
+        $metaSidebar = '';
+        if ($taxCategory->id) {
+            $metaSidebar = '<div class="meta read-only">' .
+                '<div class="data">' .
+                '<h5 class="heading">' . Craft::t('app', 'Created at') . '</h5>' .
+                '<div id="date-created-value" class="value">' . Craft::$app->getFormatter()->asDatetime($taxCategory->dateCreated, 'short') . '</div>' .
+                '</div>' .
+                '<div class="data">' .
+                '<h5 class="heading">' . Craft::t('app', 'Updated at') . '</h5>' .
+                '<div id="date-updated-value" class="value">' . Craft::$app->getFormatter()->asDatetime($taxCategory->dateUpdated, 'short') . '</div>' .
+                '</div>' .
+                '</div>';
+        }
+
+        return $this->asCpScreen()
+            ->title($title)
+            ->crumbs([
+                ['label' => Craft::t('commerce', 'Tax Categories'), 'url' => $store->getStoreSettingsUrl('taxcategories')],
+            ])
+            ->action('commerce/tax-categories/save')
+            ->redirectUrl($store->getStoreSettingsUrl('taxcategories'))
+            ->metaSidebarHtml($metaSidebar)
+            ->contentTemplate('commerce/store-management/tax/taxcategories/_edit', [
+                'taxCategory' => $taxCategory,
+                'productTypes' => $productTypes,
+                'productTypesOptions' => $productTypesOptions,
+                'isDefaultAndOnlyCategory' => $isDefaultAndOnlyCategory,
+                'taxRates' => $taxRates,
+                'store' => $store,
+            ]);
     }
 
     /**

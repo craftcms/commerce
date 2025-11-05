@@ -7,7 +7,11 @@
 
 namespace craft\commerce\models;
 
+use Craft;
+use craft\base\Chippable;
+use craft\base\Iconic;
 use craft\commerce\base\Zone;
+use craft\commerce\Plugin;
 use craft\commerce\records\ShippingZone;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
@@ -21,7 +25,7 @@ use yii\base\InvalidConfigException;
  *
  * @property-read string $cpEditUrl
  */
-class ShippingAddressZone extends Zone
+class ShippingAddressZone extends Zone implements Chippable, Iconic
 {
     /**
      * @inheritdoc
@@ -41,5 +45,38 @@ class ShippingAddressZone extends Zone
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/store-management/' . $this->getStore()->handle . '/shippingzones/' . $this->id);
+    }
+
+    /**
+     * @param int|string $id
+     * @return static|null
+     */
+    public static function get(int|string $id): ?static
+    {
+        return Plugin::getInstance()->getShippingZones()->getShippingZoneById($id);
+    }
+
+    /**
+     * @return string
+     */
+    public function getUiLabel(): string
+    {
+        return Craft::t('site', $this->name);
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getIcon(): ?string
+    {
+        return 'map-location-dot';
     }
 }

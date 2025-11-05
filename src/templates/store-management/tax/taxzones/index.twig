@@ -15,20 +15,9 @@
     <div id="tax-vue-admin-table"></div>
 {% endblock %}
 
-{% set tableData = [] %}
-{% for taxZone in taxZones %}
-    {% set tableData = tableData|merge([{
-        id: taxZone.id,
-        title: taxZone.name|t('site'),
-        url: taxZone.getCpEditUrl(),
-        description: taxZone.description|t('site')|e,
-        default: taxZone.default,
-    }]) %}
-{% endfor %}
-
 {% js %}
 var columns = [
-    { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+    { name: 'chip', title: Craft.t('commerce', 'Name') },
     { name: 'description', title: Craft.t('commerce', 'Description') },
     {
         name: 'default',

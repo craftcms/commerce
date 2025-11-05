@@ -19,22 +19,10 @@
     <div id="shipping-vue-admin-table"></div>
 {% endblock %}
 
-{% set tableData = [] %}
-{% for method in shippingMethods %}
-	{% set tableData = tableData|merge([{
-        id: method.id,
-        title: method.getName()|t('site'),
-        status: method.getIsEnabled(),
-        url: method.getCpEditUrl(),
-        handle: method.handle,
-        type: method.getType(),
-    }]) %}
-{% endfor %}
-
 {% js %}
     var columns = [
-        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
-        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+        { name: 'chip', title: Craft.t('commerce', 'Name') },
+        { name: 'handle', title: Craft.t('commerce', 'Handle') },
         { name: 'type', title: Craft.t('commerce', 'Type') },
     ];
 
