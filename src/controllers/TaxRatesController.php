@@ -65,7 +65,7 @@ class TaxRatesController extends BaseTaxSettingsController
                 'included' => $taxRate->include,
                 'removeIncluded' => $taxRate->removeIncluded,
                 'vat' => $taxRate->isVat,
-                'zone' => $taxRate->isEverywhere ? Craft::t('commerce', 'Everywhere') : ($taxRate->taxZone ? Cp::chipHtml($taxRate->taxZone) : ''),
+                'zone' => $taxRate->isEverywhere ? Craft::t('commerce', 'Everywhere') : ($taxRate->taxZone ? $taxRate->taxZone->name : ''),
                 'category' => $taxRate->taxCategory ? Cp::chipHtml($taxRate->taxCategory) : '',
             ];
         }
