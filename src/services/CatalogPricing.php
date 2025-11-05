@@ -477,14 +477,16 @@ class CatalogPricing extends Component
      * @return void
      * @throws InvalidConfigException
      * @since 5.0.0
+     * @deprecated in 5.5.0
      */
     public function afterSavePurchasableHandler(ModelEvent $event): void
     {
-        if (!$event->sender instanceof Purchasable || $event->sender->propagating) {
+        $purchasable = $event->sender;
+        if (!$purchasable instanceof Purchasable || $purchasable->propagating || $purchasable->getIsDraft() || $purchasable->getIsRevision()) {
             return;
         }
 
-        $this->createCatalogPricingJob(['purchasableIds' => [$event->sender->id]]);
+        $this->createCatalogPricingJob(['purchasableIds' => [$purchasable->id], 'storeId' => $purchasable->storeId]);
     }
 
     /**

@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where duplicate pricing catalog jobs were being queued. ([#4136](https://github.com/craftcms/commerce/issues/4136))
+- Deprecated `craft\commerce\services\CatalogPricing::afterSavePurchasableHandler()`.
+
 ## 5.4.9 - 2025-10-29
 
 - Fixed a bug where line items could display values in the wrong currency on Edit Order pages. ([#4147](https://github.com/craftcms/commerce/issues/4147))

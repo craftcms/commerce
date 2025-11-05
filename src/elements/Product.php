@@ -2041,10 +2041,12 @@ class Product extends Element implements HasStoreInterface
         parent::afterPropagate($isNew);
 
         // @TODO improve performance by collating all purchasable IDs updated during request
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
-            'purchasableIds' => $this->getVariants()->pluck('id')->all(),
-            'storeId' => $this->storeId,
-        ]);
+        if (!$this->getIsDraft()) {
+            Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+                'purchasableIds' => $this->getVariants()->pluck('id')->all(),
+                'storeId' => $this->storeId,
+            ]);
+        }
 
         // Save a new revision?
         if ($this->_shouldSaveRevision()) {
