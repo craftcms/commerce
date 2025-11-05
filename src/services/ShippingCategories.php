@@ -173,6 +173,8 @@ class ShippingCategories extends Component
         $record->storeId = $shippingCategory->storeId;
         $record->handle = $shippingCategory->handle;
         $record->description = $shippingCategory->description;
+        $record->icon = $shippingCategory->icon;
+        $record->color = $shippingCategory->color;
         $record->default = $shippingCategory->default;
 
         // Save it!
@@ -370,6 +372,15 @@ class ShippingCategories extends Component
                 'shippingCategories.storeId',
             ])
             ->from([Table::SHIPPINGCATEGORIES . ' shippingCategories']);
+
+        // Only add icon and color if the columns exist (for pre-migration compatibility)
+        $db = Craft::$app->getDb();
+        $schema = $db->getSchema();
+        $tableSchema = $schema->getTableSchema(Table::SHIPPINGCATEGORIES);
+
+        if ($tableSchema && $tableSchema->getColumn('icon') !== null) {
+            $query->addSelect(['shippingCategories.icon', 'shippingCategories.color']);
+        }
 
         if (!$withTrashed) {
             $query->where(['dateDeleted' => null]);

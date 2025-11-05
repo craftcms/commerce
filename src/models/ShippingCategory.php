@@ -9,11 +9,14 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\base\Chippable;
+use craft\base\Colorable;
+use craft\base\Iconic;
 use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\StoreTrait;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingCategory as ShippingCategoryRecord;
+use craft\enums\Color;
 use craft\helpers\ArrayHelper;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
@@ -29,7 +32,7 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ShippingCategory extends Model implements HasStoreInterface, Chippable
+class ShippingCategory extends Model implements HasStoreInterface, Chippable, Colorable, Iconic
 {
     use StoreTrait;
 
@@ -47,6 +50,16 @@ class ShippingCategory extends Model implements HasStoreInterface, Chippable
      * @var string|null Handle
      */
     public ?string $handle = null;
+
+    /**
+     * @var string|null Icon
+     */
+    public ?string $icon = null;
+
+    /**
+     * @var string|null Color
+     */
+    public ?string $color = null;
 
     /**
      * @var string|null Description
@@ -122,6 +135,22 @@ class ShippingCategory extends Model implements HasStoreInterface, Chippable
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getIcon(): ?string
+    {
+        return $this->icon;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getColor(): ?Color
+    {
+        return $this->color ? Color::tryFrom($this->color) : null;
+    }
+
+    /**
      * @param ProductType[] $productTypes
      */
     public function setProductTypes(array $productTypes): void
@@ -171,6 +200,8 @@ class ShippingCategory extends Model implements HasStoreInterface, Chippable
                 'default',
                 'description',
                 'handle',
+                'icon',
+                'color',
                 'id',
                 'name',
                 'storeId',

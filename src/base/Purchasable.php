@@ -14,6 +14,7 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\enums\LineItemType;
 use craft\commerce\errors\StoreNotFoundException;
+use craft\commerce\helpers\Cp as CommerceCp;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Localization;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
@@ -35,7 +36,6 @@ use craft\db\Table as CraftTable;
 use craft\errors\DeprecationException;
 use craft\errors\SiteNotFoundException;
 use craft\helpers\ArrayHelper;
-use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\MoneyHelper;
 use craft\validators\UniqueValidator;
@@ -900,6 +900,22 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     /**
      * @inheritdoc
      */
+    public function setAttributes($values, $safeOnly = true): void
+    {
+        // Normalize empty strings to null for category IDs before setting
+        if (isset($values['taxCategoryId']) && $values['taxCategoryId'] === '') {
+            $values['taxCategoryId'] = null;
+        }
+        if (isset($values['shippingCategoryId']) && $values['shippingCategoryId'] === '') {
+            $values['shippingCategoryId'] = null;
+        }
+
+        parent::setAttributes($values, $safeOnly);
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected function defineRules(): array
     {
         return array_merge(parent::defineRules(), [
@@ -923,6 +939,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             [['basePromotionalPrice', 'minQty', 'maxQty'], 'number', 'skipOnEmpty' => true],
             [['freeShipping', 'inventoryTracked', 'allowOutOfStockPurchases', 'promotable', 'availableForPurchase'], 'boolean'],
             [['taxCategoryId', 'shippingCategoryId', 'price', 'promotionalPrice', 'productSlug', 'productTypeHandle'], 'safe'],
+            [['taxCategoryId', 'shippingCategoryId', ], 'required'],
         ]);
     }
 
@@ -1319,15 +1336,21 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     protected function shippingCategoryFieldHtml(bool $static): string
     {
-        $options = ArrayHelper::map($this->availableShippingCategories(), 'id', 'name');
+        $shippingCategory = null;
+        if ($this->shippingCategoryId) {
+            $shippingCategory = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId, $this->storeId);
+        }
 
-        return Cp::selectFieldHtml([
-            'id' => 'shipping-category',
-            'name' => 'shippingCategoryId',
+        return CommerceCp::shippingCategoryFieldHtml([
             'label' => Craft::t('commerce', 'Shipping Category'),
-            'options' => $options,
-            'value' => $this->shippingCategoryId,
+            'id' => 'shippingCategoryId',
+            'name' => 'shippingCategoryId',
+            'value' => $shippingCategory,
+            'limit' => 1,
+            'min' => 1,
             'disabled' => $static,
+            'create' => false,
+            'storeId' => $this->storeId,
         ]);
     }
 
@@ -1349,15 +1372,20 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     protected function taxCategoryFieldHtml(bool $static): string
     {
-        $options = ArrayHelper::map($this->availableTaxCategories(), 'id', 'name');
+        $taxCategory = null;
+        if ($this->taxCategoryId) {
+            $taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
+        }
 
-        return Cp::selectFieldHtml([
-            'id' => 'tax-category',
-            'name' => 'taxCategoryId',
+        return CommerceCp::taxCategoryFieldHtml([
             'label' => Craft::t('commerce', 'Tax Category'),
-            'options' => $options,
-            'value' => $this->taxCategoryId,
+            'id' => 'taxCategoryId',
+            'name' => 'taxCategoryId',
+            'value' => $taxCategory,
+            'limit' => 1,
+            'min' => 1,
             'disabled' => $static,
+            'create' => false,
         ]);
     }
 

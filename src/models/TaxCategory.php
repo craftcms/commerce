@@ -9,11 +9,14 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\base\Chippable;
+use craft\base\Colorable;
+use craft\base\Iconic;
 use craft\commerce\base\Model;
 use craft\commerce\engines\Tax;
 use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxCategory as TaxCategoryRecord;
+use craft\enums\Color;
 use craft\helpers\ArrayHelper;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
@@ -31,7 +34,7 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class TaxCategory extends Model implements Chippable
+class TaxCategory extends Model implements Chippable, Colorable, Iconic
 {
     /**
      * @var int|null ID;
@@ -47,6 +50,16 @@ class TaxCategory extends Model implements Chippable
      * @var string|null Handle
      */
     public ?string $handle = null;
+
+    /**
+     * @var string|null Icon
+     */
+    public ?string $icon = null;
+
+    /**
+     * @var string|null Color
+     */
+    public ?string $color = null;
 
     /**
      * @var string|null Description
@@ -118,6 +131,22 @@ class TaxCategory extends Model implements Chippable
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getIcon(): ?string
+    {
+        return $this->icon;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getColor(): ?Color
+    {
+        return $this->color ? Color::tryFrom($this->color) : null;
+    }
+
+    /**
      * @param int|null $storeId
      * @return Collection<TaxRate>
      * @throws InvalidConfigException
@@ -185,6 +214,18 @@ class TaxCategory extends Model implements Chippable
             [['handle'], 'required'],
             [['handle'], UniqueValidator::class, 'targetClass' => TaxCategoryRecord::class],
             [['handle'], HandleValidator::class, 'when' => fn($model) => $isStandardTaxEngine],
+            [[
+                'id',
+                'name',
+                'handle',
+                'icon',
+                'color',
+                'description',
+                'default',
+                'dateCreated',
+                'dateUpdated',
+                'dateDeleted',
+            ], 'safe'],
         ];
     }
 

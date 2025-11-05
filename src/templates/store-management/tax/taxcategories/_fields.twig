@@ -14,7 +14,7 @@
 
 {{ forms.textField({
     label: "Handle"|t('commerce'),
-    instructions: "How you’ll refer to this tax category in the templates."|t('commerce'),
+    instructions: "How you'll refer to this tax category in the templates."|t('commerce'),
     id: 'handle',
     class: 'code',
     name: 'handle',
@@ -22,6 +22,26 @@
     value: taxCategory is defined ? taxCategory.handle,
     errors: taxCategory is defined ? taxCategory.getErrors('handle')
 }) }}
+
+<div class="field-group">
+    {{ forms.iconPickerField({
+        label: "Icon"|t('commerce'),
+        id: 'icon',
+        name: 'icon',
+        value: taxCategory is defined ? taxCategory.icon,
+        errors: taxCategory is defined ? taxCategory.getErrors('icon'),
+        fieldClass: 'width-50'
+    }) }}
+
+    {{ forms.colorSelectField({
+        label: "Color"|t('commerce'),
+        id: 'color',
+        name: 'color',
+        value: taxCategory is defined ? taxCategory.color,
+        errors: taxCategory is defined ? taxCategory.getErrors('color'),
+        fieldClass: 'width-50'
+    }) }}
+</div>
 
 {{ forms.textField({
     label: "Description"|t('commerce'),
