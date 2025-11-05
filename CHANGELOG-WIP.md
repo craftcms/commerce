@@ -10,7 +10,7 @@
 - Added a new system email message for sending PDF download links to customers.
 - 
 ### Administration
-- Added "Link Expiry" field to PDF settings, allowing administrators to configure how long download links remain valid.
+- Added "Link Expiry" field to PDF settings, allowing administrators to configure how long PDF download links remain valid.
 
 ### Extensibility
 - Added `craft\commerce\elements\Order::getMaskedEmail()`.
