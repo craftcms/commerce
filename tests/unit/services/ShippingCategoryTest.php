@@ -9,7 +9,6 @@ namespace craftcommercetests\unit\services;
 
 use Codeception\Test\Unit;
 use craft\commerce\db\Table;
-use craft\commerce\elements\Product;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingCategory;
 use craft\commerce\services\ShippingCategories;
