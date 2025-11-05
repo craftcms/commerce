@@ -18,6 +18,7 @@
 - Added the `--force` option to the `commerce/reset-data` command. ([#4115](https://github.com/craftcms/commerce/discussions/4115))
 
 ### Extensibility
+- Added `craft\commerce\controllers\BaseStoreManagementController::asStoreManagementCpScreen()`.
 - Added `craft\commerce\elements\Order::$dateFirstPaid`.
 - Added `craft\commerce\elements\db\OrderQuery::$dateFirstPaid`.
 - Added `craft\commerce\elements\db\OrderQuery::dateFirstPaid()`.
