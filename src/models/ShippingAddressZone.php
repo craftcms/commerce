@@ -50,6 +50,7 @@ class ShippingAddressZone extends Zone implements Chippable, Iconic
     /**
      * @param int|string $id
      * @return static|null
+     * @since 5.5.0
      */
     public static function get(int|string $id): ?static
     {
@@ -58,6 +59,7 @@ class ShippingAddressZone extends Zone implements Chippable, Iconic
 
     /**
      * @return string
+     * @since 5.5.0
      */
     public function getUiLabel(): string
     {
@@ -66,6 +68,7 @@ class ShippingAddressZone extends Zone implements Chippable, Iconic
 
     /**
      * @return int|null
+     * @since 5.5.0
      */
     public function getId(): ?int
     {
@@ -74,6 +77,7 @@ class ShippingAddressZone extends Zone implements Chippable, Iconic
 
     /**
      * @return string|null
+     * @since 5.5.0
      */
     public function getIcon(): ?string
     {

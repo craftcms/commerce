@@ -100,6 +100,7 @@ class ShippingCategory extends Model implements HasStoreInterface, Chippable, Ic
     /**
      * @param int|string $id
      * @return static|null
+     * @since 5.5.0
      */
     public static function get(int|string $id): ?static
     {
@@ -108,6 +109,7 @@ class ShippingCategory extends Model implements HasStoreInterface, Chippable, Ic
 
     /**
      * @return string
+     * @since 5.5.0
      */
     public function getUiLabel(): string
     {
@@ -116,6 +118,7 @@ class ShippingCategory extends Model implements HasStoreInterface, Chippable, Ic
 
     /**
      * @return int|null
+     * @since 5.5.0
      */
     public function getId(): ?int
     {
@@ -124,6 +127,7 @@ class ShippingCategory extends Model implements HasStoreInterface, Chippable, Ic
 
     /**
      * @return string|null
+     * @since 5.5.0
      */
     public function getIcon(): ?string
     {
