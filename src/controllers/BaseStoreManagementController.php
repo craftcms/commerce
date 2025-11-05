@@ -52,7 +52,7 @@ class BaseStoreManagementController extends BaseCpController
         $requestStoreHandle = Craft::$app->getRequest()->getSegment(Craft::$app->getConfig()->getGeneral()->cpTrigger ? 3 : 2);
         $requestSelectedItem = Craft::$app->getRequest()->getSegment(Craft::$app->getConfig()->getGeneral()->cpTrigger ? 4 : 3);
 
-        $storeHandle = $storeHandle === null ? $requestStoreHandle ?? Plugin::getInstance()->getStores()->getPrimaryStore()->handle : $storeHandle;
+        $storeHandle ??= $requestStoreHandle ?? Plugin::getInstance()->getStores()->getPrimaryStore()->handle;
         $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
         $selectedItem = $requestSelectedItem ?? 'general';
 
