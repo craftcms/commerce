@@ -23,7 +23,7 @@ use yii\base\InvalidConfigException;
  *
  * @property-read string $cpEditUrl
  */
-class TaxAddressZone extends Zone implements Actionable, Chippable, CpEditable, Iconic
+class TaxAddressZone extends Zone implements Chippable, Iconic
 {
     /**
      * @var bool Default
