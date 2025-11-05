@@ -31,12 +31,11 @@ class TaxAddressZone extends Zone implements Chippable, Iconic
     public bool $default = false;
 
     /**
-     * @param int|string $id
-     * @return static|null
-     * @since 5.5.0
+     * @inheritdoc
      */
     public static function get(int|string $id): ?static
     {
+        /** @phpstan-ignore-next-line */
         return Plugin::getInstance()->getTaxZones()->getTaxZoneById($id);
     }
 
@@ -50,8 +49,7 @@ class TaxAddressZone extends Zone implements Chippable, Iconic
     }
 
     /**
-     * @return string
-     * @since 5.5.0
+     * @inheritdoc
      */
     public function getUiLabel(): string
     {
@@ -59,8 +57,7 @@ class TaxAddressZone extends Zone implements Chippable, Iconic
     }
 
     /**
-     * @return int|null
-     * @since 5.5.0
+     * @inheritdoc
      */
     public function getId(): ?int
     {
@@ -68,8 +65,7 @@ class TaxAddressZone extends Zone implements Chippable, Iconic
     }
 
     /**
-     * @return string|null
-     * @since 5.5.0
+     * @inheritdoc
      */
     public function getIcon(): ?string
     {

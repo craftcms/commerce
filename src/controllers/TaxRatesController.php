@@ -87,9 +87,9 @@ class TaxRatesController extends BaseTaxSettingsController
      * @param TaxRate|null $taxRate
      * @throws ForbiddenHttpException
      * @throws HttpException
-     * @throws LoaderError
-     * @throws RuntimeError
-     * @throws SyntaxError
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      * @throws Exception
      */
     public function actionEdit(?string $storeHandle = null, int $id = null, TaxRate $taxRate = null): Response

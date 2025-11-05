@@ -107,18 +107,16 @@ class ShippingMethod extends BaseShippingMethod implements Chippable, Iconic
     }
 
     /**
-     * @param int|string $id
-     * @return static|null
-     * @since 5.5.0
+     * @inheritdoc
      */
     public static function get(int|string $id): ?static
     {
+        /** @phpstan-ignore-next-line */
         return Plugin::getInstance()->getShippingMethods()->getShippingMethodById($id);
     }
 
     /**
-     * @return string
-     * @since 5.5.0
+     * @inheritdoc
      */
     public function getUiLabel(): string
     {
@@ -126,8 +124,7 @@ class ShippingMethod extends BaseShippingMethod implements Chippable, Iconic
     }
 
     /**
-     * @return string|null
-     * @since 5.5.0
+     * @inheritdoc
      */
     public function getIcon(): ?string
     {

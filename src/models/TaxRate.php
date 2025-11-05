@@ -183,16 +183,16 @@ class TaxRate extends Model implements HasStoreInterface, Chippable, Iconic
     }
 
     /**
-     * @param int|string $id
-     * @return static|null
+     * @inheritdoc
      */
     public static function get(int|string $id): ?static
     {
+        /** @phpstan-ignore-next-line */
         return Plugin::getInstance()->getTaxRates()->getTaxRateById($id);
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getUiLabel(): string
     {
@@ -200,7 +200,7 @@ class TaxRate extends Model implements HasStoreInterface, Chippable, Iconic
     }
 
     /**
-     * @return int|null
+     * @inheritdoc
      */
     public function getId(): ?int
     {
@@ -208,7 +208,7 @@ class TaxRate extends Model implements HasStoreInterface, Chippable, Iconic
     }
 
     /**
-     * @return string|null
+     * @inheritdoc
      */
     public function getIcon(): ?string
     {

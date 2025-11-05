@@ -98,18 +98,16 @@ class ShippingCategory extends Model implements HasStoreInterface, Chippable, Ic
     }
 
     /**
-     * @param int|string $id
-     * @return static|null
-     * @since 5.5.0
+     * @inheritdoc
      */
     public static function get(int|string $id): ?static
     {
+        /** @phpstan-ignore-next-line */
         return Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($id);
     }
 
     /**
-     * @return string
-     * @since 5.5.0
+     * @inheritdoc
      */
     public function getUiLabel(): string
     {
@@ -117,8 +115,7 @@ class ShippingCategory extends Model implements HasStoreInterface, Chippable, Ic
     }
 
     /**
-     * @return int|null
-     * @since 5.5.0
+     * @inheritdoc
      */
     public function getId(): ?int
     {
@@ -126,8 +123,7 @@ class ShippingCategory extends Model implements HasStoreInterface, Chippable, Ic
     }
 
     /**
-     * @return string|null
-     * @since 5.5.0
+     * @inheritdoc
      */
     public function getIcon(): ?string
     {
