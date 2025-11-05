@@ -17,7 +17,6 @@ use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\Cp;
 use craft\helpers\Html;
-use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
