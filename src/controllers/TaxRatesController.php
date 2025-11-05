@@ -52,25 +52,20 @@ class TaxRatesController extends BaseTaxSettingsController
         $plugin->getTaxZones()->getAllTaxZones($store->id);
         $plugin->getTaxCategories()->getAllTaxCategories();
 
-        // Generate table data with chips
+        // Generate table data
         $tableData = [];
         foreach ($taxRates as $taxRate) {
             $label = Craft::t('site', $taxRate->name);
             $tableData[] = [
                 'id' => $taxRate->id,
                 'status' => $taxRate->enabled,
-                'title' => $label,
-                'chip' => Cp::chipHtml($taxRate, [
-                    'labelHtml' => Html::a($label, $taxRate->getCpEditUrl(), [
-                        'class' => ['chip-label', 'cell-bold'],
-                    ]),
-                ]),
+                'title' => Html::a($label, $taxRate->getCpEditUrl()),
                 'url' => $taxRate->getCpEditUrl(),
                 'rate' => $taxRate->getRateAsPercent(),
                 'included' => $taxRate->include,
                 'removeIncluded' => $taxRate->removeIncluded,
                 'vat' => $taxRate->isVat,
-                'zone' => $taxRate->isEverywhere ? Craft::t('commerce', 'Everywhere') : ($taxRate->taxZone ? Cp::chipHtml($taxRate->taxZone) : ''),
+                'zone' => $taxRate->isEverywhere ? Craft::t('commerce', 'Everywhere') : ($taxRate->taxZone ? $taxRate->taxZone->name : ''),
                 'category' => $taxRate->taxCategory ? Cp::chipHtml($taxRate->taxCategory) : '',
             ];
         }

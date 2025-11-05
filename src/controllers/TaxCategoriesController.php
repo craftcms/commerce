@@ -163,6 +163,8 @@ class TaxCategoriesController extends BaseTaxSettingsController
         $taxCategory->id = $this->request->getBodyParam('taxCategoryId');
         $taxCategory->name = $this->request->getBodyParam('name');
         $taxCategory->handle = $this->request->getBodyParam('handle');
+        $taxCategory->icon = $this->request->getBodyParam('icon');
+        $taxCategory->color = $this->request->getBodyParam('color');
         $taxCategory->description = $this->request->getBodyParam('description');
         $taxCategory->default = (bool)$this->request->getBodyParam('default');
 

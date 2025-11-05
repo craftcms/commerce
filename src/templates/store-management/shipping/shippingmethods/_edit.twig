@@ -79,6 +79,26 @@
         required: true,
     }) }}
 
+    <div class="field-group">
+        {{ forms.iconPickerField({
+            label: "Icon"|t('commerce'),
+            id: 'icon',
+            name: 'icon',
+            value: shippingMethod.icon,
+            errors: shippingMethod.getErrors('icon'),
+            fieldClass: 'width-50',
+        }) }}
+
+        {{ forms.colorSelectField({
+            label: "Color"|t('commerce'),
+            id: 'color',
+            name: 'color',
+            value: shippingMethod.color,
+            errors: shippingMethod.getErrors('color'),
+            fieldClass: 'width-50',
+        }) }}
+    </div>
+
     {% set orderConditionInput %}
       {{ shippingMethod.orderCondition.getBuilderHtml()|raw }}
     {% endset %}

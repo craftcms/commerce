@@ -142,6 +142,8 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         $shippingCategory->storeId = $this->request->getBodyParam('storeId');
         $shippingCategory->name = $this->request->getBodyParam('name');
         $shippingCategory->handle = $this->request->getBodyParam('handle');
+        $shippingCategory->icon = $this->request->getBodyParam('icon');
+        $shippingCategory->color = $this->request->getBodyParam('color');
         $shippingCategory->description = $this->request->getBodyParam('description');
         $shippingCategory->default = (bool)$this->request->getBodyParam('default');
 

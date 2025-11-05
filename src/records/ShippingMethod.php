@@ -20,6 +20,8 @@ use yii\db\ActiveQueryInterface;
  * @property int $id
  * @property int $storeId
  * @property string $name
+ * @property string $icon
+ * @property string $color
  * @property array|string $orderCondition
  * @property array|string $customerCondition
  * @property ShippingRule[] $rules

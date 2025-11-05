@@ -47,6 +47,8 @@ class ShippingMethodsController extends BaseShippingSettingsController
                 'id' => $shippingMethod->id,
                 'title' => $label,
                 'chip' => Cp::chipHtml($shippingMethod, [
+                    'showStatus' => true,
+                    'showThumb' => true,
                     'labelHtml' => Html::a($label, $shippingMethod->getCpEditUrl(), [
                         'class' => ['chip-label', 'cell-bold'],
                     ]),
@@ -126,6 +128,8 @@ class ShippingMethodsController extends BaseShippingSettingsController
         $shippingMethod->id = $this->request->getBodyParam('shippingMethodId');
         $shippingMethod->name = $this->request->getBodyParam('name');
         $shippingMethod->handle = $this->request->getBodyParam('handle');
+        $shippingMethod->icon = $this->request->getBodyParam('icon');
+        $shippingMethod->color = $this->request->getBodyParam('color');
         $shippingMethod->storeId = $this->request->getBodyParam('storeId');
         $shippingMethod->setOrderCondition($this->request->getBodyParam('orderCondition'));
         $shippingMethod->setCustomerCondition($this->request->getBodyParam('customerCondition'));

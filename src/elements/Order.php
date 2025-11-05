@@ -2447,27 +2447,16 @@ class Order extends Element implements HasStoreInterface
     }
 
     /**
-     * Returns the URL to the order’s PDF invoice.
+     * Returns the URL to the order's PDF invoice.
      *
-     * @param string|null $option The option that should be available to the PDF template (e.g. “receipt”)
+     * @param string|null $option The option that should be available to the PDF template (e.g. "receipt")
      * @param string|null $pdfHandle The handle of the PDF to use. If none is passed the default PDF is used.
-     * @return string|null The URL to the order’s PDF invoice, or null if the PDF template doesn’t exist
+     * @param bool $inline Whether the PDF should be displayed inline in the browser (default: false)
+     * @return string The URL to the order's PDF invoice with a secure token
      */
-    public function getPdfUrl(string $option = null, string $pdfHandle = null): ?string
+    public function getPdfUrl(string $option = null, string $pdfHandle = null, bool $inline = false): string
     {
-        $path = "commerce/downloads/pdf";
-        $params = [];
-        $params['number'] = $this->number;
-
-        if ($option) {
-            $params['option'] = $option;
-        }
-
-        if ($pdfHandle !== null) {
-            $params['pdfHandle'] = $pdfHandle;
-        }
-
-        return UrlHelper::actionUrl($path, $params);
+        return Plugin::getInstance()->getPdfs()->getPdfUrl($this, $option, $pdfHandle, $inline);
     }
 
     /**
@@ -2600,7 +2589,37 @@ class Order extends Element implements HasStoreInterface
      */
     public function getEmail(): ?string
     {
-        return $this->getCustomer()?->email ?? null;
+        return $this->getCustomer()?->email ?? $this->email ?? null;
+    }
+
+    /**
+     * Returns a masked version of the email for this order.
+     *
+     * @param $length
+     * @return string
+     */
+    public function getMaskedEmail(): string
+    {
+        if ($email = $this->getEmail()) {
+            return $this->_maskEmail($email);
+        }
+
+        return '';
+    }
+
+    private function _maskEmail($email, $minLength = 3, $maxLength = 10, $mask = "***")
+    {
+        $atPos = strrpos($email, "@");
+        $name = substr($email, 0, $atPos);
+        $len = strlen($name);
+        $domain = substr($email, $atPos);
+
+        if (($len / 2) < $maxLength) {
+            $maxLength = ($len / 2);
+        }
+
+        $shortenedEmail = (($len > $minLength) ? substr($name, 0, $maxLength) : "");
+        return "{$shortenedEmail}{$mask}{$domain}";
     }
 
     /**
@@ -3342,9 +3361,8 @@ class Order extends Element implements HasStoreInterface
     public function hasMatchingAddresses(?array $attributes = null): bool
     {
         $addressAttributes = (new ReflectionClass(AddressInterface::class))->getMethods();
-        $addressAttributes = array_map(static fn(ReflectionMethod $method) =>
-            // Remove `get` and lower case first character
-            lcfirst(substr($method->name, 3)), $addressAttributes);
+        $addressAttributes = array_map(static fn(ReflectionMethod $method) => // Remove `get` and lower case first character
+        lcfirst(substr($method->name, 3)), $addressAttributes);
 
         $relationCustomFieldHandles = [];
         $customFieldHandles = array_map(static function(FieldInterface $field) use (&$relationCustomFieldHandles) {

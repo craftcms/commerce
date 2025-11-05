@@ -36,18 +36,13 @@ class ShippingZonesController extends BaseShippingSettingsController
 
         $shippingZones = Plugin::getInstance()->getShippingZones()->getAllShippingZones($store->id);
 
-        // Generate table data with chips
+        // Generate table data
         $tableData = [];
         foreach ($shippingZones as $shippingZone) {
             $label = Craft::t('site', $shippingZone->name);
             $tableData[] = [
                 'id' => $shippingZone->id,
-                'title' => $label,
-                'chip' => Cp::chipHtml($shippingZone, [
-                    'labelHtml' => Html::a($label, $shippingZone->getCpEditUrl(), [
-                        'class' => ['chip-label', 'cell-bold'],
-                    ]),
-                ]),
+                'title' => Html::a($label, $shippingZone->getCpEditUrl()),
                 'url' => $shippingZone->getCpEditUrl(),
                 'description' => Craft::t('site', $shippingZone->description),
             ];

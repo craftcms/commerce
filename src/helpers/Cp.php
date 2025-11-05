@@ -48,11 +48,24 @@ class Cp
      *
      * @param array $config
      * @return string
-     * @since 5.0.0
+     * @since 5.5.0
      */
     public static function taxCategoryFieldHtml(array $config): string
     {
         $config['id'] ??= 'taxcategoryselect' . mt_rand();
         return CraftCp::fieldHtml('template:commerce/_includes/forms/taxCategorySelect.twig', $config);
+    }
+
+    /**
+     * Renders a shipping category select field's HTML.
+     *
+     * @param array $config
+     * @return string
+     * @since 5.5.0
+     */
+    public static function shippingCategoryFieldHtml(array $config): string
+    {
+        $config['id'] ??= 'shippingcategoryselect' . mt_rand();
+        return CraftCp::fieldHtml('template:commerce/_includes/forms/shippingCategorySelect.twig', $config);
     }
 }

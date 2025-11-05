@@ -9,9 +9,13 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\base\Chippable;
+use craft\base\Colorable;
+use craft\base\Iconic;
+use craft\base\Statusable;
 use craft\commerce\base\ShippingMethod as BaseShippingMethod;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
+use craft\enums\Color;
 use craft\validators\UniqueValidator;
 use Illuminate\Support\Collection;
 use yii\behaviors\AttributeTypecastBehavior;
@@ -26,7 +30,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ShippingMethod extends BaseShippingMethod implements Chippable
+class ShippingMethod extends BaseShippingMethod implements Chippable, Colorable, Iconic, Statusable
 {
     public function behaviors(): array
     {
@@ -148,5 +152,40 @@ class ShippingMethod extends BaseShippingMethod implements Chippable
         $fields[] = 'shippingRules';
 
         return $fields;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIcon(): ?string
+    {
+        return $this->icon;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getColor(): ?Color
+    {
+        return $this->color ? Color::tryFrom($this->color) : null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function statuses(): array
+    {
+        return [
+            'enabled' => ['label' => Craft::t('commerce', 'Enabled'), 'color' => 'green'],
+            'disabled' => ['label' => Craft::t('commerce', 'Disabled'), 'color' => 'red'],
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getStatus(): ?string
+    {
+        return $this->enabled ? 'enabled' : 'disabled';
     }
 }

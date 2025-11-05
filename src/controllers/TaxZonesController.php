@@ -44,18 +44,13 @@ class TaxZonesController extends BaseTaxSettingsController
 
         $taxZones = Plugin::getInstance()->getTaxZones()->getAllTaxZones($store->id);
 
-        // Generate table data with chips
+        // Generate table data
         $tableData = [];
         foreach ($taxZones as $taxZone) {
             $label = Craft::t('site', $taxZone->name);
             $tableData[] = [
                 'id' => $taxZone->id,
-                'title' => $label,
-                'chip' => Cp::chipHtml($taxZone, [
-                    'labelHtml' => Html::a($label, $taxZone->getCpEditUrl(), [
-                        'class' => ['chip-label', 'cell-bold'],
-                    ]),
-                ]),
+                'title' => Html::a($label, $taxZone->getCpEditUrl()),
                 'url' => $taxZone->getCpEditUrl(),
                 'description' => Craft::t('site', $taxZone->description),
                 'default' => $taxZone->default,
