@@ -1309,5 +1309,4 @@ class Plugin extends BasePlugin
             "**Please note:** This link will expire for security purposes.\n\n" .
             "Thank you!";
     }
-
 }
