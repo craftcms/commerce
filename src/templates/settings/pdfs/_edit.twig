@@ -122,6 +122,17 @@
         disabled: readOnly,
     }) }}
 
+    {{ forms.textField({
+        label: "Link Expiry"|t('commerce'),
+        instructions: "How long (in seconds) a PDF download link should remain valid before expiring. Default is 86400 (24 hours)."|t('commerce'),
+        id: 'linkExpiry',
+        name: 'linkExpiry',
+        type: 'number',
+        min: 1,
+        value: pdf.linkExpiry,
+        errors: pdf.getErrors('linkExpiry')
+    }) }}
+
     {{ forms.lightswitchField({
         label: "Enabled?"|t('commerce'),
         instructions: 'If disabled, this PDF will not be available or sent with emails.'|t('commerce'),
