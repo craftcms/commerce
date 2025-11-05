@@ -9,7 +9,6 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\base\Chippable;
-use craft\base\Iconic;
 use craft\commerce\base\Model;
 use craft\commerce\engines\Tax;
 use craft\commerce\errors\StoreNotFoundException;
@@ -32,7 +31,7 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class TaxCategory extends Model implements Chippable, Iconic
+class TaxCategory extends Model implements Chippable
 {
     /**
      * @var int|null ID;
@@ -116,14 +115,6 @@ class TaxCategory extends Model implements Chippable, Iconic
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIcon(): ?string
-    {
-        return 'list-tree';
     }
 
     /**

@@ -8,7 +8,6 @@
 namespace craft\commerce\models;
 
 use craft\base\Chippable;
-use craft\base\Iconic;
 use craft\commerce\base\Zone;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxZone;
@@ -23,7 +22,7 @@ use yii\base\InvalidConfigException;
  *
  * @property-read string $cpEditUrl
  */
-class TaxAddressZone extends Zone implements Chippable, Iconic
+class TaxAddressZone extends Zone implements Chippable
 {
     /**
      * @var bool Default
@@ -62,14 +61,6 @@ class TaxAddressZone extends Zone implements Chippable, Iconic
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIcon(): ?string
-    {
-        return 'map-location-dot';
     }
 
     /**

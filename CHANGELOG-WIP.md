@@ -37,12 +37,12 @@
 - Added `craft\commerce\services\Discounts::appendCouponCode()`. ([#4084](https://github.com/craftcms/commerce/pull/4084))
 - Added `craft\commerce\services\Inventory::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT`. ([#4063](https://github.com/craftcms/commerce/pull/4063))
 - Added `craft\commerce\services\Inventory::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL`. ([#4063](https://github.com/craftcms/commerce/pull/4063))
-- `craft\commerce\models\ShippingAddressZone` now implements `craft\base\Chippable` and `craft\base\Iconic`.
-- `craft\commerce\models\ShippingCategory` now implements `craft\base\Chippable` and `craft\base\Iconic`.
-- `craft\commerce\models\ShippingMethod` now implements `craft\base\Chippable` and `craft\base\Iconic`.
-- `craft\commerce\models\TaxAddressZone` now implements `craft\base\Chippable` and `craft\base\Iconic`.
-- `craft\commerce\models\TaxCategory` now implements `craft\base\Chippable` and `craft\base\Iconic`.
-- `craft\commerce\models\TaxRate` now implements `craft\base\Chippable` and `craft\base\Iconic`.
+- `craft\commerce\models\ShippingAddressZone` now implements `craft\base\Chippable`.
+- `craft\commerce\models\ShippingCategory` now implements `craft\base\Chippable`.
+- `craft\commerce\models\ShippingMethod` now implements `craft\base\Chippable`.
+- `craft\commerce\models\TaxAddressZone` now implements `craft\base\Chippable`.
+- `craft\commerce\models\TaxCategory` now implements `craft\base\Chippable`.
+- `craft\commerce\models\TaxRate` now implements `craft\base\Chippable`.
 
 ### System
 - Fixed a bug where purchasables could have a shipping category that was no longer available to their product type. ([#4018](https://github.com/craftcms/commerce/issues/4018))

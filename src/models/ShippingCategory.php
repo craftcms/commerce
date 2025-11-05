@@ -9,7 +9,6 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\base\Chippable;
-use craft\base\Iconic;
 use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\StoreTrait;
@@ -30,7 +29,7 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ShippingCategory extends Model implements HasStoreInterface, Chippable, Iconic
+class ShippingCategory extends Model implements HasStoreInterface, Chippable
 {
     use StoreTrait;
 
@@ -120,14 +119,6 @@ class ShippingCategory extends Model implements HasStoreInterface, Chippable, Ic
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIcon(): ?string
-    {
-        return 'list-tree';
     }
 
     /**

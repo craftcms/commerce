@@ -9,7 +9,6 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\base\Chippable;
-use craft\base\Iconic;
 use craft\commerce\base\Zone;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingZone;
@@ -25,7 +24,7 @@ use yii\base\InvalidConfigException;
  *
  * @property-read string $cpEditUrl
  */
-class ShippingAddressZone extends Zone implements Chippable, Iconic
+class ShippingAddressZone extends Zone implements Chippable
 {
     /**
      * @inheritdoc
@@ -70,13 +69,5 @@ class ShippingAddressZone extends Zone implements Chippable, Iconic
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIcon(): ?string
-    {
-        return 'map-location-dot';
     }
 }
