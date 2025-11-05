@@ -116,6 +116,12 @@ class Pdf extends Model implements HasStoreInterface
     }
 
     /**
+     * @var int How long (in seconds) a PDF download link should remain valid before expiring
+     * @since 4.10
+     */
+    public int $linkExpiry = 86400;
+
+    /**
      * @inheritdoc
      */
     protected function defineRules(): array
@@ -200,6 +206,7 @@ class Pdf extends Model implements HasStoreInterface
             'sortOrder' => $this->sortOrder ?: 9999,
             'store' => $this->getStore()->uid,
             'templatePath' => $this->templatePath,
+            'linkExpiry' => $this->linkExpiry,
         ];
     }
 

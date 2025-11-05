@@ -24,6 +24,7 @@ use craft\events\ConfigEvent;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
 use craft\helpers\StringHelper;
+use craft\helpers\UrlHelper;
 use craft\web\View;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -454,6 +455,64 @@ class Pdfs extends Component
         return true;
     }
 
+    /**
+     * Returns a token-based URL for downloading an order's PDF.
+     *
+     * This URL is compatible with the DownloadsController::actionPdf() method
+     * and includes a secure token for anonymous access.
+     *
+     * @param Order $order The order to generate the PDF URL for
+     * @param string|null $option The option that should be available to the PDF template (e.g. "receipt")
+     * @param string|null $pdfHandle The handle of the PDF to use. If none is passed the default PDF is used.
+     * @param bool $inline Whether the PDF should be displayed inline in the browser (default: false)
+     * @return string The URL to download the order's PDF with a secure token
+     * @since 4.9.5
+     */
+    public function getPdfUrl(Order $order, string $option = null, string $pdfHandle = null, bool $inline = false): string
+    {
+        // Load the PDF to get its link expiry setting
+        if ($pdfHandle) {
+            $pdf = $this->getPdfByHandle($pdfHandle);
+        } else {
+            $pdf = $this->getDefaultPdf();
+        }
+
+        if (!$pdf) {
+            throw new \InvalidArgumentException("Can not find a PDF to generate URL.");
+        }
+
+        $expiryTimestamp = (new \DateTime())->add(new \DateInterval('PT' . $pdf->linkExpiry . 'S'))->getTimestamp();
+
+        // Create a token for secure PDF access with expiry in the data payload
+        // This way the token itself never expires, but we validate the timestamp in the download controller
+        $token = Craft::$app->getTokens()->createToken([
+            'commerce/downloads/pdf',
+            [
+                'orderNumber' => $order->number,
+                'expiresAt' => $expiryTimestamp,
+            ],
+        ]);
+
+        // Build the URL parameters
+        $params = [
+            'number' => $order->number,
+            'token' => $token,
+        ];
+
+        if ($pdfHandle !== null) {
+            $params['pdfHandle'] = $pdfHandle;
+        }
+
+        if ($option) {
+            $params['option'] = $option;
+        }
+
+        if ($inline) {
+            $params['inline'] = true;
+        }
+
+        return UrlHelper::siteUrl('actions/commerce/downloads/pdf', $params);
+    }
 
     /**
      * Returns a rendered PDF object for the order.
