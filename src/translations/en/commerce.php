@@ -883,6 +883,7 @@ return [
     'Product Variant' => 'Product Variant',
     'Product Variants' => 'Product Variants',
     'Product type saved.' => 'Product type saved.',
+    'Product type settings' => 'Product type settings',
     'Product' => 'Product',
     'Products and Variants deleted.' => 'Products and Variants deleted.',
     'Products not restored.' => 'Products not restored.',
