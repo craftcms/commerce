@@ -16,6 +16,7 @@ use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\Html;
+use craft\helpers\UrlHelper;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -82,6 +83,8 @@ class TaxCategoriesController extends BaseTaxSettingsController
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
 
+        $storeHandle = $store->handle;
+
         $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
 
         if (!$taxCategory) {
@@ -129,7 +132,9 @@ class TaxCategoriesController extends BaseTaxSettingsController
         return $this->asCpScreen()
             ->title($title)
             ->crumbs([
-                ['label' => Craft::t('commerce', 'Tax Categories'), 'url' => $store->getStoreSettingsUrl('taxcategories')],
+                ['label' => Craft::t('commerce', 'Commerce'), 'url' => 'commerce'],
+                $this->getStoreSwitcher($storeHandle),
+                ['label' => Craft::t('commerce', 'Tax Categories'), 'url' => "commerce/store-management/{$storeHandle}/taxcategories"],
             ])
             ->action('commerce/tax-categories/save')
             ->redirectUrl($store->getStoreSettingsUrl('taxcategories'))

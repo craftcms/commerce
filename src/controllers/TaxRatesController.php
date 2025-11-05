@@ -17,6 +17,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\Cp;
 use craft\helpers\Html;
+use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -190,7 +191,9 @@ class TaxRatesController extends BaseTaxSettingsController
         return $this->asCpScreen()
             ->title($title)
             ->crumbs([
-                ['label' => Craft::t('commerce', 'Tax Rates'), 'url' => $store->getStoreSettingsUrl('taxrates')],
+                ['label' => Craft::t('commerce', 'Commerce'), 'url' => 'commerce'],
+                $this->getStoreSwitcher($storeHandle),
+                ['label' => Craft::t('commerce', 'Tax Rates'), 'url' => "commerce/store-management/{$storeHandle}/taxrates"],
             ])
             ->selectedSubnavItem('tax')
             ->action('commerce/tax-rates/save')

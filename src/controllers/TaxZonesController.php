@@ -14,6 +14,7 @@ use craft\commerce\models\TaxAddressZone;
 use craft\commerce\Plugin;
 use craft\helpers\Cp;
 use craft\helpers\Html;
+use craft\helpers\UrlHelper;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use yii\base\Exception;
@@ -80,6 +81,8 @@ class TaxZonesController extends BaseTaxSettingsController
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
 
+        $storeHandle = $store->handle;
+
         if (!$taxZone) {
             if ($id) {
                 $taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($id, $store->id);
@@ -124,7 +127,9 @@ class TaxZonesController extends BaseTaxSettingsController
         return $this->asCpScreen()
             ->title($title)
             ->crumbs([
-                ['label' => Craft::t('commerce', 'Tax Zones'), 'url' => $store->getStoreSettingsUrl('taxzones')],
+                ['label' => Craft::t('commerce', 'Commerce'), 'url' => 'commerce'],
+                $this->getStoreSwitcher($storeHandle),
+                ['label' => Craft::t('commerce', 'Tax Zones'), 'url' => "commerce/store-management/{$storeHandle}/taxzones"],
             ])
             ->selectedSubnavItem('tax')
             ->action('commerce/tax-zones/save')
