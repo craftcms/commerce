@@ -108,8 +108,8 @@ class PaymentCurrenciesController extends BaseStoreManagementController
         $formatter = Craft::$app->getFormatter();
 
         $metaSidebarHtml = $currency->id ? Cp::metadataHtml([
-            Craft::t('app', 'Created at') => $formatter->asDateTime($currency->dateCreated, Formatter::FORMAT_WIDTH_SHORT) ?? '',
-            Craft::t('app', 'Updated at') => $formatter->asDateTime($currency->dateUpdated, Formatter::FORMAT_WIDTH_SHORT) ?? '',
+            Craft::t('app', 'Created at') => $formatter->asDateTime($currency->dateCreated, Formatter::FORMAT_WIDTH_SHORT),
+            Craft::t('app', 'Updated at') => $formatter->asDateTime($currency->dateUpdated, Formatter::FORMAT_WIDTH_SHORT),
         ]) : '';
 
         return $this->asStoreManagementCpScreen($storeHandle, false)
