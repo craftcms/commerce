@@ -23,6 +23,11 @@
 - Added `craft\commerce\elements\db\OrderQuery::dateFirstPaid()`.
 - Added `craft\commerce\events\InventoryMovementEvent`. ([#4063](https://github.com/craftcms/commerce/pull/4063))
 - Added `craft\commerce\events\UpdateInventoryLevelEvent`. ([#4063](https://github.com/craftcms/commerce/pull/4063))
+- Added `craft\commerce\helpers\Cp::shippingCategoryFieldHtml()`.
+- Added `craft\commerce\helpers\Cp::shippingMethodFieldHtml()`.
+- Added `craft\commerce\helpers\Cp::shippingZoneFieldHtml()`.
+- Added `craft\commerce\helpers\Cp::taxCategoryFieldHtml()`.
+- Added `craft\commerce\helpers\Cp::taxZoneFieldHtml()`.
 - Added `craft\commerce\helpers\Gql::getSchemaContainedProductTypes()`.
 - Added `craft\commerce\models\Email::$renderSiteId`.
 - Added `craft\commerce\models\Email::getRenderSite()`.
@@ -32,6 +37,12 @@
 - Added `craft\commerce\services\Discounts::appendCouponCode()`. ([#4084](https://github.com/craftcms/commerce/pull/4084))
 - Added `craft\commerce\services\Inventory::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT`. ([#4063](https://github.com/craftcms/commerce/pull/4063))
 - Added `craft\commerce\services\Inventory::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL`. ([#4063](https://github.com/craftcms/commerce/pull/4063))
+- `craft\commerce\models\ShippingAddressZone` now implements `craft\base\Chippable` and `craft\base\Iconic`.
+- `craft\commerce\models\ShippingCategory` now implements `craft\base\Chippable` and `craft\base\Iconic`.
+- `craft\commerce\models\ShippingMethod` now implements `craft\base\Chippable` and `craft\base\Iconic`.
+- `craft\commerce\models\TaxAddressZone` now implements `craft\base\Chippable` and `craft\base\Iconic`.
+- `craft\commerce\models\TaxCategory` now implements `craft\base\Chippable` and `craft\base\Iconic`.
+- `craft\commerce\models\TaxRate` now implements `craft\base\Chippable` and `craft\base\Iconic`.
 
 ### System
 - Fixed a bug where purchasables could have a shipping category that was no longer available to their product type. ([#4018](https://github.com/craftcms/commerce/issues/4018))
