@@ -37,7 +37,6 @@ class PaymentCurrenciesController extends BaseStoreManagementController
      */
     public function actionIndex(?string $storeHandle = null): Response
     {
-        $this->getView()->registerAssetBundle(AdminTableAsset::class);
         $this->getView()->registerTranslations('commerce', [
             'Base',
             'Code',

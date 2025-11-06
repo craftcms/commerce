@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
+use craft\web\assets\admintable\AdminTableAsset;
 use craft\web\Response;
 use craft\web\UrlManager;
 use yii\base\InvalidConfigException;
@@ -65,6 +66,10 @@ class BaseStoreManagementController extends BaseCpController
         ]));
 
         if ($isIndex) {
+            // Most index pages need the admin table asset bundle
+            $this->getView()->registerAssetBundle(AdminTableAsset::class);
+
+            // Render the sidebar
             $screen->pageSidebarTemplate('commerce/_includes/_storeManagementNav', [
                 'storeSettingsNav' => $this->getStoreSettingsNav(),
                 'store' => $store,
