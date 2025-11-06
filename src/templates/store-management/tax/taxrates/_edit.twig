@@ -1,8 +1,7 @@
 {% set fullPageForm = true %}
 
 {{ hiddenInput('storeId', taxRate.storeId) }}
-{{ actionInput('commerce/tax-rates/save') }}
-{{ redirectInput(store.getStoreSettingsUrl('taxrates')) }}
+
 {% if taxRate.id %}
   {{ hiddenInput('taxRateId', taxRate.id) }}
 {% endif %}
