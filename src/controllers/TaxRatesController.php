@@ -17,7 +17,10 @@ use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\Cp;
 use craft\helpers\Html;
+use craft\helpers\Json;
 use craft\i18n\Locale;
+use craft\web\assets\admintable\AdminTableAsset;
+use craft\web\View;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -70,11 +73,82 @@ class TaxRatesController extends BaseTaxSettingsController
             ];
         }
 
-        return $this->renderTemplate('commerce/store-management/tax/taxrates/index', [
-            'taxRates' => $taxRates,
-            'tableData' => $tableData,
-            'storeHandle' => $store->handle,
+        $this->getView()->registerTranslations('commerce', [
+            'Include in price?',
+            'Remove from price?',
+            'Name',
+            'Rate',
+            'Tax Category',
+            'Tax Zone',
+            'Yes',
         ]);
+
+        $buttonsHtml = Plugin::getInstance()->getTaxes()->taxRateActionHtml();
+
+        if (Plugin::getInstance()->getTaxes()->createTaxRates()) {
+            $buttonsHtml .= Html::a(Craft::t('commerce', 'New tax rate'), "commerce/store-management/$storeHandle/taxrates/new", [
+                'class' => 'btn submit add icon',
+            ]);
+        }
+
+        $tableData = Json::encode($tableData, JSON_UNESCAPED_UNICODE);
+        $deleteAction = Plugin::getInstance()->getTaxes()->deleteTaxRates() ? 'commerce/tax-rates/delete' : null;
+
+        $js = <<<JS
+var columns = [
+    { name: 'title', title: Craft.t('commerce', 'Name') },
+    { name: 'rate', title: Craft.t('commerce', 'Rate') },
+    { name: 'included', title: Craft.t('commerce', 'Include in price?'), callback: function(value) {
+      if (value) {
+          return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+      }
+    } },
+    { name: 'removeIncluded', title: Craft.t('commerce', 'Remove from price?'), callback: function(value) {
+            if (value) {
+                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+            }
+        } },
+    { name: 'zone', title: Craft.t('commerce', 'Tax Zone') },
+    { name: 'category', title: Craft.t('commerce', 'Tax Category') }
+];
+
+var actions = [
+  {
+    label: Craft.t('commerce', 'Set status'),
+    actions: [
+      {
+        label: Craft.t('commerce', 'Enabled'),
+        action: 'commerce/tax-rates/update-status',
+        param: 'status',
+        value: 'enabled',
+        status: 'enabled'
+      },
+      {
+        label: Craft.t('commerce', 'Disabled'),
+        action: 'commerce/tax-rates/update-status',
+        param: 'status',
+        value: 'disabled',
+        status: 'disabled'
+      }
+    ]
+  }
+];
+
+new Craft.VueAdminTable({
+    columns: columns,
+    actions: actions,
+    checkboxes: true,
+    container: '#taxrate-vue-admin-table',
+    deleteAction: '{$deleteAction}',
+    tableData: {$tableData},
+});
+JS;
+
+        $this->getView()->registerJs($js, View::POS_END);
+
+        return $this->asStoreManagementCpScreen($storeHandle)
+            ->additionalButtonsHtml($buttonsHtml)
+            ->contentHtml(Html::tag('div', '', ['id' => 'taxrate-vue-admin-table']));
     }
 
     /**
