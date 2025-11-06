@@ -256,14 +256,10 @@ JS;
             $variables['taxIdValidators'][] = $validator;
         }
 
-        return $this->asCpScreen()
+        return $this->asStoreManagementCpScreen($storeHandle, false)
             ->title($title)
-            ->crumbs([
-                ['label' => Craft::t('commerce', 'Commerce'), 'url' => 'commerce'],
-                $this->getStoreSwitcher($storeHandle),
-                ['label' => Craft::t('commerce', 'Tax Rates'), 'url' => "commerce/store-management/{$storeHandle}/taxrates"],
-            ])
-            ->selectedSubnavItem('tax')
+            ->addCrumb(Craft::t('commerce', 'Tax Rates'), $store->getStoreSettingsUrl('taxrates'))
+            ->selectedSubnavItem('store-management')
             ->action('commerce/tax-rates/save')
             ->redirectUrl($store->getStoreSettingsUrl('taxrates'))
             ->metaSidebarTemplate('commerce/store-management/tax/taxrates/_sidebar', $variables)
