@@ -14,6 +14,7 @@ use craft\commerce\models\TaxAddressZone;
 use craft\commerce\Plugin;
 use craft\helpers\Cp;
 use craft\helpers\Html;
+use craft\helpers\Json;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use yii\base\Exception;
@@ -57,11 +58,45 @@ class TaxZonesController extends BaseTaxSettingsController
             ];
         }
 
-        return $this->renderTemplate('commerce/store-management/tax/taxzones/index', [
-            'taxZones' => $taxZones,
-            'tableData' => $tableData,
-            'store' => $store,
+        $this->getView()->registerTranslations('commerce', [
+            'Name',
+            'Description',
+            'Default Zone'
         ]);
+
+        $tableData = Json::encode($tableData);
+
+        $js = <<<JS
+var columns = [
+    { name: 'title', title: Craft.t('commerce', 'Name') },
+    { name: 'description', title: Craft.t('commerce', 'Description') },
+    {
+        name: 'default',
+        title: Craft.t('commerce', 'Default Zone'),
+        callback: function(value) {
+            if (value) {
+                return '<div data-icon="check"></div>';
+            }
+        }
+    },
+];
+
+new Craft.VueAdminTable({
+    columns: columns,
+    container: '#tax-vue-admin-table',
+    deleteAction: 'commerce/tax-zones/delete',
+    tableData: {$tableData},
+    });
+JS;
+        $this->getView()->registerJs($js);
+
+        return $this->asStoreManagementCpScreen($storeHandle)
+            ->additionalButtonsHtml(Html::a(Craft::t('commerce', 'New tax zone'), $store->getStoreSettingsUrl('taxzones/new'), ['class' => 'btn submit add icon']))
+            ->contentHtml(Html::tag(
+            'div',
+            '',
+            ['id' => 'tax-vue-admin-table']
+        ));
     }
 
     /**
@@ -104,31 +139,16 @@ class TaxZonesController extends BaseTaxSettingsController
 
         DebugPanel::prependOrAppendModelTab(model: $taxZone, prepend: true);
 
-        $metaSidebar = '';
-        if ($taxZone->id) {
-            $metaSidebar = '<div class="meta read-only">' .
-                '<div class="data">' .
-                '<h5 class="heading">' . Craft::t('app', 'Created at') . '</h5>' .
-                '<div id="date-created-value" class="value">' . Craft::$app->getFormatter()->asDatetime($taxZone->dateCreated, 'short') . '</div>' .
-                '</div>' .
-                '<div class="data">' .
-                '<h5 class="heading">' . Craft::t('app', 'Updated at') . '</h5>' .
-                '<div id="date-updated-value" class="value">' . Craft::$app->getFormatter()->asDatetime($taxZone->dateUpdated, 'short') . '</div>' .
-                '</div>' .
-                '</div>';
-        }
-
-        return $this->asCpScreen()
+        return $this->asStoreManagementCpScreen($storeHandle, false)
             ->title($title)
-            ->crumbs([
-                ['label' => Craft::t('commerce', 'Commerce'), 'url' => 'commerce'],
-                $this->getStoreSwitcher($storeHandle),
-                ['label' => Craft::t('commerce', 'Tax Zones'), 'url' => "commerce/store-management/{$storeHandle}/taxzones"],
-            ])
-            ->selectedSubnavItem('tax')
+            ->addCrumb(Craft::t('commerce', 'Tax Zones'), $store->getStoreSettingsUrl('taxzones'))
+            ->selectedSubnavItem('store-management')
             ->action('commerce/tax-zones/save')
             ->redirectUrl($store->getStoreSettingsUrl('taxzones'))
-            ->metaSidebarHtml($metaSidebar)
+            ->metaSidebarHtml(Cp::metadataHtml([
+                Craft::t('app', 'Created at') => Craft::$app->getFormatter()->asDatetime($taxZone->dateCreated, 'short'),
+                Craft::t('app', 'Updated at') => Craft::$app->getFormatter()->asDatetime($taxZone->dateUpdated, 'short'),
+            ]))
             ->contentTemplate('commerce/store-management/tax/taxzones/_edit', [
                 'taxZone' => $taxZone,
                 'store' => $store,

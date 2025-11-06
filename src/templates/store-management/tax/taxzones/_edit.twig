@@ -1,7 +1,5 @@
 {% set fullPageForm = true %}
 
-{{ actionInput('commerce/tax-zones/save') }}
-{{ redirectInput(store.getStoreSettingsUrl('taxzones')) }}
 {% if taxZone.id %}
     {{ hiddenInput('taxZoneId', taxZone.id) }}
 {% endif %}
