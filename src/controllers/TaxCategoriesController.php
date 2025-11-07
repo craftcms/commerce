@@ -16,6 +16,7 @@ use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\Html;
+use craft\helpers\Json;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -64,11 +65,74 @@ class TaxCategoriesController extends BaseTaxSettingsController
             ];
         }
 
-        return $this->renderTemplate('commerce/store-management/tax/taxcategories/index', [
-            'taxCategories' => $taxCategories,
-            'tableData' => $tableData,
-            'store' => $store,
+        $this->getView()->registerTranslations('commerce', [
+            'Default?',
+            'Description',
+            'Handle',
+            'Name',
+            'Set default category',
+            'Used By Tax Rates',
+            'Used by Tax Rates',
         ]);
+
+        $buttons = Plugin::getInstance()->getTaxes()->taxCategoryActionHtml();
+        if (Plugin::getInstance()->getTaxes()->createTaxCategories()) {
+            $buttons .= Html::a(Craft::t('commerce', 'New tax category'), $store->getStoreSettingsUrl('taxcategories/new'), [
+                'class' => ['btn', 'submit', 'add', 'icon'],
+            ]);
+        }
+
+        $tableData = Json::encode($tableData);
+        $deleteAction = Plugin::getInstance()->getTaxes()->deleteTaxCategories() ? "'commerce/tax-categories/delete'" : null;
+
+        $js = <<<JS
+    var columns = [
+        { name: 'chip', title: Craft.t('commerce', 'Name') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+        { name: 'description', title: Craft.t('commerce', 'Description') },
+        {
+            name: 'default',
+            title: Craft.t('commerce', 'Default?'),
+            callback: function(value) {
+                if (value) {
+                    return '<div data-icon="check"></div>';
+                }
+            }
+        },
+    ];
+
+    var actions = [
+        {
+            label: '',
+            icon: 'settings',
+            actions: [
+                {
+                    label: Craft.t('commerce', 'Set default category'),
+                    action: 'commerce/tax-categories/set-default-category',
+                    param: 'default',
+                    value: 1,
+                    allowMultiple: false
+                }
+            ]
+        }
+    ];
+
+    new Craft.VueAdminTable({
+        columns: columns,
+        checkboxes: true,
+        actions: actions,
+        padded: true,
+        container: '#tax-vue-admin-table',
+        deleteAction: {$deleteAction},
+        tableData: {$tableData},
+    });
+JS;
+
+        $this->getView()->registerJs($js);
+
+        return $this->asStoreManagementCpScreen($storeHandle, hasStoreSwitcher: false)
+            ->additionalButtonsHtml($buttons)
+            ->contentHtml(Html::tag('div', '', ['id' => 'tax-vue-admin-table']));
     }
 
     /**
@@ -116,25 +180,15 @@ class TaxCategoriesController extends BaseTaxSettingsController
 
         $metaSidebar = '';
         if ($taxCategory->id) {
-            $metaSidebar = '<div class="meta read-only">' .
-                '<div class="data">' .
-                '<h5 class="heading">' . Craft::t('app', 'Created at') . '</h5>' .
-                '<div id="date-created-value" class="value">' . Craft::$app->getFormatter()->asDatetime($taxCategory->dateCreated, 'short') . '</div>' .
-                '</div>' .
-                '<div class="data">' .
-                '<h5 class="heading">' . Craft::t('app', 'Updated at') . '</h5>' .
-                '<div id="date-updated-value" class="value">' . Craft::$app->getFormatter()->asDatetime($taxCategory->dateUpdated, 'short') . '</div>' .
-                '</div>' .
-                '</div>';
+            $metaSidebar = Cp::metadataHtml([
+                Craft::t('app', 'Created at') => Craft::$app->getFormatter()->asDatetime($taxCategory->dateCreated, 'short'),
+                Craft::t('app', 'Updated at') => Craft::$app->getFormatter()->asDatetime($taxCategory->dateUpdated, 'short'),
+            ]);
         }
 
-        return $this->asCpScreen()
+        return $this->asStoreManagementCpScreen($storeHandle, false, false)
             ->title($title)
-            ->crumbs([
-                ['label' => Craft::t('commerce', 'Commerce'), 'url' => 'commerce'],
-                $this->getStoreSwitcher($storeHandle),
-                ['label' => Craft::t('commerce', 'Tax Categories'), 'url' => "commerce/store-management/{$storeHandle}/taxcategories"],
-            ])
+            ->addCrumb(Craft::t('commerce', 'Tax Categories'), $store->getStoreSettingsUrl('taxcategories'))
             ->action('commerce/tax-categories/save')
             ->redirectUrl($store->getStoreSettingsUrl('taxcategories'))
             ->metaSidebarHtml($metaSidebar)
