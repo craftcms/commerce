@@ -139,16 +139,21 @@ JS;
 
         DebugPanel::prependOrAppendModelTab(model: $taxZone, prepend: true);
 
+        $metaSidebar = '';
+        if ($taxZone->id) {
+            $metaSidebar = Cp::metadataHtml([
+                Craft::t('app', 'Created at') => Craft::$app->getFormatter()->asDatetime($taxZone->dateCreated, 'short'),
+                Craft::t('app', 'Updated at') => Craft::$app->getFormatter()->asDatetime($taxZone->dateUpdated, 'short'),
+            ]);
+        }
+
         return $this->asStoreManagementCpScreen($storeHandle, false)
             ->title($title)
             ->addCrumb(Craft::t('commerce', 'Tax Zones'), $store->getStoreSettingsUrl('taxzones'))
             ->selectedSubnavItem('store-management')
             ->action('commerce/tax-zones/save')
             ->redirectUrl($store->getStoreSettingsUrl('taxzones'))
-            ->metaSidebarHtml(Cp::metadataHtml([
-                Craft::t('app', 'Created at') => Craft::$app->getFormatter()->asDatetime($taxZone->dateCreated, 'short'),
-                Craft::t('app', 'Updated at') => Craft::$app->getFormatter()->asDatetime($taxZone->dateUpdated, 'short'),
-            ]))
+            ->metaSidebarHtml($metaSidebar)
             ->contentTemplate('commerce/store-management/tax/taxzones/_edit', [
                 'taxZone' => $taxZone,
                 'store' => $store,
