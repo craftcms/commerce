@@ -28,7 +28,7 @@
 {% if selectedItem %}
 {% set docTitle = navItems[selectedItem].title~' - '~title %}
 {% else %}
-{% set docTitle = 'Store Settings' %}
+{% set docTitle = 'Store Settings'|t('commerce') %}
 {% endif %}
 
 {% block sidebar %}
@@ -46,4 +46,3 @@
         </ul>
     </nav>
 {% endblock %}
-
