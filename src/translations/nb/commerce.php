@@ -989,6 +989,7 @@ return [
     'The format used to generate new coupons, e.g. {example}. Any `#` characters will be replaced with a random letter.' => 'Formatet som brukes til å generere nye kuponger, f.eks. {example}. Alle \'#\'-tegn blir byttet ut med en tilfeldig bokstav.',
     'The item is not enabled for sale.' => 'Denne artikkelen er ikke aktivert for salg.',
     'The language the order was made in.' => 'Språket som ordren ble laget i.',
+    'The language to be used when this email is rendered.' => 'The language to be used when this email is rendered.',
     'The maximum the customer should spend on shipping. Set to zero to disable.' => 'Det maksimale en kunde skal betale i frakt. Sett til null for å deaktivere.',
     'The minimum the customer should spend on shipping. Set to zero to disable.' => 'Det minste kunden skal betale i frakt. Sett til null for å deaktivere.',
     'The order is not valid.' => 'Ugyldig ordre.',
