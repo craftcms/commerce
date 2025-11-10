@@ -989,6 +989,7 @@ return [
     'The format used to generate new coupons, e.g. {example}. Any `#` characters will be replaced with a random letter.' => '{example}など、新しいクーポンの生成で使用されるフォーマット。すべての「#」番号記号はランダムな文字に置き換えられます。',
     'The item is not enabled for sale.' => 'アイテムのセールは有効化されていません。',
     'The language the order was made in.' => '注文が行われた言語。',
+    'The language to be used when this email is rendered.' => 'The language to be used when this email is rendered.',
     'The maximum the customer should spend on shipping. Set to zero to disable.' => '顧客が支払う送料の最大額。無効にするにはゼロに設定します',
     'The minimum the customer should spend on shipping. Set to zero to disable.' => '顧客が支払う送料の最小額。無効にするにはゼロに設定します',
     'The order is not valid.' => '注文は有効ではありません。',
