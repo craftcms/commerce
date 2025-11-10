@@ -989,6 +989,7 @@ return [
     'The format used to generate new coupons, e.g. {example}. Any `#` characters will be replaced with a random letter.' => 'De gebruikte notatie om nieuwe coupons te genereren, bijvoorbeeld {example}. \'#\'-tekens worden vervangen door een willekeurige letter.',
     'The item is not enabled for sale.' => 'Het artikel is niet ingeschakeld voor verkoop.',
     'The language the order was made in.' => 'De taal waarin de bestelling is geplaatst.',
+    'The language to be used when this email is rendered.' => 'The language to be used when this email is rendered.',
     'The maximum the customer should spend on shipping. Set to zero to disable.' => 'Het maximumbedrag dat de klant zou moeten uitgeven aan verzending. Stel in op nul om uit te schakelen.',
     'The minimum the customer should spend on shipping. Set to zero to disable.' => 'Het minimumbedrag dat de klant zou moeten uitgeven aan verzending. Stel in op nul om uit te schakelen.',
     'The order is not valid.' => 'De bestelling is ongeldig.',
