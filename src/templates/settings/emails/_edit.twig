@@ -182,13 +182,24 @@
 
     {{ forms.selectField({
         label: 'Language'|t('commerce'),
-        instructions: "The language to be used when email is rendered."|t,
+        instructions: "The language to be used when email is rendered."|t('commerce'),
         id: 'language',
         name: 'language',
         options : emailLanguageOptions,
         value : email.language,
         errors: email.getErrors('language') ?? null,
         toggle: true,
+        disabled: readOnly,
+    }) }}
+
+    {{ forms.selectField({
+        label: 'Site'|t('app'),
+        instructions: "The site to be used when email is rendered."|t('commerce'),
+        id: 'renderSiteId',
+        name: 'renderSiteId',
+        options : emailRenderSiteOptions,
+        value : email.renderSiteId,
+        errors: email.getErrors('renderSiteId') ?? null,
         disabled: readOnly,
     }) }}
 

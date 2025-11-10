@@ -4,6 +4,7 @@
 
 - Fixed a bug where duplicate pricing catalog jobs were being queued. ([#4136](https://github.com/craftcms/commerce/issues/4136))
 - Deprecated `craft\commerce\services\CatalogPricing::afterSavePurchasableHandler()`.
+- Fixed a bug where variants were not getting the default shipping category set when the currently set category was no longer available. ([#4018](https://github.com/craftcms/commerce/issues/4018))
 
 ## 5.4.9 - 2025-10-29
 

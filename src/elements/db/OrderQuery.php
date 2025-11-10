@@ -91,6 +91,11 @@ class OrderQuery extends ElementQuery
     public mixed $datePaid = null;
 
     /**
+     * @var mixed The date the order was first paid in full.
+     */
+    public mixed $dateFirstPaid = null;
+
+    /**
      * @var mixed The date the order was authorized in full.
      */
     public mixed $dateAuthorized = null;
@@ -533,7 +538,7 @@ class OrderQuery extends ElementQuery
      * | - | -
      * | `'>= 2018-04-01'` | that were paid on or after 2018-04-01.
      * | `'< 2018-05-01'` | that were paid before 2018-05-01
-     * | `['and', '>= 2018-04-04', '< 2018-05-01']` | that were completed between 2018-04-01 and 2018-05-01.
+     * | `['and', '>= 2018-04-04', '< 2018-05-01']` | that were paid between 2018-04-01 and 2018-05-01.
      *
      * ---
      *
@@ -561,6 +566,46 @@ class OrderQuery extends ElementQuery
     public function datePaid(mixed $value): OrderQuery
     {
         $this->datePaid = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the orders’ first paid dates.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'>= 2018-04-01'` | that were first paid on or after 2018-04-01.
+     * | `'< 2018-05-01'` | that were first paid before 2018-05-01
+     * | `['and', '>= 2018-04-04', '< 2018-05-01']` | that were first paid between 2018-04-01 and 2018-05-01.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} that were first paid for recently #}
+     * {% set aWeekAgo = date('7 days ago')|atom %}
+     *
+     * {% set {elements-var} = {twig-method}
+     *   .dateFirstPaid(">= #{aWeekAgo}")
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} that were first paid for recently
+     * $aWeekAgo = new \DateTime('7 days ago')->format(\DateTime::ATOM);
+     *
+     * ${elements-var} = {php-method}
+     *     ->dateFirstPaid(">= {$aWeekAgo}")
+     *     ->all();
+     * ```
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function dateFirstPaid(mixed $value): OrderQuery
+    {
+        $this->dateFirstPaid = $value;
         return $this;
     }
 
@@ -1576,6 +1621,7 @@ class OrderQuery extends ElementQuery
 
             'commerce_orders.isCompleted',
             'commerce_orders.datePaid',
+            'commerce_orders.dateFirstPaid',
             'commerce_orders.currency',
             'commerce_orders.paymentCurrency',
             'commerce_orders.lastIp',
@@ -1663,7 +1709,7 @@ class OrderQuery extends ElementQuery
             $this->subQuery->leftJoin(CraftTable::USERS . ' users', '[[users.id]] = [[commerce_orders.customerId]]');
             $this->subQuery->andWhere(Db::parseParam('users.email', $this->email, '=', true));
         }
-        
+
         if (isset($this->isCompleted)) {
             $this->subQuery->andWhere(Db::parseBooleanParam('commerce_orders.isCompleted', $this->isCompleted, false));
         }
@@ -1678,6 +1724,10 @@ class OrderQuery extends ElementQuery
 
         if (isset($this->datePaid)) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.datePaid', $this->datePaid));
+        }
+
+        if (isset($this->dateFirstPaid)) {
+            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateFirstPaid', $this->dateFirstPaid));
         }
 
         if (isset($this->expiryDate)) {

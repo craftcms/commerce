@@ -432,7 +432,14 @@ class VariantQuery extends PurchasableQuery
                 'elements_owners.sortOrder',
             ])
             ->innerJoin(['elements_owners' => CraftTable::ELEMENTS_OWNERS], $ownersCondition);
-        $this->subQuery->innerJoin(['elements_owners' => CraftTable::ELEMENTS_OWNERS], $ownersCondition);
+
+        $sortOrderIndex = Db::findIndex(CraftTable::ELEMENTS_OWNERS, ['sortOrder'], false);
+        // Forcing the use of the `sortOrder` index if no custom `orderBy` is set
+        if ($sortOrderIndex !== null && empty($this->orderBy)) {
+            $this->subQuery->innerJoin([new Expression('[[elements_owners]] USE INDEX (' . $sortOrderIndex . ')')], $ownersCondition);
+        } else {
+            $this->subQuery->innerJoin(['elements_owners' => CraftTable::ELEMENTS_OWNERS], $ownersCondition);
+        }
 
         if ($this->primaryOwnerId) {
             $this->subQuery->andWhere(['commerce_variants.primaryOwnerId' => $this->primaryOwnerId]);

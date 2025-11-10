@@ -96,6 +96,42 @@ class ProductPricingCatalogTest extends Unit
     }
 
     /**
+     * @param string $sku
+     * @param array|null $rules
+     * @param float|int|null $price
+     * @return void
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws StaleObjectException
+     * @throws Throwable
+     * @throws \yii\db\Exception
+     * @dataProvider productCatalogPricesDataProvider
+     */
+    public function testProductCatalogPricesSorting(string $sku, ?array $rules, float|int|null $price): void
+    {
+        $catalogPricingRules = $this->_createCatalogPricingRules($rules);
+
+        $orderBy = ['defaultPrice' => SORT_ASC];
+        $products = Product::find()->orderBy($orderBy)->all();
+        $price = null;
+        foreach ($products as $product) {
+            self::assertGreaterThanOrEqual($price, $product->getDefaultPrice());
+            $price = $product->getDefaultPrice();
+        }
+
+        $orderBy = ['defaultPrice' => SORT_DESC];
+        $products = Product::find()->orderBy($orderBy)->all();
+        $price = 999999999;
+        foreach ($products as $product) {
+            self::assertLessThanOrEqual($price, $product->getDefaultPrice());
+            $price = $product->getDefaultPrice();
+        }
+
+        // Tidy up at the end of the test
+        $this->_deleteCatalogPricingRules($catalogPricingRules);
+    }
+
+    /**
      * @param array|null $rules
      * @return array
      * @throws Exception

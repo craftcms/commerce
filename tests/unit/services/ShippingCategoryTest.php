@@ -9,7 +9,6 @@ namespace craftcommercetests\unit\services;
 
 use Codeception\Test\Unit;
 use craft\commerce\db\Table;
-use craft\commerce\elements\Product;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingCategory;
 use craft\commerce\services\ShippingCategories;
@@ -50,10 +49,15 @@ class ShippingCategoryTest extends Unit
 
     public function testDeleteShippingCategory()
     {
-        $product = Product::find()->where(['slug' => 'rad-hoodie'])->one();
+        // Get the non-default shipping category from fixtures (anotherShippingCategory)
+        $shippingCategory = ShippingCategory::find()
+            ->where(['handle' => 'anotherShippingCategory'])
+            ->one();
 
-        $variant = $product->getVariants()->first();
-        $shippingCategoryId = $variant->getShippingCategory()->id;
+        $this->assertNotNull($shippingCategory, 'anotherShippingCategory fixture should exist');
+        $this->assertFalse((bool)$shippingCategory->default, 'Test shipping category should not be default');
+
+        $shippingCategoryId = $shippingCategory->id;
 
         $result = $this->shippingCategories->deleteShippingCategoryById($shippingCategoryId);
 

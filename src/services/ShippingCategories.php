@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
+use craft\commerce\elements\Variant;
 use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\Plugin;
@@ -200,19 +201,55 @@ class ShippingCategories extends Component
         // Newly set product types this shipping category is available to
         $newProductTypeIds = ArrayHelper::getColumn($shippingCategory->getProductTypes(), 'id');
 
+        // Find product types that are being removed from this shipping category
+        $removedProductTypeIds = array_diff($currentProductTypeIds, $newProductTypeIds);
+        
+        // Update purchasables to default shipping category when product types are removed
+        if (!empty($removedProductTypeIds)) {
+            $defaultShippingCategory = $this->getDefaultShippingCategory($shippingCategory->storeId);
+            
+            // Get all variant purchasables that currently have this shipping category but whose product type is being removed
+            $purchasableIds = (new Query())
+                ->select(['ps.purchasableId'])
+                ->from(['ps' => Table::PURCHASABLES_STORES])
+                ->innerJoin(['v' => Table::VARIANTS], '[[ps.purchasableId]] = [[v.id]]')
+                ->innerJoin(['p' => Table::PRODUCTS], '[[v.primaryOwnerId]] = [[p.id]]')
+                ->where([
+                    'ps.shippingCategoryId' => $shippingCategory->id,
+                    'ps.storeId' => $shippingCategory->storeId,
+                    'p.typeId' => $removedProductTypeIds,
+                ])
+                ->column();
+            
+            if (!empty($purchasableIds)) {
+                // Update these purchasables to use the default shipping category
+                Craft::$app->getDb()->createCommand()
+                    ->update(
+                        Table::PURCHASABLES_STORES,
+                        ['shippingCategoryId' => $defaultShippingCategory->id],
+                        [
+                            'purchasableId' => $purchasableIds,
+                            'storeId' => $shippingCategory->storeId,
+                            'shippingCategoryId' => $shippingCategory->id,
+                        ]
+                    )
+                    ->execute();
+            }
+        }
+
         foreach ($currentProductTypeIds as $oldProductTypeId) {
             // If we are removing a product type for this shipping category the products of that type should be re-saved
             if (!in_array($oldProductTypeId, $newProductTypeIds, false)) {
-                // Re-save all products that no longer have this shipping category available to them
-                $this->_resaveProductsByProductTypeId($oldProductTypeId);
+                // Re-save all variants that no longer have this shipping category available to them
+                $this->_resaveVariantsByProductTypeId($oldProductTypeId);
             }
         }
 
         foreach ($newProductTypeIds as $newProductTypeId) {
             // If we are adding a product type for this shipping category the products of that type should be re-saved
             if (!in_array($newProductTypeId, $currentProductTypeIds, false)) {
-                // Re-save all products when assigning this shipping category available to them
-                $this->_resaveProductsByProductTypeId($newProductTypeId);
+                // Re-save all variants when assigning this shipping category available to them
+                $this->_resaveVariantsByProductTypeId($newProductTypeId);
             }
         }
 
@@ -232,12 +269,13 @@ class ShippingCategories extends Component
     }
 
     /**
-     * Re-save products by product type id
+     * Re-save variants by product type id
      */
-    private function _resaveProductsByProductTypeId(int $productTypeId): void
+    private function _resaveVariantsByProductTypeId(int $productTypeId): void
     {
         Craft::$app->getQueue()->push(new ResaveElements([
-            'elementType' => Product::class,
+            'elementType' => Variant::class,
+            'updateSearchIndex' => false,
             'criteria' => [
                 'typeId' => $productTypeId,
                 'siteId' => '*',

@@ -67,38 +67,47 @@ class ProductTypesController extends BaseAdminController
         if (!empty($variables['productTypeId'])) {
             $variables['title'] = $variables['productType']->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a Product Type');
+            $variables['title'] = Craft::t('commerce', 'Create a new product type');
         }
 
         DebugPanel::prependOrAppendModelTab(model: $variables['productType'], prepend: true);
 
-        $tabs = [
-            'productTypeSettings' => [
-                'label' => Craft::t('commerce', 'Settings'),
-                'url' => '#product-type-settings',
-            ],
-            'taxAndShipping' => [
-                'label' => Craft::t('commerce', 'Tax & Shipping'),
-                'url' => '#tax-and-shipping',
-            ],
-            'productFields' => [
-                'label' => Craft::t('commerce', 'Product Fields'),
-                'url' => '#product-fields',
-            ],
-            'variantFields' => [
-                'label' => Craft::t('commerce', 'Variant Fields'),
-                'url' => '#variant-fields',
-            ],
-        ];
-
-        $variables['tabs'] = $tabs;
         $variables['selectedTab'] = 'productTypeSettings';
 
         $this->getView()->registerAssetBundle(EditSectionAsset::class);
 
         $variables['readOnly'] = $this->isReadOnlyScreen();
 
-        return $this->renderTemplate('commerce/settings/producttypes/_edit', $variables);
+        return $this->asCpScreen()
+            ->title($variables['title'])
+            ->crumbs([
+                ['label' => Craft::t('commerce', 'Commerce'), 'url' => 'commerce'],
+                ['label' => Craft::t('app', 'Settings'), 'url' => 'commerce/settings', 'ariaLabel' => Craft::t('commerce', 'Commerce Settings')],
+                ['label' => Craft::t('commerce', 'Product Types'), 'url' => 'commerce/settings/producttypes'],
+            ])
+            ->tabs([
+                'productTypeSettings' => [
+                    'label' => Craft::t('commerce', 'Settings'),
+                    'url' => '#product-type-settings',
+                ],
+                'taxAndShipping' => [
+                    'label' => Craft::t('commerce', 'Tax & Shipping'),
+                    'url' => '#tax-and-shipping',
+                ],
+                'productFields' => [
+                    'label' => Craft::t('commerce', 'Product Fields'),
+                    'url' => '#product-fields',
+                ],
+                'variantFields' => [
+                    'label' => Craft::t('commerce', 'Variant Fields'),
+                    'url' => '#variant-fields',
+                ],
+            ])
+            ->selectedSubnavItem('settings')
+            ->action('commerce/product-types/save-product-type')
+            ->submitButtonLabel(Craft::t('app', 'Save'))
+            ->redirectUrl('commerce/settings/producttypes')
+            ->contentTemplate('commerce/settings/producttypes/_edit', $variables);
     }
 
     /**
@@ -106,7 +115,7 @@ class ProductTypesController extends BaseAdminController
      * @throws Throwable
      * @throws BadRequestHttpException
      */
-    public function actionSaveProductType(): void
+    public function actionSaveProductType(): ?Response
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
 
@@ -137,6 +146,9 @@ class ProductTypesController extends BaseAdminController
         $productType->productTitleFormat = $this->request->getBodyParam('productTitleFormat');
         $productType->productTitleTranslationMethod = $this->request->getBodyParam('productTitleTranslationMethod', $productType->productTitleTranslationMethod);
         $productType->productTitleTranslationKeyFormat = $this->request->getBodyParam('productTitleTranslationKeyFormat', $productType->productTitleTranslationKeyFormat);
+        $productType->showSlugField = (bool)$this->request->getBodyParam('showSlugField', $productType->showSlugField);
+        $productType->slugTranslationMethod = $this->request->getBodyParam('slugTranslationMethod', $productType->slugTranslationMethod);
+        $productType->slugTranslationKeyFormat = $this->request->getBodyParam('slugTranslationKeyFormat', $productType->slugTranslationKeyFormat);
         $productType->maxVariants = $this->request->getBodyParam('maxVariants') ?: null;
         $productType->hasVariantTitleField = $this->request->getBodyParam('hasVariantTitleField', false);
         $productType->variantTitleFormat = $this->request->getBodyParam('variantTitleFormat');
@@ -196,16 +208,15 @@ class ProductTypesController extends BaseAdminController
 
         // Save it
         if (Plugin::getInstance()->getProductTypes()->saveProductType($productType)) {
-            $this->setSuccessFlash(Craft::t('commerce', 'Product type saved.'));
-            $this->redirectToPostedUrl($productType);
-        } else {
-            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save product type.'));
+            return $this->asSuccess(Craft::t('commerce', 'Product type saved.'), redirect: $this->getPostedRedirectUrl($productType));
         }
 
         // Send the productType back to the template
         Craft::$app->getUrlManager()->setRouteParams([
             'productType' => $productType,
         ]);
+
+        return $this->asModelFailure($productType, Craft::t('commerce', 'Couldn’t save product type.'), 'productType');
     }
 
     /**

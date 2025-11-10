@@ -144,4 +144,34 @@ class ProductQueryTest extends Unit
             'specific-variant' => [Product::find(), 1, ['sku' => 'rad-hood'], 'Rad Hoodie'],
         ];
     }
+
+    /**
+     * @param array $orderBy
+     * @param array $expected
+     * @return void
+     * @dataProvider orderByDataProvider
+     */
+    public function testOrderBy(array $orderBy, array $expected): void
+    {
+        $query = Product::find();
+
+        $query->orderBy($orderBy);
+        $results = $query->all();
+
+        self::assertCount(2, $results);
+
+        foreach ($expected as $index => $title) {
+            self::assertEquals($title, $results[$index]->title);
+        }
+    }
+
+    public function orderByDataProvider(): array
+    {
+        return [
+            'title-asc' => [['title' => SORT_ASC], ['Hypercolor T-Shirt', 'Rad Hoodie']],
+            'title-desc' => [['title' => SORT_DESC], ['Rad Hoodie', 'Hypercolor T-Shirt']],
+            'default-price-asc' => [['defaultPrice' => SORT_ASC], ['Hypercolor T-Shirt', 'Rad Hoodie']],
+            'default-price-desc' => [['defaultPrice' => SORT_DESC], ['Rad Hoodie', 'Hypercolor T-Shirt']],
+        ];
+    }
 }

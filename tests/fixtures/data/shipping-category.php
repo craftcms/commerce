@@ -10,7 +10,7 @@ return [
         'name' => 'Another Shipping Category',
         'handle' => 'anotherShippingCategory',
         'description' => 'this is another shipping category',
-        'default' => 0,
+        'default' => false,
         'storeId' => 1, // Primary
     ],
 ];
