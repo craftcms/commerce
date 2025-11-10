@@ -14,6 +14,8 @@ use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
 use craft\helpers\Cp;
 use craft\helpers\Html;
+use craft\helpers\Json;
+use craft\web\View;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
 use yii\web\BadRequestHttpException;
@@ -60,11 +62,62 @@ class ShippingMethodsController extends BaseShippingSettingsController
             ];
         }
 
-        return $this->renderTemplate('commerce/store-management/shipping/shippingmethods/index', [
-            'shippingMethods' => $shippingMethods,
-            'tableData' => $tableData,
-            'store' => $store,
+        $this->getView()->registerTranslations('commerce', [
+            'Disabled',
+            'Enabled',
+            'Handle',
+            'Name',
+            'Set status',
+            'Type',
         ]);
+
+        $tableData = Json::encode($tableData);
+
+        $js = <<<JS
+    var columns = [
+        { name: 'chip', title: Craft.t('commerce', 'Name') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+        { name: 'type', title: Craft.t('commerce', 'Type') },
+    ];
+
+    var actions = [
+        {
+            label: Craft.t('commerce', 'Set status'),
+            actions: [
+                {
+                    label: Craft.t('commerce', 'Enabled'),
+                    action: 'commerce/shipping-methods/update-status',
+                    param: 'status',
+                    value: 'enabled',
+                    status: 'enabled'
+                },
+                {
+                    label: Craft.t('commerce', 'Disabled'),
+                    action: 'commerce/shipping-methods/update-status',
+                    param: 'status',
+                    value: 'disabled',
+                    status: 'disabled'
+                }
+            ]
+        }
+    ];
+
+    new Craft.VueAdminTable({
+        actions: actions,
+        checkboxes: true,
+        columns: columns,
+        container: '#shipping-vue-admin-table',
+        deleteAction: 'commerce/shipping-methods/delete',
+        padded: true,
+        tableData: {$tableData}
+    });
+JS;
+
+        $this->getView()->registerJs($js, View::POS_END);
+
+        return $this->asStoreManagementCpScreen($storeHandle)
+            ->additionalButtonsHtml(Html::a(Craft::t('commerce', 'New shipping method'), $store->getStoreSettingsUrl('shippingmethods/new'), ['class' => 'btn submit add icon']))
+            ->contentHtml(Html::tag('div', '', ['id' => 'shipping-vue-admin-table']));
     }
 
     /**
@@ -79,40 +132,73 @@ class ShippingMethodsController extends BaseShippingSettingsController
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
 
-        $variables = compact('id', 'shippingMethod');
+        if (!$shippingMethod) {
+            if ($id) {
+                $shippingMethod = Plugin::getInstance()->getShippingMethods()->getShippingMethodById($id, $store->id);
 
-        $variables['newMethod'] = false;
-
-        if (!$variables['shippingMethod']) {
-            if ($variables['id']) {
-                $variables['shippingMethod'] = Plugin::getInstance()->getShippingMethods()->getShippingMethodById($variables['id'], $store->id);
-
-                if (!$variables['shippingMethod']) {
+                if (!$shippingMethod) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['shippingMethod'] = Craft::createObject([
+                $shippingMethod = Craft::createObject([
                     'class' => ShippingMethod::class,
                     'attributes' => ['storeId' => $store->id],
                 ]);
             }
         }
 
-        if ($variables['shippingMethod']->id) {
-            $variables['title'] = $variables['shippingMethod']->name;
+        if ($shippingMethod->id) {
+            $title = $shippingMethod->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new shipping method');
+            $title = Craft::t('commerce', 'Create a new shipping method');
         }
 
-        $variables['storeHandle'] = $store->handle;
+        $storeHandle = $store->handle;
 
-        DebugPanel::prependOrAppendModelTab(model: $variables['shippingMethod'], prepend: true);
+        DebugPanel::prependOrAppendModelTab(model: $shippingMethod, prepend: true);
 
-        $variables['shippingRules'] = $variables['shippingMethod']->id !== null
-            ? Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($variables['shippingMethod']->id)
+        $shippingRules = $shippingMethod->id !== null
+            ? Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($shippingMethod->id)
             : [];
 
-        return $this->renderTemplate('commerce/store-management/shipping/shippingmethods/_edit', $variables);
+        $this->getView()->registerTranslations('commerce', [
+            'Couldn’t reorder rules.',
+            'Description',
+            'No shipping rules exist yet.',
+            'Rules reordered.',
+            'Shipping Rule',
+        ]);
+
+        $metaDataHtml = Html::beginTag('div', ['class' => 'meta']) .
+            Cp::lightswitchFieldHtml([
+                'label' => Craft::t('commerce', 'Enable this shipping method on the front end'),
+                'id' => 'enabled',
+                'name' => 'enabled',
+                'on' => $shippingMethod->enabled,
+                'errors' => $shippingMethod->getErrors('enabled'),
+            ]) .
+            Html::endTag('div');
+
+        if ($shippingMethod->id) {
+            $metaDataHtml .= Cp::metadataHtml([
+                Craft::t('app', 'Created at') => Craft::$app->getFormatter()->asDatetime($shippingMethod->dateCreated, 'short'),
+                Craft::t('app', 'Updated at') => Craft::$app->getFormatter()->asDatetime($shippingMethod->dateUpdated, 'short'),
+            ]);
+        }
+
+        return $this->asStoreManagementCpScreen($storeHandle, false)
+            ->title($title)
+            ->action('commerce/shipping-methods/save')
+            ->redirectUrl($store->getStoreSettingsUrl('shippingmethods/{id}#rules'))
+            ->addCrumb(Craft::t('commerce', 'Shipping Methods'), $store->getStoreSettingsUrl('shippingmethods'))
+            ->metaSidebarHtml($metaDataHtml)
+            ->submitButtonLabel($shippingMethod->id ? Craft::t('commerce', 'Save and set rules') : Craft::t('app', 'Save'))
+            ->contentTemplate('commerce/store-management/shipping/shippingmethods/_edit', [
+                'shippingMethod' => $shippingMethod,
+                'shippingRules' => $shippingRules,
+                'store' => $store,
+                'storeHandle' => $storeHandle,
+            ]);
     }
 
     /**
