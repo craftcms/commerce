@@ -24,7 +24,6 @@ use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use craft\helpers\MoneyHelper;
-use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use craft\web\View;
 use Exception;
@@ -90,7 +89,7 @@ class CatalogPricingRulesController extends BaseStoreManagementController
         ]);
 
         $tableData = [];
-        $catalogPricingRules->each(function (CatalogPricingRule $pcr) use (&$tableData, $store) {
+        $catalogPricingRules->each(function(CatalogPricingRule $pcr) use (&$tableData, $store) {
             $effect = $pcr->apply === CatalogPricingRuleRecord::APPLY_BY_PERCENT || $pcr->apply === CatalogPricingRuleRecord::APPLY_TO_PERCENT
                 ? $pcr->applyAmountAsPercent . ' ' . ($pcr->apply === CatalogPricingRuleRecord::APPLY_BY_PERCENT
                     ? Craft::t('commerce', '(off original price)')
@@ -125,16 +124,16 @@ class CatalogPricingRulesController extends BaseStoreManagementController
                         'action' => 'commerce/catalog-pricing-rules/update-status',
                         'param' => 'status',
                         'value' => 'enabled',
-                        'status' => 'enabled'
+                        'status' => 'enabled',
                     ],
                     [
                         'label' => Craft::t('commerce', 'Disabled'),
                         'action' => 'commerce/catalog-pricing-rules/update-status',
                         'param' => 'status',
                         'value' => 'disabled',
-                        'status' => 'disabled'
+                        'status' => 'disabled',
                     ],
-                ]
+                ],
             ];
         }
 
@@ -143,7 +142,7 @@ class CatalogPricingRulesController extends BaseStoreManagementController
             $actions[] = [
                 'label' => Craft::t('commerce', 'Delete'),
                 'action' => 'commerce/catalog-pricing-rules/delete',
-                'error' => true
+                'error' => true,
             ];
             $deleteAction = '"commerce/catalog-pricing-rules/delete"';
         }
