@@ -989,6 +989,7 @@ return [
     'The format used to generate new coupons, e.g. {example}. Any `#` characters will be replaced with a random letter.' => 'Formát použitý na generovanie nových kupónov, napr. {example}. Akékoľvek znaky „#“ budú nahradené náhodným písmenom.',
     'The item is not enabled for sale.' => 'Túto položku nie je povolené zahrnúť do predaja.',
     'The language the order was made in.' => 'Jazyk, v ktorom bola objednávka uskutočnená.',
+    'The language to be used when this email is rendered.' => 'The language to be used when this email is rendered.',
     'The maximum the customer should spend on shipping. Set to zero to disable.' => 'Maximálna suma, ktorú by mal zákazník minúť za dopravu. Vypnete zadaním nuly.',
     'The minimum the customer should spend on shipping. Set to zero to disable.' => 'Minimálna suma, ktorú by mal zákazník minúť za dopravu. Vypnete zadaním nuly.',
     'The order is not valid.' => 'Neplatná objednávka.',
