@@ -989,6 +989,7 @@ return [
     'The format used to generate new coupons, e.g. {example}. Any `#` characters will be replaced with a random letter.' => 'Formato usato per generare nuovi codici promozionali, ad es., {example}. Eventuali caratteri `#` saranno sostituiti da lettere casuali.',
     'The item is not enabled for sale.' => 'L’articolo non è abilitato alla vendita.',
     'The language the order was made in.' => 'La lingua in cui è stato effettuato l\'ordine.',
+    'The language to be used when this email is rendered.' => 'The language to be used when this email is rendered.',
     'The maximum the customer should spend on shipping. Set to zero to disable.' => 'Importo massimo che il cliente dovrebbe spendere per la spedizione. Impostare su zero per disabilitare.',
     'The minimum the customer should spend on shipping. Set to zero to disable.' => 'Importo minimo che il cliente dovrebbe spendere per la spedizione. Impostare su zero per disabilitare.',
     'The order is not valid.' => 'L\'ordine non è valido.',
