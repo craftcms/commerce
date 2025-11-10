@@ -19,7 +19,6 @@ use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\i18n\Locale;
-use craft\web\assets\admintable\AdminTableAsset;
 use craft\web\View;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;

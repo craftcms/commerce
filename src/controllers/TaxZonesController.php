@@ -62,7 +62,7 @@ class TaxZonesController extends BaseTaxSettingsController
         $this->getView()->registerTranslations('commerce', [
             'Name',
             'Description',
-            'Default Zone'
+            'Default Zone',
         ]);
 
         $tableData = Json::encode($tableData);

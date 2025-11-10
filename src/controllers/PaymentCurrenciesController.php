@@ -16,7 +16,6 @@ use craft\commerce\Plugin;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\i18n\Formatter;
-use craft\web\assets\admintable\AdminTableAsset;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\db\Exception as DbException;

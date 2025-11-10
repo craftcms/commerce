@@ -70,7 +70,7 @@ JS;
 
         $this->getView()->registerTranslations('commerce', [
             'Name',
-            'Description'
+            'Description',
         ]);
 
         return $this->asStoreManagementCpScreen($storeHandle)
