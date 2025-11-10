@@ -17,6 +17,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\Json;
+use craft\web\View;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -128,7 +129,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
     });
 JS;
 
-        $this->getView()->registerJs($js);
+        $this->getView()->registerJs($js, View::POS_END);
 
         return $this->asStoreManagementCpScreen($storeHandle, hasStoreSwitcher: false)
             ->additionalButtonsHtml($buttons)

@@ -15,6 +15,7 @@ use craft\commerce\Plugin;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\Json;
+use craft\web\View;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use yii\base\Exception;
@@ -88,7 +89,7 @@ new Craft.VueAdminTable({
     tableData: {$tableData},
     });
 JS;
-        $this->getView()->registerJs($js);
+        $this->getView()->registerJs($js, View::POS_END);
 
         return $this->asStoreManagementCpScreen($storeHandle)
             ->additionalButtonsHtml(Html::a(Craft::t('commerce', 'New tax zone'), $store->getStoreSettingsUrl('taxzones/new'), ['class' => 'btn submit add icon']))
