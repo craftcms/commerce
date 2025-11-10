@@ -1602,16 +1602,31 @@ class Product extends Element implements HasStoreInterface
 
             $this->id = $record->id;
 
-            if ($this->getIsCanonical() && isset($this->typeId) && $productType->isStructure) {
+            if ($this->getIsCanonical() &&
+                isset($this->typeId) &&
+                $productType->isStructure
+            ) {
                 // Has the parent changed?
                 if ($this->hasNewParent()) {
                     $this->_placeInStructure($isNew, $productType);
                 }
 
-                // Update the product’s descendants, who may be using this product’s URI in their own URIs
+                // Update the product's descendants, who may be using this product's URI in their own URIs
                 if (!$isNew) {
                     Craft::$app->getElements()->updateDescendantSlugsAndUris($this, true, true);
                 }
+            }
+
+            // Queue job to resave variants if the variant title format references the product
+            if ($this->getIsCanonical() &&
+                isset($this->typeId) &&
+                !$productType->hasVariantTitleField &&
+                $productType->variantTitleFormat &&
+                StringHelper::containsAny($productType->variantTitleFormat, ['product.', 'owner.', 'primaryOwner.'])
+            ) {
+                Craft::$app->getQueue()->push(new \craft\commerce\queue\jobs\ResaveProductVariants([
+                    'productId' => $this->id,
+                ]));
             }
         }
 
@@ -1805,15 +1820,6 @@ class Product extends Element implements HasStoreInterface
      */
     public function beforeSave(bool $isNew): bool
     {
-        $productType = $this->getType();
-
-        if (!$productType->hasVariantTitleField &&
-            $productType->variantTitleFormat &&
-            StringHelper::containsAny($productType->variantTitleFormat, ['product.', 'owner.', 'primaryOwner.'])
-        ) {
-            $this->setDirtyAttributes(['allVariants'], true);
-        }
-
         // Make sure the entry has at least one revision if the section has versioning enabled
         if ($this->_shouldSaveRevision()) {
             $hasRevisions = self::find()
@@ -1837,6 +1843,7 @@ class Product extends Element implements HasStoreInterface
             }
         }
 
+        $productType = $this->getType();
         // Set the structure ID for Element::attributes() and afterSave()
         if ($productType->isStructure) {
             $this->structureId = $productType->structureId;
