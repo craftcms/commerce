@@ -1064,18 +1064,18 @@ class Install extends Migration
     public function createIndexes(): void
     {
         $this->createIndex(null, Table::CATALOG_PRICING, 'catalogPricingRuleId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING, 'isPromotionalPrice', false);
         $this->createIndex(null, Table::CATALOG_PRICING, 'purchasableId', false);
         $this->createIndex(null, Table::CATALOG_PRICING, 'storeId', false);
         $this->createIndex(null, Table::CATALOG_PRICING, 'userId', false);
-        $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId', 'isPromotionalPrice', 'price'], false);
         $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId', 'isPromotionalPrice', 'price', 'catalogPricingRuleId', 'dateFrom', 'dateTo'], false);
+        $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId', 'isPromotionalPrice', 'price'], false);
+        $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId'], false);
         $this->createIndex(null, Table::CATALOG_PRICING_RULES, 'storeId', false);
         $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'catalogPricingRuleId', false);
         $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'userId', false);
         $this->createIndex(null, Table::COUPONS, 'code', false);
         $this->createIndex(null, Table::COUPONS, 'discountId', false);
-        $this->createIndex(null, Table::CATALOG_PRICING, 'isPromotionalPrice', false);
-        $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId'], false);
         $this->createIndex(null, Table::CUSTOMERS, 'customerId', true);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryBillingAddressId', false);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryPaymentSourceId', false);
