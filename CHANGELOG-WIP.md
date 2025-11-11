@@ -7,6 +7,7 @@
 - PDF link expiry duration can now be configured per PDF in Settings → PDFs.
 - Logged-in users who own the order or have appropriate permissions bypass the email verification flow and can download PDFs directly.
 - Added a new system email message for sending PDF download links to customers.
+- It is now possible to select multiple products in variant conditions. 
 
 ### Administration
 - Added billing and shipping address conditions to gateways. ([#4100](https://github.com/craftcms/commerce/pull/4100))
@@ -43,6 +44,7 @@
 - Added `craft\commerce\models\Email::$renderSiteId`.
 - Added `craft\commerce\models\Email::getRenderSite()`.
 - Added `craft\commerce\models\Pdf::$linkExpiry`.
+- Added `craft\commerce\queue\jobs\ResaveProductVariants`.
 - Added `craft\commerce\records\Email::$renderSiteId`.
 - Added `craft\commerce\records\Order::$dateFirstPaid`.
 - Added `craft\commerce\services\CatalogPricingRules::hasCatalogPricingRules()`.
@@ -60,3 +62,4 @@
 ### System
 - Fixed a bug where purchasables could have a shipping category that was no longer available to their product type. ([#4018](https://github.com/craftcms/commerce/issues/4018))
 - Fixed a bug where order emails weren’t always getting rendered for the correct site.
+- Fixed a bug where variant titles were being incorrectly generated for draft products. ([#4173](https://github.com/craftcms/commerce/pull/4173))
