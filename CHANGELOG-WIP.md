@@ -7,6 +7,7 @@
 - PDF link expiry duration can now be configured per PDF in Settings → PDFs.
 - Logged-in users who own the order or have appropriate permissions bypass the email verification flow and can download PDFs directly.
 - Added a new system email message for sending PDF download links to customers.
+- It is now possible to select multiple products in variant conditions. 
 
 ### Administration
 - Added billing and shipping address conditions to gateways. ([#4100](https://github.com/craftcms/commerce/pull/4100))
