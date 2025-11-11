@@ -27,7 +27,6 @@ use craft\elements\Entry;
 use craft\errors\MissingComponentException;
 use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
-use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
@@ -111,16 +110,16 @@ class DiscountsController extends BaseStoreManagementController
                         'action' => 'commerce/discounts/update-status',
                         'param' => 'status',
                         'value' => 'enabled',
-                        'status' => 'enabled'
+                        'status' => 'enabled',
                     ],
                     [
                         'label' => Craft::t('commerce', 'Disabled'),
                         'action' => 'commerce/discounts/update-status',
                         'param' => 'status',
                         'value' => 'disabled',
-                        'status' => 'disabled'
-                    ]
-                ]
+                        'status' => 'disabled',
+                    ],
+                ],
             ];
         }
 
