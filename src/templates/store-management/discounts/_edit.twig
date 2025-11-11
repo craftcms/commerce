@@ -1,9 +1,3 @@
-{% extends "commerce/_layouts/store-management" %}
-{% set isIndex = false %}
-
-{% set crumbs = [
-    { label: "Discounts"|t('commerce'), url: url("commerce/store-management/#{storeHandle}/discounts") },
-] %}
 
 {% set fullPageForm = true %}
 
@@ -24,34 +18,6 @@
     shortcut: true,
   }]
 %}
-
-{% set discountClasses = "" %}
-{% if (discount.getErrors('name')) %}
-    {% set discountClasses = "error" %}
-{% endif %}
-
-{% set matchingItemsClasses = "" %}
-{% if false %}
-    {% set matchingItemsClasses = "error" %}
-{% endif %}
-
-{% set conditionsClasses = "" %}
-{% if(discount.getErrors('startDate') or discount.getErrors('endDate')) %}
-    {% set conditionsClasses = "error" %}
-{% endif %}
-
-{% set couponClasses = "" %}
-{% if(discount.getErrors('code')) %}
-    {% set couponClasses = "error" %}
-{% endif %}
-
-{% set tabs = {
-    discount: {'label':'Discount'|t('commerce'),'url':'#discount','class':discountClasses},
-    coupons: {'label':'Coupons'|t('commerce'),'url':'#coupons','class':couponClasses},
-    matchingItems: {'label':'Matching Items'|t('commerce'),'url':'#matching-items','class':matchingItemsClasses},
-    conditions: {'label':'Conditions'|t('commerce'),'url':'#conditions','class':conditionsClasses},
-    actions: {'label':'Actions'|t('commerce'),'url':'#actions'}
-} %}
 
 {% set couponsTable = {
     name: 'coupons',
@@ -81,35 +47,6 @@
 
 {% hook "cp.commerce.discounts.edit" %}
 
-{% block details %}
-
-    <div class="meta">
-        {{ forms.lightSwitchField({
-            label: "Enable this discount"|t('commerce'),
-            id: 'enabled',
-            name: 'enabled',
-            value: 1,
-            on: discount.enabled,
-            errors: discount.getErrors('enabled')
-        }) }}
-    </div>
-
-    {% if discount and discount.id %}
-        <div class="meta read-only">
-            <div class="data">
-                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
-                <div id="date-created-value" class="value">{{ discount.dateCreated|datetime('short') }}</div>
-            </div>
-            <div class="data">
-                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
-                <div id="date-updated-value" class="value">{{ discount.dateUpdated|datetime('short') }}</div>
-            </div>
-        </div>
-    {% endif %}
-
-    {% hook "cp.commerce.discounts.edit.details" %}
-{% endblock %}
-
 {% block content %}
         {% set formAttributes = {
             id: 'discountform',
@@ -121,9 +58,7 @@
                 'confirm-unload': true
             },
         } %}
-    <form {{ attr(formAttributes) }}>
-    <input type="hidden" name="action" value="commerce/discounts/save">
-    {{ redirectInput("commerce/store-management/#{storeHandle}/discounts") }}
+
     {{ hiddenInput('storeId', discount.storeId) }}
     {% if discount.id %}
         <input type="hidden" name="sortOrder" value="{{ discount.sortOrder }}">

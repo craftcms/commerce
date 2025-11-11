@@ -352,7 +352,41 @@ JS;
             ->map(fn(Coupon $coupon) => $coupon->toArray())
             ->all();
 
-        return $this->renderTemplate('commerce/store-management/discounts/_edit', $variables);
+        $tabs = [
+            'discount' => [
+                'label' => Craft::t('commerce', 'Discount'),
+                'url' => '#discount',
+                'class' => $variables['discount']->getErrors('name') ? 'error' : '',
+            ],
+            'coupons' => [
+                'label' => Craft::t('commerce', 'Coupons'),
+                'url' => '#coupons',
+                'class' => $variables['discount']->getErrors('code') ? 'error' : '',
+            ],
+            'matchingItems' => [
+                'label' => Craft::t('commerce', 'Matching Items'),
+                'url' => '#matching-items',
+            ],
+            'conditions' => [
+                'label' => Craft::t('commerce', 'Conditions'),
+                'url' => '#conditions',
+                'class' => $variables['discount']->getErrors('startDate') || $variables['discount']->getErrors('endDate') ? 'error' : '',
+            ],
+            'actions' => [
+                'label' => Craft::t('commerce', 'Actions'),
+                'url' => '#actions',
+                'class' => $variables['discount']->getErrors('startDate') || $variables['discount']->getErrors('endDate') ? 'error' : '',
+            ],
+        ];
+
+        return $this->asStoreManagementCpScreen($storeHandle, false)
+            ->title($variables['title'])
+            ->tabs($tabs)
+            ->addCrumb(Craft::t('commerce', 'Discounts'), $store->getStoreSettingsUrl('discounts'))
+            ->metaSidebarTemplate('commerce/store-management/discounts/_sidebar', $variables)
+            ->action('commerce/discounts/save')
+            ->redirectUrl($store->getStoreSettingsUrl('discounts'))
+            ->contentTemplate('commerce/store-management/discounts/_edit', $variables);
     }
 
     /**
