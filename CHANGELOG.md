@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a SQL error that could occur when viewing unfulfilled orders on PostgreSQL. ([#4171](https://github.com/craftcms/commerce/issues/4171))
 - Fixed a bug where duplicate pricing catalog jobs were being queued. ([#4136](https://github.com/craftcms/commerce/issues/4136))
 - Deprecated `craft\commerce\services\CatalogPricing::afterSavePurchasableHandler()`.
 
