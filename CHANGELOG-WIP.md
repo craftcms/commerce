@@ -37,6 +37,7 @@
 - Added `craft\commerce\models\Email::$renderSiteId`.
 - Added `craft\commerce\models\Email::getRenderSite()`.
 - Added `craft\commerce\models\Pdf::$linkExpiry`.
+- Added `craft\commerce\queue\jobs\ResaveProductVariants`.
 - Added `craft\commerce\records\Email::$renderSiteId`.
 - Added `craft\commerce\records\Order::$dateFirstPaid`.
 - Added `craft\commerce\services\CatalogPricingRules::hasCatalogPricingRules()`.
