@@ -644,7 +644,7 @@ class Inventory extends Component
 
         // Get orders that have line items for this inventory level item
         $orderIds = (new Query())
-            ->select(['orders.id'])
+            ->select(['lineItems.orderId'])
             ->from(['lineItems' => Table::LINEITEMS])
             ->leftJoin(['orders' => Table::ORDERS], '[[lineItems.orderId]] = [[orders.id]]')
             ->leftJoin(['it' => Table::INVENTORYTRANSACTIONS], '[[it.lineItemId]] = [[lineItems.id]]')

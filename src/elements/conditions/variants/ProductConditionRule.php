@@ -54,7 +54,7 @@ class ProductConditionRule extends BaseElementSelectConditionRule implements Ele
     public function modifyQuery(ElementQueryInterface $query): void
     {
         /** @var VariantQuery $query */
-        $query->ownerId($this->getElementId());
+        $query->ownerId($this->getElementIds());
     }
 
     /**
@@ -63,7 +63,15 @@ class ProductConditionRule extends BaseElementSelectConditionRule implements Ele
     public function matchElement(ElementInterface $element): bool
     {
         /** @var Variant $element */
-        return $element->getOwnerId() == $this->getElementId();
+        return $this->matchValue($element->getOwnerId());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function allowMultiple(): bool
+    {
+        return true;
     }
 
     /**

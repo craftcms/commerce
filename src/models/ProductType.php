@@ -252,7 +252,7 @@ class ProductType extends Model implements FieldLayoutProviderInterface
         if (!isset($this->previewTargets)) {
             $this->previewTargets = [
                 [
-                    'label' => Craft::t('commerce', 'Primary {type} page', [
+                    'label' => Craft::t('app', 'Primary {type} page', [
                         'type' => Product::lowerDisplayName(),
                     ]),
                     'urlFormat' => '{url}',
@@ -566,7 +566,7 @@ class ProductType extends Model implements FieldLayoutProviderInterface
         unset($target);
 
         if ($hasErrors) {
-            $this->addError('previewTargets', Craft::t('commerce', 'All targets must have a label.'));
+            $this->addError('previewTargets', Craft::t('app', 'All targets must have a label.'));
         }
     }
 
