@@ -38,6 +38,7 @@
 - Added `craft\commerce\models\Email::$renderSiteId`.
 - Added `craft\commerce\models\Email::getRenderSite()`.
 - Added `craft\commerce\models\Pdf::$linkExpiry`.
+- Added `craft\commerce\queue\jobs\ResaveProductVariants`.
 - Added `craft\commerce\records\Email::$renderSiteId`.
 - Added `craft\commerce\records\Order::$dateFirstPaid`.
 - Added `craft\commerce\services\CatalogPricingRules::hasCatalogPricingRules()`.
@@ -49,3 +50,4 @@
 ### System
 - Fixed a bug where purchasables could have a shipping category that was no longer available to their product type. ([#4018](https://github.com/craftcms/commerce/issues/4018))
 - Fixed a bug where order emails weren’t always getting rendered for the correct site.
+- Fixed a bug where variant titles were being incorrectly generated for draft products. ([#4173](https://github.com/craftcms/commerce/pull/4173))
