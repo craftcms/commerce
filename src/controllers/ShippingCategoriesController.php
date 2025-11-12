@@ -12,6 +12,10 @@ use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
+use craft\helpers\Html;
+use craft\helpers\Json;
+use craft\web\View;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -38,12 +42,89 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         }
 
         $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories($store->id);
-        $variables = [
-            'shippingCategories' => $shippingCategories,
-            'storeHandle' => $store->handle,
-            'store' => $store,
-        ];
-        return $this->renderTemplate('commerce/store-management/shipping/shippingcategories/index', $variables);
+
+        // Generate table data with chips
+        $tableData = [];
+        foreach ($shippingCategories as $shippingCategory) {
+            $label = Craft::t('site', $shippingCategory->name);
+            $tableData[] = [
+                'id' => $shippingCategory->id,
+                'title' => $label,
+                'chip' => Cp::chipHtml($shippingCategory, [
+                    'labelHtml' => Html::a($label, $shippingCategory->getCpEditUrl(), [
+                        'class' => ['chip-label', 'cell-bold'],
+                    ]),
+                ]),
+                'url' => $shippingCategory->getCpEditUrl(),
+                'handle' => $shippingCategory->handle,
+                'description' => Craft::t('site', $shippingCategory->description),
+                'default' => $shippingCategory->default,
+                '_showDelete' => (count($shippingCategories) > 1 && !$shippingCategory->default),
+            ];
+        }
+
+        $this->getView()->registerTranslations('commerce', [
+            'Default',
+            'Description',
+            'Handle',
+            'Name',
+            'Yes',
+        ]);
+
+        $tableData = Json::encode($tableData);
+
+        $js = <<<JS
+var columns = [
+        { name: 'chip', title: Craft.t('commerce', 'Name') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+        { name: 'description', title: Craft.t('commerce', 'Description') },
+        {
+            name: 'default',
+            title: Craft.t('commerce', 'Default'),
+            callback: function(value) {
+                if (value) {
+                    return '<div data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce','Yes'))+'"></div>';
+                }
+            }
+        },
+    ];
+
+    new Craft.VueAdminTable({
+        actions: [
+        {
+            label: '',
+            icon: 'settings',
+            actions: [
+                {
+                    label: Craft.t('commerce', 'Set Default Category'),
+                    action: 'commerce/shipping-categories/set-default-category',
+                    param: 'storeHandle',
+                    value: '{$storeHandle}',
+                    allowMultiple: false
+                }
+            ]
+        }
+    ],
+        checkboxes: true,
+        columns: columns,
+        container: '#shipping-vue-admin-table',
+        deleteAction: 'commerce/shipping-categories/delete',
+        padded: true,
+        tableData: {$tableData},
+    });
+    
+JS;
+
+
+        $this->getView()->registerJs($js, View::POS_END);
+
+        return $this->asStoreManagementCpScreen($storeHandle)
+            ->additionalButtonsHtml(Html::a(
+                Craft::t('commerce', 'New shipping category'),
+                $store->getStoreSettingsUrl('shippingcategories/new'),
+                ['class' => 'btn submit add icon']
+            ))
+            ->contentHtml(Html::tag('div', '', ['id' => 'shipping-vue-admin-table']));
     }
 
     /**
@@ -100,7 +181,21 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         $allShippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories($store->id);
         $variables['isDefaultAndOnlyCategory'] = $variables['id'] && $allShippingCategories->count() === 1 && $allShippingCategories->firstWhere('id', $variables['id']);
 
-        return $this->renderTemplate('commerce/store-management/shipping/shippingcategories/_edit', $variables);
+        $metaSidebar = '';
+        if ($variables['shippingCategory']->id) {
+            $metaSidebar = Cp::metadataHtml([
+                Craft::t('app', 'Created at') => Craft::$app->getFormatter()->asDatetime($variables['shippingCategory']->dateCreated, 'short'),
+                Craft::t('app', 'Updated at') => Craft::$app->getFormatter()->asDatetime($variables['shippingCategory']->dateUpdated, 'short'),
+            ]);
+        }
+
+        return $this->asStoreManagementCpScreen($storeHandle, false)
+            ->title($variables['title'])
+            ->addCrumb(Craft::t('commerce', 'Shipping Categories'),$store->getStoreSettingsUrl('shippingcategories'))
+            ->action('commerce/shipping-categories/save')
+            ->redirectUrl($store->getStoreSettingsUrl('shippingcategories'))
+            ->metaSidebarHtml($metaSidebar)
+            ->contentTemplate('commerce/store-management/shipping/shippingcategories/_edit', $variables);
     }
 
     /**
@@ -119,6 +214,8 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         $shippingCategory->storeId = $this->request->getBodyParam('storeId');
         $shippingCategory->name = $this->request->getBodyParam('name');
         $shippingCategory->handle = $this->request->getBodyParam('handle');
+        $shippingCategory->icon = $this->request->getBodyParam('icon');
+        $shippingCategory->color = $this->request->getBodyParam('color');
         $shippingCategory->description = $this->request->getBodyParam('description');
         $shippingCategory->default = (bool)$this->request->getBodyParam('default');
 

@@ -51,6 +51,16 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
     public ?string $handle = null;
 
     /**
+     * @var string|null Icon
+     */
+    public ?string $icon = null;
+
+    /**
+     * @var string|null Color
+     */
+    public ?string $color = null;
+
+    /**
      * @var bool Enabled
      */
     public bool $enabled = true;
@@ -149,6 +159,8 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
             'id',
             'name',
             'handle',
+            'icon',
+            'color',
             'storeId',
             'orderCondition',
             'customerCondition',

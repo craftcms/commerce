@@ -16,7 +16,7 @@
 
 {{ forms.textField({
     label: "Handle"|t('commerce'),
-    instructions: "How you’ll refer to this shipping category in the templates."|t('commerce'),
+    instructions: "How you'll refer to this shipping category in the templates."|t('commerce'),
     id: 'handle',
     class: 'code',
     name: 'handle',
@@ -31,6 +31,24 @@
     name: 'description',
     value: shippingCategory is defined ? shippingCategory.description,
     errors: shippingCategory is defined ? shippingCategory.getErrors('description')
+}) }}
+
+{{ forms.iconPickerField({
+    label: "Icon"|t('commerce'),
+    id: 'icon',
+    name: 'icon',
+    value: shippingCategory is defined ? shippingCategory.icon,
+    errors: shippingCategory is defined ? shippingCategory.getErrors('icon'),
+    fieldClass: 'width-50'
+}) }}
+
+{{ forms.colorSelectField({
+    label: "Color"|t('commerce'),
+    id: 'color',
+    name: 'color',
+    value: shippingCategory is defined ? shippingCategory.color,
+    errors: shippingCategory is defined ? shippingCategory.getErrors('color'),
+    fieldClass: 'width-50'
 }) }}
 
 {% if not productTypesOptions %}

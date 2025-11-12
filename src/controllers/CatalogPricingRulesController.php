@@ -12,6 +12,7 @@ use craft\commerce\elements\conditions\products\CatalogPricingRuleProductConditi
 use craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasableCondition;
 use craft\commerce\elements\conditions\purchasables\PurchasableConditionRule;
 use craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantCondition;
+use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
@@ -19,10 +20,12 @@ use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Html;
+use craft\helpers\Json;
 use craft\helpers\Localization;
 use craft\helpers\MoneyHelper;
-use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
+use craft\web\View;
 use Exception;
 use Throwable;
 use yii\base\InvalidConfigException;
@@ -64,7 +67,123 @@ class CatalogPricingRulesController extends BaseStoreManagementController
         }
 
         $catalogPricingRules = Plugin::getInstance()->getcatalogPricingRules()->getAllcatalogPricingRules($store->id);
-        return $this->renderTemplate('commerce/store-management/pricing-rules/index', compact('catalogPricingRules'));
+
+        $actionButtonHtml = Craft::$app->getUser()->getIdentity()->can('commerce-createCatalogPricingRules') ?
+            Html::a(Craft::t('commerce', 'New catalog pricing rule'),
+                $store->getStoreSettingsUrl('pricing-rules/new'),
+                ['class' => 'btn submit add icon'])
+            : '';
+
+        $this->getView()->registerTranslations('commerce', [
+            'Delete',
+            'Disabled',
+            'Duration',
+            'Effect',
+            'Enabled',
+            'Is Promotional Price?',
+            'Name',
+            'No catalog pricing rules exist yet.',
+            'No',
+            'Set status',
+            'Yes',
+        ]);
+
+        $tableData = [];
+        $catalogPricingRules->each(function(CatalogPricingRule $pcr) use (&$tableData, $store) {
+            $effect = $pcr->apply === CatalogPricingRuleRecord::APPLY_BY_PERCENT || $pcr->apply === CatalogPricingRuleRecord::APPLY_TO_PERCENT
+                ? $pcr->applyAmountAsPercent . ' ' . ($pcr->apply === CatalogPricingRuleRecord::APPLY_BY_PERCENT
+                    ? Craft::t('commerce', '(off original price)')
+                    : Craft::t('commerce', '(of original price)'))
+                : Currency::formatAsCurrency($pcr->applyAmountAsFlat, Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency($store->id)->iso, true) . ' ' . ($pcr->apply === CatalogPricingRuleRecord::APPLY_BY_FLAT
+                    ? Craft::t('commerce', '(off original price)')
+                    : Craft::t('commerce', '(new price)'));
+
+            $dateRange = ($pcr->dateFrom ? Craft::$app->getFormatter()->asDatetime($pcr->dateFrom, 'short') : '∞') . ' - ' . ($pcr->dateTo ? Craft::$app->getFormatter()->asDatetime($pcr->dateTo, 'short') : '∞');
+            $dateRange = !$pcr->dateFrom && !$pcr->dateTo ? '∞' : $dateRange;
+
+            $tableData[] = [
+                'id' => $pcr->id,
+                'title' => Craft::t('site', $pcr->name),
+                'url' => $pcr->getCpEditUrl(),
+                'status' => $pcr->enabled ? true : false,
+                'duration' => $dateRange,
+                'effect' => $effect,
+                'isPromotionalPrice' => $pcr->isPromotionalPrice,
+            ];
+        });
+
+        $tableData = Json::encode($tableData);
+
+        $actions = [];
+        if (Craft::$app->getUser()->getIdentity()->can('commerce-editCatalogPricingRules')) {
+            $actions[] = [
+                'label' => Craft::t('commerce', 'Set status'),
+                'actions' => [
+                    [
+                        'label' => Craft::t('commerce', 'Enabled'),
+                        'action' => 'commerce/catalog-pricing-rules/update-status',
+                        'param' => 'status',
+                        'value' => 'enabled',
+                        'status' => 'enabled',
+                    ],
+                    [
+                        'label' => Craft::t('commerce', 'Disabled'),
+                        'action' => 'commerce/catalog-pricing-rules/update-status',
+                        'param' => 'status',
+                        'value' => 'disabled',
+                        'status' => 'disabled',
+                    ],
+                ],
+            ];
+        }
+
+        $deleteAction = null;
+        if (Craft::$app->getUser()->getIdentity()->can('commerce-deleteCatalogPricingRules')) {
+            $actions[] = [
+                'label' => Craft::t('commerce', 'Delete'),
+                'action' => 'commerce/catalog-pricing-rules/delete',
+                'error' => true,
+            ];
+            $deleteAction = '"commerce/catalog-pricing-rules/delete"';
+        }
+
+
+        $actions = Json::encode($actions);
+
+        $js = <<<JS
+var actions = {$actions};
+
+var columns = [
+    { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+    { name: 'duration', title: Craft.t('commerce', 'Duration') },
+    { name: 'effect', title: Craft.t('commerce', 'Effect') },
+    { name: 'isPromotionalPrice', title: Craft.t('commerce', 'Is Promotional Price?'),
+        callback: function(value) {
+            if (value) {
+                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+            }
+        }
+    },
+];
+
+new Craft.VueAdminTable({
+  actions: actions,
+  checkboxes: true,
+  columns: columns,
+  fullPane: false,
+  container: '#pcr-vue-admin-table',
+  deleteAction: {$deleteAction},
+  emptyMessage: Craft.t('commerce', 'No catalog pricing rules exist yet.'),
+  padded: true,
+  tableData: {$tableData}
+});
+JS;
+
+        $this->getView()->registerJs($js, View::POS_END);
+
+        return $this->asStoreManagementCpScreen($storeHandle)
+            ->additionalButtonsHtml($actionButtonHtml)
+            ->contentTemplate('commerce/store-management/pricing-rules/index');
     }
 
     /**
@@ -132,13 +251,9 @@ class CatalogPricingRulesController extends BaseStoreManagementController
 
         $variables = $this->_populateVariables($variables);
 
-        return $this->asCpScreen()
+        return $this->asStoreManagementCpScreen($storeHandle, false)
             ->title(Craft::t('commerce', 'Catalog Pricing Rule'))
-            ->crumbs([
-                ['label' => Craft::t('commerce', 'Commerce'), 'url' => 'commerce'],
-                $this->getStoreSwitcher($store->handle),
-                ['label' => Craft::t('commerce', 'Pricing Rules'), 'url' => UrlHelper::cpUrl('commerce/store-management/' . $store->handle . '/pricing-rules')],
-            ])
+            ->addCrumb(Craft::t('commerce', 'Pricing Rules'), $store->getStoreSettingsUrl('pricing-rules'))
             ->action('commerce/catalog-pricing-rules/save')
             ->redirectUrl('commerce/store-management/' . $store->handle . '/pricing-rules')
             ->metaSidebarTemplate('commerce/store-management/pricing-rules/_sidebar', $variables)

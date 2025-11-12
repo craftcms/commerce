@@ -25,6 +25,7 @@
 - Added the `--force` option to the `commerce/reset-data` command. ([#4115](https://github.com/craftcms/commerce/discussions/4115))
 
 ### Extensibility
+- Added `craft\commerce\controllers\BaseStoreManagementController::asStoreManagementCpScreen()`.
 - Added `craft\commerce\controllers\DownloadsController::actionEmailChallenge()`.
 - Added `craft\commerce\controllers\DownloadsController::actionPdfChallenge()`.
 - Added `craft\commerce\controllers\DownloadsController::actionPdfSent()`.
@@ -34,6 +35,11 @@
 - Added `craft\commerce\elements\db\OrderQuery::dateFirstPaid()`.
 - Added `craft\commerce\events\InventoryMovementEvent`. ([#4063](https://github.com/craftcms/commerce/pull/4063))
 - Added `craft\commerce\events\UpdateInventoryLevelEvent`. ([#4063](https://github.com/craftcms/commerce/pull/4063))
+- Added `craft\commerce\helpers\Cp::shippingCategoryFieldHtml()`.
+- Added `craft\commerce\helpers\Cp::shippingMethodFieldHtml()`.
+- Added `craft\commerce\helpers\Cp::shippingZoneFieldHtml()`.
+- Added `craft\commerce\helpers\Cp::taxCategoryFieldHtml()`.
+- Added `craft\commerce\helpers\Cp::taxZoneFieldHtml()`.
 - Added `craft\commerce\helpers\Gql::getSchemaContainedProductTypes()`.
 - Added `craft\commerce\models\Email::$renderSiteId`.
 - Added `craft\commerce\models\Email::getRenderSite()`.
@@ -46,6 +52,12 @@
 - Added `craft\commerce\services\Inventory::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT`. ([#3835](https://github.com/craftcms/commerce/discussions/3835))
 - Added `craft\commerce\services\Inventory::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL`. ([#3835](https://github.com/craftcms/commerce/discussions/3835))
 - Added `craft\commerce\services\Pdfs::getPdfUrl()` now generates secure tokenized URLs with expiry timestamps.
+- `craft\commerce\models\ShippingAddressZone` now implements `craft\base\Chippable`.
+- `craft\commerce\models\ShippingCategory` now implements `craft\base\Chippable`, `craft\base\Colorable`, and `craft\base\Iconic`.
+- `craft\commerce\models\ShippingMethod` now implements `craft\base\Chippable`, `craft\base\Colorable`, `craft\base\Iconic`, and `craft\base\Statusable`.
+- `craft\commerce\models\TaxAddressZone` now implements `craft\base\Chippable`.
+- `craft\commerce\models\TaxCategory` now implements `craft\base\Chippable`, `craft\base\Colorable`, and `craft\base\Iconic`.
+- `craft\commerce\models\TaxRate` now implements `craft\base\Chippable`.
 
 ### System
 - Fixed a bug where purchasables could have a shipping category that was no longer available to their product type. ([#4018](https://github.com/craftcms/commerce/issues/4018))

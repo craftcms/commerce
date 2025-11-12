@@ -1,18 +1,3 @@
-{% extends "commerce/_layouts/store-management" %}
-{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
-{% do view.registerTranslations('commerce', [
-    'Base',
-    'Code',
-    'Conversion Rate',
-    'Currency',
-    'No additional payment currencies exist yet.',
-    'Warning, deleting this currency will stop all payments and refunds in this currency, are you sure you want to delete “{name}”?',
-]) %}
-
-{% block actionButton %}
-    <a href="{{ url("commerce/store-management/#{storeHandle}/payment-currencies/new") }}" class="btn submit add icon">{{ 'New currency'|t('commerce') }}</a>
-{% endblock %}
-
 {% block content %}
     <div id="currencies-vue-admin-table"></div>
 {% endblock %}

@@ -1,13 +1,9 @@
-{% extends "commerce/_layouts/store-management" %}
-
 {% import "_includes/forms" as forms %}
 
 {% set fullPageForm = true %}
 
 {% block content %}
 
-  {{ actionInput('commerce/store-management/save') }}
-  {{ redirectInput(store.getStoreSettingsUrl()) }}
   {{ hiddenInput('id', store.id) }}
   {{ hiddenInput('locationAddressId', storeSettings.locationAddress.id) }}
 
