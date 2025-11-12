@@ -263,7 +263,7 @@ class Variant extends Purchasable implements NestedElementInterface
     {
         $request = Craft::$app->getRequest();
         $referrer = $request->getReferrer() ?? '';
-        $pathInfo = $request->getPathInfo() ?? '';
+        $pathInfo = $request->getPathInfo();
 
         $isCommerceProductContext = (
             str_contains($pathInfo, 'commerce/products') ||
