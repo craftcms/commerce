@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.4.10 - 2025-11-12
 
 - Fixed a SQL error that could occur when viewing unfulfilled orders on PostgreSQL. ([#4171](https://github.com/craftcms/commerce/issues/4171))
 - Fixed a bug where duplicate pricing catalog jobs could be queued. ([#4136](https://github.com/craftcms/commerce/issues/4136))
