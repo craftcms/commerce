@@ -261,9 +261,10 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public function getUiLabel(): string
     {
-        $referrer = Craft::$app->getRequest()->getReferrer();
-        $isAjax = Craft::$app->getRequest()->getIsAjax();
-        $pathInfo = Craft::$app->getRequest()->getPathInfo();
+        $request = Craft::$app->getRequest();
+        $referrer = $request->getReferrer();
+        $isAjax = $request->getIsAjax();
+        $pathInfo = $request->getPathInfo();
         if (
             ($isAjax && str_contains($referrer, 'commerce') && str_contains($referrer, 'products'))
             ||
