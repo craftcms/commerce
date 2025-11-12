@@ -63,3 +63,4 @@
 - Fixed a bug where purchasables could have a shipping category that was no longer available to their product type. ([#4018](https://github.com/craftcms/commerce/issues/4018))
 - Fixed a bug where order emails weren’t always getting rendered for the correct site.
 - Fixed a bug where variant titles were being incorrectly generated for draft products. ([#4173](https://github.com/craftcms/commerce/pull/4173), [#4126](https://github.com/craftcms/commerce/issues/4126))
+- Fixed a PHP error that occurred when retrieving an order that referenced an archived payment gateway. ([#4172](https://github.com/craftcms/commerce/issues/4172))

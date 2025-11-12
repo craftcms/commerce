@@ -180,6 +180,11 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
      */
     public function setOrderCondition(ShippingMethodOrderCondition|string|array|null $condition): void
     {
+        if (empty($condition)) {
+            $this->_orderCondition = null;
+            return;
+        }
+
         if (is_string($condition)) {
             $condition = Json::decodeIfJson($condition);
         }
@@ -216,6 +221,11 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
      */
     public function setCustomerCondition(ShippingMethodCustomerCondition|string|array|null $condition): void
     {
+        if (empty($condition)) {
+            $this->_customerCondition = null;
+            return;
+        }
+
         if (is_string($condition)) {
             $condition = Json::decodeIfJson($condition);
         }

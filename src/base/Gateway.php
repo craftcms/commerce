@@ -224,7 +224,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      *
      * @since 5.4.0
      */
-    public function setOrderCondition(ElementConditionInterface|string|array $condition): void
+    public function setOrderCondition(ElementConditionInterface|string|array|null $condition): void
     {
         if (empty($condition)) {
             $this->_orderCondition = null;
