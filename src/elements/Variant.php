@@ -278,10 +278,10 @@ class Variant extends Purchasable implements NestedElementInterface
         }
 
         if (Craft::$app->getLocale()->getOrientation() == 'rtl') {
-            return Html::encode(parent::getUiLabel() . ' : ' . $this->owner->getUiLabel());
+            return parent::getUiLabel() . ' : ' . $this->owner->getUiLabel();
         }
 
-        return Html::encode($this->owner->getUiLabel() . ' : ' . parent::getUiLabel());
+        return $this->owner->getUiLabel() . ' : ' . parent::getUiLabel();
     }
 
     /**
