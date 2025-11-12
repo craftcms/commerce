@@ -259,6 +259,33 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
+    public function getUiLabel(): string
+    {
+        $referrer = Craft::$app->getRequest()->getReferrer();
+        $isAjax = Craft::$app->getRequest()->getIsAjax();
+        $pathInfo = Craft::$app->getRequest()->getPathInfo();
+        if (
+            ($isAjax && str_contains($referrer, 'commerce') && str_contains($referrer, 'products'))
+            ||
+            (str_contains($pathInfo, 'commerce') && str_contains($pathInfo, 'products'))
+        ) {
+            return parent::getUiLabel();
+        }
+
+        if (!$this->owner) {
+            return parent::getUiLabel();
+        }
+
+        if (Craft::$app->getLocale()->getOrientation() == 'rtl') {
+            return Html::encode(parent::getUiLabel() . ' : ' . $this->owner->getUiLabel());
+        }
+
+        return Html::encode($this->owner->getUiLabel() . ' : ' . parent::getUiLabel());
+    }
+
+    /**
+     * @inheritdoc
+     */
     public static function displayName(): string
     {
         return Craft::t('commerce', 'Product Variant');
@@ -1181,7 +1208,7 @@ class Variant extends Purchasable implements NestedElementInterface
         // Validate shipping category ID is available for this product type
         $availableShippingCategories = $this->availableShippingCategories();
         $availableShippingCategoryIds = ArrayHelper::getColumn($availableShippingCategories, 'id');
-        
+
         // If the current shipping category ID is not in the available categories, set it to the default one
         $currentShippingCategoryId = $this->getShippingCategoryId();
         if (!in_array($currentShippingCategoryId, $availableShippingCategoryIds)) {

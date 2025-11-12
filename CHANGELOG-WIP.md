@@ -8,6 +8,7 @@
 - Logged-in users who own the order or have appropriate permissions bypass the email verification flow and can download PDFs directly.
 - Added a new system email message for sending PDF download links to customers.
 - It is now possible to select multiple products in variant conditions. ([#4166](https://github.com/craftcms/commerce/pull/4166))
+- Variants now include their owner products' title when being displayed in the control panel. ([#4155](https://github.com/craftcms/commerce/issues/4155))
 
 ### Administration
 - Added billing and shipping address conditions to gateways. ([#4100](https://github.com/craftcms/commerce/pull/4100))
