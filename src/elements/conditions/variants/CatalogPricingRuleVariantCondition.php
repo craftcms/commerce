@@ -15,4 +15,13 @@ namespace craft\commerce\elements\conditions\variants;
  */
 class CatalogPricingRuleVariantCondition extends VariantCondition
 {
+    /**
+     * @inheritdoc
+     */
+    protected function selectableConditionRules(): array
+    {
+        return array_merge(parent::selectableConditionRules(), [
+            CatalogPricingRuleVariantConditionRule::class,
+        ]);
+    }
 }
