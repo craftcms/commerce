@@ -262,26 +262,23 @@ class Variant extends Purchasable implements NestedElementInterface
     public function getUiLabel(): string
     {
         $request = Craft::$app->getRequest();
-        $referrer = $request->getReferrer();
-        $isAjax = $request->getIsAjax();
-        $pathInfo = $request->getPathInfo();
-        if (
-            ($isAjax && str_contains($referrer, 'commerce') && str_contains($referrer, 'products'))
-            ||
-            (str_contains($pathInfo, 'commerce') && str_contains($pathInfo, 'products'))
-        ) {
+        $referrer = $request->getReferrer() ?? '';
+        $pathInfo = $request->getPathInfo() ?? '';
+
+        $isCommerceProductContext = (
+            str_contains($pathInfo, 'commerce/products') ||
+            ($request->getIsAjax() && str_contains($referrer, 'commerce/products'))
+        );
+
+        if ($isCommerceProductContext || !$this->owner) {
             return parent::getUiLabel();
         }
 
-        if (!$this->owner) {
-            return parent::getUiLabel();
-        }
+        $labelParts = Craft::$app->getLocale()->getOrientation() === 'rtl'
+            ? [parent::getUiLabel(), $this->owner->getUiLabel()]
+            : [$this->owner->getUiLabel(), parent::getUiLabel()];
 
-        if (Craft::$app->getLocale()->getOrientation() == 'rtl') {
-            return parent::getUiLabel() . ' : ' . $this->owner->getUiLabel();
-        }
-
-        return $this->owner->getUiLabel() . ' : ' . parent::getUiLabel();
+        return implode(' : ', $labelParts);
     }
 
     /**
