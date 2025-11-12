@@ -1,0 +1,18 @@
+<?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
+
+namespace  craft\commerce\elements\conditions\variants;
+
+/**
+ * Catalog Pricing Rule Match Variant - Variants Condition Rule
+ *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since 5.5.0
+ */
+class CatalogPricingRuleVariantConditionRule extends VariantConditionRule
+{
+}
