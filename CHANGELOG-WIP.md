@@ -9,6 +9,8 @@
 - Added a new system email message for sending PDF download links to customers.
 - It is now possible to select multiple products in variant conditions. ([#4166](https://github.com/craftcms/commerce/pull/4166))
 - Variants now include their owner products' title when being displayed in the control panel. ([#4155](https://github.com/craftcms/commerce/issues/4155))
+- It is now possible to select multiple specific variants in pricing rule’s “Match Variant” condition. ([#4167](https://github.com/craftcms/commerce/issues/4167))
+- It is now possible to select multiple specific users in pricing rule’s “Match Customer” condition. ([#4167](https://github.com/craftcms/commerce/issues/4167))
 
 ### Administration
 - Added billing and shipping address conditions to gateways. ([#4100](https://github.com/craftcms/commerce/pull/4100))
@@ -30,6 +32,9 @@
 - Added `craft\commerce\controllers\DownloadsController::actionEmailChallenge()`.
 - Added `craft\commerce\controllers\DownloadsController::actionPdfChallenge()`.
 - Added `craft\commerce\controllers\DownloadsController::actionPdfSent()`.
+- Added `craft\commerce\elements\conditions\customers\CatalogPricingRuleCustomerConditionRule`.
+- Added `craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantConditionRule`.
+- Added `craft\commerce\elements\conditions\variants\VariantConditionRule`.
 - Added `craft\commerce\elements\Order::$dateFirstPaid`.
 - Added `craft\commerce\elements\Order::getMaskedEmail()`.
 - Added `craft\commerce\elements\db\OrderQuery::$dateFirstPaid`.
