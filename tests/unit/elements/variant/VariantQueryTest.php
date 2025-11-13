@@ -8,6 +8,7 @@
 namespace unit\elements\variant;
 
 use Codeception\Test\Unit;
+use craft\base\Element;
 use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\purchasables\PurchasableConditionRule;
 use craft\commerce\elements\db\VariantQuery;
@@ -399,6 +400,40 @@ class VariantQueryTest extends Unit
             'sale-price-desc' => ['salePrice DESC', array_reverse(['hct-white', 'hct-blue', 'rad-hood'])],
             'base-price-asc' => ['basePrice ASC', ['hct-white', 'hct-blue', 'rad-hood']],
             'base-price-desc' => ['basePrice DESC', array_reverse(['hct-white', 'hct-blue', 'rad-hood'])],
+        ];
+    }
+
+    /**
+     * @param mixed $status
+     * @param int $expectedCount
+     * @return void
+     * @since 5.5.0
+     * @dataProvider productStatusDataProvider
+     */
+    public function testProductStatus(mixed $status, int $expectedCount): void
+    {
+        $query = Variant::find();
+        $query->productStatus($status);
+
+        self::assertCount($expectedCount, $query->all());
+    }
+
+    /**
+     * @return array[]
+     */
+    public function productStatusDataProvider(): array
+    {
+        return [
+            'product-enabled' => ['enabled', 3],
+            'product-enabled-const' => [Element::STATUS_ENABLED, 3],
+            'product-enabled-const-array' => [[Element::STATUS_ENABLED], 3],
+            'product-disabled' => ['disabled', 0],
+            'product-disabled-const' => [Element::STATUS_DISABLED, 0],
+            'product-disabled-const-array' => [[Element::STATUS_DISABLED], 0],
+            'product-enabled-disabled' => [['enabled', 'disabled'], 3],
+            'product-enabled-disabled-const' => [[Element::STATUS_ENABLED, Element::STATUS_DISABLED], 3],
+            'product-not-disabled-array' => [['not', Element::STATUS_DISABLED], 3],
+            'product-not-enabled' => [['not', Element::STATUS_ENABLED], 0],
         ];
     }
 }
