@@ -98,7 +98,7 @@ class VariantQuery extends PurchasableQuery
     public mixed $ownerId = null;
 
     /**
-     * @var mixed|null The status the owner product must have.
+     * @var array|string|null  The status the owner product must have.
      * @used-by productStatus()
      * @since 5.5.0
      */

@@ -404,7 +404,6 @@ class VariantQueryTest extends Unit
     }
 
     /**
-     * @param mixed $status
      * @param int $expectedCount
      * @return void
      * @since 5.5.0
