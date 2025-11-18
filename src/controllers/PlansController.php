@@ -144,7 +144,7 @@ class PlansController extends BaseCpController
             ->title($variables['title'])
             ->selectedSubnavItem('subscription-plans')
             ->addCrumb(Craft::t('commerce', 'Commerce'), 'commerce')
-            ->addCrumb(Craft::t('commerce', 'Plans'), 'commerce/subscription-plans')
+            ->addCrumb(Craft::t('commerce', 'Subscription Plans'), 'commerce/subscription-plans')
             ->contentTemplate('commerce/subscriptions/plans/_edit.twig', $variables)
             ->action('commerce/plans/save-plan')
             ->redirectUrl('commerce/subscription-plans')

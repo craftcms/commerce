@@ -149,6 +149,8 @@ class TaxCategories extends Component
         $record->name = $taxCategory->name;
         $record->handle = $taxCategory->handle;
         $record->description = $taxCategory->description;
+        $record->icon = $taxCategory->icon;
+        $record->color = $taxCategory->color;
         $record->default = $taxCategory->default;
 
         // Save it!
@@ -288,6 +290,15 @@ class TaxCategories extends Component
                 'taxCategories.name',
             ])
             ->from([Table::TAXCATEGORIES . ' taxCategories']);
+
+        // Only add icon and color if the columns exist (for pre-migration compatibility)
+        $db = Craft::$app->getDb();
+        $schema = $db->getSchema();
+        $tableSchema = $schema->getTableSchema(Table::TAXCATEGORIES);
+
+        if ($tableSchema && $tableSchema->getColumn('icon') !== null) {
+            $query->addSelect(['taxCategories.icon', 'taxCategories.color']);
+        }
 
         if (!$withTrashed) {
             $query->where(['dateDeleted' => null]);

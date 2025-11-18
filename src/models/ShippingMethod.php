@@ -8,9 +8,14 @@
 namespace craft\commerce\models;
 
 use Craft;
+use craft\base\Chippable;
+use craft\base\Colorable;
+use craft\base\Iconic;
+use craft\base\Statusable;
 use craft\commerce\base\ShippingMethod as BaseShippingMethod;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
+use craft\enums\Color;
 use craft\validators\UniqueValidator;
 use Illuminate\Support\Collection;
 use yii\behaviors\AttributeTypecastBehavior;
@@ -25,7 +30,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ShippingMethod extends BaseShippingMethod
+class ShippingMethod extends BaseShippingMethod implements Chippable, Colorable, Iconic, Statusable
 {
     public function behaviors(): array
     {
@@ -107,6 +112,23 @@ class ShippingMethod extends BaseShippingMethod
     /**
      * @inheritdoc
      */
+    public static function get(int|string $id): ?static
+    {
+        /** @phpstan-ignore-next-line */
+        return Plugin::getInstance()->getShippingMethods()->getShippingMethodById($id);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getUiLabel(): string
+    {
+        return Craft::t('site', $this->name);
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected function defineRules(): array
     {
         $rules = parent::defineRules();
@@ -130,5 +152,40 @@ class ShippingMethod extends BaseShippingMethod
         $fields[] = 'shippingRules';
 
         return $fields;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIcon(): ?string
+    {
+        return $this->icon;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getColor(): ?Color
+    {
+        return $this->color ? Color::tryFrom($this->color) : null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function statuses(): array
+    {
+        return [
+            'enabled' => ['label' => Craft::t('commerce', 'Enabled'), 'color' => 'green'],
+            'disabled' => ['label' => Craft::t('commerce', 'Disabled'), 'color' => 'red'],
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getStatus(): ?string
+    {
+        return $this->enabled ? 'enabled' : 'disabled';
     }
 }

@@ -243,6 +243,11 @@ class ShippingRule extends Model implements ShippingRuleInterface, HasStoreInter
      */
     public function setOrderCondition(ShippingRuleOrderCondition|string|array|null $condition): void
     {
+        if (empty($condition)) {
+            $this->_orderCondition = null;
+            return;
+        }
+
         if (is_string($condition)) {
             $condition = Json::decodeIfJson($condition);
         }

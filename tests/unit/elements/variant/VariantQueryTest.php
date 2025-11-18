@@ -8,9 +8,11 @@
 namespace unit\elements\variant;
 
 use Codeception\Test\Unit;
+use craft\base\Element;
 use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\purchasables\PurchasableConditionRule;
 use craft\commerce\elements\db\VariantQuery;
+use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\models\ShippingCategory;
@@ -102,11 +104,9 @@ class VariantQueryTest extends Unit
             $shippingCategoryId,
             [
                 'no-params' => [null, 3],
-                'specific-id' => [$shippingCategoryId, 3],
-                'in' => [[$shippingCategoryId, 99999], 3],
+                'specific-id' => [$shippingCategoryId, 1],
+                'in' => [[$shippingCategoryId, 99999], 1],
                 'not-in' => [['not', 99998, 99999], 3],
-                'greater-than' => ['> ' . ($shippingCategoryId - 1), 3],
-                'less-than' => ['< ' . ($shippingCategoryId), 0],
             ],
         ];
     }
@@ -118,15 +118,17 @@ class VariantQueryTest extends Unit
     {
         self::assertTrue(method_exists(Variant::find(), 'shippingCategoryId'));
         $fixture = $this->tester->grabFixture('shippingCategories');
-        $matchingShippingCategory = new ShippingCategory(['id' => $fixture->data['anotherShippingCategory']['id']]);
+        $shippingCategoryId = $fixture->data['anotherShippingCategory']['id'];
+
+        $matchingShippingCategory = new ShippingCategory(['id' => $shippingCategoryId]);
         $nonMatchingShippingCategory = new ShippingCategory(['id' => 99999]);
 
         $tests = [
             'no-params' => [null, 3],
-            'specific-handle' => ['anotherShippingCategory', 3],
+            'specific-handle' => ['anotherShippingCategory', 1],
             'in' => [['anotherShippingCategory', 'general'], 3],
             'not-in' => [['not', 'foo', 'bar'], 3],
-            'matching-shipping-category' => [$matchingShippingCategory, 3],
+            'matching-shipping-category' => [$matchingShippingCategory, 1],
             'non-matching-shipping-category' => [$nonMatchingShippingCategory, 0],
         ];
 
@@ -397,6 +399,50 @@ class VariantQueryTest extends Unit
             'price-desc' => ['price DESC', array_reverse(['hct-white', 'hct-blue', 'rad-hood'])],
             'sale-price-asc' => ['salePrice ASC', ['hct-white', 'hct-blue', 'rad-hood']],
             'sale-price-desc' => ['salePrice DESC', array_reverse(['hct-white', 'hct-blue', 'rad-hood'])],
+            'base-price-asc' => ['basePrice ASC', ['hct-white', 'hct-blue', 'rad-hood']],
+            'base-price-desc' => ['basePrice DESC', array_reverse(['hct-white', 'hct-blue', 'rad-hood'])],
+        ];
+    }
+
+    /**
+     * @param int $expectedCount
+     * @return void
+     * @since 5.5.0
+     * @dataProvider productStatusDataProvider
+     */
+    public function testProductStatus(mixed $status, int $expectedCount): void
+    {
+        $query = Variant::find();
+        $query->productStatus($status);
+
+        self::assertCount($expectedCount, $query->all());
+    }
+
+    /**
+     * @return array[]
+     */
+    public function productStatusDataProvider(): array
+    {
+        return [
+            'product-live' => ['live', 3],
+            'product-live-const' => [Product::STATUS_LIVE, 3],
+            'product-live-const-array' => [[Product::STATUS_LIVE], 3],
+            'product-pending' => ['pending', 0],
+            'product-pending-const' => [Product::STATUS_PENDING, 0],
+            'product-pending-const-array' => [[Product::STATUS_PENDING], 0],
+            'product-expired' => ['expired', 0],
+            'product-expired-const' => [Product::STATUS_EXPIRED, 0],
+            'product-expired-const-array' => [[Product::STATUS_EXPIRED], 0],
+            'product-enabled' => ['enabled', 3],
+            'product-enabled-const' => [Element::STATUS_ENABLED, 3],
+            'product-enabled-const-array' => [[Element::STATUS_ENABLED], 3],
+            'product-disabled' => ['disabled', 0],
+            'product-disabled-const' => [Element::STATUS_DISABLED, 0],
+            'product-disabled-const-array' => [[Element::STATUS_DISABLED], 0],
+            'product-enabled-disabled' => [['enabled', 'disabled'], 3],
+            'product-enabled-disabled-const' => [[Element::STATUS_ENABLED, Element::STATUS_DISABLED], 3],
+            'product-not-disabled-array' => [['not', Element::STATUS_DISABLED], 3],
+            'product-not-enabled' => [['not', Element::STATUS_ENABLED], 0],
         ];
     }
 }

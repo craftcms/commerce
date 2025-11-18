@@ -51,6 +51,16 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
     public ?string $handle = null;
 
     /**
+     * @var string|null Icon
+     */
+    public ?string $icon = null;
+
+    /**
+     * @var string|null Color
+     */
+    public ?string $color = null;
+
+    /**
      * @var bool Enabled
      */
     public bool $enabled = true;
@@ -149,6 +159,8 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
             'id',
             'name',
             'handle',
+            'icon',
+            'color',
             'storeId',
             'orderCondition',
             'customerCondition',
@@ -168,6 +180,11 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
      */
     public function setOrderCondition(ShippingMethodOrderCondition|string|array|null $condition): void
     {
+        if (empty($condition)) {
+            $this->_orderCondition = null;
+            return;
+        }
+
         if (is_string($condition)) {
             $condition = Json::decodeIfJson($condition);
         }
@@ -204,6 +221,11 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
      */
     public function setCustomerCondition(ShippingMethodCustomerCondition|string|array|null $condition): void
     {
+        if (empty($condition)) {
+            $this->_customerCondition = null;
+            return;
+        }
+
         if (is_string($condition)) {
             $condition = Json::decodeIfJson($condition);
         }

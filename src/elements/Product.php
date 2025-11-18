@@ -466,6 +466,42 @@ class Product extends Element implements HasStoreInterface
     /**
      * @inheritdoc
      */
+    protected function safeActionMenuItems(): array
+    {
+        $actions = parent::safeActionMenuItems();
+
+        if (
+            Craft::$app->getUser()->getIsAdmin() &&
+            Craft::$app->getConfig()->getGeneral()->allowAdminChanges
+        ) {
+            // Product type settings
+            $productTypeEditId = sprintf('edit-product-type-%s', mt_rand());
+            $actions[] = [
+                'id' => $productTypeEditId,
+                'icon' => 'gear',
+                'label' => Craft::t('commerce', 'Product type settings'),
+            ];
+
+            $view = Craft::$app->getView();
+            $view->registerJsWithVars(fn($id, $params) => <<<JS
+(() => {
+  $('#' + $id).on('activate', function() {
+    const params = $params;
+    new Craft.CpScreenSlideout('commerce/product-types/edit-product-type', {params});
+  });
+})();
+JS, [
+                $view->namespaceInputId($productTypeEditId),
+                ['productTypeId' => $this->typeId],
+            ]);
+        }
+
+        return $actions;
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected static function includeSetStatusAction(): bool
     {
         return true;
@@ -860,6 +896,31 @@ class Product extends Element implements HasStoreInterface
     {
         $type = $this->getType();
         return ElementHelper::translationKey($this, $type->productTitleTranslationMethod, $type->productTitleTranslationKeyFormat);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIsSlugTranslatable(): bool
+    {
+        return ($this->getType()->slugTranslationMethod !== Field::TRANSLATION_METHOD_NONE);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSlugTranslationDescription(): ?string
+    {
+        return ElementHelper::translationDescription($this->getType()->slugTranslationMethod);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSlugTranslationKey(): string
+    {
+        $type = $this->getType();
+        return ElementHelper::translationKey($this, $type->slugTranslationMethod, $type->slugTranslationKeyFormat);
     }
 
     /**
@@ -1388,7 +1449,9 @@ class Product extends Element implements HasStoreInterface
         $view = Craft::$app->getView();
         $productType = $this->getType();
         // Slug
-        $fields[] = $this->slugFieldHtml($static);
+        if ($productType->showSlugField) {
+            $fields[] = $this->slugFieldHtml($static);
+        }
 
         if ($productType->isStructure && $productType->maxLevels !== 1) {
             $fields[] = (function() use ($static, $productType) {
@@ -1602,16 +1665,31 @@ class Product extends Element implements HasStoreInterface
 
             $this->id = $record->id;
 
-            if ($this->getIsCanonical() && isset($this->typeId) && $productType->isStructure) {
+            if ($this->getIsCanonical() &&
+                isset($this->typeId) &&
+                $productType->isStructure
+            ) {
                 // Has the parent changed?
                 if ($this->hasNewParent()) {
                     $this->_placeInStructure($isNew, $productType);
                 }
 
-                // Update the product’s descendants, who may be using this product’s URI in their own URIs
+                // Update the product's descendants, who may be using this product's URI in their own URIs
                 if (!$isNew) {
                     Craft::$app->getElements()->updateDescendantSlugsAndUris($this, true, true);
                 }
+            }
+
+            // Queue job to resave variants if the variant title format references the product
+            if ($this->getIsCanonical() &&
+                isset($this->typeId) &&
+                !$productType->hasVariantTitleField &&
+                $productType->variantTitleFormat &&
+                StringHelper::containsAny($productType->variantTitleFormat, ['product.', 'owner.', 'primaryOwner.'])
+            ) {
+                Craft::$app->getQueue()->push(new \craft\commerce\queue\jobs\ResaveProductVariants([
+                    'productId' => $this->id,
+                ]));
             }
         }
 
@@ -1805,15 +1883,6 @@ class Product extends Element implements HasStoreInterface
      */
     public function beforeSave(bool $isNew): bool
     {
-        $productType = $this->getType();
-
-        if (!$productType->hasVariantTitleField &&
-            $productType->variantTitleFormat &&
-            StringHelper::containsAny($productType->variantTitleFormat, ['product.', 'owner.', 'primaryOwner.'])
-        ) {
-            $this->setDirtyAttributes(['allVariants'], true);
-        }
-
         // Make sure the entry has at least one revision if the section has versioning enabled
         if ($this->_shouldSaveRevision()) {
             $hasRevisions = self::find()
@@ -1837,6 +1906,7 @@ class Product extends Element implements HasStoreInterface
             }
         }
 
+        $productType = $this->getType();
         // Set the structure ID for Element::attributes() and afterSave()
         if ($productType->isStructure) {
             $this->structureId = $productType->structureId;
@@ -1931,6 +2001,17 @@ class Product extends Element implements HasStoreInterface
                 ],
             ],
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function previewTargets(): array
+    {
+        return array_map(function($previewTarget) {
+            $previewTarget['label'] = Craft::t('site', $previewTarget['label']);
+            return $previewTarget;
+        }, $this->getType()->previewTargets ?? []);
     }
 
     /**

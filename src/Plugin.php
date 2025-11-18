@@ -136,6 +136,7 @@ use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterElementExportersEvent;
+use craft\events\RegisterEmailMessagesEvent;
 use craft\events\RegisterGqlEagerLoadableFields;
 use craft\events\RegisterGqlQueriesEvent;
 use craft\events\RegisterGqlSchemaComponentsEvent;
@@ -160,6 +161,7 @@ use craft\services\Gc;
 use craft\services\Gql;
 use craft\services\ProjectConfig;
 use craft\services\Sites;
+use craft\services\SystemMessages;
 use craft\services\UserPermissions;
 use craft\services\Users;
 use craft\utilities\ClearCaches;
@@ -257,7 +259,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.4.0.7';
+    public string $schemaVersion = '5.5.0.5';
 
     /**
      * @inheritdoc
@@ -848,6 +850,22 @@ class Plugin extends BasePlugin
 
         Event::on(Purchasable::class, Elements::EVENT_BEFORE_RESTORE_ELEMENT, [$this->getPurchasables(), 'beforeRestorePurchasableHandler']);
 
+        // Register system message for PDF download emails
+        Event::on(
+            SystemMessages::class,
+            SystemMessages::EVENT_REGISTER_MESSAGES,
+            function(RegisterEmailMessagesEvent $event) {
+                $event->messages = array_merge($event->messages, [
+                    [
+                        'key' => 'commerce_pdf_download',
+                        'heading' => Craft::t('commerce', 'Order PDF Download Link'),
+                        'subject' => Craft::t('commerce', 'Your Order PDF Download Link'),
+                        'body' => $this->_getDefaultPdfDownloadMessage(),
+                    ],
+                ]);
+            }
+        );
+
         Event::on(Elements::class, Elements::EVENT_AUTHORIZE_VIEW, [$this->getStoreSettings(), 'authorizeStoreLocationView']);
         Event::on(Elements::class, Elements::EVENT_AUTHORIZE_SAVE, [$this->getStoreSettings(), 'authorizeStoreLocationEdit']);
         Event::on(Elements::class, Elements::EVENT_AUTHORIZE_CREATE_DRAFTS, [$this->getStoreSettings(), 'authorizeStoreLocationEdit']);
@@ -1275,5 +1293,19 @@ class Plugin extends BasePlugin
                 'helpSummary' => 'Re-saves Commerce carts.',
             ];
         });
+    }
+
+    /**
+     * Returns the default message body for the PDF download email.
+     *
+     * @return string
+     */
+    private function _getDefaultPdfDownloadMessage(): string
+    {
+        return "Hello,\n\n" .
+            "You requested a PDF download for your order. Click the link below to download your PDF:\n\n" .
+            "[Download PDF]({{ link }})\n\n" .
+            "**Please note:** This link will expire for security purposes.\n\n" .
+            "Thank you!";
     }
 }

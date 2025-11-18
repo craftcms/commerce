@@ -17,6 +17,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
 use craft\helpers\App;
 use craft\helpers\ArrayHelper;
+use craft\models\Site;
 use yii\base\ErrorException;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -47,7 +48,7 @@ class EmailsController extends BaseAdminController
         });
         $stores = $stores->all();
 
-        return $this->renderTemplate('commerce/settings/emails/index',[
+        return $this->renderTemplate('commerce/settings/emails/index', [
             'stores' => $stores,
             'emails' => $emails,
             'readOnly' => $this->isReadOnlyScreen(),
@@ -65,47 +66,61 @@ class EmailsController extends BaseAdminController
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
 
-        $variables = compact('email', 'id');
+        if (!$email) {
+            if ($id) {
+                $email = Plugin::getInstance()->getEmails()->getEmailById($id, $store->id);
 
-        if (!$variables['email']) {
-            if ($variables['id']) {
-                $variables['email'] = Plugin::getInstance()->getEmails()->getEmailById($variables['id'], $store->id);
-
-                if (!$variables['email']) {
+                if (!$email) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['email'] = Craft::createObject([
+                $email = Craft::createObject([
                     'class' => Email::class,
                     'attributes' => ['storeId' => $store->id],
                 ]);
             }
         }
 
-        if ($variables['email']->id) {
-            $variables['title'] = $variables['email']->name;
-        } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new email');
-        }
+        $title = $email->id ? $email->name : Craft::t('commerce', 'Create a new email');
 
-        DebugPanel::prependOrAppendModelTab(model: $variables['email'], prepend: true);
+        DebugPanel::prependOrAppendModelTab(model: $email, prepend: true);
 
-        $pdfs = Plugin::getInstance()->getPdfs()->getAllPdfs($variables['email']->storeId);
+        $pdfs = Plugin::getInstance()->getPdfs()->getAllPdfs($email->storeId);
         $pdfList = [null => Craft::t('commerce', 'Do not attach a PDF to this email')];
         $pdfList = ArrayHelper::merge($pdfList, $pdfs->mapWithKeys(fn(Pdf $pdf) => [$pdf->id => $pdf->name])->all());
-        $variables['pdfList'] = $pdfList;
-        $variables['senderAddressPlaceholder'] = App::mailSettings()->fromEmail;
-        $variables['senderNamePlaceholder'] = App::mailSettings()->fromName;
+        $senderAddressPlaceholder = App::mailSettings()->fromEmail;
+        $senderNamePlaceholder = App::mailSettings()->fromName;
 
         $emailLanguageOptions = [
             EmailRecord::LOCALE_ORDER_LANGUAGE => Craft::t('commerce', 'The language the order was made in.'),
         ];
 
-        $variables['emailLanguageOptions'] = array_merge($emailLanguageOptions, LocaleHelper::getSiteAndOtherLanguages());
+        $emailLanguageOptions = array_merge($emailLanguageOptions, LocaleHelper::getSiteAndOtherLanguages());
 
-        $variables['readOnly'] = $this->isReadOnlyScreen();
+        $emailRenderSiteOptions = [
+            null => Craft::t('commerce', 'The site the order was made in.'),
+            ['optgroup' => Craft::t('commerce', 'Sites')],
+        ] + collect(Craft::$app->getSites()->getAllSites())->mapWithKeys(fn(Site $site) => [$site->id => $site->name])->all();
 
-        return $this->renderTemplate('commerce/settings/emails/_edit', $variables);
+        return $this->asCpScreen()
+            ->title($title)
+            ->crumbs([
+                ['label' => Craft::t('commerce', 'Commerce'), 'url' => 'commerce'],
+                ['label' => Craft::t('app', 'Settings'), 'url' => 'commerce/settings', 'ariaLabel' => Craft::t('commerce', 'Commerce Settings')],
+                ['label' => Craft::t('commerce', 'Emails'), 'url' => 'commerce/settings/emails'],
+            ])
+            ->selectedSubnavItem('settings')
+            ->action('commerce/emails/save')
+            ->redirectUrl('commerce/settings/emails')
+            ->contentTemplate('commerce/settings/emails/_edit', [
+                'email' => $email,
+                'pdfList' => $pdfList,
+                'senderAddressPlaceholder' => $senderAddressPlaceholder,
+                'senderNamePlaceholder' => $senderNamePlaceholder,
+                'emailLanguageOptions' => $emailLanguageOptions,
+                'emailRenderSiteOptions' => $emailRenderSiteOptions,
+                'readOnly' => $this->isReadOnlyScreen(),
+            ]);
     }
 
     /**
@@ -136,6 +151,8 @@ class EmailsController extends BaseAdminController
             $email = new Email();
         }
 
+        $renderSiteId = $this->request->getBodyParam('renderSiteId');
+
         // Shared attributes
         $email->storeId = $storeId;
         $email->name = $this->request->getBodyParam('name');
@@ -151,6 +168,7 @@ class EmailsController extends BaseAdminController
         $pdfId = $this->request->getBodyParam('pdfId');
         $email->pdfId = $pdfId ?: null;
         $email->language = $this->request->getBodyParam('language');
+        $email->renderSiteId = $renderSiteId ? (int)$renderSiteId : null;
         $email->setSenderAddress($this->request->getBodyParam('senderAddress'));
         $email->setSenderName($this->request->getBodyParam('senderName'));
 

@@ -1,12 +1,3 @@
-{% extends "commerce/_layouts/cp" %}
-{% set title = productType.id ? productType.name : 'Create a new product type'|t('commerce') %}
-
-{% set crumbs = [
-    { label: 'Commerce'|t('commerce'), url: url('commerce') },
-    { label: 'Settings'|t('app'), url: url('commerce/settings'), ariaLabel: 'Commerce Settings'|t('commerce') },
-    { label: "Product Types"|t('commerce'), url: url('commerce/settings/producttypes') },
-] %}
-
 {% set selectedSubnavItem = 'settings' %}
 
 {% set headlessMode = craft.app.config.general.headlessMode %}
@@ -191,7 +182,66 @@
             </div>
         {% endmacro %}
 
-        {% from _self import variantTitleFormatField, productTitleFormatField, uriFormatText %}
+        {% macro productSlugField(productType, disabled) %}
+            {% import '_includes/forms' as forms %}
+
+            {{ forms.lightswitchField({
+                label: "Show the Slug field"|t('app'),
+                name: 'showSlugField',
+                toggle: 'slug-container',
+                reverseToggle: '#slugFormat-container, #field-layout .fld-slug-field-icon',
+                on: productType.showSlugField,
+                disabled: disabled,
+            }) }}
+
+            {% if craft.app.getIsMultiSite() %}
+                <div id="slug-container"{% if not productType.showSlugField %} class="hidden"{% endif %}>
+                    {{ forms.selectField({
+                        label: '{name} Translation Method'|t('app', {
+                            name: 'Slug'|t('app'),
+                        }),
+                        instructions: 'How should {name} values be translated?'|t('app', {
+                            name: 'Slug'|t('app'),
+                        }),
+                        id: 'slug-translation-method',
+                        name: 'slugTranslationMethod',
+                        options: [
+                            { value: 'none', label: 'Not translatable'|t('app') },
+                            { value: 'site', label: 'Translate for each site'|t('app') },
+                            { value: 'siteGroup', label: 'Translate for each site group'|t('app') },
+                            { value: 'language', label: 'Translate for each language'|t('app') },
+                            { value: 'custom', label: 'Custom…'|t('app') },
+                        ]|filter,
+                        value: productType.slugTranslationMethod,
+                        toggle: true,
+                        targetPrefix: 'slug-translation-method-',
+                        disabled: disabled,
+                    }) }}
+
+                    <div id="slug-translation-method-custom" {% if productType.slugTranslationMethod != 'custom' %}class="hidden"{% endif %}>
+                        {{ forms.textField({
+                            label: '{name} Translation Key Format'|t('app', {
+                                name: 'Slug'|t('app'),
+                            }),
+                            instructions: 'Template that defines the {name} field’s custom "translation key" format. Values will be copied to all sites that produce the same key.'|t('app', {
+                                name: 'Slug'|t('app'),
+                            }),
+                            id: 'slug-translation-key-format',
+                            name: 'slugTranslationKeyFormat',
+                            value: productType.slugTranslationKeyFormat,
+                            errors: productType.getErrors('slugTranslationKeyFormat'),
+                            data: {
+                                'error-key': 'slugTranslationKeyFormat',
+                            },
+                            disabled: disabled,
+                        }) }}
+                    </div>
+                </div>
+            {% endif %}
+
+        {% endmacro %}
+
+        {% from _self import variantTitleFormatField, productTitleFormatField, uriFormatText, productSlugField %}
 
 
         {{ forms.textField({
@@ -264,6 +314,7 @@
         }) }}
 
         {{ productTitleFormatField(productType, readOnly) }}
+        {{ productSlugField(productType, readOnly) }}
 
         {{ forms.textField({
             label: "Automatic SKU Format"|t('commerce'),

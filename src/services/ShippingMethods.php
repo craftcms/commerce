@@ -221,6 +221,8 @@ class ShippingMethods extends Component
         $record->storeId = $model->storeId;
         $record->name = $model->name;
         $record->handle = $model->handle;
+        $record->icon = $model->icon;
+        $record->color = $model->color;
         $record->orderCondition = $model->getOrderCondition()->getConfig();
         $record->customerCondition = $model->getCustomerCondition()->getConfig();
         $record->enabled = $model->enabled;
@@ -277,7 +279,7 @@ class ShippingMethods extends Component
      */
     private function _createShippingMethodQuery(): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'dateCreated',
                 'dateUpdated',
@@ -290,6 +292,17 @@ class ShippingMethods extends Component
                 'storeId',
             ])
             ->from([Table::SHIPPINGMETHODS]);
+
+        // Only add icon and color if the columns exist (for pre-migration compatibility)
+        $db = Craft::$app->getDb();
+        $schema = $db->getSchema();
+        $tableSchema = $schema->getTableSchema(Table::SHIPPINGMETHODS);
+
+        if ($tableSchema && $tableSchema->getColumn('icon') !== null) {
+            $query->addSelect(['icon', 'color']);
+        }
+
+        return $query;
     }
 
     /**

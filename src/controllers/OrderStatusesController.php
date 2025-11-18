@@ -57,51 +57,65 @@ class OrderStatusesController extends BaseAdminController
      */
     public function actionEdit(?string $storeHandle = null, int $id = null, OrderStatus $orderStatus = null): Response
     {
-        $variables = compact('id', 'orderStatus');
         if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
 
-        if (!$variables['orderStatus']) {
-            if ($variables['id']) {
-                $variables['orderStatus'] = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($variables['id'], $store->id);
+        if (!$orderStatus) {
+            if ($id) {
+                $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($id, $store->id);
 
-                if (!$variables['orderStatus']) {
+                if (!$orderStatus) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['orderStatus'] = Craft::createObject([
+                $orderStatus = Craft::createObject([
                     'class' => OrderStatus::class,
                     'attributes' => ['storeId' => $store->id],
                 ]);
             }
         }
 
-        $variables['statusColors'] = ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'];
+        $statusColors = ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'];
+        $nextAvailableColor = null;
 
-        if ($variables['orderStatus']->id) {
-            $variables['title'] = $variables['orderStatus']->name;
+        if ($orderStatus->id) {
+            $title = $orderStatus->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new order status');
+            $title = Craft::t('commerce', 'Create a new order status');
 
-            $statusColors = $variables['statusColors'];
-            Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($store->id)->each(function(OrderStatus $status) use (&$statusColors) {
-                $key = array_search($status->color, $statusColors, true);
+            $availableColors = $statusColors;
+            Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($store->id)->each(function(OrderStatus $status) use (&$availableColors) {
+                $key = array_search($status->color, $availableColors, true);
                 if ($key !== false) {
-                    unset($statusColors[$key]);
+                    unset($availableColors[$key]);
                 }
             });
 
-            $variables['nextAvailableColor'] = !empty($statusColors) ? array_shift($statusColors) : 'green';
+            $nextAvailableColor = !empty($availableColors) ? array_shift($availableColors) : 'green';
         }
 
-        DebugPanel::prependOrAppendModelTab(model: $variables['orderStatus'], prepend: true);
+        DebugPanel::prependOrAppendModelTab(model: $orderStatus, prepend: true);
 
-        $variables['emails'] = Plugin::getInstance()->getEmails()->getAllEmails($store->id)->mapWithKeys(fn(Email $email) => [$email->id => $email->name])->all();
+        $emails = Plugin::getInstance()->getEmails()->getAllEmails($store->id)->mapWithKeys(fn(Email $email) => [$email->id => $email->name])->all();
 
-        $variables['readOnly'] = $this->isReadOnlyScreen();
-
-        return $this->renderTemplate('commerce/settings/orderstatuses/_edit', $variables);
+        return $this->asCpScreen()
+            ->title($title)
+            ->crumbs([
+                ['label' => Craft::t('commerce', 'Commerce'), 'url' => 'commerce'],
+                ['label' => Craft::t('app', 'Settings'), 'url' => 'commerce/settings', 'ariaLabel' => Craft::t('commerce', 'Commerce Settings')],
+                ['label' => Craft::t('commerce', 'Order Statuses'), 'url' => 'commerce/settings/orderstatuses'],
+            ])
+            ->selectedSubnavItem('settings')
+            ->action('commerce/order-statuses/save')
+            ->redirectUrl('commerce/settings/orderstatuses')
+            ->contentTemplate('commerce/settings/orderstatuses/_edit', [
+                'orderStatus' => $orderStatus,
+                'statusColors' => $statusColors,
+                'nextAvailableColor' => $nextAvailableColor,
+                'emails' => $emails,
+                'readOnly' => $this->isReadOnlyScreen(),
+            ]);
     }
 
     /**

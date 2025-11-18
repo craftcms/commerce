@@ -28,10 +28,12 @@ use craft\errors\MissingComponentException;
 use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\MoneyHelper;
 use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
+use craft\web\View;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
 use yii\web\BadRequestHttpException;
@@ -76,9 +78,126 @@ class DiscountsController extends BaseStoreManagementController
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
 
-        return $this->renderTemplate('commerce/store-management/discounts/index', [
-            'tableDataEndpoint' => UrlHelper::actionUrl('commerce/discounts/table-data', ['storeId' => $store->id]),
+        $this->getView()->registerTranslations('commerce', [
+            'Couldn’t reorder discounts.',
+            'Delete',
+            'Disabled',
+            'Discounts reordered.',
+            'Duration',
+            'Enabled',
+            'Require Coupon Code',
+            'Ignore Promotions?',
+            'Name',
+            'No discounts exist yet.',
+            'No',
+            'Set status',
+            'Stops Processing?',
+            'Times Used',
+            'Yes',
         ]);
+
+        $actionButtonHtml = Craft::$app->getUser()->getIdentity()->can('commerce-createDiscounts')
+            ? Html::a(Craft::t('commerce', 'New discount'), $store->getStoreSettingsUrl('discounts/new'), ['class' => 'btn submit add icon'])
+            : '';
+
+        $actions = [];
+        if (Craft::$app->getUser()->getIdentity()->can('commerce-editDiscounts')) {
+            $actions[] = [
+                'label' => Craft::t('commerce', 'Set status'),
+                'actions' => [
+                    [
+                        'label' => Craft::t('commerce', 'Enabled'),
+                        'action' => 'commerce/discounts/update-status',
+                        'param' => 'status',
+                        'value' => 'enabled',
+                        'status' => 'enabled',
+                    ],
+                    [
+                        'label' => Craft::t('commerce', 'Disabled'),
+                        'action' => 'commerce/discounts/update-status',
+                        'param' => 'status',
+                        'value' => 'disabled',
+                        'status' => 'disabled',
+                    ],
+                ],
+            ];
+        }
+
+        $deleteAction = null;
+        if (Craft::$app->getUser()->getIdentity()->can('commerce-deleteDiscounts')) {
+            $actions[] = [
+                'label' => Craft::t('commerce', 'Delete'),
+                'action' => 'commerce/discounts/delete',
+                'error' => true,
+            ];
+            $deleteAction = '"commerce/discounts/delete"';
+        }
+
+        $actions = Json::encode($actions);
+
+        $tableDataEndpoint = UrlHelper::actionUrl('commerce/discounts/table-data', ['storeId' => $store->id]);
+
+        $js = <<<JS
+    var actions = {$actions};
+
+    var columns = [
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: 'requireCouponCode', title: Craft.t('commerce', 'Require Coupon Code'),
+            callback: function(value) {
+                if (value) {
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+                }
+
+                return '';
+            }
+        },
+        { name: 'duration', title: Craft.t('commerce', 'Duration') },
+        { name: 'timesUsed', title: Craft.t('commerce', 'Times Used') },
+        { name: 'stop', title: Craft.t('commerce', 'Stops Processing?'),
+            callback: function(value) {
+                if (value) {
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+                }
+
+                return '';
+            }
+        },
+        { name: 'ignore', title: Craft.t('commerce', 'Ignore Promotions?'),
+            callback: function(value) {
+                if (value) {
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+                }
+
+                return '';
+            }
+        },
+    ];
+
+    new Craft.VueAdminTable({
+        actions: actions,
+        checkboxes: true,
+        columns: columns,
+        fullPane: false,
+        container: '#discounts-vue-admin-table',
+        allowMultipleDeletions: true,
+        deleteAction: {$deleteAction},
+        emptyMessage: Craft.t('commerce', 'No discounts exist yet.'),
+        padded: true,
+        paginatedReorderAction: 'commerce/discounts/reorder',
+        moveToPageAction: 'commerce/discounts/move-to-page',
+        reorderSuccessMessage: Craft.t('commerce', 'Discounts reordered.') ,
+        reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder discounts.'),
+        tableDataEndpoint: '{$tableDataEndpoint}',
+        search: true,
+        perPage: 100,
+  });
+JS;
+
+        $this->getView()->registerJs($js, View::POS_END);
+
+        return $this->asStoreManagementCpScreen($storeHandle)
+            ->additionalButtonsHtml($actionButtonHtml)
+            ->contentTemplate('commerce/store-management/discounts/index');
     }
 
     /**
@@ -233,7 +352,41 @@ class DiscountsController extends BaseStoreManagementController
             ->map(fn(Coupon $coupon) => $coupon->toArray())
             ->all();
 
-        return $this->renderTemplate('commerce/store-management/discounts/_edit', $variables);
+        $tabs = [
+            'discount' => [
+                'label' => Craft::t('commerce', 'Discount'),
+                'url' => '#discount',
+                'class' => $variables['discount']->getErrors('name') ? 'error' : '',
+            ],
+            'coupons' => [
+                'label' => Craft::t('commerce', 'Coupons'),
+                'url' => '#coupons',
+                'class' => $variables['discount']->getErrors('code') ? 'error' : '',
+            ],
+            'matchingItems' => [
+                'label' => Craft::t('commerce', 'Matching Items'),
+                'url' => '#matching-items',
+            ],
+            'conditions' => [
+                'label' => Craft::t('commerce', 'Conditions'),
+                'url' => '#conditions',
+                'class' => $variables['discount']->getErrors('startDate') || $variables['discount']->getErrors('endDate') ? 'error' : '',
+            ],
+            'actions' => [
+                'label' => Craft::t('commerce', 'Actions'),
+                'url' => '#actions',
+                'class' => $variables['discount']->getErrors('startDate') || $variables['discount']->getErrors('endDate') ? 'error' : '',
+            ],
+        ];
+
+        return $this->asStoreManagementCpScreen($storeHandle, false)
+            ->title($variables['title'])
+            ->tabs($tabs)
+            ->addCrumb(Craft::t('commerce', 'Discounts'), $store->getStoreSettingsUrl('discounts'))
+            ->metaSidebarTemplate('commerce/store-management/discounts/_sidebar', $variables)
+            ->action('commerce/discounts/save')
+            ->redirectUrl($store->getStoreSettingsUrl('discounts'))
+            ->contentTemplate('commerce/store-management/discounts/_edit', $variables);
     }
 
     /**

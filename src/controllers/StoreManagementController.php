@@ -16,6 +16,7 @@ use craft\commerce\models\StoreSettings;
 use craft\commerce\Plugin;
 use craft\elements\Address;
 use craft\helpers\Cp;
+use craft\helpers\Html;
 use craft\models\Site;
 use craft\web\twig\TemplateLoaderException;
 use Throwable;
@@ -38,7 +39,7 @@ class StoreManagementController extends BaseStoreManagementController
         $user = Craft::$app->getUser();
         /** @var Site|HasStoreInterface $site */
         $site = Cp::requestedSite();
-        
+
         if ($user->checkPermission('commerce-manageGeneralStoreSettings')) {
             return $this->redirect($site->getStore()->getStoreSettingsUrl());
         }
@@ -59,7 +60,11 @@ class StoreManagementController extends BaseStoreManagementController
             return $this->redirect($site->getStore()->getStoreSettingsUrl('taxrates'));
         }
 
-        return $this->renderTemplate('commerce/store-management/index');
+        return $this->asStoreManagementCpScreen($site->getStore()->handle)
+            ->contentHtml(Html::tag(
+                'p',
+                Craft::t('commerce', 'No access given to any specific store management features.')
+            ));
     }
 
     /**
@@ -71,37 +76,37 @@ class StoreManagementController extends BaseStoreManagementController
     {
         $this->requirePermission('commerce-manageGeneralStoreSettings');
 
-        $variables = compact('storeSettings', 'storeHandle');
-
-        if (!$variables['storeSettings']) {
-            if ($variables['storeHandle']) {
+        if (!$storeSettings) {
+            if ($storeHandle) {
                 // Store has the same ID as Store Settings
-                $variables['store'] = Plugin::getInstance()->getStores()->getStoreByHandle($variables['storeHandle']);
+                $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
 
-                if (!$variables['store']) {
+                if (!$store) {
                     throw new HttpException(404);
                 }
 
-                $variables['storeSettings'] = $variables['store']->getSettings();
+                $storeSettings = $store->getSettings();
             } else {
                 // Attempt to redirect the user to the correct store settings for the site they were working on
                 /** @var Site|StoreBehavior $site */
                 $site = Cp::requestedSite();
                 return $this->redirect($site->getStore()->getStoreSettingsUrl());
             }
+        } else {
+            $store = Plugin::getInstance()->getStores()->getStoreById($storeSettings->id);
         }
 
         $addressesService = Craft::$app->getAddresses();
         $allCountries = $addressesService->getCountryRepository()->getList(Craft::$app->language);
 
-        $locationFieldHtml = Cp::elementCardHtml($variables['storeSettings']->getLocationAddress(), [
+        $locationFieldHtml = Cp::elementCardHtml($storeSettings->getLocationAddress(), [
             'context' => 'field',
             'inputName' => 'locationAddressId',
             'showActionMenu' => true,
         ]);
 
         // Countries market condition field HTML
-        $condition = $variables['storeSettings']->getMarketAddressCondition();
+        $condition = $storeSettings->getMarketAddressCondition();
         $condition->mainTag = 'div';
         $condition->name = 'marketAddressCondition';
         $condition->id = 'marketAddressCondition';
@@ -117,15 +122,14 @@ class StoreManagementController extends BaseStoreManagementController
             'id' => 'countries',
             'name' => 'countries',
             'multi' => true,
-            'values' => $variables['storeSettings']->getCountries(),
+            'values' => $storeSettings->getCountries(),
             'options' => $allCountries,
-            'errors' => $variables['storeSettings']->getErrors('countries'),
+            'errors' => $storeSettings->getErrors('countries'),
             'allowEmptyOption' => true,
         ]);
 
-
         // Inventory locations field HTML
-        $inventoryLocations = Plugin::getInstance()->getInventoryLocations()->getInventoryLocations($variables['store']->id);
+        $inventoryLocations = Plugin::getInstance()->getInventoryLocations()->getInventoryLocations($store->id);
         $allInventoryLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
         $currentUser = Craft::$app->getUser()->getIdentity();
 
@@ -162,14 +166,19 @@ class StoreManagementController extends BaseStoreManagementController
             $inventoryLocationsField = CommerceCp::inventoryLocationFieldHtml($config);
         }
 
-        // Variables
-        $variables['marketAddressConditionField'] = $marketAddressConditionFieldHtml;
-        $variables['countriesField'] = $countriesField;
-        $variables['locationField'] = $locationFieldHtml;
-        $variables['inventoryLocationsField'] = $inventoryLocationsField;
-        $variables['storeSettingsNav'] = $this->getStoreSettingsNav();
-
-        return $this->renderTemplate('commerce/store-management/general/_edit', $variables);
+        return $this->asStoreManagementCpScreen($storeHandle)
+            ->action('commerce/store-management/save')
+            ->redirectUrl($store->getStoreSettingsUrl())
+            ->submitButtonLabel(Craft::t('app', 'Save'))
+            ->contentTemplate('commerce/store-management/general/_edit', [
+                'store' => $store,
+                'storeHandle' => $storeHandle,
+                'storeSettings' => $storeSettings,
+                'marketAddressConditionField' => $marketAddressConditionFieldHtml,
+                'countriesField' => $countriesField,
+                'locationField' => $locationFieldHtml,
+                'inventoryLocationsField' => $inventoryLocationsField,
+            ]);
     }
 
     /**

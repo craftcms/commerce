@@ -7,10 +7,21 @@
 
 namespace craftcommercetests\unit\elements\order;
 
+use Codeception\Exception\ModuleException;
 use Codeception\Test\Unit;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\CurrencyException;
+use craft\commerce\errors\OrderStatusException;
+use craft\commerce\errors\TransactionException;
+use craft\commerce\Plugin;
+use craft\commerce\records\Transaction as TransactionRecord;
+use craft\errors\ElementNotFoundException;
+use craft\helpers\DateTimeHelper;
 use craftcommercetests\fixtures\OrdersFixture;
 use UnitTester;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 
 /**
  * OrderQueryTest
@@ -64,9 +75,10 @@ class OrderQueryTest extends Unit
     }
 
     /**
-     * @param string $couponCode
+     * @param string|null $couponCode
      * @param int $count
      * @return void
+     * @throws ModuleException
      * @dataProvider couponCodeDataProvider
      */
     public function testCouponCode(?string $couponCode, int $count): void
@@ -124,6 +136,54 @@ class OrderQueryTest extends Unit
             'queryShippingByNotString' => ['not usShipping', 2],
             'queryShippingByArray' => [['usShipping'], 1],
             'queryShippingByNotArray' => [['not', 'usShipping'], 2],
+        ];
+    }
+
+    /**
+     * @param string $property
+     * @param int $expected
+     * @return void
+     * @throws \Throwable
+     * @throws CurrencyException
+     * @throws OrderStatusException
+     * @throws TransactionException
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws StaleObjectException
+     * @since 5.5.0
+     * @dataProvider paidDatesDataProvider
+     */
+    public function testPaidDates(string $property, mixed $value, int $expected): void
+    {
+        // Update one order to have paid dates for testing
+        $completedOrder = Order::find()->isCompleted()->isPaid(false)->one();
+
+        $transaction = Plugin::getInstance()->getTransactions()->createTransaction($completedOrder, typeOverride: TransactionRecord::TYPE_PURCHASE);
+        $transaction->status = TransactionRecord::STATUS_SUCCESS;
+
+        Plugin::getInstance()->getTransactions()->saveTransaction($transaction);
+
+        $orderQuery = Order::find()
+            ->{$property}($value);
+
+        self::assertCount($expected, $orderQuery->all());
+
+        Plugin::getInstance()->getTransactions()->deleteTransactionById($transaction->id);
+    }
+
+    public function paidDatesDataProvider(): array
+    {
+        $current = DateTimeHelper::currentUTCDateTime();
+        $lastWeek = DateTimeHelper::lastWeek();
+        $nextWeek = DateTimeHelper::nextWeek();
+        return [
+            'date-paid-string' => ['datePaid', '>= ' . $current->format(\DateTime::ATOM), 1],
+            'date-paid-array' => ['datePaid', ['< ' . $nextWeek->format(\DateTime::ATOM), '> ' . $lastWeek->format(\DateTime::ATOM)], 1],
+            'date-paid-no-results' => ['datePaid', '< ' . $lastWeek->format(\DateTime::ATOM), 0],
+            'date-first-paid-string' => ['dateFirstPaid', '>= ' . $current->format(\DateTime::ATOM), 1],
+            'date-first-paid-array' => ['dateFirstPaid', ['< ' . $nextWeek->format(\DateTime::ATOM), '> ' . $lastWeek->format(\DateTime::ATOM)], 1],
+            'date-first-paid-no-results' => ['dateFirstPaid', '< ' . $lastWeek->format(\DateTime::ATOM), 0],
         ];
     }
 }

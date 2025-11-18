@@ -14,12 +14,15 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\elements\VariantCollection;
+use craft\commerce\helpers\ProductQuery as ProductQueryHelper;
 use craft\commerce\Plugin;
 use craft\commerce\records\Sale;
 use craft\db\Query;
+use craft\db\QueryAbortedException;
 use craft\db\Table as CraftTable;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
+use craft\helpers\StringHelper;
 use DateTime;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
@@ -94,6 +97,13 @@ class VariantQuery extends PurchasableQuery
      * @since 5.0.0
      */
     public mixed $ownerId = null;
+
+    /**
+     * @var array|string|null  The status the owner product must have.
+     * @used-by productStatus()
+     * @since 5.5.0
+     */
+    public array|string|null $productStatus = null;
 
     /**
      * @var mixed
@@ -254,6 +264,43 @@ class VariantQuery extends PurchasableQuery
     public function ownerId(mixed $value): VariantQuery
     {
         $this->ownerId = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the {elements}’ product’s statuses.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'enabled'`  _(default)_ | that are enabled.
+     * | `'disabled'` | that are disabled.
+     * | `['not', 'disabled']` | that are not disabled.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} with disabled products #}
+     * {% set {elements-var} = {twig-method}
+     *   .productStatus('disabled')
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} with disabled products
+     * ${elements-var} = {php-method}
+     *     ->productStatus('disabled')
+     *     ->all();
+     * ```
+     *
+     * @param string|string[]|null $value The property value
+     * @return static self reference
+     * @since 5.5.0
+     */
+    public function productStatus(array|string|null $value): VariantQuery
+    {
+        $this->productStatus = $value;
         return $this;
     }
 
@@ -432,7 +479,14 @@ class VariantQuery extends PurchasableQuery
                 'elements_owners.sortOrder',
             ])
             ->innerJoin(['elements_owners' => CraftTable::ELEMENTS_OWNERS], $ownersCondition);
-        $this->subQuery->innerJoin(['elements_owners' => CraftTable::ELEMENTS_OWNERS], $ownersCondition);
+
+        $sortOrderIndex = Db::findIndex(CraftTable::ELEMENTS_OWNERS, ['sortOrder'], false);
+        // Forcing the use of the `sortOrder` index if no custom `orderBy` is set
+        if ($sortOrderIndex !== null && empty($this->orderBy)) {
+            $this->subQuery->innerJoin([new Expression('[[elements_owners]] USE INDEX (' . $sortOrderIndex . ')')], $ownersCondition);
+        } else {
+            $this->subQuery->innerJoin(['elements_owners' => CraftTable::ELEMENTS_OWNERS], $ownersCondition);
+        }
 
         if ($this->primaryOwnerId) {
             $this->subQuery->andWhere(['commerce_variants.primaryOwnerId' => $this->primaryOwnerId]);
@@ -451,6 +505,10 @@ class VariantQuery extends PurchasableQuery
 
         if (isset($this->productId)) {
             $this->subQuery->andWhere(['commerce_variants.primaryOwnerId' => $this->productId]);
+        }
+
+        if (isset($this->productStatus)) {
+            $this->_applyProductStatusParam();
         }
 
         if (isset($this->isDefault)) {
@@ -682,6 +740,21 @@ class VariantQuery extends PurchasableQuery
         return parent::beforePrepare();
     }
 
+    protected function afterPrepare(): bool
+    {
+        if (!parent::afterPrepare()) {
+            return false;
+        }
+
+        // Due to how the element sites table are joined in the subquery we need to do this later in the process
+        if ($this->productStatus) {
+            $this->subQuery->leftJoin(CraftTable::ELEMENTS . ' product_elements', '[[product_elements.id]] = [[commerce_variants.primaryOwnerId]]');
+            $this->subQuery->leftJoin(CraftTable::ELEMENTS_SITES . ' product_elements_sites', '[[product_elements_sites.elementId]] = [[commerce_variants.primaryOwnerId]] and [[product_elements_sites.siteId]] =  [[elements_sites.siteId]]');
+        }
+
+        return true;
+    }
+
     /**
      * Normalizes the primaryOwnerId param to an array of IDs or null
      *
@@ -728,6 +801,62 @@ class VariantQuery extends PurchasableQuery
         $productQuery->andWhere(['not', ['commerce_products.id' => null]]);
 
         $this->subQuery->andWhere(['commerce_variants.primaryOwnerId' => $productQuery]);
+    }
+
+    /**
+     * Applies the 'productStatus' param to the query being prepared.
+     *
+     * @since 5.5.0
+     */
+    private function _applyProductStatusParam(): void
+    {
+        if (!$this->productStatus) {
+            return;
+        }
+
+        // Normalize the product status param
+        if (!is_array($this->productStatus)) {
+            $this->productStatus = StringHelper::split($this->productStatus);
+        }
+
+        $statuses = array_merge($this->productStatus);
+
+        $firstVal = strtolower(reset($statuses));
+        if (in_array($firstVal, ['not', 'or'])) {
+            $glue = $firstVal;
+            array_shift($statuses);
+            if (!$statuses) {
+                return;
+            }
+        } else {
+            $glue = 'or';
+        }
+
+        if ($negate = ($glue === 'not')) {
+            $glue = 'and';
+        }
+
+        $condition = [$glue];
+
+        foreach ($statuses as $status) {
+            $status = strtolower($status);
+
+            $statusCondition = ProductQueryHelper::statusCondition($status, 'product_');
+
+            if ($statusCondition === false) {
+                throw new QueryAbortedException('Unsupported status: ' . $status);
+            }
+
+            if ($statusCondition !== null) {
+                if ($negate) {
+                    $condition[] = ['not', $statusCondition];
+                } else {
+                    $condition[] = $statusCondition;
+                }
+            }
+        }
+
+        $this->subQuery->andWhere($condition);
     }
 
     /**

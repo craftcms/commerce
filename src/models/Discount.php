@@ -326,11 +326,11 @@ class Discount extends Model implements HasStoreInterface
     }
 
     /**
-     * @param ElementConditionInterface|string|array $condition
+     * @param ElementConditionInterface|string|array|null $condition
      * @return void
      * @throws InvalidConfigException
      */
-    public function setOrderCondition(ElementConditionInterface|string|array $condition): void
+    public function setOrderCondition(ElementConditionInterface|string|array|null $condition): void
     {
         if (empty($condition)) {
             $this->_orderCondition = null;
@@ -377,11 +377,11 @@ class Discount extends Model implements HasStoreInterface
     }
 
     /**
-     * @param ElementConditionInterface|string $condition
+     * @param ElementConditionInterface|string|array|null $condition
      * @return void
      * @throws InvalidConfigException
      */
-    public function setCustomerCondition(ElementConditionInterface|string|array $condition): void
+    public function setCustomerCondition(ElementConditionInterface|string|array|null $condition): void
     {
         if (empty($condition)) {
             $this->_customerCondition = null;
@@ -429,11 +429,11 @@ class Discount extends Model implements HasStoreInterface
     }
 
     /**
-     * @param ElementConditionInterface|string|array $condition
+     * @param ElementConditionInterface|string|array|null $condition
      * @return void
      * @throws InvalidConfigException
      */
-    public function setShippingAddressCondition(ElementConditionInterface|string|array $condition): void
+    public function setShippingAddressCondition(ElementConditionInterface|string|array|null $condition): void
     {
         if (empty($condition)) {
             $this->_shippingAddressCondition = null;
@@ -481,11 +481,11 @@ class Discount extends Model implements HasStoreInterface
     }
 
     /**
-     * @param ElementConditionInterface|string|array $condition
+     * @param ElementConditionInterface|string|array|null $condition
      * @return void
      * @throws InvalidConfigException
      */
-    public function setBillingAddressCondition(ElementConditionInterface|string|array $condition): void
+    public function setBillingAddressCondition(ElementConditionInterface|string|array|null $condition): void
     {
         if (empty($condition)) {
             $this->_billingAddressCondition = null;

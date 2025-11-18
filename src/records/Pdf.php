@@ -27,6 +27,7 @@ use craft\db\ActiveRecord;
  * @property int $storeId
  * @property string $paperSize
  * @property string $paperOrientation
+ * @property int $linkExpiry
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.2
  */
