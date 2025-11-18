@@ -23,6 +23,7 @@ use craft\db\ActiveRecord;
  * @property bool $enabled
  * @property bool $isDefault
  * @property string $language
+ * @property int $linkExpiry
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.2
  */

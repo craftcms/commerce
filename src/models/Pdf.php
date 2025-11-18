@@ -78,6 +78,12 @@ class Pdf extends Model
     public string $language = PdfRecord::LOCALE_ORDER_LANGUAGE;
 
     /**
+     * @var int How long (in seconds) a PDF download link should remain valid before expiring
+     * @since 4.10
+     */
+    public int $linkExpiry = 86400;
+
+    /**
      * @inheritdoc
      */
     protected function defineRules(): array
@@ -135,6 +141,7 @@ class Pdf extends Model
             'sortOrder' => $this->sortOrder ?: 9999,
             'isDefault' => $this->isDefault,
             'language' => $this->language,
+            'linkExpiry' => $this->linkExpiry,
         ];
     }
 }
