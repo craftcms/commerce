@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Store Management
-- PDF download URLs are now generated with expirable tokens.
+- PDF download URLs are now generated with time-limited security tokens.
 - Anonymous users attempting to download a PDF with an expired or missing token are now shown an email verification form.
 - Added a new system message for customizing PDF download emails.
 
