@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.10.0 - 2025-11-18
 
 ### Store Management
 - PDF download URLs are now generated with time-limited security tokens.
