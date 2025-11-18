@@ -24,9 +24,17 @@ class CatalogPricingRuleCustomerCondition extends UserCondition
      */
     protected function selectableConditionRules(): array
     {
-        return array_filter(parent::selectableConditionRules(), static fn($type) => !in_array($type, [
-            LastLoginDateConditionRule::class,
-            SiteConditionRule::class,
-        ], true));
+        return array_merge(
+            array_filter(parent::selectableConditionRules(), static fn($type) => !in_array($type, [
+                // Remove rules that don't make sense in this context
+                LastLoginDateConditionRule::class,
+                SiteConditionRule::class,
+            ], true)
+            ),
+            // Add additional rules
+            [
+                CatalogPricingRuleCustomerConditionRule::class,
+            ]
+        );
     }
 }
