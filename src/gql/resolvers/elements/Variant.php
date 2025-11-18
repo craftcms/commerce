@@ -8,6 +8,7 @@
 namespace craft\commerce\gql\resolvers\elements;
 
 use craft\commerce\db\Table;
+use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\elements\Product as ProductElement;
 use craft\commerce\elements\Variant as VariantElement;
 use craft\commerce\helpers\Gql as GqlHelper;
@@ -60,7 +61,7 @@ class Variant extends ElementResolver
 
         // For variant queries make sure we are only return those that have live products
         // unless the schema allows querying inactive elements
-        if (!GqlHelper::canQueryInactiveElements()) {
+        if (!GqlHelper::canQueryInactiveElements() && $query instanceof VariantQuery) {
             $query->productStatus(ProductElement::STATUS_LIVE);
         }
 
