@@ -2,11 +2,9 @@
 
 ### Store Management
 - It is now possible to suppress order emails when marking an order as complete in the control panel. ([#4144](https://github.com/craftcms/commerce/issues/4144))
-- PDF download links now include time-limited security tokens that expire after a configurable duration (default 24 hours).
-- Anonymous users attempting to download a PDF with an expired or missing token are now shown an email verification form with a masked email address (e.g., `j***@example.com`).
-- PDF link expiry duration can now be configured per PDF in Settings → PDFs.
-- Logged-in users who own the order or have appropriate permissions bypass the email verification flow and can download PDFs directly.
-- Added a new system email message for sending PDF download links to customers.
+- PDF download URLs are now generated with time-limited security tokens.
+- Anonymous users attempting to download a PDF with an expired or missing token are now shown an email verification form.
+- Added a new system message for customizing PDF download emails.
 - It is now possible to select multiple products in variant conditions. ([#4166](https://github.com/craftcms/commerce/pull/4166))
 - It is now possible to select multiple specific variants in pricing rule’s “Match Variant” condition. ([#4167](https://github.com/craftcms/commerce/issues/4167))
 - It is now possible to select multiple specific users in pricing rule’s “Match Customer” condition. ([#4167](https://github.com/craftcms/commerce/issues/4167))
@@ -17,7 +15,7 @@
 - Added slug translation options to product types. ([#4088](https://github.com/craftcms/commerce/pull/4088))
 - Gateway condition rules now allow multiple gateways to be selected. ([#4112](https://github.com/craftcms/commerce/issues/4112))
 - Product action menus now have “Product type settings” action, for admin users on environments that allow admin changes. ([#4157](https://github.com/craftcms/commerce/issues/4157))
-- Added "Link Duration" field to PDF settings, allowing administrators to configure how long PDF download links remain valid.
+- Added the “Link Duration” setting to PDF settings.
 
 ### Development
 - Orders now have a `dateFirstPaid` property that records the date and time when the order was first paid in full.
@@ -33,11 +31,11 @@
 - Added `craft\commerce\controllers\DownloadsController::actionEmailChallenge()`.
 - Added `craft\commerce\controllers\DownloadsController::actionPdfChallenge()`.
 - Added `craft\commerce\controllers\DownloadsController::actionPdfSent()`.
+- Added `craft\commerce\elements\Order::$dateFirstPaid`.
+- Added `craft\commerce\elements\Order::getMaskedEmail()`.
 - Added `craft\commerce\elements\conditions\customers\CatalogPricingRuleCustomerConditionRule`.
 - Added `craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantConditionRule`.
 - Added `craft\commerce\elements\conditions\variants\VariantConditionRule`.
-- Added `craft\commerce\elements\Order::$dateFirstPaid`.
-- Added `craft\commerce\elements\Order::getMaskedEmail()`.
 - Added `craft\commerce\elements\db\OrderQuery::$dateFirstPaid`.
 - Added `craft\commerce\elements\db\OrderQuery::dateFirstPaid()`.
 - Added `craft\commerce\events\InventoryMovementEvent`. ([#4063](https://github.com/craftcms/commerce/pull/4063))
