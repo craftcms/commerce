@@ -9,6 +9,7 @@ namespace craft\commerce\gql\arguments\elements;
 
 use craft\commerce\gql\types\input\IntFalse;
 use craft\commerce\gql\types\input\Product;
+use craft\commerce\helpers\Gql;
 use craft\commerce\Plugin;
 use craft\gql\base\ElementArguments;
 use craft\gql\types\QueryArgument;
@@ -78,11 +79,6 @@ class Variant extends ElementArguments
                 'type' => Type::listOf(QueryArgument::getType()),
                 'description' => 'Narrows the query results based on the variant’s price.',
             ],
-            'productStatus' => [
-                'name' => 'productStatus',
-                'type' => Type::listOf(Type::string()),
-                'description' => 'Narrows the query results based on the variants’ product’s statuses.',
-            ],
             'promotionalPrice' => [
                 'name' => 'promotionalPrice',
                 'type' => Type::listOf(QueryArgument::getType()),
@@ -148,5 +144,24 @@ class Variant extends ElementArguments
     public static function getContentArguments(): array
     {
         return array_merge(parent::getContentArguments(), Plugin::getInstance()->getVariants()->getVariantGqlContentArguments());
+    }
+
+    /**
+     * @inheritdoc
+     * @since 5.5.0
+     */
+    public static function getStatusArguments(): array
+    {
+        $statusArguments = parent::getStatusArguments();
+
+        if (Gql::canQueryInactiveElements()) {
+            $statusArguments['productStatus'] = [
+                'name' => 'productStatus',
+                'type' => Type::listOf(Type::string()),
+                'description' => 'Narrows the query results based on the variants’ product’s statuses.',
+            ];
+        }
+
+        return $statusArguments;
     }
 }

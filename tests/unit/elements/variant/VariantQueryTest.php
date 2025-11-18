@@ -12,6 +12,7 @@ use craft\base\Element;
 use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\purchasables\PurchasableConditionRule;
 use craft\commerce\elements\db\VariantQuery;
+use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\models\ShippingCategory;
@@ -423,6 +424,15 @@ class VariantQueryTest extends Unit
     public function productStatusDataProvider(): array
     {
         return [
+            'product-live' => ['live', 3],
+            'product-live-const' => [Product::STATUS_LIVE, 3],
+            'product-live-const-array' => [[Product::STATUS_LIVE], 3],
+            'product-pending' => ['pending', 0],
+            'product-pending-const' => [Product::STATUS_PENDING, 0],
+            'product-pending-const-array' => [[Product::STATUS_PENDING], 0],
+            'product-expired' => ['expired', 0],
+            'product-expired-const' => [Product::STATUS_EXPIRED, 0],
+            'product-expired-const-array' => [[Product::STATUS_EXPIRED], 0],
             'product-enabled' => ['enabled', 3],
             'product-enabled-const' => [Element::STATUS_ENABLED, 3],
             'product-enabled-const-array' => [[Element::STATUS_ENABLED], 3],

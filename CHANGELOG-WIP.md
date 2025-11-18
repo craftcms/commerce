@@ -48,6 +48,7 @@
 - Added `craft\commerce\helpers\Cp::taxCategoryFieldHtml()`.
 - Added `craft\commerce\helpers\Cp::taxZoneFieldHtml()`.
 - Added `craft\commerce\helpers\Gql::getSchemaContainedProductTypes()`.
+- Added `craft\commerce\helpers\ProductQuery`.
 - Added `craft\commerce\models\Email::$renderSiteId`.
 - Added `craft\commerce\models\Email::getRenderSite()`.
 - Added `craft\commerce\models\Pdf::$linkExpiry`.
@@ -71,3 +72,4 @@
 - Fixed a bug where order emails weren’t always getting rendered for the correct site.
 - Fixed a bug where variant titles were being incorrectly generated for draft products. ([#4173](https://github.com/craftcms/commerce/pull/4173), [#4126](https://github.com/craftcms/commerce/issues/4126))
 - Fixed a PHP error that occurred when retrieving an order that referenced an archived payment gateway. ([#4172](https://github.com/craftcms/commerce/issues/4172))
+- Fixed a bug where variants with inactive products were being returned in GraphQL variant queries. ([#4158](https://github.com/craftcms/commerce/issues/4158))

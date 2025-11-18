@@ -14,6 +14,7 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\elements\VariantCollection;
+use craft\commerce\helpers\ProductQuery as ProductQueryHelper;
 use craft\commerce\Plugin;
 use craft\commerce\records\Sale;
 use craft\db\Query;
@@ -840,21 +841,7 @@ class VariantQuery extends PurchasableQuery
         foreach ($statuses as $status) {
             $status = strtolower($status);
 
-            // Logic comes from the `statusCondition()` method in `craft\base\ElementQuery`
-            // but duplicated here to make editing the table naming more verbose.
-            $statusCondition = match ($status) {
-                Element::STATUS_ENABLED => [
-                    'product_elements.enabled' => true,
-                    'product_elements_sites.enabled' => true,
-                ],
-                Element::STATUS_DISABLED => [
-                    'or',
-                    ['product_elements.enabled' => false],
-                    ['product_elements_sites.enabled' => false],
-                ],
-                Element::STATUS_ARCHIVED => ['product_elements.archived' => true],
-                default => false,
-            };
+            $statusCondition = ProductQueryHelper::statusCondition($status, 'product_');
 
             if ($statusCondition === false) {
                 throw new QueryAbortedException('Unsupported status: ' . $status);
