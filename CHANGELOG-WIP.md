@@ -24,6 +24,8 @@
 - Improved product and variant query performance.
 - Improved the performance of retrieving a line item’s catalog pricing rule ID.
 - Added the `children`, `parent`, `ancestors` and `descendants` fields to products’ GraphQL data. ([#4122](https://github.com/craftcms/commerce/issues/4122))
+- Added the `productStatus` variant query param. ([#4158](https://github.com/craftcms/commerce/issues/4158))
+- Added the `productStatus` GraphQL variant query argument. ([#4158](https://github.com/craftcms/commerce/issues/4158))
 - Added the `--force` option to the `commerce/reset-data` command. ([#4115](https://github.com/craftcms/commerce/discussions/4115))
 
 ### Extensibility

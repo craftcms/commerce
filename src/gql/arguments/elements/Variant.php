@@ -78,6 +78,11 @@ class Variant extends ElementArguments
                 'type' => Type::listOf(QueryArgument::getType()),
                 'description' => 'Narrows the query results based on the variant’s price.',
             ],
+            'productStatus' => [
+                'name' => 'productStatus',
+                'type' => Type::listOf(Type::string()),
+                'description' => 'Narrows the query results based on the variants’ product’s statuses.',
+            ],
             'promotionalPrice' => [
                 'name' => 'promotionalPrice',
                 'type' => Type::listOf(QueryArgument::getType()),
