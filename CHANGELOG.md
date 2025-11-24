@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed an error that could occur when querying for products or variants via GraphQL. ([#4122](https://github.com/craftcms/commerce/issues/4122)) 
+
 ## 5.5.0 - 2025-11-18
 
 ### Store Management
