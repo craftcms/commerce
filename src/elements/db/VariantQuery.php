@@ -483,7 +483,8 @@ class VariantQuery extends PurchasableQuery
         $sortOrderIndex = Db::findIndex(CraftTable::ELEMENTS_OWNERS, ['sortOrder'], false);
         // Forcing the use of the `sortOrder` index if no custom `orderBy` is set
         if ($sortOrderIndex !== null && empty($this->orderBy)) {
-            $this->subQuery->innerJoin([new Expression('[[elements_owners]] USE INDEX (' . $sortOrderIndex . ')')], $ownersCondition);
+            $elementOwnersTable = Craft::$app->getDb()->schema->getRawTableName(\craft\db\Table::ELEMENTS_OWNERS);
+            $this->subQuery->innerJoin([new Expression('[['.$elementOwnersTable.']] AS elements_owners USE INDEX (' . $sortOrderIndex . ')')], $ownersCondition);
         } else {
             $this->subQuery->innerJoin(['elements_owners' => CraftTable::ELEMENTS_OWNERS], $ownersCondition);
         }
