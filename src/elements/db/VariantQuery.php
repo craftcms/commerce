@@ -20,6 +20,7 @@ use craft\commerce\records\Sale;
 use craft\db\Query;
 use craft\db\QueryAbortedException;
 use craft\db\Table as CraftTable;
+use craft\elements\db\NestedElementQueryTrait;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
@@ -56,6 +57,9 @@ use yii\db\Expression;
  */
 class VariantQuery extends PurchasableQuery
 {
+    use NestedElementQueryTrait {
+        cacheTags as nestedTraitCacheTags;
+    }
     /**
      * @inheritdoc
      */
@@ -873,6 +877,8 @@ class VariantQuery extends PurchasableQuery
                 $tags[] = "product:$ownerId";
             }
         }
+
+        array_push($tags, ...$this->nestedTraitCacheTags());
 
         return $tags;
     }

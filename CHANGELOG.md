@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where newly created variants weren’t visible on Edit product screens. 
+- Fixed a SQL error that could occur when viewing product indexes. 
+
 ## 5.5.0.1 - 2025-11-24
 
 - Fixed an error that could occur when querying for products via GraphQL. ([#4122](https://github.com/craftcms/commerce/issues/4122)) 

@@ -715,9 +715,19 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     protected function cacheTags(): array
     {
-        return [
-            "product:$this->primaryOwnerId",
-        ];
+        $tags = [];
+
+        if ($primaryOwnerId = $this->getPrimaryOwnerId()) {
+            $tags[] = "element::{$primaryOwnerId}";
+            $tags[] = "product:{$primaryOwnerId}";
+        }
+
+        $ownerId = $this->getOwnerId();
+        if ($ownerId && $ownerId !== $primaryOwnerId) {
+            $tags[] = "element::{$ownerId}";
+        }
+
+        return $tags;
     }
 
     /**
@@ -1181,7 +1191,7 @@ class Variant extends Purchasable implements NestedElementInterface
         // Validate shipping category ID is available for this product type
         $availableShippingCategories = $this->availableShippingCategories();
         $availableShippingCategoryIds = ArrayHelper::getColumn($availableShippingCategories, 'id');
-        
+
         // If the current shipping category ID is not in the available categories, set it to the default one
         $currentShippingCategoryId = $this->getShippingCategoryId();
         if (!in_array($currentShippingCategoryId, $availableShippingCategoryIds)) {
