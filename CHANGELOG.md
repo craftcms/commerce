@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a PHP error that could occur when saving a shipping rule. ([#4134](https://github.com/craftcms/commerce/issues/4134))
+
 ## 4.10.0 - 2025-11-18
 
 ### Store Management

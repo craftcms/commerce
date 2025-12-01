@@ -137,25 +137,48 @@ class ShippingRulesController extends BaseShippingSettingsController
             $shippingRule->id = $this->request->getBodyParam('id');
         }
 
+        $normalizedParams = [];
+        $paramNames = [
+            'minQty',
+            'maxQty',
+            'minTotal',
+            'maxTotal',
+            'minWeight',
+            'maxWeight',
+            'baseRate',
+            'perItemRate',
+            'weightRate',
+            'percentageRate',
+            'minRate',
+            'maxRate'
+        ];
+
+        foreach ($paramNames as $param) {
+            $normalizedParams[$param] = $this->request->getBodyParam($param);
+            // Convert empty strings to 0 for normalization
+            $normalizedParams[$param] = ($normalizedParams[$param] === '') ? 0 : $normalizedParams[$param];
+            $normalizedParams[$param] = Localization::normalizeNumber($normalizedParams[$param]);
+        }
+
         $shippingRule->name = $this->request->getBodyParam('name');
         $shippingRule->description = $this->request->getBodyParam('description');
         $shippingRule->shippingZoneId = $this->request->getBodyParam('shippingZoneId');
         $shippingRule->methodId = $this->request->getBodyParam('methodId');
         $shippingRule->enabled = (bool)$this->request->getBodyParam('enabled');
         $shippingRule->orderConditionFormula = trim($this->request->getBodyParam('orderConditionFormula', ''));
-        $shippingRule->minQty = $this->request->getBodyParam('minQty');
-        $shippingRule->maxQty = $this->request->getBodyParam('maxQty');
-        $shippingRule->minTotal = Localization::normalizeNumber($this->request->getBodyParam('minTotal'));
-        $shippingRule->maxTotal = Localization::normalizeNumber($this->request->getBodyParam('maxTotal'));
+        $shippingRule->minQty = $normalizedParams['minQty'];
+        $shippingRule->maxQty = $normalizedParams['maxQty'];
+        $shippingRule->minTotal = $normalizedParams['minTotal'];
+        $shippingRule->maxTotal = $normalizedParams['maxTotal'];
         $shippingRule->minMaxTotalType = $this->request->getBodyParam('minMaxTotalType');
-        $shippingRule->minWeight = Localization::normalizeNumber($this->request->getBodyParam('minWeight'));
-        $shippingRule->maxWeight = Localization::normalizeNumber($this->request->getBodyParam('maxWeight'));
-        $shippingRule->baseRate = Localization::normalizeNumber($this->request->getBodyParam('baseRate'));
-        $shippingRule->perItemRate = Localization::normalizeNumber($this->request->getBodyParam('perItemRate'));
-        $shippingRule->weightRate = Localization::normalizeNumber($this->request->getBodyParam('weightRate'));
-        $shippingRule->percentageRate = Localization::normalizeNumber($this->request->getBodyParam('percentageRate'));
-        $shippingRule->minRate = Localization::normalizeNumber($this->request->getBodyParam('minRate'));
-        $shippingRule->maxRate = Localization::normalizeNumber($this->request->getBodyParam('maxRate'));
+        $shippingRule->minWeight = $normalizedParams['minWeight'];
+        $shippingRule->maxWeight = $normalizedParams['maxWeight'];
+        $shippingRule->baseRate = $normalizedParams['baseRate'];
+        $shippingRule->perItemRate = $normalizedParams['perItemRate'];
+        $shippingRule->weightRate = $normalizedParams['weightRate'];
+        $shippingRule->percentageRate = $normalizedParams['percentageRate'];
+        $shippingRule->minRate = $normalizedParams['minRate'];
+        $shippingRule->maxRate = $normalizedParams['maxRate'];
 
         $ruleCategories = [];
         $allRulesCategories = $this->request->getBodyParam('ruleCategories');
