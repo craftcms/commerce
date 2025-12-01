@@ -150,7 +150,7 @@ class ShippingRulesController extends BaseShippingSettingsController
             'weightRate',
             'percentageRate',
             'minRate',
-            'maxRate'
+            'maxRate',
         ];
 
         foreach ($paramNames as $param) {
