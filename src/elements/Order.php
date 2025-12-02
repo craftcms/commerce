@@ -1609,7 +1609,7 @@ class Order extends Element implements HasStoreInterface
 
             [['paymentSourceId'], 'number', 'integerOnly' => true],
             [['paymentSourceId'], 'validatePaymentSourceId'],
-            [['number', 'user', 'customer', 'storeId', 'orderSiteId', 'orderCompletedEmail', 'saveBillingAddressOnOrderComplete', 'saveShippingAddressOnOrderComplete'], 'safe'],
+            [['number', 'user', 'customer', 'storeId', 'orderSiteId', 'orderCompletedEmail', 'saveBillingAddressOnOrderComplete', 'saveShippingAddressOnOrderComplete', 'origin'], 'safe'],
         ]);
     }
 
