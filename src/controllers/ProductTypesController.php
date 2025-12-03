@@ -161,6 +161,7 @@ class ProductTypesController extends BaseAdminController
         $maxLevels = (int)$this->request->getBodyParam('maxLevels');
         $productType->maxLevels = $maxLevels ?: null; // zero should be null
         $productType->defaultPlacement = $this->request->getBodyParam('defaultPlacement');
+        $productType->previewTargets = $this->request->getBodyParam('previewTargets') ?: [];
 
         // Site-specific settings
         $allSiteSettings = [];
