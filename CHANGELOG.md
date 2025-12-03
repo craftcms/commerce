@@ -2,7 +2,6 @@
 
 ## Unreleased
 
-- Added the missing Preview Targets UI to product type settings. ([#4127](https://github.com/craftcms/commerce/issues/4127))
 - Fixed a bug where tax and shipping categories weren't getting saved on the Edit variant screen. ([#4180](https://github.com/craftcms/commerce/issues/4180))
 - Fixed a bug where newly created variants weren’t visible on Edit product screens. 
 - Fixed a SQL error that could occur when viewing product indexes.
