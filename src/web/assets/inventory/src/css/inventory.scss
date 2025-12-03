@@ -1,4 +1,13 @@
-.inventory-headers,
+.inventory-headers {
+  .ltr & {
+    justify-content: flex-end;
+  }
+
+  .rtl & {
+    justify-content: flex-start;
+  }
+}
+
 .inventory-cell {
   .ltr & {
     text-align: right;
