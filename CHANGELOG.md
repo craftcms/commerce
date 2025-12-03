@@ -2,14 +2,14 @@
 
 ## Unreleased
 
-- Fixed a bug where tax and shipping categories weren't getting saved on the Edit variant screen. ([#4180](https://github.com/craftcms/commerce/issues/4180))
-- Fixed a bug where newly created variants weren’t visible on Edit product screens. 
-- Fixed a SQL error that could occur when viewing product indexes.
-- Fixed a PHP error that occurred when applying project config changes after updating. ([#4185](https://github.com/craftcms/commerce/issues/4185))
-- Fixed a bug where an Order’s origin was set incorrectly when creating an order in the control panel.
-- Fixed a bug where prices weren’t showing formatted per the user’s formatting locale, in payment modals on Edit Order pages.
-- Fixed a SQL error that could occur when generating the pricing catalog. ([#4175](https://github.com/craftcms/commerce/issues/4175))
 - Added `craft\commerce\models\CatalogPricingRule::afterPreparePurchasableQuery()`.
+- Fixed a bug where tax and shipping categories weren’t getting saved from the Edit variant screen. ([#4180](https://github.com/craftcms/commerce/issues/4180))
+- Fixed a bug where newly-created variants weren’t visible on product edit screens. 
+- Fixed a SQL error that could occur when viewing product indexes.
+- Fixed a PHP error that could occur when applying project config changes after updating. ([#4185](https://github.com/craftcms/commerce/issues/4185))
+- Fixed a bug where an order’s origin could be set incorrectly if it was created in the control panel.
+- Fixed a bug where order edit screens weren’t formatting prices using the user’s preferred formatting locale.
+- Fixed a SQL error that could occur when generating the pricing catalog. ([#4175](https://github.com/craftcms/commerce/issues/4175))
 
 ## 5.5.0.1 - 2025-11-24
 
