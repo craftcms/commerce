@@ -2,11 +2,12 @@
 
 ## Unreleased
 
-- Fixed a bug where tax and shipping categories weren’t getting saved on the Edit variant screen. ([#4180](https://github.com/craftcms/commerce/issues/4180))
+- Fixed a bug where tax and shipping categories weren't getting saved on the Edit variant screen. ([#4180](https://github.com/craftcms/commerce/issues/4180))
 - Fixed a bug where newly created variants weren’t visible on Edit product screens. 
 - Fixed a SQL error that could occur when viewing product indexes.
 - Fixed a PHP error that occurred when applying project config changes after updating. ([#4185](https://github.com/craftcms/commerce/issues/4185))
 - Fixed a bug where an Order’s origin was set incorrectly when creating an order in the control panel.
+- Added the missing Preview Targets UI to product type settings. ([#4127](https://github.com/craftcms/commerce/issues/4127))
 
 ## 5.5.0.1 - 2025-11-24
 
