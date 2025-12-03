@@ -7,6 +7,7 @@
 - Fixed a SQL error that could occur when viewing product indexes.
 - Fixed a PHP error that occurred when applying project config changes after updating. ([#4185](https://github.com/craftcms/commerce/issues/4185))
 - Fixed a bug where an Order’s origin was set incorrectly when creating an order in the control panel.
+- Fixed a bug where prices weren’t showing formatted per the user’s formatting locale, in payment modals on Edit Order pages.
 
 ## 5.5.0.1 - 2025-11-24
 
