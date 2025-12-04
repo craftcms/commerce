@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.5.1 - 2025-12-04
 
 - Added `craft\commerce\models\CatalogPricingRule::afterPreparePurchasableQuery()`.
 - Fixed a bug where tax and shipping categories weren’t getting saved from the Edit variant screen. ([#4180](https://github.com/craftcms/commerce/issues/4180))
