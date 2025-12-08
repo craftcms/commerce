@@ -62,6 +62,11 @@ class InventoryAsset extends AssetBundle
                 'Available',
                 'On Hand',
                 'Incoming',
+                'View',
+                'View settings',
+                'Table Columns',
+                'Purchasable',
+                'SKU',
             ]);
         }
     }
