@@ -322,29 +322,39 @@ class CatalogPricingRule extends Model implements HasStoreInterface
                 }
 
                 // We are unable to use `siteId()` on the purchasable query as it is only the subquery part that is used.
-                Event::once(ElementQuery::class, ElementQuery::EVENT_AFTER_PREPARE, function(CancelableEvent $event) use ($siteIds) {
-                    foreach ($event->sender->subQuery->where as &$value) {
-                        if (is_array($value) && isset($value['elements_sites.siteId'])) {
-                            $value['elements_sites.siteId'] = $siteIds;
-                        }
-                    }
-
-                    $event->sender->subQuery->join[] = ['LEFT JOIN', ['sitestores' => Table::SITESTORES], '[[elements_sites.siteId]] = [[sitestores.siteId]]'];
-                    $event->sender->subQuery->join[] = ['LEFT JOIN', ['purchasables_stores' => Table::PURCHASABLES_STORES], '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[elements.id]]'];
-                });
 
                 // If the rule is generating a promotional price, we need to make sure the purchasable is promotable
                 if ($this->isPromotionalPrice) {
                     $purchasableQuery->andWhere(Db::parseBooleanParam('purchasables_stores.promotable', true));
                 }
 
+                // Do this adjustment to the query once (was previously using `Event::once` but this caused issues in some edge cases)
+                $purchasableQuery->on(ElementQuery::EVENT_AFTER_PREPARE, [$this, 'afterPreparePurchasableQuery'], ['siteIds' => $siteIds]);
                 $this->_purchasableIds = $purchasableQuery->ids();
+                $purchasableQuery->off(ElementQuery::EVENT_AFTER_PREPARE, [$this, 'afterPreparePurchasableQuery']);
             }
 
             $this->_purchasableIds = $this->_purchasableIds !== null ? array_unique($this->_purchasableIds) : null;
         }
 
         return $this->_purchasableIds;
+    }
+
+    /**
+     * @param CancelableEvent $event
+     * @return void
+     * @since 5.5.1
+     */
+    public function afterPreparePurchasableQuery(CancelableEvent $event): void
+    {
+        foreach ($event->sender->subQuery->where as &$value) {
+            if (is_array($value) && isset($value['elements_sites.siteId'])) {
+                $value['elements_sites.siteId'] = $event->data['siteIds'];
+            }
+        }
+
+        $event->sender->subQuery->join[] = ['LEFT JOIN', ['sitestores' => Table::SITESTORES], '[[elements_sites.siteId]] = [[sitestores.siteId]]'];
+        $event->sender->subQuery->join[] = ['LEFT JOIN', ['purchasables_stores' => Table::PURCHASABLES_STORES], '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[elements.id]]'];
     }
 
     /**
