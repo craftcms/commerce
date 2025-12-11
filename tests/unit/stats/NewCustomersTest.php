@@ -68,7 +68,7 @@ class NewCustomersTest extends Unit
             [
                 NewCustomers::DATE_RANGE_CUSTOM,
                 (new DateTime('2 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('1 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('0 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 1,
             ],
             [
