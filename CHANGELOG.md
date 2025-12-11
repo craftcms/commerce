@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where the "New Customers" stat was counting all customers with orders in the date range, rather than only customers whose first order was in the date range.
+
 ## 5.5.1 - 2025-12-04
 
 - Added `craft\commerce\models\CatalogPricingRule::afterPreparePurchasableQuery()`.
