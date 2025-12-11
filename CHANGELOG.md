@@ -1,8 +1,8 @@
 # Release Notes for Craft Commerce
 
 ## Unreleased
-
 - Fixed a PHP error that could occur when saving a shipping rule. ([#4134](https://github.com/craftcms/commerce/issues/4134))
+- Fixed a bug where the "New Customers" stat was counting all customers with orders in the date range, rather than only customers whose first order was in the date range.
 
 ## 4.10.0 - 2025-11-18
 
