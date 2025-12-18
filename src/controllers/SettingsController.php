@@ -51,30 +51,13 @@ class SettingsController extends BaseAdminController
     {
         $this->requirePostRequest();
 
-        $params = $this->request->getBodyParams();
-        $data = $params['settings'];
-
-        $settings = Plugin::getInstance()->getSettings();
-        $settings->emailSenderAddress = $data['emailSenderAddress'] ?? $settings->emailSenderAddress;
-        $settings->emailSenderName = $data['emailSenderName'] ?? $settings->emailSenderName;
-        $settings->weightUnits = $data['weightUnits'] ?? key($settings->getWeightUnitsOptions());
-        $settings->dimensionUnits = $data['dimensionUnits'] ?? key($settings->getDimensionUnits());
-        $settings->minimumTotalPriceStrategy = $data['minimumTotalPriceStrategy'] ?? Settings::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT;
-        $settings->freeOrderPaymentStrategy = $data['freeOrderPaymentStrategy'] ?? Settings::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE;
-        $settings->orderReferenceFormat = $data['orderReferenceFormat'] ?? $settings->orderReferenceFormat;
-        $settings->updateBillingDetailsUrl = $data['updateBillingDetailsUrl'] ?? $settings->updateBillingDetailsUrl;
-        $settings->defaultView = $data['defaultView'] ?? $settings->defaultView;
-
-        if (!$settings->validate()) {
-            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save settings.'));
-            return $this->renderTemplate('commerce/settings/general/index', compact('settings'));
-        }
-
-        $pluginSettingsSaved = Craft::$app->getPlugins()->savePluginSettings(Plugin::getInstance(), $settings->toArray());
+        $plugin = Plugin::getInstance();
+        $settings = $this->request->getBodyParam('settings');
+        $pluginSettingsSaved = Craft::$app->getPlugins()->savePluginSettings($plugin, $settings);
 
         if (!$pluginSettingsSaved) {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save settings.'));
-            return $this->renderTemplate('commerce/settings/general/index', compact('settings'));
+            return $this->renderTemplate('commerce/settings/general/index', $plugin->getSettings());
         }
 
         $this->setSuccessFlash(Craft::t('commerce', 'Settings saved.'));
