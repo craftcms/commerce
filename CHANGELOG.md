@@ -5,6 +5,7 @@
 - Fixed a bug where settings were being saved into the project config incorrectly. ([#4006](https://github.com/craftcms/commerce/issues/4006))
 - Fixed a PHP error that could occur when saving a shipping rule. ([#4134](https://github.com/craftcms/commerce/issues/4134))
 - Fixed a bug where the "New Customers" stat was counting all customers with orders in the date range, rather than only customers whose first order was in the date range.
+- Fixed XSS vulnerabilities.
 
 ## 5.5.1 - 2025-12-04
 
