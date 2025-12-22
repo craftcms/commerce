@@ -52,7 +52,7 @@ class SettingsController extends BaseAdminController
 
         if (!$pluginSettingsSaved) {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save settings.'));
-            return $this->renderTemplate('commerce/settings/general/index', $plugin->getSettings());
+            return $this->renderTemplate('commerce/settings/general/index', ['settings' => $plugin->getSettings()]);
         }
 
         $this->setSuccessFlash(Craft::t('commerce', 'Settings saved.'));
