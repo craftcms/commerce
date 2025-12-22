@@ -49,12 +49,12 @@ class TaxZonesController extends BaseTaxSettingsController
         // Generate table data
         $tableData = [];
         foreach ($taxZones as $taxZone) {
-            $label = Craft::t('site', $taxZone->name);
+            $label = Html::encode(Craft::t('site', $taxZone->name));
             $tableData[] = [
                 'id' => $taxZone->id,
                 'title' => Html::a($label, $taxZone->getCpEditUrl()),
                 'url' => $taxZone->getCpEditUrl(),
-                'description' => Craft::t('site', $taxZone->description),
+                'description' => Html::encode(Craft::t('site', $taxZone->description)),
                 'default' => $taxZone->default,
             ];
         }

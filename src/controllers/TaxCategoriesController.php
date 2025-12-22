@@ -48,7 +48,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
         // Generate table data with chips
         $tableData = [];
         foreach ($taxCategories as $taxCategory) {
-            $label = Craft::t('site', $taxCategory->name);
+            $label = Html::encode(Craft::t('site', $taxCategory->name));
             $taxRates = $taxCategory->getTaxRates($store->id);
             $tableData[] = [
                 'id' => $taxCategory->id,
@@ -60,7 +60,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
                 ]),
                 'url' => $taxCategory->getCpEditUrl($store->id),
                 'handle' => $taxCategory->handle,
-                'description' => Craft::t('site', $taxCategory->description),
+                'description' => Html::encode(Craft::t('site', $taxCategory->description)),
                 'default' => $taxCategory->default,
                 '_showDelete' => $taxRates->isEmpty() && (count($taxCategories) > 1 && !$taxCategory->default),
             ];

@@ -331,7 +331,7 @@ JS, [
                 'id' => $inventoryLocation->id,
                 'title' => $inventoryLocation->getUiLabel(),
                 'handle' => $inventoryLocation->handle,
-                'address' => $inventoryLocation->getAddressLine(),
+                'address' => Html::encode($inventoryLocation->getAddressLine()),
                 'url' => $inventoryLocation->getCpEditUrl(),
                 'delete' => $inventoryLocations->count() > 1 ? $deleteButton : '',
             ];
