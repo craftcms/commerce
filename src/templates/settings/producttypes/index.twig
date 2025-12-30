@@ -41,7 +41,7 @@
 
     {% set tableData = tableData|merge([{
         id: type.id,
-        title: type.name|t('site'),
+        title: type.name|t('site')|e,
         url: type.cpEditUrl,
         handle: type.handle|e,
         maxVariants: type.maxVariants ?? '',
