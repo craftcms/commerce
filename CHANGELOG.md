@@ -1,10 +1,11 @@
 # Release Notes for Craft Commerce
 
 ## Unreleased
-- Fixed a bug where settings were being saved into the project config incorrectly. ([#4006](https://github.com/craftcms/commerce/issues/4006))
+
+- Fixed a bug where settings were being saved to the project config incorrectly. ([#4006](https://github.com/craftcms/commerce/issues/4006))
 - Fixed a PHP error that could occur when saving a shipping rule. ([#4134](https://github.com/craftcms/commerce/issues/4134))
-- Fixed a bug where the "New Customers" stat was counting all customers with orders in the date range, rather than only customers whose first order was in the date range.
-- Fixed some XSS vulnerabilities. (GHSA-w8gw-qm8p-j9j3, GHSA-h9r9-2pxg-cx9m, GHSA-g92v-wpv7-6w22, GHSA-p6w8-q63m-72c8, GHSA-wqc5-485v-3hqh, GHSA-v585-mf6r-rqrc, GHSA-frj9-9rwc-pw9j, GHSA-8478-rmjg-mjj5, GHSA-2h2m-v2mg-656c, GHSA-wq2m-r96q-crrf)
+- Fixed a bug where the “New Customers” widget was counting all customers with orders in the date range, rather than only customers whose first order was in the date range.
+- Fixed XSS vulnerabilities. (GHSA-w8gw-qm8p-j9j3, GHSA-h9r9-2pxg-cx9m, GHSA-g92v-wpv7-6w22, GHSA-p6w8-q63m-72c8, GHSA-wqc5-485v-3hqh, GHSA-v585-mf6r-rqrc, GHSA-frj9-9rwc-pw9j, GHSA-8478-rmjg-mjj5, GHSA-2h2m-v2mg-656c, GHSA-wq2m-r96q-crrf)
 
 ## 4.10.0 - 2025-11-18
 
@@ -422,7 +423,7 @@
 
 ### Fixed
 
-- Fixed a bug where saving an invalid tax category doesn't return an error notice.
+- Fixed a bug where saving an invalid tax category doesn’t return an error notice.
 - Fixed an error that could occur when purging inactive carts.
 - Fixed a bug where the `commerce/cart/update-cart` action wasn’t fully clearing the cart when the `clearLineItems` param was submitted, if the quantity of an exsiting line item was being increased in the same request. ([#3014](https://github.com/craftcms/commerce/issues/3014))
 - Fixed an error that could occur when purging a large number of inactive carts.
@@ -523,7 +524,7 @@
 
 ### System
 - Craft Commerce now requires Craft CMS 4.3.0 or later.
-- Fixed a bug where it wasn't possible to use a path value for the `loadCartRedirectUrl` setting. ([#2992](https://github.com/craftcms/commerce/pull/2992))
+- Fixed a bug where it wasn’t possible to use a path value for the `loadCartRedirectUrl` setting. ([#2992](https://github.com/craftcms/commerce/pull/2992))
 - Fixed a bug where custom shipping methods weren’t applying to orders properly. ([#2986](https://github.com/craftcms/commerce/issues/2986))
 - Fixed a bug where passing an invalid product type handle into product queries’ `type` params wouldn’t have any effect. ([#2966](https://github.com/craftcms/commerce/issues/2966))
 - Fixed a bug where payments made from Edit Order pages weren’t factoring in gateways’ `availableForUseWithOrder()` methods. ([#2988](https://github.com/craftcms/commerce/issues/2988))
@@ -538,7 +539,7 @@
 ### Fixed
 - Fixed a SQL error that occurred when restoring a soft-deleted product. ([#2982](https://github.com/craftcms/commerce/issues/2982))
 - Fixed a bug where the Edit Product page wasn’t handling site selection changes properly. ([#2971](https://github.com/craftcms/commerce/issues/2971))
-- Fixed a bug where it wasn't possible to add variants to a sale from the Edit Product page. ([#2976](https://github.com/craftcms/commerce/issues/2976))
+- Fixed a bug where it wasn’t possible to add variants to a sale from the Edit Product page. ([#2976](https://github.com/craftcms/commerce/issues/2976))
 - Fixed a bug where primary addresses weren’t being automatically set on the Edit Order page. ([#2963](https://github.com/craftcms/commerce/issues/2963))
 - Fixed a bug where it wasn’t possible to change the default order status. ([#2915](https://github.com/craftcms/commerce/issues/2915))
 
