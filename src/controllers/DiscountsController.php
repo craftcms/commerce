@@ -275,7 +275,7 @@ JS;
 
             $tableData[] = [
                 'id' => $item['id'],
-                'title' => Html::encode(Craft::t('site', $item['name'])),
+                'title' => Craft::t('site', $item['name']),
                 'url' => UrlHelper::cpUrl('commerce/store-management/' . $store->handle . '/discounts/' . $item['id']),
                 'status' => (bool)$item['enabled'],
                 'duration' => $dateRange,

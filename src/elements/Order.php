@@ -2725,7 +2725,8 @@ class Order extends Element implements HasStoreInterface
     {
         $html = '';
         if ($user = $this->getCustomer()) {
-            $html = Html::tag('a', $user->email, ['href' => $user->getCpEditUrl()]);
+            $email = Html::encode($user->email);
+            $html = Html::tag('a', $email, ['href' => $user->getCpEditUrl()]);
         }
 
         return $html;

@@ -46,7 +46,7 @@
     {% for email in storeEmails %}
         {% set tableData = tableData|merge([{
             id: email.id,
-            title: email.name|t('site')|e,
+            title: email.name|t('site'),
             status: email.enabled ? true : false,
             url: email.getCpEditUrl(),
             subject: email.subject|t('site')|e,
@@ -66,7 +66,7 @@
             { name: 'template', title: Craft.t('commerce', 'Template Path'),
                 callback: function(value) {
                     if (value) {
-                        return '<span class="code">'+Craft.escapeHtml(value)+'</span>';
+                        return '<span class="code">'+value+'</span>';
                     }
 
                     return '';

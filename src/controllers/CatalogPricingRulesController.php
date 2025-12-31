@@ -103,7 +103,7 @@ class CatalogPricingRulesController extends BaseStoreManagementController
 
             $tableData[] = [
                 'id' => $pcr->id,
-                'title' => Html::encode(Craft::t('site', $pcr->name)),
+                'title' => Craft::t('site', $pcr->name),
                 'url' => $pcr->getCpEditUrl(),
                 'status' => $pcr->enabled ? true : false,
                 'duration' => $dateRange,

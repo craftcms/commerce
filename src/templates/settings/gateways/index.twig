@@ -53,9 +53,9 @@
     {% for gateway in gateways %}
         {% set tableData = tableData|merge([{
             id: gateway.id,
-            title: gateway.name|t('site')|e,
+            title: gateway.name|t('site'),
             url: gateway.getCpEditUrl(),
-            handle: gateway.handle|e,
+            handle: gateway.handle,
             type: {
                 missing: gateway is missing ? true : false,
                 name: (gateway is missing? gateway.expectedType : gateway.displayName())|e
