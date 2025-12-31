@@ -139,7 +139,7 @@ class LineItemStatus extends Model implements HasStoreInterface
     {
         return Cp::statusLabelHtml([
             'label' => Html::encode($this->name),
-            'color' => $this->color,
+            'color' => Html::encode($this->color),
         ]);
     }
 
