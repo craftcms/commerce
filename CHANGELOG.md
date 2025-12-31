@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.5.2 - 2025-12-31
 
 - Improved transaction refund amount validation.
 - Fixed a bug where settings were being saved to the project config incorrectly. ([#4006](https://github.com/craftcms/commerce/issues/4006))
