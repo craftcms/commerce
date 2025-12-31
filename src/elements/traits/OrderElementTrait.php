@@ -110,11 +110,11 @@ trait OrderElementTrait
             }
             case 'shippingMethodName':
             {
-                return $this->shippingMethodName ?? '';
+                return Html::encode($this->shippingMethodName ?? '');
             }
             case 'gatewayName':
             {
-                return $this->getGateway()->name ?? '';
+                return Html::encode($this->getGateway()->name ?? '');
             }
             case 'paidStatus':
             {
@@ -216,7 +216,7 @@ trait OrderElementTrait
             case 'orderSite':
             {
                 $site = Craft::$app->getSites()->getSiteById($this->orderSiteId);
-                return $site->name ?? '';
+                return Html::encode($site->name ?? '');
             }
             default:
             {

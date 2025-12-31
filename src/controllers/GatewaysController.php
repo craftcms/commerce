@@ -53,7 +53,7 @@ class GatewaysController extends BaseAdminController
                     'handle' => Html::encode($gateway->handle),
                     'type' => [
                         'missing' => $missing,
-                        'name' => $missing ? $gateway->expectedType : $gateway->displayName(),
+                        'name' => Html::encode($missing ? $gateway->expectedType : $gateway->displayName()),
                     ],
                     'hasTransactions' => in_array($gateway->id, $gatewayIdsWithTransactions),
                 ];

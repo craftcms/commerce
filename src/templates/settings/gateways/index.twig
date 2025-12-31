@@ -48,7 +48,7 @@
         handle: gateway.handle|e,
         type: {
             missing: gateway is missing ? true : false,
-            name: gateway is missing? gateway.expectedType : gateway.displayName()
+            name: (gateway is missing ? gateway.expectedType : gateway.displayName())|e
         },
         customerEnabled: parseBooleanEnv(gateway.isFrontendEnabled),
     }]) %}

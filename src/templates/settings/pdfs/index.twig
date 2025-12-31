@@ -23,7 +23,7 @@
     {% set tableData = tableData|merge([{
         id: pdf.id,
         title: pdf.name|t('site'),
-        handle: pdf.handle|t('site'),
+        handle: pdf.handle|t('site')|e,
         status: pdf.enabled ? true : false,
         url: url('commerce/settings/pdfs/'~pdf.id),
         isDefault: pdf.isDefault ? true : false,
