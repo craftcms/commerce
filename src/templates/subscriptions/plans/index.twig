@@ -22,7 +22,7 @@
 {% for plan in plans %}
   {% set tableData = tableData|merge([{
     id: plan.id,
-    title: plan.name|t('site'),
+    title: plan.name|t('site')|e,
     url: plan.getCpEditUrl(),
     status: plan.enabled ? true : false,
     handle: plan.handle|e,
@@ -41,7 +41,7 @@ var columns = [
     { name: 'subscriptions', title: Craft.t('commerce', 'Active subscriptions') },
     { name: 'information', title: Craft.t('commerce', 'Information linked?'),
         callback: function(value) {
-            return '<span class="code">'+value+'</span>';
+            return '<span class="code">'+Craft.escapeHtml(value)+'</span>';
         }
     }
 ];

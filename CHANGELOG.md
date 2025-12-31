@@ -5,7 +5,8 @@
 - Fixed a bug where settings were being saved into the project config incorrectly. ([#4006](https://github.com/craftcms/commerce/issues/4006))
 - Fixed a PHP error that could occur when saving a shipping rule. ([#4134](https://github.com/craftcms/commerce/issues/4134))
 - Fixed a bug where the "New Customers" stat was counting all customers with orders in the date range, rather than only customers whose first order was in the date range.
-- Fixed XSS vulnerabilities.
+- Improved transaction refund amount validation.
+- Fixed some XSS vulnerabilities. (GHSA-w8gw-qm8p-j9j3, GHSA-h9r9-2pxg-cx9m, GHSA-g92v-wpv7-6w22, GHSA-p6w8-q63m-72c8, GHSA-wqc5-485v-3hqh, GHSA-v585-mf6r-rqrc, GHSA-frj9-9rwc-pw9j, GHSA-8478-rmjg-mjj5, GHSA-2h2m-v2mg-656c, GHSA-wq2m-r96q-crrf)
 
 ## 5.5.1 - 2025-12-04
 

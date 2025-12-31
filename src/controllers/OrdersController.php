@@ -1238,11 +1238,11 @@ JS, []);
             }
         }
 
-        if (!$amount) {
+        if (!$amount || $amount <= 0) {
             $amount = $transaction->getRefundableAmount();
         }
 
-        if ($amount > $transaction->getRefundableAmount()) {
+        if ($amount <= 0 || $amount > $transaction->getRefundableAmount()) {
             $error = Craft::t('commerce', 'Can not refund amount greater than the remaining amount');
             if ($this->request->getAcceptsJson()) {
                 return $this->asFailure($error);
