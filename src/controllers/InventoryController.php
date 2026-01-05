@@ -268,7 +268,6 @@ class InventoryController extends Controller
                     'onHandTotal',
                     'incomingTotal',
                 ])) {
-
                 $field = null;
                 $direction = null;
             }
