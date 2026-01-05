@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed XSS vulnerabilities.
+
 ## 5.5.2 - 2025-12-31
 
 - Improved transaction refund amount validation.
