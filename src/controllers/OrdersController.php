@@ -387,8 +387,26 @@ class OrdersController extends Controller
             $orderQuery->search($search);
         }
 
+        $orderQuery->orderBy('dateOrdered DESC');
         if ($sort) {
-            [$field, $direction] = explode('|', $sort);
+            if (is_array($sort)) {
+                $field = $sort[0]['sortField'];
+                $direction = $sort[0]['direction'];
+            } else {
+                [$field, $direction] = explode('|', $sort);
+            }
+
+            // Validate sorting
+            if (!in_array($direction, ['asc', 'desc']) ||
+                !in_array($field, [
+                    'reference',
+                    'dateOrdered',
+                    'totalPrice',
+                ])
+            ) {
+                $field = null;
+                $direction = null;
+            }
 
             if ($field && $direction) {
                 $orderQuery->orderBy($field . ' ' . $direction);
@@ -399,7 +417,6 @@ class OrdersController extends Controller
 
         $orderQuery->offset($offset);
         $orderQuery->limit($limit);
-        $orderQuery->orderBy('dateOrdered DESC');
         $orders = $orderQuery->all();
 
         $rows = [];
@@ -557,6 +574,15 @@ class OrdersController extends Controller
         // Apply sorting if required
         if ($sort && strpos($sort, '|')) {
             [$column, $direction] = explode('|', $sort);
+
+            if (!in_array($column, [
+                'description',
+                'sku',
+                'price',
+            ])) {
+                $column = null;
+            }
+
             if ($column && in_array($direction, ['asc', 'desc'], true)) {
                 $sqlQuery->orderBy([$column => $direction == 'asc' ? SORT_ASC : SORT_DESC]);
             }

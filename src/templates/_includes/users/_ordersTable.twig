@@ -12,7 +12,7 @@
 var orderColumns = [
     { name: '__slot:title', title: Craft.t('commerce', 'Order'), sortField: 'reference' },
     { name: 'date', title: Craft.t('commerce', 'Order Date'), sortField: 'dateOrdered' },
-    { name: 'total', title: Craft.t('commerce', 'Total Paid'), sortField: 'totalPaid' },
+    { name: 'total', title: Craft.t('commerce', 'Total'), sortField: 'totalPrice' },
     { name: 'orderStatus', title: Craft.t('commerce', 'Status'),
         callback: function(value) {
             return value;

@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where the order’s table was showing the incorrect column heading on the Edit User page.
+- Fixed XSS vulnerabilities.
+
 ## 4.10.1 - 2025-12-31
 
 - Fixed a bug where settings were being saved to the project config incorrectly. ([#4006](https://github.com/craftcms/commerce/issues/4006))
