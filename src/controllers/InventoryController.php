@@ -254,6 +254,25 @@ class InventoryController extends Controller
             $field = $sort[0]['sortField'];
             $direction = $sort[0]['direction'];
 
+            // Validate the sorting inputs
+            if (!in_array($direction, ['asc', 'desc']) ||
+                !in_array($field, [
+                    'item',
+                    'sku',
+                    'reservedTotal',
+                    'damagedTotal',
+                    'safetyTotal',
+                    'qualityControlTotal',
+                    'committedTotal',
+                    'availableTotal',
+                    'onHandTotal',
+                    'incomingTotal',
+                ])) {
+
+                $field = null;
+                $direction = null;
+            }
+
             if ($field && $direction) {
                 if ($field == 'sku') {
                     $field = 'purchasables.sku';
