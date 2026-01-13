@@ -10,8 +10,10 @@ namespace craft\commerce\elements\actions;
 use Craft;
 use craft\base\ElementAction;
 use craft\commerce\elements\Order;
+use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
 use craft\elements\db\ElementQueryInterface;
+use craft\helpers\Html;
 use craft\helpers\Json;
 
 /**
@@ -52,7 +54,17 @@ class UpdateOrderStatus extends ElementAction
      */
     public function getTriggerHtml(): ?string
     {
-        $orderStatuses = Json::encode(array_values(Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses()));
+        $orderStatuses = collect(Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses())
+            ->map(function(OrderStatus $orderStatus) {
+                // Encode for output in JS
+                $orderStatus->name = Html::encode($orderStatus->name);
+                $orderStatus->color = Html::encode($orderStatus->color);
+                $orderStatus->description = Html::encode($orderStatus->description);
+
+                return $orderStatus;
+            });
+
+        $orderStatuses = Json::encode(array_values($orderStatuses->all()));
         $type = Json::encode(static::class);
 
         $js = <<<EOT
