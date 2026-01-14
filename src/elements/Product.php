@@ -1217,6 +1217,17 @@ JS, [
     }
 
     /**
+     * @param VariantCollection|VariantQuery|array $variants
+     * @return void
+     * @throws InvalidConfigException
+     * @internal Do not use. Temporary method until we get a nested element manager provider in core.
+     */
+    public function setAllVariants(VariantCollection|VariantQuery|array $variants): void
+    {
+        $this->setVariants($variants);
+    }
+
+    /**
      * @inheritdoc
      */
     public function getSupportedSites(): array
