@@ -2,9 +2,9 @@
 
 ## Unreleased
 
-- Fixed an SQL injection vulnerability. (GHSA-pmgj-gmm4-jh6j)
-- Fixed XSS vulnerabilities.
 - Fixed a bug where merging canonical changes into a product draft could fail if variant changes existed. ([#4199](https://github.com/craftcms/commerce/issues/4199))
+- Fixed a bug where the order’s table was showing the incorrect column heading on the Edit User page.
+- Fixed two high-severity SQL injection vulnerabilities in the control panel. (GHSA-j3x5-mghf-xvfw, GHSA-pmgj-gmm4-jh6j)
 
 ## 5.5.2 - 2025-12-31
 
