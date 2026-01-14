@@ -2,9 +2,8 @@
 
 ## Unreleased
 
-- Fixed XSS vulnerabilities.
 - Fixed a bug where the order’s table was showing the incorrect column heading on the Edit User page.
-- Fixed a high-severity SQL injection vulnerability in the control panel. (GHSA-j3x5-mghf-xvfw)
+- Fixed two high-severity SQL injection vulnerabilities in the control panel. (GHSA-j3x5-mghf-xvfw, GHSA-pmgj-gmm4-jh6j)
 
 ## 5.5.2 - 2025-12-31
 
