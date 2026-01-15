@@ -3406,10 +3406,10 @@ class Order extends Element
         $metadata[Craft::t('commerce', 'Coupon Code')] = Html::encode($this->couponCode);
 
         $orderSite = $this->getOrderSite();
-        $metadata[Craft::t('commerce', 'Order Site')] = Html::encode($orderSite?->getName()) ?? '';
+        $metadata[Craft::t('commerce', 'Order Site')] = Html::encode($orderSite?->getName() ?? '');
 
         $shippingMethod = $this->getShippingMethod();
-        $metadata[Craft::t('commerce', 'Shipping Method')] = Html::encode($shippingMethod?->getName()) ?? '';
+        $metadata[Craft::t('commerce', 'Shipping Method')] = Html::encode($shippingMethod?->getName() ?? '');
 
         $metadata[Craft::t('app', 'ID')] = $this->id;
         $metadata[Craft::t('commerce', 'Short Number')] = $this->getShortNumber();
