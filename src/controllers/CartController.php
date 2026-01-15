@@ -399,6 +399,24 @@ class CartController extends BaseFrontEndController
             return $this->request->getIsGet() ? $this->redirect($redirect) : null;
         }
 
+        // Check if the cart belongs to a credentialed user
+        $cartCustomer = $cart->getCustomer();
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        if ($cartCustomer && $cartCustomer->getIsCredentialed()) {
+            // Only allow loading if the current user is the cart customer
+            if (!$currentUser || $currentUser->id !== $cartCustomer->id) {
+                $error = Craft::t('commerce', 'Unable to retrieve cart.');
+
+                if ($this->request->getAcceptsJson()) {
+                    return $this->asFailure($error);
+                }
+
+                $this->setFailFlash($error);
+                return $this->request->getIsGet() ? $this->redirect($redirect) : null;
+            }
+        }
+
         // If we have a cart, use the site for that cart for the URL redirect.
         $redirect = UrlHelper::siteUrl(path: $loadCartRedirectUrl, siteId: $cart->orderSiteId);
 
