@@ -129,7 +129,7 @@ JS, [
 
             $inventoryLevelTableRows .= Html::beginTag('tr') .
                 Html::beginTag('td') .
-                $inventoryLevel->getInventoryLocation()->name .
+                Html::encode($inventoryLevel->getInventoryLocation()->getUiLabel()) .
                 Html::endTag('td') .
                 Html::beginTag('td') .
                 Html::beginTag('div', ['class' => 'flex']) .

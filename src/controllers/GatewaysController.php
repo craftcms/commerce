@@ -49,11 +49,11 @@ class GatewaysController extends BaseAdminController
                 $missing = $gateway instanceof MissingGateway;
                 $gateway = [
                     'id' => $gateway->id,
-                    'title' => Craft::t('site', $gateway->name),
+                    'title' => Html::encode(Craft::t('site', $gateway->name)),
                     'handle' => Html::encode($gateway->handle),
                     'type' => [
                         'missing' => $missing,
-                        'name' => $missing ? $gateway->expectedType : $gateway->displayName(),
+                        'name' => Html::encode($missing ? $gateway->expectedType : $gateway->displayName()),
                     ],
                     'hasTransactions' => in_array($gateway->id, $gatewayIdsWithTransactions),
                 ];

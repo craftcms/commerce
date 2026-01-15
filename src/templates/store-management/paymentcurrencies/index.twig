@@ -6,9 +6,9 @@
 {% for currency in currencies %}
 	{% set tableData = tableData|merge([{
         id: currency.id,
-        title: currency.primary ? "{name} (Primary)"|t('commerce', { name: currency.name })|e : currency.name|t('site'),
+        title: currency.primary ? "{name} (Primary)"|t('commerce', { name: currency.name })|e : currency.name|t('site')|e,
         url: currency.primary ? null : currency.cpEditUrl,
-        handle: currency.iso,
+        handle: currency.iso|e,
         rate: currency.primary ? 'base' : currency.rate|number,
         _showDelete: (not currency.primary),
     }]) %}

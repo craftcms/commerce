@@ -57,7 +57,7 @@ class TaxRatesController extends BaseTaxSettingsController
         // Generate table data
         $tableData = [];
         foreach ($taxRates as $taxRate) {
-            $label = Craft::t('site', $taxRate->name);
+            $label = Html::encode(Craft::t('site', $taxRate->name));
             $tableData[] = [
                 'id' => $taxRate->id,
                 'status' => $taxRate->enabled,
@@ -67,7 +67,7 @@ class TaxRatesController extends BaseTaxSettingsController
                 'included' => $taxRate->include,
                 'removeIncluded' => $taxRate->removeIncluded,
                 'vat' => $taxRate->isVat,
-                'zone' => $taxRate->isEverywhere ? Craft::t('commerce', 'Everywhere') : ($taxRate->taxZone ? $taxRate->taxZone->name : ''),
+                'zone' => $taxRate->isEverywhere ? Craft::t('commerce', 'Everywhere') : ($taxRate->taxZone ? Html::encode($taxRate->taxZone->name) : ''),
                 'category' => $taxRate->taxCategory ? Cp::chipHtml($taxRate->taxCategory) : '',
             ];
         }

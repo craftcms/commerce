@@ -28,7 +28,7 @@ var columns = [
         return '';
       }
 
-      return '<span class="commerceStatusLabel"><span class="status ' + value.color + '"></span>' + value.name + '</span>';
+      return '<span class="commerceStatusLabel"><span class="status ' + value.color + '"></span>' + Craft.escapeHtml(value.name) + '</span>';
     } },
     {% endif %}
     { name: 'paid', title: Craft.escapeHtml(Craft.t('commerce', 'Total Paid')) },

@@ -254,6 +254,24 @@ class InventoryController extends Controller
             $field = $sort[0]['sortField'];
             $direction = $sort[0]['direction'];
 
+            // Validate the sorting inputs
+            if (!in_array($direction, ['asc', 'desc']) ||
+                !in_array($field, [
+                    'item',
+                    'sku',
+                    'reservedTotal',
+                    'damagedTotal',
+                    'safetyTotal',
+                    'qualityControlTotal',
+                    'committedTotal',
+                    'availableTotal',
+                    'onHandTotal',
+                    'incomingTotal',
+                ])) {
+                $field = null;
+                $direction = null;
+            }
+
             if ($field && $direction) {
                 if ($field == 'sku') {
                     $field = 'purchasables.sku';
@@ -281,14 +299,17 @@ class InventoryController extends Controller
             $purchasable = \Craft::$app->getElements()->getElementById($inventoryLevel['purchasableId'], siteId: Cp::requestedSite()->id);
             $inventoryItemDomId = sprintf("edit-$id-link-%s", mt_rand());
             if ($purchasable) {
-                $inventoryLevel['purchasable'] = Cp::chipHtml($purchasable, ['labelHtml' => $purchasable->getDescription(), 'showActionMenu' => !$purchasable->getIsDraft() && $purchasable->canSave($currentUser)]);
+                // When providing the `labelHtml` option we need to encode it ourselves
+                $inventoryLevel['purchasable'] = Cp::chipHtml($purchasable, ['labelHtml' => Html::encode($purchasable->getDescription()), 'showActionMenu' => !$purchasable->getIsDraft() && $purchasable->canSave($currentUser)]);
             } else {
-                $inventoryLevel['purchasable'] = $inventoryLevel['description'];
+                $inventoryLevel['purchasable'] = Html::encode($inventoryLevel['description']);
             }
             if (PurchasableHelper::isTempSku($inventoryLevel['sku'])) {
                 $inventoryLevel['sku'] = '';
             }
-            $inventoryLevel['sku'] = Html::tag('span', Html::a($inventoryLevel['sku'], "#", ['id' => "$inventoryItemDomId", 'class' => 'code']));
+
+            // Ensure encoded SKU
+            $inventoryLevel['sku'] = Html::tag('span', Html::a(Html::encode($inventoryLevel['sku']), "#", ['id' => "$inventoryItemDomId", 'class' => 'code']));
             $inventoryLevel['id'] = $id;
 
             $view->registerJsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS

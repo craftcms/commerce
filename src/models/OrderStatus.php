@@ -171,7 +171,7 @@ class OrderStatus extends Model implements HasStoreInterface
     public function getLabelHtml(): string
     {
         return Cp::statusLabelHtml([
-            'color' => $this->color,
+            'color' => Html::encode($this->color),
             'label' => Html::encode($this->getDisplayName()),
         ]);
     }

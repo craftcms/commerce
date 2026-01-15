@@ -46,7 +46,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         // Generate table data with chips
         $tableData = [];
         foreach ($shippingCategories as $shippingCategory) {
-            $label = Craft::t('site', $shippingCategory->name);
+            $label = Html::encode(Craft::t('site', $shippingCategory->name));
             $tableData[] = [
                 'id' => $shippingCategory->id,
                 'title' => $label,
@@ -57,7 +57,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
                 ]),
                 'url' => $shippingCategory->getCpEditUrl(),
                 'handle' => $shippingCategory->handle,
-                'description' => Craft::t('site', $shippingCategory->description),
+                'description' => Html::encode(Craft::t('site', $shippingCategory->description)),
                 'default' => $shippingCategory->default,
                 '_showDelete' => (count($shippingCategories) > 1 && !$shippingCategory->default),
             ];

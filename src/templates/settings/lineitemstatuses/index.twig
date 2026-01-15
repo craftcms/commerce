@@ -56,7 +56,7 @@
                 url: lineItemStatus.cpEditUrl,
                 html: lineItemStatus.labelHtml|raw
             },
-            title: lineItemStatus.name|t('site'),
+            title: lineItemStatus.name|t('site')|e,
             url: lineItemStatus.cpEditUrl,
             handle: lineItemStatus.handle|e,
             default: lineItemStatus.default ? true : false,
