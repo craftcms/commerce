@@ -397,47 +397,43 @@ class CartController extends BaseFrontEndController
             return $this->request->getIsGet() ? $this->redirect($redirect) : null;
         }
 
-        // Carts without email cannot be recovered
-        if (!$cart->getEmail()) {
-            $error = Craft::t('commerce', 'Unable to retrieve cart.');
-            if ($this->request->getAcceptsJson()) {
-                return $this->asFailure($error);
-            }
-            $this->setFailFlash($error);
-            return $this->request->getIsGet() ? $this->redirect($redirect) : null;
-        }
+        // Carts without email or addresses don't need token validation
+        $hasEmail = (bool)$cart->getEmail();
+        $hasAddresses = $cart->billingAddressId || $cart->shippingAddressId;
 
-        $currentUser = Craft::$app->getUser()->getIdentity();
-        $hasValidToken = false;
+        if ($hasEmail || $hasAddresses) {
+            $currentUser = Craft::$app->getUser()->getIdentity();
+            $hasValidToken = false;
 
-        // Check token if provided
-        if ($token) {
-            $tokenData = Craft::$app->getTokens()->getTokenRoute($token);
+            // Check token if provided
+            if ($token) {
+                $tokenData = Craft::$app->getTokens()->getTokenRoute($token);
 
-            if (!$tokenData || !isset($tokenData[1]['cartNumber']) || $tokenData[1]['cartNumber'] !== $number) {
-                Craft::$app->getSession()->setError(Craft::t('commerce', 'The cart recovery link is invalid. Please request a new one.'));
-                return $this->redirect(UrlHelper::actionUrl('commerce/cart/email-challenge', ['number' => $number]));
-            }
-
-            if (isset($tokenData[1]['expiresAt'])) {
-                $now = (new \DateTime())->getTimestamp();
-                if ($now > $tokenData[1]['expiresAt']) {
+                if (!$tokenData || !isset($tokenData[1]['cartNumber']) || $tokenData[1]['cartNumber'] !== $number) {
+                    Craft::$app->getSession()->setError(Craft::t('commerce', 'The cart recovery link is invalid. Please request a new one.'));
                     return $this->redirect(UrlHelper::actionUrl('commerce/cart/email-challenge', ['number' => $number]));
                 }
+
+                if (isset($tokenData[1]['expiresAt'])) {
+                    $now = (new \DateTime())->getTimestamp();
+                    if ($now > $tokenData[1]['expiresAt']) {
+                        return $this->redirect(UrlHelper::actionUrl('commerce/cart/email-challenge', ['number' => $number]));
+                    }
+                }
+
+                $hasValidToken = true;
             }
 
-            $hasValidToken = true;
-        }
-
-        // Check permissions if no valid token
-        if (!$hasValidToken) {
-            if ($currentUser) {
-                $isCartCustomer = $cart->getCustomer() && $cart->getCustomer()->id === $currentUser->id;
-                if (!$isCartCustomer) {
+            // Check permissions if no valid token
+            if (!$hasValidToken) {
+                if ($currentUser) {
+                    $isCartCustomer = $cart->getCustomer() && $cart->getCustomer()->id === $currentUser->id;
+                    if (!$isCartCustomer) {
+                        return $this->redirect(UrlHelper::actionUrl('commerce/cart/email-challenge', ['number' => $number]));
+                    }
+                } else {
                     return $this->redirect(UrlHelper::actionUrl('commerce/cart/email-challenge', ['number' => $number]));
                 }
-            } else {
-                return $this->redirect(UrlHelper::actionUrl('commerce/cart/email-challenge', ['number' => $number]));
             }
         }
 
