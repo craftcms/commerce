@@ -141,12 +141,21 @@ class Settings extends Model
     /**
      * @var string|null Default URL to be loaded after using the [load cart controller action](https://craftcms.com/docs/commerce/5.x/system/orders-carts.html#loading-a-cart).
      *
-     * If `null` (default), Craft’s default [`siteUrl`](config5:siteUrl) will be used.
+     * If `null` (default), Craft's default [`siteUrl`](config5:siteUrl) will be used.
      *
      * @group Cart
      * @since 3.1
      */
     public ?string $loadCartRedirectUrl = null;
+
+    /**
+     * @var int How long (in seconds) a cart recovery link should remain valid before expiring.
+     * Default is 86400 (24 hours).
+     *
+     * @group Cart
+     * @since 5.x
+     */
+    public int $cartLinkExpiry = 86400;
 
     /**
      * @var array|null ISO codes for supported payment currencies.

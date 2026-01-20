@@ -21,6 +21,7 @@ use craft\events\ModelEvent;
 use craft\helpers\ConfigHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
+use craft\helpers\UrlHelper;
 use DateTime;
 use Throwable;
 use yii\base\Component;
@@ -371,6 +372,32 @@ class Carts extends Component
             ]));
             Craft::$app->getResponse()->getCookies()->add($cookie);
         }
+    }
+
+    /**
+     * Returns a URL to load a cart with a secure token.
+     *
+     * @param Order $cart The cart to generate the load URL for
+     * @return string The URL with secure token
+     * @since 5.x
+     */
+    public function getLoadCartUrl(Order $cart): string
+    {
+        $linkExpiry = Plugin::getInstance()->getSettings()->cartLinkExpiry;
+        $expiryTimestamp = (new \DateTime())->add(new \DateInterval('PT' . $linkExpiry . 'S'))->getTimestamp();
+
+        $token = Craft::$app->getTokens()->createToken([
+            'commerce/cart/load-cart',
+            [
+                'cartNumber' => $cart->number,
+                'expiresAt' => $expiryTimestamp,
+            ],
+        ]);
+
+        return UrlHelper::siteUrl('actions/commerce/cart/load-cart', [
+            'number' => $cart->number,
+            'token' => $token,
+        ]);
     }
 
     /**

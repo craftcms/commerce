@@ -2460,9 +2460,9 @@ class Order extends Element implements HasStoreInterface
     }
 
     /**
-     * Returns the URL to the cart’s load action url
+     * Returns the URL to the cart's load action url with a secure token.
      *
-     * @return string|null The URL to the order’s load cart URL, or null if the cart is an order
+     * @return string|null The URL to the order's load cart URL, or null if the cart is an order
      * @noinspection PhpUnused
      */
     public function getLoadCartUrl(): ?string
@@ -2471,12 +2471,7 @@ class Order extends Element implements HasStoreInterface
             return null;
         }
 
-        $originalCpRequest = Craft::$app->getRequest()->getIsCpRequest();
-        Craft::$app->getRequest()->setIsCpRequest(false);
-        $url = UrlHelper::actionUrl('commerce/cart/load-cart', ['number' => $this->number]);
-        Craft::$app->getRequest()->setIsCpRequest($originalCpRequest);
-
-        return $url;
+        return Plugin::getInstance()->getCarts()->getLoadCartUrl($this);
     }
 
     /**
