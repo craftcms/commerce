@@ -22,6 +22,7 @@ use craft\errors\MissingComponentException;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
+use craft\web\View;
 use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Exception;
@@ -31,7 +32,6 @@ use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
-use craft\web\View;
 
 /**
  * Class Cart Controller
