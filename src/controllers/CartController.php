@@ -421,7 +421,8 @@ class CartController extends BaseFrontEndController
             }
         }
 
-        // Load the cart (existing logic)
+        // Set the token to null on the request so it will not be added to the redirect URL that is generated
+        $this->request->setToken(null);
         $redirect = UrlHelper::siteUrl(path: $loadCartRedirectUrl, siteId: $cart->orderSiteId);
         $carts->forgetCart();
         $carts->setSessionCartNumber($number);
@@ -879,8 +880,6 @@ class CartController extends BaseFrontEndController
             Craft::$app->getSession()->setError(Craft::t('commerce', 'Failed to send email. Please try again.'));
             return $this->renderCartEmailChallenge($cart, $cartNumber);
         }
-
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'A cart recovery link has been sent to {email}', ['email' => $cart->getMaskedEmail()]));
 
         return $this->redirect(UrlHelper::actionUrl('commerce/cart/cart-sent', ['hash' => $cartNumberHash]));
     }
