@@ -6,7 +6,6 @@
 - Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities in the control panel. (GHSA-j3x5-mghf-xvfw, GHSA-pmgj-gmm4-jh6j)
 - Fixed [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerabilities in the control panel. (GHSA-mqxf-2998-c6cp, GHSA-wj89-2385-gpx3)
 - Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerability in the control panel. (GHSA-cfpv-rmpf-f624)
-- 
 
 ## 5.5.2 - 2025-12-31
 
