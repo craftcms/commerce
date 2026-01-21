@@ -215,12 +215,21 @@ class Settings extends Model
     /**
      * @var string|null Default URL to be loaded after using the [load cart controller action](orders-carts.md#loading-a-cart).
      *
-     * If `null` (default), Craft’s default [`siteUrl`](config4:siteUrl) will be used.
+     * If `null` (default), Craft's default [`siteUrl`](config4:siteUrl) will be used.
      *
      * @group Cart
      * @since 3.1
      */
     public ?string $loadCartRedirectUrl = null;
+
+    /**
+     * @var int How long (in seconds) a cart recovery link should remain valid before expiring.
+     * Default is 86400 (24 hours).
+     *
+     * @group Cart
+     * @since 4.x
+     */
+    public int $cartLinkExpiry = 86400;
 
     /**
      * @var string How Commerce should handle minimum total price for an order.

@@ -2252,9 +2252,9 @@ class Order extends Element
     }
 
     /**
-     * Returns the URL to the cart’s load action url
+     * Returns the URL to the cart's load action url with a secure token.
      *
-     * @return string|null The URL to the order’s load cart URL, or null if the cart is an order
+     * @return string|null The URL to the order's load cart URL, or null if the cart is an order
      * @noinspection PhpUnused
      */
     public function getLoadCartUrl(): ?string
@@ -2263,12 +2263,7 @@ class Order extends Element
             return null;
         }
 
-        $path = 'commerce/cart/load-cart';
-
-        $params = [];
-        $params['number'] = $this->number;
-
-        return UrlHelper::actionUrl($path, $params);
+        return Plugin::getInstance()->getCarts()->getLoadCartUrl($this);
     }
 
     /**
