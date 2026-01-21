@@ -437,7 +437,8 @@ class CartController extends BaseFrontEndController
             }
         }
 
-        // Load the cart (existing logic)
+        // Set the token to null on the request so it will not be added to the redirect URL that is generated
+        $this->request->setToken(null);
         $redirect = UrlHelper::siteUrl(path: $loadCartRedirectUrl, siteId: $cart->orderSiteId);
         $carts->forgetCart();
         $carts->setSessionCartNumber($number);
