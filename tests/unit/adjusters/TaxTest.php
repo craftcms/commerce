@@ -380,7 +380,7 @@ class TaxTest extends Unit
                 [
                     'adjustments' => [
                         [
-                            'type' => 'discount',
+                            'type' => 'tax',
                             'amount' => -9.09,
                             'included' => false,
                             'description' => '10%',
@@ -440,7 +440,7 @@ class TaxTest extends Unit
                 [
                     'adjustments' => [
                         [
-                            'type' => 'discount',
+                            'type' => 'tax',
                             'amount' => -9.09,
                             'included' => false,
                             'description' => '10%',
