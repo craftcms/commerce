@@ -7,6 +7,7 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\StoreTrait;
@@ -24,6 +25,7 @@ use DateTime;
  * @property string $cpEditUrl
  * @property array $emailIds
  * @property-read array $config
+ * @property-read string $displayName
  * @property string $labelHtml
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -82,9 +84,20 @@ class LineItemStatus extends Model implements HasStoreInterface
      */
     public function __toString()
     {
-        return (string)$this->name;
+        return $this->getDisplayName();
     }
 
+    /**
+     * @since 5.5.3
+     */
+    public function getDisplayName(): string
+    {
+        return Craft::t('site', $this->name ?? '');
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected function defineRules(): array
     {
         return [
@@ -138,7 +151,7 @@ class LineItemStatus extends Model implements HasStoreInterface
     public function getLabelHtml(): string
     {
         return Cp::statusLabelHtml([
-            'label' => Html::encode($this->name),
+            'label' => Html::encode($this->getDisplayName()),
             'color' => Html::encode($this->color),
         ]);
     }

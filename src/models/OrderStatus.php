@@ -108,10 +108,10 @@ class OrderStatus extends Model implements HasStoreInterface
     public function getDisplayName(): string
     {
         if ($this->dateDeleted !== null) {
-            return Craft::t('commerce', '{name} (Trashed)', ['name' => $this->name]);
+            return Craft::t('commerce', '{name} (Trashed)', ['name' => Craft::t('site', $this->name)]);
         }
 
-        return $this->name ?? '';
+        return Craft::t('site', $this->name ?? '');
     }
 
     protected function defineRules(): array
