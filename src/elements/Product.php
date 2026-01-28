@@ -226,7 +226,7 @@ class Product extends Element implements HasStoreInterface
             $editable = true;
         } else {
             $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
-            $editable = false;
+            $editable = null;
         }
 
         $productTypeIds = [];
