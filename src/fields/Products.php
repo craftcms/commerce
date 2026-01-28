@@ -78,14 +78,12 @@ class Products extends BaseRelationField
 
         $variables = parent::inputTemplateVariables($value, $element);
 
-        if (!$this->hasSelectionCondition() && $this->showSearchInput($element)) {
-            /** @var string[] $sources */
-            $sources = $this->getInputSources($element);
-            if (preg_match('/^productType:(.+)$/', reset($sources), $matches)) {
-                $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByUid($matches[1]);
-                if ($productType) {
-                    $variables['jsSettings']['productTypeId'] = (int)$productType->id;
-                }
+        /** @var string[] $sources */
+        $sources = $this->getInputSources($element);
+        if (preg_match('/^productType:(.+)$/', reset($sources), $matches)) {
+            $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByUid($matches[1]);
+            if ($productType) {
+                $variables['jsSettings']['productTypeId'] = (int)$productType->id;
             }
         }
 
