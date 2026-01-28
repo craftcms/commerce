@@ -116,7 +116,7 @@ JS;
 
         return [
             'editableProductTypes' => array_map(fn(ProductType $productType) => [
-                'id' => $productType->id,
+                'id' => (int)$productType->id,
                 'uid' => $productType->uid,
                 'name' => Craft::t('site', $productType->name),
                 'handle' => $productType->handle,
