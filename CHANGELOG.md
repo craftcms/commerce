@@ -3,8 +3,10 @@
 ## Unreleased
 
 - Fixed a bug where the order’s table was showing the incorrect column heading on the Edit User page.
-- Fixed two high-severity SQL injection vulnerabilities in the control panel. (GHSA-j3x5-mghf-xvfw, GHSA-pmgj-gmm4-jh6j)
-- Fixed a moderate-severity XSS vulnerability in the control panel (GHSA-mqxf-2998-c6cp)
+- Fixed a bug where it wasn’t possible to change a variant’s shipping category.
+- Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities in the control panel. (GHSA-j3x5-mghf-xvfw, GHSA-pmgj-gmm4-jh6j)
+- Fixed [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerabilities in the control panel. (GHSA-mqxf-2998-c6cp, GHSA-wj89-2385-gpx3, GHSA-mj32-r678-7mvp)
+- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerability in the control panel. (GHSA-cfpv-rmpf-f624)
 
 ## 5.5.2 - 2025-12-31
 
