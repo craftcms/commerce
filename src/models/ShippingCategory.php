@@ -14,10 +14,13 @@ use craft\base\Iconic;
 use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\StoreTrait;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingCategory as ShippingCategoryRecord;
 use craft\enums\Color;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
+use craft\models\Site;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
 use DateTime;
@@ -114,8 +117,12 @@ class ShippingCategory extends Model implements HasStoreInterface, Chippable, Co
      */
     public static function get(int|string $id): ?static
     {
+        /** @var Site|StoreBehavior|null $site */
+        $site = Cp::requestedSite();
+        $storeId = $site?->getStore()->id ?? null;
+
         /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($id);
+        return Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($id, $storeId);
     }
 
     /**
