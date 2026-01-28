@@ -13,7 +13,7 @@
                 </template>
 
                 <span class="order-status-btn-name">{{
-                    orderStatus.name
+                    orderStatus.uiLabel
                 }}</span>
             </a>
 
@@ -23,14 +23,14 @@
                         <a
                             :data-id="status.id"
                             :data-color="status.color"
-                            :data-name="status.name"
+                            :data-name="status.uiLabel"
                             :class="{sel: orderStatus.id === status.value}"
                         >
                             <span
                                 class="status"
                                 :class="{[status.color]: true}"
                             ></span>
-                            <span>{{ status.name }}</span>
+                            <span>{{ status.uiLabel }}</span>
                         </a>
                     </li>
                 </ul>

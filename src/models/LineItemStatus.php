@@ -8,13 +8,17 @@
 namespace craft\commerce\models;
 
 use Craft;
+use craft\base\Chippable;
 use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\StoreTrait;
+use craft\commerce\behaviors\StoreBehavior;
+use craft\commerce\Plugin;
 use craft\commerce\records\LineItemStatus as LineItemStatusRecord;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\UrlHelper;
+use craft\models\Site;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
 use DateTime;
@@ -30,7 +34,7 @@ use DateTime;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class LineItemStatus extends Model implements HasStoreInterface
+class LineItemStatus extends Model implements HasStoreInterface, Chippable
 {
     use StoreTrait;
 
@@ -84,13 +88,10 @@ class LineItemStatus extends Model implements HasStoreInterface
      */
     public function __toString()
     {
-        return $this->getDisplayName();
+        return $this->getUiLabel();
     }
 
-    /**
-     * @since 5.5.3
-     */
-    public function getDisplayName(): string
+    public function getUiLabel(): string
     {
         return Craft::t('site', $this->name ?? '');
     }
@@ -136,6 +137,7 @@ class LineItemStatus extends Model implements HasStoreInterface
     {
         $fields = parent::extraFields();
         $fields[] = 'labelHtml';
+        $fields[] = 'uiLabel';
 
         return $fields;
     }
@@ -151,7 +153,7 @@ class LineItemStatus extends Model implements HasStoreInterface
     public function getLabelHtml(): string
     {
         return Cp::statusLabelHtml([
-            'label' => Html::encode($this->getDisplayName()),
+            'label' => Html::encode($this->getUiLabel()),
             'color' => Html::encode($this->color),
         ]);
     }
@@ -171,5 +173,26 @@ class LineItemStatus extends Model implements HasStoreInterface
             'sortOrder' => $this->sortOrder ?: 9999,
             'default' => $this->default,
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function get(int|string $id): ?static
+    {
+        /** @var Site|StoreBehavior|null $site */
+        $site = Cp::requestedSite();
+        $storeId = $site?->getStore()->id ?? null;
+
+        /** @phpstan-ignore-next-line */
+        return Plugin::getInstance()->getLineItemStatuses()->getLineItemStatusById($id, $storeId);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getId(): string|int|null
+    {
+        return $this->id;
     }
 }

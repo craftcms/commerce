@@ -94,7 +94,7 @@ class ShippingCategories extends Component
     {
         $categories = $this->getAllShippingCategories($storeId);
 
-        return $categories->mapWithKeys(fn(ShippingCategory $category) => [$category->id => $category->name])->all();
+        return $categories->mapWithKeys(fn(ShippingCategory $category) => [$category->id => $category->getUiLabel()])->all();
     }
 
     /**
@@ -205,11 +205,11 @@ class ShippingCategories extends Component
 
         // Find product types that are being removed from this shipping category
         $removedProductTypeIds = array_diff($currentProductTypeIds, $newProductTypeIds);
-        
+
         // Update purchasables to default shipping category when product types are removed
         if (!empty($removedProductTypeIds)) {
             $defaultShippingCategory = $this->getDefaultShippingCategory($shippingCategory->storeId);
-            
+
             // Get all variant purchasables that currently have this shipping category but whose product type is being removed
             $purchasableIds = (new Query())
                 ->select(['ps.purchasableId'])
@@ -222,7 +222,7 @@ class ShippingCategories extends Component
                     'p.typeId' => $removedProductTypeIds,
                 ])
                 ->column();
-            
+
             if (!empty($purchasableIds)) {
                 // Update these purchasables to use the default shipping category
                 Craft::$app->getDb()->createCommand()
