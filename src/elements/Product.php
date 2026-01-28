@@ -1840,6 +1840,23 @@ JS, [
             [
                 ['variants'],
                 function() {
+                    // Only validate SKUs on canonical saves (not duplicates/propagations)
+                    if (!$this->getIsCanonical() || $this->duplicateOf || $this->propagating) {
+                        return;
+                    }
+
+                    foreach ($this->getVariants(true) as $variant) {
+                        if (!$variant->sku || PurchasableHelper::isTempSku($variant->sku)) {
+                            $this->addError('variants', Craft::t('commerce', 'All variants must have a SKU.'));
+                            break;
+                        }
+                    }
+                },
+                'on' => self::SCENARIO_LIVE,
+            ],
+            [
+                ['variants'],
+                function() {
                     if ($this->getType()->maxVariants) {
                         $variantCount = count($this->getVariants(true));
                         if ($variantCount > $this->getType()->maxVariants) {
