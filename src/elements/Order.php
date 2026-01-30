@@ -3686,8 +3686,7 @@ class Order extends Element implements HasStoreInterface
         $orderSite = $this->getOrderSite();
         $metadata[Craft::t('commerce', 'Order Site')] = Html::encode($orderSite?->getName() ?? '');
 
-        $shippingMethod = $this->getShippingMethod();
-        $metadata[Craft::t('commerce', 'Shipping Method')] = Html::encode($shippingMethod?->getName() ?? '');
+        $metadata[Craft::t('commerce', 'Shipping Method')] = Html::encode($this->shippingMethodName ?? '');
 
         $metadata[Craft::t('app', 'ID')] = $this->id;
         $metadata[Craft::t('commerce', 'Short Number')] = $this->getShortNumber();
