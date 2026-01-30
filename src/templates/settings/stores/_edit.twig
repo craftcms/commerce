@@ -235,8 +235,8 @@
         }) }}
 
         {{ forms.booleanMenuField({
-            label: 'Lock Payment Currency Rate on Order Completion'|t('commerce'),
-            instructions: 'When enabled, the payment currency exchange rate is captured when an order is completed. This locked rate is then used for all subsequent partial payments on the order, ensuring consistent pricing even if exchange rates change.'|t('commerce'),
+            label: 'Use Payment Currency Rate Snapshot'|t('commerce'),
+            instructions: 'Payment currency exchange rates are captured when an order is completed. When this setting is enabled, these snapshotted rates are used for subsequent partial payments on the order, ensuring consistent pricing even if exchange rates change.'|t('commerce'),
             id: 'usesSnapshotPaymentCurrencyRate',
             name: 'usesSnapshotPaymentCurrencyRate',
             value: store.getUsesSnapshotPaymentCurrencyRate(false),

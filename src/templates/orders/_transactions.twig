@@ -4,6 +4,7 @@
     'Current Rate',
     'Currency',
     'Date',
+    'Difference',
     'Gateway',
     'info',
     'N/A',
@@ -13,7 +14,7 @@
     'Snapshotted Rate',
     'Status',
     'These exchange rates were captured when the order was completed and are used for subsequent partial payments.',
-    'These exchange rates were captured when the order was completed and are used for subsequent partial payments. This behavior is controlled by the {link}Lock Payment Currency Rate on Order Completion{endlink} store setting.',
+    'These exchange rates were captured when the order was completed and are used for subsequent partial payments. This behavior is controlled by the {link}Use Payment Currency Rate Snapshot{endlink} store setting.',
     'Type',
 ]) %}
 
@@ -34,7 +35,7 @@
         </p>
         <div id="snapshotted-payment-currency-rates" class="hidden">
             {% if currentUser.admin %}
-                <p class="light">{{ 'These exchange rates were captured when the order was completed and are used for subsequent partial payments. This behavior is controlled by the {link}Lock Payment Currency Rate on Order Completion{endlink} store setting.'|t('commerce', {
+                <p class="light">{{ 'These exchange rates were captured when the order was completed and are used for subsequent partial payments. This behavior is controlled by the {link}Use Payment Currency Rate Snapshot{endlink} store setting.'|t('commerce', {
                     link: '<a href="' ~ url('commerce/settings/stores/' ~ order.store.id) ~ '">',
                     endlink: '</a>'
                 })|raw }}</p>
@@ -46,8 +47,9 @@
                 <thead>
                     <tr>
                         <th>{{ 'Currency'|t('commerce') }}</th>
-                        <th>{{ 'Snapshotted Rate'|t('commerce') }}</th>
-                        <th>{{ 'Current Rate'|t('commerce') }}</th>
+                        <th style="text-align: right;">{{ 'Snapshotted Rate'|t('commerce') }}</th>
+                        <th style="text-align: right;">{{ 'Current Rate'|t('commerce') }}</th>
+                        <th style="text-align: right;">{{ 'Difference'|t('commerce') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -56,13 +58,19 @@
                         {% set currentRate = currentCurrency ? currentCurrency.rate : null %}
                         <tr>
                             <td>{{ iso }}</td>
-                            <td>{{ rate }}</td>
-                            <td>
+                            <td style="text-align: right;">{{ rate|number_format(4) }}</td>
+                            <td style="text-align: right;">
                                 {% if currentRate is not null %}
-                                    {{ currentRate }}
-                                    {% if currentRate != rate %}
-                                        <span class="light">({{ currentRate > rate ? '+' : '' }}{{ ((currentRate - rate) / rate * 100)|number_format(2) }}%)</span>
-                                    {% endif %}
+                                    {{ currentRate|number_format(4) }}
+                                {% else %}
+                                    <span class="light">{{ 'N/A'|t('commerce') }}</span>
+                                {% endif %}
+                            </td>
+                            <td style="text-align: right;">
+                                {% if currentRate is not null and currentRate != rate %}
+                                    <span class="light">{{ currentRate > rate ? '+' : '' }}{{ ((currentRate - rate) / rate * 100)|number_format(2) }}%</span>
+                                {% elseif currentRate is not null %}
+                                    <span class="light">—</span>
                                 {% else %}
                                     <span class="light">{{ 'N/A'|t('commerce') }}</span>
                                 {% endif %}
