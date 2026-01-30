@@ -161,6 +161,7 @@ class StoresController extends BaseAdminController
         $store->setRequireShippingMethodSelectionAtCheckout($this->request->getBodyParam('requireShippingMethodSelectionAtCheckout'));
         $store->setUseBillingAddressForTax($this->request->getBodyParam('useBillingAddressForTax'));
         $store->setValidateOrganizationTaxIdAsVatId($this->request->getBodyParam('validateOrganizationTaxIdAsVatId'));
+        $store->setUsesSnapshotPaymentCurrencyRate($this->request->getBodyParam('usesSnapshotPaymentCurrencyRate'));
         $store->setOrderReferenceFormat($this->request->getBodyParam('orderReferenceFormat'));
         $store->setFreeOrderPaymentStrategy($this->request->getBodyParam('freeOrderPaymentStrategy'));
         $store->setMinimumTotalPriceStrategy($this->request->getBodyParam('minimumTotalPriceStrategy'));

@@ -1327,7 +1327,19 @@ JS, []);
         $paymentAmount = MoneyHelper::toMoney(['value' => $paymentAmount, 'currency' => $baseCurrency, 'locale' => $locale]);
         $paymentAmount = MoneyHelper::toDecimal($paymentAmount);
 
-        $baseCurrencyPaymentAmount = $paymentCurrencies->convertCurrency((float)$paymentAmount, $paymentCurrency, $baseCurrency);
+        // Check if we should use snapshotted rates
+        $useSnapshotRate = $order->isCompleted
+            && $order->paymentCurrencyRates !== null
+            && $order->getStore()->getUsesSnapshotPaymentCurrencyRate()
+            && isset($order->paymentCurrencyRates[$paymentCurrency]);
+
+        if ($useSnapshotRate) {
+            // Convert back to base currency using the inverse of the snapshotted rate
+            $snapshotRate = $order->paymentCurrencyRates[$paymentCurrency];
+            $baseCurrencyPaymentAmount = (float)$paymentAmount / $snapshotRate;
+        } else {
+            $baseCurrencyPaymentAmount = $paymentCurrencies->convertCurrency((float)$paymentAmount, $paymentCurrency, $baseCurrency);
+        }
         $baseCurrencyPaymentAmountAsCurrency = Craft::t('commerce', 'Pay {amount} of {currency} on the order.', ['amount' => Currency::formatAsCurrency($baseCurrencyPaymentAmount, $baseCurrency), 'currency' => $baseCurrency]);
 
         $outstandingBalance = $order->outstandingBalance;

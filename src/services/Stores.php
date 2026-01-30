@@ -489,6 +489,7 @@ class Stores extends Component
             $storeRecord->requireShippingMethodSelectionAtCheckout = ($data['requireShippingMethodSelectionAtCheckout'] ?? false);
             $storeRecord->useBillingAddressForTax = ($data['useBillingAddressForTax'] ?? false);
             $storeRecord->validateOrganizationTaxIdAsVatId = ($data['validateOrganizationTaxIdAsVatId'] ?? false);
+            $storeRecord->usesSnapshotPaymentCurrencyRate = ($data['usesSnapshotPaymentCurrencyRate'] ?? false);
             $storeRecord->freeOrderPaymentStrategy = ($data['freeOrderPaymentStrategy'] ?? 'complete');
             $storeRecord->minimumTotalPriceStrategy = ($data['minimumTotalPriceStrategy'] ?? 'default');
             $storeRecord->orderReferenceFormat = ($data['orderReferenceFormat'] ?? '{{number[:7]}}');
@@ -706,6 +707,7 @@ class Stores extends Component
                 'requireShippingMethodSelectionAtCheckout',
                 'sortOrder',
                 'useBillingAddressForTax',
+                'usesSnapshotPaymentCurrencyRate',
                 'validateOrganizationTaxIdAsVatId',
             ]);
         }

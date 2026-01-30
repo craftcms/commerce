@@ -1,12 +1,19 @@
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
     'Amount',
+    'Current Rate',
+    'Currency',
     'Date',
     'Gateway',
     'info',
+    'N/A',
     'No transactions exist.',
     'Payment Amount',
+    'Show snapshotted payment currency rates',
+    'Snapshotted Rate',
     'Status',
+    'These exchange rates were captured when the order was completed and are used for subsequent partial payments.',
+    'These exchange rates were captured when the order was completed and are used for subsequent partial payments. This behavior is controlled by the {link}Lock Payment Currency Rate on Order Completion{endlink} store setting.',
     'Type',
 ]) %}
 
@@ -17,6 +24,53 @@
     {% if not order.isPaid() %}
         <div class="footer">
             <a class="btn" id="make-payment" data-order-id="{{ order.id }}">{{ 'Make a payment'|t('commerce') }}</a>
+        </div>
+    {% endif %}
+
+    {% if order.isCompleted and order.paymentCurrencyRates is not empty and order.store.getUsesSnapshotPaymentCurrencyRate() %}
+        <hr>
+        <p>
+            <a class="fieldtoggle" data-target="snapshotted-payment-currency-rates">{{ 'Show snapshotted payment currency rates'|t('commerce') }}</a>
+        </p>
+        <div id="snapshotted-payment-currency-rates" class="hidden">
+            {% if currentUser.admin %}
+                <p class="light">{{ 'These exchange rates were captured when the order was completed and are used for subsequent partial payments. This behavior is controlled by the {link}Lock Payment Currency Rate on Order Completion{endlink} store setting.'|t('commerce', {
+                    link: '<a href="' ~ url('commerce/settings/stores/' ~ order.store.id) ~ '">',
+                    endlink: '</a>'
+                })|raw }}</p>
+            {% else %}
+                <p class="light">{{ 'These exchange rates were captured when the order was completed and are used for subsequent partial payments.'|t('commerce') }}</p>
+            {% endif %}
+            {% set currentPaymentCurrencies = craft.commerce.paymentCurrencies.getAllPaymentCurrencies(order.store.id) %}
+            <table class="data fullwidth">
+                <thead>
+                    <tr>
+                        <th>{{ 'Currency'|t('commerce') }}</th>
+                        <th>{{ 'Snapshotted Rate'|t('commerce') }}</th>
+                        <th>{{ 'Current Rate'|t('commerce') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for iso, rate in order.paymentCurrencyRates %}
+                        {% set currentCurrency = currentPaymentCurrencies|filter(c => c.iso == iso)|first %}
+                        {% set currentRate = currentCurrency ? currentCurrency.rate : null %}
+                        <tr>
+                            <td>{{ iso }}</td>
+                            <td>{{ rate }}</td>
+                            <td>
+                                {% if currentRate is not null %}
+                                    {{ currentRate }}
+                                    {% if currentRate != rate %}
+                                        <span class="light">({{ currentRate > rate ? '+' : '' }}{{ ((currentRate - rate) / rate * 100)|number_format(2) }}%)</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="light">{{ 'N/A'|t('commerce') }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     {% endif %}
 </div>

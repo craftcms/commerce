@@ -1115,6 +1115,21 @@ class Order extends Element implements HasStoreInterface
     public ?int $storedTotalQty = null;
 
     /**
+     * The payment currency rates at the time the order was completed. Used to lock in exchange rates for partial payments.
+     * Stored as an associative array keyed by currency ISO code, e.g. ['EUR' => 0.85, 'GBP' => 0.73]
+     *
+     * @var array|null
+     * ---
+     * ```php
+     * echo $order->paymentCurrencyRates['EUR'];
+     * ```
+     * ```twig
+     * {{ order.paymentCurrencyRates['EUR'] }}
+     * ```
+     */
+    public ?array $paymentCurrencyRates = null;
+
+    /**
      * @var string|null
      * @see Order::setRecalculationMode() To set the current recalculation mode
      * @see Order::getRecalculationMode() To get the current recalculation mode
@@ -1827,6 +1842,16 @@ class Order extends Element implements HasStoreInterface
         $this->estimatedBillingAddressId = null;
         $this->orderCompletedEmail = $this->getEmail();
 
+        // Capture all payment currency rates for partial payments
+        $paymentCurrencies = Plugin::getInstance()->getPaymentCurrencies()
+            ->getAllPaymentCurrencies($this->getStore()->id);
+        if ($paymentCurrencies->isNotEmpty()) {
+            $this->paymentCurrencyRates = [];
+            foreach ($paymentCurrencies as $paymentCurrency) {
+                $this->paymentCurrencyRates[$paymentCurrency->iso] = (float)$paymentCurrency->rate;
+            }
+        }
+
         $orderStatus = Plugin::getInstance()->getOrderStatuses()->getDefaultOrderStatusForOrder($this);
 
         // If the order status returned was overridden by a plugin, use the configured default order status if they give us a bogus one with no ID.
@@ -2309,6 +2334,7 @@ class Order extends Element implements HasStoreInterface
             $orderRecord->orderSiteId = $this->orderSiteId;
             $orderRecord->origin = $this->origin;
             $orderRecord->paymentCurrency = $this->paymentCurrency;
+            $orderRecord->paymentCurrencyRates = $this->paymentCurrencyRates ? json_encode($this->paymentCurrencyRates) : null;
             $orderRecord->customerId = $this->getCustomerId();
             $orderRecord->registerUserOnOrderComplete = $this->registerUserOnOrderComplete;
             $orderRecord->saveBillingAddressOnOrderComplete = $this->saveBillingAddressOnOrderComplete;
@@ -2649,12 +2675,29 @@ class Order extends Element implements HasStoreInterface
 
         // Only convert if we have differing currencies
         if ($this->currency !== $this->getPaymentCurrency()) {
-            $teller = $this->getTeller();
-            $tellerTo = Plugin::getInstance()->getCurrencies()->getTeller($this->getPaymentCurrency());
-            $outstandingBalanceAmount = $teller->convertToMoney($this->getOutstandingBalance());
-            $outstandingBalanceInPaymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertAmount($outstandingBalanceAmount, $this->getPaymentCurrency(), $this->getStore()->id);
+            // Check if we should use snapshotted rates
+            $useSnapshotRate = $this->isCompleted
+                && $this->paymentCurrencyRates !== null
+                && $this->getStore()->getUsesSnapshotPaymentCurrencyRate();
 
-            $paymentAmount = (float)$tellerTo->convertToString($outstandingBalanceInPaymentCurrency);
+            $paymentCurrencyIso = $this->getPaymentCurrency();
+            $snapshotRate = $this->paymentCurrencyRates[$paymentCurrencyIso] ?? null;
+
+            if ($useSnapshotRate && $snapshotRate !== null) {
+                // Use the snapshotted rate for this payment currency
+                $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()
+                    ->getPaymentCurrencyByIso($paymentCurrencyIso, $this->getStore()->id);
+                $paymentAmount = $this->getOutstandingBalance() * $snapshotRate;
+                $paymentAmount = Currency::round($paymentAmount, $paymentCurrency);
+            } else {
+                // Fall back to current rate (either setting disabled, no snapshot, or currency not in snapshot)
+                $teller = $this->getTeller();
+                $tellerTo = Plugin::getInstance()->getCurrencies()->getTeller($paymentCurrencyIso);
+                $outstandingBalanceAmount = $teller->convertToMoney($this->getOutstandingBalance());
+                $outstandingBalanceInPaymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertAmount($outstandingBalanceAmount, $paymentCurrencyIso, $this->getStore()->id);
+
+                $paymentAmount = (float)$tellerTo->convertToString($outstandingBalanceInPaymentCurrency);
+            }
         }
 
         if (isset($this->_paymentAmount) && $this->_paymentAmount >= 0 && $this->_paymentAmount <= $paymentAmount) {
@@ -3500,6 +3543,21 @@ class Order extends Element implements HasStoreInterface
     public function setPaymentCurrency(string $value): void
     {
         $this->_paymentCurrency = $value;
+    }
+
+    /**
+     * Sets the snapshotted payment currency rates.
+     * Accepts either an array or a JSON-encoded string (from DB).
+     *
+     * @param array|string|null $value
+     */
+    public function setPaymentCurrencyRates(array|string|null $value): void
+    {
+        if (is_string($value)) {
+            $this->paymentCurrencyRates = json_decode($value, true);
+        } else {
+            $this->paymentCurrencyRates = $value;
+        }
     }
 
     /**

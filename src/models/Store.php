@@ -158,6 +158,13 @@ class Store extends Model
     private bool|string $_validateOrganizationTaxIdAsVatId = false;
 
     /**
+     * @var bool
+     * @see setUsesSnapshotPaymentCurrencyRate()
+     * @see getUsesSnapshotPaymentCurrencyRate()
+     */
+    private bool|string $_usesSnapshotPaymentCurrencyRate = false;
+
+    /**
      * @var string
      * @see setOrderReferenceFormat()
      * @see getOrderReferenceFormat()
@@ -229,6 +236,7 @@ class Store extends Model
             'sortOrder',
             'uid',
             'useBillingAddressForTax',
+            'usesSnapshotPaymentCurrencyRate',
             'validateOrganizationTaxIdAsVatId',
         ], 'safe'];
 
@@ -348,6 +356,7 @@ class Store extends Model
             'requireShippingMethodSelectionAtCheckout' => $this->getRequireShippingMethodSelectionAtCheckout(false),
             'sortOrder' => $this->sortOrder,
             'useBillingAddressForTax' => $this->getUseBillingAddressForTax(false),
+            'usesSnapshotPaymentCurrencyRate' => $this->getUsesSnapshotPaymentCurrencyRate(false),
             'validateOrganizationTaxIdAsVatId' => $this->getValidateOrganizationTaxIdAsVatId(false),
             'currency' => $this->getCurrency()->getCode(),
         ];
@@ -600,6 +609,26 @@ class Store extends Model
     public function getValidateOrganizationTaxIdAsVatId(bool $parse = true): bool|string
     {
         return $parse ? App::parseBooleanEnv($this->_validateOrganizationTaxIdAsVatId) : $this->_validateOrganizationTaxIdAsVatId;
+    }
+
+    /**
+     * @param bool|string $usesSnapshotPaymentCurrencyRate
+     * @return void
+     */
+    public function setUsesSnapshotPaymentCurrencyRate(bool|string $usesSnapshotPaymentCurrencyRate): void
+    {
+        $this->_usesSnapshotPaymentCurrencyRate = $usesSnapshotPaymentCurrencyRate;
+    }
+
+    /**
+     * Whether to use the snapshotted payment currency rate on order completion for subsequent partial payments.
+     *
+     * @param bool $parse
+     * @return bool|string
+     */
+    public function getUsesSnapshotPaymentCurrencyRate(bool $parse = true): bool|string
+    {
+        return $parse ? App::parseBooleanEnv($this->_usesSnapshotPaymentCurrencyRate) : $this->_usesSnapshotPaymentCurrencyRate;
     }
 
     /**

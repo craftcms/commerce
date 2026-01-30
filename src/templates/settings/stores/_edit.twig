@@ -234,6 +234,17 @@
             disabled: readOnly,
         }) }}
 
+        {{ forms.booleanMenuField({
+            label: 'Lock Payment Currency Rate on Order Completion'|t('commerce'),
+            instructions: 'When enabled, the payment currency exchange rate is captured when an order is completed. This locked rate is then used for all subsequent partial payments on the order, ensuring consistent pricing even if exchange rates change.'|t('commerce'),
+            id: 'usesSnapshotPaymentCurrencyRate',
+            name: 'usesSnapshotPaymentCurrencyRate',
+            value: store.getUsesSnapshotPaymentCurrencyRate(false),
+            errors: store.getErrors('usesSnapshotPaymentCurrencyRate'),
+            includeEnvVars: true,
+            disabled: readOnly,
+        }) }}
+
         {{ forms.autosuggestField({
             label: 'Order Reference Number Format'|t('commerce'),
             id: 'orderReferenceFormat',

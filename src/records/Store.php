@@ -27,6 +27,7 @@ use craft\db\ActiveRecord;
  * @property bool $requireShippingMethodSelectionAtCheckout
  * @property bool $useBillingAddressForTax
  * @property bool $validateOrganizationTaxIdAsVatId
+ * @property bool $usesSnapshotPaymentCurrencyRate
  * @property bool $autoSetPaymentSource
  * @property string $orderReferenceFormat
  * @property string $freeOrderPaymentStrategy

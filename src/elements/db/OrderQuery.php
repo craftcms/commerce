@@ -1624,6 +1624,7 @@ class OrderQuery extends ElementQuery
             'commerce_orders.dateFirstPaid',
             'commerce_orders.currency',
             'commerce_orders.paymentCurrency',
+            'commerce_orders.paymentCurrencyRates',
             'commerce_orders.lastIp',
             'commerce_orders.orderLanguage',
             'commerce_orders.message',
