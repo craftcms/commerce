@@ -8,9 +8,11 @@
 namespace craft\commerce\models;
 
 use Craft;
+use craft\base\Chippable;
 use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\StoreTrait;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
@@ -21,6 +23,7 @@ use craft\helpers\Cp;
 use craft\helpers\Db;
 use craft\helpers\Html;
 use craft\helpers\UrlHelper;
+use craft\models\Site;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
 use DateTime;
@@ -37,7 +40,7 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class OrderStatus extends Model implements HasStoreInterface
+class OrderStatus extends Model implements HasStoreInterface, Chippable
 {
     use SoftDeleteTrait {
         SoftDeleteTrait::behaviors as softDeleteBehaviors;
@@ -99,20 +102,30 @@ class OrderStatus extends Model implements HasStoreInterface
      */
     public function __toString()
     {
-        return $this->getDisplayName();
+        return $this->getUiLabel();
     }
 
     /**
      * @since 2.2
+     * @deprecated in 5.6. Use [[getUiLabel()]] instead.
      */
     public function getDisplayName(): string
     {
+        return $this->getUiLabel();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getUiLabel(): string
+    {
         if ($this->dateDeleted !== null) {
-            return Craft::t('commerce', '{name} (Trashed)', ['name' => $this->name]);
+            return Craft::t('commerce', '{name} (Trashed)', ['name' => Craft::t('site', $this->name)]);
         }
 
-        return $this->name ?? '';
+        return Craft::t('site', $this->name ?? '');
     }
+
 
     protected function defineRules(): array
     {
@@ -142,6 +155,7 @@ class OrderStatus extends Model implements HasStoreInterface
         $fields[] = 'emails';
         $fields[] = 'emailIds';
         $fields[] = 'labelHtml';
+        $fields[] = 'uiLabel';
 
         return $fields;
     }
@@ -172,7 +186,7 @@ class OrderStatus extends Model implements HasStoreInterface
     {
         return Cp::statusLabelHtml([
             'color' => Html::encode($this->color),
-            'label' => Html::encode($this->getDisplayName()),
+            'label' => Html::encode($this->getUiLabel()),
         ]);
     }
 
@@ -208,5 +222,26 @@ class OrderStatus extends Model implements HasStoreInterface
             'emails' => !empty($emails) ? array_combine($emails, $emails) : [],
             'store' => $this->getStore()->uid,
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function get(int|string $id): ?static
+    {
+        /** @var Site|StoreBehavior|null $site */
+        $site = Cp::requestedSite();
+        $storeId = $site?->getStore()->id ?? null;
+
+        /** @phpstan-ignore-next-line */
+        return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($id, $storeId);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getId(): string|int|null
+    {
+        return $this->id;
     }
 }

@@ -8,12 +8,10 @@
 namespace craft\commerce\fields;
 
 use Craft;
-use craft\base\ElementInterface;
 use craft\commerce\elements\Product;
 use craft\commerce\gql\arguments\elements\Product as ProductArguments;
 use craft\commerce\gql\interfaces\elements\Product as ProductInterface;
 use craft\commerce\gql\resolvers\elements\Product as ProductResolver;
-use craft\commerce\web\assets\editproduct\EditProductAsset;
 use craft\fields\BaseRelationField;
 use craft\helpers\Gql as GqlHelper;
 use craft\services\Gql as GqlService;
