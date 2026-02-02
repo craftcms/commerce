@@ -621,7 +621,7 @@ class Store extends Model
     }
 
     /**
-     * Whether to use the snapshotted payment currency rate on order completion for subsequent partial payments.
+     * Whether to use the snapshotted payment currency rate on order completion for subsequent payments.
      *
      * @param bool $parse
      * @return bool|string

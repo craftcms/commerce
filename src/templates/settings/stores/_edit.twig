@@ -236,7 +236,7 @@
 
         {{ forms.booleanMenuField({
             label: 'Use Payment Currency Rate Snapshot'|t('commerce'),
-            instructions: 'Payment currency exchange rates are captured when an order is completed. When this setting is enabled, these snapshotted rates are used for subsequent partial payments on the order, ensuring consistent pricing even if exchange rates change.'|t('commerce'),
+            instructions: 'Payment currency exchange rates are captured when an order is completed. When this setting is enabled, these snapshotted rates are used for subsequent payments on the order, ensuring consistent pricing even if exchange rates change.'|t('commerce'),
             id: 'usesSnapshotPaymentCurrencyRate',
             name: 'usesSnapshotPaymentCurrencyRate',
             value: store.getUsesSnapshotPaymentCurrencyRate(false),

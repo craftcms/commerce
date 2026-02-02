@@ -1115,7 +1115,7 @@ class Order extends Element implements HasStoreInterface
     public ?int $storedTotalQty = null;
 
     /**
-     * The payment currency rates at the time the order was completed. Used to lock in exchange rates for partial payments.
+     * The payment currency rates at the time the order was completed. Used to lock in exchange rates for subsequent payments.
      * Stored as an associative array keyed by currency ISO code, e.g. ['EUR' => 0.85, 'GBP' => 0.73]
      *
      * @var array|null
@@ -1842,7 +1842,7 @@ class Order extends Element implements HasStoreInterface
         $this->estimatedBillingAddressId = null;
         $this->orderCompletedEmail = $this->getEmail();
 
-        // Capture all payment currency rates for partial payments
+        // Capture all payment currency rates for subsequent payments
         $paymentCurrencies = Plugin::getInstance()->getPaymentCurrencies()
             ->getAllPaymentCurrencies($this->getStore()->id);
         if ($paymentCurrencies->isNotEmpty()) {
