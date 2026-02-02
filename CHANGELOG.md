@@ -1,5 +1,15 @@
 # Release Notes for Craft Commerce
 
+
+x
+
+
+
+
+
+
+
+
 ## Unreleased
 
 - Fixed a bug where order status and line item status names were not site translatable. ([#4213](https://github.com/craftcms/commerce/issues/4213))
@@ -18,7 +28,7 @@
 - Fixed a bug where settings were being saved to the project config incorrectly. ([#4006](https://github.com/craftcms/commerce/issues/4006))
 - Fixed a PHP error that could occur when saving a shipping rule. ([#4134](https://github.com/craftcms/commerce/issues/4134))
 - Fixed a bug where the “New Customers” widget was counting all customers with orders in the date range, rather than only customers whose first order was in the date range.
-- Fixed XSS vulnerabilities. (GHSA-w8gw-qm8p-j9j3, GHSA-h9r9-2pxg-cx9m, GHSA-g92v-wpv7-6w22, GHSA-p6w8-q63m-72c8, GHSA-wqc5-485v-3hqh, GHSA-v585-mf6r-rqrc, GHSA-frj9-9rwc-pw9j, GHSA-8478-rmjg-mjj5, GHSA-2h2m-v2mg-656c, GHSA-wq2m-r96q-crrf)
+- Fixed [low, moderate, and high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerabilities. ([GHSA-w8gw-qm8p-j9j3](https://github.com/craftcms/commerce/security/advisories/GHSA-w8gw-qm8p-j9j3), [GHSA-h9r9-2pxg-cx9m](https://github.com/craftcms/commerce/security/advisories/GHSA-h9r9-2pxg-cx9m), [GHSA-g92v-wpv7-6w22](https://github.com/craftcms/commerce/security/advisories/GHSA-g92v-wpv7-6w22), [GHSA-p6w8-q63m-72c8](https://github.com/craftcms/commerce/security/advisories/GHSA-p6w8-q63m-72c8), [GHSA-wqc5-485v-3hqh](https://github.com/craftcms/commerce/security/advisories/GHSA-wqc5-485v-3hqh), [GHSA-v585-mf6r-rqrc](https://github.com/craftcms/commerce/security/advisories/GHSA-v585-mf6r-rqrc), [GHSA-frj9-9rwc-pw9j](https://github.com/craftcms/commerce/security/advisories/GHSA-frj9-9rwc-pw9j), [GHSA-8478-rmjg-mjj5](https://github.com/craftcms/commerce/security/advisories/GHSA-frj9-9rwc-pw9j), [GHSA-2h2m-v2mg-656c](https://github.com/craftcms/commerce/security/advisories/GHSA-2h2m-v2mg-656c), [GHSA-wq2m-r96q-crrf](https://github.com/craftcms/commerce/security/advisories/GHSA-wq2m-r96q-crrf))
 
 ## 5.5.1 - 2025-12-04
 
