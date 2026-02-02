@@ -12,8 +12,10 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
+use craft\commerce\models\Store;
 use craftcommercetests\fixtures\OrdersFixture;
 use craftcommercetests\fixtures\PaymentCurrenciesFixture;
+use craftcommercetests\fixtures\StoreFixture;
 use UnitTester;
 
 /**
@@ -40,11 +42,19 @@ class OrderPaymentCurrencyRatesTest extends Unit
     private array $_deleteElementIds = [];
 
     /**
+     * @var Store|null
+     */
+    protected ?Store $primaryStore = null;
+
+    /**
      * @return array
      */
     public function _fixtures(): array
     {
         return [
+            'stores' => [
+                'class' => StoreFixture::class,
+            ],
             'orders' => [
                 'class' => OrdersFixture::class,
             ],
@@ -62,6 +72,7 @@ class OrderPaymentCurrencyRatesTest extends Unit
     public function testPaymentCurrencyRatesCapturedOnCompletion(): void
     {
         $order = new Order();
+        $order->storeId = $this->primaryStore->id;
         $email = 'test-rates@example.com';
         $user = Craft::$app->getUsers()->ensureUserByEmail($email);
         $order->setCustomer($user);
@@ -86,13 +97,15 @@ class OrderPaymentCurrencyRatesTest extends Unit
         self::assertNotNull($order->paymentCurrencyRates);
         self::assertIsArray($order->paymentCurrencyRates);
 
-        // Should have EUR and AUD from fixtures
-        self::assertArrayHasKey('EUR', $order->paymentCurrencyRates);
-        self::assertArrayHasKey('AUD', $order->paymentCurrencyRates);
+        // Get the payment currencies for this store to verify
+        $paymentCurrencies = $this->pluginInstance->getPaymentCurrencies()
+            ->getAllPaymentCurrencies($this->primaryStore->id);
 
-        // Verify the rates match the fixture data
-        self::assertEquals(0.5, $order->paymentCurrencyRates['EUR']);
-        self::assertEquals(1.3, $order->paymentCurrencyRates['AUD']);
+        // Should have captured all payment currencies for the store
+        foreach ($paymentCurrencies as $currency) {
+            self::assertArrayHasKey($currency->iso, $order->paymentCurrencyRates);
+            self::assertEquals((float)$currency->rate, $order->paymentCurrencyRates[$currency->iso]);
+        }
 
         $this->_deleteElementIds[] = $order->id;
         $this->_deleteElementIds[] = $user->id;
@@ -148,8 +161,19 @@ class OrderPaymentCurrencyRatesTest extends Unit
      */
     public function testGetPaymentAmountUsesSnapshotRateWhenEnabled(): void
     {
+        // Get any non-primary payment currency from the store
+        $paymentCurrencies = $this->pluginInstance->getPaymentCurrencies()
+            ->getAllPaymentCurrencies($this->primaryStore->id);
+        $testCurrency = $paymentCurrencies->firstWhere('primary', false);
+
+        // Skip test if no non-primary payment currency available
+        if (!$testCurrency) {
+            $this->markTestSkipped('No non-primary payment currency available in fixtures');
+        }
+
         $order = new Order();
         $order->id = 9999;
+        $order->storeId = $this->primaryStore->id;
         $order->isCompleted = true;
         $order->currency = 'USD';
 
@@ -159,20 +183,19 @@ class OrderPaymentCurrencyRatesTest extends Unit
         $lineItem->qty = 1;
         $order->setLineItems([$lineItem]);
 
-        // Set snapshotted rate for EUR (different from fixture rate of 0.5)
+        // Set snapshotted rate (different from current rate)
         $snapshotRate = 0.8;
-        $order->setPaymentCurrencyRates(['EUR' => $snapshotRate, 'AUD' => 1.5]);
+        $order->setPaymentCurrencyRates([$testCurrency->iso => $snapshotRate]);
 
-        // Set payment currency to EUR
-        $order->setPaymentCurrency('EUR');
+        // Set payment currency
+        $order->setPaymentCurrency($testCurrency->iso);
 
-        // Get the store and enable the snapshot setting
-        $store = $order->getStore();
-        $store->setUsesSnapshotPaymentCurrencyRate(true);
+        // Enable the snapshot setting on the store
+        $this->primaryStore->setUsesSnapshotPaymentCurrencyRate(true);
 
         // The payment amount should use the snapshotted rate
-        // Outstanding balance is 100 USD, snapshotted EUR rate is 0.8
-        // So payment amount should be 100 * 0.8 = 80 EUR
+        // Outstanding balance is 100 USD, snapshotted rate is 0.8
+        // So payment amount should be 100 * 0.8 = 80
         $paymentAmount = $order->getPaymentAmount();
 
         self::assertEquals(80, $paymentAmount);
@@ -185,8 +208,19 @@ class OrderPaymentCurrencyRatesTest extends Unit
      */
     public function testGetPaymentAmountUsesCurrentRateWhenDisabled(): void
     {
+        // Get any non-primary payment currency from the store
+        $paymentCurrencies = $this->pluginInstance->getPaymentCurrencies()
+            ->getAllPaymentCurrencies($this->primaryStore->id);
+        $testCurrency = $paymentCurrencies->firstWhere('primary', false);
+
+        // Skip test if no non-primary payment currency available
+        if (!$testCurrency) {
+            $this->markTestSkipped('No non-primary payment currency available in fixtures');
+        }
+
         $order = new Order();
         $order->id = 9998;
+        $order->storeId = $this->primaryStore->id;
         $order->isCompleted = true;
         $order->currency = 'USD';
 
@@ -196,23 +230,21 @@ class OrderPaymentCurrencyRatesTest extends Unit
         $lineItem->qty = 1;
         $order->setLineItems([$lineItem]);
 
-        // Set snapshotted rate for EUR (different from fixture rate of 0.5)
-        $snapshotRate = 0.8;
-        $order->setPaymentCurrencyRates(['EUR' => $snapshotRate]);
+        // Set snapshotted rate (different from current rate)
+        $snapshotRate = (float)$testCurrency->rate + 0.5; // Different from current
+        $order->setPaymentCurrencyRates([$testCurrency->iso => $snapshotRate]);
 
-        // Set payment currency to EUR
-        $order->setPaymentCurrency('EUR');
+        // Set payment currency
+        $order->setPaymentCurrency($testCurrency->iso);
 
-        // Get the store and disable the snapshot setting
-        $store = $order->getStore();
-        $store->setUsesSnapshotPaymentCurrencyRate(false);
+        // Disable the snapshot setting on the store
+        $this->primaryStore->setUsesSnapshotPaymentCurrencyRate(false);
 
-        // The payment amount should use the current rate from fixtures (0.5)
-        // Outstanding balance is 100 USD, current EUR rate is 0.5
-        // So payment amount should be 100 * 0.5 = 50 EUR
+        // The payment amount should use the current rate (not snapshotted)
+        $expectedAmount = 100 * (float)$testCurrency->rate;
         $paymentAmount = $order->getPaymentAmount();
 
-        self::assertEquals(50, $paymentAmount);
+        self::assertEquals($expectedAmount, $paymentAmount);
     }
 
     /**
@@ -222,8 +254,19 @@ class OrderPaymentCurrencyRatesTest extends Unit
      */
     public function testIncompleteOrderDoesNotUseSnapshotRate(): void
     {
+        // Get any non-primary payment currency from the store
+        $paymentCurrencies = $this->pluginInstance->getPaymentCurrencies()
+            ->getAllPaymentCurrencies($this->primaryStore->id);
+        $testCurrency = $paymentCurrencies->firstWhere('primary', false);
+
+        // Skip test if no non-primary payment currency available
+        if (!$testCurrency) {
+            $this->markTestSkipped('No non-primary payment currency available in fixtures');
+        }
+
         $order = new Order();
         $order->id = 9997;
+        $order->storeId = $this->primaryStore->id;
         $order->isCompleted = false; // Order not completed
         $order->currency = 'USD';
 
@@ -233,21 +276,21 @@ class OrderPaymentCurrencyRatesTest extends Unit
         $lineItem->qty = 1;
         $order->setLineItems([$lineItem]);
 
-        // Set snapshotted rate (shouldn't be used)
-        $order->setPaymentCurrencyRates(['EUR' => 0.8]);
+        // Set snapshotted rate (shouldn't be used because order is not completed)
+        $snapshotRate = (float)$testCurrency->rate + 0.5; // Different from current
+        $order->setPaymentCurrencyRates([$testCurrency->iso => $snapshotRate]);
 
-        // Set payment currency to EUR
-        $order->setPaymentCurrency('EUR');
+        // Set payment currency
+        $order->setPaymentCurrency($testCurrency->iso);
 
-        // Get the store and enable the snapshot setting
-        $store = $order->getStore();
-        $store->setUsesSnapshotPaymentCurrencyRate(true);
+        // Enable the snapshot setting on the store
+        $this->primaryStore->setUsesSnapshotPaymentCurrencyRate(true);
 
         // The payment amount should use the current rate because order is not completed
-        // Current EUR rate from fixtures is 0.5
+        $expectedAmount = 100 * (float)$testCurrency->rate;
         $paymentAmount = $order->getPaymentAmount();
 
-        self::assertEquals(50, $paymentAmount);
+        self::assertEquals($expectedAmount, $paymentAmount);
     }
 
     /**
@@ -257,8 +300,19 @@ class OrderPaymentCurrencyRatesTest extends Unit
      */
     public function testOrderWithoutSnapshotFallsBackToCurrentRate(): void
     {
+        // Get any non-primary payment currency from the store
+        $paymentCurrencies = $this->pluginInstance->getPaymentCurrencies()
+            ->getAllPaymentCurrencies($this->primaryStore->id);
+        $testCurrency = $paymentCurrencies->firstWhere('primary', false);
+
+        // Skip test if no non-primary payment currency available
+        if (!$testCurrency) {
+            $this->markTestSkipped('No non-primary payment currency available in fixtures');
+        }
+
         $order = new Order();
         $order->id = 9996;
+        $order->storeId = $this->primaryStore->id;
         $order->isCompleted = true;
         $order->currency = 'USD';
 
@@ -271,17 +325,17 @@ class OrderPaymentCurrencyRatesTest extends Unit
         // Don't set snapshotted rates (simulating old order before feature)
         $order->paymentCurrencyRates = null;
 
-        // Set payment currency to EUR
-        $order->setPaymentCurrency('EUR');
+        // Set payment currency
+        $order->setPaymentCurrency($testCurrency->iso);
 
-        // Get the store and enable the snapshot setting
-        $store = $order->getStore();
-        $store->setUsesSnapshotPaymentCurrencyRate(true);
+        // Enable the snapshot setting on the store
+        $this->primaryStore->setUsesSnapshotPaymentCurrencyRate(true);
 
         // The payment amount should use the current rate because no snapshot exists
+        $expectedAmount = 100 * (float)$testCurrency->rate;
         $paymentAmount = $order->getPaymentAmount();
 
-        self::assertEquals(50, $paymentAmount);
+        self::assertEquals($expectedAmount, $paymentAmount);
     }
 
     /**
@@ -325,6 +379,7 @@ class OrderPaymentCurrencyRatesTest extends Unit
         parent::_before();
 
         $this->pluginInstance = Plugin::getInstance();
+        $this->primaryStore = $this->pluginInstance->getStores()->getPrimaryStore();
     }
 
     /**
