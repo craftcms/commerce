@@ -1,15 +1,5 @@
 # Release Notes for Craft Commerce
 
-
-x
-
-
-
-
-
-
-
-
 ## Unreleased
 
 - Fixed a bug where the order’s table was showing the incorrect column heading on the Edit User page.
