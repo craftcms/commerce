@@ -1,15 +1,5 @@
 # Release Notes for Craft Commerce
 
-
-x
-
-
-
-
-
-
-
-
 ## Unreleased
 
 - Fixed a bug where order status and line item status names were not site translatable. ([#4213](https://github.com/craftcms/commerce/issues/4213))
