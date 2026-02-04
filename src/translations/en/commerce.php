@@ -54,6 +54,7 @@ return [
     'All active subscriptions' => 'All active subscriptions',
     'All customers' => 'All customers',
     'All products' => 'All products',
+    'All variants must have a SKU.' => 'All variants must have a SKU.',
     'All' => 'All',
     'Allow Checkout Without Payment' => 'Allow Checkout Without Payment',
     'Allow Empty Cart On Checkout' => 'Allow Empty Cart On Checkout',
