@@ -95,7 +95,7 @@ class TaxCategories extends Component
     {
         $categories = $this->getAllTaxCategories();
 
-        return ArrayHelper::map($categories, 'id', 'name');
+        return ArrayHelper::map($categories, 'id', 'uiLabel');
     }
 
     /**
