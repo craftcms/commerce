@@ -3,8 +3,6 @@
 ## Unreleased
 
 - Fixed a bug where merging canonical changes into a product draft could fail if variant changes existed. ([#4199](https://github.com/craftcms/commerce/issues/4199))
-- Fixed a bug where the order’s table was showing the incorrect column heading on the Edit User page.
-- Fixed two high-severity SQL injection vulnerabilities in the control panel. (GHSA-j3x5-mghf-xvfw, GHSA-pmgj-gmm4-jh6j)
 - Fixed a bug where order status and line item status names were not site translatable. ([#4213](https://github.com/craftcms/commerce/issues/4213))
 - Fixed a bug where the order's table was showing the incorrect column heading on the Edit User page.
 - Fixed a bug where it wasn’t possible to change a variant’s shipping category.
