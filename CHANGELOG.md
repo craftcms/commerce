@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a bug where the "Add a product" button wasn't appearing in the product relation field’s modal. ([#4205](https://github.com/craftcms/commerce/issues/4205))
 - Fixed a bug where order status and line item status names were not site translatable. ([#4213](https://github.com/craftcms/commerce/issues/4213))
 - Fixed a bug where the order's table was showing the incorrect column heading on the Edit User page.
 - Fixed a bug where it wasn’t possible to change a variant’s shipping category.
