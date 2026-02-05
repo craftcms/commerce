@@ -5,3 +5,5 @@ parameters:
     level: 5
     paths:
         - src
+    ignoreErrors:
+        - '#Call to an undefined method yii\\web\\UrlManager::setRouteParams\(\)#'

@@ -1216,18 +1216,6 @@ JS, [
     }
 
     /**
-     * @return VariantCollection
-     * @throws InvalidConfigException
-     * @internal Do not use. Temporary method until we get a nested element manager provider in core.
-     *
-     * TODO: Remove this once we have a nested element manager provider interface in core.
-     */
-    public function getAllVariants(): VariantCollection
-    {
-        return $this->getVariants(true);
-    }
-
-    /**
      * @inheritdoc
      */
     public function getSupportedSites(): array
@@ -1362,9 +1350,10 @@ JS, [
                 /** @phpstan-ignore-next-line */
                 fn(Product $product) => self::createVariantQuery($product),
                 [
-                    'attribute' => 'allVariants', // TODO: can change this back to 'variants' once we have a nested element manager provider in core.
+                    'attribute' => 'allVariants',
                     'propagationMethod' => $this->getType()->propagationMethod,
-                    'valueSetter' => fn($variants) => $this->setVariants($variants), // TODO: can change this back to 'variants' once we have a nested element manager provider in core.
+                    'valueSetter' => fn($variants) => $this->setVariants($variants),
+                    'valueGetter' => fn() => $this->getVariants(true),
                 ],
             );
         }
