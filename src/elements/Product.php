@@ -1854,7 +1854,7 @@ JS, [
     /**
      * @inheritdoc
      */
-    public function setAttributes($values, $safeOnly = true): void
+    public function setAttributesFromRequest(array $values): void
     {
         // this is needed for Craft.NestedElementManager::markAsDirty()
         if (isset($values['variants']) && $values['variants'] === '*') {
@@ -1862,7 +1862,7 @@ JS, [
             unset($values['variants']);
         }
 
-        parent::setAttributes($values, $safeOnly);
+        parent::setAttributesFromRequest($values);
     }
 
     /**
