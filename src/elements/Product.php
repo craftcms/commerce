@@ -1661,9 +1661,13 @@ JS, [
             $record->dateUpdated = $this->dateUpdated;
             $record->dateCreated = $this->dateCreated;
 
+            // Capture the dirty attributes from the record
+            $dirtyAttributes = array_keys($record->getDirtyAttributes());
             $record->save(false);
 
             $this->id = $record->id;
+
+            $this->setDirtyAttributes($dirtyAttributes);
 
             if ($this->getIsCanonical() &&
                 isset($this->typeId) &&
