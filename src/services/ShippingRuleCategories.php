@@ -47,6 +47,34 @@ class ShippingRuleCategories extends Component
     }
 
     /**
+     * Returns an array of shipping rule categories indexed by rule ID.
+     *
+     * @param int[] $ruleIds
+     * @return array<int, ShippingRuleCategory[]>
+     * @since 5.6.0
+     */
+    public function getShippingRuleCategoriesByRuleIds(array $ruleIds): array
+    {
+        if (empty($ruleIds)) {
+            return [];
+        }
+
+        $categoriesByRuleId = [];
+
+        $rows = $this->_createShippingRuleCategoriesQuery()
+            ->where(['shippingRuleId' => $ruleIds])
+            ->all();
+
+        foreach ($rows as $row) {
+            $ruleId = $row['shippingRuleId'];
+            $categoryId = $row['shippingCategoryId'];
+            $categoriesByRuleId[$ruleId][$categoryId] = new ShippingRuleCategory($row);
+        }
+
+        return $categoriesByRuleId;
+    }
+
+    /**
      * Save a shipping rule category.
      *
      * @param ShippingRuleCategory $model The shipping rule model.
