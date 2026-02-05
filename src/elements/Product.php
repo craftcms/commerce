@@ -1348,12 +1348,12 @@ JS, [
         if (!isset($this->_variantManager)) {
             $this->_variantManager = new NestedElementManager(
                 Variant::class,
-                /** @phpstan-ignore-next-line */
                 fn(Product $product) => self::createVariantQuery($product),
                 [
-                    'attribute' => 'allVariants', // TODO: can change this back to 'variants' once we have a nested element manager provider in core.
+                    'attribute' => 'variants',
                     'propagationMethod' => $this->getType()->propagationMethod,
-                    'valueSetter' => fn($variants) => $this->setVariants($variants), // TODO: can change this back to 'variants' once we have a nested element manager provider in core.
+                    'valueGetter' => fn() => $this->getVariants(true),
+                    'valueSetter' => fn($variants) => $this->setVariants($variants),
                 ],
             );
         }
