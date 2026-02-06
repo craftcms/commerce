@@ -11,7 +11,7 @@
                 <span class="status"></span>
             </template>
 
-            {{ lineItemStatus.name }}
+            {{ lineItemStatus.uiLabel }}
         </a>
         <div class="menu">
             <ul class="padded" role="listbox">
@@ -28,14 +28,14 @@
                     <a
                         :data-id="status.id"
                         :data-color="status.color"
-                        :data-name="status.name"
+                        :data-name="status.uiLabel"
                         :class="{sel: lineItemStatus.id === status.value}"
                     >
                         <span
                             class="status"
                             :class="{[status.color]: true}"
                         ></span>
-                        {{ status.name }}
+                        {{ status.uiLabel }}
                     </a>
                 </li>
             </ul>
