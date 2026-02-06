@@ -1348,9 +1348,8 @@ JS, [
         if (!isset($this->_variantManager)) {
             $this->_variantManager = new NestedElementManager(
                 Variant::class,
-                fn(ElementInterface $product): VariantQuery =>
-                    /** @var Product $product */
-                    self::createVariantQuery($product),
+                // @phpstan-ignore argument.type (will always be a Product)
+                fn(ElementInterface $product): VariantQuery => self::createVariantQuery($product),
                 [
                     'attribute' => 'variants',
                     'propagationMethod' => $this->getType()->propagationMethod,
