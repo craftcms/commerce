@@ -44,7 +44,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
         // Generate table data with chips
         $tableData = [];
         foreach ($shippingMethods as $shippingMethod) {
-            $label = Craft::t('site', $shippingMethod->name);
+            $label = Html::encode(Craft::t('site', $shippingMethod->name));
             $tableData[] = [
                 'id' => $shippingMethod->id,
                 'title' => $label,

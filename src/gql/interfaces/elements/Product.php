@@ -14,7 +14,6 @@ use craft\commerce\gql\types\generators\ProductType;
 use craft\commerce\helpers\Gql;
 use craft\gql\GqlEntityRegistry;
 use craft\gql\interfaces\Element;
-use craft\gql\interfaces\elements\Entry as EntryInterface;
 use craft\services\Gql as GqlService;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\Type;
@@ -164,7 +163,7 @@ class Product extends Element
             'parent' => [
                 'name' => 'parent',
                 'args' => $structureProductTypeFieldArguments,
-                'type' => EntryInterface::getType(),
+                'type' => static::getType(),
                 'description' => 'The products’s parent, if the product type is a structure.',
                 'complexity' => Gql::relatedArgumentComplexity(GqlService::GRAPHQL_COMPLEXITY_EAGER_LOAD),
             ],

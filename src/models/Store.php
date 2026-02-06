@@ -393,7 +393,7 @@ class Store extends Model
      */
     public function getAutoSetNewCartAddresses(bool $parse = true): bool|string
     {
-        return $parse ? App::parseBooleanEnv($this->_autoSetNewCartAddresses) : $this->_autoSetNewCartAddresses;
+        return $parse ? (App::parseBooleanEnv($this->_autoSetNewCartAddresses) ?? false) : $this->_autoSetNewCartAddresses;
     }
 
     /**
@@ -413,7 +413,7 @@ class Store extends Model
      */
     public function getAutoSetCartShippingMethodOption(bool $parse = true): bool|string
     {
-        return $parse ? App::parseBooleanEnv($this->_autoSetCartShippingMethodOption) : $this->_autoSetCartShippingMethodOption;
+        return $parse ? (App::parseBooleanEnv($this->_autoSetCartShippingMethodOption) ?? false) : $this->_autoSetCartShippingMethodOption;
     }
 
     /**
@@ -433,7 +433,7 @@ class Store extends Model
      */
     public function getAutoSetPaymentSource(bool $parse = true): bool|string
     {
-        return $parse ? App::parseBooleanEnv($this->_autoSetPaymentSource) : $this->_autoSetPaymentSource;
+        return $parse ? (App::parseBooleanEnv($this->_autoSetPaymentSource) ?? false) : $this->_autoSetPaymentSource;
     }
 
     /**
@@ -453,7 +453,7 @@ class Store extends Model
      */
     public function getAllowEmptyCartOnCheckout(bool $parse = true): bool|string
     {
-        return $parse ? App::parseBooleanEnv($this->_allowEmptyCartOnCheckout) : $this->_allowEmptyCartOnCheckout;
+        return $parse ? (App::parseBooleanEnv($this->_allowEmptyCartOnCheckout) ?? false) : $this->_allowEmptyCartOnCheckout;
     }
 
     /**
@@ -473,7 +473,7 @@ class Store extends Model
      */
     public function getAllowCheckoutWithoutPayment(bool $parse = true): bool|string
     {
-        return $parse ? App::parseBooleanEnv($this->_allowCheckoutWithoutPayment) : $this->_allowCheckoutWithoutPayment;
+        return $parse ? (App::parseBooleanEnv($this->_allowCheckoutWithoutPayment) ?? false) : $this->_allowCheckoutWithoutPayment;
     }
 
     /**
@@ -495,7 +495,7 @@ class Store extends Model
      */
     public function getAllowPartialPaymentOnCheckout(bool $parse = true): bool|string
     {
-        return $parse ? App::parseBooleanEnv($this->_allowPartialPaymentOnCheckout) : $this->_allowPartialPaymentOnCheckout;
+        return $parse ? (App::parseBooleanEnv($this->_allowPartialPaymentOnCheckout) ?? false) : $this->_allowPartialPaymentOnCheckout;
     }
 
     /**
@@ -513,7 +513,7 @@ class Store extends Model
      */
     public function getRequireShippingAddressAtCheckout(bool $parse = true): bool|string
     {
-        return $parse ? App::parseBooleanEnv($this->_requireShippingAddressAtCheckout) : $this->_requireShippingAddressAtCheckout;
+        return $parse ? (App::parseBooleanEnv($this->_requireShippingAddressAtCheckout) ?? false) : $this->_requireShippingAddressAtCheckout;
     }
 
     /**
@@ -533,7 +533,7 @@ class Store extends Model
      */
     public function getRequireBillingAddressAtCheckout(bool $parse = true): bool|string
     {
-        return $parse ? App::parseBooleanEnv($this->_requireBillingAddressAtCheckout) : $this->_requireBillingAddressAtCheckout;
+        return $parse ? (App::parseBooleanEnv($this->_requireBillingAddressAtCheckout) ?? false) : $this->_requireBillingAddressAtCheckout;
     }
 
     /**
@@ -553,7 +553,7 @@ class Store extends Model
      */
     public function getRequireShippingMethodSelectionAtCheckout(bool $parse = true): bool|string
     {
-        return $parse ? App::parseBooleanEnv($this->_requireShippingMethodSelectionAtCheckout) : $this->_requireShippingMethodSelectionAtCheckout;
+        return $parse ? (App::parseBooleanEnv($this->_requireShippingMethodSelectionAtCheckout) ?? false) : $this->_requireShippingMethodSelectionAtCheckout;
     }
 
     /**
@@ -573,7 +573,7 @@ class Store extends Model
      */
     public function getUseBillingAddressForTax(bool $parse = true): bool|string
     {
-        return $parse ? App::parseBooleanEnv($this->_useBillingAddressForTax) : $this->_useBillingAddressForTax;
+        return $parse ? (App::parseBooleanEnv($this->_useBillingAddressForTax) ?? false) : $this->_useBillingAddressForTax;
     }
 
     /**
@@ -599,7 +599,7 @@ class Store extends Model
      */
     public function getValidateOrganizationTaxIdAsVatId(bool $parse = true): bool|string
     {
-        return $parse ? App::parseBooleanEnv($this->_validateOrganizationTaxIdAsVatId) : $this->_validateOrganizationTaxIdAsVatId;
+        return $parse ? (App::parseBooleanEnv($this->_validateOrganizationTaxIdAsVatId) ?? false) : $this->_validateOrganizationTaxIdAsVatId;
     }
 
     /**

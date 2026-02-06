@@ -41,12 +41,12 @@ class ShippingZonesController extends BaseShippingSettingsController
         // Generate table data
         $tableData = [];
         foreach ($shippingZones as $shippingZone) {
-            $label = Craft::t('site', $shippingZone->name);
+            $label = Html::encode(Craft::t('site', $shippingZone->name));
             $tableData[] = [
                 'id' => $shippingZone->id,
                 'title' => Html::a($label, $shippingZone->getCpEditUrl()),
                 'url' => $shippingZone->getCpEditUrl(),
-                'description' => Craft::t('site', $shippingZone->description),
+                'description' => Html::encode(Craft::t('site', $shippingZone->description)),
             ];
         }
 

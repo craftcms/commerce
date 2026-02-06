@@ -35,8 +35,10 @@ use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\PaymentForm;
 use craft\commerce\helpers\Purchasable;
 use craft\commerce\models\inventory\InventoryFulfillMovement;
+use craft\commerce\models\LineItemStatus;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderNotice;
+use craft\commerce\models\OrderStatus;
 use craft\commerce\models\Pdf;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
@@ -516,8 +518,26 @@ JS, []);
             $orderQuery->search($search);
         }
 
+        $orderQuery->orderBy('dateOrdered DESC');
         if ($sort) {
-            [$field, $direction] = explode('|', $sort);
+            if (is_array($sort)) {
+                $field = $sort[0]['sortField'];
+                $direction = $sort[0]['direction'];
+            } else {
+                [$field, $direction] = explode('|', $sort);
+            }
+
+            // Validate sorting
+            if (!in_array($direction, ['asc', 'desc']) ||
+                !in_array($field, [
+                    'reference',
+                    'dateOrdered',
+                    'totalPrice',
+                ])
+            ) {
+                $field = null;
+                $direction = null;
+            }
 
             if ($field && $direction) {
                 $orderQuery->orderBy($field . ' ' . $direction);
@@ -528,7 +548,6 @@ JS, []);
 
         $orderQuery->offset($offset);
         $orderQuery->limit($limit);
-        $orderQuery->orderBy('dateOrdered DESC');
         $orders = $orderQuery->all();
 
         $rows = [];
@@ -733,6 +752,15 @@ JS, []);
         // Apply sorting if required
         if ($sort && strpos($sort, '|')) {
             [$column, $direction] = explode('|', $sort);
+
+            if (!in_array($column, [
+                'description',
+                'sku',
+                'price',
+            ])) {
+                $column = null;
+            }
+
             if ($column && in_array($direction, ['asc', 'desc'], true)) {
                 $sqlQuery->orderBy([$column => $direction == 'asc' ? SORT_ASC : SORT_DESC]);
             }
@@ -1238,11 +1266,11 @@ JS, []);
             }
         }
 
-        if (!$amount) {
+        if (!$amount || $amount <= 0) {
             $amount = $transaction->getRefundableAmount();
         }
 
-        if ($amount > $transaction->getRefundableAmount()) {
+        if ($amount <= 0 || $amount > $transaction->getRefundableAmount()) {
             $error = Craft::t('commerce', 'Can not refund amount greater than the remaining amount');
             if ($this->request->getAcceptsJson()) {
                 return $this->asFailure($error);
@@ -1430,13 +1458,18 @@ JS, []);
 
         Craft::$app->getView()->registerJs('window.orderEdit.orderId = ' . $order->id . ';', View::POS_BEGIN);
 
-        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($order->storeId)->all();
+        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($order->storeId)
+            ->map(fn(OrderStatus $orderStatus) => $orderStatus->toArray(expand: ['uiLabel']))
+            ->all();
         Craft::$app->getView()->registerJs('window.orderEdit.orderStatuses = ' . Json::encode($orderStatuses) . ';', View::POS_BEGIN);
 
         $orderSites = $order->getStore()->getSites()->all();
         Craft::$app->getView()->registerJs('window.orderEdit.orderSites = ' . Json::encode(array_values($orderSites)) . ';', View::POS_BEGIN);
 
-        $lineItemStatuses = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses($order->storeId)->all();
+        $lineItemStatuses = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses($order->storeId)
+            ->map(fn(LineItemStatus $lineItemStatus) => $lineItemStatus->toArray(expand: ['uiLabel']))
+            ->all();
+
         Craft::$app->getView()->registerJs('window.orderEdit.lineItemStatuses = ' . Json::encode($lineItemStatuses) . ';', View::POS_BEGIN);
 
         $lineItemTypes = LineItemType::types();

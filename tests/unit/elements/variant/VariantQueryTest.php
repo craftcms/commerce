@@ -8,9 +8,11 @@
 namespace unit\elements\variant;
 
 use Codeception\Test\Unit;
+use craft\base\Element;
 use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\purchasables\PurchasableConditionRule;
 use craft\commerce\elements\db\VariantQuery;
+use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\models\ShippingCategory;
@@ -240,7 +242,7 @@ class VariantQueryTest extends Unit
     {
         return [
             'one-site' => [['testSite1'], 3, ['testSite1' => 'primary']],
-            'two-sites-same-store' => [['testSite1', 'default'], 6, ['testSite1' => 'primary', 'default' => 'primary']],
+            'two-sites-same-store' => [['testSite1', 'defaultSite'], 6, ['testSite1' => 'primary', 'defaultSite' => 'primary']],
             'two-sites-different-stores' => [['testSite1', 'testSite2'], 6, ['testSite1' => 'primary', 'testSite2' => 'euStore']],
         ];
     }
@@ -399,6 +401,48 @@ class VariantQueryTest extends Unit
             'sale-price-desc' => ['salePrice DESC', array_reverse(['hct-white', 'hct-blue', 'rad-hood'])],
             'base-price-asc' => ['basePrice ASC', ['hct-white', 'hct-blue', 'rad-hood']],
             'base-price-desc' => ['basePrice DESC', array_reverse(['hct-white', 'hct-blue', 'rad-hood'])],
+        ];
+    }
+
+    /**
+     * @param int $expectedCount
+     * @return void
+     * @since 5.5.0
+     * @dataProvider productStatusDataProvider
+     */
+    public function testProductStatus(mixed $status, int $expectedCount): void
+    {
+        $query = Variant::find();
+        $query->productStatus($status);
+
+        self::assertCount($expectedCount, $query->all());
+    }
+
+    /**
+     * @return array[]
+     */
+    public function productStatusDataProvider(): array
+    {
+        return [
+            'product-live' => ['live', 3],
+            'product-live-const' => [Product::STATUS_LIVE, 3],
+            'product-live-const-array' => [[Product::STATUS_LIVE], 3],
+            'product-pending' => ['pending', 0],
+            'product-pending-const' => [Product::STATUS_PENDING, 0],
+            'product-pending-const-array' => [[Product::STATUS_PENDING], 0],
+            'product-expired' => ['expired', 0],
+            'product-expired-const' => [Product::STATUS_EXPIRED, 0],
+            'product-expired-const-array' => [[Product::STATUS_EXPIRED], 0],
+            'product-enabled' => ['enabled', 3],
+            'product-enabled-const' => [Element::STATUS_ENABLED, 3],
+            'product-enabled-const-array' => [[Element::STATUS_ENABLED], 3],
+            'product-disabled' => ['disabled', 0],
+            'product-disabled-const' => [Element::STATUS_DISABLED, 0],
+            'product-disabled-const-array' => [[Element::STATUS_DISABLED], 0],
+            'product-enabled-disabled' => [['enabled', 'disabled'], 3],
+            'product-enabled-disabled-const' => [[Element::STATUS_ENABLED, Element::STATUS_DISABLED], 3],
+            'product-not-disabled-array' => [['not', Element::STATUS_DISABLED], 3],
+            'product-not-enabled' => [['not', Element::STATUS_ENABLED], 0],
         ];
     }
 }

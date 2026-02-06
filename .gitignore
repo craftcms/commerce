@@ -11,3 +11,4 @@ node_modules/
 /tests/_craft/config/project
 .env
 /CLAUDE.md
+*-private.md

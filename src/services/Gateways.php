@@ -295,6 +295,11 @@ class Gateways extends Component
         $gatewayUid = $event->tokenMatches[0];
         $data = $event->newValue;
 
+        // Bail if the data is not a valid gateway config array
+        if (!is_array($data)) {
+            return;
+        }
+
         $transaction = Craft::$app->getDb()->beginTransaction();
         try {
             $gatewayRecord = $this->_getGatewayRecord($gatewayUid);

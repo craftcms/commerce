@@ -902,12 +902,22 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function setAttributes($values, $safeOnly = true): void
     {
-        // Normalize empty strings to null for category IDs before setting
-        if (isset($values['taxCategoryId']) && $values['taxCategoryId'] === '') {
-            $values['taxCategoryId'] = null;
+        // Normalize category IDs - handle arrays from componentSelect and empty strings
+        if (isset($values['taxCategoryId'])) {
+            if (is_array($values['taxCategoryId'])) {
+                $values['taxCategoryId'] = reset($values['taxCategoryId']) ?: null;
+            }
+            if ($values['taxCategoryId'] === '') {
+                $values['taxCategoryId'] = null;
+            }
         }
-        if (isset($values['shippingCategoryId']) && $values['shippingCategoryId'] === '') {
-            $values['shippingCategoryId'] = null;
+        if (isset($values['shippingCategoryId'])) {
+            if (is_array($values['shippingCategoryId'])) {
+                $values['shippingCategoryId'] = reset($values['shippingCategoryId']) ?: null;
+            }
+            if ($values['shippingCategoryId'] === '') {
+                $values['shippingCategoryId'] = null;
+            }
         }
 
         parent::setAttributes($values, $safeOnly);
@@ -928,7 +938,9 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                 'targetClass' => PurchasableRecord::class,
                 'caseInsensitive' => true,
                 'filter' => function(ActiveQuery $query) {
-                    $targetRecordClassTableName = $query->modelClass::tableName();
+                    /** @var class-string<\yii\db\ActiveRecord> $modelClass */
+                    $modelClass = $query->modelClass;
+                    $targetRecordClassTableName = $modelClass::tableName();
                     $elementsTable = CraftTable::ELEMENTS;
                     $query->leftJoin(['elements' => $elementsTable], "[[elements.id]] = {$targetRecordClassTableName}.id");
                     $query->andWhere(['elements.revisionId' => null, 'elements.draftId' => null]);

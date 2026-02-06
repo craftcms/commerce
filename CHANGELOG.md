@@ -1,5 +1,109 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where the "Add a product" button wasn't appearing in the product relation field’s modal. ([#4205](https://github.com/craftcms/commerce/issues/4205))
+- Fixed a bug where order status and line item status names were not site translatable. ([#4213](https://github.com/craftcms/commerce/issues/4213))
+- Fixed a bug where the order's table was showing the incorrect column heading on the Edit User page.
+- Fixed a bug where it wasn’t possible to change a variant’s shipping category.
+- Fixed an error that occurred when adjusting inventory levels with an adjustment of zero. ([#4212](https://github.com/craftcms/commerce/issues/4212))
+- Fixed a SQL error that could occur when querying variants on PostgreSQL. ([#4210](https://github.com/craftcms/commerce/issues/4210))
+- Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities in the control panel. (GHSA-j3x5-mghf-xvfw, GHSA-pmgj-gmm4-jh6j)
+- Fixed [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerabilities in the control panel. (GHSA-mqxf-2998-c6cp, GHSA-wj89-2385-gpx3, GHSA-mj32-r678-7mvp)
+- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerability in the control panel. (GHSA-cfpv-rmpf-f624)
+- Added `craft\commerce\models\LineItemStatus::getDisplayName()`.
+
+## 5.5.2 - 2025-12-31
+
+- Improved transaction refund amount validation.
+- Fixed a bug where settings were being saved to the project config incorrectly. ([#4006](https://github.com/craftcms/commerce/issues/4006))
+- Fixed a PHP error that could occur when saving a shipping rule. ([#4134](https://github.com/craftcms/commerce/issues/4134))
+- Fixed a bug where the “New Customers” widget was counting all customers with orders in the date range, rather than only customers whose first order was in the date range.
+- Fixed [low, moderate, and high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerabilities. ([GHSA-w8gw-qm8p-j9j3](https://github.com/craftcms/commerce/security/advisories/GHSA-w8gw-qm8p-j9j3), [GHSA-h9r9-2pxg-cx9m](https://github.com/craftcms/commerce/security/advisories/GHSA-h9r9-2pxg-cx9m), [GHSA-g92v-wpv7-6w22](https://github.com/craftcms/commerce/security/advisories/GHSA-g92v-wpv7-6w22), [GHSA-p6w8-q63m-72c8](https://github.com/craftcms/commerce/security/advisories/GHSA-p6w8-q63m-72c8), [GHSA-wqc5-485v-3hqh](https://github.com/craftcms/commerce/security/advisories/GHSA-wqc5-485v-3hqh), [GHSA-v585-mf6r-rqrc](https://github.com/craftcms/commerce/security/advisories/GHSA-v585-mf6r-rqrc), [GHSA-frj9-9rwc-pw9j](https://github.com/craftcms/commerce/security/advisories/GHSA-frj9-9rwc-pw9j), [GHSA-8478-rmjg-mjj5](https://github.com/craftcms/commerce/security/advisories/GHSA-frj9-9rwc-pw9j), [GHSA-2h2m-v2mg-656c](https://github.com/craftcms/commerce/security/advisories/GHSA-2h2m-v2mg-656c), [GHSA-wq2m-r96q-crrf](https://github.com/craftcms/commerce/security/advisories/GHSA-wq2m-r96q-crrf))
+
+## 5.5.1 - 2025-12-04
+
+- Added `craft\commerce\models\CatalogPricingRule::afterPreparePurchasableQuery()`.
+- Fixed a bug where tax and shipping categories weren’t getting saved from the Edit variant screen. ([#4180](https://github.com/craftcms/commerce/issues/4180))
+- Fixed a bug where newly-created variants weren’t visible on product edit screens. 
+- Fixed a SQL error that could occur when viewing product indexes.
+- Fixed a PHP error that could occur when applying project config changes after updating. ([#4185](https://github.com/craftcms/commerce/issues/4185))
+- Fixed a bug where an order’s origin could be set incorrectly if it was created in the control panel.
+- Fixed a bug where order edit screens weren’t formatting prices using the user’s preferred formatting locale.
+- Fixed a SQL error that could occur when generating the pricing catalog. ([#4175](https://github.com/craftcms/commerce/issues/4175))
+
+## 5.5.0.1 - 2025-11-24
+
+- Fixed an error that could occur when querying for products via GraphQL. ([#4122](https://github.com/craftcms/commerce/issues/4122)) 
+
+## 5.5.0 - 2025-11-18
+
+### Store Management
+- Added the ability to suppress order emails when marking an order as complete in the control panel. ([#4144](https://github.com/craftcms/commerce/issues/4144))
+- PDF download URLs are now generated with time-limited security tokens.
+- Anonymous users attempting to download a PDF with an expired or missing token are now shown an email verification form.
+- Added a new system message for customizing PDF download emails.
+- Added the ability to select multiple products in variant conditions. ([#4166](https://github.com/craftcms/commerce/pull/4166))
+- Added the ability to select multiple variants in pricing rules’ “Match Variant” conditions. ([#4167](https://github.com/craftcms/commerce/issues/4167))
+- Added the ability to select multiple users in pricing rules’ “Match Customer” conditions. ([#4167](https://github.com/craftcms/commerce/issues/4167))
+
+### Administration
+- Added billing and shipping address conditions to payment gateways. ([#4100](https://github.com/craftcms/commerce/pull/4100))
+- Added preview targets for products. ([#4128](https://github.com/craftcms/commerce/pull/4128))
+- Added slug translation options to product types. ([#4088](https://github.com/craftcms/commerce/pull/4088))
+- Gateway condition rules now allow multiple gateways to be selected. ([#4112](https://github.com/craftcms/commerce/issues/4112))
+- Product action menus now have a “Product type settings” action, for admin users on environments that allow admin changes. ([#4157](https://github.com/craftcms/commerce/issues/4157))
+- Added the “Link Duration” setting to PDF settings.
+
+### Development
+- Orders now have a `dateFirstPaid` property that records the date and time when the order was first paid in full.
+- Improved product and variant query performance.
+- Improved the performance of retrieving a line item’s catalog pricing rule ID.
+- Added the `children`, `parent`, `ancestors` and `descendants` fields to products’ GraphQL data. ([#4122](https://github.com/craftcms/commerce/issues/4122))
+- Added the `productStatus` variant query param. ([#4158](https://github.com/craftcms/commerce/issues/4158))
+- Added the `productStatus` GraphQL variant query argument. ([#4158](https://github.com/craftcms/commerce/issues/4158))
+- Added the `--force` option to the `commerce/reset-data` command. ([#4115](https://github.com/craftcms/commerce/discussions/4115))
+
+### Extensibility
+- Added `craft\commerce\controllers\BaseStoreManagementController::asStoreManagementCpScreen()`.
+- Added `craft\commerce\controllers\DownloadsController::actionEmailChallenge()`.
+- Added `craft\commerce\controllers\DownloadsController::actionPdfChallenge()`.
+- Added `craft\commerce\controllers\DownloadsController::actionPdfSent()`.
+- Added `craft\commerce\elements\Order::$dateFirstPaid`.
+- Added `craft\commerce\elements\Order::getMaskedEmail()`.
+- Added `craft\commerce\elements\conditions\customers\CatalogPricingRuleCustomerConditionRule`.
+- Added `craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantConditionRule`.
+- Added `craft\commerce\elements\conditions\variants\VariantConditionRule`.
+- Added `craft\commerce\elements\db\OrderQuery::$dateFirstPaid`.
+- Added `craft\commerce\elements\db\OrderQuery::dateFirstPaid()`.
+- Added `craft\commerce\events\InventoryMovementEvent`. ([#4063](https://github.com/craftcms/commerce/pull/4063))
+- Added `craft\commerce\events\UpdateInventoryLevelEvent`. ([#4063](https://github.com/craftcms/commerce/pull/4063))
+- Added `craft\commerce\helpers\Cp::shippingCategoryFieldHtml()`.
+- Added `craft\commerce\helpers\Cp::shippingMethodFieldHtml()`.
+- Added `craft\commerce\helpers\Cp::shippingZoneFieldHtml()`.
+- Added `craft\commerce\helpers\Cp::taxCategoryFieldHtml()`.
+- Added `craft\commerce\helpers\Cp::taxZoneFieldHtml()`.
+- Added `craft\commerce\helpers\Gql::getSchemaContainedProductTypes()`.
+- Added `craft\commerce\helpers\ProductQuery`.
+- Added `craft\commerce\models\Email::$renderSiteId`.
+- Added `craft\commerce\models\Email::getRenderSite()`.
+- Added `craft\commerce\models\Pdf::$linkExpiry`.
+- Added `craft\commerce\queue\jobs\ResaveProductVariants`.
+- Added `craft\commerce\records\Email::$renderSiteId`.
+- Added `craft\commerce\records\Order::$dateFirstPaid`.
+- Added `craft\commerce\services\CatalogPricingRules::hasCatalogPricingRules()`.
+- Added `craft\commerce\services\Discounts::appendCouponCode()`. ([#4084](https://github.com/craftcms/commerce/pull/4084))
+- Added `craft\commerce\services\Inventory::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT`. ([#3835](https://github.com/craftcms/commerce/discussions/3835))
+- Added `craft\commerce\services\Inventory::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL`. ([#3835](https://github.com/craftcms/commerce/discussions/3835))
+- Added `craft\commerce\services\Pdfs::getPdfUrl()` now generates secure tokenized URLs with expiry timestamps.
+
+### System
+- Fixed a bug where purchasables could have a shipping category that was no longer available to their product type. ([#4018](https://github.com/craftcms/commerce/issues/4018))
+- Fixed a bug where order emails weren’t always getting rendered for the correct site.
+- Fixed a bug where variant titles were being incorrectly generated for draft products. ([#4173](https://github.com/craftcms/commerce/pull/4173), [#4126](https://github.com/craftcms/commerce/issues/4126))
+- Fixed a PHP error that occurred when retrieving an order that referenced an archived payment gateway. ([#4172](https://github.com/craftcms/commerce/issues/4172))
+- Fixed a bug where variants with inactive products were being returned in GraphQL variant queries. ([#4158](https://github.com/craftcms/commerce/issues/4158))
+
 ## 5.4.10 - 2025-11-12
 
 - Fixed a bug where variants were not getting the default shipping category set when the currently set category was no longer available. ([#4018](https://github.com/craftcms/commerce/issues/4018))

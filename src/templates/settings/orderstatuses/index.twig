@@ -52,7 +52,7 @@
               url: orderStatus.cpEditUrl,
               html: orderStatus.labelHtml|raw
           },
-          title: orderStatus.name|t('site'),
+          title: orderStatus.name|t('site')|e,
           url: orderStatus.cpEditUrl,
           handle: orderStatus.handle|e,
           hasEmails: orderStatus.emails|length ?:'',

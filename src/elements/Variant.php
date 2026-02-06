@@ -740,9 +740,19 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     protected function cacheTags(): array
     {
-        return [
-            "product:$this->primaryOwnerId",
-        ];
+        $tags = [];
+
+        if ($primaryOwnerId = $this->getPrimaryOwnerId()) {
+            $tags[] = "element::{$primaryOwnerId}";
+            $tags[] = "product:{$primaryOwnerId}";
+        }
+
+        $ownerId = $this->getOwnerId();
+        if ($ownerId && $ownerId !== $primaryOwnerId) {
+            $tags[] = "element::{$ownerId}";
+        }
+
+        return $tags;
     }
 
     /**

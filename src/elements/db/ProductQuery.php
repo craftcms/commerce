@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\commerce\helpers\ProductQuery as ProductQueryHelper;
 use craft\commerce\models\ProductType;
 use craft\commerce\Plugin;
 use craft\db\Query;
@@ -835,41 +836,7 @@ class ProductQuery extends ElementQuery
      */
     protected function statusCondition(string $status): mixed
     {
-        $currentTimeDb = Db::prepareDateForDb(new DateTime());
-
-        return match ($status) {
-            Product::STATUS_LIVE => [
-                'and',
-                [
-                    'elements.enabled' => true,
-                    'elements_sites.enabled' => true,
-                ],
-                ['<=', 'commerce_products.postDate', $currentTimeDb],
-                [
-                    'or',
-                    ['commerce_products.expiryDate' => null],
-                    ['>', 'commerce_products.expiryDate', $currentTimeDb],
-                ],
-            ],
-            Product::STATUS_PENDING => [
-                'and',
-                [
-                    'elements.enabled' => true,
-                    'elements_sites.enabled' => true,
-                ],
-                ['>', 'commerce_products.postDate', $currentTimeDb],
-            ],
-            Product::STATUS_EXPIRED => [
-                'and',
-                [
-                    'elements.enabled' => true,
-                    'elements_sites.enabled' => true,
-                ],
-                ['not', ['commerce_products.expiryDate' => null]],
-                ['<=', 'commerce_products.expiryDate', $currentTimeDb],
-            ],
-            default => parent::statusCondition($status),
-        };
+        return ProductQueryHelper::statusCondition($status);
     }
 
     /**

@@ -440,6 +440,41 @@
             errors: siteErrors|unique
         }) }}
 
+        {% if not headlessMode %}
+            {{ forms.editableTableField({
+                label: 'Preview Targets'|t('app'),
+                id: 'previewTargets',
+                name: 'previewTargets',
+                cols: {
+                    label: {
+                        type: 'singleline',
+                        heading: 'Label'|t('app'),
+                    },
+                    urlFormat: {
+                        type: 'singleline',
+                        heading: 'URL Format'|t('app'),
+                        info: 'The URL/URI to use for this target.'|t('app'),
+                        code: true,
+                    },
+                    refresh: {
+                        type: 'checkbox',
+                        heading: 'Auto-refresh'|t('app'),
+                        info: 'Whether preview frames should be automatically refreshed when content changes.'|t('app'),
+                        thin: true,
+                    }
+                },
+                defaultValues: {
+                    refresh: true,
+                },
+                allowAdd: true,
+                allowReorder: true,
+                allowDelete: true,
+                rows: productType.previewTargets,
+                errors: productType.getErrors('previewTargets'),
+                static: readOnly,
+            }) }}
+        {% endif %}
+
         {% if craft.app.getIsMultiSite() %}
             <div class="field">
                 {{ forms.selectField({

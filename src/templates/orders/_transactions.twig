@@ -28,12 +28,12 @@ var columns = [
         callback: function(value) {
             return '<span style="padding-left: '+value.level+'em;">'+
                 ((value.level) ? '<span class="extralight">&#8627;</span> ' : '') +
-                value.label+'</span>';
+                Craft.escapeHtml(value.label)+'</span>';
         }
     },
     { name: 'status', title: Craft.t('commerce', 'Status'),
         callback: function(value) {
-            return '<span class="transaction-status transaction-status-'+value.key+'">'+value.label+'</span>';
+            return '<span class="transaction-status transaction-status-'+Craft.escapeHtml(value.key)+'">'+Craft.escapeHtml(value.label)+'</span>';
         }
     },
     { name: 'amount', title: Craft.t('commerce', 'Amount'),
