@@ -3,7 +3,7 @@
 return [
     'primary' => [
         '_load' => false,
-        '_sites' => [1000],
+        '_sites' => [1, 1000],
         'settings' => [
             '_storeLocationAddress' => [
                 'countryCode' => 'US',
