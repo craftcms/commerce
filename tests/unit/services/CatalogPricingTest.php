@@ -79,13 +79,15 @@ class CatalogPricingTest extends Unit
         self::assertCount(10, (new Query())->select('id')->from(Table::CATALOG_PRICING)->all());
 
         $checkVariantPrices = function(Product $product) {
-            $product->getVariants()->each(function(Variant $variant) use ($product) {
-                self::assertEquals($variant->basePrice, (new Query())
+            $storeId = $product->getStore()->id;
+            $product->getVariants()->each(function(Variant $variant) use ($storeId) {
+                $price = (new Query())
                     ->select('price')
                     ->from(Table::CATALOG_PRICING)
                     ->where(['purchasableId' => $variant->id])
-                    ->andWhere(['storeId' => $product->storeId])
-                    ->scalar(),
+                    ->andWhere(['storeId' => $storeId])
+                    ->scalar();
+                self::assertEquals($variant->basePrice, $price,
                     $variant->title . ' price has been generated correctly'
                 );
             });

@@ -1336,13 +1336,13 @@ JS, [
         if (!isset($this->_variantManager)) {
             $this->_variantManager = new NestedElementManager(
                 Variant::class,
-                /** @phpstan-ignore-next-line */
-                fn(Product $product) => self::createVariantQuery($product),
+                // @phpstan-ignore argument.type (will always be a Product)
+                fn(ElementInterface $product): VariantQuery => self::createVariantQuery($product),
                 [
-                    'attribute' => 'allVariants',
+                    'attribute' => 'variants',
                     'propagationMethod' => $this->getType()->propagationMethod,
-                    'valueSetter' => fn($variants) => $this->setVariants($variants),
                     'valueGetter' => fn() => $this->getVariants(true),
+                    'valueSetter' => fn($variants) => $this->setVariants($variants),
                 ],
             );
         }
@@ -1650,9 +1650,13 @@ JS, [
             $record->dateUpdated = $this->dateUpdated;
             $record->dateCreated = $this->dateCreated;
 
+            // Capture the dirty attributes from the record
+            $dirtyAttributes = array_keys($record->getDirtyAttributes());
             $record->save(false);
 
             $this->id = $record->id;
+
+            $this->setDirtyAttributes($dirtyAttributes);
 
             if ($this->getIsCanonical() &&
                 isset($this->typeId) &&
@@ -1843,7 +1847,7 @@ JS, [
     /**
      * @inheritdoc
      */
-    public function setAttributes($values, $safeOnly = true): void
+    public function setAttributesFromRequest(array $values): void
     {
         // this is needed for Craft.NestedElementManager::markAsDirty()
         if (isset($values['variants']) && $values['variants'] === '*') {
@@ -1851,7 +1855,7 @@ JS, [
             unset($values['variants']);
         }
 
-        parent::setAttributes($values, $safeOnly);
+        parent::setAttributesFromRequest($values);
     }
 
     /**
