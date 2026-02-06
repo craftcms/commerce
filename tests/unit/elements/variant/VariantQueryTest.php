@@ -242,7 +242,7 @@ class VariantQueryTest extends Unit
     {
         return [
             'one-site' => [['testSite1'], 3, ['testSite1' => 'primary']],
-            'two-sites-same-store' => [['testSite1', 'default'], 6, ['testSite1' => 'primary', 'default' => 'primary']],
+            'two-sites-same-store' => [['testSite1', 'defaultSite'], 6, ['testSite1' => 'primary', 'defaultSite' => 'primary']],
             'two-sites-different-stores' => [['testSite1', 'testSite2'], 6, ['testSite1' => 'primary', 'testSite2' => 'euStore']],
         ];
     }
