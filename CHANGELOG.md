@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.10.2 - 2026-02-09
 
 - Fixed a bug where Orders tables on user edit pages were showing an incorrect column heading.
 - Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerability in the control panel. (GHSA-j3x5-mghf-xvfw)
