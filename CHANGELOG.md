@@ -4,7 +4,7 @@
 
 - Fixed a bug where the "Add a product" button wasn't appearing in the product relation field’s modal. ([#4205](https://github.com/craftcms/commerce/issues/4205))
 - Fixed a bug where order status and line item status names were not site translatable. ([#4213](https://github.com/craftcms/commerce/issues/4213))
-- Fixed a bug where the order's table was showing the incorrect column heading on the Edit User page.
+- Fixed a bug where Orders tables on user edit pages were showing an incorrect column heading.
 - Fixed a bug where it wasn’t possible to change a variant’s shipping category.
 - Fixed an error that occurred when adjusting inventory levels with an adjustment of zero. ([#4212](https://github.com/craftcms/commerce/issues/4212))
 - Fixed a SQL error that could occur when querying variants on PostgreSQL. ([#4210](https://github.com/craftcms/commerce/issues/4210))
