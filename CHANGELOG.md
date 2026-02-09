@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.5.3 - 2026-02-09
 
 - Added `craft\commerce\models\LineItemStatus::getDisplayName()`.
 - Fixed a bug where Orders tables on user edit pages were showing an incorrect column heading.
