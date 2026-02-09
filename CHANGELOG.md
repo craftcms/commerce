@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed a bug where the order’s table was showing the incorrect column heading on the Edit User page.
+- Fixed a bug where Orders tables on user edit pages were showing an incorrect column heading.
 - Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerability in the control panel. (GHSA-j3x5-mghf-xvfw)
 - Fixed [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerabilities in the control panel. (GHSA-mqxf-2998-c6cp, GHSA-mj32-r678-7mvp)
 
