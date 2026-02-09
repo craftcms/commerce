@@ -10,6 +10,7 @@
 - Fixed a SQL error that could occur when querying variants on PostgreSQL. ([#4210](https://github.com/craftcms/commerce/issues/4210))
 - Fixed a potential error when merging canonical product changes into a draft.([#4199](https://github.com/craftcms/commerce/issues/4199))
 - Fixed a bug where variants weren’t being shown as modified when variants were added, deleted, or reordered. ([#4222](https://github.com/craftcms/commerce/pull/4222))
+- Fixed an error that could occur when resaving variants. ([#4226](https://github.com/craftcms/commerce/issues/4226))
 - Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities in the control panel. (GHSA-j3x5-mghf-xvfw, GHSA-pmgj-gmm4-jh6j)
 - Fixed [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerabilities in the control panel. (GHSA-mqxf-2998-c6cp, GHSA-wj89-2385-gpx3, GHSA-mj32-r678-7mvp)
 - Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerability in the control panel. (GHSA-cfpv-rmpf-f624)
