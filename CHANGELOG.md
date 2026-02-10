@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed an error that could occur when resaving variants. ([#4226](https://github.com/craftcms/commerce/issues/4226))
+
 ## 5.5.3 - 2026-02-09
 
 - Added `craft\commerce\models\LineItemStatus::getDisplayName()`.
