@@ -1242,6 +1242,17 @@ class Plugin extends BasePlugin
                         }
                     }
 
+                    // Convert type handles to type IDs for the variant query
+                    if (!empty($criteria['type'])) {
+                        $criteria['typeId'] = (new Query())
+                            ->select('id')
+                            ->from(Table::PRODUCTTYPES)
+                            ->where(['handle' => $criteria['type']])
+                            ->column();
+
+                        unset($criteria['type']);
+                    }
+
                     return $controller->resaveElements(Variant::class, $criteria);
                 },
                 'options' => array_filter(['type', (property_exists(ResaveController::class, 'withFields') ? 'withFields' : null)]),

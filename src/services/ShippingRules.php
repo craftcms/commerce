@@ -62,6 +62,9 @@ class ShippingRules extends Component
 
         $this->_allShippingRules = collect($allShippingRules);
 
+        // Eager load shipping rule categories
+        $this->_eagerLoadShippingRuleCategories($this->_allShippingRules);
+
         return $this->_allShippingRules;
     }
 
@@ -238,5 +241,29 @@ class ShippingRules extends Component
             ->innerJoin(Table::SHIPPINGMETHODS . ' methods', '[[methods.id]] = [[shippingrules.methodId]]');
 
         return $query;
+    }
+
+    /**
+     * Eager loads shipping rule categories for a collection of shipping rules.
+     *
+     * @param Collection<ShippingRule> $shippingRules
+     */
+    private function _eagerLoadShippingRuleCategories(Collection $shippingRules): void
+    {
+        $ruleIds = $shippingRules->pluck('id')->filter()->all();
+
+        if (empty($ruleIds)) {
+            return;
+        }
+
+        $categoriesByRuleId = Plugin::getInstance()
+            ->getShippingRuleCategories()
+            ->getShippingRuleCategoriesByRuleIds($ruleIds);
+
+        foreach ($shippingRules as $rule) {
+            if ($rule->id !== null) {
+                $rule->setShippingRuleCategories($categoriesByRuleId[$rule->id] ?? []);
+            }
+        }
     }
 }
