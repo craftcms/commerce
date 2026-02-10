@@ -2,19 +2,22 @@
 
 ## Unreleased
 
-- Fixed a bug where the "Add a product" button wasn't appearing in the product relation field’s modal. ([#4205](https://github.com/craftcms/commerce/issues/4205))
-- Fixed a bug where order status and line item status names were not site translatable. ([#4213](https://github.com/craftcms/commerce/issues/4213))
-- Fixed a bug where the order's table was showing the incorrect column heading on the Edit User page.
+- Fixed an error that could occur when resaving variants. ([#4226](https://github.com/craftcms/commerce/issues/4226))
+
+## 5.5.3 - 2026-02-09
+
+- Added `craft\commerce\models\LineItemStatus::getDisplayName()`.
+- Fixed a bug where Orders tables on user edit pages were showing an incorrect column heading.
+- Fixed a bug where product selector modals didn’t have “Add a product” buttons. ([#4205](https://github.com/craftcms/commerce/issues/4205))
+- Fixed a bug where order status and line item status names weren’t translatable. ([#4213](https://github.com/craftcms/commerce/issues/4213))
 - Fixed a bug where it wasn’t possible to change a variant’s shipping category.
 - Fixed an error that occurred when adjusting inventory levels with an adjustment of zero. ([#4212](https://github.com/craftcms/commerce/issues/4212))
 - Fixed a SQL error that could occur when querying variants on PostgreSQL. ([#4210](https://github.com/craftcms/commerce/issues/4210))
-- Fixed a potential error when merging canonical product changes into a draft.([#4199](https://github.com/craftcms/commerce/issues/4199))
-- Fixed a bug where variants weren’t being shown as modified when variants were added, deleted, or reordered. ([#4222](https://github.com/craftcms/commerce/pull/4222))
-- Fixed an error that could occur when resaving variants. ([#4226](https://github.com/craftcms/commerce/issues/4226))
+- Fixed an error that could occur when merging canonical product changes into a draft. ([#4199](https://github.com/craftcms/commerce/issues/4199))
+- Fixed a bug where variants weren’t being marked as modified when variants were added, deleted, or reordered. ([#4222](https://github.com/craftcms/commerce/pull/4222))
 - Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities in the control panel. (GHSA-j3x5-mghf-xvfw, GHSA-pmgj-gmm4-jh6j)
-- Fixed [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerabilities in the control panel. (GHSA-mqxf-2998-c6cp, GHSA-wj89-2385-gpx3, GHSA-mj32-r678-7mvp)
 - Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerability in the control panel. (GHSA-cfpv-rmpf-f624)
-- Added `craft\commerce\models\LineItemStatus::getDisplayName()`.
+- Fixed [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerabilities in the control panel. (GHSA-mqxf-2998-c6cp, GHSA-wj89-2385-gpx3, GHSA-mj32-r678-7mvp)
 
 ## 5.5.2 - 2025-12-31
 
