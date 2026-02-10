@@ -259,26 +259,20 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
-    public function getUiLabel(): string
+    protected function uiLabel(): ?string
     {
-        $request = Craft::$app->getRequest();
-        $referrer = $request->getReferrer() ?? '';
-        $pathInfo = $request->getPathInfo();
-
-        $isCommerceProductContext = (
-            str_contains($pathInfo, 'commerce/products') ||
-            ($request->getIsAjax() && str_contains($referrer, 'commerce/products'))
-        );
-
-        if ($isCommerceProductContext || !$this->owner) {
-            return parent::getUiLabel();
+        $owner = $this->getOwner();
+        if ($owner) {
+            $uiLabelFormat = $owner->getType()->variantUiLabelFormat;
+            if ($uiLabelFormat !== '{title}') {
+                $uiLabel = Craft::$app->getView()->renderObjectTemplate($uiLabelFormat, $this);
+                if ($uiLabel !== '') {
+                    return $uiLabel;
+                }
+            }
         }
 
-        $labelParts = Craft::$app->getLocale()->getOrientation() === 'rtl'
-            ? [parent::getUiLabel(), $this->owner->getUiLabel()]
-            : [$this->owner->getUiLabel(), parent::getUiLabel()];
-
-        return implode(' : ', $labelParts);
+        return null;
     }
 
     /**
