@@ -291,7 +291,6 @@ return [
     'Create a new shipping rule' => 'Maak een nieuwe verzendingsregel',
     'Create a new tax category' => 'Maak een nieuwe fiscale categorie aan',
     'Create a new tax rate' => 'Maak een nieuw belastingtarief aan',
-    'Create a new tax zone' => 'Creëer nieuwe BTW zone',
     'Create a product type' => 'Maak een producttype aan',
     'Create a shipping zone' => 'Maak een verzendingszone aan',
     'Create a tax zone' => 'Maak een belastingzone aan',
