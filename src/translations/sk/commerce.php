@@ -291,7 +291,6 @@ return [
     'Create a new shipping rule' => 'Vytvoriť nové pravidlo dodania',
     'Create a new tax category' => 'Vytvoriť novú daňovú kategóriu',
     'Create a new tax rate' => 'Vytvoriť novú daňovú sadzbu',
-    'Create a new tax zone' => 'Vytvoriť novú daňovú zónu',
     'Create a product type' => 'Vytvoriť typ produktu',
     'Create a shipping zone' => 'Vytvoriť zónu doručenia',
     'Create a tax zone' => 'Vytvoriť daňovú zónu',
