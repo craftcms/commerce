@@ -291,7 +291,6 @@ return [
     'Create a new shipping rule' => 'Opprett en ny fraktregel',
     'Create a new tax category' => 'Opprett en ny avgiftskategori',
     'Create a new tax rate' => 'Opprett en ny skattesats',
-    'Create a new tax zone' => 'Opprett ny skattesone',
     'Create a product type' => 'Opprett en produkttype',
     'Create a shipping zone' => 'Opprett en fraktsone',
     'Create a tax zone' => 'Opprett en avgiftssone',
