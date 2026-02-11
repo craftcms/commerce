@@ -291,7 +291,6 @@ return [
     'Create a new shipping rule' => 'Criar uma nova regra de envio',
     'Create a new tax category' => 'Criar uma nova categoria de tributos',
     'Create a new tax rate' => 'Criar uma nova taxa do imposto',
-    'Create a new tax zone' => 'Criar uma nova zona de tributos',
     'Create a product type' => 'Criar um tipo de produto',
     'Create a shipping zone' => 'Criar nova zona de envio',
     'Create a tax zone' => 'Criar uma zona fiscal',
