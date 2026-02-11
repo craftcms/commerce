@@ -50,9 +50,7 @@ trait OrderNoticesTrait
 
         // Filter by both
         if ($type !== null && $attribute !== null) {
-            return ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($attribute, $type) {
-                return $notice->attribute == $attribute && $notice->type == $type;
-            }, true, true, true);
+            return ArrayHelper::where($this->_notices, fn(OrderNotice $notice) => $notice->attribute == $attribute && $notice->type == $type, true, true, true);
         }
 
         return [];
@@ -105,17 +103,11 @@ trait OrderNoticesTrait
         if ($type === null && $attribute === null) {
             $this->_notices = [];
         } elseif ($type !== null && $attribute === null) {
-            $this->_notices = ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($type) {
-                return $notice->type != $type;
-            }, true, true, true);
+            $this->_notices = ArrayHelper::where($this->_notices, fn(OrderNotice $notice) => $notice->type != $type, true, true, true);
         } elseif ($type === null && $attribute !== null) {
-            $this->_notices = ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($attribute) {
-                return $notice->attribute != $attribute;
-            }, true, true, true);
+            $this->_notices = ArrayHelper::where($this->_notices, fn(OrderNotice $notice) => $notice->attribute != $attribute, true, true, true);
         } elseif ($type !== null && $attribute !== null) {
-            $this->_notices = ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($type, $attribute) {
-                return $notice->type == $type && $notice->attribute == $attribute;
-            }, false, true, true);
+            $this->_notices = ArrayHelper::where($this->_notices, fn(OrderNotice $notice) => $notice->type == $type && $notice->attribute == $attribute, false, true, true);
         }
     }
 

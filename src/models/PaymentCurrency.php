@@ -111,7 +111,7 @@ class PaymentCurrency extends Model
     public function safeAttributes()
     {
         $names = parent::safeAttributes();
-        return array_unique(array_merge(['id', 'storeId', 'iso', 'rate'], $names));
+        return array_unique(array_merge(['id', 'storeId', 'iso', 'rate', 'dateCreated', 'dateUpdated'], $names));
     }
 
     /**

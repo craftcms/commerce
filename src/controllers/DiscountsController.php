@@ -28,10 +28,12 @@ use craft\errors\MissingComponentException;
 use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\MoneyHelper;
 use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
+use craft\web\View;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
 use yii\web\BadRequestHttpException;
@@ -39,7 +41,6 @@ use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 use function explode;
-use function get_class;
 
 /**
  * Class Discounts Controller
@@ -77,9 +78,126 @@ class DiscountsController extends BaseStoreManagementController
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
 
-        return $this->renderTemplate('commerce/store-management/discounts/index', [
-            'tableDataEndpoint' => UrlHelper::actionUrl('commerce/discounts/table-data', ['storeId' => $store->id]),
+        $this->getView()->registerTranslations('commerce', [
+            'Couldn’t reorder discounts.',
+            'Delete',
+            'Disabled',
+            'Discounts reordered.',
+            'Duration',
+            'Enabled',
+            'Require Coupon Code',
+            'Ignore Promotions?',
+            'Name',
+            'No discounts exist yet.',
+            'No',
+            'Set status',
+            'Stops Processing?',
+            'Times Used',
+            'Yes',
         ]);
+
+        $actionButtonHtml = Craft::$app->getUser()->getIdentity()->can('commerce-createDiscounts')
+            ? Html::a(Craft::t('commerce', 'New discount'), $store->getStoreSettingsUrl('discounts/new'), ['class' => 'btn submit add icon'])
+            : '';
+
+        $actions = [];
+        if (Craft::$app->getUser()->getIdentity()->can('commerce-editDiscounts')) {
+            $actions[] = [
+                'label' => Craft::t('commerce', 'Set status'),
+                'actions' => [
+                    [
+                        'label' => Craft::t('commerce', 'Enabled'),
+                        'action' => 'commerce/discounts/update-status',
+                        'param' => 'status',
+                        'value' => 'enabled',
+                        'status' => 'enabled',
+                    ],
+                    [
+                        'label' => Craft::t('commerce', 'Disabled'),
+                        'action' => 'commerce/discounts/update-status',
+                        'param' => 'status',
+                        'value' => 'disabled',
+                        'status' => 'disabled',
+                    ],
+                ],
+            ];
+        }
+
+        $deleteAction = null;
+        if (Craft::$app->getUser()->getIdentity()->can('commerce-deleteDiscounts')) {
+            $actions[] = [
+                'label' => Craft::t('commerce', 'Delete'),
+                'action' => 'commerce/discounts/delete',
+                'error' => true,
+            ];
+            $deleteAction = '"commerce/discounts/delete"';
+        }
+
+        $actions = Json::encode($actions);
+
+        $tableDataEndpoint = UrlHelper::actionUrl('commerce/discounts/table-data', ['storeId' => $store->id]);
+
+        $js = <<<JS
+    var actions = {$actions};
+
+    var columns = [
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: 'requireCouponCode', title: Craft.t('commerce', 'Require Coupon Code'),
+            callback: function(value) {
+                if (value) {
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+                }
+
+                return '';
+            }
+        },
+        { name: 'duration', title: Craft.t('commerce', 'Duration') },
+        { name: 'timesUsed', title: Craft.t('commerce', 'Times Used') },
+        { name: 'stop', title: Craft.t('commerce', 'Stops Processing?'),
+            callback: function(value) {
+                if (value) {
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+                }
+
+                return '';
+            }
+        },
+        { name: 'ignore', title: Craft.t('commerce', 'Ignore Promotions?'),
+            callback: function(value) {
+                if (value) {
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+                }
+
+                return '';
+            }
+        },
+    ];
+
+    new Craft.VueAdminTable({
+        actions: actions,
+        checkboxes: true,
+        columns: columns,
+        fullPane: false,
+        container: '#discounts-vue-admin-table',
+        allowMultipleDeletions: true,
+        deleteAction: {$deleteAction},
+        emptyMessage: Craft.t('commerce', 'No discounts exist yet.'),
+        padded: true,
+        paginatedReorderAction: 'commerce/discounts/reorder',
+        moveToPageAction: 'commerce/discounts/move-to-page',
+        reorderSuccessMessage: Craft.t('commerce', 'Discounts reordered.') ,
+        reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder discounts.'),
+        tableDataEndpoint: '{$tableDataEndpoint}',
+        search: true,
+        perPage: 100,
+  });
+JS;
+
+        $this->getView()->registerJs($js, View::POS_END);
+
+        return $this->asStoreManagementCpScreen($storeHandle)
+            ->additionalButtonsHtml($actionButtonHtml)
+            ->contentTemplate('commerce/store-management/discounts/index');
     }
 
     /**
@@ -198,6 +316,8 @@ class DiscountsController extends BaseStoreManagementController
         } else {
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
+
+        $variables['siteIds'] = $store->getSites()->pluck('id')->all();
         $variables['storeHandle'] = $store->handle;
         $variables['currency'] = $store->getCurrency();
         $variables['decimals'] = Plugin::getInstance()->getCurrencies()->getSubunitFor($store->getCurrency());
@@ -228,7 +348,45 @@ class DiscountsController extends BaseStoreManagementController
         $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
         $this->getView()->registerAssetBundle(CouponsAsset::class);
 
-        return $this->renderTemplate('commerce/store-management/discounts/_edit', $variables);
+        $variables['coupons'] = collect($variables['discount']->getCoupons())
+            ->map(fn(Coupon $coupon) => $coupon->toArray())
+            ->all();
+
+        $tabs = [
+            'discount' => [
+                'label' => Craft::t('commerce', 'Discount'),
+                'url' => '#discount',
+                'class' => $variables['discount']->getErrors('name') ? 'error' : '',
+            ],
+            'coupons' => [
+                'label' => Craft::t('commerce', 'Coupons'),
+                'url' => '#coupons',
+                'class' => $variables['discount']->getErrors('code') ? 'error' : '',
+            ],
+            'matchingItems' => [
+                'label' => Craft::t('commerce', 'Matching Items'),
+                'url' => '#matching-items',
+            ],
+            'conditions' => [
+                'label' => Craft::t('commerce', 'Conditions'),
+                'url' => '#conditions',
+                'class' => $variables['discount']->getErrors('startDate') || $variables['discount']->getErrors('endDate') ? 'error' : '',
+            ],
+            'actions' => [
+                'label' => Craft::t('commerce', 'Actions'),
+                'url' => '#actions',
+                'class' => $variables['discount']->getErrors('startDate') || $variables['discount']->getErrors('endDate') ? 'error' : '',
+            ],
+        ];
+
+        return $this->asStoreManagementCpScreen($storeHandle, false)
+            ->title($variables['title'])
+            ->tabs($tabs)
+            ->addCrumb(Craft::t('commerce', 'Discounts'), $store->getStoreSettingsUrl('discounts'))
+            ->metaSidebarTemplate('commerce/store-management/discounts/_sidebar', $variables)
+            ->action('commerce/discounts/save')
+            ->redirectUrl($store->getStoreSettingsUrl('discounts'))
+            ->contentTemplate('commerce/store-management/discounts/_edit', $variables);
     }
 
     /**
@@ -289,10 +447,14 @@ class DiscountsController extends BaseStoreManagementController
 
             // Invert non-purchaseTotal values
             if ($attr !== 'purchaseTotal') {
-                $attrValue = $attrValue * -1;
+                // Sanitize the input from the user - we store negative values, expecting the user to enter positive values
+                $attrValue = (float)$attrValue;
+                if ($attrValue > 0) {
+                    $attrValue = $attrValue * -1;
+                }
             }
 
-            $discount->{$attr} = $attrValue;
+            $discount->{$attr} = (float)$attrValue;
         }
 
         $date = $this->request->getBodyParam('dateFrom');
@@ -353,13 +515,6 @@ class DiscountsController extends BaseStoreManagementController
             return $this->redirectToPostedUrl($discount);
         } else {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save discount.'));
-
-            // Set back to original input value of the text field to prevent negative value.
-            $baseDiscountParam = Json::decodeIfJson($this->request->getBodyParam('baseDiscount'));
-            $perItemDiscountParam = Json::decodeIfJson($this->request->getBodyParam('perItemDiscount'));
-
-            $discount->baseDiscount = $baseDiscountParam['value'];
-            $discount->perItemDiscount = $perItemDiscountParam['value'];
         }
 
         // Send the model back to the template
@@ -506,17 +661,11 @@ class DiscountsController extends BaseStoreManagementController
             return $this->asFailure(Craft::t('commerce', 'Type not in allowed options.'));
         }
 
-        switch ($type) {
-            case self::DISCOUNT_COUNTER_TYPE_EMAIL:
-                Plugin::getInstance()->getDiscounts()->clearEmailUsageHistoryById($id);
-                break;
-            case self::DISCOUNT_COUNTER_TYPE_CUSTOMER:
-                Plugin::getInstance()->getDiscounts()->clearCustomerUsageHistoryById($id);
-                break;
-            case self::DISCOUNT_COUNTER_TYPE_TOTAL:
-                Plugin::getInstance()->getDiscounts()->clearDiscountUsesById($id);
-                break;
-        }
+        match ($type) {
+            self::DISCOUNT_COUNTER_TYPE_EMAIL => Plugin::getInstance()->getDiscounts()->clearEmailUsageHistoryById($id),
+            self::DISCOUNT_COUNTER_TYPE_CUSTOMER => Plugin::getInstance()->getDiscounts()->clearCustomerUsageHistoryById($id),
+            self::DISCOUNT_COUNTER_TYPE_TOTAL => Plugin::getInstance()->getDiscounts()->clearDiscountUsesById($id),
+        };
 
         return $this->asSuccess();
     }
@@ -612,9 +761,10 @@ class DiscountsController extends BaseStoreManagementController
                 continue;
             }
 
-            if ($variables['discount']->{$attr} != 0) {
+            if ($variables['discount']->{$attr} < 0) {
+                // Flip negative numbers for display to the user
                 $variables['discount']->{$attr} *= -1;
-            } else {
+            } elseif ($variables['discount']->{$attr} == 0) {
                 $variables['discount']->{$attr} = 0;
             }
         }
@@ -675,7 +825,7 @@ class DiscountsController extends BaseStoreManagementController
         if (empty($variables['id']) && $this->request->getParam('purchasableIds')) {
             $purchasableIdsFromUrl = explode('|', $this->request->getParam('purchasableIds'));
             foreach ($purchasableIdsFromUrl as $purchasableId) {
-                $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
+                $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId, siteId: $variables['siteIds']);
                 if ($purchasable instanceof Product) {
                     $purchasableIds[] = $purchasable->defaultVariantId; // this would only be null if we are duplicating a variant, otherwise should never be null
                 } else {
@@ -691,10 +841,10 @@ class DiscountsController extends BaseStoreManagementController
 
         $purchasables = [];
         foreach ($purchasableIds as $purchasableId) {
-            $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
+            $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId, siteId: $variables['siteIds']);
             if ($purchasable instanceof PurchasableInterface) {
-                $class = get_class($purchasable);
-                $purchasables[$class] = $purchasables[$class] ?? [];
+                $class = $purchasable::class;
+                $purchasables[$class] ??= [];
                 $purchasables[$class][] = $purchasable;
             }
         }

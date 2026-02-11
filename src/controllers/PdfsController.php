@@ -45,7 +45,7 @@ class PdfsController extends BaseAdminController
         });
         $stores = $stores->all();
 
-        return $this->renderTemplate('commerce/settings/pdfs/index',[
+        return $this->renderTemplate('commerce/settings/pdfs/index', [
             'pdfs' => $pdfs,
             'stores' => $stores,
             'readOnly' => $this->isReadOnlyScreen(),
@@ -68,44 +68,53 @@ class PdfsController extends BaseAdminController
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
 
-        $variables = compact('pdf', 'id');
-
         $pdfLanguageOptions = [
             PdfRecord::LOCALE_ORDER_LANGUAGE => Craft::t('commerce', 'The language the order was made in.'),
         ];
 
-        $variables['pdfLanguageOptions'] = array_merge($pdfLanguageOptions, LocaleHelper::getSiteAndOtherLanguages());
+        $pdfLanguageOptions = array_merge($pdfLanguageOptions, LocaleHelper::getSiteAndOtherLanguages());
 
-        if (!$variables['pdf']) {
-            if ($variables['id']) {
-                $variables['pdf'] = Plugin::getInstance()->getPdfs()->getPdfById($variables['id'], $store->id);
+        if (!$pdf) {
+            if ($id) {
+                $pdf = Plugin::getInstance()->getPdfs()->getPdfById($id, $store->id);
 
-                if (!$variables['pdf']) {
+                if (!$pdf) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['pdf'] = Craft::createObject([
+                $pdf = Craft::createObject([
                     'class' => Pdf::class,
                     'attributes' => ['storeId' => $store->id],
                 ]);
             }
         }
 
-        if ($variables['pdf']->id) {
-            $variables['title'] = $variables['pdf']->name;
-        } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new PDF');
-        }
+        $title = $pdf->id ? $pdf->name : Craft::t('commerce', 'Create a new PDF');
 
-        $variables['isDefault'] = Plugin::getInstance()->getPdfs()->getAllPdfs($variables['pdf']->storeId)->count() === 0 || $variables['pdf']->isDefault;
-        $variables['paperOrientationOptions'] = Pdf::getPaperOrientationOptions();
-        $variables['paperSizeOptions'] = Pdf::getPaperSizeOptions();
+        $isDefault = Plugin::getInstance()->getPdfs()->getAllPdfs($pdf->storeId)->count() === 0 || $pdf->isDefault;
+        $paperOrientationOptions = Pdf::getPaperOrientationOptions();
+        $paperSizeOptions = Pdf::getPaperSizeOptions();
 
-        DebugPanel::prependOrAppendModelTab(model: $variables['pdf'], prepend: true);
+        DebugPanel::prependOrAppendModelTab(model: $pdf, prepend: true);
 
-        $variables['readOnly'] = $this->isReadOnlyScreen();
-
-        return $this->renderTemplate('commerce/settings/pdfs/_edit', $variables);
+        return $this->asCpScreen()
+            ->title($title)
+            ->crumbs([
+                ['label' => Craft::t('commerce', 'Commerce'), 'url' => 'commerce'],
+                ['label' => Craft::t('app', 'Settings'), 'url' => 'commerce/settings', 'ariaLabel' => Craft::t('commerce', 'Commerce Settings')],
+                ['label' => Craft::t('commerce', 'PDFs'), 'url' => 'commerce/settings/pdfs'],
+            ])
+            ->selectedSubnavItem('settings')
+            ->action('commerce/pdfs/save')
+            ->redirectUrl('commerce/settings/pdfs')
+            ->contentTemplate('commerce/settings/pdfs/_edit', [
+                'pdf' => $pdf,
+                'pdfLanguageOptions' => $pdfLanguageOptions,
+                'isDefault' => $isDefault,
+                'paperOrientationOptions' => $paperOrientationOptions,
+                'paperSizeOptions' => $paperSizeOptions,
+                'readOnly' => $this->isReadOnlyScreen(),
+            ]);
     }
 
     /**

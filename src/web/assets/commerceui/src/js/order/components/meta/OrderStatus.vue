@@ -13,7 +13,7 @@
                 </template>
 
                 <span class="order-status-btn-name">{{
-                    orderStatus.name
+                    orderStatus.uiLabel
                 }}</span>
             </a>
 
@@ -23,14 +23,14 @@
                         <a
                             :data-id="status.id"
                             :data-color="status.color"
-                            :data-name="status.name"
+                            :data-name="status.uiLabel"
                             :class="{sel: orderStatus.id === status.value}"
                         >
                             <span
                                 class="status"
                                 :class="{[status.color]: true}"
                             ></span>
-                            <span>{{ status.name }}</span>
+                            <span>{{ status.uiLabel }}</span>
                         </a>
                     </li>
                 </ul>
@@ -47,14 +47,14 @@
                     maxlength="10000"
                 ></textarea>
 
-                <input
-                    id="orderedit-suppress-emails"
-                    class="checkbox"
-                    type="checkbox"
-                    v-model="suppressEmails"
-                /><label for="orderedit-suppress-emails">{{
-                    $options.filters.t('Suppress emails', 'commerce')
-                }}</label>
+                <label class="order-edit-suppress-emails" for="suppressEmails">
+                    <lightswitch
+                        name="suppressEmails"
+                        :value="suppressEmails"
+                        @change="(val) => (suppressEmails = val)"
+                    ></lightswitch>
+                    {{ 'Suppress emails' | t('commerce') }}
+                </label>
             </div>
         </template>
     </div>
@@ -64,8 +64,10 @@
     /* global Garnish */
 
     import {mapGetters} from 'vuex';
+    import Lightswitch from '../../../base/components/Lightswitch.vue';
 
     export default {
+        components: {Lightswitch},
         props: {
             order: {
                 type: Object,
@@ -178,5 +180,11 @@
     .order-status-message {
         margin-top: 10px;
         width: 100%;
+    }
+
+    .order-edit-suppress-emails {
+        display: flex;
+        align-items: center;
+        gap: var(--s);
     }
 </style>

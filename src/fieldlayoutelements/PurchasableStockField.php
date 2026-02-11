@@ -38,6 +38,16 @@ class PurchasableStockField extends BaseNativeField
     public string $attribute = 'stock';
 
     /**
+     * @var bool Whether inventory should be tracked by default when creating a new purchasable.
+     */
+    public bool $defaultInventoryTracked = false;
+
+    /**
+     * @var bool Whether out of stock purchases should be allowed by default when creating a new purchasable.
+     */
+    public bool $defaultAllowOutOfStockPurchases = false;
+
+    /**
      * @inheritdoc
      */
     public function __construct(array $config = [])
@@ -119,80 +129,79 @@ JS, [
 
             $inventoryLevelTableRows .= Html::beginTag('tr') .
                 Html::beginTag('td') .
-                    $inventoryLevel->getInventoryLocation()->name .
+                Html::encode($inventoryLevel->getInventoryLocation()->getUiLabel()) .
                 Html::endTag('td') .
                 Html::beginTag('td') .
-                    Html::beginTag('div', ['class' => 'flex']) .
-                        Html::tag('div', (string)$inventoryLevel->availableTotal, [
-                            'id' => $updatedValueId,
-                        ]) .
-                        (!$static ? Html::tag('div',Html::button(Craft::t('commerce', ''),
-                            [
-                                'class' => 'btn menubtn action-btn',
-                                'id' => $editUpdateQuantityInventoryItemId,
-                            ])) : '') .
-                    Html::endTag('div') .
+                Html::beginTag('div', ['class' => 'flex']) .
+                Html::tag('div', (string)$inventoryLevel->availableTotal, [
+                    'id' => $updatedValueId,
+                ]) .
+                (!$static ? Html::tag('div', Html::button(Craft::t('commerce', ''),
+                    [
+                        'class' => 'btn menubtn action-btn',
+                        'id' => $editUpdateQuantityInventoryItemId,
+                    ])) : '') .
+                Html::endTag('div') .
                 Html::endTag('td') .
                 (!$static ? Html::beginTag('td') .
                     (Craft::$app->getUser()->checkPermission('commerce-manageInventoryStockLevels') ?
-                    Html::a(
-                        Craft::t('commerce', 'Manage'),
-                        UrlHelper::cpUrl('commerce/inventory/levels/' . $inventoryLevel->getInventoryLocation()->handle, [
-                            'inventoryItemId' => $inventoryLevel->getInventoryItem()->id,
-                        ]),
-                        [
-                            'target' => '_blank',
-                            'class' => 'btn small',
-                            'id' => $editUpdateQuantityInventoryItemId,
-                            'aria-label' => Craft::t('app', 'Open in a new tab'),
-                            'data-icon' => 'external',
-                        ]
-                    ) : '') : '') .
+                        Html::a(
+                            Craft::t('commerce', 'Manage'),
+                            UrlHelper::cpUrl('commerce/inventory/levels/' . $inventoryLevel->getInventoryLocation()->handle, [
+                                'inventoryItemId' => $inventoryLevel->getInventoryItem()->id,
+                            ]),
+                            [
+                                'target' => '_blank',
+                                'class' => 'btn small',
+                                'id' => $editUpdateQuantityInventoryItemId,
+                                'aria-label' => Craft::t('app', 'Open in a new tab'),
+                                'data-icon' => 'external',
+                            ]
+                        ) : '') : '') .
                 Html::endTag('td') .
                 Html::endTag('tr');
         }
 
         $inventoryLevelsTable = Html::beginTag('table', ['class' => 'data fullwidth', 'style' => 'margin-top:5px;']) .
             Html::beginTag('thead') .
-                Html::beginTag('tr') .
-                    Html::beginTag('th') .
-                        Craft::t('commerce', 'Location') .
-                    Html::endTag('th') .
-                        Html::beginTag('th') .
-                    Craft::t('commerce', 'Available') .
-                        Html::endTag('th') .
+            Html::beginTag('tr') .
+            Html::beginTag('th') .
+            Craft::t('commerce', 'Location') .
+            Html::endTag('th') .
+            Html::beginTag('th') .
+            Craft::t('commerce', 'Available') .
+            Html::endTag('th') .
 
 
-                    (!$static ? Html::beginTag('th') .
-                        Craft::t('commerce', 'Manage') .
-                    Html::endTag('th') : '') .
+            (!$static ? Html::beginTag('th') .
+                Craft::t('commerce', 'Manage') .
+                Html::endTag('th') : '') .
 
 
-
-                Html::endTag('tr') .
+            Html::endTag('tr') .
             Html::endTag('thead') .
 
             Html::beginTag('tbody') .
-                $inventoryLevelTableRows .
-                Html::beginTag('tr') .
-                    Html::beginTag('td', ['colspan' => '2']) .
-                        $availableStockLabel .
-                    Html::endTag('td') .
+            $inventoryLevelTableRows .
+            Html::beginTag('tr') .
+            Html::beginTag('td', ['colspan' => '2']) .
+            $availableStockLabel .
+            Html::endTag('td') .
 
-                    (!$static ? Html::beginTag('td') .
-                        Html::a(
-                            Craft::t('commerce', 'Edit'),
-                            '#',
-                            [
-                                'class' => 'btn small',
-                                'id' => $editInventoryItemId,
-                                'aria-label' => Craft::t('app', 'Edit Inventory Item'),
-                                'data-icon' => 'edit',
-                            ]
-                        ) .
-                    Html::endTag('td') : '') .
+            (!$static ? Html::beginTag('td') .
+                Html::a(
+                    Craft::t('commerce', 'Edit'),
+                    '#',
+                    [
+                        'class' => 'btn small',
+                        'id' => $editInventoryItemId,
+                        'aria-label' => Craft::t('app', 'Edit Inventory Item'),
+                        'data-icon' => 'edit',
+                    ]
+                ) .
+                Html::endTag('td') : '') .
 
-                Html::endTag('tr') .
+            Html::endTag('tr') .
             Html::endTag('tbody') .
             Html::endTag('table');
 
@@ -201,7 +210,7 @@ JS, [
             'id' => 'store-inventory-item-tracked',
             'name' => 'inventoryTracked',
             'small' => true,
-            'on' => $element->inventoryTracked,
+            'on' => $element->getIsFresh() ? $this->defaultInventoryTracked : $element->inventoryTracked,
             'toggle' => $inventoryItemTrackedId,
             'disabled' => $static,
         ];
@@ -211,18 +220,36 @@ JS, [
             'id' => 'store-backorder-allowed',
             'name' => 'allowOutOfStockPurchases',
             'small' => true,
-            'on' => $element->getIsOutOfStockPurchasingAllowed(),
+            'on' => $element->getIsFresh() ? $this->defaultAllowOutOfStockPurchases : $element->getIsOutOfStockPurchasingAllowed(),
             'disabled' => $static,
         ];
 
 
         return Html::beginTag('div') .
-                Cp::lightswitchHtml($storeInventoryTrackedLightswitchConfig) .
-                Html::beginTag('div', ['id' => $inventoryItemTrackedId, 'class' => 'hidden']) .
-                    $inventoryLevelsTable .
-                    Cp::lightswitchFieldHtml($storeAllowOutOfStockPurchasesLightswitchConfig) .
-                Html::endTag('div') .
+            Cp::lightswitchHtml($storeInventoryTrackedLightswitchConfig) .
+            Html::beginTag('div', ['id' => $inventoryItemTrackedId, 'class' => 'hidden']) .
+            $inventoryLevelsTable .
+            Cp::lightswitchFieldHtml($storeAllowOutOfStockPurchasesLightswitchConfig) .
+            Html::endTag('div') .
             Html::endTag('div');
+    }
+
+    public function settingsHtml(): string
+    {
+        $lightSwitches = Cp::lightswitchHtml([
+                'id' => 'defaultInventoryTracked',
+                'name' => 'defaultInventoryTracked',
+                'label' => Craft::t('commerce', 'Track Inventory'),
+                'on' => $this->defaultInventoryTracked,
+            ]) .
+            Cp::lightswitchHtml([
+                'id' => 'defaultAllowOutOfStockPurchases',
+                'name' => 'defaultAllowOutOfStockPurchases',
+                'label' => Craft::t('commerce', 'Allow out of stock purchases'),
+                'on' => $this->defaultAllowOutOfStockPurchases,
+            ]);
+
+        return parent::settingsHtml() . Cp::fieldHtml($lightSwitches, ['label' => Craft::t('app', 'Default Value')]);
     }
 
     /**

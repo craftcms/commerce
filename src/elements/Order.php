@@ -26,6 +26,8 @@ use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderNoticesTrait;
 use craft\commerce\elements\traits\OrderValidatorsTrait;
 use craft\commerce\errors\CurrencyException;
+use craft\commerce\errors\LineItemNotFoundException;
+use craft\commerce\errors\OrderAdjustmentNotFoundException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\events\AddLineItemEvent;
 use craft\commerce\events\LineItemEvent;
@@ -46,7 +48,6 @@ use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\records\Order as OrderRecord;
-use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\commerce\records\OrderNotice as OrderNoticeRecord;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
@@ -55,6 +56,7 @@ use craft\elements\User;
 use craft\errors\DeprecationException;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
+use craft\errors\MutexException;
 use craft\errors\UnsupportedSiteException;
 use craft\fields\BaseRelationField;
 use craft\helpers\ArrayHelper;
@@ -160,6 +162,9 @@ use yii\log\Logger;
  * @property float $paymentAmount
  * @property-read null|string $loadCartUrl
  * @property-read array $metadata
+ * @property-read int $totalCommittedStock
+ * @property-read \Money\Teller $teller
+ * @property-read float $totalSaleAmount
  * @property-read Transaction[] $transactions
  * @customer Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -573,6 +578,20 @@ class Order extends Element implements HasStoreInterface
      * ```
      */
     public ?DateTime $datePaid = null;
+
+    /**
+     * The date and time this order was first paid in full.
+     *
+     * @var DateTime|null Date first paid
+     * ---
+     * ```php
+     * echo $order->dateFirstPaid;
+     * ```
+     * ```twig
+     * {{ order.dateFirstPaid }}
+     * ```
+     */
+    public ?DateTime $dateFirstPaid = null;
 
     /**
      * The date and time this order was authorized in full.
@@ -1389,7 +1408,11 @@ class Order extends Element implements HasStoreInterface
         if (!$this->gatewayId && !$this->paymentSourceId) {
             $gateways = Plugin::getInstance()->getGateways()->getAllCustomerEnabledGateways();
             if ($gateways->isNotEmpty()) {
-                $this->gatewayId = $gateways->first()->id;
+                $gateway = $gateways->filter(fn(GatewayInterface $g) => $g->availableForUseWithOrder($this))->first();
+
+                if ($gateway) {
+                    $this->gatewayId = $gateway->id;
+                }
             }
         }
 
@@ -1563,10 +1586,9 @@ class Order extends Element implements HasStoreInterface
             // Are the addresses both being set to each other.
             [
                 ['billingAddress', 'shippingAddress'], 'validateAddressReuse',
-                'when' => function($model) {
+                'when' => fn($model) =>
                     /** @var Order $model */
-                    return !$model->isCompleted;
-                },
+                    !$model->isCompleted,
             ],
 
             [['shippingAddress'], 'validateOrganizationTaxIdAsVatId', 'when' => fn(Order $order) => $order->getStore()->getValidateOrganizationTaxIdAsVatId() && !$order->getStore()->getUseBillingAddressForTax()],
@@ -1587,7 +1609,7 @@ class Order extends Element implements HasStoreInterface
 
             [['paymentSourceId'], 'number', 'integerOnly' => true],
             [['paymentSourceId'], 'validatePaymentSourceId'],
-            [['number', 'user', 'customer', 'storeId', 'orderSiteId', 'orderCompletedEmail', 'saveBillingAddressOnOrderComplete', 'saveShippingAddressOnOrderComplete'], 'safe'],
+            [['number', 'user', 'customer', 'storeId', 'orderSiteId', 'orderCompletedEmail', 'saveBillingAddressOnOrderComplete', 'saveShippingAddressOnOrderComplete', 'origin'], 'safe'],
         ]);
     }
 
@@ -1719,6 +1741,11 @@ class Order extends Element implements HasStoreInterface
             $this->datePaid = new DateTime();
         }
 
+        // If it was just paid and this is the first time, set the date first paid to now.
+        if ($justPaid && $this->dateFirstPaid === null) {
+            $this->dateFirstPaid = new DateTime();
+        }
+
         // If it was just authorized set the date authorized to now.
         if ($justAuthorized) {
             $this->dateAuthorized = new DateTime();
@@ -1814,7 +1841,29 @@ class Order extends Element implements HasStoreInterface
             $referenceTemplate = $this->getStore()->getOrderReferenceFormat();
 
             try {
-                $this->reference = Craft::$app->getView()->renderObjectTemplate($referenceTemplate, $this);
+                $baseReference = Craft::$app->getView()->renderObjectTemplate($referenceTemplate, $this);
+
+                // Check if this reference already exists and append suffix if needed
+                $suffix = 0;
+                $testReference = $baseReference;
+
+                while (true) {
+                    $existingReference = (new Query())
+                        ->select('id')
+                        ->from([Table::ORDERS])
+                        ->where(['reference' => $testReference])
+                        ->exists();
+
+                    if (!$existingReference) {
+                        // Reference is unique, use it
+                        $this->reference = $testReference;
+                        break;
+                    }
+
+                    // Reference exists, increment suffix and try again
+                    $suffix++;
+                    $testReference = $baseReference . '-' . $suffix;
+                }
             } catch (Throwable $exception) {
                 $mutex->release($lockName);
                 Craft::error('Unable to generate order completion reference for order ID: ' . $this->id . ', with format: ' . $referenceTemplate . ', error: ' . $exception->getMessage());
@@ -2171,174 +2220,200 @@ class Order extends Element implements HasStoreInterface
     }
 
     /**
+     * @return Collection
+     * @throws DeprecationException
+     * @throws InvalidConfigException
+     * @since 5.5
+     */
+    public function getAvailableGateways(): Collection
+    {
+        return Plugin::getInstance()->getGateways()->getAllCustomerEnabledGatewaysAndAvailableForUseWithOrder($this);
+    }
+
+    /**
      * @inheritdoc
      */
     public function afterSave(bool $isNew): void
     {
-        // Make sure addresses are set before recalculation so that on the next page load
-        // the correct adjustments and totals are shown
-        if ($this->shippingSameAsBilling) {
-            $this->setShippingAddress($this->getBillingAddress());
+        $lockKey = "order-after-save:$this->number";
+        $mutex = Craft::$app->getMutex();
+        if (!$mutex->acquire($lockKey, 15)) {
+            throw new MutexException($lockKey, 'Could not acquire a lock to save the order.');
         }
 
-        if ($this->billingSameAsShipping) {
-            $this->setBillingAddress($this->getShippingAddress());
-        }
+        try {
 
-        // TODO: Move the recalculate to somewhere else. Saving should be for saving only #COM-40
-        // Right now orders always recalc when saved and not completed but that shouldn't always be the case.
-        $this->recalculate();
-
-        if (!$isNew) {
-            $orderRecord = OrderRecord::findOne($this->id);
-
-            if (!$orderRecord) {
-                throw new Exception('Invalid order ID: ' . $this->id);
+            // Make sure addresses are set before recalculation so that on the next page load
+            // the correct adjustments and totals are shown
+            if ($this->shippingSameAsBilling) {
+                $this->setShippingAddress($this->getBillingAddress());
             }
-        } else {
-            $orderRecord = new OrderRecord();
-            $orderRecord->id = $this->id;
-        }
 
-        $oldStatusId = $orderRecord->orderStatusId;
-
-        $orderRecord->storeId = $this->storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
-        $orderRecord->number = $this->number;
-        $orderRecord->reference = $this->reference;
-        $orderRecord->itemTotal = $this->getItemTotal();
-        $orderRecord->itemSubtotal = $this->getItemSubtotal();
-        $orderRecord->email = $this->getEmail() ?: '';
-        $orderRecord->orderCompletedEmail = $this->orderCompletedEmail;
-        $orderRecord->isCompleted = $this->isCompleted;
-
-        $dateOrdered = $this->dateOrdered;
-        if (!$dateOrdered && $orderRecord->isCompleted) {
-            $dateOrdered = Db::prepareDateForDb(new DateTime());
-        }
-        $orderRecord->dateOrdered = $dateOrdered;
-
-        $orderRecord->datePaid = $this->datePaid ?: null;
-        $orderRecord->dateAuthorized = $this->dateAuthorized ?: null;
-        $orderRecord->shippingMethodHandle = $this->shippingMethodHandle ?? '';
-        $orderRecord->shippingMethodName = $this->shippingMethodName ?? '';
-        $orderRecord->paymentSourceId = $this->getPaymentSource() ? $this->getPaymentSource()->id : null;
-        $orderRecord->gatewayId = $this->gatewayId;
-        $orderRecord->orderStatusId = $this->orderStatusId;
-        $orderRecord->couponCode = $this->couponCode;
-        $orderRecord->total = $this->getTotal();
-        $orderRecord->totalPrice = $this->getTotalPrice();
-        $orderRecord->totalPaid = $this->getTotalPaid();
-        $orderRecord->totalDiscount = $this->getTotalDiscount();
-        $orderRecord->totalShippingCost = $this->getTotalShippingCost();
-        $orderRecord->totalTax = $this->getTotalTax();
-        $orderRecord->totalTaxIncluded = $this->getTotalTaxIncluded();
-        $orderRecord->totalQty = $this->getTotalQty();
-        $orderRecord->totalWeight = $this->getTotalWeight();
-        $orderRecord->currency = $this->currency;
-        $orderRecord->lastIp = $this->lastIp;
-        $orderRecord->orderLanguage = $this->orderLanguage;
-        $orderRecord->orderSiteId = $this->orderSiteId;
-        $orderRecord->origin = $this->origin;
-        $orderRecord->paymentCurrency = $this->paymentCurrency;
-        $orderRecord->customerId = $this->getCustomerId();
-        $orderRecord->registerUserOnOrderComplete = $this->registerUserOnOrderComplete;
-        $orderRecord->saveBillingAddressOnOrderComplete = $this->saveBillingAddressOnOrderComplete;
-        $orderRecord->saveShippingAddressOnOrderComplete = $this->saveShippingAddressOnOrderComplete;
-        $orderRecord->returnUrl = $this->returnUrl;
-        $orderRecord->cancelUrl = $this->cancelUrl;
-        $orderRecord->message = $this->message;
-        $orderRecord->paidStatus = $this->getPaidStatus();
-        $orderRecord->recalculationMode = $this->getRecalculationMode();
-        $orderRecord->sourceShippingAddressId = $this->sourceShippingAddressId;
-        $orderRecord->sourceBillingAddressId = $this->sourceBillingAddressId;
-        $orderRecord->makePrimaryShippingAddress = $this->makePrimaryShippingAddress;
-        $orderRecord->makePrimaryBillingAddress = $this->makePrimaryBillingAddress;
-
-        // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
-        $orderRecord->dateUpdated = $this->dateUpdated;
-        $orderRecord->dateCreated = $this->dateCreated;
-
-        $currentUser = Craft::$app->getUser()->getIdentity();
-        $currentUserIsCustomer = ($currentUser && $this->getCustomer() && $currentUser->id == $this->getCustomer()->id);
-
-        if ($shippingAddress = $this->getShippingAddress()) {
-            // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
-            // This is because the order record has not been saved.
-            // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
-            $shippingAddress->setPrimaryOwner($this); // Always ensure the address is owned by the order
-            $shippingAddress->title = Craft::t('commerce', 'Shipping Address'); // Ensure the address is labelled correctly
-            Craft::$app->getElements()->saveElement($shippingAddress, false);
-            $orderRecord->shippingAddressId = $shippingAddress->id;
-            $this->setShippingAddress($shippingAddress);
-            // Set primary shipping if asked
-            if ($this->makePrimaryShippingAddress && $currentUserIsCustomer && $this->sourceShippingAddressId) {
-                Plugin::getInstance()->getCustomers()->savePrimaryShippingAddressId($this->getCustomer(), $this->sourceShippingAddressId);
+            if ($this->billingSameAsShipping) {
+                $this->setBillingAddress($this->getShippingAddress());
             }
-        } else {
-            $orderRecord->shippingAddressId = null;
-            $this->setShippingAddress(null);
-        }
 
-        if ($billingAddress = $this->getBillingAddress()) {
-            // If these were set to the same address element, we don't want the same address IDs
-            if ($shippingAddress && $billingAddress->id == $shippingAddress->id) {
-                $billingAddress = Craft::$app->getElements()->duplicateElement(
-                    $billingAddress,
-                    ['primaryOwner' => $this, 'title' => Craft::t('commerce', 'Billing Address')]
-                );
+            // TODO: Move the recalculate to somewhere else. Saving should be for saving only #COM-40
+            // Right now orders always recalc when saved and not completed but that shouldn't always be the case.
+            $this->recalculate();
+
+            if (!$isNew) {
+                $orderRecord = OrderRecord::findOne($this->id);
+
+                if (!$orderRecord) {
+                    throw new Exception('Invalid order ID: ' . $this->id);
+                }
             } else {
+                $orderRecord = new OrderRecord();
+                $orderRecord->id = $this->id;
+            }
+
+            $oldStatusId = $orderRecord->orderStatusId;
+
+            $orderRecord->storeId = $this->storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+            $orderRecord->number = $this->number;
+            $orderRecord->reference = $this->reference;
+            $orderRecord->itemTotal = $this->getItemTotal();
+            $orderRecord->itemSubtotal = $this->getItemSubtotal();
+            $orderRecord->email = $this->getEmail() ?: '';
+            $orderRecord->orderCompletedEmail = $this->orderCompletedEmail;
+            $orderRecord->isCompleted = $this->isCompleted;
+
+            $dateOrdered = $this->dateOrdered;
+            if (!$dateOrdered && $orderRecord->isCompleted) {
+                $dateOrdered = Db::prepareDateForDb(new DateTime());
+            }
+            $orderRecord->dateOrdered = $dateOrdered;
+
+            $orderRecord->datePaid = $this->datePaid ?: null;
+            $orderRecord->dateFirstPaid = $this->dateFirstPaid ?: null;
+            $orderRecord->dateAuthorized = $this->dateAuthorized ?: null;
+            $orderRecord->shippingMethodHandle = $this->shippingMethodHandle ?? '';
+            $orderRecord->shippingMethodName = $this->shippingMethodName ?? '';
+            $orderRecord->paymentSourceId = $this->getPaymentSource() ? $this->getPaymentSource()->id : null;
+            $orderRecord->gatewayId = $this->gatewayId;
+            $orderRecord->orderStatusId = $this->orderStatusId;
+            $orderRecord->couponCode = $this->couponCode;
+            $orderRecord->total = $this->getTotal();
+            $orderRecord->totalPrice = $this->getTotalPrice();
+            $orderRecord->totalPaid = $this->getTotalPaid();
+            $orderRecord->totalDiscount = $this->getTotalDiscount();
+            $orderRecord->totalShippingCost = $this->getTotalShippingCost();
+            $orderRecord->totalTax = $this->getTotalTax();
+            $orderRecord->totalTaxIncluded = $this->getTotalTaxIncluded();
+            $orderRecord->totalQty = $this->getTotalQty();
+            $orderRecord->totalWeight = $this->getTotalWeight();
+            $orderRecord->currency = $this->currency;
+            $orderRecord->lastIp = $this->lastIp;
+            $orderRecord->orderLanguage = $this->orderLanguage;
+            $orderRecord->orderSiteId = $this->orderSiteId;
+            $orderRecord->origin = $this->origin;
+            $orderRecord->paymentCurrency = $this->paymentCurrency;
+            $orderRecord->customerId = $this->getCustomerId();
+            $orderRecord->registerUserOnOrderComplete = $this->registerUserOnOrderComplete;
+            $orderRecord->saveBillingAddressOnOrderComplete = $this->saveBillingAddressOnOrderComplete;
+            $orderRecord->saveShippingAddressOnOrderComplete = $this->saveShippingAddressOnOrderComplete;
+            $orderRecord->returnUrl = $this->returnUrl;
+            $orderRecord->cancelUrl = $this->cancelUrl;
+            $orderRecord->message = $this->message;
+            $orderRecord->paidStatus = $this->getPaidStatus();
+            $orderRecord->recalculationMode = $this->getRecalculationMode();
+            $orderRecord->sourceShippingAddressId = $this->sourceShippingAddressId;
+            $orderRecord->sourceBillingAddressId = $this->sourceBillingAddressId;
+            $orderRecord->makePrimaryShippingAddress = $this->makePrimaryShippingAddress;
+            $orderRecord->makePrimaryBillingAddress = $this->makePrimaryBillingAddress;
+
+            // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
+            $orderRecord->dateUpdated = $this->dateUpdated;
+            $orderRecord->dateCreated = $this->dateCreated;
+
+            $currentUser = Craft::$app->getUser()->getIdentity();
+            $currentUserIsCustomer = ($currentUser && $this->getCustomer() && $currentUser->id == $this->getCustomer()->id);
+
+            if ($shippingAddress = $this->getShippingAddress()) {
                 // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
                 // This is because the order record has not been saved.
                 // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
-                $billingAddress->setPrimaryOwner($this); // Always ensure the address is owned by the order
-                $billingAddress->title = Craft::t('commerce', 'Billing Address'); // Ensure the address is labelled correctly
-                Craft::$app->getElements()->saveElement($billingAddress, false);
+                $shippingAddress->setPrimaryOwner($this); // Always ensure the address is owned by the order
+                $shippingAddress->title = Craft::t('commerce', 'Shipping Address'); // Ensure the address is labelled correctly
+                Craft::$app->getElements()->saveElement($shippingAddress, false);
+                $orderRecord->shippingAddressId = $shippingAddress->id;
+                $this->setShippingAddress($shippingAddress);
+                // Set primary shipping if asked
+                if ($this->makePrimaryShippingAddress && $currentUserIsCustomer && $this->sourceShippingAddressId) {
+                    Plugin::getInstance()->getCustomers()->savePrimaryShippingAddressId($this->getCustomer(), $this->sourceShippingAddressId);
+                }
+            } else {
+                $orderRecord->shippingAddressId = null;
+                $this->setShippingAddress(null);
             }
 
-            $orderRecord->billingAddressId = $billingAddress->id;
-            $this->setBillingAddress($billingAddress);
-            // Set primary billing if asked
-            if ($this->makePrimaryBillingAddress && $currentUserIsCustomer && $this->sourceBillingAddressId) {
-                Plugin::getInstance()->getCustomers()->savePrimaryBillingAddressId($this->getCustomer(), $this->sourceBillingAddressId);
+            if ($billingAddress = $this->getBillingAddress()) {
+                // If these were set to the same address element, we don't want the same address IDs
+                if ($shippingAddress && $billingAddress->id == $shippingAddress->id) {
+                    $billingAddress = Craft::$app->getElements()->duplicateElement($billingAddress,
+                        ['owner' => $this, 'title' => Craft::t('commerce', 'Billing Address')]);
+                } else {
+                    // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
+                    // This is because the order record has not been saved.
+                    // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
+                    $billingAddress->setOwner($this); // Always ensure the address is owned by the order
+                    $billingAddress->title = Craft::t('commerce', 'Billing Address'); // Ensure the address is labelled correctly
+                    Craft::$app->getElements()->saveElement($billingAddress, false);
+                }
+
+                $orderRecord->billingAddressId = $billingAddress->id;
+                $this->setBillingAddress($billingAddress);
+                // Set primary billing if asked
+                if ($this->makePrimaryBillingAddress && $currentUserIsCustomer && $this->sourceBillingAddressId) {
+                    Plugin::getInstance()->getCustomers()->savePrimaryBillingAddressId($this->getCustomer(), $this->sourceBillingAddressId);
+                }
+            } else {
+                $orderRecord->billingAddressId = null;
+                $this->setBillingAddress(null);
             }
-        } else {
-            $orderRecord->billingAddressId = null;
-            $this->setBillingAddress(null);
-        }
 
-        if ($estimatedShippingAddress = $this->getEstimatedShippingAddress()) {
-            // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
-            // This is because the order record has not been saved.
-            // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
-            $estimatedShippingAddress->setPrimaryOwner($this); // Always ensure the address is owned by the order
-            Craft::$app->getElements()->saveElement($estimatedShippingAddress, false);
-            $orderRecord->estimatedShippingAddressId = $estimatedShippingAddress->id;
-            $this->setEstimatedShippingAddress($estimatedShippingAddress);
+            if ($estimatedShippingAddress = $this->getEstimatedShippingAddress()) {
+                // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
+                // This is because the order record has not been saved.
+                // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
+                $estimatedShippingAddress->setPrimaryOwner($this); // Always ensure the address is owned by the order
+                Craft::$app->getElements()->saveElement($estimatedShippingAddress, false);
+                $orderRecord->estimatedShippingAddressId = $estimatedShippingAddress->id;
+                $this->setEstimatedShippingAddress($estimatedShippingAddress);
 
-            // If estimate billing same as shipping set it here
-            if ($this->estimatedBillingSameAsShipping) {
-                $orderRecord->estimatedBillingAddressId = $estimatedShippingAddress->id;
-                $this->setEstimatedBillingAddress($estimatedShippingAddress);
+                // If estimate billing same as shipping set it here
+                if ($this->estimatedBillingSameAsShipping) {
+                    $orderRecord->estimatedBillingAddressId = $estimatedShippingAddress->id;
+                    $this->setEstimatedBillingAddress($estimatedShippingAddress);
+                }
             }
+
+            if (!$this->estimatedBillingSameAsShipping && $estimatedBillingAddress = $this->getEstimatedBillingAddress()) {
+                // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
+                // This is because the order record has not been saved.
+                // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
+                $estimatedBillingAddress->setOwner($this); // Always ensure the address is owned by the order
+                Craft::$app->getElements()->saveElement($estimatedBillingAddress, false);
+                $orderRecord->estimatedBillingAddressId = $estimatedBillingAddress->id;
+                $this->setEstimatedBillingAddress($estimatedBillingAddress);
+            }
+
+            $orderRecord->save(false);
+
+            $this->_saveAdjustments();
+            $this->_saveLineItems();
+            $this->_saveNotices();
+            $this->_deleteOrphanedOrderAddresses();
+        } catch (Exception $exception) {
+            $mutex->release($lockKey);
+            throw $exception;
         }
 
-        if (!$this->estimatedBillingSameAsShipping && $estimatedBillingAddress = $this->getEstimatedBillingAddress()) {
-            // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
-            // This is because the order record has not been saved.
-            // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
-            $estimatedBillingAddress->setPrimaryOwner($this); // Always ensure the address is owned by the order
-            Craft::$app->getElements()->saveElement($estimatedBillingAddress, false);
-            $orderRecord->estimatedBillingAddressId = $estimatedBillingAddress->id;
-            $this->setEstimatedBillingAddress($estimatedBillingAddress);
-        }
+        $mutex->release($lockKey);
 
-        $orderRecord->save(false);
-
-        $this->_saveAdjustments();
-        $this->_saveLineItems();
-        $this->_saveNotices();
+        // We can do this after the lock
         $this->_saveOrderHistory($oldStatusId, $orderRecord->orderStatusId);
-        $this->_deleteOrphanedOrderAddresses();
 
         parent::afterSave($isNew);
     }
@@ -2372,27 +2447,16 @@ class Order extends Element implements HasStoreInterface
     }
 
     /**
-     * Returns the URL to the order’s PDF invoice.
+     * Returns the URL to the order's PDF invoice.
      *
-     * @param string|null $option The option that should be available to the PDF template (e.g. “receipt”)
+     * @param string|null $option The option that should be available to the PDF template (e.g. "receipt")
      * @param string|null $pdfHandle The handle of the PDF to use. If none is passed the default PDF is used.
-     * @return string|null The URL to the order’s PDF invoice, or null if the PDF template doesn’t exist
+     * @param bool $inline Whether the PDF should be displayed inline in the browser (default: false)
+     * @return string The URL to the order's PDF invoice with a secure token
      */
-    public function getPdfUrl(string $option = null, string $pdfHandle = null): ?string
+    public function getPdfUrl(string $option = null, string $pdfHandle = null, bool $inline = false): string
     {
-        $path = "commerce/downloads/pdf";
-        $params = [];
-        $params['number'] = $this->number;
-
-        if ($option) {
-            $params['option'] = $option;
-        }
-
-        if ($pdfHandle !== null) {
-            $params['pdfHandle'] = $pdfHandle;
-        }
-
-        return UrlHelper::actionUrl($path, $params);
+        return Plugin::getInstance()->getPdfs()->getPdfUrl($this, $option, $pdfHandle, $inline);
     }
 
     /**
@@ -2407,12 +2471,12 @@ class Order extends Element implements HasStoreInterface
             return null;
         }
 
-        $path = 'commerce/cart/load-cart';
+        $originalCpRequest = Craft::$app->getRequest()->getIsCpRequest();
+        Craft::$app->getRequest()->setIsCpRequest(false);
+        $url = UrlHelper::actionUrl('commerce/cart/load-cart', ['number' => $this->number]);
+        Craft::$app->getRequest()->setIsCpRequest($originalCpRequest);
 
-        $params = [];
-        $params['number'] = $this->number;
-
-        return UrlHelper::actionUrl($path, $params);
+        return $url;
     }
 
     /**
@@ -2525,7 +2589,37 @@ class Order extends Element implements HasStoreInterface
      */
     public function getEmail(): ?string
     {
-        return $this->getCustomer()?->email ?? null;
+        return $this->getCustomer()?->email ?? $this->email ?? null;
+    }
+
+    /**
+     * Returns a masked version of the email for this order.
+     *
+     * @param $length
+     * @return string
+     */
+    public function getMaskedEmail(): string
+    {
+        if ($email = $this->getEmail()) {
+            return $this->_maskEmail($email);
+        }
+
+        return '';
+    }
+
+    private function _maskEmail($email, $minLength = 3, $maxLength = 10, $mask = "***")
+    {
+        $atPos = strrpos($email, "@");
+        $name = substr($email, 0, $atPos);
+        $len = strlen($name);
+        $domain = substr($email, $atPos);
+
+        if (($len / 2) < $maxLength) {
+            $maxLength = ($len / 2);
+        }
+
+        $shortenedEmail = (($len > $minLength) ? substr($name, 0, $maxLength) : "");
+        return "{$shortenedEmail}{$mask}{$domain}";
     }
 
     /**
@@ -2631,7 +2725,8 @@ class Order extends Element implements HasStoreInterface
     {
         $html = '';
         if ($user = $this->getCustomer()) {
-            $html = Html::tag('a', $user->email, ['href' => $user->getCpEditUrl()]);
+            $email = Html::encode($user->email);
+            $html = Html::tag('a', $email, ['href' => $user->getCpEditUrl()]);
         }
 
         return $html;
@@ -2757,15 +2852,11 @@ class Order extends Element implements HasStoreInterface
 
         $transactions = collect($this->_transactions);
 
-        $paid = $transactions->filter(function($transaction) {
-            return $transaction->status == TransactionRecord::STATUS_SUCCESS
-                && in_array($transaction->type, [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]);
-        })->sum('amount');
+        $paid = $transactions->filter(fn($transaction) => $transaction->status == TransactionRecord::STATUS_SUCCESS
+            && in_array($transaction->type, [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]))->sum('amount');
 
-        $refunded = $transactions->filter(function($transaction) {
-            return $transaction->status == TransactionRecord::STATUS_SUCCESS
-                && $transaction->type == TransactionRecord::TYPE_REFUND;
-        })->sum('amount');
+        $refunded = $transactions->filter(fn($transaction) => $transaction->status == TransactionRecord::STATUS_SUCCESS
+            && $transaction->type == TransactionRecord::TYPE_REFUND)->sum('amount');
 
         return (float)$this->getTeller()->subtract($paid, $refunded);
     }
@@ -3271,10 +3362,8 @@ class Order extends Element implements HasStoreInterface
     public function hasMatchingAddresses(?array $attributes = null): bool
     {
         $addressAttributes = (new ReflectionClass(AddressInterface::class))->getMethods();
-        $addressAttributes = array_map(static function(ReflectionMethod $method) {
-            // Remove `get` and lower case first character
-            return lcfirst(substr($method->name, 3));
-        }, $addressAttributes);
+        $addressAttributes = array_map(static fn(ReflectionMethod $method) => // Remove `get` and lower case first character
+        lcfirst(substr($method->name, 3)), $addressAttributes);
 
         $relationCustomFieldHandles = [];
         $customFieldHandles = array_map(static function(FieldInterface $field) use (&$relationCustomFieldHandles) {
@@ -3285,9 +3374,7 @@ class Order extends Element implements HasStoreInterface
             return $field->handle;
         }, (new AddressElement())->getFieldLayout()->getCustomFields());
 
-        $nameTraitProperties = array_map(static function(ReflectionProperty $property) {
-            return $property->name;
-        }, (new ReflectionClass(NameTrait::class))->getProperties());
+        $nameTraitProperties = array_map(static fn(ReflectionProperty $property) => $property->name, (new ReflectionClass(NameTrait::class))->getProperties());
 
         $toArrayHandles = [...$nameTraitProperties, ...$addressAttributes, ...$customFieldHandles];
 
@@ -3477,7 +3564,13 @@ class Order extends Element implements HasStoreInterface
             return [];
         }
 
-        return Plugin::getInstance()->getOrderHistories()->getAllOrderHistoriesByOrderId($this->id);
+        $histories = Plugin::getInstance()->getOrderHistories()->getAllOrderHistoriesByOrderId($this->id);
+
+        foreach ($histories as $history) {
+            $history->setOrder($this);
+        }
+
+        return $histories;
     }
 
     /**
@@ -3501,7 +3594,13 @@ class Order extends Element implements HasStoreInterface
         }
 
         if ($this->_transactions === null) {
-            $this->_transactions = Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id);
+            $transactions = Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id);
+
+            foreach ($transactions as $transaction) {
+                $transaction->setOrder($this);
+            }
+
+            $this->_transactions = $transactions;
         }
 
         return $this->_transactions;
@@ -3578,24 +3677,23 @@ class Order extends Element implements HasStoreInterface
         $metadata = [];
 
         if ($this->isCompleted) {
-            $metadata[Craft::t('commerce', 'Reference')] = $this->reference;
+            $metadata[Craft::t('commerce', 'Reference')] = Html::encode($this->reference);
             $metadata[Craft::t('commerce', 'Date Ordered')] = Craft::$app->getFormatter()->asDatetime($this->dateOrdered, 'short');
         }
 
-        $metadata[Craft::t('commerce', 'Coupon Code')] = $this->couponCode;
+        $metadata[Craft::t('commerce', 'Coupon Code')] = Html::encode($this->couponCode);
 
         $orderSite = $this->getOrderSite();
-        $metadata[Craft::t('commerce', 'Order Site')] = $orderSite?->getName() ?? '';
+        $metadata[Craft::t('commerce', 'Order Site')] = Html::encode($orderSite?->getName() ?? '');
 
-        $shippingMethod = $this->getShippingMethod();
-        $metadata[Craft::t('commerce', 'Shipping Method')] = $shippingMethod?->getName() ?? '';
+        $metadata[Craft::t('commerce', 'Shipping Method')] = Html::encode($this->shippingMethodName ?? '');
 
         $metadata[Craft::t('app', 'ID')] = $this->id;
         $metadata[Craft::t('commerce', 'Short Number')] = $this->getShortNumber();
         $metadata[Craft::t('commerce', 'Paid Status')] = $this->getPaidStatusHtml();
         $metadata[Craft::t('commerce', 'Total Price')] = $this->totalPriceAsCurrency;
         $metadata[Craft::t('commerce', 'Paid Amount')] = $this->totalPaidAsCurrency;
-        $metadata[Craft::t('commerce', 'Origin')] = $this->origin;
+        $metadata[Craft::t('commerce', 'Origin')] = Html::encode($this->origin);
 
         return array_merge($metadata, parent::getMetadata());
     }
@@ -3609,24 +3707,20 @@ class Order extends Element implements HasStoreInterface
      */
     private function _saveAdjustments(): void
     {
-        /** @var null|array|OrderAdjustmentRecord[] $previousAdjustments */
-        $previousAdjustments = OrderAdjustmentRecord::find()
-            ->where(['orderId' => $this->id])
-            ->all();
-
         $newAdjustmentIds = [];
 
         foreach ($this->getAdjustments() as $adjustment) {
-            // Don't run validation as validation of the adjustments should happen before saving the order
-            Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
+            try {
+                // Don't run validation as validation of the adjustment should happen before saving the order
+                Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
+            } catch (OrderAdjustmentNotFoundException) {
+                // If the adjustment was not found, it means it may have previously existed but was already deleted (race condition).
+                // See: https://github.com/craftcms/commerce/issues/3283
+                continue;
+            }
+
             $newAdjustmentIds[] = $adjustment->id;
             $adjustment->orderId = $this->id;
-        }
-
-        foreach ($previousAdjustments as $previousAdjustment) {
-            if (!in_array($previousAdjustment->id, $newAdjustmentIds, false)) {
-                $previousAdjustment->delete();
-            }
         }
 
         // Make sure all other adjustments have been cleaned up.
@@ -3727,8 +3821,14 @@ class Order extends Element implements HasStoreInterface
             $originalId = $lineItem->id;
             $lineItem->setOrder($this); // just in case.
 
-            // Don't run validation as validation of the line item should happen before saving the order
-            Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
+            try {
+                // Don't run validation as validation of the line item should happen before saving the order
+                Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
+            } catch (LineItemNotFoundException) {
+                // If the line item was not found, it means it may have previously existed but was already deleted (race condition).
+                // See: https://github.com/craftcms/commerce/issues/3283
+                continue;
+            }
 
             // Is this a new line item?
             if ($originalId === null) {
@@ -3748,7 +3848,12 @@ class Order extends Element implements HasStoreInterface
                     // Re-save the adjustment with the new line item ID, since it exists now.
                     $adjustment->lineItemId = $lineItem->id;
                     // Validation not needed as the adjustments are validated before the order is saved
-                    Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
+                    try {
+                        Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
+                    } catch (OrderAdjustmentNotFoundException) {
+                        // This can happen if the adjustment was removed during a race condition recalculation.
+                        continue;
+                    }
                 }
             }
         }

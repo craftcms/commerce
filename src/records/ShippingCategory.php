@@ -19,6 +19,8 @@ use craft\db\SoftDeleteTrait;
  * @property string $description
  * @property string $handle
  * @property int $id
+ * @property string $icon
+ * @property string $color
  * @property int $storeId
  * @property string $name
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>

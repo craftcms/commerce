@@ -7,11 +7,16 @@
 
 namespace craft\commerce\models;
 
+use Craft;
+use craft\base\Chippable;
+use craft\base\Colorable;
+use craft\base\Iconic;
 use craft\commerce\base\Model;
 use craft\commerce\engines\Tax;
 use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxCategory as TaxCategoryRecord;
+use craft\enums\Color;
 use craft\helpers\ArrayHelper;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
@@ -29,7 +34,7 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class TaxCategory extends Model
+class TaxCategory extends Model implements Chippable, Colorable, Iconic
 {
     /**
      * @var int|null ID;
@@ -45,6 +50,16 @@ class TaxCategory extends Model
      * @var string|null Handle
      */
     public ?string $handle = null;
+
+    /**
+     * @var string|null Icon
+     */
+    public ?string $icon = null;
+
+    /**
+     * @var string|null Color
+     */
+    public ?string $color = null;
 
     /**
      * @var string|null Description
@@ -88,6 +103,47 @@ class TaxCategory extends Model
     public function __toString()
     {
         return (string)$this->name;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function get(int|string $id): ?static
+    {
+        /** @phpstan-ignore-next-line */
+        return Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($id);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getUiLabel(): string
+    {
+        return Craft::t('site', $this->name);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIcon(): ?string
+    {
+        return $this->icon;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getColor(): ?Color
+    {
+        return $this->color ? Color::tryFrom($this->color) : null;
     }
 
     /**
@@ -157,9 +213,19 @@ class TaxCategory extends Model
         return [
             [['handle'], 'required'],
             [['handle'], UniqueValidator::class, 'targetClass' => TaxCategoryRecord::class],
-            [['handle'], HandleValidator::class, 'when' => function($model) use ($isStandardTaxEngine) {
-                return $isStandardTaxEngine;
-            }],
+            [['handle'], HandleValidator::class, 'when' => fn($model) => $isStandardTaxEngine],
+            [[
+                'id',
+                'name',
+                'handle',
+                'icon',
+                'color',
+                'description',
+                'default',
+                'dateCreated',
+                'dateUpdated',
+                'dateDeleted',
+            ], 'safe'],
         ];
     }
 

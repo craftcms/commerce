@@ -31,6 +31,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
+use craft\elements\actions\Copy;
 use craft\elements\actions\Restore;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\EagerLoadPlan;
@@ -62,6 +63,8 @@ use yii\validators\Validator;
  * @property-read string $gqlTypeName
  * @property-read string $skuAsText
  * @property string $salePriceAsCurrency
+ * @method getOwner() Product|null
+ * @method getPrimaryOwner() Product|null
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -72,6 +75,7 @@ class Variant extends Purchasable implements NestedElementInterface
         setPrimaryOwner as traitSetPrimaryOwner;
         setOwner as traitSetOwner;
         setEagerLoadedElements as traitSetEagerLoadedElements;
+        extraFields as traitExtraFields;
     }
 
     /**
@@ -246,6 +250,15 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
+    public function init(): void
+    {
+        parent::init();
+        $this->ownerType = Product::class;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public static function displayName(): string
     {
         return Craft::t('commerce', 'Product Variant');
@@ -328,6 +341,14 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
+    public function canCopy(User $user): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function canDelete(User $user): bool
     {
         if (parent::canDelete($user)) {
@@ -368,6 +389,14 @@ class Variant extends Purchasable implements NestedElementInterface
         }
 
         return $this->canSave($user);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function includeSetStatusAction(): bool
+    {
+        return true;
     }
 
     /**
@@ -430,10 +459,11 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
-    public function attributes(): array
+    public function extraFields(): array
     {
-        $names = parent::attributes();
+        $names = $this->traitExtraFields();
         $names[] = 'product';
+
         return $names;
     }
 
@@ -444,23 +474,26 @@ class Variant extends Purchasable implements NestedElementInterface
     {
         $fieldLayout = parent::getFieldLayout();
 
+        // If we have a field layout, try to set its provider from product type
         if ($fieldLayout) {
-            // Variant field layouts are stored on the product type so retrieving the field layout by ID does not set the provider
-            $productType = collect(Plugin::getInstance()->getProductTypes()->getAllProductTypes())->firstWhere('variantFieldLayoutId', $fieldLayout->id);
+            $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+            $productType = collect($productTypes)->firstWhere('variantFieldLayoutId', $fieldLayout->id);
+
             if ($productType) {
                 $fieldLayout->provider = $productType;
                 return $fieldLayout;
             }
         }
 
+        // Try to get field layout from owner's product type
         try {
-            if ($this->getOwner() === null) {
-                return parent::getFieldLayout();
-            }
+            $owner = $this->getOwner();
 
-            return $this->getOwner()->getType()->getVariantFieldLayout();
+            return $owner === null
+                ? $fieldLayout
+                : $owner->getType()->getVariantFieldLayout();
         } catch (InvalidConfigException) {
-            // The product type was probably deleted
+            // Product type was likely deleted
             return null;
         }
     }
@@ -537,59 +570,6 @@ class Variant extends Purchasable implements NestedElementInterface
         $this->fieldLayoutId = $owner->getType()->variantFieldLayoutId;
 
         $this->traitSetOwner($owner);
-    }
-
-    /**
-     * @inheritdoc
-     * @TODO remove implementation when `NestedElementTrait::getOwner()` is updated
-     */
-    public function getPrimaryOwner(): ?Product
-    {
-        if (!isset($this->_primaryOwner)) {
-            $primaryOwnerId = $this->getPrimaryOwnerId();
-            if (!$primaryOwnerId) {
-                return null;
-            }
-
-            $this->_primaryOwner = Craft::$app->getElements()->getElementById($primaryOwnerId, Product::class, $this->siteId, [
-                'trashed' => null,
-            ]) ?? false;
-            if (!$this->_primaryOwner) {
-                throw new InvalidConfigException("Invalid owner ID: $primaryOwnerId");
-            }
-        }
-
-        /** @phpstan-ignore-next-line */
-        return $this->_primaryOwner ?: null;
-    }
-
-    /**
-     * @inheritdoc
-     * @TODO remove implementation when `NestedElementTrait::getOwner()` is updated
-     */
-    public function getOwner(): ?Product
-    {
-        if (!isset($this->_owner)) {
-            $ownerId = $this->getOwnerId();
-            if (!$ownerId) {
-                return null;
-            }
-
-            // If ownerId and primaryOwnerId are the same, return the primary owner
-            if ($ownerId === $this->getPrimaryOwnerId()) {
-                return $this->getPrimaryOwner();
-            }
-
-            $this->_owner = Craft::$app->getElements()->getElementById($ownerId, Product::class, $this->siteId, [
-                'trashed' => null,
-            ]) ?? false;
-            if (!$this->_owner) {
-                throw new InvalidConfigException("Invalid owner ID: $ownerId");
-            }
-        }
-
-        /** @phpstan-ignore-next-line */
-        return $this->_owner ?: null;
     }
 
     /**
@@ -735,9 +715,19 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     protected function cacheTags(): array
     {
-        return [
-            "product:$this->primaryOwnerId",
-        ];
+        $tags = [];
+
+        if ($primaryOwnerId = $this->getPrimaryOwnerId()) {
+            $tags[] = "element::{$primaryOwnerId}";
+            $tags[] = "product:{$primaryOwnerId}";
+        }
+
+        $ownerId = $this->getOwnerId();
+        if ($ownerId && $ownerId !== $primaryOwnerId) {
+            $tags[] = "element::{$ownerId}";
+        }
+
+        return $tags;
     }
 
     /**
@@ -762,6 +752,11 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public function getUrl(): ?string
     {
+        if ($url = parent::getUrl()) {
+            return $url;
+        }
+
+        // Default URL is the product's URL with the variant ID as a query parameter
         $productUrl = $this->getOwner()?->getUrl();
         return $productUrl ? UrlHelper::urlWithParams($productUrl, ['variant' => $this->id]) : null;
     }
@@ -896,30 +891,37 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
-        if (in_array($handle, ['product', 'owner', 'primaryOwner'])) {
-            // Get the source element IDs
-            $sourceElementIds = [];
+        switch ($handle) {
+            case 'product':
+                // Get the source element IDs
+                $sourceElementIds = [];
 
-            foreach ($sourceElements as $sourceElement) {
-                $sourceElementIds[] = $sourceElement->id;
-            }
+                foreach ($sourceElements as $sourceElement) {
+                    $sourceElementIds[] = $sourceElement->id;
+                }
 
-            $map = (new Query())
-                ->select('id as source, primaryOwnerId as target')
-                ->from(Table::VARIANTS)
-                ->where(['in', 'id', $sourceElementIds])
-                ->all();
+                $map = (new Query())
+                    ->select('id as source, primaryOwnerId as target')
+                    ->from(Table::VARIANTS)
+                    ->where(['in', 'id', $sourceElementIds])
+                    ->all();
 
-            return [
-                'elementType' => Product::class,
-                'map' => $map,
-                'criteria' => [
-                    'status' => null,
-                ],
-            ];
+                return [
+                    'elementType' => Product::class,
+                    'map' => $map,
+                    'criteria' => [
+                        'status' => null,
+                    ],
+                ];
+            case 'owner':
+            case 'primaryOwner':
+                return array_merge(
+                    self::traitEagerLoadingMap($sourceElements, $handle),
+                    ['elementType' => Product::class],
+                );
+            default:
+                return self::traitEagerLoadingMap($sourceElements, $handle);
         }
-
-        return self::traitEagerLoadingMap($sourceElements, $handle);
     }
 
     /**
@@ -954,7 +956,6 @@ class Variant extends Purchasable implements NestedElementInterface
     }
 
     /**
-     * @param mixed $context
      * @return string
      * @since 3.1
      */
@@ -1057,18 +1058,24 @@ class Variant extends Purchasable implements NestedElementInterface
                         ->max('[[eo.sortOrder]]');
                     $this->sortOrder = $max ? $max + 1 : 1;
                 }
-                if ($isNew) {
-                    Db::insert(CraftTable::ELEMENTS_OWNERS, [
+
+                $ownerIds = array_unique([
+                    $ownerId,
+                    $this->getPrimaryOwnerId(),
+                ]);
+
+                if (!$isNew) {
+                    Db::delete(CraftTAble::ELEMENTS_OWNERS, [
                         'elementId' => $this->id,
-                        'ownerId' => $ownerId,
-                        'sortOrder' => $this->sortOrder,
+                        'ownerId' => $ownerIds,
                     ]);
-                } else {
-                    Db::update(CraftTable::ELEMENTS_OWNERS, [
-                        'sortOrder' => $this->sortOrder,
-                    ], [
+                }
+
+                foreach ($ownerIds as $ownerId) {
+                    Db::insert(CraftTAble::ELEMENTS_OWNERS, [
                         'elementId' => $this->id,
                         'ownerId' => $ownerId,
+                        'sortOrder' => $this->sortOrder,
                     ]);
                 }
             }
@@ -1181,6 +1188,17 @@ class Variant extends Purchasable implements NestedElementInterface
         $productType = $product->getType();
         $this->fieldLayoutId = $productType->variantFieldLayoutId;
 
+        // Validate shipping category ID is available for this product type
+        $availableShippingCategories = $this->availableShippingCategories();
+        $availableShippingCategoryIds = ArrayHelper::getColumn($availableShippingCategories, 'id');
+
+        // If the current shipping category ID is not in the available categories, set it to the default one
+        $currentShippingCategoryId = $this->getShippingCategoryId();
+        if (!in_array($currentShippingCategoryId, $availableShippingCategoryIds)) {
+            $defaultShippingCategory = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->getStoreId());
+            $this->setShippingCategoryId($defaultShippingCategory->id);
+        }
+
         return parent::beforeSave($isNew);
     }
 
@@ -1205,19 +1223,6 @@ class Variant extends Purchasable implements NestedElementInterface
         if ($found) {
             // Set new SKU in memory
             $this->sku = $this->getSku() . '-1';
-
-            // Update variant table with new SKU
-            Craft::$app->getDb()->createCommand()->update(Table::VARIANTS,
-                ['sku' => $this->sku],
-                ['id' => $this->getId()]
-            )->execute();
-
-            if ($this->isDefault) {
-                Craft::$app->getDb()->createCommand()->update(Table::PRODUCTS,
-                    ['defaultSku' => $this->sku],
-                    ['id' => $this->primaryOwnerId]
-                )->execute();
-            }
 
             // Update purchasable table with new SKU
             Craft::$app->getDb()->createCommand()->update(Table::PURCHASABLES,
@@ -1285,9 +1290,7 @@ class Variant extends Purchasable implements NestedElementInterface
 
         // Limit to only those for this product type
         $categoryIds = collect(Plugin::getInstance()->getShippingCategories()->getShippingCategoriesByProductTypeId($productTypeId))->pluck('id')->toArray();
-        $available = collect($allAvailableShippingCategories)->filter(function(ShippingCategory $category) use ($categoryIds) {
-            return in_array($category->id, $categoryIds);
-        });
+        $available = collect($allAvailableShippingCategories)->filter(fn(ShippingCategory $category) => in_array($category->id, $categoryIds));
 
         if ($available->isEmpty()) {
             return [Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->storeId)];
@@ -1311,9 +1314,7 @@ class Variant extends Purchasable implements NestedElementInterface
 
         // Limit to only those for this product type
         $categoryIds = collect(Plugin::getInstance()->getTaxCategories()->getTaxCategoriesByProductTypeId($productTypeId))->pluck('id')->toArray();
-        $available = collect($allAvailableTaxCategories)->filter(function(TaxCategory $category) use ($categoryIds) {
-            return in_array($category->id, $categoryIds);
-        });
+        $available = collect($allAvailableTaxCategories)->filter(fn(TaxCategory $category) => in_array($category->id, $categoryIds));
 
         if ($available->isEmpty()) {
             return [Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()];
@@ -1354,6 +1355,12 @@ class Variant extends Purchasable implements NestedElementInterface
         ]);
 
         $actions[] = ['type' => SetDefaultVariant::class];
+
+        // In case they are not running Craft 5.7+
+        if (class_exists(Copy::class)) {
+            $actions[] = ['type' => Copy::class];
+        }
+
         return $actions;
     }
 

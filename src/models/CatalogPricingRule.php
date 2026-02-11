@@ -13,6 +13,7 @@ use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\StoreTrait;
+use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\customers\CatalogPricingRuleCustomerCondition;
 use craft\commerce\elements\conditions\products\CatalogPricingRuleProductCondition;
 use craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasableCondition;
@@ -25,6 +26,7 @@ use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\ElementQuery;
 use craft\elements\User;
 use craft\events\CancelableEvent;
+use craft\helpers\Db;
 use craft\helpers\Json;
 use craft\models\Site;
 use DateTime;
@@ -166,6 +168,8 @@ class CatalogPricingRule extends Model implements HasStoreInterface
                 'applyAmount',
                 'applyPriceType',
                 'customerCondition',
+                'dateUpdated',
+                'dateCreated',
                 'dateFrom',
                 'dateTo',
                 'description',
@@ -253,10 +257,16 @@ class CatalogPricingRule extends Model implements HasStoreInterface
 
                 $productVariantIds = [];
                 if ($productIds = $productQuery->ids()) {
-                    $productVariantIds = Variant::find()
+                    $productVariantIdsQuery = Variant::find()
                         ->siteId($siteIds)
-                        ->productId($productIds)
-                        ->ids();
+                        ->productId($productIds);
+
+                    // If the rule is generating a promotional price, we need to make sure the purchasable is promotable
+                    if ($this->isPromotionalPrice) {
+                        $productVariantIdsQuery->andWhere(Db::parseBooleanParam('purchasables_stores.promotable', true));
+                    }
+
+                    $productVariantIds = $productVariantIdsQuery->ids();
                 }
             }
 
@@ -276,6 +286,11 @@ class CatalogPricingRule extends Model implements HasStoreInterface
                 /** @var CatalogPricingRuleVariantCondition $variantCondition */
                 $variantCondition = $this->getVariantCondition();
                 $variantCondition->modifyQuery($variantQuery);
+
+                // If the rule is generating a promotional price, we need to make sure the purchasable is promotable
+                if ($this->isPromotionalPrice) {
+                    $variantQuery->andWhere(Db::parseBooleanParam('purchasables_stores.promotable', true));
+                }
 
                 // If there are product condition rules we need to ensure the variant is in the list of product variants
                 if ($productVariantIds !== null) {
@@ -307,21 +322,39 @@ class CatalogPricingRule extends Model implements HasStoreInterface
                 }
 
                 // We are unable to use `siteId()` on the purchasable query as it is only the subquery part that is used.
-                Event::once(ElementQuery::class, ElementQuery::EVENT_AFTER_PREPARE, function(CancelableEvent $event) use ($siteIds) {
-                    foreach ($event->sender->subQuery->where as &$value) {
-                        if (is_array($value) && isset($value['elements_sites.siteId'])) {
-                            $value['elements_sites.siteId'] = $siteIds;
-                        }
-                    }
-                });
 
+                // If the rule is generating a promotional price, we need to make sure the purchasable is promotable
+                if ($this->isPromotionalPrice) {
+                    $purchasableQuery->andWhere(Db::parseBooleanParam('purchasables_stores.promotable', true));
+                }
+
+                // Do this adjustment to the query once (was previously using `Event::once` but this caused issues in some edge cases)
+                $purchasableQuery->on(ElementQuery::EVENT_AFTER_PREPARE, [$this, 'afterPreparePurchasableQuery'], ['siteIds' => $siteIds]);
                 $this->_purchasableIds = $purchasableQuery->ids();
+                $purchasableQuery->off(ElementQuery::EVENT_AFTER_PREPARE, [$this, 'afterPreparePurchasableQuery']);
             }
 
             $this->_purchasableIds = $this->_purchasableIds !== null ? array_unique($this->_purchasableIds) : null;
         }
 
         return $this->_purchasableIds;
+    }
+
+    /**
+     * @param CancelableEvent $event
+     * @return void
+     * @since 5.5.1
+     */
+    public function afterPreparePurchasableQuery(CancelableEvent $event): void
+    {
+        foreach ($event->sender->subQuery->where as &$value) {
+            if (is_array($value) && isset($value['elements_sites.siteId'])) {
+                $value['elements_sites.siteId'] = $event->data['siteIds'];
+            }
+        }
+
+        $event->sender->subQuery->join[] = ['LEFT JOIN', ['sitestores' => Table::SITESTORES], '[[elements_sites.siteId]] = [[sitestores.siteId]]'];
+        $event->sender->subQuery->join[] = ['LEFT JOIN', ['purchasables_stores' => Table::PURCHASABLES_STORES], '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[elements.id]]'];
     }
 
     /**

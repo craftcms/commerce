@@ -55,10 +55,10 @@
             id: gateway.id,
             title: gateway.name|t('site'),
             url: gateway.getCpEditUrl(),
-            handle: gateway.handle|e,
+            handle: gateway.handle,
             type: {
                 missing: gateway is missing ? true : false,
-                name: gateway is missing? gateway.expectedType : gateway.displayName()
+                name: (gateway is missing? gateway.expectedType : gateway.displayName())|e
             },
             customerEnabled: parseBooleanEnv(gateway.isFrontendEnabled),
         }]) %}
@@ -95,10 +95,10 @@
             title: Craft.t('commerce', 'Type'),
             callback: function(value) {
                 if (value.missing) {
-                    return '<span class="error">'+value.name+'</span>';
+                    return '<span class="error">'+Craft.escapeHtml(value.name)+'</span>';
                 }
 
-                return value.name;
+                return Craft.escapeHtml(value.name);
             }
         },
         {
@@ -138,10 +138,10 @@
             title: Craft.t('commerce', 'Type'),
             callback: function(value) {
                 if (value.missing) {
-                    return '<span class="error">'+value.name+'</span>';
+                    return '<span class="error">'+Craft.escapeHtml(value.name)+'</span>';
                 }
 
-                return value.name;
+                return Craft.escapeHtml(value.name);
             }
         },
         {

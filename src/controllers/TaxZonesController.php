@@ -13,6 +13,9 @@ use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\Plugin;
 use craft\helpers\Cp;
+use craft\helpers\Html;
+use craft\helpers\Json;
+use craft\web\View;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use yii\base\Exception;
@@ -42,7 +45,59 @@ class TaxZonesController extends BaseTaxSettingsController
         }
 
         $taxZones = Plugin::getInstance()->getTaxZones()->getAllTaxZones($store->id);
-        return $this->renderTemplate('commerce/store-management/tax/taxzones/index', compact('taxZones', 'store'));
+
+        // Generate table data
+        $tableData = [];
+        foreach ($taxZones as $taxZone) {
+            $label = Html::encode(Craft::t('site', $taxZone->name));
+            $tableData[] = [
+                'id' => $taxZone->id,
+                'title' => Html::a($label, $taxZone->getCpEditUrl()),
+                'url' => $taxZone->getCpEditUrl(),
+                'description' => Html::encode(Craft::t('site', $taxZone->description)),
+                'default' => $taxZone->default,
+            ];
+        }
+
+        $this->getView()->registerTranslations('commerce', [
+            'Name',
+            'Description',
+            'Default Zone',
+        ]);
+
+        $tableData = Json::encode($tableData);
+
+        $js = <<<JS
+var columns = [
+    { name: 'title', title: Craft.t('commerce', 'Name') },
+    { name: 'description', title: Craft.t('commerce', 'Description') },
+    {
+        name: 'default',
+        title: Craft.t('commerce', 'Default Zone'),
+        callback: function(value) {
+            if (value) {
+                return '<div data-icon="check"></div>';
+            }
+        }
+    },
+];
+
+new Craft.VueAdminTable({
+    columns: columns,
+    container: '#tax-vue-admin-table',
+    deleteAction: 'commerce/tax-zones/delete',
+    tableData: {$tableData},
+    });
+JS;
+        $this->getView()->registerJs($js, View::POS_END);
+
+        return $this->asStoreManagementCpScreen($storeHandle)
+            ->additionalButtonsHtml(Html::a(Craft::t('commerce', 'New tax zone'), $store->getStoreSettingsUrl('taxzones/new'), ['class' => 'btn submit add icon']))
+            ->contentHtml(Html::tag(
+            'div',
+            '',
+            ['id' => 'tax-vue-admin-table']
+        ));
     }
 
     /**
@@ -56,41 +111,55 @@ class TaxZonesController extends BaseTaxSettingsController
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
 
-        $variables = compact('id', 'taxZone', 'store');
+        $storeHandle = $store->handle;
 
-        if (!$variables['taxZone']) {
-            if ($variables['id']) {
-                $variables['taxZone'] = Plugin::getInstance()->getTaxZones()->getTaxZoneById($variables['id'], $store->id);
+        if (!$taxZone) {
+            if ($id) {
+                $taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($id, $store->id);
 
-                if (!$variables['taxZone']) {
+                if (!$taxZone) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['taxZone'] = Craft::createObject([
+                $taxZone = Craft::createObject([
                     'class' => TaxAddressZone::class,
                     'storeId' => $store->id,
                 ]);
             }
         }
 
-        if ($variables['taxZone']->id) {
-            $variables['title'] = $variables['taxZone']->name;
-        } else {
-            $variables['title'] = Craft::t('commerce', 'Create a tax zone');
-        }
+        $title = $taxZone->id ? $taxZone->name : Craft::t('commerce', 'Create a tax zone');
 
-        $condition = $variables['taxZone']->getCondition();
+        $condition = $taxZone->getCondition();
         $condition->mainTag = 'div';
         $condition->name = 'condition';
         $condition->id = 'condition';
-        $variables['conditionField'] = Cp::fieldHtml($condition->getBuilderHtml(), [
+        $conditionField = Cp::fieldHtml($condition->getBuilderHtml(), [
             'label' => Craft::t('app', 'Address Condition'),
         ]);
-        $variables['store'] = $store;
 
-        DebugPanel::prependOrAppendModelTab(model: $variables['taxZone'], prepend: true);
+        DebugPanel::prependOrAppendModelTab(model: $taxZone, prepend: true);
 
-        return $this->renderTemplate('commerce/store-management/tax/taxzones/_edit', $variables);
+        $metaSidebar = '';
+        if ($taxZone->id) {
+            $metaSidebar = Cp::metadataHtml([
+                Craft::t('app', 'Created at') => Craft::$app->getFormatter()->asDatetime($taxZone->dateCreated, 'short'),
+                Craft::t('app', 'Updated at') => Craft::$app->getFormatter()->asDatetime($taxZone->dateUpdated, 'short'),
+            ]);
+        }
+
+        return $this->asStoreManagementCpScreen($storeHandle, false)
+            ->title($title)
+            ->addCrumb(Craft::t('commerce', 'Tax Zones'), $store->getStoreSettingsUrl('taxzones'))
+            ->selectedSubnavItem('store-management')
+            ->action('commerce/tax-zones/save')
+            ->redirectUrl($store->getStoreSettingsUrl('taxzones'))
+            ->metaSidebarHtml($metaSidebar)
+            ->contentTemplate('commerce/store-management/tax/taxzones/_edit', [
+                'taxZone' => $taxZone,
+                'store' => $store,
+                'conditionField' => $conditionField,
+            ]);
     }
 
     /**

@@ -11,6 +11,8 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
+use craft\commerce\elements\Subscription;
+use craft\commerce\elements\Transfer;
 use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\models\ProductType;
@@ -64,7 +66,13 @@ class Install extends Migration
         $this->dropTables();
         $this->dropProjectConfig();
 
-        $this->delete(CraftTable::FIELDLAYOUTS, ['type' => [Order::class, Product::class, Variant::class]]);
+        $this->delete(CraftTable::FIELDLAYOUTS, ['type' => [
+            Order::class,
+            Product::class,
+            Variant::class,
+            Subscription::class,
+            Transfer::class,
+        ]]);
 
         return true;
     }
@@ -263,6 +271,7 @@ class Install extends Migration
             'plainTextTemplatePath' => $this->string(),
             'pdfId' => $this->integer(),
             'language' => $this->string(),
+            'renderSiteId' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -297,6 +306,9 @@ class Install extends Migration
             'settings' => $this->text(),
             'paymentType' => $this->enum('paymentType', ['authorize', 'purchase'])->notNull()->defaultValue('purchase'),
             'isFrontendEnabled' => $this->string(500)->notNull()->defaultValue('1'),
+            'orderCondition' => $this->text(),
+            'shippingAddressCondition' => $this->text(),
+            'billingAddressCondition' => $this->text(),
             'isArchived' => $this->boolean()->notNull()->defaultValue(false),
             'dateArchived' => $this->dateTime(),
             'sortOrder' => $this->integer(),
@@ -495,6 +507,7 @@ class Install extends Migration
             'isCompleted' => $this->boolean()->notNull()->defaultValue(false),
             'dateOrdered' => $this->dateTime(),
             'datePaid' => $this->dateTime(),
+            'dateFirstPaid' => $this->dateTime(),
             'dateAuthorized' => $this->dateTime(),
             'currency' => $this->string(),
             'paymentCurrency' => $this->string(),
@@ -634,7 +647,13 @@ class Install extends Migration
             'productTitleTranslationMethod' => $this->string()->defaultValue('site')->notNull(),
             'productTitleTranslationKeyFormat' => $this->string(),
 
+            // Slug stuff
+            'showSlugField' => $this->boolean()->notNull()->defaultValue(true),
+            'slugTranslationMethod' => $this->string()->notNull()->defaultValue('site'),
+            'slugTranslationKeyFormat' => $this->string(),
+
             'propagationMethod' => $this->string()->defaultValue(PropagationMethod::All->value)->notNull(),
+            'previewTargets' => $this->json(),
 
             'skuFormat' => $this->string(),
             'descriptionFormat' => $this->string(),
@@ -774,6 +793,8 @@ class Install extends Migration
             'storeId' => $this->integer()->notNull(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
+            'icon' => $this->string(),
+            'color' => $this->string(),
             'description' => $this->string(),
             'default' => $this->boolean()->notNull()->defaultValue(false),
             'dateDeleted' => $this->dateTime(),
@@ -788,7 +809,10 @@ class Install extends Migration
             'storeId' => $this->integer()->notNull(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
+            'icon' => $this->string(),
+            'color' => $this->string(),
             'orderCondition' => $this->text(),
+            'customerCondition' => $this->text(),
             'enabled' => $this->boolean()->notNull()->defaultValue(true),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -819,6 +843,7 @@ class Install extends Migration
             'enabled' => $this->boolean()->notNull()->defaultValue(true),
             'orderConditionFormula' => $this->text(),
             'orderCondition' => $this->text(),
+            'customerCondition' => $this->text(),
             'baseRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'perItemRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'weightRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
@@ -921,6 +946,8 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
+            'icon' => $this->string(),
+            'color' => $this->string(),
             'description' => $this->string(),
             'default' => $this->boolean()->notNull()->defaultValue(false),
             'dateDeleted' => $this->dateTime(),
@@ -1053,18 +1080,18 @@ class Install extends Migration
     public function createIndexes(): void
     {
         $this->createIndex(null, Table::CATALOG_PRICING, 'catalogPricingRuleId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING, 'isPromotionalPrice', false);
         $this->createIndex(null, Table::CATALOG_PRICING, 'purchasableId', false);
         $this->createIndex(null, Table::CATALOG_PRICING, 'storeId', false);
         $this->createIndex(null, Table::CATALOG_PRICING, 'userId', false);
-        $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId', 'isPromotionalPrice', 'price'], false);
         $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId', 'isPromotionalPrice', 'price', 'catalogPricingRuleId', 'dateFrom', 'dateTo'], false);
+        $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId', 'isPromotionalPrice', 'price'], false);
+        $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId'], false);
         $this->createIndex(null, Table::CATALOG_PRICING_RULES, 'storeId', false);
         $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'catalogPricingRuleId', false);
         $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'userId', false);
         $this->createIndex(null, Table::COUPONS, 'code', false);
         $this->createIndex(null, Table::COUPONS, 'discountId', false);
-        $this->createIndex(null, Table::CATALOG_PRICING, 'isPromotionalPrice', false);
-        $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId'], false);
         $this->createIndex(null, Table::CUSTOMERS, 'customerId', true);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryBillingAddressId', false);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryPaymentSourceId', false);
@@ -1202,6 +1229,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::DONATIONS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::EMAILS, ['pdfId'], Table::PDFS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::EMAILS, ['storeId'], Table::STORES, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::EMAILS, ['renderSiteId'], CraftTable::SITES, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::INVENTORYITEMS, 'purchasableId', Table::PURCHASABLES, 'id', 'CASCADE', null);
         $this->addForeignKey(null, Table::INVENTORYLOCATIONS, 'addressId', CraftTable::ELEMENTS, 'id', 'CASCADE', null);
@@ -1245,6 +1273,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::PLANS, ['planInformationId'], '{{%elements}}', 'id', 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PRODUCTS, ['typeId'], Table::PRODUCTTYPES, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::PRODUCTS, ['defaultVariantId'], '{{%elements}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTTYPES, ['fieldLayoutId'], '{{%fieldlayouts}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTTYPES, ['variantFieldLayoutId'], '{{%fieldlayouts}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTTYPES, ['structureId'], CraftTable::STRUCTURES, ['id'], 'SET NULL', null);
@@ -1268,7 +1297,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::SALE_USERGROUPS, ['userGroupId'], '{{%usergroups}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGCATEGORIES, ['storeId'], Table::STORES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGMETHODS, ['storeId'], Table::STORES, ['id'], 'CASCADE');
-        $this->addForeignKey(null, Table::SHIPPINGRULES, ['methodId'], Table::SHIPPINGMETHODS, ['id']);
+        $this->addForeignKey(null, Table::SHIPPINGRULES, ['methodId'], Table::SHIPPINGMETHODS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGRULE_CATEGORIES, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGRULE_CATEGORIES, ['shippingRuleId'], Table::SHIPPINGRULES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGZONES, ['storeId'], Table::STORES, ['id'], 'CASCADE');
@@ -1425,6 +1454,7 @@ class Install extends Migration
             'name' => 'Dummy',
             'handle' => 'dummy',
             'isFrontendEnabled' => true,
+            'orderCondition' => [],
             'isArchived' => false,
         ];
         $gateway = new Dummy($data);

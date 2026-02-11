@@ -51,8 +51,6 @@ class VariantCollection extends ElementCollection
      */
     public function cheapest(): ?Variant
     {
-        return $this->reduce(function(?Variant $cheapest, Variant $variant) {
-            return !$cheapest || $variant->getSalePrice() < $cheapest->getSalePrice() ? $variant : $cheapest;
-        });
+        return $this->reduce(fn(?Variant $cheapest, Variant $variant) => !$cheapest || $variant->getSalePrice() < $cheapest->getSalePrice() ? $variant : $cheapest);
     }
 }

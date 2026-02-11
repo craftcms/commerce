@@ -16,6 +16,7 @@ use craft\commerce\elements\conditions\orders\OrderCondition;
 use craft\commerce\elements\conditions\orders\OrderStatusConditionRule;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\exports\Expanded;
+use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
 use craft\elements\actions\Delete;
 use craft\elements\actions\Restore;
@@ -107,11 +108,11 @@ trait OrderElementTrait
             }
             case 'shippingMethodName':
             {
-                return $this->shippingMethodName ?? '';
+                return Html::encode($this->shippingMethodName ?? '');
             }
             case 'gatewayName':
             {
-                return $this->getGateway()->name ?? '';
+                return Html::encode($this->getGateway()->name ?? '');
             }
             case 'paidStatus':
             {
@@ -213,7 +214,7 @@ trait OrderElementTrait
             case 'orderSite':
             {
                 $site = Craft::$app->getSites()->getSiteById($this->orderSiteId);
-                return $site->name ?? '';
+                return Html::encode($site->name ?? '');
             }
             default:
             {
@@ -299,12 +300,13 @@ trait OrderElementTrait
         $site = $siteHandle ? Craft::$app->getSites()->getSiteByHandle($siteHandle) : Craft::$app->getSites()->getCurrentSite();
         /** @var StoreBehavior $site */
         $store = $site->getStore();
+        $orderCriteria = ['isCompleted' => true, 'storeId' => $store->id];
 
         $sources = [
             '*' => [
                 'key' => '*',
                 'label' => Craft::t('commerce', 'All Orders'),
-                'criteria' => ['isCompleted' => true, 'storeId' => $store->id],
+                'criteria' => $orderCriteria,
                 'defaultSort' => ['dateOrdered', 'desc'],
                 'data' => [
                     'date-attr' => 'dateOrdered',
@@ -324,16 +326,13 @@ trait OrderElementTrait
 
         foreach ($orderStatuses as $orderStatus) {
             $key = 'orderStatus:' . $orderStatus->handle;
-            $criteriaStatus = [
-                'storeId' => $store->id,
-                'orderStatusId' => $orderStatus->id,
-            ];
 
-            $sources['*']['nested'][] = [
+            $sources[$key] = [
                 'key' => $key,
                 'status' => $orderStatus->color,
                 'label' => Craft::t('site', $orderStatus->name),
-                'criteria' => $criteriaStatus,
+                'badgeCount' => 0,
+                'criteria' => ArrayHelper::merge($orderCriteria, ['orderStatusId' => $orderStatus->id]),
                 'defaultSort' => ['dateOrdered', 'desc'],
                 'data' => [
                     'handle' => $orderStatus->handle,
@@ -390,7 +389,7 @@ trait OrderElementTrait
             $site = Cp::requestedSite();
             $store = $site->getStore();
             // Remove nested "all" prefix if it exists at the start of the string
-            $source = strpos($source, '*/') === 0 ? substr($source, 2) : $source;
+            $source = str_starts_with($source, '*/') ? substr($source, 2) : $source;
 
 
             $elementService = Craft::$app->getElements();
@@ -464,7 +463,7 @@ trait OrderElementTrait
      */
     protected static function defineTableAttributes(): array
     {
-        return [
+        return array_merge(parent::defineTableAttributes(), [
             'reference' => ['label' => Craft::t('commerce', 'Reference')],
             'shortNumber' => ['label' => Craft::t('commerce', 'Short Number')],
             'number' => ['label' => Craft::t('commerce', 'Number')],
@@ -481,6 +480,7 @@ trait OrderElementTrait
             'totalIncludedTax' => ['label' => Craft::t('commerce', 'Total Included Tax')],
             'dateOrdered' => ['label' => Craft::t('commerce', 'Date Ordered')],
             'datePaid' => ['label' => Craft::t('commerce', 'Date Paid')],
+            'dateFirstPaid' => ['label' => Craft::t('commerce', 'Date First Paid')],
             'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],
             'dateUpdated' => ['label' => Craft::t('commerce', 'Date Updated')],
             'email' => ['label' => Craft::t('commerce', 'Email')],
@@ -500,7 +500,7 @@ trait OrderElementTrait
             'itemTotal' => ['label' => Craft::t('commerce', 'Item Total')],
             'itemSubtotal' => ['label' => Craft::t('commerce', 'Item Subtotal')],
             'orderSite' => ['label' => Craft::t('commerce', 'Order Site')],
-        ];
+        ]);
     }
 
     /**
@@ -512,14 +512,21 @@ trait OrderElementTrait
         $attributes[] = 'order';
 
         if (!str_starts_with($source, 'carts:')) {
+            // For orders (including order status sources)
             $attributes[] = 'reference';
-            $attributes[] = 'orderStatus';
+            if (!str_starts_with($source, 'orderStatus:')) {
+                // Only show status column when not filtered by status
+                $attributes[] = 'orderStatus';
+            }
+            $attributes[] = 'customer';
             $attributes[] = 'dateOrdered';
             $attributes[] = 'datePaid';
+            $attributes[] = 'dateFirstPaid';
             $attributes[] = 'totalPaid';
             $attributes[] = 'paidStatus';
             $attributes[] = 'totals';
         } else {
+            // For carts
             $attributes[] = 'shortNumber';
             $attributes[] = 'dateUpdated';
             $attributes[] = 'totalPrice';
@@ -535,42 +542,14 @@ trait OrderElementTrait
     {
         /** @var OrderQuery $elementQuery */
 
-        switch ($attribute) {
-            case 'totals':
-            case 'total':
-            case 'totalPrice':
-            case 'totalDiscount':
-            case 'totalShippingCost':
-            case 'totalTax':
-            case 'totalIncludedTax':
-                $elementQuery->withAdjustments();
-                break;
-            case 'totalPaid':
-            case 'paidStatus':
-                $elementQuery->withTransactions();
-                break;
-            case 'shippingFullName':
-            case 'shippingFirstName':
-            case 'shippingLastName':
-            case 'billingFullName':
-            case 'billingFirstName':
-            case 'billingLastName':
-            case 'shippingOrganizationName':
-            case 'billingOrganizationName':
-            case 'shippingMethodName':
-                $elementQuery->withAddresses();
-                break;
-            case 'email':
-            case 'customer':
-                $elementQuery->withCustomer();
-                break;
-            case 'itemTotal':
-            case 'itemSubtotal':
-                $elementQuery->withLineItems();
-                break;
-            default:
-                parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
-        }
+        match ($attribute) {
+            'totals', 'total', 'totalPrice', 'totalDiscount', 'totalShippingCost', 'totalTax', 'totalIncludedTax' => $elementQuery->withAdjustments(),
+            'totalPaid', 'paidStatus' => $elementQuery->withTransactions(),
+            'shippingFullName', 'shippingFirstName', 'shippingLastName', 'billingFullName', 'billingFirstName', 'billingLastName', 'shippingOrganizationName', 'billingOrganizationName', 'shippingMethodName' => $elementQuery->withAddresses(),
+            'email', 'customer' => $elementQuery->withCustomer(),
+            'itemTotal', 'itemSubtotal' => $elementQuery->withLineItems(),
+            default => parent::prepElementQueryForTableAttribute($elementQuery, $attribute),
+        };
     }
 
     /**
@@ -639,6 +618,11 @@ trait OrderElementTrait
                 'orderBy' => 'datePaid',
                 'defaultDir' => 'desc',
             ],
+            [
+                'label' => Craft::t('commerce', 'Date First Paid'),
+                'orderBy' => 'dateFirstPaid',
+                'defaultDir' => 'desc',
+            ],
             'couponCode' => Craft::t('commerce', 'Coupon Code'),
             [
                 'label' => Craft::t('app', 'ID'),
@@ -702,5 +686,167 @@ trait OrderElementTrait
         }
 
         return $config;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineCardAttributes(): array
+    {
+        /** @var OrderStatus $status */
+        $status = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses()->first();
+        $site = Craft::$app->getSites()->getCurrentSite();
+        $number = Plugin::getInstance()->getCarts()->generateCartNumber();
+
+        return array_merge(parent::defineCardAttributes(), [
+            'shortNumber' => [
+                'label' => Craft::t('commerce', 'Short Number'),
+                'placeholder' => substr($number, 0, 7),
+            ],
+            'number' => [
+                'label' => Craft::t('commerce', 'Number'),
+                'placeholder' => $number,
+            ],
+            'id' => [
+                'label' => Craft::t('commerce', 'ID'),
+                'placeholder' => '12345',
+            ],
+            'orderStatus' => [
+                'label' => Craft::t('commerce', 'Status'),
+                'placeholder' => $status->getLabelHtml(),
+            ],
+            'totalQty' => [
+                'label' => Craft::t('commerce', 'Total Qty'),
+                'placeholder' => '10',
+            ],
+            'total' => [
+                'label' => Craft::t('commerce', 'Total'),
+                'placeholder' => '¤' . Craft::$app->getFormattingLocale()->getFormatter()->asDecimal(123.99),
+            ],
+            'totalPrice' => [
+                'label' => Craft::t('commerce', 'Total Price'),
+                'placeholder' => '¤' . Craft::$app->getFormattingLocale()->getFormatter()->asDecimal(123.99),
+            ],
+            'totalPaid' => [
+                'label' => Craft::t('commerce', 'Total Paid'),
+                'placeholder' => '¤' . Craft::$app->getFormattingLocale()->getFormatter()->asDecimal(123.99),
+            ],
+            'totalDiscount' => [
+                'label' => Craft::t('commerce', 'Total Discount'),
+                'placeholder' => '¤' . Craft::$app->getFormattingLocale()->getFormatter()->asDecimal(12.99),
+            ],
+            'totalShippingCost' => [
+                'label' => Craft::t('commerce', 'Total Shipping'),
+                'placeholder' => '¤' . Craft::$app->getFormattingLocale()->getFormatter()->asDecimal(9.99),
+            ],
+            'totalTax' => [
+                'label' => Craft::t('commerce', 'Total Tax'),
+                'placeholder' => '¤' . Craft::$app->getFormattingLocale()->getFormatter()->asDecimal(19.99),
+            ],
+            'totalIncludedTax' => [
+                'label' => Craft::t('commerce', 'Total Included Tax'),
+                'placeholder' => '¤' . Craft::$app->getFormattingLocale()->getFormatter()->asDecimal(19.99),
+            ],
+            'dateOrdered' => [
+                'label' => Craft::t('commerce', 'Date Ordered'),
+                'placeholder' => Craft::$app->getFormattingLocale()->getFormatter()->asDate(time(), 'short'),
+            ],
+            'datePaid' => [
+                'label' => Craft::t('commerce', 'Date Paid'),
+                'placeholder' => Craft::$app->getFormattingLocale()->getFormatter()->asDate(time(), 'short'),
+            ],
+            'dateFirstPaid' => [
+                'label' => Craft::t('commerce', 'Date First Paid'),
+                'placeholder' => Craft::$app->getFormattingLocale()->getFormatter()->asDate(time(), 'short'),
+            ],
+            'dateUpdated' => [
+                'label' => Craft::t('commerce', 'Date Updated'),
+                'placeholder' => Craft::$app->getFormattingLocale()->getFormatter()->asDate(time(), 'short'),
+            ],
+            'email' => [
+                'label' => Craft::t('commerce', 'Email'),
+                'placeholder' => 'user@example.com',
+            ],
+            'customer' => [
+                'label' => Craft::t('commerce', 'Customer'),
+                'placeholder' => Craft::t('commerce', 'Customer'),
+            ],
+            'shippingFullName' => [
+                'label' => Craft::t('commerce', 'Shipping Full Name'),
+                'placeholder' => Craft::t('commerce', 'Shipping Full Name'),
+            ],
+            'shippingFirstName' => [
+                'label' => Craft::t('commerce', 'Shipping First Name'),
+                'placeholder' => Craft::t('commerce', 'Shipping First Name'),
+            ],
+            'shippingLastName' => [
+                'label' => Craft::t('commerce', 'Shipping Last Name'),
+                'placeholder' => Craft::t('commerce', 'Shipping Last Name'),
+            ],
+            'billingFullName' => [
+                'label' => Craft::t('commerce', 'Billing Full Name'),
+                'placeholder' => Craft::t('commerce', 'Billing Full Name'),
+            ],
+            'billingFirstName' => [
+                'label' => Craft::t('commerce', 'Billing First Name'),
+                'placeholder' => Craft::t('commerce', 'Billing First Name'),
+            ],
+            'billingLastName' => [
+                'label' => Craft::t('commerce', 'Billing Last Name'),
+                'placeholder' => Craft::t('commerce', 'Billing Last Name'),
+            ],
+            'shippingOrganizationName' => [
+                'label' => Craft::t('commerce', 'Shipping Business Name'),
+                'placeholder' => Craft::t('commerce', 'Shipping Business Name'),
+            ],
+            'billingOrganizationName' => [
+                'label' => Craft::t('commerce', 'Billing Business Name'),
+                'placeholder' => Craft::t('commerce', 'Billing Business Name'),
+            ],
+            'shippingMethodName' => [
+                'label' => Craft::t('commerce', 'Shipping Method'),
+                'placeholder' => Craft::t('commerce', 'Shipping Method'),
+            ],
+            'gatewayName' => [
+                'label' => Craft::t('commerce', 'Gateway'),
+                'placeholder' => Craft::t('commerce', 'Gateway'),
+            ],
+            'paidStatus' => [
+                'label' => Craft::t('commerce', 'Paid Status'),
+                'placeholder' => Cp::statusLabelHtml(['color' => 'green', 'label' => Craft::t('commerce', 'Paid')]),
+            ],
+            'couponCode' => [
+                'label' => Craft::t('commerce', 'Coupon Code'),
+                'placeholder' => 'SAVE10',
+            ],
+            'itemTotal' => [
+                'label' => Craft::t('commerce', 'Item Total'),
+                'placeholder' => '¤' . Craft::$app->getFormattingLocale()->getFormatter()->asDecimal(99.99),
+            ],
+            'itemSubtotal' => [
+                'label' => Craft::t('commerce', 'Item Subtotal'),
+                'placeholder' => '¤' . Craft::$app->getFormattingLocale()->getFormatter()->asDecimal(89.99),
+            ],
+            'orderSite' => [
+                'label' => Craft::t('commerce', 'Order Site'),
+                'placeholder' => $site->name,
+            ],
+            'reference' => [
+                'label' => Craft::t('commerce', 'Reference'),
+                'placeholder' => 'ORD-XXXXX',
+            ],
+        ]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineDefaultCardAttributes(): array
+    {
+        return array_merge(parent::defineDefaultCardAttributes(), [
+            'reference',
+            'orderStatus',
+            'totalPrice',
+        ]);
     }
 }

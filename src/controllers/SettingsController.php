@@ -46,26 +46,13 @@ class SettingsController extends BaseAdminController
     public function actionSaveSettings(): ?Response
     {
         $this->requirePostRequest();
-
-        $params = $this->request->getBodyParams();
-        $data = $params['settings'];
-
-        $settings = Plugin::getInstance()->getSettings();
-        $settings->weightUnits = $data['weightUnits'] ?? key($settings->getWeightUnitsOptions());
-        $settings->dimensionUnits = $data['dimensionUnits'] ?? key($settings->getDimensionUnits());
-        $settings->updateBillingDetailsUrl = $data['updateBillingDetailsUrl'] ?? $settings->updateBillingDetailsUrl;
-        $settings->defaultView = $data['defaultView'] ?? $settings->defaultView;
-
-        if (!$settings->validate()) {
-            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save settings.'));
-            return $this->renderTemplate('commerce/settings/general/index', compact('settings'));
-        }
-
-        $pluginSettingsSaved = Craft::$app->getPlugins()->savePluginSettings(Plugin::getInstance(), $settings->toArray());
+        $plugin = Plugin::getInstance();
+        $settings = $this->request->getBodyParam('settings');
+        $pluginSettingsSaved = Craft::$app->getPlugins()->savePluginSettings($plugin, $settings);
 
         if (!$pluginSettingsSaved) {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save settings.'));
-            return $this->renderTemplate('commerce/settings/general/index', compact('settings'));
+            return $this->renderTemplate('commerce/settings/general/index', ['settings' => $plugin->getSettings()]);
         }
 
         $this->setSuccessFlash(Craft::t('commerce', 'Settings saved.'));
@@ -85,12 +72,10 @@ class SettingsController extends BaseAdminController
             'sites' => $sites,
             'primaryStoreId' => Plugin::getInstance()->getStores()->getPrimaryStore()->id,
             'stores' => Plugin::getInstance()->getStores()->getAllStores(),
-            'storesList' => Plugin::getInstance()->getStores()->getAllStores()->map(function($store) {
-                return [
-                    'label' => $store->name . ($store->primary ? ' (' . Craft::t('commerce', 'Primary') . ')' : ''),
-                    'value' => $store->id,
-                ];
-            }),
+            'storesList' => Plugin::getInstance()->getStores()->getAllStores()->map(fn($store) => [
+                'label' => $store->name . ($store->primary ? ' (' . Craft::t('commerce', 'Primary') . ')' : ''),
+                'value' => $store->id,
+            ]),
         ]);
     }
 

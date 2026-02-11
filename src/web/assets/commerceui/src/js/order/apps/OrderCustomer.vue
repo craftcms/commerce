@@ -89,6 +89,12 @@
                     :copy-to-address="
                         $options.filters.t('shipping address', 'commerce')
                     "
+                    :can-copy-to-user="
+                        canEditUsers &&
+                        draft.order.sourceBillingAddressId == null &&
+                        customerId &&
+                        draft.order.customer.isCredentialed
+                    "
                     :customer-id="draft.order.customerId"
                     :empty-message="
                         $options.filters.t('No billing address', 'commerce')
@@ -96,6 +102,7 @@
                     :customer-updated="customerUpdatedTime"
                     @update="updateBillingAddress"
                     @copy="copyAddress('shipping')"
+                    @copyAddressToUser="copyToUser('billing')"
                     @remove="removeBillingAddress"
                 ></address-edit>
             </div>
@@ -116,6 +123,12 @@
                     :copy-to-address="
                         $options.filters.t('billing address', 'commerce')
                     "
+                    :can-copy-to-user="
+                        canEditUsers &&
+                        draft.order.sourceShippingAddressId == null &&
+                        customerId &&
+                        draft.order.customer.isCredentialed
+                    "
                     :customer-id="draft.order.customerId"
                     :empty-message="
                         $options.filters.t('No shipping address', 'commerce')
@@ -123,6 +136,7 @@
                     :customer-updated="customerUpdatedTime"
                     @update="updateShippingAddress"
                     @copy="copyAddress('billing')"
+                    @copyAddressToUser="copyToUser('shipping')"
                     @remove="removeShippingAddress"
                 ></address-edit>
             </div>
@@ -168,6 +182,7 @@
             ...mapGetters([
                 'autoSetNewCartAddresses',
                 'canEdit',
+                'canEditUsers',
                 'hasCustomer',
                 'hasAddresses',
                 'hasAnAddress',
@@ -207,7 +222,7 @@
         },
 
         methods: {
-            ...mapActions(['edit', 'recalculateOrder']),
+            ...mapActions(['copyAddressToUser', 'edit', 'recalculateOrder']),
 
             enableEditMode() {
                 this.editMode = true;
@@ -252,31 +267,68 @@
                 }
             },
 
-            updateBillingAddress(address) {
+            copyToUser(address) {
+                let addressId = null;
+                if (address == 'shipping') {
+                    addressId = this.draft.order.shippingAddress.id;
+                } else {
+                    addressId = this.draft.order.billingAddress.id;
+                }
+
+                const data = this.copyAddressToUser({
+                    addressId,
+                    userId: this.customerId,
+                })
+                    .then((data) => {
+                        let draft = this.draft;
+
+                        if (address == 'shipping') {
+                            draft.order.sourceShippingAddressId =
+                                data.address.id;
+                        } else {
+                            draft.order.sourceBillingAddressId =
+                                data.address.id;
+                        }
+
+                        this.$store.commit('updateDraft', draft);
+                        this.$store.dispatch(
+                            'displayNotice',
+                            this.$options.filters.t(
+                                'Address copied to user.',
+                                'commerce'
+                            )
+                        );
+                    })
+                    .catch((errorMsg) => {
+                        this.$store.dispatch('displayError', errorMsg);
+                    });
+            },
+
+            updateBillingAddress(address, isNew = false) {
                 if (address) {
                     address.title = this.titles.billingAddress;
                 }
 
-                this.updateAddress('billing', address);
+                this.updateAddress('billing', address, true, isNew);
             },
 
-            updateShippingAddress(address) {
+            updateShippingAddress(address, isNew = false) {
                 if (address) {
                     address.title = this.titles.shippingAddress;
                 }
 
-                this.updateAddress('shipping', address);
+                this.updateAddress('shipping', address, true, isNew);
             },
 
             removeBillingAddress() {
-                this.updateAddress('billing', null);
+                this.updateAddress('billing', null, true, false);
             },
 
             removeShippingAddress() {
-                this.updateAddress('shipping', null);
+                this.updateAddress('shipping', null, true, false);
             },
 
-            updateAddress(type, address, recalculate = true) {
+            updateAddress(type, address, recalculate = true, isNew = false) {
                 let draft = this.draft;
                 let key = type + 'Address';
                 let sourceAddressKey =
@@ -287,13 +339,13 @@
 
                 draft.order[key] = address;
 
-                if (!address) {
+                if (!address || isNew) {
                     draft.order[sourceAddressKey] = null;
-                } else if (address.ownerId != draft.order.id) {
+                } else if (!isNew && address.ownerId != draft.order.id) {
                     draft.order[sourceAddressKey] = address.id;
                 }
 
-                this.draft = draft;
+                this.$store.commit('updateDraft', draft);
 
                 if (recalculate && this.hasCustomer) {
                     this.recalculate();

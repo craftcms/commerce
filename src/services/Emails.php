@@ -232,7 +232,7 @@ class Emails extends Component
      */
     public function getAllEmails(?int $storeId = null): Collection
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         if ($this->_allEmails === null || !isset($this->_allEmails[$storeId])) {
             $results = $this->_createEmailQuery()
@@ -341,6 +341,7 @@ class Emails extends Component
             $emailRecord = $this->_getEmailRecord($emailUid);
             $isNewEmail = $emailRecord->getIsNewRecord();
             $store = Plugin::getInstance()->getStores()->getStoreByUid($data['store']);
+            $renderSite = array_key_exists('renderSite', $data) && $data['renderSite'] !== null ? Craft::$app->getSites()->getSiteByUid($data['renderSite']) : null;
 
             $emailRecord->storeId = $store->id;
             $emailRecord->name = $data['name'];
@@ -358,6 +359,7 @@ class Emails extends Component
             $emailRecord->uid = $emailUid;
             $emailRecord->pdfId = $pdfUid ? Db::idByUid(Table::PDFS, $pdfUid) : null;
             $emailRecord->language = $data['language'] ?? EmailRecord::LOCALE_ORDER_LANGUAGE;
+            $emailRecord->renderSiteId = $renderSite?->id ?? null;
 
             $emailRecord->save(false);
 
@@ -460,7 +462,7 @@ class Emails extends Component
         $generalConfig->generateTransformsBeforePageLoad = true;
 
         // Make sure date vars are in the correct format
-        $dateFields = ['dateOrdered', 'datePaid'];
+        $dateFields = ['dateOrdered', 'datePaid', 'dateFirstPaid'];
         foreach ($dateFields as $dateField) {
             if (isset($order->{$dateField}) && !($order->{$dateField} instanceof DateTime) && $order->{$dateField}) {
                 $order->{$dateField} = DateTimeHelper::toDateTime($order->{$dateField});
@@ -477,6 +479,7 @@ class Emails extends Component
         $originalLanguage = Craft::$app->language;
         $originalFormattingLanguage = Craft::$app->formattingLocale;
         $emailLanguage = $email->getRenderLanguage($order);
+        $emailSite = $email->getRenderSite($order);
 
         Locale::switchAppLanguage($emailLanguage);
 
@@ -547,7 +550,7 @@ class Emails extends Component
                 }
             } catch (\Exception $e) {
                 Craft::$app->getErrorHandler()->logException($e);
-                
+
                 $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “BCC:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -577,7 +580,7 @@ class Emails extends Component
                 }
             } catch (\Exception $e) {
                 Craft::$app->getErrorHandler()->logException($e);
-                
+
                 $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “CC:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -601,7 +604,7 @@ class Emails extends Component
                 $newEmail->setReplyTo($view->renderString($email->replyTo, $renderVariables));
             } catch (\Exception $e) {
                 Craft::$app->getErrorHandler()->logException($e);
-                
+
                 $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “ReplyTo:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -624,7 +627,7 @@ class Emails extends Component
             $newEmail->setSubject($view->renderString($email->subject, $renderVariables));
         } catch (\Exception $e) {
             Craft::$app->getErrorHandler()->logException($e);
-            
+
             $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “Subject:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
                 'order' => $order->getShortNumber(),
@@ -646,7 +649,7 @@ class Emails extends Component
             $templatePath = $view->renderString($email->templatePath, $renderVariables);
         } catch (\Exception $e) {
             Craft::$app->getErrorHandler()->logException($e);
-            
+
             $error = Craft::t('commerce', 'Email template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
                 'order' => $order->getShortNumber(),
@@ -687,7 +690,7 @@ class Emails extends Component
                 $plainTextTemplatePath = $view->renderString($email->plainTextTemplatePath, $renderVariables);
             } catch (\Exception $e) {
                 Craft::$app->getErrorHandler()->logException($e);
-                
+
                 $error = Craft::t('commerce', 'Email plain text template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -751,7 +754,7 @@ class Emails extends Component
                 if ($pdf->fileNameFormat) {
                     try {
                         $fileName = $view->renderObjectTemplate($pdf->fileNameFormat, $order);
-                    } catch (\Throwable $e) {
+                    } catch (\Throwable) {
                         $fileName = $defaultFileName;
                     }
                 }
@@ -765,7 +768,7 @@ class Emails extends Component
                 $newEmail->attach($tempPath, $options);
             } catch (\Exception $e) {
                 Craft::$app->getErrorHandler()->logException($e);
-                
+
                 $error = Craft::t('commerce', 'Email PDF generation error for email “{email}”. Order: “{order}”. PDF Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -783,13 +786,16 @@ class Emails extends Component
             }
         }
 
+        $originalSiteId = Craft::$app->getSites()->getCurrentSite()->id;
+        Craft::$app->getSites()->setCurrentSite($emailSite);
+
         // Render HTML body
         try {
             $body = $view->renderTemplate($templatePath, $renderVariables);
             $newEmail->setHtmlBody($body);
         } catch (\Exception $e) {
             Craft::$app->getErrorHandler()->logException($e);
-            
+
             $error = Craft::t('commerce', 'Email template parse error for email “{email}”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
                 'order' => $order->getShortNumber(),
@@ -799,6 +805,7 @@ class Emails extends Component
             ]);
             Craft::error($error, __METHOD__);
 
+            Craft::$app->getSites()->setCurrentSite($originalSiteId);
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
             $view->setTemplateMode($oldTemplateMode);
             $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
@@ -813,7 +820,7 @@ class Emails extends Component
                 $newEmail->setTextBody($plainTextBody);
             } catch (\Exception $e) {
                 Craft::$app->getErrorHandler()->logException($e);
-                
+
                 $error = Craft::t('commerce', 'Email plain text template parse error for email “{email}”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -823,6 +830,7 @@ class Emails extends Component
                 ]);
                 Craft::error($error, __METHOD__);
 
+                Craft::$app->getSites()->setCurrentSite($originalSiteId);
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
@@ -850,6 +858,7 @@ class Emails extends Component
 
                 Craft::info($notice, __METHOD__);
 
+                Craft::$app->getSites()->setCurrentSite($originalSiteId);
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
@@ -869,6 +878,7 @@ class Emails extends Component
 
                 Craft::error($error, __METHOD__);
 
+                Craft::$app->getSites()->setCurrentSite($originalSiteId);
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
@@ -877,7 +887,7 @@ class Emails extends Component
             }
         } catch (\Exception $e) {
             Craft::$app->getErrorHandler()->logException($e);
-            
+
             $error = Craft::t('commerce', 'Email “{email}” could not be sent for order “{order}”. Error: {error} {file}:{line}', [
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
@@ -888,6 +898,7 @@ class Emails extends Component
 
             Craft::error($error, __METHOD__);
 
+            Craft::$app->getSites()->setCurrentSite($originalSiteId);
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
             $view->setTemplateMode($oldTemplateMode);
             $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
@@ -906,6 +917,7 @@ class Emails extends Component
             ]));
         }
 
+        Craft::$app->getSites()->setCurrentSite($originalSiteId);
         Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
         $view->setTemplateMode($oldTemplateMode);
         $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
@@ -957,6 +969,7 @@ class Emails extends Component
                 'emails.pdfId',
                 'emails.plainTextTemplatePath',
                 'emails.recipientType',
+                'emails.renderSiteId',
                 'emails.replyTo',
                 'emails.senderAddress',
                 'emails.senderName',

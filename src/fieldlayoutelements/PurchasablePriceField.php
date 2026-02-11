@@ -55,6 +55,14 @@ class PurchasablePriceField extends BaseNativeField
     /**
      * @inheritdoc
      */
+    protected function defaultLabel(?ElementInterface $element = null, bool $static = false): ?string
+    {
+        return Craft::t('commerce', 'Price');
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         $view = Craft::$app->getView();
@@ -90,7 +98,7 @@ class PurchasablePriceField extends BaseNativeField
 
         $purchasableConditionRule = Craft::$app->getConditions()->createConditionRule([
             'class' => CatalogPricingPurchasableConditionRule::class,
-            'elementIds' => [get_class($element) => [$element->id]],
+            'elementIds' => [$element::class => [$element->id]],
         ]);
         $catalogPricingCondition->addConditionRule($purchasableConditionRule);
         $conditionBuilderConfig = Json::encode($catalogPricingCondition->getConfig());

@@ -7,14 +7,17 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\StoreTrait;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
+use craft\errors\SiteNotFoundException;
 use craft\helpers\App;
 use craft\helpers\UrlHelper;
+use craft\models\Site;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 
@@ -87,6 +90,14 @@ class Email extends Model implements HasStoreInterface
     public string $language = EmailRecord::LOCALE_ORDER_LANGUAGE;
 
     /**
+     * The site the email should be rendered in. Set to `null` to use the site the order was placed in.
+     *
+     * @var int|null
+     * @since 5.5.0
+     */
+    public ?int $renderSiteId = null;
+
+    /**
      * @var string|null
      * @since 5.0.0
      * @see setSenderAddress()
@@ -144,7 +155,7 @@ class Email extends Model implements HasStoreInterface
     }
 
     /**
-     * Determines the language this pdf, if
+     * Determines the language this email is rendered in.
      *
      * @param Order|null $order
      */
@@ -164,6 +175,25 @@ class Email extends Model implements HasStoreInterface
     }
 
     /**
+     * Determines the site this email is rendered in.
+     *
+     * @param Order|null $order
+     * @return Site
+     * @throws SiteNotFoundException
+     * @since 5.5.0
+     */
+    public function getRenderSite(Order $order = null): Site
+    {
+        $renderSiteId = $this->renderSiteId ?? $order?->orderSiteId;
+
+        if ($renderSiteId !== null) {
+            return Craft::$app->getSites()->getSiteById($renderSiteId);
+        }
+
+        return Craft::$app->getSites()->getPrimarySite();
+    }
+
+    /**
      * @inheritdoc
      */
     protected function defineRules(): array
@@ -174,9 +204,7 @@ class Email extends Model implements HasStoreInterface
             [
                 ['to'],
                 'required',
-                'when' => static function($model) {
-                    return $model->recipientType == EmailRecord::TYPE_CUSTOM;
-                },
+                'when' => static fn($model) => $model->recipientType == EmailRecord::TYPE_CUSTOM,
             ],
             [
                 [
@@ -189,6 +217,7 @@ class Email extends Model implements HasStoreInterface
                     'pdfId',
                     'plainTextTemplatePath',
                     'recipientType',
+                    'renderSiteId',
                     'replyTo',
                     'senderAddress',
                     'senderName',
@@ -370,6 +399,7 @@ class Email extends Model implements HasStoreInterface
             'pdf' => $this->getPdf()?->uid,
             'plainTextTemplatePath' => $this->plainTextTemplatePath ?? null,
             'recipientType' => $this->recipientType,
+            'renderSite' => $this->renderSiteId ? Craft::$app->getSites()->getSiteById($this->renderSiteId)?->uid ?? null : null,
             'replyTo' => $this->replyTo ?: null,
             'store' => $this->getStore()->uid,
             'subject' => $this->subject,

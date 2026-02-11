@@ -13,6 +13,7 @@ use craft\commerce\adjusters\Shipping;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\OrderAdjustmentNotFoundException;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
@@ -150,19 +151,20 @@ class OrderAdjustments extends Component
      */
     public function saveOrderAdjustment(OrderAdjustment $orderAdjustment, bool $runValidation = true): bool
     {
-        if ($orderAdjustment->id) {
+        $newAdjustment = !$orderAdjustment->id;
+
+        if ($newAdjustment) {
+            $record = new OrderAdjustmentRecord();
+        } else {
             $record = OrderAdjustmentRecord::findOne($orderAdjustment->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No order Adjustment exists with the ID “{id}”',
-                    ['id' => $orderAdjustment->id]));
+                throw new OrderAdjustmentNotFoundException('Order Adjustment with ID ”' . $orderAdjustment->id . '“ not found!');
             }
-        } else {
-            $record = new OrderAdjustmentRecord();
         }
 
         if ($runValidation && !$orderAdjustment->validate()) {
-            Craft::info('Order Adjustment not saved due to validation error.', __METHOD__);
+            Craft::info('Order Adjustment not saved due to validation error(s).', __METHOD__);
             return false;
         }
 
@@ -231,7 +233,7 @@ class OrderAdjustments extends Component
             $result['sourceSnapshot'] = Json::decodeIfJson($result['sourceSnapshot']);
             $adjustment = new OrderAdjustment($result);
 
-            $orderAdjustments[$adjustment->orderId] = $orderAdjustments[$adjustment->orderId] ?? [];
+            $orderAdjustments[$adjustment->orderId] ??= [];
             $orderAdjustments[$adjustment->orderId][] = $adjustment;
         }
 

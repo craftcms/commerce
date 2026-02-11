@@ -9,19 +9,17 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\errors\StoreNotFoundException;
+use craft\commerce\helpers\Cp as CommerceCp;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Localization;
-use craft\commerce\models\ProductType;
-use craft\commerce\models\TaxAddressZone;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
+use craft\helpers\Html;
+use craft\helpers\Json;
 use craft\i18n\Locale;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
+use craft\web\View;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -56,9 +54,100 @@ class TaxRatesController extends BaseTaxSettingsController
         $plugin->getTaxZones()->getAllTaxZones($store->id);
         $plugin->getTaxCategories()->getAllTaxCategories();
 
-        return $this->renderTemplate('commerce/store-management/tax/taxrates/index', [
-            'taxRates' => $taxRates,
+        // Generate table data
+        $tableData = [];
+        foreach ($taxRates as $taxRate) {
+            $label = Html::encode(Craft::t('site', $taxRate->name));
+            $tableData[] = [
+                'id' => $taxRate->id,
+                'status' => $taxRate->enabled,
+                'title' => Html::a($label, $taxRate->getCpEditUrl()),
+                'url' => $taxRate->getCpEditUrl(),
+                'rate' => $taxRate->getRateAsPercent(),
+                'included' => $taxRate->include,
+                'removeIncluded' => $taxRate->removeIncluded,
+                'vat' => $taxRate->isVat,
+                'zone' => $taxRate->isEverywhere ? Craft::t('commerce', 'Everywhere') : ($taxRate->taxZone ? Html::encode($taxRate->taxZone->name) : ''),
+                'category' => $taxRate->taxCategory ? Cp::chipHtml($taxRate->taxCategory) : '',
+            ];
+        }
+
+        $this->getView()->registerTranslations('commerce', [
+            'Include in price?',
+            'Remove from price?',
+            'Name',
+            'Rate',
+            'Tax Category',
+            'Tax Zone',
+            'Yes',
         ]);
+
+        $buttonsHtml = Plugin::getInstance()->getTaxes()->taxRateActionHtml();
+
+        if (Plugin::getInstance()->getTaxes()->createTaxRates()) {
+            $buttonsHtml .= Html::a(Craft::t('commerce', 'New tax rate'), "commerce/store-management/$storeHandle/taxrates/new", [
+                'class' => 'btn submit add icon',
+            ]);
+        }
+
+        $tableData = Json::encode($tableData, JSON_UNESCAPED_UNICODE);
+        $deleteAction = Plugin::getInstance()->getTaxes()->deleteTaxRates() ? 'commerce/tax-rates/delete' : null;
+
+        $js = <<<JS
+var columns = [
+    { name: 'title', title: Craft.t('commerce', 'Name') },
+    { name: 'rate', title: Craft.t('commerce', 'Rate') },
+    { name: 'included', title: Craft.t('commerce', 'Include in price?'), callback: function(value) {
+      if (value) {
+          return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+      }
+    } },
+    { name: 'removeIncluded', title: Craft.t('commerce', 'Remove from price?'), callback: function(value) {
+            if (value) {
+                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+            }
+        } },
+    { name: 'zone', title: Craft.t('commerce', 'Tax Zone') },
+    { name: 'category', title: Craft.t('commerce', 'Tax Category') }
+];
+
+var actions = [
+  {
+    label: Craft.t('commerce', 'Set status'),
+    actions: [
+      {
+        label: Craft.t('commerce', 'Enabled'),
+        action: 'commerce/tax-rates/update-status',
+        param: 'status',
+        value: 'enabled',
+        status: 'enabled'
+      },
+      {
+        label: Craft.t('commerce', 'Disabled'),
+        action: 'commerce/tax-rates/update-status',
+        param: 'status',
+        value: 'disabled',
+        status: 'disabled'
+      }
+    ]
+  }
+];
+
+new Craft.VueAdminTable({
+    columns: columns,
+    actions: actions,
+    checkboxes: true,
+    container: '#taxrate-vue-admin-table',
+    deleteAction: '{$deleteAction}',
+    tableData: {$tableData},
+});
+JS;
+
+        $this->getView()->registerJs($js, View::POS_END);
+
+        return $this->asStoreManagementCpScreen($storeHandle)
+            ->additionalButtonsHtml($buttonsHtml)
+            ->contentHtml(Html::tag('div', '', ['id' => 'taxrate-vue-admin-table']));
     }
 
     /**
@@ -66,9 +155,9 @@ class TaxRatesController extends BaseTaxSettingsController
      * @param TaxRate|null $taxRate
      * @throws ForbiddenHttpException
      * @throws HttpException
-     * @throws LoaderError
-     * @throws RuntimeError
-     * @throws SyntaxError
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      * @throws Exception
      */
     public function actionEdit(?string $storeHandle = null, int $id = null, TaxRate $taxRate = null): Response
@@ -82,48 +171,69 @@ class TaxRatesController extends BaseTaxSettingsController
         }
 
         $storeHandle = $store->handle;
-
-        $variables = compact('id', 'taxRate', 'store', 'storeHandle');
-        $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
+        $percentSymbol = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
         $plugin = Plugin::getInstance();
 
-        if (!$variables['taxRate']) {
-            if ($variables['id']) {
-                $variables['taxRate'] = $plugin->getTaxRates()->getTaxRateById($variables['id'], $store->id);
+        if (!$taxRate) {
+            if ($id) {
+                $taxRate = $plugin->getTaxRates()->getTaxRateById($id, $store->id);
 
-                if (!$variables['taxRate']) {
+                if (!$taxRate) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['taxRate'] = Craft::createObject([
+                $taxRate = Craft::createObject([
                     'class' => TaxRate::class,
                     'storeId' => $store->id,
                 ]);
             }
         }
 
-        if ($variables['taxRate']->id) {
-            $variables['title'] = $variables['taxRate']->name;
-        } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new tax rate');
+        $title = $taxRate->id ? $taxRate->name : Craft::t('commerce', 'Create a new tax rate');
+
+        DebugPanel::prependOrAppendModelTab(model: $taxRate, prepend: true);
+
+        $variables = compact('taxRate', 'store', 'storeHandle', 'percentSymbol');
+
+        // Get the actual tax zone object if there's an ID
+        $taxZone = null;
+        if ($taxRate->taxZoneId) {
+            $taxZone = $plugin->getTaxZones()->getTaxZoneById($taxRate->taxZoneId, $store->id);
         }
 
-        DebugPanel::prependOrAppendModelTab(model: $variables['taxRate'], prepend: true);
-
-        $variables['taxZones'] = [
-            ['value' => '', 'label' => ''],
-        ];
-        foreach ($plugin->getTaxZones()->getAllTaxZones($store->id)->all() as $zone) {
-            $variables['taxZones'][] = ['value' => $zone->id, 'label' => $zone->name];
+        // Get the actual tax category object if there's an ID
+        $taxCategory = null;
+        if ($taxRate->taxCategoryId) {
+            $taxCategory = $plugin->getTaxCategories()->getTaxCategoryById($taxRate->taxCategoryId);
         }
 
-        $taxCategories = $plugin->getTaxCategories()->getAllTaxCategories();
-        $variables['taxCategories'] = [];
+        // Tax zone field with slideout
+        $variables['taxZoneField'] = CommerceCp::taxZoneFieldHtml([
+            'label' => Craft::t('commerce', 'Tax Zone'),
+            'instructions' => Craft::t('commerce', 'Select a tax zone. If empty, this rate will match anywhere.'),
+            'id' => 'taxZoneId',
+            'name' => 'taxZoneId',
+            'value' => $taxZone,
+            'errors' => $taxRate->getErrors('taxZoneId'),
+            'required' => false,
+            'limit' => 1,
+            'storeId' => $store->id,
+            'storeHandle' => $storeHandle,
+        ]);
 
-        foreach ($taxCategories as $model) {
-            $variables['taxCategories'][$model->id] = $model->name;
-        }
+        // Tax category field with slideout
+        $variables['taxCategoryField'] = CommerceCp::taxCategoryFieldHtml([
+            'label' => Craft::t('commerce', 'Tax Category'),
+            'instructions' => Craft::t('commerce', 'Select a tax category.'),
+            'id' => 'taxCategoryId',
+            'name' => 'taxCategoryId',
+            'value' => $taxCategory,
+            'errors' => $taxRate->getErrors('taxCategoryId'),
+            'required' => true,
+            'limit' => 1,
+            'storeHandle' => $storeHandle,
+        ]);
 
         $taxable = [];
         $taxable[TaxRateRecord::TAXABLE_PURCHASABLE] = Craft::t('commerce', 'Unit price (minus discounts)');
@@ -140,55 +250,19 @@ class TaxRatesController extends BaseTaxSettingsController
             $variables['hideTaxCategory'] = true;
         }
 
-        // Get the HTML and JS for the new tax zone/category modals
-        $view = $this->getView();
-        $view->setNamespace('new');
-
-        $view->startJsBuffer();
-
-        $newZone = new TaxAddressZone();
-        $condition = $newZone->getCondition();
-        $condition->mainTag = 'div';
-        $condition->name = 'condition';
-        $condition->id = 'condition';
-        $conditionField = Cp::fieldHtml($condition->getBuilderHtml(), [
-            'label' => Craft::t('app', 'Address Condition'),
-        ]);
-
-        $variables['newTaxZoneFields'] = $view->namespaceInputs(
-            $view->renderTemplate(
-                'commerce/store-management/tax/taxzones/_fields',
-                [
-                    'conditionField' => $conditionField,
-                    'store' => $store,
-                ]
-            )
-        );
-        $variables['newTaxZoneJs'] = $view->clearJsBuffer(false);
-
-        $view->startJsBuffer();
-
-        $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
-        $productTypesOptions = [];
-        if (!empty($productTypes)) {
-            $productTypesOptions = ArrayHelper::map($productTypes, 'id', function(ProductType $row) {
-                return ['label' => $row->name, 'value' => $row->id];
-            });
-        }
-        $variables['newTaxCategoryFields'] = $view->namespaceInputs(
-            $view->renderTemplate('commerce/store-management/tax/taxcategories/_fields', compact('productTypes', 'productTypesOptions'))
-        );
-
-        $variables['newTaxCategoryJs'] = $view->clearJsBuffer(false);
-
-        $view->setNamespace(null);
-
         $taxIdValidators = Plugin::getInstance()->getTaxes()->getEnabledTaxIdValidators();
         foreach ($taxIdValidators as $validator) {
             $variables['taxIdValidators'][] = $validator;
         }
 
-        return $this->renderTemplate('commerce/store-management/tax/taxrates/_edit', $variables);
+        return $this->asStoreManagementCpScreen($storeHandle, false)
+            ->title($title)
+            ->addCrumb(Craft::t('commerce', 'Tax Rates'), $store->getStoreSettingsUrl('taxrates'))
+            ->selectedSubnavItem('store-management')
+            ->action('commerce/tax-rates/save')
+            ->redirectUrl($store->getStoreSettingsUrl('taxrates'))
+            ->metaSidebarTemplate('commerce/store-management/tax/taxrates/_sidebar', $variables)
+            ->contentTemplate('commerce/store-management/tax/taxrates/_edit', $variables);
     }
 
     /**

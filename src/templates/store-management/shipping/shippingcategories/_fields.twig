@@ -33,6 +33,24 @@
     errors: shippingCategory is defined ? shippingCategory.getErrors('description')
 }) }}
 
+{{ forms.iconPickerField({
+    label: 'Icon'|t('app'),
+    id: 'icon',
+    name: 'icon',
+    value: shippingCategory is defined ? shippingCategory.icon,
+    errors: shippingCategory is defined ? shippingCategory.getErrors('icon'),
+    fieldClass: 'width-50'
+}) }}
+
+{{ forms.colorSelectField({
+    label: "Color"|t('commerce'),
+    id: 'color',
+    name: 'color',
+    value: shippingCategory is defined ? shippingCategory.color,
+    errors: shippingCategory is defined ? shippingCategory.getErrors('color'),
+    fieldClass: 'width-50'
+}) }}
+
 {% if not productTypesOptions %}
     {% set warning = 'There aren’t any product types to select yet.'|t('commerce') ~ ' ' ~ tag('a', {
         text: 'Create a product type'|t('commerce'),
@@ -43,20 +61,30 @@
     {% set warning = "" %}
 {% endif %}
 
+{% set isDefault = shippingCategory is defined and shippingCategory.default %}
+{% set productTypeValues = isDefault ? productTypesOptions|keys : (shippingCategory is defined ? shippingCategory.productTypeIds : []) %}
+
 {{ forms.checkboxSelectField({
   label: "Available to Product Types"|t('commerce'),
-  instructions: "Which product types should this category be available to?"|t('commerce'),
+  instructions: isDefault ? "The default shipping category is automatically available to all product types."|t('commerce') : "Which product types should this category be available to?"|t('commerce'),
   warning: warning,
   id: 'productTypes',
   name: 'productTypes',
   options: productTypesOptions,
-  values: shippingCategory is defined ? shippingCategory.productTypeIds : [],
+  values: productTypeValues,
   showAllOption: false,
+  disabled: isDefault,
 }) }}
+
+{% if isDefault %}
+  {% for productTypeId in productTypesOptions|keys %}
+    {{ hiddenInput('productTypes[]', productTypeId) }}
+  {% endfor %}
+{% endif %}
 
 {% set defaultInput %}
     {{ forms.lightswitchField({
-        label: "New products default to the first shipping category available to them. If none are available, this category will be used."|t('commerce'),
+        instructions: "This category will be used as the default for all purchasables in this store."|t('commerce'),
         id: 'default',
         name: 'default',
         value: 1,
@@ -80,3 +108,48 @@
         new Craft.HandleGenerator('#{{ nameId }}', '#{{ handleId }}');
     {% endjs %}
 {% endif %}
+
+{% set defaultSwitchId = 'default'|namespaceInputId|e('js') %}
+{% set productTypesId = 'productTypes'|namespaceInputId|e('js') %}
+{% js %}
+    (function() {
+        const defaultSwitch = document.getElementById('{{ defaultSwitchId }}');
+        const productTypesContainer = document.getElementById('{{ productTypesId }}');
+        
+        if (!defaultSwitch || !productTypesContainer) return;
+        
+        function updateProductTypes() {
+            const isDefault = defaultSwitch.classList.contains('on');
+            const checkboxes = productTypesContainer.querySelectorAll('input[type="checkbox"]');
+            
+            checkboxes.forEach(checkbox => {
+                if (isDefault) {
+                    checkbox.checked = true;
+                    checkbox.disabled = true;
+                } else {
+                    checkbox.disabled = false;
+                }
+            });
+            
+            // Update hidden inputs
+            const existingHiddenInputs = productTypesContainer.parentElement.querySelectorAll('input[type="hidden"][name="productTypes[]"]');
+            existingHiddenInputs.forEach(input => input.remove());
+            
+            if (isDefault) {
+                checkboxes.forEach(checkbox => {
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'productTypes[]';
+                    hiddenInput.value = checkbox.value;
+                    productTypesContainer.parentElement.appendChild(hiddenInput);
+                });
+            }
+        }
+        
+        // Listen for lightswitch changes
+        defaultSwitch.addEventListener('change', updateProductTypes);
+        
+        // Also listen for the custom lightswitch event
+        $(defaultSwitch).on('change', updateProductTypes);
+    })();
+{% endjs %}

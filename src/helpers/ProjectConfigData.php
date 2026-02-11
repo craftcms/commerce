@@ -8,7 +8,6 @@
 namespace craft\commerce\helpers;
 
 use Craft;
-use craft\commerce\db\Table;
 use craft\commerce\elements\Order as OrderElement;
 use craft\commerce\elements\Subscription;
 use craft\commerce\models\Store;
@@ -20,8 +19,6 @@ use craft\commerce\services\OrderStatuses;
 use craft\commerce\services\Pdfs;
 use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Stores;
-use craft\db\Query;
-use craft\helpers\Json;
 
 /**
  * Class ProjectConfigData
@@ -116,29 +113,11 @@ class ProjectConfigData
      */
     private static function _rebuildGatewayProjectConfig(): array
     {
-        $gatewayData = (new Query())
-            ->select(['*'])
-            ->from([Table::GATEWAYS])
-            ->where(['isArchived' => false])
-            ->all();
-
-        $configData = [];
-
-        foreach ($gatewayData as $gatewayRow) {
-            $settings = Json::decodeIfJson($gatewayRow['settings']);
-            $configData[$gatewayRow['uid']] = [
-                'name' => $gatewayRow['name'],
-                'handle' => $gatewayRow['handle'],
-                'type' => $gatewayRow['type'],
-                'settings' => $settings,
-                'sortOrder' => (int)$gatewayRow['sortOrder'],
-                'paymentType' => $gatewayRow['paymentType'],
-                'isFrontendEnabled' => (bool)$gatewayRow['isFrontendEnabled'],
-            ];
+        $data = [];
+        foreach (Plugin::getInstance()->getGateways()->getAllGateways() as $gateway) {
+            $data[$gateway->uid] = $gateway->getConfig();
         }
-
-
-        return $configData;
+        return $data;
     }
 
     /**
@@ -167,90 +146,12 @@ class ProjectConfigData
      */
     private static function _getProductTypeData(): array
     {
-        $productTypeRows = (new Query())
-            ->select([
-                'descriptionFormat',
-                'fieldLayoutId',
-                'handle',
-                'hasDimensions',
-                'hasProductTitleField',
-                'maxVariants',
-                'hasVariantTitleField',
-                'name',
-                'productTitleFormat',
-                'skuFormat',
-                'variantTitleFormat',
-                'uid',
-                'variantFieldLayoutId',
-                'enableVersioning',
-                'productTitleTranslationMethod',
-                'productTitleTranslationKeyFormat',
-                'variantTitleTranslationMethod',
-                'variantTitleTranslationKeyFormat',
-                'propagationMethod',
-            ])
-            ->from([Table::PRODUCTTYPES . ' productTypes'])
-            ->all();
-
-        $typeData = [];
-
-        foreach ($productTypeRows as $productTypeRow) {
-            $rowUid = $productTypeRow['uid'];
-
-            if (!empty($productTypeRow['fieldLayoutId'])) {
-                $layout = Craft::$app->getFields()->getLayoutById($productTypeRow['fieldLayoutId']);
-
-                if ($layout && ($layoutConfig = $layout->getConfig())) {
-                    $productTypeRow['productFieldLayouts'] = [
-                        $layout->uid => $layoutConfig,
-                    ];
-                }
-            }
-
-            if (!empty($productTypeRow['variantFieldLayoutId'])) {
-                $layout = Craft::$app->getFields()->getLayoutById($productTypeRow['variantFieldLayoutId']);
-
-                if ($layout && ($layoutConfig = $layout->getConfig())) {
-                    $productTypeRow['variantFieldLayouts'] = [
-                        $layout->uid => $layoutConfig,
-                    ];
-                }
-            }
-
-            unset($productTypeRow['uid'], $productTypeRow['fieldLayoutId'], $productTypeRow['variantFieldLayoutId']);
-            $productTypeRow['hasDimensions'] = (bool)$productTypeRow['hasDimensions'];
-            $productTypeRow['hasVariantTitleField'] = (bool)$productTypeRow['hasVariantTitleField'];
-            $productTypeRow['hasProductTitleField'] = (bool)$productTypeRow['hasProductTitleField'];
-            $productTypeRow['enableVersioning'] = (bool)$productTypeRow['enableVersioning'];
-
-            $productTypeRow['siteSettings'] = [];
-            $typeData[$rowUid] = $productTypeRow;
+        $data = [];
+        foreach (Plugin::getInstance()->getProductTypes()->getAllProductTypes() as $productType) {
+            $data[$productType->uid] = $productType->getConfig();
         }
 
-        $productTypeSiteRows = (new Query())
-            ->select([
-                'producttypes.uid AS typeUid',
-                'producttypes_sites.hasUrls',
-                'producttypes_sites.template',
-                'producttypes_sites.uriFormat',
-                'sites.uid AS siteUid',
-            ])
-            ->from([Table::PRODUCTTYPES_SITES . ' producttypes_sites'])
-            ->innerJoin('{{%sites}} sites', '[[sites.id]] = [[producttypes_sites.siteId]]')
-            ->innerJoin(Table::PRODUCTTYPES . ' producttypes', '[[producttypes.id]] = [[producttypes_sites.productTypeId]]')
-            ->all();
-
-        foreach ($productTypeSiteRows as $productTypeSiteRow) {
-            $typeUid = $productTypeSiteRow['typeUid'];
-            $siteUid = $productTypeSiteRow['siteUid'];
-            unset($productTypeSiteRow['siteUid'], $productTypeSiteRow['typeUid']);
-
-            $productTypeSiteRow['hasUrls'] = (bool)$productTypeSiteRow['hasUrls'];
-
-            $typeData[$typeUid]['siteSettings'][$siteUid] = $productTypeSiteRow;
-        }
-
-        return $typeData;
+        return $data;
     }
 
     /**

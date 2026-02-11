@@ -18,7 +18,7 @@ use craft\helpers\Cp as CraftCp;
 class Cp
 {
     /**
-     * Renders an inventory locations select field’s HTML.
+     * Renders an inventory locations select field's HTML.
      *
      * @param array $config
      * @return string
@@ -26,7 +26,46 @@ class Cp
      */
     public static function inventoryLocationFieldHtml(array $config): string
     {
-        $config['id'] = $config['id'] ?? 'inventorylocationselect' . mt_rand();
+        $config['id'] ??= 'inventorylocationselect' . mt_rand();
         return CraftCp::fieldHtml('template:commerce/_includes/forms/inventoryLocationSelect.twig', $config);
+    }
+
+    /**
+     * Renders a tax zone select field's HTML.
+     *
+     * @param array $config
+     * @return string
+     * @since 5.0.0
+     */
+    public static function taxZoneFieldHtml(array $config): string
+    {
+        $config['id'] ??= 'taxzoneselect' . mt_rand();
+        return CraftCp::fieldHtml('template:commerce/_includes/forms/taxZoneSelect.twig', $config);
+    }
+
+    /**
+     * Renders a tax category select field's HTML.
+     *
+     * @param array $config
+     * @return string
+     * @since 5.5.0
+     */
+    public static function taxCategoryFieldHtml(array $config): string
+    {
+        $config['id'] ??= 'taxcategoryselect' . mt_rand();
+        return CraftCp::fieldHtml('template:commerce/_includes/forms/taxCategorySelect.twig', $config);
+    }
+
+    /**
+     * Renders a shipping category select field's HTML.
+     *
+     * @param array $config
+     * @return string
+     * @since 5.5.0
+     */
+    public static function shippingCategoryFieldHtml(array $config): string
+    {
+        $config['id'] ??= 'shippingcategoryselect' . mt_rand();
+        return CraftCp::fieldHtml('template:commerce/_includes/forms/shippingCategorySelect.twig', $config);
     }
 }

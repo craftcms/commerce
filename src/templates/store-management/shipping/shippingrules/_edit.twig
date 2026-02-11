@@ -157,6 +157,18 @@
 
         <hr>
 
+        {% set customerConditionInput %}
+          {{ shippingRule.customerCondition.getBuilderHtml()|raw }}
+        {% endset %}
+
+        {{ forms.field({
+          id: 'customerCondition',
+          label: 'Match Customer'|t('commerce'),
+          errors: shippingRule.getErrors('customerCondition')
+        }, customerConditionInput) }}
+
+      <hr>
+
         <h3>{{ "Shipping Category Conditions"|t('commerce') }}</h3>
         {% set shippingCategories = craft.commerce.shippingCategories.allShippingCategories(shippingMethod.storeId) %}
         {% if shippingCategories %}
@@ -173,7 +185,7 @@
                     {% set id = shippingCategory.id %}
                     <tr{% if id %} data-id="{{ id }}" data-name="{{ shippingCategory.name }}"{% endif %}>
                         <th scope="row" data-title="{{ 'Name'|t('commerce') }}">
-                            {{ shippingCategory.name|t('site') }}
+                            {{ chip(shippingCategory) }}
                         </th>
                         <td data-title="{{ 'Condition'|t('commerce') }}">
                             {{ forms.selectField({
@@ -311,7 +323,7 @@
                     <tr{% if id %} data-id="{{ id }}" data-name="{{ shippingCategory.name }}"{% endif %}
                         class="{% if categoryCondition == 'disallow' %}hidden{% endif %} js-category-override-row">
                         <th scope="row" data-title="{{ 'Name'|t('commerce') }}">
-                            {{ shippingCategory.name }}
+                            {{ chip(shippingCategory) }}
                         </th>
                         <td class="topalign" data-title="{{ 'Per Item Rate'|t('commerce') }}">
                             {{ forms.moneyField({

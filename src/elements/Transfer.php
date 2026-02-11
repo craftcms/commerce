@@ -369,24 +369,12 @@ class Transfer extends Element
      */
     protected function attributeHtml(string $attribute): string
     {
-        switch ($attribute) {
-            case 'originLocation':
-            {
-                return $this->getOriginLocation()?->getUiLabel() ?? '';
-            }
-            case 'destinationLocation':
-            {
-                return $this->getDestinationLocation()?->getUiLabel() ?? '';
-            }
-            case 'received':
-            {
-                return $this->getTotalReceived() . '/' . $this->getTotalQuantity();
-            }
-            default:
-            {
-                return parent::attributeHtml($attribute);
-            }
-        }
+        return match ($attribute) {
+            'originLocation' => $this->getOriginLocation()?->getUiLabel() ?? '',
+            'destinationLocation' => $this->getDestinationLocation()?->getUiLabel() ?? '',
+            'received' => $this->getTotalReceived() . '/' . $this->getTotalQuantity(),
+            default => parent::attributeHtml($attribute),
+        };
     }
 
     /**

@@ -7,12 +7,20 @@
 
 namespace craft\commerce\models;
 
+use Craft;
+use craft\base\Chippable;
+use craft\base\Colorable;
+use craft\base\Iconic;
 use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\StoreTrait;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingCategory as ShippingCategoryRecord;
+use craft\enums\Color;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
+use craft\models\Site;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
 use DateTime;
@@ -27,7 +35,7 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ShippingCategory extends Model implements HasStoreInterface
+class ShippingCategory extends Model implements HasStoreInterface, Chippable, Colorable, Iconic
 {
     use StoreTrait;
 
@@ -45,6 +53,16 @@ class ShippingCategory extends Model implements HasStoreInterface
      * @var string|null Handle
      */
     public ?string $handle = null;
+
+    /**
+     * @var string|null Icon
+     */
+    public ?string $icon = null;
+
+    /**
+     * @var string|null Color
+     */
+    public ?string $color = null;
 
     /**
      * @var string|null Description
@@ -92,6 +110,51 @@ class ShippingCategory extends Model implements HasStoreInterface
     public function getCpEditUrl(): string
     {
         return $this->getStore()->getStoreSettingsUrl('shippingcategories/' . $this->id);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function get(int|string $id): ?static
+    {
+        /** @var Site|StoreBehavior|null $site */
+        $site = Cp::requestedSite();
+        $storeId = $site?->getStore()->id ?? null;
+
+        /** @phpstan-ignore-next-line */
+        return Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($id, $storeId);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getUiLabel(): string
+    {
+        return Craft::t('site', $this->name);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIcon(): ?string
+    {
+        return $this->icon;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getColor(): ?Color
+    {
+        return $this->color ? Color::tryFrom($this->color) : null;
     }
 
     /**
@@ -144,6 +207,8 @@ class ShippingCategory extends Model implements HasStoreInterface
                 'default',
                 'description',
                 'handle',
+                'icon',
+                'color',
                 'id',
                 'name',
                 'storeId',
@@ -159,6 +224,7 @@ class ShippingCategory extends Model implements HasStoreInterface
         $fields = parent::extraFields();
         $fields[] = 'productTypes';
         $fields[] = 'productTypeIds';
+        $fields[] = 'uiLabel';
 
         return $fields;
     }

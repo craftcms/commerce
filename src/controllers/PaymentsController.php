@@ -293,7 +293,7 @@ class PaymentsController extends BaseFrontEndController
 
                     // Last line of try block we have a successful payment source creation
                     $sourceCreated = true;
-                } catch (PaymentSourceCreatedLaterException $exception) {
+                } catch (PaymentSourceCreatedLaterException) {
                     if (property_exists($paymentForm, 'paymentSource')) {
                         $paymentForm->savePaymentSource = true;
                     }
@@ -486,13 +486,20 @@ class PaymentsController extends BaseFrontEndController
         }
 
         if (!$success) {
+            // Keep old paymentFormErrors as is.
+            $originalPaymentFormErrors = $paymentForm->getErrors();
+
+            // Adds the order errors to the payment form errors.
+            $paymentForm->addModelErrors($order, $this->_cartVariableName);
+
             return $this->asModelFailure(
                 $paymentForm,
                 $error,
                 'paymentForm',
                 [
                     $this->_cartVariableName => $this->cartArray($order),
-                    'paymentFormErrors' => $paymentForm->getErrors(),
+                    // TODO: Remove this in Commerce 6.0
+                    'paymentFormErrors' => $originalPaymentFormErrors,
                 ],
                 [
                     $this->_cartVariableName => $order,

@@ -9,4 +9,10 @@ return RectorConfig::configure()
         __DIR__ . '/src',
         __DIR__ . '/tests/unit',
     ])
-    ->withPhpSets(php73: true);
+    ->withSkip([
+        Rector\Php74\Rector\Closure\ClosureToArrowFunctionRector::class => [
+            __DIR__ . '/src/console/controllers/GatewaysController.php',
+        ],
+        Rector\Php80\Rector\Class_\StringableForToStringRector::class,
+    ])
+    ->withPhpSets(php80: true);

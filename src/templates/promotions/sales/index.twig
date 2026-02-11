@@ -48,7 +48,7 @@
   {% endif %}
   {% set tableData = tableData|merge([{
     id: sale.id,
-    title: sale.name|t('site'),
+    title: sale.name|t('site')|e,
     url: sale.getCpEditUrl(),
     status: sale.enabled ? true : false,
     duration: dateRange,

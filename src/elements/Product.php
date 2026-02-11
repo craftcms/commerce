@@ -50,9 +50,9 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\ElementHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
+use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
-use craft\models\Section;
 use craft\models\Site;
 use craft\services\Structures;
 use craft\validators\DateTimeValidator;
@@ -77,6 +77,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property Variant[]|array $variants an array of the product's variants
  * @property-read string $defaultPriceAsCurrency
  * @property-read string $defaultBasePriceAsCurrency
+ * @property-read string $defaultBasePromotionalPriceAsCurrency
  * @property float|null $defaultPrice
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -95,12 +96,6 @@ class Product extends Element implements HasStoreInterface
      * @since 5.2.0
      */
     public const EVENT_DEFINE_PARENT_SELECTION_CRITERIA = 'defineParentSelectionCriteria';
-
-    /**
-     * @var float|null
-     * @since 5.1.0
-     */
-    public ?float $defaultBasePrice = null;
 
     /**
      * @inheritdoc
@@ -471,6 +466,42 @@ class Product extends Element implements HasStoreInterface
     /**
      * @inheritdoc
      */
+    protected function safeActionMenuItems(): array
+    {
+        $actions = parent::safeActionMenuItems();
+
+        if (
+            Craft::$app->getUser()->getIsAdmin() &&
+            Craft::$app->getConfig()->getGeneral()->allowAdminChanges
+        ) {
+            // Product type settings
+            $productTypeEditId = sprintf('edit-product-type-%s', mt_rand());
+            $actions[] = [
+                'id' => $productTypeEditId,
+                'icon' => 'gear',
+                'label' => Craft::t('commerce', 'Product type settings'),
+            ];
+
+            $view = Craft::$app->getView();
+            $view->registerJsWithVars(fn($id, $params) => <<<JS
+(() => {
+  $('#' + $id).on('activate', function() {
+    const params = $params;
+    new Craft.CpScreenSlideout('commerce/product-types/edit-product-type', {params});
+  });
+})();
+JS, [
+                $view->namespaceInputId($productTypeEditId),
+                ['productTypeId' => $this->typeId],
+            ]);
+        }
+
+        return $actions;
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected static function includeSetStatusAction(): bool
     {
         return true;
@@ -535,6 +566,7 @@ class Product extends Element implements HasStoreInterface
             'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],
             'dateUpdated' => ['label' => Craft::t('commerce', 'Date Updated')],
             'defaultPrice' => ['label' => Craft::t('commerce', 'Price')],
+            'defaultPromotionalPrice' => ['label' => Craft::t('commerce', 'Promotional Price')],
             'defaultSku' => ['label' => Craft::t('commerce', 'SKU')],
             'defaultWeight' => ['label' => Craft::t('commerce', 'Weight')],
             'defaultLength' => ['label' => Craft::t('commerce', 'Length')],
@@ -584,6 +616,10 @@ class Product extends Element implements HasStoreInterface
         return array_merge(parent::defineCardAttributes(), [
             'defaultPrice' => [
                 'label' => Craft::t('commerce', 'Price'),
+                'placeholder' => '¤' . Craft::$app->getFormattingLocale()->getFormatter()->asDecimal(123.99),
+            ],
+            'defaultPromotionalPrice' => [
+                'label' => Craft::t('commerce', 'Promotional Price'),
                 'placeholder' => '¤' . Craft::$app->getFormattingLocale()->getFormatter()->asDecimal(123.99),
             ],
             'defaultSku' => [
@@ -652,7 +688,18 @@ class Product extends Element implements HasStoreInterface
      */
     public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
     {
-        if ($attribute === 'variants') {
+        $variantAttributes = [
+            'variants',
+            'defaultPrice',
+            'defaultPromotionalPrice',
+            'defaultSku',
+            'defaultWeight',
+            'defaultLength',
+            'defaultWidth',
+            'defaultHeight',
+        ];
+
+        if (in_array($attribute, $variantAttributes, false)) {
             $elementQuery->andWith('variants');
         } else {
             parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
@@ -692,6 +739,18 @@ class Product extends Element implements HasStoreInterface
     private ?float $_defaultPrice = null;
 
     /**
+     * @var float|null
+     * @since 5.1.0
+     */
+    public ?float $defaultBasePrice = null;
+
+    /**
+     * @var float|null
+     * @since 5.4.0
+     */
+    public ?float $defaultBasePromotionalPrice = null;
+
+    /**
      * @var float|null Default height
      */
     public ?float $defaultHeight = null;
@@ -728,6 +787,7 @@ class Product extends Element implements HasStoreInterface
 
     /**
      * @var NestedElementManager|null
+     * @see getVariantManager()
      * @since 5.0.0
      */
     private ?NestedElementManager $_variantManager = null;
@@ -738,7 +798,7 @@ class Product extends Element implements HasStoreInterface
      */
     public function currencyAttributes(): array
     {
-        return ['defaultPrice', 'defaultBasePrice'];
+        return ['defaultPrice', 'defaultBasePrice', 'defaultBasePromotionalPrice'];
     }
 
     /**
@@ -836,6 +896,31 @@ class Product extends Element implements HasStoreInterface
     {
         $type = $this->getType();
         return ElementHelper::translationKey($this, $type->productTitleTranslationMethod, $type->productTitleTranslationKeyFormat);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIsSlugTranslatable(): bool
+    {
+        return ($this->getType()->slugTranslationMethod !== Field::TRANSLATION_METHOD_NONE);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSlugTranslationDescription(): ?string
+    {
+        return ElementHelper::translationDescription($this->getType()->slugTranslationMethod);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSlugTranslationKey(): string
+    {
+        $type = $this->getType();
+        return ElementHelper::translationKey($this, $type->slugTranslationMethod, $type->slugTranslationKeyFormat);
     }
 
     /**
@@ -1078,12 +1163,27 @@ class Product extends Element implements HasStoreInterface
      */
     public function getVariants(bool $includeDisabled = false): VariantCollection
     {
-        if (!isset($this->_variants)) {
+        if ($this->_variants === null) {
             if (!$this->id) {
                 return VariantCollection::make();
             }
 
-            $this->_variants = self::createVariantQuery($this)->status(null)->collect();
+            /** @var self|null $duplicatingProduct */
+            $duplicatingProduct = $this->duplicateOf;
+            if ($duplicatingProduct) {
+                $query = self::createVariantQuery($duplicatingProduct)->status(null);
+            } else {
+                $query = self::createVariantQuery($this)->status(null);
+            }
+
+            $variants = $query->collect();
+
+            // Don't memoize empty collections in favour of a new query next time
+            if ($variants->isEmpty()) {
+                return $variants;
+            }
+
+            $this->_variants = $variants;
             $this->_variants->map(function(Variant $v) {
                 if (!$this->id) {
                     return $v;
@@ -1248,12 +1348,13 @@ class Product extends Element implements HasStoreInterface
         if (!isset($this->_variantManager)) {
             $this->_variantManager = new NestedElementManager(
                 Variant::class,
-                /** @phpstan-ignore-next-line */
-                fn(Product $product) => self::createVariantQuery($product),
+                // @phpstan-ignore argument.type (will always be a Product)
+                fn(ElementInterface $product): VariantQuery => self::createVariantQuery($product),
                 [
-                    'attribute' => 'allVariants', // TODO: can change this back to 'variants' once we have a nested element manager provider in core.
+                    'attribute' => 'variants',
                     'propagationMethod' => $this->getType()->propagationMethod,
-                    'valueSetter' => fn($variants) => $this->setVariants($variants), // TODO: can change this back to 'variants' once we have a nested element manager provider in core.
+                    'valueGetter' => fn() => $this->getVariants(true),
+                    'valueSetter' => fn($variants) => $this->setVariants($variants),
                 ],
             );
         }
@@ -1349,7 +1450,9 @@ class Product extends Element implements HasStoreInterface
         $view = Craft::$app->getView();
         $productType = $this->getType();
         // Slug
-        $fields[] = $this->slugFieldHtml($static);
+        if ($productType->showSlugField) {
+            $fields[] = $this->slugFieldHtml($static);
+        }
 
         if ($productType->isStructure && $productType->maxLevels !== 1) {
             $fields[] = (function() use ($static, $productType) {
@@ -1559,20 +1662,39 @@ class Product extends Element implements HasStoreInterface
             $record->dateUpdated = $this->dateUpdated;
             $record->dateCreated = $this->dateCreated;
 
+            // Capture the dirty attributes from the record
+            $dirtyAttributes = array_keys($record->getDirtyAttributes());
             $record->save(false);
 
             $this->id = $record->id;
 
-            if ($this->getIsCanonical() && isset($this->typeId) && $productType->isStructure) {
+            $this->setDirtyAttributes($dirtyAttributes);
+
+            if ($this->getIsCanonical() &&
+                isset($this->typeId) &&
+                $productType->isStructure
+            ) {
                 // Has the parent changed?
                 if ($this->hasNewParent()) {
                     $this->_placeInStructure($isNew, $productType);
                 }
 
-                // Update the product’s descendants, who may be using this product’s URI in their own URIs
+                // Update the product's descendants, who may be using this product's URI in their own URIs
                 if (!$isNew) {
                     Craft::$app->getElements()->updateDescendantSlugsAndUris($this, true, true);
                 }
+            }
+
+            // Queue job to resave variants if the variant title format references the product
+            if ($this->getIsCanonical() &&
+                isset($this->typeId) &&
+                !$productType->hasVariantTitleField &&
+                $productType->variantTitleFormat &&
+                StringHelper::containsAny($productType->variantTitleFormat, ['product.', 'owner.', 'primaryOwner.'])
+            ) {
+                Craft::$app->getQueue()->push(new \craft\commerce\queue\jobs\ResaveProductVariants([
+                    'productId' => $this->id,
+                ]));
             }
         }
 
@@ -1737,7 +1859,7 @@ class Product extends Element implements HasStoreInterface
     /**
      * @inheritdoc
      */
-    public function setAttributes($values, $safeOnly = true): void
+    public function setAttributesFromRequest(array $values): void
     {
         // this is needed for Craft.NestedElementManager::markAsDirty()
         if (isset($values['variants']) && $values['variants'] === '*') {
@@ -1745,7 +1867,7 @@ class Product extends Element implements HasStoreInterface
             unset($values['variants']);
         }
 
-        parent::setAttributes($values, $safeOnly);
+        parent::setAttributesFromRequest($values);
     }
 
     /**
@@ -1766,8 +1888,6 @@ class Product extends Element implements HasStoreInterface
      */
     public function beforeSave(bool $isNew): bool
     {
-        $productType = $this->getType();
-
         // Make sure the entry has at least one revision if the section has versioning enabled
         if ($this->_shouldSaveRevision()) {
             $hasRevisions = self::find()
@@ -1791,6 +1911,7 @@ class Product extends Element implements HasStoreInterface
             }
         }
 
+        $productType = $this->getType();
         // Set the structure ID for Element::attributes() and afterSave()
         if ($productType->isStructure) {
             $this->structureId = $productType->structureId;
@@ -1890,6 +2011,17 @@ class Product extends Element implements HasStoreInterface
     /**
      * @inheritdoc
      */
+    protected function previewTargets(): array
+    {
+        return array_map(function($previewTarget) {
+            $previewTarget['label'] = Craft::t('site', $previewTarget['label']);
+            return $previewTarget;
+        }, $this->getType()->previewTargets ?? []);
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected function attributeHtml(string $attribute): string
     {
         $productType = $this->getType();
@@ -1909,7 +2041,11 @@ class Product extends Element implements HasStoreInterface
             }
             case 'defaultPrice':
             {
-                return $this->defaultBasePriceAsCurrency;
+                return $this->defaultBasePrice ? $this->defaultBasePriceAsCurrency : '';
+            }
+            case 'defaultPromotionalPrice':
+            {
+                return $this->defaultBasePromotionalPrice ? $this->defaultBasePromotionalPriceAsCurrency : '';
             }
             case 'stock':
             {
@@ -1951,9 +2087,7 @@ class Product extends Element implements HasStoreInterface
 
                 if ($value->isNotEmpty() && $value->count() > 1) {
                     $otherItems = $value->filter(fn($v, $k) => $k > 0);
-                    $otherHtml = $otherItems->map(function($v) {
-                        return Cp::elementChipHtml($v);
-                    })->join('');
+                    $otherHtml = $otherItems->map(fn($v) => Cp::elementChipHtml($v))->join('');
 
                     $html .= Html::tag('span', '+' . Craft::$app->getFormatter()->asInteger($otherItems->count()), [
                         'title' => $otherItems->map(fn($v) => $v->title)->join(', '),
@@ -1991,6 +2125,14 @@ class Product extends Element implements HasStoreInterface
     {
         $this->getVariantManager()->maintainNestedElements($this, $isNew);
         parent::afterPropagate($isNew);
+
+        // @TODO improve performance by collating all purchasable IDs updated during request
+        if (!$this->getIsDraft()) {
+            Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+                'purchasableIds' => $this->getVariants()->pluck('id')->all(),
+                'storeId' => $this->storeId,
+            ]);
+        }
 
         // Save a new revision?
         if ($this->_shouldSaveRevision()) {

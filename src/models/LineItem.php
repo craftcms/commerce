@@ -9,6 +9,7 @@ namespace craft\commerce\models;
 
 use Closure;
 use Craft;
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
@@ -74,7 +75,7 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class LineItem extends Model
+class LineItem extends Model implements HasStoreInterface
 {
     /**
      * @var int|null ID
@@ -267,11 +268,28 @@ class LineItem extends Model
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
-            'defaultCurrency' => $this->getOrder()?->currency ?? null,
+            // We don’t want to get the currency from the order now, as this will cause additional order queries
+            // as the order is not set on the line item at the time of bahaviors attaching.
+            // Let’s let \craft\commerce\behaviors\CurrencyAttributeBehavior::getDefaultCurrency look it up at
+            // runtime when the order is likely already eager loaded.
+            'defaultCurrency' => null,
             'currencyAttributes' => $this->currencyAttributes(),
         ];
 
         return $behaviors;
+    }
+
+    /**
+     * @inheritdoc
+     * @throws StoreNotFoundException
+     */
+    public function getStore(): Store
+    {
+        if (!$this->getOrder()) {
+            throw new StoreNotFoundException('Cannot determine line item store without an order assigned to the line item.');
+        }
+
+        return $this->getOrder()->getStore();
     }
 
     /**
@@ -592,7 +610,6 @@ class LineItem extends Model
     /**
      * Normalizes a purchasable’s validation rule.
      *
-     * @param mixed $rule
      * @param PurchasableInterface $purchasable
      * @return mixed
      */
@@ -632,7 +649,6 @@ class LineItem extends Model
         $names[] = 'salePrice';
         $names[] = 'sku';
         $names[] = 'total';
-        $names[] = 'fulfilledTotalQuantity';
 
         return $names;
     }
@@ -660,6 +676,7 @@ class LineItem extends Model
             'shippingCategory',
             'snapshot',
             'taxCategory',
+            'fulfilledTotalQuantity',
         ];
     }
 
@@ -930,6 +947,7 @@ class LineItem extends Model
         }
 
         $snapshot = [
+            // @TODO move these to base purchasable on next breaking change
             'price' => $purchasable->getPrice(),
             'sku' => $purchasable->getSku(),
             'description' => $purchasable->getDescription(),

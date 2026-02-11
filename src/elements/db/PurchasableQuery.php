@@ -15,6 +15,7 @@ use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\elements\db\ElementQuery;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use yii\db\Connection;
 use yii\db\Expression;
@@ -121,13 +122,10 @@ abstract class PurchasableQuery extends ElementQuery
      */
     public function __set($name, $value)
     {
-        switch ($name) {
-            case 'shippingCategory':
-                $this->shippingCategory($value);
-                break;
-            default:
-                parent::__set($name, $value);
-        }
+        match ($name) {
+            'shippingCategory' => $this->shippingCategory($value),
+            default => parent::__set($name, $value),
+        };
     }
 
     /**
@@ -195,7 +193,6 @@ abstract class PurchasableQuery extends ElementQuery
      *     ->one();
      * ```
      *
-     * @param mixed $value
      * @return static self reference
      */
     public function sku(mixed $value): static
@@ -658,22 +655,26 @@ abstract class PurchasableQuery extends ElementQuery
     protected function afterPrepare(): bool
     {
         // Store dependent related joins to the sub query need to be done after the `elements_sites` is joined in the base `ElementQuery` class.
-        $customerId = $this->forCustomer;
-        if ($customerId === null) {
-            $customerId = Craft::$app->getUser()->getIdentity()?->id;
-        } elseif ($customerId === false) {
-            $customerId = null;
-        }
-
-        $catalogPricesQuery = Plugin::getInstance()
-            ->getCatalogPricing()
-            ->createCatalogPricesQuery(userId: $customerId)
-            ->addSelect(['cp.purchasableId', 'cp.storeId']);
-
         $this->subQuery->leftJoin(['sitestores' => Table::SITESTORES], '[[elements_sites.siteId]] = [[sitestores.siteId]]');
         $this->subQuery->leftJoin(['purchasables_stores' => Table::PURCHASABLES_STORES], '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[commerce_purchasables.id]]');
 
-        $this->subQuery->leftJoin(['catalogprices' => $catalogPricesQuery], '[[catalogprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogprices.storeId]] = [[sitestores.storeId]]');
+        // Only do the extra catalog pricing query join if we have catalog pricing rules.
+        if (Plugin::getInstance()->getCatalogPricingRules()->hasCatalogPricingRules()) {
+            $customerId = $this->forCustomer;
+            if ($customerId === null) {
+                $customerId = Craft::$app->getUser()->getIdentity()?->id;
+            } elseif ($customerId === false) {
+                $customerId = null;
+            }
+
+            $catalogPricesQuery = Plugin::getInstance()
+                ->getCatalogPricing()
+                ->createCatalogPricesQuery(userId: $customerId)
+                ->addSelect(['cp.purchasableId', 'cp.storeId']);
+
+            $this->subQuery->leftJoin(['catalogprices' => $catalogPricesQuery], '[[catalogprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogprices.storeId]] = [[sitestores.storeId]]');
+        }
+
         $this->subQuery->leftJoin(['inventoryitems' => Table::INVENTORYITEMS], '[[inventoryitems.purchasableId]] = [[commerce_purchasables.id]]');
 
         return parent::afterPrepare();
@@ -702,9 +703,6 @@ abstract class PurchasableQuery extends ElementQuery
             'purchasables_stores.allowOutOfStockPurchases',
             'purchasables_stores.promotable',
             'purchasables_stores.shippingCategoryId',
-            'subquery.price',
-            'subquery.promotionalPrice as promotionalPrice',
-            'subquery.salePrice as salePrice',
             'inventoryitems.id as inventoryItemId',
         ]);
 
@@ -712,11 +710,74 @@ abstract class PurchasableQuery extends ElementQuery
         $this->query->leftJoin(Table::PURCHASABLES_STORES . ' purchasables_stores', '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[commerce_purchasables.id]]');
         $this->query->leftJoin(['inventoryitems' => Table::INVENTORYITEMS], '[[inventoryitems.purchasableId]] = [[commerce_purchasables.id]]');
 
-        $this->subQuery->addSelect([
-            'catalogprices.price',
-            'catalogprices.promotionalPrice',
-            'catalogprices.salePrice',
-        ]);
+        // Only do the extra catalog pricing query join if we have catalog pricing rules.
+        if (Plugin::getInstance()->getCatalogPricingRules()->hasCatalogPricingRules()) {
+            $this->query->addSelect([
+                'subquery.price',
+                'subquery.promotionalPrice as promotionalPrice',
+                'subquery.salePrice as salePrice',
+            ]);
+            $this->subQuery->addSelect([
+                'catalogprices.price',
+                'catalogprices.promotionalPrice',
+                'catalogprices.salePrice',
+            ]);
+
+            if (isset($this->price)) {
+                $this->subQuery->andWhere(Db::parseNumericParam('catalogprices.price', $this->price));
+            }
+
+            if (isset($this->promotionalPrice)) {
+                $this->subQuery->andWhere(Db::parseNumericParam('catalogprices.promotionalPrice', $this->promotionalPrice));
+            }
+
+            if (isset($this->onPromotion)) {
+                if ($this->onPromotion) {
+                    $this->subQuery->andWhere(new Expression('[[catalogprices.promotionalPrice]] < [[catalogprices.price]]'));
+                } else {
+                    // Commerce normalizes these when selecting/aggregating, so the values will actually be the same when a promotional price doesn't exist. This means it's not technically possible to distinguish between an *unset* promotional price and a promotional price that ended up being the same as the regular price. It’s also ambiguous when a pricing rule sets a `promotionalPrice` based on the original `price`!
+                    $this->subQuery->andWhere(new Expression('[[catalogprices.price]] = [[catalogprices.promotionalPrice]]'));
+                }
+            }
+
+            if (isset($this->salePrice)) {
+                $this->subQuery->andWhere(Db::parseNumericParam('catalogprices.salePrice' , $this->salePrice));
+            }
+        } else {
+            // If Catalog pricing rules are not being used
+            $this->query->addSelect([
+                'purchasables_stores.basePrice as price',
+                'purchasables_stores.basePromotionalPrice as promotionalPrice',
+                new Expression('CASE WHEN [[purchasables_stores.basePromotionalPrice]] < [[purchasables_stores.basePrice]] THEN [[purchasables_stores.basePromotionalPrice]] ELSE [[purchasables_stores.basePrice]] END as [[salePrice]]'),
+                new Expression('null as [[catalogPricingRuleId]]'),
+            ]);
+
+            $this->subQuery->addSelect([
+                'purchasables_stores.basePrice as price',
+                'purchasables_stores.basePromotionalPrice as promotionalPrice',
+                new Expression('CASE WHEN [[purchasables_stores.basePromotionalPrice]] < [[purchasables_stores.basePrice]] THEN [[purchasables_stores.basePromotionalPrice]] ELSE [[purchasables_stores.basePrice]] END as [[salePrice]]'),
+            ]);
+
+            if (isset($this->price)) {
+                $this->subQuery->andWhere(Db::parseNumericParam('purchasables_stores.basePrice', $this->price));
+            }
+
+            if (isset($this->promotionalPrice)) {
+                $this->subQuery->andWhere(Db::parseNumericParam('purchasables_stores.basePromotionalPrice', $this->promotionalPrice));
+            }
+
+            if (isset($this->onPromotion)) {
+                if ($this->onPromotion) {
+                    $this->subQuery->andWhere(new Expression('[[purchasables_stores.basePromotionalPrice]] < [[purchasables_stores.basePrice]]'));
+                } else {
+                    $this->subQuery->andWhere(new Expression('[[purchasables_stores.basePrice]] < [[purchasables_stores.basePromotionalPrice]]'));
+                }
+            }
+
+            if (isset($this->salePrice)) {
+                $this->subQuery->andWhere(Db::parseNumericParam(new Expression('CASE WHEN [[purchasables_stores.basePromotionalPrice]] < [[purchasables_stores.basePrice]] THEN [[purchasables_stores.basePromotionalPrice]] ELSE [[purchasables_stores.basePrice]] END') , $this->salePrice));
+            }
+        }
 
         if (isset($this->sku)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_purchasables.sku', $this->sku));
@@ -737,27 +798,6 @@ abstract class PurchasableQuery extends ElementQuery
 
         if (isset($this->sku)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_purchasables.sku', $this->sku));
-        }
-
-        if (isset($this->price)) {
-            $this->subQuery->andWhere(Db::parseNumericParam('catalogprices.price', $this->price));
-        }
-
-        if (isset($this->promotionalPrice)) {
-            $this->subQuery->andWhere(Db::parseNumericParam('catalogprices.promotionalPrice', $this->promotionalPrice));
-        }
-
-        if (isset($this->onPromotion)) {
-            if ($this->onPromotion) {
-                $this->subQuery->andWhere(new Expression('[[catalogprices.promotionalPrice]] < [[catalogprices.price]]'));
-            } else {
-                // Commerce normalizes these when selecting/aggregating, so the values will actually be the same when a promotional price doesn't exist. This means it's not technically possible to distinguish between an *unset* promotional price and a promotional price that ended up being the same as the regular price. It’s also ambiguous when a pricing rule sets a `promotionalPrice` based on the original `price`!
-                $this->subQuery->andWhere(new Expression('[[catalogprices.price]] = [[catalogprices.promotionalPrice]]'));
-            }
-        }
-
-        if (isset($this->salePrice)) {
-            $this->subQuery->andWhere(Db::parseNumericParam('catalogprices.salePrice' , $this->salePrice));
         }
 
         if (isset($this->shippingCategoryId)) {
@@ -840,6 +880,40 @@ abstract class PurchasableQuery extends ElementQuery
      */
     public function populate($rows): array
     {
+        if (!empty($rows) && Plugin::getInstance()->getCatalogPricingRules()->hasCatalogPricingRules()) {
+            $row = ArrayHelper::firstValue($rows);
+            $store = Plugin::getInstance()->getStores()->getStoreBySiteId($row['siteId']);
+            $purchasableIds = ArrayHelper::getColumn($rows, 'id');
+            $customerId = $this->forCustomer;
+            if ($customerId === null) {
+                $customerId = Craft::$app->getUser()->getIdentity()?->id;
+            } elseif ($customerId === false) {
+                $customerId = null;
+            }
+            $cprIds = Plugin::getInstance()
+                ->getCatalogPricing()
+                ->createCatalogPricesQuery(userId: $customerId, storeId: $store->id)
+                ->select([
+                    'purchasableId',
+                    'storeId',
+                    'price',
+                    new Expression('MIN([[catalogPricingRuleId]]) as [[catalogPricingRuleId]]'),
+                ])
+                ->andWhere(['purchasableId' => $purchasableIds])
+                ->andWhere(['not', ['catalogPricingRuleId' => null]])
+                ->groupBy(['cp.purchasableId', 'cp.storeId', 'cp.price'])
+                ->all();
+
+            foreach ($cprIds as $cprId) {
+                foreach ($rows as &$row) {
+                    if ($row['id'] == $cprId['purchasableId']) {
+                        $row['catalogPricingRuleId'] = $cprId['catalogPricingRuleId'];
+                        break;
+                    }
+                }
+            }
+        }
+
         foreach ($rows as &$row) {
             unset($row['salePrice']);
         }

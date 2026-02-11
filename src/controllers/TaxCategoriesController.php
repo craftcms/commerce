@@ -14,6 +14,10 @@ use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
+use craft\helpers\Html;
+use craft\helpers\Json;
+use craft\web\View;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -40,7 +44,96 @@ class TaxCategoriesController extends BaseTaxSettingsController
         }
 
         $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategories();
-        return $this->renderTemplate('commerce/store-management/tax/taxcategories/index', compact('taxCategories', 'store'));
+
+        // Generate table data with chips
+        $tableData = [];
+        foreach ($taxCategories as $taxCategory) {
+            $label = Html::encode(Craft::t('site', $taxCategory->name));
+            $taxRates = $taxCategory->getTaxRates($store->id);
+            $tableData[] = [
+                'id' => $taxCategory->id,
+                'title' => $label,
+                'chip' => Cp::chipHtml($taxCategory, [
+                    'labelHtml' => Html::a($label, $taxCategory->getCpEditUrl($store->id), [
+                        'class' => ['chip-label', 'cell-bold'],
+                    ]),
+                ]),
+                'url' => $taxCategory->getCpEditUrl($store->id),
+                'handle' => $taxCategory->handle,
+                'description' => Html::encode(Craft::t('site', $taxCategory->description)),
+                'default' => $taxCategory->default,
+                '_showDelete' => $taxRates->isEmpty() && (count($taxCategories) > 1 && !$taxCategory->default),
+            ];
+        }
+
+        $this->getView()->registerTranslations('commerce', [
+            'Default?',
+            'Description',
+            'Handle',
+            'Name',
+            'Set default category',
+            'Used By Tax Rates',
+            'Used by Tax Rates',
+        ]);
+
+        $buttons = Plugin::getInstance()->getTaxes()->taxCategoryActionHtml();
+        if (Plugin::getInstance()->getTaxes()->createTaxCategories()) {
+            $buttons .= Html::a(Craft::t('commerce', 'New tax category'), $store->getStoreSettingsUrl('taxcategories/new'), [
+                'class' => ['btn', 'submit', 'add', 'icon'],
+            ]);
+        }
+
+        $tableData = Json::encode($tableData);
+        $deleteAction = Plugin::getInstance()->getTaxes()->deleteTaxCategories() ? "'commerce/tax-categories/delete'" : null;
+
+        $js = <<<JS
+    var columns = [
+        { name: 'chip', title: Craft.t('commerce', 'Name') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+        { name: 'description', title: Craft.t('commerce', 'Description') },
+        {
+            name: 'default',
+            title: Craft.t('commerce', 'Default?'),
+            callback: function(value) {
+                if (value) {
+                    return '<div data-icon="check"></div>';
+                }
+            }
+        },
+    ];
+
+    var actions = [
+        {
+            label: '',
+            icon: 'settings',
+            actions: [
+                {
+                    label: Craft.t('commerce', 'Set default category'),
+                    action: 'commerce/tax-categories/set-default-category',
+                    param: 'default',
+                    value: 1,
+                    allowMultiple: false
+                }
+            ]
+        }
+    ];
+
+    new Craft.VueAdminTable({
+        columns: columns,
+        checkboxes: true,
+        actions: actions,
+        padded: true,
+        container: '#tax-vue-admin-table',
+        deleteAction: {$deleteAction},
+        tableData: {$tableData},
+    });
+JS;
+
+        $this->getView()->registerJs($js, View::POS_END);
+
+        return $this->asStoreManagementCpScreen($storeHandle, hasStoreSwitcher: false)
+            ->additionalButtonsHtml($buttons)
+            ->contentHtml(Html::tag('div', '', ['id' => 'tax-vue-admin-table']));
     }
 
     /**
@@ -54,49 +147,60 @@ class TaxCategoriesController extends BaseTaxSettingsController
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
 
-        $variables = [
-            'id' => $id,
-            'taxCategory' => $taxCategory,
-            'productTypes' => Plugin::getInstance()->getProductTypes()->getAllProductTypes(),
-            'store' => $store,
-        ];
+        $storeHandle = $store->handle;
 
-        if (!$variables['taxCategory']) {
-            if ($variables['id']) {
-                $variables['taxCategory'] = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($variables['id']);
+        $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
 
-                if (!$variables['taxCategory']) {
+        if (!$taxCategory) {
+            if ($id) {
+                $taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($id);
+
+                if (!$taxCategory) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['taxCategory'] = new TaxCategory();
+                $taxCategory = new TaxCategory();
             }
         }
 
-        if ($variables['taxCategory']->id) {
-            $variables['title'] = $variables['taxCategory']->name;
-        } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new tax category');
-        }
+        $title = $taxCategory->id ? $taxCategory->name : Craft::t('commerce', 'Create a new tax category');
 
-        DebugPanel::prependOrAppendModelTab(model: $variables['taxCategory'], prepend: true);
+        DebugPanel::prependOrAppendModelTab(model: $taxCategory, prepend: true);
 
-        $variables['productTypesOptions'] = [];
-        if (!empty($variables['productTypes'])) {
-            $variables['productTypesOptions'] = ArrayHelper::map($variables['productTypes'], 'id', function($row) {
-                return ['label' => $row->name, 'value' => $row->id];
-            });
+        $productTypesOptions = [];
+        if (!empty($productTypes)) {
+            $productTypesOptions = ArrayHelper::map($productTypes, 'id', fn($row) => ['label' => $row->name, 'value' => $row->id]);
         }
 
         $allTaxCategoryIds = array_keys(Plugin::getInstance()->getTaxCategories()->getAllTaxCategories());
-        $variables['isDefaultAndOnlyCategory'] = $variables['id'] && count($allTaxCategoryIds) === 1 && in_array($variables['id'], $allTaxCategoryIds);
+        $isDefaultAndOnlyCategory = $id && count($allTaxCategoryIds) === 1 && in_array($id, $allTaxCategoryIds);
 
         // Get all tax rates for all stores
         $taxRates = collect();
         Plugin::getInstance()->getStores()->getAllStores()->each(fn(Store $s) => $taxRates->push(...Plugin::getInstance()->getTaxRates()->getAllTaxRates($s->id)->all()));
-        $variables['taxRates'] = $taxRates;
 
-        return $this->renderTemplate('commerce/store-management/tax/taxcategories/_edit', $variables);
+        $metaSidebar = '';
+        if ($taxCategory->id) {
+            $metaSidebar = Cp::metadataHtml([
+                Craft::t('app', 'Created at') => Craft::$app->getFormatter()->asDatetime($taxCategory->dateCreated, 'short'),
+                Craft::t('app', 'Updated at') => Craft::$app->getFormatter()->asDatetime($taxCategory->dateUpdated, 'short'),
+            ]);
+        }
+
+        return $this->asStoreManagementCpScreen($storeHandle, false, false)
+            ->title($title)
+            ->addCrumb(Craft::t('commerce', 'Tax Categories'), $store->getStoreSettingsUrl('taxcategories'))
+            ->action('commerce/tax-categories/save')
+            ->redirectUrl($store->getStoreSettingsUrl('taxcategories'))
+            ->metaSidebarHtml($metaSidebar)
+            ->contentTemplate('commerce/store-management/tax/taxcategories/_edit', [
+                'taxCategory' => $taxCategory,
+                'productTypes' => $productTypes,
+                'productTypesOptions' => $productTypesOptions,
+                'isDefaultAndOnlyCategory' => $isDefaultAndOnlyCategory,
+                'taxRates' => $taxRates,
+                'store' => $store,
+            ]);
     }
 
     /**
@@ -114,6 +218,8 @@ class TaxCategoriesController extends BaseTaxSettingsController
         $taxCategory->id = $this->request->getBodyParam('taxCategoryId');
         $taxCategory->name = $this->request->getBodyParam('name');
         $taxCategory->handle = $this->request->getBodyParam('handle');
+        $taxCategory->icon = $this->request->getBodyParam('icon');
+        $taxCategory->color = $this->request->getBodyParam('color');
         $taxCategory->description = $this->request->getBodyParam('description');
         $taxCategory->default = (bool)$this->request->getBodyParam('default');
 

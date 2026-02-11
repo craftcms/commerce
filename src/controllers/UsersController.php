@@ -111,7 +111,7 @@ class UsersController extends BaseFrontEndController
         if (Craft::$app->getUser()->getIdentity()->can('commerce-manageSubscriptions') and !empty(Plugin::getInstance()->getPlans()->getAllPlans())) {
             $content .= Html::tag('hr') .
                 Html::tag('h2', Craft::t('commerce', 'Subscriptions')) .
-                Html::beginTag('div', ['class' => 'commerce-user-active-carts']) .
+                Html::beginTag('div', ['class' => 'commerce-user-subscriptions']) .
                     Cp::elementIndexHtml(Subscription::class, [
                         'id' => sprintf('element-index-%s', mt_rand()),
                         'context' => 'embedded-index',

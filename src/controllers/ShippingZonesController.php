@@ -12,6 +12,9 @@ use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\Plugin;
 use craft\helpers\Cp;
+use craft\helpers\Html;
+use craft\helpers\Json;
+use craft\web\View;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use yii\base\Exception;
@@ -34,7 +37,45 @@ class ShippingZonesController extends BaseShippingSettingsController
         }
 
         $shippingZones = Plugin::getInstance()->getShippingZones()->getAllShippingZones($store->id);
-        return $this->renderTemplate('commerce/store-management/shipping/shippingzones/index', compact('shippingZones', 'store'));
+
+        // Generate table data
+        $tableData = [];
+        foreach ($shippingZones as $shippingZone) {
+            $label = Html::encode(Craft::t('site', $shippingZone->name));
+            $tableData[] = [
+                'id' => $shippingZone->id,
+                'title' => Html::a($label, $shippingZone->getCpEditUrl()),
+                'url' => $shippingZone->getCpEditUrl(),
+                'description' => Html::encode(Craft::t('site', $shippingZone->description)),
+            ];
+        }
+
+        $tableData = Json::encode($tableData);
+
+        $js = <<<JS
+    var columns = [
+        { name: 'title', title: Craft.t('commerce', 'Name') },
+        { name: 'description', title: Craft.t('commerce', 'Description') },
+    ];
+
+    new Craft.VueAdminTable({
+        columns: columns,
+        container: '#shipping-vue-admin-table',
+        deleteAction: 'commerce/shipping-zones/delete',
+        tableData: {$tableData},
+    });
+JS;
+
+        $this->getView()->registerJs($js, View::POS_END);
+
+        $this->getView()->registerTranslations('commerce', [
+            'Name',
+            'Description',
+        ]);
+
+        return $this->asStoreManagementCpScreen($storeHandle)
+            ->additionalButtonsHtml(Html::a(Craft::t('commerce', 'New shipping zone'), $store->getStoreSettingsUrl('shippingzones/new'), ['class' => 'btn submit add icon']))
+            ->contentHtml(Html::tag('div', '', ['id' => 'shipping-vue-admin-table']));
     }
 
     /**
@@ -48,42 +89,59 @@ class ShippingZonesController extends BaseShippingSettingsController
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
 
-        $variables = compact('id', 'shippingZone');
+        if (!$shippingZone) {
+            if ($id) {
+                $shippingZone = Plugin::getInstance()->getShippingZones()->getShippingZoneById($id, $store->id);
 
-        if (!$variables['shippingZone']) {
-            if ($variables['id']) {
-                $variables['shippingZone'] = Plugin::getInstance()->getShippingZones()->getShippingZoneById($variables['id'], $store->id);
-
-                if (!$variables['shippingZone']) {
+                if (!$shippingZone) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['shippingZone'] = Craft::createObject([
+                $shippingZone = Craft::createObject([
                     'class' => ShippingAddressZone::class,
                     'attributes' => ['storeId' => $store->id],
                 ]);
             }
         }
 
-        if ($variables['shippingZone']->id) {
-            $variables['title'] = $variables['shippingZone']->name;
+        if ($shippingZone->id) {
+            $title = $shippingZone->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a shipping zone');
+            $title = Craft::t('commerce', 'Create a shipping zone');
         }
 
-        $variables['storeHandle'] = $store->handle;
+        $storeHandle = $store->handle;
 
-        $condition = $variables['shippingZone']->getCondition();
+        $condition = $shippingZone->getCondition();
         $condition->mainTag = 'div';
         $condition->name = 'condition';
         $condition->id = 'condition';
-        $variables['conditionField'] = Cp::fieldHtml($condition->getBuilderHtml(), [
+        $conditionField = Cp::fieldHtml($condition->getBuilderHtml(), [
             'label' => Craft::t('app', 'Address Condition'),
         ]);
 
-        DebugPanel::prependOrAppendModelTab(model: $variables['shippingZone'], prepend: true);
+        DebugPanel::prependOrAppendModelTab(model: $shippingZone, prepend: true);
 
-        return $this->renderTemplate('commerce/store-management/shipping/shippingzones/_edit', $variables);
+        $metadata = [];
+        if ($shippingZone->id) {
+            $metadata = [
+                Craft::t('app', 'Created at') => Craft::$app->getFormatter()->asDatetime($shippingZone->dateCreated, 'short'),
+                Craft::t('app', 'Updated at') => Craft::$app->getFormatter()->asDatetime($shippingZone->dateUpdated, 'short'),
+            ];
+        }
+
+        return $this->asStoreManagementCpScreen($storeHandle, false)
+            ->title($title)
+            ->addCrumb(Craft::t('commerce', 'Shipping Zones'), $store->getStoreSettingsUrl('shippingzones'))
+            ->action('commerce/shipping-zones/save')
+            ->redirectUrl($store->getStoreSettingsUrl('shippingzones'))
+            ->metaSidebarHtml(Cp::metadataHtml($metadata))
+            ->contentTemplate('commerce/store-management/shipping/shippingzones/_edit', [
+                'shippingZone' => $shippingZone,
+                'conditionField' => $conditionField,
+                'store' => $store,
+
+            ]);
     }
 
     /**

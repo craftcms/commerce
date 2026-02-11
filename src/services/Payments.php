@@ -410,6 +410,9 @@ class Payments extends Component
             throw new Exception('Unable to acquire a lock for transaction: ' . $transaction->hash);
         }
 
+        // Make sure we have the latest transaction data
+        $transaction = Plugin::getInstance()->getTransactions()->getTransactionByHash($transaction->hash);
+
         // If it's successful already, we're good.
         if (Plugin::getInstance()->getTransactions()->isTransactionSuccessful($transaction)) {
             $transaction->order->updateOrderPaidInformation();
@@ -612,7 +615,7 @@ class Payments extends Component
     private function _saveTransaction(Transaction $child): void
     {
         if (!Plugin::getInstance()->getTransactions()->saveTransaction($child)) {
-            throw new TransactionException('Error saving transaction: ' . implode(', ', $child->errors));
+            throw new TransactionException('Error saving transaction: ' . implode(', ', $child->getFirstErrors()));
         }
     }
 

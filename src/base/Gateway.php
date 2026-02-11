@@ -9,9 +9,14 @@ namespace craft\commerce\base;
 
 use Craft;
 use craft\base\SavableComponent;
+use craft\commerce\elements\conditions\addresses\GatewayAddressCondition;
+use craft\commerce\elements\conditions\orders\DiscountOrderCondition;
+use craft\commerce\elements\conditions\orders\GatewayOrderCondition;
 use craft\commerce\elements\Order;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
+use craft\elements\conditions\ElementConditionInterface;
+use craft\helpers\Json;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 
@@ -31,6 +36,24 @@ use craft\helpers\UrlHelper;
 abstract class Gateway extends SavableComponent implements GatewayInterface
 {
     use GatewayTrait;
+
+    /**
+     * @var ElementConditionInterface|null
+     * @since 5.4.0
+     */
+    private ?ElementConditionInterface $_orderCondition = null;
+
+    /**
+     * @var ElementConditionInterface|null
+     * @since 5.5
+     */
+    private ?ElementConditionInterface $_billingAddressCondition = null;
+
+    /**
+     * @var ElementConditionInterface|null
+     * @since 5.5
+     */
+    private ?ElementConditionInterface $_shippingAddressCondition = null;
 
     /**
      * Returns the name of this payment method.
@@ -103,7 +126,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
         $rules = parent::defineRules();
         $rules[] = [['paymentType', 'handle'], 'required'];
 
-        $rules[] = [['name', 'handle', 'paymentType', 'isFrontendEnabled', 'sortOrder'], 'safe'];
+        $rules[] = [['name', 'handle', 'paymentType', 'isFrontendEnabled', 'orderCondition', 'billingAddressCondition', 'shippingAddressCondition', 'sortOrder'], 'safe'];
 
         return $rules;
     }
@@ -124,6 +147,18 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      */
     public function availableForUseWithOrder(Order $order): bool
     {
+        if ($this->hasOrderCondition() && !$this->getOrderCondition()->matchElement($order)) {
+            return false;
+        }
+
+        if ($this->hasBillingAddressCondition() && $order->billingAddress && !$this->getBillingAddressCondition()->matchElement($order->billingAddress)) {
+            return false;
+        }
+
+        if ($this->hasShippingAddressCondition() && $order->shippingAddress && !$this->getShippingAddressCondition()->matchElement($order->shippingAddress)) {
+            return false;
+        }
+
         return true;
     }
 
@@ -133,6 +168,16 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     public function supportsPartialPayment(): bool
     {
         return true;
+    }
+
+    /**
+     * Returns true if this gateway has an order condition
+     *
+     * @since 5.4.0
+     */
+    public function hasOrderCondition(): bool
+    {
+        return $this->getOrderCondition()->getConditionRules() !== [];
     }
 
     /**
@@ -156,5 +201,171 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     public function transactionSupportsRefund(Transaction $transaction): bool
     {
         return true;
+    }
+
+
+    /**
+     * Gets the order condition for this gateway
+     *
+     * @since 5.4.0
+     */
+    public function getOrderCondition(): ElementConditionInterface
+    {
+        /** @var DiscountOrderCondition $condition */
+        $condition = $this->_orderCondition ?? new GatewayOrderCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'orderCondition';
+
+        return $condition;
+    }
+
+    /**
+     * Sets the order condition for this gateway
+     *
+     * @since 5.4.0
+     */
+    public function setOrderCondition(ElementConditionInterface|string|array|null $condition): void
+    {
+        if (empty($condition)) {
+            $this->_orderCondition = null;
+            return;
+        }
+
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof GatewayOrderCondition) {
+            $condition['class'] = GatewayOrderCondition::class;
+            $condition = \Craft::$app->getConditions()->createCondition($condition);
+            /** @var GatewayOrderCondition $condition */
+        }
+        $condition->forProjectConfig = true;
+
+        $this->_orderCondition = $condition;
+    }
+
+    /**
+     * Returns true if this gateway has a billing address condition
+     *
+     * @since 5.5
+     */
+    public function hasBillingAddressCondition(): bool
+    {
+        return $this->getBillingAddressCondition()->getConditionRules() !== [];
+    }
+
+    /**
+     * Gets the billing address condition for this gateway
+     *
+     * @since 5.5
+     */
+    public function getBillingAddressCondition(): ElementConditionInterface
+    {
+        /** @var GatewayAddressCondition $condition */
+        $condition = $this->_billingAddressCondition ?? new GatewayAddressCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'billingAddressCondition';
+
+        return $condition;
+    }
+
+    /**
+     * Sets the billing address condition for this gateway
+     *
+     * @since 5.5
+     */
+    public function setBillingAddressCondition(ElementConditionInterface|string|array $condition): void
+    {
+        if (empty($condition)) {
+            $this->_billingAddressCondition = null;
+            return;
+        }
+
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof GatewayAddressCondition) {
+            $condition['class'] = GatewayAddressCondition::class;
+            $condition = \Craft::$app->getConditions()->createCondition($condition);
+            /** @var GatewayAddressCondition $condition */
+        }
+        $condition->forProjectConfig = true;
+
+        $this->_billingAddressCondition = $condition;
+    }
+
+    /**
+     * Returns true if this gateway has a shipping address condition
+     *
+     * @since 5.5
+     */
+    public function hasShippingAddressCondition(): bool
+    {
+        return $this->getShippingAddressCondition()->getConditionRules() !== [];
+    }
+
+    /**
+     * Gets the shipping address condition for this gateway
+     *
+     * @since 5.5
+     */
+    public function getShippingAddressCondition(): ElementConditionInterface
+    {
+        /** @var GatewayAddressCondition $condition */
+        $condition = $this->_shippingAddressCondition ?? new GatewayAddressCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'shippingAddressCondition';
+
+        return $condition;
+    }
+
+    /**
+     * Sets the shipping address condition for this gateway
+     *
+     * @since 5.5
+     */
+    public function setShippingAddressCondition(ElementConditionInterface|string|array $condition): void
+    {
+        if (empty($condition)) {
+            $this->_shippingAddressCondition = null;
+            return;
+        }
+
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof GatewayAddressCondition) {
+            $condition['class'] = GatewayAddressCondition::class;
+            $condition = \Craft::$app->getConditions()->createCondition($condition);
+            /** @var GatewayAddressCondition $condition */
+        }
+        $condition->forProjectConfig = true;
+
+        $this->_shippingAddressCondition = $condition;
+    }
+
+    /**
+     * @return array
+     * @since 5.4.0
+     */
+    public function getConfig(): array
+    {
+        $configData = [
+            'name' => $this->name,
+            'handle' => $this->handle,
+            'type' => static::class,
+            'settings' => $this->getSettings(),
+            'sortOrder' => ($this->sortOrder ?? 99),
+            'paymentType' => $this->paymentType,
+            'isFrontendEnabled' => $this->getIsFrontendEnabled(false),
+            'orderCondition' => $this->getOrderCondition()->getConfig(),
+            'billingAddressCondition' => $this->getBillingAddressCondition()->getConfig(),
+            'shippingAddressCondition' => $this->getShippingAddressCondition()->getConfig(),
+        ];
+
+        return $configData;
     }
 }

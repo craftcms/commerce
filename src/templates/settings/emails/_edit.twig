@@ -1,13 +1,3 @@
-{% extends "commerce/_layouts/cp" %}
-
-{% set crumbs = [
-  { label: 'Commerce'|t('commerce'), url: url('commerce') },
-  { label: 'Settings'|t('app'), url: url('commerce/settings'), ariaLabel: 'Commerce Settings'|t('commerce') },
-  { label: "Emails"|t('commerce'), url: url('commerce/settings/emails') },
-] %}
-
-{% set selectedSubnavItem = 'settings' %}
-
 {% set fullPageForm = not readOnly %}
 
 
@@ -182,13 +172,24 @@
 
     {{ forms.selectField({
         label: 'Language'|t('commerce'),
-        instructions: "The language to be used when email is rendered."|t,
+        instructions: "The language to be used when this email is rendered."|t('commerce'),
         id: 'language',
         name: 'language',
         options : emailLanguageOptions,
         value : email.language,
         errors: email.getErrors('language') ?? null,
         toggle: true,
+        disabled: readOnly,
+    }) }}
+
+    {{ forms.selectField({
+        label: 'Site'|t('app'),
+        instructions: "The site to be used when this email is rendered."|t('commerce'),
+        id: 'renderSiteId',
+        name: 'renderSiteId',
+        options : emailRenderSiteOptions,
+        value : email.renderSiteId,
+        errors: email.getErrors('renderSiteId') ?? null,
         disabled: readOnly,
     }) }}
 

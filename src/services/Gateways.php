@@ -12,6 +12,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\db\Table;
+use craft\commerce\elements\Order;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\gateways\Manual;
 use craft\commerce\gateways\MissingGateway;
@@ -34,7 +35,6 @@ use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\web\ServerErrorHttpException;
-use function get_class;
 
 /**
  * Gateway service.
@@ -111,7 +111,19 @@ class Gateways extends Component
      */
     public function getAllCustomerEnabledGateways(): Collection
     {
-        return $this->getAllGateways()->where(fn(GatewayInterface $gateway) => $gateway->getIsFrontendEnabled());
+        return $this->getAllGateways()->filter(fn(Gateway $gateway) => $gateway->getIsFrontendEnabled());
+    }
+
+    /**
+     * Returns all customer enabled gateways and allowed for the order/cart.
+     *
+     * @return Collection All gateways that are enabled for frontend and allowed for the order/cart.
+     * @throws DeprecationException
+     * @throws InvalidConfigException
+     */
+    public function getAllCustomerEnabledGatewaysAndAvailableForUseWithOrder(Order $order): Collection
+    {
+        return $this->getAllCustomerEnabledGateways()->filter(fn(Gateway $gateway) => $gateway->availableForUseWithOrder($order));
     }
 
     /**
@@ -123,7 +135,7 @@ class Gateways extends Component
      */
     public function getAllSubscriptionGateways(): Collection
     {
-        return $this->getAllGateways()->where(fn(GatewayInterface $gateway) => $gateway instanceof SubscriptionGateway);
+        return $this->getAllGateways()->where(fn(Gateway $gateway) => $gateway instanceof SubscriptionGateway);
     }
 
     /**
@@ -258,15 +270,7 @@ class Gateways extends Component
         if ($gateway->isArchived) {
             $configData = null;
         } else {
-            $configData = [
-                'name' => $gateway->name,
-                'handle' => $gateway->handle,
-                'type' => get_class($gateway),
-                'settings' => $gateway->getSettings(),
-                'sortOrder' => ($gateway->sortOrder ?? 99),
-                'paymentType' => $gateway->paymentType,
-                'isFrontendEnabled' => $gateway->getIsFrontendEnabled(false),
-            ];
+            $configData = $gateway->getConfig();
         }
 
         $configPath = self::CONFIG_GATEWAY_KEY . '.' . $gatewayUid;
@@ -291,6 +295,11 @@ class Gateways extends Component
         $gatewayUid = $event->tokenMatches[0];
         $data = $event->newValue;
 
+        // Bail if the data is not a valid gateway config array
+        if (!is_array($data)) {
+            return;
+        }
+
         $transaction = Craft::$app->getDb()->beginTransaction();
         try {
             $gatewayRecord = $this->_getGatewayRecord($gatewayUid);
@@ -306,6 +315,9 @@ class Gateways extends Component
             }
 
             $gatewayRecord->isFrontendEnabled = $data['isFrontendEnabled'];
+            $gatewayRecord->orderCondition = $data['orderCondition'] ?? null;
+            $gatewayRecord->billingAddressCondition = $data['billingAddressCondition'] ?? null;
+            $gatewayRecord->shippingAddressCondition = $data['shippingAddressCondition'] ?? null;
             $gatewayRecord->isArchived = false;
             $gatewayRecord->dateArchived = null;
             $gatewayRecord->uid = $gatewayUid;
@@ -446,7 +458,7 @@ class Gateways extends Component
      */
     private function _createGatewayQuery(): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'dateArchived',
                 'handle',
@@ -462,6 +474,20 @@ class Gateways extends Component
             ])
             ->orderBy(['sortOrder' => SORT_ASC])
             ->from([Table::GATEWAYS]);
+
+        // TODO: remove after next breakpoint
+        $db = Craft::$app->getDb();
+        if ($db->columnExists(Table::GATEWAYS, 'orderCondition')) {
+            $query->addSelect('orderCondition');
+        }
+        if ($db->columnExists(Table::GATEWAYS, 'billingAddressCondition')) {
+            $query->addSelect('billingAddressCondition');
+        }
+        if ($db->columnExists(Table::GATEWAYS, 'shippingAddressCondition')) {
+            $query->addSelect('shippingAddressCondition');
+        }
+
+        return $query;
     }
 
     /**

@@ -13,6 +13,7 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
+use craft\commerce\models\Coupon;
 use craft\commerce\models\Discount;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
@@ -55,7 +56,7 @@ class DiscountsTest extends Unit
     /**
      * @var User|null
      */
-    private ?User $_user;
+    private ?User $_user = null;
 
     /**
      * @return array
@@ -519,17 +520,15 @@ class DiscountsTest extends Unit
 
         function _createDiscounts($discounts)
         {
-            return collect($discounts)->mapWithKeys(function(array $d, string $key) {
-                return [$key => array_merge([
-                    'name' => 'Discount - ' . $key,
-                    'perItemDiscount' => '1',
-                    'enabled' => true,
-                    'allCategories' => true,
-                    'allPurchasables' => true,
-                    'percentageOffSubject' => 'original',
-                    'storeId' => 1,
-                ], $d)];
-            })->all();
+            return collect($discounts)->mapWithKeys(fn(array $d, string $key) => [$key => array_merge([
+                'name' => 'Discount - ' . $key,
+                'perItemDiscount' => '1',
+                'enabled' => true,
+                'allCategories' => true,
+                'allPurchasables' => true,
+                'percentageOffSubject' => 'original',
+                'storeId' => 1,
+            ], $d)])->all();
         }
 
         return [
@@ -800,6 +799,143 @@ class DiscountsTest extends Unit
                 ]),
             ],
         ];
+    }
+
+    /**
+     * Test appending a coupon code to a discount
+     */
+    public function testAppendCouponCode(): void
+    {
+        // Create a discount that requires a coupon code
+        $discount = new Discount();
+        $discount->name = 'Test Discount';
+        $discount->enabled = true;
+        $discount->requireCouponCode = true;
+        $discount->storeId = 1;
+        $discount->perItemDiscount = 10;
+        
+        // Save the discount
+        self::assertTrue($this->discounts->saveDiscount($discount));
+        
+        // Test 1: Append a coupon code as string
+        $couponCode = 'TESTCODE123';
+        $maxUses = 5;
+        
+        self::assertTrue($this->discounts->appendCouponCode($discount->id, $couponCode, $maxUses));
+        
+        // Verify the coupon was added
+        $coupons = Plugin::getInstance()->getCoupons()->getCouponsByDiscountId($discount->id);
+        self::assertCount(1, $coupons);
+        self::assertEquals($couponCode, $coupons[0]->code);
+        self::assertEquals($maxUses, $coupons[0]->maxUses);
+        self::assertEquals(0, $coupons[0]->uses);
+        
+        // Test 2: Append another coupon as string without maxUses
+        $couponCode2 = 'TESTCODE456';
+        self::assertTrue($this->discounts->appendCouponCode($discount->id, $couponCode2));
+        
+        $coupons = Plugin::getInstance()->getCoupons()->getCouponsByDiscountId($discount->id);
+        self::assertCount(2, $coupons);
+        
+        // Test 3: Append a coupon using a Coupon model
+        $couponModel = new Coupon();
+        $couponModel->code = 'MODELCODE789';
+        $couponModel->maxUses = 10;
+        $couponModel->uses = 0;
+        
+        self::assertTrue($this->discounts->appendCouponCode($discount->id, $couponModel));
+        
+        $coupons = Plugin::getInstance()->getCoupons()->getCouponsByDiscountId($discount->id);
+        self::assertCount(3, $coupons);
+        
+        // Find the coupon we just added
+        $addedCoupon = null;
+        foreach ($coupons as $c) {
+            if ($c->code === 'MODELCODE789') {
+                $addedCoupon = $c;
+                break;
+            }
+        }
+        
+        self::assertNotNull($addedCoupon);
+        self::assertEquals(10, $addedCoupon->maxUses);
+        self::assertEquals(0, $addedCoupon->uses);
+        
+        // Clean up
+        $this->discounts->deleteDiscountById($discount->id);
+    }
+
+    /**
+     * Test appending a coupon code to a discount that doesn't require coupon codes
+     */
+    public function testAppendCouponCodeToNonCouponDiscount(): void
+    {
+        // Create a discount that doesn't require a coupon code
+        $discount = new Discount();
+        $discount->name = 'Test Discount No Coupon';
+        $discount->enabled = true;
+        $discount->requireCouponCode = false;
+        $discount->storeId = 1;
+        $discount->perItemDiscount = 10;
+        
+        // Save the discount
+        self::assertTrue($this->discounts->saveDiscount($discount));
+        
+        // Try to append a coupon code - should throw exception
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('The discount with ID "' . $discount->id . '" does not require a coupon code');
+        
+        $this->discounts->appendCouponCode($discount->id, 'SHOULDFAIL');
+        
+        // Clean up
+        $this->discounts->deleteDiscountById($discount->id);
+    }
+
+    /**
+     * Test appending a coupon code to a non-existent discount
+     */
+    public function testAppendCouponCodeToNonExistentDiscount(): void
+    {
+        // Try to append a coupon code to a non-existent discount - should throw exception
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('No discount exists with the ID "999999"');
+        
+        $this->discounts->appendCouponCode(999999, 'SHOULDFAIL');
+    }
+
+    /**
+     * Test appending a coupon model with validation errors
+     */
+    public function testAppendCouponModelWithValidationErrors(): void
+    {
+        // Create a discount that requires a coupon code
+        $discount = new Discount();
+        $discount->name = 'Test Discount';
+        $discount->enabled = true;
+        $discount->requireCouponCode = true;
+        $discount->storeId = 1;
+        $discount->perItemDiscount = 10;
+        
+        // Save the discount
+        self::assertTrue($this->discounts->saveDiscount($discount));
+        
+        // Create a coupon model with empty code (should fail validation)
+        $couponModel = new Coupon();
+        $couponModel->code = ''; // Empty code should fail validation
+        $couponModel->maxUses = 10;
+        
+        // Try to append the invalid coupon
+        $result = $this->discounts->appendCouponCode($discount->id, $couponModel);
+        
+        // Should return false due to validation errors
+        self::assertFalse($result);
+        
+        // Check that the coupon has validation errors
+        self::assertTrue($couponModel->hasErrors());
+        self::assertArrayHasKey('code', $couponModel->getErrors());
+        
+        // Clean up
+        $this->discounts->deleteDiscountById($discount->id);
     }
 
     /**

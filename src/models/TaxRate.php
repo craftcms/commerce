@@ -8,6 +8,7 @@
 namespace craft\commerce\models;
 
 use Craft;
+use craft\base\Chippable;
 use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\StoreTrait;
@@ -29,7 +30,7 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class TaxRate extends Model implements HasStoreInterface
+class TaxRate extends Model implements HasStoreInterface, Chippable
 {
     use StoreTrait;
 
@@ -144,9 +145,7 @@ class TaxRate extends Model implements HasStoreInterface
         $rules[] = [
             ['taxCategoryId'],
             'required',
-            'when' => function($model): bool {
-                return !in_array($model->taxable, TaxRateRecord::ORDER_TAXABALES, true);
-            },
+            'when' => fn($model): bool => !in_array($model->taxable, TaxRateRecord::ORDER_TAXABALES, true),
         ];
         $rules[] = [[
             'code',
@@ -183,7 +182,32 @@ class TaxRate extends Model implements HasStoreInterface
     }
 
     /**
-     * Returns the tax rate’s control panel edit page URL.
+     * @inheritdoc
+     */
+    public static function get(int|string $id): ?static
+    {
+        /** @phpstan-ignore-next-line */
+        return Plugin::getInstance()->getTaxRates()->getTaxRateById($id);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getUiLabel(): string
+    {
+        return Craft::t('site', $this->name);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    /**
+     * Returns the tax rate's control panel edit page URL.
      *
      * @return string
      * @throws InvalidConfigException

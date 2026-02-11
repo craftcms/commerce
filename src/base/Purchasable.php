@@ -14,9 +14,11 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\enums\LineItemType;
 use craft\commerce\errors\StoreNotFoundException;
+use craft\commerce\helpers\Cp as CommerceCp;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Localization;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
+use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\models\InventoryItem;
 use craft\commerce\models\InventoryLevel;
 use craft\commerce\models\LineItem;
@@ -34,7 +36,6 @@ use craft\db\Table as CraftTable;
 use craft\errors\DeprecationException;
 use craft\errors\SiteNotFoundException;
 use craft\helpers\ArrayHelper;
-use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\MoneyHelper;
 use craft\validators\UniqueValidator;
@@ -184,6 +185,20 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     private ?float $_basePromotionalPrice = null;
 
+    /**
+     * The ID of the catalog pricing rule that is affecting the sale price of this purchasable.
+     *
+     * @var int|null
+     * @since 5.4.0
+     */
+    public ?int $catalogPricingRuleId = null;
+
+    /**
+     * @var CatalogPricingRule|null
+     * @since 5.4.0
+     * @see getCatalogPricingRule()
+     */
+    private ?CatalogPricingRule $_catalogPricingRule = null;
 
     /**
      * @var bool
@@ -264,6 +279,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         $names[] = 'stock';
         $names[] = 'inventoryTracked';
         $names[] = 'allowOutOfStockPurchases';
+        $names[] = 'shippingCategoryId';
+        $names[] = 'taxCategoryId';
 
         return $names;
     }
@@ -615,6 +632,21 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     }
 
     /**
+     * @return CatalogPricingRule|null
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
+     * @since 5.4.0
+     */
+    public function getCatalogPricingRule(): ?CatalogPricingRule
+    {
+        if ($this->_catalogPricingRule === null && $this->catalogPricingRuleId !== null) {
+            $this->_catalogPricingRule = Plugin::getInstance()->getCatalogPricingRules()->getCatalogPricingRuleById($this->catalogPricingRuleId, $this->storeId);
+        }
+
+        return $this->_catalogPricingRule;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getSalePrice(): ?float
@@ -705,7 +737,9 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function getSnapshot(): array
     {
-        return [];
+        return [
+            'catalogPricingRuleId' => $this->catalogPricingRuleId,
+        ];
     }
 
     /**
@@ -763,7 +797,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             if ($this::hasInventory() &&
                 !$this->getIsOutOfStockPurchasingAllowed() &&
                 $this->inventoryTracked &&
-                ($lineItem->qty > $this->getStock())
+                ($lineItem->qty > $this->getStock()) &&
+                $this->getStock() > 0
             ) {
                 $message = Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $this->getStock()]);
                 /** @var OrderNotice $notice */
@@ -865,6 +900,32 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     /**
      * @inheritdoc
      */
+    public function setAttributes($values, $safeOnly = true): void
+    {
+        // Normalize category IDs - handle arrays from componentSelect and empty strings
+        if (isset($values['taxCategoryId'])) {
+            if (is_array($values['taxCategoryId'])) {
+                $values['taxCategoryId'] = reset($values['taxCategoryId']) ?: null;
+            }
+            if ($values['taxCategoryId'] === '') {
+                $values['taxCategoryId'] = null;
+            }
+        }
+        if (isset($values['shippingCategoryId'])) {
+            if (is_array($values['shippingCategoryId'])) {
+                $values['shippingCategoryId'] = reset($values['shippingCategoryId']) ?: null;
+            }
+            if ($values['shippingCategoryId'] === '') {
+                $values['shippingCategoryId'] = null;
+            }
+        }
+
+        parent::setAttributes($values, $safeOnly);
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected function defineRules(): array
     {
         return array_merge(parent::defineRules(), [
@@ -877,7 +938,9 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                 'targetClass' => PurchasableRecord::class,
                 'caseInsensitive' => true,
                 'filter' => function(ActiveQuery $query) {
-                    $targetRecordClassTableName = $query->modelClass::tableName();
+                    /** @var class-string<\yii\db\ActiveRecord> $modelClass */
+                    $modelClass = $query->modelClass;
+                    $targetRecordClassTableName = $modelClass::tableName();
                     $elementsTable = CraftTable::ELEMENTS;
                     $query->leftJoin(['elements' => $elementsTable], "[[elements.id]] = {$targetRecordClassTableName}.id");
                     $query->andWhere(['elements.revisionId' => null, 'elements.draftId' => null]);
@@ -888,6 +951,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             [['basePromotionalPrice', 'minQty', 'maxQty'], 'number', 'skipOnEmpty' => true],
             [['freeShipping', 'inventoryTracked', 'allowOutOfStockPurchases', 'promotable', 'availableForPurchase'], 'boolean'],
             [['taxCategoryId', 'shippingCategoryId', 'price', 'promotionalPrice', 'productSlug', 'productTypeHandle'], 'safe'],
+            [['taxCategoryId', 'shippingCategoryId', ], 'required'],
         ]);
     }
 
@@ -965,6 +1029,10 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     private function _getStock(): int
     {
+        if (!$this->inventoryTracked) {
+            return 0;
+        }
+
         $saleableAmount = 0;
         foreach ($this->getInventoryLevels() as $inventoryLevel) {
             if ($inventoryLevel->availableTotal > 0) {
@@ -1006,6 +1074,10 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function getInventoryLevels(): Collection
     {
+        if (!$this->inventoryTracked) {
+            return collect();
+        }
+
         return Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($this);
     }
 
@@ -1175,10 +1247,12 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     {
         parent::afterPropagate($isNew);
 
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
-            'purchasableIds' => [$this->getCanonicalId()],
-            'storeId' => $this->getStoreId(),
-        ]);
+        if (!$this->getIsDraft() && !$this->getIsRevision()) {
+            Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+                'purchasableIds' => [$this->getCanonicalId()],
+                'storeId' => $this->getStoreId(),
+            ]);
+        }
     }
 
     /**
@@ -1276,15 +1350,21 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     protected function shippingCategoryFieldHtml(bool $static): string
     {
-        $options = ArrayHelper::map($this->availableShippingCategories(), 'id', 'name');
+        $shippingCategory = null;
+        if ($this->shippingCategoryId) {
+            $shippingCategory = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId, $this->storeId);
+        }
 
-        return Cp::selectFieldHtml([
-            'id' => 'shipping-category',
-            'name' => 'shippingCategoryId',
+        return CommerceCp::shippingCategoryFieldHtml([
             'label' => Craft::t('commerce', 'Shipping Category'),
-            'options' => $options,
-            'value' => $this->shippingCategoryId,
+            'id' => 'shippingCategoryId',
+            'name' => 'shippingCategoryId',
+            'value' => $shippingCategory,
+            'limit' => 1,
+            'min' => 1,
             'disabled' => $static,
+            'create' => false,
+            'storeId' => $this->storeId,
         ]);
     }
 
@@ -1306,15 +1386,20 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     protected function taxCategoryFieldHtml(bool $static): string
     {
-        $options = ArrayHelper::map($this->availableTaxCategories(), 'id', 'name');
+        $taxCategory = null;
+        if ($this->taxCategoryId) {
+            $taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
+        }
 
-        return Cp::selectFieldHtml([
-            'id' => 'tax-category',
-            'name' => 'taxCategoryId',
+        return CommerceCp::taxCategoryFieldHtml([
             'label' => Craft::t('commerce', 'Tax Category'),
-            'options' => $options,
-            'value' => $this->taxCategoryId,
+            'id' => 'taxCategoryId',
+            'name' => 'taxCategoryId',
+            'value' => $taxCategory,
+            'limit' => 1,
+            'min' => 1,
             'disabled' => $static,
+            'create' => false,
         ]);
     }
 

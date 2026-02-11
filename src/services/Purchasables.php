@@ -233,6 +233,9 @@ class Purchasables extends Component
                     columns: ['stock' => $stock],
                     condition: ['purchasableId' => $purchasable->id, 'storeId' => $purchasable->getStore()->id])
                 ->execute();
+
+            // Since we are updating the stock directly in the database, clear the cache
+            Craft::$app->getElements()->invalidateCachesForElement($purchasable);
         }
     }
 
@@ -265,7 +268,7 @@ class Purchasables extends Component
             return $this->_purchasableById->get($purchasableId);
         }
 
-        $siteId = $siteId ?? Craft::$app->getSites()->getCurrentSite()->id;
+        $siteId ??= Craft::$app->getSites()->getCurrentSite()->id;
         $elementType = Craft::$app->getElements()->getElementTypeById($purchasableId);
 
         if ($elementType === null || !class_exists($elementType)) {

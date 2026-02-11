@@ -219,7 +219,7 @@ class Discounts extends Component
      */
     public function getDiscountById(int $id, ?int $storeId = null): ?Discount
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         // Keep this as a query for the performance boost
         $discounts = $this->_createDiscountQuery()
@@ -244,7 +244,7 @@ class Discounts extends Component
      */
     public function getAllDiscounts(?int $storeId = null): Collection
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         if ($this->_allDiscounts === null || !isset($this->_allDiscounts[$storeId])) {
             $discounts = $this->_createDiscountQuery()
@@ -467,10 +467,32 @@ class Discounts extends Component
             return false;
         }
 
+        if ($discount->hasOrderCondition() && !$discount->getOrderCondition()->matchElement($order)) {
+            $explanation = Craft::t('commerce', 'Coupon can not apply discount to this order.');
+
+            return false;
+        }
+
+        if ($discount->hasCustomerCondition() && (!$order->getCustomer() || !$discount->getCustomerCondition()->matchElement($order->getCustomer()))) {
+            $explanation = Craft::t('commerce', 'Coupon can not apply discount to this order due to customer mismatch.');
+            return false;
+        }
+
+        if ($discount->hasShippingAddressCondition() && (!$order->getShippingAddress() || !$discount->getShippingAddressCondition()->matchElement($order->getShippingAddress()))) {
+            $explanation = Craft::t('commerce', 'Coupon can not apply discount to this order due to address mismatch.');
+            return false;
+        }
+
+        if ($discount->hasBillingAddressCondition() && (!$order->getBillingAddress() || !$discount->getBillingAddressCondition()->matchElement($order->getBillingAddress()))) {
+            $explanation = Craft::t('commerce', 'Coupon can not apply discount to this order due to address mismatch.');
+            return false;
+        }
+
         if (!$this->_isDiscountConditionFormulaValid($order, $discount)) {
             $explanation = Craft::t('commerce', 'Discount is not allowed for the order');
             return false;
         }
+
 
         if (!$this->_isDiscountDateValid($order, $discount)) {
             $explanation = Craft::t('commerce', 'Discount is out of date.');
@@ -515,7 +537,7 @@ class Discounts extends Component
             return null;
         }
 
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         $query = $this->_createDiscountQuery()->where(['storeId' => $storeId]);
         $query->innerJoin(Table::COUPONS . ' coupons', '[[coupons.discountId]] = [[discounts.id]]');
@@ -530,12 +552,8 @@ class Discounts extends Component
             return null;
         }
 
-        return ArrayHelper::firstWhere($this->_populateDiscounts($discounts), function(Discount $discount) use ($code) {
-            return (
-                $discount->enabled &&
-                ArrayHelper::contains($discount->getCoupons(), fn(Coupon $coupon) => strcasecmp($coupon->code, $code) === 0)
-            );
-        });
+        return ArrayHelper::firstWhere($this->_populateDiscounts($discounts), fn(Discount $discount) => $discount->enabled &&
+        ArrayHelper::contains($discount->getCoupons(), fn(Coupon $coupon) => strcasecmp($coupon->code, $code) === 0));
     }
 
     /**
@@ -837,6 +855,8 @@ class Discounts extends Component
             DiscountPurchasableRecord::deleteAll(['discountId' => $model->id]);
             DiscountCategoryRecord::deleteAll(['discountId' => $model->id]);
 
+            $siteIds = $model->getStore()->getSites()->pluck('id')->all();
+
             foreach ($model->getCategoryIds() as $categoryId) {
                 $relation = new DiscountCategoryRecord();
                 $relation->categoryId = $categoryId;
@@ -846,8 +866,8 @@ class Discounts extends Component
 
             foreach ($model->getPurchasableIds() as $purchasableId) {
                 $relation = new DiscountPurchasableRecord();
-                $element = Craft::$app->getElements()->getElementById($purchasableId);
-                $relation->purchasableType = get_class($element);
+                $element = Craft::$app->getElements()->getElementById($purchasableId, siteId: $siteIds);
+                $relation->purchasableType = $element::class;
                 $relation->purchasableId = $purchasableId;
                 $relation->discountId = $model->id;
                 $relation->save(false);
@@ -928,7 +948,7 @@ class Discounts extends Component
     public function ensureSortOrder(?int $storeId = null): void
     {
         // @TODO ensure sort order per store
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         $table = Table::DISCOUNTS;
 
@@ -1038,6 +1058,53 @@ SQL;
         $this->_activeDiscountsByKey = null;
 
         return true;
+    }
+
+    /**
+     * Appends a coupon code to an existing discount.
+     *
+     * @param int $discountId The discount ID
+     * @param string|Coupon $coupon The coupon code to append or a Coupon model
+     * @param int|null $maxUses The maximum number of times this coupon can be used (null for unlimited) - only used if $coupon is a string
+     * @return bool Whether the coupon was successfully added
+     * @throws Exception if the discount doesn't exist or doesn't require a coupon code
+     * @throws InvalidConfigException
+     */
+    public function appendCouponCode(int $discountId, string|Coupon $coupon, ?int $maxUses = null): bool
+    {
+        $discount = $this->getDiscountById($discountId);
+        
+        if (!$discount) {
+            throw new Exception('No discount exists with the ID "' . $discountId . '"');
+        }
+        
+        if (!$discount->requireCouponCode) {
+            throw new Exception('The discount with ID "' . $discountId . '" does not require a coupon code');
+        }
+        
+        // If a string was passed, create a new coupon model
+        if (is_string($coupon)) {
+            $couponModel = new Coupon();
+            $couponModel->discountId = $discountId;
+            $couponModel->code = $coupon;
+            $couponModel->maxUses = $maxUses;
+            $couponModel->uses = 0;
+        } else {
+            // Use the provided coupon model
+            $couponModel = $coupon;
+            $couponModel->discountId = $discountId;
+        }
+        
+        // Save the coupon
+        $result = Plugin::getInstance()->getCoupons()->saveCoupon($couponModel);
+        
+        if ($result) {
+            // Reset internal cache
+            $this->_allDiscounts = null;
+            $this->_activeDiscountsByKey = null;
+        }
+        
+        return $result;
     }
 
     /**
@@ -1316,10 +1383,10 @@ SQL;
             $discount['purchasableIds'] = !empty($discount['purchasableIds']) ? Json::decodeIfJson($discount['purchasableIds'], true) : [];
             // IDs can be either category ID or entry ID due to the entryfication
             $discount['categoryIds'] = !empty($discount['categoryIds']) ? Json::decodeIfJson($discount['categoryIds'], true) : [];
-            $discount['orderCondition'] = $discount['orderCondition'] ?? '';
-            $discount['customerCondition'] = $discount['customerCondition'] ?? '';
-            $discount['billingAddressCondition'] = $discount['billingAddressCondition'] ?? '';
-            $discount['shippingAddressCondition'] = $discount['shippingAddressCondition'] ?? '';
+            $discount['orderCondition'] ??= '';
+            $discount['customerCondition'] ??= '';
+            $discount['billingAddressCondition'] ??= '';
+            $discount['shippingAddressCondition'] ??= '';
 
             $discount = Craft::createObject([
                 'class' => Discount::class,

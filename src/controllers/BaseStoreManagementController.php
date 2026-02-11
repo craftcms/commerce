@@ -10,6 +10,8 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
+use craft\web\assets\admintable\AdminTableAsset;
+use craft\web\Response;
 use craft\web\UrlManager;
 use yii\base\InvalidConfigException;
 use yii\web\Response as YiiResponse;
@@ -34,6 +36,51 @@ class BaseStoreManagementController extends BaseCpController
         parent::init();
 
         $this->requirePermission('commerce-manageStoreSettings');
+    }
+
+    /**
+     * @param string|null $storeHandle
+     * @param bool $isIndex
+     * @param bool $hasStoreSwitcher
+     * @return Response
+     * @throws InvalidConfigException
+     * @since 5.5.0
+     */
+    public function asStoreManagementCpScreen(?string $storeHandle = null, bool $isIndex = true, bool $hasStoreSwitcher = true): Response
+    {
+        $screen = $this->asCpScreen();
+
+        $requestStoreHandle = Craft::$app->getRequest()->getSegment(Craft::$app->getConfig()->getGeneral()->cpTrigger ? 3 : 2);
+        $requestSelectedItem = Craft::$app->getRequest()->getSegment(Craft::$app->getConfig()->getGeneral()->cpTrigger ? 4 : 3);
+
+        $storeHandle ??= $requestStoreHandle ?? Plugin::getInstance()->getStores()->getPrimaryStore()->handle;
+        $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
+        $selectedItem = $requestSelectedItem ?? 'general';
+
+        $screen->crumbs(array_filter([
+            [
+                'label' => Craft::t('commerce', 'Commerce'),
+                'url' => 'commerce',
+            ],
+            $hasStoreSwitcher ? $this->getStoreSwitcher($storeHandle) : null,
+        ]));
+
+        if ($isIndex) {
+            // Most index pages need the admin table asset bundle
+            $this->getView()->registerAssetBundle(AdminTableAsset::class);
+
+            // Render the sidebar
+            $screen->pageSidebarTemplate('commerce/_includes/_storeManagementNav', [
+                'storeSettingsNav' => $this->getStoreSettingsNav(),
+                'store' => $store,
+                'selectedItem' => $selectedItem,
+            ]);
+        }
+
+        $screen->title(Craft::t('commerce', 'Store Management'));
+        $screen->selectedSubnavItem('store-management');
+
+        return $screen;
     }
 
     /**

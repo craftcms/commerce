@@ -61,46 +61,58 @@ class LineItemStatusesController extends BaseAdminController
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
 
-        $variables = compact('id', 'lineItemStatus');
+        if (!$lineItemStatus) {
+            if ($id) {
+                $lineItemStatus = Plugin::getInstance()->getLineItemStatuses()->getLineItemStatusById($id, $store->id);
 
-        if (!$variables['lineItemStatus']) {
-            if ($variables['id']) {
-                $variables['lineItemStatus'] = Plugin::getInstance()->getLineItemStatuses()->getLineItemStatusById($variables['id'], $store->id);
-
-                if (!$variables['lineItemStatus']) {
+                if (!$lineItemStatus) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['lineItemStatus'] = Craft::createObject([
+                $lineItemStatus = Craft::createObject([
                     'class' => LineItemStatus::class,
                     'storeId' => $store->id,
                 ]);
             }
         }
 
-        $variables['statusColors'] = ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'];
+        $statusColors = ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'];
+        $nextAvailableColor = null;
 
-        DebugPanel::prependOrAppendModelTab(model: $variables['lineItemStatus'], prepend: true);
+        DebugPanel::prependOrAppendModelTab(model: $lineItemStatus, prepend: true);
 
-        if ($variables['lineItemStatus']->id) {
-            $variables['title'] = $variables['lineItemStatus']->name;
+        if ($lineItemStatus->id) {
+            $title = $lineItemStatus->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new line item status');
+            $title = Craft::t('commerce', 'Create a new line item status');
 
-            $statusColors = $variables['statusColors'];
-            Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses($store->id)->each(function(LineItemStatus $status) use (&$statusColors) {
-                $key = array_search($status->color, $statusColors, true);
+            $availableColors = $statusColors;
+            Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses($store->id)->each(function(LineItemStatus $status) use (&$availableColors) {
+                $key = array_search($status->color, $availableColors, true);
                 if ($key !== false) {
-                    unset($statusColors[$key]);
+                    unset($availableColors[$key]);
                 }
             });
 
-            $variables['nextAvailableColor'] = !empty($statusColors) ? array_shift($statusColors) : 'green';
+            $nextAvailableColor = !empty($availableColors) ? array_shift($availableColors) : 'green';
         }
 
-        $variables['readOnly'] = $this->isReadOnlyScreen();
-
-        return $this->renderTemplate('commerce/settings/lineitemstatuses/_edit', $variables);
+        return $this->asCpScreen()
+            ->title($title)
+            ->crumbs([
+                ['label' => Craft::t('commerce', 'Commerce'), 'url' => 'commerce'],
+                ['label' => Craft::t('app', 'Settings'), 'url' => 'commerce/settings', 'ariaLabel' => Craft::t('commerce', 'Commerce Settings')],
+                ['label' => Craft::t('commerce', 'Line Item Statuses'), 'url' => 'commerce/settings/lineitemstatuses'],
+            ])
+            ->selectedSubnavItem('settings')
+            ->action('commerce/line-item-statuses/save')
+            ->redirectUrl('commerce/settings/lineitemstatuses')
+            ->contentTemplate('commerce/settings/lineitemstatuses/_edit', [
+                'lineItemStatus' => $lineItemStatus,
+                'statusColors' => $statusColors,
+                'nextAvailableColor' => $nextAvailableColor,
+                'readOnly' => $this->isReadOnlyScreen(),
+            ]);
     }
 
     /**

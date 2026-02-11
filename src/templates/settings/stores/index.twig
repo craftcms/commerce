@@ -38,18 +38,18 @@
 {% for store in stores %}
     {% set tableData = tableData|merge([{
         id: store.id,
-        name: store.name|t('site'),
-        title: store.name|t('site'),
+        name: store.name|t('site')|e,
+        title: store.name|t('site')|e,
         url: url('commerce/settings/stores/'~store.id),
-        handle: store.handle,
+        handle: store.handle|e,
         currency: store.currency,
         primary: store.primary ? true : false,
-        sites: store.getSiteNames()|join(', '),
+        sites: store.getSiteNames()|join(', ')|e,
         menu: {
             showItems: true,
             showCount: false,
             menuBtnTitle: ''|t('app'),
-            label: 'Store Management    '|t('commerce'),
+            label: 'Store Management'|t('commerce'),
             url: url('commerce/store-management/' ~ store.handle),
             items: menuItems[store.handle],
         },
