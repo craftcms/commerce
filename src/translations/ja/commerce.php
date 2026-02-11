@@ -291,7 +291,6 @@ return [
     'Create a new shipping rule' => '新しい配送ルールを作成',
     'Create a new tax category' => '新しい税カテゴリを作成する',
     'Create a new tax rate' => '新しい税率を作成',
-    'Create a new tax zone' => '新しい税地域を作成する',
     'Create a product type' => '商品タイプを作成',
     'Create a shipping zone' => '配送地域を作成',
     'Create a tax zone' => '税対象地域を作成',
