@@ -1205,18 +1205,6 @@ JS, [
     }
 
     /**
-     * @return VariantCollection
-     * @throws InvalidConfigException
-     * @internal Do not use. Temporary method until we get a nested element manager provider in core.
-     *
-     * TODO: Remove this once we have a nested element manager provider interface in core.
-     */
-    public function getAllVariants(): VariantCollection
-    {
-        return $this->getVariants(true);
-    }
-
-    /**
      * @inheritdoc
      */
     public function getSupportedSites(): array
