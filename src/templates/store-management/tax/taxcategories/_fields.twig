@@ -14,7 +14,7 @@
 
 {{ forms.textField({
     label: "Handle"|t('commerce'),
-    instructions: "How you'll refer to this tax category in the templates."|t('commerce'),
+    instructions: "How you’ll refer to this tax category in the templates."|t('commerce'),
     id: 'handle',
     class: 'code',
     name: 'handle',
@@ -25,7 +25,7 @@
 
 <div class="field-group">
     {{ forms.iconPickerField({
-        label: "Icon"|t('commerce'),
+        label: 'Icon'|t('app'),
         id: 'icon',
         name: 'icon',
         value: taxCategory is defined ? taxCategory.icon,
