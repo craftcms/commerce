@@ -910,7 +910,6 @@ class ProductQuery extends ElementQuery
      */
     private function _applyHasVariantParam(): void
     {
-        $actionSegments = Craft::$app->getRequest()->getActionSegments();
         if ($this->hasVariant === null) {
             return;
         }
