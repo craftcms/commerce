@@ -7,9 +7,11 @@
 
 namespace craft\commerce\helpers;
 
+use Craft;
 use craft\base\Element;
 use craft\commerce\elements\Product;
 use craft\helpers\Db;
+use craft\helpers\ElementHelper;
 use DateTime;
 
 /**
@@ -79,5 +81,23 @@ class ProductQuery
             Element::STATUS_ARCHIVED => [$tablePrefix . 'elements.archived' => true],
             default => false,
         };
+    }
+
+    /**
+     * @param array $criteria
+     * @return array
+     */
+    public static function cleanseQueryCriteria(array $criteria): array
+    {
+        // Figure out if creating the query has come from a request where params are passed to a controller action
+        $request = Craft::$app->getRequest();
+        if (method_exists(ElementHelper::class, 'cleanseQueryCriteria') && $request->getIsCpRequest() && $request->getIsActionRequest()) {
+            $actionSegments = $request->getActionSegments();
+            if (!empty($actionSegments) && in_array($actionSegments[0], ['element-indexes', 'element-search'])) {
+                $criteria = ElementHelper::cleanseQueryCriteria($criteria);
+            }
+        }
+
+        return $criteria;
     }
 }

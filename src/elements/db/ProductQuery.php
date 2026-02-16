@@ -19,6 +19,7 @@ use craft\db\QueryAbortedException;
 use craft\elements\db\ElementQuery;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
+use craft\helpers\ElementHelper;
 use DateTime;
 use yii\db\Connection;
 use yii\db\Expression;
@@ -909,6 +910,7 @@ class ProductQuery extends ElementQuery
      */
     private function _applyHasVariantParam(): void
     {
+        $actionSegments = Craft::$app->getRequest()->getActionSegments();
         if ($this->hasVariant === null) {
             return;
         }
@@ -917,7 +919,10 @@ class ProductQuery extends ElementQuery
             $variantQuery = $this->hasVariant;
         } elseif (is_array($this->hasVariant)) {
             $query = Variant::find();
-            $variantQuery = Craft::configure($query, $this->hasVariant);
+
+            $criteria = ProductQueryHelper::cleanseQueryCriteria($this->hasVariant);
+
+            $variantQuery = Craft::configure($query, $criteria);
         } else {
             throw new QueryAbortedException('Invalid param used. ProductQuery::hasVariant param only expects a variant query or variant query config.');
         }
