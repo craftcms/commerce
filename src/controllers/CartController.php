@@ -19,8 +19,6 @@ use craft\elements\Address;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
-use craft\helpers\App;
-use craft\helpers\Json;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use Illuminate\Support\Collection;
@@ -96,7 +94,7 @@ class CartController extends BaseFrontEndController
                             'cart-by-number' => [
                                 'class' => RateLimit::class,
                                 'limit' => 1,
-                                'window' => (float)App::env('CRAFT_COMMERCE_CART_RATE_LIMIT_WINDOW') ?: 0.5,
+                                'window' => 1,
                                 // Only apply rate limiting when a cart number is explicitly passed
                                 'active' => function(Context $context, $rateLimitId) {
                                     return $context->request->getBodyParam('number') || $context->request->getQueryParam('number');
