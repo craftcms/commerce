@@ -108,8 +108,8 @@
                 </div>
 
                 {{ forms.textField({
-                    label: 'Product UI Label Format'|t('commerce'),
-                    instructions: 'How products should be labeled within the control panel. You can include tags that output product properties, such as {ex}.'|t('commerce', { ex: '<code>{myCustomField}</code>' }),
+                    label: 'UI Label Format'|t('app'),
+                    instructions: 'How products should be labeled within the control panel.'|t('commerce'),
                     id: 'productUiLabelFormat',
                     name: 'productUiLabelFormat',
                     class: 'code ltr',
@@ -192,7 +192,7 @@
 
                 {{ forms.textField({
                     label: 'Variant UI Label Format'|t('commerce'),
-                    instructions: 'How variants should be labeled within the control panel. You can include tags that output variant properties, such as {ex1} or {ex2}.'|t('commerce', { ex1: '<code>{product.title}</code>', ex2: '<code>{myCustomField}</code>' }),
+                    instructions: 'How variants should be labeled within the control panel.'|t('commerce'),
                     id: 'variantUiLabelFormat',
                     name: 'variantUiLabelFormat',
                     class: 'code ltr',
