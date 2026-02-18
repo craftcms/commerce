@@ -132,13 +132,13 @@ class InventoryLocationsController extends Controller
 
         // Remove the title/label field from the address field layout
         foreach ($form->tabs as &$tab) {
-            $tab->elements = array_filter($tab->elements, function($element) {
+            $tab->elements = array_values(array_filter($tab->elements, function($element) {
                 if (is_array($element) && $element[0] instanceof LabelField && $element[0]->attribute === 'title') {
                     return false;
                 }
 
                 return true;
-            });
+            }));
         }
 
         ArrayHelper::prependOrAppend($form->tabs[0]->elements, [
