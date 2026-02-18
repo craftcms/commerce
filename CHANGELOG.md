@@ -1,8 +1,8 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.5.4 - 2026-02-18
 
-- Fixed a bug where disabled entries linked as subscription plan descriptions weren't visible on Edit Plan pages. ([#4229](https://github.com/craftcms/commerce/issues/4229))
+- Fixed a bug where subscription plan edit screens weren’t showing their linked description entries, if the entries were disabled. ([#4229](https://github.com/craftcms/commerce/issues/4229))
 - Fixed an error that could occur when editing inventory locations. ([#4233](https://github.com/craftcms/commerce/issues/4233))
 - Fixed a SQL error that could occur when querying for unfulfilled orders on PostgreSQL. ([#4228](https://github.com/craftcms/commerce/issues/4228))
 - Fixed an error that could occur when resaving variants. ([#4226](https://github.com/craftcms/commerce/issues/4226))
