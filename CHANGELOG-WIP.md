@@ -5,3 +5,10 @@
 - Added `craft\commerce\services\ShippingRuleCategories::getShippingRuleCategoriesByRuleIds()`.
 - Added `variantUiLabelFormat` and `productUiLabelFormat` settings to product types, for customizing how products and variants are labeled throughout the control panel. ([#4178](https://github.com/craftcms/commerce/pull/4178))
 - Added `relatedToProducts` and `relatedToVariants` GraphQL query arguments, enabling queries for elements related to specific products or variants. ([#4202](https://github.com/craftcms/commerce/discussions/4202))
+- Added `craft\commerce\elements\db\ProductQuery::$savable`.
+- Added `craft\commerce\elements\db\ProductQuery::savable()`.
+- Added `craft\commerce\elements\db\VariantQuery::$savable`.
+- Added `craft\commerce\elements\db\VariantQuery::savable()`.
+- Added `craft\commerce\elements\db\VariantQuery::editable()`.
+- `craft\commerce\elements\db\ProductQuery::$editable` is now nullable.
+- `craft\commerce\elements\db\VariantQuery::$editable` is now nullable.
