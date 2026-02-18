@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.5.4 - 2026-02-18
 
 - Fixed a bug where subscription plan edit screens weren’t showing their linked description entries, if the entries were disabled. ([#4229](https://github.com/craftcms/commerce/issues/4229))
 - Fixed an error that could occur when editing inventory locations. ([#4233](https://github.com/craftcms/commerce/issues/4233))
