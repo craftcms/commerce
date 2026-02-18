@@ -132,24 +132,28 @@ class InventoryLocationsController extends Controller
 
         // Remove the title/label field from the address field layout
         foreach ($form->tabs as &$tab) {
-            $tab->elements = array_values(array_filter($tab->elements, function($element) {
+            $foo = 'bar';
+            $values = array_values(array_filter($tab->elements, function($element) {
                 if (is_array($element) && $element[0] instanceof LabelField && $element[0]->attribute === 'title') {
                     return false;
                 }
 
                 return true;
             }));
+            $tab->elements = $values;
         }
 
         ArrayHelper::prependOrAppend($form->tabs[0]->elements, [
             null,
             false,
             Html::tag('hr'),
+            false,
         ], true);
         ArrayHelper::prependOrAppend($form->tabs[0]->elements, [
             null,
             false,
             Html::hiddenInput('id', (string)$address->id),
+            false,
         ], true);
         ArrayHelper::prependOrAppend($form->tabs[0]->elements, [
             null,
@@ -162,6 +166,7 @@ class InventoryLocationsController extends Controller
                 'label' => Craft::t('commerce', 'Handle'),
                 'errors' => $inventoryLocation->getErrors('handle'),
             ]),
+            false,
         ], true);
         ArrayHelper::prependOrAppend($form->tabs[0]->elements, [
             null,
@@ -174,11 +179,13 @@ class InventoryLocationsController extends Controller
                 'label' => Craft::t('commerce', 'Name'),
                 'errors' => $inventoryLocation->getErrors('name'),
             ]),
+            false,
         ], true);
         ArrayHelper::prependOrAppend($form->tabs[0]->elements, [
             null,
             false,
             Html::hiddenInput('inventoryLocationId', (string)$inventoryLocationId),
+            false,
         ], true);
 
         $variables = [
