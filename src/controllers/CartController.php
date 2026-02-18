@@ -21,9 +21,13 @@ use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
 use craft\helpers\UrlHelper;
 use Illuminate\Support\Collection;
+use thamtech\ratelimiter\Context;
+use thamtech\ratelimiter\handlers\TooManyRequestsHttpExceptionHandler;
+use thamtech\ratelimiter\limit\RateLimit;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\filters\RateLimiter;
 use yii\mutex\Mutex;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -72,6 +76,43 @@ class CartController extends BaseFrontEndController
         $this->_currentUser = Craft::$app->getUser()->getIdentity();
 
         parent::init();
+    }
+
+    /**
+     * @inerhitdoc
+     */
+    public function behaviors()
+    {
+        return array_merge(parent::behaviors(), [
+            'rateLimiter' => [
+                'class' => RateLimiter::class,
+                'only' => ['get-cart', 'update-cart', 'load-cart', 'complete'],
+                'components' => [
+                    'rateLimit' => [
+                        'definitions' => [
+                            'cart-by-number' => [
+                                'class' => RateLimit::class,
+                                'limit' => 1,
+                                'window' => 1,
+                                // Only apply rate limiting when a cart number is explicitly passed
+                                'active' => function(Context $context, $rateLimitId) {
+                                    return $context->request->getBodyParam('number') || $context->request->getQueryParam('number');
+                                },
+                                'identifier' => fn(Context $context, $rateLimitId) => sprintf(
+                                    '%s:%s',
+                                    $rateLimitId,
+                                    $context->request->getUserIP(),
+                                ),
+                            ],
+                        ],
+                    ],
+                    'allowanceStorage' => [
+                        'cache' => 'cache',
+                    ],
+                ],
+                'as tooManyRequestsException' => TooManyRequestsHttpExceptionHandler::class,
+            ],
+        ]);
     }
 
     /**

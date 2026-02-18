@@ -1,5 +1,14 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Development
+- Cart controller actions that accept an explicit cart number are now rate limited to mitigate enumeration attacks.
+- Cart numbers are now generated using a cryptographically secure random number generator.
+
+### System
+- Craft Commerce now requires Craft CMS 4.17.5 or later. 
+
 ## 4.10.2 - 2026-02-09
 
 - Fixed a bug where Orders tables on user edit pages were showing an incorrect column heading.
