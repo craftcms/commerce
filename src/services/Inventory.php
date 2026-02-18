@@ -652,8 +652,9 @@ class Inventory extends Component
             ->andWhere(['it.inventoryItemId' => $inventoryItemId])
             ->andWhere(['it.inventoryLocationId' => $inventoryLocationId])
             ->andWhere(['it.type' => InventoryTransactionType::COMMITTED->value])
-            ->groupBy(['lineItems.orderId', 'lineItems.id'])
-            ->having(['>=', 'SUM(it.quantity)', 'lineItems.qty'])
+            ->addSelect(['lineItems.qty'])
+            ->groupBy(['lineItems.orderId', 'lineItems.id', 'lineItems.qty'])
+            ->having(new Expression('SUM([[it.quantity]]) >= [[lineItems.qty]]'))
             ->column();
 
         return Order::find()

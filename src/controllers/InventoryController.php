@@ -529,7 +529,7 @@ JS, [
 
         // We don't add zero amounts as transactions movements
         if ($updateAction === InventoryUpdateQuantityType::ADJUST && $quantity == 0) {
-            return $this->asSuccess(Craft::t('commerce', 'No inventory changes made.'));
+            return $this->asFailure(Craft::t('commerce', 'No inventory changes made.'));
         }
 
         $errors = [];

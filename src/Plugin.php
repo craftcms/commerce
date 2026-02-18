@@ -265,7 +265,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.5.0.5';
+    public string $schemaVersion = '5.6.0.0';
 
     /**
      * @inheritdoc
@@ -1282,6 +1282,17 @@ class Plugin extends BasePlugin
                             $controller->output($controller->markdownToAnsi('No variant types satisfy `--with-fields`.'));
                             return ExitCode::UNSPECIFIED_ERROR;
                         }
+                    }
+
+                    // Convert type handles to type IDs for the variant query
+                    if (!empty($criteria['type'])) {
+                        $criteria['typeId'] = (new Query())
+                            ->select('id')
+                            ->from(Table::PRODUCTTYPES)
+                            ->where(['handle' => $criteria['type']])
+                            ->column();
+
+                        unset($criteria['type']);
                     }
 
                     return $controller->resaveElements(Variant::class, $criteria);

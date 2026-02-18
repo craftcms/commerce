@@ -938,7 +938,9 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                 'targetClass' => PurchasableRecord::class,
                 'caseInsensitive' => true,
                 'filter' => function(ActiveQuery $query) {
-                    $targetRecordClassTableName = $query->modelClass::tableName();
+                    /** @var class-string<\yii\db\ActiveRecord> $modelClass */
+                    $modelClass = $query->modelClass;
+                    $targetRecordClassTableName = $modelClass::tableName();
                     $elementsTable = CraftTable::ELEMENTS;
                     $query->leftJoin(['elements' => $elementsTable], "[[elements.id]] = {$targetRecordClassTableName}.id");
                     $query->andWhere(['elements.revisionId' => null, 'elements.draftId' => null]);
