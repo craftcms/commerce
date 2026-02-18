@@ -404,7 +404,10 @@ class Product extends Element implements HasStoreInterface
 
                 if ($canCreate) {
                     // Duplicate
-                    $actions[] = Duplicate::class;
+                    $actions[] = [
+                        'type' => Duplicate::class,
+                        'asDrafts' => true,
+                    ];
                 }
 
                 if ($canDelete) {
@@ -425,6 +428,14 @@ class Product extends Element implements HasStoreInterface
                     $productType->isStructure &&
                     $canCreate
                 ) {
+                    if ($productType->maxLevels != 1) {
+                        $actions[] = [
+                            'type' => Duplicate::class,
+                            'asDrafts' => true,
+                            'deep' => true,
+                        ];
+                    }
+
                     $newProductUrl = 'commerce/products/' . $productType->handle . '/new';
 
                     if (Craft::$app->getIsMultiSite()) {
@@ -1834,6 +1845,18 @@ JS, [
                             break;
                         }
                         $skus[$variant->sku] = true;
+                    }
+                },
+                'on' => self::SCENARIO_LIVE,
+            ],
+            [
+                ['variants'],
+                function() {
+                    foreach ($this->getVariants(true) as $variant) {
+                        if (!$variant->sku || PurchasableHelper::isTempSku($variant->sku)) {
+                            $this->addError('variants', Craft::t('commerce', 'All variants must have a SKU.'));
+                            break;
+                        }
                     }
                 },
                 'on' => self::SCENARIO_LIVE,
