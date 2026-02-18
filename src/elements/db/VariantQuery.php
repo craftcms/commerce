@@ -831,7 +831,10 @@ class VariantQuery extends PurchasableQuery
             $productQuery = $this->hasProduct;
         } elseif (is_array($this->hasProduct)) {
             $productQuery = Product::find();
-            $productQuery = Craft::configure($productQuery, $this->hasProduct);
+
+            $criteria = ProductQueryHelper::cleanseQueryCriteria($this->hasProduct);
+
+            $productQuery = Craft::configure($productQuery, $criteria);
         } else {
             return;
         }

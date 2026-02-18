@@ -976,7 +976,10 @@ class ProductQuery extends ElementQuery
             $variantQuery = $this->hasVariant;
         } elseif (is_array($this->hasVariant)) {
             $query = Variant::find();
-            $variantQuery = Craft::configure($query, $this->hasVariant);
+
+            $criteria = ProductQueryHelper::cleanseQueryCriteria($this->hasVariant);
+
+            $variantQuery = Craft::configure($query, $criteria);
         } else {
             throw new QueryAbortedException('Invalid param used. ProductQuery::hasVariant param only expects a variant query or variant query config.');
         }
