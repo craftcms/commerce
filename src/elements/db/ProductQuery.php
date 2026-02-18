@@ -52,9 +52,17 @@ use yii\db\Expression;
 class ProductQuery extends ElementQuery
 {
     /**
-     * @var bool Whether to only return products that the user has permission to edit.
+     * @var bool|null Whether to only return products that the user has permission to view.
+     * @used-by editable()
      */
-    public bool $editable = false;
+    public ?bool $editable = null;
+
+    /**
+     * @var bool|null Whether to only return products that the user has permission to save.
+     * @used-by savable()
+     * @since 5.6.0
+     */
+    public ?bool $savable = null;
 
     /**
      * @var mixed The Post Date that the resulting products must have.
@@ -529,14 +537,29 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[editable]] property.
+     * Sets the [[$editable]] property.
      *
-     * @param bool $value The property value (defaults to true)
+     * @param bool|null $value The property value (defaults to true)
      * @return static self reference
+     * @uses $editable
      */
-    public function editable(bool $value = true): static
+    public function editable(?bool $value = true): static
     {
         $this->editable = $value;
+        return $this;
+    }
+
+    /**
+     * Sets the [[$savable]] property.
+     *
+     * @param bool|null $value The property value (defaults to true)
+     * @return static self reference
+     * @uses $savable
+     * @since 5.6.0
+     */
+    public function savable(?bool $value = true): static
+    {
+        $this->savable = $value;
         return $this;
     }
 
@@ -825,7 +848,8 @@ class ProductQuery extends ElementQuery
         }
 
         $this->_applyHasVariantParam();
-        $this->_applyEditableParam();
+        $this->_applyEditableParam($this->editable, 'commerce-editProductType');
+        $this->_applyEditableParam($this->savable, 'commerce-editProductType');
         $this->_applyRefParam();
 
         return parent::beforePrepare();
@@ -858,26 +882,61 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Applies the 'editable' param to the query being prepared.
+     * Applies an authorization param to the query being prepared.
      *
+     * @param bool|null $value
+     * @param string $permissionPrefix
      * @throws QueryAbortedException
      */
-    private function _applyEditableParam(): void
+    private function _applyEditableParam(?bool $value, string $permissionPrefix): void
     {
-        if (!$this->editable) {
+        if ($value === null) {
             return;
         }
 
         $user = Craft::$app->getUser()->getIdentity();
 
         if (!$user) {
-            throw new QueryAbortedException('Could not execute query for product when no user found');
+            throw new QueryAbortedException();
         }
 
-        // Limit the query to only the sections the user has permission to edit
-        $this->subQuery->andWhere([
-            'commerce_products.typeId' => Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds(),
-        ]);
+        $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+
+        if (empty($productTypes)) {
+            return;
+        }
+
+        $authorizedTypeIds = [];
+
+        foreach ($productTypes as $productType) {
+            if ($user->can("$permissionPrefix:$productType->uid")) {
+                $authorizedTypeIds[] = $productType->id;
+            }
+        }
+
+        if (count($authorizedTypeIds) === count($productTypes)) {
+            // They have access to everything
+            if (!$value) {
+                throw new QueryAbortedException();
+            }
+            return;
+        }
+
+        if (empty($authorizedTypeIds)) {
+            // They don't have access to anything
+            if ($value) {
+                throw new QueryAbortedException();
+            }
+            return;
+        }
+
+        $condition = ['commerce_products.typeId' => $authorizedTypeIds];
+
+        if (!$value) {
+            $condition = ['not', $condition];
+        }
+
+        $this->subQuery->andWhere($condition);
     }
 
     /**
