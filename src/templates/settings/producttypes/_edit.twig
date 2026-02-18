@@ -465,6 +465,7 @@
         {% if not headlessMode %}
             {{ forms.editableTableField({
                 label: 'Preview Targets'|t('app'),
+                instructions: 'Locations that should be available for previewing products in this product type.'|t('commerce'),
                 id: 'previewTargets',
                 name: 'previewTargets',
                 cols: {

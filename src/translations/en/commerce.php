@@ -629,6 +629,7 @@ return [
     'Link' => 'Link',
     'Live' => 'Live',
     'Location' => 'Location',
+    'Locations that should be available for previewing products in this product type.' => 'Locations that should be available for previewing products in this product type.',
     'MM' => 'MM',
     'Make a payment' => 'Make a payment',
     'Make this the primary store' => 'Make this the primary store',
