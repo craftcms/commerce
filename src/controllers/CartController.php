@@ -96,9 +96,7 @@ class CartController extends BaseFrontEndController
                                 'limit' => 1,
                                 'window' => 1,
                                 // Only apply rate limiting when a cart number is explicitly passed
-                                'active' => function(Context $context, $rateLimitId) {
-                                    return $context->request->getBodyParam('number') || $context->request->getQueryParam('number');
-                                },
+                                'active' => fn(Context $context, $rateLimitId) => $context->request->getBodyParam('number') || $context->request->getQueryParam('number'),
                                 'identifier' => fn(Context $context, $rateLimitId) => sprintf(
                                     '%s:%s',
                                     $rateLimitId,
