@@ -44,10 +44,14 @@ use craft\commerce\fieldlayoutelements\VariantsField as VariantsLayoutElement;
 use craft\commerce\fieldlayoutelements\VariantTitleField;
 use craft\commerce\fields\Products as ProductsField;
 use craft\commerce\fields\Variants as VariantsField;
+use craft\commerce\gql\handlers\RelatedProducts;
+use craft\commerce\gql\handlers\RelatedVariants;
 use craft\commerce\gql\interfaces\elements\Product as GqlProductInterface;
 use craft\commerce\gql\interfaces\elements\Variant as GqlVariantInterface;
 use craft\commerce\gql\queries\Product as GqlProductQueries;
 use craft\commerce\gql\queries\Variant as GqlVariantQueries;
+use craft\commerce\gql\types\input\criteria\ProductRelation;
+use craft\commerce\gql\types\input\criteria\VariantRelation;
 use craft\commerce\helpers\ProjectConfigData;
 use craft\commerce\linktypes\Product as ProductLinkType;
 use craft\commerce\migrations\Install;
@@ -137,6 +141,7 @@ use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterElementExportersEvent;
 use craft\events\RegisterEmailMessagesEvent;
+use craft\events\RegisterGqlArgumentHandlersEvent;
 use craft\events\RegisterGqlEagerLoadableFields;
 use craft\events\RegisterGqlQueriesEvent;
 use craft\events\RegisterGqlSchemaComponentsEvent;
@@ -144,6 +149,7 @@ use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fields\Link;
 use craft\fixfks\controllers\RestoreController;
+use craft\gql\ArgumentManager;
 use craft\gql\ElementQueryConditionBuilder;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
@@ -259,7 +265,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.5.0.5';
+    public string $schemaVersion = '5.6.0.0';
 
     /**
      * @inheritdoc
@@ -311,6 +317,7 @@ class Plugin extends BasePlugin
         $this->_registerGqlQueries();
         $this->_registerGqlComponents();
         $this->_registerGqlEagerLoadableFields();
+        $this->_registerGqlArgumentHandlers();
         $this->_registerLinkTypes();
         $this->_registerCacheTypes();
         $this->_registerGarbageCollection();
@@ -1026,6 +1033,41 @@ class Plugin extends BasePlugin
         Event::on(ElementQueryConditionBuilder::class, ElementQueryConditionBuilder::EVENT_REGISTER_GQL_EAGERLOADABLE_FIELDS, function(RegisterGqlEagerLoadableFields $event) {
             $event->fieldList['variants'] = [ProductsField::class];
             $event->fieldList['product'] = [VariantsField::class];
+        });
+    }
+
+    /**
+     * Register the Gql argument handlers
+     *
+     * @since 5.6.0
+     */
+    private function _registerGqlArgumentHandlers(): void
+    {
+        Event::on(ArgumentManager::class, ArgumentManager::EVENT_DEFINE_GQL_ARGUMENT_HANDLERS, static function(RegisterGqlArgumentHandlersEvent $event) {
+            $event->handlers['relatedToProducts'] = RelatedProducts::class;
+            $event->handlers['relatedToVariants'] = RelatedVariants::class;
+        });
+
+        // Add relatedToProducts and relatedToVariants arguments to element queries
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_QUERIES, static function(RegisterGqlQueriesEvent $event) {
+            $relatedToProductsArg = [
+                'name' => 'relatedToProducts',
+                'type' => \GraphQL\Type\Definition\Type::listOf(ProductRelation::getType()),
+                'description' => 'Narrows the query results to elements that relate to a product list defined with this argument.',
+            ];
+            $relatedToVariantsArg = [
+                'name' => 'relatedToVariants',
+                'type' => \GraphQL\Type\Definition\Type::listOf(VariantRelation::getType()),
+                'description' => 'Narrows the query results to elements that relate to a variant list defined with this argument.',
+            ];
+
+            // Add the arguments to all relevant queries
+            foreach ($event->queries as $queryName => &$queryConfig) {
+                if (isset($queryConfig['args']) && is_array($queryConfig['args'])) {
+                    $queryConfig['args']['relatedToProducts'] = $relatedToProductsArg;
+                    $queryConfig['args']['relatedToVariants'] = $relatedToVariantsArg;
+                }
+            }
         });
     }
 

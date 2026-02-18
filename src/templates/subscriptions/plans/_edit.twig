@@ -32,7 +32,7 @@
 
             {{ forms.elementSelectField({
                 elementType: entryElementType,
-                elements: (plan and plan.planInformationId) ? craft.entries.id(plan.planInformationId).all() : null,
+                elements: (plan and plan.planInformationId) ? craft.entries.status(null).id(plan.planInformationId).all() : null,
                 instructions: "The entry that contains the description for this subscription’s plan."|t('commerce'),
                 id: 'planInformation',
                 label: "Description"|t(','),
