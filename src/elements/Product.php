@@ -1054,6 +1054,14 @@ JS, [
      */
     protected function uiLabel(): ?string
     {
+        $uiLabelFormat = $this->getType()->productUiLabelFormat;
+        if ($uiLabelFormat !== '{title}') {
+            $uiLabel = Craft::$app->getView()->renderObjectTemplate($uiLabelFormat, $this);
+            if ($uiLabel !== '') {
+                return $uiLabel;
+            }
+        }
+
         if (!isset($this->title) || trim($this->title) === '') {
             return Craft::t('app', 'Untitled {type}', [
                 'type' => self::lowerDisplayName(),
