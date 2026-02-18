@@ -16,7 +16,7 @@
 
 {{ forms.textField({
     label: "Handle"|t('commerce'),
-    instructions: "How you'll refer to this shipping category in the templates."|t('commerce'),
+    instructions: "How you’ll refer to this shipping category in the templates."|t('commerce'),
     id: 'handle',
     class: 'code',
     name: 'handle',
@@ -34,7 +34,7 @@
 }) }}
 
 {{ forms.iconPickerField({
-    label: "Icon"|t('commerce'),
+    label: 'Icon'|t('app'),
     id: 'icon',
     name: 'icon',
     value: shippingCategory is defined ? shippingCategory.icon,

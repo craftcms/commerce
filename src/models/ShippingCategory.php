@@ -224,6 +224,7 @@ class ShippingCategory extends Model implements HasStoreInterface, Chippable, Co
         $fields = parent::extraFields();
         $fields[] = 'productTypes';
         $fields[] = 'productTypeIds';
+        $fields[] = 'uiLabel';
 
         return $fields;
     }

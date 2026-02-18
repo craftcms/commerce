@@ -12,6 +12,10 @@ use craft\commerce\elements\Product;
 use craft\commerce\gql\arguments\elements\Product as ProductArguments;
 use craft\commerce\gql\interfaces\elements\Product as ProductInterface;
 use craft\commerce\gql\resolvers\elements\Product as ProductResolver;
+use craft\commerce\Plugin;
+use craft\commerce\web\assets\commercecp\CommerceCpAsset;
+use craft\commerce\web\assets\productindex\ProductIndexAsset;
+use craft\elements\db\ElementQueryInterface;
 use craft\fields\BaseRelationField;
 use craft\helpers\Gql as GqlHelper;
 use craft\services\Gql as GqlService;
@@ -27,6 +31,11 @@ use GraphQL\Type\Definition\Type;
  */
 class Products extends BaseRelationField
 {
+    /**
+     * @inheritdoc
+     */
+    protected ?string $inputJsClass = 'Craft.Commerce.ProductSelectInput';
+
     public function __construct(array $config = [])
     {
         // Never needed and allows us to instantiate the field while ignoring old setting until the Product field migration has run.
@@ -56,6 +65,27 @@ class Products extends BaseRelationField
     public static function defaultSelectionLabel(): string
     {
         return Craft::t('commerce', 'Add a product');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function inputTemplateVariables(array|ElementQueryInterface $value = null, ?ElementInterface $element = null): array
+    {
+        Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
+        Craft::$app->getView()->registerAssetBundle(ProductIndexAsset::class);
+
+        $variables = parent::inputTemplateVariables($value, $element);
+
+        $sources = $this->getInputSources($element);
+        if (is_array($sources) && preg_match('/^productType:(.+)$/', reset($sources), $matches)) {
+            $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByUid($matches[1]);
+            if ($productType) {
+                $variables['jsSettings']['productTypeId'] = (int)$productType->id;
+            }
+        }
+
+        return $variables;
     }
 
     /**

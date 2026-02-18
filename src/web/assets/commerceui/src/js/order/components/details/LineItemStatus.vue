@@ -22,7 +22,9 @@
                     v-if="lineItemStatus.color"
                 ></span>
                 <span class="status disabled" v-else></span>
-                <span class="status-label-text">{{ lineItemStatus.name }}</span>
+                <span class="status-label-text">{{
+                    lineItemStatus.uiLabel
+                }}</span>
             </span>
         </template>
     </div>

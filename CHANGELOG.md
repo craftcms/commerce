@@ -2,12 +2,23 @@
 
 ## Unreleased
 
-- Fixed a bug where the order’s table was showing the incorrect column heading on the Edit User page.
+- Fixed a SQL error that could occur when querying for unfulfilled orders on PostgreSQL. ([#4228](https://github.com/craftcms/commerce/issues/4228))
+- Fixed an error that could occur when resaving variants. ([#4226](https://github.com/craftcms/commerce/issues/4226))
+
+## 5.5.3 - 2026-02-09
+
+- Added `craft\commerce\models\LineItemStatus::getDisplayName()`.
+- Fixed a bug where Orders tables on user edit pages were showing an incorrect column heading.
+- Fixed a bug where product selector modals didn’t have “Add a product” buttons. ([#4205](https://github.com/craftcms/commerce/issues/4205))
+- Fixed a bug where order status and line item status names weren’t translatable. ([#4213](https://github.com/craftcms/commerce/issues/4213))
 - Fixed a bug where it wasn’t possible to change a variant’s shipping category.
 - Fixed an error that occurred when adjusting inventory levels with an adjustment of zero. ([#4212](https://github.com/craftcms/commerce/issues/4212))
+- Fixed a SQL error that could occur when querying variants on PostgreSQL. ([#4210](https://github.com/craftcms/commerce/issues/4210))
+- Fixed an error that could occur when merging canonical product changes into a draft. ([#4199](https://github.com/craftcms/commerce/issues/4199))
+- Fixed a bug where variants weren’t being marked as modified when variants were added, deleted, or reordered. ([#4222](https://github.com/craftcms/commerce/pull/4222))
 - Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities in the control panel. (GHSA-j3x5-mghf-xvfw, GHSA-pmgj-gmm4-jh6j)
-- Fixed [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerabilities in the control panel. (GHSA-mqxf-2998-c6cp, GHSA-wj89-2385-gpx3, GHSA-mj32-r678-7mvp)
 - Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerability in the control panel. (GHSA-cfpv-rmpf-f624)
+- Fixed [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerabilities in the control panel. (GHSA-mqxf-2998-c6cp, GHSA-wj89-2385-gpx3, GHSA-mj32-r678-7mvp)
 
 ## 5.5.2 - 2025-12-31
 
@@ -15,7 +26,7 @@
 - Fixed a bug where settings were being saved to the project config incorrectly. ([#4006](https://github.com/craftcms/commerce/issues/4006))
 - Fixed a PHP error that could occur when saving a shipping rule. ([#4134](https://github.com/craftcms/commerce/issues/4134))
 - Fixed a bug where the “New Customers” widget was counting all customers with orders in the date range, rather than only customers whose first order was in the date range.
-- Fixed XSS vulnerabilities. (GHSA-w8gw-qm8p-j9j3, GHSA-h9r9-2pxg-cx9m, GHSA-g92v-wpv7-6w22, GHSA-p6w8-q63m-72c8, GHSA-wqc5-485v-3hqh, GHSA-v585-mf6r-rqrc, GHSA-frj9-9rwc-pw9j, GHSA-8478-rmjg-mjj5, GHSA-2h2m-v2mg-656c, GHSA-wq2m-r96q-crrf)
+- Fixed [low, moderate, and high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerabilities. ([GHSA-w8gw-qm8p-j9j3](https://github.com/craftcms/commerce/security/advisories/GHSA-w8gw-qm8p-j9j3), [GHSA-h9r9-2pxg-cx9m](https://github.com/craftcms/commerce/security/advisories/GHSA-h9r9-2pxg-cx9m), [GHSA-g92v-wpv7-6w22](https://github.com/craftcms/commerce/security/advisories/GHSA-g92v-wpv7-6w22), [GHSA-p6w8-q63m-72c8](https://github.com/craftcms/commerce/security/advisories/GHSA-p6w8-q63m-72c8), [GHSA-wqc5-485v-3hqh](https://github.com/craftcms/commerce/security/advisories/GHSA-wqc5-485v-3hqh), [GHSA-v585-mf6r-rqrc](https://github.com/craftcms/commerce/security/advisories/GHSA-v585-mf6r-rqrc), [GHSA-frj9-9rwc-pw9j](https://github.com/craftcms/commerce/security/advisories/GHSA-frj9-9rwc-pw9j), [GHSA-8478-rmjg-mjj5](https://github.com/craftcms/commerce/security/advisories/GHSA-frj9-9rwc-pw9j), [GHSA-2h2m-v2mg-656c](https://github.com/craftcms/commerce/security/advisories/GHSA-2h2m-v2mg-656c), [GHSA-wq2m-r96q-crrf](https://github.com/craftcms/commerce/security/advisories/GHSA-wq2m-r96q-crrf))
 
 ## 5.5.1 - 2025-12-04
 
