@@ -1,5 +1,10 @@
 {% extends '[[folderName]]/_private/layouts' %}
 
+{% set extraHead %}
+  <meta name="robots" content="noindex">
+  <meta name="referrer" content="same-origin">
+{% endset %}
+
 {# @var number string #}
 {% set number = craft.app.request.getParam('number') %}
 {# @var email string #}
