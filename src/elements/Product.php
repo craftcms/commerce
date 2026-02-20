@@ -688,18 +688,10 @@ JS, [
      */
     public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
     {
-        $variantAttributes = [
-            'variants',
-            'defaultPrice',
-            'defaultPromotionalPrice',
-            'defaultSku',
-            'defaultWeight',
-            'defaultLength',
-            'defaultWidth',
-            'defaultHeight',
-        ];
-
-        if (in_array($attribute, $variantAttributes, false)) {
+        // Only eager load variants for attributes that actually need them.
+        // Other variant-related attributes (defaultPrice, defaultSku, etc.) are already
+        // fetched via SQL JOINs in ProductQuery::beforePrepare()
+        if (in_array($attribute, ['variants', 'stock'], true)) {
             $elementQuery->andWith('variants');
         } else {
             parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
