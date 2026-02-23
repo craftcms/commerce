@@ -1128,7 +1128,7 @@ return [
     'Variant Fields' => 'Champs variante',
     'Variant Has Unlimited Stock' => 'La variante a un stock illimité',
     'Variant Price' => 'Prix de la variante',
-    'Variant SKU' => 'UGS de la variante',
+    'Variant SKU' => 'SKU de la variante',
     'Variant Search' => 'Rechercher une variante',
     'Variant Stock' => 'Stock de la variante',
     'Variant Title Format' => 'Format du titre de variante',
