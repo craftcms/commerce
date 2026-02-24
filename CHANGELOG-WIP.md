@@ -24,4 +24,4 @@
 - Fixed a bug where Variant with empty SKUs didn't show a validation error when saving a product after it was duplicated. ([#4197](https://github.com/craftcms/commerce/issues/4197))
 - Fixed a SQL error that could occur when querying for unfulfilled orders on PostgreSQL. ([#4228](https://github.com/craftcms/commerce/issues/4228))
 - Fixed an error that could occur when resaving variants. ([#4226](https://github.com/craftcms/commerce/issues/4226))
-- Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities in the control panel.
+- Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities in the control panel. (GHSA-r54v-qq87-px5r)
