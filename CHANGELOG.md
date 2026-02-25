@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Improved product index performance by not eager-loading variants for table attributes that are already fetched via SQL joins. ([#4236](https://github.com/craftcms/commerce/issues/4236))
+- Fixed a bug where coupon codes would be automatically submitted too soon while entering them on order edit screens.
 
 ## 5.5.4 - 2026-02-18
 

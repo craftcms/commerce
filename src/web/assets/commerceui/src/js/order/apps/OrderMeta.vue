@@ -31,9 +31,15 @@
                 :errors="getErrors('couponCode')[0]"
             >
                 <input
-                    class="text fullwidth"
+                    ref="couponCodeInput"
+                    class="text fullwidth coupon-code-input"
+                    :class="{'coupon-code-invalid': couponCodeInvalid}"
                     type="text"
-                    v-model="couponCode"
+                    v-model="couponCodeLocal"
+                    @focus="onCouponCodeFocus"
+                    @input="onCouponCodeInput"
+                    @blur="onCouponCodeBlur"
+                    @keyup.enter="onCouponCodeBlur"
                     autocomplete="off"
                     autocorrect="off"
                     autocapitalize="off"
@@ -347,6 +353,26 @@
 
         mixins: [mixins],
 
+        data() {
+            return {
+                couponCodeLocal: '',
+                couponCodeInvalid: false,
+            };
+        },
+
+        watch: {
+            'draft.order.couponCode': {
+                immediate: true,
+                handler(newValue) {
+                    // Only sync from server if we're not in an invalid state
+                    // (invalid state is managed by onCouponCodeBlur)
+                    if (!this.couponCodeInvalid) {
+                        this.couponCodeLocal = newValue || '';
+                    }
+                },
+            },
+        },
+
         computed: {
             ...mapState({
                 draft: (state) => state.draft,
@@ -380,32 +406,7 @@
                         .catch((error) => {
                             this.$store.dispatch('displayError', error);
                         });
-                }, 1000),
-            },
-
-            couponCode: {
-                get() {
-                    return this.draft.order.couponCode;
-                },
-
-                set: debounce(function (value) {
-                    const draft = JSON.parse(JSON.stringify(this.draft));
-                    draft.order.couponCode = value;
-
-                    this.recalculateOrder(draft)
-                        .then(() => {
-                            this.$store.dispatch(
-                                'displayNotice',
-                                this.$options.filters.t(
-                                    'Order recalculated.',
-                                    'commerce'
-                                )
-                            );
-                        })
-                        .catch((error) => {
-                            this.$store.dispatch('displayError', error);
-                        });
-                }, 1000),
+                }, 2000),
             },
 
             suppressEmails: {
@@ -464,6 +465,46 @@
 
         methods: {
             ...mapActions(['recalculateOrder']),
+
+            onCouponCodeFocus() {
+                if (this.couponCodeInvalid) {
+                    this.$refs.couponCodeInput.select();
+                }
+            },
+
+            onCouponCodeInput() {
+                this.couponCodeInvalid = false;
+            },
+
+            onCouponCodeBlur() {
+                if (this.couponCodeLocal === this.draft.order.couponCode) {
+                    return;
+                }
+
+                const submittedCode = this.couponCodeLocal;
+                const draft = JSON.parse(JSON.stringify(this.draft));
+                draft.order.couponCode = submittedCode;
+
+                this.recalculateOrder(draft)
+                    .then(() => {
+                        // Check if server cleared the coupon code (invalid)
+                        if (submittedCode && !this.draft.order.couponCode) {
+                            this.couponCodeInvalid = true;
+                        } else {
+                            this.couponCodeInvalid = false;
+                        }
+                        this.$store.dispatch(
+                            'displayNotice',
+                            this.$options.filters.t(
+                                'Order recalculated.',
+                                'commerce'
+                            )
+                        );
+                    })
+                    .catch((error) => {
+                        this.$store.dispatch('displayError', error);
+                    });
+            },
 
             markAsCompleted() {
                 if (
@@ -621,5 +662,9 @@
 
     .shipping-method-handle {
         color: $mediumTextColor;
+    }
+
+    .coupon-code-input.coupon-code-invalid {
+        color: var(--error-color, #cf1124);
     }
 </style>
