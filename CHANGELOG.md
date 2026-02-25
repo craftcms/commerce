@@ -4,7 +4,7 @@
 
 - Improved product index performance by not eager-loading variants for table attributes that are already fetched via SQL joins. ([#4236](https://github.com/craftcms/commerce/issues/4236))
 - Fixed a bug where coupon codes were submitted too early while being entered on order edit screens.
-- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerability in the control panel. (cnv_igxrft5)
+- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerability in the control panel. (GHSA-875v-7m49-8x88)
 
 ## 5.5.4 - 2026-02-18
 
