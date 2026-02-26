@@ -1373,7 +1373,9 @@ class Variant extends Purchasable implements NestedElementInterface
             'failMessage' => Craft::t('commerce', 'Variants not restored.'),
         ]);
 
-        $actions[] = ['type' => SetDefaultVariant::class];
+        if ($source === '__IMP__') {
+            $actions[] = ['type' => SetDefaultVariant::class];
+        }
 
         // In case they are not running Craft 5.7+
         if (class_exists(Copy::class)) {
