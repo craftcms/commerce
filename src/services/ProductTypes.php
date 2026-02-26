@@ -408,6 +408,7 @@ class ProductTypes extends Component
             }
             $productTypeRecord->variantTitleFormat = $variantTitleFormat;
             $productTypeRecord->hasVariantTitleField = $hasVariantTitleField;
+            $productTypeRecord->variantUiLabelFormat = $data['variantUiLabelFormat'] ?? '{title}';
 
             // Product title fields
             $hasProductTitleField = $data['hasProductTitleField'];
@@ -418,6 +419,7 @@ class ProductTypes extends Component
             }
             $productTypeRecord->productTitleFormat = $productTitleFormat;
             $productTypeRecord->hasProductTitleField = $hasProductTitleField;
+            $productTypeRecord->productUiLabelFormat = $data['productUiLabelFormat'] ?? '{title}';
 
             // Slug fields
             $productTypeRecord->showSlugField = $data['showSlugField'] ?? true;
@@ -995,6 +997,16 @@ class ProductTypes extends Component
         /** @since 5.5 */
         if ($db->columnExists(Table::PRODUCTTYPES, 'previewTargets')) {
             $query->addSelect('productTypes.previewTargets');
+        }
+
+        /** @since 5.6 */
+        if ($db->columnExists(Table::PRODUCTTYPES, 'variantUiLabelFormat')) {
+            $query->addSelect('productTypes.variantUiLabelFormat');
+        }
+
+        /** @since 5.6 */
+        if ($db->columnExists(Table::PRODUCTTYPES, 'productUiLabelFormat')) {
+            $query->addSelect('productTypes.productUiLabelFormat');
         }
 
         return $query;

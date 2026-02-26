@@ -97,6 +97,12 @@ class ProductType extends Model implements FieldLayoutProviderInterface
     public string $variantTitleFormat = '{product.title}';
 
     /**
+     * @var string Variant UI label format
+     * @since 5.6.0
+     */
+    public string $variantUiLabelFormat = '{title}';
+
+    /**
      * @var string Variant title translation method
      * @phpstan-var Field::TRANSLATION_METHOD_NONE|Field::TRANSLATION_METHOD_SITE|Field::TRANSLATION_METHOD_SITE_GROUP|Field::TRANSLATION_METHOD_LANGUAGE|Field::TRANSLATION_METHOD_CUSTOM
      * @since 5.1.0
@@ -118,6 +124,12 @@ class ProductType extends Model implements FieldLayoutProviderInterface
      * @var string Product title format
      */
     public string $productTitleFormat = '';
+
+    /**
+     * @var string Product UI label format
+     * @since 5.6.0
+     */
+    public string $productUiLabelFormat = '{title}';
 
     /**
      * @var string Product title translation method
@@ -665,12 +677,14 @@ class ProductType extends Model implements FieldLayoutProviderInterface
                 'variantTitleFormat' => $this->variantTitleFormat,
                 'variantTitleTranslationMethod' => $this->variantTitleTranslationMethod,
                 'variantTitleTranslationKeyFormat' => $this->variantTitleTranslationKeyFormat,
+                'variantUiLabelFormat' => $this->variantUiLabelFormat,
 
                 // Product title field
                 'hasProductTitleField' => $this->hasProductTitleField,
                 'productTitleFormat' => $this->productTitleFormat,
                 'productTitleTranslationMethod' => $this->productTitleTranslationMethod,
                 'productTitleTranslationKeyFormat' => $this->productTitleTranslationKeyFormat,
+                'productUiLabelFormat' => $this->productUiLabelFormat,
 
                 // Slug field
                 'showSlugField' => $this->showSlugField,

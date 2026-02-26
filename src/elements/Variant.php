@@ -259,6 +259,25 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
+    protected function uiLabel(): ?string
+    {
+        $owner = $this->getOwner();
+        if ($owner) {
+            $uiLabelFormat = $owner->getType()->variantUiLabelFormat;
+            if ($uiLabelFormat !== '{title}') {
+                $uiLabel = Craft::$app->getView()->renderObjectTemplate($uiLabelFormat, $this);
+                if ($uiLabel !== '') {
+                    return $uiLabel;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public static function displayName(): string
     {
         return Craft::t('commerce', 'Product Variant');

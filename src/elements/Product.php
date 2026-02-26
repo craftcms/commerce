@@ -226,7 +226,7 @@ class Product extends Element implements HasStoreInterface
             $editable = true;
         } else {
             $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
-            $editable = false;
+            $editable = null;
         }
 
         $productTypeIds = [];
@@ -403,7 +403,10 @@ class Product extends Element implements HasStoreInterface
 
                 if ($canCreate && $canSave) {
                     // Duplicate
-                    $actions[] = Duplicate::class;
+                    $actions[] = [
+                        'type' => Duplicate::class,
+                        'asDrafts' => true,
+                    ];
                 }
 
                 if ($canDelete) {
@@ -424,6 +427,14 @@ class Product extends Element implements HasStoreInterface
                     $productType->isStructure &&
                     $canCreate
                 ) {
+                    if ($productType->maxLevels != 1) {
+                        $actions[] = [
+                            'type' => Duplicate::class,
+                            'asDrafts' => true,
+                            'deep' => true,
+                        ];
+                    }
+
                     $newProductUrl = 'commerce/products/' . $productType->handle . '/new';
 
                     if (Craft::$app->getIsMultiSite()) {
@@ -1051,6 +1062,14 @@ JS, [
      */
     protected function uiLabel(): ?string
     {
+        $uiLabelFormat = $this->getType()->productUiLabelFormat;
+        if ($uiLabelFormat !== '{title}') {
+            $uiLabel = Craft::$app->getView()->renderObjectTemplate($uiLabelFormat, $this);
+            if ($uiLabel !== '') {
+                return $uiLabel;
+            }
+        }
+
         if (!isset($this->title) || trim($this->title) === '') {
             return Craft::t('app', 'Untitled {type}', [
                 'type' => self::lowerDisplayName(),
@@ -1199,18 +1218,6 @@ JS, [
         }
 
         return $this->_variants->filter(fn(Variant $variant) => $includeDisabled || ($variant->getStatus() === self::STATUS_ENABLED));
-    }
-
-    /**
-     * @return VariantCollection
-     * @throws InvalidConfigException
-     * @internal Do not use. Temporary method until we get a nested element manager provider in core.
-     *
-     * TODO: Remove this once we have a nested element manager provider interface in core.
-     */
-    public function getAllVariants(): VariantCollection
-    {
-        return $this->getVariants(true);
     }
 
     /**
@@ -1835,6 +1842,18 @@ JS, [
                             break;
                         }
                         $skus[$variant->sku] = true;
+                    }
+                },
+                'on' => self::SCENARIO_LIVE,
+            ],
+            [
+                ['variants'],
+                function() {
+                    foreach ($this->getVariants(true) as $variant) {
+                        if (!$variant->sku || PurchasableHelper::isTempSku($variant->sku)) {
+                            $this->addError('variants', Craft::t('commerce', 'All variants must have a SKU.'));
+                            break;
+                        }
                     }
                 },
                 'on' => self::SCENARIO_LIVE,

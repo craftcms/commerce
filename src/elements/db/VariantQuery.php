@@ -66,9 +66,17 @@ class VariantQuery extends PurchasableQuery
     protected array $defaultOrderBy = ['elements_owners.sortOrder' => SORT_ASC];
 
     /**
-     * @var bool Whether to only return variants that the user has permission to edit.
+     * @var bool|null Whether to only return variants that the user has permission to view.
+     * @used-by editable()
      */
-    public bool $editable = false;
+    public ?bool $editable = null;
+
+    /**
+     * @var bool|null Whether to only return variants that the user has permission to save.
+     * @used-by savable()
+     * @since 5.6.0
+     */
+    public ?bool $savable = null;
 
     /**
      * @var bool|null
@@ -433,6 +441,33 @@ class VariantQuery extends PurchasableQuery
     }
 
     /**
+     * Sets the [[$editable]] property.
+     *
+     * @param bool|null $value The property value (defaults to true)
+     * @return static self reference
+     * @uses $editable
+     */
+    public function editable(?bool $value = true): static
+    {
+        $this->editable = $value;
+        return $this;
+    }
+
+    /**
+     * Sets the [[$savable]] property.
+     *
+     * @param bool|null $value The property value (defaults to true)
+     * @return static self reference
+     * @uses $savable
+     * @since 5.6.0
+     */
+    public function savable(?bool $value = true): static
+    {
+        $this->savable = $value;
+        return $this;
+    }
+
+    /**
      * @param Connection|null $db
      * @return VariantCollection
      * @phpstan-ignore-next-line
@@ -741,6 +776,8 @@ class VariantQuery extends PurchasableQuery
         }
 
         $this->_applyHasProductParam();
+        $this->_applyEditableParam($this->editable, 'commerce-editProductType');
+        $this->_applyEditableParam($this->savable, 'commerce-editProductType');
 
         return parent::beforePrepare();
     }
@@ -794,7 +831,10 @@ class VariantQuery extends PurchasableQuery
             $productQuery = $this->hasProduct;
         } elseif (is_array($this->hasProduct)) {
             $productQuery = Product::find();
-            $productQuery = Craft::configure($productQuery, $this->hasProduct);
+
+            $criteria = ProductQueryHelper::cleanseQueryCriteria($this->hasProduct);
+
+            $productQuery = Craft::configure($productQuery, $criteria);
         } else {
             return;
         }
@@ -806,6 +846,64 @@ class VariantQuery extends PurchasableQuery
         $productQuery->andWhere(['not', ['commerce_products.id' => null]]);
 
         $this->subQuery->andWhere(['commerce_variants.primaryOwnerId' => $productQuery]);
+    }
+
+    /**
+     * Applies an authorization param to the query being prepared.
+     *
+     * @param bool|null $value
+     * @param string $permissionPrefix
+     * @throws QueryAbortedException
+     */
+    private function _applyEditableParam(?bool $value, string $permissionPrefix): void
+    {
+        if ($value === null) {
+            return;
+        }
+
+        $user = Craft::$app->getUser()->getIdentity();
+
+        if (!$user) {
+            throw new QueryAbortedException();
+        }
+
+        $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+
+        if (empty($productTypes)) {
+            return;
+        }
+
+        $authorizedTypeIds = [];
+
+        foreach ($productTypes as $productType) {
+            if ($user->can("$permissionPrefix:$productType->uid")) {
+                $authorizedTypeIds[] = $productType->id;
+            }
+        }
+
+        if (count($authorizedTypeIds) === count($productTypes)) {
+            // They have access to everything
+            if (!$value) {
+                throw new QueryAbortedException();
+            }
+            return;
+        }
+
+        if (empty($authorizedTypeIds)) {
+            // They don't have access to anything
+            if ($value) {
+                throw new QueryAbortedException();
+            }
+            return;
+        }
+
+        $condition = ['commerce_products.typeId' => $authorizedTypeIds];
+
+        if (!$value) {
+            $condition = ['not', $condition];
+        }
+
+        $this->subQuery->andWhere($condition);
     }
 
     /**

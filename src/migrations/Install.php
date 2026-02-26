@@ -640,12 +640,14 @@ class Install extends Migration
             'variantTitleFormat' => $this->string()->notNull(),
             'variantTitleTranslationMethod' => $this->string()->defaultValue('site')->notNull(),
             'variantTitleTranslationKeyFormat' => $this->string(),
+            'variantUiLabelFormat' => $this->string()->notNull()->defaultValue('{title}'),
 
             // Product title stuff
             'hasProductTitleField' => $this->boolean()->notNull()->defaultValue(true),
             'productTitleFormat' => $this->string(),
             'productTitleTranslationMethod' => $this->string()->defaultValue('site')->notNull(),
             'productTitleTranslationKeyFormat' => $this->string(),
+            'productUiLabelFormat' => $this->string()->notNull()->defaultValue('{title}'),
 
             // Slug stuff
             'showSlugField' => $this->boolean()->notNull()->defaultValue(true),
