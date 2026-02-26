@@ -259,7 +259,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.5.0.5';
+    public string $schemaVersion = '5.5.0.6';
 
     /**
      * @inheritdoc
@@ -385,8 +385,8 @@ class Plugin extends BasePlugin
             ];
         }
 
-        $hasEditableProductTypes = Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds(true);
-        if ($hasEditableProductTypes) {
+        $hasViewableProductTypes = Plugin::getInstance()->getProductTypes()->getViewableProductTypeIds(true);
+        if ($hasViewableProductTypes) {
             $ret['subnav']['products'] = [
                 'label' => Craft::t('commerce', 'Products'),
                 'url' => 'commerce/products',
@@ -632,14 +632,21 @@ class Plugin extends BasePlugin
         foreach ($productTypes as $productType) {
             $suffix = ':' . $productType->uid;
 
-            $productTypePermissions['commerce-editProductType' . $suffix] = [
-                'label' => Craft::t('commerce', 'Edit “{type}” products', ['type' => $productType->name]),
+            $productTypePermissions['commerce-viewProductType' . $suffix] = [
+                'label' => Craft::t('commerce', 'View “{type}” products', ['type' => $productType->name]),
+                'info' => Craft::t('commerce', 'Allows viewing existing products and creating drafts for them.'),
                 'nested' => [
-                    "commerce-createProducts$suffix" => [
+                    'commerce-createProductType' . $suffix => [
                         'label' => Craft::t('commerce', 'Create products'),
+                        'info' => Craft::t('commerce', 'Allows creating drafts of new products.'),
                     ],
-                    "commerce-deleteProducts$suffix" => [
+                    'commerce-saveProductType' . $suffix => [
+                        'label' => Craft::t('commerce', 'Save products'),
+                        'info' => Craft::t('commerce', 'Allows fully saving canonical products (directly or by applying drafts).'),
+                    ],
+                    'commerce-deleteProductType' . $suffix => [
                         'label' => Craft::t('commerce', 'Delete products'),
+                        'info' => Craft::t('commerce', 'Allows deleting products for all sites.'),
                     ],
                 ],
             ];

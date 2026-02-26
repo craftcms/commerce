@@ -55,7 +55,7 @@ class TopPurchasables extends Stat
         $selectTotalRevenue = new Expression('SUM([[li.total]]) as revenue');
         $orderByRevenue = new Expression('SUM([[li.total]]) DESC');
 
-        $editableProductTypeIds = Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds();
+        $editableProductTypeIds = Plugin::getInstance()->getProductTypes()->getViewableProductTypeIds();
 
         $topPurchasables = $this->_createStatQuery()
             ->select([

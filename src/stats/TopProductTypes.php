@@ -58,7 +58,7 @@ class TopProductTypes extends Stat
         $selectTotalRevenue = new Expression('SUM([[li.total]]) as revenue');
         $orderByRevenue = new Expression('SUM([[li.total]]) DESC');
 
-        $editableProductTypeIds = Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds();
+        $editableProductTypeIds = Plugin::getInstance()->getProductTypes()->getViewableProductTypeIds();
 
         $results = $this->_createStatQuery()
             ->select([

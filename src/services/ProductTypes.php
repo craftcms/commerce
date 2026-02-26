@@ -121,11 +121,11 @@ class ProductTypes extends Component
 
 
     /**
-     * Returns all editable product types.
+     * Returns all viewable product types.
      *
-     * @return ProductType[] An array of all the editable product types.
+     * @return ProductType[] An array of all the viewable product types.
      */
-    public function getEditableProductTypes(): array
+    public function getViewableProductTypes(): array
     {
         if (Craft::$app->getRequest()->getIsConsoleRequest()) {
             return $this->getAllProductTypes();
@@ -137,33 +137,33 @@ class ProductTypes extends Component
             return [];
         }
 
-        $editableProductTypeIds = $this->getEditableProductTypeIds();
-        $editableProductTypes = [];
+        $viewableProductTypeIds = $this->getViewableProductTypeIds();
+        $viewableProductTypes = [];
 
-        foreach ($this->getAllProductTypes() as $productTypes) {
-            if (in_array($productTypes->id, $editableProductTypeIds)) {
-                $editableProductTypes[] = $productTypes;
+        foreach ($this->getAllProductTypes() as $productType) {
+            if (in_array($productType->id, $viewableProductTypeIds)) {
+                $viewableProductTypes[] = $productType;
             }
         }
 
-        return $editableProductTypes;
+        return $viewableProductTypes;
     }
 
     /**
-     * Returns all product type IDs that are editable by the current user.
+     * Returns all product type IDs that are viewable by the current user.
      *
-     * @return array An array of all the editable product types’ IDs.
+     * @return array An array of all the viewable product types' IDs.
      */
-    public function getEditableProductTypeIds(bool $anySite = false): array
+    public function getViewableProductTypeIds(bool $anySite = false): array
     {
-        $editableIds = [];
+        $viewableIds = [];
         $user = Craft::$app->getUser()->getIdentity();
         $allProductTypes = $this->getAllProductTypes();
 
         $cpSite = Cp::requestedSite();
 
         foreach ($allProductTypes as $productType) {
-            if (!Plugin::getInstance()->getProductTypes()->hasPermission($user, $productType, 'commerce-editProductType')) {
+            if (!$user->can('commerce-viewProductType:' . $productType->uid)) {
                 continue;
             }
 
@@ -171,10 +171,10 @@ class ProductTypes extends Component
                 continue;
             }
 
-            $editableIds[] = $productType->id;
+            $viewableIds[] = $productType->id;
         }
 
-        return $editableIds;
+        return $viewableIds;
     }
 
     /**
@@ -190,7 +190,7 @@ class ProductTypes extends Component
         $allProductTypes = $this->getAllProductTypes();
 
         foreach ($allProductTypes as $productType) {
-            if ($this->hasPermission($user, $productType, 'commerce-createProducts')) {
+            if ($user->can('commerce-createProductType:' . $productType->uid)) {
                 $creatableIds[] = $productType->id;
             }
         }
@@ -208,9 +208,9 @@ class ProductTypes extends Component
         $creatableProductTypeIds = $this->getCreatableProductTypeIds();
         $creatableProductTypes = [];
 
-        foreach ($this->getAllProductTypes() as $productTypes) {
-            if (in_array($productTypes->id, $creatableProductTypeIds)) {
-                $creatableProductTypes[] = $productTypes;
+        foreach ($this->getAllProductTypes() as $productType) {
+            if (in_array($productType->id, $creatableProductTypeIds)) {
+                $creatableProductTypes[] = $productType;
             }
         }
 
@@ -220,7 +220,7 @@ class ProductTypes extends Component
     /**
      * Returns all the product type IDs.
      *
-     * @return array An array of all the product types’ IDs.
+     * @return array An array of all the product types' IDs.
      */
     public function getAllProductTypeIds(): array
     {
@@ -612,7 +612,7 @@ class ProductTypes extends Component
                         foreach ($productIds as $productId) {
                             App::maxPowerCaptain();
 
-                            // Loop through each of the changed sites and update all of the products’ slugs and
+                            // Loop through each of the changed sites and update all of the products' slugs and
                             // URIs
                             foreach ($sitesWithNewUriFormats as $siteId) {
                                 $product = Product::find()
@@ -837,7 +837,7 @@ class ProductTypes extends Component
     }
 
     /**
-     * Returns whether a product type’s products have URLs, and if the template path is valid.
+     * Returns whether a product type's products have URLs, and if the template path is valid.
      *
      * @param ProductType $productType The product for which to validate the template.
      * @param int $siteId The site for which to valid for
@@ -1019,31 +1019,16 @@ class ProductTypes extends Component
      * @param ProductType $productType
      * @param string|null $checkPermissionName detailed product type permission.
      * @return bool
+     * @deprecated in 5.6.0. Use `$user->can()` directly instead.
      */
     public function hasPermission(User $user, ProductType $productType, ?string $checkPermissionName = null): bool
     {
-        if ($user->admin) {
-            return true;
-        }
-
-        $permissions = Craft::$app->getUserPermissions()->getPermissionsByUserId($user->id);
-
-        $suffix = ':' . $productType->uid;
+        Craft::$app->getDeprecator()->log(__METHOD__, '`ProductTypes::hasPermission()` has been deprecated. Use `$user->can()` directly instead.');
 
         if ($checkPermissionName !== null) {
-            $checkPermissionName = strtolower($checkPermissionName . $suffix);
-            if (!in_array(strtolower($checkPermissionName), $permissions)) {
-                return false;
-            }
+            return $user->can($checkPermissionName . ':' . $productType->uid);
         }
 
-        // Required for create and delete permission.
-        $editProductType = strtolower('commerce-editProductType' . $suffix);
-
-        if (!in_array($editProductType, $permissions)) {
-            return false;
-        }
-
-        return true;
+        return $user->can('commerce-viewProductType:' . $productType->uid);
     }
 }

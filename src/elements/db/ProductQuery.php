@@ -874,9 +874,9 @@ class ProductQuery extends ElementQuery
             throw new QueryAbortedException('Could not execute query for product when no user found');
         }
 
-        // Limit the query to only the sections the user has permission to edit
+        // Limit the query to only the product types the user has permission to view
         $this->subQuery->andWhere([
-            'commerce_products.typeId' => Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds(),
+            'commerce_products.typeId' => Plugin::getInstance()->getProductTypes()->getViewableProductTypeIds(),
         ]);
     }
 

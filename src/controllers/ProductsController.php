@@ -30,6 +30,19 @@ use yii\web\Response;
 class ProductsController extends BaseController
 {
     /**
+     * @inheritdoc
+     * @throws ForbiddenHttpException
+     */
+    public function init(): void
+    {
+        parent::init();
+
+        if (empty(Plugin::getInstance()->getProductTypes()->getViewableProductTypeIds(true))) {
+            throw new ForbiddenHttpException('User is not permitted to view any product types.');
+        }
+    }
+
+    /**
      * @throws InvalidConfigException
      */
     public function actionProductIndex(?string $productTypeHandle = null): Response
