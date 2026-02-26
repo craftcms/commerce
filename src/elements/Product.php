@@ -11,6 +11,7 @@ use Craft;
 use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\base\Field;
+use craft\behaviors\DraftBehavior;
 use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\StoreTrait;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
@@ -964,6 +965,14 @@ JS, [
             $productType = $this->getType();
         } catch (\Exception) {
             return false;
+        }
+
+        if ($this->getIsDraft()) {
+            /**
+             * @var static|DraftBehavior $this
+             * @phpstan-ignore-next-line
+             */
+            return $this->canCreateDrafts($user);
         }
 
         // New products require create permission
