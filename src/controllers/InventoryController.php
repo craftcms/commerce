@@ -28,7 +28,6 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\web\assets\htmx\HtmxAsset;
-use craft\web\Controller;
 use craft\web\CpScreenResponseBehavior;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
@@ -43,11 +42,9 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */
-class InventoryController extends Controller
+class InventoryController extends BaseCpController
 {
     public $defaultAction = 'index';
-
-    protected array|int|bool $allowAnonymous = self::ALLOW_ANONYMOUS_NEVER;
 
     /**
      * @param int|null $inventoryItemId
@@ -709,6 +706,8 @@ JS, [
      */
     public function actionUnfulfilledOrders(): Response
     {
+        $this->requirePermission('commerce-manageInventoryStockLevels');
+
         $view = Craft::$app->getView();
         $view->registerAssetBundle(InventoryAsset::class);
 

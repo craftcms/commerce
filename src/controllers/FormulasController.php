@@ -9,7 +9,6 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\Plugin;
-use craft\web\Controller;
 use yii\web\BadRequestHttpException;
 use yii\web\Response;
 
@@ -19,7 +18,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.2
  */
-class FormulasController extends Controller
+class FormulasController extends BaseCpController
 {
     /**
      * @throws BadRequestHttpException
