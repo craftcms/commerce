@@ -12,6 +12,7 @@ use Composer\Semver\VersionParser;
 use Craft;
 use craft\base\Element;
 use craft\commerce\elements\Order;
+use craft\commerce\filters\CartNumberRateLimit;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
@@ -87,30 +88,17 @@ class CartController extends BaseFrontEndController
             'rateLimiter' => [
                 'class' => RateLimiter::class,
                 'only' => ['get-cart', 'update-cart', 'load-cart', 'complete'],
-                'components' => [
-                    'rateLimit' => [
-                        'definitions' => [
-                            'cart-by-number' => [
-                                'class' => RateLimit::class,
-                                'limit' => 1,
-                                'window' => 1,
-                                // Only apply rate limiting when a cart number is explicitly passed
-                                'active' => function(Context $context, $rateLimitId) {
-                                    return $context->request->getBodyParam('number') || $context->request->getQueryParam('number');
-                                },
-                                'identifier' => fn(Context $context, $rateLimitId) => sprintf(
-                                    '%s:%s',
-                                    $rateLimitId,
-                                    $context->request->getUserIP(),
-                                ),
-                            ],
-                        ],
-                    ],
-                    'allowanceStorage' => [
-                        'cache' => 'cache',
-                    ],
-                ],
-                'as tooManyRequestsException' => TooManyRequestsHttpExceptionHandler::class,
+                'enableRateLimitHeaders' => false,
+                'user' => function() {
+                    // Only apply rate limiting when a cart number is explicitly passed
+                    $isActive = Craft::$app->getRequest()->getBodyParam('number') || Craft::$app->getRequest()->getQueryParam('number');
+
+                    return $isActive ? new CartNumberRateLimit([
+                        'limit' => 1,
+                        'window' => 1,
+                        'ip' => Craft::$app->getRequest()->getUserIP(),
+                    ]) : null;
+                }
             ],
         ]);
     }

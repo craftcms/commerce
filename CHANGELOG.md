@@ -6,6 +6,9 @@
 - Cart controller actions that accept an explicit cart number are now rate limited to mitigate enumeration attacks.
 - Cart numbers are now generated using a cryptographically secure random number generator.
 
+### Extensibility
+- Added `craft\commerce\filters\CartNumberRateLimit`.
+
 ### System
 - Craft Commerce now requires Craft CMS 4.17.5 or later. 
 
