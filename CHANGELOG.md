@@ -7,8 +7,8 @@
 ## 4.10.2 - 2026-02-09
 
 - Fixed a bug where Orders tables on user edit pages were showing an incorrect column heading.
-- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerability in the control panel. (GHSA-j3x5-mghf-xvfw)
-- Fixed [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerabilities in the control panel. (GHSA-mqxf-2998-c6cp, GHSA-mj32-r678-7mvp)
+- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerability in the control panel. ([GHSA-j3x5-mghf-xvfw](https://github.com/craftcms/commerce/security/advisories/GHSA-j3x5-mghf-xvfw))
+- Fixed [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerabilities in the control panel. ([GHSA-mqxf-2998-c6cp](https://github.com/craftcms/commerce/security/advisories/GHSA-mqxf-2998-c6cp), [GHSA-mj32-r678-7mvp](https://github.com/craftcms/commerce/security/advisories/GHSA-mj32-r678-7mvp))
 
 ## 4.10.1 - 2025-12-31
 
