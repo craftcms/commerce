@@ -128,12 +128,33 @@ class Carts extends Component
      * Get the current cart for this session.
      *
      * @param bool $forceSave Force the cart.
+     * @param bool $readOnly Whether to retrieve the cart in read-only mode.
      * @throws ElementNotFoundException
      * @throws Exception
      * @throws Throwable
      */
-    public function getCart(bool $forceSave = false): Order
+    public function getCart(bool $forceSave = false, bool $readOnly = false): ?Order
     {
+        if ($readOnly) {
+            if (isset($this->_cart)) {
+                return $this->_cart;
+            }
+
+            if (!$this->getHasSessionCartNumber()) {
+                return null;
+            }
+
+            $request = Craft::$app->getRequest();
+            $number = $request->getCookies()->getValue($this->cartCookie['name'], false);
+            if (!$number) {
+                return null;
+            }
+
+            $this->_cartNumber = $number;
+            $this->_cart = $this->_getCart(false, false);
+            return $this->_cart;
+        }
+
         $this->loadCookie(); // TODO: need to see if this should be added to other runtime methods too
 
         $this->_getCartCount++; //useful when debugging
@@ -212,7 +233,7 @@ class Carts extends Component
     /**
      * Get the current cart for this session.
      */
-    private function _getCart(): ?Order
+    private function _getCart(bool $forgetInvalidCart = true, bool $checkAnonymousCartSession = true): ?Order
     {
         $number = $this->getSessionCartNumber();
         /** @var Order|null $cart */
@@ -227,7 +248,9 @@ class Carts extends Component
 
         // If the cart is already completed or trashed, forget the cart and start again.
         if ($cart && ($cart->isCompleted || $cart->trashed)) {
-            $this->forgetCart();
+            if ($forgetInvalidCart) {
+                $this->forgetCart();
+            }
             return null;
         }
 
@@ -237,7 +260,10 @@ class Carts extends Component
 
         // Did an anonymous user provide an email that belonged to a credentialed user?
         // See CartController::actionUpdate()
-        $anonymousCartWithCredentialedCustomer = $cart && Craft::$app->getSession()->get('commerce:anonymousCartWithCredentialedCustomer:' . $cart->number, false);
+        $anonymousCartWithCredentialedCustomer = false;
+        if ($checkAnonymousCartSession && $cart) {
+            $anonymousCartWithCredentialedCustomer = Craft::$app->getSession()->get('commerce:anonymousCartWithCredentialedCustomer:' . $cart->number, false);
+        }
 
         if ($cart && $cartCustomer && $cartCustomer->getIsCredentialed() &&
             (
@@ -248,7 +274,9 @@ class Carts extends Component
                 ($currentUser && $currentUser->id != $cartCustomer->id)
             )
         ) {
-            $this->forgetCart();
+            if ($forgetInvalidCart) {
+                $this->forgetCart();
+            }
             return null;
         }
 
