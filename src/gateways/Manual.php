@@ -241,7 +241,7 @@ class Manual extends Gateway
      */
     public function getOnlyAllowForZeroPriceOrders(bool $parse = true): bool|string
     {
-        return $parse ? App::parseBooleanEnv($this->_onlyAllowForZeroPriceOrders) : $this->_onlyAllowForZeroPriceOrders;
+        return $parse ? (App::parseBooleanEnv($this->_onlyAllowForZeroPriceOrders) ?? false) : $this->_onlyAllowForZeroPriceOrders;
     }
 
     /**
