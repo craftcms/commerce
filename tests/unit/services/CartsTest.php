@@ -17,6 +17,7 @@ use craft\web\Request;
 use craftcommercetests\fixtures\CustomerAddressFixture;
 use craftcommercetests\fixtures\CustomerFixture;
 use UnitTester;
+use yii\web\Cookie;
 
 /**
  * CartsTest.
@@ -227,5 +228,30 @@ class CartsTest extends Unit
         // Reset data
         Craft::$app->getUser()->setIdentity($originalIdentity);
         Craft::$app->getElements()->deleteElement($cart, true);
+    }
+
+    public function testGetCartReadOnlyModeDoesNotStartCartSession(): void
+    {
+        $cartNumber = Plugin::getInstance()->getCarts()->generateCartNumber();
+
+        $order = new Order();
+        $order->number = $cartNumber;
+        Craft::$app->getElements()->saveElement($order, false);
+
+        $carts = $this->make(Carts::class, [
+            'setSessionCartNumber' => function() {
+                self::fail('Read-only cart retrieval should not update the cart session.');
+            },
+        ]);
+        Plugin::getInstance()->set('carts', $carts);
+        Craft::$app->getRequest()->getCookies()->add(new Cookie([
+            'name' => $carts->cartCookie['name'],
+            'value' => $cartNumber,
+        ]));
+
+        $cart = Plugin::getInstance()->getCarts()->getCart(readOnly: true);
+
+        self::assertNotNull($cart);
+        self::assertSame($cartNumber, $cart->number);
     }
 }
