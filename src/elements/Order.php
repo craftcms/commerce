@@ -17,6 +17,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Purchasable;
+use craft\commerce\base\PurchasableInterface;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\base\StoreTrait;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
@@ -1586,9 +1587,8 @@ class Order extends Element implements HasStoreInterface
             // Are the addresses both being set to each other.
             [
                 ['billingAddress', 'shippingAddress'], 'validateAddressReuse',
-                'when' => fn($model) =>
-                    /** @var Order $model */
-                    !$model->isCompleted,
+                'when' => fn($model) => /** @var Order $model */
+                !$model->isCompleted,
             ],
 
             [['shippingAddress'], 'validateOrganizationTaxIdAsVatId', 'when' => fn(Order $order) => $order->getStore()->getValidateOrganizationTaxIdAsVatId() && !$order->getStore()->getUseBillingAddressForTax()],
@@ -2928,6 +2928,55 @@ class Order extends Element implements HasStoreInterface
     {
         return (bool)$this->getLineItems();
     }
+
+    /**
+     * Returns whether the order contains the given purchasable IDs.
+     *
+     * @param mixed $purchasableIds One or more purchasable IDs or purchasable models to check for.
+     * @param string $match The match mode:
+     * - `'any'` – returns `true` if the order contains at least one of the given purchasable IDs. This is default that matches the OrderQuery hasPurchasables param.
+     * - `'all'` – returns `true` if the order contains all the given purchasable IDs (order may contain others).
+     * - `'exact'` – returns `true` only if the order contains exactly the given purchasable IDs and nothing else.
+     *   Returns `false` if the order has custom line items (null purchasable ID).
+     * @return bool
+     */
+    public function hasPurchasables(mixed $purchasableIds, string $match = 'any'): bool
+    {
+        if (!is_array($purchasableIds)) {
+            $purchasableIds = [$purchasableIds];
+        }
+
+        $orderPurchasableIds = collect($this->getLineItems())
+            ->pluck('purchasableId')
+            ->filter(fn($id) => $id !== null);
+
+        $requestedIds = collect($purchasableIds)
+            ->map(fn($id) => $id instanceof PurchasableInterface ? $id->getId() : $id)
+            ->filter(fn($id) => $id !== null);
+
+        if ($match === 'any') {
+            return $orderPurchasableIds->intersect($requestedIds)->isNotEmpty();
+        }
+
+        if ($match === 'exact') {
+            // If there are custom line items (null purchasableId), the order
+            // has purchasables beyond what was specified, so it can't be exact.
+            $hasCustomLineItems = collect($this->getLineItems())
+                ->pluck('purchasableId')
+                ->contains(null);
+
+            if ($hasCustomLineItems) {
+                return false;
+            }
+
+            return $orderPurchasableIds->diff($requestedIds)->isEmpty()
+                && $requestedIds->diff($orderPurchasableIds)->isEmpty();
+        }
+
+        // 'all' — every requested purchasable must exist in the order
+        return $requestedIds->every(fn($id) => $orderPurchasableIds->contains($id));
+    }
+
 
     /**
      * @return int
