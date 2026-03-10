@@ -10,7 +10,6 @@
 - Added `craft\commerce\filters\CartNumberRateLimit`.
 
 ### System
-- Craft Commerce now requires Craft CMS 4.17.5 or later.
 - Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerability in the control panel. (GHSA-875v-7m49-8x88)
 
 ## 4.10.2 - 2026-02-09

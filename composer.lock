@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "126f4830aeadb076a34707cfa6b3a168",
+    "content-hash": "be03705bfedfe2da8a144fd1dcecdc15",
     "packages": [
         {
             "name": "cebe/markdown",
@@ -762,16 +762,16 @@
         },
         {
             "name": "craftcms/cms",
-            "version": "4.17.5",
+            "version": "4.17.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/cms.git",
-                "reference": "e370b5a098420ef2fe9c569c17ed2bfe047bebd9"
+                "reference": "ade6b5b843c82df6ac1661c453f1812294bdbef7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/cms/zipball/e370b5a098420ef2fe9c569c17ed2bfe047bebd9",
-                "reference": "e370b5a098420ef2fe9c569c17ed2bfe047bebd9",
+                "url": "https://api.github.com/repos/craftcms/cms/zipball/ade6b5b843c82df6ac1661c453f1812294bdbef7",
+                "reference": "ade6b5b843c82df6ac1661c453f1812294bdbef7",
                 "shasum": ""
             },
             "require": {
@@ -804,7 +804,6 @@
                 "symfony/http-client": "^6.0.3|^7.0",
                 "symfony/var-dumper": "^5.0|^6.0",
                 "symfony/yaml": "^5.2.3",
-                "thamtech/yii2-ratelimiter-advanced": "^0.5.0",
                 "theiconic/name-parser": "^1.2",
                 "twig/twig": "~3.19.0",
                 "voku/stringy": "^6.4.0",
@@ -872,7 +871,7 @@
                 "rss": "https://github.com/craftcms/cms/releases.atom",
                 "source": "https://github.com/craftcms/cms"
             },
-            "time": "2026-02-17T21:26:50+00:00"
+            "time": "2026-03-09T18:55:47+00:00"
         },
         {
             "name": "craftcms/plugin-installer",
@@ -5940,56 +5939,6 @@
             "time": "2025-11-21T10:58:21+00:00"
         },
         {
-            "name": "thamtech/yii2-ratelimiter-advanced",
-            "version": "0.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thamtech/yii2-ratelimiter-advanced.git",
-                "reference": "2fde10eaa1ec67e689d06babfc9c68d144d35433"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thamtech/yii2-ratelimiter-advanced/zipball/2fde10eaa1ec67e689d06babfc9c68d144d35433",
-                "reference": "2fde10eaa1ec67e689d06babfc9c68d144d35433",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.6.0",
-                "yiisoft/yii2": ">=2.0.14 <2.1"
-            },
-            "require-dev": {
-                "codeception/codeception": "2.0.*",
-                "codeception/specify": "*",
-                "codeception/verify": "*",
-                "flow/jsonpath": "^0.3",
-                "yiisoft/yii2-codeception": "*",
-                "yiisoft/yii2-debug": "*",
-                "yiisoft/yii2-faker": "*"
-            },
-            "type": "yii2-extension",
-            "autoload": {
-                "psr-4": {
-                    "thamtech\\ratelimiter\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Tyler Ham",
-                    "email": "tyler@thamtech.com"
-                }
-            ],
-            "description": "An advanced request rate limiter",
-            "support": {
-                "issues": "https://github.com/thamtech/yii2-ratelimiter-advanced/issues",
-                "source": "https://github.com/thamtech/yii2-ratelimiter-advanced/tree/master"
-            },
-            "time": "2020-08-05T04:29:29+00:00"
-        },
-        {
             "name": "theiconic/name-parser",
             "version": "v1.2.11",
             "source": {
@@ -11055,5 +11004,5 @@
     "platform-overrides": {
         "php": "8.0.2"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
