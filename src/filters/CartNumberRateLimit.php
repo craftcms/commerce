@@ -49,7 +49,7 @@ class CartNumberRateLimit extends BaseObject implements RateLimitInterface
      */
     public function loadAllowance($request, $action): array
     {
-        $key = $this->getCacheKey($action, $request->getUserIP());
+        $key = $this->getCacheKey($action);
         $data = Craft::$app->getCache()->get($key);
 
         return $data !== false ? $data : [$this->limit, time()];
