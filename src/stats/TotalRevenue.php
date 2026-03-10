@@ -44,6 +44,11 @@ class TotalRevenue extends Stat
      */
     public function getData(): ?array
     {
+        $allowedTypes = [self::TYPE_TOTAL, self::TYPE_TOTAL_PAID];
+        if (!in_array($this->type, $allowedTypes, true)) {
+            $this->type = self::TYPE_TOTAL;
+        }
+
         return $this->_createChartQuery(
             [
                 new Expression(sprintf('SUM([[%s]]) as revenue', $this->type)),

@@ -10,3 +10,4 @@ node_modules/
 /vendor
 /tests/_craft/config/project
 .env
+/claude.md
