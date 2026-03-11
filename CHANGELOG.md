@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.11.0 - 2026-03-11
 
 - Craft Commerce now requires Craft CMS 4.17.9 or later.
 - Cart numbers are now generated using a cryptographically secure random number generator.
