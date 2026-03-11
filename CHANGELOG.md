@@ -2,9 +2,33 @@
 
 ## Unreleased
 
+### Administration
+- Added the “UI Label Format” and “Variant UI Label Format” settings to product types. ([#4178](https://github.com/craftcms/commerce/pull/4178))
+
+### Extensibility
+- Added `relatedToProducts` and `relatedToVariants` GraphQL query arguments, enabling queries for elements related to specific products or variants. ([#4202](https://github.com/craftcms/commerce/discussions/4202))
+- Added `craft\commerce\elements\db\ProductQuery::$savable`.
+- Added `craft\commerce\elements\db\ProductQuery::savable()`.
+- Added `craft\commerce\elements\db\VariantQuery::$savable`.
+- Added `craft\commerce\elements\db\VariantQuery::editable()`.
+- Added `craft\commerce\elements\db\VariantQuery::savable()`.
+- Added `craft\commerce\helpers\ProductQuery::cleanseQueryCriteria()`.
+- Added `craft\commerce\services\ShippingRuleCategories::getShippingRuleCategoriesByRuleIds()`.
+- Added `craft\commerce\services\ShippingRuleCategories::getShippingRuleCategoriesByRuleIds()`.
+- `craft\commerce\elements\db\ProductQuery::$editable` is now nullable.
+- `craft\commerce\elements\db\VariantQuery::$editable` is now nullable.
+
+### System
+- Craft Commerce now requires Craft CMS 5.9.15 or later.
+- Cart numbers are now generated using a cryptographically secure random number generator.
+- Cart controller actions that accept an explicit cart number are now rate limited to mitigate enumeration attacks.
+- Shipping rule categories are now eager loaded on shipping rules automatically. ([#4220](https://github.com/craftcms/commerce/issues/4220))
 - Improved product index performance by not eager-loading variants for table attributes that are already fetched via SQL joins. ([#4236](https://github.com/craftcms/commerce/issues/4236))
 - Fixed a bug where coupon codes were submitted too early while being entered on order edit screens.
-- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerability. (GHSA-875v-7m49-8x88)
+- Fixed a bug where variants with empty SKUs didn’t show validation errors when saving a product after it was duplicated. ([#4197](https://github.com/craftcms/commerce/issues/4197))
+- Fixed a SQL error that could occur when querying for unfulfilled orders on PostgreSQL. ([#4228](https://github.com/craftcms/commerce/issues/4228))
+- Fixed an error that could occur when resaving variants. ([#4226](https://github.com/craftcms/commerce/issues/4226))
+- Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities. (GHSA-875v-7m49-8x88, GHSA-r54v-qq87-px5r)
 - Fixed a [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) information disclosure vulnerability. (GHSA-3vxg-x5f8-f5qf)
 
 ## 5.5.4 - 2026-02-18
