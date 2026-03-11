@@ -11,6 +11,7 @@
 
 ### System
 - Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerability in the control panel. (GHSA-875v-7m49-8x88)
+- Fixed a [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) Information disclosure vulnerability in payment controller action. (GHSA-3vxg-x5f8-f5qf)
 
 ## 4.10.2 - 2026-02-09
 
