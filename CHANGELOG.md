@@ -6,10 +6,8 @@
 - Cart controller actions that accept an explicit cart number are now rate limited to mitigate enumeration attacks.
 - Cart numbers are now generated using a cryptographically secure random number generator.
 
-### Extensibility
-- Added `craft\commerce\filters\CartNumberRateLimit`.
-
 ### System
+- Craft Commerce now requires Craft CMS 4.17.9 or later.
 - Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerability in the control panel. (GHSA-875v-7m49-8x88)
 - Fixed a [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) Information disclosure vulnerability in payment controller action. (GHSA-3vxg-x5f8-f5qf)
 
