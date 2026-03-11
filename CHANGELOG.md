@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.6.0 - 2026-03-11
 
 ### Administration
 - Added the “UI Label Format” and “Variant UI Label Format” settings to product types. ([#4178](https://github.com/craftcms/commerce/pull/4178))
