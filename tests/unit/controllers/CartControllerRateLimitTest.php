@@ -5,13 +5,13 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace crafttests\unit\filters;
+namespace crafttests\unit\controllers;
 
 use Craft;
 use craft\commerce\controllers\CartController;
 use craft\commerce\elements\Variant;
-use craft\commerce\filters\CartNumberRateLimit;
 use craft\commerce\Plugin;
+use craft\filters\IpRateLimitIdentity;
 use craft\test\TestCase;
 use craft\web\Request;
 use craftcommercetests\fixtures\ProductFixture;
@@ -20,14 +20,14 @@ use yii\web\Controller;
 use yii\web\TooManyRequestsHttpException;
 
 /**
- * Unit tests for CartNumberRateLimit.
+ * Unit tests for CartControllerRateLimitTest.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.11.0
  */
-class CartNumberRateLimitTest extends TestCase
+class CartControllerRateLimitTest extends TestCase
 {
-    private CartNumberRateLimit $identity;
+    private IpRateLimitIdentity $identity;
     private Action $action;
     private Request $request;
 
@@ -49,10 +49,11 @@ class CartNumberRateLimitTest extends TestCase
 
         Craft::$app->getCache()->flush();
 
-        $this->identity = new CartNumberRateLimit([
+        $this->identity = new IpRateLimitIdentity([
             'limit' => 3,
             'window' => 10,
             'ip' => '192.168.1.1',
+            'keyPrefix' => 'cart-rate-limit',
         ]);
 
         $controller = $this->createMock(Controller::class);
@@ -101,10 +102,11 @@ class CartNumberRateLimitTest extends TestCase
         $this->identity->saveAllowance($this->request, $this->action, 0, 1000000);
 
         // Create identity with different IP
-        $otherIdentity = new CartNumberRateLimit([
+        $otherIdentity = new IpRateLimitIdentity([
             'limit' => 3,
             'window' => 10,
             'ip' => '10.0.0.1',
+            'keyPrefix' => 'cart-rate-limit',
         ]);
 
         // Second IP should still have full allowance (cache miss = default)

@@ -12,7 +12,6 @@ use Composer\Semver\VersionParser;
 use Craft;
 use craft\base\Element;
 use craft\commerce\elements\Order;
-use craft\commerce\filters\CartNumberRateLimit;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
@@ -21,6 +20,7 @@ use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
 use craft\helpers\StringHelper;
+use craft\filters\IpRateLimitIdentity;
 use craft\helpers\UrlHelper;
 use Illuminate\Support\Collection;
 use Throwable;
@@ -91,12 +91,14 @@ class CartController extends BaseFrontEndController
                     // Only apply rate limiting when a cart number is explicitly passed
                     $isActive = Craft::$app->getRequest()->getBodyParam('number') || Craft::$app->getRequest()->getQueryParam('number');
 
-                    return $isActive ? new CartNumberRateLimit([
+                    return $isActive ? new IpRateLimitIdentity([
                         'limit' => 1,
                         'window' => 1,
-                        'ip' => Craft::$app->getRequest()->getUserIP(),
+                        'keyPrefix' => 'cart-number-rate-limit',
+                        'ip' => Craft::$app->getRequest()->getUserIP() ?? 'unknown',
                     ]) : null;
-                }
+                },
+
             ],
         ]);
     }
