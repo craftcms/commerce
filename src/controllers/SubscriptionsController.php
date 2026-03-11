@@ -140,6 +140,7 @@ class SubscriptionsController extends BaseController
     public function actionRefreshPayments(): Response
     {
         $this->requirePostRequest();
+        $this->requirePermission('commerce-manageSubscriptions');
 
         $subscriptionId = $this->request->getRequiredBodyParam('subscriptionId');
 

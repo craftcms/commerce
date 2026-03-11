@@ -26,9 +26,9 @@
 - Fixed a SQL error that could occur when querying variants on PostgreSQL. ([#4210](https://github.com/craftcms/commerce/issues/4210))
 - Fixed an error that could occur when merging canonical product changes into a draft. ([#4199](https://github.com/craftcms/commerce/issues/4199))
 - Fixed a bug where variants weren’t being marked as modified when variants were added, deleted, or reordered. ([#4222](https://github.com/craftcms/commerce/pull/4222))
-- Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities in the control panel. (GHSA-j3x5-mghf-xvfw, GHSA-pmgj-gmm4-jh6j)
-- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerability in the control panel. (GHSA-cfpv-rmpf-f624)
-- Fixed [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerabilities in the control panel. (GHSA-mqxf-2998-c6cp, GHSA-wj89-2385-gpx3, GHSA-mj32-r678-7mvp)
+- Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities in the control panel. ([GHSA-j3x5-mghf-xvfw](https://github.com/craftcms/commerce/security/advisories/GHSA-j3x5-mghf-xvfw), [GHSA-pmgj-gmm4-jh6j](https://github.com/craftcms/commerce/security/advisories/GHSA-pmgj-gmm4-jh6j))
+- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerability in the control panel. ([GHSA-cfpv-rmpf-f624](https://github.com/craftcms/commerce/security/advisories/GHSA-cfpv-rmpf-f624))
+- Fixed [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) XSS vulnerabilities in the control panel. ([GHSA-mqxf-2998-c6cp](https://github.com/craftcms/commerce/security/advisories/GHSA-mqxf-2998-c6cp), [GHSA-wj89-2385-gpx3](https://github.com/craftcms/commerce/security/advisories/GHSA-wj89-2385-gpx3), [GHSA-mj32-r678-7mvp](https://github.com/craftcms/commerce/security/advisories/GHSA-mj32-r678-7mvp))
 
 ## 5.5.2 - 2025-12-31
 
