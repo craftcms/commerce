@@ -2,8 +2,12 @@
 
 ## Unreleased
 
-- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerability in the control panel. (GHSA-875v-7m49-8x88)
-- Fixed a [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) Information disclosure vulnerability in payment controller action. (GHSA-3vxg-x5f8-f5qf)
+- Craft Commerce now requires Craft CMS 4.17.9 or later.
+- Cart numbers are now generated using a cryptographically secure random number generator.
+- Cart controller actions that accept an explicit cart number are now rate limited to mitigate enumeration attacks.
+- Fixed a PHP error that could occur when using the manual gateway. ([#4245](https://github.com/craftcms/commerce/pull/4245))
+- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerability. (GHSA-875v-7m49-8x88)
+- Fixed a [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) information disclosure vulnerability. (GHSA-3vxg-x5f8-f5qf)
 
 ## 4.10.2 - 2026-02-09
 
