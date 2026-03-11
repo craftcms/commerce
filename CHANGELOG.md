@@ -26,8 +26,6 @@
 - Improved product index performance by not eager-loading variants for table attributes that are already fetched via SQL joins. ([#4236](https://github.com/craftcms/commerce/issues/4236))
 - Fixed a bug where coupon codes were submitted too early while being entered on order edit screens.
 - Fixed a bug where variants with empty SKUs didn’t show validation errors when saving a product after it was duplicated. ([#4197](https://github.com/craftcms/commerce/issues/4197))
-- Fixed a SQL error that could occur when querying for unfulfilled orders on PostgreSQL. ([#4228](https://github.com/craftcms/commerce/issues/4228))
-- Fixed an error that could occur when resaving variants. ([#4226](https://github.com/craftcms/commerce/issues/4226))
 - Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities. (GHSA-875v-7m49-8x88, GHSA-r54v-qq87-px5r)
 - Fixed a [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) information disclosure vulnerability. (GHSA-3vxg-x5f8-f5qf)
 
