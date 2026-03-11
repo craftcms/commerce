@@ -33,10 +33,12 @@ use yii\db\ActiveQueryInterface;
  * @property string $variantTitleFormat
  * @property string $variantTitleTranslationMethod
  * @property string $variantTitleTranslationKeyFormat
+ * @property string $variantUiLabelFormat
  * @property bool $hasProductTitleField
  * @property string $productTitleFormat
  * @property string $productTitleTranslationMethod
  * @property string $productTitleTranslationKeyFormat
+ * @property string $productUiLabelFormat
  * @property bool $showSlugField
  * @property string $slugTranslationMethod
  * @property string $slugTranslationKeyFormat
