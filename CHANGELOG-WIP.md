@@ -11,6 +11,7 @@
 - Added `craft\commerce\elements\db\VariantQuery::$savable`.
 - Added `craft\commerce\elements\db\VariantQuery::editable()`.
 - Added `craft\commerce\elements\db\VariantQuery::savable()`.
+- Added `craft\commerce\filters\CartNumberRateLimit`.
 - Added `craft\commerce\helpers\ProductQuery::cleanseQueryCriteria()`.
 - Added `craft\commerce\services\ShippingRuleCategories::getShippingRuleCategoriesByRuleIds()`.
 - Added `craft\commerce\services\ShippingRuleCategories::getShippingRuleCategoriesByRuleIds()`.

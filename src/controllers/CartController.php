@@ -12,6 +12,7 @@ use Composer\Semver\VersionParser;
 use Craft;
 use craft\base\Element;
 use craft\commerce\elements\Order;
+use craft\commerce\filters\CartNumberRateLimit;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
@@ -22,13 +23,10 @@ use craft\errors\MissingComponentException;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use Illuminate\Support\Collection;
-use thamtech\ratelimiter\Context;
-use thamtech\ratelimiter\handlers\TooManyRequestsHttpExceptionHandler;
-use thamtech\ratelimiter\limit\RateLimit;
-use thamtech\ratelimiter\RateLimiter;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\filters\RateLimiter;
 use yii\mutex\Mutex;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -80,38 +78,27 @@ class CartController extends BaseFrontEndController
     }
 
     /**
-     * @inheritdoc
+     * @inerhitdoc
      */
-    public function behaviors(): array
+    public function behaviors()
     {
-        return parent::behaviors() + [
+        return array_merge(parent::behaviors(), [
             'rateLimiter' => [
                 'class' => RateLimiter::class,
                 'only' => ['get-cart', 'update-cart', 'load-cart', 'complete'],
-                'components' => [
-                    'rateLimit' => [
-                        'definitions' => [
-                            'cart-by-number' => [
-                                'class' => RateLimit::class,
-                                'limit' => 1,
-                                'window' => 1,
-                                // Only apply rate limiting when a cart number is explicitly passed
-                                'active' => fn(Context $context, $rateLimitId) => $context->request->getBodyParam('number') || $context->request->getQueryParam('number'),
-                                'identifier' => fn(Context $context, $rateLimitId) => sprintf(
-                                    '%s:%s',
-                                    $rateLimitId,
-                                    $context->request->getUserIP(),
-                                ),
-                            ],
-                        ],
-                    ],
-                    'allowanceStorage' => [
-                        'cache' => 'cache',
-                    ],
-                ],
-                'as tooManyRequestsException' => TooManyRequestsHttpExceptionHandler::class,
+                'enableRateLimitHeaders' => false,
+                'user' => function() {
+                    // Only apply rate limiting when a cart number is explicitly passed
+                    $isActive = Craft::$app->getRequest()->getBodyParam('number') || Craft::$app->getRequest()->getQueryParam('number');
+
+                    return $isActive ? new CartNumberRateLimit([
+                        'limit' => 1,
+                        'window' => 1,
+                        'ip' => Craft::$app->getRequest()->getUserIP(),
+                    ]) : null;
+                }
             ],
-        ];
+        ]);
     }
 
     /**
