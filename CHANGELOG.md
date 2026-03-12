@@ -22,12 +22,9 @@
 - Craft Commerce now requires Craft CMS 5.9.15 or later.
 - Cart numbers are now generated using a cryptographically secure random number generator.
 - Cart controller actions that accept an explicit cart number are now rate limited to mitigate enumeration attacks.
-- Shipping rule categories are now eager loaded on shipping rules automatically. ([#4220](https://github.com/craftcms/commerce/issues/4220))
-- Improved product index performance by not eager-loading variants for table attributes that are already fetched via SQL joins. ([#4236](https://github.com/craftcms/commerce/issues/4236))
-- Fixed a bug where coupon codes were submitted too early while being entered on order edit screens.
-- Fixed a bug where variants with empty SKUs didn’t show validation errors when saving a product after it was duplicated. ([#4197](https://github.com/craftcms/commerce/issues/4197))
-- Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities. (GHSA-875v-7m49-8x88, GHSA-r54v-qq87-px5r)
-- Fixed a [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) information disclosure vulnerability. (GHSA-3vxg-x5f8-f5qf)
+- Fixed a PHP error that could occur when using the manual gateway. ([#4245](https://github.com/craftcms/commerce/pull/4245))
+- Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities. ([GHSA-875v-7m49-8x88](https://github.com/craftcms/commerce/security/advisories/GHSA-875v-7m49-8x88), [GHSA-r54v-qq87-px5r](https://github.com/craftcms/commerce/security/advisories/GHSA-r54v-qq87-px5r))
+- Fixed a [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) information disclosure vulnerability. ([GHSA-3vxg-x5f8-f5qf](https://github.com/craftcms/commerce/security/advisories/GHSA-3vxg-x5f8-f5qf))
 
 ## 5.5.4 - 2026-02-18
 
