@@ -108,7 +108,6 @@
         disabled: readOnly,
     }) }}
 
-
     <hr>
     {% set orderConditionInput %}
         {{ gateway.getOrderCondition().getBuilderHtml(readOnly)|raw }}
@@ -119,6 +118,26 @@
         instructions: 'Create rules that allow this gateway to match the order.'|t('commerce'),
         errors: gateway.getErrors('orderCondition'),
     }, orderConditionInput) }}
+
+		{% set billingAddressConditionInput %}
+				{{ gateway.billingAddressCondition().getBuilderHtml(readOnly)|raw }}
+		{% endset %}
+
+		{{ forms.field({
+				label: 'Match Billing Address'|t('commerce'),
+				instructions: 'Create rules that allow this gateway to match the billing address.'|t('commerce'),
+				errors: gateway.getErrors('orderCondition'),
+		}, billingAddressConditionInput) }}
+
+		{% set shippingAddressConditionInput %}
+				{{ gateway.shippingAddressCondition().getBuilderHtml(readOnly)|raw }}
+		{% endset %}
+
+		{{ forms.field({
+				label: 'Match Shipping Address'|t('commerce'),
+				instructions: 'Create rules that allow this gateway to match the shipping address.'|t('commerce'),
+				errors: gateway.getErrors('orderCondition'),
+		}, shippingAddressConditionInput) }}
 
 {% endblock %}
 
