@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where suspended and failed-to-start subscriptions weren't shown on user profile pages in the control panel. ([#4219](https://github.com/craftcms/commerce/issues/4219))
+- Fixed a bug where setting the `COMMERCE_PAYMENT_CURRENCY` constant would not override the cart’s payment currency.
 
 ## 5.6.0 - 2026-03-11
 
