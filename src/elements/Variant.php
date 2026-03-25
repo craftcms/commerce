@@ -1428,6 +1428,12 @@ class Variant extends Purchasable implements NestedElementInterface
             'product' => [
                 'label' => Craft::t('commerce', 'Product'),
             ],
+            'isDefault' => [
+                'label' => Craft::t('commerce', 'Default'),
+            ],
+            'promotable' => [
+                'label' => Craft::t('commerce', 'Promotable')
+            ],
         ]);
     }
 
@@ -1443,6 +1449,40 @@ class Variant extends Purchasable implements NestedElementInterface
             }
 
             return sprintf('<span class="status %s"></span> %s', $product->getStatus(), Html::encode($product->title));
+        }
+
+        if ($attribute === 'isDefault') {
+            if($this->isDefault) {
+                $isDefault = Html::tag('span', '', [
+                    'class' => 'checkbox-icon',
+                    'role' => 'img',
+                    'title' => Craft::t('app', 'Enabled'),
+                    'aria' => [
+                        'label' => Craft::t('app', 'Enabled'),
+                    ],
+                ]);
+                return $isDefault . Html::tag('span', ' ' . Craft::t('commerce', 'Default'), [
+                    'class' => 'card-only-label',
+                    'style' => 'display:none;',
+                ]) . Html::tag('style', '.card-content .card-only-label { display: inline !important; }');
+            }
+        }
+
+        if ($attribute === 'promotable') {
+            if($this->promotable) {
+                $promotable = Html::tag('span', '', [
+                    'class' => 'checkbox-icon',
+                    'role' => 'img',
+                    'title' => Craft::t('app', 'Enabled'),
+                    'aria' => [
+                        'label' => Craft::t('app', 'Enabled'),
+                    ],
+                ]);
+                return $promotable . Html::tag('span', ' ' . Craft::t('commerce', 'Promotable'), [
+                    'class' => 'card-only-label',
+                    'style' => 'display:none;',
+                ]) . Html::tag('style', '.card-content .card-only-label { display: inline !important; }');
+            }
         }
 
         return parent::attributeHtml($attribute);

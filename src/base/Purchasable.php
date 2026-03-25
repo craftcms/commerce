@@ -1435,6 +1435,23 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             return $price;
         }
 
+        if ($attribute === 'availableForPurchase') {
+            if($this->availableForPurchase) {
+                $icon = Html::tag('span', '', [
+                    'class' => 'checkbox-icon',
+                    'role' => 'img',
+                    'title' => Craft::t('app', 'Enabled'),
+                    'aria' => [
+                        'label' => Craft::t('app', 'Enabled'),
+                    ],
+                ]);
+                return $icon . Html::tag('span', ' ' . Craft::t('commerce', 'Available for purchase'), [
+                    'class' => 'card-only-label',
+                    'style' => 'display:none;',
+                ]) . Html::tag('style', '.card-content .card-only-label { display: inline !important; }');
+            }
+        }
+
         return match ($attribute) {
             'sku' => (string)Html::encode($this->getSkuAsText()),
             'price' => $this->basePriceAsCurrency,
