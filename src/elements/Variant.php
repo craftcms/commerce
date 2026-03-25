@@ -1432,7 +1432,7 @@ class Variant extends Purchasable implements NestedElementInterface
                 'label' => Craft::t('commerce', 'Default'),
             ],
             'promotable' => [
-                'label' => Craft::t('commerce', 'Promotable')
+                'label' => Craft::t('commerce', 'Promotable'),
             ],
         ]);
     }
@@ -1452,7 +1452,7 @@ class Variant extends Purchasable implements NestedElementInterface
         }
 
         if ($attribute === 'isDefault') {
-            if($this->isDefault) {
+            if ($this->isDefault) {
                 $isDefault = Html::tag('span', '', [
                     'class' => 'checkbox-icon',
                     'role' => 'img',
@@ -1469,7 +1469,7 @@ class Variant extends Purchasable implements NestedElementInterface
         }
 
         if ($attribute === 'promotable') {
-            if($this->promotable) {
+            if ($this->promotable) {
                 $promotable = Html::tag('span', '', [
                     'class' => 'checkbox-icon',
                     'role' => 'img',
