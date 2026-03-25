@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added billing and shipping address conditions to the gateway edit form. ([#4259](https://github.com/craftcms/commerce/pull/4259))
 - Added missing "Default", "Promotable", and "Available for purchase" attribute options to the variant card layout.
 - Fixed a bug where PDF URLs could have an incorrect domain. ([#4248](https://github.com/craftcms/commerce/issues/4248))
 - Fixed a bug where suspended and failed-to-start subscriptions weren’t shown on user profile pages in the control panel. ([#4219](https://github.com/craftcms/commerce/issues/4219))
