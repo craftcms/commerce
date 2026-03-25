@@ -8,6 +8,7 @@
 - Fixed a bug where setting the `COMMERCE_PAYMENT_CURRENCY` constant would not override the cart’s payment currency.
 - Fixed a bug where tax and shipping category dropdowns on variants weren’t respecting product type restrictions. ([#4258](https://github.com/craftcms/commerce/issues/4258))
 - Fixed the missing billing and shipping address conditions on the gateway edit page. ([#4259](https://github.com/craftcms/commerce/pull/4259))
+- Fixed a bug where example templates didn't filter available gateways by order and address conditions.
 
 ## 5.6.0 - 2026-03-11
 
