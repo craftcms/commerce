@@ -1350,16 +1350,16 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     protected function shippingCategoryFieldHtml(bool $static): string
     {
-        $shippingCategory = null;
-        if ($this->shippingCategoryId) {
-            $shippingCategory = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId, $this->storeId);
-        }
+        $availableShippingCategories = $this->availableShippingCategories();
+        $shippingCategory = collect($availableShippingCategories)->firstWhere('id', $this->shippingCategoryId)
+            ?? collect($availableShippingCategories)->first();
 
         return CommerceCp::shippingCategoryFieldHtml([
             'label' => Craft::t('commerce', 'Shipping Category'),
             'id' => 'shippingCategoryId',
             'name' => 'shippingCategoryId',
             'value' => $shippingCategory,
+            'options' => $availableShippingCategories,
             'limit' => 1,
             'min' => 1,
             'disabled' => $static,
@@ -1386,16 +1386,16 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     protected function taxCategoryFieldHtml(bool $static): string
     {
-        $taxCategory = null;
-        if ($this->taxCategoryId) {
-            $taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
-        }
+        $availableTaxCategories = $this->availableTaxCategories();
+        $taxCategory = collect($availableTaxCategories)->firstWhere('id', $this->taxCategoryId)
+            ?? collect($availableTaxCategories)->first();
 
         return CommerceCp::taxCategoryFieldHtml([
             'label' => Craft::t('commerce', 'Tax Category'),
             'id' => 'taxCategoryId',
             'name' => 'taxCategoryId',
             'value' => $taxCategory,
+            'options' => $availableTaxCategories,
             'limit' => 1,
             'min' => 1,
             'disabled' => $static,
@@ -1436,7 +1436,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         }
 
         if ($attribute === 'availableForPurchase') {
-            if($this->availableForPurchase) {
+            if ($this->availableForPurchase) {
                 $icon = Html::tag('span', '', [
                     'class' => 'checkbox-icon',
                     'role' => 'img',
