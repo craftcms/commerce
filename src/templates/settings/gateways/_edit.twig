@@ -119,25 +119,25 @@
         errors: gateway.getErrors('orderCondition'),
     }, orderConditionInput) }}
 
-		{% set billingAddressConditionInput %}
-				{{ gateway.billingAddressCondition().getBuilderHtml(readOnly)|raw }}
-		{% endset %}
+    {% set billingAddressConditionInput %}
+        {{ gateway.getBillingAddressCondition().getBuilderHtml(readOnly)|raw }}
+    {% endset %}
 
-		{{ forms.field({
-				label: 'Match Billing Address'|t('commerce'),
-				instructions: 'Create rules that allow this gateway to match the billing address.'|t('commerce'),
-				errors: gateway.getErrors('orderCondition'),
-		}, billingAddressConditionInput) }}
+    {{ forms.field({
+        label: 'Match Billing Address'|t('commerce'),
+        instructions: 'Create rules that allow this gateway to match the billing address.'|t('commerce'),
+        errors: gateway.getErrors('billingAddressCondition'),
+    }, billingAddressConditionInput) }}
 
-		{% set shippingAddressConditionInput %}
-				{{ gateway.shippingAddressCondition().getBuilderHtml(readOnly)|raw }}
-		{% endset %}
+    {% set shippingAddressConditionInput %}
+        {{ gateway.getShippingAddressCondition().getBuilderHtml(readOnly)|raw }}
+    {% endset %}
 
-		{{ forms.field({
-				label: 'Match Shipping Address'|t('commerce'),
-				instructions: 'Create rules that allow this gateway to match the shipping address.'|t('commerce'),
-				errors: gateway.getErrors('orderCondition'),
-		}, shippingAddressConditionInput) }}
+    {{ forms.field({
+        label: 'Match Shipping Address'|t('commerce'),
+        instructions: 'Create rules that allow this gateway to match the shipping address.'|t('commerce'),
+        errors: gateway.getErrors('shippingAddressCondition'),
+    }, shippingAddressConditionInput) }}
 
 {% endblock %}
 
