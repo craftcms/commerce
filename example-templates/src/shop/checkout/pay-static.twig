@@ -96,7 +96,7 @@
             {% set paymentSources = craft.commerce.paymentSources.getAllPaymentSourcesByCustomerId(currentUser.id) %}
           {% endif %}
 
-          {% set availableGateways = craft.commerce.gateways.allCustomerEnabledGateways %}
+          {% set availableGateways = cart.availableGateways %}
 
           {% if availableGateways|length %}
             <form action="" method="get" class="form-inline">

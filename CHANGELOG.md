@@ -2,7 +2,13 @@
 
 ## Unreleased
 
-- Fixed a bug where suspended and failed-to-start subscriptions weren't shown on user profile pages in the control panel. ([#4219](https://github.com/craftcms/commerce/issues/4219))
+- Added missing "Default", "Promotable", and "Available for purchase" attribute options to the variant card layout.
+- Fixed a bug where PDF URLs could have an incorrect domain. ([#4248](https://github.com/craftcms/commerce/issues/4248))
+- Fixed a bug where suspended and failed-to-start subscriptions weren’t shown on user profile pages in the control panel. ([#4219](https://github.com/craftcms/commerce/issues/4219))
+- Fixed a bug where setting the `COMMERCE_PAYMENT_CURRENCY` constant would not override the cart’s payment currency.
+- Fixed a bug where tax and shipping category dropdowns on variants weren’t respecting product type restrictions. ([#4258](https://github.com/craftcms/commerce/issues/4258))
+- Fixed the missing billing and shipping address conditions on the gateway edit page. ([#4259](https://github.com/craftcms/commerce/pull/4259))
+- Fixed a bug where example templates didn't filter available gateways by order and address conditions.
 
 ## 5.6.0 - 2026-03-11
 
