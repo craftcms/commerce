@@ -19,7 +19,6 @@ use craft\fieldlayoutelements\addresses\LabelField;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\Html;
-use craft\web\Controller;
 use Throwable;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
@@ -34,10 +33,8 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */
-class InventoryLocationsController extends Controller
+class InventoryLocationsController extends BaseCpController
 {
-    protected array|int|bool $allowAnonymous = self::ALLOW_ANONYMOUS_NEVER;
-
     /**
      * @inheritdoc
      */

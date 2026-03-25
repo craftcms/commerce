@@ -17,7 +17,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */
-class VariantsController extends BaseController
+class VariantsController extends BaseCpController
 {
     /**
      * @inheritdoc
