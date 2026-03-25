@@ -19,13 +19,14 @@ use craft\elements\Address;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
-use craft\helpers\Json;
+use craft\filters\IpRateLimitIdentity;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\filters\RateLimiter;
 use yii\mutex\Mutex;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -74,6 +75,32 @@ class CartController extends BaseFrontEndController
         $this->_currentUser = Craft::$app->getUser()->getIdentity();
 
         parent::init();
+    }
+
+    /**
+     * @inerhitdoc
+     */
+    public function behaviors(): array
+    {
+        return array_merge(parent::behaviors(), [
+            'rateLimiter' => [
+                'class' => RateLimiter::class,
+                'only' => ['get-cart', 'update-cart', 'load-cart', 'complete'],
+                'enableRateLimitHeaders' => false,
+                'user' => function() {
+                    // Only apply rate limiting when a cart number is explicitly passed
+                    $isActive = Craft::$app->getRequest()->getBodyParam('number') || Craft::$app->getRequest()->getQueryParam('number');
+
+                    return $isActive ? new IpRateLimitIdentity([
+                        'limit' => 1,
+                        'window' => 1,
+                        'keyPrefix' => 'cart-number-rate-limit',
+                        'ip' => Craft::$app->getRequest()->getUserIP() ?? 'unknown',
+                    ]) : null;
+                },
+
+            ],
+        ]);
     }
 
     /**

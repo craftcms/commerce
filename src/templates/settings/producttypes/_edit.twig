@@ -106,6 +106,17 @@
                         disabled: disabled,
                     }) }}
                 </div>
+
+                {{ forms.textField({
+                    label: 'UI Label Format'|t('app'),
+                    instructions: 'How products should be labeled within the control panel.'|t('commerce'),
+                    id: 'productUiLabelFormat',
+                    name: 'productUiLabelFormat',
+                    class: 'code ltr',
+                    value: productType.productUiLabelFormat,
+                    errors: productType.getErrors('productUiLabelFormat'),
+                    disabled: disabled,
+                }) }}
         {% endmacro %}
 
         {% macro variantTitleFormatField(productType, disabled) %}
@@ -178,6 +189,17 @@
                         disabled: disabled,
                     }) }}
                 </div>
+
+                {{ forms.textField({
+                    label: 'Variant UI Label Format'|t('commerce'),
+                    instructions: 'How variants should be labeled within the control panel.'|t('commerce'),
+                    id: 'variantUiLabelFormat',
+                    name: 'variantUiLabelFormat',
+                    class: 'code ltr',
+                    value: productType.variantUiLabelFormat,
+                    errors: productType.getErrors('variantUiLabelFormat'),
+                    disabled: disabled,
+                }) }}
 
             </div>
         {% endmacro %}
@@ -443,6 +465,7 @@
         {% if not headlessMode %}
             {{ forms.editableTableField({
                 label: 'Preview Targets'|t('app'),
+                instructions: 'Locations that should be available for previewing products in this product type.'|t('commerce'),
                 id: 'previewTargets',
                 name: 'previewTargets',
                 cols: {

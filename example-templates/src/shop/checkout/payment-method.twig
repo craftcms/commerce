@@ -3,7 +3,7 @@
 {% set paymentSources = craft.commerce.paymentSources.getAllPaymentSourcesByCustomerId(currentUser.id ?? null) %}
 
 {% block main %}
-{% set availableGateways = craft.commerce.gateways.getAllCustomerEnabledGateways(cart.storeId) %}
+{% set availableGateways = cart.availableGateways %}
 
   <!-- Template: {{ _self }}.twig -->
   <div class="md:flex md:-mx-8">

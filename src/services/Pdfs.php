@@ -511,7 +511,7 @@ class Pdfs extends Component
             $params['inline'] = true;
         }
 
-        return UrlHelper::siteUrl('actions/commerce/downloads/pdf', $params);
+        return UrlHelper::actionUrl('commerce/downloads/pdf', $params);
     }
 
     /**

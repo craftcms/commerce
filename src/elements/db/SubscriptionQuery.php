@@ -122,10 +122,8 @@ class SubscriptionQuery extends ElementQuery
     public function __construct(string $elementType, array $config = [])
     {
         // Default status
-        if (!isset($config['status'])) {
+        if (!array_key_exists('status', $config)) {
             $config['status'] = Subscription::STATUS_ACTIVE;
-            $config['hasStarted'] = true;
-            $config['isSuspended'] = false;
         }
 
         parent::__construct($elementType, $config);
@@ -763,6 +761,13 @@ class SubscriptionQuery extends ElementQuery
 
         if (isset($this->dateCanceled)) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_subscriptions.dateCanceled', $this->dateCanceled));
+        }
+
+        // Apply default hasStarted/isSuspended filters when status is set (not null)
+        // and they haven't been explicitly overridden
+        if ($this->status !== null) {
+            $this->hasStarted ??= true;
+            $this->isSuspended ??= false;
         }
 
         if (isset($this->hasStarted)) {

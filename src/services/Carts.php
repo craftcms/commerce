@@ -279,7 +279,7 @@ class Carts extends Component
      */
     public function generateCartNumber(): string
     {
-        return md5(uniqid((string)mt_rand(), true));
+        return bin2hex(random_bytes(16));
     }
 
     /**
@@ -532,6 +532,8 @@ class Carts extends Component
                 if (!$paymentCurrencies->contains('iso', '==', COMMERCE_PAYMENT_CURRENCY)) {
                     throw new InvalidConfigException('The COMMERCE_PAYMENT_CURRENCY constant is not set to a valid payment currency.');
                 }
+
+                $this->_cart->paymentCurrency = COMMERCE_PAYMENT_CURRENCY;
             }
 
             return $this->_cart->paymentCurrency;
