@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where PDF Link Duration didn’t save. ([#4265](https://github.com/craftcms/commerce/issues/4265))
+
 ## 5.6.1 - 2026-03-25
 
 - Gateway edit screens now include billing and shipping address conditions. ([#4259](https://github.com/craftcms/commerce/pull/4259))
