@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where PDF Link Duration didn't save. ([#4265](https://github.com/craftcms/commerce/issues/4265))
+
 ## 4.11.0 - 2026-03-11
 
 - Craft Commerce now requires Craft CMS 4.17.9 or later.
