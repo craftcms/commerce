@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.11.0.1 - 2026-03-27
 
 - Fixed a bug where PDF Link Duration didn't save. ([#4265](https://github.com/craftcms/commerce/issues/4265))
 
