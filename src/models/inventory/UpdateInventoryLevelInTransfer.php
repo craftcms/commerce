@@ -16,7 +16,7 @@ class UpdateInventoryLevelInTransfer extends UpdateInventoryLevel
     {
         $rules = parent::defineRules();
 
-        // Update the `['type']` rule to online allow incoming
+        // Update the `['type']` rule to only allow incoming
         foreach ($rules as &$item) {
             if ($item[0] !== ['type']) {
                 continue;
