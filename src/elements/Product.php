@@ -44,12 +44,14 @@ use craft\elements\NestedElementManager;
 use craft\elements\User;
 use craft\enums\PropagationMethod;
 use craft\events\ElementCriteriaEvent;
+use craft\commerce\db\Table;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\ElementHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
+use craft\helpers\Sequence;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
@@ -1777,6 +1779,34 @@ JS, [
                 } catch (\Exception $e) {
                     Craft::error('Craft Commerce could not generate the supplied SKU format: ' . $e->getMessage(), __METHOD__);
                     $variant->sku = '';
+                }
+
+                if ($variant->sku) {
+                    $skuExistsQuery = function(string $sku, ?int $id) {
+                        $query = (new Query())
+                            ->select(['sku'])
+                            ->from(Table::PURCHASABLES)
+                            ->where(['sku' => $sku]);
+
+                        // Make sure it isn't for the purchasable we are currently saving
+                        if ($id) {
+                            $query->andWhere(['not', ['id' => $id]]);
+                        }
+
+                        return $query;
+                    };
+
+                    // Ensure there isn't a clash with an existing SKU when using auto formats
+                    if ($skuExistsQuery($variant->sku, $variant->id)->exists()) {
+                        // If there is a clash, we need to append a number to the end.
+                        $baseSku = $variant->sku;
+                        do {
+                            $seq = Sequence::next('sku::' . $baseSku);
+                            $newSku = $baseSku . '-' . $seq;
+                        } while ($skuExistsQuery($newSku, $variant->id)->exists());
+
+                        $variant->sku = $newSku;
+                    }
                 }
             }
         }
