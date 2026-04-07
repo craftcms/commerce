@@ -42,6 +42,7 @@ use craft\helpers\Cp;
 use craft\helpers\Db;
 use craft\helpers\ElementHelper;
 use craft\helpers\Html;
+use craft\helpers\Sequence;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use Throwable;
@@ -725,6 +726,29 @@ class Variant extends Purchasable implements NestedElementInterface
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
             $this->sku = Craft::$app->getView()->renderObjectTemplate($type->skuFormat, $this);
+
+            // Ensure there isn't a clash with an existing SKU when using auto formats
+            $skuExists = (new Query())
+                ->select(['sku'])
+                ->from(Table::PURCHASABLES)
+                ->where(['sku' => $this->getSku()]);
+
+            // Make sure it isn't for the purchasable we are currently saving
+            if ($this->id) {
+                $skuExists->andWhere(['not', ['id' => $this->id]]);
+            }
+
+            if ($skuExists->exists()) {
+                // If there is a clash, we need to append a number to the end.
+                do {
+                    $seq = Sequence::next('sku::' . $this->sku);
+                    $newSku = $this->sku . '-' . $seq;
+                    $skuExists->andWhere(['sku' => $newSku]);
+                } while ($skuExists->exists());
+
+                $this->sku = $newSku;
+            }
+
             Craft::$app->language = $language;
         }
     }

@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where variants weren’t being saved for product types with a Variant SKU Format that could cause duplicate SKUs. ([#4249](https://github.com/craftcms/commerce/issues/4249))
+
 ## 5.6.1.1 - 2026-03-27
 
 - Fixed a bug where PDF Link Duration didn’t save. ([#4265](https://github.com/craftcms/commerce/issues/4265))
