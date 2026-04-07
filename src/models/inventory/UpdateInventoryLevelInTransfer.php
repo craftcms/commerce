@@ -2,7 +2,6 @@
 
 namespace craft\commerce\models\inventory;
 
-use craft\base\Model;
 use craft\commerce\enums\InventoryTransactionType;
 
 /**
