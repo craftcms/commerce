@@ -22,7 +22,7 @@ class UpdateInventoryLevelInTransfer extends UpdateInventoryLevel
                 continue;
             }
 
-            $item['range'] = [['type'], 'in', 'range' => [...InventoryTransactionType::incoming(), 'onHand']];
+            $item['range'] = [...InventoryTransactionType::incoming(), 'onHand'];
         }
 
         return $rules;
