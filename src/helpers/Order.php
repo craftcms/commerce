@@ -93,10 +93,10 @@ class Order
             } elseif ($purchasable::hasInventory() &&
                 !$purchasable->getIsOutOfStockPurchasingAllowed() &&
                 $purchasable->inventoryTracked &&
-                ($lineItem->qty > $purchasable->getStock()) &&
-                $purchasable->getStock() > 0
+                ($lineItem->qty > $purchasable->getStock($order)) &&
+                $purchasable->getStock($order) > 0
             ) {
-                $message = Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $purchasable->getStock()]);
+                $message = Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $purchasable->getStock($order)]);
                 /** @var OrderNotice $notice */
                 $notice = Craft::createObject([
                     'class' => OrderNotice::class,
@@ -107,7 +107,7 @@ class Order
                     ],
                 ]);
                 $order->addNotice($notice);
-                $lineItem->qty = $purchasable->getStock();
+                $lineItem->qty = $purchasable->getStock($order);
             }
         }
     }

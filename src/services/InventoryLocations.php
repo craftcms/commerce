@@ -8,9 +8,12 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\base\Purchasable;
 use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\db\Table;
+use craft\commerce\elements\Order;
 use craft\commerce\enums\InventoryTransactionType;
+use craft\commerce\events\RegisterInventoryLocationsForPurchasableEvent;
 use craft\commerce\models\inventory\DeactivateInventoryLocation;
 use craft\commerce\models\inventory\InventoryLocationDeactivatedMovement;
 use craft\commerce\models\InventoryLevel;
@@ -36,6 +39,28 @@ use yii2tech\ar\softdelete\SoftDeleteBehavior;
  */
 class InventoryLocations extends Component
 {
+    /**
+     * @event RegisterInventoryLocationsEvent The event that is triggered when inventory locations are being registered for a purchasable.
+     * 
+     * ```php
+     * use craft\commerce\events\RegisterInventoryLocationsEvent;
+     * use craft\commerce\services\InventoryLocations;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     InventoryLocations::class,
+     *     InventoryLocations::EVENT_REGISTER_INVENTORY_LOCATIONS,
+     *     function(RegisterInventoryLocationsEvent $event) {
+     *         $inventoryLocations = collect();
+     *         // ... custom logic to get the inventory locations for the purchasable
+     *         // @var RegisterInventoryLocationsEvent $event
+     *         $event->inventoryLocations = $inventoryLocations;
+     *     }
+     * );
+     * ```
+     */
+    public const EVENT_REGISTER_INVENTORY_LOCATIONS_FOR_PURCHASABLE = 'registerInventoryLocations';
+
     /**
      * @var Collection<InventoryLocation>|null
      */
@@ -105,6 +130,47 @@ class InventoryLocations extends Component
 
         // Keep the order of the locationIds
         return $this->_getAllInventoryLocations($withTrashed)->whereIn('id', $locationIds)->sortBy(fn($inventoryLocation) => array_search($inventoryLocation->id, $locationIds));
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param Purchasable $purchasable 
+     * @param Order|null $order 
+     * @param bool $withTrashed
+     *
+     * @return Collection
+     */
+    public function getInventoryLocationsForPurchasable(Purchasable $purchasable, Order|null $order = null, bool $withTrashed = false): Collection
+    {
+        // @todo: Fix the list of inventory locations on order completion, by adding an `inventoryLocations` property  to the  order, saving inventory locations there when the order completes, and only re-fetching the inventory locations if that property is not set.
+
+        /** @var Store $store */
+        $store = $order?->getStore() ?? $purchasable->getStore() ?? Plugin::getInstance()->getStores()->getCurrentStore();
+
+        // Default to all inventory locations attached to the store
+        $storeId = $store->id;
+        $storeInventoryLocations = $this->getInventoryLocations($storeId, $withTrashed);
+
+        // Allow modules and plugins to modify the list of inventory locations available for the purchasable.
+        $event = new RegisterInventoryLocationsForPurchasableEvent([
+            'purchasable' => $purchasable,
+            'order' => $order,
+            'store' => $store,
+            'inventoryLocations' => $storeInventoryLocations,
+            'withTrashed' => $withTrashed,
+        ]);
+
+        $this->trigger(self::EVENT_REGISTER_INVENTORY_LOCATIONS_FOR_PURCHASABLE, $event);
+        $orderInventoryLocations = $event->inventoryLocations;
+
+        // The order stock locations must be a subset of the store inventory locations
+        $storeLocationIds = $storeInventoryLocations->keyBy('id');
+        $purchasableInventoryLocations = $orderInventoryLocations
+            ->filter(static fn(InventoryLocation $location) => $storeLocationIds->has($location->id))
+            ->values();
+
+        return $purchasableInventoryLocations;
     }
 
     /**

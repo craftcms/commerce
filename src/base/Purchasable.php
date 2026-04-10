@@ -261,6 +261,14 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     private ?int $_stock = null;
 
     /**
+     * This is the cached total available stock across all inventory locations for specific orders.
+     *
+     * @var int[]
+     * @since 5.6.2
+     */
+    private array $_stockForOrders = [];
+
+    /**
      * @inheritdoc
      */
     public function attributes(): array
@@ -689,11 +697,12 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     }
 
     /**
+     * @param Order|null $order The order the stock is being checked for.
      * Returns whether this variant has stock.
      */
-    public function hasStock(): bool
+    public function hasStock(Order|null $order = null): bool
     {
-        return !$this->inventoryTracked || $this->getStock() > 0;
+        return !$this->inventoryTracked || $this->getStock($order) > 0;
     }
 
     /**
@@ -793,14 +802,16 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     {
         // Since we do not have a proper stock reservation system, we need deduct stock if they have more in the cart than is available, and to do this quietly.
         // If this occurs in the payment request, the user will be notified the order has changed.
-        if (($order = $lineItem->getOrder()) && !$order->isCompleted) {
+        if (($order = $lineItem->getOrder()) && !$order->isCompleted)
+        {
+            $order = $lineItem->getOrder();
             if ($this::hasInventory() &&
                 !$this->getIsOutOfStockPurchasingAllowed() &&
                 $this->inventoryTracked &&
-                ($lineItem->qty > $this->getStock()) &&
-                $this->getStock() > 0
+                ($lineItem->qty > $this->getStock($order)) &&
+                $this->getStock($order) > 0
             ) {
-                $message = Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $this->getStock()]);
+                $message = Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $this->getStock($order)]);
                 /** @var OrderNotice $notice */
                 $notice = Craft::createObject([
                     'class' => OrderNotice::class,
@@ -811,7 +822,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                     ],
                 ]);
                 $order->addNotice($notice);
-                $lineItem->qty = $this->getStock();
+                $lineItem->qty = $this->getStock($order);
             }
         }
 
@@ -867,7 +878,9 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                         return;
                     }
 
-                    if (!$this->hasStock()) {
+                    $order = $lineItem->getOrder();
+
+                    if (!$this->hasStock($order)) {
                         if (!Plugin::getInstance()->getPurchasables()->isPurchasableOutOfStockPurchasingAllowed($lineItemPurchasable, $lineItem->getOrder())) {
                             $error = Craft::t('commerce', '“{description}” is currently out of stock.', ['description' => $lineItemPurchasable->getDescription()]);
                             $validator->addError($lineItem, $attribute, $error);
@@ -876,9 +889,9 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
                     $lineItemQty = $lineItem->purchasableId ? $lineItemQuantitiesByPurchasableId[$lineItem->purchasableId] : $lineItem->qty;
 
-                    if ($this->hasStock() && $this->inventoryTracked && $lineItemQty > $this->getStock()) {
+                    if ($this->hasStock($order) && $this->inventoryTracked && $lineItemQty > $this->getStock($order)) {
                         if (!Plugin::getInstance()->getPurchasables()->isPurchasableOutOfStockPurchasingAllowed($lineItemPurchasable, $lineItem->getOrder())) {
-                            $error = Craft::t('commerce', 'There are only {num} “{description}” items left in stock.', ['num' => $this->getStock(), 'description' => $lineItemPurchasable->getDescription()]);
+                            $error = Craft::t('commerce', 'There are only {num} “{description}” items left in stock.', ['num' => $this->getStock($order), 'description' => $lineItemPurchasable->getDescription()]);
                             $validator->addError($lineItem, $attribute, $error);
                         }
                     }
@@ -1025,16 +1038,18 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     }
 
     /**
+     * @param Order|null $order The order the stock is being calculated for.
      * @return int
      */
-    private function _getStock(): int
+    private function _getStock(Order|null $order = null): int
     {
         if (!$this->inventoryTracked) {
             return 0;
         }
 
         $saleableAmount = 0;
-        foreach ($this->getInventoryLevels() as $inventoryLevel) {
+        $inventoryLevels = $this->getInventoryLevels($order);
+        foreach ($inventoryLevels as $inventoryLevel) {
             if ($inventoryLevel->availableTotal > 0) {
                 $saleableAmount += $inventoryLevel->availableTotal;
             }
@@ -1053,13 +1068,25 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     }
 
     /**
-     * Returns the cached total available stock across all inventory locations for this store.
+     * Returns the cached total available stock across all inventory locations for this store,
+     * and optionally for a specific order.
      *
+     * @param Order|null $order The order the stock is being calculated for.
+     * 
      * @return int
      * @since 5.0.0
      */
-    public function getStock(): int
+    public function getStock(Order|null $order = null): int
     {
+        $orderId = $order?->id;
+        if ($orderId) {
+            if (!isset($this->_stockForOrders[$orderId])) {
+                $this->_stockForOrders[$orderId] = $this->_getStock($order);
+            }
+
+            return $this->_stockForOrders[$orderId];
+        }
+
         if ($this->_stock === null) {
             $this->_stock = $this->_getStock();
         }
@@ -1072,13 +1099,13 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      * @return Collection<InventoryLevel>
      * @since 5.0.0
      */
-    public function getInventoryLevels(): Collection
+    public function getInventoryLevels(Order|null $order = null): Collection
     {
         if (!$this->inventoryTracked) {
             return collect();
         }
 
-        return Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($this);
+        return Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($this, $order);
     }
 
     /**

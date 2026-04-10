@@ -171,7 +171,19 @@ class Purchasables extends Component
         if ($currentUser === null) {
             $currentUser = Craft::$app->getUser()->getIdentity();
         }
+
         $isAvailable = $purchasable->getIsAvailable();
+
+        // Purchasable::getIsAvailable() checks for stock across all of the store's inventory locations, but these may differ for this specific order. We can rest assured that the stock for the order is less than the stock for the store.
+        // We are doing this here so we don't have to change the signature of the getIsAvailable method.
+        if (
+            $order
+            && $purchasable->inventoryTracked
+            && $purchasable->getStock($order) < 1
+            && !Plugin::getInstance()->getPurchasables()->isPurchasableOutOfStockPurchasingAllowed($this)
+         ) {
+            $isAvailable = false;
+        }
 
         $event = new PurchasableAvailableEvent(compact('order', 'purchasable', 'currentUser', 'isAvailable'));
 
