@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a PHP error that occurred when marking an inventory transfer as pending. ([#4267](https://github.com/craftcms/commerce/issues/4267))
+
 ## 5.6.1.1 - 2026-03-27
 
 - Fixed a bug where PDF Link Duration didn’t save. ([#4265](https://github.com/craftcms/commerce/issues/4265))
