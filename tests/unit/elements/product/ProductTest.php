@@ -8,12 +8,15 @@
 namespace craftcommercetests\unit\elements\product;
 
 use Codeception\Test\Unit;
+use craft\commerce\Plugin;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\db\Query;
 use craftcommercetests\fixtures\ProductFixture;
 use DateTime;
+use ReflectionClass;
+use craft\db\Table as CraftTable;
 
 /**
  * ProductTest
@@ -356,5 +359,111 @@ class ProductTest extends Unit
 
         // Remove the product
         \Craft::$app->getElements()->deleteElementById($product->id, Product::class, null, true);
+    }
+
+    /**
+     * @group Product
+     */
+    public function testSkuFormatGeneratesSkuWhenEmpty(): void
+    {
+        $this->setProductTypeSkuFormat(2001, 'generated-sku-from-format');
+
+        $product = new Product();
+        $product->title = 'SKU Format Test Product';
+        $product->typeId = 2001;
+        $product->enabled = false;
+
+        $variant = new Variant();
+        $variant->title = 'Test Variant';
+        // SKU intentionally not set — should be generated from skuFormat
+
+        $product->setVariants([$variant]);
+        $product->validate();
+
+        self::assertEquals('generated-sku-from-format', $variant->sku);
+
+        $this->setProductTypeSkuFormat(2001, null);
+    }
+
+    /**
+     * @group Product
+     */
+    public function testSkuFormatDeduplicatesWhenCollisionExists(): void
+    {
+        // Fixture variant 'rad-hood' already exists in the PURCHASABLES table.
+        // Reset the sequence so the suffix is always predictable (-1).
+        $this->resetSkuSequence('rad-hood');
+        $this->setProductTypeSkuFormat(2001, 'rad-hood');
+
+        $product = new Product();
+        $product->title = 'Collision Test Product';
+        $product->typeId = 2001;
+        $product->enabled = false;
+
+        $variant = new Variant();
+        $variant->title = 'Test Variant';
+        // No SKU — format generates 'rad-hood' which collides with the fixture variant
+
+        $product->setVariants([$variant]);
+        $product->validate();
+
+        self::assertEquals('rad-hood-1', $variant->sku);
+
+        $this->setProductTypeSkuFormat(2001, null);
+    }
+
+    /**
+     * @group Product
+     */
+    public function testSkuFormatDeduplicatesMultipleVariantsWithCollision(): void
+    {
+        // Fixture variant 'hct-white' already exists in the PURCHASABLES table.
+        // Reset the sequence so suffixes are always predictable (-1, -2).
+        $this->resetSkuSequence('hct-white');
+        $this->setProductTypeSkuFormat(2001, 'hct-white');
+
+        $product = new Product();
+        $product->title = 'Multi-Variant Collision Test';
+        $product->typeId = 2001;
+        $product->enabled = false;
+
+        $variant1 = new Variant();
+        $variant1->title = 'Variant One';
+
+        $variant2 = new Variant();
+        $variant2->title = 'Variant Two';
+
+        $product->setVariants([$variant1, $variant2]);
+        $product->validate();
+
+        self::assertEquals('hct-white-1', $variant1->sku);
+        self::assertEquals('hct-white-2', $variant2->sku);
+
+        $this->setProductTypeSkuFormat(2001, null);
+    }
+
+    private function resetSkuSequence(string $baseSku): void
+    {
+        \Craft::$app->getDb()->createCommand()
+            ->delete(CraftTable::SEQUENCES, ['name' => 'sku::' . $baseSku])
+            ->execute();
+    }
+
+    private function setProductTypeSkuFormat(int $typeId, ?string $skuFormat): void
+    {
+        $productTypesService = Plugin::getInstance()->getProductTypes();
+        // Ensure types are loaded into cache
+        $productTypesService->getAllProductTypes();
+
+        $reflection = new ReflectionClass($productTypesService);
+        $prop = $reflection->getProperty('_allProductTypes');
+        $prop->setAccessible(true);
+
+        foreach ($prop->getValue($productTypesService) as $type) {
+            if ($type->id === $typeId) {
+                $type->skuFormat = $skuFormat;
+                return;
+            }
+        }
     }
 }
