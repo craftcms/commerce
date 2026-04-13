@@ -43,15 +43,13 @@
 - Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities. ([GHSA-875v-7m49-8x88](https://github.com/craftcms/commerce/security/advisories/GHSA-875v-7m49-8x88))
 - Fixed a [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) information disclosure vulnerability. ([GHSA-3vxg-x5f8-f5qf](https://github.com/craftcms/commerce/security/advisories/GHSA-3vxg-x5f8-f5qf))
 
->>>>>>> 4.x
-
 ## 5.5.4 - 2026-02-18
 
 - Fixed a bug where subscription plan edit screens weren’t showing their linked description entries, if the entries were disabled. ([#4229](https://github.com/craftcms/commerce/issues/4229))
 - Fixed an error that could occur when editing inventory locations. ([#4233](https://github.com/craftcms/commerce/issues/4233))
 - Fixed a SQL error that could occur when querying for unfulfilled orders on PostgreSQL. ([#4228](https://github.com/craftcms/commerce/issues/4228))
 - Fixed an error that could occur when resaving variants. ([#4226](https://github.com/craftcms/commerce/issues/4226))
-- Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities in the control panel. (GHSA-r54v-qq87-px5r)
+- Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities in the control panel. ([GHSA-r54v-qq87-px5r](https://github.com/craftcms/commerce/security/advisories/GHSA-r54v-qq87-px5r))
 - Added `craft\commerce\helpers\ProductQuery::cleanseQueryCriteria()`.
 
 ## 5.5.3 - 2026-02-09
