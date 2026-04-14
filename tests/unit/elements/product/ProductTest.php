@@ -8,15 +8,15 @@
 namespace craftcommercetests\unit\elements\product;
 
 use Codeception\Test\Unit;
-use craft\commerce\Plugin;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\commerce\Plugin;
 use craft\db\Query;
+use craft\db\Table as CraftTable;
 use craftcommercetests\fixtures\ProductFixture;
 use DateTime;
 use ReflectionClass;
-use craft\db\Table as CraftTable;
 
 /**
  * ProductTest
