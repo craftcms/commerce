@@ -198,7 +198,8 @@ class ProductGetVariantsTest extends Unit
      *
      * @dataProvider getVariantsNullableIncludeDisabledDataProvider
      */
-    public function testGetVariantsNullableIncludeDisabled(?bool $includeDisabled, bool $useNestedElementsController, int $expectedCount): void {
+    public function testGetVariantsNullableIncludeDisabled(?bool $includeDisabled, bool $useNestedElementsController, int $expectedCount): void
+    {
         if ($useNestedElementsController) {
             $mockController = $this->getMockBuilder(NestedElementsController::class)
                 ->disableOriginalConstructor()
