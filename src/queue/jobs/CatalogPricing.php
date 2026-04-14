@@ -29,14 +29,38 @@ class CatalogPricing extends BaseJob
 
     public function execute($queue): void
     {
-        $catalogPricingRules = null;
-        if (!empty($this->catalogPricingRuleIds) && $this->storeId) {
-            $catalogPricingRules = Plugin::getInstance()->getCatalogPricingRules()->getAllCatalogPricingRules($this->storeId)->whereIn('id', $this->catalogPricingRuleIds)->all();
+        $catalogPricingService = Plugin::getInstance()->getCatalogPricing();
+        $reservedRow = $catalogPricingService->reserveCatalogPricingQueueRow();
+
+        if (!$reservedRow) {
+            return;
         }
 
-        Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices($this->purchasableIds, $catalogPricingRules, queue: $queue);
+        $purchasableIds = $reservedRow['purchasableIds'] ?? $this->purchasableIds;
+        $catalogPricingRuleIds = $reservedRow['catalogPricingRuleIds'] ?? $this->catalogPricingRuleIds;
+        $storeId = $reservedRow['storeId'] ?? $this->storeId;
 
-        Plugin::getInstance()->getCatalogPricing()->clearCatalogPricingJob($this);
+        $catalogPricingRules = null;
+        if (!empty($catalogPricingRuleIds)) {
+            $catalogPricingRules = Plugin::getInstance()->getCatalogPricingRules()
+                ->getAllCatalogPricingRules($storeId)
+                ->whereIn('id', $catalogPricingRuleIds)
+                ->all();
+        }
+
+        try {
+            $catalogPricingService->generateCatalogPrices($purchasableIds, $catalogPricingRules, queue: $queue);
+
+            if (!empty($reservedRow['id'])) {
+                $catalogPricingService->deleteCatalogPricingQueueRow((int)$reservedRow['id']);
+            }
+        } catch (\Throwable $e) {
+            if (!empty($reservedRow['id'])) {
+                $catalogPricingService->releaseCatalogPricingQueueRow((int)$reservedRow['id']);
+            }
+
+            throw $e;
+        }
     }
 
     protected function defaultDescription(): ?string

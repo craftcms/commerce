@@ -62,6 +62,7 @@ abstract class Table
 
     /** @since 5.0.0 */
     public const CATALOG_PRICING = '{{%commerce_catalogpricing}}';
+    public const CATALOG_PRICING_QUEUE = '{{%commerce_catalogpricing_queue}}';
     public const CATALOG_PRICING_RULES = '{{%commerce_catalogpricingrules}}';
     public const CATALOG_PRICING_RULES_USERS = '{{%commerce_catalogpricingrules_users}}';
     public const PURCHASABLES_STORES = '{{%commerce_purchasables_stores}}';
