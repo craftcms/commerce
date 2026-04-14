@@ -27,6 +27,7 @@ use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Product as ProductRecord;
 use craft\controllers\ElementIndexesController;
+use craft\controllers\NestedElementsController;
 use craft\db\Query;
 use craft\elements\actions\CopyReferenceTag;
 use craft\elements\actions\Delete;
@@ -1172,7 +1173,7 @@ JS, [
      * @return VariantCollection
      * @throws InvalidConfigException
      */
-    public function getVariants(bool $includeDisabled = false): VariantCollection
+    public function getVariants(?bool $includeDisabled = null): VariantCollection
     {
         if ($this->_variants === null) {
             if (!$this->id) {
@@ -1211,6 +1212,10 @@ JS, [
                 return $v;
             });
         }
+
+        // When reordering variants we need to make sure disabled variants are included when calculating sort order
+        // @TODO: Remove in 6.0 when variants return and element query
+        $includeDisabled ??= Craft::$app->controller instanceof NestedElementsController;
 
         return $this->_variants->filter(fn(Variant $variant) => $includeDisabled || ($variant->getStatus() === self::STATUS_ENABLED));
     }

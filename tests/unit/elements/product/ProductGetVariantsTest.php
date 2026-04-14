@@ -8,10 +8,12 @@
 namespace craftcommercetests\unit\elements\product;
 
 use Codeception\Test\Unit;
+use Craft;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\elements\VariantCollection;
+use craft\controllers\NestedElementsController;
 use craftcommercetests\fixtures\ProductFixture;
 use ReflectionClass;
 
@@ -187,5 +189,86 @@ class ProductGetVariantsTest extends Unit
             }
         }
         self::assertTrue($hasDisabledVariant);
+    }
+
+    /**
+     * Tests every combination of the nullable $includeDisabled parameter against the
+     * NestedElementsController detection introduced alongside the signature change.
+     * Also asserts that the internal $_variants collection is never mutated by the filter.
+     *
+     * @dataProvider getVariantsNullableIncludeDisabledDataProvider
+     */
+    public function testGetVariantsNullableIncludeDisabled(?bool $includeDisabled, bool $useNestedElementsController, int $expectedCount): void {
+        if ($useNestedElementsController) {
+            $mockController = $this->getMockBuilder(NestedElementsController::class)
+                ->disableOriginalConstructor()
+                ->getMock();
+            Craft::$app->controller = $mockController;
+        } else {
+            Craft::$app->controller = null;
+        }
+
+        $product = new Product();
+        $product->typeId = 2000;
+
+        $enabled = new Variant();
+        $enabled->enabled = true;
+        $enabled->sku = 'enabled-sku';
+
+        $disabled = new Variant();
+        $disabled->enabled = false;
+        $disabled->sku = 'disabled-sku';
+
+        $product->setVariants([$enabled, $disabled]);
+
+        $result = $product->getVariants($includeDisabled);
+        self::assertCount($expectedCount, $result);
+
+        // The internal collection must never be mutated by the filter —
+        // regardless of which parameter was passed, all set variants must be retained.
+        $reflection = new ReflectionClass($product);
+        $variantsProperty = $reflection->getProperty('_variants');
+        $variantsProperty->setAccessible(true);
+
+        /** @var VariantCollection $internalVariants */
+        $internalVariants = $variantsProperty->getValue($product);
+        self::assertInstanceOf(VariantCollection::class, $internalVariants);
+        self::assertCount(2, $internalVariants, '_variants must retain all variants regardless of the filter applied');
+
+        // Clean up so the controller state does not leak into subsequent tests
+        Craft::$app->controller = null;
+    }
+
+    /**
+     * @return array<string, array{includeDisabled: bool|null, useNestedElementsController: bool, expectedCount: int}>
+     */
+    public function getVariantsNullableIncludeDisabledDataProvider(): array
+    {
+        return [
+            // null resolves to false when no NestedElementsController is active
+            'null-no-controller-excludes-disabled' => [
+                'includeDisabled' => null,
+                'useNestedElementsController' => false,
+                'expectedCount' => 1,
+            ],
+            // null resolves to true when NestedElementsController is the active controller
+            'null-nested-elements-controller-includes-disabled' => [
+                'includeDisabled' => null,
+                'useNestedElementsController' => true,
+                'expectedCount' => 2,
+            ],
+            // Explicit false must override the NestedElementsController detection
+            'explicit-false-with-nested-elements-controller' => [
+                'includeDisabled' => false,
+                'useNestedElementsController' => true,
+                'expectedCount' => 1,
+            ],
+            // Explicit true must work even without a special controller
+            'explicit-true-without-controller' => [
+                'includeDisabled' => true,
+                'useNestedElementsController' => false,
+                'expectedCount' => 2,
+            ],
+        ];
     }
 }
