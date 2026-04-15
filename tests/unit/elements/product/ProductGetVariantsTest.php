@@ -200,44 +200,47 @@ class ProductGetVariantsTest extends Unit
      */
     public function testGetVariantsNullableIncludeDisabled(?bool $includeDisabled, bool $useNestedElementsController, int $expectedCount): void
     {
-        if ($useNestedElementsController) {
-            $mockController = $this->getMockBuilder(NestedElementsController::class)
-                ->disableOriginalConstructor()
-                ->getMock();
-            Craft::$app->controller = $mockController;
-        } else {
-            Craft::$app->controller = null;
+        $originalController = Craft::$app->controller;
+
+        try {
+            if ($useNestedElementsController) {
+                $mockController = $this->getMockBuilder(NestedElementsController::class)
+                    ->disableOriginalConstructor()
+                    ->getMock();
+                Craft::$app->controller = $mockController;
+            }
+
+            $product = new Product();
+            $product->typeId = 2000;
+
+            $enabled = new Variant();
+            $enabled->enabled = true;
+            $enabled->sku = 'enabled-sku';
+
+            $disabled = new Variant();
+            $disabled->enabled = false;
+            $disabled->sku = 'disabled-sku';
+
+            $product->setVariants([$enabled, $disabled]);
+
+            $result = $product->getVariants($includeDisabled);
+            self::assertCount($expectedCount, $result);
+
+            // The internal collection must never be mutated by the filter —
+            // regardless of which parameter was passed, all set variants must be retained.
+            $reflection = new ReflectionClass($product);
+            $variantsProperty = $reflection->getProperty('_variants');
+            $variantsProperty->setAccessible(true);
+
+            /** @var VariantCollection $internalVariants */
+            $internalVariants = $variantsProperty->getValue($product);
+            self::assertInstanceOf(VariantCollection::class, $internalVariants);
+            self::assertCount(2, $internalVariants, '_variants must retain all variants regardless of the filter applied');
+
+        } finally {
+            // Clean up so the controller state does not leak into subsequent tests
+            Craft::$app->controller = $originalController;
         }
-
-        $product = new Product();
-        $product->typeId = 2000;
-
-        $enabled = new Variant();
-        $enabled->enabled = true;
-        $enabled->sku = 'enabled-sku';
-
-        $disabled = new Variant();
-        $disabled->enabled = false;
-        $disabled->sku = 'disabled-sku';
-
-        $product->setVariants([$enabled, $disabled]);
-
-        $result = $product->getVariants($includeDisabled);
-        self::assertCount($expectedCount, $result);
-
-        // The internal collection must never be mutated by the filter —
-        // regardless of which parameter was passed, all set variants must be retained.
-        $reflection = new ReflectionClass($product);
-        $variantsProperty = $reflection->getProperty('_variants');
-        $variantsProperty->setAccessible(true);
-
-        /** @var VariantCollection $internalVariants */
-        $internalVariants = $variantsProperty->getValue($product);
-        self::assertInstanceOf(VariantCollection::class, $internalVariants);
-        self::assertCount(2, $internalVariants, '_variants must retain all variants regardless of the filter applied');
-
-        // Clean up so the controller state does not leak into subsequent tests
-        Craft::$app->controller = null;
     }
 
     /**

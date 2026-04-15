@@ -1214,7 +1214,7 @@ JS, [
         }
 
         // When reordering variants we need to make sure disabled variants are included when calculating sort order
-        // @TODO: Remove in 6.0 when variants return and element query
+        // @TODO: Remove in 6.0 when updating `getVariants()` to start returning an element query instance.
         $includeDisabled ??= Craft::$app->controller instanceof NestedElementsController;
 
         return $this->_variants->filter(fn(Variant $variant) => $includeDisabled || ($variant->getStatus() === self::STATUS_ENABLED));
