@@ -1167,9 +1167,9 @@ JS, [
     }
 
     /**
-     * Returns an array of the product's variants.
+     * Returns a collection of the product's variants.
      *
-     * @param bool $includeDisabled
+     * @param bool|null $includeDisabled
      * @return VariantCollection
      * @throws InvalidConfigException
      */
