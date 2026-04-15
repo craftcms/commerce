@@ -2,8 +2,10 @@
 
 ## Unreleased
 
+- Fixed a bug where variants weren’t being saved for product types with a Variant SKU Format that could cause duplicate SKUs. ([#4249](https://github.com/craftcms/commerce/issues/4249))
 - Fixed a PHP error that occurred when marking an inventory transfer as pending. ([#4267](https://github.com/craftcms/commerce/issues/4267))
 - Fixed a bug where variants' sort order wasn’t being respected when reordering with disabled variants. ([#4270](https://github.com/craftcms/commerce/issues/4270))
+
 
 ## 5.6.1.1 - 2026-03-27
 
