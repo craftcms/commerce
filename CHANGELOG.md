@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a PHP error that occurred when marking an inventory transfer as pending. ([#4267](https://github.com/craftcms/commerce/issues/4267))
+- Improved the performance of migrations when upgrading to 5.x. ([#4277](https://github.com/craftcms/commerce/issues/4277))
 
 ## 5.6.1.1 - 2026-03-27
 
