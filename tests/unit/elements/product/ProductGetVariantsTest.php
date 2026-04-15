@@ -236,7 +236,6 @@ class ProductGetVariantsTest extends Unit
             $internalVariants = $variantsProperty->getValue($product);
             self::assertInstanceOf(VariantCollection::class, $internalVariants);
             self::assertCount(2, $internalVariants, '_variants must retain all variants regardless of the filter applied');
-
         } finally {
             // Clean up so the controller state does not leak into subsequent tests
             Craft::$app->controller = $originalController;
