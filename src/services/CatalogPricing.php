@@ -652,17 +652,14 @@ class CatalogPricing extends Component
     }
 
     /**
-     * @param mixed $ids
+     * @param array|null $ids
      * @return array|null
+     * @since 5.7.0
      */
-    private function _normalizeIds(mixed $ids): ?array
+    private function _normalizeIds(?array $ids): ?array
     {
         if ($ids === null) {
             return null;
-        }
-
-        if (!is_array($ids)) {
-            $ids = [$ids];
         }
 
         $ids = array_map(fn(mixed $id) => (int)$id, $ids);
