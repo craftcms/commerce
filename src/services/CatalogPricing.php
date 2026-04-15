@@ -18,6 +18,7 @@ use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\CatalogPricing as CatalogPricingJob;
 use craft\commerce\records\CatalogPricingQueue as CatalogPricingQueueRecord;
 use craft\db\Query;
+use craft\errors\DeprecationException;
 use craft\errors\SiteNotFoundException;
 use craft\events\ModelEvent;
 use craft\helpers\ArrayHelper;
@@ -535,8 +536,9 @@ class CatalogPricing extends Component
      * Reserves one pending queue row for processing.
      *
      * @return CatalogPricingQueueRecord|null
+     * @since 5.7.0
      */
-    public function reserveCatalogPricingQueueRow(): ?CatalogPricingQueueRecord
+    public function reserveCatalogPricingQueueById(): ?CatalogPricingQueueRecord
     {
         $mutex = Craft::$app->getMutex();
 
@@ -576,12 +578,14 @@ class CatalogPricing extends Component
     }
 
     /**
-     * @param int $queueRowId
+     * @param int $id
      * @return void
+     * @throws Exception
+     * @since 5.7.0
      */
-    public function releaseCatalogPricingQueueRow(int $queueRowId): void
+    public function releaseCatalogPricingQueueById(int $id): void
     {
-        $record = CatalogPricingQueueRecord::findOne($queueRowId);
+        $record = CatalogPricingQueueRecord::findOne($id);
         if ($record) {
             $record->reserved = false;
             $record->save(false);
@@ -589,25 +593,24 @@ class CatalogPricing extends Component
     }
 
     /**
-     * @param int $queueRowId
+     * @param int $id
      * @return void
+     * @since 5.7.0
      */
-    public function deleteCatalogPricingQueueRow(int $queueRowId): void
+    public function deleteCatalogPricingQueueById(int $id): void
     {
-        CatalogPricingQueueRecord::deleteAll(['id' => $queueRowId]);
+        CatalogPricingQueueRecord::deleteAll(['id' => $id]);
     }
 
     /**
      * Queues catalog pricing regeneration IDs by row type, merging into any existing unreserved row
      * for the same store and type.
      *
-     * `TYPE_PURCHASABLE`: IDs are purchasable IDs (must be non-null).
-     * `TYPE_RULE`: IDs are catalog pricing rule IDs; null means all rules (full regeneration).
-     *
      * @param int|null $storeId
      * @param string $type
      * @param array|null $ids
      * @return void
+     * @throws Exception
      */
     private function _queueCatalogPricingIds(?int $storeId, string $type, ?array $ids): void
     {
@@ -680,6 +683,7 @@ class CatalogPricing extends Component
      * @param CatalogPricingCondition|null $condition
      * @return Query
      * @throws InvalidConfigException
+     * @throws DeprecationException
      * @deprecated in 5.1.0. Use `createCatalogPricesQuery()` instead.
      */
     public function createCatalogPricingQuery(?int $userId = null, int|string|null $storeId = null, ?bool $isPromotionalPrice = null, bool $allPrices = false, ?CatalogPricingCondition $condition = null): Query

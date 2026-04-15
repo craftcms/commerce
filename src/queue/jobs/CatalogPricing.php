@@ -38,7 +38,7 @@ class CatalogPricing extends BaseJob
 
         if ($isConsolidatedJob) {
             // New method of processing catalog pricing via queue table: reserve a row and process based on its type and IDs
-            $reservedRecord = $catalogPricingService->reserveCatalogPricingQueueRow();
+            $reservedRecord = $catalogPricingService->reserveCatalogPricingQueueById();
 
             if (!$reservedRecord) {
                 return;
@@ -71,11 +71,11 @@ class CatalogPricing extends BaseJob
             $catalogPricingService->generateCatalogPrices($purchasableIds, $catalogPricingRules, queue: $queue);
 
             if ($reservedRowId) {
-                $catalogPricingService->deleteCatalogPricingQueueRow($reservedRowId);
+                $catalogPricingService->deleteCatalogPricingQueueById($reservedRowId);
             }
         } catch (\Throwable $e) {
             if ($reservedRowId) {
-                $catalogPricingService->releaseCatalogPricingQueueRow($reservedRowId);
+                $catalogPricingService->releaseCatalogPricingQueueById($reservedRowId);
             }
 
             throw $e;
