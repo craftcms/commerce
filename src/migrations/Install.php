@@ -19,10 +19,10 @@ use craft\commerce\models\ProductType;
 use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
+use craft\commerce\records\CatalogPricingQueue;
 use craft\commerce\records\CatalogPricingRule;
 use craft\commerce\records\InventoryLocation;
 use craft\commerce\records\TaxCategory;
-use craft\commerce\services\CatalogPricing;
 use craft\commerce\services\Coupons;
 use craft\commerce\services\Gateways;
 use craft\commerce\services\Stores;
@@ -137,7 +137,7 @@ class Install extends Migration
         $this->createTable(Table::CATALOG_PRICING_QUEUE, [
             'id' => $this->primaryKey(),
             'storeId' => $this->integer(),
-            'type' => $this->enum('type', [CatalogPricing::QUEUE_TYPE_PURCHASABLE, CatalogPricing::QUEUE_TYPE_RULE])->notNull(),
+            'type' => $this->enum('type', [CatalogPricingQueue::TYPE_PURCHASABLE, CatalogPricingQueue::TYPE_RULE])->notNull(),
             'ids' => $this->mediumText(),
             'reserved' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
