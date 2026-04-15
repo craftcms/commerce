@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.6.2 - 2026-04-15
 
 - Improved the performance of migrations when upgrading to Commerce 5. ([#4277](https://github.com/craftcms/commerce/issues/4277))
 - Fixed a bug where variants weren’t getting saved if their auto-generated SKU wasn’t unique. ([#4249](https://github.com/craftcms/commerce/issues/4249))
