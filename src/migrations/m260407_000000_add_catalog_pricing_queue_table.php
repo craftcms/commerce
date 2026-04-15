@@ -19,8 +19,8 @@ class m260407_000000_add_catalog_pricing_queue_table extends Migration
             $this->createTable(Table::CATALOG_PRICING_QUEUE, [
                 'id' => $this->primaryKey(),
                 'storeId' => $this->integer(),
-                'purchasableIds' => $this->mediumText(),
-                'catalogPricingRuleIds' => $this->mediumText(),
+                'type' => $this->string(16)->notNull(),
+                'ids' => $this->mediumText(),
                 'reserved' => $this->boolean()->notNull()->defaultValue(false),
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),
@@ -29,8 +29,8 @@ class m260407_000000_add_catalog_pricing_queue_table extends Migration
         }
 
         $this->createIndexIfMissing(Table::CATALOG_PRICING_QUEUE, 'reserved', false);
-        $this->createIndexIfMissing(Table::CATALOG_PRICING_QUEUE, ['storeId', 'reserved'], false);
-        $this->addForeignKey(null, Table::CATALOG_PRICING_QUEUE, ['storeId'], Table::STORES, ['id'], 'CASCADE', 'CASCADE');
+        $this->createIndexIfMissing(Table::CATALOG_PRICING_QUEUE, ['storeId', 'type', 'reserved'], false);
+        $this->addForeignKeyIfMissing(Table::CATALOG_PRICING_QUEUE, ['storeId'], Table::STORES, ['id'], 'CASCADE', 'CASCADE');
 
         return true;
     }
@@ -44,5 +44,3 @@ class m260407_000000_add_catalog_pricing_queue_table extends Migration
         return false;
     }
 }
-
-

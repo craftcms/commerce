@@ -22,6 +22,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingRule;
 use craft\commerce\records\InventoryLocation;
 use craft\commerce\records\TaxCategory;
+use craft\commerce\services\CatalogPricing;
 use craft\commerce\services\Coupons;
 use craft\commerce\services\Gateways;
 use craft\commerce\services\Stores;
@@ -136,8 +137,8 @@ class Install extends Migration
         $this->createTable(Table::CATALOG_PRICING_QUEUE, [
             'id' => $this->primaryKey(),
             'storeId' => $this->integer(),
-            'purchasableIds' => $this->mediumText(),
-            'catalogPricingRuleIds' => $this->mediumText(),
+            'type' => $this->enum('type', [CatalogPricing::QUEUE_TYPE_PURCHASABLE, CatalogPricing::QUEUE_TYPE_RULE])->notNull(),
+            'ids' => $this->mediumText(),
             'reserved' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -1103,7 +1104,7 @@ class Install extends Migration
         $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId', 'isPromotionalPrice', 'price'], false);
         $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId'], false);
         $this->createIndex(null, Table::CATALOG_PRICING_QUEUE, 'reserved', false);
-        $this->createIndex(null, Table::CATALOG_PRICING_QUEUE, ['storeId', 'reserved'], false);
+        $this->createIndex(null, Table::CATALOG_PRICING_QUEUE, ['storeId', 'type', 'reserved'], false);
         $this->createIndex(null, Table::CATALOG_PRICING_RULES, 'storeId', false);
         $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'catalogPricingRuleId', false);
         $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'userId', false);

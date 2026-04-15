@@ -8,6 +8,7 @@
 namespace craft\commerce\queue\jobs;
 
 use craft\commerce\Plugin;
+use craft\commerce\records\CatalogPricingQueue as CatalogPricingQueueRecord;
 use craft\queue\BaseJob;
 
 class CatalogPricing extends BaseJob
@@ -30,17 +31,35 @@ class CatalogPricing extends BaseJob
     public function execute($queue): void
     {
         $catalogPricingService = Plugin::getInstance()->getCatalogPricing();
-        $reservedRow = $catalogPricingService->reserveCatalogPricingQueueRow();
+        $isConsolidatedJob = $this->storeId === null && $this->purchasableIds === null && $this->catalogPricingRuleIds === null;
+        $catalogPricingRules = null;
+        $purchasableIds = null;
+        $reservedRowId = null;
 
-        if (!$reservedRow) {
-            return;
+        if ($isConsolidatedJob) {
+            // New method of processing catalog pricing via queue table: reserve a row and process based on its type and IDs
+            $reservedRecord = $catalogPricingService->reserveCatalogPricingQueueRow();
+
+            if (!$reservedRecord) {
+                return;
+            }
+
+            $reservedRowId = $reservedRecord->id;
+            $storeId = $reservedRecord->storeId;
+
+            if ($reservedRecord->type === CatalogPricingQueueRecord::TYPE_PURCHASABLE) {
+                // Specific purchasable IDs: regenerate against all applicable rules
+                $purchasableIds = $reservedRecord->getIds();
+            } elseif ($reservedRecord->type === CatalogPricingQueueRecord::TYPE_RULE) {
+                $catalogPricingRuleIds = $reservedRecord->getIds();
+            }
+        } else {
+            // @TODO: remove these properties and behaviour at next breaking change
+            $purchasableIds = $this->purchasableIds;
+            $catalogPricingRuleIds = $this->catalogPricingRuleIds;
+            $storeId = $this->storeId;
         }
 
-        $purchasableIds = $reservedRow['purchasableIds'] ?? $this->purchasableIds;
-        $catalogPricingRuleIds = $reservedRow['catalogPricingRuleIds'] ?? $this->catalogPricingRuleIds;
-        $storeId = $reservedRow['storeId'] ?? $this->storeId;
-
-        $catalogPricingRules = null;
         if (!empty($catalogPricingRuleIds)) {
             $catalogPricingRules = Plugin::getInstance()->getCatalogPricingRules()
                 ->getAllCatalogPricingRules($storeId)
@@ -51,12 +70,12 @@ class CatalogPricing extends BaseJob
         try {
             $catalogPricingService->generateCatalogPrices($purchasableIds, $catalogPricingRules, queue: $queue);
 
-            if (!empty($reservedRow['id'])) {
-                $catalogPricingService->deleteCatalogPricingQueueRow((int)$reservedRow['id']);
+            if ($reservedRowId) {
+                $catalogPricingService->deleteCatalogPricingQueueRow($reservedRowId);
             }
         } catch (\Throwable $e) {
-            if (!empty($reservedRow['id'])) {
-                $catalogPricingService->releaseCatalogPricingQueueRow((int)$reservedRow['id']);
+            if ($reservedRowId) {
+                $catalogPricingService->releaseCatalogPricingQueueRow($reservedRowId);
             }
 
             throw $e;
