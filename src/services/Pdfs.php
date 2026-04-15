@@ -362,6 +362,7 @@ class Pdfs extends Component
             $pdfRecord->language = $data['language'] ?? PdfRecord::LOCALE_ORDER_LANGUAGE;
             $pdfRecord->paperOrientation = $data['paperOrientation'] ?? PdfRecord::PAPER_ORIENTATION_PORTRAIT;
             $pdfRecord->paperSize = $data['paperSize'] ?? 'letter';
+            $pdfRecord->linkExpiry = $data['linkExpiry'] ?? 86400;
 
             $pdfRecord->uid = $pdfUid;
 
@@ -672,7 +673,7 @@ class Pdfs extends Component
      */
     private function _createPdfsQuery(): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'description',
                 'enabled',
@@ -692,5 +693,12 @@ class Pdfs extends Component
             ->orderBy('name')
             ->from([Table::PDFS])
             ->orderBy(['sortOrder' => SORT_ASC]);
+
+        // TODO: remove after next breakpoint
+        if (Craft::$app->getDb()->columnExists(Table::PDFS, 'linkExpiry')) {
+            $query->addSelect('linkExpiry');
+        }
+
+        return $query;
     }
 }
