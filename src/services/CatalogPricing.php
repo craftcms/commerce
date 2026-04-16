@@ -633,8 +633,11 @@ class CatalogPricing extends Component
             ]);
 
             if ($pendingRecord) {
-                // Merge IDs
-                $ids = $this->_normalizeIds(array_merge($pendingRecord->getIds() ?? [], $ids ?? []));
+                // Merge IDs, preserving null to represent the broader "all IDs" scope.
+                $pendingIds = $pendingRecord->getIds();
+                $ids = ($pendingIds === null || $ids === null)
+                    ? null
+                    : $this->_normalizeIds(array_merge($pendingIds, $ids));
 
                 $pendingRecord->setIds($ids);
                 $pendingRecord->save(false);
