@@ -13,6 +13,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\services\Carts;
 use craft\commerce\services\Stores;
+use craft\web\Request;
 use craftcommercetests\fixtures\CustomerAddressFixture;
 use craftcommercetests\fixtures\CustomerFixture;
 use UnitTester;
@@ -106,6 +107,93 @@ class CartsTest extends Unit
             'logged-in-user-no-auto-set-addresses' => ['cred.user@crafttest.com', false, false, false, true],
             'logged-in-user-auto-set-addresses' => ['cred.user@crafttest.com', true, true, true, true],
         ];
+    }
+
+    /**
+     * Tests that calling forgetCart() followed by getCart() in the same request returns a new
+     * cart with a different number — verifying the fix in loadCookie() that respects the `false`
+     * set by forgetCart() and prevents the cookie from restoring the forgotten cart.
+     *
+     * @see https://github.com/craftcms/commerce/issues/4279
+     */
+    public function testForgetCartPreventsCartRestoration(): void
+    {
+        $cartsService = Plugin::getInstance()->getCarts();
+
+        // First call generates an in-memory cart number and returns a new cart.
+        $initialCart = $cartsService->getCart();
+        $originalNumber = $initialCart->number;
+
+        // forgetCart() sets the private $_cartNumber sentinel to `false`.
+        $cartsService->forgetCart();
+
+        // A subsequent getCart() must generate a completely new number and return a fresh cart.
+        $newCart = $cartsService->getCart();
+
+        self::assertNotEquals(
+            $originalNumber,
+            $newCart->number,
+            'After forgetCart(), getCart() should return a cart with a new number.',
+        );
+    }
+
+    /**
+     * Demonstrates that without the fix, a web request whose cookie still carries the forgotten
+     * cart number causes getCart() to reuse that number — exactly as the old loadCookie() would
+     * have behaved before the `$this->_cartNumber === false` guard was introduced.
+     *
+     * @see https://github.com/craftcms/commerce/issues/4279
+     */
+    public function testForgetCartWithRestoredCartNumberReturnsSameNumber(): void
+    {
+        $carts = Plugin::getInstance()->getCarts();
+
+        // Get an initial cart and number.
+        $initialCart = $carts->getCart();
+        $originalNumber = $initialCart->number;
+
+        // Forget the cart — $_cartNumber is now `false`.
+        $carts->forgetCart();
+
+        $cookieName = 'test_commerce_cart';
+        $carts->cartCookie = ['name' => $cookieName];
+
+        // Simulate the pre-fix state: set $_cartNumber to `null`.
+        // In old code the `$this->_cartNumber === false` guard didn't exist, so even after
+        // forgetCart() wrote `false`, loadCookie() would proceed and silently overwrite it
+        // with whatever value was in the request cookie.
+        $reflection = new \ReflectionClass($carts);
+        $cartNumberProp = $reflection->getProperty('_cartNumber');
+        $cartNumberProp->setAccessible(true);
+        $cartNumberProp->setValue($carts, null);
+
+        $requestCookies = new \yii\web\CookieCollection();
+        $requestCookies->add(new \yii\web\Cookie([
+            'name' => $cookieName,
+            'value' => $originalNumber,
+        ]));
+
+        $originalRequest = \Craft::$app->getRequest();
+
+        // Create a mock request class to return test data
+        $requestMock = $this->make(Request::class, [
+            'getIsConsoleRequest' => false,
+            'getCookies' => $requestCookies,
+        ]);
+
+        Craft::$app->set('request', $requestMock);
+
+        try {
+            $restoredCart = $carts->getCart();
+
+            self::assertEquals(
+                $originalNumber,
+                $restoredCart->number,
+                'Without the false guard in loadCookie(), the request cookie restores the forgotten cart number.',
+            );
+        } finally {
+            \Craft::$app->set('request', $originalRequest);
+        }
     }
 
     public function testGetCartSwitchCustomer(): void
