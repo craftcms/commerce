@@ -515,7 +515,9 @@ class CatalogPricing extends Component
         if (!empty($purchasableIds)) {
             // Specific purchasable IDs: these will be regenerated against all applicable rules
             $this->_queueCatalogPricingIds($storeId, CatalogPricingQueueRecord::TYPE_PURCHASABLE, $purchasableIds);
-        } elseif (!empty($catalogPricingRuleIds)) {
+        }
+
+        if (!empty($catalogPricingRuleIds)) {
             $this->_queueCatalogPricingIds($storeId, CatalogPricingQueueRecord::TYPE_RULE, $catalogPricingRuleIds);
         }
 
