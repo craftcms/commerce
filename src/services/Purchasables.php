@@ -21,6 +21,7 @@ use craft\commerce\Plugin;
 use craft\elements\User;
 use craft\errors\SiteNotFoundException;
 use craft\events\RegisterComponentTypesEvent;
+use craft\helpers\ArrayHelper;
 use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
@@ -175,13 +176,20 @@ class Purchasables extends Component
         $isAvailable = $purchasable->getIsAvailable();
 
         // Purchasable::getIsAvailable() checks for stock across all of the store's inventory locations, but these may differ for this specific order. We can rest assured that the stock for the order is less than the stock for the store.
-        // We are doing this here so we don't have to change the signature of the getIsAvailable method.
-        if (
-            $order
-            && $purchasable->inventoryTracked
-            && $purchasable->getStock($order) < 1
-            && !Plugin::getInstance()->getPurchasables()->isPurchasableOutOfStockPurchasingAllowed($this)
-         ) {
+        // We are doing this here so we don't have to change the signature of the PurchasableInterface::getIsAvailable() method.
+        // We use the ArrayHelper::getValue() to support purchasbles which implement the PurchasableInterface without extending base Purchasable class.
+        $inventoryTracked = ArrayHelper::getValue($purchasable, 'inventoryTracked') ?? false;
+        $allowOutOfStockPurchasables = false;
+        $stock = 0;
+
+        if ($purchasable instanceof Purchasable) {
+            $stock = $purchasable->getStock($order);
+            $allowOutOfStockPurchasables = Plugin::getInstance()->getPurchasables()->isPurchasableOutOfStockPurchasingAllowed($purchasable, $order, $currentUser);
+        } else {
+            $stock = ArrayHelper::getValue($purchasable, 'stock') ?? 0;
+        }
+
+        if ($order && $inventoryTracked && $stock < 1 && !$allowOutOfStockPurchasables) {
             $isAvailable = false;
         }
 
