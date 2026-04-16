@@ -512,7 +512,7 @@ class CatalogPricing extends Component
         // Queue purchasable-based and rule-based work into separate rows so they are never cross-contaminated.
         // Catalog pricing rules determine which purchasables are relevant, so the two must be processed independently.
 
-        if (!empty($purchasableIds)) {
+        if (!empty($purchasableIds) || ($purchasableIds === null && empty($catalogPricingRuleIds))) {
             // Specific purchasable IDs: these will be regenerated against all applicable rules
             $this->_queueCatalogPricingIds($storeId, CatalogPricingQueueRecord::TYPE_PURCHASABLE, $purchasableIds);
         }
