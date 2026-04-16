@@ -505,6 +505,11 @@ class Carts extends Component
             $this->cartCookie['name'] = md5(sprintf('Craft.%s.%s.%s', self::class, Craft::$app->id, $currentStore->handle)) . '_commerce_cart';
         }
 
+        // Don't restore from cookie if the cart was explicitly forgotten this request.
+        if ($this->_cartNumber === false) {
+            return;
+        }
+
         $request = Craft::$app->getRequest();
         if (!$request->getIsConsoleRequest()) {
             $this->cartCookie = Craft::cookieConfig($this->cartCookie);
