@@ -515,7 +515,9 @@ class CatalogPricing extends Component
         if (!empty($purchasableIds)) {
             // Specific purchasable IDs: these will be regenerated against all applicable rules
             $this->_queueCatalogPricingIds($storeId, CatalogPricingQueueRecord::TYPE_PURCHASABLE, $purchasableIds);
-        } elseif (!empty($catalogPricingRuleIds)) {
+        }
+
+        if (!empty($catalogPricingRuleIds)) {
             $this->_queueCatalogPricingIds($storeId, CatalogPricingQueueRecord::TYPE_RULE, $catalogPricingRuleIds);
         }
 
@@ -631,8 +633,11 @@ class CatalogPricing extends Component
             ]);
 
             if ($pendingRecord) {
-                // Merge IDs
-                $ids = $this->_normalizeIds(array_merge($pendingRecord->getIds() ?? [], $ids ?? []));
+                // Merge IDs, preserving null to represent the broader "all IDs" scope.
+                $pendingIds = $pendingRecord->getIds();
+                $ids = ($pendingIds === null || $ids === null)
+                    ? null
+                    : $this->_normalizeIds(array_merge($pendingIds, $ids));
 
                 $pendingRecord->setIds($ids);
                 $pendingRecord->save(false);
