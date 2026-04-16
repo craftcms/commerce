@@ -4,7 +4,7 @@
 - Added `craft\commerce\db\Table::CATALOG_PRICING_QUEUE`.
 - Added `craft\commerce\records\CatalogPricingQueue`.
 - Added `craft\commerce\services\CatalogPricing::reserveCatalogPricingQueueRow()`.
-- Added `craft\commerce\services\CatalogPricing::releaseCatalogPricingQueueRow()`.
-- Added `craft\commerce\services\CatalogPricing::deleteCatalogPricingQueueRow()`.
+- Added `craft\commerce\services\CatalogPricing::releaseCatalogPricingQueueRowById()`.
+- Added `craft\commerce\services\CatalogPricing::deleteCatalogPricingQueueRowById()`.
 
 

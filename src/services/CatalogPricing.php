@@ -538,7 +538,7 @@ class CatalogPricing extends Component
      * @return CatalogPricingQueueRecord|null
      * @since 5.7.0
      */
-    public function reserveCatalogPricingQueueById(): ?CatalogPricingQueueRecord
+    public function reserveCatalogPricingQueueRow(): ?CatalogPricingQueueRecord
     {
         $mutex = Craft::$app->getMutex();
 

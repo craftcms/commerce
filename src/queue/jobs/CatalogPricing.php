@@ -38,7 +38,7 @@ class CatalogPricing extends BaseJob
 
         if ($isConsolidatedJob) {
             // New method of processing catalog pricing via queue table: reserve a row and process based on its type and IDs
-            $reservedRecord = $catalogPricingService->reserveCatalogPricingQueueById();
+            $reservedRecord = $catalogPricingService->reserveCatalogPricingQueueRow();
 
             if (!$reservedRecord) {
                 return;
