@@ -33,8 +33,12 @@ class CatalogPricing extends BaseJob
         $catalogPricingService = Plugin::getInstance()->getCatalogPricing();
         $isConsolidatedJob = $this->storeId === null && $this->purchasableIds === null && $this->catalogPricingRuleIds === null;
         $catalogPricingRules = null;
-        $purchasableIds = null;
         $reservedRowId = null;
+
+        // @TODO: remove these properties and behaviour at next breaking change
+        $storeId = $this->storeId;
+        $purchasableIds = $this->purchasableIds;
+        $catalogPricingRuleIds = $this->catalogPricingRuleIds;
 
         if ($isConsolidatedJob) {
             // New method of processing catalog pricing via queue table: reserve a row and process based on its type and IDs
@@ -52,12 +56,9 @@ class CatalogPricing extends BaseJob
                 $purchasableIds = $reservedRecord->getIds();
             } elseif ($reservedRecord->type === CatalogPricingQueueRecord::TYPE_RULE) {
                 $catalogPricingRuleIds = $reservedRecord->getIds();
+            } else {
+                throw new \Exception("CatalogPricing queue rule ids not recognized");
             }
-        } else {
-            // @TODO: remove these properties and behaviour at next breaking change
-            $purchasableIds = $this->purchasableIds;
-            $catalogPricingRuleIds = $this->catalogPricingRuleIds;
-            $storeId = $this->storeId;
         }
 
         if (!empty($catalogPricingRuleIds)) {
