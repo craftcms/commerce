@@ -11,7 +11,6 @@ use Codeception\Test\Unit;
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingQueue as CatalogPricingQueueRecord;
-use craft\db\Query;
 use craftcommercetests\fixtures\StoreFixture;
 use UnitTester;
 
@@ -469,4 +468,3 @@ class CatalogPricingQueueTest extends Unit
         ];
     }
 }
-
