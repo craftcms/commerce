@@ -619,7 +619,7 @@ class CatalogPricing extends Component
         $mutex = Craft::$app->getMutex();
 
         if (!$mutex->acquire('catalogpricingqueue', 5)) {
-            return;
+            throw new \RuntimeException('Unable to acquire the catalog pricing queue mutex.');
         }
 
         try {
