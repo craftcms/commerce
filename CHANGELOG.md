@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Improved product query performance. ([#4281](https://github.com/craftcms/commerce/issues/4281))
+
 ## 5.6.2 - 2026-04-15
 
 - Improved the performance of migrations when upgrading to Commerce 5. ([#4277](https://github.com/craftcms/commerce/issues/4277))
