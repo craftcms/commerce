@@ -108,8 +108,7 @@ class DownloadsController extends BaseFrontEndController
 
             // Validate token structure and order number
             if (!$tokenData || !isset($tokenData[1]['orderNumber']) || $tokenData[1]['orderNumber'] !== $number) {
-                // Invalid token - redirect to challenge form with error
-                Craft::$app->getSession()->setError(Craft::t('commerce', 'The download link is invalid. Please request a new one.'));
+                Craft::$app->getSession()->setError(Craft::t('commerce', 'The download link has expired. Please request a new one.'));
                 return $this->redirect(UrlHelper::actionUrl('commerce/downloads/email-challenge', [
                     'number' => $number,
                     'pdfHandle' => $pdfHandle,
@@ -118,23 +117,6 @@ class DownloadsController extends BaseFrontEndController
                 ]));
             }
 
-            // Check if token has expired based on the timestamp in the token data
-            if (isset($tokenData[1]['expiresAt'])) {
-                $expiresAt = $tokenData[1]['expiresAt'];
-                $now = (new \DateTime())->getTimestamp();
-
-                if ($now > $expiresAt) {
-                    // Token expired - redirect to email challenge form
-                    return $this->redirect(UrlHelper::actionUrl('commerce/downloads/email-challenge', [
-                        'number' => $number,
-                        'pdfHandle' => $pdfHandle,
-                        'option' => $option,
-                        'inline' => $inline,
-                    ]));
-                }
-            }
-
-            // Token is valid
             $hasValidToken = true;
         }
 

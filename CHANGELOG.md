@@ -4,6 +4,7 @@
 
 - Improved product query performance. ([#4281](https://github.com/craftcms/commerce/issues/4281))
 - Fixed a bug where Users’ orders, carts, and subscriptions weren’t retaining their view options on the dedicated “Commerce” screen within Edit User.
+- PDF download tokens now use Craft's native token expiry rather than a custom timestamp in the token payload.
 
 ## 5.6.2 - 2026-04-15
 
