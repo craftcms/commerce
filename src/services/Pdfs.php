@@ -451,17 +451,13 @@ class Pdfs extends Component
             throw new \InvalidArgumentException("Can not find a PDF to generate URL.");
         }
 
-        $expiryTimestamp = (new \DateTime())->add(new \DateInterval('PT' . $pdf->linkExpiry . 'S'))->getTimestamp();
+        $expiryDate = (new \DateTime())->add(new \DateInterval('PT' . $pdf->linkExpiry . 'S'));
 
-        // Create a token for secure PDF access with expiry in the data payload
-        // This way the token itself never expires, but we validate the timestamp in the download controller
-        $token = Craft::$app->getTokens()->createToken([
-            'commerce/downloads/pdf',
-            [
-                'orderNumber' => $order->number,
-                'expiresAt' => $expiryTimestamp,
-            ],
-        ]);
+        $token = Craft::$app->getTokens()->createToken(
+            ['commerce/downloads/pdf', ['orderNumber' => $order->number]],
+            null,
+            $expiryDate
+        );
 
         // Build the URL parameters
         $params = [
