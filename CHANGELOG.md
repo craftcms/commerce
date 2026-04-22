@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Improved product query performance. ([#4281](https://github.com/craftcms/commerce/issues/4281))
+- Fixed a bug where Users’ orders, carts, and subscriptions weren’t retaining their view options on the dedicated “Commerce” screen within Edit User.
 
 ## 5.6.2 - 2026-04-15
 
