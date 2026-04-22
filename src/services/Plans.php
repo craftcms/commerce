@@ -380,10 +380,10 @@ class Plans extends Component
     private function _getAllPlans(): array
     {
         if ($this->_allPlans === null) {
+            $this->_allPlans = [];
             $plans = $this->_createPlansQuery()->all();
 
             if (!empty($plans)) {
-                $this->_allPlans = [];
                 $plans = $this->_populatePlans($plans);
                 foreach ($plans as $plan) {
                     $this->_allPlans[$plan->id] = $plan;
