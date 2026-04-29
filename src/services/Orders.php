@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\db\Table;
+use craft\commerce\elements\deletionblockers\OrderCustomersDeletionBlocker;
 use craft\commerce\elements\Order;
 use craft\db\Query;
 use craft\elements\Address;
@@ -17,10 +18,13 @@ use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
 use craft\errors\UnsupportedSiteException;
 use craft\events\ConfigEvent;
+use craft\events\DefineElementDeletionBlockersEvent;
 use craft\events\ModelEvent;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Db;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\models\FieldLayout;
+use http\Exception\InvalidArgumentException;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -173,21 +177,80 @@ class Orders extends Component
     /**
      * Prevent deleting a user if they have any orders.
      *
-     * @param ModelEvent $event the event.
+     * @param DefineElementDeletionBlockersEvent $event the event.
      */
-    public function beforeDeleteUserHandler(ModelEvent $event): void
+    public function beforeDeleteUserHandler(DefineElementDeletionBlockersEvent $event): void
     {
-        /** @var User $user */
-        $user = $event->sender;
+        $event->blockers[] = new OrderCustomersDeletionBlocker($event->elements, $event->hardDelete);
+    }
 
-        // If there are any orders, make sure that this is not allowed.
-        if (Order::find()->customerId($user->id)->status(null)->exists()) {
-            $event->isValid = false;
+    /**
+     * Reassigns orders to a new customer.
+     *
+     * @param int|int[] $oldUserId
+     * @param int $newUserId
+     * @return int The number of affected orders
+     * @throws \yii\db\Exception
+     * @since 5.7.0
+     */
+    public function reassignOrders(int|array $oldUserId, int $newUserId): int
+    {
+        $newUserEmail = (new Query())
+            ->select(['email'])
+            ->from(\craft\db\Table::USERS)
+            ->where(['id' => $newUserId])
+            ->scalar();
 
-            Craft::info(Craft::t('commerce', 'Unable to delete user {user}: the user has a Craft Commerce order.', [
-                'user' => $user->id,
-            ]));
+        if (!$newUserEmail) {
+            throw new InvalidArgumentException('Unable to reassign user id: ' . $newUserId);
         }
+
+        $count = Db::update(Table::ORDERS, [
+            'customerId' => $newUserId,
+            'email' => $newUserEmail,
+        ], [
+            'customerId' => $oldUserId,
+        ], [], false);
+
+        // Invalidate all order caches
+        Craft::$app->getElements()->invalidateCachesForElementType(Order::class);
+
+        return $count;
+    }
+
+    /**
+     * @param int|array $orderId
+     * @param array $dataToRemove
+     * @return int
+     * @throws \yii\db\Exception
+     * @since 5.7.0
+     */
+    public function removeCustomerData(int|array $orderId, array $dataToRemove = ['customerId', 'email']): int
+    {
+        $allowedRemovalKeys = [
+            'customerId',
+            'email',
+            'billingAddressId',
+            'shippingAddressId',
+            'orderCompletedEmail',
+        ];
+
+        $data = [];
+        foreach ($dataToRemove as $key) {
+            if (!in_array($key, $allowedRemovalKeys)) {
+                continue;
+            }
+
+            $data[$key] = null;
+        }
+
+        $count = Db::update(Table::ORDERS, $data, [
+            'id' => $orderId,
+        ], [], false);
+
+        Craft::$app->getElements()->invalidateCachesForElementType(Order::class);
+
+        return $count;
     }
 
     /**
