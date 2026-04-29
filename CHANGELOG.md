@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- PDF download tokens now use Craft's native token expiry rather than a custom timestamp in the token payload.
+- PDF download tokens now use Craft's native token expiry.
 
 ## 4.11.0.1 - 2026-03-27
 
