@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.6.3 - 2026-04-29
 
 - Improved product query performance. ([#4281](https://github.com/craftcms/commerce/issues/4281))
 - PDF download tokens now use Craft’s native token expiry.
