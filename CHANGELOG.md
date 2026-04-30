@@ -1,8 +1,8 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.11.1 - 2026-04-30
 
-- PDF download tokens now use Craft's native token expiry.
+- PDF download tokens now use Craft’s native token expiry.
 
 ## 4.11.0.1 - 2026-03-27
 
