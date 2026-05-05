@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where variants could end up without an inventory item, causing an error when editing them. ([#3837](https://github.com/craftcms/commerce/issues/3837))
+
 ## 5.6.3 - 2026-04-29
 
 - Improved product query performance. ([#4281](https://github.com/craftcms/commerce/issues/4281))
