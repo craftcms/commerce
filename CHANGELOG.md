@@ -2,10 +2,10 @@
 
 ## Unreleased
 
-- Fixed a SQL error that occurred when processing fulfillments on PostgreSQL, due to a stale check constraint from a table rename. ([#4291](https://github.com/craftcms/commerce/issues/4291))
+- Fixed a SQL error that occurred when processing a fulfillment on PostgreSQL. ([#4291](https://github.com/craftcms/commerce/issues/4291))
 - Fixed a bug where custom field tabs were duplicated in the tabs dropdown menu on Edit Order pages. ([#4293](https://github.com/craftcms/commerce/issues/4293))
 - Fixed a bug where the "Set default variant" element action wasn't immediately reflected in the element index. ([#4294](https://github.com/craftcms/commerce/issues/4294))
-- Fixed a bug where variants could end up without an inventory item, causing an error when editing them. ([#3837](https://github.com/craftcms/commerce/issues/3837))
+- Fixed a PHP error that occurred when variants could end up without an inventory item. ([#3837](https://github.com/craftcms/commerce/issues/3837))
 
 ## 5.6.3 - 2026-04-29
 
