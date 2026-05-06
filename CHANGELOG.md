@@ -2,10 +2,15 @@
 
 ## Unreleased
 
-- PDF download tokens now use Craft's native token expiry rather than a custom timestamp in the token payload.
+- Fixed a bug where variants could end up without an inventory item, causing an error when editing them. ([#3837](https://github.com/craftcms/commerce/issues/3837))
+
+## 5.6.3 - 2026-04-29
+
 - Improved product query performance. ([#4281](https://github.com/craftcms/commerce/issues/4281))
-- Fixed a bug where Users’ orders, carts, and subscriptions weren’t retaining their view options on the dedicated “Commerce” screen within Edit User.
-- Fixed a PHP error that could occur when viewing field layouts that contain product fields. ([#4282](https://github.com/craftcms/commerce/issues/4282))
+- PDF download tokens now use Craft’s native token expiry.
+- Fixed a bug where the “Commerce” page within user account settings wasn’t retaining view options for orders, carts, and subscriptions.
+- Fixed a PHP error that could occur when editing field layouts that contained Commerce Products fields. ([#4282](https://github.com/craftcms/commerce/issues/4282))
+- Fixed a deadlock that could occur when saving products with many variants concurrently. ([#4287](https://github.com/craftcms/commerce/issues/4287))
 
 ## 5.6.2 - 2026-04-15
 
