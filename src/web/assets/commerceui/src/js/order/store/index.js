@@ -388,33 +388,22 @@ export default new Vuex.Store({
     },
 
     handleTabs({state}) {
-      const tabManagerMenuBtn =
-        Craft.cp.tabManager.$menuBtn.data('disclosureMenu');
-      const tabsDropdownMenu = tabManagerMenuBtn;
-      if (tabsDropdownMenu !== undefined) {
-        const optionSelector =
-          '[id^="' + tabsDropdownMenu.menuId + '-option-"]';
+      const tabManager = Craft.cp.tabManager;
+      if (!tabManager || !tabManager.menu) {
+        return;
+      }
 
-        const staticOptions = tabsDropdownMenu.$container.find(
-          optionSelector + '[data-id^="static-fields-"]'
-        );
-        const fieldsOptions = tabsDropdownMenu.$container.find(
-          optionSelector + '[data-id^="fields-"]'
-        );
+      const staticOptions = tabManager.menu.find(
+        'a[data-id^="static-fields-"]'
+      );
+      const fieldsOptions = tabManager.menu.find('a[data-id^="fields-"]');
 
-        if (state.editing) {
-          staticOptions.disable();
-          staticOptions.parent().addClass('hidden');
-
-          fieldsOptions.enable();
-          fieldsOptions.parent().removeClass('hidden');
-        } else {
-          staticOptions.enable();
-          staticOptions.parent().removeClass('hidden');
-
-          fieldsOptions.disable();
-          fieldsOptions.parent().addClass('hidden');
-        }
+      if (state.editing) {
+        staticOptions.parent().addClass('hidden');
+        fieldsOptions.parent().removeClass('hidden');
+      } else {
+        staticOptions.parent().removeClass('hidden');
+        fieldsOptions.parent().addClass('hidden');
       }
     },
 
