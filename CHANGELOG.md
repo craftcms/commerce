@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.6.4 - 2026-05-06
 
 - Fixed a SQL error that occurred when processing a fulfillment on PostgreSQL. ([#4291](https://github.com/craftcms/commerce/issues/4291))
 - Fixed a bug where custom field layout tabs were duplicated in the tab overflow menu on order edit pages. ([#4293](https://github.com/craftcms/commerce/issues/4293))
