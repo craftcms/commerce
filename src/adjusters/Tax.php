@@ -21,7 +21,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\commerce\taxidvalidators\EuVatIdValidator;
 use craft\elements\Address;
-use DvK\Vat\Validator;
+use Ibericode\Vat\Validator;
 use Exception;
 use Illuminate\Support\Collection;
 use Money\Teller;

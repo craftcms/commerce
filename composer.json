@@ -24,7 +24,7 @@
     "php": "^8.2",
     "craftcms/cms": "^5.9.15",
     "dompdf/dompdf": "^2.0.2",
-    "ibericode/vat": "^1.2.2",
+    "ibericode/vat": "^2.0",
     "iio/libmergepdf": "^4.0",
     "moneyphp/money": "^4.2.0"
   },

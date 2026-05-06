@@ -1140,12 +1140,10 @@ class Variant extends Purchasable implements NestedElementInterface
                 'defaultWidth' => $this->width,
                 'defaultWeight' => $this->weight,
             ];
-            DB::update(Table::PRODUCTS, $defaultData, [
-                // Update the default variant data for the product and any other product that use this variant as their default
-                'or',
-                ['id' => $ownerId],
-                ['defaultVariantId' => $this->id],
-            ]);
+            // Update the product that owns this variant
+            Db::update(Table::PRODUCTS, $defaultData, ['id' => $ownerId]);
+            // Update any other product that references this variant as its default (split from the above to avoid deadlocks from non-deterministic lock ordering with OR-clauses)
+            Db::update(Table::PRODUCTS, $defaultData, ['and', ['defaultVariantId' => $this->id], ['not', ['id' => $ownerId]]]);
         }
     }
 
