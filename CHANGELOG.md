@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a bug where the default variant wasn't updating in the element index until the data cache was cleared. ([#4294](https://github.com/craftcms/commerce/issues/4294))
 - Fixed a bug where variants could end up without an inventory item, causing an error when editing them. ([#3837](https://github.com/craftcms/commerce/issues/3837))
 
 ## 5.6.3 - 2026-04-29
