@@ -1457,6 +1457,7 @@ JS, []);
 
         $orderIds = array_map(fn($id) => (int)$id, $this->request->getRequiredParam('orderIds'));
         $customerData = $this->request->getBodyParam('customerData', []);
+        $customerData = $customerData === '' ? [] : $customerData;
 
         $customerData = $customerData === '*' ? ['billingAddressId', 'shippingAddressId', 'orderCompletedEmail'] : $customerData;
 

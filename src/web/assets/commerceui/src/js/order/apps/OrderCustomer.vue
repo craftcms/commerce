@@ -27,11 +27,34 @@
                     :show-remove="editing && editMode"
                     @remove="removeCustomer"
                 ></customer>
-                <customer-select
-                    :order="draft.order"
-                    @update="updateCustomer"
-                    v-if="!hasCustomer"
-                ></customer-select>
+                <template
+                    v-if="
+                        !hasCustomer &&
+                        ((editing && editMode) || !draft.order.customerDeleted)
+                    "
+                >
+                    <customer-select
+                        :order="draft.order"
+                        @update="updateCustomer"
+                        v-if="!hasCustomer"
+                    ></customer-select>
+                </template>
+                <template
+                    v-else-if="!hasCustomer && draft.order.customerDeleted"
+                >
+                    <p class="warning has-icon">
+                        <span class="icon" aria-hidden="true"></span
+                        ><span class="visually-hidden">{{
+                            $options.filters.t('Notice', 'app')
+                        }}</span>
+                        <span>{{
+                            $options.filters.t(
+                                'The customer for this order has been deleted.',
+                                'commerce'
+                            )
+                        }}</span>
+                    </p>
+                </template>
             </div>
         </div>
 

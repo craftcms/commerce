@@ -487,6 +487,7 @@ class Install extends Migration
             'gatewayId' => $this->integer(),
             'paymentSourceId' => $this->integer(),
             'customerId' => $this->integer(), // Customer ID is a User element ID
+            'customerDeleted' => $this->boolean()->notNull()->defaultValue(false),
             'orderStatusId' => $this->integer(),
             'number' => $this->string(32),
             'reference' => $this->string(),

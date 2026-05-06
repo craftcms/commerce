@@ -241,6 +241,11 @@ class Orders extends Component
                 continue;
             }
 
+            // Make sure we are setting the `customerDeleted` flag when removing the `customerId`
+            if ($key === 'customerId') {
+                $data['customerDeleted'] = true;
+            }
+
             $data[$key] = null;
         }
 

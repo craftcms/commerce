@@ -10,6 +10,7 @@
     { label: order.getStore().name|t('site'), url: url('commerce/orders') },
 ] %}
 
+{% do view.registerTranslations('app', ['Notice']) %}
 {% do view.registerTranslations('commerce', [
     "A valid email is required to create a customer.",
     "Actions",
@@ -151,6 +152,7 @@
     "Suppress emails",
     "Tax Category",
     "Tax",
+    "The customer for this order has been deleted.",
     "There are errors on the order",
     "This URL will load the cart into the user’s session, making it the active cart.",
     "This order has unsaved changes.",

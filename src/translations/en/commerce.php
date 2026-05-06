@@ -1122,6 +1122,7 @@ return [
     'Tax' => 'Tax',
     'Taxable Subject' => 'Taxable Subject',
     'Template Path' => 'Template Path',
+    'The customer for this order has been deleted.' => 'The customer for this order has been deleted.',
     'That handle is already in use' => 'That handle is already in use',
     'That handle is already in use.' => 'That handle is already in use.',
     'The PDF to attach to this email.' => 'The PDF to attach to this email.',
