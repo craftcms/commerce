@@ -25,6 +25,7 @@ use craft\commerce\models\subscriptions\SubscriptionForm;
 use craft\commerce\models\subscriptions\SubscriptionPayment;
 use craft\commerce\models\subscriptions\SwitchPlansForm;
 use craft\commerce\records\Subscription as SubscriptionRecord;
+use craft\elements\ElementCollection;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\events\ConfigEvent;
@@ -402,6 +403,7 @@ class Subscriptions extends Component
      */
     public function beforeDeleteUserHandler(DefineElementDeletionBlockersEvent $event): void
     {
+        /** @var ElementCollection<int|string, Subscription> $subscriptions */
         $subscriptions = Subscription::find()
             ->userId($event->elements->ids()->all())
             ->status(null)
@@ -437,6 +439,7 @@ class Subscriptions extends Component
      */
     public function beforeDeleteSubscriptionHandler(DefineElementDeletionBlockersEvent $event): void
     {
+        /** @var ElementCollection<int|string, Subscription> $subscriptions */
         $subscriptions = Subscription::find()
             ->id($event->elements->ids()->all())
             ->status(null)
