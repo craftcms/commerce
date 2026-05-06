@@ -238,7 +238,7 @@ class SubscriptionsController extends BaseController
         } catch (SubscriptionException $exception) {
             $error = $exception->getMessage();
         }
-        
+
         if ($subscription && $returnUrl) {
             $returnUrl = $this->getView()->renderObjectTemplate($returnUrl, $subscription);
             $subscriptionRecord = SubscriptionRecord::findOne($subscription->id);
@@ -546,7 +546,7 @@ class SubscriptionsController extends BaseController
     /**
      * Returns the gateway cancel modal response, with an action URL for the submit endpoint.
      */
-    private function _renderGatewayCancelModal(string $actionUrl): Response
+    private function _renderGatewayCancelModal(string $actionUrl): \craft\web\Response
     {
         $subscriptionIds = array_map('intval', $this->request->getRequiredParam('subscriptionIds'));
         $gatewayId = (int)$this->request->getRequiredParam('gatewayId');

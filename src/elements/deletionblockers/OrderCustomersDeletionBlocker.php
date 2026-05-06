@@ -10,6 +10,7 @@ namespace craft\commerce\elements\deletionblockers;
 use Craft;
 use craft\commerce\elements\Order;
 use craft\elements\deletionblockers\BaseDeletionBlocker;
+use craft\elements\ElementCollection;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use Illuminate\Support\Collection;
@@ -27,6 +28,7 @@ class OrderCustomersDeletionBlocker extends BaseDeletionBlocker
 
     public function init()
     {
+        /** @var ElementCollection<int|string, Order> $orders */
         $orders = Order::find()
             ->customerId($this->elements->ids()->all())
             ->isCompleted()
