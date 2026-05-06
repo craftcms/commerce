@@ -9,8 +9,8 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\Plugin;
-use Ibericode\Vat\Validator;
 use Exception;
+use Ibericode\Vat\Validator;
 use yii\base\Component;
 
 /**
