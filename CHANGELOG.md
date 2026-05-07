@@ -1,11 +1,11 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.6.4 - 2026-05-06
 
 - Fixed a SQL error that occurred when processing a fulfillment on PostgreSQL. ([#4291](https://github.com/craftcms/commerce/issues/4291))
-- Fixed a bug where custom field tabs were duplicated in the tabs dropdown menu on Edit Order pages. ([#4293](https://github.com/craftcms/commerce/issues/4293))
-- Fixed a bug where the "Set default variant" element action wasn't immediately reflected in the element index. ([#4294](https://github.com/craftcms/commerce/issues/4294))
-- Fixed a PHP error that occurred when variants could end up without an inventory item. ([#3837](https://github.com/craftcms/commerce/issues/3837))
+- Fixed a bug where custom field layout tabs were duplicated in the tab overflow menu on order edit pages. ([#4293](https://github.com/craftcms/commerce/issues/4293))
+- Fixed a bug where the “Set default variant” action wasn’t immediately reflected in the variant index. ([#4294](https://github.com/craftcms/commerce/issues/4294))
+- Fixed a PHP error that occurred when variants were missing an inventory item. ([#3837](https://github.com/craftcms/commerce/issues/3837))
 
 ## 5.6.3 - 2026-04-29
 
