@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where GraphQL queries using `relatedTo*` arguments within `hasProduct` or `hasVariant` inputs caused a server error. ([#4297](https://github.com/craftcms/commerce/issues/4297))
+
 ## 5.6.4 - 2026-05-06
 
 - Fixed a SQL error that occurred when processing a fulfillment on PostgreSQL. ([#4291](https://github.com/craftcms/commerce/issues/4291))

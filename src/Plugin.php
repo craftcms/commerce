@@ -44,6 +44,8 @@ use craft\commerce\fieldlayoutelements\VariantsField as VariantsLayoutElement;
 use craft\commerce\fieldlayoutelements\VariantTitleField;
 use craft\commerce\fields\Products as ProductsField;
 use craft\commerce\fields\Variants as VariantsField;
+use craft\commerce\gql\handlers\HasProduct;
+use craft\commerce\gql\handlers\HasVariant;
 use craft\commerce\gql\handlers\RelatedProducts;
 use craft\commerce\gql\handlers\RelatedVariants;
 use craft\commerce\gql\interfaces\elements\Product as GqlProductInterface;
@@ -1044,6 +1046,8 @@ class Plugin extends BasePlugin
     private function _registerGqlArgumentHandlers(): void
     {
         Event::on(ArgumentManager::class, ArgumentManager::EVENT_DEFINE_GQL_ARGUMENT_HANDLERS, static function(RegisterGqlArgumentHandlersEvent $event) {
+            $event->handlers['hasProduct'] = HasProduct::class;
+            $event->handlers['hasVariant'] = HasVariant::class;
             $event->handlers['relatedToProducts'] = RelatedProducts::class;
             $event->handlers['relatedToVariants'] = RelatedVariants::class;
         });
