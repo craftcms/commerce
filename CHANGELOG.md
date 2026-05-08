@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where GraphQL queries using `relatedTo*` arguments within `hasProduct` or `hasVariant` inputs caused a server error. ([#4297](https://github.com/craftcms/commerce/issues/4297))
+- Cart requests that include a`couponCode` param are now rate-limited. (GHSA-h5gm-x9wr-vhcm)
 
 ## 5.6.4 - 2026-05-06
 
