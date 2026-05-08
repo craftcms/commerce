@@ -99,7 +99,17 @@ class Inventory extends Component
     {
         $inventoryLevels = collect();
 
-        if (!$purchasable->id || !$purchasable->inventoryItemId) {
+        if (!$purchasable->id) {
+            return $inventoryLevels; // empty collection
+        }
+
+        // Self-heal a missing inventory item id so callers get accurate levels
+        // even when the purchasable was loaded before its row was created.
+        if (!$purchasable->inventoryItemId && $purchasable::hasInventory()) {
+            $this->getInventoryItemByPurchasable($purchasable);
+        }
+
+        if (!$purchasable->inventoryItemId) {
             return $inventoryLevels; // empty collection
         }
 
@@ -124,7 +134,55 @@ class Inventory extends Component
      */
     public function getInventoryItemByPurchasable(Purchasable $purchasable, Order|null $order = null): InventoryItem
     {
+        // Self-heal: if the purchasable has somehow ended up without an associated
+        // inventory item (e.g. due to a draft-apply or duplicate path that didn't
+        // create one), find or create one before returning.
+        if (!$purchasable->inventoryItemId && $purchasable->id) {
+            $record = $this->ensureInventoryItemRecord($purchasable);
+            if ($record) {
+                $purchasable->inventoryItemId = $record->id;
+            }
+        }
+
         return $this->getInventoryItemById($purchasable->inventoryItemId);
+    }
+
+    /**
+     * Finds or creates the inventory item record for the given purchasable, always
+     * keyed by its canonical id so drafts and revisions resolve to the same row as
+     * their canonical. Returns null if the purchasable type does not track inventory
+     * or there is no canonical id yet.
+     *
+     * @param Purchasable $purchasable
+     * @return InventoryItemRecord|null
+     * @since 5.6.4
+     */
+    public function ensureInventoryItemRecord(Purchasable $purchasable): ?InventoryItemRecord
+    {
+        if (!$purchasable::hasInventory()) {
+            return null;
+        }
+
+        $canonicalId = $purchasable->getCanonicalId();
+        if (!$canonicalId) {
+            return null;
+        }
+
+        /** @var InventoryItemRecord|null $record */
+        $record = InventoryItemRecord::find()
+            ->where(['purchasableId' => $canonicalId])
+            ->one();
+
+        if (!$record) {
+            $record = new InventoryItemRecord();
+            $record->purchasableId = $canonicalId;
+            $record->countryCodeOfOrigin = '';
+            $record->administrativeAreaCodeOfOrigin = '';
+            $record->harmonizedSystemCode = '';
+            $record->save();
+        }
+
+        return $record;
     }
 
     /**
