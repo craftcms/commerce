@@ -44,7 +44,7 @@ class CartController extends BaseFrontEndController
     /**
      * Params that trigger IP-based rate limiting on cart actions.
      */
-    const RATE_LIMITED_PARAMS = ['number', 'couponCode'];
+    public const RATE_LIMITED_PARAMS = ['number', 'couponCode'];
 
     /**
      * @var Order The cart element
