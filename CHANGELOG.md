@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Cart requests that include a `couponCode` param are now rate-limited. (GHSA-h5gm-x9wr-vhcm)
+
 ## 4.11.1 - 2026-04-30
 
 - PDF download tokens now use Craft’s native token expiry.

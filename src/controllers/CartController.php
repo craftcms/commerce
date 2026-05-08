@@ -41,6 +41,11 @@ use yii\web\Response;
 class CartController extends BaseFrontEndController
 {
     /**
+     * Params that trigger IP-based rate limiting on cart actions.
+     */
+    public const RATE_LIMITED_PARAMS = ['number', 'couponCode'];
+
+    /**
      * @var Order The cart element
      */
     protected Order $_cart;
@@ -87,14 +92,16 @@ class CartController extends BaseFrontEndController
                 'only' => ['get-cart', 'update-cart', 'load-cart', 'complete'],
                 'enableRateLimitHeaders' => false,
                 'user' => function() {
-                    // Only apply rate limiting when a cart number is explicitly passed
-                    $isActive = Craft::$app->getRequest()->getBodyParam('number') || Craft::$app->getRequest()->getQueryParam('number');
+                    // Only apply rate limiting when a cart number or coupon code is explicitly passed
+                    $request = Craft::$app->getRequest();
+                    $isActive = collect(self::RATE_LIMITED_PARAMS)
+                        ->contains(fn($param) => $request->getBodyParam($param) || $request->getQueryParam($param));
 
                     return $isActive ? new IpRateLimitIdentity([
                         'limit' => 1,
                         'window' => 1,
-                        'keyPrefix' => 'cart-number-rate-limit',
-                        'ip' => Craft::$app->getRequest()->getUserIP() ?? 'unknown',
+                        'keyPrefix' => 'cart-rate-limit',
+                        'ip' => $request->getUserIP() ?? 'unknown',
                     ]) : null;
                 },
 
