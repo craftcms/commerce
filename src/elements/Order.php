@@ -2449,6 +2449,8 @@ class Order extends Element
     /**
      * Sets the order's payment amount in the order's currency. This amount is not persisted.
      *
+     * This will remain null if set to zero or a negative number.
+     *
      * @throws CurrencyException
      * @throws InvalidConfigException
      */
@@ -2456,7 +2458,10 @@ class Order extends Element
     {
         $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($this->getPaymentCurrency());
         $amount = Currency::round($amount, $paymentCurrency);
-        $this->_paymentAmount = $amount;
+
+        if($amount >= 0) {
+            $this->_paymentAmount = $amount;
+        }
     }
 
     /**
