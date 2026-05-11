@@ -556,7 +556,7 @@ class SubscriptionsController extends BaseController
                         'name' => 'cancelWithGateway',
                         'value' => '1',
                         'options' => [
-                            ['label' => $gateway instanceof PaymentIntents ? Craft::t('commerce', 'Cancel with gateway first') : Craft::t('commerce', 'Unsubscribe with gateway first'), 'value' => '1'],
+                            ['label' => $gateway instanceof PaymentIntents ? Craft::t('commerce', 'Cancel with gateway first') : Craft::t('commerce', 'Unsubscribe with gateway now'), 'value' => '1'],
                             ['label' => Craft::t('commerce', 'Leave gateway subscription as-is'), 'value' => '0'],
                         ],
                     ]) .
