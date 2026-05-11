@@ -2667,7 +2667,7 @@ class Order extends Element implements HasStoreInterface
         $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($this->getPaymentCurrency());
         $amount = Currency::round($amount, $paymentCurrency);
 
-        if($amount <= 0) {
+        if ($amount <= 0) {
             $this->_paymentAmount = $amount;
         }
     }
