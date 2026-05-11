@@ -779,8 +779,6 @@ class Plugin extends BasePlugin
 
         Event::on(UserElement::class, UserElement::EVENT_DEFINE_DELETION_BLOCKERS, [$this->getOrders(), 'beforeDeleteUserHandler']);
         Event::on(UserElement::class, UserElement::EVENT_DEFINE_DELETION_BLOCKERS, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);
-        Event::on(Subscription::class, Subscription::EVENT_DEFINE_DELETION_BLOCKERS, [$this->getSubscriptions(), 'beforeDeleteSubscriptionHandler']);
-
         Event::on(Address::class, Address::EVENT_AFTER_SAVE, [$this->getOrders(), 'afterSaveAddressHandler']);
 
         Event::on(

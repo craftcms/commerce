@@ -12,7 +12,6 @@ use craft\commerce\base\Plan;
 use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\base\SubscriptionGatewayInterface;
 use craft\commerce\elements\deletionblockers\SubscriptionCustomersDeletionBlocker;
-use craft\commerce\elements\deletionblockers\SubscriptionGatewayCancellationDeletionBlocker;
 use craft\commerce\elements\Subscription;
 use craft\commerce\errors\SubscriptionException;
 use craft\commerce\events\CancelSubscriptionEvent;
@@ -426,48 +425,6 @@ class Subscriptions extends Component
                     'gatewayId' => $first->gatewayId,
                     'gatewayName' => $gateway instanceof SubscriptionGateway ? $gateway->name : Craft::t('commerce', 'Gateway'),
                     'subscriptions' => $gatewaySubscriptions,
-                ]
-            );
-        }
-    }
-
-    /**
-     * Force the admin to decide what should happen at the gateway before a subscription element is deleted.
-     *
-     * @param DefineElementDeletionBlockersEvent $event the event.
-     * @since 5.7.0
-     */
-    public function beforeDeleteSubscriptionHandler(DefineElementDeletionBlockersEvent $event): void
-    {
-        /** @var ElementCollection<int|string, Subscription> $subscriptions */
-        $subscriptions = Subscription::find()
-            ->id($event->elements->ids()->all())
-            ->status(null)
-            ->limit(null)
-            ->collect();
-
-        foreach ($subscriptions->groupBy(fn(Subscription $subscription) => (string)($subscription->gatewayId ?? 0)) as $gatewaySubscriptions) {
-            /** @var Subscription $first */
-            $first = $gatewaySubscriptions->first();
-            $gateway = $first->getGateway();
-
-            if (!$gateway instanceof SubscriptionGatewayInterface) {
-                continue;
-            }
-
-            // Only block when there's something the gateway might still need to act on.
-            $activeSubscriptions = $gatewaySubscriptions->filter(fn(Subscription $subscription) => !$subscription->isExpired);
-            if ($activeSubscriptions->isEmpty()) {
-                continue;
-            }
-
-            $event->blockers[] = new SubscriptionGatewayCancellationDeletionBlocker(
-                $event->elements,
-                $event->hardDelete,
-                [
-                    'gatewayId' => $first->gatewayId,
-                    'gatewayName' => $gateway instanceof SubscriptionGateway ? $gateway->name : Craft::t('commerce', 'Gateway'),
-                    'subscriptions' => $activeSubscriptions,
                 ]
             );
         }
