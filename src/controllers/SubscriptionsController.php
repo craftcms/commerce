@@ -511,44 +511,11 @@ class SubscriptionsController extends BaseController
     }
 
     /**
-     * @since 5.7.0
-     */
-    public function actionCancelSubscriptionsModal(): Response
-    {
-        $this->requireCpRequest();
-        $this->requireAcceptsJson();
-        $this->requirePermission('commerce-manageSubscriptions');
-
-        return $this->_renderGatewayCancelModal('commerce/subscriptions/cancel-subscriptions')
-            ->submitButtonLabel(Craft::t('app', 'Continue'));
-    }
-
-    /**
-     * Cancels subscriptions at the gateway only — the caller (e.g. the element deletion
-     * blocker resolver) is responsible for the actual element delete.
-     *
-     * @since 5.7.0
-     */
-    public function actionCancelSubscriptions(): Response
-    {
-        $this->requireCpRequest();
-        $this->requireAcceptsJson();
-        $this->requirePermission('commerce-manageSubscriptions');
-
-        $subscriptions = $this->_subscriptionsFromRequest();
-        $cancelled = $this->_cancelSubscriptionsAtGateway($subscriptions);
-
-        return $this->asSuccess($cancelled
-            ? Craft::t('commerce', 'Subscriptions cancelled at gateway.')
-            : Craft::t('commerce', 'Gateway left as-is.'));
-    }
-
-    /**
      * Returns the gateway cancel modal response, with an action URL for the submit endpoint.
      */
     private function _renderGatewayCancelModal(string $actionUrl): \craft\web\Response
     {
-        $subscriptionIds = array_map('intval', $this->request->getRequiredParam('subscriptionIds'));
+        $subscriptionIds = collect($this->request->getRequiredParam('subscriptionIds'))->filter()->map(fn($id) => (int)$id)->all();
         $gatewayId = (int)$this->request->getRequiredParam('gatewayId');
 
         $gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId);
@@ -604,7 +571,7 @@ class SubscriptionsController extends BaseController
      */
     private function _subscriptionsFromRequest(): array
     {
-        $subscriptionIds = array_map('intval', $this->request->getRequiredParam('subscriptionIds'));
+        $subscriptionIds = collect($this->request->getRequiredParam('subscriptionIds'))->filter()->map(fn($id) => (int)$id)->all();
 
         return Subscription::find()
             ->id($subscriptionIds)
