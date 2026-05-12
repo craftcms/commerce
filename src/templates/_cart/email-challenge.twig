@@ -41,7 +41,7 @@
 
             {{ csrfInput() }}
             {{ actionInput('commerce/cart/cart-challenge') }}
-            {{ hiddenInput('cartNumberHash', craft.app.security.hashData(cartNumber)) }}
+            {{ hiddenInput('cartNumberHash', cartNumber|hash) }}
 
             {{ forms.submitButton({
                 class: ['fullwidth', 'last'],

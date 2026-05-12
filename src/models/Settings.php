@@ -224,12 +224,12 @@ class Settings extends Model
 
     /**
      * @var int How long (in seconds) a cart recovery link should remain valid before expiring.
-     * Default is 86400 (24 hours).
+     * Default is 604800 (7 days).
      *
      * @group Cart
      * @since 4.x
      */
-    public int $cartLinkExpiry = 86400;
+    public int $cartLoadUrlExpiry = 604800;
 
     /**
      * @var string How Commerce should handle minimum total price for an order.

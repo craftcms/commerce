@@ -394,15 +394,13 @@ class CartController extends BaseFrontEndController
                 $tokenData = Craft::$app->getTokens()->getTokenRoute($token);
 
                 if (!$tokenData || !isset($tokenData[1]['cartNumber']) || $tokenData[1]['cartNumber'] !== $number) {
-                    Craft::$app->getSession()->setError(Craft::t('commerce', 'The cart recovery link is invalid. Please request a new one.'));
-                    return $this->redirect(UrlHelper::actionUrl('commerce/cart/email-challenge', ['number' => $number]));
-                }
-
-                if (isset($tokenData[1]['expiresAt'])) {
-                    $now = (new \DateTime())->getTimestamp();
-                    if ($now > $tokenData[1]['expiresAt']) {
-                        return $this->redirect(UrlHelper::actionUrl('commerce/cart/email-challenge', ['number' => $number]));
+                    $error = Craft::t('commerce', 'The cart recovery link is invalid. Please request a new one.');
+                    $challengeUrl = UrlHelper::actionUrl('commerce/cart/email-challenge', ['number' => $number]);
+                    if ($this->request->getAcceptsJson()) {
+                        return $this->asFailure($error, ['challengeUrl' => $challengeUrl]);
                     }
+                    $this->setFailFlash($error);
+                    return $this->redirect($challengeUrl);
                 }
 
                 $hasValidToken = true;
@@ -410,13 +408,26 @@ class CartController extends BaseFrontEndController
 
             // Check permissions if no valid token
             if (!$hasValidToken) {
+                $challengeUrl = UrlHelper::actionUrl('commerce/cart/email-challenge', ['number' => $number]);
                 if ($currentUser) {
                     $isCartCustomer = $cart->getCustomer() && $cart->getCustomer()->id === $currentUser->id;
                     if (!$isCartCustomer) {
-                        return $this->redirect(UrlHelper::actionUrl('commerce/cart/email-challenge', ['number' => $number]));
+                        if ($this->request->getAcceptsJson()) {
+                            return $this->asFailure(
+                                Craft::t('commerce', 'You do not have permission to load this cart.'),
+                                ['challengeUrl' => $challengeUrl]
+                            );
+                        }
+                        return $this->redirect($challengeUrl);
                     }
                 } else {
-                    return $this->redirect(UrlHelper::actionUrl('commerce/cart/email-challenge', ['number' => $number]));
+                    if ($this->request->getAcceptsJson()) {
+                        return $this->asFailure(
+                            Craft::t('commerce', 'You must be logged in or provide a valid token to load this cart.'),
+                            ['challengeUrl' => $challengeUrl]
+                        );
+                    }
+                    return $this->redirect($challengeUrl);
                 }
             }
         }
@@ -826,7 +837,7 @@ class CartController extends BaseFrontEndController
 
     /**
      * Displays the email challenge form for cart recovery.
-     * @since 4.x
+     * @since 4.12
      */
     public function actionEmailChallenge(): Response
     {
@@ -847,7 +858,7 @@ class CartController extends BaseFrontEndController
 
     /**
      * Handles the email challenge form submission for cart recovery.
-     * @since 4.x
+     * @since 4.12
      */
     public function actionCartChallenge(): Response
     {
