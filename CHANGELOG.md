@@ -1,5 +1,20 @@
 # Release Notes for Craft Commerce
 
+## 5.6.4 - 2026-05-06
+
+- Fixed a SQL error that occurred when processing a fulfillment on PostgreSQL. ([#4291](https://github.com/craftcms/commerce/issues/4291))
+- Fixed a bug where custom field layout tabs were duplicated in the tab overflow menu on order edit pages. ([#4293](https://github.com/craftcms/commerce/issues/4293))
+- Fixed a bug where the “Set default variant” action wasn’t immediately reflected in the variant index. ([#4294](https://github.com/craftcms/commerce/issues/4294))
+- Fixed a PHP error that occurred when variants were missing an inventory item. ([#3837](https://github.com/craftcms/commerce/issues/3837))
+
+## 5.6.3 - 2026-04-29
+
+- Improved product query performance. ([#4281](https://github.com/craftcms/commerce/issues/4281))
+- PDF download tokens now use Craft’s native token expiry.
+- Fixed a bug where the “Commerce” page within user account settings wasn’t retaining view options for orders, carts, and subscriptions.
+- Fixed a PHP error that could occur when editing field layouts that contained Commerce Products fields. ([#4282](https://github.com/craftcms/commerce/issues/4282))
+- Fixed a deadlock that could occur when saving products with many variants concurrently. ([#4287](https://github.com/craftcms/commerce/issues/4287))
+
 ## 5.6.2 - 2026-04-15
 
 - Improved the performance of migrations when upgrading to Commerce 5. ([#4277](https://github.com/craftcms/commerce/issues/4277))

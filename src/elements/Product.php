@@ -1060,11 +1060,15 @@ JS, [
      */
     protected function uiLabel(): ?string
     {
-        $uiLabelFormat = $this->getType()->productUiLabelFormat;
-        if ($uiLabelFormat !== '{title}') {
-            $uiLabel = Craft::$app->getView()->renderObjectTemplate($uiLabelFormat, $this);
-            if ($uiLabel !== '') {
-                return $uiLabel;
+        // This method is called in a few places before the product type is set
+        // If there isn't a type then fall back to the title
+        if ($this->typeId) {
+            $uiLabelFormat = $this->getType()->productUiLabelFormat;
+            if ($uiLabelFormat !== '{title}') {
+                $uiLabel = Craft::$app->getView()->renderObjectTemplate($uiLabelFormat, $this);
+                if ($uiLabel !== '') {
+                    return $uiLabel;
+                }
             }
         }
 
