@@ -3,8 +3,8 @@
 ## Unreleased
 
 - Cart requests that include a `couponCode` param are now rate-limited.
-- Fixed a bug where subscription plans were not properly memoized when there were no plans, causing redundant database queries. ([#4285](https://github.com/craftcms/commerce/issues/4285))
-- Fixed a bug where GraphQL queries using `relatedTo*` arguments within `hasProduct` or `hasVariant` inputs caused a server error. ([#4297](https://github.com/craftcms/commerce/issues/4297))
+- Fixed a bug where redundant database queries could be executed when no subscription plans existed. ([#4285](https://github.com/craftcms/commerce/issues/4285))
+- Fixed an error that occurred when executing a GraphQL query with `relatedTo*` arguments within `hasProduct` or `hasVariant` fields. ([#4297](https://github.com/craftcms/commerce/issues/4297))
 - Fixed [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) enumeration vulnerability. (GHSA-h5gm-x9wr-vhcm)
 - Fixed [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) business logic vulnerability. (GHSA-78vr-q6cf-c7p6)
 
