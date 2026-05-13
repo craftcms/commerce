@@ -2,8 +2,9 @@
 
 ## Unreleased
 
-- Cart requests that include a `couponCode` param are now rate-limited. (GHSA-h5gm-x9wr-vhcm)
-- Fixed a bug where a negative payment amount could be set on an order. (GHSA-78vr-q6cf-c7p6)
+- Cart requests that include a `couponCode` param are now rate-limited.
+- Fixed [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) enumeration vulnerability. (GHSA-h5gm-x9wr-vhcm)
+- Fixed [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) business logic vulnerability. (GHSA-78vr-q6cf-c7p6)
 
 ## 4.11.1 - 2026-04-30
 
