@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.11.2 - 2026-05-14
 
 - Cart requests that include a `couponCode` param are now rate-limited.
 - Fixed [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) enumeration vulnerability. (GHSA-h5gm-x9wr-vhcm)
