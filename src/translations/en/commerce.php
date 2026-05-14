@@ -1185,6 +1185,8 @@ return [
     'You currently have no emails configured to select for this status.' => 'You currently have no emails configured to select for this status.',
     'You have selected an option that will be removed in the next release of Craft Commerce. Use the “Per Item Discount” options to take a percentage off the whole order, or change this option to “Value”' => 'You have selected an option that will be removed in the next release of Craft Commerce. Use the “Per Item Discount” options to take a percentage off the whole order, or change this option to “Value”',
     'You must <a href="{link}">set up</a> at least one gateway that supports subscriptions first.' => 'You must <a href="{link}">set up</a> at least one gateway that supports subscriptions first.',
+    'You do not have permission to load this cart.' => 'You do not have permission to load this cart.',
+    'You must be logged in or provide a valid token to load this cart.' => 'You must be logged in or provide a valid token to load this cart.',
     'You must be signed in to create a payment source.' => 'You must be signed in to create a payment source.',
     'You must be signed in to set a primary payment source.' => 'You must be signed in to set a primary payment source.',
     'You must make a payment to complete the order.' => 'You must make a payment to complete the order.',
