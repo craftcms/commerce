@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.11.2 - 2026-05-14
 
 - Cart requests that include a `couponCode` param are now rate-limited.
 - Fixed a bug where redundant database queries could be executed when no subscription plans existed. ([#4285](https://github.com/craftcms/commerce/issues/4285))
