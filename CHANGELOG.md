@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where fulfilling an order with purchasables in different inventory locations would only fulfil items from one location. ([#4299](https://github.com/craftcms/commerce/issues/4299))
+
 ## 5.6.5 - 2026-05-14
 
 - Cart requests that include a `couponCode` param are now rate-limited.
