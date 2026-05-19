@@ -755,7 +755,10 @@ class ProductQuery extends ElementQuery
 
             $this->subQuery->leftJoin(['catalogprices' => $catalogPricesQuery], '[[catalogprices.purchasableId]] = [[commerce_products.defaultVariantId]] AND [[catalogprices.storeId]] = [[sitestores.storeId]]');
         } else {
-            $this->subQuery->leftJoin(['purchasablesstores' => Table::PURCHASABLES_STORES], '[[purchasablesstores.storeId]] = [[sitestores.storeId]] AND [[purchasablesstores.purchasableId]] = [[commerce_products.defaultVariantId]]');
+            // For speed in Postgres we only need this if the `defaultPrice` criteria is being used.
+            if (isset($this->defaultPrice)) {
+                $this->subQuery->leftJoin(['purchasablesstores' => Table::PURCHASABLES_STORES], '[[purchasablesstores.storeId]] = [[sitestores.storeId]] AND [[purchasablesstores.purchasableId]] = [[commerce_products.defaultVariantId]]');
+            }
         }
 
         return parent::afterPrepare();

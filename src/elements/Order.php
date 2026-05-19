@@ -61,6 +61,7 @@ use craft\errors\MutexException;
 use craft\errors\UnsupportedSiteException;
 use craft\fields\BaseRelationField;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Component;
 use craft\helpers\Cp;
 use craft\helpers\Db;
 use craft\helpers\Html;
@@ -74,7 +75,6 @@ use Illuminate\Support\Collection;
 use Money\Teller;
 use ReflectionClass;
 use ReflectionMethod;
-use ReflectionNamedType;
 use ReflectionProperty;
 use Throwable;
 use Twig\Markup;
@@ -1492,19 +1492,10 @@ class Order extends Element implements HasStoreInterface
     {
         $fields = parent::fields();
 
-        $datetimeAttributes = [];
-        foreach ((new ReflectionClass($this))->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
-            if (!$property->isStatic()) {
-                $type = $property->getType();
-                if ($type instanceof ReflectionNamedType && $type->getName() === DateTime::class) {
-                    $datetimeAttributes[] = $property->getName();
-                }
-            }
-        }
+        $datetimeAttributes = Component::datetimeAttributes($this);
 
-        // Include datetimeAttributes() for now
-        $datetimeAttributes = array_unique(array_merge($datetimeAttributes, $this->datetimeAttributes()));
-
+        // @todo Commerce 6 - remove this and let the parent handle ISO-8601 serialization; update Vue components
+        // (OrderMeta.vue, DateOrderedInput.vue) to parse/format dates from ISO-8601 using the JS Intl API instead.
         foreach ($datetimeAttributes as $attribute) {
             $fields[$attribute] = static function($model, $attribute) {
                 if (!empty($model->$attribute)) {

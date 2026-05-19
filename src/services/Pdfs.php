@@ -362,6 +362,7 @@ class Pdfs extends Component
             $pdfRecord->language = $data['language'] ?? PdfRecord::LOCALE_ORDER_LANGUAGE;
             $pdfRecord->paperOrientation = $data['paperOrientation'] ?? PdfRecord::PAPER_ORIENTATION_PORTRAIT;
             $pdfRecord->paperSize = $data['paperSize'] ?? 'letter';
+            $pdfRecord->linkExpiry = $data['linkExpiry'] ?? 86400;
 
             $pdfRecord->uid = $pdfUid;
 
@@ -481,17 +482,13 @@ class Pdfs extends Component
             throw new \InvalidArgumentException("Can not find a PDF to generate URL.");
         }
 
-        $expiryTimestamp = (new \DateTime())->add(new \DateInterval('PT' . $pdf->linkExpiry . 'S'))->getTimestamp();
+        $expiryDate = (new \DateTime())->add(new \DateInterval('PT' . $pdf->linkExpiry . 'S'));
 
-        // Create a token for secure PDF access with expiry in the data payload
-        // This way the token itself never expires, but we validate the timestamp in the download controller
-        $token = Craft::$app->getTokens()->createToken([
-            'commerce/downloads/pdf',
-            [
-                'orderNumber' => $order->number,
-                'expiresAt' => $expiryTimestamp,
-            ],
-        ]);
+        $token = Craft::$app->getTokens()->createToken(
+            ['commerce/downloads/pdf', ['orderNumber' => $order->number]],
+            null,
+            $expiryDate
+        );
 
         // Build the URL parameters
         $params = [
@@ -672,7 +669,7 @@ class Pdfs extends Component
      */
     private function _createPdfsQuery(): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'description',
                 'enabled',
@@ -692,5 +689,12 @@ class Pdfs extends Component
             ->orderBy('name')
             ->from([Table::PDFS])
             ->orderBy(['sortOrder' => SORT_ASC]);
+
+        // TODO: remove after next breakpoint
+        if (Craft::$app->getDb()->columnExists(Table::PDFS, 'linkExpiry')) {
+            $query->addSelect('linkExpiry');
+        }
+
+        return $query;
     }
 }

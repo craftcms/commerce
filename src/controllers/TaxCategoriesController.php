@@ -84,7 +84,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
         }
 
         $tableData = Json::encode($tableData);
-        $deleteAction = Plugin::getInstance()->getTaxes()->deleteTaxCategories() ? "'commerce/tax-categories/delete'" : null;
+        $deleteAction = Plugin::getInstance()->getTaxes()->deleteTaxCategories() ? "'commerce/tax-categories/delete'" : 'null';
 
         $js = <<<JS
     var columns = [

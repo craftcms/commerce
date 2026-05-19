@@ -292,6 +292,7 @@ class Install extends Migration
             'isDefault' => $this->boolean()->notNull()->defaultValue(false),
             'sortOrder' => $this->integer(),
             'language' => $this->string(),
+            'linkExpiry' => $this->integer()->notNull()->defaultValue(86400),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),

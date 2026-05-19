@@ -1,14 +1,40 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.6.4 - 2026-05-06
 
-- Added missing "Default", "Promotable", and "Available for purchase" attribute options to the variant card layout.
+- Fixed a SQL error that occurred when processing a fulfillment on PostgreSQL. ([#4291](https://github.com/craftcms/commerce/issues/4291))
+- Fixed a bug where custom field layout tabs were duplicated in the tab overflow menu on order edit pages. ([#4293](https://github.com/craftcms/commerce/issues/4293))
+- Fixed a bug where the “Set default variant” action wasn’t immediately reflected in the variant index. ([#4294](https://github.com/craftcms/commerce/issues/4294))
+- Fixed a PHP error that occurred when variants were missing an inventory item. ([#3837](https://github.com/craftcms/commerce/issues/3837))
+
+## 5.6.3 - 2026-04-29
+
+- Improved product query performance. ([#4281](https://github.com/craftcms/commerce/issues/4281))
+- PDF download tokens now use Craft’s native token expiry.
+- Fixed a bug where the “Commerce” page within user account settings wasn’t retaining view options for orders, carts, and subscriptions.
+- Fixed a PHP error that could occur when editing field layouts that contained Commerce Products fields. ([#4282](https://github.com/craftcms/commerce/issues/4282))
+- Fixed a deadlock that could occur when saving products with many variants concurrently. ([#4287](https://github.com/craftcms/commerce/issues/4287))
+
+## 5.6.2 - 2026-04-15
+
+- Improved the performance of migrations when upgrading to Commerce 5. ([#4277](https://github.com/craftcms/commerce/issues/4277))
+- Fixed a bug where variants weren’t getting saved if their auto-generated SKU wasn’t unique. ([#4249](https://github.com/craftcms/commerce/issues/4249))
+- Fixed a PHP error that could occur when marking an inventory transfer as pending. ([#4267](https://github.com/craftcms/commerce/issues/4267))
+- Fixed a bug where reordering disabled variants wasn’t working properly. ([#4270](https://github.com/craftcms/commerce/issues/4270))
+- Fixed a bug where `craft\commerce\services\Carts::forgetCart()` wasn’t working if `getCart()` was subsequently called. ([#4279](https://github.com/craftcms/commerce/issues/4279))
+
+## 5.6.1.1 - 2026-03-27
+
+- Fixed a bug where PDF Link Duration didn’t save. ([#4265](https://github.com/craftcms/commerce/issues/4265))
+
+## 5.6.1 - 2026-03-25
+
+- Gateway edit screens now include billing and shipping address conditions. ([#4259](https://github.com/craftcms/commerce/pull/4259))
+- Variant cards can now have “Default”, “Promotable”, and “Available for purchase” attributes.
 - Fixed a bug where PDF URLs could have an incorrect domain. ([#4248](https://github.com/craftcms/commerce/issues/4248))
-- Fixed a bug where suspended and failed-to-start subscriptions weren’t shown on user profile pages in the control panel. ([#4219](https://github.com/craftcms/commerce/issues/4219))
-- Fixed a bug where setting the `COMMERCE_PAYMENT_CURRENCY` constant would not override the cart’s payment currency.
-- Fixed a bug where tax and shipping category dropdowns on variants weren’t respecting product type restrictions. ([#4258](https://github.com/craftcms/commerce/issues/4258))
-- Fixed the missing billing and shipping address conditions on the gateway edit page. ([#4259](https://github.com/craftcms/commerce/pull/4259))
-- Fixed a bug where example templates didn't filter available gateways by order and address conditions.
+- Fixed a bug where user profile screens weren’t showing suspended and failed-to-start subscriptions. ([#4219](https://github.com/craftcms/commerce/issues/4219))
+- Fixed a bug where carts weren’t respecting the `COMMERCE_PAYMENT_CURRENCY` PHP constant.
+- Fixed a bug where variants’ tax and shipping category dropdowns weren’t respecting product type restrictions. ([#4258](https://github.com/craftcms/commerce/issues/4258))
 
 ## 5.6.0 - 2026-03-11
 
@@ -33,7 +59,7 @@
 - Cart numbers are now generated using a cryptographically secure random number generator.
 - Cart controller actions that accept an explicit cart number are now rate limited to mitigate enumeration attacks.
 - Fixed a PHP error that could occur when using the manual gateway. ([#4245](https://github.com/craftcms/commerce/pull/4245))
-- Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities. ([GHSA-875v-7m49-8x88](https://github.com/craftcms/commerce/security/advisories/GHSA-875v-7m49-8x88), [GHSA-r54v-qq87-px5r](https://github.com/craftcms/commerce/security/advisories/GHSA-r54v-qq87-px5r))
+- Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities. ([GHSA-875v-7m49-8x88](https://github.com/craftcms/commerce/security/advisories/GHSA-875v-7m49-8x88))
 - Fixed a [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) information disclosure vulnerability. ([GHSA-3vxg-x5f8-f5qf](https://github.com/craftcms/commerce/security/advisories/GHSA-3vxg-x5f8-f5qf))
 
 ## 5.5.4 - 2026-02-18
@@ -42,7 +68,7 @@
 - Fixed an error that could occur when editing inventory locations. ([#4233](https://github.com/craftcms/commerce/issues/4233))
 - Fixed a SQL error that could occur when querying for unfulfilled orders on PostgreSQL. ([#4228](https://github.com/craftcms/commerce/issues/4228))
 - Fixed an error that could occur when resaving variants. ([#4226](https://github.com/craftcms/commerce/issues/4226))
-- Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities in the control panel. (GHSA-r54v-qq87-px5r)
+- Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities in the control panel. ([GHSA-r54v-qq87-px5r](https://github.com/craftcms/commerce/security/advisories/GHSA-r54v-qq87-px5r))
 - Added `craft\commerce\helpers\ProductQuery::cleanseQueryCriteria()`.
 
 ## 5.5.3 - 2026-02-09
