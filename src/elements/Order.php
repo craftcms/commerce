@@ -932,6 +932,11 @@ class Order extends Element implements HasStoreInterface
     private ?int $_customerId = null;
 
     /**
+     * @var bool Whether the customer has been deleted
+     */
+    private bool $_customerDeleted = false;
+
+    /**
      * Whether the email address on the order should be used to register
      * as a user account when the order is complete.
      *
@@ -1434,6 +1439,7 @@ class Order extends Element implements HasStoreInterface
         $names[] = 'adjustmentsTotal';
         $names[] = 'customer';
         $names[] = 'customerId';
+        $names[] = 'customerDeleted';
         $names[] = 'paymentCurrency';
         $names[] = 'paymentAmount';
         $names[] = 'isPaid';
@@ -2301,6 +2307,7 @@ class Order extends Element implements HasStoreInterface
             $orderRecord->origin = $this->origin;
             $orderRecord->paymentCurrency = $this->paymentCurrency;
             $orderRecord->customerId = $this->getCustomerId();
+            $orderRecord->customerDeleted = $this->getCustomerDeleted();
             $orderRecord->registerUserOnOrderComplete = $this->registerUserOnOrderComplete;
             $orderRecord->saveBillingAddressOnOrderComplete = $this->saveBillingAddressOnOrderComplete;
             $orderRecord->saveShippingAddressOnOrderComplete = $this->saveShippingAddressOnOrderComplete;
@@ -2496,6 +2503,25 @@ class Order extends Element implements HasStoreInterface
         }
 
         $this->_customer = null;
+    }
+
+    /**
+     * @return bool
+     * @since 5.7.0
+     */
+    public function getCustomerDeleted(): bool
+    {
+        return $this->_customerDeleted && !$this->getCustomerId();
+    }
+
+    /**
+     * @param bool $customerDeleted
+     * @return void
+     * @since 5.7.0
+     */
+    public function setCustomerDeleted(bool $customerDeleted): void
+    {
+        $this->_customerDeleted = $customerDeleted;
     }
 
     /**
