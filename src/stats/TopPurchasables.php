@@ -55,7 +55,7 @@ class TopPurchasables extends Stat
         $selectTotalRevenue = new Expression('SUM([[li.total]]) as revenue');
         $orderByRevenue = new Expression('SUM([[li.total]]) DESC');
 
-        $editableProductTypeIds = Plugin::getInstance()->getProductTypes()->getViewableProductTypeIds();
+        $viewableProductTypeIds = Plugin::getInstance()->getProductTypes()->getViewableProductTypeIds();
 
         $topPurchasables = $this->_createStatQuery()
             ->select([
@@ -70,7 +70,7 @@ class TopPurchasables extends Stat
             ->leftJoin(Table::VARIANTS . ' v', '[[v.id]] = [[p.id]]')
             ->leftJoin(Table::PRODUCTS . ' pr', '[[pr.id]] = [[v.primaryOwnerId]]')
             ->leftJoin(Table::PRODUCTTYPES . ' pt', '[[pt.id]] = [[pr.typeId]]')
-            ->andWhere(['pt.id' => $editableProductTypeIds])
+            ->andWhere(['pt.id' => $viewableProductTypeIds])
             ->groupBy('[[li.purchasableId]], [[p.sku]], [[p.description]]')
             ->orderBy($this->type == 'revenue' ? $orderByRevenue : $orderByQty)
             ->addOrderBy('sku ASC')

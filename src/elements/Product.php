@@ -257,14 +257,14 @@ class Product extends Element implements HasStoreInterface
 
         foreach ($productTypes as $productType) {
             $key = 'productType:' . $productType->uid;
-            $canEditProducts = $user && $user->can('commerce-saveProductType:' . $productType->uid);
+            $canSaveProducts = $user && $user->can('commerce-saveProductType:' . $productType->uid);
 
             $sources[$key] = [
                 'key' => $key,
                 'label' => Craft::t('site', $productType->name),
                 'data' => [
                     'handle' => $productType->handle,
-                    'editable' => $canEditProducts,
+                    'editable' => $canSaveProducts,
                 ],
                 'criteria' => [
                     'typeId' => $productType->id,
@@ -277,7 +277,7 @@ class Product extends Element implements HasStoreInterface
             if ($productType->isStructure) {
                 $sources[$key]['defaultSort'] = ['structure', 'asc'];
                 $sources[$key]['structureId'] = $productType->structureId;
-                $sources[$key]['structureEditable'] = $canEditProducts;
+                $sources[$key]['structureEditable'] = $canSaveProducts;
             } else {
                 $sources[$key]['defaultSort'] = ['postDate', 'desc'];
             }
