@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace  craft\commerce\elements\conditions\orders;
+namespace craft\commerce\elements\conditions\orders;
 
 use Craft;
 use craft\base\conditions\BaseElementSelectConditionRule;
@@ -26,7 +26,7 @@ use yii\base\InvalidConfigException;
  * Has Purchasables Condition Rule
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.2.0
+ * @since 5.7.0
  *
  * @method array|string|null paramValue(?callable $normalizeValue = null)
  */
@@ -189,7 +189,7 @@ class HasPurchasablesConditionRule extends BaseElementSelectConditionRule implem
     }
 
     /**
-     * @inerhitdoc
+     * @inheritdoc
      */
     protected function elementSelectConfig(): array
     {
