@@ -1673,6 +1673,7 @@ class OrderQuery extends ElementQuery
             'commerce_orders.gatewayId',
             'commerce_orders.paymentSourceId',
             'commerce_orders.customerId',
+            'commerce_orders.customerDeleted',
             'commerce_orders.dateUpdated',
             'commerce_orders.registerUserOnOrderComplete',
             'commerce_orders.saveBillingAddressOnOrderComplete',

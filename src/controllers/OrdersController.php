@@ -1351,6 +1351,128 @@ JS, []);
     }
 
     /**
+     * @since 5.7.0
+     */
+    public function actionReassignModal(): Response
+    {
+        $this->requireCpRequest();
+        $this->requireAcceptsJson();
+        $this->requirePermission('deleteUsers');
+
+        $oldUserIds = $this->request->getRequiredParam('oldUserIds');
+
+        return $this->asCpModal()
+            ->action('commerce/orders/reassign')
+            ->contentHtml(fn() =>
+                Cp::elementSelectFieldHtml([
+                    'label' => Craft::t('commerce', 'Choose a new customer'),
+                    'name' => 'newUserId',
+                    'elementType' => User::class,
+                    'criteria' => [
+                        'id' => array_map(fn($id) => "not $id", $oldUserIds),
+                    ],
+                    'single' => true,
+                ]) .
+                implode('', array_map(fn($id) => Html::hiddenInput('oldUserIds[]', $id), $oldUserIds))
+            )
+            ->submitButtonLabel(Craft::t('app', 'Reassign'));
+    }
+
+    /**
+     * @since 5.7.0
+     */
+    public function actionReassign(): Response
+    {
+        $this->requireCpRequest();
+        $this->requireAcceptsJson();
+        $this->requirePermission('deleteUsers');
+
+        $oldUserIds = array_map(fn($id) => (int)$id, $this->request->getRequiredParam('oldUserIds'));
+        $newUserId = (int)$this->request->getRequiredBodyParam('newUserId');
+
+        if (!$newUserId) {
+            return $this->asFailure(Craft::t('commerce', 'No new customer selected.'));
+        }
+
+        try {
+            $count = Plugin::getInstance()->getOrders()->reassignOrders($oldUserIds, $newUserId);
+        } catch (\Exception) {
+            return $this->asFailure(Craft::t('commerce', 'Unable to reassign orders.'));
+        }
+
+        return $this->asSuccess(Craft::t('app', '{type} reassigned.', [
+            'type' => $count === 1 ? Order::displayName() : Order::pluralDisplayName(),
+        ]));
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @since 5.7.0
+     */
+    public function actionRemoveCustomerDataModal(): Response
+    {
+        $this->requireCpRequest();
+        $this->requireAcceptsJson();
+        $this->requirePermission('deleteUsers');
+
+        $orderIds = array_map(fn($id) => (int)$id, $this->request->getRequiredParam('orderIds'));
+
+        return $this->asCpModal()
+            ->action('commerce/orders/remove-customer-data')
+            ->contentHtml(fn() =>
+                Html::tag('p', Craft::t('commerce', 'Remove customer association and email from the {numOrders, plural, =1{order} other{orders}}. Optionally select additional customer data to remove below', [
+                    'numOrders' => count($orderIds),
+                ])) .
+                Html::beginTag('div') .
+                Cp::checkboxSelectFieldHtml([
+                    'label' => Craft::t('commerce', 'Customer data'),
+                    'name' => 'customerData',
+                    'options' => [
+                        'billingAddressId' => Craft::t('commerce', 'Billing Address'),
+                        'shippingAddressId' => Craft::t('commerce', 'Shipping Address'),
+                        'orderCompletedEmail' => Craft::t('commerce', 'Completed Email'),
+                    ],
+                    'values' => null,
+                    'showAllOption' => true,
+                ]) .
+                Html::endTag('div') .
+                implode('', array_map(fn($id) => Html::hiddenInput('orderIds[]', (string)$id), $orderIds))
+            )
+            ->submitButtonLabel(Craft::t('commerce', 'Remove customer data'));
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @since 5.7.0
+     */
+    public function actionRemoveCustomerData(): Response
+    {
+        $this->requireCpRequest();
+        $this->requireAcceptsJson();
+        $this->requirePermission('deleteUsers');
+
+        $orderIds = array_map(fn($id) => (int)$id, $this->request->getRequiredParam('orderIds'));
+        $customerData = $this->request->getBodyParam('customerData', []);
+        $customerData = $customerData === '' ? [] : $customerData;
+
+        $customerData = $customerData === '*' ? ['billingAddressId', 'shippingAddressId', 'orderCompletedEmail'] : $customerData;
+
+        $dataToRemove = array_merge(['customerId', 'email'], $customerData);
+
+        try {
+            Plugin::getInstance()->getOrders()->removeCustomerData($orderIds, $dataToRemove);
+        } catch (\Exception) {
+            return $this->asFailure(Craft::t('commerce', 'Unable to remove order data.'));
+        }
+
+        return $this->asSuccess(Craft::t('commerce', 'Order customer data removed.'));
+    }
+
+    /**
      * Modifies the variables of the request.
      */
     private function _updateTemplateVariables(array &$variables): void
