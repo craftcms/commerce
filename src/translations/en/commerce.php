@@ -419,7 +419,6 @@ return [
     'Edit options' => 'Edit options',
     'Edit orders' => 'Edit orders',
     'Edit sales' => 'Edit sales',
-    'Edit “{type}” products' => 'Edit “{type}” products',
     'Edit' => 'Edit',
     'Effect' => 'Effect',
     'Either (Default) - The relationship field is on the purchasable or the category' => 'Either (Default) - The relationship field is on the purchasable or the category',

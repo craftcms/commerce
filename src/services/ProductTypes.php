@@ -121,6 +121,18 @@ class ProductTypes extends Component
 
 
     /**
+     * Returns all editable product types.
+     *
+     * @return ProductType[] An array of all the editable product types.
+     * @deprecated in 5.7.0. Use [[getViewableProductTypes()]] instead.
+     */
+    public function getEditableProductTypes(): array
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, '`ProductTypes::getEditableProductTypes()` has been deprecated. Use `getViewableProductTypes()` instead.');
+        return $this->getViewableProductTypes();
+    }
+
+    /**
      * Returns all viewable product types.
      *
      * @return ProductType[] An array of all the viewable product types.
@@ -147,6 +159,18 @@ class ProductTypes extends Component
         }
 
         return $viewableProductTypes;
+    }
+
+    /**
+     * Returns all product type IDs that are editable by the current user.
+     *
+     * @return array An array of all the editable product types' IDs.
+     * @deprecated in 5.7.0. Use [[getViewableProductTypeIds()]] instead.
+     */
+    public function getEditableProductTypeIds(bool $anySite = false): array
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, '`ProductTypes::getEditableProductTypeIds()` has been deprecated. Use `getViewableProductTypeIds()` instead.');
+        return $this->getViewableProductTypeIds($anySite);
     }
 
     /**
@@ -1031,11 +1055,11 @@ class ProductTypes extends Component
      * @param ProductType $productType
      * @param string|null $checkPermissionName detailed product type permission.
      * @return bool
-     * @deprecated in 5.6.0. Use `$user->can()` directly instead.
+     * @deprecated in 5.7.0. Use `$user->can()` directly instead.
      */
     public function hasPermission(User $user, ProductType $productType, ?string $checkPermissionName = null): bool
     {
-        Craft::$app->getDeprecator()->log(__METHOD__, '`ProductTypes::hasPermission()` has been deprecated. Use `$user->can()` directly instead.');
+        Craft::$app->getDeprecator()->log(__METHOD__, '`ProductTypes::hasPermission()` has been deprecated. Use `$user->can()` directly instead. Note that permission names have changed: `commerce-editProductType:{uid}` is now `commerce-viewProductType:{uid}` and `commerce-saveProductType:{uid}`; `commerce-createProducts:{uid}` is now `commerce-createProductType:{uid}`; `commerce-deleteProducts:{uid}` is now `commerce-deleteProductType:{uid}`.');
 
         if ($checkPermissionName !== null) {
             return $user->can($checkPermissionName . ':' . $productType->uid);
