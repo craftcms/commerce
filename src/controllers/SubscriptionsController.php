@@ -500,7 +500,9 @@ class SubscriptionsController extends BaseController
         $this->_cancelSubscriptionsAtGateway($subscriptions);
 
         foreach ($subscriptions as $subscription) {
-            Craft::$app->getElements()->deleteElement($subscription);
+            if (!Craft::$app->getElements()->deleteElement($subscription)) {
+                Craft::warning('Failed to delete subscription ' . $subscription->id . ' (' . $subscription->reference . ')', __METHOD__);
+            }
         }
 
         $numSubscriptions = count($subscriptions);
@@ -528,7 +530,7 @@ class SubscriptionsController extends BaseController
 
         return $this->asCpModal()
             ->action($actionUrl)
-            ->contentHtml(function() use ($gateway, $cancelFormHtml, $subscriptionIds, $gatewayId) {
+            ->contentHtml(function() use ($cancelFormHtml, $subscriptionIds, $gatewayId) {
                 $view = Craft::$app->getView();
 
                 if ($cancelFormHtml) {
@@ -556,7 +558,7 @@ class SubscriptionsController extends BaseController
                         'name' => 'cancelWithGateway',
                         'value' => '1',
                         'options' => [
-                            ['label' => $gateway instanceof PaymentIntents ? Craft::t('commerce', 'Cancel with gateway first') : Craft::t('commerce', 'Unsubscribe with gateway now'), 'value' => '1'],
+                            ['label' => Craft::t('commerce', 'Cancel with gateway now'), 'value' => '1'],
                             ['label' => Craft::t('commerce', 'Leave gateway subscription as-is'), 'value' => '0'],
                         ],
                     ]) .

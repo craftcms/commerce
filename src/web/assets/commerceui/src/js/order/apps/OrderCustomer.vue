@@ -36,7 +36,6 @@
                     <customer-select
                         :order="draft.order"
                         @update="updateCustomer"
-                        v-if="!hasCustomer"
                     ></customer-select>
                 </template>
                 <template

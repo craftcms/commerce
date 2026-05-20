@@ -1379,7 +1379,7 @@ JS, []);
     }
 
     /**
-     * @since 5.10.0
+     * @since 5.7.0
      */
     public function actionReassign(): Response
     {

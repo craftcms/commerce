@@ -24,9 +24,9 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\models\FieldLayout;
-use http\Exception\InvalidArgumentException;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidArgumentException;
 
 /**
  * Orders service.
@@ -219,13 +219,13 @@ class Orders extends Component
     }
 
     /**
-     * @param int|array $orderId
+     * @param int|int[] $orderIds
      * @param array $dataToRemove
      * @return int
      * @throws \yii\db\Exception
      * @since 5.7.0
      */
-    public function removeCustomerData(int|array $orderId, array $dataToRemove = ['customerId', 'email']): int
+    public function removeCustomerData(int|array $orderIds, array $dataToRemove = ['customerId', 'email']): int
     {
         $allowedRemovalKeys = [
             'customerId',
@@ -250,7 +250,7 @@ class Orders extends Component
         }
 
         $count = Db::update(Table::ORDERS, $data, [
-            'id' => $orderId,
+            'id' => $orderIds,
         ], [], false);
 
         Craft::$app->getElements()->invalidateCachesForElementType(Order::class);
