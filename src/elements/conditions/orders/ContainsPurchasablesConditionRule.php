@@ -119,7 +119,22 @@ class ContainsPurchasablesConditionRule extends BaseElementSelectConditionRule i
     protected function inputHtml(): string
     {
         $matchId = 'match';
-        $purchasableTypeId = 'purchasable-type';
+        $purchasableTypeOptions = $this->_purchasableTypeOptions();
+
+        $purchasableTypeHtml = count($purchasableTypeOptions) === 1
+            ? Html::hiddenInput('purchasableType', $purchasableTypeOptions[0]['value'])
+            : Cp::selectHtml([
+                'id' => 'purchasable-type',
+                'name' => 'purchasableType',
+                'options' => $purchasableTypeOptions,
+                'value' => $this->purchasableType,
+                'inputAttributes' => [
+                    'hx' => [
+                        'post' => UrlHelper::actionUrl('conditions/render'),
+                    ],
+                ],
+            ]);
+
         return Html::hiddenLabel($this->getLabel(), $matchId) .
             Html::tag('div',
                 Cp::selectHtml([
@@ -133,17 +148,7 @@ class ContainsPurchasablesConditionRule extends BaseElementSelectConditionRule i
                         ],
                     ],
                 ]) .
-                Cp::selectHtml([
-                    'id' => $purchasableTypeId,
-                    'name' => 'purchasableType',
-                    'options' => $this->_purchasableTypeOptions(),
-                    'value' => $this->purchasableType,
-                    'inputAttributes' => [
-                        'hx' => [
-                            'post' => UrlHelper::actionUrl('conditions/render'),
-                        ],
-                    ],
-                ]) .
+                $purchasableTypeHtml .
                 parent::inputHtml(),
                 [
                     'class' => ['flex', 'flex-start'],
