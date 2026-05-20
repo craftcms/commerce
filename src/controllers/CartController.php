@@ -85,7 +85,7 @@ class CartController extends BaseFrontEndController
         return array_merge(parent::behaviors(), [
             'rateLimiter' => [
                 'class' => RateLimiter::class,
-                'only' => ['get-cart', 'update-cart', 'load-cart', 'complete'],
+                'only' => ['get-cart', 'get-static-cart', 'update-cart', 'load-cart', 'complete'],
                 'enableRateLimitHeaders' => false,
                 'user' => function() {
                     // Only apply rate limiting when a cart number is explicitly passed

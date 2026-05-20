@@ -219,18 +219,20 @@ class Carts extends Component
             return $this->_cart;
         }
 
-        if (!$this->getHasSessionCartNumber()) {
+        // check directly, calling getHasSessionCartNumber() would cause the cart number to be loaded from the cookie and set in the session, which we don't want to do here.
+        if ($this->_cartNumber === false) {
             return null;
         }
 
-        $number = Craft::$app->getRequest()->getCookies()->getValue($this->cartCookie['name'], false);
-        if (!$number) {
+        if (!$this->_cartNumber) {
+            $this->_cartNumber = Craft::$app->getRequest()->getCookies()->getValue($this->cartCookie['name'], false) ?: null;
+        }
+
+        if (!$this->_cartNumber) {
             return null;
         }
 
-        $this->_cartNumber = $number;
-        $this->_cart = $this->_getCart(false, false);
-        return $this->_cart;
+        return Order::find()->number($this->_cartNumber)->isCompleted(false)->one();
     }
 
     /**
