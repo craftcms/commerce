@@ -851,8 +851,10 @@ class ProductQuery extends ElementQuery
         }
 
         $this->_applyHasVariantParam();
-        $this->_applyEditableParam($this->editable, 'commerce-viewProductType');
-        $this->_applyEditableParam($this->savable, 'commerce-saveProductType');
+        // Mirrors EntryQuery: "editable" means accessible in the editing UI (view permission),
+        // not necessarily savable. Use ->savable() to filter by save permission.
+        $this->_applyPermissionParam($this->editable, 'commerce-viewProductType');
+        $this->_applyPermissionParam($this->savable, 'commerce-saveProductType');
         $this->_applyRefParam();
 
         return parent::beforePrepare();
@@ -891,7 +893,7 @@ class ProductQuery extends ElementQuery
      * @param string $permissionPrefix
      * @throws QueryAbortedException
      */
-    private function _applyEditableParam(?bool $value, string $permissionPrefix): void
+    private function _applyPermissionParam(?bool $value, string $permissionPrefix): void
     {
         if ($value === null) {
             return;
