@@ -11,7 +11,7 @@ use Craft;
 use craft\commerce\controllers\CartController;
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
-use craft\filters\IpRateLimitIdentity;
+use craft\commerce\filters\IpRateLimitIdentity;
 use craft\test\TestCase;
 use craft\web\Request;
 use craftcommercetests\fixtures\ProductFixture;
