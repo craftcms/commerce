@@ -392,8 +392,8 @@ class Plugin extends BasePlugin
             ];
         }
 
-        $hasEditableProductTypes = Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds(true);
-        if ($hasEditableProductTypes) {
+        $hasViewableProductTypes = Plugin::getInstance()->getProductTypes()->getViewableProductTypeIds(true);
+        if ($hasViewableProductTypes) {
             $ret['subnav']['products'] = [
                 'label' => Craft::t('commerce', 'Products'),
                 'url' => 'commerce/products',
@@ -639,14 +639,21 @@ class Plugin extends BasePlugin
         foreach ($productTypes as $productType) {
             $suffix = ':' . $productType->uid;
 
-            $productTypePermissions['commerce-editProductType' . $suffix] = [
-                'label' => Craft::t('commerce', 'Edit “{type}” products', ['type' => $productType->name]),
+            $productTypePermissions['commerce-viewProductType' . $suffix] = [
+                'label' => Craft::t('commerce', 'View “{type}” products', ['type' => $productType->name]),
+                'info' => Craft::t('commerce', 'Allows viewing existing products and creating drafts for them.'),
                 'nested' => [
-                    "commerce-createProducts$suffix" => [
+                    'commerce-createProductType' . $suffix => [
                         'label' => Craft::t('commerce', 'Create products'),
+                        'info' => Craft::t('commerce', 'Allows creating drafts of new products.'),
                     ],
-                    "commerce-deleteProducts$suffix" => [
+                    'commerce-saveProductType' . $suffix => [
+                        'label' => Craft::t('commerce', 'Save products'),
+                        'info' => Craft::t('commerce', 'Allows fully saving canonical products (directly or by applying drafts).'),
+                    ],
+                    'commerce-deleteProductType' . $suffix => [
                         'label' => Craft::t('commerce', 'Delete products'),
+                        'info' => Craft::t('commerce', 'Allows deleting products for all sites.'),
                     ],
                 ],
             ];
@@ -777,9 +784,8 @@ class Plugin extends BasePlugin
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getStores(), 'afterSaveCraftSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_DELETE_SITE, [$this->getStores(), 'afterDeleteCraftSiteHandler']);
 
-        Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);
-        Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getOrders(), 'beforeDeleteUserHandler']);
-
+        Event::on(UserElement::class, UserElement::EVENT_DEFINE_DELETION_BLOCKERS, [$this->getOrders(), 'beforeDeleteUserHandler']);
+        Event::on(UserElement::class, UserElement::EVENT_DEFINE_DELETION_BLOCKERS, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);
         Event::on(Address::class, Address::EVENT_AFTER_SAVE, [$this->getOrders(), 'afterSaveAddressHandler']);
 
         Event::on(
