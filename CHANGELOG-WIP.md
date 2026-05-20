@@ -13,10 +13,12 @@
 - Added `craft\commerce\elements\deletionblockers\SubscriptionCustomersDeletionBlocker`.
 - Added `craft\commerce\services\Orders::reassignOrders()`.
 - Added `craft\commerce\services\Orders::removeCustomerData()`.
+- `craft\commerce\elements\Subscription::getSubscriber()` now returns `?User` instead of `User`.
 
 ### System
 - Craft Commerce now requires Craft CMS 5.10.0 or later.
 - Craft Commerce now requires `ibericode/vat` 2.0 or later.
+- When deleting a user with orders or subscriptions, store admins are now presented with actionable options to resolve the blocker (reassign orders, remove customer data, or delete subscriptions), rather than a generic error.
 
 ## Development
 
