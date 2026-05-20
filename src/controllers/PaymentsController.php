@@ -141,9 +141,7 @@ class PaymentsController extends BaseFrontEndController
 
         if (!$order->getIsActiveCart() && !$checkPaymentCanBeMade) {
             $error = Craft::t('commerce', 'Email required to make payments on a completed order.');
-            return $this->asFailure($error, data: [
-                $this->_cartVariableName => $this->cartArray($order),
-            ]);
+            return $this->asFailure($error);
         }
 
         if ($plugin->getSettings()->requireShippingAddressAtCheckout && !$order->shippingAddressId) {

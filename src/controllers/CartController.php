@@ -19,12 +19,14 @@ use craft\elements\Address;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
+use craft\filters\IpRateLimitIdentity;
 use craft\helpers\UrlHelper;
 use craft\web\View;
 use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\filters\RateLimiter;
 use yii\mutex\Mutex;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -39,6 +41,11 @@ use yii\web\Response;
  */
 class CartController extends BaseFrontEndController
 {
+    /**
+     * Params that trigger IP-based rate limiting on cart actions.
+     */
+    public const RATE_LIMITED_PARAMS = ['number', 'couponCode'];
+
     /**
      * @var Order The cart element
      */
@@ -73,6 +80,34 @@ class CartController extends BaseFrontEndController
         $this->_currentUser = Craft::$app->getUser()->getIdentity();
 
         parent::init();
+    }
+
+    /**
+     * @inerhitdoc
+     */
+    public function behaviors()
+    {
+        return array_merge(parent::behaviors(), [
+            'rateLimiter' => [
+                'class' => RateLimiter::class,
+                'only' => ['get-cart', 'update-cart', 'load-cart', 'complete'],
+                'enableRateLimitHeaders' => false,
+                'user' => function() {
+                    // Only apply rate limiting when a cart number or coupon code is explicitly passed
+                    $request = Craft::$app->getRequest();
+                    $isActive = collect(self::RATE_LIMITED_PARAMS)
+                        ->contains(fn($param) => $request->getBodyParam($param) || $request->getQueryParam($param));
+
+                    return $isActive ? new IpRateLimitIdentity([
+                        'limit' => 1,
+                        'window' => 1,
+                        'keyPrefix' => 'cart-rate-limit',
+                        'ip' => $request->getUserIP() ?? 'unknown',
+                    ]) : null;
+                },
+
+            ],
+        ]);
     }
 
     /**

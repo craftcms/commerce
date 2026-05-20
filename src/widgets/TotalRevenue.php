@@ -49,6 +49,17 @@ class TotalRevenue extends Widget
     private TotalRevenueStat $_stat;
 
     /**
+     * @inheritdoc
+     */
+    protected function defineRules(): array
+    {
+        $rules = parent::defineRules();
+        $rules[] = [['type'], 'in', 'range' => [TotalRevenueStat::TYPE_TOTAL, TotalRevenueStat::TYPE_TOTAL_PAID]];
+
+        return $rules;
+    }
+
+    /**
      * @inheritDoc
      */
     public function init(): void

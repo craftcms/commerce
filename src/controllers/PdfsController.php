@@ -111,6 +111,7 @@ class PdfsController extends BaseAdminController
         $pdf->enabled = $this->request->getBodyParam('enabled');
         $pdf->isDefault = $this->request->getBodyParam('isDefault');
         $pdf->language = $this->request->getBodyParam('language');
+        $pdf->linkExpiry = (int)$this->request->getBodyParam('linkExpiry');
 
         // Save it
         if ($pdfsService->savePdf($pdf)) {
