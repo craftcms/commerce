@@ -971,10 +971,7 @@ JS, [
         }
 
         if ($this->getIsDraft()) {
-            /**
-             * @var static|DraftBehavior $this
-             * @phpstan-ignore-next-line
-             */
+            /** @var static|DraftBehavior $this */
             return $this->canCreateDrafts($user);
         }
 

@@ -101,11 +101,6 @@ class m260226_120000_product_type_permissions extends Migration
             }
         }
 
-        // Clean up old permission name rows
-        foreach (array_keys($map) as $oldPermission) {
-            $this->delete(Table::USERPERMISSIONS, ['name' => $oldPermission]);
-        }
-
         return true;
     }
 
