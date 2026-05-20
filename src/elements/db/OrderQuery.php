@@ -211,6 +211,11 @@ class OrderQuery extends ElementQuery
     public mixed $hasPurchasables = null;
 
     /**
+     * @var array{purchasables: mixed, match: string}|null
+     */
+    public ?array $containsPurchasables = null;
+
+    /**
      * @var bool|null Whether the order has any transactions
      */
     public ?bool $hasTransactions = null;
@@ -1406,6 +1411,20 @@ class OrderQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results based on whether orders contain specific purchasables,
+     * with support for 'any', 'all', and 'only' match modes.
+     *
+     * @param array{purchasables: mixed, match: string} $value
+     * @return static self reference
+     */
+    public function containsPurchasables(array $value): OrderQuery
+    {
+        $this->containsPurchasables = $value;
+
+        return $this;
+    }
+
+    /**
      * Narrows the query results to only orders that are related to the given store.
      *
      * Possible values include:
@@ -1830,6 +1849,59 @@ class OrderQuery extends ElementQuery
                     ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]'))
                     ->andWhere(['[[lineitems.purchasableId]]' => $purchasableIds]),
             ]);
+        }
+
+        if (isset($this->containsPurchasables)) {
+            $purchasableIds = [];
+            $purchasables = $this->containsPurchasables['purchasables'];
+            $match = $this->containsPurchasables['match'];
+
+            if (!is_array($purchasables)) {
+                $purchasables = [$purchasables];
+            }
+
+            foreach ($purchasables as $purchasable) {
+                if ($purchasable instanceof PurchasableInterface) {
+                    $purchasableIds[] = $purchasable->getId();
+                } elseif (is_numeric($purchasable)) {
+                    $purchasableIds[] = $purchasable;
+                }
+            }
+
+            $purchasableIds = array_values(array_filter($purchasableIds));
+
+            if ($match === 'all' || $match === 'only') {
+                // Every requested purchasable must have its own line item (AND logic)
+                foreach ($purchasableIds as $id) {
+                    $this->subQuery->andWhere([
+                        'exists',
+                        (new Query())
+                            ->from(['lineitems' => Table::LINEITEMS])
+                            ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]'))
+                            ->andWhere(['[[lineitems.purchasableId]]' => $id]),
+                    ]);
+                }
+
+                if ($match === 'only') {
+                    // No line items with a purchasable outside the set, and no custom line items
+                    $this->subQuery->andWhere([
+                        'not exists',
+                        (new Query())
+                            ->from(['lineitems' => Table::LINEITEMS])
+                            ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]'))
+                            ->andWhere(['or', ['[[lineitems.purchasableId]]' => null], ['not', ['[[lineitems.purchasableId]]' => $purchasableIds]]]),
+                    ]);
+                }
+            } else {
+                // 'any': at least one of the purchasables must be in the order
+                $this->subQuery->andWhere([
+                    'exists',
+                    (new Query())
+                        ->from(['lineitems' => Table::LINEITEMS])
+                        ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]'))
+                        ->andWhere(['[[lineitems.purchasableId]]' => $purchasableIds]),
+                ]);
+            }
         }
 
         // Allow true or false but not null

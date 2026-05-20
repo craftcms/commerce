@@ -10,12 +10,10 @@ namespace craft\commerce\elements\conditions\orders;
 use Craft;
 use craft\base\conditions\BaseElementSelectConditionRule;
 use craft\base\ElementInterface;
-use craft\commerce\db\Table;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
-use craft\db\Query;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
@@ -23,17 +21,16 @@ use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use yii\base\InvalidConfigException;
-use yii\db\Expression;
 
 /**
- * Has Purchasables Condition Rule
+ * Contains Purchasables Condition Rule
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.7.0
  *
  * @method array|string|null paramValue(?callable $normalizeValue = null)
  */
-class HasPurchasablesConditionRule extends BaseElementSelectConditionRule implements ElementConditionRuleInterface
+class ContainsPurchasablesConditionRule extends BaseElementSelectConditionRule implements ElementConditionRuleInterface
 {
     /**
      * @var string
@@ -50,7 +47,7 @@ class HasPurchasablesConditionRule extends BaseElementSelectConditionRule implem
      */
     public function getLabel(): string
     {
-        return Craft::t('commerce', 'Has Purchasables');
+        return Craft::t('commerce', 'Contains Purchasables');
     }
 
     /**
@@ -80,22 +77,7 @@ class HasPurchasablesConditionRule extends BaseElementSelectConditionRule implem
         }
 
         /** @var OrderQuery $query */
-        if ($this->match === 'all') {
-            // Each purchasable must have its own line item (AND logic via separate EXISTS subqueries)
-            foreach ($ids as $id) {
-                $query->subQuery->andWhere([
-                    'exists',
-                    (new Query())
-                        ->from(['lineitems' => Table::LINEITEMS])
-                        ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]'))
-                        ->andWhere(['[[lineitems.purchasableId]]' => $id]),
-                ]);
-            }
-        } else {
-            // For 'any': this IN condition is the complete filter
-            // For 'only': used as a broad pre-filter; matchElement handles the exact check
-            $query->hasPurchasables($ids);
-        }
+        $query->containsPurchasables(['purchasables' => $ids, 'match' => $this->match]);
     }
 
     /**
