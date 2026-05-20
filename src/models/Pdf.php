@@ -144,6 +144,7 @@ class Pdf extends Model implements HasStoreInterface
                 'id',
                 'isDefault',
                 'language',
+                'linkExpiry',
                 'name',
                 'paperOrientation',
                 'paperSize',

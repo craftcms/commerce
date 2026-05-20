@@ -104,6 +104,9 @@ EOT;
             )->execute();
         }
 
+        Craft::$app->getElements()->invalidateCachesForElement($product);
+        Craft::$app->getElements()->invalidateCachesForElement($variant);
+
         $this->setMessage(Craft::t('commerce', 'Default variant updated.'));
         return true;
     }

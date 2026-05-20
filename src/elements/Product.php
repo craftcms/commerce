@@ -15,6 +15,7 @@ use craft\behaviors\DraftBehavior;
 use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\StoreTrait;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
+use craft\commerce\db\Table;
 use craft\commerce\elements\actions\CreateDiscount;
 use craft\commerce\elements\actions\CreateSale;
 use craft\commerce\elements\conditions\products\ProductCondition;
@@ -28,6 +29,7 @@ use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Product as ProductRecord;
 use craft\controllers\ElementIndexesController;
+use craft\controllers\NestedElementsController;
 use craft\db\Query;
 use craft\elements\actions\CopyReferenceTag;
 use craft\elements\actions\Delete;
@@ -51,6 +53,7 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\ElementHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
+use craft\helpers\Sequence;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
@@ -1071,11 +1074,15 @@ JS, [
      */
     protected function uiLabel(): ?string
     {
-        $uiLabelFormat = $this->getType()->productUiLabelFormat;
-        if ($uiLabelFormat !== '{title}') {
-            $uiLabel = Craft::$app->getView()->renderObjectTemplate($uiLabelFormat, $this);
-            if ($uiLabel !== '') {
-                return $uiLabel;
+        // This method is called in a few places before the product type is set
+        // If there isn't a type then fall back to the title
+        if ($this->typeId) {
+            $uiLabelFormat = $this->getType()->productUiLabelFormat;
+            if ($uiLabelFormat !== '{title}') {
+                $uiLabel = Craft::$app->getView()->renderObjectTemplate($uiLabelFormat, $this);
+                if ($uiLabel !== '') {
+                    return $uiLabel;
+                }
             }
         }
 
@@ -1180,13 +1187,13 @@ JS, [
     }
 
     /**
-     * Returns an array of the product's variants.
+     * Returns a collection of the product's variants.
      *
-     * @param bool $includeDisabled
+     * @param bool|null $includeDisabled
      * @return VariantCollection
      * @throws InvalidConfigException
      */
-    public function getVariants(bool $includeDisabled = false): VariantCollection
+    public function getVariants(?bool $includeDisabled = null): VariantCollection
     {
         if ($this->_variants === null) {
             if (!$this->id) {
@@ -1225,6 +1232,10 @@ JS, [
                 return $v;
             });
         }
+
+        // When reordering variants we need to make sure disabled variants are included when calculating sort order
+        // @TODO: Remove in 6.0 when updating `getVariants()` to start returning an element query instance.
+        $includeDisabled ??= Craft::$app->controller instanceof NestedElementsController;
 
         return $this->_variants->filter(fn(Variant $variant) => $includeDisabled || ($variant->getStatus() === self::STATUS_ENABLED));
     }
@@ -1791,6 +1802,34 @@ JS, [
                 } catch (\Exception $e) {
                     Craft::error('Craft Commerce could not generate the supplied SKU format: ' . $e->getMessage(), __METHOD__);
                     $variant->sku = '';
+                }
+
+                if ($variant->sku) {
+                    $skuExistsQuery = function(string $sku, ?int $id) {
+                        $query = (new Query())
+                            ->select(['sku'])
+                            ->from(Table::PURCHASABLES)
+                            ->where(['sku' => $sku]);
+
+                        // Make sure it isn't for the purchasable we are currently saving
+                        if ($id) {
+                            $query->andWhere(['not', ['id' => $id]]);
+                        }
+
+                        return $query;
+                    };
+
+                    // Ensure there isn't a clash with an existing SKU when using auto formats
+                    if ($skuExistsQuery($variant->sku, $variant->id)->exists()) {
+                        // If there is a clash, we need to append a number to the end.
+                        $baseSku = $variant->sku;
+                        do {
+                            $seq = Sequence::next('sku::' . $baseSku);
+                            $newSku = $baseSku . '-' . $seq;
+                        } while ($skuExistsQuery($newSku, $variant->id)->exists());
+
+                        $variant->sku = $newSku;
+                    }
                 }
             }
         }
