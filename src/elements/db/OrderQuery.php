@@ -211,7 +211,7 @@ class OrderQuery extends ElementQuery
     public mixed $hasPurchasables = null;
 
     /**
-     * @var array{purchasables: mixed, match: string}|null
+     * @var array{purchasables: array<int|PurchasableInterface>, match: string}|null
      */
     public ?array $containsPurchasables = null;
 
@@ -1414,7 +1414,21 @@ class OrderQuery extends ElementQuery
      * Narrows the query results based on whether orders contain specific purchasables,
      * with support for 'any', 'all', and 'only' match modes.
      *
-     * @param array{purchasables: mixed, match: string} $value
+     * The `purchasables` key accepts a mixed array of integer IDs and/or
+     * [[PurchasableInterface]] objects:
+     *
+     * ```php
+     * // IDs only
+     * ->containsPurchasables(['purchasables' => [1, 2, 3], 'match' => 'any'])
+     *
+     * // Objects only
+     * ->containsPurchasables(['purchasables' => [$variant1, $variant2], 'match' => 'all'])
+     *
+     * // Mixed
+     * ->containsPurchasables(['purchasables' => [1, $variant2, 3], 'match' => 'only'])
+     * ```
+     *
+     * @param array{purchasables: array<int|PurchasableInterface>, match: string} $value
      * @return static self reference
      */
     public function containsPurchasables(array $value): OrderQuery
