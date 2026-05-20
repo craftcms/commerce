@@ -230,7 +230,7 @@ class CartsTest extends Unit
         Craft::$app->getElements()->deleteElement($cart, true);
     }
 
-    public function testGetCartReadOnlyModeDoesNotStartCartSession(): void
+    public function testGetStaticCartDoesNotStartCartSession(): void
     {
         $cartNumber = Plugin::getInstance()->getCarts()->generateCartNumber();
 
@@ -240,7 +240,7 @@ class CartsTest extends Unit
 
         $carts = $this->make(Carts::class, [
             'setSessionCartNumber' => function() {
-                self::fail('Read-only cart retrieval should not update the cart session.');
+                self::fail('Static cart retrieval should not update the cart session.');
             },
         ]);
         Plugin::getInstance()->set('carts', $carts);
@@ -249,9 +249,18 @@ class CartsTest extends Unit
             'value' => $cartNumber,
         ]));
 
-        $cart = Plugin::getInstance()->getCarts()->getCart(readOnly: true);
+        $cart = Plugin::getInstance()->getCarts()->getStaticCart();
 
         self::assertNotNull($cart);
         self::assertSame($cartNumber, $cart->number);
+
+        Craft::$app->getElements()->deleteElement($order, true);
+    }
+
+    public function testGetStaticCartReturnsNullWithNoCookie(): void
+    {
+        $cart = Plugin::getInstance()->getCarts()->getStaticCart();
+
+        self::assertNull($cart);
     }
 }

@@ -128,33 +128,12 @@ class Carts extends Component
      * Get the current cart for this session.
      *
      * @param bool $forceSave Force the cart.
-     * @param bool $readOnly Whether to retrieve the cart in read-only mode.
      * @throws ElementNotFoundException
      * @throws Exception
      * @throws Throwable
      */
-    public function getCart(bool $forceSave = false, bool $readOnly = false): ?Order
+    public function getCart(bool $forceSave = false): Order
     {
-        if ($readOnly) {
-            if (isset($this->_cart)) {
-                return $this->_cart;
-            }
-
-            if (!$this->getHasSessionCartNumber()) {
-                return null;
-            }
-
-            $request = Craft::$app->getRequest();
-            $number = $request->getCookies()->getValue($this->cartCookie['name'], false);
-            if (!$number) {
-                return null;
-            }
-
-            $this->_cartNumber = $number;
-            $this->_cart = $this->_getCart(false, false);
-            return $this->_cart;
-        }
-
         $this->loadCookie(); // TODO: need to see if this should be added to other runtime methods too
 
         $this->_getCartCount++; //useful when debugging
@@ -227,6 +206,30 @@ class Carts extends Component
             Craft::$app->getElements()->saveElement($this->_cart, false);
         }
 
+        return $this->_cart;
+    }
+
+    /**
+     * Returns the existing cart for this session without creating one, setting cookies, or touching the session.
+     * Returns null if no cart cookie is present or no matching cart exists.
+     */
+    public function getStaticCart(): ?Order
+    {
+        if (isset($this->_cart)) {
+            return $this->_cart;
+        }
+
+        if (!$this->getHasSessionCartNumber()) {
+            return null;
+        }
+
+        $number = Craft::$app->getRequest()->getCookies()->getValue($this->cartCookie['name'], false);
+        if (!$number) {
+            return null;
+        }
+
+        $this->_cartNumber = $number;
+        $this->_cart = $this->_getCart(false, false);
         return $this->_cart;
     }
 

@@ -120,6 +120,21 @@ class CartController extends BaseFrontEndController
     }
 
     /**
+     * Returns the existing cart for this session without creating one, setting cookies, or touching the session.
+     * Returns null (as empty cart data) if no cart exists for the current session.
+     */
+    public function actionGetStaticCart(): Response
+    {
+        $this->requireAcceptsJson();
+
+        $cart = Plugin::getInstance()->getCarts()->getStaticCart();
+
+        return $this->asSuccess(data: [
+            $this->_cartVariable => $cart ? $this->cartArray($cart) : null,
+        ]);
+    }
+
+    /**
      * Updates the cart by adding purchasables to the cart, updating line items, or updating various cart attributes.
      *
      * @throws BadRequestHttpException
