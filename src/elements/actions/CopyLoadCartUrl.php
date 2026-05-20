@@ -40,33 +40,32 @@ class CopyLoadCartUrl extends ElementAction
     public function getTriggerHtml(): ?string
     {
         $type = Json::encode(static::class);
-        $actionUrl = Json::encode(UrlHelper::actionUrl(‘commerce/orders/get-load-cart-url’));
+        $actionUrl = Json::encode(UrlHelper::actionUrl('commerce/orders/get-load-cart-url'));
 
-        $js = sprintf(<<<’JS’
+        $jsTemplate = <<<'JS'
 (() => {
     new Craft.ElementActionTrigger({
         type: %s,
         batch: false,
         validateSelection: function($selectedItems)
         {
-            return !!$selectedItems.find(‘.element’).data(‘number’);
+            return !!$selectedItems.find('.element').data('number');
         },
         activate: function($selectedItems)
         {
-            var number = $selectedItems.find(‘.element’).data(‘number’);
-            Craft.sendActionRequest(‘GET’, %s, {params: {number: number}}).then(function(response) {
+            var number = $selectedItems.find('.element').data('number');
+            Craft.sendActionRequest('GET', %s, {params: {number: number}}).then(function(response) {
                 Craft.ui.createCopyTextPrompt({
-                    label: Craft.t(‘commerce’, ‘Copy the URL’),
-                    instructions: Craft.t(‘commerce’, "This URL will load the cart into the user’s session, making it the active cart."),
+                    label: Craft.t('commerce', 'Copy the URL'),
+                    instructions: Craft.t('commerce', "This URL will load the cart into the user's session, making it the active cart."),
                     value: response.data.url,
                 });
             });
         }
     });
 })();
-JS, $type, $actionUrl);
-
-        Craft::$app->getView()->registerJs($js);
+JS;
+        Craft::$app->getView()->registerJs(sprintf($jsTemplate, $type, $actionUrl));
         return null;
     }
 }
