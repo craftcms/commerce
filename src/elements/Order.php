@@ -2927,7 +2927,7 @@ class Order extends Element implements HasStoreInterface
      * @param string $match The match mode:
      * - `'any'` – returns `true` if the order contains at least one of the given purchasable IDs. This is default that matches the OrderQuery hasPurchasables param.
      * - `'all'` – returns `true` if the order contains all the given purchasable IDs (order may contain others).
-     * - `'exact'` – returns `true` only if the order contains exactly the given purchasable IDs and nothing else.
+     * - `'only'` – returns `true` only if the order contains exactly the given purchasable IDs and nothing else.
      *   Returns `false` if the order has custom line items (null purchasable ID).
      * @return bool
      */
@@ -2949,9 +2949,9 @@ class Order extends Element implements HasStoreInterface
             return $orderPurchasableIds->intersect($requestedIds)->isNotEmpty();
         }
 
-        if ($match === 'exact') {
+        if ($match === 'only') {
             // If there are custom line items (null purchasableId), the order
-            // has purchasables beyond what was specified, so it can't be exact.
+            // has purchasables beyond what was specified, so it can't be only.
             $hasCustomLineItems = collect($this->getLineItems())
                 ->pluck('purchasableId')
                 ->contains(null);

@@ -41,7 +41,7 @@ class HasPurchasablesConditionRule extends BaseElementSelectConditionRule implem
     public string $purchasableType = Variant::class;
 
     /**
-     * @var string The match mode: 'any', 'all', or 'exact'.
+     * @var string The match mode: 'any', 'all', or 'only'.
      */
     public string $match = 'any';
 
@@ -93,7 +93,7 @@ class HasPurchasablesConditionRule extends BaseElementSelectConditionRule implem
             }
         } else {
             // For 'any': this IN condition is the complete filter
-            // For 'exact': used as a broad pre-filter; matchElement handles the exact check
+            // For 'only': used as a broad pre-filter; matchElement handles the exact check
             $query->hasPurchasables($ids);
         }
     }
@@ -203,7 +203,7 @@ class HasPurchasablesConditionRule extends BaseElementSelectConditionRule implem
         return [
             ['value' => 'any', 'label' => Craft::t('commerce', 'any')],
             ['value' => 'all', 'label' => Craft::t('commerce', 'all')],
-            ['value' => 'exact', 'label' => Craft::t('commerce', 'exact')],
+            ['value' => 'only', 'label' => Craft::t('commerce', 'only')],
         ];
     }
 
