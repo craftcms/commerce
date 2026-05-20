@@ -219,7 +219,6 @@ class Carts extends Component
             return $this->_cart;
         }
 
-        // check directly, calling getHasSessionCartNumber() would cause the cart number to be loaded from the cookie and set in the session, which we don't want to do here.
         if ($this->_cartNumber === false) {
             return null;
         }

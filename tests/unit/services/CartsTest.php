@@ -17,7 +17,6 @@ use craft\web\Request;
 use craftcommercetests\fixtures\CustomerAddressFixture;
 use craftcommercetests\fixtures\CustomerFixture;
 use UnitTester;
-use yii\web\Cookie;
 
 /**
  * CartsTest.
@@ -232,7 +231,9 @@ class CartsTest extends Unit
 
     public function testGetStaticCartDoesNotStartCartSession(): void
     {
-        $cartNumber = Plugin::getInstance()->getCarts()->generateCartNumber();
+        $originalCarts = Plugin::getInstance()->getCarts();
+        $cartNumber = $originalCarts->generateCartNumber();
+        $cookieName = $originalCarts->cartCookie['name'];
 
         $order = new Order();
         $order->number = $cartNumber;
@@ -243,24 +244,50 @@ class CartsTest extends Unit
                 self::fail('Static cart retrieval should not update the cart session.');
             },
         ]);
+        $carts->cartCookie = ['name' => $cookieName];
         Plugin::getInstance()->set('carts', $carts);
-        Craft::$app->getRequest()->getCookies()->add(new Cookie([
-            'name' => $carts->cartCookie['name'],
+
+        $requestCookies = new \yii\web\CookieCollection();
+        $requestCookies->add(new \yii\web\Cookie([
+            'name' => $cookieName,
             'value' => $cartNumber,
         ]));
+        $originalRequest = Craft::$app->getRequest();
+        $requestMock = $this->make(Request::class, [
+            'getCookies' => $requestCookies,
+        ]);
+        Craft::$app->set('request', $requestMock);
 
-        $cart = Plugin::getInstance()->getCarts()->getStaticCart();
+        try {
+            $cart = Plugin::getInstance()->getCarts()->getStaticCart();
 
-        self::assertNotNull($cart);
-        self::assertSame($cartNumber, $cart->number);
-
-        Craft::$app->getElements()->deleteElement($order, true);
+            self::assertNotNull($cart);
+            self::assertSame($cartNumber, $cart->number);
+        } finally {
+            Craft::$app->set('request', $originalRequest);
+            Craft::$app->getElements()->deleteElement($order, true);
+        }
     }
 
     public function testGetStaticCartReturnsNullWithNoCookie(): void
     {
-        $cart = Plugin::getInstance()->getCarts()->getStaticCart();
+        $cookieName = Plugin::getInstance()->getCarts()->cartCookie['name'];
 
-        self::assertNull($cart);
+        $carts = $this->make(Carts::class);
+        $carts->cartCookie = ['name' => $cookieName];
+        Plugin::getInstance()->set('carts', $carts);
+
+        $originalRequest = Craft::$app->getRequest();
+        $requestMock = $this->make(Request::class, [
+            'getCookies' => new \yii\web\CookieCollection(),
+        ]);
+        Craft::$app->set('request', $requestMock);
+
+        try {
+            $cart = Plugin::getInstance()->getCarts()->getStaticCart();
+            self::assertNull($cart);
+        } finally {
+            Craft::$app->set('request', $originalRequest);
+        }
     }
 }
