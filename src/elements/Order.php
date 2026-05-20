@@ -26,6 +26,7 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderNoticesTrait;
 use craft\commerce\elements\traits\OrderValidatorsTrait;
+use craft\commerce\enums\ContainsPurchasablesMatch;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\LineItemNotFoundException;
 use craft\commerce\errors\OrderAdjustmentNotFoundException;
@@ -2924,14 +2925,10 @@ class Order extends Element implements HasStoreInterface
      * Returns whether the order contains the given purchasable IDs.
      *
      * @param mixed $purchasableIds One or more purchasable IDs or purchasable models to check for.
-     * @param string $match The match mode:
-     * - `'any'` – returns `true` if the order contains at least one of the given purchasable IDs. This is default that matches the OrderQuery hasPurchasables param.
-     * - `'all'` – returns `true` if the order contains all the given purchasable IDs (order may contain others).
-     * - `'only'` – returns `true` only if the order contains exactly the given purchasable IDs and nothing else.
-     *   Returns `false` if the order has custom line items (null purchasable ID).
+     * @param ContainsPurchasablesMatch $match The match mode.
      * @return bool
      */
-    public function hasPurchasables(mixed $purchasableIds, string $match = 'any'): bool
+    public function hasPurchasables(mixed $purchasableIds, ContainsPurchasablesMatch $match = ContainsPurchasablesMatch::Any): bool
     {
         if (!is_array($purchasableIds)) {
             $purchasableIds = [$purchasableIds];
@@ -2945,11 +2942,11 @@ class Order extends Element implements HasStoreInterface
             ->map(fn($id) => $id instanceof PurchasableInterface ? $id->getId() : $id)
             ->filter(fn($id) => $id !== null);
 
-        if ($match === 'any') {
+        if ($match === ContainsPurchasablesMatch::Any) {
             return $orderPurchasableIds->intersect($requestedIds)->isNotEmpty();
         }
 
-        if ($match === 'only') {
+        if ($match === ContainsPurchasablesMatch::Only) {
             // If there are custom line items (null purchasableId), the order
             // has purchasables beyond what was specified, so it can't be only.
             $hasCustomLineItems = collect($this->getLineItems())
@@ -2964,7 +2961,7 @@ class Order extends Element implements HasStoreInterface
                 && $requestedIds->diff($orderPurchasableIds)->isEmpty();
         }
 
-        // 'all' — every requested purchasable must exist in the order
+        // ContainsPurchasablesMatch::All — every requested purchasable must exist in the order
         return $requestedIds->every(fn($id) => $orderPurchasableIds->contains($id));
     }
 

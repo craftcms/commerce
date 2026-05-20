@@ -13,6 +13,7 @@ use craft\base\ElementInterface;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
+use craft\commerce\enums\ContainsPurchasablesMatch;
 use craft\commerce\Plugin;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\conditions\ElementConditionRuleInterface;
@@ -37,10 +38,15 @@ class ContainsPurchasablesConditionRule extends BaseElementSelectConditionRule i
      */
     public string $purchasableType = Variant::class;
 
+    public ContainsPurchasablesMatch $match = ContainsPurchasablesMatch::Any;
+
     /**
-     * @var string The match mode: 'any', 'all', or 'only'.
+     * Yii2 setter — converts stored string values back to the enum on load.
      */
-    public string $match = 'any';
+    public function setMatch(ContainsPurchasablesMatch|string $value): void
+    {
+        $this->match = $value instanceof ContainsPurchasablesMatch ? $value : ContainsPurchasablesMatch::from($value);
+    }
 
     /**
      * @inheritdoc
@@ -100,8 +106,8 @@ class ContainsPurchasablesConditionRule extends BaseElementSelectConditionRule i
     public function getConfig(): array
     {
         return array_merge(parent::getConfig(), [
-           'purchasableType' => $this->purchasableType,
-           'match' => $this->match,
+            'purchasableType' => $this->purchasableType,
+            'match' => $this->match->value,
         ]);
     }
 
@@ -141,7 +147,7 @@ class ContainsPurchasablesConditionRule extends BaseElementSelectConditionRule i
                     'id' => $matchId,
                     'name' => 'match',
                     'options' => $this->_matchOptions(),
-                    'value' => $this->match,
+                    'value' => $this->match->value,
                     'inputAttributes' => [
                         'hx' => [
                             'post' => UrlHelper::actionUrl('conditions/render'),
@@ -155,7 +161,6 @@ class ContainsPurchasablesConditionRule extends BaseElementSelectConditionRule i
                 ]
             );
     }
-
 
     protected function selectionCondition(): ?ElementConditionInterface
     {
@@ -187,11 +192,10 @@ class ContainsPurchasablesConditionRule extends BaseElementSelectConditionRule i
      */
     private function _matchOptions(): array
     {
-        return [
-            ['value' => 'any', 'label' => Craft::t('commerce', 'any')],
-            ['value' => 'all', 'label' => Craft::t('commerce', 'all')],
-            ['value' => 'only', 'label' => Craft::t('commerce', 'only')],
-        ];
+        return array_map(
+            fn(ContainsPurchasablesMatch $m) => ['value' => $m->value, 'label' => $m->label()],
+            ContainsPurchasablesMatch::cases()
+        );
     }
 
     /**

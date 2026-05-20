@@ -13,6 +13,7 @@ use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\enums\ContainsPurchasablesMatch;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
 use craft\db\Query;
@@ -211,7 +212,7 @@ class OrderQuery extends ElementQuery
     public mixed $hasPurchasables = null;
 
     /**
-     * @var array{purchasables: array<int|PurchasableInterface>, match: string}|null
+     * @var array{purchasables: array<int|PurchasableInterface>, match: ContainsPurchasablesMatch}|null
      */
     public ?array $containsPurchasables = null;
 
@@ -1428,7 +1429,7 @@ class OrderQuery extends ElementQuery
      * ->containsPurchasables(['purchasables' => [1, $variant2, 3], 'match' => 'only'])
      * ```
      *
-     * @param array{purchasables: array<int|PurchasableInterface>, match: string} $value
+     * @param array{purchasables: array<int|PurchasableInterface>, match: ContainsPurchasablesMatch} $value
      * @return static self reference
      */
     public function containsPurchasables(array $value): OrderQuery
@@ -1884,7 +1885,7 @@ class OrderQuery extends ElementQuery
 
             $purchasableIds = array_values(array_filter($purchasableIds));
 
-            if ($match === 'all' || $match === 'only') {
+            if ($match === ContainsPurchasablesMatch::All || $match === ContainsPurchasablesMatch::Only) {
                 // Every requested purchasable must have its own line item (AND logic)
                 foreach ($purchasableIds as $id) {
                     $this->subQuery->andWhere([
@@ -1896,7 +1897,7 @@ class OrderQuery extends ElementQuery
                     ]);
                 }
 
-                if ($match === 'only') {
+                if ($match === ContainsPurchasablesMatch::Only) {
                     // No line items with a purchasable outside the set, and no custom line items
                     $this->subQuery->andWhere([
                         'not exists',
@@ -1907,7 +1908,7 @@ class OrderQuery extends ElementQuery
                     ]);
                 }
             } else {
-                // 'any': at least one of the purchasables must be in the order
+                // ContainsPurchasablesMatch::Any: at least one of the purchasables must be in the order
                 $this->subQuery->andWhere([
                     'exists',
                     (new Query())
