@@ -3,6 +3,13 @@
 ## Administration
 - Added a "Contains Purchasables" order condition rule, which supports "any", "all", and "only" match modes. ([#4242](https://github.com/craftcms/commerce/issues/4242))
 
+## Extensibility
+- Added `craft\commerce\elements\conditions\orders\ContainsPurchasablesConditionRule`.
+- Added `craft\commerce\enums\ContainsPurchasablesMatch`.
+- Added `craft\commerce\elements\db\OrderQuery::$containsPurchasables`.
+- Added `craft\commerce\elements\db\OrderQuery::containsPurchasables()`.
+- Added `craft\commerce\elements\Order::hasPurchasables()`.
+
 ## System
 
 - Craft Commerce now requires `ibericode/vat` 2.0 or later.
