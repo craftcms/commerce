@@ -24,8 +24,16 @@ use yii\db\StaleObjectException;
  */
 class ShippingRuleCategories extends Component
 {
+    /**
+     * @var array|null
+     */
     private ?array $_shippingRuleCategories = null;
 
+    /**
+     * Returns shipping rule category data without instantiating the classes for performances purposes
+     *
+     * @return array
+     */
     public function getAllShippingRuleCategoriesData(): array
     {
         if ($this->_shippingRuleCategories === null) {
