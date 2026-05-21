@@ -82,6 +82,11 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
     private ?ShippingMethodCustomerCondition $_customerCondition = null;
 
     /**
+     * @var array<string, ShippingRuleInterface|false> Per-request cache of matching rule per order number.
+     */
+    private array $_matchingRuleByOrderNumber = [];
+
+    /**
      * @var DateTime|null
      * @since 3.4
      */
@@ -274,14 +279,7 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
             return false;
         }
 
-        /** @var ShippingRuleInterface $rule */
-        foreach ($this->getShippingRules()->all() as $rule) {
-            if ($rule->matchOrder($order)) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->getMatchingShippingRule($order) !== null;
     }
 
     /**
@@ -289,14 +287,28 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
      */
     public function getMatchingShippingRule(Order $order): ?ShippingRuleInterface
     {
+        if (array_key_exists($order->number, $this->_matchingRuleByOrderNumber)) {
+            return $this->_matchingRuleByOrderNumber[$order->number] ?: null;
+        }
+
         foreach ($this->getShippingRules() as $rule) {
             /** @var ShippingRuleInterface $rule */
             if ($rule->matchOrder($order)) {
+                $this->_matchingRuleByOrderNumber[$order->number] = $rule;
                 return $rule;
             }
         }
 
+        $this->_matchingRuleByOrderNumber[$order->number] = false;
         return null;
+    }
+
+    /**
+     * Clears the per-request matching rule cache. Called by ShippingMethods service after each match pass.
+     */
+    public function clearMatchingRuleCache(): void
+    {
+        $this->_matchingRuleByOrderNumber = [];
     }
 
     public function getPriceForOrder(Order $order): float

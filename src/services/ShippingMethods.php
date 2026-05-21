@@ -138,12 +138,10 @@ class ShippingMethods extends Component
 
         /** @var ShippingMethod $method */
         foreach ($event->getShippingMethods() as $method) {
-            $totalPrice = $method->getPriceForOrder($order);
-
             if ($method->getIsEnabled() && $method->matchOrder($order)) {
                 $matchingMethods[$method->getHandle()] = [
                     'method' => $method,
-                    'price' => $totalPrice, // Store the price so we can sort on it before returning
+                    'price' => $method->getPriceForOrder($order), // Store the price so we can sort on it before returning
                 ];
             }
         }
@@ -157,8 +155,13 @@ class ShippingMethods extends Component
             $shippingMethods[$method->getHandle()] = $method; // Keep the key being the handle of the method for front-end use.
         }
 
-        // Clear the memoized data so next time we watch to match rules, we get fresh data.
+        // Clear the memoized data so next time we want to match rules, we get fresh data.
         $this->_serializedOrdersByNumber = [];
+        foreach ($event->getShippingMethods() as $method) {
+            if ($method instanceof ShippingMethod) {
+                $method->clearMatchingRuleCache();
+            }
+        }
 
         return $shippingMethods;
     }
