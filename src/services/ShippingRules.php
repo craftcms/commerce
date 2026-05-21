@@ -15,6 +15,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\db\Query;
+use Generator;
 use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
@@ -53,11 +54,7 @@ class ShippingRules extends Component
         $allShippingRules = [];
 
         foreach ($results as $result) {
-            $result['orderCondition'] ??= '';
-            $allShippingRules[] = Craft::createObject([
-                'class' => ShippingRule::class,
-                'attributes' => $result,
-            ]);
+            $allShippingRules[] = $this->_createShippingRuleFromRow($result);
         }
 
         $this->_allShippingRules = collect($allShippingRules);
@@ -78,6 +75,38 @@ class ShippingRules extends Component
     public function getAllShippingRulesByShippingMethodId(int $id): Collection
     {
         return $this->getAllShippingRules()->where('methodId', $id);
+    }
+
+    /**
+     * Yields enabled ShippingRule models one at a time for the given method, for use during order matching.
+     *
+     * @return Generator<ShippingRule>
+     */
+    public function getShippingRulesForMatchingByMethodId(int $methodId): Generator
+    {
+        // Load category associations for all enabled rules of this method in one query.
+        $ruleIds = (new Query())
+            ->select(['id'])
+            ->from(Table::SHIPPINGRULES)
+            ->where(['methodId' => $methodId, 'enabled' => true])
+            ->column();
+
+        if (empty($ruleIds)) {
+            return;
+        }
+
+        $categoriesByRuleId = Plugin::getInstance()
+            ->getShippingRuleCategories()
+            ->getShippingRuleCategoriesByRuleIds($ruleIds);
+
+        foreach ($this->_createShippingRulesQuery()
+            ->where(['shippingrules.methodId' => $methodId, 'shippingrules.enabled' => true])
+            ->orderBy(['shippingrules.priority' => SORT_ASC])
+            ->each(200) as $row) {
+            $rule = $this->_createShippingRuleFromRow($row);
+            $rule->setShippingRuleCategories($categoriesByRuleId[$row['id']] ?? []);
+            yield $rule;
+        }
     }
 
     /**
@@ -241,6 +270,17 @@ class ShippingRules extends Component
             ->innerJoin(Table::SHIPPINGMETHODS . ' methods', '[[methods.id]] = [[shippingrules.methodId]]');
 
         return $query;
+    }
+
+    private function _createShippingRuleFromRow(array $row): ShippingRule
+    {
+        $row['orderCondition'] ??= '';
+        /** @var ShippingRule $rule */
+        $rule = Craft::createObject([
+            'class' => ShippingRule::class,
+            'attributes' => $row,
+        ]);
+        return $rule;
     }
 
     /**

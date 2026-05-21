@@ -96,6 +96,18 @@ class ShippingMethod extends BaseShippingMethod implements Chippable, Colorable,
     /**
      * @inheritdoc
      */
+    protected function _getShippingRulesForMatching(): iterable
+    {
+        if ($this->id === null) {
+            return [];
+        }
+
+        return Plugin::getInstance()->getShippingRules()->getShippingRulesForMatchingByMethodId($this->id);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getIsEnabled(): bool
     {
         return $this->enabled;

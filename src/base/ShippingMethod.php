@@ -291,7 +291,7 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
             return $this->_matchingRuleByOrderNumber[$order->number] ?: null;
         }
 
-        foreach ($this->getShippingRules() as $rule) {
+        foreach ($this->_getShippingRulesForMatching() as $rule) {
             /** @var ShippingRuleInterface $rule */
             if ($rule->matchOrder($order)) {
                 $this->_matchingRuleByOrderNumber[$order->number] = $rule;
@@ -301,6 +301,15 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
 
         $this->_matchingRuleByOrderNumber[$order->number] = false;
         return null;
+    }
+
+    /**
+     * Returns an iterable of shipping rules to evaluate during order matching.
+     * Override in subclasses to stream rules without loading all into memory.
+     */
+    protected function _getShippingRulesForMatching(): iterable
+    {
+        return $this->getShippingRules();
     }
 
     /**
