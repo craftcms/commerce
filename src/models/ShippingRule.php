@@ -333,16 +333,6 @@ class ShippingRule extends Model implements ShippingRuleInterface, HasStoreInter
 
         $lineItems = $order->getLineItems();
 
-        if ($this->orderConditionFormula) {
-            $orderAsArray = Plugin::getInstance()->getShippingMethods()->getSerializedOrderForMatchingRules($order);
-            $orderConditionParams = [
-                'order' => $orderAsArray,
-            ];
-            if (!Plugin::getInstance()->getFormulas()->evaluateCondition($this->orderConditionFormula, $orderConditionParams, 'Evaluate Shipping Rule Order Condition Formula')) {
-                return false;
-            }
-        }
-
         $nonShippableItems = [];
         foreach ($lineItems as $item) {
             if ($item->getIsShippable()) {
@@ -388,6 +378,17 @@ class ShippingRule extends Model implements ShippingRuleInterface, HasStoreInter
         // Match the method's customer condition.
         if ($customer && !$this->getCustomerCondition()->matchElement($customer)) {
             return false;
+        }
+
+        // Evaluate the Twig formula last — it's the most expensive check.
+        if ($this->orderConditionFormula) {
+            $orderAsArray = Plugin::getInstance()->getShippingMethods()->getSerializedOrderForMatchingRules($order);
+            $orderConditionParams = [
+                'order' => $orderAsArray,
+            ];
+            if (!Plugin::getInstance()->getFormulas()->evaluateCondition($this->orderConditionFormula, $orderConditionParams, 'Evaluate Shipping Rule Order Condition Formula')) {
+                return false;
+            }
         }
 
         // all rules match
