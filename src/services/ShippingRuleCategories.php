@@ -12,6 +12,7 @@ use craft\commerce\db\Table;
 use craft\commerce\models\ShippingRuleCategory;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\db\Query;
+use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 use yii\db\StaleObjectException;
@@ -24,6 +25,30 @@ use yii\db\StaleObjectException;
  */
 class ShippingRuleCategories extends Component
 {
+    private ?array $_shippingRuleCategories = null;
+
+    public function getAllShippingRuleCategoriesData(): array
+    {
+        if ($this->_shippingRuleCategories === null) {
+            $data = $this->_createShippingRuleCategoriesQuery()->all();
+
+            if (!empty($data)) {
+                $ruleCategories = [];
+                foreach ($data as $row) {
+                    if (!isset($ruleCategories[$row['shippingRuleId']])) {
+                        $ruleCategories[$row['shippingRuleId']] = [];
+                    }
+
+                    $ruleCategories[$row['shippingRuleId']][$row['shippingCategoryId']] = $row;
+                }
+
+                $this->_shippingRuleCategories = $ruleCategories;
+            }
+        }
+
+        return $this->_shippingRuleCategories ?? [];
+    }
+
     /**
      * Returns an array of shipping rules categories per the rule's ID.
      *
@@ -34,14 +59,21 @@ class ShippingRuleCategories extends Component
     {
         $rules = [];
 
-        $rows = $this->_createShippingRuleCategoriesQuery()
-            ->where(['shippingRuleId' => $ruleId])
-            ->all();
+        $shippingRuleCategories = $this->getAllShippingRuleCategoriesData();
+        if (!isset($shippingRuleCategories[$ruleId])) {
+            return [];
+        }
 
-        foreach ($rows as $row) {
+        foreach ($shippingRuleCategories[$ruleId] as $row) {
+            if ($row instanceof ShippingRuleCategory) {
+                continue;
+            }
+
             $id = $row['shippingCategoryId'];
             $rules[$id] = new ShippingRuleCategory($row);
         }
+
+        $this->_shippingRuleCategories[$ruleId] = $rules;
 
         return $rules;
     }
@@ -127,6 +159,9 @@ class ShippingRuleCategories extends Component
         $record = ShippingRuleCategoryRecord::findOne($id);
 
         if ($record) {
+            // Clear cache if required
+            unset($this->_shippingRuleCategories[$record->shippingRuleId]);
+
             return (bool)$record->delete();
         }
 

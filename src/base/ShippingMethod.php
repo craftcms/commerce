@@ -275,10 +275,8 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
         }
 
         /** @var ShippingRuleInterface $rule */
-        foreach ($this->getShippingRules()->all() as $rule) {
-            if ($rule->matchOrder($order)) {
-                return true;
-            }
+        if ($this->getMatchingShippingRule($order)) {
+            return true;
         }
 
         return false;
