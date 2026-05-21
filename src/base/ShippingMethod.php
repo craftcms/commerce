@@ -94,6 +94,11 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
     public ?DateTime $dateUpdated = null;
 
     /**
+     * @var array<string, ShippingRuleInterface|null>
+     */
+    private array $_matchingRuleByOrderNumber = [];
+
+    /**
      * @inheritdoc
      */
     public function getType(): string
@@ -274,7 +279,6 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
             return false;
         }
 
-        /** @var ShippingRuleInterface $rule */
         if ($this->getMatchingShippingRule($order)) {
             return true;
         }
@@ -287,14 +291,26 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
      */
     public function getMatchingShippingRule(Order $order): ?ShippingRuleInterface
     {
+        if (array_key_exists($order->number, $this->_matchingRuleByOrderNumber)) {
+            return $this->_matchingRuleByOrderNumber[$order->number];
+        }
+
         foreach ($this->getShippingRules() as $rule) {
             /** @var ShippingRuleInterface $rule */
             if ($rule->matchOrder($order)) {
-                return $rule;
+                return $this->_matchingRuleByOrderNumber[$order->number] = $rule;
             }
         }
 
-        return null;
+        return $this->_matchingRuleByOrderNumber[$order->number] = null;
+    }
+
+    /**
+     * @return void
+     */
+    public function clearMatchingShippingRuleCache(): void
+    {
+        $this->_matchingRuleByOrderNumber = [];
     }
 
     public function getPriceForOrder(Order $order): float

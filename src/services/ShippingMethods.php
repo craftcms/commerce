@@ -156,6 +156,11 @@ class ShippingMethods extends Component
         foreach ($matchingMethods as $shippingMethod) {
             $method = $shippingMethod['method'];
             $shippingMethods[$method->getHandle()] = $method; // Keep the key being the handle of the method for front-end use.
+
+            // Clear the matching cache in case things change in the future
+            if ($method instanceof \craft\commerce\base\ShippingMethod) {
+                $method->clearMatchingShippingRuleCache();
+            }
         }
 
         // Clear the memoized data so next time we watch to match rules, we get fresh data.

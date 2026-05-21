@@ -12,7 +12,6 @@ use craft\commerce\db\Table;
 use craft\commerce\models\ShippingRuleCategory;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\db\Query;
-use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 use yii\db\StaleObjectException;
