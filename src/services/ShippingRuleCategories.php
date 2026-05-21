@@ -149,6 +149,8 @@ class ShippingRuleCategories extends Component
         // Now that we have a record ID, save it on the model
         $model->id = $record->id;
 
+        $this->_shippingRuleCategories = null;
+
         return true;
     }
 
@@ -167,7 +169,7 @@ class ShippingRuleCategories extends Component
 
         if ($record) {
             // Clear cache if required
-            unset($this->_shippingRuleCategories[$record->shippingRuleId]);
+            $this->_shippingRuleCategories = null;
 
             return (bool)$record->delete();
         }
