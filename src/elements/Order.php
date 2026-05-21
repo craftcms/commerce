@@ -2191,13 +2191,14 @@ class Order extends Element implements HasStoreInterface
                 }
             }
 
+            $matchesOrder = ArrayHelper::isIn($method->getHandle(), $matchingMethodHandles);
             $option->setOrder($this);
             $option->enabled = $method->getIsEnabled();
             $option->id = $method->getId();
             $option->name = $method->getName();
             $option->handle = $method->getHandle();
-            $option->matchesOrder = ArrayHelper::isIn($method->getHandle(), $matchingMethodHandles);
-            $option->price = $method->getPriceForOrder($this);
+            $option->matchesOrder = $matchesOrder;
+            $option->price = $matchesOrder ? $method->getPriceForOrder($this) : 0;
             $option->shippingMethod = $method;
             $option->storeId = $storeId;
 
