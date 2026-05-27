@@ -327,10 +327,16 @@ class Carts extends Component
             ['cartNumber' => $cart->number],
         ], expiryDate: $expiryDate);
 
-        return UrlHelper::actionUrl('commerce/cart/load-cart', [
+        $request = Craft::$app->getRequest();
+        $isCpRequest = $request->getIsCpRequest();
+        $request->setIsCpRequest(false);
+        $url = UrlHelper::actionUrl('commerce/cart/load-cart', [
             'number' => $cart->number,
-            'token' => $token,
+            'tokenNumber' => $token,
         ]);
+        $request->setIsCpRequest($isCpRequest);
+
+        return $url;
     }
 
     /**

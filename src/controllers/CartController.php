@@ -392,7 +392,7 @@ class CartController extends BaseFrontEndController
     {
         $carts = Plugin::getInstance()->getCarts();
         $number = $this->request->getParam('number');
-        $token = $this->request->getParam('token');
+        $token = $this->request->getParam('tokenNumber');
         $loadCartRedirectUrl = Plugin::getInstance()->getSettings()->loadCartRedirectUrl ?? '';
         $redirect = UrlHelper::siteUrl($loadCartRedirectUrl);
 

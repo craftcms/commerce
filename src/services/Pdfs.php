@@ -462,7 +462,7 @@ class Pdfs extends Component
         // Build the URL parameters
         $params = [
             'number' => $order->number,
-            'token' => $token,
+            'tokenNumber' => $token,
         ];
 
         if ($pdfHandle !== null) {
@@ -477,7 +477,13 @@ class Pdfs extends Component
             $params['inline'] = true;
         }
 
-        return UrlHelper::siteUrl('actions/commerce/downloads/pdf', $params);
+        $request = Craft::$app->getRequest();
+        $isCpRequest = $request->getIsCpRequest();
+        $request->setIsCpRequest(false);
+        $url = UrlHelper::actionUrl('commerce/downloads/pdf', $params);
+        $request->setIsCpRequest($isCpRequest);
+
+        return $url;
     }
 
     /**
