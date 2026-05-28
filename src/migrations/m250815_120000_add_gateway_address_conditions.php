@@ -28,7 +28,6 @@ class m250815_120000_add_gateway_address_conditions extends Migration
         $gateways = (new Query())
             ->select(['id', 'uid'])
             ->from(Table::GATEWAYS)
-            ->where(['isArchived' => false])
             ->all();
 
         foreach ($gateways as $gateway) {
@@ -52,9 +51,11 @@ class m250815_120000_add_gateway_address_conditions extends Migration
                 ['id' => $gateway['id']]
             );
 
-            $config['billingAddressCondition'] = $billingAddressCondition;
-            $config['shippingAddressCondition'] = $shippingAddressCondition;
-            $projectConfig->set(Gateways::CONFIG_GATEWAY_KEY . '.' . $gateway['uid'], $config);
+            if ($config && !$gateway['isArchived']) {
+                $config['billingAddressCondition'] = $billingAddressCondition;
+                $config['shippingAddressCondition'] = $shippingAddressCondition;
+                $projectConfig->set(Gateways::CONFIG_GATEWAY_KEY . '.' . $gateway['uid'], $config);
+            }
         }
 
         $projectConfig->muteEvents = false;
