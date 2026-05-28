@@ -23,7 +23,7 @@ class m251112_120000_fix_null_gateway_order_condition extends Migration
 
         // Fix gateways with missing order conditions
         $gateways = (new Query())
-            ->select(['id', 'uid'])
+            ->select(['id', 'uid', 'isArchived'])
             ->from(Table::GATEWAYS)
             ->where(['orderCondition' => null])
             ->all();

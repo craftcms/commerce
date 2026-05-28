@@ -25,7 +25,7 @@ class m250301_120000_add_gateway_order_condition extends Migration
         $projectConfig->muteEvents = true;
 
         $gateways = (new Query())
-            ->select(['id', 'uid'])
+            ->select(['id', 'uid', 'isArchived'])
             ->from(Table::GATEWAYS)
             ->all();
 
