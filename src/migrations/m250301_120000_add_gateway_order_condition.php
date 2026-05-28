@@ -27,6 +27,7 @@ class m250301_120000_add_gateway_order_condition extends Migration
         $gateways = (new Query())
             ->select(['id', 'uid'])
             ->from(Table::GATEWAYS)
+            ->where(['isArchived' => false])
             ->all();
 
         foreach ($gateways as $gateway) {

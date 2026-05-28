@@ -28,6 +28,7 @@ class m250815_120000_add_gateway_address_conditions extends Migration
         $gateways = (new Query())
             ->select(['id', 'uid'])
             ->from(Table::GATEWAYS)
+            ->where(['isArchived' => false])
             ->all();
 
         foreach ($gateways as $gateway) {

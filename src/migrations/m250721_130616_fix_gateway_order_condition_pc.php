@@ -27,6 +27,7 @@ class m250721_130616_fix_gateway_order_condition_pc extends Migration
             ->select(['id', 'uid'])
             ->from(Table::GATEWAYS)
             ->where(['orderCondition' => null])
+            ->andWhere(['isArchived' => false])
             ->all();
 
         foreach ($gateways as $gateway) {

@@ -26,6 +26,7 @@ class m251112_120000_fix_null_gateway_order_condition extends Migration
             ->select(['id', 'uid'])
             ->from(Table::GATEWAYS)
             ->where(['orderCondition' => null])
+            ->andWhere(['isArchived' => false])
             ->all();
 
         if (!empty($gateways)) {
