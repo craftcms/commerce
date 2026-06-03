@@ -74,4 +74,7 @@ abstract class Table
     public const INVENTORYLOCATIONS = '{{%commerce_inventorylocations}}';
     public const INVENTORYLOCATIONS_STORES = '{{%commerce_inventorylocations_stores}}';
     public const INVENTORYTRANSACTIONS = '{{%commerce_inventorytransactions}}';
+
+    /** @since 5.7.0 */
+    public const CATALOG_PRICING_QUEUE = '{{%commerce_catalogpricing_queue}}';
 }

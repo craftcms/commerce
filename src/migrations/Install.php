@@ -19,6 +19,7 @@ use craft\commerce\models\ProductType;
 use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
+use craft\commerce\records\CatalogPricingQueue;
 use craft\commerce\records\CatalogPricingRule;
 use craft\commerce\records\InventoryLocation;
 use craft\commerce\records\TaxCategory;
@@ -127,6 +128,18 @@ class Install extends Migration
             'dateTo' => $this->dateTime(),
             'isPromotionalPrice' => $this->boolean()->defaultValue(false),
             'hasUpdatePending' => $this->boolean()->defaultValue(false),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
+        $this->archiveTableIfExists(Table::CATALOG_PRICING_QUEUE);
+        $this->createTable(Table::CATALOG_PRICING_QUEUE, [
+            'id' => $this->primaryKey(),
+            'storeId' => $this->integer(),
+            'type' => $this->enum('type', [CatalogPricingQueue::TYPE_PURCHASABLE, CatalogPricingQueue::TYPE_RULE])->notNull(),
+            'ids' => $this->mediumText(),
+            'reserved' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -1091,6 +1104,8 @@ class Install extends Migration
         $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId', 'isPromotionalPrice', 'price', 'catalogPricingRuleId', 'dateFrom', 'dateTo'], false);
         $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId', 'isPromotionalPrice', 'price'], false);
         $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId'], false);
+        $this->createIndex(null, Table::CATALOG_PRICING_QUEUE, 'reserved', false);
+        $this->createIndex(null, Table::CATALOG_PRICING_QUEUE, ['storeId', 'type', 'reserved'], false);
         $this->createIndex(null, Table::CATALOG_PRICING_RULES, 'storeId', false);
         $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'catalogPricingRuleId', false);
         $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'userId', false);
@@ -1215,6 +1230,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::CATALOG_PRICING, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CATALOG_PRICING, ['storeId'], Table::STORES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::CATALOG_PRICING, ['userId'], CraftTable::USERS, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::CATALOG_PRICING_QUEUE, ['storeId'], Table::STORES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CATALOG_PRICING_RULES, ['storeId'], Table::STORES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_USERS, ['catalogPricingRuleId'], Table::CATALOG_PRICING_RULES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_USERS, ['userId'], CraftTable::USERS, ['id'], 'CASCADE', 'CASCADE');

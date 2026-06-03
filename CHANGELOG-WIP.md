@@ -22,6 +22,7 @@
 
 ### Extensibility
 
+- Added `craft\commerce\base\ShippingMethod::clearMatchingShippingRuleCache()`.
 - Added `craft\commerce\controllers\CartController::actionCartChallenge()`.
 - Added `craft\commerce\controllers\CartController::actionCartSent()`.
 - Added `craft\commerce\controllers\CartController::actionEmailChallenge()`.
@@ -33,6 +34,7 @@
 - Added `craft\commerce\controllers\OrdersController::actionRemoveCustomerDataModal()`.
 - Added `craft\commerce\controllers\SubscriptionsController::actionDeleteSubscriptions()`.
 - Added `craft\commerce\controllers\SubscriptionsController::actionDeleteSubscriptionsModal()`.
+- Added `craft\commerce\db\Table::CATALOG_PRICING_QUEUE`.
 - Added `craft\commerce\elements\Order::getCustomerDeleted()`.
 - Added `craft\commerce\elements\Order::hasPurchasables()`.
 - Added `craft\commerce\elements\Order::setCustomerDeleted()`.
@@ -42,10 +44,17 @@
 - Added `craft\commerce\elements\deletionblockers\OrderCustomersDeletionBlocker`.
 - Added `craft\commerce\elements\deletionblockers\SubscriptionCustomersDeletionBlocker`.
 - Added `craft\commerce\enums\ContainsPurchasablesMatch`.
+- Added `craft\commerce\elements\db\OrderQuery::$containsPurchasables`.
+- Added `craft\commerce\elements\db\OrderQuery::containsPurchasables()`.
+- Added `craft\commerce\elements\Order::hasPurchasables()`.
+- Added `craft\commerce\enums\ContainsPurchasablesMatch`.
 - Added `craft\commerce\events\PaymentCurrencyRateEvent`, allowing plugins to override a payment currency's exchange rate at the point of use.
-- Added `craft\commerce\base\ShippingMethod::clearMatchingShippingRuleCache()`.
+- Added `craft\commerce\records\CatalogPricingQueue`.
 - Added `craft\commerce\services\Carts::getLoadCartUrl()`.
 - Added `craft\commerce\services\Carts::peekCart()`.
+- Added `craft\commerce\services\CatalogPricing::reserveCatalogPricingQueueRow()`.
+- Added `craft\commerce\services\CatalogPricing::releaseCatalogPricingQueueRowById()`.
+- Added `craft\commerce\services\CatalogPricing::deleteCatalogPricingQueueRowById()`.
 - Added `craft\commerce\services\Orders::reassignOrders()`.
 - Added `craft\commerce\services\Orders::removeCustomerData()`.
 - Added `craft\commerce\services\PaymentCurrencies::EVENT_DEFINE_PAYMENT_CURRENCY_RATE`.

@@ -50,8 +50,7 @@ class DownloadsController extends BaseFrontEndController
         bool    $inline,
         array   $errors = [],
         ?string $email = null,
-    ): Response
-    {
+    ): Response {
         $params = [
             'order' => $order,
             'orderNumber' => $orderNumber,
