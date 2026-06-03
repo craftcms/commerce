@@ -92,10 +92,9 @@ class Inventory extends Component
     /**
      * @param Purchasable $purchasable
      * @param Order|null $order
-     * 
      * @return Collection<InventoryLevel>
      */
-    public function getInventoryLevelsForPurchasable(Purchasable $purchasable, Order|null $order = null): Collection
+    public function getInventoryLevelsForPurchasable(Purchasable $purchasable, ?Order $order = null): Collection
     {
         $inventoryLevels = collect();
 
@@ -124,7 +123,6 @@ class Inventory extends Component
             $inventoryLevels->push($inventoryLevel);
         }
 
-
         return $inventoryLevels;
     }
 
@@ -132,7 +130,7 @@ class Inventory extends Component
      * @param Purchasable $purchasable
      * @return InventoryItem
      */
-    public function getInventoryItemByPurchasable(Purchasable $purchasable, Order|null $order = null): InventoryItem
+    public function getInventoryItemByPurchasable(Purchasable $purchasable): InventoryItem
     {
         // Self-heal: if the purchasable has somehow ended up without an associated
         // inventory item (e.g. due to a draft-apply or duplicate path that didn't

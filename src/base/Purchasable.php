@@ -261,10 +261,10 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     private ?int $_stock = null;
 
     /**
-     * This is the cached total available stock across all inventory locations for specific orders.
+     * Cached total available stock for the purchasable, keyed by order ID.
      *
      * @var int[]
-     * @since 5.6.2
+     * @since 5.6.5
      */
     private array $_stockForOrders = [];
 
@@ -697,10 +697,11 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     }
 
     /**
+     * Returns whether this variant has stock, optionally in the context of an order.
+     *
      * @param Order|null $order The order the stock is being checked for.
-     * Returns whether this variant has stock.
      */
-    public function hasStock(Order|null $order = null): bool
+    public function hasStock(?Order $order = null): bool
     {
         return !$this->inventoryTracked || $this->getStock($order) > 0;
     }
@@ -802,9 +803,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     {
         // Since we do not have a proper stock reservation system, we need deduct stock if they have more in the cart than is available, and to do this quietly.
         // If this occurs in the payment request, the user will be notified the order has changed.
-        if (($order = $lineItem->getOrder()) && !$order->isCompleted)
-        {
-            $order = $lineItem->getOrder();
+        if (($order = $lineItem->getOrder()) && !$order->isCompleted) {
             if ($this::hasInventory() &&
                 !$this->getIsOutOfStockPurchasingAllowed() &&
                 $this->inventoryTracked &&
@@ -1041,7 +1040,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      * @param Order|null $order The order the stock is being calculated for.
      * @return int
      */
-    private function _getStock(Order|null $order = null): int
+    private function _getStock(?Order $order = null): int
     {
         if (!$this->inventoryTracked) {
             return 0;
@@ -1072,11 +1071,10 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      * and optionally for a specific order.
      *
      * @param Order|null $order The order the stock is being calculated for.
-     * 
      * @return int
      * @since 5.0.0
      */
-    public function getStock(Order|null $order = null): int
+    public function getStock(?Order $order = null): int
     {
         $orderId = $order?->id;
         if ($orderId) {
@@ -1099,7 +1097,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      * @return Collection<InventoryLevel>
      * @since 5.0.0
      */
-    public function getInventoryLevels(Order|null $order = null): Collection
+    public function getInventoryLevels(?Order $order = null): Collection
     {
         if (!$this->inventoryTracked) {
             return collect();

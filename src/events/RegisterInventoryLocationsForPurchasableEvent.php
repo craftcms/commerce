@@ -17,9 +17,9 @@ use yii\base\Event;
  * RegisterInventoryLocationsForPurchasableEvent class.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.0
+ * @since 5.6.5
  *
- * @property array|\Illuminate\Support\Collection $inventoryLocations
+ * @property Collection $inventoryLocations
  */
 class RegisterInventoryLocationsForPurchasableEvent extends Event
 {
@@ -29,9 +29,9 @@ class RegisterInventoryLocationsForPurchasableEvent extends Event
     public Purchasable $purchasable;
 
     /**
-     * @var Order The order the inventory locations are being registered for.
+     * @var Order|null The order the inventory locations are being registered for.
      */
-    public Order|null $order = null;
+    public ?Order $order = null;
 
     /**
      * @var Store The store the inventory locations are being registered for.
@@ -39,14 +39,12 @@ class RegisterInventoryLocationsForPurchasableEvent extends Event
     public Store $store;
 
     /**
-     * @var Collection The collection of inventory locations for the purchasable, sorted by priority.
+     * @var Collection|null The collection of inventory locations for the purchasable, sorted by priority.
      */
     private ?Collection $_inventoryLocations = null;
 
     /**
      * @var bool Whether trashed inventory locations should be included.
-     *
-     * @var bool
      */
     public bool $withTrashed = false;
 
@@ -56,10 +54,6 @@ class RegisterInventoryLocationsForPurchasableEvent extends Event
      */
     public function setInventoryLocations(Collection $inventoryLocations): void
     {
-        if (!$inventoryLocations instanceof Collection) {
-            $inventoryLocations = collect($inventoryLocations);
-        }
-
         $this->_inventoryLocations = $inventoryLocations;
     }
 
@@ -70,5 +64,4 @@ class RegisterInventoryLocationsForPurchasableEvent extends Event
     {
         return $this->_inventoryLocations ?? collect();
     }
-
 }
