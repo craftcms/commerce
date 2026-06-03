@@ -57,6 +57,10 @@
 - Deprecated `craft\commerce\services\ProductTypes::getEditableProductTypes()`. Use `getViewableProductTypes()` instead.
 - Deprecated `craft\commerce\services\ProductTypes::hasPermission()`. Use `$user->can()` directly instead.
 
+### Fixed
+
+- Fixed a bug where variants with `{id}` in their Variant Title Format weren’t always getting created with the correct generated title. ([#4308](https://github.com/craftcms/commerce/pull/4308))
+
 ### System
 
 - Craft Commerce now requires Craft CMS 5.10.0 or later.
