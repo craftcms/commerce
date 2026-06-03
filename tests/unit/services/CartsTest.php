@@ -228,4 +228,66 @@ class CartsTest extends Unit
         Craft::$app->getUser()->setIdentity($originalIdentity);
         Craft::$app->getElements()->deleteElement($cart, true);
     }
+
+    public function testPeekCartDoesNotStartCartSession(): void
+    {
+        $originalCarts = Plugin::getInstance()->getCarts();
+        $cartNumber = $originalCarts->generateCartNumber();
+        $cookieName = $originalCarts->cartCookie['name'];
+
+        $order = new Order();
+        $order->number = $cartNumber;
+        Craft::$app->getElements()->saveElement($order, false);
+
+        $carts = $this->make(Carts::class, [
+            'setSessionCartNumber' => function() {
+                self::fail('Peek cart retrieval should not update the cart session.');
+            },
+        ]);
+        $carts->cartCookie = ['name' => $cookieName];
+        Plugin::getInstance()->set('carts', $carts);
+
+        $requestCookies = new \yii\web\CookieCollection();
+        $requestCookies->add(new \yii\web\Cookie([
+            'name' => $cookieName,
+            'value' => $cartNumber,
+        ]));
+        $originalRequest = Craft::$app->getRequest();
+        $requestMock = $this->make(Request::class, [
+            'getCookies' => $requestCookies,
+        ]);
+        Craft::$app->set('request', $requestMock);
+
+        try {
+            $cart = Plugin::getInstance()->getCarts()->peekCart();
+
+            self::assertNotNull($cart);
+            self::assertSame($cartNumber, $cart->number);
+        } finally {
+            Craft::$app->set('request', $originalRequest);
+            Craft::$app->getElements()->deleteElement($order, true);
+        }
+    }
+
+    public function testPeekCartReturnsNullWithNoCookie(): void
+    {
+        $cookieName = Plugin::getInstance()->getCarts()->cartCookie['name'];
+
+        $carts = $this->make(Carts::class);
+        $carts->cartCookie = ['name' => $cookieName];
+        Plugin::getInstance()->set('carts', $carts);
+
+        $originalRequest = Craft::$app->getRequest();
+        $requestMock = $this->make(Request::class, [
+            'getCookies' => new \yii\web\CookieCollection(),
+        ]);
+        Craft::$app->set('request', $requestMock);
+
+        try {
+            $cart = Plugin::getInstance()->getCarts()->peekCart();
+            self::assertNull($cart);
+        } finally {
+            Craft::$app->set('request', $originalRequest);
+        }
+    }
 }

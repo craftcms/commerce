@@ -22,6 +22,7 @@ use craft\errors\MissingComponentException;
 use craft\filters\IpRateLimitIdentity;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
+use craft\web\View;
 use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Exception;
@@ -90,7 +91,7 @@ class CartController extends BaseFrontEndController
         return array_merge(parent::behaviors(), [
             'rateLimiter' => [
                 'class' => RateLimiter::class,
-                'only' => ['get-cart', 'update-cart', 'load-cart', 'complete'],
+                'only' => ['get-cart', 'peek-cart', 'update-cart', 'load-cart', 'complete'],
                 'enableRateLimitHeaders' => false,
                 'user' => function() {
                     // Only apply rate limiting when a cart number or coupon code is explicitly passed
@@ -123,6 +124,21 @@ class CartController extends BaseFrontEndController
 
         return $this->asSuccess(data: [
             $this->_cartVariable => $this->cartArray($this->_cart),
+        ]);
+    }
+
+    /**
+     * Returns the existing cart for this session without creating one, setting cookies, or touching the session.
+     * Returns null (as empty cart data) if no cart exists for the current session.
+     */
+    public function actionPeekCart(): Response
+    {
+        $this->requireAcceptsJson();
+
+        $cart = Plugin::getInstance()->getCarts()->peekCart();
+
+        return $this->asSuccess(data: [
+            $this->_cartVariable => $cart ? $this->cartArray($cart) : null,
         ]);
     }
 
@@ -406,16 +422,15 @@ class CartController extends BaseFrontEndController
     {
         $carts = Plugin::getInstance()->getCarts();
         $number = $this->request->getParam('number');
+        $token = $this->request->getParam('code');
         $loadCartRedirectUrl = Plugin::getInstance()->getSettings()->loadCartRedirectUrl ?? '';
         $redirect = UrlHelper::siteUrl($loadCartRedirectUrl);
 
         if (!$number) {
             $error = Craft::t('commerce', 'A cart number must be specified.');
-
             if ($this->request->getAcceptsJson()) {
                 return $this->asFailure($error);
             }
-
             $this->setFailFlash($error);
             return $this->request->getIsGet() ? $this->redirect($redirect) : null;
         }
@@ -424,18 +439,67 @@ class CartController extends BaseFrontEndController
 
         if (!$cart) {
             $error = Craft::t('commerce', 'Unable to retrieve cart.');
-
             if ($this->request->getAcceptsJson()) {
                 return $this->asFailure($error);
             }
-
             $this->setFailFlash($error);
             return $this->request->getIsGet() ? $this->redirect($redirect) : null;
         }
 
-        // If we have a cart, use the site for that cart for the URL redirect.
-        $redirect = UrlHelper::siteUrl(path: $loadCartRedirectUrl, siteId: $cart->orderSiteId);
+        // Carts without email or addresses don't need token validation
+        $hasEmail = (bool)$cart->getEmail();
+        $hasAddresses = $cart->billingAddressId || $cart->shippingAddressId;
 
+        if ($hasEmail || $hasAddresses) {
+            $currentUser = Craft::$app->getUser()->getIdentity();
+            $hasValidToken = false;
+
+            // Check token if provided
+            if ($token) {
+                $tokenData = Craft::$app->getTokens()->getTokenRoute($token);
+
+                if (!$tokenData || !isset($tokenData[1]['cartNumber']) || $tokenData[1]['cartNumber'] !== $number) {
+                    $error = Craft::t('commerce', 'The cart recovery link is invalid. Please request a new one.');
+                    $challengeUrl = UrlHelper::actionUrl('commerce/cart/email-challenge', ['number' => $number]);
+                    if ($this->request->getAcceptsJson()) {
+                        return $this->asFailure($error, ['challengeUrl' => $challengeUrl]);
+                    }
+                    $this->setFailFlash($error);
+                    return $this->redirect($challengeUrl);
+                }
+
+                $hasValidToken = true;
+            }
+
+            // Check permissions if no valid token
+            if (!$hasValidToken) {
+                $challengeUrl = UrlHelper::actionUrl('commerce/cart/email-challenge', ['number' => $number]);
+                if ($currentUser) {
+                    $isCartCustomer = $cart->getCustomer() && $cart->getCustomer()->id === $currentUser->id;
+                    if (!$isCartCustomer) {
+                        if ($this->request->getAcceptsJson()) {
+                            return $this->asFailure(
+                                Craft::t('commerce', 'You do not have permission to load this cart.'),
+                                ['challengeUrl' => $challengeUrl]
+                            );
+                        }
+                        return $this->redirect($challengeUrl);
+                    }
+                } else {
+                    if ($this->request->getAcceptsJson()) {
+                        return $this->asFailure(
+                            Craft::t('commerce', 'You must be logged in or provide a valid token to load this cart.'),
+                            ['challengeUrl' => $challengeUrl]
+                        );
+                    }
+                    return $this->redirect($challengeUrl);
+                }
+            }
+        }
+
+        // Set the token to null on the request so it will not be added to the redirect URL that is generated
+        $this->request->setToken(null);
+        $redirect = UrlHelper::siteUrl(path: $loadCartRedirectUrl, siteId: $cart->orderSiteId);
         $carts->forgetCart();
         $carts->setSessionCartNumber($number);
 
@@ -835,5 +899,105 @@ class CartController extends BaseFrontEndController
                 $this->_cart->makePrimaryBillingAddress = (bool)$makePrimaryBillingAddress;
             }
         }
+    }
+
+    /**
+     * Renders the cart email challenge template.
+     */
+    private function renderCartEmailChallenge(Order $cart, string $cartNumber): Response
+    {
+        return $this->renderTemplate('commerce/_cart/email-challenge', [
+            'cart' => $cart,
+            'cartNumber' => $cartNumber,
+        ], View::TEMPLATE_MODE_CP);
+    }
+
+    /**
+     * Displays the email challenge form for cart recovery.
+     * @since 5.7.0
+     */
+    public function actionEmailChallenge(): Response
+    {
+        $number = $this->request->getQueryParam('number');
+
+        if (!$number) {
+            throw new BadRequestHttpException('Cart number required');
+        }
+
+        $cart = Order::find()->number($number)->isCompleted(false)->one();
+
+        if (!$cart || !$cart->getEmail()) {
+            throw new HttpException(404, 'Cart not found');
+        }
+
+        return $this->renderCartEmailChallenge($cart, $number);
+    }
+
+    /**
+     * Handles the email challenge form submission for cart recovery.
+     * @since 5.7.0
+     */
+    public function actionCartChallenge(): Response
+    {
+        $this->requirePostRequest();
+
+        $cartNumberHash = $this->request->getBodyParam('cartNumberHash');
+
+        if (!$cartNumberHash) {
+            throw new BadRequestHttpException('Cart number hash is required');
+        }
+
+        $cartNumber = Craft::$app->getSecurity()->validateData($cartNumberHash);
+
+        if ($cartNumber === false) {
+            throw new BadRequestHttpException('Invalid cart number hash');
+        }
+
+        $cart = Order::find()->number($cartNumber)->isCompleted(false)->one();
+
+        if (!$cart) {
+            throw new HttpException(404, 'Cart not found');
+        }
+
+        $loadCartUrl = Plugin::getInstance()->getCarts()->getLoadCartUrl($cart);
+
+        if (!Craft::$app->getMailer()->composeFromKey('commerce_cart_recovery', [
+            'link' => $loadCartUrl,
+            'cart' => $cart,
+        ])->setTo($cart->email)->send()) {
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Failed to send email. Please try again.'));
+            return $this->renderCartEmailChallenge($cart, $cartNumber);
+        }
+
+        return $this->redirect(UrlHelper::actionUrl('commerce/cart/cart-sent', ['hash' => $cartNumberHash]));
+    }
+
+    /**
+     * Displays success page after cart recovery email is sent.
+     * @since 5.7.0
+     */
+    public function actionCartSent(): Response
+    {
+        $cartNumberHash = $this->request->getQueryParam('hash');
+
+        if (!$cartNumberHash) {
+            throw new BadRequestHttpException('Hash parameter required');
+        }
+
+        $cartNumber = Craft::$app->getSecurity()->validateData($cartNumberHash);
+
+        if ($cartNumber === false) {
+            throw new HttpException(400, 'Invalid hash parameter');
+        }
+
+        $cart = Order::find()->number($cartNumber)->isCompleted(false)->one();
+
+        if (!$cart) {
+            throw new HttpException(404, 'Cart not found');
+        }
+
+        return $this->renderTemplate('commerce/_cart/email-sent', [
+            'email' => $cart->getMaskedEmail(),
+        ], View::TEMPLATE_MODE_CP);
     }
 }

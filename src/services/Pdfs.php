@@ -508,7 +508,13 @@ class Pdfs extends Component
             $params['inline'] = true;
         }
 
-        return UrlHelper::actionUrl('commerce/downloads/pdf', $params);
+        $request = Craft::$app->getRequest();
+        $isCpRequest = $request->getIsCpRequest();
+        $request->setIsCpRequest(false);
+        $url = UrlHelper::actionUrl('commerce/downloads/pdf', $params);
+        $request->setIsCpRequest($isCpRequest);
+
+        return $url;
     }
 
     /**
