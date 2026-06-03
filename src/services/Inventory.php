@@ -227,7 +227,7 @@ class Inventory extends Component
         $inventoryItemId = $inventoryItem instanceof InventoryItem ? $inventoryItem->id : $inventoryItem;
         $inventoryLocationId = $inventoryLocation instanceof InventoryLocation ? $inventoryLocation->id : $inventoryLocation;
 
-        $result = $this->getInventoryLevelQuery(withTrashed: $withTrashed)
+        $result = $this->getInventoryLevelQuery(withTrashed: $withTrashed, inventoryLocationId: $inventoryLocationId)
             ->andWhere([
                 'inventoryLocationId' => $inventoryLocationId,
                 'inventoryItemId' => $inventoryItemId,
@@ -310,7 +310,7 @@ class Inventory extends Component
      */
     public function getInventoryLocationLevels(InventoryLocation $inventoryLocation, bool $withTrashed = false): Collection
     {
-        $levels = $this->getInventoryLevelQuery(withTrashed: $withTrashed)
+        $levels = $this->getInventoryLevelQuery(withTrashed: $withTrashed, inventoryLocationId: $inventoryLocation->id)
             ->andWhere(['inventoryLocationId' => $inventoryLocation->id])
             ->andWhere(['not', ['elements.id' => null]])
             ->collect();
@@ -333,7 +333,7 @@ class Inventory extends Component
      * @param bool $withTrashed
      * @return Query
      */
-    public function getInventoryLevelQuery(?int $limit = null, ?int $offset = null, bool $withTrashed = false): Query
+    public function getInventoryLevelQuery(?int $limit = null, ?int $offset = null, bool $withTrashed = false, ?int $inventoryLocationId = null): Query
     {
         $inventoryTotals = (new Query())
             ->select([
@@ -346,6 +346,12 @@ class Inventory extends Component
             ->join('CROSS JOIN', ['ii' => Table::INVENTORYITEMS]) // ...every inventory item
             ->leftJoin(['it' => Table::INVENTORYTRANSACTIONS], "[[il.id]] = [[it.inventoryLocationId]] AND [[ii.id]] = [[it.inventoryItemId]]")
             ->groupBy(['[[il.id]]', '[[ii.id]]', '[[it.type]]']);
+
+        // Scoping the location in the subquery prevents the CROSS JOIN from expanding
+        // to all locations × all items before the outer WHERE can filter it down.
+        if ($inventoryLocationId !== null) {
+            $inventoryTotals->andWhere(['il.id' => $inventoryLocationId]);
+        }
 
         $query = (new Query())
             ->select([
