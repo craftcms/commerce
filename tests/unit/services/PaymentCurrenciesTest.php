@@ -9,10 +9,16 @@ namespace craftcommercetests\unit\services;
 
 use Codeception\Test\Unit;
 use craft\commerce\errors\CurrencyException;
+use craft\commerce\events\PaymentCurrencyRateEvent;
+use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
+use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\commerce\services\PaymentCurrencies;
 use craftcommercetests\fixtures\PaymentCurrenciesFixture;
+use Money\Currency;
+use Money\Money;
 use UnitTester;
+use yii\base\Event;
 use yii\base\InvalidConfigException;
 
 /**
@@ -153,5 +159,111 @@ class PaymentCurrenciesTest extends Unit
     {
         $this->expectException(CurrencyException::class);
         $this->pc->convert(20, 'aaa');
+    }
+
+    /**
+     * @group PaymentCurrencies
+     */
+    public function testGetRateReturnsRawRateWithoutHandler(): void
+    {
+        $eur = $this->pc->getPaymentCurrencyByIso('EUR');
+        self::assertSame(0.5, $eur->getRate());
+    }
+
+    /**
+     * @group PaymentCurrencies
+     */
+    public function testGetRateReturnsEventRate(): void
+    {
+        $handler = static function(PaymentCurrencyRateEvent $event) {
+            if ($event->sender instanceof PaymentCurrency && $event->sender->iso === 'EUR') {
+                $event->rate = 0.25;
+            }
+        };
+        Event::on(PaymentCurrency::class, PaymentCurrency::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
+
+        try {
+            $eur = $this->pc->getPaymentCurrencyByIso('EUR');
+            self::assertSame(0.25, $eur->getRate());
+
+            $aud = $this->pc->getPaymentCurrencyByIso('AUD');
+            self::assertSame(1.3, $aud->getRate(), 'Untouched currencies fall through to the raw rate.');
+        } finally {
+            Event::off(PaymentCurrency::class, PaymentCurrency::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
+        }
+    }
+
+    /**
+     * @group PaymentCurrencies
+     */
+    public function testConvertCurrencyUsesEventRate(): void
+    {
+        $handler = static function(PaymentCurrencyRateEvent $event) {
+            if ($event->sender instanceof PaymentCurrency && $event->sender->iso === 'EUR') {
+                $event->rate = 0.25;
+            }
+        };
+        Event::on(PaymentCurrency::class, PaymentCurrency::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
+
+        try {
+            $converted = $this->pc->convertCurrency(40, $this->pc->getPrimaryPaymentCurrencyIso(), 'EUR');
+            self::assertSame(10.0, $converted);
+        } finally {
+            Event::off(PaymentCurrency::class, PaymentCurrency::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
+        }
+    }
+
+    /**
+     * @group PaymentCurrencies
+     */
+    public function testConvertAmountUsesEventRate(): void
+    {
+        $handler = static function(PaymentCurrencyRateEvent $event) {
+            if ($event->sender instanceof PaymentCurrency && $event->sender->iso === 'EUR') {
+                $event->rate = 0.25;
+            }
+        };
+        Event::on(PaymentCurrency::class, PaymentCurrency::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
+
+        try {
+            $usd = new Money(4000, new Currency('USD'));
+            $converted = $this->pc->convertAmount($usd, 'EUR');
+            self::assertSame('EUR', $converted->getCurrency()->getCode());
+            self::assertSame('1000', $converted->getAmount());
+        } finally {
+            Event::off(PaymentCurrency::class, PaymentCurrency::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
+        }
+    }
+
+    /**
+     * The event must not affect the rate that gets persisted when saving a
+     * payment currency — saving isn't a conversion.
+     *
+     * @group PaymentCurrencies
+     */
+    public function testSavePaymentCurrencyIgnoresEventRate(): void
+    {
+        $handler = static function(PaymentCurrencyRateEvent $event) {
+            $event->rate = 999.0;
+        };
+        Event::on(PaymentCurrency::class, PaymentCurrency::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
+
+        try {
+            $eur = $this->pc->getPaymentCurrencyByIso('EUR');
+            $originalRate = $eur->rate;
+            $eur->rate = 0.75;
+
+            self::assertTrue($this->pc->savePaymentCurrency($eur));
+
+            $record = PaymentCurrencyRecord::findOne(['id' => $eur->id]);
+            self::assertNotNull($record);
+            self::assertEquals(0.75, $record->rate, 'Raw admin-entered rate is persisted, not the event rate.');
+
+            // Restore for any tests that run after this one without isolation.
+            $eur->rate = $originalRate;
+            $this->pc->savePaymentCurrency($eur);
+        } finally {
+            Event::off(PaymentCurrency::class, PaymentCurrency::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
+        }
     }
 }
