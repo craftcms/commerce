@@ -303,6 +303,7 @@ class InventoryController extends BaseCpController
                 ->pairs();
             $byType = [];
             foreach ($elementTypes as $id => $type) {
+                /** @var class-string<\craft\base\Element> $type */
                 $byType[$type][] = $id;
             }
             foreach ($byType as $type => $ids) {
