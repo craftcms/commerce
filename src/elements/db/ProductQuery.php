@@ -778,6 +778,7 @@ class ProductQuery extends ElementQuery
     {
         $this->_normalizeTypeId();
         $hasStoreTables = $this->_storeTablesExist();
+        $hasPurchasableDimensionColumns = $this->_purchasableDimensionColumnsExist();
 
         // See if 'type' were set to invalid handles
         if ($this->typeId === []) {
@@ -793,11 +794,23 @@ class ProductQuery extends ElementQuery
             'commerce_products.expiryDate',
             'commerce_products.defaultVariantId',
             'purchasables.sku as defaultSku',
-            'purchasables.weight as defaultWeight',
-            'purchasables.length as defaultLength',
-            'purchasables.width as defaultWidth',
-            'purchasables.height as defaultHeight',
         ]);
+
+        if ($hasPurchasableDimensionColumns) {
+            $this->query->addSelect([
+                'purchasables.weight as defaultWeight',
+                'purchasables.length as defaultLength',
+                'purchasables.width as defaultWidth',
+                'purchasables.height as defaultHeight',
+            ]);
+        } else {
+            $this->query->addSelect([
+                new Expression('NULL as [[defaultWeight]]'),
+                new Expression('NULL as [[defaultLength]]'),
+                new Expression('NULL as [[defaultWidth]]'),
+                new Expression('NULL as [[defaultHeight]]'),
+            ]);
+        }
 
         if ($hasStoreTables) {
             $this->query->addSelect([
@@ -852,7 +865,13 @@ class ProductQuery extends ElementQuery
 
         $this->_applyProductTypeIdParam();
 
-        if (isset($this->defaultHeight) || isset($this->defaultLength) || isset($this->defaultWidth) || isset($this->defaultWeight) || isset($this->defaultSku)) {
+        if (isset($this->defaultHeight) || isset($this->defaultLength) || isset($this->defaultWidth) || isset($this->defaultWeight)) {
+            if (!$hasPurchasableDimensionColumns) {
+                return false;
+            }
+
+            $this->subQuery->leftJoin(['purchasables' => Table::PURCHASABLES], '[[purchasables.id]] = [[commerce_products.defaultVariantId]]');
+        } elseif (isset($this->defaultSku)) {
             $this->subQuery->leftJoin(['purchasables' => Table::PURCHASABLES], '[[purchasables.id]] = [[commerce_products.defaultVariantId]]');
         }
 
@@ -1086,5 +1105,15 @@ class ProductQuery extends ElementQuery
 
         return $db->tableExists(Table::SITESTORES) &&
             $db->tableExists(Table::PURCHASABLES_STORES);
+    }
+
+    private function _purchasableDimensionColumnsExist(): bool
+    {
+        $db = Craft::$app->getDb();
+
+        return $db->columnExists(Table::PURCHASABLES, 'weight') &&
+            $db->columnExists(Table::PURCHASABLES, 'length') &&
+            $db->columnExists(Table::PURCHASABLES, 'width') &&
+            $db->columnExists(Table::PURCHASABLES, 'height');
     }
 }

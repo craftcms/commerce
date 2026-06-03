@@ -693,16 +693,30 @@ abstract class PurchasableQuery extends ElementQuery
     {
         $hasStoreTables = $this->_storeTablesExist();
         $hasInventoryTable = Craft::$app->getDb()->tableExists(Table::INVENTORYITEMS);
+        $hasPurchasableDetailColumns = $this->_purchasableDetailColumnsExist();
 
         $this->joinElementTable('commerce_purchasables');
         $this->query->addSelect([
             'commerce_purchasables.sku',
-            'commerce_purchasables.width',
-            'commerce_purchasables.height',
-            'commerce_purchasables.length',
-            'commerce_purchasables.weight',
-            'commerce_purchasables.taxCategoryId',
         ]);
+
+        if ($hasPurchasableDetailColumns) {
+            $this->query->addSelect([
+                'commerce_purchasables.width',
+                'commerce_purchasables.height',
+                'commerce_purchasables.length',
+                'commerce_purchasables.weight',
+                'commerce_purchasables.taxCategoryId',
+            ]);
+        } else {
+            $this->query->addSelect([
+                new Expression('NULL as [[width]]'),
+                new Expression('NULL as [[height]]'),
+                new Expression('NULL as [[length]]'),
+                new Expression('NULL as [[weight]]'),
+                new Expression('NULL as [[taxCategoryId]]'),
+            ]);
+        }
 
         if ($hasStoreTables) {
             $this->query->addSelect([
@@ -854,6 +868,10 @@ abstract class PurchasableQuery extends ElementQuery
         }
 
         if (isset($this->taxCategoryId)) {
+            if (!$hasPurchasableDetailColumns) {
+                return false;
+            }
+
             if ($this->taxCategoryId instanceof Query) {
                 $taxCategoryWhere = ['exists', $this->taxCategoryId];
             } else {
@@ -864,6 +882,10 @@ abstract class PurchasableQuery extends ElementQuery
         }
 
         if ($this->width !== false) {
+            if (!$hasPurchasableDetailColumns) {
+                return false;
+            }
+
             if ($this->width === null) {
                 $this->subQuery->andWhere(['commerce_purchasables.width' => $this->width]);
             } else {
@@ -872,6 +894,10 @@ abstract class PurchasableQuery extends ElementQuery
         }
 
         if ($this->height !== false) {
+            if (!$hasPurchasableDetailColumns) {
+                return false;
+            }
+
             if ($this->height === null) {
                 $this->subQuery->andWhere(['commerce_purchasables.height' => $this->height]);
             } else {
@@ -880,6 +906,10 @@ abstract class PurchasableQuery extends ElementQuery
         }
 
         if ($this->length !== false) {
+            if (!$hasPurchasableDetailColumns) {
+                return false;
+            }
+
             if ($this->length === null) {
                 $this->subQuery->andWhere(['commerce_purchasables.length' => $this->length]);
             } else {
@@ -888,6 +918,10 @@ abstract class PurchasableQuery extends ElementQuery
         }
 
         if ($this->weight !== false) {
+            if (!$hasPurchasableDetailColumns) {
+                return false;
+            }
+
             if ($this->weight === null) {
                 $this->subQuery->andWhere(['commerce_purchasables.weight' => $this->weight]);
             } else {
@@ -983,5 +1017,16 @@ abstract class PurchasableQuery extends ElementQuery
             isset($this->availableForPurchase) ||
             isset($this->shippingCategoryId) ||
             isset($this->hasStock);
+    }
+
+    private function _purchasableDetailColumnsExist(): bool
+    {
+        $db = Craft::$app->getDb();
+
+        return $db->columnExists(Table::PURCHASABLES, 'width') &&
+            $db->columnExists(Table::PURCHASABLES, 'height') &&
+            $db->columnExists(Table::PURCHASABLES, 'length') &&
+            $db->columnExists(Table::PURCHASABLES, 'weight') &&
+            $db->columnExists(Table::PURCHASABLES, 'taxCategoryId');
     }
 }
