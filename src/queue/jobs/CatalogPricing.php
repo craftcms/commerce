@@ -57,7 +57,7 @@ class CatalogPricing extends BaseJob
             } elseif ($reservedRecord->type === CatalogPricingQueueRecord::TYPE_RULE) {
                 $catalogPricingRuleIds = $reservedRecord->getIds();
             } else {
-                throw new \Exception("CatalogPricing queue rule ids not recognized");
+                throw new \UnexpectedValueException("Unrecognized catalog pricing queue row type: {$reservedRecord->type}");
             }
         }
 

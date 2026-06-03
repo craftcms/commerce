@@ -74,7 +74,7 @@ class CatalogPricingQueueTest extends Unit
         /** @var CatalogPricingQueueRecord $row */
         $row = $rows[0];
         self::assertEquals(CatalogPricingQueueRecord::TYPE_PURCHASABLE, $row->type);
-        self::assertEquals(1, $row->storeId);
+        self::assertEquals($this->_storeId, $row->storeId);
         self::assertEquals([1], $row->getIds());
         self::assertFalse((bool)$row->reserved);
     }
@@ -95,7 +95,7 @@ class CatalogPricingQueueTest extends Unit
         /** @var CatalogPricingQueueRecord $row */
         $row = $rows[0];
         self::assertEquals(CatalogPricingQueueRecord::TYPE_RULE, $row->type);
-        self::assertEquals(1, $row->storeId);
+        self::assertEquals($this->_storeId, $row->storeId);
         self::assertEquals([5], $row->getIds());
         self::assertFalse((bool)$row->reserved);
     }

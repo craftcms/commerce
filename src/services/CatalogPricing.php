@@ -613,6 +613,7 @@ class CatalogPricing extends Component
      * @param array|null $ids
      * @return void
      * @throws Exception
+     * @throws \RuntimeException if the queue mutex cannot be acquired
      */
     private function _queueCatalogPricingIds(?int $storeId, string $type, ?array $ids): void
     {
