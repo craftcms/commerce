@@ -210,6 +210,57 @@ class Carts extends Component
     }
 
     /**
+     * Returns the existing cart for this session without creating one, setting cookies, or touching the session.
+     * Returns null if no cart cookie is present or no matching cart exists.
+     *
+     * @since 5.7.0
+     */
+    public function peekCart(): ?Order
+    {
+        if (isset($this->_cart)) {
+            return $this->_cart;
+        }
+
+        if ($this->_cartNumber === false) {
+            return null;
+        }
+
+        if (!$this->_cartNumber) {
+            $cookieNumber = Craft::$app->getRequest()->getCookies()->getValue($this->cartCookie['name'], false);
+            if (!$cookieNumber) {
+                return null;
+            }
+            $this->_cartNumber = $cookieNumber;
+        }
+
+        /** @var Order|null $cart */
+        $cart = Order::find()
+            ->number($this->_cartNumber)
+            ->storeId(Plugin::getInstance()->getStores()->getCurrentStore()->id)
+            ->isCompleted(false)
+            ->trashed(false)
+            ->one();
+
+        if (!$cart) {
+            return null;
+        }
+
+        // Don't return a cart that belongs to a credentialed user who isn't currently logged in
+        // as that user. Mirrors the privacy check in _getCart(), but without forgetting the cart
+        // (which would set a Set-Cookie header and defeat the purpose of this method).
+        $cartCustomer = $cart->getCustomer();
+        if ($cartCustomer && $cartCustomer->getIsCredentialed()) {
+            $currentUser = Craft::$app->getUser()->getIdentity();
+            if (!$currentUser || $currentUser->id != $cartCustomer->id) {
+                return null;
+            }
+        }
+
+        $this->_cart = $cart;
+        return $this->_cart;
+    }
+
+    /**
      * Get the current cart for this session.
      */
     private function _getCart(): ?Order
