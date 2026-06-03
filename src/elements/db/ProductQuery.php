@@ -745,9 +745,15 @@ class ProductQuery extends ElementQuery
         // Store dependent related joins to the sub query need to be done after the `elements_sites` is joined in the base `ElementQuery` class.
         $customerId = Craft::$app->getUser()->getIdentity()?->id;
 
+        $hasStoreTables = $this->_storeTablesExist();
+
+        if (!$hasStoreTables) {
+            return parent::afterPrepare();
+        }
+
         $this->subQuery->leftJoin(['sitestores' => Table::SITESTORES], '[[elements_sites.siteId]] = [[sitestores.siteId]]');
 
-        if (Plugin::getInstance()->getCatalogPricingRules()->hasCatalogPricingRules()) {
+        if ($hasStoreTables && Plugin::getInstance()->getCatalogPricingRules()->hasCatalogPricingRules()) {
             $catalogPricesQuery = Plugin::getInstance()
                 ->getCatalogPricing()
                 ->createCatalogPricesQuery(userId: $customerId)
@@ -771,6 +777,7 @@ class ProductQuery extends ElementQuery
     protected function beforePrepare(): bool
     {
         $this->_normalizeTypeId();
+        $hasStoreTables = $this->_storeTablesExist();
 
         // See if 'type' were set to invalid handles
         if ($this->typeId === []) {
@@ -784,35 +791,54 @@ class ProductQuery extends ElementQuery
             'commerce_products.typeId',
             'commerce_products.postDate',
             'commerce_products.expiryDate',
-            'purchasablesstores.basePrice as defaultBasePrice',
-            'purchasablesstores.basePromotionalPrice as defaultBasePromotionalPrice',
             'commerce_products.defaultVariantId',
             'purchasables.sku as defaultSku',
             'purchasables.weight as defaultWeight',
             'purchasables.length as defaultLength',
             'purchasables.width as defaultWidth',
             'purchasables.height as defaultHeight',
-            'sitestores.storeId',
         ]);
 
+        if ($hasStoreTables) {
+            $this->query->addSelect([
+                'purchasablesstores.basePrice as defaultBasePrice',
+                'purchasablesstores.basePromotionalPrice as defaultBasePromotionalPrice',
+                'sitestores.storeId',
+            ]);
+        } else {
+            $this->query->addSelect([
+                new Expression('NULL as [[defaultBasePrice]]'),
+                new Expression('NULL as [[defaultBasePromotionalPrice]]'),
+                new Expression('NULL as [[storeId]]'),
+            ]);
+        }
+
         // Join in sites stores to get product's store for current request
-        $this->query->leftJoin(['sitestores' => Table::SITESTORES], '[[elements_sites.siteId]] = [[sitestores.siteId]]');
         $this->query->leftJoin(['purchasables' => Table::PURCHASABLES], '[[purchasables.id]] = [[commerce_products.defaultVariantId]]');
-        $this->query->leftJoin(['purchasablesstores' => Table::PURCHASABLES_STORES], '[[purchasablesstores.purchasableId]] = [[commerce_products.defaultVariantId]] and [[sitestores.storeId]] = [[purchasablesstores.storeId]]');
+        if ($hasStoreTables) {
+            $this->query->leftJoin(['sitestores' => Table::SITESTORES], '[[elements_sites.siteId]] = [[sitestores.siteId]]');
+            $this->query->leftJoin(['purchasablesstores' => Table::PURCHASABLES_STORES], '[[purchasablesstores.purchasableId]] = [[commerce_products.defaultVariantId]] and [[sitestores.storeId]] = [[purchasablesstores.storeId]]');
+        }
 
         // Tailor the query based on whether or not there is catalog pricing rules
-        if (Plugin::getInstance()->getCatalogPricingRules()->hasCatalogPricingRules()) {
+        if ($hasStoreTables && Plugin::getInstance()->getCatalogPricingRules()->hasCatalogPricingRules()) {
             $this->query->addSelect(['subquery.price as defaultPrice']);
             $this->subQuery->addSelect(['catalogprices.price']);
 
             if (isset($this->defaultPrice)) {
                 $this->subQuery->andWhere(Db::parseParam('catalogprices.price', $this->defaultPrice));
             }
-        } else {
+        } elseif ($hasStoreTables) {
             $this->query->addSelect(['purchasablesstores.basePrice as defaultPrice']);
 
             if (isset($this->defaultPrice)) {
                 $this->subQuery->andWhere(Db::parseParam('purchasablesstores.basePrice', $this->defaultPrice));
+            }
+        } else {
+            $this->query->addSelect([new Expression('NULL as [[defaultPrice]]')]);
+
+            if (isset($this->defaultPrice)) {
+                return false;
             }
         }
 
@@ -1052,5 +1078,13 @@ class ProductQuery extends ElementQuery
         }
 
         return $tags;
+    }
+
+    private function _storeTablesExist(): bool
+    {
+        $db = Craft::$app->getDb();
+
+        return $db->tableExists(Table::SITESTORES) &&
+            $db->tableExists(Table::PURCHASABLES_STORES);
     }
 }

@@ -655,11 +655,15 @@ abstract class PurchasableQuery extends ElementQuery
     protected function afterPrepare(): bool
     {
         // Store dependent related joins to the sub query need to be done after the `elements_sites` is joined in the base `ElementQuery` class.
-        $this->subQuery->leftJoin(['sitestores' => Table::SITESTORES], '[[elements_sites.siteId]] = [[sitestores.siteId]]');
-        $this->subQuery->leftJoin(['purchasables_stores' => Table::PURCHASABLES_STORES], '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[commerce_purchasables.id]]');
+        $hasStoreTables = $this->_storeTablesExist();
+
+        if ($hasStoreTables) {
+            $this->subQuery->leftJoin(['sitestores' => Table::SITESTORES], '[[elements_sites.siteId]] = [[sitestores.siteId]]');
+            $this->subQuery->leftJoin(['purchasables_stores' => Table::PURCHASABLES_STORES], '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[commerce_purchasables.id]]');
+        }
 
         // Only do the extra catalog pricing query join if we have catalog pricing rules.
-        if (Plugin::getInstance()->getCatalogPricingRules()->hasCatalogPricingRules()) {
+        if ($hasStoreTables && Plugin::getInstance()->getCatalogPricingRules()->hasCatalogPricingRules()) {
             $customerId = $this->forCustomer;
             if ($customerId === null) {
                 $customerId = Craft::$app->getUser()->getIdentity()?->id;
@@ -675,7 +679,9 @@ abstract class PurchasableQuery extends ElementQuery
             $this->subQuery->leftJoin(['catalogprices' => $catalogPricesQuery], '[[catalogprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogprices.storeId]] = [[sitestores.storeId]]');
         }
 
-        $this->subQuery->leftJoin(['inventoryitems' => Table::INVENTORYITEMS], '[[inventoryitems.purchasableId]] = [[commerce_purchasables.id]]');
+        if (Craft::$app->getDb()->tableExists(Table::INVENTORYITEMS)) {
+            $this->subQuery->leftJoin(['inventoryitems' => Table::INVENTORYITEMS], '[[inventoryitems.purchasableId]] = [[commerce_purchasables.id]]');
+        }
 
         return parent::afterPrepare();
     }
@@ -685,6 +691,9 @@ abstract class PurchasableQuery extends ElementQuery
      */
     protected function beforePrepare(): bool
     {
+        $hasStoreTables = $this->_storeTablesExist();
+        $hasInventoryTable = Craft::$app->getDb()->tableExists(Table::INVENTORYITEMS);
+
         $this->joinElementTable('commerce_purchasables');
         $this->query->addSelect([
             'commerce_purchasables.sku',
@@ -693,25 +702,48 @@ abstract class PurchasableQuery extends ElementQuery
             'commerce_purchasables.length',
             'commerce_purchasables.weight',
             'commerce_purchasables.taxCategoryId',
-            'purchasables_stores.availableForPurchase',
-            'purchasables_stores.basePrice',
-            'purchasables_stores.basePromotionalPrice',
-            'purchasables_stores.freeShipping',
-            'purchasables_stores.maxQty',
-            'purchasables_stores.minQty',
-            'purchasables_stores.inventoryTracked',
-            'purchasables_stores.allowOutOfStockPurchases',
-            'purchasables_stores.promotable',
-            'purchasables_stores.shippingCategoryId',
-            'inventoryitems.id as inventoryItemId',
         ]);
 
-        $this->query->leftJoin(Table::SITESTORES . ' sitestores', '[[elements_sites.siteId]] = [[sitestores.siteId]]');
-        $this->query->leftJoin(Table::PURCHASABLES_STORES . ' purchasables_stores', '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[commerce_purchasables.id]]');
-        $this->query->leftJoin(['inventoryitems' => Table::INVENTORYITEMS], '[[inventoryitems.purchasableId]] = [[commerce_purchasables.id]]');
+        if ($hasStoreTables) {
+            $this->query->addSelect([
+                'purchasables_stores.availableForPurchase',
+                'purchasables_stores.basePrice',
+                'purchasables_stores.basePromotionalPrice',
+                'purchasables_stores.freeShipping',
+                'purchasables_stores.maxQty',
+                'purchasables_stores.minQty',
+                'purchasables_stores.inventoryTracked',
+                'purchasables_stores.allowOutOfStockPurchases',
+                'purchasables_stores.promotable',
+                'purchasables_stores.shippingCategoryId',
+            ]);
+
+            $this->query->leftJoin(Table::SITESTORES . ' sitestores', '[[elements_sites.siteId]] = [[sitestores.siteId]]');
+            $this->query->leftJoin(Table::PURCHASABLES_STORES . ' purchasables_stores', '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[commerce_purchasables.id]]');
+        } else {
+            $this->query->addSelect([
+                new Expression('NULL as [[availableForPurchase]]'),
+                new Expression('NULL as [[basePrice]]'),
+                new Expression('NULL as [[basePromotionalPrice]]'),
+                new Expression('NULL as [[freeShipping]]'),
+                new Expression('NULL as [[maxQty]]'),
+                new Expression('NULL as [[minQty]]'),
+                new Expression('NULL as [[inventoryTracked]]'),
+                new Expression('NULL as [[allowOutOfStockPurchases]]'),
+                new Expression('NULL as [[promotable]]'),
+                new Expression('NULL as [[shippingCategoryId]]'),
+            ]);
+        }
+
+        if ($hasInventoryTable) {
+            $this->query->addSelect(['inventoryitems.id as inventoryItemId']);
+            $this->query->leftJoin(['inventoryitems' => Table::INVENTORYITEMS], '[[inventoryitems.purchasableId]] = [[commerce_purchasables.id]]');
+        } else {
+            $this->query->addSelect([new Expression('NULL as [[inventoryItemId]]')]);
+        }
 
         // Only do the extra catalog pricing query join if we have catalog pricing rules.
-        if (Plugin::getInstance()->getCatalogPricingRules()->hasCatalogPricingRules()) {
+        if ($hasStoreTables && Plugin::getInstance()->getCatalogPricingRules()->hasCatalogPricingRules()) {
             $this->query->addSelect([
                 'subquery.price',
                 'subquery.promotionalPrice as promotionalPrice',
@@ -743,7 +775,7 @@ abstract class PurchasableQuery extends ElementQuery
             if (isset($this->salePrice)) {
                 $this->subQuery->andWhere(Db::parseNumericParam('catalogprices.salePrice' , $this->salePrice));
             }
-        } else {
+        } elseif ($hasStoreTables) {
             // If Catalog pricing rules are not being used
             $this->query->addSelect([
                 'purchasables_stores.basePrice as price',
@@ -776,6 +808,17 @@ abstract class PurchasableQuery extends ElementQuery
 
             if (isset($this->salePrice)) {
                 $this->subQuery->andWhere(Db::parseNumericParam(new Expression('CASE WHEN [[purchasables_stores.basePromotionalPrice]] < [[purchasables_stores.basePrice]] THEN [[purchasables_stores.basePromotionalPrice]] ELSE [[purchasables_stores.basePrice]] END') , $this->salePrice));
+            }
+        } else {
+            $this->query->addSelect([
+                new Expression('NULL as [[price]]'),
+                new Expression('NULL as [[promotionalPrice]]'),
+                new Expression('NULL as [[salePrice]]'),
+                new Expression('NULL as [[catalogPricingRuleId]]'),
+            ]);
+
+            if ($this->_hasStoreTableParams()) {
+                return false;
             }
         }
 
@@ -880,7 +923,7 @@ abstract class PurchasableQuery extends ElementQuery
      */
     public function populate($rows): array
     {
-        if (!empty($rows) && Plugin::getInstance()->getCatalogPricingRules()->hasCatalogPricingRules()) {
+        if (!empty($rows) && $this->_storeTablesExist() && Plugin::getInstance()->getCatalogPricingRules()->hasCatalogPricingRules()) {
             $row = ArrayHelper::firstValue($rows);
             $store = Plugin::getInstance()->getStores()->getStoreBySiteId($row['siteId']);
             $purchasableIds = ArrayHelper::getColumn($rows, 'id');
@@ -919,5 +962,26 @@ abstract class PurchasableQuery extends ElementQuery
         }
 
         return parent::populate($rows);
+    }
+
+    private function _storeTablesExist(): bool
+    {
+        $db = Craft::$app->getDb();
+
+        return $db->tableExists(Table::SITESTORES) &&
+            $db->tableExists(Table::PURCHASABLES_STORES);
+    }
+
+    private function _hasStoreTableParams(): bool
+    {
+        return isset($this->price) ||
+            isset($this->promotionalPrice) ||
+            isset($this->onPromotion) ||
+            isset($this->salePrice) ||
+            isset($this->stock) ||
+            isset($this->inventoryTracked) ||
+            isset($this->availableForPurchase) ||
+            isset($this->shippingCategoryId) ||
+            isset($this->hasStock);
     }
 }
