@@ -263,7 +263,7 @@ class Purchasables extends Component
      */
     public function getPurchasableById(int $purchasableId, ?int $siteId = null, int|false|null $forCustomer = null): ?PurchasableInterface
     {
-        // @TODO clarify that this change won't break anything
+        // @TODO Verify that returning the memoized purchasable regardless of the requested $siteId / $forCustomer is safe, or scope the cache key by those args
         if ($this->_purchasableById !== null && $this->_purchasableById->has($purchasableId)) {
             return $this->_purchasableById->get($purchasableId);
         }

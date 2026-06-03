@@ -133,7 +133,7 @@ class PaymentCurrency extends Model
 
     public function getEntity(): ?string
     {
-        // TODO: Implement getEntity() method on \craft\commerce\services\Currencies::$_isoCurrencies
+        // @TODO Implement getEntity() to return the country/region entity name from \craft\commerce\services\Currencies::$_isoCurrencies instead of an empty string
         return '';
     }
 

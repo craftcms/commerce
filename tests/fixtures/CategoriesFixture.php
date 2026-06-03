@@ -38,7 +38,7 @@ class CategoriesFixture extends CategoryFixture
     {
         // Refresh memoization
         Craft::$app->set('categories', new Categories());
-        // TODO: remove this when category fixtures are updated in Craft core.
+        // @TODO Remove this manual category group creation once Craft core's category fixtures handle it
         $catGroup = Craft::$app->getCategories()->getGroupByHandle('categories');
         if (!$catGroup) {
             $structure = new Structure(['maxLevels' => 1]);

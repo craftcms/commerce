@@ -40,35 +40,32 @@ class CopyLoadCartUrl extends ElementAction
     public function getTriggerHtml(): ?string
     {
         $type = Json::encode(static::class);
+        $actionUrl = Json::encode(UrlHelper::actionUrl('commerce/orders/get-load-cart-url'));
 
-        $originalCpRequest = Craft::$app->getRequest()->getIsCpRequest();
-        Craft::$app->getRequest()->setIsCpRequest(false);
-        $url = UrlHelper::actionUrl('commerce/cart/load-cart', ['number' => '{number}']);
-        Craft::$app->getRequest()->setIsCpRequest($originalCpRequest);
-
-        $js = <<<JS
+        $jsTemplate = <<<'JS'
 (() => {
-    var url = "$url";
     new Craft.ElementActionTrigger({
-        type: $type,
+        type: %s,
         batch: false,
-        validateSelection: function(\$selectedItems)
+        validateSelection: function($selectedItems)
         {
-            return !!\$selectedItems.find('.element').data('number');
+            return !!$selectedItems.find('.element').data('number');
         },
-        activate: function(\$selectedItems)
+        activate: function($selectedItems)
         {
-            Craft.ui.createCopyTextPrompt({
-                label: Craft.t('commerce', 'Copy the URL'),
-                instructions: Craft.t('commerce', 'This URL will load the cart into the user’s session, making it the active cart.'),
-                value: url.replace("{number}", \$selectedItems.find('.element').data('number')),
+            var number = $selectedItems.find('.element').data('number');
+            Craft.sendActionRequest('GET', %s, {params: {number: number}}).then(function(response) {
+                Craft.ui.createCopyTextPrompt({
+                    label: Craft.t('commerce', 'Copy the URL'),
+                    instructions: Craft.t('commerce', "This URL will load the cart into the user's session, making it the active cart."),
+                    value: response.data.url,
+                });
             });
         }
     });
 })();
 JS;
-
-        Craft::$app->getView()->registerJs($js);
+        Craft::$app->getView()->registerJs(sprintf($jsTemplate, $type, $actionUrl));
         return null;
     }
 }

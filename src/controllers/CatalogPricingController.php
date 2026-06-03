@@ -188,7 +188,7 @@ class CatalogPricingController extends BaseStoreManagementController
      */
     public function actionGetCatalogPrices(): ?string
     {
-        // @TODO remove this after taking out after refactor
+        // @TODO Remove this action once the catalog pricing UI refactor lands and no longer needs this endpoint
         $purchasableId = $this->request->getBodyParam('purchasableId');
         $storeId = $this->request->getBodyParam('storeId');
 

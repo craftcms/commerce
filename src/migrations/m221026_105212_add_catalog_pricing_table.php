@@ -62,7 +62,7 @@ class m221026_105212_add_catalog_pricing_table extends Migration
         if (!$this->db->tableExists($this->_tableName)) {
             $this->createTable($this->_tableName, [
                 'id' => $this->primaryKey(),
-                'price' => $this->decimal(14, 4), // TODO probably store as string?
+                'price' => $this->decimal(14, 4), // @TODO Consider storing as string to avoid float-precision issues
                 'purchasableId' => $this->integer()->notNull(),
                 'storeId' => $this->integer(),
                 'catalogPricingRuleId' => $this->integer(),

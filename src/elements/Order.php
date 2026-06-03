@@ -918,7 +918,7 @@ class Order extends Element implements HasStoreInterface
 
     /**
      * @var string|null Shipping Method Handle
-     * @TODO change this to be just string at next breaking change
+     * @todo Change type to just `string` in Commerce 6.0
      */
     public ?string $shippingMethodHandle = '';
 
@@ -1527,7 +1527,7 @@ class Order extends Element implements HasStoreInterface
         $fields['totalShippingCost'] = 'totalShippingCost';
         $fields['totalDiscount'] = 'totalDiscount';
 
-        // @TODO remove in 6.0.0
+        // @TODO Remove these deprecated `totalSaleAmount` aliases in Commerce 6.0
         $fields['totalSaleAmount'] = 'totalPromotionalAmount';
         $fields['totalSaleAmountAsCurrency'] = 'totalPromotionalAmountAsCurrency';
 
@@ -2188,7 +2188,7 @@ class Order extends Element implements HasStoreInterface
             $storeId = $this->storeId;
 
             if ($method instanceof ShippingMethod) {
-                // TODO remove at a breaking change version
+                // @TODO Remove this dateCreated/dateUpdated copy in Commerce 6.0 once ShippingMethodOption no longer exposes those attributes
                 foreach (['dateCreated', 'dateUpdated'] as $attribute) {
                     $option->$attribute = $method->$attribute;
                 }
@@ -2251,8 +2251,7 @@ class Order extends Element implements HasStoreInterface
                 $this->setBillingAddress($this->getShippingAddress());
             }
 
-            // TODO: Move the recalculate to somewhere else. Saving should be for saving only #COM-40
-            // Right now orders always recalc when saved and not completed but that shouldn't always be the case.
+            // @TODO Move recalculate() out of afterSave(); saving should not implicitly recalculate, and the always-recalc-on-save-when-incomplete behavior should be opt-in #COM-40
             $this->recalculate();
 
             if (!$isNew) {
@@ -2459,9 +2458,9 @@ class Order extends Element implements HasStoreInterface
     }
 
     /**
-     * Returns the URL to the cart’s load action url
+     * Returns the URL to the cart's load action url with a secure token.
      *
-     * @return string|null The URL to the order’s load cart URL, or null if the cart is an order
+     * @return string|null The URL to the order's load cart URL, or null if the cart is an order
      * @noinspection PhpUnused
      */
     public function getLoadCartUrl(): ?string
@@ -2470,12 +2469,7 @@ class Order extends Element implements HasStoreInterface
             return null;
         }
 
-        $originalCpRequest = Craft::$app->getRequest()->getIsCpRequest();
-        Craft::$app->getRequest()->setIsCpRequest(false);
-        $url = UrlHelper::actionUrl('commerce/cart/load-cart', ['number' => $this->number]);
-        Craft::$app->getRequest()->setIsCpRequest($originalCpRequest);
-
-        return $url;
+        return Plugin::getInstance()->getCarts()->getLoadCartUrl($this);
     }
 
     /**
@@ -2684,6 +2678,7 @@ class Order extends Element implements HasStoreInterface
 
     /**
      * Sets the order's payment amount in the order's currency. This amount is not persisted.
+     * This will remain null if set to zero or a negative number.
      *
      * @throws CurrencyException
      * @throws InvalidConfigException
@@ -2692,7 +2687,10 @@ class Order extends Element implements HasStoreInterface
     {
         $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($this->getPaymentCurrency());
         $amount = Currency::round($amount, $paymentCurrency);
-        $this->_paymentAmount = $amount;
+
+        if ($amount > 0) {
+            $this->_paymentAmount = $amount;
+        }
     }
 
     /**

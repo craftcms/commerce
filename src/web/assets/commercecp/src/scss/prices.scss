@@ -1,7 +1,7 @@
 .commerce-promotional-price {
   &::before {
     content: '';
-    // @TODO replace this with an approved icon and do it the same way as Craft
+    // @TODO Replace the promotional_price.png background image with an approved SVG icon and load it the same way Craft loads CP icons
     background-image: url(../images/promotional_price.png);
     background-repeat: no-repeat;
     background-size: contain;

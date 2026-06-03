@@ -82,7 +82,7 @@ class DownloadsController extends BaseFrontEndController
         $pdfHandle = $this->request->getQueryParam('pdfHandle');
         $option = $this->request->getQueryParam('option', '');
         $inline = (bool) $this->request->getQueryParam('inline', false);
-        $token = $this->request->getQueryParam('token');
+        $token = $this->request->getQueryParam('code');
 
         if (!$number) {
             throw new BadRequestHttpException('Order number required');

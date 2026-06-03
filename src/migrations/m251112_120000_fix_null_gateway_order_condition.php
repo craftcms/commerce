@@ -23,7 +23,7 @@ class m251112_120000_fix_null_gateway_order_condition extends Migration
 
         // Fix gateways with missing order conditions
         $gateways = (new Query())
-            ->select(['id', 'uid'])
+            ->select(['id', 'uid', 'isArchived'])
             ->from(Table::GATEWAYS)
             ->where(['orderCondition' => null])
             ->all();
@@ -42,7 +42,7 @@ class m251112_120000_fix_null_gateway_order_condition extends Migration
                     ['id' => $gateway['id']]
                 );
 
-                if ($config) {
+                if ($config && !$gateway['isArchived']) {
                     $config['orderCondition'] = $orderCondition;
                     $projectConfig->set(Gateways::CONFIG_GATEWAY_KEY . '.' . $gateway['uid'], $config);
                 }

@@ -9,11 +9,12 @@
             <th>{{ "Fulfill"|t('commerce') }}</th>
         </tr>
         {% for fulfillmentLevel in fulfillmentLevels %}
+            {% set fieldIndex = random() %}
             <tr>
             <td class="">{{fulfillmentLevel.getLineItem().description}}</td>
             <td class="">{{fulfillmentLevel.fulfilledQuantity}} / {{fulfillmentLevel.committedQuantity}}</td>
             <td class="">
-                <div id="fulfillment-{{ loop.index }}">
+                <div id="fulfillment-{{ fieldIndex }}">
                 {{ forms.text({
                     type: 'number',
                     inputAttributes: {
@@ -22,14 +23,13 @@
                         step: 1,
                         class: 'fulfillment-quantity',
                     },
-                    name: 'fulfillment['~loop.index~'][quantity]',
+                    name: 'fulfillment['~fieldIndex~'][quantity]',
                 }) }}
                 </div>
-                {{ hiddenInput('fulfillment['~loop.index~'][max]', max(fulfillmentLevel.outstandingCommittedQuantity, 0)) }}
-                {{ hiddenInput('fulfillment['~loop.index~'][inventoryLocationId]', fulfillmentLevel.inventoryLocationId) }}
-                {{ hiddenInput('fulfillment['~loop.index~'][inventoryItemId]', fulfillmentLevel.inventoryItemId) }}
-                {{ hiddenInput('fulfillment['~loop.index~'][lineItemId]', fulfillmentLevel.lineItemId) }}
-                {{ hiddenInput('fulfillment['~loop.index~'][lineItemId]', fulfillmentLevel.lineItemId) }}
+                {{ hiddenInput('fulfillment['~fieldIndex~'][max]', max(fulfillmentLevel.outstandingCommittedQuantity, 0)) }}
+                {{ hiddenInput('fulfillment['~fieldIndex~'][inventoryLocationId]', fulfillmentLevel.inventoryLocationId) }}
+                {{ hiddenInput('fulfillment['~fieldIndex~'][inventoryItemId]', fulfillmentLevel.inventoryItemId) }}
+                {{ hiddenInput('fulfillment['~fieldIndex~'][lineItemId]', fulfillmentLevel.lineItemId) }}
             </td>
             </tr>
         {% endfor %}

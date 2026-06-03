@@ -84,6 +84,7 @@ use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\MethodNotAllowedHttpException;
+use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 /**
@@ -936,6 +937,31 @@ JS, []);
     }
 
     /**
+     * Returns a secure load-cart URL (with token) for the given cart number.
+     * Intended for CP use via the "Share cart" element action.
+     *
+     * @throws BadRequestHttpException
+     * @throws NotFoundHttpException
+     * @since 5.7.0
+     */
+    public function actionGetLoadCartUrl(): Response
+    {
+        $this->requireAcceptsJson();
+        $this->requirePermission('commerce-manageOrders');
+
+        $number = $this->request->getRequiredParam('number');
+        $cart = Order::find()->number($number)->isCompleted(false)->one();
+
+        if (!$cart) {
+            throw new NotFoundHttpException('Cart not found.');
+        }
+
+        return $this->asSuccess(data: [
+            'url' => Plugin::getInstance()->getCarts()->getLoadCartUrl($cart),
+        ]);
+    }
+
+    /**
      * @throws BadRequestHttpException
      * @throws InvalidConfigException
      * @throws Throwable
@@ -1157,7 +1183,7 @@ JS, []);
             }
 
             // For backend stripe payments we cant use the 3D secure form.
-            /** @TODO remove at next breaking change */
+            /** @todo Remove the legacy PaymentIntents `getOldPaymentFormHtml()` branch in Commerce 6.0 */
             /** @phpstan-ignore-next-line */
             if ($gateway instanceof PaymentIntents) {
                 /** @phpstan-ignore-next-line */
@@ -2096,7 +2122,7 @@ JS, []);
             /** @var PurchasableInterface|null $purchasable */
             $purchasable = ArrayHelper::firstWhere($purchasablesById, 'id', $row['id']);
             if ($purchasable) {
-                // @TODO revisit when updating currencies for stores
+                // @TODO Revisit purchasable price lookup once per-store currency handling is finalized
                 $row['price'] = $purchasable->getSalePrice();
                 $row['promotionalPrice'] = $purchasable->getPromotionalPrice();
                 $row['priceAsCurrency'] = MoneyHelper::toString(MoneyHelper::toMoney(['value' => $purchasable->getSalePrice(), 'currency' => $baseCurrency]));
@@ -2133,7 +2159,7 @@ JS, []);
                 'totalAddresses' => $totalAddresses,
                 'photoThumbHtml' => $customer->getThumbHtml(100),
 
-                // @TODO remove when update order edit to use `photoThumbHtml`
+                // @TODO Remove `photoThumbUrl` once the order edit Vue UI is updated to use `photoThumbHtml` instead
                 'photoThumbUrl' => '',
             ];
     }

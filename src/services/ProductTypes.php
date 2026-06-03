@@ -949,7 +949,7 @@ class ProductTypes extends Component
             ])
             ->from([Table::PRODUCTTYPES . ' productTypes']);
 
-        // todo: remove after the next breakpoint
+        // @TODO Remove this columnExists check in Commerce 6.0 once the schema guarantees the `variantTitleFormat` column on the producttypes table (was renamed from `titleFormat`)
         $db = Craft::$app->getDb();
         if ($db->columnExists(Table::PRODUCTTYPES, 'variantTitleFormat')) {
             $query->addSelect('productTypes.variantTitleFormat');

@@ -151,7 +151,7 @@ class CatalogPricingRule extends Model implements HasStoreInterface
 
     /**
      * @var array
-     * @TODO remove at next major version
+     * @todo Remove the unused $_metadata property in Commerce 6.0
      */
     private array $_metadata = [];
 

@@ -147,7 +147,7 @@ class CatalogPricing extends Model implements HasStoreInterface
             throw new InvalidConfigException('Invalid store ID: ' . $this->storeId);
         }
 
-        // @TODO need to figure out looking at this from a site perspective
+        // @TODO Resolve the correct site for the purchasable lookup rather than defaulting to the store's first site; catalog pricing is currently store-scoped but purchasables are site-aware
         $site = $store->getSites()->first();
 
         $this->_purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($this->purchasableId, $site->id);

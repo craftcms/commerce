@@ -20,7 +20,7 @@ class DummyPlan extends Plan
 {
     /**
      * @inheritdoc
-     * TODO: Fix typo in next major release currentPlant -> currentPlan
+     * @todo Fix typo: rename $currentPlant parameter to $currentPlan in Commerce 6.0
      */
     public function canSwitchFrom(PlanInterface $currentPlant): bool
     {

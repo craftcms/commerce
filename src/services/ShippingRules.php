@@ -44,7 +44,7 @@ class ShippingRules extends Component
      */
     public function getAllShippingRules(): Collection
     {
-        // @TODO figure out if we need to memoize this
+        // @TODO Confirm this per-instance memoization is correct given multi-store contexts; consider keying by storeId if shipping rules diverge across stores
         if ($this->_allShippingRules !== null) {
             return $this->_allShippingRules;
         }
