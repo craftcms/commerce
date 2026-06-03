@@ -4,6 +4,7 @@
 
 - Fixed a bug where fulfilling an order with purchasables in different inventory locations would only fulfil items from one location. ([#4299](https://github.com/craftcms/commerce/issues/4299))
 - Fixed a PHP error that could occur when applying project config changes after updating.
+- PDF download URLs now use the `code` query param instead of `token`. Existing URLs with `token` can be redirected via a server rewrite rule (see [upgrade notes](https://gist.github.com/lukeholder/7605ee8dbb0cbde305ba86bc05747315) [#4303](https://github.com/craftcms/commerce/issues/4303)).
 
 ## 5.6.5 - 2026-05-14
 
