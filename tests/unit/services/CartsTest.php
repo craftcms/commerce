@@ -229,7 +229,7 @@ class CartsTest extends Unit
         Craft::$app->getElements()->deleteElement($cart, true);
     }
 
-    public function testGetStaticCartDoesNotStartCartSession(): void
+    public function testPeekCartDoesNotStartCartSession(): void
     {
         $originalCarts = Plugin::getInstance()->getCarts();
         $cartNumber = $originalCarts->generateCartNumber();
@@ -241,7 +241,7 @@ class CartsTest extends Unit
 
         $carts = $this->make(Carts::class, [
             'setSessionCartNumber' => function() {
-                self::fail('Static cart retrieval should not update the cart session.');
+                self::fail('Peek cart retrieval should not update the cart session.');
             },
         ]);
         $carts->cartCookie = ['name' => $cookieName];
@@ -259,7 +259,7 @@ class CartsTest extends Unit
         Craft::$app->set('request', $requestMock);
 
         try {
-            $cart = Plugin::getInstance()->getCarts()->getStaticCart();
+            $cart = Plugin::getInstance()->getCarts()->peekCart();
 
             self::assertNotNull($cart);
             self::assertSame($cartNumber, $cart->number);
@@ -269,7 +269,7 @@ class CartsTest extends Unit
         }
     }
 
-    public function testGetStaticCartReturnsNullWithNoCookie(): void
+    public function testPeekCartReturnsNullWithNoCookie(): void
     {
         $cookieName = Plugin::getInstance()->getCarts()->cartCookie['name'];
 
@@ -284,7 +284,7 @@ class CartsTest extends Unit
         Craft::$app->set('request', $requestMock);
 
         try {
-            $cart = Plugin::getInstance()->getCarts()->getStaticCart();
+            $cart = Plugin::getInstance()->getCarts()->peekCart();
             self::assertNull($cart);
         } finally {
             Craft::$app->set('request', $originalRequest);

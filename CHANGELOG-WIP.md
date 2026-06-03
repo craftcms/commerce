@@ -31,12 +31,15 @@
 ## Development
 
 - Product permissions have been refined into separate "View", "Create", "Save", and "Delete" permissions.
+- Added a `cart/peek-cart` controller action, which returns the existing cart for the current request without creating a new cart or setting cookies — useful for cached pages such as a header cart badge, where `Set-Cookie` responses should be avoided. ([#4263](https://github.com/craftcms/commerce/pull/4263))
 
 ## Extensibility
 
 - Added `craft\commerce\services\ProductTypes::getViewableProductTypes()`.
 - Added `craft\commerce\services\ProductTypes::getViewableProductTypeIds()`.
 - Added `craft\commerce\services\ProductTypes::getCreatableProductTypeIds()`.
+- Added `craft\commerce\services\Carts::peekCart()`.
+- Added `craft\commerce\controllers\CartController::actionPeekCart()`.
 - Deprecated `craft\commerce\services\ProductTypes::hasPermission()`. Use `$user->can()` directly instead.
 - Deprecated `craft\commerce\services\ProductTypes::getEditableProductTypes()`. Use `getViewableProductTypes()` instead.
 - Deprecated `craft\commerce\services\ProductTypes::getEditableProductTypeIds()`. Use `getViewableProductTypeIds()` instead.

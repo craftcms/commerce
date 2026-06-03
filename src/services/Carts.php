@@ -212,8 +212,10 @@ class Carts extends Component
     /**
      * Returns the existing cart for this session without creating one, setting cookies, or touching the session.
      * Returns null if no cart cookie is present or no matching cart exists.
+     *
+     * @since 5.7.0
      */
-    public function getStaticCart(): ?Order
+    public function peekCart(): ?Order
     {
         if (isset($this->_cart)) {
             return $this->_cart;
@@ -224,20 +226,44 @@ class Carts extends Component
         }
 
         if (!$this->_cartNumber) {
-            $this->_cartNumber = Craft::$app->getRequest()->getCookies()->getValue($this->cartCookie['name'], false) ?: null;
+            $cookieNumber = Craft::$app->getRequest()->getCookies()->getValue($this->cartCookie['name'], false);
+            if (!$cookieNumber) {
+                return null;
+            }
+            $this->_cartNumber = $cookieNumber;
         }
 
-        if (!$this->_cartNumber) {
+        /** @var Order|null $cart */
+        $cart = Order::find()
+            ->number($this->_cartNumber)
+            ->storeId(Plugin::getInstance()->getStores()->getCurrentStore()->id)
+            ->isCompleted(false)
+            ->trashed(false)
+            ->one();
+
+        if (!$cart) {
             return null;
         }
 
-        return Order::find()->number($this->_cartNumber)->isCompleted(false)->one();
+        // Don't return a cart that belongs to a credentialed user who isn't currently logged in
+        // as that user. Mirrors the privacy check in _getCart(), but without forgetting the cart
+        // (which would set a Set-Cookie header and defeat the purpose of this method).
+        $cartCustomer = $cart->getCustomer();
+        if ($cartCustomer && $cartCustomer->getIsCredentialed()) {
+            $currentUser = Craft::$app->getUser()->getIdentity();
+            if (!$currentUser || $currentUser->id != $cartCustomer->id) {
+                return null;
+            }
+        }
+
+        $this->_cart = $cart;
+        return $this->_cart;
     }
 
     /**
      * Get the current cart for this session.
      */
-    private function _getCart(bool $forgetInvalidCart = true, bool $checkAnonymousCartSession = true): ?Order
+    private function _getCart(): ?Order
     {
         $number = $this->getSessionCartNumber();
         /** @var Order|null $cart */
@@ -252,9 +278,7 @@ class Carts extends Component
 
         // If the cart is already completed or trashed, forget the cart and start again.
         if ($cart && ($cart->isCompleted || $cart->trashed)) {
-            if ($forgetInvalidCart) {
-                $this->forgetCart();
-            }
+            $this->forgetCart();
             return null;
         }
 
@@ -264,10 +288,7 @@ class Carts extends Component
 
         // Did an anonymous user provide an email that belonged to a credentialed user?
         // See CartController::actionUpdate()
-        $anonymousCartWithCredentialedCustomer = false;
-        if ($checkAnonymousCartSession && $cart) {
-            $anonymousCartWithCredentialedCustomer = Craft::$app->getSession()->get('commerce:anonymousCartWithCredentialedCustomer:' . $cart->number, false);
-        }
+        $anonymousCartWithCredentialedCustomer = $cart && Craft::$app->getSession()->get('commerce:anonymousCartWithCredentialedCustomer:' . $cart->number, false);
 
         if ($cart && $cartCustomer && $cartCustomer->getIsCredentialed() &&
             (
@@ -278,9 +299,7 @@ class Carts extends Component
                 ($currentUser && $currentUser->id != $cartCustomer->id)
             )
         ) {
-            if ($forgetInvalidCart) {
-                $this->forgetCart();
-            }
+            $this->forgetCart();
             return null;
         }
 

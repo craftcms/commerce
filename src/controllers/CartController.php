@@ -85,7 +85,7 @@ class CartController extends BaseFrontEndController
         return array_merge(parent::behaviors(), [
             'rateLimiter' => [
                 'class' => RateLimiter::class,
-                'only' => ['get-cart', 'get-static-cart', 'update-cart', 'load-cart', 'complete'],
+                'only' => ['get-cart', 'peek-cart', 'update-cart', 'load-cart', 'complete'],
                 'enableRateLimitHeaders' => false,
                 'user' => function() {
                     // Only apply rate limiting when a cart number is explicitly passed
@@ -123,11 +123,11 @@ class CartController extends BaseFrontEndController
      * Returns the existing cart for this session without creating one, setting cookies, or touching the session.
      * Returns null (as empty cart data) if no cart exists for the current session.
      */
-    public function actionGetStaticCart(): Response
+    public function actionPeekCart(): Response
     {
         $this->requireAcceptsJson();
 
-        $cart = Plugin::getInstance()->getCarts()->getStaticCart();
+        $cart = Plugin::getInstance()->getCarts()->peekCart();
 
         return $this->asSuccess(data: [
             $this->_cartVariable => $cart ? $this->cartArray($cart) : null,
