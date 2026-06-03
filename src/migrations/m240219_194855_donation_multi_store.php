@@ -29,6 +29,8 @@ class m240219_194855_donation_multi_store extends Migration
             ->all();
 
         foreach ($donations as $donation) {
+            $this->_ensureDonationPurchasable($donation);
+
             foreach ($storeIds as $storeId) {
                 if (PurchasableStore::findOne(['purchasableId' => $donation['id'], 'storeId' => $storeId])) {
                     continue;
@@ -55,6 +57,43 @@ class m240219_194855_donation_multi_store extends Migration
         $this->dropColumn(Table::DONATIONS, 'availableForPurchase');
 
         return true;
+    }
+
+    private function _ensureDonationPurchasable(array $donation): void
+    {
+        $purchasableExists = (new Query())
+            ->from(Table::PURCHASABLES)
+            ->where(['id' => $donation['id']])
+            ->exists();
+
+        if ($purchasableExists) {
+            return;
+        }
+
+        $purchasable = [
+            'id' => $donation['id'],
+            'sku' => $donation['sku'] ?: "DONATION-{$donation['id']}",
+        ];
+
+        if ($this->db->columnExists(Table::PURCHASABLES, 'description')) {
+            $purchasable['description'] = null;
+        }
+
+        foreach (['width', 'height', 'length', 'weight'] as $column) {
+            if ($this->db->columnExists(Table::PURCHASABLES, $column)) {
+                $purchasable[$column] = 0;
+            }
+        }
+
+        if ($this->db->columnExists(Table::PURCHASABLES, 'taxCategoryId')) {
+            $purchasable['taxCategoryId'] = (new Query())
+                ->select('id')
+                ->from(Table::TAXCATEGORIES)
+                ->orderBy(['id' => SORT_ASC])
+                ->scalar();
+        }
+
+        $this->insert(Table::PURCHASABLES, $purchasable);
     }
 
     /**
