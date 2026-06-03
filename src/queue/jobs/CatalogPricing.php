@@ -62,33 +62,10 @@ class CatalogPricing extends BaseJob
         }
 
         if (!empty($catalogPricingRuleIds)) {
-            $rulesService = Plugin::getInstance()->getCatalogPricingRules();
-
-            if ($storeId !== null) {
-                $catalogPricingRules = $rulesService->getAllCatalogPricingRules($storeId)
-                    ->whereIn('id', $catalogPricingRuleIds)
-                    ->all();
-            } else {
-                // Rules belong to a single store, but the queue row may span stores —
-                // load each rule from its own store so we don't silently drop rules
-                // that don't live in the worker's current store.
-                $catalogPricingRules = [];
-                foreach (Plugin::getInstance()->getStores()->getAllStores() as $store) {
-                    foreach ($rulesService->getAllCatalogPricingRules($store->id)->whereIn('id', $catalogPricingRuleIds)->all() as $rule) {
-                        $catalogPricingRules[] = $rule;
-                    }
-                }
-            }
-
-            // If the rules were all deleted between enqueueing and processing, bail —
-            // an empty rule list combined with null $purchasableIds causes
-            // generateCatalogPrices() to truncate the whole catalog pricing table.
-            if (empty($catalogPricingRules)) {
-                if ($reservedRowId) {
-                    $catalogPricingService->deleteCatalogPricingQueueRowById($reservedRowId);
-                }
-                return;
-            }
+            $catalogPricingRules = Plugin::getInstance()->getCatalogPricingRules()
+                ->getAllCatalogPricingRules($storeId)
+                ->whereIn('id', $catalogPricingRuleIds)
+                ->all();
         }
 
         try {
