@@ -43,14 +43,15 @@ class DownloadsController extends BaseFrontEndController
      * @since 4.9.5
      */
     private function renderEmailChallenge(
-        Order $order,
-        string $orderNumber,
+        Order   $order,
+        string  $orderNumber,
         ?string $pdfHandle,
-        string $option,
-        bool $inline,
-        array $errors = [],
+        string  $option,
+        bool    $inline,
+        array   $errors = [],
         ?string $email = null,
-    ): Response {
+    ): Response
+    {
         $params = [
             'order' => $order,
             'orderNumber' => $orderNumber,
@@ -81,8 +82,13 @@ class DownloadsController extends BaseFrontEndController
         $number = $this->request->getQueryParam('number');
         $pdfHandle = $this->request->getQueryParam('pdfHandle');
         $option = $this->request->getQueryParam('option', '');
-        $inline = (bool) $this->request->getQueryParam('inline', false);
+        $inline = (bool)$this->request->getQueryParam('inline', false);
         $token = $this->request->getQueryParam('code');
+
+        // Maybe they are coming in on an "old" link with "token" instead of "code" as the query param, so check for that too.
+        if (!$token) {
+            $token = $this->request->getQueryParam('token');
+        }
 
         if (!$number) {
             throw new BadRequestHttpException('Order number required');
@@ -194,7 +200,7 @@ class DownloadsController extends BaseFrontEndController
         $number = $this->request->getQueryParam('number');
         $pdfHandle = $this->request->getQueryParam('pdfHandle');
         $option = $this->request->getQueryParam('option', '');
-        $inline = (bool) $this->request->getQueryParam('inline', false);
+        $inline = (bool)$this->request->getQueryParam('inline', false);
 
         if (!$number) {
             throw new BadRequestHttpException('Order number required');
@@ -227,7 +233,7 @@ class DownloadsController extends BaseFrontEndController
         $orderNumberHash = $this->request->getBodyParam('orderNumberHash');
         $pdfHandle = $this->request->getBodyParam('pdfHandle');
         $option = $this->request->getBodyParam('option', '');
-        $inline = (bool) $this->request->getBodyParam('inline', false);
+        $inline = (bool)$this->request->getBodyParam('inline', false);
 
         if (!$orderNumberHash) {
             throw new BadRequestHttpException('Order number hash is required');
