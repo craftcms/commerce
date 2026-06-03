@@ -875,6 +875,12 @@ class Plugin extends BasePlugin
                         'subject' => Craft::t('commerce', 'Your Order PDF Download Link'),
                         'body' => $this->_getDefaultPdfDownloadMessage(),
                     ],
+                    [
+                        'key' => 'commerce_cart_recovery',
+                        'heading' => Craft::t('commerce', 'Cart Recovery Link'),
+                        'subject' => Craft::t('commerce', 'Your Cart Recovery Link'),
+                        'body' => $this->_getDefaultCartRecoveryMessage(),
+                    ],
                 ]);
             }
         );
@@ -1364,6 +1370,20 @@ class Plugin extends BasePlugin
         return "Hello,\n\n" .
             "You requested a PDF download for your order. Click the link below to download your PDF:\n\n" .
             "[Download PDF]({{ link }})\n\n" .
+            "**Please note:** This link will expire for security purposes.\n\n" .
+            "Thank you!";
+    }
+
+    /**
+     * Returns the default message body for the cart recovery email.
+     *
+     * @return string
+     */
+    private function _getDefaultCartRecoveryMessage(): string
+    {
+        return "Hello,\n\n" .
+            "You requested a link to recover your shopping cart. Click the link below to continue shopping:\n\n" .
+            "[Recover My Cart]({{ link }})\n\n" .
             "**Please note:** This link will expire for security purposes.\n\n" .
             "Thank you!";
     }

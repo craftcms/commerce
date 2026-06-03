@@ -84,6 +84,7 @@ use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\MethodNotAllowedHttpException;
+use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 /**
@@ -933,6 +934,31 @@ JS, []);
         }
 
         return $this->asSuccess(data: compact('user'));
+    }
+
+    /**
+     * Returns a secure load-cart URL (with token) for the given cart number.
+     * Intended for CP use via the "Share cart" element action.
+     *
+     * @throws BadRequestHttpException
+     * @throws NotFoundHttpException
+     * @since 5.7.0
+     */
+    public function actionGetLoadCartUrl(): Response
+    {
+        $this->requireAcceptsJson();
+        $this->requirePermission('commerce-manageOrders');
+
+        $number = $this->request->getRequiredParam('number');
+        $cart = Order::find()->number($number)->isCompleted(false)->one();
+
+        if (!$cart) {
+            throw new NotFoundHttpException('Cart not found.');
+        }
+
+        return $this->asSuccess(data: [
+            'url' => Plugin::getInstance()->getCarts()->getLoadCartUrl($cart),
+        ]);
     }
 
     /**

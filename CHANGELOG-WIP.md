@@ -1,7 +1,14 @@
 # WIP Release Notes for Craft Commerce 5.7
 
+## Store Management
+- Cart load URLs are now generated with time-limited security tokens, requiring a valid token or authenticated cart ownership to load a cart.
+- Anonymous users attempting to load a cart with an expired or missing token are now shown a cart recovery form, which sends a new recovery link to the cart's email address.
+- Added a new `commerce_cart_recovery` system message for customizing cart recovery emails.
+- The "Share cart…" element action now generates a secure tokenized URL.
+
 ## Administration
 - Added a "Contains Purchasables" order condition rule, which supports "any", "all", and "only" match modes. ([#4242](https://github.com/craftcms/commerce/issues/4242))
+- Added the `cartLoadUrlExpiry` setting, for controlling how long cart load links remain valid (default: 7 days).
 
 ## Extensibility
 - Added `craft\commerce\elements\conditions\orders\ContainsPurchasablesConditionRule`.
@@ -13,14 +20,21 @@
 - Added `craft\commerce\controllers\OrdersController::actionReassignModal()`.
 - Added `craft\commerce\controllers\OrdersController::actionRemoveCustomerData()`.
 - Added `craft\commerce\controllers\OrdersController::actionRemoveCustomerDataModal()`.
+- Added `craft\commerce\controllers\OrdersController::actionGetLoadCartUrl()`.
+- Added `craft\commerce\controllers\CartController::actionEmailChallenge()`.
+- Added `craft\commerce\controllers\CartController::actionCartChallenge()`.
+- Added `craft\commerce\controllers\CartController::actionCartSent()`.
 - Added `craft\commerce\controllers\SubscriptionsController::actionDeleteSubscriptions()`.
 - Added `craft\commerce\controllers\SubscriptionsController::actionDeleteSubscriptionsModal()`.
 - Added `craft\commerce\elements\Order::getCustomerDeleted()`.
 - Added `craft\commerce\elements\Order::setCustomerDeleted()`.
 - Added `craft\commerce\elements\deletionblockers\OrderCustomersDeletionBlocker`.
 - Added `craft\commerce\elements\deletionblockers\SubscriptionCustomersDeletionBlocker`.
+- Added `craft\commerce\services\Carts::getLoadCartUrl()`.
 - Added `craft\commerce\services\Orders::reassignOrders()`.
 - Added `craft\commerce\services\Orders::removeCustomerData()`.
+- `craft\commerce\elements\Order::getLoadCartUrl()` now returns a secure tokenized URL.
+- `commerce/cart/load-cart` now returns JSON responses for `Accept: application/json` requests, including a `challengeUrl` on failure.
 - `craft\commerce\elements\Subscription::getSubscriber()` now returns `?User` instead of `User`.
 
 ### System
@@ -46,3 +60,7 @@
 - Deprecated `craft\commerce\services\ProductTypes::hasPermission()`. Use `$user->can()` directly instead.
 - Deprecated `craft\commerce\services\ProductTypes::getEditableProductTypes()`. Use `getViewableProductTypes()` instead.
 - Deprecated `craft\commerce\services\ProductTypes::getEditableProductTypeIds()`. Use `getViewableProductTypeIds()` instead.
+
+## Fixed
+
+- PDF download URLs now use the `code` query param instead of `token`. Existing URLs with `token` can be redirected via a server rewrite rule (see [upgrade notes](https://gist.github.com/lukeholder/7605ee8dbb0cbde305ba86bc05747315)) ([#4303](https://github.com/craftcms/commerce/issues/4303)).
