@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- PDF download URLs now use the `code` query param instead of `token` ([#4303](https://github.com/craftcms/commerce/issues/4303)).
+
 ## 4.11.2 - 2026-05-14
 
 - Cart requests that include a `couponCode` param are now rate-limited.

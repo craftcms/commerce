@@ -84,6 +84,11 @@ class DownloadsController extends BaseFrontEndController
         $inline = (bool) $this->request->getQueryParam('inline', false);
         $token = $this->request->getQueryParam('code');
 
+        // Maybe they are coming in on an "old" link with "token" instead of "code" as the query param, so check for that too.
+        if (!$token) {
+            $token = $this->request->getQueryParam('token');
+        }
+
         if (!$number) {
             throw new BadRequestHttpException('Order number required');
         }
