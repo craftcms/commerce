@@ -32,6 +32,11 @@ class Formulas extends Component
     private Environment $_twigEnv;
 
     /**
+     * @var array<string, bool> Request-level cache for condition evaluation results, keyed by formula+params hash.
+     */
+    private array $_conditionResults = [];
+
+    /**
      * Initialize formulas
      */
     public function init(): void
@@ -93,14 +98,22 @@ class Formulas extends Component
             throw new SyntaxError('Tags are not allowed in a condition formula.');
         }
 
+        $formulaHash = md5($formula);
+        $paramsHash = md5(Json::encode($params));
+        $requestKey = $formulaHash . $paramsHash;
+
+        if (isset($this->_conditionResults[$requestKey])) {
+            return $this->_conditionResults[$requestKey];
+        }
+
         $cacheKey = [
-            'formula' => md5($formula),
-            'params' => md5(Json::encode($params)),
+            'formula' => $formulaHash,
+            'params' => $paramsHash,
         ];
 
         $cachedResult = Craft::$app->getCache()->get($cacheKey);
         if ($cachedResult !== false) {
-            return $cachedResult === 'TRUE';
+            return $this->_conditionResults[$requestKey] = ($cachedResult === 'TRUE');
         }
 
         $twigCode = '{% if ';
@@ -112,7 +125,7 @@ class Formulas extends Component
 
         Craft::$app->getCache()->set($cacheKey, $output);
 
-        return $output === 'TRUE';
+        return $this->_conditionResults[$requestKey] = ($output === 'TRUE');
     }
 
     /**

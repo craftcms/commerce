@@ -2679,7 +2679,6 @@ class Order extends Element implements HasStoreInterface
 
     /**
      * Sets the order's payment amount in the order's currency. This amount is not persisted.
-     *
      * This will remain null if set to zero or a negative number.
      *
      * @throws CurrencyException
