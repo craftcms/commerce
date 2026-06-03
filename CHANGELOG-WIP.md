@@ -7,6 +7,10 @@
 - Anonymous users attempting to load a cart with an expired or missing token are now shown a cart recovery form, which sends a new recovery link to the cart's email address.
 - The "Share cart…" order element action now generates a secure tokenized URL.
 
+### Inventory
+
+- The inventory screen now has a "View" menu for showing and hiding columns. Column preferences are saved per-user and per-location. ([#4193](https://github.com/craftcms/commerce/pull/4193))
+
 ### Administration
 
 - Product permissions have been refined into separate "View", "Create", "Save", and "Delete" permissions.
