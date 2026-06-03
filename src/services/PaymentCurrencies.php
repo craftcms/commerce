@@ -239,7 +239,7 @@ class PaymentCurrencies extends Component
         $record->iso = strtoupper($model->iso);
         $record->storeId = $model->storeId;
         // If this rate is primary, the rate must be 1 since it is now the rate all prices are enter in as.
-        $record->rate = $model->getPrimary() ? 1 : $model->getRate();
+        $record->rate = $model->getPrimary() ? 1 : $model->rate;
 
         $record->save(false);
 
@@ -276,7 +276,7 @@ class PaymentCurrencies extends Component
         $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         $storeCurrency = Plugin::getInstance()->getStores()->getStoreById($storeId)->getCurrency();
-        $nonPrimaryCurrencies = $this->getNonPrimaryPaymentCurrencies($storeId)->mapWithKeys(fn(PaymentCurrency $currency) => [$currency->iso => (string)$currency->rate]);
+        $nonPrimaryCurrencies = $this->getNonPrimaryPaymentCurrencies($storeId)->mapWithKeys(fn(PaymentCurrency $currency) => [$currency->iso => (string)$currency->getRate()]);
 
         $exchange = [$storeCurrency->getCode() => $nonPrimaryCurrencies->all()];
 

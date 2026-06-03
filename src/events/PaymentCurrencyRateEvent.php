@@ -13,15 +13,17 @@ use yii\base\Event;
 /**
  * Payment Currency Rate Event
  *
- * @property ?Transaction $transaction
- * @since 2.0
+ * @since 5.7.0
  */
 class PaymentCurrencyRateEvent extends Event
 {
-	/**
-	* @var float The rate the event
-	*/
-	public float $rate;
+    /**
+     * @var float The rate that will be used. Set this to override the rate.
+     */
+    public float $rate;
 
-	public ?Transaction $transaction = null;
+    /**
+     * @var Transaction|null The transaction the rate is being resolved for, if any.
+     */
+    public ?Transaction $transaction = null;
 }

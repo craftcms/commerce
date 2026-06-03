@@ -33,7 +33,8 @@ use yii\base\InvalidConfigException;
 class PaymentCurrency extends Model
 {
     /**
-     * @event PaymentCurrencyRateEvent The event that is triggered when the payment currency rate is defined
+     * @event PaymentCurrencyRateEvent The event that is triggered when the payment currency rate is being resolved.
+     * @since 5.7.0
      */
     public const EVENT_DEFINE_PAYMENT_CURRENCY_RATE = 'definePaymentCurrencyRate';
 
@@ -199,6 +200,7 @@ class PaymentCurrency extends Model
     /**
      * @param Transaction|null $transaction
      * @return float
+     * @since 5.7.0
      */
     public function getRate(?Transaction $transaction = null): float
     {
