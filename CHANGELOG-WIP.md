@@ -41,8 +41,8 @@
 - Added `craft\commerce\services\Carts::peekCart()`.
 - Added `craft\commerce\controllers\CartController::actionPeekCart()`.
 - Added `craft\commerce\events\PaymentCurrencyRateEvent`, allowing plugins to override a payment currency's exchange rate at the point of use without affecting the rate stored on the `PaymentCurrency` record.
-- Added `craft\commerce\models\PaymentCurrency::EVENT_DEFINE_PAYMENT_CURRENCY_RATE`.
-- Added `craft\commerce\models\PaymentCurrency::getRate()`.
+- Added `craft\commerce\services\PaymentCurrencies::EVENT_DEFINE_PAYMENT_CURRENCY_RATE`.
+- Added `craft\commerce\services\PaymentCurrencies::getRateFor()`.
 - Deprecated `craft\commerce\services\ProductTypes::hasPermission()`. Use `$user->can()` directly instead.
 - Deprecated `craft\commerce\services\ProductTypes::getEditableProductTypes()`. Use `getViewableProductTypes()` instead.
 - Deprecated `craft\commerce\services\ProductTypes::getEditableProductTypeIds()`. Use `getViewableProductTypeIds()` instead.

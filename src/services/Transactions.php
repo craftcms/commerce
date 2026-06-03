@@ -233,7 +233,7 @@ class Transactions extends Component
             $transaction->setOrder($order);
 
             // Capture historical rate
-            $transaction->paymentRate = $paymentCurrency->getRate($transaction);
+            $transaction->paymentRate = Plugin::getInstance()->getPaymentCurrencies()->getRateFor($paymentCurrency, $transaction);
         }
 
         $user = Craft::$app->getUser()->getIdentity();

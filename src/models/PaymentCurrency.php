@@ -8,7 +8,6 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
-use craft\commerce\events\PaymentCurrencyRateEvent;
 use craft\commerce\Plugin;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\helpers\UrlHelper;
@@ -32,12 +31,6 @@ use yii\base\InvalidConfigException;
  */
 class PaymentCurrency extends Model
 {
-    /**
-     * @event PaymentCurrencyRateEvent The event that is triggered when the payment currency rate is being resolved.
-     * @since 5.7.0
-     */
-    public const EVENT_DEFINE_PAYMENT_CURRENCY_RATE = 'definePaymentCurrencyRate';
-
     /**
      * @var int|null ID
      */
@@ -195,23 +188,6 @@ class PaymentCurrency extends Model
     public function getCode()
     {
         return $this->iso;
-    }
-
-    /**
-     * @param Transaction|null $transaction
-     * @return float
-     * @since 5.7.0
-     */
-    public function getRate(?Transaction $transaction = null): float
-    {
-        $event = new PaymentCurrencyRateEvent([
-            'rate' => $this->rate,
-            'transaction' => $transaction,
-        ]);
-
-        $this->trigger(self::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $event);
-
-        return $event->rate;
     }
 
     /**

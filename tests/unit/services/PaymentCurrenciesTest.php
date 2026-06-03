@@ -10,7 +10,6 @@ namespace craftcommercetests\unit\services;
 use Codeception\Test\Unit;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\events\PaymentCurrencyRateEvent;
-use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\commerce\services\PaymentCurrencies;
@@ -164,32 +163,32 @@ class PaymentCurrenciesTest extends Unit
     /**
      * @group PaymentCurrencies
      */
-    public function testGetRateReturnsRawRateWithoutHandler(): void
+    public function testGetRateForReturnsRawRateWithoutHandler(): void
     {
         $eur = $this->pc->getPaymentCurrencyByIso('EUR');
-        self::assertSame(0.5, $eur->getRate());
+        self::assertSame(0.5, $this->pc->getRateFor($eur));
     }
 
     /**
      * @group PaymentCurrencies
      */
-    public function testGetRateReturnsEventRate(): void
+    public function testGetRateForReturnsEventRate(): void
     {
         $handler = static function(PaymentCurrencyRateEvent $event) {
-            if ($event->sender instanceof PaymentCurrency && $event->sender->iso === 'EUR') {
+            if ($event->paymentCurrency->iso === 'EUR') {
                 $event->rate = 0.25;
             }
         };
-        Event::on(PaymentCurrency::class, PaymentCurrency::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
+        Event::on(PaymentCurrencies::class, PaymentCurrencies::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
 
         try {
             $eur = $this->pc->getPaymentCurrencyByIso('EUR');
-            self::assertSame(0.25, $eur->getRate());
+            self::assertSame(0.25, $this->pc->getRateFor($eur));
 
             $aud = $this->pc->getPaymentCurrencyByIso('AUD');
-            self::assertSame(1.3, $aud->getRate(), 'Untouched currencies fall through to the raw rate.');
+            self::assertSame(1.3, $this->pc->getRateFor($aud), 'Untouched currencies fall through to the raw rate.');
         } finally {
-            Event::off(PaymentCurrency::class, PaymentCurrency::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
+            Event::off(PaymentCurrencies::class, PaymentCurrencies::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
         }
     }
 
@@ -199,17 +198,17 @@ class PaymentCurrenciesTest extends Unit
     public function testConvertCurrencyUsesEventRate(): void
     {
         $handler = static function(PaymentCurrencyRateEvent $event) {
-            if ($event->sender instanceof PaymentCurrency && $event->sender->iso === 'EUR') {
+            if ($event->paymentCurrency->iso === 'EUR') {
                 $event->rate = 0.25;
             }
         };
-        Event::on(PaymentCurrency::class, PaymentCurrency::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
+        Event::on(PaymentCurrencies::class, PaymentCurrencies::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
 
         try {
             $converted = $this->pc->convertCurrency(40, $this->pc->getPrimaryPaymentCurrencyIso(), 'EUR');
             self::assertSame(10.0, $converted);
         } finally {
-            Event::off(PaymentCurrency::class, PaymentCurrency::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
+            Event::off(PaymentCurrencies::class, PaymentCurrencies::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
         }
     }
 
@@ -219,11 +218,11 @@ class PaymentCurrenciesTest extends Unit
     public function testConvertAmountUsesEventRate(): void
     {
         $handler = static function(PaymentCurrencyRateEvent $event) {
-            if ($event->sender instanceof PaymentCurrency && $event->sender->iso === 'EUR') {
+            if ($event->paymentCurrency->iso === 'EUR') {
                 $event->rate = 0.25;
             }
         };
-        Event::on(PaymentCurrency::class, PaymentCurrency::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
+        Event::on(PaymentCurrencies::class, PaymentCurrencies::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
 
         try {
             $usd = new Money(4000, new Currency('USD'));
@@ -231,7 +230,7 @@ class PaymentCurrenciesTest extends Unit
             self::assertSame('EUR', $converted->getCurrency()->getCode());
             self::assertSame('1000', $converted->getAmount());
         } finally {
-            Event::off(PaymentCurrency::class, PaymentCurrency::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
+            Event::off(PaymentCurrencies::class, PaymentCurrencies::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
         }
     }
 
@@ -246,7 +245,7 @@ class PaymentCurrenciesTest extends Unit
         $handler = static function(PaymentCurrencyRateEvent $event) {
             $event->rate = 999.0;
         };
-        Event::on(PaymentCurrency::class, PaymentCurrency::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
+        Event::on(PaymentCurrencies::class, PaymentCurrencies::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
 
         try {
             $eur = $this->pc->getPaymentCurrencyByIso('EUR');
@@ -263,7 +262,7 @@ class PaymentCurrenciesTest extends Unit
             $eur->rate = $originalRate;
             $this->pc->savePaymentCurrency($eur);
         } finally {
-            Event::off(PaymentCurrency::class, PaymentCurrency::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
+            Event::off(PaymentCurrencies::class, PaymentCurrencies::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $handler);
         }
     }
 }

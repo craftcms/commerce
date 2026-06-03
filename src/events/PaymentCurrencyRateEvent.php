@@ -7,6 +7,7 @@
 
 namespace craft\commerce\events;
 
+use craft\commerce\models\PaymentCurrency;
 use craft\commerce\models\Transaction;
 use yii\base\Event;
 
@@ -21,6 +22,11 @@ class PaymentCurrencyRateEvent extends Event
      * @var float The rate that will be used. Set this to override the rate.
      */
     public float $rate;
+
+    /**
+     * @var PaymentCurrency The payment currency the rate is being resolved for.
+     */
+    public PaymentCurrency $paymentCurrency;
 
     /**
      * @var Transaction|null The transaction the rate is being resolved for, if any.
