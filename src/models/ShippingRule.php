@@ -117,20 +117,20 @@ class ShippingRule extends Model implements ShippingRuleInterface, HasStoreInter
     private ?array $_shippingRuleCategories = null;
 
     /**
-     * @var ShippingRuleOrderCondition|null
+     * @var string|array|ShippingRuleOrderCondition|null
      * @see setOrderCondition()
      * @see getOrderCondition()
      * @since 5.0.0
      */
-    private ?ShippingRuleOrderCondition $_orderCondition = null;
+    private ShippingRuleOrderCondition|string|array|null $_orderCondition = null;
 
     /**
-     * @var ShippingRuleCustomerCondition|null
+     * @var string|array|ShippingRuleCustomerCondition|null
      * @see setCustomerCondition()
      * @see getCustomerCondition()
      * @since 5.4.0
      */
-    private ?ShippingRuleCustomerCondition $_customerCondition = null;
+    private ShippingRuleCustomerCondition|string|array|null $_customerCondition = null;
 
     /**
      * @throws InvalidConfigException
@@ -248,17 +248,6 @@ class ShippingRule extends Model implements ShippingRuleInterface, HasStoreInter
             return;
         }
 
-        if (is_string($condition)) {
-            $condition = Json::decodeIfJson($condition);
-        }
-
-        if (!$condition instanceof ShippingRuleOrderCondition) {
-            $condition['class'] = ShippingRuleOrderCondition::class;
-            $condition = Craft::$app->getConditions()->createCondition($condition);
-            /** @var ShippingRuleOrderCondition $condition */
-        }
-        $condition->forProjectConfig = false;
-
         $this->_orderCondition = $condition;
     }
 
@@ -268,12 +257,26 @@ class ShippingRule extends Model implements ShippingRuleInterface, HasStoreInter
      */
     public function getOrderCondition(): ShippingRuleOrderCondition
     {
-        $condition = $this->_orderCondition ?? new ShippingRuleOrderCondition();
+        if ($this->_orderCondition instanceof ShippingRuleOrderCondition) {
+            return $this->_orderCondition;
+        }
+
+        $condition = $this->_orderCondition ?? [];
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        $condition['class'] = ShippingRuleOrderCondition::class;
+        $condition = Craft::$app->getConditions()->createCondition($condition);
+        /** @var ShippingRuleOrderCondition $condition */
+        $condition->forProjectConfig = false;
         $condition->mainTag = 'div';
         $condition->name = 'orderCondition';
         $condition->storeId = $this->storeId;
 
-        return $condition;
+        $this->_orderCondition = $condition;
+
+        return $this->_orderCondition;
     }
 
     /**
@@ -284,31 +287,39 @@ class ShippingRule extends Model implements ShippingRuleInterface, HasStoreInter
      */
     public function setCustomerCondition(ShippingRuleCustomerCondition|string|array|null $condition): void
     {
-        if (is_string($condition)) {
-            $condition = Json::decodeIfJson($condition);
+        if (empty($condition)) {
+            $this->_customerCondition = null;
+            return;
         }
-
-        if (!$condition instanceof ShippingRuleCustomerCondition) {
-            $condition['class'] = ShippingRuleCustomerCondition::class;
-            $condition = Craft::$app->getConditions()->createCondition($condition);
-            /** @var ShippingRuleCustomerCondition $condition */
-        }
-        $condition->forProjectConfig = false;
 
         $this->_customerCondition = $condition;
     }
 
     /**
      * @return ShippingRuleCustomerCondition
+     * @throws InvalidConfigException
      * @since 5.4.0
      */
     public function getCustomerCondition(): ShippingRuleCustomerCondition
     {
-        $condition = $this->_customerCondition ?? new ShippingRuleCustomerCondition();
+        if ($this->_customerCondition instanceof ShippingRuleCustomerCondition) {
+            return $this->_customerCondition;
+        }
+
+        $condition = $this->_customerCondition ?? [];
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        $condition['class'] = ShippingRuleCustomerCondition::class;
+        $condition = Craft::$app->getConditions()->createCondition($condition);
+        /** @var ShippingRuleCustomerCondition $condition */
+        $condition->forProjectConfig = false;
         $condition->mainTag = 'div';
         $condition->name = 'customerCondition';
+        $this->_customerCondition = $condition;
 
-        return $condition;
+        return $this->_customerCondition;
     }
 
     /**
