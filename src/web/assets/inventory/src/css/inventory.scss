@@ -1,3 +1,8 @@
+// Inventory levels toolbar (contains the View button)
+.inventory-levels-toolbar {
+  margin-bottom: var(--m);
+}
+
 .inventory-headers {
   .ltr & {
     justify-content: flex-end;

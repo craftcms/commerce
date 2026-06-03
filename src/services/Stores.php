@@ -686,7 +686,7 @@ class Stores extends Component
         ];
 
         // Added to avoid migration issues, as settings were moved after stores table creation
-        // @TODO remove at next breaking change release
+        // @TODO Remove this schemaVersion guard in Commerce 6.0 once all installs are past schema 5.0.72 and the store settings columns are guaranteed to exist
         $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
 
         if ($commerce && version_compare($commerce['schemaVersion'], '5.0.72', '>=')) {

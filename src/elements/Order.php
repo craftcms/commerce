@@ -17,6 +17,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Purchasable;
+use craft\commerce\base\PurchasableInterface;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\base\StoreTrait;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
@@ -25,6 +26,7 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderNoticesTrait;
 use craft\commerce\elements\traits\OrderValidatorsTrait;
+use craft\commerce\enums\ContainsPurchasablesMatch;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\LineItemNotFoundException;
 use craft\commerce\errors\OrderAdjustmentNotFoundException;
@@ -916,7 +918,7 @@ class Order extends Element implements HasStoreInterface
 
     /**
      * @var string|null Shipping Method Handle
-     * @TODO change this to be just string at next breaking change
+     * @todo Change type to just `string` in Commerce 6.0
      */
     public ?string $shippingMethodHandle = '';
 
@@ -930,6 +932,11 @@ class Order extends Element implements HasStoreInterface
      * @var int|null Customer’s ID
      */
     private ?int $_customerId = null;
+
+    /**
+     * @var bool Whether the customer has been deleted
+     */
+    private bool $_customerDeleted = false;
 
     /**
      * Whether the email address on the order should be used to register
@@ -1434,6 +1441,7 @@ class Order extends Element implements HasStoreInterface
         $names[] = 'adjustmentsTotal';
         $names[] = 'customer';
         $names[] = 'customerId';
+        $names[] = 'customerDeleted';
         $names[] = 'paymentCurrency';
         $names[] = 'paymentAmount';
         $names[] = 'isPaid';
@@ -1519,7 +1527,7 @@ class Order extends Element implements HasStoreInterface
         $fields['totalShippingCost'] = 'totalShippingCost';
         $fields['totalDiscount'] = 'totalDiscount';
 
-        // @TODO remove in 6.0.0
+        // @TODO Remove these deprecated `totalSaleAmount` aliases in Commerce 6.0
         $fields['totalSaleAmount'] = 'totalPromotionalAmount';
         $fields['totalSaleAmountAsCurrency'] = 'totalPromotionalAmountAsCurrency';
 
@@ -1577,9 +1585,8 @@ class Order extends Element implements HasStoreInterface
             // Are the addresses both being set to each other.
             [
                 ['billingAddress', 'shippingAddress'], 'validateAddressReuse',
-                'when' => fn($model) =>
-                    /** @var Order $model */
-                    !$model->isCompleted,
+                'when' => fn($model) => /** @var Order $model */
+                !$model->isCompleted,
             ],
 
             [['shippingAddress'], 'validateOrganizationTaxIdAsVatId', 'when' => fn(Order $order) => $order->getStore()->getValidateOrganizationTaxIdAsVatId() && !$order->getStore()->getUseBillingAddressForTax()],
@@ -2185,7 +2192,7 @@ class Order extends Element implements HasStoreInterface
             $storeId = $this->storeId;
 
             if ($method instanceof ShippingMethod) {
-                // TODO remove at a breaking change version
+                // @TODO Remove this dateCreated/dateUpdated copy in Commerce 6.0 once ShippingMethodOption no longer exposes those attributes
                 foreach (['dateCreated', 'dateUpdated'] as $attribute) {
                     $option->$attribute = $method->$attribute;
                 }
@@ -2249,8 +2256,7 @@ class Order extends Element implements HasStoreInterface
                 $this->setBillingAddress($this->getShippingAddress());
             }
 
-            // TODO: Move the recalculate to somewhere else. Saving should be for saving only #COM-40
-            // Right now orders always recalc when saved and not completed but that shouldn't always be the case.
+            // @TODO Move recalculate() out of afterSave(); saving should not implicitly recalculate, and the always-recalc-on-save-when-incomplete behavior should be opt-in #COM-40
             $this->recalculate();
 
             if (!$isNew) {
@@ -2306,6 +2312,7 @@ class Order extends Element implements HasStoreInterface
             $orderRecord->origin = $this->origin;
             $orderRecord->paymentCurrency = $this->paymentCurrency;
             $orderRecord->customerId = $this->getCustomerId();
+            $orderRecord->customerDeleted = $this->getCustomerDeleted();
             $orderRecord->registerUserOnOrderComplete = $this->registerUserOnOrderComplete;
             $orderRecord->saveBillingAddressOnOrderComplete = $this->saveBillingAddressOnOrderComplete;
             $orderRecord->saveShippingAddressOnOrderComplete = $this->saveShippingAddressOnOrderComplete;
@@ -2456,9 +2463,9 @@ class Order extends Element implements HasStoreInterface
     }
 
     /**
-     * Returns the URL to the cart’s load action url
+     * Returns the URL to the cart's load action url with a secure token.
      *
-     * @return string|null The URL to the order’s load cart URL, or null if the cart is an order
+     * @return string|null The URL to the order's load cart URL, or null if the cart is an order
      * @noinspection PhpUnused
      */
     public function getLoadCartUrl(): ?string
@@ -2467,12 +2474,7 @@ class Order extends Element implements HasStoreInterface
             return null;
         }
 
-        $originalCpRequest = Craft::$app->getRequest()->getIsCpRequest();
-        Craft::$app->getRequest()->setIsCpRequest(false);
-        $url = UrlHelper::actionUrl('commerce/cart/load-cart', ['number' => $this->number]);
-        Craft::$app->getRequest()->setIsCpRequest($originalCpRequest);
-
-        return $url;
+        return Plugin::getInstance()->getCarts()->getLoadCartUrl($this);
     }
 
     /**
@@ -2501,6 +2503,25 @@ class Order extends Element implements HasStoreInterface
         }
 
         $this->_customer = null;
+    }
+
+    /**
+     * @return bool
+     * @since 5.7.0
+     */
+    public function getCustomerDeleted(): bool
+    {
+        return $this->_customerDeleted && !$this->getCustomerId();
+    }
+
+    /**
+     * @param bool $customerDeleted
+     * @return void
+     * @since 5.7.0
+     */
+    public function setCustomerDeleted(bool $customerDeleted): void
+    {
+        $this->_customerDeleted = $customerDeleted;
     }
 
     /**
@@ -2928,6 +2949,51 @@ class Order extends Element implements HasStoreInterface
     {
         return (bool)$this->getLineItems();
     }
+
+    /**
+     * Returns whether the order contains the given purchasable IDs.
+     *
+     * @param mixed $purchasableIds One or more purchasable IDs or purchasable models to check for.
+     * @param ContainsPurchasablesMatch $match The match mode.
+     * @return bool
+     */
+    public function hasPurchasables(mixed $purchasableIds, ContainsPurchasablesMatch $match = ContainsPurchasablesMatch::Any): bool
+    {
+        if (!is_array($purchasableIds)) {
+            $purchasableIds = [$purchasableIds];
+        }
+
+        $orderPurchasableIds = collect($this->getLineItems())
+            ->pluck('purchasableId')
+            ->filter(fn($id) => $id !== null);
+
+        $requestedIds = collect($purchasableIds)
+            ->map(fn($id) => $id instanceof PurchasableInterface ? $id->getId() : $id)
+            ->filter(fn($id) => $id !== null);
+
+        if ($match === ContainsPurchasablesMatch::Any) {
+            return $orderPurchasableIds->intersect($requestedIds)->isNotEmpty();
+        }
+
+        if ($match === ContainsPurchasablesMatch::Only) {
+            // If there are custom line items (null purchasableId), the order
+            // has purchasables beyond what was specified, so it can't be only.
+            $hasCustomLineItems = collect($this->getLineItems())
+                ->pluck('purchasableId')
+                ->contains(null);
+
+            if ($hasCustomLineItems) {
+                return false;
+            }
+
+            return $orderPurchasableIds->diff($requestedIds)->isEmpty()
+                && $requestedIds->diff($orderPurchasableIds)->isEmpty();
+        }
+
+        // ContainsPurchasablesMatch::All — every requested purchasable must exist in the order
+        return $requestedIds->every(fn($id) => $orderPurchasableIds->contains($id));
+    }
+
 
     /**
      * @return int

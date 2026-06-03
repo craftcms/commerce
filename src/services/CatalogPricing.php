@@ -111,7 +111,7 @@ class CatalogPricing extends Component
             ->groupBy('catalogPricingRuleId')
             ->column();
 
-        // @TODO maybe mark prices as pending update here?
+        // @TODO Consider marking catalog prices for the affected purchasables as pending here so consumers can detect a stale state while regeneration is in progress
 
         $cprStartTime = microtime(true);
         if ($showConsoleOutput) {

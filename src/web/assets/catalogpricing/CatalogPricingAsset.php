@@ -46,7 +46,7 @@ class CatalogPricingAsset extends AssetBundle
 
         if ($view instanceof View) {
             $view->registerTranslations('commerce', [
-                // @TODO add translations
+                // @TODO Register translation keys for the user-facing strings used by CatalogPricing.js (e.g. via Craft::t('commerce', '...'))
             ]);
         }
     }

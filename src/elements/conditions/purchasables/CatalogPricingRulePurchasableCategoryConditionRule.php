@@ -19,7 +19,8 @@ use craft\helpers\Html;
 
 /**
  * Catalog Pricing Rule Purchasable Category Condition Rule
- * @TODO Remove this when standard Related To rules get more options.
+ *
+ * @todo Remove this rule once the standard Related To condition rule supports source/target/either relationship type selection
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0

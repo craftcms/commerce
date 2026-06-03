@@ -25,7 +25,7 @@ use yii\db\Expression;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.2.0
- * @TODO change the class that the `CustomerConditionRule` extends. Doesn't use the `BaseElementSelectConditionRule` because `allowMultiple()` was added later and it doesn't allow for negative matching.
+ * @todo Switch parent class to `BaseElementSelectConditionRule` in Commerce 6.0 once it supports negative matching (it currently lacks `OPERATOR_NOT_IN` support that this rule needs)
  */
 class CustomerConditionRule extends BaseMultiSelectConditionRule implements ElementConditionRuleInterface
 {

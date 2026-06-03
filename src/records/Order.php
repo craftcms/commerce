@@ -23,6 +23,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $currency
  * @property ActiveQueryInterface $customer
  * @property int $customerId
+ * @property bool $customerDeleted
  * @property DateTime $dateOrdered
  * @property DateTime $datePaid
  * @property DateTime $dateFirstPaid

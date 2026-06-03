@@ -442,8 +442,8 @@ class Pdfs extends Component
      */
     public function reorderPdfs(array $ids): bool
     {
-        // TODO Add event
-        // @TODO make reordering consistent across features
+        // @TODO Fire BEFORE_REORDER_PDFS / AFTER_REORDER_PDFS events around this loop so plugins can react to PDF sort order changes
+        // @TODO Align this reorder implementation with how other Commerce features handle reordering (project config-driven, single transaction, consistent event names)
         foreach ($ids as $index => $id) {
             if ($pdf = $this->getPdfById($id)) {
                 $pdf->sortOrder = $index + 1;
@@ -493,7 +493,7 @@ class Pdfs extends Component
         // Build the URL parameters
         $params = [
             'number' => $order->number,
-            'token' => $token,
+            'code' => $token,
         ];
 
         if ($pdfHandle !== null) {
@@ -508,7 +508,13 @@ class Pdfs extends Component
             $params['inline'] = true;
         }
 
-        return UrlHelper::actionUrl('commerce/downloads/pdf', $params);
+        $request = Craft::$app->getRequest();
+        $isCpRequest = $request->getIsCpRequest();
+        $request->setIsCpRequest(false);
+        $url = UrlHelper::actionUrl('commerce/downloads/pdf', $params);
+        $request->setIsCpRequest($isCpRequest);
+
+        return $url;
     }
 
     /**
@@ -556,7 +562,7 @@ class Pdfs extends Component
         $originalFormattingLanguage = Craft::$app->formattingLocale;
         $pdfLanguage = $pdf?->getRenderLanguage($order) ?? $originalLanguage;
 
-        // TODO add event
+        // @TODO Fire a BEFORE_SWITCH_PDF_LANGUAGE event here so plugins can override or observe the language used when rendering the PDF
         Locale::switchAppLanguage($pdfLanguage);
 
         $oldTemplateMode = $view->getTemplateMode();
@@ -571,7 +577,7 @@ class Pdfs extends Component
         }
 
         try {
-            // TODO Add event
+            // @TODO Fire a BEFORE_RENDER_PDF_TEMPLATE event around the renderTemplate() call so plugins can inspect or modify variables/template right before HTML is generated
             $html = $view->renderTemplate($event->template, $variables);
         } catch (\Exception $e) {
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
@@ -690,7 +696,7 @@ class Pdfs extends Component
             ->from([Table::PDFS])
             ->orderBy(['sortOrder' => SORT_ASC]);
 
-        // TODO: remove after next breakpoint
+        // @TODO Remove this columnExists check in Commerce 6.0 once the schema guarantees the linkExpiry column on the pdfs table
         if (Craft::$app->getDb()->columnExists(Table::PDFS, 'linkExpiry')) {
             $query->addSelect('linkExpiry');
         }

@@ -74,7 +74,7 @@ class ProductFixture extends BaseElementFixture
      * Get array of product type IDs indexed by handle.
      * This uses a raw query to avoid service level caching/memoization.
      *
-     * @TODO review the necessity of this at the next breakpoint version. #COM-54
+     * @todo Review whether this raw-query workaround for service-level memoization is still needed in Commerce 6.0 #COM-54
      */
     private function _getProductTypeIds(): array
     {
