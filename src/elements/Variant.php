@@ -1248,6 +1248,19 @@ class Variant extends Purchasable implements NestedElementInterface
 
     /**
      * @inheritdoc
+     */
+    public function afterAssignedId(): void
+    {
+        if (ElementHelper::isDraftOrRevision($this)) {
+            return;
+        }
+
+        $product = $this->getOwner();
+        $this->updateTitle($product);
+    }
+
+    /**
+     * @inheritdoc
      * @throws \yii\db\Exception
      */
     public function beforeRestore(): bool
