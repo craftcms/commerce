@@ -52,7 +52,8 @@ class CatalogPricingRules extends Component
         }
 
         if ($this->_hasCatalogPricingRules === null) {
-            $this->_hasCatalogPricingRules = $this->_createCatalogPricingRuleQuery()->exists();
+            $this->_hasCatalogPricingRules = Craft::$app->getDb()->tableExists(Table::CATALOG_PRICING_RULES) &&
+                $this->_createCatalogPricingRuleQuery()->exists();
         }
 
         return (bool)$this->_hasCatalogPricingRules;
