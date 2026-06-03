@@ -209,7 +209,7 @@ class PaymentCurrency extends Model
 
         $this->trigger(self::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $event);
 
-        return $this->rate;
+        return $event->rate;
     }
 
     /**
