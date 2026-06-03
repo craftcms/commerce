@@ -224,7 +224,7 @@ class InventoryController extends BaseCpController
         $inventoryLevelsManagerContainerId = $this->request->getRequiredParam('containerId');
         $inventoryItemId = $this->request->getParam('inventoryItemId'); // Used for quick link to manage stock
         $page = $this->request->getParam('page', 1);
-        $limit = $this->request->getParam('per_page', 25);
+        $limit = $this->request->getParam('per_page', 15);
         $offset = ($page - 1) * $limit;
         $inventoryLocationId = (int)Craft::$app->getRequest()->getParam('inventoryLocationId');
         $search = $this->request->getParam('search');

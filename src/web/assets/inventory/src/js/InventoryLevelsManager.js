@@ -188,7 +188,7 @@ Craft.Commerce.InventoryLevelsManager = Garnish.Base.extend({
       checkboxes: false,
       allowMultipleSelections: true,
       fullPane: false,
-      perPage: 25,
+      perPage: 15,
       tableDataEndpoint: 'commerce/inventory/inventory-levels-table-data',
       onQueryParams: (params) => {
         // Arrow function to maintain 'this' context
