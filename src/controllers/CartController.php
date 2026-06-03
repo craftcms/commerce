@@ -211,7 +211,7 @@ class CartController extends BaseFrontEndController
         // Backwards compatible way of adding to the cart
         if ($purchasableId = $this->request->getParam('purchasableId')) {
             $note = $this->request->getParam('note', '');
-            $options = $this->request->getParam('options', []); // TODO Commerce 4 should only support key value only #COM-55
+            $options = $this->request->getParam('options', []); // @TODO Restrict `options` to key/value pairs only in Commerce 6.0 #COM-55
             $qty = (int)$this->request->getParam('qty', 1);
 
             $params = compact('qty', 'note', 'purchasableId', 'options');
@@ -624,7 +624,7 @@ class CartController extends BaseFrontEndController
                 $v44 = $vp->normalize('4.4.0');
 
                 // since Craft 4.4.0, custom fields passed to Element::validate() need to be prepended with 'field:'
-                // @TODO remove at next breaking change/version bump
+                // @TODO Remove the pre-Craft 4.4 branch in Commerce 6.0 once Craft >= 4.4 is the minimum requirement
                 if (Comparator::greaterThanOrEqualTo($currentCraftVersion, $v44)) {
                     $customFieldAttributes = array_map(
                         fn($value) => 'field:' . $value,

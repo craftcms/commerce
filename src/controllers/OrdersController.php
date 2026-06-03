@@ -1183,7 +1183,7 @@ JS, []);
             }
 
             // For backend stripe payments we cant use the 3D secure form.
-            /** @TODO remove at next breaking change */
+            /** @todo Remove the legacy PaymentIntents `getOldPaymentFormHtml()` branch in Commerce 6.0 */
             /** @phpstan-ignore-next-line */
             if ($gateway instanceof PaymentIntents) {
                 /** @phpstan-ignore-next-line */
@@ -2122,7 +2122,7 @@ JS, []);
             /** @var PurchasableInterface|null $purchasable */
             $purchasable = ArrayHelper::firstWhere($purchasablesById, 'id', $row['id']);
             if ($purchasable) {
-                // @TODO revisit when updating currencies for stores
+                // @TODO Revisit purchasable price lookup once per-store currency handling is finalized
                 $row['price'] = $purchasable->getSalePrice();
                 $row['promotionalPrice'] = $purchasable->getPromotionalPrice();
                 $row['priceAsCurrency'] = MoneyHelper::toString(MoneyHelper::toMoney(['value' => $purchasable->getSalePrice(), 'currency' => $baseCurrency]));
@@ -2159,7 +2159,7 @@ JS, []);
                 'totalAddresses' => $totalAddresses,
                 'photoThumbHtml' => $customer->getThumbHtml(100),
 
-                // @TODO remove when update order edit to use `photoThumbHtml`
+                // @TODO Remove `photoThumbUrl` once the order edit Vue UI is updated to use `photoThumbHtml` instead
                 'photoThumbUrl' => '',
             ];
     }

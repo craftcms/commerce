@@ -426,7 +426,7 @@ class Inventory extends Component
 
             $transaction->commit();
 
-            // TODO: Potentially move this to a job in the queue
+            // @TODO Consider pushing updateStoreStockCache() into a queued job so inventory updates don't block on cache regeneration
             // Update all purchasables stock
             $purchasables = $updateInventoryLevels->getPurchasables();
             if ($purchasables) {
@@ -492,7 +492,7 @@ class Inventory extends Component
 
         if (!$inventoryLocation) {
             // If no inventory location exists, we can't update inventory
-            // TODO change method to return false or throw an exception
+            // @TODO Change this method's return type and either return false or throw a typed exception when no inventory location is available, so callers can react instead of silently succeeding
             return;
         }
 
@@ -656,7 +656,7 @@ class Inventory extends Component
 
             $transaction->commit();
 
-            // TODO: Potentially move this to a job in the queue
+            // @TODO Consider pushing the per-movement updateStoreStockCache() calls into a queued job so large batch movements don't block on cache regeneration
             foreach ($inventoryMovements as $inventoryMovement) {
                 // Update all purchasables stock
                 $purchasable = $inventoryMovement->getInventoryItem()->getPurchasable();

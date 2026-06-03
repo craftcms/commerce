@@ -213,7 +213,7 @@ Craft.Commerce.Chart = Garnish.Base.extend({
                 var colors = tooltipModel.labelColors[i];
                 var style = 'background:' + colors.backgroundColor;
                 style += '; border-color:' + colors.borderColor;
-                // TODO: Refactor into more acceptable code for prettier
+                // @TODO Refactor the tooltip span/div construction so prettier can format it without needing the `prettier-ignore` directives below
                 // prettier-ignore
                 var span = '<span class="legend-dot" style="' + style + '"></span>';
                 // prettier-ignore

@@ -107,7 +107,7 @@ class Coupons extends Component
         $numPossibleCodes = strlen(self::CHARS_UPPER) ** $numReplacementChars;
 
         if ($numPossibleCodes < $count) {
-            // TODO figure out correct exception to throw
+            // @TODO Replace this generic Exception with a typed one (e.g. CouponException or InvalidArgumentException) so callers can distinguish format-too-restrictive failures
             throw new Exception('The format is too restrictive to generate enough unique codes.');
         }
 

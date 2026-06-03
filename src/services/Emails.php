@@ -865,7 +865,7 @@ class Emails extends Component
 
                 // Plugins that stop a email being sent should not declare that the sending failed, just that it would blocking of the send.
                 // The blocking of the send will still be logged as an error though for now.
-                // TODO make this cleaner in Commerce 4 #COM-49
+                // @TODO Clean up this behavior in Commerce 6.0 so plugins that block a send can signal "blocked" distinctly from "failed" without it being logged as an error #COM-49
                 // https://github.com/craftcms/commerce/issues/1842
                 return true;
             }

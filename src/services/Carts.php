@@ -135,7 +135,7 @@ class Carts extends Component
      */
     public function getCart(bool $forceSave = false): Order
     {
-        $this->loadCookie(); // TODO: need to see if this should be added to other runtime methods too
+        $this->loadCookie(); // @TODO Audit other public runtime entry points (e.g. forgetCart, restorePreviousCartForCurrentUser) to see if they also need loadCookie() called first
 
         $this->_getCartCount++; //useful when debugging
         $currentUser = Craft::$app->getUser()->getIdentity();
@@ -606,7 +606,7 @@ class Carts extends Component
 
     /**
      * Gets the current payment currency ISO code
-     * @TODO: Fix this for next breaking change version
+     * @todo in Commerce 6.0, replace the COMMERCE_PAYMENT_CURRENCY constant with a proper per-store config setting and surface validation errors instead of throwing InvalidConfigException
      */
     private function _getCartPaymentCurrencyIso(): string
     {

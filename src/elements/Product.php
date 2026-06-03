@@ -1231,7 +1231,7 @@ JS, [
         }
 
         // When reordering variants we need to make sure disabled variants are included when calculating sort order
-        // @TODO: Remove in 6.0 when updating `getVariants()` to start returning an element query instance.
+        // @TODO Remove this controller-based default in Commerce 6.0 when `getVariants()` is updated to return an element query instance
         $includeDisabled ??= Craft::$app->controller instanceof NestedElementsController;
 
         return $this->_variants->filter(fn(Variant $variant) => $includeDisabled || ($variant->getStatus() === self::STATUS_ENABLED));
@@ -2187,7 +2187,7 @@ JS, [
         $this->getVariantManager()->maintainNestedElements($this, $isNew);
         parent::afterPropagate($isNew);
 
-        // @TODO improve performance by collating all purchasable IDs updated during request
+        // @TODO Collate purchasable IDs updated across the request and queue a single catalog pricing job, rather than one per product propagate
         if (!$this->getIsDraft()) {
             Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
                 'purchasableIds' => $this->getVariants()->pluck('id')->all(),

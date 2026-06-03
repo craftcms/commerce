@@ -347,7 +347,7 @@ JS, [
                 $inventoryLevelsManagerContainerId,
             ]);
 
-            // TODO: Look to reduce the number of modal click listeners.
+            // @TODO Reduce the number of per-row modal click listeners registered here for inventory level columns
             $columnTypes = [...InventoryTransactionType::values(), 'onHand'];
             ArrayHelper::removeValue($columnTypes, 'fulfilled');
             foreach ($columnTypes as $type) {

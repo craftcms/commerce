@@ -1324,7 +1324,7 @@ class Plugin extends BasePlugin
                 'action' => function(): int {
                     /** @var ResaveController $controller */
                     $controller = Craft::$app->controller;
-                    // @TODO Remove this check when Commerce requires Craft 5.5
+                    // @TODO Remove this version_compare and property_exists guard once Commerce composer.json requires Craft 5.5+ (where ResaveController::$withFields is always available)
                     if (version_compare(Craft::$app->getInfo()->version, '5.5.0', '>=') && !empty($controller->withFields)) {
                         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Order::class);
                         if (!$controller->hasTheFields($fieldLayout)) {
@@ -1345,7 +1345,7 @@ class Plugin extends BasePlugin
                 'action' => function(): int {
                     /** @var ResaveController $controller */
                     $controller = Craft::$app->controller;
-                    // @TODO Remove this check when Commerce requires Craft 5.5
+                    // @TODO Remove this version_compare and property_exists guard once Commerce composer.json requires Craft 5.5+ (where ResaveController::$withFields is always available)
                     if (version_compare(Craft::$app->getInfo()->version, '5.5.0', '>=') && !empty($controller->withFields)) {
                         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Order::class);
                         if (!$controller->hasTheFields($fieldLayout)) {

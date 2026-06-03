@@ -1589,7 +1589,7 @@ class OrderQuery extends ElementQuery
      */
     public function populate($rows): array
     {
-        // @TODO remove at next breaking change
+        // @TODO Remove in Commerce 6.0 once the `email` column is dropped from `commerce_orders` (email now lives on the customer)
         // Remove `email` key from each row.
         array_walk($rows, function(&$row) {
             if (array_key_exists('email', $row)) {
@@ -1650,7 +1650,7 @@ class OrderQuery extends ElementQuery
             'commerce_orders.orderStatusId',
             'commerce_orders.dateOrdered',
 
-            // @TODO remove at next breaking change
+            // @TODO Remove in Commerce 6.0 once the `email` column is dropped from `commerce_orders` (email now lives on the customer)
             'commerce_orders.email',
 
             'commerce_orders.isCompleted',

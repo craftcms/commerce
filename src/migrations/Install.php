@@ -118,7 +118,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::CATALOG_PRICING);
         $this->createTable(Table::CATALOG_PRICING, [
             'id' => $this->primaryKey(),
-            'price' => $this->decimal(14, 4), // TODO probably store as string?
+            'price' => $this->decimal(14, 4), // @TODO Consider storing as string to avoid float-precision issues
             'purchasableId' => $this->integer()->notNull(),
             'storeId' => $this->integer(),
             'catalogPricingRuleId' => $this->integer(),
@@ -189,7 +189,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        // TODO: rename to `discount_entries` table in Commerce 5 or remove if purchasable condition builder can replace it
+        // @TODO Rename to `discount_entries` table in Commerce 6.0, or remove if the purchasable condition builder fully replaces it
         $this->archiveTableIfExists(Table::DISCOUNT_CATEGORIES);
         $this->createTable(Table::DISCOUNT_CATEGORIES, [
             'id' => $this->primaryKey(),
@@ -720,8 +720,8 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'purchasableId' => $this->integer()->notNull(),
             'storeId' => $this->integer()->notNull(),
-            'basePrice' => $this->decimal(14, 4), // @TODO - should this be a string?
-            'basePromotionalPrice' => $this->decimal(14, 4), // @TODO - should this be a string?
+            'basePrice' => $this->decimal(14, 4), // @TODO Consider storing as string to avoid float-precision issues
+            'basePromotionalPrice' => $this->decimal(14, 4), // @TODO Consider storing as string to avoid float-precision issues
             'promotable' => $this->boolean()->notNull()->defaultValue(false),
             'availableForPurchase' => $this->boolean()->notNull()->defaultValue(true),
             'freeShipping' => $this->boolean()->notNull()->defaultValue(true),
@@ -748,7 +748,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        // TODO: rename to `sale_entries` table in Commerce 5 or remove if purchasable condition builder can replace it
+        // @TODO Rename to `sale_entries` table in Commerce 6.0, or remove if the purchasable condition builder fully replaces it
         $this->archiveTableIfExists(Table::SALE_CATEGORIES);
         $this->createTable(Table::SALE_CATEGORIES, [
             'id' => $this->primaryKey(),
@@ -1051,7 +1051,7 @@ class Install extends Migration
             'id' => $this->integer()->notNull(),
             'primaryOwnerId' => $this->integer(),
             'isDefault' => $this->boolean()->notNull()->defaultValue(false),
-            'deletedWithProduct' => $this->boolean()->notNull()->defaultValue(false), // TODO: Remove in 6.0
+            'deletedWithProduct' => $this->boolean()->notNull()->defaultValue(false), // @TODO Remove in Commerce 6.0
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -1355,7 +1355,7 @@ class Install extends Migration
         } elseif ($installedInProjectConfig) {
 
             // Start fix for a bad commerce project config from the 5.0.0-beta.1
-            // TODO: Remove this in the next major release
+            // @TODO Remove this fix-up for the 5.0.0-beta.1 bad store key in Commerce 6.0
             $commerce = $projectConfig->get('commerce', true);
 
             foreach (array_keys($commerce) as $key) {
