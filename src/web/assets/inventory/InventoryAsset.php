@@ -63,7 +63,6 @@ class InventoryAsset extends AssetBundle
                 'On Hand',
                 'Incoming',
                 'View',
-                'View settings',
                 'Table Columns',
                 'Purchasable',
                 'SKU',

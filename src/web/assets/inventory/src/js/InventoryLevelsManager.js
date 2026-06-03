@@ -49,7 +49,7 @@ Craft.Commerce.InventoryLevelsManager = Garnish.Base.extend({
 
     // random id for the admin table
     this.adminTableId =
-      'inventory-admin-table-' + Math.random().toString(36).substring(7);
+      'inventory-admin-table-' + Math.random().toString(36).substring(2);
     this.$adminTable = $('<div id="' + this.adminTableId + '"></div>').appendTo(
       this.$container
     );
@@ -59,9 +59,9 @@ Craft.Commerce.InventoryLevelsManager = Garnish.Base.extend({
 
   getStorageKey: function () {
     return (
-      'Craft-' +
-      Craft.siteUid +
-      '.Commerce.InventoryLevels.viewPreferences.' +
+      'Commerce.InventoryLevels.viewPreferences.' +
+      this.settings.inventoryLocationId +
+      '.' +
       Craft.userId
     );
   },
@@ -212,7 +212,7 @@ Craft.Commerce.InventoryLevelsManager = Garnish.Base.extend({
 
     // Generate unique ID for the menu
     this.viewMenuId =
-      'inventory-view-menu-' + Math.random().toString(36).substring(7);
+      'inventory-view-menu-' + Math.random().toString(36).substring(2);
 
     // Create a toolbar container for the view button (positioned at top right)
     this.$viewToolbar = $('<div/>', {
@@ -227,7 +227,6 @@ Craft.Commerce.InventoryLevelsManager = Garnish.Base.extend({
       type: 'button',
       class: 'btn menubtn',
       text: Craft.t('commerce', 'View'),
-      'aria-label': Craft.t('commerce', 'View settings'),
       'aria-controls': this.viewMenuId,
       'data-icon': 'sliders',
     }).appendTo(this.$viewToolbar);
@@ -352,7 +351,11 @@ Craft.Commerce.InventoryLevelsManager = Garnish.Base.extend({
     var searchValue =
       this.$container.find('.vue-admin-table input[type="search"]').val() || '';
 
-    // Remove the old table
+    // Destroy the old Vue instance before removing its DOM
+    if (this.adminTable && typeof this.adminTable.destroy === 'function') {
+      this.adminTable.destroy();
+    }
+
     this.$adminTable.empty();
 
     // Reinitialize with new columns
@@ -360,17 +363,36 @@ Craft.Commerce.InventoryLevelsManager = Garnish.Base.extend({
 
     // Reapply search if there was one
     if (searchValue) {
+      var attempts = 0;
       var checkSearch = setInterval(() => {
         var $searchInput = this.$container.find(
           '.vue-admin-table input[type="search"]'
         );
-        if ($searchInput.length) {
+        if ($searchInput.length || ++attempts > 50) {
           clearInterval(checkSearch);
-          $searchInput.val(searchValue);
-          $searchInput.trigger('input');
+          if ($searchInput.length) {
+            $searchInput.val(searchValue);
+            $searchInput.trigger('input');
+          }
         }
       }, 100);
     }
+  },
+
+  destroy: function () {
+    if (this.$viewToolbar) {
+      this.$viewToolbar.remove();
+    }
+    if (this.$viewMenu) {
+      this.$viewMenu.remove();
+    }
+    if (this.viewMenu && typeof this.viewMenu.destroy === 'function') {
+      this.viewMenu.destroy();
+    }
+    if (this.adminTable && typeof this.adminTable.destroy === 'function') {
+      this.adminTable.destroy();
+    }
+    this.base();
   },
 
   defaultSettings: {
