@@ -20,3 +20,7 @@
 - Added `craft\commerce\services\Carts::getLoadCartUrl()`.
 - `craft\commerce\elements\Order::getLoadCartUrl()` now returns a secure tokenized URL.
 - `commerce/cart/load-cart` now returns JSON responses for `Accept: application/json` requests, including a `challengeUrl` on failure.
+
+### Fixed
+
+- PDF download URLs now use the `code` query param instead of `token`. Existing URLs with `token` can be redirected via a server rewrite rule (see [upgrade notes](#)).
