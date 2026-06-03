@@ -332,7 +332,7 @@ class Carts extends Component
         $request->setIsCpRequest(false);
         $url = UrlHelper::actionUrl('commerce/cart/load-cart', [
             'number' => $cart->number,
-            'tokenNumber' => $token,
+            'code' => $token,
         ]);
         $request->setIsCpRequest($isCpRequest);
 

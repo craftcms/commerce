@@ -462,7 +462,7 @@ class Pdfs extends Component
         // Build the URL parameters
         $params = [
             'number' => $order->number,
-            'tokenNumber' => $token,
+            'code' => $token,
         ];
 
         if ($pdfHandle !== null) {
