@@ -753,7 +753,7 @@ class ProductQuery extends ElementQuery
 
         $this->subQuery->leftJoin(['sitestores' => Table::SITESTORES], '[[elements_sites.siteId]] = [[sitestores.siteId]]');
 
-        if ($hasStoreTables && Plugin::getInstance()->getCatalogPricingRules()->hasCatalogPricingRules()) {
+        if (Plugin::getInstance()->getCatalogPricingRules()->hasCatalogPricingRules()) {
             $catalogPricesQuery = Plugin::getInstance()
                 ->getCatalogPricing()
                 ->createCatalogPricesQuery(userId: $customerId)
