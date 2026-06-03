@@ -18,9 +18,11 @@
 
 - Added a `cart/peek-cart` controller action, which returns the existing cart for the current request without creating a new cart or setting cookies — useful for cached pages such as a header cart badge, where `Set-Cookie` responses should be avoided. ([#4263](https://github.com/craftcms/commerce/pull/4263))
 - `commerce/cart/load-cart` now returns JSON responses for `application/json` requests, including a `challengeUrl` on failure.
+- Improved the performance of shipping method and rule matching.
 
 ### Extensibility
 
+- Added `craft\commerce\base\ShippingMethod::clearMatchingShippingRuleCache()`.
 - Added `craft\commerce\controllers\CartController::actionCartChallenge()`.
 - Added `craft\commerce\controllers\CartController::actionCartSent()`.
 - Added `craft\commerce\controllers\CartController::actionEmailChallenge()`.
@@ -57,6 +59,7 @@
 - Added `craft\commerce\services\Orders::removeCustomerData()`.
 - Added `craft\commerce\services\PaymentCurrencies::EVENT_DEFINE_PAYMENT_CURRENCY_RATE`.
 - Added `craft\commerce\services\PaymentCurrencies::getRateFor()`.
+- Added `craft\commerce\services\ShippingRuleCategories::getAllShippingRuleCategoriesData()`.
 - Added `craft\commerce\services\ProductTypes::getCreatableProductTypeIds()`.
 - Added `craft\commerce\services\ProductTypes::getViewableProductTypeIds()`.
 - Added `craft\commerce\services\ProductTypes::getViewableProductTypes()`.
