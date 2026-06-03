@@ -362,7 +362,7 @@ class CatalogPricingQueueTest extends Unit
     }
 
     /**
-     * Test that `releaseCatalogPricingQueueById()` marks a reserved row as unreserved.
+     * Test that `releaseCatalogPricingQueueRowById()` marks a reserved row as unreserved.
      */
     public function testReleaseCatalogPricingQueueByIdMarksAsUnreserved(): void
     {
@@ -374,14 +374,14 @@ class CatalogPricingQueueTest extends Unit
         $reserved = Plugin::getInstance()->getCatalogPricing()->reserveCatalogPricingQueueRow();
         self::assertTrue((bool)$reserved->reserved);
 
-        Plugin::getInstance()->getCatalogPricing()->releaseCatalogPricingQueueById($reserved->id);
+        Plugin::getInstance()->getCatalogPricing()->releaseCatalogPricingQueueRowById($reserved->id);
 
         $released = CatalogPricingQueueRecord::findOne($reserved->id);
         self::assertFalse((bool)$released->reserved);
     }
 
     /**
-     * Test that `deleteCatalogPricingQueueById()` removes a row from the queue.
+     * Test that `deleteCatalogPricingQueueRowById()` removes a row from the queue.
      */
     public function testDeleteCatalogPricingQueueByIdRemovesRow(): void
     {
@@ -393,7 +393,7 @@ class CatalogPricingQueueTest extends Unit
         $row = CatalogPricingQueueRecord::findOne(['storeId' => $this->_storeId]);
         self::assertNotNull($row);
 
-        Plugin::getInstance()->getCatalogPricing()->deleteCatalogPricingQueueById($row->id);
+        Plugin::getInstance()->getCatalogPricing()->deleteCatalogPricingQueueRowById($row->id);
 
         $deleted = CatalogPricingQueueRecord::findOne($row->id);
         self::assertNull($deleted);

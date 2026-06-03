@@ -585,7 +585,7 @@ class CatalogPricing extends Component
      * @throws Exception
      * @since 5.7.0
      */
-    public function releaseCatalogPricingQueueById(int $id): void
+    public function releaseCatalogPricingQueueRowById(int $id): void
     {
         $record = CatalogPricingQueueRecord::findOne($id);
         if ($record) {
@@ -599,7 +599,7 @@ class CatalogPricing extends Component
      * @return void
      * @since 5.7.0
      */
-    public function deleteCatalogPricingQueueById(int $id): void
+    public function deleteCatalogPricingQueueRowById(int $id): void
     {
         CatalogPricingQueueRecord::deleteAll(['id' => $id]);
     }

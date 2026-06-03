@@ -72,11 +72,11 @@ class CatalogPricing extends BaseJob
             $catalogPricingService->generateCatalogPrices($purchasableIds, $catalogPricingRules, queue: $queue);
 
             if ($reservedRowId) {
-                $catalogPricingService->deleteCatalogPricingQueueById($reservedRowId);
+                $catalogPricingService->deleteCatalogPricingQueueRowById($reservedRowId);
             }
         } catch (\Throwable $e) {
             if ($reservedRowId) {
-                $catalogPricingService->releaseCatalogPricingQueueById($reservedRowId);
+                $catalogPricingService->releaseCatalogPricingQueueRowById($reservedRowId);
             }
 
             throw $e;
