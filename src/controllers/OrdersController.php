@@ -1820,7 +1820,7 @@ JS, []);
         if (!$order->shippingMethodHandle) {
             // If no shipping method or it is being removed nullify the name
             $order->shippingMethodName = null;
-        } elseif (array_key_exists('shippingMethodName', $orderRequestData['order'])) {
+        } elseif (!empty($orderRequestData['order']['shippingMethodName'])) {
             // If the shipping method name is being submitted, use it.
             // This is particularly useful for custom shipping methods as they can't be retrieved from the DB via their handle
             $order->shippingMethodName = $orderRequestData['order']['shippingMethodName'];
