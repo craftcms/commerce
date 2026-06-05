@@ -9,11 +9,19 @@ namespace craftcommercetests\unit\controllers;
 
 use Codeception\Test\Unit;
 use Craft;
+use craft\commerce\base\ShippingMethodInterface;
+use craft\commerce\base\ShippingRuleInterface;
 use craft\commerce\controllers\OrdersController;
+use craft\commerce\elements\Order;
+use craft\commerce\events\RegisterAvailableShippingMethodsEvent;
 use craft\commerce\Plugin;
+use craft\commerce\services\ShippingMethods;
+use craft\helpers\Json;
 use craft\web\Request;
 use craftcommercetests\fixtures\OrdersFixture;
+use Illuminate\Support\Collection;
 use UnitTester;
+use yii\base\Event;
 use yii\web\Response;
 
 /**
@@ -155,5 +163,102 @@ class OrdersControllerTest extends Unit
         foreach ($keys as $key) {
             self::assertArrayHasKey($key, array_shift($response->data['counts']));
         }
+    }
+
+    public function testGetShippingMethodOptionsReturnsOptions(): void
+    {
+        $ordersFixture = $this->tester->grabFixture('orders');
+        $order = $ordersFixture->getElement('completed-new');
+
+        $this->request->getHeaders()->set('Accept', 'application/json');
+        $this->request->getHeaders()->set('X-Http-Method-Override', 'POST');
+        $this->request->setRawBody(Json::encode($this->_buildOrderPayload($order)));
+
+        $response = $this->controller->runAction('get-shipping-method-options');
+
+        self::assertEquals(200, $response->statusCode);
+        self::assertArrayHasKey('shippingMethodOptions', $response->data);
+        self::assertNotEmpty($response->data['shippingMethodOptions']);
+
+        $option = reset($response->data['shippingMethodOptions']);
+        self::assertArrayHasKey('handle', $option);
+        self::assertArrayHasKey('name', $option);
+        self::assertArrayHasKey('matchesOrder', $option);
+    }
+
+    public function testGetShippingMethodOptionsInvalidOrderId(): void
+    {
+        $this->request->getHeaders()->set('Accept', 'application/json');
+        $this->request->getHeaders()->set('X-Http-Method-Override', 'POST');
+        $this->request->setRawBody(Json::encode(['order' => ['id' => PHP_INT_MAX]]));
+
+        $response = $this->controller->runAction('get-shipping-method-options');
+
+        self::assertEquals(400, $response->statusCode);
+    }
+
+    public function testGetShippingMethodOptionsIncludesCustomRuntimeMethod(): void
+    {
+        $ordersFixture = $this->tester->grabFixture('orders');
+        $order = $ordersFixture->getElement('completed-new');
+
+        $customMethod = new class implements ShippingMethodInterface {
+            public function getType(): string { return 'Custom'; }
+            public function getId(): ?int { return null; }
+            public function getName(): string { return 'My Custom Carrier'; }
+            public function getHandle(): string { return 'myCustomCarrier'; }
+            public function getCpEditUrl(): string { return ''; }
+            public function getShippingRules(): Collection { return collect(); }
+            public function getIsEnabled(): bool { return true; }
+            public function getPriceForOrder(Order $order): float { return 0.0; }
+            public function getMatchingShippingRule(Order $order): ?ShippingRuleInterface { return null; }
+            public function matchOrder(Order $order): bool { return true; }
+        };
+
+        Event::on(
+            ShippingMethods::class,
+            ShippingMethods::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS,
+            $listener = function(RegisterAvailableShippingMethodsEvent $e) use ($customMethod) {
+                $e->setShippingMethods($e->getShippingMethods()->push($customMethod));
+            }
+        );
+
+        $this->request->getHeaders()->set('Accept', 'application/json');
+        $this->request->getHeaders()->set('X-Http-Method-Override', 'POST');
+        $this->request->setRawBody(Json::encode($this->_buildOrderPayload($order)));
+
+        $response = $this->controller->runAction('get-shipping-method-options');
+
+        Event::off(ShippingMethods::class, ShippingMethods::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS, $listener);
+
+        self::assertEquals(200, $response->statusCode);
+
+        $options = $response->data['shippingMethodOptions'];
+        self::assertArrayHasKey('myCustomCarrier', $options);
+        self::assertEquals('My Custom Carrier', $options['myCustomCarrier']['name']);
+        self::assertEquals('myCustomCarrier', $options['myCustomCarrier']['handle']);
+    }
+
+    private function _buildOrderPayload(Order $order, array $overrides = []): array
+    {
+        return [
+            'order' => array_merge([
+                'id' => $order->id,
+                'recalculationMode' => Order::RECALCULATION_MODE_ALL,
+                'reference' => $order->reference,
+                'customerId' => $order->getCustomerId(),
+                'couponCode' => $order->couponCode,
+                'isCompleted' => $order->isCompleted,
+                'orderStatusId' => $order->orderStatusId,
+                'orderSiteId' => $order->orderSiteId,
+                'message' => $order->message,
+                'shippingMethodHandle' => $order->shippingMethodHandle,
+                'shippingMethodName' => $order->shippingMethodName,
+                'notices' => [],
+                'dateOrdered' => null,
+                'lineItems' => [],
+                'orderAdjustments' => [],
+            ], $overrides),
+        ];
     }
 }
