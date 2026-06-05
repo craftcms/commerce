@@ -7,6 +7,7 @@
                 label="name"
                 :options="shippingMethods"
                 :filterable="true"
+                :clearable="false"
                 v-model="selectedShippingMethod"
                 :placeholder="shippingMethodHandle"
                 @input="onChange"
@@ -141,8 +142,9 @@
                                     s.handle === this.order.shippingMethodHandle
                             ) || null;
                     })
-                    .catch(() => {
+                    .catch((error) => {
                         this.loading = false;
+                        this.$store.dispatch('displayError', error);
                     });
             },
 
