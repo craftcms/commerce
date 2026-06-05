@@ -1,43 +1,65 @@
 <template>
     <div id="order-edit-shipping-method-wrapper">
-        <select-input
-            label="name"
-            :options="shippingMethods"
-            :filterable="true"
-            v-model="selectedShippingMethod"
-            :placeholder="shippingMethodHandle"
-            @input="onChange"
-        >
-            <template v-slot:option="slotProps">
-                <div class="shipping-method-select-option">
-                    <span
-                        class="status"
-                        :class="{
-                            enabled: slotProps.option.matchesOrder,
-                            disabled: !slotProps.option.matchesOrder,
-                        }"
-                    ></span
-                    >{{ slotProps.option.name }}
+        <div v-if="loading" class="spinner"></div>
+
+        <template v-else-if="showSelect">
+            <select-input
+                label="name"
+                :options="shippingMethods"
+                :filterable="true"
+                v-model="selectedShippingMethod"
+                :placeholder="shippingMethodHandle"
+                @input="onChange"
+            >
+                <template v-slot:option="slotProps">
+                    <div class="shipping-method-select-option">
+                        <span
+                            class="status"
+                            :class="{
+                                enabled: slotProps.option.matchesOrder,
+                                disabled: !slotProps.option.matchesOrder,
+                            }"
+                        ></span
+                        >{{ slotProps.option.name }}
+                    </div>
+                </template>
+                <template v-slot:selected-option="slotProps">
+                    <div>
+                        <span
+                            class="status"
+                            :class="{
+                                enabled: slotProps.selectedOption.matchesOrder,
+                                disabled:
+                                    !slotProps.selectedOption.matchesOrder,
+                            }"
+                        ></span
+                        >{{ slotProps.selectedOption.name }}
+                    </div>
+                </template>
+            </select-input>
+        </template>
+
+        <template v-else>
+            <div class="flex flex-nowrap align-center">
+                <div class="flex-grow">
+                    <span>{{ currentMethodName }}</span
+                    ><br />
+                    <span class="small code shipping-method-handle">{{
+                        orderShippingMethodHandle
+                    }}</span>
                 </div>
-            </template>
-            <template v-slot:selected-option="slotProps">
-                <div>
-                    <span
-                        class="status"
-                        :class="{
-                            enabled: slotProps.selectedOption.matchesOrder,
-                            disabled: !slotProps.selectedOption.matchesOrder,
-                        }"
-                    ></span
-                    >{{ slotProps.selectedOption.name }}
-                </div>
-            </template>
-        </select-input>
+                <button class="btn small icon" data-icon="edit" @click="onEdit">
+                    {{ 'Edit' | t('commerce') }}
+                </button>
+            </div>
+        </template>
     </div>
 </template>
 
 <script>
     import SelectInput from '../../../base/components/SelectInput';
+    import ordersApi from '../../api/orders';
+    import utils from '../../helpers/utils';
 
     export default {
         components: {
@@ -52,6 +74,8 @@
 
         data() {
             return {
+                loading: false,
+                showSelect: false,
                 selectedShippingMethod: null,
             };
         },
@@ -64,33 +88,16 @@
                 ];
             },
 
-            shippingMethod() {
-                if (this.shippingMethodHandle !== 0) {
-                    for (let shippingMethodsKey in this.shippingMethods) {
-                        const shippingMethod =
-                            this.shippingMethods[shippingMethodsKey];
-
-                        if (
-                            shippingMethod.handle === this.shippingMethodHandle
-                        ) {
-                            return shippingMethod;
-                        }
-                    }
-                }
-
-                return this.noneShippingMethod;
+            shippingMethodHandle() {
+                return this.order.shippingMethodHandle;
             },
 
-            shippingMethodHandle: {
-                get() {
-                    return this.order.shippingMethodHandle;
-                },
-
-                set(value) {
-                    const order = JSON.parse(JSON.stringify(this.order));
-                    order.shippingMethodHandle = value;
-                    this.$emit('updateOrder', order);
-                },
+            currentMethodName() {
+                return (
+                    this.order.shippingMethodName ||
+                    this.order.shippingMethodHandle ||
+                    this.$options.filters.t('None', 'commerce')
+                );
             },
 
             noneShippingMethod() {
@@ -102,43 +109,62 @@
             },
 
             orderShippingMethodHandle() {
-                return this.order.shippingMethodHandle;
+                return this.order.shippingMethodHandle || '';
             },
         },
 
         watch: {
-            orderShippingMethodHandle(val) {
-                if (!val) {
-                    this.selectedShippingMethod = null;
-                }
-
-                if (
-                    this.selectedShippingMethod &&
-                    val != this.selectedShippingMethod.handle
-                ) {
-                    this.selectedShippingMethod = this.shippingMethods.find(
-                        (s) => s.handle === val
-                    );
-                }
+            orderShippingMethodHandle() {
+                this.showSelect = false;
+                this.$store.commit('updateShippingMethodOptions', null);
+                this.selectedShippingMethod = null;
             },
         },
 
         methods: {
+            onEdit() {
+                this.loading = true;
+                const data = utils.buildDraftData(this.$store.state.draft);
+
+                ordersApi
+                    .getShippingMethodOptions(data)
+                    .then((response) => {
+                        this.loading = false;
+                        this.$store.commit(
+                            'updateShippingMethodOptions',
+                            response.data.shippingMethodOptions
+                        );
+                        this.showSelect = true;
+                        this.selectedShippingMethod =
+                            this.shippingMethods.find(
+                                (s) =>
+                                    s.handle === this.order.shippingMethodHandle
+                            ) || null;
+                    })
+                    .catch(() => {
+                        this.loading = false;
+                    });
+            },
+
+            setShippingMethod(handle, name) {
+                const order = JSON.parse(JSON.stringify(this.order));
+                order.shippingMethodHandle = handle;
+                order.shippingMethodName = name;
+                this.$emit('updateOrder', order);
+            },
+
             onChange() {
                 if (this.selectedShippingMethod.handle === 'none') {
-                    this.shippingMethodHandle = null;
+                    this.setShippingMethod(null, null);
                 } else {
-                    this.shippingMethodHandle =
-                        this.selectedShippingMethod.handle;
+                    this.setShippingMethod(
+                        this.selectedShippingMethod.handle,
+                        this.selectedShippingMethod.name
+                    );
                 }
+                this.showSelect = false;
+                this.$store.commit('updateShippingMethodOptions', null);
             },
-        },
-
-        mounted() {
-            const shippingMethod = this.shippingMethods.find(
-                (s) => s.handle === this.order.shippingMethodHandle
-            );
-            this.selectedShippingMethod = shippingMethod;
         },
     };
 </script>

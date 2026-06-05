@@ -28,6 +28,7 @@
 - Added `craft\commerce\controllers\CartController::actionEmailChallenge()`.
 - Added `craft\commerce\controllers\CartController::actionPeekCart()`.
 - Added `craft\commerce\controllers\OrdersController::actionGetLoadCartUrl()`.
+- Added `craft\commerce\controllers\OrdersController::actionGetShippingMethodOptions()`.
 - Added `craft\commerce\controllers\OrdersController::actionReassign()`.
 - Added `craft\commerce\controllers\OrdersController::actionReassignModal()`.
 - Added `craft\commerce\controllers\OrdersController::actionRemoveCustomerData()`.
