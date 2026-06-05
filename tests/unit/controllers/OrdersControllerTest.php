@@ -190,7 +190,7 @@ class OrdersControllerTest extends Unit
     {
         $this->request->getHeaders()->set('Accept', 'application/json');
         $this->request->getHeaders()->set('X-Http-Method-Override', 'POST');
-        $this->request->setRawBody(Json::encode(['order' => ['id' => PHP_INT_MAX]]));
+        $this->request->setRawBody(Json::encode(['order' => ['id' => 1]]));
 
         $response = $this->controller->runAction('get-shipping-method-options');
 
