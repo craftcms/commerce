@@ -202,17 +202,47 @@ class OrdersControllerTest extends Unit
         $ordersFixture = $this->tester->grabFixture('orders');
         $order = $ordersFixture->getElement('completed-new');
 
-        $customMethod = new class implements ShippingMethodInterface {
-            public function getType(): string { return 'Custom'; }
-            public function getId(): ?int { return null; }
-            public function getName(): string { return 'My Custom Carrier'; }
-            public function getHandle(): string { return 'myCustomCarrier'; }
-            public function getCpEditUrl(): string { return ''; }
-            public function getShippingRules(): Collection { return collect(); }
-            public function getIsEnabled(): bool { return true; }
-            public function getPriceForOrder(Order $order): float { return 0.0; }
-            public function getMatchingShippingRule(Order $order): ?ShippingRuleInterface { return null; }
-            public function matchOrder(Order $order): bool { return true; }
+        $customMethod = new class() implements ShippingMethodInterface {
+            public function getType(): string
+            {
+                return 'Custom';
+            }
+            public function getId(): ?int
+            {
+                return null;
+            }
+            public function getName(): string
+            {
+                return 'My Custom Carrier';
+            }
+            public function getHandle(): string
+            {
+                return 'myCustomCarrier';
+            }
+            public function getCpEditUrl(): string
+            {
+                return '';
+            }
+            public function getShippingRules(): Collection
+            {
+                return collect();
+            }
+            public function getIsEnabled(): bool
+            {
+                return true;
+            }
+            public function getPriceForOrder(Order $order): float
+            {
+                return 0.0;
+            }
+            public function getMatchingShippingRule(Order $order): ?ShippingRuleInterface
+            {
+                return null;
+            }
+            public function matchOrder(Order $order): bool
+            {
+                return true;
+            }
         };
 
         Event::on(
