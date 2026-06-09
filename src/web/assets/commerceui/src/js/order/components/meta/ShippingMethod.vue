@@ -140,7 +140,7 @@
                             this.shippingMethods.find(
                                 (s) =>
                                     s.handle === this.order.shippingMethodHandle
-                            ) || null;
+                            ) || this.noneShippingMethod;
                     })
                     .catch((error) => {
                         this.loading = false;

@@ -257,9 +257,11 @@ class OrdersControllerTest extends Unit
         $this->request->getHeaders()->set('X-Http-Method-Override', 'POST');
         $this->request->setRawBody(Json::encode($this->_buildOrderPayload($order)));
 
-        $response = $this->controller->runAction('get-shipping-method-options');
-
-        Event::off(ShippingMethods::class, ShippingMethods::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS, $listener);
+        try {
+            $response = $this->controller->runAction('get-shipping-method-options');
+        } finally {
+            Event::off(ShippingMethods::class, ShippingMethods::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS, $listener);
+        }
 
         self::assertEquals(200, $response->statusCode);
 
