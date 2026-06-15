@@ -2,6 +2,7 @@
 
 ### Store Management
 
+- Order notices now support an admin-only type. Admin notices are displayed in a separate red box above customer notices in the CP order edit page, with individual **Clear** buttons (visible in edit mode only). Orders can be filtered by admin notice presence via a new **Has Admin Notices** condition rule on the order index.
 - Added a "Contains Purchasables" order condition rule, which supports "any", "all", and "only" match modes. ([#4242](https://github.com/craftcms/commerce/issues/4242))
 - When deleting a user with orders or subscriptions, store admins are now presented with actionable options to resolve the blocker (reassign orders, remove customer data, or delete subscriptions), rather than a generic error.
 - Anonymous users attempting to load a cart with an expired or missing token are now shown a cart recovery form, which sends a new recovery link to the cart's email address.
@@ -21,6 +22,17 @@
 - Improved the performance of shipping method and rule matching.
 
 ### Extensibility
+
+- Added `craft\commerce\elements\Order::getAdminNotices()`.
+- Added `craft\commerce\elements\Order::hasAdminNotices()`.
+- Added `craft\commerce\elements\conditions\orders\HasAdminNoticesConditionRule`.
+- Added `craft\commerce\elements\db\OrderQuery::$hasAdminNotices`.
+- Added `craft\commerce\elements\db\OrderQuery::hasAdminNotices()`.
+- Added `craft\commerce\models\OrderNotice::NOTICE_TYPE_ADMIN`.
+- Added `craft\commerce\models\OrderNotice::NOTICE_TYPE_CUSTOMER`.
+- Added `craft\commerce\models\OrderNotice::$noticeType`.
+- `craft\commerce\elements\Order::clearNotices()` now has a `$clearAdminNotices` argument (default `false`), which must be passed as `true` to also clear admin notices.
+- `craft\commerce\elements\Order::getNotices()` no longer returns admin notices. Use `getAdminNotices()` instead.
 
 - Added `craft\commerce\base\ShippingMethod::clearMatchingShippingRuleCache()`.
 - Added `craft\commerce\controllers\CartController::actionCartChallenge()`.
