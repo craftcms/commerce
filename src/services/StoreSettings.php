@@ -129,7 +129,7 @@ class StoreSettings extends Component
             return;
         }
 
-        // @TODO check store permissions using return from `$storeSettingsRecord`
+        // @TODO Authorize the current user against the store from $storeSettingsRecord (e.g. "commerce-manageStore:<storeUid>" permission) rather than always granting view access
         $event->authorized = true;
     }
 
@@ -143,7 +143,7 @@ class StoreSettings extends Component
             return;
         }
 
-        // @TODO check store permissions using return from `$storeSettingsRecord`
+        // @TODO Authorize the current user against the store from $storeSettingsRecord (e.g. "commerce-manageStore:<storeUid>" permission) rather than always granting edit access
         $event->authorized = true;
     }
 

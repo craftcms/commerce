@@ -43,7 +43,7 @@ use yii\base\InvalidConfigException;
  * @property string $orderEditUrl
  * @property string $planName
  * @property SubscriptionPayment[] $allPayments
- * @property User $subscriber
+ * @property User|null $subscriber
  * @property string $eagerLoadedElements
  * @property DateTime $trialExpires datetime of trial expiry
  * @property array $subscriptionData
@@ -267,10 +267,11 @@ class Subscription extends Element
     /**
      * Returns the User that is subscribed.
      */
-    public function getSubscriber(): User
+    public function getSubscriber(): ?User
     {
         if (!isset($this->_user) && $this->userId) {
-            $this->_user = Craft::$app->getUsers()->getUserById($this->userId);
+            // Include trashed users so soft-deleted subscribers still resolve.
+            $this->_user = Craft::$app->getElements()->getElementById($this->userId, User::class, criteria: ['trashed' => null]);
         }
 
         return $this->_user;
@@ -696,6 +697,9 @@ class Subscription extends Element
 
             case 'subscriber':
                 $subscriber = $this->getSubscriber();
+                if (!$subscriber) {
+                    return '';
+                }
                 $url = $subscriber->getCpEditUrl();
 
                 return '<a href="' . $url . '">' . Html::encode($subscriber) . '</a>';

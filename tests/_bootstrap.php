@@ -25,5 +25,5 @@ $devMode = true;
 
 TestSetup::configureCraft();
 
-// @TODO Remove this once it is in the next Craft 4.x release
+// @TODO Remove this once deprecation suppression lands in a Craft core release
 error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);

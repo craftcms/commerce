@@ -20,7 +20,7 @@ interface PlanInterface
 {
     /**
      * Returns whether it's possible to switch to this plan from a different plan.
-     * TODO: Fix typo in next major release currentPlant -> currentPlan
+     * @todo rename the `$currentPlant` parameter to `$currentPlan` in Commerce 6.0
      */
     public function canSwitchFrom(PlanInterface $currentPlant): bool;
 }

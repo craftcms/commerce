@@ -179,7 +179,7 @@
             },
 
             onOptionClick() {
-                // Todo: Get rid of workaround once this issue is fixed
+                // @TODO Remove this re-open-on-click workaround once sagalbot/vue-select#882 is fixed (option-click currently closes the dropdown unexpectedly)
                 // https://github.com/sagalbot/vue-select/issues/882
                 if (!this.$refs.vSelect.open) {
                     this.$refs.vSelect.open = true;

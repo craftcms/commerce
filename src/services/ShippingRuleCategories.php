@@ -25,6 +25,38 @@ use yii\db\StaleObjectException;
 class ShippingRuleCategories extends Component
 {
     /**
+     * @var array|null
+     */
+    private ?array $_shippingRuleCategories = null;
+
+    /**
+     * Returns shipping rule category data without instantiating the classes for performances purposes
+     *
+     * @return array
+     */
+    public function getAllShippingRuleCategoriesData(): array
+    {
+        if ($this->_shippingRuleCategories === null) {
+            $data = $this->_createShippingRuleCategoriesQuery()->all();
+
+            if (!empty($data)) {
+                $ruleCategories = [];
+                foreach ($data as $row) {
+                    if (!isset($ruleCategories[$row['shippingRuleId']])) {
+                        $ruleCategories[$row['shippingRuleId']] = [];
+                    }
+
+                    $ruleCategories[$row['shippingRuleId']][$row['shippingCategoryId']] = $row;
+                }
+
+                $this->_shippingRuleCategories = $ruleCategories;
+            }
+        }
+
+        return $this->_shippingRuleCategories ?? [];
+    }
+
+    /**
      * Returns an array of shipping rules categories per the rule's ID.
      *
      * @param int $ruleId the rule's ID
@@ -34,14 +66,21 @@ class ShippingRuleCategories extends Component
     {
         $rules = [];
 
-        $rows = $this->_createShippingRuleCategoriesQuery()
-            ->where(['shippingRuleId' => $ruleId])
-            ->all();
+        $shippingRuleCategories = $this->getAllShippingRuleCategoriesData();
+        if (!isset($shippingRuleCategories[$ruleId])) {
+            return [];
+        }
 
-        foreach ($rows as $row) {
+        foreach ($shippingRuleCategories[$ruleId] as $row) {
+            if ($row instanceof ShippingRuleCategory) {
+                continue;
+            }
+
             $id = $row['shippingCategoryId'];
             $rules[$id] = new ShippingRuleCategory($row);
         }
+
+        $this->_shippingRuleCategories[$ruleId] = $rules;
 
         return $rules;
     }
@@ -110,6 +149,8 @@ class ShippingRuleCategories extends Component
         // Now that we have a record ID, save it on the model
         $model->id = $record->id;
 
+        $this->_shippingRuleCategories = null;
+
         return true;
     }
 
@@ -127,6 +168,9 @@ class ShippingRuleCategories extends Component
         $record = ShippingRuleCategoryRecord::findOne($id);
 
         if ($record) {
+            // Clear cache if required
+            $this->_shippingRuleCategories = null;
+
             return (bool)$record->delete();
         }
 

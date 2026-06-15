@@ -125,7 +125,7 @@ class PaymentsController extends BaseFrontEndController
                 return null;
             }
 
-            // TODO Fix this in Commerce 4. `order` if completed, `cartVariableName` if no completed. #COM-36
+            // @TODO Fix the response variable name in Commerce 6.0: use `order` when completed and `cartVariableName` when not completed #COM-36
             $this->_cartVariableName = 'order'; // can not override the name of the order cart in json responses for orders
         } else {
             $order = $plugin->getCarts()->getCart();
@@ -496,7 +496,7 @@ class PaymentsController extends BaseFrontEndController
                 'paymentForm',
                 [
                     $this->_cartVariableName => $this->cartArray($order),
-                    // TODO: Remove this in Commerce 6.0
+                    // @TODO Remove the legacy `paymentFormErrors` key in Commerce 6.0
                     'paymentFormErrors' => $originalPaymentFormErrors,
                 ],
                 [

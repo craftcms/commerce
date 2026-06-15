@@ -339,9 +339,9 @@ class CustomersTest extends Unit
 
         self::assertTrue($order->markAsComplete());
 
-        // @TODO change this to `$customer->getAddresses()` when `getAddresses()` memoization is fixed
+        // @TODO Switch to `$customer->getAddresses()` once its memoization is fixed in Craft core
         $addressQuery = Address::find()->ownerId($customer->id);
-        // @TODO update this to use `primaryOwnerId` when `primaryOwnerId` query param is fixed
+        // @TODO Switch to the `primaryOwnerId` query param once it is fixed in Craft core
         // $addressQuery = Address::find()->primaryOwnerId($customer->id);
 
         if (!empty($originalAddressIds)) {

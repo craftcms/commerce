@@ -102,7 +102,7 @@
             // Force edit
             if (this.forceEdit && this.canEdit) {
                 // Set timeout to wait for Prism editor to be initialized
-                // Todo: Investigate why this.$nextTick(() => {}) is not enough to wait for Prism Editor to be initialized #COM-55
+                // @TODO Investigate why this.$nextTick(() => {}) is not enough to wait for the Prism editor to be initialized; replace this fixed 50ms setTimeout with a deterministic wait #COM-55
                 setTimeout(
                     function () {
                         this.edit();

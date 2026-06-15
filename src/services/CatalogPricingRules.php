@@ -129,7 +129,7 @@ class CatalogPricingRules extends Component
     public function getAllCatalogPricingRulesByPurchasableId(int $purchasableId, ?int $storeId = null): Collection
     {
         $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
-        // @TODO figure out if memoization is needed here
+        // @TODO Benchmark this lookup under load and add per-purchasable memoization if it becomes a hot path
         $catalogPricingRules = $this->_createCatalogPricingRuleQuery()
             ->andWhere(['id' => (new Query())
                 ->select(['catalogPricingRuleId'])

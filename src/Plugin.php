@@ -267,7 +267,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.6.1.2';
+    public string $schemaVersion = '5.7.0.0';
 
     /**
      * @inheritdoc
@@ -394,8 +394,8 @@ class Plugin extends BasePlugin
             ];
         }
 
-        $hasEditableProductTypes = Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds(true);
-        if ($hasEditableProductTypes) {
+        $hasViewableProductTypes = Plugin::getInstance()->getProductTypes()->getViewableProductTypeIds(true);
+        if ($hasViewableProductTypes) {
             $ret['subnav']['products'] = [
                 'label' => Craft::t('commerce', 'Products'),
                 'url' => 'commerce/products',
@@ -641,14 +641,21 @@ class Plugin extends BasePlugin
         foreach ($productTypes as $productType) {
             $suffix = ':' . $productType->uid;
 
-            $productTypePermissions['commerce-editProductType' . $suffix] = [
-                'label' => Craft::t('commerce', 'Edit “{type}” products', ['type' => $productType->name]),
+            $productTypePermissions['commerce-viewProductType' . $suffix] = [
+                'label' => Craft::t('commerce', 'View “{type}” products', ['type' => $productType->name]),
+                'info' => Craft::t('commerce', 'Allows viewing existing products and creating drafts for them.'),
                 'nested' => [
-                    "commerce-createProducts$suffix" => [
+                    'commerce-createProductType' . $suffix => [
                         'label' => Craft::t('commerce', 'Create products'),
+                        'info' => Craft::t('commerce', 'Allows creating drafts of new products.'),
                     ],
-                    "commerce-deleteProducts$suffix" => [
+                    'commerce-saveProductType' . $suffix => [
+                        'label' => Craft::t('commerce', 'Save products'),
+                        'info' => Craft::t('commerce', 'Allows fully saving canonical products (directly or by applying drafts).'),
+                    ],
+                    'commerce-deleteProductType' . $suffix => [
                         'label' => Craft::t('commerce', 'Delete products'),
+                        'info' => Craft::t('commerce', 'Allows deleting products for all sites.'),
                     ],
                 ],
             ];
@@ -779,9 +786,8 @@ class Plugin extends BasePlugin
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getStores(), 'afterSaveCraftSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_DELETE_SITE, [$this->getStores(), 'afterDeleteCraftSiteHandler']);
 
-        Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);
-        Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getOrders(), 'beforeDeleteUserHandler']);
-
+        Event::on(UserElement::class, UserElement::EVENT_DEFINE_DELETION_BLOCKERS, [$this->getOrders(), 'beforeDeleteUserHandler']);
+        Event::on(UserElement::class, UserElement::EVENT_DEFINE_DELETION_BLOCKERS, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);
         Event::on(Address::class, Address::EVENT_AFTER_SAVE, [$this->getOrders(), 'afterSaveAddressHandler']);
 
         Event::on(
@@ -870,6 +876,12 @@ class Plugin extends BasePlugin
                         'heading' => Craft::t('commerce', 'Order PDF Download Link'),
                         'subject' => Craft::t('commerce', 'Your Order PDF Download Link'),
                         'body' => $this->_getDefaultPdfDownloadMessage(),
+                    ],
+                    [
+                        'key' => 'commerce_cart_recovery',
+                        'heading' => Craft::t('commerce', 'Cart Recovery Link'),
+                        'subject' => Craft::t('commerce', 'Your Cart Recovery Link'),
+                        'body' => $this->_getDefaultCartRecoveryMessage(),
                     ],
                 ]);
             }
@@ -1312,7 +1324,7 @@ class Plugin extends BasePlugin
                 'action' => function(): int {
                     /** @var ResaveController $controller */
                     $controller = Craft::$app->controller;
-                    // @TODO Remove this check when Commerce requires Craft 5.5
+                    // @TODO Remove this version_compare and property_exists guard once Commerce composer.json requires Craft 5.5+ (where ResaveController::$withFields is always available)
                     if (version_compare(Craft::$app->getInfo()->version, '5.5.0', '>=') && !empty($controller->withFields)) {
                         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Order::class);
                         if (!$controller->hasTheFields($fieldLayout)) {
@@ -1333,7 +1345,7 @@ class Plugin extends BasePlugin
                 'action' => function(): int {
                     /** @var ResaveController $controller */
                     $controller = Craft::$app->controller;
-                    // @TODO Remove this check when Commerce requires Craft 5.5
+                    // @TODO Remove this version_compare and property_exists guard once Commerce composer.json requires Craft 5.5+ (where ResaveController::$withFields is always available)
                     if (version_compare(Craft::$app->getInfo()->version, '5.5.0', '>=') && !empty($controller->withFields)) {
                         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Order::class);
                         if (!$controller->hasTheFields($fieldLayout)) {
@@ -1362,6 +1374,20 @@ class Plugin extends BasePlugin
         return "Hello,\n\n" .
             "You requested a PDF download for your order. Click the link below to download your PDF:\n\n" .
             "[Download PDF]({{ link }})\n\n" .
+            "**Please note:** This link will expire for security purposes.\n\n" .
+            "Thank you!";
+    }
+
+    /**
+     * Returns the default message body for the cart recovery email.
+     *
+     * @return string
+     */
+    private function _getDefaultCartRecoveryMessage(): string
+    {
+        return "Hello,\n\n" .
+            "You requested a link to recover your shopping cart. Click the link below to continue shopping:\n\n" .
+            "[Recover My Cart]({{ link }})\n\n" .
             "**Please note:** This link will expire for security purposes.\n\n" .
             "Thank you!";
     }

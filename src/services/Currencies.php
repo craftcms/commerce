@@ -94,7 +94,7 @@ class Currencies extends Component
     public function getAllCurrenciesList(): array
     {
         return $this->getAllCurrencies()->map(fn($currency) => [
-            'label' => $currency->getCode(), // TODO get name somehow
+            'label' => $currency->getCode(), // @TODO Resolve a localized currency name (e.g. via Intl/Locale) and use it as the label instead of the ISO code
             'value' => $currency->getCode(),
         ])->toArray();
     }
