@@ -484,6 +484,39 @@ JS, []);
     }
 
     /**
+     * Returns the available shipping method options for the order in its current draft state.
+     *
+     * @throws Exception
+     * @since 5.7.0
+     */
+    public function actionGetShippingMethodOptions(): Response
+    {
+        $this->requireAcceptsJson();
+        $this->requirePostRequest();
+
+        $data = $this->request->getRawBody();
+        $orderRequestData = Json::decodeIfJson($data);
+
+        $order = Plugin::getInstance()->getOrders()->getOrderById($orderRequestData['order']['id']);
+
+        if (!$order) {
+            return $this->asFailure(Craft::t('commerce', 'Invalid Order ID'));
+        }
+
+        $this->enforceManageOrderPermissions($order);
+
+        $this->_updateOrder($order, $orderRequestData);
+
+        if ($order->validate(null, false) && $order->getRecalculationMode() == Order::RECALCULATION_MODE_ALL) {
+            $order->recalculate();
+        }
+
+        return $this->asSuccess(data: [
+            'shippingMethodOptions' => $order->toArray([], ['availableShippingMethodOptions'])['availableShippingMethodOptions'],
+        ]);
+    }
+
+    /**
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      */
@@ -613,7 +646,6 @@ JS, []);
 
         $extraFields = [
             'lineItems.snapshot',
-            'availableShippingMethodOptions',
             'billingAddress',
             'shippingAddress',
             'orderSite',
@@ -1786,9 +1818,19 @@ JS, []);
             }
         }
 
-        $shippingMethod = $order->shippingMethodHandle ? Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle($order->shippingMethodHandle) : null;
-        if ($shippingMethod) {
-            $order->shippingMethodName = $shippingMethod->name ?? null;
+        if (!$order->shippingMethodHandle) {
+            // If no shipping method or it is being removed nullify the name
+            $order->shippingMethodName = null;
+        } elseif (!empty($orderRequestData['order']['shippingMethodName'])) {
+            // If the shipping method name is being submitted, use it.
+            // This is particularly useful for custom shipping methods as they can't be retrieved from the DB via their handle
+            $order->shippingMethodName = $orderRequestData['order']['shippingMethodName'];
+        } else {
+            // Fallback to attempting to retrieve the shipping method
+            $shippingMethod = Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle($order->shippingMethodHandle);
+            if ($shippingMethod) {
+                $order->shippingMethodName = $shippingMethod->name ?? null;
+            }
         }
 
         // CP save has full control over all notices including admin ones

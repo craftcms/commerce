@@ -21,6 +21,7 @@ export default new Vuex.Store({
     orderData: null,
     recentlyAddedLineItems: [],
     unloadEventInit: false,
+    shippingMethodOptions: null,
   },
 
   getters: {
@@ -178,17 +179,11 @@ export default new Vuex.Store({
     },
 
     shippingMethods(state) {
-      const shippingMethodsObject = JSON.parse(
-        JSON.stringify(state.draft.order.availableShippingMethodOptions)
-      );
-      const shippingMethods = [];
-
-      for (let key in shippingMethodsObject) {
-        const shippingMethod = shippingMethodsObject[key];
-        shippingMethods.push(shippingMethod);
+      if (!state.shippingMethodOptions) {
+        return [];
       }
 
-      return shippingMethods;
+      return Object.values(state.shippingMethodOptions);
     },
 
     orderStatuses() {
@@ -599,6 +594,10 @@ export default new Vuex.Store({
 
     updateRecentlyAddedLineItems(state, lineItemIdentifier) {
       state.recentlyAddedLineItems.push(lineItemIdentifier);
+    },
+
+    updateShippingMethodOptions(state, shippingMethodOptions) {
+      state.shippingMethodOptions = shippingMethodOptions;
     },
   },
 });

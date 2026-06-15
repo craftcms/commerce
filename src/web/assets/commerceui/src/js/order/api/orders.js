@@ -19,6 +19,14 @@ export default {
     return Craft.sendActionRequest('POST', 'commerce/orders/refresh', {data});
   },
 
+  getShippingMethodOptions(data) {
+    return Craft.sendActionRequest(
+      'POST',
+      'commerce/orders/get-shipping-method-options',
+      {data}
+    );
+  },
+
   customerSearch(options) {
     const data = {};
     const opts = Object.assign({query: null, cancelToken: null}, options);
