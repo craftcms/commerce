@@ -13,7 +13,7 @@
                         class="order-flex order-notices-item order-admin-notice-item"
                     >
                         <div>{{ notice.message }}</div>
-                        <div>
+                        <div v-if="editing">
                             <button
                                 @click.prevent="dismissAdminNotice(notice)"
                                 class="btn small"
@@ -34,7 +34,7 @@
                 <div>
                     {{ 'Customer Notices' | t('commerce') }}
                 </div>
-                <div>
+                <div v-if="editing">
                     <button @click.prevent="clearNotices" class="btn small">
                         {{ 'Clear notices' | t('commerce') }}
                     </button>
@@ -57,6 +57,10 @@
         name: 'order-notices-app',
 
         computed: {
+            editing() {
+                return this.$store.state.editing;
+            },
+
             draft: {
                 get() {
                     return JSON.parse(JSON.stringify(this.$store.state.draft));
