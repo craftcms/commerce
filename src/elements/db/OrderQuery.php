@@ -221,6 +221,11 @@ class OrderQuery extends ElementQuery
     public ?bool $hasLineItems = null;
 
     /**
+     * @var bool|null Whether the order has any admin notices.
+     */
+    public ?bool $hasAdminNotices = null;
+
+    /**
      * @var bool Eager loads all relational data (addresses, adjustments, users, line items, transactions) for the resulting orders.
      */
     public bool $withAll = false;
@@ -1357,6 +1362,12 @@ class OrderQuery extends ElementQuery
         return $this;
     }
 
+    public function hasAdminNotices(?bool $value = true): static
+    {
+        $this->hasAdminNotices = $value;
+        return $this;
+    }
+
     /**
      * Narrows the query results to only carts that have at least one transaction.
      *
@@ -1849,6 +1860,17 @@ class OrderQuery extends ElementQuery
                 (new Query())
                     ->from(['lineitems' => Table::LINEITEMS])
                     ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]')),
+            ]);
+        }
+
+        if (isset($this->hasAdminNotices)) {
+            $this->subQuery->andWhere([
+                $this->hasAdminNotices ? 'exists' : 'not exists',
+                (new Query())
+                    ->select([new Expression('1')])
+                    ->from(['adminNotices' => Table::ORDERNOTICES])
+                    ->where(new Expression('[[adminNotices.orderId]] = [[elements.id]]'))
+                    ->andWhere(['adminNotices.noticeType' => 'admin']),
             ]);
         }
 

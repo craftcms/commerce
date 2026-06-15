@@ -22,6 +22,9 @@ use yii\base\InvalidConfigException;
  */
 class OrderNotice extends Model
 {
+    public const NOTICE_TYPE_CUSTOMER = 'customer';
+    public const NOTICE_TYPE_ADMIN = 'admin';
+
     /**
      * @var int|null ID
      */
@@ -48,6 +51,11 @@ class OrderNotice extends Model
     public ?int $orderId = null;
 
     /**
+     * @var string Whether this notice is for customers or admins only.
+     */
+    public string $noticeType = self::NOTICE_TYPE_CUSTOMER;
+
+    /**
      * @var Order|null The order this notice belongs to
      */
     private ?Order $_order = null;
@@ -69,6 +77,7 @@ class OrderNotice extends Model
             [['id'], 'safe'],
             [['type', 'message', 'attribute', 'orderId'], 'required'],
             [['orderId'], 'integer'],
+            [['noticeType'], 'in', 'range' => [self::NOTICE_TYPE_CUSTOMER, self::NOTICE_TYPE_ADMIN]],
         ];
     }
 

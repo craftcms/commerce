@@ -24,6 +24,7 @@ export default {
         orderAdjustments: [],
         orderSiteId: draft.order.orderSiteId,
         notices: draft.order.notices,
+        adminNotices: draft.order.adminNotices,
       },
     };
 

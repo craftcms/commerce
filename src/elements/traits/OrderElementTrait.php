@@ -216,6 +216,13 @@ trait OrderElementTrait
                 $site = Craft::$app->getSites()->getSiteById($this->orderSiteId);
                 return Html::encode($site->name ?? '');
             }
+            case 'hasAdminNotices':
+            {
+                if (!$this->hasAdminNotices()) {
+                    return '';
+                }
+                return Cp::statusLabelHtml(['color' => 'red', 'label' => Craft::t('commerce', 'Yes')]);
+            }
             default:
             {
                 return parent::attributeHtml($attribute);
@@ -500,6 +507,7 @@ trait OrderElementTrait
             'itemTotal' => ['label' => Craft::t('commerce', 'Item Total')],
             'itemSubtotal' => ['label' => Craft::t('commerce', 'Item Subtotal')],
             'orderSite' => ['label' => Craft::t('commerce', 'Order Site')],
+            'hasAdminNotices' => ['label' => Craft::t('commerce', 'Admin Notices')],
         ]);
     }
 

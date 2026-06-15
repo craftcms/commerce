@@ -455,6 +455,7 @@ class Install extends Migration
             'type' => $this->string(),
             'attribute' => $this->string(),
             'message' => $this->text(),
+            'noticeType' => $this->string()->notNull()->defaultValue('customer'),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),

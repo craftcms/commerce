@@ -1542,6 +1542,7 @@ class Order extends Element implements HasStoreInterface
         $names[] = 'histories';
         $names[] = 'loadCartUrl';
         $names[] = 'nestedTransactions';
+        $names[] = 'adminNotices';
         $names[] = 'notices';
         $names[] = 'orderSite';
         $names[] = 'orderStatus';
@@ -3741,7 +3742,7 @@ class Order extends Element implements HasStoreInterface
         $currentNoticeIds = [];
 
         // We are never updating a notice, just adding it or keeping it.
-        foreach ($this->getNotices() as $notice) {
+        foreach (array_merge($this->getNotices(), $this->getAdminNotices()) as $notice) {
             if ($notice->id === null) {
                 $orderNoticeEvent = new OrderNoticeEvent([
                     'orderNotice' => $notice,
@@ -3760,6 +3761,7 @@ class Order extends Element implements HasStoreInterface
                 $noticeRecord->type = $notice->type;
                 $noticeRecord->attribute = $notice->attribute;
                 $noticeRecord->message = $notice->message;
+                $noticeRecord->noticeType = $notice->noticeType;
                 if ($noticeRecord->save(false)) {
                     $notice->id = $noticeRecord->id;
                 }

@@ -33,6 +33,7 @@ class OrderCondition extends ElementCondition
             CompletedConditionRule::class,
             CouponCodeConditionRule::class,
             CustomerConditionRule::class,
+            HasAdminNoticesConditionRule::class,
             PaidConditionRule::class,
             HasPurchasableConditionRule::class,
             ItemSubtotalConditionRule::class,

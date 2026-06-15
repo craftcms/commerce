@@ -24,7 +24,7 @@ trait OrderNoticesTrait
     private array $_notices = [];
 
     /**
-     * Returns the notices for all types/attributes or a single type/attributes.
+     * Returns non-admin notices. Admin notices are excluded by default.
      *
      * @param string|null $type type name. Use null to retrieve notices for all types.
      * @param string|null $attribute attribute name. Use null to retrieve notices for all attributes.
@@ -33,27 +33,22 @@ trait OrderNoticesTrait
      */
     public function getNotices(?string $type = null, ?string $attribute = null): array
     {
-        // We want all
-        if ($type === null && $attribute === null) {
-            return $this->_notices ?? [];
-        }
+        $notices = array_values(array_filter($this->_notices, fn(OrderNotice $n) => $n->noticeType === OrderNotice::NOTICE_TYPE_CUSTOMER));
+        return $this->_filterNotices($notices, $type, $attribute);
+    }
 
-        // Filter by type
-        if ($type !== null && $attribute === null) {
-            return ArrayHelper::where($this->_notices, 'type', $type);
-        }
-
-        // Filter by attribute
-        if ($type === null && $attribute !== null) {
-            return ArrayHelper::where($this->_notices, 'attribute', $attribute);
-        }
-
-        // Filter by both
-        if ($type !== null && $attribute !== null) {
-            return ArrayHelper::where($this->_notices, fn(OrderNotice $notice) => $notice->attribute == $attribute && $notice->type == $type, true, true, true);
-        }
-
-        return [];
+    /**
+     * Returns admin-only notices, optionally filtered by type and/or attribute.
+     *
+     * @param string|null $type
+     * @param string|null $attribute
+     * @return OrderNotice[]
+     * @since 5.x
+     */
+    public function getAdminNotices(?string $type = null, ?string $attribute = null): array
+    {
+        $notices = array_values(array_filter($this->_notices, fn(OrderNotice $n) => $n->noticeType === OrderNotice::NOTICE_TYPE_ADMIN));
+        return $this->_filterNotices($notices, $type, $attribute);
     }
 
     /**
@@ -68,7 +63,7 @@ trait OrderNoticesTrait
     }
 
     /**
-     * Returns the first error of the specified type or attribute
+     * Returns the first non-admin notice matching the specified type or attribute.
      *
      * @param null $type
      * @param null $attribute
@@ -93,26 +88,40 @@ trait OrderNoticesTrait
     }
 
     /**
-     * Removes notices for all types or a single type.
+     * Removes non-admin notices matching the given criteria.
+     * Admin notices are preserved unless $clearAdminNotices is true.
      *
      * @param string|null $type type name. Use null to remove notices for all types.
+     * @param string|null $attribute attribute name. Use null to remove notices for all attributes.
+     * @param bool $clearAdminNotices Whether to also clear admin notices. Defaults to false.
      * @since 3.3
      */
-    public function clearNotices(?string $type = null, ?string $attribute = null): void
+    public function clearNotices(?string $type = null, ?string $attribute = null, bool $clearAdminNotices = false): void
     {
+        $adminNotices = array_values(array_filter($this->_notices, fn(OrderNotice $n) => $n->noticeType === OrderNotice::NOTICE_TYPE_ADMIN));
+        $regularNotices = array_values(array_filter($this->_notices, fn(OrderNotice $n) => $n->noticeType === OrderNotice::NOTICE_TYPE_CUSTOMER));
+
+        $targetNotices = $clearAdminNotices ? $this->_notices : $regularNotices;
+
         if ($type === null && $attribute === null) {
-            $this->_notices = [];
+            $remaining = [];
         } elseif ($type !== null && $attribute === null) {
-            $this->_notices = ArrayHelper::where($this->_notices, fn(OrderNotice $notice) => $notice->type != $type, true, true, true);
+            $remaining = array_values(array_filter($targetNotices, fn(OrderNotice $n) => $n->type !== $type));
         } elseif ($type === null && $attribute !== null) {
-            $this->_notices = ArrayHelper::where($this->_notices, fn(OrderNotice $notice) => $notice->attribute != $attribute, true, true, true);
-        } elseif ($type !== null && $attribute !== null) {
-            $this->_notices = ArrayHelper::where($this->_notices, fn(OrderNotice $notice) => $notice->type == $type && $notice->attribute == $attribute, false, true, true);
+            $remaining = array_values(array_filter($targetNotices, fn(OrderNotice $n) => $n->attribute !== $attribute));
+        } else {
+            $remaining = array_values(array_filter($targetNotices, fn(OrderNotice $n) => !($n->type === $type && $n->attribute === $attribute)));
+        }
+
+        if ($clearAdminNotices) {
+            $this->_notices = $remaining;
+        } else {
+            $this->_notices = array_merge($adminNotices, $remaining);
         }
     }
 
     /**
-     * Returns a value indicating whether there is any notices.
+     * Returns a value indicating whether there are any non-admin notices.
      *
      * @param string|null $type type name. Use null to check all types.
      * @param string|null $attribute attribute name. Use null to check all attributes.
@@ -122,5 +131,40 @@ trait OrderNoticesTrait
     public function hasNotices(?string $type = null, ?string $attribute = null): bool
     {
         return !empty($this->getNotices($type, $attribute));
+    }
+
+    /**
+     * Returns whether there are any admin notices.
+     *
+     * @since 5.x
+     */
+    public function hasAdminNotices(): bool
+    {
+        return !empty($this->getAdminNotices());
+    }
+
+    /**
+     * Filters an array of notices by type and/or attribute.
+     *
+     * @param OrderNotice[] $notices
+     * @param string|null $type
+     * @param string|null $attribute
+     * @return OrderNotice[]
+     */
+    private function _filterNotices(array $notices, ?string $type, ?string $attribute): array
+    {
+        if ($type === null && $attribute === null) {
+            return $notices;
+        }
+
+        if ($type !== null && $attribute === null) {
+            return ArrayHelper::where($notices, 'type', $type);
+        }
+
+        if ($type === null && $attribute !== null) {
+            return ArrayHelper::where($notices, 'attribute', $attribute);
+        }
+
+        return ArrayHelper::where($notices, fn(OrderNotice $n) => $n->attribute === $attribute && $n->type === $type, true, true, true);
     }
 }

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added `noticeType` field to `OrderNotice` (`'customer'` by default, `'admin'` for admin-only notices). Admin notices are excluded from `getNotices()` by default, preserved by `clearNotices()` unless `$clearAdminNotices = true` is passed, shown separately in the CP order edit page (red, above customer notices) with individual Dismiss buttons, and filterable on the order index via a new "Has Admin Notices" condition rule.
 - Fixed a bug where two simultaneous requests to manually complete an order could result in a coupon being used twice. ([Hackrate#1343](#))
 - Fixed a bug where fulfilling an order with purchasables in different inventory locations would only fulfil items from one location. ([#4299](https://github.com/craftcms/commerce/issues/4299))
 - Fixed a PHP error that could occur when applying project config changes after updating.

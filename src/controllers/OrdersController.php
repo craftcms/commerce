@@ -617,6 +617,7 @@ JS, []);
             'shippingAddress',
             'orderSite',
             'notices',
+            'adminNotices',
             'loadCartUrl',
             'store',
             'totalCommittedStock',
@@ -1642,14 +1643,21 @@ JS, []);
             $order->shippingMethodName = $shippingMethod->name ?? null;
         }
 
-        $order->clearNotices();
+        // CP save has full control over all notices including admin ones
+        $order->clearNotices(clearAdminNotices: true);
 
         // Create Notices on Order
         $notices = [];
-        foreach ($orderRequestData['order']['notices'] as $notice) {
+        foreach ($orderRequestData['order']['notices'] ?? [] as $notice) {
             $notices[] = Craft::createObject([
                 'class' => OrderNotice::class,
                 'attributes' => $notice,
+            ]);
+        }
+        foreach ($orderRequestData['order']['adminNotices'] ?? [] as $notice) {
+            $notices[] = Craft::createObject([
+                'class' => OrderNotice::class,
+                'attributes' => array_merge($notice, ['noticeType' => OrderNotice::NOTICE_TYPE_ADMIN]),
             ]);
         }
         $order->addNotices($notices);
