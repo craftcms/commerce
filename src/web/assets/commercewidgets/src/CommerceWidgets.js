@@ -5,6 +5,26 @@ if (typeof Craft.Commerce === typeof undefined) {
   Craft.Commerce = {};
 }
 
+// Wraps Craft.ui.createDateRangePicker, suppressing onChange during initialization
+// so that restoring a saved custom date range does not overwrite the stored values.
+Craft.Commerce.createDateRangePicker = function (config) {
+  var initialized = false;
+  var userOnChange = config.onChange || $.noop;
+
+  config = $.extend({}, config, {
+    onChange: function (start, end, handle) {
+      if (!initialized) {
+        return;
+      }
+      userOnChange(start, end, handle);
+    },
+  });
+
+  var $btn = Craft.ui.createDateRangePicker(config);
+  initialized = true;
+  return $btn;
+};
+
 // Instantiate the CommerceWidgets as a global object
 Craft.Commerce.CommerceWidgets = {
   updateOrderStatuses: function (storeId, selectizeId) {

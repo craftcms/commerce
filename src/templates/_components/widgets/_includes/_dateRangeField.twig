@@ -50,6 +50,6 @@
     {% endif %}
 
     var $container = $('#{{ id }} [data-date-range-picker]');
-    var $picker = Craft.ui.createDateRangePicker(options).appendTo($container);
+    var $picker = Craft.Commerce.createDateRangePicker(options).appendTo($container);
   {% endjs %}
 {% endif %}
