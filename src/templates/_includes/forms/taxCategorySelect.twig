@@ -1,5 +1,4 @@
 {% include '_includes/forms/componentSelect.twig' with {
     options: options ?? craft.commerce.taxCategories.getAllTaxCategories(),
-    createAction: (create ?? true) ? 'commerce/tax-categories/edit' : null,
-    createParams: createParams ?? (storeHandle is defined ? {storeHandle: storeHandle} : {}),
+    createAction: (create ?? true) ? ('commerce/tax-categories/edit' ~ (storeHandle is defined and storeHandle ? '?storeHandle=' ~ storeHandle : '')) : null,
 } %}
