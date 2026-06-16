@@ -7,7 +7,7 @@
 ## 4.11.2 - 2026-05-14
 
 - Cart requests that include a `couponCode` param are now rate-limited.
-- Fixed [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) enumeration vulnerability. (GHSA-h5gm-x9wr-vhcm)
+- Fixed [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) enumeration vulnerability. ([GHSA-h5gm-x9wr-vhcm](https://github.com/craftcms/commerce/security/advisories/GHSA-h5gm-x9wr-vhcm))
 - Fixed [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) business logic vulnerability. ([GHSA-78vr-q6cf-c7p6](https://github.com/craftcms/commerce/security/advisories/GHSA-78vr-q6cf-c7p6))
 
 ## 4.11.1 - 2026-04-30
