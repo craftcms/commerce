@@ -34,8 +34,14 @@ class TaxAddressZone extends Zone implements Chippable
      */
     public static function get(int|string $id): ?static
     {
-        /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getTaxZones()->getTaxZoneById($id);
+        foreach (Plugin::getInstance()->getStores()->getAllStores() as $store) {
+            $zone = Plugin::getInstance()->getTaxZones()->getTaxZoneById((int)$id, $store->id);
+            if ($zone !== null) {
+                /** @phpstan-ignore-next-line */
+                return $zone;
+            }
+        }
+        return null;
     }
 
     /**
