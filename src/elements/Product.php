@@ -1361,7 +1361,7 @@ JS, [
                 // @phpstan-ignore argument.type (will always be a Product)
                 fn(ElementInterface $product): VariantQuery => self::createVariantQuery($product),
                 [
-                    'attribute' => 'variants',
+                    'attribute' => 'variants', // dont change this: https://github.com/craftcms/commerce/issues/4314#issuecomment-4715539955
                     'propagationMethod' => $this->getType()->propagationMethod,
                     'valueGetter' => fn() => $this->getVariants(true),
                     'valueSetter' => fn($variants) => $this->setVariants($variants),
