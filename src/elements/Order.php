@@ -1288,7 +1288,10 @@ class Order extends Element implements HasStoreInterface
         }
 
         if ($this->orderSiteId === null) {
-            $this->orderSiteId = $this->getStore()->getSites()->first()->id;
+            $storeSites = $this->getStore()->getSites();
+            $primarySite = Craft::$app->getSites()->getPrimarySite();
+            // Prefer the Craft primary site if it belongs to this store, otherwise use the first available site
+            $this->orderSiteId = $storeSites->firstWhere('id', $primarySite->id)?->id ?? $storeSites->first()->id;
         }
 
         if ($this->currency === null) {
