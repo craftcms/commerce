@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a PHP error that could occur when opening a product with a provisional draft. ([#4314](https://github.com/craftcms/commerce/issues/4314))
 - Fixed a bug where tax zones, shipping categories, and tax categories created via "Create" slide-outs were always saved to the primary store instead of the current store. ([#4313](https://github.com/craftcms/commerce/issues/4313))
 - Fixed a SQL error that could occur when running `project-config/apply` if a PDF had an empty `templatePath`. ([#4316](https://github.com/craftcms/commerce/issues/4316))
 - Fixed a bug where two simultaneous requests to manually complete an order could result in a coupon being used twice. ([Hackrate#1343](#))
