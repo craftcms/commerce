@@ -1,5 +1,4 @@
 {% include '_includes/forms/componentSelect.twig' with {
     options: options ?? craft.commerce.taxZones.getAllTaxZones(storeId).all(),
-    createAction: (create ?? true) ? 'commerce/tax-zones/edit' : null,
-    createParams: createParams ?? {storeHandle: storeHandle},
+    createAction: (create ?? true) ? ('commerce/tax-zones/edit' ~ (storeHandle is defined and storeHandle ? '?storeHandle=' ~ storeHandle : '')) : null,
 } %}
