@@ -2,16 +2,16 @@
 
 ## Unreleased
 
-- Fixed a bug where the debug toolbar could trigger cart recalculation under the primary site context in multi-site setups, causing line items valid only on secondary sites to be removed from the cart. ([#4317](https://github.com/craftcms/commerce/issues/4317))
-- Fixed a bug where the widget Date Range field could break when reopening settings after saving a custom date range. ([#4306](https://github.com/craftcms/commerce/issues/4306))
-- Fixed a bug where new orders created in the control panel would default to a non-primary Order Site in multi-site/single-store setups. ([#4310](https://github.com/craftcms/commerce/issues/4310))
+- PDF download URLs now use the `code` query param instead of `token` ([#4303](https://github.com/craftcms/commerce/issues/4303)).
+- Fixed a bug where the debug toolbar could trigger cart recalculation in multi-site setups, potentially causing some line items to be removed from the cart. ([#4317](https://github.com/craftcms/commerce/issues/4317))
+- Fixed a bug where Date Range widget settings could break when settings were reopened. ([#4306](https://github.com/craftcms/commerce/issues/4306))
+- Fixed a bug where new orders created in the control panel could default to a non-primary site in multi-site/single-store installs. ([#4310](https://github.com/craftcms/commerce/issues/4310))
 - Fixed a PHP error that could occur when opening a product with a provisional draft. ([#4314](https://github.com/craftcms/commerce/issues/4314))
-- Fixed a bug where tax zones, shipping categories, and tax categories created via "Create" slide-outs were always saved to the primary store instead of the current store. ([#4313](https://github.com/craftcms/commerce/issues/4313))
+- Fixed a bug where tax zones, shipping categories, and tax categories created via “Create” slideouts were saved to the primary store rather than the current store. ([#4313](https://github.com/craftcms/commerce/issues/4313))
 - Fixed a SQL error that could occur when running `project-config/apply` if a PDF had an empty `templatePath`. ([#4316](https://github.com/craftcms/commerce/issues/4316))
 - Fixed a bug where two simultaneous requests to manually complete an order could result in a coupon being used twice. ([Hackrate#1343](#))
 - Fixed a bug where fulfilling an order with purchasables in different inventory locations would only fulfil items from one location. ([#4299](https://github.com/craftcms/commerce/issues/4299))
 - Fixed a PHP error that could occur when applying project config changes after updating.
-- PDF download URLs now use the `code` query param instead of `token` ([#4303](https://github.com/craftcms/commerce/issues/4303)).
 
 ## 5.6.5 - 2026-05-14
 
