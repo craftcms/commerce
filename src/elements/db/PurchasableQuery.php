@@ -736,15 +736,15 @@ abstract class PurchasableQuery extends ElementQuery
             $this->query->leftJoin(Table::PURCHASABLES_STORES . ' purchasables_stores', '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[commerce_purchasables.id]]');
         } else {
             $this->query->addSelect([
-                new Expression('NULL as [[availableForPurchase]]'),
+                new Expression('1 as [[availableForPurchase]]'),
                 new Expression('NULL as [[basePrice]]'),
                 new Expression('NULL as [[basePromotionalPrice]]'),
-                new Expression('NULL as [[freeShipping]]'),
+                new Expression('0 as [[freeShipping]]'),
                 new Expression('NULL as [[maxQty]]'),
                 new Expression('NULL as [[minQty]]'),
-                new Expression('NULL as [[inventoryTracked]]'),
-                new Expression('NULL as [[allowOutOfStockPurchases]]'),
-                new Expression('NULL as [[promotable]]'),
+                new Expression('0 as [[inventoryTracked]]'),
+                new Expression('0 as [[allowOutOfStockPurchases]]'),
+                new Expression('0 as [[promotable]]'),
                 new Expression('NULL as [[shippingCategoryId]]'),
             ]);
         }

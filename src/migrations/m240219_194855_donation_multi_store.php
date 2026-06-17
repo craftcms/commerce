@@ -6,6 +6,8 @@ use craft\commerce\db\Table;
 use craft\commerce\records\PurchasableStore;
 use craft\db\Migration;
 use craft\db\Query;
+use craft\helpers\StringHelper;
+use yii\base\Exception;
 
 /**
  * m240219_194855_donation_multi_store migration.
@@ -73,6 +75,9 @@ class m240219_194855_donation_multi_store extends Migration
         $purchasable = [
             'id' => $donation['id'],
             'sku' => $donation['sku'] ?: "DONATION-{$donation['id']}",
+            'dateCreated' => $donation['dateCreated'],
+            'dateUpdated' => $donation['dateUpdated'],
+            'uid' => StringHelper::UUID(),
         ];
 
         if ($this->db->columnExists(Table::PURCHASABLES, 'description')) {
@@ -86,11 +91,17 @@ class m240219_194855_donation_multi_store extends Migration
         }
 
         if ($this->db->columnExists(Table::PURCHASABLES, 'taxCategoryId')) {
-            $purchasable['taxCategoryId'] = (new Query())
+            $taxCategoryId = (new Query())
                 ->select('id')
                 ->from(Table::TAXCATEGORIES)
                 ->orderBy(['id' => SORT_ASC])
                 ->scalar();
+
+            if (!$taxCategoryId) {
+                throw new Exception('Unable to backfill donation purchasable record because no tax category exists.');
+            }
+
+            $purchasable['taxCategoryId'] = $taxCategoryId;
         }
 
         $this->insert(Table::PURCHASABLES, $purchasable);
