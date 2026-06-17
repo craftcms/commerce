@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a performance issue where resaving products in multi-site setups could trigger a full table scan on `elements_owners` for each variant. ([#4305](https://github.com/craftcms/commerce/issues/4305))
+- Fixed a bug where the debug toolbar could trigger cart recalculation under the primary site context in multi-site setups, causing line items valid only on secondary sites to be removed from the cart. ([#4317](https://github.com/craftcms/commerce/issues/4317))
 - Fixed a bug where the widget Date Range field could break when reopening settings after saving a custom date range. ([#4306](https://github.com/craftcms/commerce/issues/4306))
 - Fixed a bug where new orders created in the control panel would default to a non-primary Order Site in multi-site/single-store setups. ([#4310](https://github.com/craftcms/commerce/issues/4310))
 - Fixed a PHP error that could occur when opening a product with a provisional draft. ([#4314](https://github.com/craftcms/commerce/issues/4314))
