@@ -1955,7 +1955,11 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere([
                 $this->hasAdminNotices ? 'exists' : 'not exists',
                 (new Query())
-                    ->andWhere(['adminNotices.noticeType' => \craft\commerce\models\OrderNotice::NOTICE_TYPE_ADMIN]),
+                    ->select([new Expression('1')])
+                    ->from(['adminNotices' => Table::ORDERNOTICES])
+                    ->where(new Expression('[[adminNotices.orderId]] = [[elements.id]]'))
+                    ->andWhere(['adminNotices.noticeType' => 'admin']),
+            ]);
         }
 
         return parent::beforePrepare();
