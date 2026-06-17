@@ -3,6 +3,9 @@
 ### Store Management
 
 - Order notices now support an admin-only type. Admin notices are displayed in a separate red box above customer notices in the CP order edit page, with individual **Clear** buttons (visible in edit mode only). Orders can be filtered by admin notice presence via a new **Has Admin Notices** condition rule on the order index.
+- An admin notice is now added to an order when a discount's total usage limit is exceeded during order completion (e.g. due to concurrent orders).
+- An admin notice is now added to an order when a coupon's max uses is exceeded during order completion.
+- An admin notice is now added to an order when available inventory for a purchasable goes below zero during order completion, if the purchasable does not allow out-of-stock purchases.
 - Added a "Contains Purchasables" order condition rule, which supports "any", "all", and "only" match modes. ([#4242](https://github.com/craftcms/commerce/issues/4242))
 - When deleting a user with orders or subscriptions, store admins are now presented with actionable options to resolve the blocker (reassign orders, remove customer data, or delete subscriptions), rather than a generic error.
 - Anonymous users attempting to load a cart with an expired or missing token are now shown a cart recovery form, which sends a new recovery link to the cart's email address.

@@ -1910,6 +1910,9 @@ class Order extends Element implements HasStoreInterface
             Plugin::getInstance()->getLineItems()->orderCompleteHandler($lineItem, $this);
         }
 
+        // Persist any admin notices added by the handlers above.
+        $this->_saveNotices();
+
         // Raising the 'afterCompleteOrder' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_COMPLETE_ORDER)) {
             $this->trigger(self::EVENT_AFTER_COMPLETE_ORDER);

@@ -28,6 +28,7 @@ use craft\commerce\models\InventoryItem;
 use craft\commerce\models\InventoryLevel;
 use craft\commerce\models\InventoryLocation;
 use craft\commerce\models\InventoryTransaction;
+use craft\commerce\models\OrderNotice;
 use craft\commerce\Plugin;
 use craft\commerce\records\InventoryItem as InventoryItemRecord;
 use craft\db\Query;
@@ -957,6 +958,26 @@ class Inventory extends Component
             if ($purchasable = Craft::$app->getElements()->getElementById($key)) {
                 if ($purchasable instanceof Purchasable) {
                     Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
+
+                    // If the purchasable doesn't allow out of stock purchases, check whether the movement
+                    // pushed available stock below zero (e.g. due to concurrent orders).
+                    if (!$purchasable->allowOutOfStockPurchases) {
+                        $freshLevel = $this->getInventoryLevel($inventoryLevel->inventoryItemId, $inventoryLevel->inventoryLocationId);
+                        if ($freshLevel && $freshLevel->availableTotal < 0) {
+                            $notice = Craft::createObject([
+                                'class' => OrderNotice::class,
+                                'attributes' => [
+                                    'type' => 'inventoryBelowZero',
+                                    'attribute' => 'lineItems',
+                                    'message' => Craft::t('commerce', 'Available inventory for "{description}" has gone below zero.', [
+                                        'description' => $purchasable->getDescription(),
+                                    ]),
+                                    'noticeType' => OrderNotice::NOTICE_TYPE_ADMIN,
+                                ],
+                            ]);
+                            $order->addNotice($notice);
+                        }
+                    }
                 }
             }
         }

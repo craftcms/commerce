@@ -22,6 +22,7 @@ use craft\commerce\models\Coupon;
 use craft\commerce\models\Discount;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
+use craft\commerce\models\OrderNotice;
 use craft\commerce\Plugin;
 use craft\commerce\records\Coupon as CouponRecord;
 use craft\commerce\records\CustomerDiscountUse;
@@ -1220,6 +1221,30 @@ SQL;
                 ])
                 ->execute();
 
+            // Check if the total use limit has been exceeded (race condition / oversell scenario)
+            if (($discount['totalDiscountUseLimit'] ?? 0) > 0) {
+                $updatedUses = (new Query())
+                    ->select(['totalDiscountUses'])
+                    ->from([Table::DISCOUNTS])
+                    ->where(['id' => $discount['discountUseId']])
+                    ->scalar();
+                if ($updatedUses > $discount['totalDiscountUseLimit']) {
+                    $notice = Craft::createObject([
+                        'class' => OrderNotice::class,
+                        'attributes' => [
+                            'type' => 'discountUsageExceeded',
+                            'attribute' => 'couponCode',
+                            'message' => Craft::t('commerce', 'The discount "{name}" has exceeded its total usage limit of {limit}.', [
+                                'name' => $discount['name'] ?? $discount['discountUseId'],
+                                'limit' => $discount['totalDiscountUseLimit'],
+                            ]),
+                            'noticeType' => OrderNotice::NOTICE_TYPE_ADMIN,
+                        ],
+                    ]);
+                    $order->addNotice($notice);
+                }
+            }
+
             // if there was a coupon on the order update its usage
             if ($order->couponCode && $coupon = CouponRecord::findOne(['code' => $order->couponCode, 'discountId' => $discount['discountUseId']])) {
                 Craft::$app->getDb()->createCommand()
@@ -1229,6 +1254,23 @@ SQL;
                         'id' => $coupon->id,
                     ])
                     ->execute();
+
+                // Check if the coupon's max uses has been exceeded
+                if ($coupon->maxUses !== null && ($coupon->uses + 1) > $coupon->maxUses) {
+                    $notice = Craft::createObject([
+                        'class' => OrderNotice::class,
+                        'attributes' => [
+                            'type' => 'couponUsageExceeded',
+                            'attribute' => 'couponCode',
+                            'message' => Craft::t('commerce', 'The coupon "{code}" has exceeded its usage limit of {limit}.', [
+                                'code' => $order->couponCode,
+                                'limit' => $coupon->maxUses,
+                            ]),
+                            'noticeType' => OrderNotice::NOTICE_TYPE_ADMIN,
+                        ],
+                    ]);
+                    $order->addNotice($notice);
+                }
             }
 
             // Reset internal cache
