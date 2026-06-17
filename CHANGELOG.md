@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.6.6 - 2026-06-17
 
 - PDF download URLs now use the `code` query param instead of `token` ([#4303](https://github.com/craftcms/commerce/issues/4303)).
 - Fixed a bug where the debug toolbar could trigger cart recalculation in multi-site setups, potentially causing some line items to be removed from the cart. ([#4317](https://github.com/craftcms/commerce/issues/4317))
