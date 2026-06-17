@@ -1841,7 +1841,7 @@ JS, []);
         foreach ($orderRequestData['order']['notices'] ?? [] as $notice) {
             $notices[] = Craft::createObject([
                 'class' => OrderNotice::class,
-                'attributes' => $notice,
+                'attributes' => array_merge($notice, ['noticeType' => OrderNotice::NOTICE_TYPE_CUSTOMER]),
             ]);
         }
         foreach ($orderRequestData['order']['adminNotices'] ?? [] as $notice) {
