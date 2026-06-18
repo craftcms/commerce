@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where Date Range widget settings could break when settings were reopened. ([#4306](https://github.com/craftcms/commerce/issues/4306))
+
 ## 5.6.6 - 2026-06-17
 
 - PDF download URLs now use the `code` query param instead of `token` ([#4303](https://github.com/craftcms/commerce/issues/4303)).
