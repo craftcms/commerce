@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.6.6.1 - 2026-06-18
 
 - Fixed a bug where Date Range widget settings could break when settings were reopened. ([#4306](https://github.com/craftcms/commerce/issues/4306))
 
