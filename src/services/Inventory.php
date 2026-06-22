@@ -422,9 +422,8 @@ class Inventory extends Component
 
             // TODO: Potentially move this to a job in the queue
             // Update all purchasables stock
-            $purchasables = $updateInventoryLevels->getPurchasables();
-            if ($purchasables) {
-                Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasables[0], true);
+            foreach ($updateInventoryLevels->getPurchasables() as $purchasable) {
+                Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
             }
 
             // Trigger event for each successful update
