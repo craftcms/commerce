@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where a Twig error would occur when creating or editing a shipping rule. ([#4321](https://github.com/craftcms/commerce/issues/4321))
+
 ## 5.6.6.1 - 2026-06-18
 
 - Fixed a bug where Date Range widget settings could break when settings were reopened. ([#4306](https://github.com/craftcms/commerce/issues/4306))
