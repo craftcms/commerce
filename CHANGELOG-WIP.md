@@ -1,10 +1,39 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 6a: Store config services
+
+All store-config services migrated from `craft\commerce\services` to
+`CraftCms\Commerce\Services` under the Craft 6 service pattern: plain
+PHP classes marked with `#[\Illuminate\Container\Attributes\Singleton]`,
+accessed via `app(\CraftCms\Commerce\Services\Foo::class)`.
+
+- `craft\commerce\services\Currencies` → `CraftCms\Commerce\Services\Currencies`
+- `craft\commerce\services\PaymentCurrencies` → `CraftCms\Commerce\Services\PaymentCurrencies`
+- `craft\commerce\services\TaxCategories` → `CraftCms\Commerce\Services\TaxCategories`
+- `craft\commerce\services\ShippingCategories` → `CraftCms\Commerce\Services\ShippingCategories`
+- `craft\commerce\services\TaxZones` → `CraftCms\Commerce\Services\TaxZones`
+- `craft\commerce\services\ShippingZones` → `CraftCms\Commerce\Services\ShippingZones`
+
+Legacy `Plugin::getInstance()->getXxx()` access keeps working — each
+old service class is now a thin Yii2 Component that delegates every
+method to the new singleton via `app()`. Once all callers move to
+`app()` the legacy wrappers can be deleted.
+
+Cross-cutting swaps applied throughout:
+- Yii2 `Query` builder → Laravel `DB::table()`
+- `Craft::createObject(['class' => X, 'attributes' => $row])` → `new X((array) $row)`
+- `ArrayHelper::firstWhere/firstValue/map/getColumn` → `collect()` equivalents
+- `Craft::$app->getDb()->createCommand()->delete()/insert()/update()` → `DB::table()->...`
+- `Craft::$app->getQueue()->push(new ResaveElements([...]))` → `dispatch(new \CraftCms\Cms\Element\Jobs\ResaveElements(elementType: ..., criteria: ...))`
+- `$db->getSchema()->getTableSchema(X)->getColumn(Y)` → `Schema::hasColumn(X, Y)`
+- `yii\base\Exception` / `yii\base\InvalidConfigException` → `\RuntimeException`
+
 ### Removed (deprecated in 5.x)
 
 - `Settings::VIEW_URI_CUSTOMERS`, `VIEW_URI_PROMOTIONS`, `VIEW_URI_SHIPPING`, `VIEW_URI_TAX` constants — deprecated in 5.0.0.
 - `Store::setCountries()`, `getCountries()`, `getCountriesList()`, `getAdministrativeAreasListByCountryCode()`, `getMarketAddressCondition()` — deprecated in 5.0.0; use the equivalents on `Store::getSettings()` (i.e. `StoreSettings`).
 - `Discount::setExcludeOnSale()` / `getExcludeOnSale()` and the `excludeOnSale` shim — deprecated in 5.0.0; use `Discount::$excludeOnPromotion`.
+- `PaymentCurrencies::convertCurrency()` — deprecated in 5.0.0; use `convert()` or `convertAmount()`. (Kept on the legacy `craft\commerce\services\PaymentCurrencies` wrapper only, until the two remaining `src-yii2/` callers — `Order` element, `OrdersController` — migrate.)
 
 ### Laravel Migration — Stage 5m: Discount
 
