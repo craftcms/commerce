@@ -147,9 +147,7 @@ class OrderMarkAsCompleteTest extends Unit
         $this->pluginInstance->getTransactions()->deleteTransactionById($transaction3->id);
     }
 
-    /**
-     * @inheritdoc
-     */
+    #[\Override]
     protected function _before(): void
     {
         parent::_before();
@@ -157,9 +155,7 @@ class OrderMarkAsCompleteTest extends Unit
         $this->pluginInstance = Plugin::getInstance();
     }
 
-    /**
-     * @inheritdoc
-     */
+    #[\Override]
     protected function _after(): void
     {
         parent::_after();

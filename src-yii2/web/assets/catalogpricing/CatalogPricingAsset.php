@@ -19,9 +19,6 @@ use craft\web\View;
  */
 class CatalogPricingAsset extends AssetBundle
 {
-    /**
-     * @inheritdoc
-     */
     public function init(): void
     {
         $this->sourcePath = __DIR__ . '/dist';
@@ -37,9 +34,6 @@ class CatalogPricingAsset extends AssetBundle
         parent::init();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function registerAssetFiles($view): void
     {
         parent::registerAssetFiles($view);

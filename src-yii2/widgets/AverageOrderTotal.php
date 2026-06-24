@@ -62,41 +62,26 @@ class AverageOrderTotal extends Widget
         }
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function isSelectable(): bool
     {
         return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function displayName(): string
     {
         return Craft::t('commerce', 'Average Order Total');
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function icon(): ?string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getTitle(): ?string
     {
         return '';
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getBodyHtml(): ?string
     {
         $number = $this->_stat->get();
@@ -116,9 +101,6 @@ class AverageOrderTotal extends Widget
         return 1;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getSettingsHtml(): ?string
     {
         $id = 'average-order-total' . StringHelper::randomString();

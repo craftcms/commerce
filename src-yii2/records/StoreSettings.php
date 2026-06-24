@@ -24,9 +24,6 @@ use yii\db\ActiveQueryInterface;
  */
 class StoreSettings extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::STORESETTINGS;

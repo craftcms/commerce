@@ -28,9 +28,6 @@ use yii\db\ActiveQueryInterface;
  */
 class Customer extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public function rules(): array
     {
         return [
@@ -45,9 +42,6 @@ class Customer extends ActiveRecord
         ];
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::CUSTOMERS;

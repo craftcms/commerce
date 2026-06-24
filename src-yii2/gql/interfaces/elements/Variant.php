@@ -24,17 +24,11 @@ use GraphQL\Type\Definition\Type;
  */
 class Variant extends Element
 {
-    /**
-     * @inheritdoc
-     */
     public static function getTypeGenerator(): string
     {
         return VariantType::class;
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function getType($fields = null): Type
     {
         if ($type = GqlEntityRegistry::getEntity(self::getName())) {
@@ -53,17 +47,11 @@ class Variant extends Element
         return $type;
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function getName(): string
     {
         return 'VariantInterface';
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function getFieldDefinitions(): array
     {
         return Craft::$app->getGql()->prepareFieldDefinitions(array_merge(parent::getFieldDefinitions(), [

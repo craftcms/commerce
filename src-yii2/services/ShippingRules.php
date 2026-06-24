@@ -217,7 +217,7 @@ class ShippingRules extends Component
      */
     private function _createShippingRulesQuery(): Query
     {
-        $query = (new Query())
+        $query = new Query()
             ->select([
                 'shippingrules.baseRate',
                 'shippingrules.description',

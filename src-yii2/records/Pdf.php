@@ -47,9 +47,6 @@ class Pdf extends ActiveRecord
      */
     public const PAPER_ORIENTATION_LANDSCAPE = 'landscape';
 
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::PDFS;

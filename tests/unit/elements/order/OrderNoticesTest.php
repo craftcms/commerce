@@ -147,6 +147,7 @@ class OrderNoticesTest extends Unit
     /**
      *
      */
+    #[\Override]
     protected function _before(): void
     {
         parent::_before();
@@ -158,6 +159,7 @@ class OrderNoticesTest extends Unit
     /**
      *
      */
+    #[\Override]
     protected function _after(): void
     {
         parent::_after();

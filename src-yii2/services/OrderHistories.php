@@ -217,7 +217,7 @@ class OrderHistories extends Component
      */
     private function _createOrderHistoryQuery(): Query
     {
-        return (new Query())
+        return new Query()
             ->select([
                 'userId',
                 'dateCreated',

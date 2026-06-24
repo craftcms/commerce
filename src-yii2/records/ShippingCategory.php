@@ -31,9 +31,6 @@ class ShippingCategory extends ActiveRecord
     use SoftDeleteTrait;
     use StoreRecordTrait;
 
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::SHIPPINGCATEGORIES;

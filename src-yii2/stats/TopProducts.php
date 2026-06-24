@@ -98,12 +98,12 @@ class TopProducts extends Stat
      *
      * @var string
      */
-    private string $_ifNullDbFunc;
+    private readonly string $_ifNullDbFunc;
 
     /**
      * @inheritDoc
      */
-    public function __construct(string $dateRange = null, string $type = null, $startDate = null, $endDate = null, array $revenueOptions = null, ?int $storeId = null)
+    public function __construct(?string $dateRange = null, ?string $type = null, $startDate = null, $endDate = null, ?array $revenueOptions = null, ?int $storeId = null)
     {
         $this->_ifNullDbFunc = Craft::$app->getDb()->getIsPgsql() ? 'COALESCE' : 'IFNULL';
 
@@ -232,7 +232,7 @@ class TopProducts extends Stat
         }
         $types = array_unique($types);
 
-        return (new Query())
+        return new Query()
             ->select([
                 '[[v.primaryOwnerId]]',
                 'discount' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN [[oa.type]]=\'discount\' THEN amount END), 0)'),

@@ -262,8 +262,8 @@ class Customers extends Component
             ], [], false);
         }
 
-        $previousUses = (new Query())->select(['discountId', 'uses'])->from(Table::CUSTOMER_DISCOUNTUSES)->where(['customerId' => $fromId])->pairs();
-        $toUses = (new Query())->select(['discountId', 'uses'])->from(Table::CUSTOMER_DISCOUNTUSES)->where(['customerId' => $toId])->pairs();
+        $previousUses = new Query()->select(['discountId', 'uses'])->from(Table::CUSTOMER_DISCOUNTUSES)->where(['customerId' => $fromId])->pairs();
+        $toUses = new Query()->select(['discountId', 'uses'])->from(Table::CUSTOMER_DISCOUNTUSES)->where(['customerId' => $toId])->pairs();
 
         foreach ($previousUses as $discountId => $uses) {
             if (isset($toUses[$discountId])) {

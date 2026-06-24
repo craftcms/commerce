@@ -136,33 +136,21 @@ class TopProducts extends Widget
         }
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function isSelectable(): bool
     {
         return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function displayName(): string
     {
         return Craft::t('commerce', 'Top Products');
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function icon(): ?string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getTitle(): ?string
     {
         return $this->_title;
@@ -176,9 +164,6 @@ class TopProducts extends Widget
         return $this->_stat->getDateRangeWording();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getBodyHtml(): ?string
     {
         $stats = $this->_stat->get();
@@ -211,9 +196,6 @@ class TopProducts extends Widget
         ]);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getSettingsHtml(): ?string
     {
         $id = 'top-products' . StringHelper::randomString();

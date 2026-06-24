@@ -39,9 +39,6 @@ use yii\base\NotSupportedException;
  */
 class Dummy extends SubscriptionGateway
 {
-    /**
-     * @inheritdoc
-     */
     public function getPaymentFormHtml(array $params): ?string
     {
         $paymentFormModel = $this->getPaymentFormModel();
@@ -246,57 +243,36 @@ class Dummy extends SubscriptionGateway
         return false;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getCancelSubscriptionFormHtml(Subscription $subscription): string
     {
         return '';
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getCancelSubscriptionFormModel(): CancelSubscriptionForm
     {
         return new CancelSubscriptionForm();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getPlanSettingsHtml(array $params = []): ?string
     {
         return '<input type="hidden" name="reference" value="dummy.reference"/>';
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getPlanModel(): Plan
     {
         return new DummyPlan();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getSubscriptionFormModel(): SubscriptionForm
     {
         return new SubscriptionForm();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getSwitchPlansFormModel(): SwitchPlansForm
     {
         return new SwitchPlansForm();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function cancelSubscription(Subscription $subscription, CancelSubscriptionForm $parameters): SubscriptionResponseInterface
     {
         $response = new DummySubscriptionResponse();
@@ -304,41 +280,26 @@ class Dummy extends SubscriptionGateway
         return $response;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getNextPaymentAmount(Subscription $subscription): string
     {
         return '-';
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getSubscriptionPayments(Subscription $subscription): array
     {
         return [];
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getSubscriptionPlanByReference(string $reference): string
     {
         return 'dummy.plan';
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getSubscriptionPlans(): array
     {
         return [];
     }
 
-    /**
-     * @inheritdoc
-     */
     public function subscribe(User $user, Plan $plan, SubscriptionForm $parameters): SubscriptionResponseInterface
     {
         $subscription = new DummySubscriptionResponse();
@@ -347,49 +308,31 @@ class Dummy extends SubscriptionGateway
         return $subscription;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function switchSubscriptionPlan(Subscription $subscription, Plan $plan, SwitchPlansForm $parameters): SubscriptionResponseInterface
     {
         return new DummySubscriptionResponse();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function supportsReactivation(): bool
     {
         return false;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function supportsPlanSwitch(): bool
     {
         return true;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getBillingIssueDescription(Subscription $subscription): string
     {
         return '';
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getBillingIssueResolveFormHtml(Subscription $subscription): string
     {
         return '';
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getHasBillingIssues(Subscription $subscription): bool
     {
         return false;

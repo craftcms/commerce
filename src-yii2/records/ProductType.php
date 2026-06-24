@@ -55,9 +55,6 @@ use yii\db\ActiveQueryInterface;
  */
 class ProductType extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::PRODUCTTYPES;

@@ -164,7 +164,6 @@ class CartsTest extends Unit
         // with whatever value was in the request cookie.
         $reflection = new \ReflectionClass($carts);
         $cartNumberProp = $reflection->getProperty('_cartNumber');
-        $cartNumberProp->setAccessible(true);
         $cartNumberProp->setValue($carts, null);
 
         $requestCookies = new \yii\web\CookieCollection();

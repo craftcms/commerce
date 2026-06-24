@@ -82,9 +82,6 @@ use yii\db\ActiveQueryInterface;
  */
 class Order extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::ORDERS;

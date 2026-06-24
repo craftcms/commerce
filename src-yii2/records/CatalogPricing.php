@@ -31,9 +31,6 @@ class CatalogPricing extends ActiveRecord
 {
     use StoreRecordTrait;
 
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::CATALOG_PRICING;

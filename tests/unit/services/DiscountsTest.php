@@ -319,7 +319,7 @@ class DiscountsTest extends Unit
         $this->discounts->orderCompleteHandler($order);
 
         // Get thew new Total uses.
-        $totalUses = (int)(new Query())
+        $totalUses = (int)new Query()
             ->select('totalDiscountUses')
             ->from('{{%commerce_discounts}}')
             ->where(['id' => $discountId])
@@ -328,7 +328,7 @@ class DiscountsTest extends Unit
         self::assertSame(1, $totalUses);
 
         // Get the Customer Discount Uses
-        $customerUses = (new Query())
+        $customerUses = new Query()
             ->select('*')
             ->from('{{%commerce_customer_discountuses}}')
             ->where(['customerId' => $this->_user->id, 'discountId' => $discountId, 'uses' => '1'])
@@ -338,7 +338,7 @@ class DiscountsTest extends Unit
 
         // Get the Email Discount Uses
         $customerEmail = $order->getCustomer()->email;
-        $customerUses = (new Query())
+        $customerUses = new Query()
             ->select('*')
             ->from('{{%commerce_email_discountuses}}')
             ->where(['email' => $customerEmail, 'discountId' => $discountId, 'uses' => '1'])
@@ -347,7 +347,7 @@ class DiscountsTest extends Unit
         self::assertNotNull($customerUses);
 
         // Coupon uses
-        $couponUses = (new Query())
+        $couponUses = new Query()
             ->select('uses')
             ->from(Table::COUPONS)
             ->where(['code' => 'discount_1'])
@@ -405,7 +405,7 @@ class DiscountsTest extends Unit
         $this->discounts->ensureSortOrder($storeId);
 
         // Check table directly
-        $discountRows = (new Query())
+        $discountRows = new Query()
             ->select(['id', 'sortOrder'])
             ->from(Table::DISCOUNTS)
             ->orderBy(['sortOrder' => SORT_ASC])
@@ -515,8 +515,8 @@ class DiscountsTest extends Unit
      */
     public function gatAllActiveDiscountsDataProvider(): array
     {
-        $yesterday = (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(12, 0)->modify('-1 day');
-        $tomorrow = (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(12, 0)->modify('+1 day');
+        $yesterday = new DateTime('now', new DateTimeZone('America/Los_Angeles'))->setTime(12, 0)->modify('-1 day');
+        $tomorrow = new DateTime('now', new DateTimeZone('America/Los_Angeles'))->setTime(12, 0)->modify('+1 day');
 
         function _createDiscounts($discounts)
         {
@@ -1007,6 +1007,7 @@ class DiscountsTest extends Unit
     /**
      *
      */
+    #[\Override]
     protected function _before()
     {
         parent::_before();
@@ -1016,6 +1017,7 @@ class DiscountsTest extends Unit
         Craft::$app->getUser()->setIdentity($this->_user);
     }
 
+    #[\Override]
     protected function _after()
     {
         Craft::$app->getUser()->setIdentity(null);

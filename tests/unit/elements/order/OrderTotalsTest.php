@@ -98,9 +98,7 @@ class OrderTotalsTest extends Unit
         self::assertEquals(65, $this->order->getTotalPrice());
     }
 
-    /**
-     * @inheritdoc
-     */
+    #[\Override]
     protected function _before(): void
     {
         parent::_before();
@@ -110,9 +108,7 @@ class OrderTotalsTest extends Unit
         $this->order = new Order();
     }
 
-    /**
-     * @inheritdoc
-     */
+    #[\Override]
     protected function _after(): void
     {
         parent::_after();

@@ -41,9 +41,6 @@ class CustomerAddressBehavior extends Behavior
      */
     private bool $_isPrimaryShipping;
 
-    /**
-     * @inheritdoc
-     */
     public function events(): array
     {
         return [

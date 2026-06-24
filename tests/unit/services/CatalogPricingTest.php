@@ -54,6 +54,7 @@ class CatalogPricingTest extends Unit
         ];
     }
 
+    #[\Override]
     protected function _after()
     {
         parent::_after();
@@ -76,12 +77,12 @@ class CatalogPricingTest extends Unit
 
         // From the product fixture 3 variants exists in all stores, 1 variant only exists in the `ukStore`
         // (3 x 3) + 1 = 10
-        self::assertCount(10, (new Query())->select('id')->from(Table::CATALOG_PRICING)->all());
+        self::assertCount(10, new Query()->select('id')->from(Table::CATALOG_PRICING)->all());
 
         $checkVariantPrices = function(Product $product) {
             $storeId = $product->getStore()->id;
             $product->getVariants()->each(function(Variant $variant) use ($storeId) {
-                $price = (new Query())
+                $price = new Query()
                     ->select('price')
                     ->from(Table::CATALOG_PRICING)
                     ->where(['purchasableId' => $variant->id])
@@ -220,7 +221,7 @@ class CatalogPricingTest extends Unit
                             [
                                 'class' => ProductTypeConditionRule::class,
                                 'operator' => 'in',
-                                'values' => fn(): array => [(new Query())->select('uid')->from(Table::PRODUCTTYPES)->where(['handle' => 'tShirts'])->scalar()],
+                                'values' => fn(): array => [new Query()->select('uid')->from(Table::PRODUCTTYPES)->where(['handle' => 'tShirts'])->scalar()],
                             ],
                         ],
                     ],
@@ -243,7 +244,7 @@ class CatalogPricingTest extends Unit
                             [
                                 'class' => ProductTypeConditionRule::class,
                                 'operator' => 'in',
-                                'values' => fn(): array => [(new Query())->select('uid')->from(Table::PRODUCTTYPES)->where(['handle' => 'ukOnly'])->scalar()],
+                                'values' => fn(): array => [new Query()->select('uid')->from(Table::PRODUCTTYPES)->where(['handle' => 'ukOnly'])->scalar()],
                             ],
                         ],
                     ],

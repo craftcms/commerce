@@ -25,17 +25,11 @@ use yii\db\ActiveQueryInterface;
  */
 class SaleUserGroup extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::SALE_USERGROUPS;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function rules(): array
     {
         return [

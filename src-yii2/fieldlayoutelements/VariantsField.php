@@ -43,7 +43,7 @@ class VariantsField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    protected function defaultLabel(ElementInterface $element = null, bool $static = false): ?string
+    protected function defaultLabel(?ElementInterface $element = null, bool $static = false): ?string
     {
         return Craft::t('commerce', 'Variants');
     }
@@ -51,7 +51,7 @@ class VariantsField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    protected function inputHtml(ElementInterface $element = null, bool $static = false): ?string
+    protected function inputHtml(?ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Product) {
             throw new InvalidArgumentException('ProductTitleField can only be used in product field layouts.');

@@ -36,9 +36,6 @@ class PurchasableStore extends ActiveRecord
 {
     use StoreRecordTrait;
 
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::PURCHASABLES_STORES;

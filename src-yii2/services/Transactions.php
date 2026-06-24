@@ -160,7 +160,7 @@ class Transactions extends Component
         // We need to use the payment currency to calculate the refundable amount
         $teller = Plugin::getInstance()->getCurrencies()->getTeller($transaction->paymentCurrency);
 
-        $amount = (new Query())
+        $amount = new Query()
             ->where([
                 'type' => TransactionRecord::TYPE_REFUND,
                 'status' => TransactionRecord::STATUS_SUCCESS,
@@ -183,7 +183,7 @@ class Transactions extends Component
      * @throws CurrencyException
      * @throws InvalidConfigException
      */
-    public function createTransaction(Order $order = null, Transaction $parentTransaction = null, ?string $typeOverride = null): Transaction
+    public function createTransaction(?Order $order = null, ?Transaction $parentTransaction = null, ?string $typeOverride = null): Transaction
     {
         if (!$order && !$parentTransaction) {
             throw new TransactionException('Tried to create a transaction without order or parent transaction');
@@ -262,8 +262,8 @@ class Transactions extends Component
      * @param Transaction $transaction the transaction to delete
      * @throws Throwable
      * @throws StaleObjectException
-     * @deprecated in 4.0. Use [[deleteTransactionById]] instead.
      */
+    #[\Deprecated(message: 'in 4.0. Use [[deleteTransactionById]] instead.')]
     public function deleteTransaction(Transaction $transaction): bool
     {
         $record = TransactionRecord::findOne($transaction->id);
@@ -536,7 +536,7 @@ class Transactions extends Component
      */
     private function _createTransactionQuery(): Query
     {
-        return (new Query())
+        return new Query()
             ->select([
                 'amount',
                 'code',

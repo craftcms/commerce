@@ -35,6 +35,7 @@ class UserGroupConditionDiscountTest extends Unit
     /**
      *
      */
+    #[\Override]
     protected function _before(): void
     {
         parent::_before();

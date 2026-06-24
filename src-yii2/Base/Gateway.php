@@ -118,9 +118,6 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
         ];
     }
 
-    /**
-     * @inheritdoc
-     */
     public function defineRules(): array
     {
         $rules = parent::defineRules();

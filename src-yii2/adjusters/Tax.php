@@ -21,7 +21,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\commerce\taxidvalidators\EuVatIdValidator;
 use craft\elements\Address;
-use DvK\Vat\Validator;
+use Ibericode\Vat\Validator;
 use Exception;
 use Illuminate\Support\Collection;
 use Money\Teller;
@@ -439,8 +439,8 @@ class Tax extends Component implements AdjusterInterface
     /**
      * @param string $businessVatId
      * @return bool
-     * @deprecated in 5.3.0. Use `validateTaxIdNumber()` instead, passing the validators you want to check the ID with.
      */
+    #[\Deprecated(message: 'in 5.3.0. Use `validateTaxIdNumber()` instead, passing the validators you want to check the ID with.')]
     protected function validateVatNumber(string $businessVatId): bool
     {
         $oldValidator = [new EuVatIdValidator()];

@@ -469,7 +469,7 @@ class Pdfs extends Component
      * @return string The URL to download the order's PDF with a secure token
      * @since 4.9.5
      */
-    public function getPdfUrl(Order $order, string $option = null, string $pdfHandle = null, bool $inline = false): string
+    public function getPdfUrl(Order $order, ?string $option = null, ?string $pdfHandle = null, bool $inline = false): string
     {
         // Load the PDF to get its link expiry setting
         if ($pdfHandle) {
@@ -482,7 +482,7 @@ class Pdfs extends Component
             throw new \InvalidArgumentException("Can not find a PDF to generate URL.");
         }
 
-        $expiryDate = (new \DateTime())->add(new \DateInterval('PT' . $pdf->linkExpiry . 'S'));
+        $expiryDate = new \DateTime()->add(new \DateInterval('PT' . $pdf->linkExpiry . 'S'));
 
         $token = Craft::$app->getTokens()->createToken(
             ['commerce/downloads/pdf', ['orderNumber' => $order->number]],
@@ -522,7 +522,7 @@ class Pdfs extends Component
      * @return string The PDF data.
      * @throws Exception
      */
-    public function renderPdfForOrder(Order $order, string $option = '', string $templatePath = null, array $variables = [], Pdf $pdf = null): string
+    public function renderPdfForOrder(Order $order, string $option = '', ?string $templatePath = null, array $variables = [], ?Pdf $pdf = null): string
     {
         if ($pdf instanceof Pdf) {
             $templatePath = $pdf->templatePath;
@@ -669,7 +669,7 @@ class Pdfs extends Component
      */
     private function _createPdfsQuery(): Query
     {
-        $query = (new Query())
+        $query = new Query()
             ->select([
                 'description',
                 'enabled',

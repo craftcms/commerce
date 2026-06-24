@@ -42,7 +42,7 @@ class Purchasable
      */
     public static function isTempSku(string $sku): bool
     {
-        return str_starts_with($sku, static::TEMPORARY_SKU_PREFIX);
+        return str_starts_with($sku, (string) static::TEMPORARY_SKU_PREFIX);
     }
 
     /**

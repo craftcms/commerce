@@ -34,7 +34,7 @@ use craft\db\Table as CraftTable;
 use craft\elements\actions\Copy;
 use craft\elements\actions\Restore;
 use craft\elements\conditions\ElementConditionInterface;
-use craft\elements\db\EagerLoadPlan;
+use CraftCms\Cms\Element\Data\EagerLoadPlan;
 use craft\elements\User;
 use craft\gql\types\DateTime;
 use craft\helpers\ArrayHelper;
@@ -240,7 +240,7 @@ class Variant extends Purchasable implements NestedElementInterface
         return $behaviors;
     }
 
-    public function safeAttributes()
+    public function safeAttributes(): array
     {
         $attributes = parent::safeAttributes();
         $attributes[] = 'productId';
@@ -344,7 +344,7 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
-    public function canSave(User $user): bool
+    public function canSave(\CraftCms\Cms\User\Elements\User $user): bool
     {
         if (parent::canSave($user)) {
             return true;
@@ -361,7 +361,7 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
-    public function canCopy(User $user): bool
+    public function canCopy(\CraftCms\Cms\User\Elements\User $user): bool
     {
         return true;
     }
@@ -369,7 +369,7 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
-    public function canDelete(User $user): bool
+    public function canDelete(\CraftCms\Cms\User\Elements\User $user): bool
     {
         if (parent::canDelete($user)) {
             return true;
@@ -402,7 +402,7 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
-    public function canDuplicate(User $user): bool
+    public function canDuplicate(\CraftCms\Cms\User\Elements\User $user): bool
     {
         if (parent::canDuplicate($user)) {
             return true;
@@ -538,8 +538,8 @@ class Variant extends Purchasable implements NestedElementInterface
      * @param int|null $productId
      * @return void
      * @since 5.0.0
-     * @deprecated in 5.0.0. Use [[setOwnerId()]] instead.
      */
+    #[\Deprecated(message: 'in 5.0.0. Use [[setOwnerId()]] instead.')]
     public function setProductId(?int $productId)
     {
         $this->setOwnerId($productId);
@@ -548,9 +548,9 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @return int|null
      * @throws InvalidConfigException
-     * @deprecated in 5.0.0. Use [[getOwnerId()]] instead.
      * @since 5.0.0
      */
+    #[\Deprecated(message: 'in 5.0.0. Use [[getOwnerId()]] instead.')]
     public function getProductId(): ?int
     {
         return $this->getOwnerId();
@@ -596,8 +596,8 @@ class Variant extends Purchasable implements NestedElementInterface
      * Returns the product associated with this variant.
      *
      * @return Product|null The product associated with this variant, or null if it isn’t known
-     * @deprecated in 5.0.0. Use [[getOwner()]] instead.
      */
+    #[\Deprecated(message: 'in 5.0.0. Use [[getOwner()]] instead.')]
     public function getProduct(): ?Product
     {
         /** @var Product|null */
@@ -608,8 +608,8 @@ class Variant extends Purchasable implements NestedElementInterface
      * Sets the product associated with this variant.
      *
      * @param Product $product The product associated with this variant
-     * @deprecated in 5.0.0. Use [[setOwner()]] instead.
      */
+    #[\Deprecated(message: 'in 5.0.0. Use [[setOwner()]] instead.')]
     public function setProduct(Product $product): void
     {
         $this->setOwner($product);
@@ -728,7 +728,7 @@ class Variant extends Purchasable implements NestedElementInterface
             $this->sku = Craft::$app->getView()->renderObjectTemplate($type->skuFormat, $this);
 
             $skuExistsQuery = function(string $sku, ?int $id) {
-                $query = (new Query())
+                $query = new Query()
                     ->select(['sku'])
                     ->from(Table::PURCHASABLES)
                     ->where(['sku' => $sku]);
@@ -779,7 +779,7 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
-    public function canView(User $user): bool
+    public function canView(\CraftCms\Cms\User\Elements\User $user): bool
     {
         if (parent::canView($user)) {
             return true;
@@ -946,7 +946,7 @@ class Variant extends Purchasable implements NestedElementInterface
                     $sourceElementIds[] = $sourceElement->id;
                 }
 
-                $map = (new Query())
+                $map = new Query()
                     ->select('id as source, primaryOwnerId as target')
                     ->from(Table::VARIANTS)
                     ->where(['in', 'id', $sourceElementIds])
@@ -1084,7 +1084,7 @@ class Variant extends Purchasable implements NestedElementInterface
                         $elementId = $this->id;
                     }
                     if ($elementId) {
-                        $this->sortOrder = (new Query())
+                        $this->sortOrder = new Query()
                             ->select('sortOrder')
                             ->from(CraftTable::ELEMENTS_OWNERS)
                             ->where([
@@ -1095,7 +1095,7 @@ class Variant extends Purchasable implements NestedElementInterface
                     }
                 }
                 if (!isset($this->sortOrder)) {
-                    $max = (new Query())
+                    $max = new Query()
                         ->from(['eo' => CraftTable::ELEMENTS_OWNERS])
                         ->innerJoin(['v' => Table::VARIANTS], '[[v.id]] = [[eo.elementId]]')
                         ->where([
@@ -1147,10 +1147,6 @@ class Variant extends Purchasable implements NestedElementInterface
         }
     }
 
-    /**
-     * @inheritdoc
-     * @throws InvalidConfigException
-     */
     public function setEagerLoadedElements(string $handle, array $elements, EagerLoadPlan $plan): void
     {
         if (in_array($handle, ['product', 'owner', 'primaryOwner'])) {
@@ -1257,7 +1253,7 @@ class Variant extends Purchasable implements NestedElementInterface
         }
 
         // Check to see if any other purchasable has the same SKU and update this one before restore
-        $found = (new Query())->select(['[[p.sku]]', '[[e.id]]'])
+        $found = new Query()->select(['[[p.sku]]', '[[e.id]]'])
             ->from(Table::PURCHASABLES . ' p')
             ->leftJoin(CraftTable::ELEMENTS . ' e', '[[p.id]]=[[e.id]]')
             ->where(['[[e.dateDeleted]]' => null, '[[p.sku]]' => $this->getSku()])
@@ -1370,7 +1366,7 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
-    protected static function defineSources(string $context = null): array
+    protected static function defineSources(?string $context = null): array
     {
         $sources = Product::defineSources($context);
 

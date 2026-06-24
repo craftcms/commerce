@@ -31,9 +31,6 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     {
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getPaymentFormHtml(array $params): ?string
     {
         throw new NotSupportedException();

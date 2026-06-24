@@ -18,11 +18,10 @@ use craft\gql\base\RelationArgumentHandler;
  */
 class RelatedVariants extends RelationArgumentHandler
 {
+    #[\Override]
     protected string $argumentName = 'relatedToVariants';
 
-    /**
-     * @inheritdoc
-     */
+    #[\Override]
     protected function handleArgument($argumentValue): mixed
     {
         $argumentValue = parent::handleArgument($argumentValue);

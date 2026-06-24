@@ -67,14 +67,14 @@ class CatalogPricing extends Component
      * @throws Exception
      * @throws InvalidConfigException
      */
-    public function generateCatalogPrices(?array $purchasableIds = null, ?array $catalogPricingRules = null, bool $showConsoleOutput = false, Queue|QueueInterface $queue = null): void
+    public function generateCatalogPrices(?array $purchasableIds = null, ?array $catalogPricingRules = null, bool $showConsoleOutput = false, Queue|QueueInterface|null $queue = null): void
     {
         $chunkSize = 1000;
         $this->setQueueProgress($queue, 10, 'Retrieving purchasables');
 
         $isAllPurchasables = $purchasableIds === null;
         if ($isAllPurchasables) {
-            $purchasableIds = (new Query())
+            $purchasableIds = new Query()
                 ->select(['purchasables.id'])
                 ->from(Table::PURCHASABLES . ' purchasables')
                 ->innerJoin(\craft\db\Table::ELEMENTS . ' e', '[[e.id]] = [[purchasables.id]]')
@@ -87,7 +87,7 @@ class CatalogPricing extends Component
             $allowedPurchasableIds = [];
             // Chunk through the IDs to avoid hitting the int limit in the where clause
             foreach (array_chunk($purchasableIds, 2000) as $purchasableIdsChunk) {
-                $allowedPurchasableIds = array_merge($allowedPurchasableIds, (new Query())
+                $allowedPurchasableIds = array_merge($allowedPurchasableIds, new Query()
                     ->select(['purchasables.id'])
                     ->from(Table::PURCHASABLES . ' purchasables')
                     ->innerJoin(\craft\db\Table::ELEMENTS . ' e', '[[e.id]] = [[purchasables.id]]')
@@ -105,7 +105,7 @@ class CatalogPricing extends Component
         }
 
         // Rules with user ID records
-        $cprWithUserIds = (new Query())
+        $cprWithUserIds = new Query()
             ->select(['catalogPricingRuleId'])
             ->from(Table::CATALOG_PRICING_RULES_USERS)
             ->groupBy('catalogPricingRuleId')
@@ -121,7 +121,7 @@ class CatalogPricing extends Component
         $this->setQueueProgress($queue, 20, 'Generating catalog pricing data');
         $catalogPricing = [];
         foreach (Plugin::getInstance()->getStores()->getAllStores() as $store) {
-            $priceByPurchasableId = (new Query())
+            $priceByPurchasableId = new Query()
                 ->select(['purchasableId', 'basePrice', 'basePromotionalPrice'])
                 ->from([Table::PURCHASABLES_STORES])
                 ->where(['storeId' => $store->id])
@@ -447,7 +447,7 @@ class CatalogPricing extends Component
             $query->andWhere(['not', ['catalogPricingRuleId' => null]]);
         }
 
-        $subQuery = (new Query())
+        $subQuery = new Query()
             ->from(Table::PURCHASABLES)
             ->select(['id']);
 
@@ -477,8 +477,8 @@ class CatalogPricing extends Component
      * @return void
      * @throws InvalidConfigException
      * @since 5.0.0
-     * @deprecated in 5.5.0
      */
+    #[\Deprecated(message: 'in 5.5.0')]
     public function afterSavePurchasableHandler(ModelEvent $event): void
     {
         $purchasable = $event->sender;
@@ -559,12 +559,12 @@ class CatalogPricing extends Component
      * @param CatalogPricingCondition|null $condition
      * @return Query
      * @throws InvalidConfigException
-     * @deprecated in 5.1.0. Use `createCatalogPricesQuery()` instead.
      */
+    #[\Deprecated(message: 'in 5.1.0. Use `createCatalogPricesQuery()` instead.')]
     public function createCatalogPricingQuery(?int $userId = null, int|string|null $storeId = null, ?bool $isPromotionalPrice = null, bool $allPrices = false, ?CatalogPricingCondition $condition = null): Query
     {
         Craft::$app->getDeprecator()->log(__METHOD__, 'CatalogPricing `' . __METHOD__ . '()` method has been deprecated. Use `createCatalogPricesQuery()` instead.');
-        $query = (new Query())
+        $query = new Query()
             ->select([new Expression('MIN(price) as price')])
             ->from([Table::CATALOG_PRICING . ' cp']);
 
@@ -617,7 +617,7 @@ class CatalogPricing extends Component
      */
     public function createCatalogPricesQuery(?int $userId = null, int|string|null $storeId = null, bool $allPrices = false, ?CatalogPricingCondition $condition = null): Query
     {
-        $query = (new Query())
+        $query = new Query()
             ->select([
                 new Expression('MIN(CASE WHEN [[isPromotionalPrice]] = FALSE THEN [[price]] END) AS [[price]]'),
                 new Expression('MIN(CASE WHEN [[isPromotionalPrice]] = TRUE THEN [[price]] END) AS [[promotionalPrice]]'),

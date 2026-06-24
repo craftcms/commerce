@@ -49,24 +49,24 @@ class LineItemExport extends ElementExporter
             'lineitems.salePrice',
             'lineitems.qty',
             'lineitems.subtotal',
-            'totalTax' => (new CraftQuery())
+            'totalTax' => new CraftQuery()
                 ->select('SUM([[amount]])')
                 ->from(Table::ORDERADJUSTMENTS . ' adjustments')
                 ->where(['and', '[[adjustments.orderId]] = [[lineitems.orderId]]', '[[adjustments.lineItemId]] = [[lineitems.id]]'])
                 ->andWhere(['type' => Tax::ADJUSTMENT_TYPE])
                 ->andWhere(['included' => 0]),
-            'totalTaxIncluded' => (new CraftQuery())
+            'totalTaxIncluded' => new CraftQuery()
                 ->select('SUM([[amount]])')
                 ->from(Table::ORDERADJUSTMENTS . ' adjustments')
                 ->where(['and', '[[adjustments.orderId]] = [[lineitems.orderId]]', '[[lineItemId]] = [[lineitems.id]]'])
                 ->andWhere(['type' => Tax::ADJUSTMENT_TYPE])
                 ->andWhere(['included' => 1]),
-            'totalShipping' => (new CraftQuery())
+            'totalShipping' => new CraftQuery()
                 ->select('SUM([[amount]])')
                 ->from(Table::ORDERADJUSTMENTS . ' adjustments')
                 ->where(['and', '[[adjustments.orderId]] = [[lineitems.orderId]]', '[[lineItemId]] = [[lineitems.id]]'])
                 ->andWhere(['type' => Shipping::ADJUSTMENT_TYPE]),
-            'totalDiscount' => (new CraftQuery())
+            'totalDiscount' => new CraftQuery()
                 ->select('SUM([[amount]])')
                 ->from(Table::ORDERADJUSTMENTS . ' adjustments')
                 ->where(['and', '[[adjustments.orderId]] = [[lineitems.orderId]]', '[[adjustments.lineItemId]] = [[lineitems.id]]'])
@@ -84,7 +84,7 @@ class LineItemExport extends ElementExporter
             'lineitems.uid',
         ];
 
-        return (new CraftQuery())
+        return new CraftQuery()
             ->select($columns)
             ->from(Table::LINEITEMS . ' lineitems')
             ->leftJoin(Table::ORDERS . ' orders', '[[lineitems.orderId]] = [[orders.id]]')

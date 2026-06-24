@@ -331,7 +331,7 @@ class LineItem extends Model implements HasStoreInterface
      * @param LineItemStatus|null $status
      * @since 3.2.2
      */
-    public function setLineItemStatus(LineItemStatus $status = null): void
+    public function setLineItemStatus(?LineItemStatus $status = null): void
     {
         if ($status !== null) {
             $this->_lineItemStatus = $status;
@@ -524,8 +524,8 @@ class LineItem extends Model implements HasStoreInterface
     /**
      * @return float
      * @throws DeprecationException
-     * @deprecated in 5.0.0. Use `getPromotionalAmount()` instead.)
      */
+    #[\Deprecated(message: 'in 5.0.0. Use `getPromotionalAmount()` instead.)')]
     public function getSaleAmount(): float
     {
         Craft::$app->getDeprecator()->log(__METHOD__, 'LineItem `getSaleAmount()` method has been deprecated. Use `getPromotionalAmount()` instead.');
@@ -626,9 +626,6 @@ class LineItem extends Model implements HasStoreInterface
         return $rule;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function attributes(): array
     {
         $names = parent::attributes();
@@ -664,9 +661,6 @@ class LineItem extends Model implements HasStoreInterface
         return $fields;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function extraFields(): array
     {
         return [
@@ -760,8 +754,8 @@ class LineItem extends Model implements HasStoreInterface
      * @throws Exception
      * @throws InvalidConfigException
      * @throws SiteNotFoundException
-     * @deprecated in 5.1.0. Use `refresh()` instead.
      */
+    #[\Deprecated(message: 'in 5.1.0. Use `refresh()` instead.')]
     public function refreshFromPurchasable(): bool
     {
         Craft::$app->getDeprecator()->log(__METHOD__, '`LineItem::refreshFromPurchasable()` has been deprecated. Use `LineItem::refresh()` instead.');
@@ -889,8 +883,8 @@ class LineItem extends Model implements HasStoreInterface
      * @param PurchasableInterface $purchasable
      * @return void
      * @throws InvalidConfigException
-     * @deprecated in 5.0.0. Use `populate()` instead.
      */
+    #[\Deprecated(message: 'in 5.0.0. Use `populate()` instead.')]
     public function populateFromPurchasable(PurchasableInterface $purchasable): void
     {
         Craft::$app->getDeprecator()->log(__METHOD__, '`LineItem::populateFromPurchasable()` has been deprecated. Use `LineItem::populate()` instead.');
@@ -1012,8 +1006,8 @@ class LineItem extends Model implements HasStoreInterface
     /**
      * @return bool
      * @throws DeprecationException
-     * @deprecated in 5.0.0. Use `getOnPromotion()` instead.
      */
+    #[\Deprecated(message: 'in 5.0.0. Use `getOnPromotion()` instead.')]
     public function getOnSale(): bool
     {
         Craft::$app->getDeprecator()->log(__METHOD__, 'LineItem `' . __METHOD__ . '()` method has been deprecated. Use `getOnPromotion()` instead.');

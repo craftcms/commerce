@@ -26,17 +26,11 @@ use GraphQL\Type\Definition\Type;
  */
 class Product extends Element
 {
-    /**
-     * @inheritdoc
-     */
     public static function getTypeGenerator(): string
     {
         return ProductType::class;
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function getType($fields = null): Type
     {
         if ($type = GqlEntityRegistry::getEntity(self::getName())) {
@@ -55,17 +49,11 @@ class Product extends Element
         return $type;
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function getName(): string
     {
         return 'ProductInterface';
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function getFieldDefinitions(): array
     {
         $productArguments = ProductArguments::getArguments();

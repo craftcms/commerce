@@ -97,9 +97,6 @@ class Store extends Model
      */
     private bool|string $_allowEmptyCartOnCheckout = false;
 
-    /**
-     * @inheritdoc
-     */
     public function attributes(): array
     {
         $names = parent::attributes();
@@ -183,9 +180,6 @@ class Store extends Model
      */
     public ?string $uid = null;
 
-    /**
-     * @inheritdoc
-     */
     protected function defineRules(): array
     {
         $rules = parent::defineRules();
@@ -256,9 +250,6 @@ class Store extends Model
         $this->_name = $name;
     }
 
-    /**
-     * @inheritdoc
-     */
     protected function defineBehaviors(): array
     {
         return [
@@ -313,9 +304,6 @@ class Store extends Model
         return collect($this->getSites())->map(fn(Site $site) => $site->getName());
     }
 
-    /**
-     * @inheritdoc
-     */
     public function attributeLabels(): array
     {
         return [
@@ -683,8 +671,8 @@ class Store extends Model
      * @return void
      * @throws DeprecationException
      * @throws InvalidConfigException
-     * @deprecated in 5.0.0. Use [[Store::getSettings()->setCountries()]] instead.
      */
+    #[\Deprecated(message: 'in 5.0.0. Use [[Store::getSettings()->setCountries()]] instead.')]
     public function setCountries(mixed $countries): void
     {
         Craft::$app->getDeprecator()->log(__METHOD__, 'Store::setCountries() is deprecated. Use Store::getSettings()->setCountries() instead.');
@@ -693,8 +681,8 @@ class Store extends Model
 
     /**
      * @return string[] $countries
-     * @deprecated in 5.0.0. Use [[Store::getSettings()->getCountries()]] instead.
      */
+    #[\Deprecated(message: 'in 5.0.0. Use [[Store::getSettings()->getCountries()]] instead.')]
     public function getCountries(): array
     {
         Craft::$app->getDeprecator()->log(__METHOD__, 'Store::getCountries() is deprecated. Use Store::getSettings()->getCountries() instead.');
@@ -704,8 +692,8 @@ class Store extends Model
     /**
      * @return array
      * @throws DeprecationException
-     * @deprecated in 5.0.0. Use [[Store::getSettings()->getCountriesList()]] instead.
      */
+    #[\Deprecated(message: 'in 5.0.0. Use [[Store::getSettings()->getCountriesList()]] instead.')]
     public function getCountriesList(): array
     {
         Craft::$app->getDeprecator()->log(__METHOD__, 'Store::getCountriesList() has been deprecated. Use Store::getSettings()->getCountriesList() instead.');
@@ -715,8 +703,8 @@ class Store extends Model
     /**
      * @return array
      * @throws DeprecationException
-     * @deprecated in 5.0.0. Use [[Store::getSettings()->getAdministrativeAreasListByCountryCode()]] instead.
      */
+    #[\Deprecated(message: 'in 5.0.0. Use [[Store::getSettings()->getAdministrativeAreasListByCountryCode()]] instead.')]
     public function getAdministrativeAreasListByCountryCode(): array
     {
         Craft::$app->getDeprecator()->log(__METHOD__, 'Store::getAdministrativeAreasListByCountryCode() has been deprecated. Use Store::getSettings()->getAdministrativeAreasListByCountryCode() instead.');
@@ -725,8 +713,8 @@ class Store extends Model
 
     /**
      * @return ZoneAddressCondition
-     * @deprecated in 5.0.0. Use [[Store::getSettings()->getMarketAddressCondition()]] instead.
      */
+    #[\Deprecated(message: 'in 5.0.0. Use [[Store::getSettings()->getMarketAddressCondition()]] instead.')]
     public function getMarketAddressCondition(): ZoneAddressCondition
     {
         Craft::$app->getDeprecator()->log(__METHOD__, 'Store::getMarketAddressCondition() has been deprecated. Use Store::getSettings()->getMarketAddressCondition() instead.');

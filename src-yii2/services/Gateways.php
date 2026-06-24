@@ -433,8 +433,8 @@ class Gateways extends Component
      *
      * @param string $handle The gateway handle
      * @throws DeprecationException
-     * @deprecated in 3.3. Overriding gateway settings using the `commerce-gateways.php` file has been deprecated. Use the gateway’s config file instead.
      */
+    #[\Deprecated(message: 'in 3.3. Overriding gateway settings using the `commerce-gateways.php` file has been deprecated. Use the gateway’s config file instead.')]
     public function getGatewayOverrides(string $handle): ?array
     {
         if ($this->_overrides === null) {
@@ -458,7 +458,7 @@ class Gateways extends Component
      */
     private function _createGatewayQuery(): Query
     {
-        $query = (new Query())
+        $query = new Query()
             ->select([
                 'dateArchived',
                 'handle',

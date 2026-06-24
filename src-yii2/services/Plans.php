@@ -128,9 +128,11 @@ class Plans extends Component
      * Return all subscription plans for a gateway.
      *
      * @return Plan[]
-     * @deprecated in 4.0. Use [[getPlansByGatewayId]] instead.
-     * TODO: remove in 6.0
      */
+    #[\Deprecated(message: <<<'TXT'
+    in 4.0. Use [[getPlansByGatewayId]] instead.
+     TODO: remove in 6.0
+    TXT)]
     public function getAllGatewayPlans(int $gatewayId): array
     {
         return $this->getPlansByGatewayId($gatewayId);
@@ -308,7 +310,7 @@ class Plans extends Component
      */
     private function _createPlansQuery(): Query
     {
-        return (new Query())
+        return new Query()
             ->select([
                 'p.dateArchived',
                 'p.dateCreated',

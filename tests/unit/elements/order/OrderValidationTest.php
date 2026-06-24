@@ -74,9 +74,7 @@ class OrderValidationTest extends Unit
         self::assertEmpty($this->order->getErrors());
     }
 
-    /**
-     * @inheritdoc
-     */
+    #[\Override]
     protected function _before(): void
     {
         parent::_before();
@@ -86,9 +84,7 @@ class OrderValidationTest extends Unit
         $this->order = new Order();
     }
 
-    /**
-     * @inheritdoc
-     */
+    #[\Override]
     protected function _after(): void
     {
         parent::_after();

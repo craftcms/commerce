@@ -389,9 +389,9 @@ class LineItems extends Component
      * @param string $note The note on the line item
      * @param string|null $uid
      * @throws \Exception
-     * @deprecated in 5.1.0. Use [[create()]] instead.
      */
-    public function createLineItem(Order $order, int $purchasableId, array $options, int $qty = 1, string $note = '', string $uid = null): LineItem
+    #[\Deprecated(message: 'in 5.1.0. Use [[create()]] instead.')]
+    public function createLineItem(Order $order, int $purchasableId, array $options, int $qty = 1, string $note = '', ?string $uid = null): LineItem
     {
         Craft::$app->getDeprecator()->log(__METHOD__, 'LineItems::createLineItem() has been deprecated. Use LineItems::create() instead.');
         $lineItem = new LineItem();
@@ -551,7 +551,7 @@ class LineItems extends Component
      */
     private function _createLineItemQuery(): Query
     {
-        return (new Query())
+        return new Query()
             ->select([
                 'dateCreated',
                 'dateUpdated',

@@ -37,9 +37,6 @@ class OrderStatus extends ActiveRecord
     use SoftDeleteTrait;
     use StoreRecordTrait;
 
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::ORDERSTATUSES;

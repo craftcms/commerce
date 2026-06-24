@@ -110,6 +110,7 @@ class ProductPermissionTest extends Unit
         );
     }
 
+    #[\Override]
     protected function _before()
     {
         parent::_before();

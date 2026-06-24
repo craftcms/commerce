@@ -27,9 +27,6 @@ class TaxZone extends ActiveRecord
 {
     use StoreRecordTrait;
 
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::TAXZONES;

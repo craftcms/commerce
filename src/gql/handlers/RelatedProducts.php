@@ -18,11 +18,10 @@ use craft\gql\base\RelationArgumentHandler;
  */
 class RelatedProducts extends RelationArgumentHandler
 {
+    #[\Override]
     protected string $argumentName = 'relatedToProducts';
 
-    /**
-     * @inheritdoc
-     */
+    #[\Override]
     protected function handleArgument($argumentValue): mixed
     {
         $argumentValue = parent::handleArgument($argumentValue);

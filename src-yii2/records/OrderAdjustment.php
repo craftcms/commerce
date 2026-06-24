@@ -30,9 +30,6 @@ use yii\db\ActiveQueryInterface;
  */
 class OrderAdjustment extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::ORDERADJUSTMENTS;

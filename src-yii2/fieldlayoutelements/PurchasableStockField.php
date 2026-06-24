@@ -59,7 +59,7 @@ class PurchasableStockField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
+    public function inputHtml(?ElementInterface $element = null, bool $static = false): ?string
     {
         // If this is a revision get the canonical element to show the stock for.
         // @TODO re-evaluate this when we have a better way to handle revisions and inventory.

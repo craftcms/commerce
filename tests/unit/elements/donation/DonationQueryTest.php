@@ -52,7 +52,7 @@ class DonationQueryTest extends Unit
     public function testAvailableForPurchase(bool $availableForPurchase): void
     {
         // Make sure donation is installed
-        if ((int)(new Query())->from(Table::DONATIONS)->count() === 0) {
+        if ((int)new Query()->from(Table::DONATIONS)->count() === 0) {
             $primaryStore = Plugin::getInstance()->getStores()->getPrimaryStore();
             $primarySite = Craft::$app->getSites()->getPrimarySite();
             $donation = new Donation();

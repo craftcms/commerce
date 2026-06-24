@@ -29,9 +29,6 @@ use yii\db\ActiveQueryInterface;
  */
 class ProductTypeSite extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::PRODUCTTYPES_SITES;

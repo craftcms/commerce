@@ -378,9 +378,7 @@ class Subscriptions extends Component
         $fieldsService->saveLayout($layout, false);
     }
 
-    /**
-     * @deprecated in 3.4.17. Unused fields will be pruned automatically as field layouts are resaved.
-     */
+    #[\Deprecated(message: 'in 3.4.17. Unused fields will be pruned automatically as field layouts are resaved.')]
     public function pruneDeletedField(): void
     {
     }
@@ -422,7 +420,7 @@ class Subscriptions extends Component
      * @throws Exception
      * @throws Throwable if cannot expire subscription
      */
-    public function expireSubscription(Subscription $subscription, DateTime $dateTime = null): bool
+    public function expireSubscription(Subscription $subscription, ?DateTime $dateTime = null): bool
     {
         $subscription->isExpired = true;
         $subscription->dateExpired = $dateTime;
@@ -453,9 +451,8 @@ class Subscriptions extends Component
 
     /**
      * Returns subscription count for a plan.
-     *
-     * @deprecated in 4.0. Use [[getSubscriptionCountByPlanId]] instead.
      */
+    #[\Deprecated(message: 'in 4.0. Use [[getSubscriptionCountByPlanId]] instead.')]
     public function getSubscriptionCountForPlanById(int $planId): int
     {
         return $this->getSubscriptionCountByPlanId($planId);
@@ -471,9 +468,8 @@ class Subscriptions extends Component
 
     /**
      * Return true if the user has any subscriptions at all, even expired ones.
-     *
-     * @deprecated in 4.0. Use [[doesUserHaveSubscriptions]] instead.
      */
+    #[\Deprecated(message: 'in 4.0. Use [[doesUserHaveSubscriptions]] instead.')]
     public function doesUserHaveAnySubscriptions(int $userId): bool
     {
         return $this->doesUserHaveSubscriptions($userId);

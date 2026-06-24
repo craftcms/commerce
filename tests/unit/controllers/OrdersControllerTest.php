@@ -54,6 +54,7 @@ class OrdersControllerTest extends Unit
     /**
      * @inheritDoc
      */
+    #[\Override]
     protected function _before(): void
     {
         parent::_before();

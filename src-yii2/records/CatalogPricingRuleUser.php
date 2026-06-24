@@ -25,17 +25,11 @@ use yii\db\ActiveQueryInterface;
  */
 class CatalogPricingRuleUser extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::CATALOG_PRICING_RULES_USERS;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function rules(): array
     {
         return [

@@ -73,16 +73,16 @@ class RepeatCustomersTest extends Unit
         return [
             [
                 RepeatCustomers::DATE_RANGE_TODAY,
-                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                new DateTime('now', new DateTimeZone('America/Los_Angeles'))->setTime(0, 0),
+                new DateTime('now', new DateTimeZone('America/Los_Angeles'))->setTime(0, 0),
                 1,
                 1,
                 100,
             ],
             [
                 RepeatCustomers::DATE_RANGE_CUSTOM,
-                (new DateTime('7 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('5 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                new DateTime('7 days ago', new DateTimeZone('America/Los_Angeles'))->setTime(0, 0),
+                new DateTime('5 days ago', new DateTimeZone('America/Los_Angeles'))->setTime(0, 0),
                 0,
                 0,
                 0,

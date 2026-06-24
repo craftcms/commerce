@@ -205,7 +205,7 @@ class TaxRates extends Component
      */
     private function _createTaxRatesQuery(): Query
     {
-        $query = (new Query())
+        $query = new Query()
             ->select([
                 'code',
                 'dateCreated',

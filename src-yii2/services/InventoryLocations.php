@@ -96,7 +96,7 @@ class InventoryLocations extends Component
     {
         $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-        $locationIds = (new Query())
+        $locationIds = new Query()
             ->select(['inventoryLocationId'])
             ->from([Table::INVENTORYLOCATIONS_STORES])
             ->orderBy(['sortOrder' => SORT_ASC])
@@ -288,7 +288,7 @@ class InventoryLocations extends Component
      */
     private function _createInventoryLocationsQuery(bool $withTrashed = false): Query
     {
-        $query = (new Query())
+        $query = new Query()
             ->select([
                 'id',
                 'name',

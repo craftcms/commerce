@@ -28,9 +28,6 @@ use yii\db\ActiveQueryInterface;
  */
 class Variant extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::VARIANTS;

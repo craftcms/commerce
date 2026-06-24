@@ -23,9 +23,6 @@ use GraphQL\Type\Definition\Type;
  */
 class Product extends ElementArguments
 {
-    /**
-     * @inheritdoc
-     */
     public static function getArguments(): array
     {
         return array_merge(parent::getArguments(), self::getContentArguments(), [

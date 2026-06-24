@@ -46,8 +46,8 @@ class CouponCodeConditionRule extends OrderTextValuesAttributeConditionRule
         }
 
         return match ($this->operator) {
-            self::OPERATOR_EQ => strcasecmp($value, $this->value) === 0,
-            self::OPERATOR_NE => strcasecmp($value, $this->value) !== 0,
+            self::OPERATOR_EQ => strcasecmp((string) $value, $this->value) === 0,
+            self::OPERATOR_NE => strcasecmp((string) $value, $this->value) !== 0,
             self::OPERATOR_BEGINS_WITH => is_string($value) && StringHelper::startsWith($value, $this->value, false),
             self::OPERATOR_ENDS_WITH => is_string($value) && StringHelper::endsWith($value, $this->value, false),
             self::OPERATOR_CONTAINS => is_string($value) && StringHelper::contains($value, $this->value, false),

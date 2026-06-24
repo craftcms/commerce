@@ -294,7 +294,7 @@ trait OrderElementTrait
      * @inheritdoc
      * @throws Exception
      */
-    protected static function defineSources(string $context = null): array
+    protected static function defineSources(?string $context = null): array
     {
         $siteHandle = Craft::$app->getRequest()->getParam('site');
         $site = $siteHandle ? Craft::$app->getSites()->getSiteByHandle($siteHandle) : Craft::$app->getSites()->getCurrentSite();
@@ -506,15 +506,15 @@ trait OrderElementTrait
     /**
      * @inheritdoc
      */
-    protected static function defineDefaultTableAttributes(string $source = null): array
+    protected static function defineDefaultTableAttributes(?string $source = null): array
     {
         $attributes = [];
         $attributes[] = 'order';
 
-        if (!str_starts_with($source, 'carts:')) {
+        if (!str_starts_with((string) $source, 'carts:')) {
             // For orders (including order status sources)
             $attributes[] = 'reference';
-            if (!str_starts_with($source, 'orderStatus:')) {
+            if (!str_starts_with((string) $source, 'orderStatus:')) {
                 // Only show status column when not filtered by status
                 $attributes[] = 'orderStatus';
             }

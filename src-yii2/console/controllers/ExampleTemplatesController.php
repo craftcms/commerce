@@ -59,9 +59,6 @@ class ExampleTemplatesController extends Controller
      */
     private array $_replacementData = [];
 
-    /**
-     * @inheritdoc
-     */
     public function options($actionID): array
     {
         $options = parent::options($actionID);

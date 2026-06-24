@@ -131,7 +131,7 @@ class CatalogPricingRules extends Component
         $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
         // @TODO figure out if memoization is needed here
         $catalogPricingRules = $this->_createCatalogPricingRuleQuery()
-            ->andWhere(['id' => (new Query())
+            ->andWhere(['id' => new Query()
                 ->select(['catalogPricingRuleId'])
                 ->from([Table::CATALOG_PRICING])
                 ->where(['purchasableId' => $purchasableId]),
@@ -345,7 +345,7 @@ class CatalogPricingRules extends Component
 
     protected function _createCatalogPricingRuleQuery(): ?Query
     {
-        return (new Query())
+        return new Query()
             ->select([
                 'apply',
                 'applyAmount',

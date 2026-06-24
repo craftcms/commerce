@@ -34,7 +34,7 @@ class NewCustomers extends Stat
         $query = $this->_createStatQuery();
 
         // Subquery to find customers who have orders before the start date
-        $existingCustomersQuery = (new Query())
+        $existingCustomersQuery = new Query()
             ->select(['customerId'])
             ->from(Table::ORDERS)
             ->where(['isCompleted' => true])

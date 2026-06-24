@@ -74,6 +74,7 @@ class TotalOrdersTest extends Unit
         self::assertEquals($total, $firstItem['total']);
     }
 
+    #[\Override]
     protected function _before(): void
     {
         Craft::$app->setTimeZone('America/Los_Angeles');
@@ -88,15 +89,15 @@ class TotalOrdersTest extends Unit
         return [
             'today' => [
                 TotalOrders::DATE_RANGE_TODAY,
-                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                new DateTime('now', new DateTimeZone('America/Los_Angeles'))->setTime(0, 0),
+                new DateTime('now', new DateTimeZone('America/Los_Angeles'))->setTime(0, 0),
                 2,
                 1,
             ],
             'custom' => [
                 TotalOrders::DATE_RANGE_CUSTOM,
-                (new DateTime('7 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('5 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                new DateTime('7 days ago', new DateTimeZone('America/Los_Angeles'))->setTime(0, 0),
+                new DateTime('5 days ago', new DateTimeZone('America/Los_Angeles'))->setTime(0, 0),
                 0,
                 3,
             ],

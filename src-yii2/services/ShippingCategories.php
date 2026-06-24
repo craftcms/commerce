@@ -194,7 +194,7 @@ class ShippingCategories extends Component
         }
 
         // Product type IDs this shipping category is available to
-        $currentProductTypeIds = (new Query())
+        $currentProductTypeIds = new Query()
             ->select(['productTypeId'])
             ->from([Table::PRODUCTTYPES_SHIPPINGCATEGORIES])
             ->where(['shippingCategoryId' => $shippingCategory->id])
@@ -211,7 +211,7 @@ class ShippingCategories extends Component
             $defaultShippingCategory = $this->getDefaultShippingCategory($shippingCategory->storeId);
 
             // Get all variant purchasables that currently have this shipping category but whose product type is being removed
-            $purchasableIds = (new Query())
+            $purchasableIds = new Query()
                 ->select(['ps.purchasableId'])
                 ->from(['ps' => Table::PURCHASABLES_STORES])
                 ->innerJoin(['v' => Table::VARIANTS], '[[ps.purchasableId]] = [[v.id]]')
@@ -359,7 +359,7 @@ class ShippingCategories extends Component
      */
     private function _createShippingCategoryQuery(bool $withTrashed = false): Query
     {
-        $query = (new Query())
+        $query = new Query()
             ->select([
                 'shippingCategories.dateCreated',
                 'shippingCategories.dateDeleted',

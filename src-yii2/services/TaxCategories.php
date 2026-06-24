@@ -165,7 +165,7 @@ class TaxCategories extends Component
         }
 
         // Product type IDs this tax category is available to
-        $currentProductTypeIds = (new Query())
+        $currentProductTypeIds = new Query()
             ->select(['productTypeId'])
             ->from([Table::PRODUCTTYPES_TAXCATEGORIES])
             ->where(['taxCategoryId' => $taxCategory->id])
@@ -278,7 +278,7 @@ class TaxCategories extends Component
      */
     private function _createTaxCategoryQuery(bool $withTrashed = false): Query
     {
-        $query = (new Query())
+        $query = new Query()
             ->select([
                 'taxCategories.dateCreated',
                 'taxCategories.dateDeleted',

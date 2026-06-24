@@ -17,11 +17,10 @@ use craft\gql\base\ArgumentHandler;
  */
 class HasProduct extends ArgumentHandler
 {
+    #[\Override]
     protected string $argumentName = 'hasProduct';
 
-    /**
-     * @inheritdoc
-     */
+    #[\Override]
     protected function handleArgument(mixed $argumentValue): mixed
     {
         if (is_array($argumentValue)) {

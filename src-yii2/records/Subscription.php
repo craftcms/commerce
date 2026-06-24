@@ -41,9 +41,6 @@ use yii\db\ActiveQueryInterface;
  */
 class Subscription extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::SUBSCRIPTIONS;

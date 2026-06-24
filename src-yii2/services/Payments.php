@@ -566,7 +566,7 @@ class Payments extends Component
      * @param string $note the administrators note on the refund
      * @throws RefundException if anything goes wrong during a refund
      */
-    private function _refund(Transaction $parent, float $amount = null, string $note = ''): Transaction
+    private function _refund(Transaction $parent, ?float $amount = null, string $note = ''): Transaction
     {
         try {
             $gateway = $parent->getGateway();

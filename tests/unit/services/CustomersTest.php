@@ -59,6 +59,7 @@ class CustomersTest extends Unit
         ];
     }
 
+    #[\Override]
     protected function _before(): void
     {
         parent::_before();
@@ -480,9 +481,7 @@ class CustomersTest extends Unit
         ];
     }
 
-    /**
-     * @inheritdoc
-     */
+    #[\Override]
     protected function _after(): void
     {
         parent::_after();

@@ -154,7 +154,7 @@ class TaxZones extends Component
      */
     private function _createQuery(): Query
     {
-        return (new Query())
+        return new Query()
             ->select([
                 'condition',
                 'dateCreated',

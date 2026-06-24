@@ -23,9 +23,6 @@ use craft\db\ActiveRecord;
  */
 class Coupon extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::COUPONS;

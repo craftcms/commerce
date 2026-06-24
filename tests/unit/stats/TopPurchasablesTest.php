@@ -91,8 +91,8 @@ class TopPurchasablesTest extends Unit
             'date-today' => [
                 TopPurchasables::DATE_RANGE_TODAY,
                 'revenue',
-                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                new DateTime('now', new DateTimeZone('America/Los_Angeles'))->setTime(0, 0),
+                new DateTime('now', new DateTimeZone('America/Los_Angeles'))->setTime(0, 0),
                 2,
                 function(VariantQuery $query) {
                     /** @var Purchasable $purchasable */
@@ -110,8 +110,8 @@ class TopPurchasablesTest extends Unit
             'date-custom' => [
                 TopPurchasables::DATE_RANGE_CUSTOM,
                 'qty',
-                (new DateTime('7 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('5 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                new DateTime('7 days ago', new DateTimeZone('America/Los_Angeles'))->setTime(0, 0),
+                new DateTime('5 days ago', new DateTimeZone('America/Los_Angeles'))->setTime(0, 0),
                 0,
                 null,
             ],

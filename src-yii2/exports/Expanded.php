@@ -21,9 +21,6 @@ use craft\elements\exporters\Expanded as CraftExpanded;
  */
 class Expanded extends CraftExpanded
 {
-    /**
-     * @inheritdoc
-     */
     public function export(ElementQueryInterface $query): mixed
     {
         // This export should be identical to the parent, except for the additional extra fields

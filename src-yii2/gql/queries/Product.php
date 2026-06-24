@@ -22,9 +22,6 @@ use GraphQL\Type\Definition\Type;
  */
 class Product extends Query
 {
-    /**
-     * @inheritdoc
-     */
     public static function getQueries(bool $checkToken = true): array
     {
         if ($checkToken && !GqlHelper::canQueryProducts()) {

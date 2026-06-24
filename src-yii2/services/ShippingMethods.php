@@ -279,7 +279,7 @@ class ShippingMethods extends Component
      */
     private function _createShippingMethodQuery(): Query
     {
-        $query = (new Query())
+        $query = new Query()
             ->select([
                 'dateCreated',
                 'dateUpdated',

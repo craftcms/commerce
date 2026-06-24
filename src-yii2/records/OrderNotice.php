@@ -25,9 +25,6 @@ use yii\db\ActiveQueryInterface;
  */
 class OrderNotice extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::ORDERNOTICES;

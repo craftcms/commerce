@@ -254,7 +254,7 @@ class OrderAdjustments extends Component
      */
     private function _createOrderAdjustmentQuery(): Query
     {
-        return (new Query())
+        return new Query()
             ->select([
                 'amount',
                 'description',

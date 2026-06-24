@@ -37,17 +37,16 @@ class GatewaysController extends Controller
     {
         $gateways = Commerce::getInstance()->getGateways()->getAllGateways();
         $rows = collect($gateways)
-            ->map(function($gateway) {
+            ->map(fn($gateway) =>
                 /** @var \craft\commerce\base\Gateway $gateway */
-                return [
-                    $gateway->id,
-                    $gateway->name,
-                    $gateway->handle,
-                    $gateway->getIsFrontendEnabled() ? 'Yes' : 'No',
-                    $gateway::class,
-                    $gateway->uid,
-                ];
-            })
+                [
+                $gateway->id,
+                $gateway->name,
+                $gateway->handle,
+                $gateway->getIsFrontendEnabled() ? 'Yes' : 'No',
+                $gateway::class,
+                $gateway->uid,
+            ])
             ->all();
 
         Console::table([

@@ -33,9 +33,6 @@ use yii\db\ActiveQueryInterface;
  */
 class OrderHistory extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::ORDERHISTORIES;

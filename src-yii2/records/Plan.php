@@ -31,9 +31,6 @@ use yii\db\ActiveQueryInterface;
  */
 class Plan extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::PLANS;

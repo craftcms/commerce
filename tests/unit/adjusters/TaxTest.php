@@ -35,9 +35,7 @@ class TaxTest extends Unit
      */
     public ?Plugin $pluginInstance = null;
 
-    /**
-     * @inheritdoc
-     */
+    #[\Override]
     protected function _before(): void
     {
         parent::_before();
@@ -47,9 +45,7 @@ class TaxTest extends Unit
         $this->pluginInstance = Plugin::getInstance();
     }
 
-    /**
-     * @inheritdoc
-     */
+    #[\Override]
     protected function _after(): void
     {
         parent::_after();

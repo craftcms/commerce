@@ -43,24 +43,24 @@ class OrderExport extends ElementExporter
             'orderStatusId',
             'couponCode',
             'itemTotal',
-            'totalTax' => (new CraftQuery())
+            'totalTax' => new CraftQuery()
                 ->select('SUM([[amount]])')
                 ->from(Table::ORDERADJUSTMENTS)
                 ->where('[[orderId]] = ' . Table::ORDERS . '.[[id]]')
                 ->andWhere(['type' => Tax::ADJUSTMENT_TYPE])
                 ->andWhere(['included' => 0]),
-            'totalTaxIncluded' => (new CraftQuery())
+            'totalTaxIncluded' => new CraftQuery()
                 ->select('SUM([[amount]])')
                 ->from(Table::ORDERADJUSTMENTS)
                 ->where('[[orderId]] = ' . Table::ORDERS . '.[[id]]')
                 ->andWhere(['type' => Tax::ADJUSTMENT_TYPE])
                 ->andWhere(['included' => 1]),
-            'totalShipping' => (new CraftQuery())
+            'totalShipping' => new CraftQuery()
                 ->select('SUM([[amount]])')
                 ->from(Table::ORDERADJUSTMENTS)
                 ->where('[[orderId]] = ' . Table::ORDERS . '.[[id]]')
                 ->andWhere(['type' => Shipping::ADJUSTMENT_TYPE]),
-            'totalDiscount' => (new CraftQuery())
+            'totalDiscount' => new CraftQuery()
                 ->select('SUM([[amount]])')
                 ->from(Table::ORDERADJUSTMENTS)
                 ->where('[[orderId]] = ' . Table::ORDERS . '.[[id]]')
@@ -79,7 +79,7 @@ class OrderExport extends ElementExporter
             'shippingMethodHandle',
         ];
 
-        return (new CraftQuery())
+        return new CraftQuery()
             ->select($columns)
             ->from(Table::ORDERS)
             ->where(['id' => $orderIds])

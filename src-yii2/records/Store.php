@@ -38,9 +38,6 @@ use craft\db\ActiveRecord;
  */
 class Store extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::STORES;

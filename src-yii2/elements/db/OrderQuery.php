@@ -726,7 +726,7 @@ class OrderQuery extends ElementQuery
         if ($value instanceof OrderStatus) {
             $this->orderStatusId = $value->id;
         } elseif ($value !== null) {
-            $this->orderStatusId = (new Query())
+            $this->orderStatusId = new Query()
                 ->select(['id'])
                 ->from([Table::ORDERSTATUSES])
                 ->where(Db::parseParam('handle', $value))
@@ -999,8 +999,8 @@ class OrderQuery extends ElementQuery
      *
      * @param User|int|null $value The property value
      * @return static self reference
-     * @deprecated 4.0.0 in favor of [[customer()]]
      */
+    #[\Deprecated(message: 'in favor of [[customer()]]', since: '4.0.0')]
     public function user(int|User|null $value): OrderQuery
     {
         Craft::$app->getDeprecator()->log('OrderQuery::user()', 'The `OrderQuery::user()` method is deprecated, use the `OrderQuery::customer()` method instead.');
@@ -1825,7 +1825,7 @@ class OrderQuery extends ElementQuery
 
             $this->subQuery->andWhere([
                 'exists',
-                (new Query())
+                new Query()
                     ->from(['lineitems' => Table::LINEITEMS])
                     ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]'))
                     ->andWhere(['[[lineitems.purchasableId]]' => $purchasableIds]),
@@ -1836,7 +1836,7 @@ class OrderQuery extends ElementQuery
         if (isset($this->hasTransactions)) {
             $this->subQuery->andWhere([
                 $this->hasTransactions ? 'exists' : 'not exists',
-                (new Query())
+                new Query()
                     ->from(['transactions' => Table::TRANSACTIONS])
                     ->where(new Expression('[[transactions.orderId]] = [[elements.id]]')),
             ]);
@@ -1846,7 +1846,7 @@ class OrderQuery extends ElementQuery
         if (isset($this->hasLineItems)) {
             $this->subQuery->andWhere([
                 $this->hasLineItems ? 'exists' : 'not exists',
-                (new Query())
+                new Query()
                     ->from(['lineitems' => Table::LINEITEMS])
                     ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]')),
             ]);

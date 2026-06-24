@@ -99,7 +99,7 @@ class ProductVariantStockConditionRuleTest extends Unit
         /** @var Product $product */
         $product = $productsFixture->getElement('rad-hoodie');
 
-        $originalValues = (new Query())
+        $originalValues = new Query()
             ->from(Table::PURCHASABLES_STORES)
             ->select(['purchasableId', 'stock', 'inventoryTracked'])
             ->indexBy('purchasableId')

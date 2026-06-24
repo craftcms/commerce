@@ -9,7 +9,7 @@ use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\elements\conditions\ElementConditionRuleInterface;
-use yii\db\QueryInterface;
+use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 
 /**
  * Payment Gateway condition rule.
@@ -78,9 +78,9 @@ class PaymentGatewayConditionRule extends BaseMultiSelectConditionRule implement
 
     /**
      * Returns the single value for backwards compatibility
-     * @deprecated Use getValues() instead
      * @return string|null
      */
+    #[\Deprecated(message: 'Use getValues() instead')]
     public function getValue(): ?string
     {
         $values = $this->getValues();
@@ -89,9 +89,9 @@ class PaymentGatewayConditionRule extends BaseMultiSelectConditionRule implement
 
     /**
      * Sets a single value for backwards compatibility
-     * @deprecated Use setValues() instead
      * @param string|null $value
      */
+    #[\Deprecated(message: 'Use setValues() instead')]
     public function setValue(?string $value): void
     {
         $this->setValues($value ? [$value] : []);
@@ -116,7 +116,7 @@ class PaymentGatewayConditionRule extends BaseMultiSelectConditionRule implement
     /**
      * @inheritdoc
      */
-    public function modifyQuery(QueryInterface $query): void
+    public function modifyQuery(ElementQueryInterface $query): void
     {
         $gateways = Plugin::getInstance()->getGateways()->getAllGateways();
 

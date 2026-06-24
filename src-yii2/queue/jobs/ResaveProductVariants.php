@@ -24,9 +24,6 @@ class ResaveProductVariants extends BaseJob
      */
     public int $productId;
 
-    /**
-     * @inheritdoc
-     */
     public function execute($queue): void
     {
         $product = Product::find()
@@ -50,9 +47,6 @@ class ResaveProductVariants extends BaseJob
         }
     }
 
-    /**
-     * @inheritdoc
-     */
     protected function defaultDescription(): ?string
     {
         $product = Product::find()

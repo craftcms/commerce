@@ -31,9 +31,6 @@ class SiteStore extends ActiveRecord
         return ['siteId'];
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::SITESTORES;

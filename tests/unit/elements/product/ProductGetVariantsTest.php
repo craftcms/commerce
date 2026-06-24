@@ -70,7 +70,6 @@ class ProductGetVariantsTest extends Unit
         // Access private _variants property to check if it was memoized
         $reflection = new ReflectionClass($product);
         $variantsProperty = $reflection->getProperty('_variants');
-        $variantsProperty->setAccessible(true);
 
         // Should be null, not an empty collection
         self::assertNull($variantsProperty->getValue($product));
@@ -101,7 +100,6 @@ class ProductGetVariantsTest extends Unit
         // Access private _variants property
         $reflection = new ReflectionClass($product);
         $variantsProperty = $reflection->getProperty('_variants');
-        $variantsProperty->setAccessible(true);
 
         // Should be memoized
         $memoizedVariants = $variantsProperty->getValue($product);
@@ -134,7 +132,6 @@ class ProductGetVariantsTest extends Unit
         // Use reflection to access private createVariantQuery method
         $reflection = new ReflectionClass(Product::class);
         $method = $reflection->getMethod('createVariantQuery');
-        $method->setAccessible(true);
 
         /** @var VariantQuery $query */
         $query = $method->invoke(null, $duplicateProduct);
@@ -142,9 +139,7 @@ class ProductGetVariantsTest extends Unit
         // Use reflection to check the query's ownerId and siteId
         $queryReflection = new ReflectionClass($query);
         $ownerIdProperty = $queryReflection->getProperty('ownerId');
-        $ownerIdProperty->setAccessible(true);
         $siteIdProperty = $queryReflection->getProperty('siteId');
-        $siteIdProperty->setAccessible(true);
 
         // Should use the original product's ID and siteId
         self::assertNotEquals($originalProduct->id, $ownerIdProperty->getValue($query));
@@ -230,7 +225,6 @@ class ProductGetVariantsTest extends Unit
             // regardless of which parameter was passed, all set variants must be retained.
             $reflection = new ReflectionClass($product);
             $variantsProperty = $reflection->getProperty('_variants');
-            $variantsProperty->setAccessible(true);
 
             /** @var VariantCollection $internalVariants */
             $internalVariants = $variantsProperty->getValue($product);

@@ -23,9 +23,6 @@ use yii\db\ActiveQueryInterface;
  */
 class ProductTypeShippingCategory extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::PRODUCTTYPES_SHIPPINGCATEGORIES;

@@ -59,6 +59,7 @@ class EmailPreviewControllerTest extends Unit
     /**
      * @inheritDoc
      */
+    #[\Override]
     protected function _before(): void
     {
         parent::_before();
@@ -80,7 +81,7 @@ class EmailPreviewControllerTest extends Unit
         Craft::$app->getRequest()->setQueryParams(['email' => $email['id'] . ':' . $email['storeId']]);
 
         $response = $this->controller->runAction('render');
-        (new TemplateResponseFormatter())->format($response);
+        new TemplateResponseFormatter()->format($response);
 
         self::assertInstanceOf(Response::class, $response);
         self::assertIsString($response->content);
@@ -100,7 +101,7 @@ class EmailPreviewControllerTest extends Unit
         ]);
 
         $response = $this->controller->runAction('render');
-        (new TemplateResponseFormatter())->format($response);
+        new TemplateResponseFormatter()->format($response);
 
         self::assertInstanceOf(Response::class, $response);
         self::assertIsString($response->content);

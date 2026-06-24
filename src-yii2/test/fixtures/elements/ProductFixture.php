@@ -54,9 +54,6 @@ class ProductFixture extends BaseElementFixture
         $this->productTypeIds = $this->_getProductTypeIds();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function afterLoad(): void
     {
         $this->productTypeIds = $this->_getProductTypeIds();
@@ -78,7 +75,7 @@ class ProductFixture extends BaseElementFixture
      */
     private function _getProductTypeIds(): array
     {
-        return (new Query())
+        return new Query()
             ->select([
                 'productTypes.id',
                 'productTypes.handle',
@@ -104,16 +101,13 @@ class ProductFixture extends BaseElementFixture
         }
     }
 
-    /**
-     * @inheritdoc
-     */
     protected function saveElement(ElementInterface $element): bool
     {
         $return = parent::saveElement($element);
 
         // Save the variants
         $this->_variants->each(function(Variant $v) use ($element) {
-            if ((new Query())
+            if (new Query()
                 ->from(Table::VARIANTS . ' v')
                 ->leftJoin(Table::PURCHASABLES . ' p', '[[p.id]] = [[v.id]]')
                 ->where(['primaryOwnerId' => $element->id])
@@ -133,9 +127,6 @@ class ProductFixture extends BaseElementFixture
         return $return;
     }
 
-    /**
-     * @inheritdoc
-     */
     protected function deleteElement(ElementInterface $element): bool
     {
         /** @var Product $element */

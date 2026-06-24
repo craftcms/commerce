@@ -160,7 +160,7 @@ class PlansTest extends Unit
 
         self::assertTrue($result);
         self::assertEquals('Monthly Subscription foo', $plan->name);
-        $dbRow = (new Query())
+        $dbRow = new Query()
             ->from(Table::PLANS)
             ->select(['id', 'name'])
             ->where(['name' => 'Monthly Subscription foo'])
@@ -181,7 +181,7 @@ class PlansTest extends Unit
         $result = $this->service->archivePlanById($monthlyPlan->id);
 
         self::assertTrue($result);
-        $dbRow = (new Query())
+        $dbRow = new Query()
             ->from(Table::PLANS)
             ->select(['id', 'name', 'isArchived'])
             ->where(['isArchived' => true])
@@ -207,7 +207,7 @@ class PlansTest extends Unit
 
         $result = $this->service->reorderPlans(array_reverse($plans));
         self::assertTrue($result);
-        $dbRows = (new Query())
+        $dbRows = new Query()
             ->from(Table::PLANS)
             ->select(['id', 'sortOrder'])
             ->orderBy(['sortOrder' => SORT_ASC])
@@ -223,6 +223,7 @@ class PlansTest extends Unit
     /**
      *
      */
+    #[\Override]
     public function _before(): void
     {
         parent::_before();

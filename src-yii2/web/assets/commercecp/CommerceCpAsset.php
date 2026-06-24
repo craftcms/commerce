@@ -26,9 +26,6 @@ use yii\web\JqueryAsset;
  */
 class CommerceCpAsset extends AssetBundle
 {
-    /**
-     * @inheritdoc
-     */
     public function init(): void
     {
         $this->sourcePath = __DIR__ . '/dist';
@@ -45,9 +42,6 @@ class CommerceCpAsset extends AssetBundle
         parent::init();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function registerAssetFiles($view): void
     {
         parent::registerAssetFiles($view);

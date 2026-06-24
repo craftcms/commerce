@@ -32,9 +32,6 @@ class ShippingRuleCategory extends ActiveRecord
     public const CONDITION_DISALLOW = 'disallow';
     public const CONDITION_REQUIRE = 'require';
 
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::SHIPPINGRULE_CATEGORIES;

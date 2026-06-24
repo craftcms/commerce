@@ -52,9 +52,6 @@ class TotalRevenue extends Widget
      */
     private TotalRevenueStat $_stat;
 
-    /**
-     * @inheritdoc
-     */
     protected function defineRules(): array
     {
         $rules = parent::defineRules();
@@ -92,30 +89,21 @@ class TotalRevenue extends Widget
         $this->_stat->type = $this->type;
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function isSelectable(): bool
     {
         return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function displayName(): string
     {
         return Craft::t('commerce', 'Total Revenue');
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getTitle(): ?string
     {
         $stats = $this->_stat->get();
         $revenue = ArrayHelper::getColumn($stats, 'revenue', false);
-        $total = round(array_sum($revenue), 0, PHP_ROUND_HALF_DOWN);
+        $total = round(array_sum($revenue), 0, \RoundingMode::HalfTowardsZero);
 
         $formattedTotal = Currency::formatAsCurrency($total, $this->getStore()->getCurrency()->getCode(), false, true, true);
 
@@ -130,17 +118,11 @@ class TotalRevenue extends Widget
         return $this->_stat->getDateRangeWording();
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function icon(): ?string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getBodyHtml(): ?string
     {
         $stats = $this->_stat->get();
@@ -190,9 +172,6 @@ class TotalRevenue extends Widget
         );
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getSettingsHtml(): ?string
     {
         $id = 'total-revenue' . StringHelper::randomString();

@@ -260,9 +260,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     private ?int $_stock = null;
 
-    /**
-     * @inheritdoc
-     */
     public function attributes(): array
     {
         $names = parent::attributes();
@@ -297,9 +294,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         return $fields;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function extraFields(): array
     {
         $names = parent::extraFields();
@@ -324,9 +318,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         ];
     }
 
-    /**
-     * @inheritdoc
-     */
     public function setAttributesFromRequest(array $values): void
     {
         $length = ArrayHelper::remove($values, 'length');
@@ -352,9 +343,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         $this->setAttributes($values);
     }
 
-    /**
-     * @inheritdoc
-     */
     protected function inlineAttributeInputHtml(string $attribute): string
     {
         $localizePrice = function(string $attribute) {
@@ -391,9 +379,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         };
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function displayName(): string
     {
         $classNameParts = explode('\\', static::class);
@@ -411,10 +396,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         return Plugin::getInstance()->getCurrencies()->getTeller($this->getStore()->getCurrency());
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function __unset($name)
+    public function __unset(string $name): void
     {
         // Allow clearing of specific memoized properties
         if (in_array($name, ['stock', 'shippingCategory', 'taxCategory'])) {
@@ -683,7 +665,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     /**
      * @param string|null $sku
      */
-    public function setSku(string $sku = null): void
+    public function setSku(?string $sku = null): void
     {
         $this->_sku = $sku;
     }
@@ -897,9 +879,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         ];
     }
 
-    /**
-     * @inheritdoc
-     */
     public function setAttributes($values, $safeOnly = true): void
     {
         // Normalize category IDs - handle arrays from componentSelect and empty strings
@@ -923,9 +902,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         parent::setAttributes($values, $safeOnly);
     }
 
-    /**
-     * @inheritdoc
-     */
     protected function defineRules(): array
     {
         return array_merge(parent::defineRules(), [
@@ -1008,17 +984,13 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         return Plugin::getInstance()->getInventory()->getInventoryItemByPurchasable($this);
     }
 
-    /**
-     * @deprecated in 5.0.0 use [[Purchasable::$inventoryTracked]] instead.
-     */
+    #[\Deprecated(message: 'in 5.0.0 use [[Purchasable::$inventoryTracked]] instead.')]
     public function getHasUnlimitedStock(): bool
     {
         return !$this::hasInventory() || !$this->inventoryTracked;
     }
 
-    /**
-     * @deprecated in 5.0.0 use [[Purchasable::$inventoryTracked]] instead.
-     */
+    #[\Deprecated(message: 'in 5.0.0 use [[Purchasable::$inventoryTracked]] instead.')]
     public function setHasUnlimitedStock($value): bool
     {
         return $this->inventoryTracked = !$value;
@@ -1245,9 +1217,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         parent::afterSave($isNew);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function afterPropagate(bool $isNew): void
     {
         parent::afterPropagate($isNew);
@@ -1312,9 +1281,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         return $this->getOnPromotion();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function attributeLabels(): array
     {
         $labels = parent::attributeLabels();
@@ -1322,9 +1288,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         return array_merge($labels, ['sku' => 'SKU']);
     }
 
-    /**
-     * @inheritdoc
-     */
     protected function metaFieldsHtml(bool $static): string
     {
         $html = parent::metaFieldsHtml($static);
@@ -1408,9 +1371,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         ]);
     }
 
-    /**
-     * @inheritdoc
-     */
     protected function attributeHtml(string $attribute): string
     {
         $stock = '';
@@ -1515,9 +1475,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         return true;
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function attributePreviewHtml(array $attribute): mixed
     {
         return match ($attribute['value']) {

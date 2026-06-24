@@ -33,9 +33,6 @@ class TaxCategory extends ActiveRecord
         return Table::TAXCATEGORIES;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function rules(): array
     {
         return [

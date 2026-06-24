@@ -54,7 +54,7 @@ class ProductVariantSearchConditionRule extends BaseTextConditionRule implements
      */
     protected function paramValue(): ?string
     {
-        return trim(parent::paramValue());
+        return trim((string) parent::paramValue());
     }
 
     /**

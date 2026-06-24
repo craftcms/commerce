@@ -59,9 +59,6 @@ class Transaction extends ActiveRecord
     public int $total = 0;
 
 
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::TRANSACTIONS;

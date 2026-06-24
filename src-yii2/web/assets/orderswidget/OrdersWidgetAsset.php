@@ -20,9 +20,6 @@ use craft\web\assets\cp\CpAsset;
  */
 class OrdersWidgetAsset extends AssetBundle
 {
-    /**
-     * @inheritdoc
-     */
     public function init(): void
     {
         $this->sourcePath = __DIR__ . '/dist';

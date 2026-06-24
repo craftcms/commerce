@@ -269,7 +269,7 @@ class ProductTypes extends Component
     {
         $db = Craft::$app->getDb();
         if (!isset($this->_siteSettingsByProductId[$productTypeId])) {
-            $query = (new Query())
+            $query = new Query()
                 ->select([
                     'hasUrls',
                     'id',
@@ -809,9 +809,7 @@ class ProductTypes extends Component
         }
     }
 
-    /**
-     * @deprecated in 3.4.17. Unused fields will be pruned automatically as field layouts are resaved.
-     */
+    #[\Deprecated(message: 'in 3.4.17. Unused fields will be pruned automatically as field layouts are resaved.')]
     public function pruneDeletedField(): void
     {
     }
@@ -908,7 +906,7 @@ class ProductTypes extends Component
      */
     private function _createProductTypeQuery(): Query
     {
-        $query = (new Query())
+        $query = new Query()
             ->select([
                 'productTypes.descriptionFormat',
                 'productTypes.fieldLayoutId',

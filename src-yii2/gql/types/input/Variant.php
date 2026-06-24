@@ -28,7 +28,7 @@ class Variant extends InputObjectType
 
         return GqlEntityRegistry::getEntity($typeName) ?: GqlEntityRegistry::createEntity($typeName, new InputObjectType([
             'name' => $typeName,
-            'fields' => fn() => VariantArguments::getArguments(),
+            'fields' => VariantArguments::getArguments(...),
         ]));
     }
 }

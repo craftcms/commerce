@@ -26,7 +26,7 @@ use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\web\CpScreenResponseBehavior;
-use yii\web\Response;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Transfer element type
@@ -443,7 +443,7 @@ class Transfer extends Element
      * @param string|null $context
      * @return array
      */
-    protected static function defineSources(string $context = null): array
+    protected static function defineSources(?string $context = null): array
     {
         $transferStatuses = TransferStatusType::cases();
         $transferStatusSources = [];
@@ -531,7 +531,7 @@ class Transfer extends Element
     /**
      * @inheritdoc
      */
-    public function canView(User $user): bool
+    public function canView(\CraftCms\Cms\User\Elements\User $user): bool
     {
         if (parent::canView($user)) {
             return true;
@@ -543,7 +543,7 @@ class Transfer extends Element
     /**
      * @inheritdoc
      */
-    public function canSave(User $user): bool
+    public function canSave(\CraftCms\Cms\User\Elements\User $user): bool
     {
         if (parent::canSave($user)) {
             return true;
@@ -555,7 +555,7 @@ class Transfer extends Element
     /**
      * @inheritdoc
      */
-    public function canDuplicate(User $user): bool
+    public function canDuplicate(\CraftCms\Cms\User\Elements\User $user): bool
     {
         return false;
     }
@@ -563,7 +563,7 @@ class Transfer extends Element
     /**
      * @inheritdoc
      */
-    public function canDelete(User $user): bool
+    public function canDelete(\CraftCms\Cms\User\Elements\User $user): bool
     {
         $canDelete = false;
 
@@ -581,7 +581,7 @@ class Transfer extends Element
     /**
      * @inheritdoc
      */
-    public function canCreateDrafts(User $user): bool
+    public function canCreateDrafts(\CraftCms\Cms\User\Elements\User $user): bool
     {
         return false;
     }
@@ -602,10 +602,7 @@ class Transfer extends Element
         return UrlHelper::cpUrl('commerce/inventory/transfers');
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function prepareEditScreen(Response $response, string $containerId): void
+    public function prepareEditScreen(Response|\CraftCms\Cms\Http\Responses\CpScreenResponse $response, string $containerId): void
     {
         $view = Craft::$app->getView();
         $view->registerAssetBundle(TransfersAsset::class);
@@ -743,7 +740,7 @@ JS, [
     /**
      * @inheritdoc
      */
-    public function beforeValidate()
+    public function beforeValidate(): bool
     {
         if ($this->transferStatus === null) {
             $this->transferStatus = TransferStatusType::DRAFT;
@@ -803,7 +800,7 @@ JS, [
                 Plugin::getInstance()->getInventory()->executeUpdateInventoryLevels($inventoryUpdateCollection);
             }
 
-            $existingDetailIds = (new Query())
+            $existingDetailIds = new Query()
                 ->select('id')
                 ->from('{{%commerce_transferdetails}}')
                 ->where(['transferId' => $this->id])
@@ -914,13 +911,7 @@ JS, [
      */
     public function isAllReceived(): bool
     {
-        foreach ($this->getDetails() as $detail) {
-            if ($detail->getReceived() < $detail->quantity) {
-                return false;
-            }
-        }
-
-        return true;
+        return array_all($this->getDetails(), fn($detail) => !($detail->getReceived() < $detail->quantity));
     }
 
     /**

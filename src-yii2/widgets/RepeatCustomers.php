@@ -64,41 +64,26 @@ class RepeatCustomers extends Widget
         }
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function isSelectable(): bool
     {
         return Craft::$app->getUser()->checkPermission('commerce-manageCustomers');
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function displayName(): string
     {
         return Craft::t('commerce', 'Repeat Customers');
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function icon(): ?string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getTitle(): ?string
     {
         return '';
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getBodyHtml(): ?string
     {
         $numbers = $this->_stat->get();
@@ -118,9 +103,6 @@ class RepeatCustomers extends Widget
         return 1;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getSettingsHtml(): ?string
     {
         $id = 'repeat' . StringHelper::randomString();

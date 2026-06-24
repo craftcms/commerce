@@ -36,13 +36,13 @@ class CouponsValidator extends Validator
         }
 
         // Case-insensitive check for duplicates in the same set of codes
-        if (array_intersect_key($codes, array_unique(array_map('strtolower', $codes))) !== $codes) {
+        if (array_intersect_key($codes, array_unique(array_map(strtolower(...), $codes))) !== $codes) {
             $this->addError($model, $attribute, Craft::t('commerce', 'Coupon codes must be unique.'));
             return;
         }
 
         // Check other codes in the DB
-        $query = (new Query())
+        $query = new Query()
             ->select([
                 'coupons.code',
                 'discounts.name',

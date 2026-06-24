@@ -504,7 +504,7 @@ class Emails extends Component
             // To:
             try {
                 $emails = $view->renderString($email->getTo(), $renderVariables);
-                $emails = preg_split('/[\s,]+/', $emails);
+                $emails = preg_split('/[\s,]+/', (string) $emails);
 
                 $newEmail->setTo($emails);
             } catch (\Exception $e) {
@@ -958,7 +958,7 @@ class Emails extends Component
      */
     private function _createEmailQuery(): Query
     {
-        return (new Query())
+        return new Query()
             ->select([
                 'emails.bcc',
                 'emails.cc',

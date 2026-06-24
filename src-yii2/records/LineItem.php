@@ -54,9 +54,6 @@ use yii\db\ActiveQueryInterface;
  */
 class LineItem extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::LINEITEMS;

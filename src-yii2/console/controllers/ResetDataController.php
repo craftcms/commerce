@@ -29,9 +29,6 @@ class ResetDataController extends Controller
      */
     public bool $force = false;
 
-    /**
-     * @inheritdoc
-     */
     public function options($actionID): array
     {
         $options = parent::options($actionID);
@@ -69,7 +66,7 @@ class ResetDataController extends Controller
 
                 // Orders
                 $this->stdout('Deleting orders ...' . PHP_EOL, Console::FG_GREEN);
-                $ids = (new Query())
+                $ids = new Query()
                     ->select(['orders.id'])
                     ->from(['orders' => Table::ORDERS])
                     ->column();
@@ -82,7 +79,7 @@ class ResetDataController extends Controller
 
                 // Subscriptions
                 $this->stdout('Deleting subscriptions ...' . PHP_EOL, Console::FG_GREEN);
-                $subscriptionIds = (new Query())
+                $subscriptionIds = new Query()
                     ->select(['subscriptions.id'])
                     ->from(['subscriptions' => Table::SUBSCRIPTIONS])
                     ->column();

@@ -77,9 +77,6 @@ class TaxRate extends ActiveRecord
         self::TAXABLE_ORDER_TOTAL_SHIPPING,
     ];
 
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::TAXRATES;

@@ -286,7 +286,7 @@ class ProductTest extends Unit
         \Craft::$app->getElements()->saveElement($product, false);
 
         // Check default data when the variant is saved as part of the product save
-        $productData = (new Query())
+        $productData = new Query()
             ->select([
                 'defaultVariantId',
                 'defaultSku',
@@ -300,7 +300,7 @@ class ProductTest extends Unit
             ->where(['id' => $product->id])
             ->one();
 
-        $defaultVariantData = (new Query())
+        $defaultVariantData = new Query()
             ->select([
                 'v.id',
             ])
@@ -335,7 +335,7 @@ class ProductTest extends Unit
 
         \Craft::$app->getElements()->saveElement($variant, false);
 
-        $newProductData = (new Query())
+        $newProductData = new Query()
             ->select([
                 'defaultVariantId',
                 'defaultSku',
@@ -457,7 +457,6 @@ class ProductTest extends Unit
 
         $reflection = new ReflectionClass($productTypesService);
         $prop = $reflection->getProperty('_allProductTypes');
-        $prop->setAccessible(true);
 
         foreach ($prop->getValue($productTypesService) as $type) {
             if ($type->id === $typeId) {

@@ -76,7 +76,7 @@ class EuVatIdValidator implements TaxIdValidatorInterface
             return false;
         }
 
-        return preg_match('/^' . $this->_patterns[$country] . '$/', $number) > 0;
+        return preg_match('/^' . $this->_patterns[$country] . '$/', (string) $number) > 0;
     }
 
     public function validateExistence(string $idNumber): bool
@@ -95,7 +95,7 @@ class EuVatIdValidator implements TaxIdValidatorInterface
                 ]),
             ]);
 
-            $responseBody = json_decode($response->getBody(), true);
+            $responseBody = json_decode((string) $response->getBody(), true);
             if ($response->getStatusCode() !== 200) {
                 return false;
             }
@@ -112,9 +112,6 @@ class EuVatIdValidator implements TaxIdValidatorInterface
         return false;
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function isEnabled(): bool
     {
         return true;

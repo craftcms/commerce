@@ -24,9 +24,6 @@ class InventoryLocation extends ActiveRecord
         return Table::INVENTORYLOCATIONS;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function rules(): array
     {
         return [

@@ -252,7 +252,7 @@ class Coupons extends Component
      */
     private function _createCouponQuery(): Query
     {
-        return (new Query())
+        return new Query()
             ->select([
                 'coupons.id',
                 'coupons.code',

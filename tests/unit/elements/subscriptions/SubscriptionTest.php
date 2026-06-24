@@ -198,7 +198,7 @@ class SubscriptionTest extends Unit
             'expired' => [
                 [
                     'isExpired' => true,
-                    'dataExpired' => (new DateTime('yesterday', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                    'dataExpired' => new DateTime('yesterday', new DateTimeZone('America/Los_Angeles'))->setTime(0, 0),
                     'trialDays' => 10,
                 ],
                 false,

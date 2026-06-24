@@ -39,7 +39,7 @@ use craft\elements\actions\NewSiblingBefore;
 use craft\elements\actions\Restore;
 use craft\elements\actions\SetStatus;
 use craft\elements\conditions\ElementConditionInterface;
-use craft\elements\db\EagerLoadPlan;
+use CraftCms\Cms\Element\Data\EagerLoadPlan;
 use craft\elements\db\ElementQuery;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\NestedElementManager;
@@ -222,7 +222,7 @@ class Product extends Element implements HasStoreInterface
     /**
      * @inheritdoc
      */
-    protected static function defineSources(string $context = null): array
+    protected static function defineSources(?string $context = null): array
     {
         if ($context == 'index') {
             $productTypes = Plugin::getInstance()->getProductTypes()->getEditableProductTypes();
@@ -337,7 +337,7 @@ class Product extends Element implements HasStoreInterface
     /**
      * @inheritdoc
      */
-    protected static function defineActions(string $source = null): array
+    protected static function defineActions(?string $source = null): array
     {
         $elementsService = Craft::$app->getElements();
         // Get the selected site
@@ -361,13 +361,13 @@ class Product extends Element implements HasStoreInterface
             }
             default:
             {
-                if (preg_match('/^productType:(\d+)$/', $source, $matches)) {
+                if (preg_match('/^productType:(\d+)$/', (string) $source, $matches)) {
                     $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById((int)$matches[1]);
 
                     if ($productType) {
                         $productTypes = [$productType];
                     }
-                } elseif (preg_match('/^productType:(.+)$/', $source, $matches)) {
+                } elseif (preg_match('/^productType:(.+)$/', (string) $source, $matches)) {
                     $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByUid($matches[1]);
 
                     if ($productType) {
@@ -661,7 +661,7 @@ JS, [
     {
         if ($handle == 'variants') {
             $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
-            $map = (new Query())
+            $map = new Query()
                 ->select('ownerId as source, elementId as target')
                 ->from(\craft\db\Table::ELEMENTS_OWNERS)
                 ->where(['ownerId' => $sourceElementIds])
@@ -849,7 +849,7 @@ JS, [
         return $this->_defaultPrice ?? $this->getDefaultVariant()?->price;
     }
 
-    public function canCreateDrafts(User $user): bool
+    public function canCreateDrafts(\CraftCms\Cms\User\Elements\User $user): bool
     {
         // Everyone with view permissions can create drafts
         return true;
@@ -940,7 +940,7 @@ JS, [
     /**
      * @inheritdoc
      */
-    public function canView(User $user): bool
+    public function canView(\CraftCms\Cms\User\Elements\User $user): bool
     {
         if (parent::canView($user)) {
             return true;
@@ -958,7 +958,7 @@ JS, [
     /**
      * @inheritdoc
      */
-    public function canSave(User $user): bool
+    public function canSave(\CraftCms\Cms\User\Elements\User $user): bool
     {
         if (parent::canSave($user)) {
             return true;
@@ -976,7 +976,7 @@ JS, [
     /**
      * @inheritdoc
      */
-    public function canDuplicate(User $user): bool
+    public function canDuplicate(\CraftCms\Cms\User\Elements\User $user): bool
     {
         if (parent::canDuplicate($user)) {
             return true;
@@ -994,7 +994,7 @@ JS, [
     /**
      * @inheritdoc
      */
-    public function canDelete(User $user): bool
+    public function canDelete(\CraftCms\Cms\User\Elements\User $user): bool
     {
         if (parent::canDelete($user)) {
             return true;
@@ -1012,7 +1012,7 @@ JS, [
     /**
      * @inheritdoc
      */
-    public function canDeleteForSite(User $user): bool
+    public function canDeleteForSite(\CraftCms\Cms\User\Elements\User $user): bool
     {
         return Craft::$app->getElements()->canDelete($this, $user);
     }
@@ -1364,7 +1364,7 @@ JS, [
                     'attribute' => 'variants', // dont change this: https://github.com/craftcms/commerce/issues/4314#issuecomment-4715539955
                     'propagationMethod' => $this->getType()->propagationMethod,
                     'valueGetter' => fn() => $this->getVariants(true),
-                    'valueSetter' => fn($variants) => $this->setVariants($variants),
+                    'valueSetter' => $this->setVariants(...),
                 ],
             );
         }
@@ -1416,8 +1416,8 @@ JS, [
      * Returns whether at least one variant has unlimited stock.
      *
      * @throws InvalidConfigException
-     * @deprecated in 5.0.0 and will be removed in 6.0.0. Check each variant instead.
      */
+    #[\Deprecated(message: 'in 5.0.0 and will be removed in 6.0.0. Check each variant instead.')]
     public function getHasUnlimitedStock(bool $includeDisabled = false): bool
     {
         foreach ($this->getVariants($includeDisabled) as $variant) {
@@ -1438,9 +1438,6 @@ JS, [
         return static::gqlTypeNameByContext($this->getType());
     }
 
-    /**
-     * @inheritdoc
-     */
     public function setEagerLoadedElements(string $handle, array $elements, EagerLoadPlan $plan): void
     {
         if ($handle == 'variants') {
@@ -1792,7 +1789,7 @@ JS, [
 
                 if ($variant->sku) {
                     $skuExistsQuery = function(string $sku, ?int $id) {
-                        $query = (new Query())
+                        $query = new Query()
                             ->select(['sku'])
                             ->from(Table::PURCHASABLES)
                             ->where(['sku' => $sku]);

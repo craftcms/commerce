@@ -434,7 +434,7 @@ class ProductQuery extends ElementQuery
         if ($value instanceof ProductType) {
             $this->typeId = [$value->id];
         } elseif ($value !== null) {
-            $this->typeId = (new Query())
+            $this->typeId = new Query()
                 ->select(['id'])
                 ->from([Table::PRODUCTTYPES])
                 ->where(Db::parseParam('handle', $value))
@@ -876,7 +876,7 @@ class ProductQuery extends ElementQuery
         } elseif (is_numeric($this->typeId)) {
             $this->typeId = [$this->typeId];
         } elseif (!is_array($this->typeId) || !ArrayHelper::isNumeric($this->typeId)) {
-            $this->typeId = (new Query())
+            $this->typeId = new Query()
                 ->select(['id'])
                 ->from([Table::PRODUCTTYPES])
                 ->where(Db::parseParam('id', $this->typeId))
@@ -994,7 +994,7 @@ class ProductQuery extends ElementQuery
         $variantQuery->andWhere(['not', ['commerce_variants.primaryOwnerId' => null]]);
 
         // Uses exists subquery for speed to check for the variant
-        $existsQuery = (new Query())
+        $existsQuery = new Query()
             ->from(['existssub' => $variantQuery])
             ->where(['existssub.primaryOwnerId' => new Expression('[[commerce_products.id]]')]);
         $this->subQuery->andWhere(['exists', $existsQuery]);
@@ -1014,7 +1014,7 @@ class ProductQuery extends ElementQuery
         $condition = ['or'];
 
         foreach ($refs as $ref) {
-            $parts = array_filter(explode('/', $ref));
+            $parts = array_filter(explode('/', (string) $ref));
 
             if (!empty($parts)) {
                 if (count($parts) == 1) {

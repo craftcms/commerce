@@ -8,12 +8,12 @@
 namespace craft\commerce\elements\actions;
 
 use Craft;
-use craft\base\ElementAction;
+use CraftCms\Cms\Element\Actions\ElementAction;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
-use craft\elements\db\ElementQueryInterface;
-use craft\helpers\Json;
+use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
+use CraftCms\Cms\Support\Json;
 
 /**
  * Class Set Default Variant
@@ -25,17 +25,11 @@ use craft\helpers\Json;
  */
 class SetDefaultVariant extends ElementAction
 {
-    /**
-     * @inheritdoc
-     */
     public function getTriggerLabel(): string
     {
         return Craft::t('commerce', 'Set default variant');
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getTriggerHtml(): ?string
     {
         $type = Json::encode(static::class);

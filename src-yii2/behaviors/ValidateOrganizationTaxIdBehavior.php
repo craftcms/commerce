@@ -15,9 +15,6 @@ class ValidateOrganizationTaxIdBehavior extends Behavior
     /** @var Address */
     public $owner;
 
-    /**
-     * @inheritdoc
-     */
     public function attach($owner)
     {
         if (!$owner instanceof Address) {
@@ -27,9 +24,6 @@ class ValidateOrganizationTaxIdBehavior extends Behavior
         parent::attach($owner);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function events(): array
     {
         return [

@@ -49,9 +49,6 @@ class Sale extends ActiveRecord
     public const CATEGORY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
     public const CATEGORY_RELATIONSHIP_TYPE_BOTH = 'element';
 
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::SALES;

@@ -43,9 +43,6 @@ class Email extends ActiveRecord
     public const TYPE_CUSTOMER = 'customer';
     public const TYPE_CUSTOM = 'custom';
 
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::EMAILS;

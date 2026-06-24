@@ -180,8 +180,8 @@ class PaymentCurrencies extends Component
      * @return float
      * @throws CurrencyException if currency not found by its ISO code
      * @throws InvalidConfigException
-     * @deprecated 5.0.0
      */
+    #[\Deprecated(message: '5.0.0')]
     public function convertCurrency(float $amount, string $fromCurrency, string $toCurrency, bool $round = false): float
     {
         $fromCurrency = $this->getPaymentCurrencyByIso($fromCurrency);
@@ -236,7 +236,7 @@ class PaymentCurrencies extends Component
         }
 
         $originalIso = $record->iso;
-        $record->iso = strtoupper($model->iso);
+        $record->iso = strtoupper((string) $model->iso);
         $record->storeId = $model->storeId;
         // If this rate is primary, the rate must be 1 since it is now the rate all prices are enter in as.
         $record->rate = $model->getPrimary() ? 1 : $model->rate;
@@ -322,7 +322,7 @@ class PaymentCurrencies extends Component
      */
     private function _createPaymentCurrencyQuery(): Query
     {
-        return (new Query())
+        return new Query()
             ->select([
                 'dateCreated',
                 'dateUpdated',

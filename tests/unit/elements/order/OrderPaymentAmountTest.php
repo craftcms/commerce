@@ -166,6 +166,7 @@ class OrderPaymentAmountTest extends Unit
     /**
      *
      */
+    #[\Override]
     protected function _before(): void
     {
         parent::_before();
@@ -178,6 +179,7 @@ class OrderPaymentAmountTest extends Unit
     /**
      *
      */
+    #[\Override]
     protected function _after(): void
     {
         parent::_after();

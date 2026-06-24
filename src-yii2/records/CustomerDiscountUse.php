@@ -26,9 +26,6 @@ use yii\db\ActiveQueryInterface;
  */
 class CustomerDiscountUse extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::CUSTOMER_DISCOUNTUSES;

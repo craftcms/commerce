@@ -65,7 +65,7 @@ use craft\helpers\Cp;
 use craft\helpers\Db;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
-use craft\helpers\Template;
+use Illuminate\Support\HtmlString;
 use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use craft\models\Site;
@@ -76,7 +76,6 @@ use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
 use Throwable;
-use Twig\Markup;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidCallException;
@@ -1373,7 +1372,7 @@ class Order extends Element implements HasStoreInterface
     /**
      * @inheritdoc
      */
-    public function canSave(User $user): bool
+    public function canSave(\CraftCms\Cms\User\Elements\User $user): bool
     {
         return parent::canSave($user) || $user->can('commerce-editOrders');
     }
@@ -1381,7 +1380,7 @@ class Order extends Element implements HasStoreInterface
     /**
      * @inheritdoc
      */
-    public function canView(User $user): bool
+    public function canView(\CraftCms\Cms\User\Elements\User $user): bool
     {
         return parent::canView($user) || $user->can('commerce-manageOrders');
     }
@@ -1389,7 +1388,7 @@ class Order extends Element implements HasStoreInterface
     /**
      * @inheritdoc
      */
-    public function canDuplicate(User $user): bool
+    public function canDuplicate(\CraftCms\Cms\User\Elements\User $user): bool
     {
         return false;
     }
@@ -1397,7 +1396,7 @@ class Order extends Element implements HasStoreInterface
     /**
      * @inheritdoc
      */
-    public function canDelete(User $user): bool
+    public function canDelete(\CraftCms\Cms\User\Elements\User $user): bool
     {
         return parent::canDelete($user) || $user->can('commerce-deleteOrders');
     }
@@ -1801,7 +1800,7 @@ class Order extends Element implements HasStoreInterface
         }
 
         // Try to catch where the order could be marked as completed twice at the same time, and thus cause a race condition.
-        $completedInDb = (new Query())
+        $completedInDb = new Query()
             ->select('id')
             ->from([Table::ORDERS])
             ->where(['isCompleted' => true])
@@ -1842,7 +1841,7 @@ class Order extends Element implements HasStoreInterface
                 $testReference = $baseReference;
 
                 while (true) {
-                    $existingReference = (new Query())
+                    $existingReference = new Query()
                         ->select('id')
                         ->from([Table::ORDERS])
                         ->where(['reference' => $testReference])
@@ -1988,7 +1987,7 @@ class Order extends Element implements HasStoreInterface
      */
     public function getRecalculationMode(): string
     {
-        return $this->_recalculationMode;
+        return $this->_recalculationMode ?? self::RECALCULATION_MODE_ALL;
     }
 
     /**
@@ -2414,13 +2413,10 @@ class Order extends Element implements HasStoreInterface
 
     public function getShortNumber(): string
     {
-        return substr($this->number, 0, 7);
+        return substr((string) $this->number, 0, 7);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getLink(?string $title = null, array $options = []): ?Markup
+    public function getLink(?string $title = null, array $options = []): ?HtmlString
     {
         if ($title) {
             $options['title'] = $title;
@@ -2429,7 +2425,7 @@ class Order extends Element implements HasStoreInterface
         $title = $title ?: ($this->reference ?: $this->getShortNumber());
         $link = Html::a($title, $this->getCpEditUrl(), $options);
 
-        return Template::raw($link);
+        return new HtmlString($link);
     }
 
     /**
@@ -2448,7 +2444,7 @@ class Order extends Element implements HasStoreInterface
      * @param bool $inline Whether the PDF should be displayed inline in the browser (default: false)
      * @return string The URL to the order's PDF invoice with a secure token
      */
-    public function getPdfUrl(string $option = null, string $pdfHandle = null, bool $inline = false): string
+    public function getPdfUrl(?string $option = null, ?string $pdfHandle = null, bool $inline = false): string
     {
         return Plugin::getInstance()->getPdfs()->getPdfUrl($this, $option, $pdfHandle, $inline);
     }
@@ -2544,9 +2540,7 @@ class Order extends Element implements HasStoreInterface
         }
     }
 
-    /**
-     * @deprecated in 4.0.0. Use [[getCustomer()]] instead.
-     */
+    #[\Deprecated(message: 'in 4.0.0. Use [[getCustomer()]] instead.')]
     public function getUser(): ?User
     {
         Craft::$app->getDeprecator()->log('Order::getUser()', 'The `Order::getUser()` is deprecated, use `Order::getCustomer()` instead.');
@@ -2558,8 +2552,8 @@ class Order extends Element implements HasStoreInterface
      *
      * @param string|null $email
      * @throws Exception
-     * @deprecated in 4.3.0. Use [[setCustomer()]] instead.
      */
+    #[\Deprecated(message: 'in 4.3.0. Use [[setCustomer()]] instead.')]
     public function setEmail(?string $email): void
     {
         Craft::$app->getDeprecator()->log(__METHOD__, '`Order::setEmail()` has been deprecated use `Order::setCustomer()` instead.');
@@ -2603,10 +2597,10 @@ class Order extends Element implements HasStoreInterface
 
     private function _maskEmail($email, $minLength = 3, $maxLength = 10, $mask = "***")
     {
-        $atPos = strrpos($email, "@");
-        $name = substr($email, 0, $atPos);
+        $atPos = strrpos((string) $email, "@");
+        $name = substr((string) $email, 0, $atPos);
         $len = strlen($name);
-        $domain = substr($email, $atPos);
+        $domain = substr((string) $email, $atPos);
 
         if (($len / 2) < $maxLength) {
             $maxLength = ($len / 2);
@@ -2806,13 +2800,7 @@ class Order extends Element implements HasStoreInterface
      */
     public function hasShippableItems(): bool
     {
-        foreach ($this->getLineItems() as $item) {
-            if ($item->getIsShippable()) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($this->getLineItems(), fn($item) => $item->getIsShippable());
     }
 
     /**
@@ -3072,8 +3060,8 @@ class Order extends Element implements HasStoreInterface
 
     /**
      * Returns the total sale amount.
-     * @deprecated in 5.0.0. Use [[getTotalPromotionalAmount()]] instead.
      */
+    #[\Deprecated(message: 'in 5.0.0. Use [[getTotalPromotionalAmount()]] instead.')]
     public function getTotalSaleAmount(): float
     {
         Craft::$app->getDeprecator()->log(__METHOD__, '`getTotalSaleAmount()` method has been deprecated. Use `getTotalPromotionalAmount()` instead.');
@@ -3359,7 +3347,7 @@ class Order extends Element implements HasStoreInterface
      */
     public function hasMatchingAddresses(?array $attributes = null): bool
     {
-        $addressAttributes = (new ReflectionClass(AddressInterface::class))->getMethods();
+        $addressAttributes = new ReflectionClass(AddressInterface::class)->getMethods();
         $addressAttributes = array_map(static fn(ReflectionMethod $method) => // Remove `get` and lower case first character
         lcfirst(substr($method->name, 3)), $addressAttributes);
 
@@ -3370,9 +3358,9 @@ class Order extends Element implements HasStoreInterface
             }
 
             return $field->handle;
-        }, (new AddressElement())->getFieldLayout()->getCustomFields());
+        }, new AddressElement()->getFieldLayout()->getCustomFields());
 
-        $nameTraitProperties = array_map(static fn(ReflectionProperty $property) => $property->name, (new ReflectionClass(NameTrait::class))->getProperties());
+        $nameTraitProperties = array_map(static fn(ReflectionProperty $property) => $property->name, new ReflectionClass(NameTrait::class)->getProperties());
 
         $toArrayHandles = [...$nameTraitProperties, ...$addressAttributes, ...$customFieldHandles];
 
@@ -3447,8 +3435,8 @@ class Order extends Element implements HasStoreInterface
     /**
      * @return ShippingMethod|null
      * @throws InvalidConfigException
-     * @deprecated in 3.4.18. Use `$shippingMethodHandle` or `$shippingMethodName` instead.
      */
+    #[\Deprecated(message: 'in 3.4.18. Use `$shippingMethodHandle` or `$shippingMethodName` instead.')]
     public function getShippingMethod(): ?ShippingMethod
     {
         return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle((string)$this->shippingMethodHandle);
@@ -3735,7 +3723,7 @@ class Order extends Element implements HasStoreInterface
      */
     private function _saveNotices(): void
     {
-        $previousNoticeIds = (new Query())
+        $previousNoticeIds = new Query()
             ->select(['id'])
             ->from([Table::ORDERNOTICES])
             ->where(['orderId' => $this->id])

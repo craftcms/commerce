@@ -31,14 +31,11 @@ class Extension extends AbstractExtension implements GlobalsInterface
         return 'Craft Commerce Twig Extension';
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getFilters(): array
     {
         return [
-            new TwigFilter('commerceCurrency', [Currency::class, 'formatAsCurrency']),
-            new TwigFilter('commercePaymentFormNamespace', [PaymentForm::class, 'getPaymentFormNamespace']),
+            new TwigFilter('commerceCurrency', Currency::formatAsCurrency(...)),
+            new TwigFilter('commercePaymentFormNamespace', PaymentForm::getPaymentFormNamespace(...)),
         ];
     }
 

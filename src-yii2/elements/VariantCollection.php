@@ -24,11 +24,8 @@ class VariantCollection extends ElementCollection
 {
     /**
      * Creates a VariantCollection from an array of Variant attributes.
-     *
-     * @param array $items
-     * @return static
      */
-    public static function make($items = [])
+    public static function make($items = [], mixed ...$args): static
     {
         foreach ($items as &$item) {
             if ($item instanceof Variant) {

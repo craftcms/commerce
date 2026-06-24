@@ -71,7 +71,7 @@ class Products extends BaseRelationField
     /**
      * @inheritdoc
      */
-    protected function inputTemplateVariables(array|ElementQueryInterface $value = null, ?ElementInterface $element = null): array
+    protected function inputTemplateVariables(array|ElementQueryInterface|null $value = null, ?ElementInterface $element = null): array
     {
         Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
         Craft::$app->getView()->registerAssetBundle(ProductIndexAsset::class);
@@ -79,7 +79,7 @@ class Products extends BaseRelationField
         $variables = parent::inputTemplateVariables($value, $element);
 
         $sources = $this->getInputSources($element);
-        if (is_array($sources) && preg_match('/^productType:(.+)$/', reset($sources), $matches)) {
+        if (is_array($sources) && preg_match('/^productType:(.+)$/', (string) reset($sources), $matches)) {
             $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByUid($matches[1]);
             if ($productType) {
                 $variables['jsSettings']['productTypeId'] = (int)$productType->id;

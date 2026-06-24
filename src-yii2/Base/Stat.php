@@ -41,7 +41,7 @@ abstract class Stat implements StatInterface, HasStoreInterface
      * @param DateTime|bool|null $endDate
      * @throws \Exception
      */
-    public function __construct(string $dateRange = null, mixed $startDate = null, mixed $endDate = null, ?int $storeId = null)
+    public function __construct(?string $dateRange = null, mixed $startDate = null, mixed $endDate = null, ?int $storeId = null)
     {
         $user = Craft::$app->getUser()->getIdentity();
         if ($user) {
@@ -293,7 +293,7 @@ abstract class Stat implements StatInterface, HasStoreInterface
      */
     private function _getFirstCompletedOrderDate(): DateTime|false
     {
-        $firstCompletedOrder = (new Query())
+        $firstCompletedOrder = new Query()
             ->select(['dateOrdered'])
             ->from(Table::ORDERS)
             ->where(['isCompleted' => true])
@@ -465,7 +465,7 @@ abstract class Stat implements StatInterface, HasStoreInterface
             throw new InvalidConfigException('The store ID has not been set.');
         }
 
-        $query = (new Query())
+        $query = new Query()
             ->from(Table::ORDERS . ' orders')
             ->innerJoin('{{%elements}} elements', '[[elements.id]] = [[orders.id]]')
             ->where(['orders.storeId' => $this->storeId])

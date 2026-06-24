@@ -210,7 +210,7 @@ class Orders extends Component
         }
 
         // Find all orders using this address as a source
-        $idQuery = (new Query())
+        $idQuery = new Query()
             ->select(['id'])
             ->from(Table::ORDERS)
             ->where(['sourceBillingAddressId' => $address->id])

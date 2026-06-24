@@ -26,9 +26,6 @@ use craft\gql\GqlEntityRegistry;
  */
 class ProductType implements GeneratorInterface
 {
-    /**
-     * @inheritdoc
-     */
     public static function generateTypes(mixed $context = null): array
     {
         $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();

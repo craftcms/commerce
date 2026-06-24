@@ -23,9 +23,6 @@ use yii\db\ActiveQueryInterface;
  */
 class OrderStatusEmail extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::ORDERSTATUS_EMAILS;

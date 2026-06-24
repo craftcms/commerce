@@ -35,17 +35,11 @@ use yii\db\ActiveQueryInterface;
  */
 class ShippingRule extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::SHIPPINGRULES;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function rules(): array
     {
         return [

@@ -40,6 +40,7 @@ class ShippingCategoryTest extends Unit
         ];
     }
 
+    #[\Override]
     public function _before()
     {
         parent::_before();

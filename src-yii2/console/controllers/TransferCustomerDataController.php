@@ -32,9 +32,6 @@ class TransferCustomerDataController extends Controller
      */
     public ?string $toUser = null;
 
-    /**
-     * @inheritdoc
-     */
     public function options($actionID): array
     {
         $options = parent::options($actionID);

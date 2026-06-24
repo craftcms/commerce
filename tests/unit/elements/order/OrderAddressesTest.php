@@ -176,9 +176,7 @@ class OrderAddressesTest extends Unit
         ];
     }
 
-    /**
-     * @inheritdoc
-     */
+    #[\Override]
     protected function _before(): void
     {
         parent::_before();
@@ -188,9 +186,7 @@ class OrderAddressesTest extends Unit
         $this->order = new Order();
     }
 
-    /**
-     * @inheritdoc
-     */
+    #[\Override]
     protected function _after(): void
     {
         parent::_after();

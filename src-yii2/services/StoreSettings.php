@@ -170,7 +170,7 @@ class StoreSettings extends Component
      */
     private function _createStoreSettingsQuery(): Query
     {
-        return (new Query())
+        return new Query()
             ->select([
                 'id',
                 'marketAddressCondition',

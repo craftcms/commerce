@@ -9,7 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\Plugin;
-use DvK\Vat\Validator;
+use Ibericode\Vat\Validator;
 use Exception;
 use yii\base\Component;
 
@@ -69,8 +69,8 @@ class Vat extends Component
 
     /**
      * @return Validator
-     * @deprecated in 5.3.0 use Taxes::getEnabledTaxIdValidators() instead
      */
+    #[\Deprecated(message: 'in 5.3.0 use Taxes::getEnabledTaxIdValidators() instead')]
     protected function getVatValidator(): Validator
     {
         if (!isset($this->validator)) {

@@ -154,12 +154,7 @@ class Formulas extends Component
 
     private function _hasDisallowedStrings(string $code, array $disallowedStrings = []): bool
     {
-        foreach ($disallowedStrings as $disallowedString) {
-            if (stripos($code, (string) $disallowedString) !== false) {
-                return true;
-            }
-        }
-        return false;
+        return array_any($disallowedStrings, fn($disallowedString) => stripos($code, (string) $disallowedString) !== false);
     }
 
     private function _getTags(): array

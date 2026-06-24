@@ -39,8 +39,8 @@ class CustomerConditionRule extends BaseMultiSelectConditionRule implements Elem
 
     /**
      * @return array
-     * @deprecated in 4.3.1.
      */
+    #[\Deprecated(message: 'in 4.3.1.')]
     protected function options(): array
     {
         return User::find()

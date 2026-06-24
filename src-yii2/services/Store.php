@@ -30,8 +30,8 @@ class Store extends Component
      * @return StoreModel
      * @throws SiteNotFoundException
      * @throws InvalidConfigException
-     * @deprecated in 5.0.0. Use [[Stores::getCurrentStore()]] instead.
      */
+    #[\Deprecated(message: 'in 5.0.0. Use [[Stores::getCurrentStore()]] instead.')]
     public function getStore(): StoreModel
     {
         Craft::$app->getDeprecator()->log(__METHOD__, 'craft\commerce\services\Store::getStore() has been deprecated. Use craft\commerce\services\Stores::getCurrentStore() instead.');

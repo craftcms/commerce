@@ -299,8 +299,8 @@ class Carts extends Component
 
     /**
      * @since 3.1
-     * @deprecated in 4.0.0. The cookie name is available via [[$cartCookie]] `['name']`.
      */
+    #[\Deprecated(message: "in 4.0.0. The cookie name is available via [[\$cartCookie]] `['name']`.")]
     public function getCartName(): string
     {
         return $this->cartCookie['name'];
@@ -458,7 +458,7 @@ class Carts extends Component
         $interval = DateTimeHelper::secondsToInterval($configInterval);
         $edge->sub($interval);
 
-        $cartIdsQuery = (new Query())
+        $cartIdsQuery = new Query()
             ->select(['orders.id'])
             ->where(['not', ['isCompleted' => true]])
             ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => Db::prepareDateForDb($edge)])

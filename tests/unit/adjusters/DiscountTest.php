@@ -36,9 +36,7 @@ class DiscountTest extends Unit
      */
     public ?string $originalEdition = null;
 
-    /**
-     * @inheritdoc
-     */
+    #[\Override]
     protected function _before(): void
     {
         parent::_before();
@@ -46,9 +44,7 @@ class DiscountTest extends Unit
         $this->pluginInstance = Plugin::getInstance();
     }
 
-    /**
-     * @inheritdoc
-     */
+    #[\Override]
     protected function _after(): void
     {
         parent::_after();

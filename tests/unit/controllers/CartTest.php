@@ -83,6 +83,7 @@ class CartTest extends Unit
     /**
      * @inheritDoc
      */
+    #[\Override]
     protected function _before(): void
     {
         parent::_before();
@@ -544,13 +545,7 @@ class CartTest extends Unit
                 self::assertTrue($cart->hasErrors());
                 // loop through the error keys to make sure there is one starting with `shippingAddress`
                 $errorKeys = array_keys($cart->getErrors());
-                $found = false;
-                foreach ($errorKeys as $errorKey) {
-                    if (str_starts_with($errorKey, 'shippingAddress')) {
-                        $found = true;
-                        break;
-                    }
-                }
+                $found = array_any($errorKeys, fn($errorKey) => str_starts_with((string) $errorKey, 'shippingAddress'));
 
                 self::assertTrue($found);
             } else {
@@ -564,13 +559,7 @@ class CartTest extends Unit
                 self::assertTrue($cart->hasErrors());
                 // loop through the error keys to make sure there is one starting with `billingAddress`
                 $errorKeys = array_keys($cart->getErrors());
-                $found = false;
-                foreach ($errorKeys as $errorKey) {
-                    if (str_starts_with($errorKey, 'billingAddress')) {
-                        $found = true;
-                        break;
-                    }
-                }
+                $found = array_any($errorKeys, fn($errorKey) => str_starts_with((string) $errorKey, 'billingAddress'));
 
                 self::assertTrue($found);
             } else {

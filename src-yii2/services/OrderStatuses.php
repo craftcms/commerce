@@ -226,7 +226,7 @@ class OrderStatuses extends Component
     {
         $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-        $countGroupedByStatusId = (new Query())
+        $countGroupedByStatusId = new Query()
             ->select(['[[o.orderStatusId]]', 'count(o.id) as orderCount'])
             ->where([
                 '[[o.isCompleted]]' => true,
@@ -538,7 +538,7 @@ class OrderStatuses extends Component
      */
     private function _createOrderStatusesQuery(bool $withTrashed = false): Query
     {
-        $query = (new Query())
+        $query = new Query()
             ->select([
                 'color',
                 'dateDeleted',

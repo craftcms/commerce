@@ -23,9 +23,6 @@ use craft\db\ActiveRecord;
  */
 class PaymentCurrency extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::PAYMENTCURRENCIES;

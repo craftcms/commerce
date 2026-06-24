@@ -25,17 +25,11 @@ use yii\db\ActiveQueryInterface;
  */
 class SaleCategory extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::SALE_CATEGORIES;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function rules(): array
     {
         return [

@@ -69,17 +69,11 @@ abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewa
      */
     abstract public function getSwitchPlansFormModel(): SwitchPlansForm;
 
-    /**
-     * @inheritdoc
-     */
     public function reactivateSubscription(Subscription $subscription): SubscriptionResponseInterface
     {
         throw new NotImplementedException('This gateway has not implemented subscription reactivation');
     }
 
-    /**
-     * @inheritdoc
-     */
     public function refreshPaymentHistory(Subscription $subscription): void
     {
     }

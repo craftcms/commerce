@@ -710,7 +710,7 @@ class Stores extends Component
             ]);
         }
 
-        $query = (new Query())
+        $query = new Query()
             ->select($selectColumns)
             ->from([Table::STORES]);
 
@@ -759,13 +759,13 @@ class Stores extends Component
     public function getSiteIdsAvailableForAssignmentToNewStores(): array
     {
         // Sites that are assigned to more than one store
-        $subQuery = (new Query())
+        $subQuery = new Query()
             ->select('storeId')
             ->from(Table::SITESTORES)
             ->groupBy('storeId')
             ->having(['>', new Expression('COUNT([[storeId]])'), 1]);
 
-        return (new Query())
+        return new Query()
             ->select('siteId')
             ->from(Table::SITESTORES)
             ->where(['IN', 'storeId', $subQuery])
@@ -963,7 +963,7 @@ class Stores extends Component
     private function _createSiteStoresQuery(): Query
     {
         // get the site stores
-        return (new Query())
+        return new Query()
             ->select([
                 'siteId',
                 'storeId',

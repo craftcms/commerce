@@ -32,9 +32,6 @@ class Product extends ElementType
         parent::__construct($config);
     }
 
-    /**
-     * @inheritdoc
-     */
     protected function resolve(mixed $source, array $arguments, mixed $context, ResolveInfo $resolveInfo): mixed
     {
         /** @var ProductElement $source */

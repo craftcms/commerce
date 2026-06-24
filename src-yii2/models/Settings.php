@@ -42,24 +42,16 @@ class Settings extends Model
      */
     public const VIEW_URI_STORE_MANAGEMENT = 'commerce/store-management';
 
-    /**
-     * @deprecated in 5.0.0.
-     */
+    #[\Deprecated(message: 'in 5.0.0.')]
     public const VIEW_URI_CUSTOMERS = 'commerce/customers';
 
-    /**
-     * @deprecated in 5.0.0.
-     */
+    #[\Deprecated(message: 'in 5.0.0.')]
     public const VIEW_URI_PROMOTIONS = 'commerce/promotions';
 
-    /**
-     * @deprecated in 5.0.0.
-     */
+    #[\Deprecated(message: 'in 5.0.0.')]
     public const VIEW_URI_SHIPPING = 'commerce/shipping/shippingmethods';
 
-    /**
-     * @deprecated in 5.0.0.
-     */
+    #[\Deprecated(message: 'in 5.0.0.')]
     public const VIEW_URI_TAX = 'commerce/tax/taxrates';
     public const VIEW_URI_SUBSCRIPTIONS = 'commerce/subscriptions';
 
@@ -297,7 +289,7 @@ class Settings extends Model
      * @throws InvalidConfigException if the currency in the config file is not set up
      * @throws SiteNotFoundException
      */
-    public function getPaymentCurrency(string $siteHandle = null): ?string
+    public function getPaymentCurrency(?string $siteHandle = null): ?string
     {
         /** @var Site|StoreBehavior|null $site */
         $site = $siteHandle ? Craft::$app->getSites()->getSiteByHandle($siteHandle) : Craft::$app->getSites()->getPrimarySite();
@@ -331,9 +323,6 @@ class Settings extends Model
         ];
     }
 
-    /**
-     * @inheritdoc
-     */
     protected function defineRules(): array
     {
         return [

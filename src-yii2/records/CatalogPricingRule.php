@@ -49,9 +49,6 @@ class CatalogPricingRule extends ActiveRecord
     public const APPLY_PRICE_TYPE_PRICE = 'price';
     public const APPLY_PRICE_TYPE_PROMOTIONAL_PRICE = 'promotionalPrice';
 
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::CATALOG_PRICING_RULES;

@@ -257,9 +257,6 @@ class Discount extends Model implements HasStoreInterface
      */
     private ?array $_coupons = null;
 
-    /**
-     * @inheritdoc
-     */
     public function extraFields(): array
     {
         $fields = parent::extraFields();
@@ -279,8 +276,8 @@ class Discount extends Model implements HasStoreInterface
      * @param bool $exclude
      * @return void
      * @since 5.0.0
-     * @deprecated in 5.0.0. Use `$excludeOnPromotion` instead.
      */
+    #[\Deprecated(message: 'in 5.0.0. Use `$excludeOnPromotion` instead.')]
     public function setExcludeOnSale(bool $exclude): void
     {
         Craft::$app->getDeprecator()->log(__METHOD__, 'Discount::$excludeOnSale is deprecated. Use Discount::$excludeOnPromotion instead.');
@@ -290,8 +287,8 @@ class Discount extends Model implements HasStoreInterface
     /**
      * @return bool
      * @since 5.0.0
-     * @deprecated in 5.0.0. Use `$excludeOnPromotion` instead.
      */
+    #[\Deprecated(message: 'in 5.0.0. Use `$excludeOnPromotion` instead.')]
     public function getExcludeOnSale(): bool
     {
         Craft::$app->getDeprecator()->log(__METHOD__, 'Discount::$excludeOnSale is deprecated. Use Discount::$excludeOnPromotion instead.');
@@ -593,9 +590,6 @@ class Discount extends Model implements HasStoreInterface
         return Craft::$app->getFormatter()->asPercent(-($this->percentDiscount ?? 0.0));
     }
 
-    /**
-     * @inheritdoc
-     */
     protected function defineRules(): array
     {
         return [
@@ -714,7 +708,7 @@ class Discount extends Model implements HasStoreInterface
      */
     private function _loadPurchasableRelations(): void
     {
-        $purchasableIds = (new Query())->select(['dp.purchasableId'])
+        $purchasableIds = new Query()->select(['dp.purchasableId'])
             ->from(Table::DISCOUNTS . ' discounts')
             ->leftJoin(Table::DISCOUNT_PURCHASABLES . ' dp', '[[dp.discountId]]=[[discounts.id]]')
             ->where(['discounts.id' => $this->id])
@@ -728,7 +722,7 @@ class Discount extends Model implements HasStoreInterface
      */
     private function _loadCategoryRelations(): void
     {
-        $categoryIds = (new Query())->select(['dpt.categoryId'])
+        $categoryIds = new Query()->select(['dpt.categoryId'])
             ->from(Table::DISCOUNTS . ' discounts')
             ->leftJoin(Table::DISCOUNT_CATEGORIES . ' dpt', '[[dpt.discountId]]=[[discounts.id]]')
             ->where(['discounts.id' => $this->id])

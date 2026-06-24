@@ -31,7 +31,7 @@ class Products extends Component
      * @param array|int|string|null $siteId
      * @return Product|null
      */
-    public function getProductById(int $id, array|int|string $siteId = null, array $criteria = []): ?Product
+    public function getProductById(int $id, array|int|string|null $siteId = null, array $criteria = []): ?Product
     {
         if (!$id) {
             return null;
@@ -39,7 +39,7 @@ class Products extends Component
 
         // Get the structure ID
         if (!isset($criteria['structureId'])) {
-            $criteria['structureId'] = (new Query())
+            $criteria['structureId'] = new Query()
                 ->select(['productTypes.structureId'])
                 ->from(['products' => \craft\commerce\db\Table::PRODUCTS])
                 ->innerJoin(['productTypes' => \craft\commerce\db\Table::PRODUCTTYPES], '[[productTypes.id]] = [[products.typeId]]')

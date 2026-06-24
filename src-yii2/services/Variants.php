@@ -38,7 +38,7 @@ class Variants extends Component
      * @param int|null $siteId Site ID for which to return the variants. Defaults to `null` which is current site.
      * @return Variant[]
      */
-    public function getAllVariantsByProductId(int $productId, int $siteId = null, bool $includeDisabled = true): array
+    public function getAllVariantsByProductId(int $productId, ?int $siteId = null, bool $includeDisabled = true): array
     {
         $variantQuery = Variant::find()
             ->productId($productId)
@@ -58,7 +58,7 @@ class Variants extends Component
      * @param int $variantId The variant’s ID.
      * @param int|null $siteId The site ID for which to fetch the variant. Defaults to `null` which is current site.
      */
-    public function getVariantById(int $variantId, int $siteId = null): ?Variant
+    public function getVariantById(int $variantId, ?int $siteId = null): ?Variant
     {
         return Craft::$app->getElements()->getElementById($variantId, Variant::class, $siteId);
     }

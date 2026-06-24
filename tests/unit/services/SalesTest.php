@@ -70,6 +70,7 @@ class SalesTest extends Unit
     /*
      *
      */
+    #[\Override]
     protected function _before(): void
     {
         parent::_before();
@@ -83,6 +84,7 @@ class SalesTest extends Unit
     /**
      *
      */
+    #[\Override]
     protected function _after()
     {
         parent::_after();
@@ -105,7 +107,7 @@ class SalesTest extends Unit
         self::assertSame($this->salesData->data['percentageSale']['name'], $firstSale->name);
 
         $variant = Variant::find()->sku('rad-hood')->one();
-        self::assertSame([(int)$variant->id], array_map('intval', $firstSale->getPurchasableIds()));
+        self::assertSame([(int)$variant->id], array_map(intval(...), $firstSale->getPurchasableIds()));
         self::assertSame([], $firstSale->getUserGroupIds());
         self::assertSame([], $firstSale->getCategoryIds());
     }
@@ -175,7 +177,7 @@ class SalesTest extends Unit
     {
         $sale = $this->sales->getSaleById($this->salesData['allRelationships']['id']);
         $originalName = $sale->name;
-        $originalDateUpdated = (new Query())
+        $originalDateUpdated = new Query()
             ->select('dateUpdated')
             ->from(Table::SALES)
             ->where(['id' => $sale->id])
@@ -185,7 +187,7 @@ class SalesTest extends Unit
         // Absolutely make sure enough time has passed
         sleep(1);
         $saveResult = $this->sales->saveSale($sale);
-        $newDateUpdated = (new Query())
+        $newDateUpdated = new Query()
             ->select('dateUpdated')
             ->from(Table::SALES)
             ->where(['id' => $sale->id])
@@ -211,7 +213,7 @@ class SalesTest extends Unit
 
         self::assertTrue($reorderResult, 'Reorder sales completed');
 
-        $dbOrder = (new Query())
+        $dbOrder = new Query()
             ->select(['id'])
             ->from(Table::SALES)
             ->orderBy('sortOrder asc')
@@ -240,6 +242,6 @@ class SalesTest extends Unit
 
         self::assertTrue($deleteResult);
         self::assertNull($this->sales->getSaleById($id));
-        self::assertFalse(array_key_exists($id, $this->sales->getAllSales()));
+        self::assertFalse(array_key_exists((string) $id, $this->sales->getAllSales()));
     }
 }

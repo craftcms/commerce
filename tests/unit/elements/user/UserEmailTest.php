@@ -55,9 +55,7 @@ class UserEmailTest extends Unit
         ];
     }
 
-    /**
-     * @inheritdoc
-     */
+    #[\Override]
     protected function _before(): void
     {
         parent::_before();
@@ -103,7 +101,7 @@ class UserEmailTest extends Unit
         $this->_user->email = $newEmail;
         \Craft::$app->getElements()->saveElement($this->_user, false, false ,false);
 
-        $emails = (new Query())
+        $emails = new Query()
             ->from(\craft\commerce\db\Table::ORDERS)
             ->select(['email'])
             ->where(['id' => [$order->id, $cart->id]])
@@ -115,9 +113,7 @@ class UserEmailTest extends Unit
         }
     }
 
-    /**
-     * @inheritdoc
-     */
+    #[\Override]
     protected function _after(): void
     {
         parent::_after();

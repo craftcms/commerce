@@ -140,7 +140,7 @@ class ShippingRuleCategories extends Component
      */
     private function _createShippingRuleCategoriesQuery(): Query
     {
-        return (new Query())
+        return new Query()
             ->select([
                 'condition',
                 'id',

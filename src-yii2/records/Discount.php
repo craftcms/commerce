@@ -74,9 +74,6 @@ class Discount extends ActiveRecord
     public const APPLIED_TO_MATCHING_LINE_ITEMS = 'matchingLineItems';
     public const APPLIED_TO_ALL_LINE_ITEMS = 'allLineItems';
 
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::DISCOUNTS;

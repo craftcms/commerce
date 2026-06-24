@@ -345,7 +345,7 @@ class Discounts extends Component
         // Pre-qualify discounts based on purchase total
         if ($order) {
             if ($order->getEmail()) {
-                $emailUsesSubQuery = (new Query())
+                $emailUsesSubQuery = new Query()
                     ->select([new Expression('COALESCE(SUM([[edu.uses]]), 0)')])
                     ->from(['edu' => Table::EMAIL_DISCOUNTUSES])
                     ->where(new Expression('[[edu.discountId]] = [[discounts.id]]'))
@@ -380,7 +380,7 @@ class Discounts extends Component
             ]);
         }
 
-        $couponSubQuery = (new Query())
+        $couponSubQuery = new Query()
             ->from(Table::COUPONS)
             ->leftJoin(Table::DISCOUNTS . ' disc', '[[disc.id]] = [[discountId]]')
             ->where(new Expression('[[discountId]] = [[discounts.id]]'));
@@ -418,7 +418,7 @@ class Discounts extends Component
         }
 
         if ($order && !empty($purchasableIds)) {
-            $matchPurchasableSubQuery = (new Query())
+            $matchPurchasableSubQuery = new Query()
                 ->from(['subdp' => Table::DISCOUNT_PURCHASABLES])
                 ->where(new Expression('[[subdp.discountId]] = [[discounts.id]]'))
                 ->andWhere(['[[subdp.purchasableId]]' => $purchasableIds]);
@@ -448,7 +448,7 @@ class Discounts extends Component
      * @throws InvalidConfigException
      * @throws \Exception
      */
-    public function orderCouponAvailable(Order $order, string &$explanation = null): bool
+    public function orderCouponAvailable(Order $order, ?string &$explanation = null): bool
     {
         $discount = $this->getDiscountByCode($order->couponCode, $order->storeId);
 
@@ -553,7 +553,7 @@ class Discounts extends Component
         }
 
         return ArrayHelper::firstWhere($this->_populateDiscounts($discounts), fn(Discount $discount) => $discount->enabled &&
-        ArrayHelper::contains($discount->getCoupons(), fn(Coupon $coupon) => strcasecmp($coupon->code, $code) === 0));
+        ArrayHelper::contains($discount->getCoupons(), fn(Coupon $coupon) => strcasecmp((string) $coupon->code, $code) === 0));
     }
 
     /**
@@ -1114,7 +1114,7 @@ SQL;
      */
     public function getEmailUsageStatsById(int $id): array
     {
-        return (new Query())
+        return new Query()
             ->select(['COALESCE(SUM(uses), 0) as uses', 'COUNT(email) as emails'])
             ->from(Table::EMAIL_DISCOUNTUSES)
             ->where(['discountId' => $id])
@@ -1129,7 +1129,7 @@ SQL;
      */
     public function getCustomerUsageStatsById(int $id): array
     {
-        return (new Query())
+        return new Query()
             ->select(['COALESCE(SUM(uses), 0) as uses', 'COUNT([[customerId]]) as users'])
             ->from(Table::CUSTOMER_DISCOUNTUSES)
             ->where(['[[discountId]]' => $id])
@@ -1257,7 +1257,7 @@ SQL;
             return false;
         }
 
-        $return = ArrayHelper::firstWhere($coupons, static fn(Coupon $coupon) => (strcasecmp($coupon->code, $order->couponCode) == 0) && ($coupon->maxUses === null || $coupon->maxUses > $coupon->uses));
+        $return = ArrayHelper::firstWhere($coupons, static fn(Coupon $coupon) => (strcasecmp((string) $coupon->code, (string) $order->couponCode) == 0) && ($coupon->maxUses === null || $coupon->maxUses > $coupon->uses));
         return (bool)$return;
     }
 
@@ -1329,7 +1329,7 @@ SQL;
                 }
             }
 
-            $usage = (new Query())
+            $usage = new Query()
                 ->select(['uses'])
                 ->from([Table::CUSTOMER_DISCOUNTUSES])
                 ->where(['[[customerId]]' => $user->id, 'discountId' => $discount->id])
@@ -1355,7 +1355,7 @@ SQL;
     private function _isDiscountPerEmailLimitValid(Discount $discount, Order $order): bool
     {
         if ($discount->perEmailLimit > 0 && $order->getEmail()) {
-            $usage = (new Query())
+            $usage = new Query()
                 ->select(['uses'])
                 ->from([Table::EMAIL_DISCOUNTUSES])
                 ->where(['email' => $order->getEmail(), 'discountId' => $discount->id])
@@ -1402,7 +1402,7 @@ SQL;
      */
     private function _createDiscountQuery(): Query
     {
-        $query = (new Query())
+        $query = new Query()
             ->select([
                 '[[discounts.allCategories]]',
                 '[[discounts.allPurchasables]]',

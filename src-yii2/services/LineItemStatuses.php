@@ -331,7 +331,7 @@ class LineItemStatuses extends Component
      */
     private function _createLineItemStatusesQuery(): Query
     {
-        return (new Query())
+        return new Query()
             ->select([
                 'color',
                 'default',

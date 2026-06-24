@@ -31,9 +31,6 @@ class LineItemStatus extends ActiveRecord
 {
     use StoreRecordTrait;
 
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::LINEITEMSTATUSES;

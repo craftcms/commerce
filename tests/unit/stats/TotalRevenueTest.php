@@ -78,16 +78,16 @@ class TotalRevenueTest extends Unit
         return [
             [
                 TotalRevenue::DATE_RANGE_TODAY,
-                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                new DateTime('now', new DateTimeZone('America/Los_Angeles'))->setTime(0, 0),
+                new DateTime('now', new DateTimeZone('America/Los_Angeles'))->setTime(0, 0),
                 2,
                 127.94,
                 TotalRevenue::TYPE_TOTAL,
             ],
             [
                 TotalRevenue::DATE_RANGE_TODAY,
-                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                new DateTime('now', new DateTimeZone('America/Los_Angeles'))->setTime(0, 0),
+                new DateTime('now', new DateTimeZone('America/Los_Angeles'))->setTime(0, 0),
                 2,
                 0,
                 TotalRevenue::TYPE_TOTAL_PAID,

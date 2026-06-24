@@ -55,6 +55,7 @@ class StoreTest extends Unit
     /**
      *
      */
+    #[\Override]
     public function _before(): void
     {
         parent::_before();

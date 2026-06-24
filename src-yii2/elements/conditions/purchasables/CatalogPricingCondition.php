@@ -105,7 +105,7 @@ class CatalogPricingCondition extends BaseCondition
         // If we are looking for all prices, we don't need to worry about the user's table
         if (!$this->allPrices) {
             $catalogPricingRuleIdWhere[] = ['catalogPricingRuleId' => null];
-            $catalogPricingRuleIdWhere[] = ['catalogPricingRuleId' => (new Query())
+            $catalogPricingRuleIdWhere[] = ['catalogPricingRuleId' => new Query()
                 ->select(['cpr.id as cprid'])
                 ->from([Table::CATALOG_PRICING_RULES . ' cpr'])
                 ->leftJoin([Table::CATALOG_PRICING_RULES_USERS . ' cpru'], '[[cpr.id]] = [[cpru.catalogPricingRuleId]]')
@@ -119,7 +119,7 @@ class CatalogPricingCondition extends BaseCondition
         if ($customerRule = ArrayHelper::firstWhere($rules, fn(ConditionRuleInterface $rule) => $rule instanceof CatalogPricingCustomerConditionRule)) {
             /** @var CatalogPricingCustomerConditionRule $customerRule */
             // Sub query to figure out which catalog pricing rules are using user conditions
-            $catalogPricingRuleIdWhere[] = ['catalogPricingRuleId' => (new Query())
+            $catalogPricingRuleIdWhere[] = ['catalogPricingRuleId' => new Query()
                 ->select(['cpr.id as cprid'])
                 ->from([Table::CATALOG_PRICING_RULES . ' cpr'])
                 ->leftJoin([Table::CATALOG_PRICING_RULES_USERS . ' cpru'], '[[cpr.id]] = [[cpru.catalogPricingRuleId]]')

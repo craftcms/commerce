@@ -25,17 +25,11 @@ use yii\db\ActiveQueryInterface;
  */
 class SalePurchasable extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::SALE_PURCHASABLES;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function rules(): array
     {
         return [

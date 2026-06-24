@@ -112,7 +112,7 @@ class Transfers extends Component
      */
     private function _createTransferDetailsQuery(): Query
     {
-        return (new Query())
+        return new Query()
             ->select([
                 'id',
                 'transferId',

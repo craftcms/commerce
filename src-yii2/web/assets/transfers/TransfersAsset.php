@@ -20,9 +20,6 @@ use craft\web\View;
  */
 class TransfersAsset extends AssetBundle
 {
-    /**
-     * @inheritdoc
-     */
     public function init(): void
     {
         $this->sourcePath = __DIR__ . '/dist';
@@ -39,9 +36,6 @@ class TransfersAsset extends AssetBundle
         parent::init();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function registerAssetFiles($view): void
     {
         parent::registerAssetFiles($view);

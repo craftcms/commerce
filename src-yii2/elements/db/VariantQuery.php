@@ -576,7 +576,7 @@ class VariantQuery extends PurchasableQuery
             }
 
             $now = new DateTime();
-            $activeSales = (new Query())->select([
+            $activeSales = new Query()->select([
                 'sales.id',
                 'sales.allGroups',
                 'sales.allPurchasables',
@@ -649,7 +649,7 @@ class VariantQuery extends PurchasableQuery
                         }
                     } else {
                         // Exclude any sales that have a user group restriction that the current user is not part of
-                        $userGroupSalesIds = (new Query())
+                        $userGroupSalesIds = new Query()
                             ->select('sales.id')
                             ->from(Table::SALES . ' sales')
                             ->leftJoin(Table::SALE_USERGROUPS . ' su', '[[su.saleId]] = [[sales.id]]')
@@ -679,7 +679,7 @@ class VariantQuery extends PurchasableQuery
                     $purchasableRestrictedSales = ArrayHelper::whereMultiple($activeSales, ['allPurchasables' => 0]);
                     $categoryRestrictedSales = ArrayHelper::whereMultiple($activeSales, ['allCategories' => 0]);
 
-                    $purchasableRestrictedQuery = (new Query())
+                    $purchasableRestrictedQuery = new Query()
                         ->select('purchasableId')
                         ->from(Table::SALE_PURCHASABLES . ' sp')
                         ->where([
@@ -703,7 +703,7 @@ class VariantQuery extends PurchasableQuery
 
                         // Source relationships
                         if (!empty($sourceSales)) {
-                            $sourceQueryProduct = (new Query())
+                            $sourceQueryProduct = new Query()
                                 ->select('rel.sourceId')
                                 ->from(Table::SALE_CATEGORIES . ' sc')
                                 ->leftJoin(CraftTable::RELATIONS . ' rel', '[[rel.targetId]] = [[sc.categoryId]]')
@@ -715,7 +715,7 @@ class VariantQuery extends PurchasableQuery
                                 ->andWhere(['es.enabled' => true]);
                             $hasSalesProductConditions[] = ['commerce_variants.primaryOwnerId' => $sourceQueryProduct];
 
-                            $sourceQueryVariant = (new Query())
+                            $sourceQueryVariant = new Query()
                                 ->select('rel.sourceId')
                                 ->from(Table::SALE_CATEGORIES . ' sc')
                                 ->leftJoin(CraftTable::RELATIONS . ' rel', '[[rel.targetId]] = [[sc.categoryId]]')
@@ -730,7 +730,7 @@ class VariantQuery extends PurchasableQuery
 
                         // Target relationships
                         if (!empty($targetSales)) {
-                            $targetQueryProduct = (new Query())
+                            $targetQueryProduct = new Query()
                                 ->select('rel.targetId')
                                 ->from(Table::SALE_CATEGORIES . ' sc')
                                 ->leftJoin(CraftTable::RELATIONS . ' rel', '[[rel.sourceId]] = [[sc.categoryId]]')
@@ -742,7 +742,7 @@ class VariantQuery extends PurchasableQuery
                                 ->andWhere(['es.enabled' => true]);
                             $hasSalesProductConditions[] = ['commerce_variants.primaryOwnerId' => $targetQueryProduct];
 
-                            $targetQueryVariant = (new Query())
+                            $targetQueryVariant = new Query()
                                 ->select('rel.targetId')
                                 ->from(Table::SALE_CATEGORIES . ' sc')
                                 ->leftJoin(CraftTable::RELATIONS . ' rel', '[[rel.sourceId]] = [[sc.categoryId]]')
@@ -924,7 +924,7 @@ class VariantQuery extends PurchasableQuery
 
         $statuses = array_merge($this->productStatus);
 
-        $firstVal = strtolower(reset($statuses));
+        $firstVal = strtolower((string) reset($statuses));
         if (in_array($firstVal, ['not', 'or'])) {
             $glue = $firstVal;
             array_shift($statuses);

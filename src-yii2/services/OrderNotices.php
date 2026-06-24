@@ -68,7 +68,7 @@ class OrderNotices extends Component
      */
     private function _createOrderNoticeQuery(): Query
     {
-        return (new Query())
+        return new Query()
             ->select([
                 'attribute',
                 'id',

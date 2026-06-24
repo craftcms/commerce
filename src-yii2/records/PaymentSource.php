@@ -28,9 +28,6 @@ use yii\db\ActiveQueryInterface;
  */
 class PaymentSource extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::PAYMENTSOURCES;

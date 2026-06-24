@@ -119,7 +119,7 @@ class ProductVariantHasUnlimitedStockConditionRuleTest extends Unit
         $product = $productsFixture->getElement('rad-hoodie');
 
         if (!$hasUnlimitedStock) {
-            $originalValues = (new Query())
+            $originalValues = new Query()
                 ->from(Table::PURCHASABLES_STORES)
                 ->select(['purchasableId', 'stock', 'inventoryTracked'])
                 ->indexBy('purchasableId')

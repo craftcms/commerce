@@ -24,9 +24,6 @@ use craft\helpers\Db;
  */
 class Variant extends ElementResolver
 {
-    /**
-     * @inheritdoc
-     */
     public static function prepareQuery(mixed $source, array $arguments, $fieldName = null): mixed
     {
         // If this is the beginning of a resolver chain, start fresh

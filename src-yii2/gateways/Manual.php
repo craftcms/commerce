@@ -44,9 +44,6 @@ class Manual extends Gateway
         return $settings;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getPaymentFormHtml(array $params): ?string
     {
         return '';
@@ -60,9 +57,6 @@ class Manual extends Gateway
         return new OffsitePaymentForm();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getSettingsHtml(): ?string
     {
         return Craft::$app->getView()->renderTemplate('commerce/gateways/manualGatewaySettings', ['gateway' => $this]);
@@ -116,9 +110,6 @@ class Manual extends Gateway
         throw new NotImplementedException(Craft::t('commerce', 'This gateway does not support that functionality.'));
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getPaymentTypeOptions(): array
     {
         return [
@@ -222,9 +213,6 @@ class Manual extends Gateway
         return false;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function availableForUseWithOrder(Order $order): bool
     {
         if ($this->getOnlyAllowForZeroPriceOrders() && $order->getTotalPrice() != 0) {

@@ -75,9 +75,6 @@ class CurrencyAttributeBehavior extends Behavior
      */
     public array $attributeCurrencyMap = [];
 
-    /**
-     * @inheritdoc
-     */
     public function events(): array
     {
         return [
@@ -95,9 +92,6 @@ class CurrencyAttributeBehavior extends Behavior
         $event->fields = array_merge($fields, $this->currencyFields());
     }
 
-    /**
-     * @inheritdoc
-     */
     public function __call($name, $params)
     {
         if (StringHelper::endsWith($name, 'AsCurrency', false)) {
@@ -117,9 +111,6 @@ class CurrencyAttributeBehavior extends Behavior
         return parent::__call($name, $params);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function hasMethod($name): bool
     {
         if (StringHelper::endsWith($name, 'AsCurrency', false)) {
@@ -131,9 +122,6 @@ class CurrencyAttributeBehavior extends Behavior
         return parent::hasMethod($name);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function __isset($name)
     {
         if (StringHelper::endsWith($name, 'AsCurrency', false)) {
@@ -146,9 +134,6 @@ class CurrencyAttributeBehavior extends Behavior
         return parent::__isset($name);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function __get($name)
     {
         if (StringHelper::endsWith($name, 'AsCurrency', false)) {
@@ -162,9 +147,6 @@ class CurrencyAttributeBehavior extends Behavior
         return parent::__get($name);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function canGetProperty($name, $checkVars = true): bool
     {
         if (StringHelper::endsWith($name, 'AsCurrency', false)) {

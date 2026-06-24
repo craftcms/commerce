@@ -49,33 +49,21 @@ class Orders extends Widget
         }
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function isSelectable(): bool
     {
         return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function displayName(): string
     {
         return Craft::t('commerce', 'Recent Orders');
     }
 
-    /**
-     * @inheritdoc
-     */
     public static function icon(): ?string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getTitle(): ?string
     {
         if (!empty($this->orderStatuses) && count($this->orderStatuses) === 1) {
@@ -89,9 +77,6 @@ class Orders extends Widget
         return parent::getTitle();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getBodyHtml(): ?string
     {
         $orders = $this->_getOrders();
@@ -108,9 +93,6 @@ class Orders extends Widget
         ]);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getSettingsHtml(): ?string
     {
         Craft::$app->getView()->registerAssetBundle(OrdersWidgetAsset::class);

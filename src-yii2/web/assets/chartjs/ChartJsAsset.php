@@ -17,9 +17,6 @@ use craft\web\AssetBundle;
  */
 class ChartJsAsset extends AssetBundle
 {
-    /**
-     * @inheritdoc
-     */
     public function init(): void
     {
         $this->sourcePath = __DIR__ . '/dist';

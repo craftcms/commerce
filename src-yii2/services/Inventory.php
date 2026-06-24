@@ -335,7 +335,7 @@ class Inventory extends Component
      */
     public function getInventoryLevelQuery(?int $limit = null, ?int $offset = null, bool $withTrashed = false): Query
     {
-        $inventoryTotals = (new Query())
+        $inventoryTotals = new Query()
             ->select([
                 'inventoryLocationId' => '[[il.id]]',
                 'inventoryItemId' => '[[ii.id]]',
@@ -347,7 +347,7 @@ class Inventory extends Component
             ->leftJoin(['it' => Table::INVENTORYTRANSACTIONS], "[[il.id]] = [[it.inventoryLocationId]] AND [[ii.id]] = [[it.inventoryItemId]]")
             ->groupBy(['[[il.id]]', '[[ii.id]]', '[[it.type]]']);
 
-        $query = (new Query())
+        $query = new Query()
             ->select([
                 '[[ii.id]] as inventoryItemId',
                 '[[ii.purchasableId]] as purchasableId',
@@ -385,7 +385,7 @@ class Inventory extends Component
      */
     public function getInventoryItemQuery(): Query
     {
-        return (new Query())
+        return new Query()
             ->select([
                 'id',
                 'purchasableId',
@@ -516,7 +516,7 @@ class Inventory extends Component
         } else {
             $types = [$updateInventoryLevel->type];
         }
-        $quantityQuery = (new Query())
+        $quantityQuery = new Query()
             ->select([':quantity - COALESCE(SUM(quantity), 0)'])
             ->from($tableName)
             ->where([
@@ -700,7 +700,7 @@ class Inventory extends Component
         }
 
         // Get orders that have line items for this inventory level item
-        $orderIds = (new Query())
+        $orderIds = new Query()
             ->select(['lineItems.orderId'])
             ->from(['lineItems' => Table::LINEITEMS])
             ->leftJoin(['orders' => Table::ORDERS], '[[lineItems.orderId]] = [[orders.id]]')
@@ -724,7 +724,7 @@ class Inventory extends Component
      */
     public function getTransactionQuery(): Query
     {
-        return (new Query())
+        return new Query()
             ->select([
                 'inventoryLocationId',
                 'inventoryItemId',
@@ -772,7 +772,7 @@ class Inventory extends Component
 
         $inventoryFulfillmentLevels = [];
         foreach ($locations as $location) {
-            $data = (new Query())
+            $data = new Query()
                 ->select([
                     '[[it.lineItemId]]',
                     '[[it.inventoryItemId]]',

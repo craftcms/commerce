@@ -62,6 +62,7 @@ class ShippingRulesControllerTest extends Unit
     /**
      * @inheritDoc
      */
+    #[\Override]
     protected function _before(): void
     {
         parent::_before();
@@ -97,7 +98,7 @@ class ShippingRulesControllerTest extends Unit
         self::assertEmpty($response->data);
 
         // Check rules have been reordered
-        $results = (new Query())
+        $results = new Query()
             ->from(Table::SHIPPINGRULES)
             ->select(['id'])
             ->where(['id' => $ids])
@@ -140,7 +141,7 @@ class ShippingRulesControllerTest extends Unit
         $this->controller->runAction('save');
 
         // Check rules have been reordered
-        $result = (new Query())
+        $result = new Query()
             ->from(Table::SHIPPINGRULES)
             ->select(['name'])
             ->where(['id' => $rule['id']])
@@ -185,7 +186,7 @@ class ShippingRulesControllerTest extends Unit
 
         $this->controller->runAction('delete');
 
-        self::assertFalse(false, (new Query())
+        self::assertFalse(false, new Query()
             ->from(Table::SHIPPINGRULES)
             ->select(['name'])
             ->where(['id' => $shippingFixture->data['us-only-2']['id']])
@@ -226,7 +227,7 @@ class ShippingRulesControllerTest extends Unit
         $this->controller->runAction('duplicate');
 
         // Check rules have been reordered
-        $result = (new Query())
+        $result = new Query()
             ->from(Table::SHIPPINGRULES)
             ->select(['id'])
             ->where(['name' => $rule['name']])

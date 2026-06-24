@@ -25,9 +25,6 @@ use yii\db\ActiveQueryInterface;
  */
 class Donation extends ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName(): string
     {
         return Table::DONATIONS;

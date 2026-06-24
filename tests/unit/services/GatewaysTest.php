@@ -43,7 +43,7 @@ class GatewaysTest extends Unit
             $attributes['name'] = $name;
 
             if (isset($attributes['isFrontendEnabled']) && is_array($attributes['isFrontendEnabled'])) {
-                putenv(substr($attributes['isFrontendEnabled']['var'], 1) . '=' . $attributes['isFrontendEnabled']['value']);
+                putenv(substr((string) $attributes['isFrontendEnabled']['var'], 1) . '=' . $attributes['isFrontendEnabled']['value']);
                 $attributes['isFrontendEnabled'] = $attributes['isFrontendEnabled']['var'];
             }
             $gateway = Craft::createObject($class, ['config' => ['attributes' => $attributes]]);

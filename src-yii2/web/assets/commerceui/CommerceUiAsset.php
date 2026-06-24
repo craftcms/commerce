@@ -21,9 +21,6 @@ use craft\web\assets\vue\VueAsset;
  */
 abstract class CommerceUiAsset extends AssetBundle
 {
-    /**
-     * @inheritdoc
-     */
     public function init()
     {
         $this->sourcePath = __DIR__ . '/dist/';

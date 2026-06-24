@@ -176,7 +176,7 @@ class SubscriptionQuery extends ElementQuery
         if ($value instanceof User) {
             $this->userId = $value->id;
         } elseif ($value !== null) {
-            $this->userId = (new Query())
+            $this->userId = new Query()
                 ->select(['id'])
                 ->from(['{{%users}}'])
                 ->where(Db::parseParam('username', $value))
@@ -222,7 +222,7 @@ class SubscriptionQuery extends ElementQuery
         if ($value instanceof Plan) {
             $this->planId = $value->id;
         } elseif ($value !== null) {
-            $this->planId = (new Query())
+            $this->planId = new Query()
                 ->select(['id'])
                 ->from([Table::PLANS])
                 ->where(Db::parseParam('handle', $value))
@@ -817,8 +817,8 @@ class SubscriptionQuery extends ElementQuery
 
     /**
      * @inheritdoc
-     * @deprecated in 4.0.0. `status(null)` should be used instead.
      */
+    #[\Deprecated(message: 'in 4.0.0. `status(null)` should be used instead.')]
     public function anyStatus(): static
     {
         parent::status(null);

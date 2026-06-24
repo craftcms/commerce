@@ -71,9 +71,6 @@ class CustomerBehavior extends Behavior
      */
     private ?Customer $_customer = null;
 
-    /**
-     * @inheritdoc
-     */
     public function attach($owner)
     {
         if (!$owner instanceof User) {
@@ -94,9 +91,6 @@ class CustomerBehavior extends Behavior
         $event->fields['primaryShippingAddressId'] = 'primaryShippingAddressId';
     }
 
-    /**
-     * @inheritdoc
-     */
     public function events(): array
     {
         return [

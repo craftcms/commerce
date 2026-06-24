@@ -254,9 +254,6 @@ class ProductType extends Model implements FieldLayoutProviderInterface
      */
     public PropagationMethod $propagationMethod = PropagationMethod::All;
 
-    /**
-     * @inheritdoc
-     */
     public function init(): void
     {
         parent::init();
@@ -301,9 +298,6 @@ class ProductType extends Model implements FieldLayoutProviderInterface
         return $this->handle;
     }
 
-    /**
-     * @inheritdoc
-     */
     protected function defineRules(): array
     {
         return [
@@ -567,8 +561,8 @@ class ProductType extends Model implements FieldLayoutProviderInterface
         $hasErrors = false;
 
         foreach ($this->previewTargets as &$target) {
-            $target['label'] = trim($target['label']);
-            $target['urlFormat'] = trim($target['urlFormat']);
+            $target['label'] = trim((string) $target['label']);
+            $target['urlFormat'] = trim((string) $target['urlFormat']);
 
             if ($target['label'] === '') {
                 $target['label'] = ['value' => $target['label'], 'hasErrors' => true];
@@ -594,8 +588,8 @@ class ProductType extends Model implements FieldLayoutProviderInterface
 
     /**
      * @return string
-     * @deprecated 4.0.0
      */
+    #[\Deprecated(message: '4.0.0')]
     public function getTitleFormat(): string
     {
         Craft::$app->getDeprecator()->log('craft\commerce\models\ProductType::titleFormat', 'Getting `ProductType::titleFormat` has been deprecate. Use `ProductType::variantTitleFormat` instead.');
@@ -606,8 +600,8 @@ class ProductType extends Model implements FieldLayoutProviderInterface
      * @param string $titleFormat
      * @return void
      * @throws DeprecationException
-     * @deprecated 4.0.0
      */
+    #[\Deprecated(message: '4.0.0')]
     public function setTitleFormat(string $titleFormat): void
     {
         Craft::$app->getDeprecator()->log('craft\commerce\models\ProductType::titleFormat', 'Setting `ProductType::titleFormat` has been deprecate. Use `ProductType::variantTitleFormat` instead.');
@@ -616,17 +610,14 @@ class ProductType extends Model implements FieldLayoutProviderInterface
 
     /**
      * @return bool
-     * @deprecated 5.0.0
      */
+    #[\Deprecated(message: '5.0.0')]
     public function getHasVariants(): bool
     {
         Craft::$app->getDeprecator()->log('craft\commerce\models\ProductType::hasVariants', 'Use `ProductType::maxVariants > 1` instead.');
         return $this->maxVariants > 1;
     }
 
-    /**
-     * @inheritdoc
-     */
     protected function defineBehaviors(): array
     {
         $behaviors['productFieldLayout'] = [
@@ -644,9 +635,6 @@ class ProductType extends Model implements FieldLayoutProviderInterface
         return $behaviors;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function extraFields(): array
     {
         $fields = parent::extraFields();

@@ -56,7 +56,7 @@ class UserAddressSettings extends BaseField
     /**
      * @inheritdoc
      */
-    protected function defaultLabel(ElementInterface $element = null, bool $static = false): ?string
+    protected function defaultLabel(?ElementInterface $element = null, bool $static = false): ?string
     {
         return Craft::t('commerce', 'Commerce Settings');
     }

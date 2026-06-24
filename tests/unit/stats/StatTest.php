@@ -125,8 +125,8 @@ class StatTest extends Unit
         return [
             [
                 Stat::DATE_RANGE_CUSTOM,
-                (new DateTime('yesterday', $tz))->setTime(0, 0),
-                (new DateTime('now', $tz))->setTime(0, 0),
+                new DateTime('yesterday', $tz)->setTime(0, 0),
+                new DateTime('now', $tz)->setTime(0, 0),
             ],
         ];
     }
@@ -144,7 +144,7 @@ class StatTest extends Unit
         // Put `tz` into class variable before running the test?
 
         $tz = new DateTimeZone('America/Los_Angeles');
-        $today = (new DateTime('now', $tz))->setTime(0, 0);
+        $today = new DateTime('now', $tz)->setTime(0, 0);
 
         return [
             Stat::DATE_RANGE_TODAY => [
@@ -155,46 +155,46 @@ class StatTest extends Unit
             ],
             Stat::DATE_RANGE_PAST7DAYS => [
                 Stat::DATE_RANGE_PAST7DAYS,
-                (new DateTime('6 days ago', $tz))->setTime(0, 0),
+                new DateTime('6 days ago', $tz)->setTime(0, 0),
                 clone $today,
                 7,
             ],
             Stat::DATE_RANGE_PAST30DAYS => [
                 Stat::DATE_RANGE_PAST30DAYS,
-                (new DateTime('29 days ago', $tz))->setTime(0, 0),
+                new DateTime('29 days ago', $tz)->setTime(0, 0),
                 clone $today,
                 30,
             ],
             Stat::DATE_RANGE_PAST90DAYS => [
                 Stat::DATE_RANGE_PAST90DAYS,
-                (new DateTime('89 days ago', $tz))->setTime(0, 0),
+                new DateTime('89 days ago', $tz)->setTime(0, 0),
                 clone $today,
                 90,
             ],
             Stat::DATE_RANGE_PASTYEAR => [
                 Stat::DATE_RANGE_PASTYEAR,
-                (new DateTime('11 months ago', $tz))->setTime(0, 0),
+                new DateTime('11 months ago', $tz)->setTime(0, 0),
                 clone $today,
                 12,
                 false,
             ],
             Stat::DATE_RANGE_THISMONTH => [
                 Stat::DATE_RANGE_THISMONTH,
-                (new DateTime('now', $tz))->setDate($today->format('Y'), $today->format('n'), 1)->setTime(0, 0),
+                new DateTime('now', $tz)->setDate($today->format('Y'), $today->format('n'), 1)->setTime(0, 0),
                 clone $today,
                 (int)$today->format('t'),
             ],
             Stat::DATE_RANGE_THISWEEK => [
                 Stat::DATE_RANGE_THISWEEK,
-                (new DateTime('Monday this week', $tz))->setTime(0, 0),
+                new DateTime('Monday this week', $tz)->setTime(0, 0),
                 clone $today,
                 7,
             ],
             Stat::DATE_RANGE_THISYEAR => [
                 Stat::DATE_RANGE_THISYEAR,
-                (new DateTime('first day of January ' . $today->format('Y'), $tz))->setTime(0, 0),
+                new DateTime('first day of January ' . $today->format('Y'), $tz)->setTime(0, 0),
                 clone $today,
-                (int)($today->diff((new DateTime('first day of January ' . $today->format('Y'), $tz))->setTime(0, 0))->format('%m')) + 1,
+                (int)($today->diff(new DateTime('first day of January ' . $today->format('Y'), $tz)->setTime(0, 0))->format('%m')) + 1,
                 false,
             ],
         ];

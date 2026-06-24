@@ -18,7 +18,7 @@ use craft\commerce\models\subscriptions\SubscriptionPayment;
 use craft\commerce\Plugin;
 use craft\commerce\records\Subscription as SubscriptionRecord;
 use craft\db\Query;
-use craft\elements\db\EagerLoadPlan;
+use CraftCms\Cms\Element\Data\EagerLoadPlan;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
 use craft\helpers\ArrayHelper;
@@ -210,12 +210,12 @@ class Subscription extends Element
         return Craft::t('commerce', 'Subscription to “{plan}”', ['plan' => $plan->name ?? '']);
     }
 
-    public function canView(User $user): bool
+    public function canView(\CraftCms\Cms\User\Elements\User $user): bool
     {
         return parent::canView($user) || $user->can('commerce-manageSubscriptions');
     }
 
-    public function canSave(User $user): bool
+    public function canSave(\CraftCms\Cms\User\Elements\User $user): bool
     {
         return parent::canView($user) || $user->can('commerce-manageSubscriptions');
     }
@@ -435,7 +435,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public static function defineSources(string $context = null): array
+    public static function defineSources(?string $context = null): array
     {
         $plans = Plugin::getInstance()->getPlans()->getAllPlans();
 
@@ -499,7 +499,7 @@ class Subscription extends Element
         $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
 
         if ($handle === 'subscriber') {
-            $map = (new Query())
+            $map = new Query()
                 ->select('id as source, userId as target')
                 ->from(Table::SUBSCRIPTIONS)
                 ->where(['in', 'id', $sourceElementIds])
@@ -514,9 +514,6 @@ class Subscription extends Element
         return parent::eagerLoadingMap($sourceElements, $handle);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function setEagerLoadedElements(string $handle, array $elements, EagerLoadPlan $plan): void
     {
         if ($handle === 'order') {

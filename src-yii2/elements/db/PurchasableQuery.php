@@ -391,8 +391,8 @@ abstract class PurchasableQuery extends ElementQuery
      * @return static self reference
      * @since 3.3.4
      * @noinspection PhpUnused
-     * @deprecated in 5.0.0. Use `inventoryTracked` instead.
      */
+    #[\Deprecated(message: 'in 5.0.0. Use `inventoryTracked` instead.')]
     public function hasUnlimitedStock(?bool $value = true): static
     {
         $this->inventoryTracked = !$value; // reverse for backward compatibility
@@ -534,7 +534,7 @@ abstract class PurchasableQuery extends ElementQuery
         if ($value instanceof ShippingCategory) {
             $this->shippingCategoryId = [$value->id];
         } elseif ($value !== null) {
-            $this->shippingCategoryId = (new Query())
+            $this->shippingCategoryId = new Query()
                 ->from(['shippingcategories' => Table::SHIPPINGCATEGORIES])
                 ->where(['shippingcategories.id' => new Expression('[[purchasables_stores.shippingCategoryId]]')])
                 ->andWhere(Db::parseParam('handle', $value));
@@ -619,7 +619,7 @@ abstract class PurchasableQuery extends ElementQuery
         if ($value instanceof TaxCategory) {
             $this->taxCategoryId = [$value->id];
         } elseif ($value !== null) {
-            $this->taxCategoryId = (new Query())
+            $this->taxCategoryId = new Query()
                 ->from(['taxcategories' => Table::TAXCATEGORIES])
                 ->where(['taxcategories.id' => new Expression('[[commerce_purchasables.taxCategoryId]]')])
                 ->andWhere(Db::parseParam('handle', $value));

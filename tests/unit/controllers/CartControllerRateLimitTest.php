@@ -34,6 +34,7 @@ class CartControllerRateLimitTest extends TestCase
     /**
      * @return array
      */
+    #[\Override]
     public function _fixtures(): array
     {
         return [
@@ -43,6 +44,7 @@ class CartControllerRateLimitTest extends TestCase
         ];
     }
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();

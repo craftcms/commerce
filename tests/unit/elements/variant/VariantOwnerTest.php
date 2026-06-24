@@ -48,7 +48,6 @@ class VariantOwnerTest extends Unit
         // Access protected ownerType property
         $reflection = new ReflectionClass($variant);
         $ownerTypeProperty = $reflection->getProperty('ownerType');
-        $ownerTypeProperty->setAccessible(true);
         
         self::assertEquals(Product::class, $ownerTypeProperty->getValue($variant));
     }

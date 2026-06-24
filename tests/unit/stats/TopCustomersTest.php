@@ -88,8 +88,8 @@ class TopCustomersTest extends Unit
             [
                 TopCustomers::DATE_RANGE_TODAY,
                 'total',
-                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                new DateTime('now', new DateTimeZone('America/Los_Angeles'))->setTime(0, 0),
+                new DateTime('now', new DateTimeZone('America/Los_Angeles'))->setTime(0, 0),
                 1,
                 function() {
                     $user = Craft::$app->getUsers()->getUserByUsernameOrEmail('customer1@crafttest.com');
@@ -105,8 +105,8 @@ class TopCustomersTest extends Unit
             [
                 TopCustomers::DATE_RANGE_CUSTOM,
                 'total',
-                (new DateTime('7 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('5 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                new DateTime('7 days ago', new DateTimeZone('America/Los_Angeles'))->setTime(0, 0),
+                new DateTime('5 days ago', new DateTimeZone('America/Los_Angeles'))->setTime(0, 0),
                 0,
                 [],
             ],

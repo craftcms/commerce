@@ -161,9 +161,6 @@ abstract class Plan extends Model implements PlanInterface, CpEditable
             ->all();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function rules(): array
     {
         return [
