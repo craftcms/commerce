@@ -5,14 +5,5 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\commerce\enums;
-
-use craft\commerce\base\EnumHelpersTrait;
-
-enum InventoryUpdateQuantityType: string
-{
-    use EnumHelpersTrait;
-
-    case ADJUST = 'adjust';
-    case SET = 'set';
-}
+/** @deprecated use {@see \CraftCms\Commerce\Inventory\Enums\InventoryUpdateQuantityType} */
+class_alias(\CraftCms\Commerce\Inventory\Enums\InventoryUpdateQuantityType::class, 'craft\commerce\enums\InventoryUpdateQuantityType');
