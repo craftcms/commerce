@@ -1,31 +1,4 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
-namespace craft\commerce\events;
-
-use craft\commerce\elements\Subscription;
-use craft\commerce\models\subscriptions\CancelSubscriptionForm;
-use craft\events\CancelableEvent;
-
-/**
- * Class CancelSubscriptionEvent
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
- */
-class CancelSubscriptionEvent extends CancelableEvent
-{
-    /**
-     * @var Subscription Subscription
-     */
-    public Subscription $subscription;
-
-    /**
-     * @var CancelSubscriptionForm parameters
-     */
-    public CancelSubscriptionForm $parameters;
-}
+/** @deprecated use {@see \CraftCms\Commerce\Subscription\Events\CancelSubscriptionEvent} */
+class_alias(\CraftCms\Commerce\Subscription\Events\CancelSubscriptionEvent::class, 'craft\commerce\events\CancelSubscriptionEvent');

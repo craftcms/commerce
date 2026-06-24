@@ -1,0 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CraftCms\Commerce\Pdf\Events;
+
+use craft\commerce\elements\Order;
+use craft\commerce\models\Pdf;
+
+class PdfRenderEvent
+{
+    public Order $order;
+    public string $option;
+    public string $template;
+    public array $variables;
+    public ?string $pdf = null;
+    public ?Pdf $sourcePdf = null;
+}

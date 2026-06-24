@@ -1,0 +1,20 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CraftCms\Commerce\Subscription\Events;
+
+use craft\commerce\elements\Subscription;
+use craft\commerce\models\Plan;
+use craft\commerce\models\subscriptions\SwitchPlansForm;
+use CraftCms\Cms\Shared\Concerns\ValidatableEvent;
+
+class SubscriptionSwitchPlansEvent
+{
+    use ValidatableEvent;
+
+    public Plan $oldPlan;
+    public Subscription $subscription;
+    public Plan $newPlan;
+    public SwitchPlansForm $parameters;
+}

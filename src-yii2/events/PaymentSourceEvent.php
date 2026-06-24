@@ -1,25 +1,4 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
-namespace craft\commerce\events;
-
-use craft\commerce\models\PaymentSource;
-use craft\events\CancelableEvent;
-
-/**
- * Class PaymentSourceEvent
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
- */
-class PaymentSourceEvent extends CancelableEvent
-{
-    /**
-     * @var PaymentSource Payment source
-     */
-    public PaymentSource $paymentSource;
-}
+/** @deprecated use {@see \CraftCms\Commerce\Payment\Events\PaymentSourceEvent} */
+class_alias(\CraftCms\Commerce\Payment\Events\PaymentSourceEvent::class, 'craft\commerce\events\PaymentSourceEvent');

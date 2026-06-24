@@ -1,0 +1,15 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CraftCms\Commerce\Subscription\Events;
+
+use craft\commerce\elements\Subscription;
+use CraftCms\Cms\Shared\Concerns\ValidatableEvent;
+
+class SubscriptionEvent
+{
+    use ValidatableEvent;
+
+    public Subscription $subscription;
+}

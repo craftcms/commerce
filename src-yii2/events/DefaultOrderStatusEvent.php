@@ -1,31 +1,4 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
-namespace craft\commerce\events;
-
-use craft\commerce\elements\Order;
-use craft\commerce\models\OrderStatus;
-use yii\base\Event;
-
-/**
- * Class DefaultOrderStatusEvent
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
- */
-class DefaultOrderStatusEvent extends Event
-{
-    /**
-     * @var OrderStatus The default order status based on the order
-     */
-    public OrderStatus $orderStatus;
-
-    /**
-     * @var Order The order used to determine the order status.
-     */
-    public Order $order;
-}
+/** @deprecated use {@see \CraftCms\Commerce\Order\Events\DefaultOrderStatusEvent} */
+class_alias(\CraftCms\Commerce\Order\Events\DefaultOrderStatusEvent::class, 'craft\commerce\events\DefaultOrderStatusEvent');
