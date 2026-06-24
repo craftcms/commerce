@@ -5,10 +5,7 @@ namespace craft\commerce\base;
 use craft\base\ComponentInterface;
 
 /**
- * Tax Engine Interface
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.1
+ * @deprecated use {@see \CraftCms\Commerce\Tax\Contracts\TaxEngineInterface}
  */
 interface TaxEngineInterface extends ComponentInterface
 {

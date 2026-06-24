@@ -1,12 +1,11 @@
 <?php
 
-namespace craft\commerce\base;
+declare(strict_types=1);
+
+namespace CraftCms\Commerce\Subscription\Contracts;
 
 use DateTime;
 
-/**
- * @deprecated use {@see \CraftCms\Commerce\Subscription\Contracts\SubscriptionResponseInterface}
- */
 interface SubscriptionResponseInterface
 {
     public function getData(): mixed;

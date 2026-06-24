@@ -1,15 +1,11 @@
 <?php
 
-namespace craft\commerce\base;
+declare(strict_types=1);
 
-use craft\base\conditions\ConditionInterface;
+namespace CraftCms\Commerce\Base;
+
 use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
 
-/**
- * @deprecated use {@see \CraftCms\Commerce\Base\ZoneInterface}
- * @property string $cpEditUrl
- * @property ConditionInterface|string $condition
- */
 interface ZoneInterface
 {
     public function getCpEditUrl(): string;

@@ -1,10 +1,9 @@
 <?php
 
-namespace craft\commerce\base;
+declare(strict_types=1);
 
-/**
- * @deprecated use {@see \CraftCms\Commerce\Tax\Contracts\TaxIdValidatorInterface}
- */
+namespace CraftCms\Commerce\Tax\Contracts;
+
 interface TaxIdValidatorInterface
 {
     public static function displayName(): string;
