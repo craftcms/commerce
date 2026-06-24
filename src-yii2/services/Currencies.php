@@ -1,127 +1,53 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\services;
 
+use CraftCms\Commerce\Services\Currencies as NewCurrencies;
 use Illuminate\Support\Collection;
-use Money\Currencies\ISOCurrencies;
 use Money\Currency;
-use Money\Formatter\DecimalMoneyFormatter;
-use Money\Money;
-use Money\Parser\DecimalMoneyParser;
 use Money\Teller;
 use yii\base\Component;
 
 /**
- * Currency service.
- *
- * @property array|Currency[] $allCurrencies
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
+ * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Services\Currencies::class)` instead.
  */
 class Currencies extends Component
 {
-    private ?ISOCurrencies $_isoCurrencies = null;
-
-    public function init()
+    private function impl(): NewCurrencies
     {
-        $this->_isoCurrencies = new ISOCurrencies();
+        return app(NewCurrencies::class);
+    }
+
+    public function getTeller(Currency|string $currency): Teller
+    {
+        return $this->impl()->getTeller($currency);
+    }
+
+    public function getCurrencyByIso(string $iso): ?Currency
+    {
+        return $this->impl()->getCurrencyByIso($iso);
     }
 
     /**
-     * @var array
-     */
-    private array $_tellersByIso = [];
-
-    /**
-     * @param \Money\Currency|string $currency
-     * @return Teller
-     */
-    public function getTeller(\Money\Currency|string $currency): Teller
-    {
-        if (is_string($currency)) {
-            $currency = new \Money\Currency($currency);
-        }
-
-        $parser = new DecimalMoneyParser($this->_isoCurrencies);
-        $formatter = new DecimalMoneyFormatter($this->_isoCurrencies);
-        $roundingMode = Money::ROUND_HALF_UP;
-
-        $iso = $currency->getCode();
-        if (isset($this->_tellersByIso[$iso])) {
-            return $this->_tellersByIso[$iso];
-        }
-
-        $this->_tellersByIso[$iso] = new \Money\Teller(
-            $currency,
-            $parser,
-            $formatter,
-            $roundingMode
-        );
-
-        return $this->_tellersByIso[$iso];
-    }
-
-    /**
-     * Get a currency by it's ISO code.
-     *
-     * @param string $iso
-     * @return \Money\Currency|null
-     */
-    public function getCurrencyByIso(string $iso): ?\Money\Currency
-    {
-        return $this->getAllCurrencies()->first(fn(\Money\Currency $currency) => $currency->getCode() == $iso);
-    }
-
-
-    /**
-     * Get a list of all available currencies.
-     *
-     * @return Collection<\Money\Currency>
+     * @return Collection<int, Currency>
      */
     public function getAllCurrencies(): Collection
     {
-        return collect($this->_isoCurrencies);
+        return $this->impl()->getAllCurrencies();
     }
 
-    /**
-     * @return array
-     */
     public function getAllCurrenciesList(): array
     {
-        return $this->getAllCurrencies()->map(fn($currency) => [
-            'label' => $currency->getCode(), // TODO get name somehow
-            'value' => $currency->getCode(),
-        ])->toArray();
+        return $this->impl()->getAllCurrenciesList();
     }
 
-    /**
-     * @param Currency|string $currency
-     * @return int
-     */
-    public function getSubunitFor(Currency|string $currency)
+    public function getSubunitFor(Currency|string $currency): int
     {
-        if (is_string($currency)) {
-            $currency = $this->getCurrencyByIso($currency);
-        }
-
-        return $this->_isoCurrencies->subunitFor($currency);
+        return $this->impl()->getSubunitFor($currency);
     }
 
-    /**
-     * @param Currency|string $currency
-     * @return int
-     */
-    public function numericCodeFor(Currency|string $currency)
+    public function numericCodeFor(Currency|string $currency): int
     {
-        if (is_string($currency)) {
-            $currency = $this->getCurrencyByIso($currency);
-        }
-
-        return $this->_isoCurrencies->numericCodeFor($currency);
+        return $this->impl()->numericCodeFor($currency);
     }
 }
