@@ -13,10 +13,7 @@ use craft\commerce\Plugin;
 use yii\base\InvalidConfigException;
 
 /**
- * Store Trait
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 5.0.0
+ * @deprecated use {@see \CraftCms\Commerce\Store\Concerns\StoreTrait}
  */
 trait StoreTrait
 {

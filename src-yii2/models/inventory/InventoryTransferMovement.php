@@ -2,11 +2,10 @@
 
 namespace craft\commerce\models\inventory;
 
-use craft\commerce\base\InventoryMovement;
+/** @deprecated use {@see \CraftCms\Commerce\Inventory\Models\InventoryTransferMovement} */
+class_alias(\CraftCms\Commerce\Inventory\Models\InventoryTransferMovement::class, 'craft\commerce\models\inventory\InventoryTransferMovement');
 
-/**
- * Inventory Transfer movement model
- */
-class InventoryTransferMovement extends InventoryMovement
-{
+/** @phpstan-ignore-next-line */
+if (false) {
+    class InventoryTransferMovement extends \CraftCms\Commerce\Inventory\Models\InventoryTransferMovement {}
 }
