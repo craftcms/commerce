@@ -148,10 +148,8 @@ class ProductQuery extends ElementQuery
     }
 
 
-    /**
-     * @inheritdoc
-     */
-    public function __set($name, $value)
+    #[\Override]
+    public function __set(string $name, $value): void
     {
         match ($name) {
             'type' => $this->type($value),

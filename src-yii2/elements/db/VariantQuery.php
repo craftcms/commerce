@@ -145,10 +145,8 @@ class VariantQuery extends PurchasableQuery
         parent::__construct($elementType, $config);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function __set($name, $value)
+    #[\Override]
+    public function __set(string $name, $value): void
     {
         match ($name) {
             'product' => $this->product($value),
