@@ -1,29 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\models\subscriptions;
 
-use craft\commerce\base\Plan;
-use craft\commerce\base\PlanInterface;
+/** @deprecated use {@see \CraftCms\Commerce\Subscription\Models\DummyPlan} */
+class_alias(\CraftCms\Commerce\Subscription\Models\DummyPlan::class, 'craft\commerce\models\subscriptions\DummyPlan');
 
-/**
- * Class DummyPlan
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
- */
-class DummyPlan extends Plan
-{
-    /**
-     * @inheritdoc
-     * TODO: Fix typo in next major release currentPlant -> currentPlan
-     */
-    public function canSwitchFrom(PlanInterface $currentPlant): bool
-    {
-        return true;
-    }
+/** @phpstan-ignore-next-line */
+if (false) {
+    class DummyPlan extends \CraftCms\Commerce\Subscription\Models\DummyPlan {}
 }

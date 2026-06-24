@@ -9,6 +9,7 @@ use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Site\Exceptions\SiteNotFoundException;
 use CraftCms\Cms\Support\Config;
 use CraftCms\Cms\Support\Facades\Sites;
+use function CraftCms\Cms\t;
 
 class Settings extends Component
 {
@@ -55,6 +56,34 @@ class Settings extends Component
 
     public bool $validateCartCustomFieldsOnSubmission = false;
 
+    #[\Override]
+    public function setAttributes($values): void
+    {
+        unset(
+            $values['orderPdfFilenameFormat'],
+            $values['orderPdfPath'],
+            $values['emailSenderAddress'],
+            $values['emailSenderAddressPlaceholder'],
+            $values['emailSenderName'],
+            $values['emailSenderNamePlaceholder'],
+            $values['autoSetNewCartAddresses'],
+            $values['autoSetCartShippingMethodOption'],
+            $values['autoSetPaymentSource'],
+            $values['allowEmptyCartOnCheckout'],
+            $values['allowCheckoutWithoutPayment'],
+            $values['allowPartialPaymentOnCheckout'],
+            $values['orderReferenceFormat'],
+            $values['requireShippingAddressAtCheckout'],
+            $values['requireBillingAddressAtCheckout'],
+            $values['requireShippingMethodSelectionAtCheckout'],
+            $values['useBillingAddressForTax'],
+            $values['freeOrderPaymentStrategy'],
+            $values['minimumTotalPriceStrategy'],
+            $values['showEditUserCommerceTab'],
+        );
+        parent::setAttributes($values);
+    }
+
     public function getWeightUnitsOptions(): array
     {
         return [
@@ -87,7 +116,9 @@ class Settings extends Component
         }
 
         $paymentCurrency = Config::localizedValue($this->paymentCurrency, $siteHandle);
+        /** @phpstan-ignore-next-line */
         $store = Plugin::getInstance()->getStores()->getStoreBySiteId($site->id);
+        /** @phpstan-ignore-next-line */
         $allPaymentCurrencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies($store?->id);
 
         if ($paymentCurrency && !$allPaymentCurrencies->contains('iso', '==', $paymentCurrency)) {
