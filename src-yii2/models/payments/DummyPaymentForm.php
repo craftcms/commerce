@@ -1,36 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\models\payments;
 
-use craft\commerce\models\PaymentSource;
+/** @deprecated use {@see \CraftCms\Commerce\Payment\Forms\DummyPaymentForm} */
+class_alias(\CraftCms\Commerce\Payment\Forms\DummyPaymentForm::class, 'craft\commerce\models\payments\DummyPaymentForm');
 
-/**
- * Credit Card Payment form model.
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
- */
-class DummyPaymentForm extends CreditCardPaymentForm
-{
-    public function populateFromPaymentSource(PaymentSource $paymentSource): void
-    {
-        $this->token = (string)$paymentSource->id;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function defineRules(): array
-    {
-        if ($this->token) {
-            return []; //No validation of form if using a token
-        }
-
-        return parent::defineRules();
-    }
+/** @phpstan-ignore-next-line */
+if (false) {
+    class DummyPaymentForm extends \CraftCms\Commerce\Payment\Forms\DummyPaymentForm {}
 }

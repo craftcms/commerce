@@ -1,34 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\models\payments;
 
-use craft\base\Model;
-use craft\commerce\models\PaymentSource;
-use yii\base\NotSupportedException;
+/** @deprecated use {@see \CraftCms\Commerce\Payment\Forms\BasePaymentForm} */
+class_alias(\CraftCms\Commerce\Payment\Forms\BasePaymentForm::class, 'craft\commerce\models\payments\BasePaymentForm');
 
-/**
- * Class BasePaymentForm
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
- */
-abstract class BasePaymentForm extends Model
-{
-    public bool $savePaymentSource = false;
-
-    /**
-     * Populate the payment form from a payment form.
-     *
-     * @param PaymentSource $paymentSource the source to ue
-     * @throws NotSupportedException if not supported by current gateway.
-     */
-    public function populateFromPaymentSource(PaymentSource $paymentSource): void
-    {
-        throw new NotSupportedException();
-    }
+/** @phpstan-ignore-next-line */
+if (false) {
+    class BasePaymentForm extends \CraftCms\Commerce\Payment\Forms\BasePaymentForm {}
 }

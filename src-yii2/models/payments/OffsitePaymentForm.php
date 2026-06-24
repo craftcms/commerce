@@ -1,18 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\models\payments;
 
-/**
- * Payment form model for offsite gateways. Serves as transport of data only.
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
- */
-class OffsitePaymentForm extends BasePaymentForm
-{
+/** @deprecated use {@see \CraftCms\Commerce\Payment\Forms\OffsitePaymentForm} */
+class_alias(\CraftCms\Commerce\Payment\Forms\OffsitePaymentForm::class, 'craft\commerce\models\payments\OffsitePaymentForm');
+
+/** @phpstan-ignore-next-line */
+if (false) {
+    class OffsitePaymentForm extends \CraftCms\Commerce\Payment\Forms\OffsitePaymentForm {}
 }
