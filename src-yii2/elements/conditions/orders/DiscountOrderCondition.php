@@ -34,7 +34,7 @@ class DiscountOrderCondition extends OrderCondition implements HasStoreInterface
      */
     protected function config(): array
     {
-        return array_merge(parent::config(), $this->toArray(['storeId']));
+        return array_merge(parent::config(), ['storeId' => $this->storeId]);
     }
 
     /**

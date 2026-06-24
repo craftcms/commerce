@@ -31,7 +31,7 @@ class ShippingMethodOrderCondition extends OrderCondition implements HasStoreInt
     /**
      * @inheritdoc
      */
-    protected function defineRules(): array
+    public function defineRules(): array
     {
         $rules = parent::defineRules();
         $rules[] = [['storeId'], 'safe'];
@@ -44,7 +44,7 @@ class ShippingMethodOrderCondition extends OrderCondition implements HasStoreInt
      */
     protected function config(): array
     {
-        return array_merge(parent::config(), $this->toArray(['storeId']));
+        return array_merge(parent::config(), ['storeId' => $this->storeId]);
     }
 
     /**
