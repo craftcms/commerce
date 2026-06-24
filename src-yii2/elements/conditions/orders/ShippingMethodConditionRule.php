@@ -9,7 +9,7 @@ use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\elements\conditions\ElementConditionRuleInterface;
-use yii\db\QueryInterface;
+use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 
 /**
  * Shipping Method condition rule.
@@ -46,7 +46,7 @@ class ShippingMethodConditionRule extends BaseMultiSelectConditionRule implement
     /**
      * @inheritdoc
      */
-    public function modifyQuery(QueryInterface $query): void
+    public function modifyQuery(ElementQueryInterface $query): void
     {
         /** @var OrderQuery $query */
         $query->shippingMethodHandle($this->paramValue());

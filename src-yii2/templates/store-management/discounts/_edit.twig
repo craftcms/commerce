@@ -117,7 +117,8 @@
             {% endfor %}
         </div>
 
-        {% set showCategories = craft.categories.exists() %}
+        {# @TODO: categories were removed in Craft 6 — determine if category-based discount conditions should be removed or replaced #}
+        {% set showCategories = false %}
         {% set showEntries = craft.entries.exists() %}
 
         {% if not showCategories and not showEntries %}

@@ -9,7 +9,7 @@ use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\helpers\ArrayHelper;
-use yii\db\QueryInterface;
+use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 
 /**
  * Order site condition rule.
@@ -46,7 +46,7 @@ class OrderSiteConditionRule extends BaseMultiSelectConditionRule implements Ele
     /**
      * @inheritdoc
      */
-    public function modifyQuery(QueryInterface $query): void
+    public function modifyQuery(ElementQueryInterface $query): void
     {
         /** @var OrderQuery $query */
         $query->orderSiteId($this->paramValue());

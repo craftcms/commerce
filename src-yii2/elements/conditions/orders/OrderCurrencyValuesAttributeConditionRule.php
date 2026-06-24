@@ -18,8 +18,8 @@ use craft\elements\conditions\ElementConditionInterface;
 use craft\fields\conditions\MoneyFieldConditionRule;
 use craft\fields\Money;
 use craft\models\Site;
+use Illuminate\Contracts\Database\Query\Builder;
 use Money\Currency;
-use yii\db\QueryInterface;
 
 /**
  * Order Number Attribute Condition Rule
@@ -123,7 +123,7 @@ abstract class OrderCurrencyValuesAttributeConditionRule extends MoneyFieldCondi
     /**
      * @inheritdoc
      */
-    public function modifyQuery(QueryInterface $query): void
+    public function modifyQuery(Builder $query): void
     {
         $query->{$this->orderAttribute}($this->paramValue());
     }

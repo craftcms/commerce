@@ -122,7 +122,7 @@ class Taxes extends Component implements TaxEngineInterface
             return $this->_taxEngine;
         }
 
-        $event = new TaxEngineEvent(['engine' => new Tax()]);
+        $event = new TaxEngineEvent(engine: new Tax());
 
         if ($this->hasEventHandlers(self::EVENT_REGISTER_TAX_ENGINE)) {
             $this->trigger(self::EVENT_REGISTER_TAX_ENGINE, $event);
