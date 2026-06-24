@@ -19,15 +19,6 @@ class Settings extends Component
     public const VIEW_URI_STORE_MANAGEMENT = 'commerce/store-management';
     public const VIEW_URI_SUBSCRIPTIONS = 'commerce/subscriptions';
 
-    #[\Deprecated(message: 'in 5.0.0.')]
-    public const VIEW_URI_CUSTOMERS = 'commerce/customers';
-    #[\Deprecated(message: 'in 5.0.0.')]
-    public const VIEW_URI_PROMOTIONS = 'commerce/promotions';
-    #[\Deprecated(message: 'in 5.0.0.')]
-    public const VIEW_URI_SHIPPING = 'commerce/shipping/shippingmethods';
-    #[\Deprecated(message: 'in 5.0.0.')]
-    public const VIEW_URI_TAX = 'commerce/tax/taxrates';
-
     public mixed $activeCartDuration = 3600;
 
     public string $cartVariable = 'cart';

@@ -1,5 +1,53 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Removed (deprecated in 5.x)
+
+- `Settings::VIEW_URI_CUSTOMERS`, `VIEW_URI_PROMOTIONS`, `VIEW_URI_SHIPPING`, `VIEW_URI_TAX` constants — deprecated in 5.0.0.
+- `Store::setCountries()`, `getCountries()`, `getCountriesList()`, `getAdministrativeAreasListByCountryCode()`, `getMarketAddressCondition()` — deprecated in 5.0.0; use the equivalents on `Store::getSettings()` (i.e. `StoreSettings`).
+- `Discount::setExcludeOnSale()` / `getExcludeOnSale()` and the `excludeOnSale` shim — deprecated in 5.0.0; use `Discount::$excludeOnPromotion`.
+
+### Laravel Migration — Stage 5m: Discount
+
+Migrated `craft\commerce\models\Discount` → `CraftCms\Commerce\Promotion\Models\Discount`.
+
+Key changes:
+- `craft\base\Model` (Yii2) → `CraftCms\Cms\Component\Component` (Laravel)
+- Yii2 `new Query()->select()->from()->leftJoin()->where()->column()` → `DB::table()->leftJoin()->where()->pluck()->all()` for the purchasable/category relations loaders
+- `Craft::$app->getConditions()->createCondition()` → `Conditions::createCondition()`
+- `Craft::$app->getFormatter()->asPercent()` → `I18N::getFormatter()->asPercent()`
+- `craft\helpers\Json::decodeIfJson()` → `CraftCms\Cms\Support\Json::decodeIfJson()`
+- Yii2 `defineRules()` → Laravel `getRules()`; closure validators rewritten with `$fail()` pattern; `Rule::in()` for `categoryRelationshipType` and `appliedTo`
+- `CouponsValidator` retained at the legacy path (covered by closure rule later)
+- `craft\elements\conditions\ElementConditionInterface` → `CraftCms\Cms\Element\Conditions\Contracts\ElementConditionInterface`
+- `craft\commerce\elements\conditions\*` (DiscountOrderCondition, DiscountCustomerCondition, DiscountAddressCondition) retained as old namespace references
+- `Order` element and `DiscountRecord` retained as old namespace references
+
+### Laravel Migration — Stage 5k: Store
+
+Migrated `craft\commerce\models\Store` → `CraftCms\Commerce\Store\Models\Store`.
+
+Key changes:
+- `craft\base\Model` (Yii2) → `CraftCms\Cms\Component\Component` (Laravel)
+- `craft\helpers\App::parseEnv()` → `CraftCms\Cms\Support\Env::parse()`
+- `craft\helpers\App::parseBooleanEnv()` → `CraftCms\Cms\Support\Env::parseBoolean()`
+- `craft\helpers\UrlHelper::cpUrl()` → `CraftCms\Cms\Support\Url::cpUrl()`
+- `craft\models\Site` → `CraftCms\Cms\Site\Data\Site`
+- `UniqueValidator` → `Illuminate\Validation\Rule::unique()` scoped by id
+- Yii2 closure validator for "currency cannot change after orders exist" → Laravel closure rule with `$fail()`
+- `Craft::$app->getDeprecator()->log()` → `CraftCms\Cms\Support\Facades\Deprecator::log()`
+- `Craft::t('commerce', ...)` → global `t(..., category: 'commerce')`
+- Yii2 `attributes()` override (added `name`/`settings`) → `fields()` override under the new serialization layer
+- Dropped `EnvAttributeParserBehavior` — the existing `getXxx(bool $parse)` pattern already handles env parsing on every accessor
+- `ZoneAddressCondition`, `Order`, and `\craft\commerce\records\Store` retained as old namespace references
+
+### Laravel Migration — Stage 5j: Settings stub + DummyPlan
+
+`craft\commerce\models\Settings` already lived at `CraftCms\Commerce\Settings` from Stage 5a, but the legacy `src-yii2/models/Settings.php` still held the full Yii2 implementation. Now:
+- `src-yii2/models/Settings.php` replaced with a `class_alias` stub.
+- `src/Settings.php` gained the `setAttributes()` override that strips deprecated Commerce-4 settings keys, preserving backward compatibility for project configs that still reference `orderPdfFilenameFormat`, `autoSetNewCartAddresses`, etc.
+
+Migrated `craft\commerce\models\subscriptions\DummyPlan` → `CraftCms\Commerce\Subscription\Models\DummyPlan`. Still extends the unmigrated `craft\commerce\base\Plan`; switched to the new `CraftCms\Commerce\Subscription\Contracts\PlanInterface` argument type.
+
 ### Bug Fixes
 
 - Fixed `Table` constants in `src/Database/Table.php` using Yii2 `{{%tablename}}` prefix syntax instead of plain table names, causing "Base table or view not found" MySQL errors when Laravel's query builder passed the literal string to the database.

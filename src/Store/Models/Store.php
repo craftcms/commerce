@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Store\Models;
 
-use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Support\Env;
-use CraftCms\Cms\Support\Facades\Deprecator;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Database\Table;
 use Illuminate\Support\Collection;
@@ -23,7 +21,6 @@ class Store extends Component
     public const MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT = 'default';
     public const MINIMUM_TOTAL_PRICE_STRATEGY_ZERO = 'zero';
     public const MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING = 'shipping';
-
     public const FREE_ORDER_PAYMENT_STRATEGY_COMPLETE = 'complete';
     public const FREE_ORDER_PAYMENT_STRATEGY_PROCESS = 'process';
 
@@ -324,44 +321,6 @@ class Store extends Component
     public function getMinimumTotalPriceStrategy(bool $parse = true): string
     {
         return $parse ? (Env::parse($this->_minimumTotalPriceStrategy) ?? '') : $this->_minimumTotalPriceStrategy;
-    }
-
-    #[\Deprecated(message: 'in 5.0.0. Use [[Store::getSettings()->setCountries()]] instead.')]
-    public function setCountries(mixed $countries): void
-    {
-        Deprecator::log(__METHOD__, 'Store::setCountries() is deprecated. Use Store::getSettings()->setCountries() instead.');
-        $this->getSettings()->setCountries($countries);
-    }
-
-    /**
-     * @return string[]
-     */
-    #[\Deprecated(message: 'in 5.0.0. Use [[Store::getSettings()->getCountries()]] instead.')]
-    public function getCountries(): array
-    {
-        Deprecator::log(__METHOD__, 'Store::getCountries() is deprecated. Use Store::getSettings()->getCountries() instead.');
-        return $this->getSettings()->getCountries();
-    }
-
-    #[\Deprecated(message: 'in 5.0.0. Use [[Store::getSettings()->getCountriesList()]] instead.')]
-    public function getCountriesList(): array
-    {
-        Deprecator::log(__METHOD__, 'Store::getCountriesList() has been deprecated. Use Store::getSettings()->getCountriesList() instead.');
-        return $this->getSettings()->getCountriesList();
-    }
-
-    #[\Deprecated(message: 'in 5.0.0. Use [[Store::getSettings()->getAdministrativeAreasListByCountryCode()]] instead.')]
-    public function getAdministrativeAreasListByCountryCode(): array
-    {
-        Deprecator::log(__METHOD__, 'Store::getAdministrativeAreasListByCountryCode() has been deprecated. Use Store::getSettings()->getAdministrativeAreasListByCountryCode() instead.');
-        return $this->getSettings()->getAdministrativeAreasListByCountryCode();
-    }
-
-    #[\Deprecated(message: 'in 5.0.0. Use [[Store::getSettings()->getMarketAddressCondition()]] instead.')]
-    public function getMarketAddressCondition(): ZoneAddressCondition
-    {
-        Deprecator::log(__METHOD__, 'Store::getMarketAddressCondition() has been deprecated. Use Store::getSettings()->getMarketAddressCondition() instead.');
-        return $this->getSettings()->getMarketAddressCondition();
     }
 
     public function getCurrency(): ?MoneyCurrency
