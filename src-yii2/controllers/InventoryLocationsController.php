@@ -35,9 +35,6 @@ use yii\web\Response;
  */
 class InventoryLocationsController extends BaseCpController
 {
-    /**
-     * @inheritdoc
-     */
     public function init(): void
     {
         parent::init();
@@ -105,7 +102,7 @@ class InventoryLocationsController extends BaseCpController
                 }
             }
 
-            $title = trim($inventoryLocation->getUiLabel()) ?: Craft::t('app', 'Edit Inventory Location');
+            $title = trim((string) $inventoryLocation->getUiLabel()) ?: Craft::t('app', 'Edit Inventory Location');
         } else {
             if ($inventoryLocation === null) {
                 $inventoryLocation = new InventoryLocation();

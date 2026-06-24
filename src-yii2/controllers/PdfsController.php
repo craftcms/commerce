@@ -8,7 +8,6 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Pdf;
 use craft\commerce\models\Store;
@@ -62,7 +61,7 @@ class PdfsController extends BaseAdminController
      * @throws InvalidConfigException
      * @since 3.2
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, Pdf $pdf = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?Pdf $pdf = null): Response
     {
         if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
@@ -94,8 +93,6 @@ class PdfsController extends BaseAdminController
         $isDefault = Plugin::getInstance()->getPdfs()->getAllPdfs($pdf->storeId)->count() === 0 || $pdf->isDefault;
         $paperOrientationOptions = Pdf::getPaperOrientationOptions();
         $paperSizeOptions = Pdf::getPaperSizeOptions();
-
-        DebugPanel::prependOrAppendModelTab(model: $pdf, prepend: true);
 
         return $this->asCpScreen()
             ->title($title)

@@ -12,7 +12,6 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
-use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Localization;
 use craft\commerce\models\Coupon;
 use craft\commerce\models\Discount;
@@ -67,7 +66,7 @@ class DiscountsController extends BaseStoreManagementController
     /**
      * @throws HttpException
      */
-    public function actionIndex(string $storeHandle = null): Response
+    public function actionIndex(?string $storeHandle = null): Response
     {
         if ($storeHandle) {
             $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
@@ -221,7 +220,7 @@ JS;
         $search = $this->request->getParam('search');
         $offset = ($page - 1) * $limit;
 
-        $sqlQuery = (new Query())
+        $sqlQuery = new Query()
             ->from(['discounts' => Table::DISCOUNTS])
             ->select([
                 'discounts.id',
@@ -249,7 +248,7 @@ JS;
                     // Search discount description
                     [$likeOperator, 'discounts.description', '%' . str_replace(' ', '%', $search) . '%', false],
                     // Search coupon code
-                    ['discounts.id' => (new Query())
+                    ['discounts.id' => new Query()
                         ->from(Table::COUPONS)
                         ->select('discountId')
                         ->where([$likeOperator, 'code', '%' . str_replace(' ', '%', $search) . '%', false]),
@@ -297,7 +296,7 @@ JS;
      * @param Discount|null $discount
      * @throws HttpException
      */
-    public function actionEdit(int $id = null, Discount $discount = null, string $storeHandle = null): Response
+    public function actionEdit(?int $id = null, ?Discount $discount = null, ?string $storeHandle = null): Response
     {
         if ($id === null) {
             $this->requirePermission('commerce-createDiscounts');
@@ -341,8 +340,6 @@ JS;
                 $variables['isNewDiscount'] = true;
             }
         }
-
-        DebugPanel::prependOrAppendModelTab(model: $variables['discount'], prepend: true);
 
         $this->_populateVariables($variables);
         $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
@@ -439,7 +436,7 @@ JS;
         ];
         foreach ($moneyInputAttributes as $attr) {
             $attrValue = $this->request->getBodyParam($attr) ?: ['value' => '0'];
-            $attrValue['value'] = preg_replace('/[^0-9\.\-\,]/', '', $attrValue['value']);
+            $attrValue['value'] = preg_replace('/[^0-9\.\-\,]/', '', (string) $attrValue['value']);
             $attrValue += [
                 'currency' => $discount->getStore()->getCurrency(),
             ];
@@ -470,7 +467,7 @@ JS;
         }
 
         $percentDiscount = $this->request->getBodyParam('percentDiscount', 0);
-        $percentDiscount = preg_replace('/[^0-9\.\-\,]/', '', $percentDiscount);
+        $percentDiscount = preg_replace('/[^0-9\.\-\,]/', '', (string) $percentDiscount);
         $discount->percentDiscount = -Localization::normalizePercentage($percentDiscount);
 
         // Set purchasable conditions
@@ -790,7 +787,7 @@ JS;
         $entries = [];
 
         if (empty($variables['id']) && $this->request->getParam('categoryIds')) {
-            $categoryIds = explode('|', $this->request->getParam('categoryIds'));
+            $categoryIds = explode('|', (string) $this->request->getParam('categoryIds'));
         } else {
             $categoryIds = $variables['discount']->getCategoryIds();
         }
@@ -823,7 +820,7 @@ JS;
         $variables['purchasables'] = null;
 
         if (empty($variables['id']) && $this->request->getParam('purchasableIds')) {
-            $purchasableIdsFromUrl = explode('|', $this->request->getParam('purchasableIds'));
+            $purchasableIdsFromUrl = explode('|', (string) $this->request->getParam('purchasableIds'));
             foreach ($purchasableIdsFromUrl as $purchasableId) {
                 $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId, siteId: $variables['siteIds']);
                 if ($purchasable instanceof Product) {

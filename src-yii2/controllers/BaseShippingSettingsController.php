@@ -15,9 +15,6 @@ namespace craft\commerce\controllers;
  */
 class BaseShippingSettingsController extends BaseStoreManagementController
 {
-    /**
-     * @inheritdoc
-     */
     public function init(): void
     {
         parent::init();

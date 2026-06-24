@@ -8,7 +8,6 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
@@ -126,7 +125,7 @@ JS;
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, ShippingMethod $shippingMethod = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?ShippingMethod $shippingMethod = null): Response
     {
         if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
@@ -154,8 +153,6 @@ JS;
         }
 
         $storeHandle = $store->handle;
-
-        DebugPanel::prependOrAppendModelTab(model: $shippingMethod, prepend: true);
 
         $shippingRules = $shippingMethod->id !== null
             ? Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($shippingMethod->id)

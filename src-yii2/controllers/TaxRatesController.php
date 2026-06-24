@@ -10,7 +10,6 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\helpers\Cp as CommerceCp;
-use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Localization;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
@@ -160,7 +159,7 @@ JS;
      * @throws \Twig\Error\SyntaxError
      * @throws Exception
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, TaxRate $taxRate = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?TaxRate $taxRate = null): Response
     {
         if (!Plugin::getInstance()->getTaxes()->viewTaxRates()) {
             throw new ForbiddenHttpException('Tax engine does not permit you to perform this action');
@@ -191,8 +190,6 @@ JS;
         }
 
         $title = $taxRate->id ? $taxRate->name : Craft::t('commerce', 'Create a new tax rate');
-
-        DebugPanel::prependOrAppendModelTab(model: $taxRate, prepend: true);
 
         $variables = compact('taxRate', 'store', 'storeHandle', 'percentSymbol');
 

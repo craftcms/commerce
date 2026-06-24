@@ -8,7 +8,6 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\Plugin;
 use craft\helpers\Cp;
@@ -83,7 +82,7 @@ JS;
      * @param ShippingAddressZone|null $shippingZone
      * @throws HttpException
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, ShippingAddressZone $shippingZone = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?ShippingAddressZone $shippingZone = null): Response
     {
         if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
@@ -116,8 +115,6 @@ JS;
         $condition->mainTag = 'div';
         $condition->name = 'condition';
         $condition->id = 'condition';
-
-        DebugPanel::prependOrAppendModelTab(model: $shippingZone, prepend: true);
 
         $metadata = [];
         if ($shippingZone->id) {

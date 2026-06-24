@@ -10,7 +10,6 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
-use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
 use craft\helpers\Cp;
@@ -65,7 +64,7 @@ class PaymentCurrenciesController extends BaseStoreManagementController
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    public function actionEdit(int $id = null, PaymentCurrency $currency = null, string $storeHandle = null): Response
+    public function actionEdit(?int $id = null, ?PaymentCurrency $currency = null, ?string $storeHandle = null): Response
     {
         if ($storeHandle) {
             $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
@@ -96,8 +95,6 @@ class PaymentCurrenciesController extends BaseStoreManagementController
         } else {
             $title = Craft::t('commerce', 'Create a new currency');
         }
-
-        DebugPanel::prependOrAppendModelTab(model: $currency, prepend: true);
 
         $storeCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $currencyOptions = Plugin::getInstance()->getCurrencies()->getAllCurrenciesList();

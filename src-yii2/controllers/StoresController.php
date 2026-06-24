@@ -57,7 +57,7 @@ class StoresController extends BaseAdminController
                 }
             }
 
-            $title = trim($storeModel->getName()) ?: Craft::t('app', 'Edit Store');
+            $title = trim((string) $storeModel->getName()) ?: Craft::t('app', 'Edit Store');
         } else {
             if ($storeModel === null) {
                 $storeModel = new Store();
@@ -174,7 +174,7 @@ class StoresController extends BaseAdminController
             $store->uid = $savedStore->uid;
             $store->sortOrder = $savedStore->sortOrder;
         } elseif (!$storeId) {
-            $store->sortOrder = (new Query())->from(Table::STORES)->max('[[sortOrder]]') + 1;
+            $store->sortOrder = new Query()->from(Table::STORES)->max('[[sortOrder]]') + 1;
         }
 
         // Save it
@@ -332,7 +332,7 @@ class StoresController extends BaseAdminController
      * @return Response
      * @throws InvalidConfigException
      */
-    public function actionEditSiteStores(Collection $sitesStores = null): Response
+    public function actionEditSiteStores(?Collection $sitesStores = null): Response
     {
         // Breadcrumbs
         $crumbs = [

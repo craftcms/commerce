@@ -8,7 +8,6 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\models\ShippingRule;
 use craft\commerce\models\ShippingRuleCategory;
@@ -47,7 +46,7 @@ class ShippingRulesController extends BaseShippingSettingsController
      * @throws SyntaxError
      * @throws Exception
      */
-    public function actionEdit(?string $storeHandle = null, int $methodId = null, int $ruleId = null, ShippingRule $shippingRule = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $methodId = null, ?int $ruleId = null, ?ShippingRule $shippingRule = null): Response
     {
         if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
@@ -98,8 +97,6 @@ class ShippingRulesController extends BaseShippingSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a new shipping rule');
         }
 
-        DebugPanel::prependOrAppendModelTab(model: $variables['shippingMethod'], prepend: true);
-        DebugPanel::prependOrAppendModelTab(model: $variables['shippingRule'], prepend: true);
 
         $shippingZones = $plugin->getShippingZones()->getAllShippingZones($store->id)->all();
         $variables['shippingZones'] = [];
@@ -165,7 +162,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         $shippingRule->description = $this->request->getBodyParam('description');
         $shippingRule->methodId = $this->request->getBodyParam('methodId');
         $shippingRule->enabled = (bool)$this->request->getBodyParam('enabled');
-        $shippingRule->orderConditionFormula = trim($this->request->getBodyParam('orderConditionFormula', ''));
+        $shippingRule->orderConditionFormula = trim((string) $this->request->getBodyParam('orderConditionFormula', ''));
         $shippingRule->percentageRate = Localization::normalizeNumber($this->request->getBodyParam('percentageRate'));
         $shippingRule->setOrderCondition($this->request->getBodyParam('orderCondition'));
         $shippingRule->setCustomerCondition($this->request->getBodyParam('customerCondition'));
@@ -176,17 +173,17 @@ class ShippingRulesController extends BaseShippingSettingsController
             $perItemRate = $ruleCategory['perItemRate'];
             $weightRate = $ruleCategory['weightRate'];
             $percentageRate = $ruleCategory['percentageRate'];
-            $ruleCategory['perItemRate'] = (!isset($perItemRate) || trim($perItemRate['value']) === '')
+            $ruleCategory['perItemRate'] = (!isset($perItemRate) || trim((string) $perItemRate['value']) === '')
                 ? null
                 : MoneyHelper::toDecimal(MoneyHelper::toMoney(array_merge([
                     'currency' => $shippingRule->getStore()->getCurrency(),
                 ], $perItemRate)));
-            $ruleCategory['weightRate'] = (!isset($weightRate) || trim($weightRate['value']) === '')
+            $ruleCategory['weightRate'] = (!isset($weightRate) || trim((string) $weightRate['value']) === '')
                 ? null
                 : MoneyHelper::toDecimal(MoneyHelper::toMoney(array_merge([
                 'currency' => $shippingRule->getStore()->getCurrency(),
             ], $weightRate)));
-            $ruleCategory['percentageRate'] = (!isset($percentageRate) || trim($percentageRate) === '') ? null : Localization::normalizeNumber($percentageRate);
+            $ruleCategory['percentageRate'] = (!isset($percentageRate) || trim((string) $percentageRate) === '') ? null : Localization::normalizeNumber($percentageRate);
 
             $ruleCategories[$key] = new ShippingRuleCategory($ruleCategory);
             $ruleCategories[$key]->shippingCategoryId = $key;

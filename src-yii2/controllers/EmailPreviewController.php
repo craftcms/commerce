@@ -44,7 +44,7 @@ class EmailPreviewController extends Controller
         $orderNumber = $this->request->getParam('number');
 
         if ($orderNumber) {
-            $order = Order::find()->shortNumber(substr($orderNumber, 0, 7))->one();
+            $order = Order::find()->shortNumber(substr((string) $orderNumber, 0, 7))->one();
         } else {
             $orderQuery = Order::find()->isCompleted(true);
 

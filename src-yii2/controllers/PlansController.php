@@ -10,7 +10,6 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\base\Plan;
 use craft\commerce\base\SubscriptionGateway;
-use craft\commerce\helpers\DebugPanel;
 use craft\commerce\Plugin;
 use craft\elements\Entry;
 use craft\errors\DeprecationException;
@@ -66,7 +65,7 @@ class PlansController extends BaseCpController
      * @throws DeprecationException
      * @throws ForbiddenHttpException
      */
-    public function actionEditPlan(int $planId = null, Plan $plan = null): Response
+    public function actionEditPlan(?int $planId = null, ?Plan $plan = null): Response
     {
         $this->requirePermission('commerce-manageSubscriptions');
 
@@ -93,7 +92,6 @@ class PlansController extends BaseCpController
 
         if (!empty($variables['planId'])) {
             $variables['title'] = $variables['plan']->name;
-            DebugPanel::prependOrAppendModelTab(model: $variables['plan'], prepend: true);
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a Subscription Plan');
         }

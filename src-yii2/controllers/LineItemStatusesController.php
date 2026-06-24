@@ -9,7 +9,6 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\db\Table;
-use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\LineItemStatus;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
@@ -55,7 +54,7 @@ class LineItemStatusesController extends BaseAdminController
      * @param LineItemStatus|null $lineItemStatus
      * @throws HttpException
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, LineItemStatus $lineItemStatus = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?LineItemStatus $lineItemStatus = null): Response
     {
         if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
@@ -78,8 +77,6 @@ class LineItemStatusesController extends BaseAdminController
 
         $statusColors = ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'];
         $nextAvailableColor = null;
-
-        DebugPanel::prependOrAppendModelTab(model: $lineItemStatus, prepend: true);
 
         if ($lineItemStatus->id) {
             $title = $lineItemStatus->name;
@@ -179,7 +176,7 @@ class LineItemStatusesController extends BaseAdminController
 
         $lineItemStatusId = $this->request->getRequiredParam('id');
 
-        $storeId = (new Query())->from(Table::LINEITEMSTATUSES)->select(['storeId'])->where(['id' => $lineItemStatusId])->scalar();
+        $storeId = new Query()->from(Table::LINEITEMSTATUSES)->select(['storeId'])->where(['id' => $lineItemStatusId])->scalar();
 
         if (!$storeId || !Plugin::getInstance()->getLineItemStatuses()->archiveLineItemStatusById((int)$lineItemStatusId, $storeId)) {
             return $this->asFailure(Craft::t('commerce', 'Couldn’t archive Line Item Status.'));

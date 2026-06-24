@@ -11,7 +11,6 @@ use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Product;
-use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Sale as SaleRecord;
@@ -74,7 +73,7 @@ class SalesController extends BaseStoreManagementController
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    public function actionEdit(int $id = null, Sale $sale = null, ?string $storeHandle = null): Response
+    public function actionEdit(?int $id = null, ?Sale $sale = null, ?string $storeHandle = null): Response
     {
         if ($id === null) {
             $this->requirePermission('commerce-createSales');
@@ -111,8 +110,6 @@ class SalesController extends BaseStoreManagementController
                 $variables['sale']->allGroups = true;
             }
         }
-
-        DebugPanel::prependOrAppendModelTab(model: $variables['sale'], prepend: true);
 
         $this->_populateVariables($variables);
 
@@ -494,7 +491,7 @@ class SalesController extends BaseStoreManagementController
         $entries = [];
 
         if (empty($variables['id']) && $this->request->getParam('categoryIds')) {
-            $categoryIds = explode('|', $this->request->getParam('categoryIds'));
+            $categoryIds = explode('|', (string) $this->request->getParam('categoryIds'));
         } else {
             $categoryIds = $sale->getCategoryIds();
         }
@@ -523,7 +520,7 @@ class SalesController extends BaseStoreManagementController
         $purchasables = [];
 
         if (empty($variables['id']) && $this->request->getParam('purchasableIds')) {
-            $purchasableIdsFromUrl = explode('|', $this->request->getParam('purchasableIds'));
+            $purchasableIdsFromUrl = explode('|', (string) $this->request->getParam('purchasableIds'));
             $purchasableIds = [];
             foreach ($purchasableIdsFromUrl as $purchasableId) {
                 $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);

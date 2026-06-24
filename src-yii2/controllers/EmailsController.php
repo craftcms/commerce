@@ -8,7 +8,6 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Email;
 use craft\commerce\models\Pdf;
@@ -60,7 +59,7 @@ class EmailsController extends BaseAdminController
      * @param Email|null $email
      * @throws HttpException
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, Email $email = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?Email $email = null): Response
     {
         if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
@@ -82,8 +81,6 @@ class EmailsController extends BaseAdminController
         }
 
         $title = $email->id ? $email->name : Craft::t('commerce', 'Create a new email');
-
-        DebugPanel::prependOrAppendModelTab(model: $email, prepend: true);
 
         $pdfs = Plugin::getInstance()->getPdfs()->getAllPdfs($email->storeId);
         $pdfList = [null => Craft::t('commerce', 'Do not attach a PDF to this email')];

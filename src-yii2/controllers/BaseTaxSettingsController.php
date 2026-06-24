@@ -15,9 +15,6 @@ namespace craft\commerce\controllers;
  */
 class BaseTaxSettingsController extends BaseStoreManagementController
 {
-    /**
-     * @inheritdoc
-     */
     public function init(): void
     {
         parent::init();

@@ -9,7 +9,6 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\errors\StoreNotFoundException;
-use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\Plugin;
 use craft\helpers\Cp;
@@ -105,7 +104,7 @@ JS;
      * @param TaxAddressZone|null $taxZone
      * @throws HttpException
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, TaxAddressZone $taxZone = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?TaxAddressZone $taxZone = null): Response
     {
         if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
@@ -134,8 +133,6 @@ JS;
         $condition->mainTag = 'div';
         $condition->name = 'condition';
         $condition->id = 'condition';
-
-        DebugPanel::prependOrAppendModelTab(model: $taxZone, prepend: true);
 
         $metaSidebar = '';
         if ($taxZone->id) {

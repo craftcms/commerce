@@ -29,7 +29,6 @@ use craft\commerce\errors\TransactionException;
 use craft\commerce\events\ModifyPurchasablesTableQueryEvent;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\helpers\Currency;
-use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\LineItem;
 use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\PaymentForm;
@@ -215,7 +214,7 @@ class OrdersController extends Controller
      * @throws RuntimeError
      * @throws SyntaxError
      */
-    public function actionEditOrder(int $orderId, Order $order = null, $paymentForm = null): Response
+    public function actionEditOrder(int $orderId, ?Order $order = null, $paymentForm = null): Response
     {
         $plugin = Plugin::getInstance();
         $variables = [];
@@ -231,8 +230,6 @@ class OrdersController extends Controller
         $this->enforceManageOrderPermissions($order);
 
         $variables['order'] = $order;
-
-        DebugPanel::prependOrAppendModelTab(model: $order, prepend: true);
 
         $variables['paymentForm'] = $paymentForm;
         $variables['orderId'] = $order->id;
@@ -524,7 +521,7 @@ JS, []);
                 $field = $sort[0]['sortField'];
                 $direction = $sort[0]['direction'];
             } else {
-                [$field, $direction] = explode('|', $sort);
+                [$field, $direction] = explode('|', (string) $sort);
             }
 
             // Validate sorting
@@ -713,7 +710,7 @@ JS, []);
 
         // Prepare purchasables query
         $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
-        $sqlQuery = (new Query())
+        $sqlQuery = new Query()
             ->select(['purchasables.id', 'pstores.basePrice', 'purchasables.description', 'purchasables.sku', 'elements.type'])
             ->leftJoin(['elements' => CraftTable::ELEMENTS], [
                 'and',
@@ -750,8 +747,8 @@ JS, []);
         $sqlQuery->andWhere(['elements.dateDeleted' => null]);
 
         // Apply sorting if required
-        if ($sort && strpos($sort, '|')) {
-            [$column, $direction] = explode('|', $sort);
+        if ($sort && strpos((string) $sort, '|')) {
+            [$column, $direction] = explode('|', (string) $sort);
 
             if (!in_array($column, [
                 'description',
@@ -812,7 +809,7 @@ JS, []);
         $userQuery = User::find()->status(null)->limit($limit);
 
         if ($query) {
-            $userQuery->search(urldecode($query));
+            $userQuery->search(urldecode((string) $query));
         }
 
         $customers = $userQuery->collect()->map(fn(User $user) => $this->_customerToArray($user));
@@ -1940,7 +1937,7 @@ JS, []);
 
         $elementIdsByType = [];
         foreach ($results as $r) {
-            if (!array_key_exists($r['type'], $elementIdsByType)) {
+            if (!array_key_exists((string) $r['type'], $elementIdsByType)) {
                 $elementIdsByType[$r['type']] = [];
             }
             $elementIdsByType[$r['type']][] = $r['id'];

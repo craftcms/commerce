@@ -11,7 +11,6 @@ use Craft;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
-use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeSite;
 use craft\commerce\Plugin;
@@ -44,7 +43,7 @@ class ProductTypesController extends BaseAdminController
      * @param ProductType|null $productType
      * @throws HttpException
      */
-    public function actionEditProductType(int $productTypeId = null, ProductType $productType = null): Response
+    public function actionEditProductType(?int $productTypeId = null, ?ProductType $productType = null): Response
     {
         $variables = compact('productTypeId', 'productType');
 
@@ -69,8 +68,6 @@ class ProductTypesController extends BaseAdminController
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new product type');
         }
-
-        DebugPanel::prependOrAppendModelTab(model: $variables['productType'], prepend: true);
 
         $variables['selectedTab'] = 'productTypeSettings';
 

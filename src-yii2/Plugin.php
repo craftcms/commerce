@@ -18,7 +18,6 @@ use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\controllers\UsersController as CommerceUsersController;
 use craft\commerce\db\Table;
-use craft\commerce\debug\CommercePanel;
 use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
@@ -127,11 +126,10 @@ use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;
 use craft\controllers\UsersController;
 use craft\db\Query;
-use craft\debug\Module;
 use craft\elements\Address;
 use craft\elements\db\UserQuery;
 use craft\elements\User as UserElement;
-use craft\enums\CmsEdition;
+use CraftCms\Cms\Edition as CmsEdition;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineEditUserScreensEvent;
@@ -175,6 +173,8 @@ use craft\services\Users;
 use craft\utilities\ClearCaches;
 use craft\web\Application;
 use craft\web\twig\variables\CraftVariable;
+use CraftCms\Cms\Twig\Variables\CraftVariable as NewCraftVariable;
+use CraftCms\Cms\Update\Updates;
 use Exception;
 use Illuminate\Support\Collection;
 use yii\base\Event;
@@ -267,7 +267,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.6.6';
+    public string $schemaVersion = '5.6.1.2';
 
     /**
      * @inheritdoc
@@ -298,9 +298,6 @@ class Plugin extends BasePlugin
     use Variables;
     use Routes;
 
-    /**
-     * @inheritdoc
-     */
     public function init(): void
     {
         parent::init();
@@ -337,16 +334,9 @@ class Plugin extends BasePlugin
             $this->_registerSiteRoutes();
         }
 
-        Craft::$app->onInit(function() {
-            $this->_registerDebugPanels();
-        });
-
         Craft::setAlias('@commerceLib', Craft::getAlias('@craft/commerce/../lib'));
     }
 
-    /**
-     * @inheritdoc
-     */
     public function beforeInstall(): void
     {
         // Check version before installing
@@ -359,25 +349,16 @@ class Plugin extends BasePlugin
         }
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getSettingsResponse(): mixed
     {
         return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('commerce/settings/general'));
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getReadOnlySettingsResponse(): mixed
     {
         return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('commerce/settings/general'));
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getCpNavItem(): ?array
     {
         $ret = parent::getCpNavItem();
@@ -464,9 +445,6 @@ class Plugin extends BasePlugin
     }
 
 
-    /**
-     * @inheritdoc
-     */
     protected function createSettingsModel(): ?Model
     {
         return new Settings();
@@ -686,14 +664,14 @@ class Plugin extends BasePlugin
         $projectConfigService = Craft::$app->getProjectConfig();
 
         $gatewayService = $this->getGateways();
-        $projectConfigService->onAdd(Gateways::CONFIG_GATEWAY_KEY . '.{uid}', [$gatewayService, 'handleChangedGateway'])
-            ->onUpdate(Gateways::CONFIG_GATEWAY_KEY . '.{uid}', [$gatewayService, 'handleChangedGateway'])
-            ->onRemove(Gateways::CONFIG_GATEWAY_KEY . '.{uid}', [$gatewayService, 'handleArchivedGateway']);
+        $projectConfigService->onAdd(Gateways::CONFIG_GATEWAY_KEY . '.{uid}', $gatewayService->handleChangedGateway(...))
+            ->onUpdate(Gateways::CONFIG_GATEWAY_KEY . '.{uid}', $gatewayService->handleChangedGateway(...))
+            ->onRemove(Gateways::CONFIG_GATEWAY_KEY . '.{uid}', $gatewayService->handleArchivedGateway(...));
 
         $productTypeService = $this->getProductTypes();
-        $projectConfigService->onAdd(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', [$productTypeService, 'handleChangedProductType'])
-            ->onUpdate(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', [$productTypeService, 'handleChangedProductType'])
-            ->onRemove(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', [$productTypeService, 'handleDeletedProductType']);
+        $projectConfigService->onAdd(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', $productTypeService->handleChangedProductType(...))
+            ->onUpdate(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', $productTypeService->handleChangedProductType(...))
+            ->onRemove(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', $productTypeService->handleDeletedProductType(...));
 
         Event::on(Sites::class, Sites::EVENT_AFTER_DELETE_SITE, function(DeleteSiteEvent $event) use ($productTypeService) {
             if (!Craft::$app->getProjectConfig()->getIsApplyingExternalChanges()) {
@@ -702,24 +680,24 @@ class Plugin extends BasePlugin
         });
 
         $ordersService = $this->getOrders();
-        $projectConfigService->onAdd(OrdersService::CONFIG_FIELDLAYOUT_KEY, [$ordersService, 'handleChangedFieldLayout'])
-            ->onUpdate(OrdersService::CONFIG_FIELDLAYOUT_KEY, [$ordersService, 'handleChangedFieldLayout'])
-            ->onRemove(OrdersService::CONFIG_FIELDLAYOUT_KEY, [$ordersService, 'handleDeletedFieldLayout']);
+        $projectConfigService->onAdd(OrdersService::CONFIG_FIELDLAYOUT_KEY, $ordersService->handleChangedFieldLayout(...))
+            ->onUpdate(OrdersService::CONFIG_FIELDLAYOUT_KEY, $ordersService->handleChangedFieldLayout(...))
+            ->onRemove(OrdersService::CONFIG_FIELDLAYOUT_KEY, $ordersService->handleDeletedFieldLayout(...));
 
         $transfersService = $this->getTransfers();
-        $projectConfigService->onAdd(TransfersService::CONFIG_FIELDLAYOUT_KEY, [$transfersService, 'handleChangedFieldLayout'])
-            ->onUpdate(TransfersService::CONFIG_FIELDLAYOUT_KEY, [$transfersService, 'handleChangedFieldLayout'])
-            ->onRemove(TransfersService::CONFIG_FIELDLAYOUT_KEY, [$transfersService, 'handleDeletedFieldLayout']);
+        $projectConfigService->onAdd(TransfersService::CONFIG_FIELDLAYOUT_KEY, $transfersService->handleChangedFieldLayout(...))
+            ->onUpdate(TransfersService::CONFIG_FIELDLAYOUT_KEY, $transfersService->handleChangedFieldLayout(...))
+            ->onRemove(TransfersService::CONFIG_FIELDLAYOUT_KEY, $transfersService->handleDeletedFieldLayout(...));
 
         $subscriptionsService = $this->getSubscriptions();
-        $projectConfigService->onAdd(Subscriptions::CONFIG_FIELDLAYOUT_KEY, [$subscriptionsService, 'handleChangedFieldLayout'])
-            ->onUpdate(Subscriptions::CONFIG_FIELDLAYOUT_KEY, [$subscriptionsService, 'handleChangedFieldLayout'])
-            ->onRemove(Subscriptions::CONFIG_FIELDLAYOUT_KEY, [$subscriptionsService, 'handleDeletedFieldLayout']);
+        $projectConfigService->onAdd(Subscriptions::CONFIG_FIELDLAYOUT_KEY, $subscriptionsService->handleChangedFieldLayout(...))
+            ->onUpdate(Subscriptions::CONFIG_FIELDLAYOUT_KEY, $subscriptionsService->handleChangedFieldLayout(...))
+            ->onRemove(Subscriptions::CONFIG_FIELDLAYOUT_KEY, $subscriptionsService->handleDeletedFieldLayout(...));
 
         $orderStatusService = $this->getOrderStatuses();
-        $projectConfigService->onAdd(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$orderStatusService, 'handleChangedOrderStatus'])
-            ->onUpdate(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$orderStatusService, 'handleChangedOrderStatus'])
-            ->onRemove(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$orderStatusService, 'handleDeletedOrderStatus']);
+        $projectConfigService->onAdd(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', $orderStatusService->handleChangedOrderStatus(...))
+            ->onUpdate(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', $orderStatusService->handleChangedOrderStatus(...))
+            ->onRemove(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', $orderStatusService->handleDeletedOrderStatus(...));
 
         Event::on(Emails::class, Emails::EVENT_AFTER_DELETE_EMAIL, function(EmailEvent $event) use ($orderStatusService) {
             if (!Craft::$app->getProjectConfig()->getIsApplyingExternalChanges()) {
@@ -728,28 +706,28 @@ class Plugin extends BasePlugin
         });
 
         $lineItemStatusService = $this->getLineItemStatuses();
-        $projectConfigService->onAdd(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$lineItemStatusService, 'handleChangedLineItemStatus'])
-            ->onUpdate(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$lineItemStatusService, 'handleChangedLineItemStatus'])
-            ->onRemove(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$lineItemStatusService, 'handleArchivedLineItemStatus']);
+        $projectConfigService->onAdd(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', $lineItemStatusService->handleChangedLineItemStatus(...))
+            ->onUpdate(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', $lineItemStatusService->handleChangedLineItemStatus(...))
+            ->onRemove(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', $lineItemStatusService->handleArchivedLineItemStatus(...));
 
         $emailService = $this->getEmails();
-        $projectConfigService->onAdd(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleChangedEmail'])
-            ->onUpdate(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleChangedEmail'])
-            ->onRemove(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleDeletedEmail']);
+        $projectConfigService->onAdd(Emails::CONFIG_EMAILS_KEY . '.{uid}', $emailService->handleChangedEmail(...))
+            ->onUpdate(Emails::CONFIG_EMAILS_KEY . '.{uid}', $emailService->handleChangedEmail(...))
+            ->onRemove(Emails::CONFIG_EMAILS_KEY . '.{uid}', $emailService->handleDeletedEmail(...));
 
         $storesService = $this->getStores();
-        $projectConfigService->onAdd(Stores::CONFIG_STORES_KEY . '.{uid}', [$storesService, 'handleChangedStore'])
-            ->onUpdate(Stores::CONFIG_STORES_KEY . '.{uid}', [$storesService, 'handleChangedStore'])
-            ->onRemove(Stores::CONFIG_STORES_KEY . '.{uid}', [$storesService, 'handleDeletedStore']);
+        $projectConfigService->onAdd(Stores::CONFIG_STORES_KEY . '.{uid}', $storesService->handleChangedStore(...))
+            ->onUpdate(Stores::CONFIG_STORES_KEY . '.{uid}', $storesService->handleChangedStore(...))
+            ->onRemove(Stores::CONFIG_STORES_KEY . '.{uid}', $storesService->handleDeletedStore(...));
 
-        $projectConfigService->onAdd(Stores::CONFIG_SITESTORES_KEY . '.{uid}', [$storesService, 'handleChangedSiteStore'])
-            ->onUpdate(Stores::CONFIG_SITESTORES_KEY . '.{uid}', [$storesService, 'handleChangedSiteStore'])
-            ->onRemove(Stores::CONFIG_SITESTORES_KEY . '.{uid}', [$storesService, 'handleDeletedSiteStore']);
+        $projectConfigService->onAdd(Stores::CONFIG_SITESTORES_KEY . '.{uid}', $storesService->handleChangedSiteStore(...))
+            ->onUpdate(Stores::CONFIG_SITESTORES_KEY . '.{uid}', $storesService->handleChangedSiteStore(...))
+            ->onRemove(Stores::CONFIG_SITESTORES_KEY . '.{uid}', $storesService->handleDeletedSiteStore(...));
 
         $pdfService = $this->getPdfs();
-        $projectConfigService->onAdd(Pdfs::CONFIG_PDFS_KEY . '.{uid}', [$pdfService, 'handleChangedPdf'])
-            ->onUpdate(Pdfs::CONFIG_PDFS_KEY . '.{uid}', [$pdfService, 'handleChangedPdf'])
-            ->onRemove(Pdfs::CONFIG_PDFS_KEY . '.{uid}', [$pdfService, 'handleDeletedPdf']);
+        $projectConfigService->onAdd(Pdfs::CONFIG_PDFS_KEY . '.{uid}', $pdfService->handleChangedPdf(...))
+            ->onUpdate(Pdfs::CONFIG_PDFS_KEY . '.{uid}', $pdfService->handleChangedPdf(...))
+            ->onRemove(Pdfs::CONFIG_PDFS_KEY . '.{uid}', $pdfService->handleDeletedPdf(...));
 
         Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, static function(RebuildConfigEvent $event) {
             $event->config['commerce'] = ProjectConfigData::rebuildProjectConfig();
@@ -800,7 +778,7 @@ class Plugin extends BasePlugin
                 return;
             }
 
-            $customers = (new Query())
+            $customers = new Query()
                 ->select(['customerId', 'primaryBillingAddressId', 'primaryShippingAddressId'])
                 ->from([Table::CUSTOMERS])
                 ->where(['customerId' => $customerIds])
@@ -831,7 +809,7 @@ class Plugin extends BasePlugin
         });
 
         // Don't attach behavior if Craft is in the middle of an update
-        if (!Craft::$app->getUpdates()->getIsCraftUpdatePending()) {
+        if (! app(Updates::class)->isCraftUpdatePending()) {
             // Site models are instantiated early meaning we have to manually attach the behavior alongside using the event
             $sites = Craft::$app->getSites()->getAllSites(true);
             foreach ($sites as $site) {
@@ -920,6 +898,30 @@ class Plugin extends BasePlugin
      */
     private function _registerVariables(): void
     {
+        $plugin = $this;
+        NewCraftVariable::macro('commerce', static fn() => $plugin);
+        NewCraftVariable::macro('orders', static function(array $criteria = []) {
+            $query = Order::find();
+            Craft::configure($query, $criteria);
+            return $query;
+        });
+        NewCraftVariable::macro('subscriptions', static function(array $criteria = []) {
+            $query = Subscription::find();
+            Craft::configure($query, $criteria);
+            return $query;
+        });
+        NewCraftVariable::macro('products', static function(array $criteria = []) {
+            $query = Product::find();
+            Craft::configure($query, $criteria);
+            return $query;
+        });
+        NewCraftVariable::macro('variants', static function(array $criteria = []) {
+            $query = Variant::find();
+            Craft::configure($query, $criteria);
+            return $query;
+        });
+
+        // Legacy Yii2 CraftVariable (backward compat)
         Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, static function(Event $event) {
             /** @var CraftVariable $variable */
             $variable = $event->sender;
@@ -938,7 +940,7 @@ class Plugin extends BasePlugin
 
         Event::on(RestoreController::class, RestoreController::EVENT_AFTER_RESTORE_FKS, static function() {
             // Add default FKs
-            (new Install())->addForeignKeys();
+            new Install()->addForeignKeys();
         });
     }
 
@@ -1155,34 +1157,6 @@ class Plugin extends BasePlugin
     }
 
     /**
-     * Register Commerce related debug panels.
-     *
-     * @since 4.0
-     */
-    private function _registerDebugPanels(): void
-    {
-        Event::on(Application::class, Application::EVENT_BEFORE_REQUEST, static function() {
-            /** @var Module|null $module */
-            $module = Craft::$app->getModule('debug');
-            $user = Craft::$app->getUser()->getIdentity();
-
-            if (!$module || !$user || !Craft::$app->getConfig()->getGeneral()->devMode) {
-                return;
-            }
-
-            $pref = Craft::$app->getRequest()->getIsCpRequest() ? 'enableDebugToolbarForCp' : 'enableDebugToolbarForSite';
-            if (!$user->getPreference($pref)) {
-                return;
-            }
-
-            $module->panels['commerce'] = new CommercePanel([
-                'id' => 'commerce',
-                'module' => $module,
-            ]);
-        });
-    }
-
-    /**
      * Registers additional standard fields for the product and variant field layout designers.
      *
      * @since 3.2.0
@@ -1289,7 +1263,7 @@ class Plugin extends BasePlugin
 
                     // Convert type handles to type IDs for the variant query
                     if (!empty($criteria['type'])) {
-                        $criteria['typeId'] = (new Query())
+                        $criteria['typeId'] = new Query()
                             ->select('id')
                             ->from(Table::PRODUCTTYPES)
                             ->where(['handle' => $criteria['type']])

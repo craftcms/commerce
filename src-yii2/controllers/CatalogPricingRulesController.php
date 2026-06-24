@@ -13,7 +13,6 @@ use craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasabl
 use craft\commerce\elements\conditions\purchasables\PurchasableConditionRule;
 use craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantCondition;
 use craft\commerce\helpers\Currency;
-use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
@@ -192,7 +191,7 @@ JS;
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, CatalogPricingRule $catalogPricingRule = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?CatalogPricingRule $catalogPricingRule = null): Response
     {
         if ($id === null) {
             $this->requirePermission('commerce-createCatalogPricingRules');
@@ -246,8 +245,6 @@ JS;
                 $variables['catalogPricingRule'] = $catalogPricingRule;
             }
         }
-
-        DebugPanel::prependOrAppendModelTab(model: $variables['catalogPricingRule'], prepend: true);
 
         $variables = $this->_populateVariables($variables);
 

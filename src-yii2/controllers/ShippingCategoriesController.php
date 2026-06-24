@@ -8,7 +8,6 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
@@ -132,7 +131,7 @@ JS;
      * @param ShippingCategory|null $shippingCategory
      * @throws HttpException
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, ShippingCategory $shippingCategory = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?ShippingCategory $shippingCategory = null): Response
     {
         $variables = [
             'id' => $id,
@@ -170,8 +169,6 @@ JS;
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new shipping category');
         }
-
-        DebugPanel::prependOrAppendModelTab(model: $variables['shippingCategory'], prepend: true);
 
         $variables['productTypesOptions'] = [];
         if (!empty($variables['productTypes'])) {

@@ -13,7 +13,6 @@ use craft\commerce\base\GatewayInterface;
 use craft\commerce\db\Table;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\gateways\MissingGateway;
-use craft\commerce\helpers\DebugPanel;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\errors\DeprecationException;
@@ -39,7 +38,7 @@ class GatewaysController extends BaseAdminController
         $archivedGateways = Plugin::getInstance()->getGateways()->getAllArchivedGateways();
 
         if (!empty($archivedGateways)) {
-            $gatewayIdsWithTransactions = (new Query())
+            $gatewayIdsWithTransactions = new Query()
                 ->select(['gatewayId'])
                 ->from(Table::TRANSACTIONS)
                 ->groupBy(['gatewayId'])
@@ -75,7 +74,7 @@ class GatewaysController extends BaseAdminController
      * @throws DeprecationException
      * @throws InvalidConfigException
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, ?GatewayInterface $gateway = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?GatewayInterface $gateway = null): Response
     {
         /** @var Gateway|null $gateway */
         $variables = compact('id', 'gateway');
@@ -130,8 +129,6 @@ class GatewaysController extends BaseAdminController
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new gateway');
         }
-
-        DebugPanel::prependOrAppendModelTab(model: $variables['gateway'], prepend: true);
 
         $variables['readOnly'] = $this->isReadOnlyScreen();
 

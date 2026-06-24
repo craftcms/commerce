@@ -8,7 +8,6 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\Store;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
@@ -141,7 +140,7 @@ JS;
      * @param TaxCategory|null $taxCategory
      * @throws HttpException
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, TaxCategory $taxCategory = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?TaxCategory $taxCategory = null): Response
     {
         if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
@@ -164,8 +163,6 @@ JS;
         }
 
         $title = $taxCategory->id ? $taxCategory->name : Craft::t('commerce', 'Create a new tax category');
-
-        DebugPanel::prependOrAppendModelTab(model: $taxCategory, prepend: true);
 
         $productTypesOptions = [];
         if (!empty($productTypes)) {

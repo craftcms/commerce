@@ -9,7 +9,6 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\db\Table;
-use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\Email;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\models\Store;
@@ -55,7 +54,7 @@ class OrderStatusesController extends BaseAdminController
      * @param OrderStatus|null $orderStatus
      * @throws HttpException
      */
-    public function actionEdit(?string $storeHandle = null, int $id = null, OrderStatus $orderStatus = null): Response
+    public function actionEdit(?string $storeHandle = null, ?int $id = null, ?OrderStatus $orderStatus = null): Response
     {
         if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
@@ -94,8 +93,6 @@ class OrderStatusesController extends BaseAdminController
 
             $nextAvailableColor = !empty($availableColors) ? array_shift($availableColors) : 'green';
         }
-
-        DebugPanel::prependOrAppendModelTab(model: $orderStatus, prepend: true);
 
         $emails = Plugin::getInstance()->getEmails()->getAllEmails($store->id)->mapWithKeys(fn(Email $email) => [$email->id => $email->name])->all();
 
@@ -147,7 +144,7 @@ class OrderStatusesController extends BaseAdminController
         }
 
         if (!$id) {
-            $orderStatus->sortOrder = (new Query())
+            $orderStatus->sortOrder = new Query()
                     ->from(Table::ORDERSTATUSES)
                     ->where(['storeId' => $storeId])
                     ->max("[[sortOrder]]") + 1;
@@ -222,7 +219,7 @@ class OrderStatusesController extends BaseAdminController
             return $this->asFailure(Craft::t('commerce', 'Couldn’t archive Order Status.'));
         }
 
-        $storeId = (new Query())->from(Table::ORDERSTATUSES)->select(['storeId'])->where(['id' => $orderStatusId])->scalar();
+        $storeId = new Query()->from(Table::ORDERSTATUSES)->select(['storeId'])->where(['id' => $orderStatusId])->scalar();
 
         if (!$storeId || !Plugin::getInstance()->getOrderStatuses()->deleteOrderStatusById((int)$orderStatusId, $storeId)) {
             return $this->asFailure(Craft::t('commerce', 'Couldn’t archive Order Status.'));
