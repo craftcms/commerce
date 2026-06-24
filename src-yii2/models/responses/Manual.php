@@ -1,106 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\models\responses;
 
-use craft\commerce\base\RequestResponseInterface;
+/** @deprecated use {@see \CraftCms\Commerce\Payment\Gateway\Responses\Manual} */
+class_alias(\CraftCms\Commerce\Payment\Gateway\Responses\Manual::class, 'craft\commerce\models\responses\Manual');
 
-/**
- * This is a dummy gateway request response.
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
- */
-class Manual implements RequestResponseInterface
-{
-    /**
-     * @inheritdoc
-     */
-    public function isSuccessful(): bool
-    {
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isRedirect(): bool
-    {
-        return false;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getRedirectMethod(): string
-    {
-        return '';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getRedirectData(): array
-    {
-        return [];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getRedirectUrl(): string
-    {
-        return '';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getTransactionReference(): string
-    {
-        return date('Y-m-d-H-i-s');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getCode(): string
-    {
-        return '';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getMessage(): string
-    {
-        return '';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function redirect(): void
-    {
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getData(): mixed
-    {
-        return '';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isProcessing(): bool
-    {
-        return false;
-    }
+/** @phpstan-ignore-next-line */
+if (false) {
+    class Manual extends \CraftCms\Commerce\Payment\Gateway\Responses\Manual {}
 }

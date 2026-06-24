@@ -1,20 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\models\subscriptions;
 
-use craft\base\Model;
+/** @deprecated use {@see \CraftCms\Commerce\Subscription\Forms\CancelSubscriptionForm} */
+class_alias(\CraftCms\Commerce\Subscription\Forms\CancelSubscriptionForm::class, 'craft\commerce\models\subscriptions\CancelSubscriptionForm');
 
-/**
- * Class CancelSubscriptionForm
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
- */
-class CancelSubscriptionForm extends Model
-{
+/** @phpstan-ignore-next-line */
+if (false) {
+    class CancelSubscriptionForm extends \CraftCms\Commerce\Subscription\Forms\CancelSubscriptionForm {}
 }

@@ -1,36 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\models\subscriptions;
 
-use craft\base\Model;
+/** @deprecated use {@see \CraftCms\Commerce\Subscription\Forms\SubscriptionForm} */
+class_alias(\CraftCms\Commerce\Subscription\Forms\SubscriptionForm::class, 'craft\commerce\models\subscriptions\SubscriptionForm');
 
-/**
- * Class SubscriptionForm
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
- */
-class SubscriptionForm extends Model
-{
-    /**
-     * Trial days for the subscription.
-     *
-     * @var int
-     */
-    public int $trialDays = 0;
-
-    /**
-     * @inheritdoc
-     */
-    protected function defineRules(): array
-    {
-        return [
-            [['trialDays'], 'integer', 'integerOnly' => true, 'min' => 0],
-        ];
-    }
+/** @phpstan-ignore-next-line */
+if (false) {
+    class SubscriptionForm extends \CraftCms\Commerce\Subscription\Forms\SubscriptionForm {}
 }
