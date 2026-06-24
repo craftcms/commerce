@@ -770,35 +770,40 @@ class Plugin extends BasePlugin
             }
         );
 
-        Event::on(UserQuery::class, UserQuery::EVENT_AFTER_POPULATE_ELEMENTS, function(PopulateElementsEvent $event) {
-            $users = $event->elements;
-            $customerIds = ArrayHelper::getColumn($users, 'id');
-
-            if (empty($customerIds)) {
-                return;
-            }
-
-            $customers = new Query()
-                ->select(['customerId', 'primaryBillingAddressId', 'primaryShippingAddressId'])
-                ->from([Table::CUSTOMERS])
-                ->where(['customerId' => $customerIds])
-                ->all();
-
-            if (empty($customers)) {
-                return;
-            }
-
-            foreach ($customers as $customer) {
-                /** @var User|CustomerBehavior|null $user */
-                $user = ArrayHelper::firstWhere($users, 'id', $customer['customerId']);
-                if (!$user) {
-                    continue;
-                }
-
-                $user->setPrimaryBillingAddressId($customer['primaryBillingAddressId']);
-                $user->setPrimaryShippingAddressId($customer['primaryShippingAddressId']);
-            }
-        });
+        // TODO: UserQuery::EVENT_AFTER_POPULATE_ELEMENTS was removed in Craft 6.
+        // Re-wire customer attachment (primaryBillingAddressId / primaryShippingAddressId)
+        // to the new element-loading lifecycle when its equivalent lands.
+        // Original logic preserved below in a no-op closure so the customer-attach
+        // code is easy to port once the new hook exists.
+        // Event::on(UserQuery::class, UserQuery::EVENT_AFTER_POPULATE_ELEMENTS, function(PopulateElementsEvent $event) {
+        //     $users = $event->elements;
+        //     $customerIds = ArrayHelper::getColumn($users, 'id');
+        //
+        //     if (empty($customerIds)) {
+        //         return;
+        //     }
+        //
+        //     $customers = new Query()
+        //         ->select(['customerId', 'primaryBillingAddressId', 'primaryShippingAddressId'])
+        //         ->from([Table::CUSTOMERS])
+        //         ->where(['customerId' => $customerIds])
+        //         ->all();
+        //
+        //     if (empty($customers)) {
+        //         return;
+        //     }
+        //
+        //     foreach ($customers as $customer) {
+        //         /** @var User|CustomerBehavior|null $user */
+        //         $user = ArrayHelper::firstWhere($users, 'id', $customer['customerId']);
+        //         if (!$user) {
+        //             continue;
+        //         }
+        //
+        //         $user->setPrimaryBillingAddressId($customer['primaryBillingAddressId']);
+        //         $user->setPrimaryShippingAddressId($customer['primaryShippingAddressId']);
+        //     }
+        // });
 
         // Add Commerce info to user edit screen
         Event::on(UsersController::class, UsersController::EVENT_DEFINE_EDIT_SCREENS, function(DefineEditUserScreensEvent $event) {
