@@ -12,5 +12,5 @@ node_modules/
 .env
 *-private.md
 *-private.html
-/claude.md
 /.claude
+/CLAUDE.md

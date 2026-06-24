@@ -21,10 +21,10 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "php": "^8.2",
-    "craftcms/cms": "^5.9.15",
+    "php": "^8.5",
+    "craftcms/cms": "6.x-dev",
     "dompdf/dompdf": "^2.0.2",
-    "ibericode/vat": "^1.2.2",
+    "ibericode/vat": "^2.0",
     "iio/libmergepdf": "^4.0",
     "moneyphp/money": "^4.2.0"
   },
@@ -35,20 +35,28 @@
     "codeception/module-phpbrowser": "^3.0.0",
     "codeception/module-rest": "^3.3.2",
     "codeception/module-yii2": "^1.1.9",
-    "craftcms/ckeditor": "^4.0.0",
-    "craftcms/redactor": "*",
     "craftcms/ecs": "dev-main",
-    "craftcms/phpstan": "dev-main",
+    "dg/bypass-finals": "^1.9",
     "fakerphp/faker": "^1.19.0",
     "league/factory-muffin": "^3.3.0",
-    "phpstan/phpstan": "^1.10.56",
-    "vlucas/phpdotenv": "^5.4.1",
-    "craftcms/rector": "dev-main"
+    "orchestra/testbench": "^11.0",
+    "pestphp/pest": "^4.0",
+    "pestphp/pest-plugin-arch": "^4.0",
+    "pestphp/pest-plugin-laravel": "^4.0",
+    "phpstan/phpstan": "^2.0",
+    "rector/rector": "^2.0",
+    "vlucas/phpdotenv": "^5.4.1"
   },
   "autoload": {
     "psr-4": {
-      "craft\\commerce\\": "src/",
+      "craft\\commerce\\": "src-yii2/",
+      "CraftCms\\Commerce\\": "src/",
       "craftcommercetests\\fixtures\\": "tests/fixtures/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "CraftCms\\Commerce\\Tests\\": "tests/"
     }
   },
   "extra": {
@@ -65,13 +73,18 @@
     "testunit": [
       "Composer\\Config::disableProcessTimeout",
       "codecept run unit"
+    ],
+    "tests": [
+      "Composer\\Config::disableProcessTimeout",
+      "./vendor/bin/pest --compact"
     ]
   },
   "config": {
     "sort-packages": true,
     "allow-plugins": {
       "yiisoft/yii2-composer": true,
-      "craftcms/plugin-installer": true
+      "craftcms/plugin-installer": true,
+      "pestphp/pest-plugin": true
     }
   }
 }

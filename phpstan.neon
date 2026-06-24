@@ -1,7 +1,11 @@
-includes:
-    - vendor/craftcms/phpstan/phpstan.neon
-
 parameters:
     level: 5
     paths:
         - src
+    scanDirectories:
+        - src-yii2
+    scanFiles:
+        - ../yii2-adapter/legacy/Craft.php
+        - ../yii2-adapter/lib/yii2/Yii.php
+        - vendor/twig/twig/src/Extension/CoreExtension.php
+        - vendor/craftcms/cms/src/helpers.php
