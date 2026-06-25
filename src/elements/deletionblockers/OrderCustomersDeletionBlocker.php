@@ -49,9 +49,9 @@ class OrderCustomersDeletionBlocker extends BaseDeletionBlocker
 
     public function getSummary(): string
     {
-        return Craft::t('commerce', '{numUsers, number} {numUsers, plural, =1{user has} other{users have}} {numOrders, number} {numOrders, plural, =1{order} other{orders}} associated.', [
+        return Craft::t('commerce', '{numOrders, number} {numOrders, plural, =1{order is} other{orders are}} associated with the {numUsers, plural, =1{user} other{users}}.', [
             'numOrders' => $this->orderIds->count(),
-            'numUsers' => $this->userIds->count(),
+            'numUsers' => $this->elements->count(),
         ]);
     }
 
