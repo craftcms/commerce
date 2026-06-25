@@ -17,6 +17,7 @@
 - Added the `cartLoadUrlExpiry` setting, for controlling how long cart load links remain valid (default: 7 days).
 - Added a new `commerce_cart_recovery` system message for customizing cart recovery emails.
 - The inventory screen now has a "View" menu for showing and hiding columns. Column preferences are saved per-user and per-location. ([#4193](https://github.com/craftcms/commerce/pull/4193))
+- Craft Commerce user permissions are now organized into conceptual groups.
 
 ### Development
 

@@ -157,6 +157,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
+use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\models\Site;
@@ -590,97 +591,136 @@ class Plugin extends BasePlugin
     private function _registerPermissions(): void
     {
         Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event) {
-            $event->permissions[] = [
-                'heading' => Craft::t('commerce', 'Craft Commerce'),
-                'permissions' => $this->_registerProductTypePermission() + [
-                        'commerce-manageOrders' => [
-                            'label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
-                                'commerce-editOrders' => [
-                                    'label' => Craft::t('commerce', 'Edit orders'),
-                                ],
-                                'commerce-deleteOrders' => [
-                                    'label' => Craft::t('commerce', 'Delete orders'),
-                                ],
-                                'commerce-capturePayment' => [
-                                    'label' => Craft::t('commerce', 'Capture payment'),
-                                ],
-                                'commerce-refundPayment' => [
-                                    'label' => Craft::t('commerce', 'Refund payment'),
-                                ],
-
-                            ],
-                        ],
-                        'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
-                        'commerce-manageSubscriptionPlans' => ['label' => Craft::t('commerce', 'Manage subscription plans')],
-                        'commerce-manageInventoryStockLevels' => ['label' => Craft::t('commerce', 'Manage inventory stock levels')],
-                        'commerce-manageInventoryLocations' => ['label' => Craft::t('commerce', 'Manage inventory locations')],
-                        'commerce-manageInventoryTransfers' => ['label' => Craft::t('commerce', 'Manage inventory transfers')],
-                        'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings'),
-                            'nested' => [
-                                'commerce-manageGeneralStoreSettings' => ['label' => Craft::t('commerce', 'Manage general store settings')],
-                                'commerce-managePaymentCurrencies' => ['label' => Craft::t('commerce', 'Manage payment currencies')],
-                                'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping')],
-                                'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes')],
-                                'commerce-managePromotions' => $this->_registerPromotionPermission(),
-                            ],
-                        ],
-                        'commerce-manageDonationSettings' => ['label' => Craft::t('commerce', 'Manage donation settings')],
-                    ],
-            ];
+            $this->_productPermissions($event->permissions);
+            $this->_orderPermissions($event->permissions);
+            $this->_subscriptionPermissions($event->permissions);
+            $this->_inventoryPermissions($event->permissions);
+            $this->_adminPermissions($event->permissions);
         });
     }
 
-    /**
-     * @return array
-     */
-    private function _registerProductTypePermission(): array
+    private function _productPermissions(array &$permissions): void
     {
         $productTypes = self::getInstance()->getProductTypes()->getAllProductTypes();
 
-        $productTypePermissions = [];
-        foreach ($productTypes as $productType) {
-            $suffix = ':' . $productType->uid;
+        if (empty($productTypes)) {
+            return;
+        }
 
-            $productTypePermissions['commerce-viewProductType' . $suffix] = [
-                'label' => Craft::t('commerce', 'View “{type}” products', ['type' => $productType->name]),
-                'info' => Craft::t('commerce', 'Allows viewing existing products and creating drafts for them.'),
-                'nested' => [
-                    'commerce-createProductType' . $suffix => [
-                        'label' => Craft::t('commerce', 'Create products'),
-                        'info' => Craft::t('commerce', 'Allows creating drafts of new products.'),
-                    ],
-                    'commerce-saveProductType' . $suffix => [
-                        'label' => Craft::t('commerce', 'Save products'),
-                        'info' => Craft::t('commerce', 'Allows fully saving canonical products (directly or by applying drafts).'),
-                    ],
-                    'commerce-deleteProductType' . $suffix => [
-                        'label' => Craft::t('commerce', 'Delete products'),
-                        'info' => Craft::t('commerce', 'Allows deleting products for all sites.'),
-                    ],
+        $pluralType = Product::pluralLowerDisplayName();
+
+        foreach ($productTypes as $productType) {
+            $permissions[] = [
+                'heading' => Craft::t('commerce', 'Craft Commerce - Product Type - {name}', [
+                    'name' => Craft::t('site', $productType->name),
+                ]),
+                'permissions' => [
+                    "commerce-viewProductType:$productType->uid" => [
+                        'label' => Craft::t('app', 'View {type}', ['type' => $pluralType]),
+                        'info' => Craft::t('app', 'Allows viewing existing {type} and creating drafts for them.', [
+                            'type' => $pluralType,
+                        ]),
+                        'nested' => [
+                            "commerce-createProductType:$productType->uid" => [
+                                'label' => StringHelper::upperCaseFirst(Craft::t('app', 'Create {type}', ['type' => $pluralType])),
+                                'info' => Craft::t('app', 'Allows creating drafts of new {type}.', ['type' => $pluralType]),
+                            ],
+                            "commerce-saveProductType:$productType->uid" => [
+                                'label' => StringHelper::upperCaseFirst(Craft::t('app', 'Save {type}', ['type' => $pluralType])),
+                                'info' => Craft::t('app', 'Allows fully saving canonical {type} (directly or by applying drafts).', [
+                                    'type' => $pluralType,
+                                ]),
+                            ],
+                            "commerce-deleteProductType:$productType->uid" => [
+                                'label' => StringHelper::upperCaseFirst(Craft::t('app', 'Delete {type}', ['type' => $pluralType])),
+                                'info' => Craft::t('app', 'Allows deleting {type} for all sites.', [
+                                    'type' => $pluralType,
+                                ]),
+                            ],
+                        ],
+                    ]
                 ],
             ];
         }
-
-        return $productTypePermissions;
     }
 
-    /**
-     * @return array
-     */
-    private function _registerPromotionPermission(): array
+    private function _orderPermissions(array &$permissions): void
     {
-        return [
-            'label' => Craft::t('commerce', 'Manage promotions'),
-            'nested' => [
-                'commerce-editSales' => ['label' => Craft::t('commerce', 'Edit sales')],
-                'commerce-createSales' => ['label' => Craft::t('commerce', 'Create sales')],
-                'commerce-deleteSales' => ['label' => Craft::t('commerce', 'Delete sales')],
-                'commerce-editCatalogPricingRules' => ['label' => Craft::t('commerce', 'Edit catalog pricing rules')],
-                'commerce-createCatalogPricingRules' => ['label' => Craft::t('commerce', 'Create catalog pricing rules')],
-                'commerce-deleteCatalogPricingRules' => ['label' => Craft::t('commerce', 'Delete catalog pricing rules')],
-                'commerce-editDiscounts' => ['label' => Craft::t('commerce', 'Edit discounts')],
-                'commerce-createDiscounts' => ['label' => Craft::t('commerce', 'Create discounts')],
-                'commerce-deleteDiscounts' => ['label' => Craft::t('commerce', 'Delete discounts')],
+        $permissions[] = [
+            'heading' => Craft::t('commerce', 'Craft Commerce - Orders'),
+            'permissions' => [
+                'commerce-manageOrders' => [
+                    'label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
+                        'commerce-editOrders' => [
+                            'label' => Craft::t('commerce', 'Edit orders'),
+                        ],
+                        'commerce-deleteOrders' => [
+                            'label' => Craft::t('commerce', 'Delete orders'),
+                        ],
+                        'commerce-capturePayment' => [
+                            'label' => Craft::t('commerce', 'Capture payment'),
+                        ],
+                        'commerce-refundPayment' => [
+                            'label' => Craft::t('commerce', 'Refund payment'),
+                        ],
+
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    private function _subscriptionPermissions(array &$permissions): void
+    {
+        $permissions[] = [
+            'heading' => Craft::t('commerce', 'Craft Commerce - Subscriptions'),
+            'permissions' => [
+                'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
+                'commerce-manageSubscriptionPlans' => ['label' => Craft::t('commerce', 'Manage subscription plans')],
+            ],
+        ];
+    }
+
+    private function _inventoryPermissions(array &$permissions): void
+    {
+        $permissions[] = [
+            'heading' => Craft::t('commerce', 'Craft Commerce - Inventory'),
+            'permissions' => [
+                'commerce-manageInventoryStockLevels' => ['label' => Craft::t('commerce', 'Manage inventory stock levels')],
+                'commerce-manageInventoryLocations' => ['label' => Craft::t('commerce', 'Manage inventory locations')],
+                'commerce-manageInventoryTransfers' => ['label' => Craft::t('commerce', 'Manage inventory transfers')],
+            ],
+        ];
+    }
+
+    private function _adminPermissions(array &$permissions): void
+    {
+        $permissions[] = [
+            'heading' => Craft::t('commerce', 'Craft Commerce - Administration'),
+            'permissions' => [
+                'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings'),
+                    'nested' => [
+                        'commerce-manageGeneralStoreSettings' => ['label' => Craft::t('commerce', 'Manage general store settings')],
+                        'commerce-managePaymentCurrencies' => ['label' => Craft::t('commerce', 'Manage payment currencies')],
+                        'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping')],
+                        'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes')],
+                        'commerce-managePromotions' => [
+                            'label' => Craft::t('commerce', 'Manage promotions'),
+                            'nested' => [
+                                'commerce-editSales' => ['label' => Craft::t('commerce', 'Edit sales')],
+                                'commerce-createSales' => ['label' => Craft::t('commerce', 'Create sales')],
+                                'commerce-deleteSales' => ['label' => Craft::t('commerce', 'Delete sales')],
+                                'commerce-editCatalogPricingRules' => ['label' => Craft::t('commerce', 'Edit catalog pricing rules')],
+                                'commerce-createCatalogPricingRules' => ['label' => Craft::t('commerce', 'Create catalog pricing rules')],
+                                'commerce-deleteCatalogPricingRules' => ['label' => Craft::t('commerce', 'Delete catalog pricing rules')],
+                                'commerce-editDiscounts' => ['label' => Craft::t('commerce', 'Edit discounts')],
+                                'commerce-createDiscounts' => ['label' => Craft::t('commerce', 'Create discounts')],
+                                'commerce-deleteDiscounts' => ['label' => Craft::t('commerce', 'Delete discounts')],
+                            ],
+                        ],
+                    ],
+                ],
+                'commerce-manageDonationSettings' => ['label' => Craft::t('commerce', 'Manage donation settings')],
             ],
         ];
     }
