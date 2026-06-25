@@ -423,7 +423,6 @@ class Subscriptions extends Component
                 $event->hardDelete,
                 [
                     'gatewayId' => $first->gatewayId,
-                    'gatewayName' => $gateway instanceof SubscriptionGateway ? $gateway->name : Craft::t('commerce', 'Gateway'),
                     'subscriptions' => $gatewaySubscriptions,
                 ]
             );

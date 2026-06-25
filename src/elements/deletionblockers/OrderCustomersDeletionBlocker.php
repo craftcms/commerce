@@ -23,21 +23,19 @@ use Illuminate\Support\Collection;
  */
 class OrderCustomersDeletionBlocker extends BaseDeletionBlocker
 {
-    public Collection $userIds;
+    /**
+     * @var Collection<int>
+     */
     public Collection $orderIds;
 
     public function init()
     {
-        /** @var ElementCollection<int|string, Order> $orders */
-        $orders = Order::find()
+        $this->orderIds = Order::find()
             ->customerId($this->elements->ids()->all())
             ->isCompleted()
             ->status(null)
             ->limit(null)
-            ->collect();
-
-        $this->orderIds = $orders->map(fn(Order $order) => $order->id)->collect();
-        $this->userIds = $orders->map(fn(Order $order) => $order->customerId)->unique()->collect();
+            ->collectIds();
 
         parent::init();
     }
@@ -78,7 +76,7 @@ class OrderCustomersDeletionBlocker extends BaseDeletionBlocker
                       },
                     });
                     JS, [
-                    $this->userIds->all(),
+                    $this->elements->ids()->all(),
                 ]),
             ],
             [
@@ -139,7 +137,7 @@ class OrderCustomersDeletionBlocker extends BaseDeletionBlocker
             'sources' => false,
             'jsSettings' => [
                 'criteria' => [
-                    'customerId' => $this->userIds->all(),
+                    'customerId' => $this->elements->ids()->all(),
                     'status' => null,
                 ],
             ],

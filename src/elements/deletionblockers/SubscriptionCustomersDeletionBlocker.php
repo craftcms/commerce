@@ -23,7 +23,6 @@ use Illuminate\Support\Collection;
 class SubscriptionCustomersDeletionBlocker extends BaseDeletionBlocker
 {
     public int $gatewayId;
-    public string $gatewayName;
     public Collection $subscriptions;
 
     public function isActive(): bool
