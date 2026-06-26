@@ -10,7 +10,6 @@ namespace craft\commerce\elements\deletionblockers;
 use Craft;
 use craft\commerce\elements\Order;
 use craft\elements\deletionblockers\BaseDeletionBlocker;
-use craft\elements\ElementCollection;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use Illuminate\Support\Collection;
