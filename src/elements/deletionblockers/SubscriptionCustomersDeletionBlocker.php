@@ -33,7 +33,7 @@ class SubscriptionCustomersDeletionBlocker extends BaseDeletionBlocker
     public function getSummary(): string
     {
         return Craft::t('commerce', '{numSubscriptions, number} {numSubscriptions, plural, =1{subscription is} other{subscriptions are}} activated for the {numUsers, plural, =1{user} other{users}}.', [
-            'numSubscriptions' => $this->entryIds->count(),
+            'numSubscriptions' => $this->subscriptions->count(),
             'numUsers' => $this->elements->count(),
         ]);
     }
