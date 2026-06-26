@@ -9,7 +9,6 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\base\Plan;
-use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\base\SubscriptionGatewayInterface;
 use craft\commerce\elements\deletionblockers\SubscriptionCustomersDeletionBlocker;
 use craft\commerce\elements\Subscription;

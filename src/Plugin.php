@@ -638,7 +638,7 @@ class Plugin extends BasePlugin
                                 ]),
                             ],
                         ],
-                    ]
+                    ],
                 ],
             ];
         }
