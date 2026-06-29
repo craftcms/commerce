@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a bug where inventory search was case-sensitive on PostgreSQL. ([#4326](https://github.com/craftcms/commerce/issues/4326))
 - Fixed a bug where a Twig error would occur when creating or editing a shipping rule. ([#4321](https://github.com/craftcms/commerce/issues/4321))
 
 ## 5.6.6.1 - 2026-06-18
