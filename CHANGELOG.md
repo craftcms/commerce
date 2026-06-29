@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where a Twig error would occur when creating or editing a shipping rule. ([#4321](https://github.com/craftcms/commerce/issues/4321))
+- Fixed a bug where settings weren’t being saved to the project config. ([#4324](https://github.com/craftcms/commerce/issues/4324))
 
 ## 5.6.6.1 - 2026-06-18
 
