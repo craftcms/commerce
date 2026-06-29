@@ -808,7 +808,7 @@ return [
     'Order Statuses' => 'Orderstatussen',
     'Order can not be empty.' => 'De bestelling mag niet leeg zijn.',
     'Order count' => 'Aantal bestellingen',
-    'Order customer data removed.' => 'Klantgegevens bestelling verwijderd.',
+    'Order customer data removed.' => 'Klantgegevens bestellingen verwijderd.',
     'Order deleted.' => 'Bestelling verwijderd.',
     'Order fields saved.' => 'Bestellingsvelden opgeslagen.',
     'Order not found.' => 'Bestelling niet gevonden.',
