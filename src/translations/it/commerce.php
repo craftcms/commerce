@@ -808,7 +808,7 @@ return [
     'Order Statuses' => 'Stati ordine',
     'Order can not be empty.' => 'Il campo dell\'ordine non può essere vuoto.',
     'Order count' => 'Conteggio dell\'ordine',
-    'Order customer data removed.' => 'Ordina la cancellazione dei dati dei clienti.',
+    'Order customer data removed.' => 'Dati del cliente dell\'ordine rimossi.',
     'Order deleted.' => 'Ordine eliminato.',
     'Order fields saved.' => 'Campi dell\'ordine salvati.',
     'Order not found.' => 'Ordine non trovato.',
