@@ -3697,6 +3697,40 @@ class Order extends Element implements HasStoreInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function beforeDelete(): bool
+    {
+        if (!parent::beforeDelete()) {
+            return false;
+        }
+
+        // Pre-load line items so they're available after the cascade delete fires in afterDelete()
+        if ($this->isCompleted) {
+            $this->getLineItems();
+        }
+
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function afterDelete(): void
+    {
+        parent::afterDelete();
+
+        if ($this->isCompleted) {
+            foreach ($this->getLineItems() as $lineItem) {
+                $purchasable = $lineItem->getPurchasable();
+                if ($purchasable instanceof Purchasable && $purchasable::hasInventory() && $purchasable->inventoryTracked) {
+                    Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
+                }
+            }
+        }
+    }
+
+    /**
      * Updates the adjustments, including deleting the old ones.
      *
      * @throws Exception
