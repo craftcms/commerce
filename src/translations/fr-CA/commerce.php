@@ -1185,7 +1185,7 @@ return [
     'You currently have no emails configured to select for this status.' => 'Vous n\'avez actuellement aucune adresse courriel configurée à sélectionner pour ce statut.',
     'You have selected an option that will be removed in the next release of Craft Commerce. Use the “Per Item Discount” options to take a percentage off the whole order, or change this option to “Value”' => 'Vous avez sélectionné une option qui sera supprimée dans la prochaine version de Craft Commerce. Utilisez les options « Rabais par article » pour effectuer une remise en pourcentage sur toute la commande, ou changez cette option en « Valeur »',
     'You must <a href="{link}">set up</a> at least one gateway that supports subscriptions first.' => 'Vous devez <a href="{link}">définir</a> au moins une passerelle qui prend d’abord en charge les abonnements.',
-    'You do not have permission to load this cart.' => 'Vous n\'êtes pas autorisé(e) à charger ce panier.',
+    'You do not have permission to load this cart.' => 'Vous n\'êtes pas autorisé à charger ce panier.',
     'You must be logged in or provide a valid token to load this cart.' => 'Vous devez être connecté ou fournir un jeton valide pour charger ce panier.',
     'You must be signed in to create a payment source.' => 'Vous devez être inscrit pour créer une source de paiement.',
     'You must be signed in to set a primary payment source.' => 'Vous devez être inscrit pour définir une source de paiement principale.',
