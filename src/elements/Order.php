@@ -1193,6 +1193,7 @@ class Order extends Element implements HasStoreInterface
      * ```
      */
     private array $_lineItems;
+    private array $_deletingLineItems = [];
 
     /**
      * @var OrderAdjustment[]|null
@@ -3705,9 +3706,9 @@ class Order extends Element implements HasStoreInterface
             return false;
         }
 
-        // Pre-load line items so they're available after the cascade delete fires in afterDelete()
+        // Capture line items before the cascade delete fires so afterDelete() can refresh stock caches
         if ($this->isCompleted) {
-            $this->getLineItems();
+            $this->_deletingLineItems = $this->getLineItems();
         }
 
         return true;
@@ -3721,7 +3722,7 @@ class Order extends Element implements HasStoreInterface
         parent::afterDelete();
 
         if ($this->isCompleted) {
-            foreach ($this->getLineItems() as $lineItem) {
+            foreach ($this->_deletingLineItems as $lineItem) {
                 $purchasable = $lineItem->getPurchasable();
                 if ($purchasable instanceof Purchasable && $purchasable::hasInventory() && $purchasable->inventoryTracked) {
                     Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
