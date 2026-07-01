@@ -89,6 +89,10 @@ abstract class BaseShippingMethod extends Component implements ShippingMethodInt
 
         if (!$condition instanceof ShippingMethodOrderCondition) {
             $condition['class'] = ShippingMethodOrderCondition::class;
+            // Inject storeId so condition rules can call getCondition()->getStore() during init.
+            if ($this->storeId !== null && !isset($condition['storeId'])) {
+                $condition['storeId'] = $this->storeId;
+            }
             $condition = Conditions::createCondition($condition);
         }
         $condition->forProjectConfig = false;

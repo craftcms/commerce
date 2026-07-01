@@ -1,5 +1,21 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 6c: Shipping services
+
+All shipping services migrated from `craft\commerce\services` to
+`CraftCms\Commerce\Services` under the Craft 6 service pattern.
+
+- `craft\commerce\services\ShippingMethods` → `CraftCms\Commerce\Services\ShippingMethods`
+- `craft\commerce\services\ShippingRules` → `CraftCms\Commerce\Services\ShippingRules`
+- `craft\commerce\services\ShippingRuleCategories` → `CraftCms\Commerce\Services\ShippingRuleCategories`
+
+Legacy `Plugin::getInstance()->getXxx()` access keeps working — each old service
+class is now a thin Yii2 Component wrapper delegating every method via `app()`.
+
+Also resolved TODOs in `CraftCms\Commerce\Shipping\Models\ShippingMethod`,
+`ShippingRule`, and `ShippingRuleCategory` — they now call the new service
+classes directly instead of going through `Plugin::getInstance()`.
+
 ### Laravel Migration — Stage 6b: Promotions services
 
 All promotions services migrated from `craft\commerce\services` to

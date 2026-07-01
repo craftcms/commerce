@@ -81,9 +81,7 @@ class ShippingRule extends Component implements ShippingRuleInterface, HasStoreI
                     if ($value) {
                         // TODO: migrate to app(Orders::class) once service migrated to src/
                         $order = Order::find()->one() ?? new Order();
-                        // TODO: migrate to app(ShippingMethods::class) once service migrated to src/
-                        /** @phpstan-ignore-next-line */
-                        $orderAsArray = Plugin::getInstance()->getShippingMethods()->getSerializedOrderForMatchingRules($order);
+                        $orderAsArray = app(\CraftCms\Commerce\Services\ShippingMethods::class)->getSerializedOrderForMatchingRules($order);
                         // TODO: migrate to app(Formulas::class) once service migrated to src/
                         /** @phpstan-ignore-next-line */
                         if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($value, ['order' => $orderAsArray])) {
@@ -125,6 +123,10 @@ class ShippingRule extends Component implements ShippingRuleInterface, HasStoreI
 
         if (!$condition instanceof ShippingRuleOrderCondition) {
             $condition['class'] = ShippingRuleOrderCondition::class;
+            // Inject storeId so condition rules can call getCondition()->getStore() during init.
+            if ($this->storeId !== null && !isset($condition['storeId'])) {
+                $condition['storeId'] = $this->storeId;
+            }
             $condition = Conditions::createCondition($condition);
         }
         $condition->forProjectConfig = false;
@@ -222,9 +224,7 @@ class ShippingRule extends Component implements ShippingRuleInterface, HasStoreI
         }
 
         if ($this->orderConditionFormula) {
-            // TODO: migrate to app(ShippingMethods::class) once service migrated to src/
-            /** @phpstan-ignore-next-line */
-            $orderAsArray = Plugin::getInstance()->getShippingMethods()->getSerializedOrderForMatchingRules($order);
+            $orderAsArray = app(\CraftCms\Commerce\Services\ShippingMethods::class)->getSerializedOrderForMatchingRules($order);
             // TODO: migrate to app(Formulas::class) once service migrated to src/
             /** @phpstan-ignore-next-line */
             if (!Plugin::getInstance()->getFormulas()->evaluateCondition($this->orderConditionFormula, ['order' => $orderAsArray], 'Evaluate Shipping Rule Order Condition Formula')) {
@@ -238,9 +238,7 @@ class ShippingRule extends Component implements ShippingRuleInterface, HasStoreI
     public function getShippingRuleCategories(): array
     {
         if ($this->_shippingRuleCategories === null && $this->id) {
-            // TODO: migrate to app(ShippingRuleCategories::class) once service migrated to src/
-            /** @phpstan-ignore-next-line */
-            $this->_shippingRuleCategories = Plugin::getInstance()->getShippingRuleCategories()->getShippingRuleCategoriesByRuleId($this->id);
+            $this->_shippingRuleCategories = app(\CraftCms\Commerce\Services\ShippingRuleCategories::class)->getShippingRuleCategoriesByRuleId($this->id);
         }
 
         return $this->_shippingRuleCategories ?? [];

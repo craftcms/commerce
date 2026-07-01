@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Shipping\Models;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Contracts\Chippable;
 use CraftCms\Cms\Component\Contracts\Colorable;
 use CraftCms\Cms\Component\Contracts\Iconic;
@@ -48,9 +47,7 @@ class ShippingMethod extends BaseShippingMethod implements Chippable, Colorable,
             return collect();
         }
 
-        // TODO: migrate to app(ShippingRules::class)->getAllShippingRulesByShippingMethodId() once service migrated to src/
-        /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($this->id);
+        return app(\CraftCms\Commerce\Services\ShippingRules::class)->getAllShippingRulesByShippingMethodId($this->id);
     }
 
     #[\Override]
@@ -67,9 +64,8 @@ class ShippingMethod extends BaseShippingMethod implements Chippable, Colorable,
 
     public static function get(int|string $id): ?static
     {
-        // TODO: migrate to app(ShippingMethods::class)->getShippingMethodById() once service migrated to src/
         /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getShippingMethods()->getShippingMethodById($id);
+        return app(\CraftCms\Commerce\Services\ShippingMethods::class)->getShippingMethodById($id);
     }
 
     public function getUiLabel(): string

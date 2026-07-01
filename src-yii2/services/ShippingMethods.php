@@ -1,316 +1,69 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\services;
 
-use Craft;
-use craft\commerce\base\ShippingMethodInterface;
-use craft\commerce\base\ShippingRuleInterface;
-use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
-use craft\commerce\events\RegisterAvailableShippingMethodsEvent;
-use craft\commerce\models\ShippingMethod;
-use craft\commerce\Plugin;
-use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
-use craft\db\Query;
+use CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface;
+use CraftCms\Commerce\Shipping\Contracts\ShippingRuleInterface;
+use CraftCms\Commerce\Shipping\Models\ShippingMethod;
 use Illuminate\Support\Collection;
-use Throwable;
 use yii\base\Component;
-use yii\base\Exception;
-use yii\base\InvalidConfigException;
 
 /**
- * Shipping method service.
- *
- * @property ShippingMethod[] $allShippingMethods the Commerce managed and 3rd party shipping methods
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
+ * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Services\ShippingMethods::class)` instead.
  */
 class ShippingMethods extends Component
 {
-    /**
-     * @event RegisterShippingMethods The event that is triggered for registration of additional shipping methods.
-     *
-     * This example adds an instance of `MyShippingMethod` to the event object’s `shippingMethods` array:
-     *
-     * ```php
-     * use craft\events\RegisterComponentTypesEvent;
-     * use craft\commerce\services\ShippingMethods;
-     * use yii\base\Event;
-     *
-     * Event::on(
-     *     ShippingMethods::class,
-     *     ShippingMethods::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS,
-     *     function(RegisterComponentTypesEvent $event) {
-     *         $event->shippingMethods[] = MyShippingMethod::class;
-     *     }
-     * );
-     * ```
-     */
     public const EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS = 'registerAvailableShippingMethods';
 
     /**
-     * @var null|Collection<ShippingMethod>[]
-     */
-    private ?array $_allShippingMethods = null;
-
-    /**
-     * @var array
-     */
-    private array $_serializedOrdersByNumber = [];
-
-    /**
-     * Returns the Commerce managed shipping methods stored in the database.
-     *
-     * @param int|null $storeId
-     * @return Collection<ShippingMethod>
-     * @throws InvalidConfigException
+     * @return Collection<int, ShippingMethod>
      */
     public function getAllShippingMethods(?int $storeId = null): Collection
     {
-        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
-
-        if ($this->_allShippingMethods === null || !isset($this->_allShippingMethods[$storeId])) {
-            $results = $this->_createShippingMethodQuery()
-                ->where(['storeId' => $storeId])
-                ->all();
-
-            if ($this->_allShippingMethods === null) {
-                $this->_allShippingMethods = [];
-            }
-
-            foreach ($results as $result) {
-                $shippingMethod = Craft::createObject([
-                    'class' => ShippingMethod::class,
-                    'attributes' => $result,
-                ]);
-
-                if (!isset($this->_allShippingMethods[$shippingMethod->storeId])) {
-                    $this->_allShippingMethods[$shippingMethod->storeId] = collect();
-                }
-
-                $this->_allShippingMethods[$shippingMethod->storeId]->push($shippingMethod);
-            }
-        }
-
-        return $this->_allShippingMethods[$storeId] ?? collect();
+        return app(\CraftCms\Commerce\Services\ShippingMethods::class)->getAllShippingMethods($storeId);
     }
 
-    /**
-     * Get a shipping method by its handle.
-     */
-    public function getShippingMethodByHandle(string $shippingMethodHandle, ?int $storeId = null): ?ShippingMethod
+    public function getShippingMethodByHandle(string $handle, ?int $storeId = null): ?ShippingMethod
     {
-        return $this->getAllShippingMethods($storeId)->firstWhere('handle', $shippingMethodHandle);
+        return app(\CraftCms\Commerce\Services\ShippingMethods::class)->getShippingMethodByHandle($handle, $storeId);
     }
 
-    /**
-     * Get a shipping method by its ID.
-     */
-    public function getShippingMethodById(int $shippingMethodId, ?int $storeId = null): ?ShippingMethod
+    public function getShippingMethodById(int $id, ?int $storeId = null): ?ShippingMethod
     {
-        return $this->getAllShippingMethods($storeId)->firstWhere('id', $shippingMethodId);
+        return app(\CraftCms\Commerce\Services\ShippingMethods::class)->getShippingMethodById($id, $storeId);
     }
 
     /**
-     * Get all available shipping methods to the order.
-     *
-     * @return ShippingMethod[]
+     * @return array<string, ShippingMethod>
      */
     public function getMatchingShippingMethods(Order $order): array
     {
-        $matchingMethods = [];
-
-        $methods = $this->getAllShippingMethods($order->storeId);
-
-        $event = new RegisterAvailableShippingMethodsEvent([
-            'shippingMethods' => $methods,
-            'order' => $order,
-        ]);
-
-        if ($this->hasEventHandlers(self::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS)) {
-            $this->trigger(self::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS, $event);
-        }
-
-        /** @var ShippingMethod $method */
-        foreach ($event->getShippingMethods() as $method) {
-            $totalPrice = $method->getPriceForOrder($order);
-
-            if ($method->getIsEnabled() && $method->matchOrder($order)) {
-                $matchingMethods[$method->getHandle()] = [
-                    'method' => $method,
-                    'price' => $totalPrice, // Store the price so we can sort on it before returning
-                ];
-            }
-        }
-
-        // Sort by price. Using the cached price and don't call `$method->getPriceForOrder($order);` again.
-        uasort($matchingMethods, static fn($a, $b) => $a['price'] <=> $b['price']);
-
-        $shippingMethods = [];
-        foreach ($matchingMethods as $shippingMethod) {
-            $method = $shippingMethod['method'];
-            $shippingMethods[$method->getHandle()] = $method; // Keep the key being the handle of the method for front-end use.
-        }
-
-        // Clear the memoized data so next time we watch to match rules, we get fresh data.
-        $this->_serializedOrdersByNumber = [];
-
-        return $shippingMethods;
+        return app(\CraftCms\Commerce\Services\ShippingMethods::class)->getMatchingShippingMethods($order);
     }
 
-    /**
-     * Creates an order as an array for matching rules.
-     * We do this centrally here so that we can clear the memoized data centrally.
-     *
-     * @param Order $order
-     * @return array
-     * @since 4.7.0
-     */
     public function getSerializedOrderForMatchingRules(Order $order): array
     {
-        if (isset($this->_serializedOrdersByNumber[$order->number])) {
-            return $this->_serializedOrdersByNumber[$order->number];
-        }
-
-        $fieldsAsArray = $order->getSerializedFieldValues();
-        $orderAsArray = $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']);
-        $this->_serializedOrdersByNumber[$order->number] = array_merge($orderAsArray, $fieldsAsArray);
-        return $this->_serializedOrdersByNumber[$order->number];
+        return app(\CraftCms\Commerce\Services\ShippingMethods::class)->getSerializedOrderForMatchingRules($order);
     }
 
-    /**
-     * Get a matching shipping rule for Order and shipping method.
-     *
-     * @noinspection PhpUnused
-     */
     public function getMatchingShippingRule(Order $order, ShippingMethodInterface $method): ?ShippingRuleInterface
     {
-        return $method->getMatchingShippingRule($order);
+        return app(\CraftCms\Commerce\Services\ShippingMethods::class)->getMatchingShippingRule($order, $method);
     }
 
-    /**
-     * Save a shipping method.
-     *
-     * @param bool $runValidation should we validate this method before saving.
-     * @throws Exception
-     */
     public function saveShippingMethod(ShippingMethod $model, bool $runValidation = true): bool
     {
-        if ($model->id) {
-            $record = ShippingMethodRecord::findOne($model->id);
-
-            if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No shipping method exists with the ID “{id}”',
-                    ['id' => $model->id]));
-            }
-        } else {
-            $record = new ShippingMethodRecord();
-        }
-
-        if ($runValidation && !$model->validate()) {
-            Craft::info('Shipping method not saved due to validation error.', __METHOD__);
-
-            return false;
-        }
-
-        $record->storeId = $model->storeId;
-        $record->name = $model->name;
-        $record->handle = $model->handle;
-        $record->icon = $model->icon;
-        $record->color = $model->color;
-        $record->orderCondition = $model->getOrderCondition()->getConfig();
-        $record->customerCondition = $model->getCustomerCondition()->getConfig();
-        $record->enabled = $model->enabled;
-
-        $record->validate();
-        $model->addErrors($record->getErrors());
-
-        // Save it!
-        $record->save(false);
-
-        // Now that we have a record ID, save it on the model
-        $model->id = $record->id;
-
-        $this->clearCache();
-
-        return true;
+        return app(\CraftCms\Commerce\Services\ShippingMethods::class)->saveShippingMethod($model, $runValidation);
     }
 
-    /**
-     * Delete a shipping method by its ID.
-     *
-     * @param int $shippingMethodId
-     * @return bool
-     * @throws Throwable
-     */
-    public function deleteShippingMethodById(int $shippingMethodId): bool
+    public function deleteShippingMethodById(int $id): bool
     {
-        // Delete all rules first.
-        $db = Craft::$app->getDb();
-        $transaction = $db->beginTransaction();
-
-        try {
-            $rules = Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($shippingMethodId);
-
-            foreach ($rules as $rule) {
-                Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($rule->id);
-            }
-
-            $record = ShippingMethodRecord::findOne($shippingMethodId);
-            $record->delete();
-
-            $transaction->commit();
-            $this->clearCache();
-            return true;
-        } catch (\Exception) {
-            $transaction->rollBack();
-
-            return false;
-        }
+        return app(\CraftCms\Commerce\Services\ShippingMethods::class)->deleteShippingMethodById($id);
     }
 
-    /**
-     * Returns a Query object prepped for retrieving shipping methods.
-     */
-    private function _createShippingMethodQuery(): Query
+    public function clearCache(): void
     {
-        $query = new Query()
-            ->select([
-                'dateCreated',
-                'dateUpdated',
-                'enabled',
-                'handle',
-                'id',
-                'name',
-                'orderCondition',
-                'customerCondition',
-                'storeId',
-            ])
-            ->from([Table::SHIPPINGMETHODS]);
-
-        // Only add icon and color if the columns exist (for pre-migration compatibility)
-        $db = Craft::$app->getDb();
-        $schema = $db->getSchema();
-        $tableSchema = $schema->getTableSchema(Table::SHIPPINGMETHODS);
-
-        if ($tableSchema && $tableSchema->getColumn('icon') !== null) {
-            $query->addSelect(['icon', 'color']);
-        }
-
-        return $query;
-    }
-
-    /**
-     * @return void
-     * @since 5.0.0
-     */
-    protected function clearCache(): void
-    {
-        $this->_allShippingMethods = null;
+        app(\CraftCms\Commerce\Services\ShippingMethods::class)->clearCache();
     }
 }

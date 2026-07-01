@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Shipping\Models;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
+use CraftCms\Commerce\Services\ShippingCategories;
+use CraftCms\Commerce\Services\ShippingRules;
 
 class ShippingRuleCategory extends Component
 {
@@ -34,13 +35,13 @@ class ShippingRuleCategory extends Component
         ];
     }
 
-    public function getRule(): \craft\commerce\models\ShippingRule
+    public function getRule(): ShippingRule
     {
-        return Plugin::getInstance()->getShippingRules()->getShippingRuleById($this->shippingRuleId);
+        return app(ShippingRules::class)->getShippingRuleById($this->shippingRuleId);
     }
 
     public function getCategory(): ShippingCategory
     {
-        return Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId);
+        return app(ShippingCategories::class)->getShippingCategoryById($this->shippingCategoryId);
     }
 }
