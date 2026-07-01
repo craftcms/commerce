@@ -1,0 +1,547 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CraftCms\Commerce\Services;
+
+use craft\commerce\elements\conditions\purchasables\CatalogPricingCondition;
+use craft\commerce\elements\conditions\purchasables\CatalogPricingCustomerConditionRule;
+use craft\commerce\Plugin;
+use craft\commerce\queue\jobs\CatalogPricing as CatalogPricingJob;
+use craft\helpers\Console;
+use craft\helpers\Db;
+use CraftCms\Commerce\Catalog\Models\CatalogPricing as CatalogPricingModel;
+use CraftCms\Commerce\Database\Table;
+use DateTime;
+use Illuminate\Container\Attributes\Singleton;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+
+#[Singleton]
+class CatalogPricing
+{
+    private ?array $allCatalogPrices = null;
+
+    /**
+     * @param array|null $purchasableIds
+     * @param CatalogPricingRule[]|null $catalogPricingRules
+     * @throws \Exception
+     * TODO: Migrate queue jobs and Console helpers to Laravel equivalents
+     * TODO: Migrate Plugin::getInstance()->getStores() and getCatalogPricingRules() once services migrated
+     */
+    public function generateCatalogPrices(?array $purchasableIds = null, ?array $catalogPricingRules = null, bool $showConsoleOutput = false, mixed $queue = null): void
+    {
+        $chunkSize = 1000;
+        $this->setQueueProgress($queue, 10, 'Retrieving purchasables');
+
+        $isAllPurchasables = $purchasableIds === null;
+
+        if ($isAllPurchasables) {
+            $purchasableIds = DB::table(Table::PURCHASABLES . ' as purchasables')
+                ->join(\craft\db\Table::ELEMENTS . ' as e', 'e.id', '=', 'purchasables.id')
+                ->whereNull('e.revisionId')
+                ->whereNull('e.draftId')
+                ->pluck('purchasables.id')
+                ->all();
+        } else {
+            $allowedPurchasableIds = [];
+            foreach (array_chunk($purchasableIds, 2000) as $chunk) {
+                $allowed = DB::table(Table::PURCHASABLES . ' as purchasables')
+                    ->join(\craft\db\Table::ELEMENTS . ' as e', 'e.id', '=', 'purchasables.id')
+                    ->whereNull('e.revisionId')
+                    ->whereNull('e.draftId')
+                    ->whereIn('purchasables.id', $chunk)
+                    ->pluck('purchasables.id')
+                    ->all();
+                $allowedPurchasableIds = array_merge($allowedPurchasableIds, $allowed);
+            }
+            $purchasableIds = $allowedPurchasableIds;
+        }
+
+        if (empty($purchasableIds)) {
+            return;
+        }
+
+        $cprWithUserIds = DB::table(Table::CATALOG_PRICING_RULES_USERS)
+            ->groupBy('catalogPricingRuleId')
+            ->pluck('catalogPricingRuleId')
+            ->all();
+
+        $cprStartTime = microtime(true);
+        if ($showConsoleOutput) {
+            // TODO: Migrate to Laravel console output
+            Console::stdout(PHP_EOL . 'Generating price data from catalog pricing rules... ');
+        }
+
+        $this->setQueueProgress($queue, 20, 'Generating catalog pricing data');
+        $catalogPricing = [];
+
+        // TODO: Migrate to app(Stores::class)->getAllStores() once Stores service migrated
+        /** @phpstan-ignore-next-line */
+        foreach (Plugin::getInstance()->getStores()->getAllStores() as $store) {
+            $priceByPurchasableId = DB::table(Table::PURCHASABLES_STORES)
+                ->select(['purchasableId', 'basePrice', 'basePromotionalPrice'])
+                ->where('storeId', $store->id)
+                ->get()
+                ->keyBy('purchasableId')
+                ->all();
+
+            // TODO: Migrate to app(CatalogPricingRules::class)->getAllActiveCatalogPricingRules() once registered
+            /** @phpstan-ignore-next-line */
+            $runCatalogPricingRules = $catalogPricingRules ?? Plugin::getInstance()->getCatalogPricingRules()->getAllActiveCatalogPricingRules($store->id)->all();
+
+            foreach ($runCatalogPricingRules as $catalogPricingRule) {
+                if ($catalogPricingRule->storeId !== $store->id || !$catalogPricingRule->enabled) {
+                    continue;
+                }
+
+                if (!empty($catalogPricingRule->getCustomerCondition()->getConditionRules()) && !in_array($catalogPricingRule->id, $cprWithUserIds, true)) {
+                    continue;
+                }
+
+                if ($catalogPricingRule->getPurchasableIds() === null) {
+                    $applyPurchasableIds = $purchasableIds;
+                } else {
+                    $applyPurchasableIds = $isAllPurchasables
+                        ? $catalogPricingRule->getPurchasableIds()
+                        : array_intersect($catalogPricingRule->getPurchasableIds(), $purchasableIds);
+                }
+
+                if (empty($applyPurchasableIds)) {
+                    continue;
+                }
+
+                foreach ($applyPurchasableIds as $purchasableId) {
+                    if (!isset($priceByPurchasableId[$purchasableId])) {
+                        continue;
+                    }
+
+                    $row = $priceByPurchasableId[$purchasableId];
+
+                    // TODO: migrate to app(CatalogPricingRules::class)->generateRulePriceFromPrice() once registered
+                    /** @phpstan-ignore-next-line */
+                    $catalogPrice = Plugin::getInstance()->getCatalogPricingRules()->generateRulePriceFromPrice(
+                        $row->basePrice,
+                        $row->basePromotionalPrice,
+                        $catalogPricingRule
+                    );
+
+                    if ($catalogPrice === null) {
+                        continue;
+                    }
+
+                    $catalogPricing[] = [
+                        $purchasableId,
+                        $catalogPrice,
+                        $store->id,
+                        $catalogPricingRule->isPromotionalPrice,
+                        $catalogPricingRule->id,
+                        // TODO: migrate to Laravel date helper once Db::prepareDateForDb is replaced
+                        $catalogPricingRule->dateFrom ? Db::prepareDateForDb($catalogPricingRule->dateFrom) : null,
+                        $catalogPricingRule->dateTo ? Db::prepareDateForDb($catalogPricingRule->dateTo) : null,
+                        false,
+                    ];
+                }
+            }
+        }
+
+        $cprExecutionLength = microtime(true) - $cprStartTime;
+        if ($showConsoleOutput) {
+            Console::stdout('done!');
+            Console::stdout(PHP_EOL . 'Created ' . count($catalogPricing) . ' rule price data in ' . round($cprExecutionLength, 2) . ' seconds' . PHP_EOL);
+        }
+
+        $this->setQueueProgress($queue, 40, 'Clearing existing catalog prices');
+
+        DB::beginTransaction();
+
+        if (!$isAllPurchasables || !empty($catalogPricingRules)) {
+            foreach (array_chunk($purchasableIds, 1000) as $chunk) {
+                $where = ['purchasableId' => $chunk];
+                $query = DB::table(Table::CATALOG_PRICING)->whereIn('purchasableId', $chunk);
+
+                if (!empty($catalogPricingRules)) {
+                    $ruleIds = array_column($catalogPricingRules, 'id');
+                    $query->whereIn('catalogPricingRuleId', $ruleIds);
+                }
+
+                $query->delete();
+            }
+        } else {
+            DB::table(Table::CATALOG_PRICING)->truncate();
+        }
+
+        if (empty($catalogPricingRules)) {
+            $this->setQueueProgress($queue, 60, 'Copying base prices to catalog pricing');
+            $total = count($purchasableIds);
+            $baseStateTime = microtime(true);
+            $count = 1;
+
+            $isPgsql = DB::connection()->getDriverName() === 'pgsql';
+            $uuidFunction = $isPgsql ? 'gen_random_uuid()' : 'UUID()';
+
+            $cpTable = Table::CATALOG_PRICING;
+            $psTable = Table::PURCHASABLES_STORES;
+
+            foreach (array_chunk($purchasableIds, $chunkSize) as $chunk) {
+                $fromCount = number_format($count, 0);
+                $toCount = ($count + ($chunkSize - 1)) > $total ? $total : number_format($count + count($chunk) - 1, 0);
+
+                if ($showConsoleOutput) {
+                    Console::stdout(PHP_EOL . sprintf('Generating base prices rows for purchasables %s to %s of %s... ', $fromCount, $toCount, $total));
+                }
+
+                $idList = implode(',', array_map('intval', $chunk));
+
+                DB::statement("
+                    INSERT INTO {$cpTable} (price, purchasableId, storeId, uid, dateCreated, dateUpdated)
+                    SELECT basePrice, purchasableId, storeId, {$uuidFunction}, NOW(), NOW()
+                    FROM {$psTable}
+                    WHERE purchasableId IN ({$idList})
+                ");
+
+                DB::statement("
+                    INSERT INTO {$cpTable} (price, purchasableId, storeId, isPromotionalPrice, uid, dateCreated, dateUpdated)
+                    SELECT basePromotionalPrice, purchasableId, storeId, true, {$uuidFunction}, NOW(), NOW()
+                    FROM {$psTable}
+                    WHERE basePromotionalPrice IS NOT NULL AND purchasableId IN ({$idList})
+                ");
+
+                if ($showConsoleOutput) {
+                    Console::stdout('done!');
+                }
+                $count += $chunkSize;
+            }
+
+            $baseExecutionLength = microtime(true) - $baseStateTime;
+            if ($showConsoleOutput) {
+                Console::stdout(PHP_EOL . 'Generated ' . $total . ' base prices in ' . round($baseExecutionLength, 2) . ' seconds' . PHP_EOL);
+            }
+        }
+
+        $this->setQueueProgress($queue, 80, 'Inserting catalog pricing');
+
+        if (!empty($catalogPricing)) {
+            $count = 1;
+            $startTime = microtime(true);
+            $total = count($catalogPricing);
+
+            foreach (array_chunk($catalogPricing, $chunkSize) as $chunk) {
+                $fromCount = number_format($count, 0);
+                $toCount = ($count + ($chunkSize - 1)) > $total ? number_format($total, 0) : number_format($count + count($chunk) - 1, 0);
+
+                if ($showConsoleOutput) {
+                    Console::stdout(PHP_EOL . sprintf('Inserting catalog pricing rule prices rows %s to %s of %s... ', $fromCount, $toCount, number_format($total, 0)));
+                }
+
+                DB::table(Table::CATALOG_PRICING)->insert(array_map(fn($row) => [
+                    'purchasableId' => $row[0],
+                    'price' => $row[1],
+                    'storeId' => $row[2],
+                    'isPromotionalPrice' => $row[3],
+                    'catalogPricingRuleId' => $row[4],
+                    'dateFrom' => $row[5],
+                    'dateTo' => $row[6],
+                    'hasUpdatePending' => $row[7],
+                ], $chunk));
+
+                $count += $chunkSize;
+
+                if ($showConsoleOutput) {
+                    Console::stdout('done!');
+                }
+            }
+
+            $executionLength = microtime(true) - $startTime;
+            if ($showConsoleOutput) {
+                Console::stdout(PHP_EOL . 'Generated ' . number_format($total, 0) . ' prices in ' . round($executionLength, 2) . ' seconds' . PHP_EOL);
+            }
+        }
+
+        DB::commit();
+
+        $this->setQueueProgress($queue, 100);
+    }
+
+    public function getCatalogPrice(int $purchasableId, ?int $storeId = null, ?int $userId = null, bool $isPromotionalPrice = false): ?float
+    {
+        // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
+        /** @phpstan-ignore-next-line */
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
+
+        $userKey = $userId ?? 'all';
+        $promoKey = $isPromotionalPrice ? 'promo' : 'standard';
+        $key = 'catalog-price-' . implode('-', [$storeId, $userKey, $promoKey]);
+
+        if ($this->allCatalogPrices === null || !isset($this->allCatalogPrices[$key])) {
+            $result = $this->createCatalogPricesQuery($userId, $storeId)
+                ->addSelect(['purchasableId'])
+                ->get()
+                ->keyBy('purchasableId');
+
+            $this->allCatalogPrices[$key] = $result->pluck(
+                $isPromotionalPrice ? 'promotionalPrice' : 'price',
+                'purchasableId'
+            )->all();
+        }
+
+        return $this->allCatalogPrices[$key][$purchasableId] ?? null;
+    }
+
+    /**
+     * @return Collection<int, CatalogPricingModel>
+     */
+    public function getCatalogPricesByPurchasableId(int $purchasableId, ?int $storeId = null): Collection
+    {
+        // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
+        /** @phpstan-ignore-next-line */
+        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
+
+        $rows = $this->createCatalogPricesQuery(storeId: $storeId, allPrices: true)
+            ->select(['id', 'price', 'purchasableId', 'storeId', 'isPromotionalPrice', 'catalogPricingRuleId', 'dateFrom', 'dateTo', 'uid'])
+            ->where('cp.purchasableId', $purchasableId)
+            ->whereNotNull('cp.catalogPricingRuleId')
+            ->get()
+            ->all();
+
+        return collect($rows)->map(fn($row) => new CatalogPricingModel((array) $row));
+    }
+
+    /**
+     * @return Collection<int, CatalogPricingModel>
+     */
+    public function getCatalogPrices(int $storeId, ?CatalogPricingCondition $conditionBuilder = null, bool $includeBasePrices = true, ?string $searchText = null, ?int $limit = null, ?int $offset = null): Collection
+    {
+        $rows = $this->buildCatalogPricesQuery($storeId, $conditionBuilder, $includeBasePrices, $searchText, $limit, $offset)
+            ->select(['price', 'purchasableId', 'storeId', 'isPromotionalPrice', 'catalogPricingRuleId', 'dateFrom', 'dateTo', 'cp.uid'])
+            ->orderBy('purchasableId')
+            ->orderBy('catalogPricingRuleId')
+            ->get()
+            ->all();
+
+        return collect($rows)->map(fn($row) => new CatalogPricingModel((array) $row));
+    }
+
+    public function getCatalogPricesPageInfo(int $storeId, ?CatalogPricingCondition $conditionBuilder = null, bool $includeBasePrices = true, ?string $searchText = null, int $limit = 100, int $offset = 0): array
+    {
+        $total = $this->buildCatalogPricesQuery($storeId, $conditionBuilder, $includeBasePrices, $searchText)
+            ->groupBy('purchasableId')
+            ->get(['purchasableId'])
+            ->count();
+
+        return [
+            'first' => $offset + 1,
+            'last' => $offset + $limit,
+            'total' => $total,
+            'prevUrl' => null,
+            'nextUrl' => null,
+        ];
+    }
+
+    public function markPricesAsUpdatePending(int|array|null $catalogPricingRuleId = null, int|array|null $purchasableId = null, int|array|null $storeId = null): void
+    {
+        $query = DB::table(Table::CATALOG_PRICING);
+
+        if ($catalogPricingRuleId !== null) {
+            is_array($catalogPricingRuleId) ? $query->whereIn('catalogPricingRuleId', $catalogPricingRuleId) : $query->where('catalogPricingRuleId', $catalogPricingRuleId);
+        }
+        if ($purchasableId !== null) {
+            is_array($purchasableId) ? $query->whereIn('purchasableId', $purchasableId) : $query->where('purchasableId', $purchasableId);
+        }
+        if ($storeId !== null) {
+            is_array($storeId) ? $query->whereIn('storeId', $storeId) : $query->where('storeId', $storeId);
+        }
+
+        $query->update(['hasUpdatePending' => true]);
+    }
+
+    /**
+     * @deprecated in 5.5.0
+     * TODO: remove when callers have been migrated
+     */
+    public function afterSavePurchasableHandler(mixed $event): void
+    {
+        // TODO: update to new Purchasable element API once migrated
+        /** @phpstan-ignore-next-line */
+        $purchasable = $event->sender;
+        /** @phpstan-ignore-next-line */
+        if ($purchasable->propagating || $purchasable->getIsDraft() || $purchasable->getIsRevision()) {
+            return;
+        }
+
+        /** @phpstan-ignore-next-line */
+        $this->createCatalogPricingJob(['purchasableIds' => [$purchasable->id], 'storeId' => $purchasable->storeId]);
+    }
+
+    /**
+     * TODO: Migrate to Laravel queue once queue job class is migrated
+     */
+    public function createCatalogPricingJob(array $config = [], int $priority = 100): void
+    {
+        $catalogPricingRuleIds = $config['catalogPricingRuleIds'] ?? null;
+        $purchasableIds = $config['purchasableIds'] ?? null;
+        $storeId = $config['storeId'] ?? null;
+        $this->markPricesAsUpdatePending($catalogPricingRuleIds, $purchasableIds, $storeId);
+
+        // TODO: Migrate to Laravel queue dispatch once CatalogPricingJob is migrated
+        /** @phpstan-ignore-next-line */
+        $job = new CatalogPricingJob(array_merge(['class' => CatalogPricingJob::class], $config));
+        /** @phpstan-ignore-next-line */
+        \craft\helpers\Queue::push($job, $priority);
+
+        $current = Cache::get('catalog-pricing-jobs', 0);
+        Cache::forever('catalog-pricing-jobs', $current + 1);
+    }
+
+    public function clearCatalogPricingJob(): void
+    {
+        $current = Cache::get('catalog-pricing-jobs', 0);
+        if ($current === 0) {
+            return;
+        }
+        Cache::forever('catalog-pricing-jobs', $current - 1);
+    }
+
+    public function areCatalogPricingJobsRunning(): bool
+    {
+        return !empty(Cache::get('catalog-pricing-jobs'));
+    }
+
+    /**
+     * Creates a query for catalog prices, selecting price/promotionalPrice/salePrice columns.
+     * TODO: Migrate CatalogPricingCondition and CatalogPricingCustomerConditionRule to new element conditions system
+     */
+    public function createCatalogPricesQuery(?int $userId = null, int|string|null $storeId = null, bool $allPrices = false, ?CatalogPricingCondition $condition = null): \Illuminate\Database\Query\Builder
+    {
+        $query = DB::table(Table::CATALOG_PRICING . ' as cp')
+            ->select([
+                DB::raw('MIN(CASE WHEN isPromotionalPrice = FALSE THEN price END) AS price'),
+                DB::raw('MIN(CASE WHEN isPromotionalPrice = TRUE THEN price END) AS promotionalPrice'),
+                DB::raw('MIN(price) AS salePrice'),
+            ]);
+
+        // TODO: Migrate to new element conditions system
+        /** @phpstan-ignore-next-line */
+        $condition ??= \Craft::$app->getConditions()->createCondition([
+            'class' => CatalogPricingCondition::class,
+            'allPrices' => $allPrices,
+        ]);
+
+        if ($userId) {
+            // TODO: update CatalogPricingCustomerConditionRule once conditions migrated
+            /** @phpstan-ignore-next-line */
+            $condition->addConditionRule(\Craft::$app->getConditions()->createConditionRule([
+                'class' => CatalogPricingCustomerConditionRule::class,
+                'customerId' => $userId,
+            ]));
+        }
+
+        /** @phpstan-ignore-next-line */
+        $condition->modifyQuery($query);
+
+        $query->where(function($q) {
+            $q->whereNull('dateFrom')->orWhereRaw('dateFrom <= ?', [Db::prepareDateForDb(new DateTime())]);
+        })->where(function($q) {
+            $q->whereNull('dateTo')->orWhereRaw('dateTo >= ?', [Db::prepareDateForDb(new DateTime())]);
+        });
+
+        if (!$allPrices) {
+            $query->groupBy(['purchasableId', 'storeId']);
+        }
+
+        if ($storeId) {
+            $query->where('storeId', $storeId);
+        }
+
+        return $query;
+    }
+
+    /**
+     * @deprecated in 5.1.0. Use createCatalogPricesQuery() instead.
+     */
+    public function createCatalogPricingQuery(?int $userId = null, int|string|null $storeId = null, ?bool $isPromotionalPrice = null, bool $allPrices = false, ?CatalogPricingCondition $condition = null): \Illuminate\Database\Query\Builder
+    {
+        $query = DB::table(Table::CATALOG_PRICING . ' as cp')
+            ->select([DB::raw('MIN(price) as price')]);
+
+        // TODO: Migrate to new element conditions system
+        /** @phpstan-ignore-next-line */
+        $condition ??= \Craft::$app->getConditions()->createCondition([
+            'class' => CatalogPricingCondition::class,
+            'allPrices' => $allPrices,
+        ]);
+
+        if ($userId) {
+            /** @phpstan-ignore-next-line */
+            $condition->addConditionRule(\Craft::$app->getConditions()->createConditionRule([
+                'class' => CatalogPricingCustomerConditionRule::class,
+                'customerId' => $userId,
+            ]));
+        }
+
+        /** @phpstan-ignore-next-line */
+        $condition->modifyQuery($query);
+
+        $query->where(function($q) {
+            $q->whereNull('dateFrom')->orWhereRaw('dateFrom <= ?', [Db::prepareDateForDb(new DateTime())]);
+        })->where(function($q) {
+            $q->whereNull('dateTo')->orWhereRaw('dateTo >= ?', [Db::prepareDateForDb(new DateTime())]);
+        })->orderBy('purchasableId')->orderBy('price');
+
+        if (!$allPrices) {
+            $query->groupBy(['purchasableId', 'storeId']);
+        }
+
+        if ($storeId) {
+            $query->where('storeId', $storeId);
+        }
+
+        if ($isPromotionalPrice !== null) {
+            $query->where('isPromotionalPrice', $isPromotionalPrice);
+        }
+
+        return $query;
+    }
+
+    private function buildCatalogPricesQuery(int $storeId, ?CatalogPricingCondition $conditionBuilder = null, bool $includeBasePrices = true, ?string $searchText = null, ?int $limit = null, ?int $offset = null): \Illuminate\Database\Query\Builder
+    {
+        $query = $this->createCatalogPricesQuery(storeId: $storeId, allPrices: true, condition: $conditionBuilder);
+
+        if (!$includeBasePrices) {
+            $query->whereNotNull('catalogPricingRuleId');
+        }
+
+        $subQuery = DB::table(Table::PURCHASABLES)->select('id');
+
+        if ($limit) {
+            $subQuery->limit($limit);
+        }
+        if ($offset) {
+            $subQuery->offset($offset);
+        }
+
+        if ($searchText) {
+            $likeOp = DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
+            $subQuery->where('description', $likeOp, '%' . $searchText . '%');
+        }
+
+        $query->joinSub($subQuery, 'purchasables', 'purchasables.id', '=', 'cp.purchasableId');
+
+        if ($conditionBuilder !== null) {
+            /** @phpstan-ignore-next-line */
+            $conditionBuilder->modifyQuery($query);
+        }
+
+        return $query;
+    }
+
+    private function setQueueProgress(mixed $queue, float $progress, ?string $label = null): void
+    {
+        // TODO: migrate to Laravel queue progress interface once queue system migrated
+        /** @phpstan-ignore-next-line */
+        if (method_exists($queue, 'setProgress')) {
+            $queue->setProgress((int) $progress, $label);
+        }
+    }
+}

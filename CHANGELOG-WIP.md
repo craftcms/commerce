@@ -1,5 +1,39 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 6b: Promotions services
+
+All promotions services migrated from `craft\commerce\services` to
+`CraftCms\Commerce\Services` under the Craft 6 service pattern: plain
+PHP classes marked with `#[\Illuminate\Container\Attributes\Singleton]`,
+accessed via `app(\CraftCms\Commerce\Services\Foo::class)`.
+
+- `craft\commerce\services\Coupons` → `CraftCms\Commerce\Services\Coupons`
+- `craft\commerce\services\CatalogPricingRules` → `CraftCms\Commerce\Services\CatalogPricingRules`
+- `craft\commerce\services\CatalogPricing` → `CraftCms\Commerce\Services\CatalogPricing`
+- `craft\commerce\services\Discounts` → `CraftCms\Commerce\Services\Discounts`
+- `craft\commerce\services\Sales` → `CraftCms\Commerce\Services\Sales`
+
+Legacy `Plugin::getInstance()->getXxx()` access keeps working — each
+old service class is now a thin Yii2 Component that delegates every
+method to the new singleton via `app()`.
+
+Also updated `CraftCms\Commerce\Promotion\Models\Discount` to import
+`CraftCms\Commerce\Services\Coupons` instead of `craft\commerce\services\Coupons`.
+
+Cross-cutting swaps applied throughout:
+- `craft\db\Query` → `DB::table()` with fluent builder
+- `yii\db\Expression` → `DB::raw()`
+- `$this->trigger(self::EVENT_X, new Event([...]))` → `event(new EventClass())`
+- `Craft::$app->getDb()->beginTransaction()` → `DB::beginTransaction/commit/rollBack`
+- `Craft::$app->getCache()->get/set` → `Cache::get/forever`
+- `Craft::info(...)` → `Log::info(...)`
+- `Craft::t('commerce', ...)` → `t(..., category: 'commerce')`
+- `Craft::$app->getDb()->getIsPgsql()` → `DB::connection()->getDriverName() === 'pgsql'`
+- `Craft::$app->getFormatter()->asDecimal()` → `number_format()`
+- `StringHelper::randomStringWithChars()` → inlined private `randomStringWithChars()` in `Coupons`
+- `QueueHelper::push()` → `dispatch()` (queue jobs — TODO pending)
+- `craft\db\Query` returning builder → `\Illuminate\Database\Query\Builder`
+
 ### Laravel Migration — Stage 6a: Store config services
 
 All store-config services migrated from `craft\commerce\services` to

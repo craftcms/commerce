@@ -1,0 +1,546 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CraftCms\Commerce\Services;
+
+use craft\commerce\Plugin;
+use craft\commerce\records\Sale as SaleRecord;
+use craft\commerce\records\SaleCategory as SaleCategoryRecord;
+use craft\commerce\records\SalePurchasable as SalePurchasableRecord;
+use craft\commerce\records\SaleUserGroup as SaleUserGroupRecord;
+use craft\elements\Category;
+use craft\elements\Entry;
+use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Promotion\Events\SaleEvent;
+use CraftCms\Commerce\Promotion\Events\SaleMatchEvent;
+use CraftCms\Commerce\Promotion\Models\Sale;
+use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
+use DateTime;
+use Illuminate\Container\Attributes\Singleton;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use function CraftCms\Cms\t;
+
+#[Singleton]
+class Sales
+{
+    /** @var Sale[]|null */
+    private ?array $allSales = null;
+
+    /** @var Sale[]|null */
+    private ?array $allActiveSales = null;
+
+    /** @var array<int, array<int, bool|null>> */
+    private array $purchasableSaleMatch = [];
+
+    public function canUseSales(): bool
+    {
+        // TODO: migrate to app(Stores::class)->getAllStores() once Stores service migrated
+        /** @phpstan-ignore-next-line */
+        $singleStore = Plugin::getInstance()->getStores()->getAllStores()->count() === 1;
+        $noCatalogPricingRules = app(\CraftCms\Commerce\Services\CatalogPricingRules::class)->getAllCatalogPricingRules()->isEmpty();
+
+        return $singleStore && $noCatalogPricingRules;
+    }
+
+    public function getSaleById(int $id): ?Sale
+    {
+        foreach ($this->getAllSales() as $sale) {
+            if ($sale->id == $id) {
+                return $sale;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return Sale[]
+     */
+    public function getAllSales(): array
+    {
+        if ($this->allSales !== null) {
+            return $this->allSales;
+        }
+
+        $rows = DB::table(Table::SALES . ' as sales')
+            ->select([
+                'sales.id',
+                'sales.name',
+                'sales.description',
+                'sales.dateFrom',
+                'sales.dateTo',
+                'sales.apply',
+                'sales.applyAmount',
+                'sales.stopProcessing',
+                'sales.ignorePrevious',
+                'sales.allGroups',
+                'sales.allPurchasables',
+                'sales.allCategories',
+                'sales.sortOrder',
+                'sales.categoryRelationshipType',
+                'sales.enabled',
+                'sales.dateCreated',
+                'sales.dateUpdated',
+                'sp.purchasableId',
+                'spt.categoryId',
+                'sug.userGroupId',
+            ])
+            ->leftJoin(Table::SALE_PURCHASABLES . ' as sp', 'sp.saleId', '=', 'sales.id')
+            ->leftJoin(Table::SALE_CATEGORIES . ' as spt', 'spt.saleId', '=', 'sales.id')
+            ->leftJoin(Table::SALE_USERGROUPS . ' as sug', 'sug.saleId', '=', 'sales.id')
+            ->orderBy('sales.sortOrder')
+            ->get()
+            ->all();
+
+        $allSalesById = [];
+        $purchasables = [];
+        $categories = [];
+        $groups = [];
+
+        foreach ($rows as $row) {
+            $row = (array) $row;
+            $id = $row['id'];
+
+            if ($row['purchasableId']) {
+                $purchasables[$id][] = $row['purchasableId'];
+            }
+            if ($row['categoryId']) {
+                $categories[$id][] = $row['categoryId'];
+            }
+            if ($row['userGroupId']) {
+                $groups[$id][] = $row['userGroupId'];
+            }
+
+            unset($row['purchasableId'], $row['userGroupId'], $row['categoryId']);
+
+            if (!isset($allSalesById[$id])) {
+                $allSalesById[$id] = new Sale($row);
+            }
+        }
+
+        foreach ($allSalesById as $id => $sale) {
+            $sale->setPurchasableIds($purchasables[$id] ?? []);
+            $sale->setCategoryIds($categories[$id] ?? []);
+            $sale->setUserGroupIds($groups[$id] ?? []);
+        }
+
+        $this->allSales = $allSalesById;
+
+        return $this->allSales;
+    }
+
+    /**
+     * Returns sales that match the purchasable.
+     *
+     * TODO: update Order type hint when Order element migrated to src/
+     *
+     * @return Sale[]
+     */
+    public function getSalesForPurchasable(PurchasableInterface $purchasable, mixed $order = null): array
+    {
+        $matchedSales = [];
+
+        foreach ($this->getAllEnabledSales() as $sale) {
+            if ($this->matchPurchasableAndSale($purchasable, $sale, $order)) {
+                $matchedSales[] = $sale;
+
+                if ($sale->stopProcessing) {
+                    break;
+                }
+            }
+        }
+
+        return $matchedSales;
+    }
+
+    /**
+     * TODO: update PurchasableInterface type hint when fully migrated
+     *
+     * @return Sale[]
+     */
+    public function getSalesRelatedToPurchasable(PurchasableInterface $purchasable): array
+    {
+        $sales = [];
+        $id = $purchasable->getId();
+
+        if ($id) {
+            foreach ($this->getAllSales() as $sale) {
+                $purchasableIds = $sale->getPurchasableIds();
+
+                $relatedTo = [$sale->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
+                $saleCategories = $sale->getCategoryIds();
+
+                // TODO: update Category/Entry element calls when migrated
+                /** @phpstan-ignore-next-line */
+                $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->siteId($purchasable->siteId)->ids();
+                /** @phpstan-ignore-next-line */
+                $relatedEntries = Entry::find()->id($saleCategories)->relatedTo($relatedTo)->siteId($purchasable->siteId)->ids();
+                $relatedCategoriesOrEntries = array_merge($relatedCategories, $relatedEntries);
+
+                if (in_array($id, $purchasableIds, false) || !empty($relatedCategoriesOrEntries)) {
+                    $sales[] = $sale;
+                }
+            }
+        }
+
+        return $sales;
+    }
+
+    /**
+     * Returns the sale price of the purchasable based on all matched sales.
+     *
+     * TODO: update Order type hint when Order element migrated to src/
+     */
+    public function getSalePriceForPurchasable(PurchasableInterface $purchasable, mixed $order = null): float
+    {
+        $sales = $this->getSalesForPurchasable($purchasable, $order);
+        $originalPrice = $purchasable->getPrice();
+
+        $takeOffAmount = 0;
+        $newPrice = null;
+
+        foreach ($sales as $sale) {
+            switch ($sale->apply) {
+                case SaleRecord::APPLY_BY_PERCENT:
+                    $takeOffAmount += ($sale->applyAmount * $originalPrice);
+                    if ($sale->ignorePrevious) {
+                        $newPrice = $originalPrice + ($sale->applyAmount * $originalPrice);
+                    }
+                    break;
+                case SaleRecord::APPLY_TO_PERCENT:
+                    $newPrice = (-$sale->applyAmount * $originalPrice);
+                    break;
+                case SaleRecord::APPLY_BY_FLAT:
+                    $takeOffAmount += $sale->applyAmount;
+                    if ($sale->ignorePrevious) {
+                        $newPrice = $originalPrice + $sale->applyAmount;
+                    }
+                    break;
+                case SaleRecord::APPLY_TO_FLAT:
+                    $newPrice = -$sale->applyAmount;
+                    break;
+            }
+
+            if ($sale->stopProcessing) {
+                break;
+            }
+        }
+
+        $salePrice = $originalPrice + $takeOffAmount;
+
+        if ($newPrice !== null) {
+            $salePrice = $newPrice;
+        }
+
+        if ($salePrice < 0) {
+            $salePrice = 0;
+        }
+
+        // TODO: migrate to app(Currency::class)->round() once Currency service migrated
+        /** @phpstan-ignore-next-line */
+        return \craft\commerce\helpers\Currency::round($salePrice);
+    }
+
+    /**
+     * Match a purchasable and sale and return the result.
+     *
+     * TODO: update Order type hint when Order element migrated to src/
+     */
+    public function matchPurchasableAndSale(PurchasableInterface $purchasable, Sale $sale, mixed $order = null): bool
+    {
+        $purchasableId = $purchasable->getId();
+        $saleId = $sale->id;
+
+        $this->purchasableSaleMatch[$purchasableId] ??= [];
+        $this->purchasableSaleMatch[$purchasableId][$saleId] ??= null;
+
+        if (!$order && $this->purchasableSaleMatch[$purchasableId][$saleId] !== null) {
+            return $this->purchasableSaleMatch[$purchasableId][$saleId];
+        }
+
+        $this->purchasableSaleMatch[$purchasableId][$saleId] = false;
+
+        if (!$purchasable->getIsPromotable()) {
+            return false;
+        }
+
+        if (!$sale->allPurchasables && !in_array($purchasable->getId(), $sale->getPurchasableIds(), false)) {
+            return false;
+        }
+
+        $date = new DateTime();
+
+        if ($order) {
+            // TODO: update isCompleted/dateOrdered when Order is migrated
+            /** @phpstan-ignore-next-line */
+            $date = $order->isCompleted ? $order->dateOrdered : $date;
+        }
+
+        if ($sale->dateFrom && $sale->dateFrom >= $date) {
+            return false;
+        }
+
+        if ($sale->dateTo && $sale->dateTo <= $date) {
+            return false;
+        }
+
+        if ($order) {
+            // TODO: update getCustomer() when Order/User is migrated
+            /** @phpstan-ignore-next-line */
+            $user = $order->getCustomer();
+
+            if (!$sale->allGroups) {
+                if (null === $user) {
+                    return false;
+                }
+                // TODO: update getGroups() when User element is migrated
+                /** @phpstan-ignore-next-line */
+                $userGroups = array_column($user->getGroups(), 'id');
+                if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
+                    return false;
+                }
+            }
+        }
+
+        if (!$order && !$sale->allGroups) {
+            $userGroups = null;
+            // TODO: update to new user API once migrated
+            /** @phpstan-ignore-next-line */
+            if ($currentUser = \Craft::$app->getUser()->getIdentity()) {
+                /** @phpstan-ignore-next-line */
+                $userGroups = array_column($currentUser->getGroups(), 'id');
+            }
+
+            if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
+                return false;
+            }
+        }
+
+        if (!$sale->allCategories) {
+            $relatedTo = [$sale->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
+            $saleCategories = $sale->getCategoryIds();
+
+            // TODO: update Category/Entry element calls when migrated
+            /** @phpstan-ignore-next-line */
+            $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->siteId($purchasable->siteId)->ids();
+            /** @phpstan-ignore-next-line */
+            $relatedEntries = Entry::find()->id($saleCategories)->relatedTo($relatedTo)->siteId($purchasable->siteId)->ids();
+            $relatedCategoriesOrEntries = array_merge($relatedCategories, $relatedEntries);
+
+            if (empty($relatedCategoriesOrEntries)) {
+                return false;
+            }
+        }
+
+        $event = new SaleMatchEvent();
+        $event->sale = $sale;
+        $event->purchasable = $purchasable;
+        event($event);
+
+        if ($order) {
+            unset($this->purchasableSaleMatch[$purchasableId][$saleId]);
+            return $event->isValid;
+        }
+
+        $this->purchasableSaleMatch[$purchasableId][$saleId] = $event->isValid;
+
+        return $event->isValid;
+    }
+
+    public function saveSale(Sale $model, bool $runValidation = true): bool
+    {
+        $isNew = !$model->id;
+
+        if ($isNew) {
+            /** @phpstan-ignore-next-line */
+            $record = new SaleRecord();
+        } else {
+            /** @phpstan-ignore-next-line */
+            $record = SaleRecord::findOne($model->id);
+
+            if (!$record) {
+                throw new \RuntimeException(t('No sale exists with the ID "{id}"', ['id' => $model->id], category: 'commerce'));
+            }
+        }
+
+        if ($runValidation && !$model->validate()) {
+            Log::info('Sale not saved due to validation error.');
+            return false;
+        }
+
+        $beforeEv = new SaleEvent();
+        $beforeEv->sale = $model;
+        $beforeEv->isNew = $isNew;
+        event($beforeEv);
+
+        /** @phpstan-ignore-next-line */
+        $record->name = $model->name;
+        /** @phpstan-ignore-next-line */
+        $record->description = $model->description;
+        /** @phpstan-ignore-next-line */
+        $record->dateFrom = $model->dateFrom;
+        /** @phpstan-ignore-next-line */
+        $record->dateTo = $model->dateTo;
+        /** @phpstan-ignore-next-line */
+        $record->apply = $model->apply;
+        /** @phpstan-ignore-next-line */
+        $record->applyAmount = $model->applyAmount;
+        /** @phpstan-ignore-next-line */
+        $record->stopProcessing = $model->stopProcessing;
+        /** @phpstan-ignore-next-line */
+        $record->ignorePrevious = $model->ignorePrevious;
+        /** @phpstan-ignore-next-line */
+        $record->categoryRelationshipType = $model->categoryRelationshipType;
+        /** @phpstan-ignore-next-line */
+        $record->enabled = $model->enabled;
+
+        if ($record->allGroups = $model->allGroups) {
+            $model->setUserGroupIds([]);
+        }
+        if ($record->allCategories = $model->allCategories) {
+            $model->setCategoryIds([]);
+        }
+        if ($record->allPurchasables = $model->allPurchasables) {
+            $model->setPurchasableIds([]);
+        }
+
+        if (!$isNew) {
+            // TODO: update to new date helper once migrated
+            /** @phpstan-ignore-next-line */
+            $model->dateCreated = \craft\helpers\DateTimeHelper::toDateTime($record->dateCreated);
+            /** @phpstan-ignore-next-line */
+            $model->dateUpdated = \craft\helpers\DateTimeHelper::toDateTime($record->dateUpdated);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            /** @phpstan-ignore-next-line */
+            $record->save(false);
+            $model->id = $record->id;
+
+            // TODO: update to new date helper once migrated
+            /** @phpstan-ignore-next-line */
+            $model->dateCreated = \craft\helpers\DateTimeHelper::toDateTime($record->dateCreated);
+            /** @phpstan-ignore-next-line */
+            $model->dateUpdated = \craft\helpers\DateTimeHelper::toDateTime($record->dateUpdated);
+
+            /** @phpstan-ignore-next-line */
+            SaleUserGroupRecord::deleteAll(['saleId' => $model->id]);
+            /** @phpstan-ignore-next-line */
+            SalePurchasableRecord::deleteAll(['saleId' => $model->id]);
+            /** @phpstan-ignore-next-line */
+            SaleCategoryRecord::deleteAll(['saleId' => $model->id]);
+
+            foreach ($model->getUserGroupIds() as $groupId) {
+                $relation = new SaleUserGroupRecord();
+                /** @phpstan-ignore-next-line */
+                $relation->userGroupId = $groupId;
+                /** @phpstan-ignore-next-line */
+                $relation->saleId = $model->id;
+                /** @phpstan-ignore-next-line */
+                $relation->save(false);
+            }
+
+            foreach ($model->getCategoryIds() as $categoryId) {
+                $relation = new SaleCategoryRecord();
+                /** @phpstan-ignore-next-line */
+                $relation->categoryId = $categoryId;
+                /** @phpstan-ignore-next-line */
+                $relation->saleId = $model->id;
+                /** @phpstan-ignore-next-line */
+                $relation->save(false);
+            }
+
+            foreach ($model->getPurchasableIds() as $purchasableId) {
+                $relation = new SalePurchasableRecord();
+                /** @phpstan-ignore-next-line */
+                $relation->purchasableId = $purchasableId;
+                // TODO: update to new Elements API once migrated
+                /** @phpstan-ignore-next-line */
+                $purchasable = \Craft::$app->getElements()->getElementById($purchasableId, null, null, ['trashed' => null]);
+                /** @phpstan-ignore-next-line */
+                $relation->purchasableType = $purchasable::class;
+                /** @phpstan-ignore-next-line */
+                $relation->saleId = $model->id;
+                /** @phpstan-ignore-next-line */
+                $relation->save(false);
+
+                // TODO: update to new Elements API once migrated
+                /** @phpstan-ignore-next-line */
+                \Craft::$app->getElements()->invalidateCachesForElement($purchasable);
+            }
+
+            DB::commit();
+
+            $this->clearCaches();
+
+            $afterEv = new SaleEvent();
+            $afterEv->sale = $model;
+            $afterEv->isNew = $isNew;
+            event($afterEv);
+
+            return true;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function reorderSales(array $ids): bool
+    {
+        foreach ($ids as $sortOrder => $id) {
+            DB::table(Table::SALES)->where('id', $id)->update(['sortOrder' => $sortOrder + 1]);
+        }
+
+        $this->clearCaches();
+
+        return true;
+    }
+
+    public function deleteSaleById(int $id): bool
+    {
+        /** @phpstan-ignore-next-line */
+        $record = SaleRecord::findOne($id);
+
+        if (!$record) {
+            return false;
+        }
+
+        $sale = $this->getSaleById($id);
+
+        $this->clearCaches();
+
+        /** @phpstan-ignore-next-line */
+        $result = (bool) $record->delete();
+
+        if ($result) {
+            $ev = new SaleEvent();
+            $ev->sale = $sale;
+            $ev->isNew = false;
+            event($ev);
+        }
+
+        return $result;
+    }
+
+    private function getAllEnabledSales(): array
+    {
+        if ($this->allActiveSales !== null) {
+            return $this->allActiveSales;
+        }
+
+        $this->allActiveSales = array_filter($this->getAllSales(), fn(Sale $s) => $s->enabled);
+
+        return $this->allActiveSales;
+    }
+
+    private function clearCaches(): void
+    {
+        $this->allSales = null;
+        $this->allActiveSales = null;
+        $this->purchasableSaleMatch = [];
+    }
+}
