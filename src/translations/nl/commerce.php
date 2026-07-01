@@ -11,7 +11,7 @@ return [
     '(off original price)' => '(van originele prijs)',
     'A cart number must be specified.' => 'Gelieve een winkelwagennummer op te geven.',
     'A cart recovery link has been sent to {email}.' => 'Er is een link voor het herstellen van de winkelwagen verstuurd naar {email}.',
-    'A cart recovery link will be sent to {email}' => 'A cart recovery link will be sent to {email}',
+    'A cart recovery link will be sent to {email}.' => 'A cart recovery link will be sent to {email}.',
     'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'Er wordt een gebruiksvriendelijk referentienummer met dit formaat gegenereerd wanneer een winkelwagen is voltooid en in een bestelling wordt omgezet. Bijvoorbeeld {ex1} of<br/> {ex2}. Het resultaat van dit formaat moet uniek zijn.',
     'A new download link has been sent to {email}' => 'Er is een nieuwe downloadlink verstuurd naar {email}',
     'A new download link will be sent to {email}' => 'Er wordt een nieuwe downloadlink verstuurd naar {email}',
