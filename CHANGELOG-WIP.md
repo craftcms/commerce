@@ -93,6 +93,7 @@
 ### System
 
 - Craft Commerce now requires Craft CMS 5.10.0 or later.
+- Craft Commerce now supports `dompdf/dompdf` 3.x, in addition to 2.x.
 - Craft Commerce now requires `ibericode/vat` 2.0 or later.
 - Cart load URLs are now generated with time-limited security tokens, requiring a valid token or authenticated cart ownership to load a cart.
 - PDF download URLs now use the `code` query param instead of `token`. Existing URLs with `token` can be redirected via a server rewrite rule (see [upgrade notes](https://gist.github.com/lukeholder/7605ee8dbb0cbde305ba86bc05747315)) ([#4303](https://github.com/craftcms/commerce/issues/4303)).
