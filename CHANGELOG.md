@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.6.7 - 2026-07-01
 
 - Fixed a bug where purchasables’ stock caches weren’t getting cleared after orders were completed.
 - Fixed a bug where `InventoryRestockMovement` would incorrectly validate movements with only one invalid transaction type.
