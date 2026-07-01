@@ -2,7 +2,6 @@
 
 namespace craft\commerce\services;
 
-use CraftCms\Commerce\Services\Currencies as NewCurrencies;
 use Illuminate\Support\Collection;
 use Money\Currency;
 use Money\Teller;
@@ -13,19 +12,14 @@ use yii\base\Component;
  */
 class Currencies extends Component
 {
-    private function impl(): NewCurrencies
-    {
-        return app(NewCurrencies::class);
-    }
-
     public function getTeller(Currency|string $currency): Teller
     {
-        return $this->impl()->getTeller($currency);
+        return app(\CraftCms\Commerce\Services\Currencies::class)->getTeller($currency);
     }
 
     public function getCurrencyByIso(string $iso): ?Currency
     {
-        return $this->impl()->getCurrencyByIso($iso);
+        return app(\CraftCms\Commerce\Services\Currencies::class)->getCurrencyByIso($iso);
     }
 
     /**
@@ -33,21 +27,21 @@ class Currencies extends Component
      */
     public function getAllCurrencies(): Collection
     {
-        return $this->impl()->getAllCurrencies();
+        return app(\CraftCms\Commerce\Services\Currencies::class)->getAllCurrencies();
     }
 
     public function getAllCurrenciesList(): array
     {
-        return $this->impl()->getAllCurrenciesList();
+        return app(\CraftCms\Commerce\Services\Currencies::class)->getAllCurrenciesList();
     }
 
     public function getSubunitFor(Currency|string $currency): int
     {
-        return $this->impl()->getSubunitFor($currency);
+        return app(\CraftCms\Commerce\Services\Currencies::class)->getSubunitFor($currency);
     }
 
     public function numericCodeFor(Currency|string $currency): int
     {
-        return $this->impl()->numericCodeFor($currency);
+        return app(\CraftCms\Commerce\Services\Currencies::class)->numericCodeFor($currency);
     }
 }

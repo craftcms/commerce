@@ -2,7 +2,6 @@
 
 namespace craft\commerce\services;
 
-use CraftCms\Commerce\Services\TaxZones as NewTaxZones;
 use CraftCms\Commerce\Tax\Models\TaxAddressZone;
 use Illuminate\Support\Collection;
 use yii\base\Component;
@@ -12,31 +11,26 @@ use yii\base\Component;
  */
 class TaxZones extends Component
 {
-    private function impl(): NewTaxZones
-    {
-        return app(NewTaxZones::class);
-    }
-
     /**
      * @return Collection<int, TaxAddressZone>
      */
     public function getAllTaxZones(?int $storeId = null): Collection
     {
-        return $this->impl()->getAllTaxZones($storeId);
+        return app(\CraftCms\Commerce\Services\TaxZones::class)->getAllTaxZones($storeId);
     }
 
     public function getTaxZoneById(int $id, ?int $storeId = null): ?TaxAddressZone
     {
-        return $this->impl()->getTaxZoneById($id, $storeId);
+        return app(\CraftCms\Commerce\Services\TaxZones::class)->getTaxZoneById($id, $storeId);
     }
 
     public function saveTaxZone(TaxAddressZone $model, bool $runValidation = true): bool
     {
-        return $this->impl()->saveTaxZone($model, $runValidation);
+        return app(\CraftCms\Commerce\Services\TaxZones::class)->saveTaxZone($model, $runValidation);
     }
 
     public function deleteTaxZoneById(int $id): bool
     {
-        return $this->impl()->deleteTaxZoneById($id);
+        return app(\CraftCms\Commerce\Services\TaxZones::class)->deleteTaxZoneById($id);
     }
 }

@@ -2,7 +2,6 @@
 
 namespace craft\commerce\services;
 
-use CraftCms\Commerce\Services\TaxCategories as NewTaxCategories;
 use CraftCms\Commerce\Tax\Models\TaxCategory;
 use yii\base\Component;
 
@@ -11,27 +10,22 @@ use yii\base\Component;
  */
 class TaxCategories extends Component
 {
-    private function impl(): NewTaxCategories
-    {
-        return app(NewTaxCategories::class);
-    }
-
     /**
      * @return TaxCategory[]
      */
     public function getAllTaxCategories(bool $withTrashed = false): array
     {
-        return $this->impl()->getAllTaxCategories($withTrashed);
+        return app(\CraftCms\Commerce\Services\TaxCategories::class)->getAllTaxCategories($withTrashed);
     }
 
     public function getTaxCategoryById(int $taxCategoryId): ?TaxCategory
     {
-        return $this->impl()->getTaxCategoryById($taxCategoryId);
+        return app(\CraftCms\Commerce\Services\TaxCategories::class)->getTaxCategoryById($taxCategoryId);
     }
 
     public function getTaxCategoryByHandle(string $taxCategoryHandle): ?TaxCategory
     {
-        return $this->impl()->getTaxCategoryByHandle($taxCategoryHandle);
+        return app(\CraftCms\Commerce\Services\TaxCategories::class)->getTaxCategoryByHandle($taxCategoryHandle);
     }
 
     /**
@@ -39,22 +33,22 @@ class TaxCategories extends Component
      */
     public function getAllTaxCategoriesAsList(): array
     {
-        return $this->impl()->getAllTaxCategoriesAsList();
+        return app(\CraftCms\Commerce\Services\TaxCategories::class)->getAllTaxCategoriesAsList();
     }
 
     public function getDefaultTaxCategory(): TaxCategory
     {
-        return $this->impl()->getDefaultTaxCategory();
+        return app(\CraftCms\Commerce\Services\TaxCategories::class)->getDefaultTaxCategory();
     }
 
     public function saveTaxCategory(TaxCategory $taxCategory, bool $runValidation = true): bool
     {
-        return $this->impl()->saveTaxCategory($taxCategory, $runValidation);
+        return app(\CraftCms\Commerce\Services\TaxCategories::class)->saveTaxCategory($taxCategory, $runValidation);
     }
 
     public function deleteTaxCategoryById(int $id): bool
     {
-        return $this->impl()->deleteTaxCategoryById($id);
+        return app(\CraftCms\Commerce\Services\TaxCategories::class)->deleteTaxCategoryById($id);
     }
 
     /**
@@ -62,6 +56,6 @@ class TaxCategories extends Component
      */
     public function getTaxCategoriesByProductTypeId(int $productTypeId): array
     {
-        return $this->impl()->getTaxCategoriesByProductTypeId($productTypeId);
+        return app(\CraftCms\Commerce\Services\TaxCategories::class)->getTaxCategoriesByProductTypeId($productTypeId);
     }
 }
