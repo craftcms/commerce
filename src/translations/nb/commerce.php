@@ -11,7 +11,7 @@ return [
     '(off original price)' => '(av opprinnelig pris)',
     'A cart number must be specified.' => 'Et handlekurvnummer må spesifiseres.',
     'A cart recovery link has been sent to {email}.' => 'En lenke for gjenoppretting av handlekurv ble sendt til {email}.',
-    'A cart recovery link will be sent to {email}' => 'A cart recovery link will be sent to {email}',
+    'A cart recovery link will be sent to {email}.' => 'A cart recovery link will be sent to {email}.',
     'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'Et vennlig referansenummer blir generert basert på dette formatet når en handlekurv er fullført og blir til en bestilling. F.eks. {ex1}, eller<br/> {ex2}. Resultatet av dette formatet må være unikt.',
     'A new download link has been sent to {email}' => 'En ny lenke for nedlasting er sendt til {email}',
     'A new download link will be sent to {email}' => 'En ny lenke for nedlasting vil bli sendt til {email}',
