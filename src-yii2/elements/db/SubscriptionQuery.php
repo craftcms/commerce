@@ -7,6 +7,7 @@
 
 namespace craft\commerce\elements\db;
 
+use Closure;
 use Craft;
 use craft\commerce\base\Plan;
 use craft\commerce\db\Table;
@@ -15,6 +16,7 @@ use craft\db\Query;
 use craft\elements\db\ElementQuery;
 use craft\elements\User;
 use craft\helpers\Db;
+use Illuminate\Database\Query\Builder;
 use yii\db\Connection;
 use yii\db\Expression;
 
@@ -800,15 +802,11 @@ class SubscriptionQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    protected function statusCondition(string $status): mixed
+    protected function statusCondition(string $status): Closure
     {
         return match ($status) {
-            Subscription::STATUS_ACTIVE => [
-                'commerce_subscriptions.isExpired' => '0',
-            ],
-            Subscription::STATUS_EXPIRED => [
-                'commerce_subscriptions.isExpired' => '1',
-            ],
+            Subscription::STATUS_ACTIVE => fn(Builder $q) => $q->where('commerce_subscriptions.isExpired', '0'),
+            Subscription::STATUS_EXPIRED => fn(Builder $q) => $q->where('commerce_subscriptions.isExpired', '1'),
             default => parent::statusCondition($status),
         };
     }

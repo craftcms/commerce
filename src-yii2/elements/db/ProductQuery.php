@@ -7,6 +7,7 @@
 
 namespace craft\commerce\elements\db;
 
+use Closure;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
@@ -20,6 +21,7 @@ use craft\elements\db\ElementQuery;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;
+use Illuminate\Database\Query\Builder;
 use yii\db\Connection;
 use yii\db\Expression;
 
@@ -859,9 +861,33 @@ class ProductQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    protected function statusCondition(string $status): mixed
+    protected function statusCondition(string $status): Closure
     {
-        return ProductQueryHelper::statusCondition($status);
+        $now = new DateTime();
+        $now->setTime((int)$now->format('H'), (int)$now->format('i'), 59);
+        $currentTimeDb = Db::prepareDateForDb($now);
+
+        return match ($status) {
+            Product::STATUS_LIVE => function(Builder $q) use ($currentTimeDb) {
+                $q->where('elements.enabled', true)
+                  ->where('elements_sites.enabled', true)
+                  ->where('commerce_products.postDate', '<=', $currentTimeDb)
+                  ->where(function(Builder $q) use ($currentTimeDb) {
+                      $q->whereNull('commerce_products.expiryDate')
+                        ->orWhere('commerce_products.expiryDate', '>', $currentTimeDb);
+                  });
+            },
+            Product::STATUS_PENDING => fn(Builder $q) => $q
+                ->where('elements.enabled', true)
+                ->where('elements_sites.enabled', true)
+                ->where('commerce_products.postDate', '>', $currentTimeDb),
+            Product::STATUS_EXPIRED => fn(Builder $q) => $q
+                ->where('elements.enabled', true)
+                ->where('elements_sites.enabled', true)
+                ->whereNotNull('commerce_products.expiryDate')
+                ->where('commerce_products.expiryDate', '<=', $currentTimeDb),
+            default => parent::statusCondition($status),
+        };
     }
 
     /**
