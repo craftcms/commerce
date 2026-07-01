@@ -2,11 +2,11 @@
 
 ## Unreleased
 
-- Fixed a bug where deleting a completed order would not refresh the stock cache for its purchasables.
+- Fixed a bug where purchasables’ stock caches weren’t getting cleared after orders were completed.
 - Fixed a bug where `InventoryRestockMovement` would incorrectly validate movements with only one invalid transaction type.
 - Fixed a bug where inventory search was case-sensitive on PostgreSQL. ([#4326](https://github.com/craftcms/commerce/issues/4326))
-- Fixed a bug where a Twig error would occur when creating or editing a shipping rule. ([#4321](https://github.com/craftcms/commerce/issues/4321))
-- Fixed a bug where settings weren’t being saved to the project config. ([#4324](https://github.com/craftcms/commerce/issues/4324))
+- Fixed an error that could occur when creating or editing a shipping rule. ([#4321](https://github.com/craftcms/commerce/issues/4321))
+- Fixed a bug where some settings weren’t being saved to the project config. ([#4324](https://github.com/craftcms/commerce/issues/4324))
 
 ## 5.6.6.1 - 2026-06-18
 
