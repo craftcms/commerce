@@ -60,6 +60,17 @@ class VariantQuery extends PurchasableQuery
     use NestedElementQueryTrait {
         cacheTags as nestedTraitCacheTags;
     }
+
+    public function getFieldIdColumn(): string
+    {
+        return 'commerce_variants.primaryOwnerId';
+    }
+
+    public function getPrimaryOwnerIdColumn(): string
+    {
+        return 'commerce_variants.primaryOwnerId';
+    }
+
     /**
      * @inheritdoc
      */
