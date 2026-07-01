@@ -37,7 +37,7 @@
                 'accept-charset': 'UTF-8',
             } %}
                 <h1>{{ 'Expired Link'|t('commerce') }}</h1>
-                <p class="confirmInfo">{{ 'A cart recovery link will be sent to {email}'|t('commerce', {email: cart.getMaskedEmail()}) }}</p>
+                <p class="confirmInfo">{{ 'A cart recovery link will be sent to {email}.'|t('commerce', {email: cart.getMaskedEmail()}) }}</p>
 
             {{ csrfInput() }}
             {{ actionInput('commerce/cart/cart-challenge') }}
