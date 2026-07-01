@@ -11,7 +11,7 @@ return [
     '(off original price)' => '(de desconto no preço original)',
     'A cart number must be specified.' => 'Deve ser especificado um número de carrinho.',
     'A cart recovery link has been sent to {email}.' => 'Foi enviado um link para recuperar o carrinho para {email}.',
-    'A cart recovery link will be sent to {email}' => 'A cart recovery link will be sent to {email}',
+    'A cart recovery link will be sent to {email}.' => 'A cart recovery link will be sent to {email}.',
     'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'Um número de referência amigável será gerado com base neste formato quando o carrinho for convertido num pedido. Por exemplo {ex1}, ou<br/> {ex2}. O resultado deste formato deve ser único.',
     'A new download link has been sent to {email}' => 'Um novo link para download foi enviado para {email}',
     'A new download link will be sent to {email}' => 'Um novo link para download será enviado para {email}',
