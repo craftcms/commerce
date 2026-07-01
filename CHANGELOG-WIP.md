@@ -1,4 +1,4 @@
-# Release Notes for Craft Commerce 4.11
+# Release Notes for Craft Commerce 4.12
 
 ### Store Management
 
