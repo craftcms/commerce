@@ -11,7 +11,7 @@ return [
     '(off original price)' => '(en moins sur le prix initial)',
     'A cart number must be specified.' => 'Un numéro de panier doit être indiqué.',
     'A cart recovery link has been sent to {email}.' => 'Un lien de récupération de panier a été envoyé à {email}.',
-    'A cart recovery link will be sent to {email}.' => 'A cart recovery link will be sent to {email}.',
+    'A cart recovery link will be sent to {email}.' => 'Un lien de récupération de panier sera envoyé à {email}.',
     'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'Un numéro de référence simple sera généré sur la base de ce format lors de la finalisation d’un panier et de sa conversion en commande. Par exemple {ex1}, ou<br/> {ex2}. Le résultat de ce format doit être unique.',
     'A new download link has been sent to {email}' => 'Un nouveau lien de téléchargement a été envoyé à {email}.',
     'A new download link will be sent to {email}' => 'Un nouveau lien de téléchargement sera envoyé à {email}.',
