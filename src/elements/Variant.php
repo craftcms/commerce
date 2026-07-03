@@ -266,7 +266,7 @@ class Variant extends Purchasable implements NestedElementInterface
         if ($owner) {
             $uiLabelFormat = $owner->getType()->variantUiLabelFormat;
             if ($uiLabelFormat !== '{title}') {
-                $uiLabel = Craft::$app->getView()->renderObjectTemplate($uiLabelFormat, $this);
+                $uiLabel = Craft::$app->getView()->renderSandboxedObjectTemplate($uiLabelFormat, $this);
                 if ($uiLabel !== '') {
                     return $uiLabel;
                 }
@@ -679,7 +679,7 @@ class Variant extends Purchasable implements NestedElementInterface
         $description = $this->title;
 
         if ($format = $this->getOwner()->getType()->descriptionFormat) {
-            if ($rendered = Craft::$app->getView()->renderObjectTemplate($format, $this)) {
+            if ($rendered = Craft::$app->getView()->renderSandboxedObjectTemplate($format, $this)) {
                 $description = $rendered;
             }
         }
@@ -706,7 +706,7 @@ class Variant extends Purchasable implements NestedElementInterface
             // Set Craft to the product's site's language, in case the title format has any static translations
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
-            $this->title = Craft::$app->getView()->renderObjectTemplate($type->variantTitleFormat, $this);
+            $this->title = Craft::$app->getView()->renderSandboxedObjectTemplate($type->variantTitleFormat, $this);
             Craft::$app->language = $language;
         }
     }
@@ -725,7 +725,7 @@ class Variant extends Purchasable implements NestedElementInterface
             // Set Craft to the product’s site’s language, in case the title format has any static translations
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
-            $this->sku = Craft::$app->getView()->renderObjectTemplate($type->skuFormat, $this);
+            $this->sku = Craft::$app->getView()->renderSandboxedObjectTemplate($type->skuFormat, $this);
 
             $skuExistsQuery = function(string $sku, ?int $id) {
                 $query = (new Query())

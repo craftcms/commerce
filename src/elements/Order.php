@@ -1836,7 +1836,7 @@ class Order extends Element implements HasStoreInterface
             $referenceTemplate = $this->getStore()->getOrderReferenceFormat();
 
             try {
-                $baseReference = Craft::$app->getView()->renderObjectTemplate($referenceTemplate, $this);
+                $baseReference = Craft::$app->getView()->renderSandboxedObjectTemplate($referenceTemplate, $this);
 
                 // Check if this reference already exists and append suffix if needed
                 $suffix = 0;
