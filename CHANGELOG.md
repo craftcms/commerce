@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a security vulnerability where Twig templates rendered from user-supplied input were not sandboxed.
 - PDF download URLs now use the `code` query param instead of `token` ([#4303](https://github.com/craftcms/commerce/issues/4303)).
 
 ## 4.11.2 - 2026-05-14

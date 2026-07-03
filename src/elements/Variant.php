@@ -500,7 +500,7 @@ class Variant extends Purchasable
         $description = $this->title;
 
         if ($format = $this->getProduct()->getType()->descriptionFormat) {
-            if ($rendered = Craft::$app->getView()->renderObjectTemplate($format, $this)) {
+            if ($rendered = Craft::$app->getView()->renderSandboxedObjectTemplate($format, $this)) {
                 $description = $rendered;
             }
         }
@@ -527,7 +527,7 @@ class Variant extends Purchasable
             // Set Craft to the products's site's language, in case the title format has any static translations
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
-            $this->title = Craft::$app->getView()->renderObjectTemplate($type->variantTitleFormat, $this);
+            $this->title = Craft::$app->getView()->renderSandboxedObjectTemplate($type->variantTitleFormat, $this);
             Craft::$app->language = $language;
         }
 
@@ -550,7 +550,7 @@ class Variant extends Purchasable
             // Set Craft to the product’s site’s language, in case the title format has any static translations
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
-            $this->sku = Craft::$app->getView()->renderObjectTemplate($type->skuFormat, $this);
+            $this->sku = Craft::$app->getView()->renderSandboxedObjectTemplate($type->skuFormat, $this);
             Craft::$app->language = $language;
         }
     }

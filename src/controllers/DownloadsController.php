@@ -177,7 +177,7 @@ class DownloadsController extends BaseFrontEndController
         // Set previous language back
         Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale);
 
-        $fileName = $this->getView()->renderObjectTemplate((string)$pdf->fileNameFormat, $order);
+        $fileName = $this->getView()->renderSandboxedObjectTemplate((string)$pdf->fileNameFormat, $order);
         if (!$fileName) {
             $fileName = $pdf->handle . '-' . $order->number;
         }
