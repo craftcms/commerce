@@ -12,7 +12,7 @@ return [
     '(off original price)' => '(z pôvodnej ceny)',
     'A cart number must be specified.' => 'Musíte uviesť číslo košíka.',
     'A cart recovery link has been sent to {email}.' => 'Odkaz na obnovenie košíka bol odoslaný na adresu {email}.',
-    'A cart recovery link will be sent to {email}.' => 'A cart recovery link will be sent to {email}.',
+    'A cart recovery link will be sent to {email}.' => 'Odkaz na obnovenie košíka odošleme na adresu {email}.',
     'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'Po naplnení košíka a jeho premene na objednávku sa na základe tohto formátu vytvorí zrozumiteľné referenčné číslo. Napríklad {ex1} alebo<br/> {ex2}. Výsledok tohto formátovania musí byť jedinečný.',
     'A new download link has been sent to {email}' => 'Nový odkaz na stiahnutie bol odoslaný na adresu {email}',
     'A new download link will be sent to {email}' => 'Nový odkaz na stiahnutie bude zaslaný na adresu {email}',
