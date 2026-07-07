@@ -1230,7 +1230,6 @@ class Plugin extends BasePlugin
             $module->panels['commerce'] = new CommercePanel([
                 'id' => 'commerce',
                 'module' => $module,
-                'cart' => !Craft::$app->getRequest()->getIsCpRequest() ? Plugin::getInstance()->getCarts()->getCart() : null,
             ]);
         });
     }

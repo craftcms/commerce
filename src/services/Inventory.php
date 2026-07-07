@@ -429,9 +429,8 @@ class Inventory extends Component
 
             // @TODO Consider pushing updateStoreStockCache() into a queued job so inventory updates don't block on cache regeneration
             // Update all purchasables stock
-            $purchasables = $updateInventoryLevels->getPurchasables();
-            if ($purchasables) {
-                Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasables[0], true);
+            foreach ($updateInventoryLevels->getPurchasables() as $purchasable) {
+                Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
             }
 
             // Trigger event for each successful update

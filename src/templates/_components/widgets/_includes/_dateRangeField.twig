@@ -9,7 +9,6 @@
   <input type="hidden" name="startDate" value="{{ widget.startDate ?? '' }}" data-start-date>
   <input type="hidden" name="endDate" value="{{ widget.endDate ?? '' }}" data-end-date>
   <input type="hidden" name="dateRange" value="{{ widget.dateRange ?? '' }}" data-date-range>
-
   {% set dateRangeHtml %}<div data-date-range-picker></div>{% endset %}
 
   {{ forms.field({
@@ -42,14 +41,14 @@
     };
 
     {% if widget.dateRange == 'custom' and widget.startDate %}
-      options['startDate'] = new Date({{ widget.startDate|date('Y') }}, {{ widget.startDate|date('m') - 1 }}, {{ widget.startDate|date('d') }});
+      options['startDate'] = new Date({{ widget.startDate|date('Y') }}, {{ widget.startDate|date('n') - 1 }}, {{ widget.startDate|date('j') }});
     {% endif %}
 
     {% if widget.dateRange == 'custom' and widget.endDate %}
-      options['endDate'] = new Date({{ widget.endDate|date('Y') }}, {{ widget.endDate|date('m') - 1 }}, {{ widget.endDate|date('d') }});
+      options['endDate'] = new Date({{ widget.endDate|date('Y') }}, {{ widget.endDate|date('n') - 1 }}, {{ widget.endDate|date('j') }});
     {% endif %}
 
     var $container = $('#{{ id }} [data-date-range-picker]');
-    var $picker = Craft.ui.createDateRangePicker(options).appendTo($container);
+    var $picker = Craft.Commerce.createDateRangePicker(options).appendTo($container);
   {% endjs %}
 {% endif %}

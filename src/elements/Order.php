@@ -1200,6 +1200,7 @@ class Order extends Element implements HasStoreInterface
      * ```
      */
     private array $_lineItems;
+    private array $_deletingLineItems = [];
 
     /**
      * @var OrderAdjustment[]|null
@@ -1295,7 +1296,10 @@ class Order extends Element implements HasStoreInterface
         }
 
         if ($this->orderSiteId === null) {
-            $this->orderSiteId = $this->getStore()->getSites()->first()->id;
+            $storeSites = $this->getStore()->getSites();
+            $primarySite = Craft::$app->getSites()->getPrimarySite();
+            // Prefer the Craft primary site if it belongs to this store, otherwise use the first available site
+            $this->orderSiteId = $storeSites->firstWhere('id', $primarySite->id)?->id ?? $storeSites->first()->id;
         }
 
         if ($this->currency === null) {
@@ -1840,7 +1844,7 @@ class Order extends Element implements HasStoreInterface
             $referenceTemplate = $this->getStore()->getOrderReferenceFormat();
 
             try {
-                $baseReference = Craft::$app->getView()->renderObjectTemplate($referenceTemplate, $this);
+                $baseReference = Craft::$app->getView()->renderSandboxedObjectTemplate($referenceTemplate, $this);
 
                 // Check if this reference already exists and append suffix if needed
                 $suffix = 0;
@@ -3766,6 +3770,40 @@ class Order extends Element implements HasStoreInterface
         $metadata[Craft::t('commerce', 'Origin')] = Html::encode($this->origin);
 
         return array_merge($metadata, parent::getMetadata());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeDelete(): bool
+    {
+        if (!parent::beforeDelete()) {
+            return false;
+        }
+
+        // Capture line items before the cascade delete fires so afterDelete() can refresh stock caches
+        if ($this->isCompleted) {
+            $this->_deletingLineItems = $this->getLineItems();
+        }
+
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function afterDelete(): void
+    {
+        parent::afterDelete();
+
+        if ($this->isCompleted) {
+            foreach ($this->_deletingLineItems as $lineItem) {
+                $purchasable = $lineItem->getPurchasable();
+                if ($purchasable instanceof Purchasable && $purchasable::hasInventory() && $purchasable->inventoryTracked) {
+                    Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
+                }
+            }
+        }
     }
 
     /**

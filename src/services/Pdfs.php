@@ -354,8 +354,8 @@ class Pdfs extends Component
             $pdfRecord->name = $data['name'];
             $pdfRecord->handle = $data['handle'];
             $pdfRecord->description = $data['description'];
-            $pdfRecord->templatePath = $data['templatePath'];
-            $pdfRecord->fileNameFormat = $data['fileNameFormat'];
+            $pdfRecord->templatePath = $data['templatePath'] ?? '';
+            $pdfRecord->fileNameFormat = $data['fileNameFormat'] ?? '';
             $pdfRecord->enabled = $data['enabled'];
             $pdfRecord->sortOrder = $data['sortOrder'];
             $pdfRecord->isDefault = $data['isDefault'];

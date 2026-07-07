@@ -245,7 +245,8 @@ class InventoryController extends BaseCpController
         $inventoryQuery->andWhere(['not', ['elements.id' => null]]);
 
         if ($search) {
-            $inventoryQuery->andWhere(['or', ['like', 'purchasables.description', $search], ['like', 'purchasables.sku', $search]]);
+            $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ilike' : 'like';
+            $inventoryQuery->andWhere(['or', [$likeOperator, 'purchasables.description', $search], [$likeOperator, 'purchasables.sku', $search]]);
         }
 
         $sort = $this->request->getParam('sort');

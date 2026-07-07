@@ -22,7 +22,7 @@ class InventoryRestockMovement extends InventoryMovement
         $rules[] = [
             ['fromInventoryTransactionType', 'toInventoryTransactionType'],
             function($attribute, $params, $validator) {
-                if ($this->fromInventoryTransactionType !== InventoryTransactionType::COMMITTED && $this->toInventoryTransactionType !== InventoryTransactionType::AVAILABLE) {
+                if ($this->fromInventoryTransactionType !== InventoryTransactionType::COMMITTED || $this->toInventoryTransactionType !== InventoryTransactionType::AVAILABLE) {
                     $validator->addError($this, $attribute, 'Invalid Restock transaction type');
                 }
             },
