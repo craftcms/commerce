@@ -38,14 +38,27 @@ class ContainsPurchasablesConditionRule extends BaseElementSelectConditionRule i
      */
     public string $purchasableType = Variant::class;
 
-    public ContainsPurchasablesMatch $match = ContainsPurchasablesMatch::Any;
+    /**
+     * @var ContainsPurchasablesMatch
+     * @see getMatch()
+     * @see setMatch()
+     */
+    private ContainsPurchasablesMatch $_match = ContainsPurchasablesMatch::Any;
+
+    /**
+     * @return ContainsPurchasablesMatch
+     */
+    public function getMatch(): ContainsPurchasablesMatch
+    {
+        return $this->_match;
+    }
 
     /**
      * Yii2 setter — converts stored string values back to the enum on load.
      */
     public function setMatch(ContainsPurchasablesMatch|string $value): void
     {
-        $this->match = $value instanceof ContainsPurchasablesMatch ? $value : ContainsPurchasablesMatch::from($value);
+        $this->_match = $value instanceof ContainsPurchasablesMatch ? $value : ContainsPurchasablesMatch::from($value);
     }
 
     /**
@@ -83,7 +96,7 @@ class ContainsPurchasablesConditionRule extends BaseElementSelectConditionRule i
         }
 
         /** @var OrderQuery $query */
-        $query->containsPurchasables(['purchasables' => $ids, 'match' => $this->match]);
+        $query->containsPurchasables(['purchasables' => $ids, 'match' => $this->getMatch()]);
     }
 
     /**
@@ -92,7 +105,7 @@ class ContainsPurchasablesConditionRule extends BaseElementSelectConditionRule i
     public function matchElement(ElementInterface $element): bool
     {
         /** @var Order $element */
-        return $element->hasPurchasables($this->getElementIds(), $this->match);
+        return $element->hasPurchasables($this->getElementIds(), $this->getMatch());
     }
 
     /**
@@ -107,7 +120,7 @@ class ContainsPurchasablesConditionRule extends BaseElementSelectConditionRule i
     {
         return array_merge(parent::getConfig(), [
             'purchasableType' => $this->purchasableType,
-            'match' => $this->match->value,
+            'match' => $this->getMatch()->value,
         ]);
     }
 
@@ -147,7 +160,7 @@ class ContainsPurchasablesConditionRule extends BaseElementSelectConditionRule i
                     'id' => $matchId,
                     'name' => 'match',
                     'options' => $this->_matchOptions(),
-                    'value' => $this->match->value,
+                    'value' => $this->getMatch()->value,
                     'inputAttributes' => [
                         'hx' => [
                             'post' => UrlHelper::actionUrl('conditions/render'),
