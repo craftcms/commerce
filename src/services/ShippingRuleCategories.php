@@ -73,6 +73,7 @@ class ShippingRuleCategories extends Component
 
         foreach ($shippingRuleCategories[$ruleId] as $row) {
             if ($row instanceof ShippingRuleCategory) {
+                $rules[$row->shippingCategoryId] = $row;
                 continue;
             }
 
