@@ -21,10 +21,12 @@ use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\base\StoreTrait;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\behaviors\CustomerBehavior;
+use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\db\Table;
 use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderNoticesTrait;
 use craft\commerce\elements\traits\OrderValidatorsTrait;
+use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\LineItemNotFoundException;
 use craft\commerce\errors\OrderAdjustmentNotFoundException;
@@ -35,6 +37,7 @@ use craft\commerce\events\OrderLineItemsRefreshEvent;
 use craft\commerce\events\OrderNoticeEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Order as OrderHelper;
+use craft\commerce\models\inventory\InventoryFulfillMovement;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderHistory;
@@ -1888,6 +1891,45 @@ class Order extends Element implements HasStoreInterface
         $mutex->release($lockName);
 
         $this->afterOrderComplete();
+
+        return true;
+    }
+
+    /**
+     * Fulfills any items that are not filed for this order.
+     *
+     * @return bool
+     * @throws DeprecationException
+     * @throws InvalidConfigException
+     * @throws \yii\db\Exception
+     * @since 5.4.0
+     */
+    public function fulfillOutstandingCommittedQuantity(): bool
+    {
+        $levels = Plugin::getInstance()->getInventory()->getInventoryFulfillmentLevels($this);
+        $movements = [];
+        foreach ($levels as $level) {
+            $outstanding = $level->outstandingCommittedQuantity;
+            if ($outstanding > 0) {
+                $inventoryLocation = $level->getInventoryLocation();
+                $movement = new InventoryFulfillMovement();
+                $movement->fromInventoryLocation = $inventoryLocation;
+                $movement->inventoryItemId = $level->inventoryItemId;
+                $movement->toInventoryLocation = $inventoryLocation;
+                $movement->fromInventoryTransactionType = InventoryTransactionType::COMMITTED;
+                $movement->toInventoryTransactionType = InventoryTransactionType::FULFILLED;
+                $movement->lineItemId = $level->lineItemId;
+                $movement->quantity = $outstanding;
+                $movement->userId = Craft::$app->getUser()->getId();
+                $movements[] = $movement;
+            }
+        }
+
+        $movements = InventoryMovementCollection::make($movements);
+
+        if (!Plugin::getInstance()->getInventory()->executeInventoryMovements($movements)) {
+            return false;
+        }
 
         return true;
     }
