@@ -88,7 +88,7 @@
 
 ### System
 
-- IP-based rate limiting is now applied to the `commerce/cart/cart-challenge` and `commerce/downloads/pdf-challenge` controller actions (1 request per 30 seconds per IP), to prevent abuse of email-sending endpoints.
+- IP-based rate limiting is now applied to the `commerce/cart/cart-challenge` and `commerce/downloads/pdf-challenge` controller actions.
 - Craft Commerce now requires Craft CMS 5.10.0 or later.
 - Craft Commerce now supports `dompdf/dompdf` 3.x, in addition to 2.x.
 - Craft Commerce now requires `ibericode/vat` 2.0 or later.
