@@ -161,6 +161,12 @@ class Carts extends Component
             $forceSave = true;
         }
 
+        // Just in case the cart go put into a non all recalculation mode
+        if ($this->_cart->getRecalculationMode() !== Order::RECALCULATION_MODE_ALL) {
+            $this->_cart->setRecalculationMode(Order::RECALCULATION_MODE_ALL);
+            $forceSave = true;
+        }
+
         $autoSetAddresses = false;
         // We only want to call autoSetAddresses() if we have a authed cart customer
         if ($currentUser && $currentUser->id == $this->_cart->customerId) {

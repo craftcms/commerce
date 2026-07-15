@@ -456,6 +456,10 @@ class PaymentsController extends BaseFrontEndController
         if ((!$partialAllowed || !$gateway->supportsPartialPayment()) && $order->isPaymentAmountPartial()) {
             $error = Craft::t('commerce', 'Partial payment not allowed.');
 
+            if (!$order->isCompleted) {
+                $order->setRecalculationMode(Order::RECALCULATION_MODE_ALL);
+            }
+
             return $this->asModelFailure(
                 $paymentForm,
                 $error,
@@ -484,6 +488,11 @@ class PaymentsController extends BaseFrontEndController
         }
 
         if (!$success) {
+            // Reset so the cart can still be edited and recalculated after a failed payment.
+            if (!$order->isCompleted) {
+                $order->setRecalculationMode(Order::RECALCULATION_MODE_ALL);
+            }
+
             // Keep old paymentFormErrors as is.
             $originalPaymentFormErrors = $paymentForm->getErrors();
 

@@ -97,3 +97,4 @@
 - Craft Commerce now requires `ibericode/vat` 2.0 or later.
 - Cart load URLs are now generated with time-limited security tokens, requiring a valid token or authenticated cart ownership to load a cart.
 - PDF download URLs now use the `code` query param instead of `token`. Existing URLs with `token` can be redirected via a server rewrite rule (see [upgrade notes](https://gist.github.com/lukeholder/7605ee8dbb0cbde305ba86bc05747315)) ([#4303](https://github.com/craftcms/commerce/issues/4303)).
+- Getting a cart from the carts service now ensures the cart can always be recalculated. ([#4332](https://github.com/craftcms/commerce/issues/4332#issuecomment-4966010281))
