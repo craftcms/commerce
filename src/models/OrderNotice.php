@@ -52,6 +52,7 @@ class OrderNotice extends Model
 
     /**
      * @var string Whether this notice is for customers or admins only.
+     * @since 5.7.0
      */
     public string $noticeType = self::NOTICE_TYPE_CUSTOMER;
 
