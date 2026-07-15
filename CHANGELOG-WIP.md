@@ -37,7 +37,6 @@
 - Added `craft\commerce\models\OrderNotice::$noticeType`.
 - `craft\commerce\elements\Order::clearNotices()` now has a `$clearAdminNotices` argument (default `false`), which must be passed as `true` to also clear admin notices.
 - `craft\commerce\elements\Order::getNotices()` no longer returns admin notices. Use `getAdminNotices()` instead.
-
 - Added `craft\commerce\base\ShippingMethod::clearMatchingShippingRuleCache()`.
 - Added `craft\commerce\controllers\CartController::actionCartChallenge()`.
 - Added `craft\commerce\controllers\CartController::actionCartSent()`.
