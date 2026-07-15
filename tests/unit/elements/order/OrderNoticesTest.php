@@ -10,6 +10,7 @@ namespace craftcommercetests\unit\elements\order;
 use Codeception\Test\Unit;
 use Craft;
 use craft\commerce\elements\Order;
+use craft\commerce\enums\OrderNoticeType;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\Plugin;
 use UnitTester;
@@ -155,7 +156,7 @@ class OrderNoticesTest extends Unit
                 'type' => 'adminAlert',
                 'attribute' => 'order',
                 'message' => 'This order needs review.',
-                'noticeType' => OrderNotice::NOTICE_TYPE_ADMIN,
+                'noticeType' => OrderNoticeType::Admin,
             ],
         ]);
 
@@ -188,7 +189,7 @@ class OrderNoticesTest extends Unit
                 'type' => 'adminAlert',
                 'attribute' => 'order',
                 'message' => 'This order needs review.',
-                'noticeType' => OrderNotice::NOTICE_TYPE_ADMIN,
+                'noticeType' => OrderNoticeType::Admin,
             ],
         ]);
 
@@ -219,7 +220,7 @@ class OrderNoticesTest extends Unit
                 'type' => 'adminAlert',
                 'attribute' => 'order',
                 'message' => 'This order needs review.',
-                'noticeType' => OrderNotice::NOTICE_TYPE_ADMIN,
+                'noticeType' => OrderNoticeType::Admin,
             ],
         ]);
 
@@ -253,7 +254,7 @@ class OrderNoticesTest extends Unit
                 'type' => 'adminAlert',
                 'attribute' => 'order',
                 'message' => 'This order needs review.',
-                'noticeType' => OrderNotice::NOTICE_TYPE_ADMIN,
+                'noticeType' => OrderNoticeType::Admin,
             ],
         ]);
 
@@ -268,7 +269,7 @@ class OrderNoticesTest extends Unit
 
         $this->order->addNotices([$adminNotice, $customerNotice]);
 
-        $this->order->clearNotices(clearAdminNotices: true);
+        $this->order->clearNotices(noticeTypes: [OrderNoticeType::Customer, OrderNoticeType::Admin]);
 
         self::assertCount(0, $this->order->getNotices());
         self::assertCount(0, $this->order->getAdminNotices());

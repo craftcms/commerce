@@ -8,6 +8,7 @@
 namespace craft\commerce\elements\traits;
 
 use craft\commerce\elements\Order;
+use craft\commerce\enums\OrderNoticeType;
 use craft\commerce\models\OrderNotice;
 use craft\helpers\ArrayHelper;
 
@@ -33,7 +34,7 @@ trait OrderNoticesTrait
      */
     public function getNotices(?string $type = null, ?string $attribute = null): array
     {
-        $notices = array_values(array_filter($this->_notices, fn(OrderNotice $n) => $n->noticeType === OrderNotice::NOTICE_TYPE_CUSTOMER));
+        $notices = array_values(array_filter($this->_notices, fn(OrderNotice $n) => $n->noticeType === OrderNoticeType::Customer));
         return $this->_filterNotices($notices, $type, $attribute);
     }
 
@@ -47,7 +48,7 @@ trait OrderNoticesTrait
      */
     public function getAdminNotices(?string $type = null, ?string $attribute = null): array
     {
-        $notices = array_values(array_filter($this->_notices, fn(OrderNotice $n) => $n->noticeType === OrderNotice::NOTICE_TYPE_ADMIN));
+        $notices = array_values(array_filter($this->_notices, fn(OrderNotice $n) => $n->noticeType === OrderNoticeType::Admin));
         return $this->_filterNotices($notices, $type, $attribute);
     }
 
@@ -88,20 +89,26 @@ trait OrderNoticesTrait
     }
 
     /**
-     * Removes non-admin notices matching the given criteria.
-     * Admin notices are preserved unless $clearAdminNotices is true.
+     * Removes notices matching the given criteria, scoped to the specified notice types.
+     *
+     * By default only customer notices are cleared, preserving admin notices for backwards compatibility.
+     * Pass one or more {@see OrderNoticeType} values to control which notice types are affected.
      *
      * @param string|null $type type name. Use null to remove notices for all types.
      * @param string|null $attribute attribute name. Use null to remove notices for all attributes.
-     * @param bool $clearAdminNotices Whether to also clear admin notices. Defaults to false.
+     * @param OrderNoticeType|OrderNoticeType[]|null $noticeTypes Notice type(s) to clear. Defaults to customer notices only.
      * @since 3.3
      */
-    public function clearNotices(?string $type = null, ?string $attribute = null, bool $clearAdminNotices = false): void
+    public function clearNotices(?string $type = null, ?string $attribute = null, array|OrderNoticeType|null $noticeTypes = null): void
     {
-        $adminNotices = array_values(array_filter($this->_notices, fn(OrderNotice $n) => $n->noticeType === OrderNotice::NOTICE_TYPE_ADMIN));
-        $regularNotices = array_values(array_filter($this->_notices, fn(OrderNotice $n) => $n->noticeType === OrderNotice::NOTICE_TYPE_CUSTOMER));
+        if ($noticeTypes === null) {
+            $noticeTypes = [OrderNoticeType::Customer];
+        } elseif ($noticeTypes instanceof OrderNoticeType) {
+            $noticeTypes = [$noticeTypes];
+        }
 
-        $targetNotices = $clearAdminNotices ? $this->_notices : $regularNotices;
+        $targetNotices = array_values(array_filter($this->_notices, fn(OrderNotice $n) => in_array($n->noticeType, $noticeTypes)));
+        $preservedNotices = array_values(array_filter($this->_notices, fn(OrderNotice $n) => !in_array($n->noticeType, $noticeTypes)));
 
         if ($type === null && $attribute === null) {
             $remaining = [];
@@ -113,11 +120,7 @@ trait OrderNoticesTrait
             $remaining = array_values(array_filter($targetNotices, fn(OrderNotice $n) => !($n->type === $type && $n->attribute === $attribute)));
         }
 
-        if ($clearAdminNotices) {
-            $this->_notices = $remaining;
-        } else {
-            $this->_notices = array_merge($adminNotices, $remaining);
-        }
+        $this->_notices = array_merge($preservedNotices, $remaining);
     }
 
     /**

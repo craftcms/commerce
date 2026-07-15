@@ -14,6 +14,7 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\enums\LineItemType;
+use craft\commerce\enums\OrderNoticeType;
 use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\events\DiscountEvent;
 use craft\commerce\events\MatchLineItemEvent;
@@ -1238,7 +1239,7 @@ SQL;
                                 'name' => $discount['name'] ?? $discount['discountUseId'],
                                 'limit' => $discount['totalDiscountUseLimit'],
                             ]),
-                            'noticeType' => OrderNotice::NOTICE_TYPE_ADMIN,
+                            'noticeType' => OrderNoticeType::Admin,
                         ],
                     ]);
                     $order->addNotice($notice);
@@ -1266,7 +1267,7 @@ SQL;
                                 'code' => $order->couponCode,
                                 'limit' => $coupon->maxUses,
                             ]),
-                            'noticeType' => OrderNotice::NOTICE_TYPE_ADMIN,
+                            'noticeType' => OrderNoticeType::Admin,
                         ],
                     ]);
                     $order->addNotice($notice);

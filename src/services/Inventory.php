@@ -17,6 +17,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\InventoryUpdateQuantityType;
 use craft\commerce\enums\LineItemType;
+use craft\commerce\enums\OrderNoticeType;
 use craft\commerce\events\InventoryMovementEvent;
 use craft\commerce\events\UpdateInventoryLevelEvent;
 use craft\commerce\models\inventory\InventoryCommittedMovement;
@@ -971,7 +972,7 @@ class Inventory extends Component
                                     'message' => Craft::t('commerce', 'Available inventory for "{description}" has gone below zero.', [
                                         'description' => $purchasable->getDescription(),
                                     ]),
-                                    'noticeType' => OrderNotice::NOTICE_TYPE_ADMIN,
+                                    'noticeType' => OrderNoticeType::Admin,
                                 ],
                             ]);
                             $order->addNotice($notice);

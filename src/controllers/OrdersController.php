@@ -22,6 +22,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\LineItemType;
+use craft\commerce\enums\OrderNoticeType;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\errors\RefundException;
@@ -1834,20 +1835,20 @@ JS, []);
         }
 
         // CP save has full control over all notices including admin ones
-        $order->clearNotices(clearAdminNotices: true);
+        $order->clearNotices(noticeTypes: [OrderNoticeType::Customer, OrderNoticeType::Admin]);
 
         // Create Notices on Order
         $notices = [];
         foreach ($orderRequestData['order']['notices'] ?? [] as $notice) {
             $notices[] = Craft::createObject([
                 'class' => OrderNotice::class,
-                'attributes' => array_merge($notice, ['noticeType' => OrderNotice::NOTICE_TYPE_CUSTOMER]),
+                'attributes' => array_merge($notice, ['noticeType' => OrderNoticeType::Customer]),
             ]);
         }
         foreach ($orderRequestData['order']['adminNotices'] ?? [] as $notice) {
             $notices[] = Craft::createObject([
                 'class' => OrderNotice::class,
-                'attributes' => array_merge($notice, ['noticeType' => OrderNotice::NOTICE_TYPE_ADMIN]),
+                'attributes' => array_merge($notice, ['noticeType' => OrderNoticeType::Admin]),
             ]);
         }
         $order->addNotices($notices);

@@ -3873,7 +3873,7 @@ class Order extends Element implements HasStoreInterface
                 $noticeRecord->type = $notice->type;
                 $noticeRecord->attribute = $notice->attribute;
                 $noticeRecord->message = $notice->message;
-                $noticeRecord->noticeType = $notice->noticeType;
+                $noticeRecord->noticeType = $notice->noticeType->value;
                 if ($noticeRecord->save(false)) {
                     $notice->id = $noticeRecord->id;
                 }

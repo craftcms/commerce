@@ -14,6 +14,7 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\enums\ContainsPurchasablesMatch;
+use craft\commerce\enums\OrderNoticeType;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
 use craft\db\Query;
@@ -1958,7 +1959,7 @@ class OrderQuery extends ElementQuery
                     ->select([new Expression('1')])
                     ->from(['adminNotices' => Table::ORDERNOTICES])
                     ->where(new Expression('[[adminNotices.orderId]] = [[elements.id]]'))
-                    ->andWhere(['adminNotices.noticeType' => 'admin']),
+                    ->andWhere(['adminNotices.noticeType' => OrderNoticeType::Admin->value]),
             ]);
         }
 
