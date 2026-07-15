@@ -155,7 +155,7 @@ class Settings extends Model
      * @group Cart
      * @since 5.7.0
      */
-    public int $cartLoadUrlExpiry = 604800;
+    public int $loadCartUrlExpiry = 604800;
 
     /**
      * @var array|null ISO codes for supported payment currencies.
