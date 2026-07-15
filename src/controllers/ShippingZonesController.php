@@ -116,9 +116,6 @@ JS;
         $condition->mainTag = 'div';
         $condition->name = 'condition';
         $condition->id = 'condition';
-        $conditionField = Cp::fieldHtml($condition->getBuilderHtml(), [
-            'label' => Craft::t('app', 'Address Condition'),
-        ]);
 
         DebugPanel::prependOrAppendModelTab(model: $shippingZone, prepend: true);
 
@@ -138,9 +135,8 @@ JS;
             ->metaSidebarHtml(Cp::metadataHtml($metadata))
             ->contentTemplate('commerce/store-management/shipping/shippingzones/_edit', [
                 'shippingZone' => $shippingZone,
-                'conditionField' => $conditionField,
+                'condition' => $condition,
                 'store' => $store,
-
             ]);
     }
 

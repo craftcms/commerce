@@ -469,6 +469,13 @@ class CartController extends BaseFrontEndController
             throw new HttpException(401, Craft::t('commerce', 'You must make a payment to complete the order.'));
         }
 
+        $lockName = 'completeOrder';
+        $mutex = Craft::$app->getMutex();
+        if (!$mutex->acquire($lockName, 10)) {
+            $this->_cart->addError('isComplete', Craft::t('commerce', 'Unable to complete order: another request is already in progress.'));
+            return $this->_returnCart();
+        }
+
         // Check email address exists on order.
         if (empty($this->_cart->email)) {
             $errors['email'] = Craft::t('commerce', 'No customer email address exists on this cart.');
@@ -516,6 +523,7 @@ class CartController extends BaseFrontEndController
             }
         }
 
+        $mutex->release($lockName);
         return $this->_returnCart();
     }
 

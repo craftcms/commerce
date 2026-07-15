@@ -267,7 +267,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.6.1.2';
+    public string $schemaVersion = '5.6.6';
 
     /**
      * @inheritdoc
@@ -1178,7 +1178,6 @@ class Plugin extends BasePlugin
             $module->panels['commerce'] = new CommercePanel([
                 'id' => 'commerce',
                 'module' => $module,
-                'cart' => !Craft::$app->getRequest()->getIsCpRequest() ? Plugin::getInstance()->getCarts()->getCart() : null,
             ]);
         });
     }

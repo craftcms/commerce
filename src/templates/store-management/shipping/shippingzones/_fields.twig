@@ -25,4 +25,6 @@
         errors: shippingZone is defined ? shippingZone.getErrors('description'),
     }) }}
 
-    {{ conditionField|raw }}
+    {{ forms.field({
+        label: 'Address Condition'|t('app'),
+    }, condition.builderHtml) }}

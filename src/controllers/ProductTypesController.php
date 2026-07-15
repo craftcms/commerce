@@ -144,6 +144,7 @@ class ProductTypesController extends BaseAdminController
         $productType->hasDimensions = (bool)$this->request->getBodyParam('hasDimensions');
         $productType->hasProductTitleField = (bool)$this->request->getBodyParam('hasProductTitleField');
         $productType->productTitleFormat = $this->request->getBodyParam('productTitleFormat');
+        $productType->productUiLabelFormat = $this->request->getBodyParam('productUiLabelFormat');
         $productType->productTitleTranslationMethod = $this->request->getBodyParam('productTitleTranslationMethod', $productType->productTitleTranslationMethod);
         $productType->productTitleTranslationKeyFormat = $this->request->getBodyParam('productTitleTranslationKeyFormat', $productType->productTitleTranslationKeyFormat);
         $productType->showSlugField = (bool)$this->request->getBodyParam('showSlugField', $productType->showSlugField);
@@ -152,6 +153,7 @@ class ProductTypesController extends BaseAdminController
         $productType->maxVariants = $this->request->getBodyParam('maxVariants') ?: null;
         $productType->hasVariantTitleField = $this->request->getBodyParam('hasVariantTitleField', false);
         $productType->variantTitleFormat = $this->request->getBodyParam('variantTitleFormat');
+        $productType->variantUiLabelFormat = $this->request->getBodyParam('variantUiLabelFormat');
         $productType->variantTitleTranslationMethod = $this->request->getBodyParam('variantTitleTranslationMethod', $productType->variantTitleTranslationMethod);
         $productType->variantTitleTranslationKeyFormat = $this->request->getBodyParam('variantTitleTranslationKeyFormat', $productType->variantTitleTranslationKeyFormat);
         $productType->skuFormat = $this->request->getBodyParam('skuFormat');

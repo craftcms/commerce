@@ -51,8 +51,14 @@ class ShippingAddressZone extends Zone implements Chippable
      */
     public static function get(int|string $id): ?static
     {
-        /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getShippingZones()->getShippingZoneById($id);
+        foreach (Plugin::getInstance()->getStores()->getAllStores() as $store) {
+            $zone = Plugin::getInstance()->getShippingZones()->getShippingZoneById((int)$id, $store->id);
+            if ($zone !== null) {
+                /** @phpstan-ignore-next-line */
+                return $zone;
+            }
+        }
+        return null;
     }
 
     /**
