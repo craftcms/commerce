@@ -106,7 +106,20 @@ class CartController extends BaseFrontEndController
                         'ip' => $request->getUserIP() ?? 'unknown',
                     ]) : null;
                 },
-
+            ],
+            'cartChallengeRateLimiter' => [
+                'class' => RateLimiter::class,
+                'only' => ['cart-challenge'],
+                'enableRateLimitHeaders' => false,
+                'user' => function() {
+                    $request = Craft::$app->getRequest();
+                    return new IpRateLimitIdentity([
+                        'limit' => 1,
+                        'window' => 30,
+                        'keyPrefix' => 'cart-challenge-rate-limit',
+                        'ip' => $request->getUserIP() ?? 'unknown',
+                    ]);
+                },
             ],
         ]);
     }

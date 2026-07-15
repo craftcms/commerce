@@ -11,11 +11,13 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Locale;
 use craft\commerce\Plugin;
+use craft\filters\IpRateLimitIdentity;
 use craft\helpers\UrlHelper;
 use craft\web\View;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidCallException;
+use yii\filters\RateLimiter;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\RangeNotSatisfiableHttpException;
@@ -29,6 +31,29 @@ use yii\web\Response;
  */
 class DownloadsController extends BaseFrontEndController
 {
+    /**
+     * @inheritdoc
+     */
+    public function behaviors(): array
+    {
+        return array_merge(parent::behaviors(), [
+            'pdfChallengeRateLimiter' => [
+                'class' => RateLimiter::class,
+                'only' => ['pdf-challenge'],
+                'enableRateLimitHeaders' => false,
+                'user' => function() {
+                    $request = Craft::$app->getRequest();
+                    return new IpRateLimitIdentity([
+                        'limit' => 1,
+                        'window' => 30,
+                        'keyPrefix' => 'pdf-challenge-rate-limit',
+                        'ip' => $request->getUserIP() ?? 'unknown',
+                    ]);
+                },
+            ],
+        ]);
+    }
+
     /**
      * Renders the email challenge template with the provided parameters.
      *
