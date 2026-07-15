@@ -483,6 +483,10 @@ class VariantQuery extends PurchasableQuery
      */
     protected function beforePrepare(): bool
     {
+        if (!Craft::$app->getDb()->columnExists(Table::VARIANTS, 'primaryOwnerId')) {
+            return false;
+        }
+
         try {
             $this->primaryOwnerId = $this->_normalizeOwnerId($this->primaryOwnerId);
         } catch (InvalidArgumentException) {
