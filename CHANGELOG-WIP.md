@@ -59,10 +59,9 @@
 - Added `craft\commerce\elements\deletionblockers\SubscriptionCustomersDeletionBlocker`.
 - Added `craft\commerce\enums\ContainsPurchasablesMatch`.
 - Added `craft\commerce\enums\ContainsPurchasablesMatch`.
-- Added `craft\commerce\events\PaymentCurrencyRateEvent`, allowing plugins to override a payment currency's exchange rate at the point of use.
+- Added `craft\commerce\events\PaymentCurrencyRateEvent`.
+- Added `craft\commerce\enums\OrderNoticeType`.
 - Added `craft\commerce\models\OrderNotice::$noticeType`.
-- Added `craft\commerce\models\OrderNotice::NOTICE_TYPE_ADMIN`.
-- Added `craft\commerce\models\OrderNotice::NOTICE_TYPE_CUSTOMER`.
 - Added `craft\commerce\models\Settings::$loadCartUrlExpiry`.
 - Added `craft\commerce\records\CatalogPricingQueue`.
 - Added `craft\commerce\services\Carts::getLoadCartUrl()`.
@@ -81,7 +80,7 @@
 - Deprecated `craft\commerce\services\ProductTypes::getEditableProductTypeIds()`. Use `getViewableProductTypeIds()` instead.
 - Deprecated `craft\commerce\services\ProductTypes::getEditableProductTypes()`. Use `getViewableProductTypes()` instead.
 - Deprecated `craft\commerce\services\ProductTypes::hasPermission()`. Use `$user->can()` directly instead.
-- `craft\commerce\elements\Order::clearNotices()` now has a `$clearAdminNotices` argument (default `false`), which must be passed as `true` to also clear admin notices.
+- `craft\commerce\elements\Order::clearNotices()` now has a `$noticeTypes` argument.
 - `craft\commerce\elements\Order::getLoadCartUrl()` now returns a secure tokenized URL.
 - `craft\commerce\elements\Order::getNotices()` no longer returns admin notices. Use `getAdminNotices()` instead.
 - `craft\commerce\elements\Subscription::getSubscriber()` now returns `?User` instead of `User`.
