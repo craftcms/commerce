@@ -229,7 +229,7 @@ class Settings extends Model
      * @group Cart
      * @since 4.x
      */
-    public int $cartLoadUrlExpiry = 604800;
+    public int $loadCartUrlExpiry = 604800;
 
     /**
      * @var string How Commerce should handle minimum total price for an order.

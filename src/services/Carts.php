@@ -319,7 +319,7 @@ class Carts extends Component
      */
     public function getLoadCartUrl(Order $cart): string
     {
-        $linkExpiry = Plugin::getInstance()->getSettings()->cartLoadUrlExpiry;
+        $linkExpiry = Plugin::getInstance()->getSettings()->loadCartUrlExpiry;
         $expiryDate = DateTimeHelper::currentUTCDateTime()->add(DateTimeHelper::secondsToInterval($linkExpiry));
 
         $token = Craft::$app->getTokens()->createToken([
