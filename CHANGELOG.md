@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.12.0 - 2026-07-16
 
 ### Store Management
 
