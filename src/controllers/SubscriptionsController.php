@@ -238,7 +238,7 @@ class SubscriptionsController extends BaseController
         }
 
         if ($subscription && $returnUrl) {
-            $returnUrl = $this->getView()->renderObjectTemplate($returnUrl, $subscription);
+            $returnUrl = $this->getView()->renderSandboxedObjectTemplate($returnUrl, $subscription);
             $subscriptionRecord = SubscriptionRecord::findOne($subscription->id);
             $subscriptionRecord->returnUrl = $returnUrl;
             $subscriptionRecord->save();

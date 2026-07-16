@@ -459,7 +459,7 @@ class Emails extends Component
         if ($email->recipientType == EmailRecord::TYPE_CUSTOM) {
             // To:
             try {
-                $emails = $view->renderString($email->to, $renderVariables);
+                $emails = $view->renderSandboxedString($email->to, $renderVariables);
                 $emails = preg_split('/[\s,]+/', $emails);
 
                 $newEmail->setTo($emails);
@@ -495,7 +495,7 @@ class Emails extends Component
         // BCC:
         if ($email->bcc) {
             try {
-                $bcc = $view->renderString($email->bcc, $renderVariables);
+                $bcc = $view->renderSandboxedString($email->bcc, $renderVariables);
                 $bcc = str_replace(';', ',', $bcc);
                 $bcc = preg_split('/[\s,]+/', $bcc);
 
@@ -523,7 +523,7 @@ class Emails extends Component
         // CC:
         if ($email->cc) {
             try {
-                $cc = $view->renderString($email->cc, $renderVariables);
+                $cc = $view->renderSandboxedString($email->cc, $renderVariables);
                 $cc = str_replace(';', ',', $cc);
                 $cc = preg_split('/[\s,]+/', $cc);
 
@@ -551,7 +551,7 @@ class Emails extends Component
         if ($email->replyTo) {
             // Reply To:
             try {
-                $newEmail->setReplyTo($view->renderString($email->replyTo, $renderVariables));
+                $newEmail->setReplyTo($view->renderSandboxedString($email->replyTo, $renderVariables));
             } catch (\Exception $e) {
                 $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “ReplyTo:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
@@ -572,7 +572,7 @@ class Emails extends Component
 
         // Subject:
         try {
-            $newEmail->setSubject($view->renderString($email->subject, $renderVariables));
+            $newEmail->setSubject($view->renderSandboxedString($email->subject, $renderVariables));
         } catch (\Exception $e) {
             $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “Subject:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
@@ -592,7 +592,7 @@ class Emails extends Component
 
         // Template Path
         try {
-            $templatePath = $view->renderString($email->templatePath, $renderVariables);
+            $templatePath = $view->renderSandboxedString($email->templatePath, $renderVariables);
         } catch (\Exception $e) {
             $error = Craft::t('commerce', 'Email template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
@@ -631,7 +631,7 @@ class Emails extends Component
 
         if ($email->plainTextTemplatePath) {
             try {
-                $plainTextTemplatePath = $view->renderString($email->plainTextTemplatePath, $renderVariables);
+                $plainTextTemplatePath = $view->renderSandboxedString($email->plainTextTemplatePath, $renderVariables);
             } catch (\Exception $e) {
                 $error = Craft::t('commerce', 'Email plain text template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
@@ -695,7 +695,7 @@ class Emails extends Component
                 $defaultFileName = $pdf->handle . '-' . $order->number;
                 if ($pdf->fileNameFormat) {
                     try {
-                        $fileName = $view->renderObjectTemplate($pdf->fileNameFormat, $order);
+                        $fileName = $view->renderSandboxedObjectTemplate($pdf->fileNameFormat, $order);
                     } catch (\Throwable) {
                         $fileName = $defaultFileName;
                     }

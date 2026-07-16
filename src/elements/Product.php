@@ -955,7 +955,7 @@ class Product extends Element
             // Set Craft to the entry's site's language, in case the title format has any static translations
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
-            $title = Craft::$app->getView()->renderObjectTemplate($productType->productTitleFormat, $this);
+            $title = Craft::$app->getView()->renderSandboxedObjectTemplate($productType->productTitleFormat, $this);
             if ($title !== '') {
                 $this->title = $title;
             }
@@ -974,7 +974,7 @@ class Product extends Element
         foreach ($this->getVariants(true) as $variant) {
             if (!$variant->sku && $type->skuFormat) {
                 try {
-                    $variant->sku = Craft::$app->getView()->renderObjectTemplate($type->skuFormat, $variant);
+                    $variant->sku = Craft::$app->getView()->renderSandboxedObjectTemplate($type->skuFormat, $variant);
                 } catch (\Exception $e) {
                     Craft::error('Craft Commerce could not generate the supplied SKU format: ' . $e->getMessage(), __METHOD__);
                     $variant->sku = '';

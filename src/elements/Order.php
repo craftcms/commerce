@@ -1725,7 +1725,7 @@ class Order extends Element
             $referenceTemplate = Plugin::getInstance()->getSettings()->orderReferenceFormat;
 
             try {
-                $this->reference = Craft::$app->getView()->renderObjectTemplate($referenceTemplate, $this);
+                $this->reference = Craft::$app->getView()->renderSandboxedObjectTemplate($referenceTemplate, $this);
             } catch (Throwable $exception) {
                 $mutex->release($lockName);
                 Craft::error('Unable to generate order completion reference for order ID: ' . $this->id . ', with format: ' . $referenceTemplate . ', error: ' . $exception->getMessage());
