@@ -136,7 +136,6 @@ JS;
                         'data-store-id' => $element->storeId,
                         'data-store-handle' => $element->getStore()->handle,
                         'data-purchasable-id' => $element->id,
-                        'data-asdsa' => $element->firstSave,
                     ]) .
                     Cp::renderTemplate('commerce/prices/_status', [
                         'areCatalogPricingJobsRunning' => Plugin::getInstance()->getCatalogPricing()->areCatalogPricingJobsRunning(),
