@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+### Store Management
+
+- The “Share cart…” order element action now generates a secure tokenized URL.
+
+### Administration
+
+- Added the `loadCartUrlExpiry` setting, for controlling how long cart load links remain valid (seven days by default).
+
+### Extensibility
+
+- Added `craft\commerce\controllers\CartController::actionCartChallenge()`.
+- Added `craft\commerce\controllers\CartController::actionCartSent()`.
+- Added `craft\commerce\controllers\CartController::actionEmailChallenge()`.
+- Added `craft\commerce\controllers\OrdersController::actionGetLoadCartUrl()`.
+- Added `craft\commerce\models\Settings::$loadCartUrlExpiry`.
+- Added `craft\commerce\services\Carts::getLoadCartUrl()`.
+- `craft\commerce\elements\Order::getLoadCartUrl()` now returns a secure tokenized URL.
+
+### System
+
+- Cart load URLs are now generated with time-limited security tokens, which are now required when loading carts from non-authenticated requests.
 - Fixed [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) server-side template injection vulnerability. ([#](#))
 - PDF download URLs now use the `code` query param instead of `token` ([#4303](https://github.com/craftcms/commerce/issues/4303)).
 
