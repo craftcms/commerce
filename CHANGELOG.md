@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where product variant field layout tabs displayed incorrectly on variant slideouts. ([#4335](https://github.com/craftcms/commerce/issues/4335))
+
 ## 5.7.0 - 2026-07-16
 
 ### Store Management
