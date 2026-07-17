@@ -669,15 +669,15 @@ class LineItem extends Model implements HasStoreInterface
      */
     public function extraFields(): array
     {
-        return [
+        return array_filter([
             'lineItemStatus',
             'order',
-            'purchasable',
+            $this->type === LineItemType::Purchasable ? 'purchasable' : null,
             'shippingCategory',
             'snapshot',
             'taxCategory',
             'fulfilledTotalQuantity',
-        ];
+        ]);
     }
 
     /**
