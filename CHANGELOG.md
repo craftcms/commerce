@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where the “Variant Search” product condition rule wasn’t returning any results. ([#4339](https://github.com/craftcms/commerce/issues/4339))
+
 ## 5.7.0 - 2026-07-16
 
 ### Store Management
