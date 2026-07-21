@@ -677,7 +677,7 @@ class LineItem extends Model implements HasStoreInterface
             'snapshot',
             'taxCategory',
             'fulfilledTotalQuantity',
-        ], fn ($value) => $value !== null));
+        ], fn($value) => $value !== null));
     }
 
     /**
