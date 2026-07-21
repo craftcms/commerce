@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where product variant field layout tabs displayed incorrectly on variant slideouts. ([#4335](https://github.com/craftcms/commerce/issues/4335))
+- Fixed a PHP error that could occur when serializing a line item object. ([#4337](https://github.com/craftcms/commerce/issues/4337))
 
 ## 5.7.0 - 2026-07-16
 
