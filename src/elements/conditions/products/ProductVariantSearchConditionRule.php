@@ -54,7 +54,7 @@ class ProductVariantSearchConditionRule extends BaseTextConditionRule implements
      *
      * Note we can't use [[paramValue()]] here because it prepends the operator
      * (e.g. `=`) intended for [[\craft\helpers\Db::parseParam()]], which would
-     * corrupt the value once it's passed to [[ElementQuery::search()]].
+     * corrupt the value once it's passed to [[\craft\elements\db\ElementQuery::search()]].
      *
      * @return string
      */
