@@ -13,6 +13,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\services\Carts;
 use craft\commerce\services\Stores;
+use craft\web\Request;
 use craftcommercetests\fixtures\CustomerAddressFixture;
 use craftcommercetests\fixtures\CustomerFixture;
 use UnitTester;
@@ -108,6 +109,93 @@ class CartsTest extends Unit
         ];
     }
 
+    /**
+     * Tests that calling forgetCart() followed by getCart() in the same request returns a new
+     * cart with a different number — verifying the fix in loadCookie() that respects the `false`
+     * set by forgetCart() and prevents the cookie from restoring the forgotten cart.
+     *
+     * @see https://github.com/craftcms/commerce/issues/4279
+     */
+    public function testForgetCartPreventsCartRestoration(): void
+    {
+        $cartsService = Plugin::getInstance()->getCarts();
+
+        // First call generates an in-memory cart number and returns a new cart.
+        $initialCart = $cartsService->getCart();
+        $originalNumber = $initialCart->number;
+
+        // forgetCart() sets the private $_cartNumber sentinel to `false`.
+        $cartsService->forgetCart();
+
+        // A subsequent getCart() must generate a completely new number and return a fresh cart.
+        $newCart = $cartsService->getCart();
+
+        self::assertNotEquals(
+            $originalNumber,
+            $newCart->number,
+            'After forgetCart(), getCart() should return a cart with a new number.',
+        );
+    }
+
+    /**
+     * Demonstrates that without the fix, a web request whose cookie still carries the forgotten
+     * cart number causes getCart() to reuse that number — exactly as the old loadCookie() would
+     * have behaved before the `$this->_cartNumber === false` guard was introduced.
+     *
+     * @see https://github.com/craftcms/commerce/issues/4279
+     */
+    public function testForgetCartWithRestoredCartNumberReturnsSameNumber(): void
+    {
+        $carts = Plugin::getInstance()->getCarts();
+
+        // Get an initial cart and number.
+        $initialCart = $carts->getCart();
+        $originalNumber = $initialCart->number;
+
+        // Forget the cart — $_cartNumber is now `false`.
+        $carts->forgetCart();
+
+        $cookieName = 'test_commerce_cart';
+        $carts->cartCookie = ['name' => $cookieName];
+
+        // Simulate the pre-fix state: set $_cartNumber to `null`.
+        // In old code the `$this->_cartNumber === false` guard didn't exist, so even after
+        // forgetCart() wrote `false`, loadCookie() would proceed and silently overwrite it
+        // with whatever value was in the request cookie.
+        $reflection = new \ReflectionClass($carts);
+        $cartNumberProp = $reflection->getProperty('_cartNumber');
+        $cartNumberProp->setAccessible(true);
+        $cartNumberProp->setValue($carts, null);
+
+        $requestCookies = new \yii\web\CookieCollection();
+        $requestCookies->add(new \yii\web\Cookie([
+            'name' => $cookieName,
+            'value' => $originalNumber,
+        ]));
+
+        $originalRequest = \Craft::$app->getRequest();
+
+        // Create a mock request class to return test data
+        $requestMock = $this->make(Request::class, [
+            'getIsConsoleRequest' => false,
+            'getCookies' => $requestCookies,
+        ]);
+
+        Craft::$app->set('request', $requestMock);
+
+        try {
+            $restoredCart = $carts->getCart();
+
+            self::assertEquals(
+                $originalNumber,
+                $restoredCart->number,
+                'Without the false guard in loadCookie(), the request cookie restores the forgotten cart number.',
+            );
+        } finally {
+            \Craft::$app->set('request', $originalRequest);
+        }
+    }
+
     public function testGetCartSwitchCustomer(): void
     {
         $cartNumber = Plugin::getInstance()->getCarts()->generateCartNumber();
@@ -139,5 +227,181 @@ class CartsTest extends Unit
         // Reset data
         Craft::$app->getUser()->setIdentity($originalIdentity);
         Craft::$app->getElements()->deleteElement($cart, true);
+    }
+
+    /**
+     * A credentialed user's cart must not be served to an anonymous visitor when the session
+     * hasn't been authorized to use it (the default privacy guard).
+     *
+     * @see https://github.com/craftcms/commerce/issues/4225
+     */
+    public function testCredentialedCartForgottenForAnonymousWithoutAuthorization(): void
+    {
+        $cartNumber = Plugin::getInstance()->getCarts()->generateCartNumber();
+        Plugin::getInstance()->set('carts', $this->make(Carts::class, [
+            'getSessionCartNumber' => fn() => $cartNumber,
+        ]));
+
+        $credUser = $this->tester->grabFixture('customer')->getElement('credentialed-user');
+        $originalIdentity = Craft::$app->getUser()->getIdentity();
+        Craft::$app->getUser()->setIdentity(null);
+        Craft::$app->getSession()->remove('commerce:anonymousCartWithCredentialedCustomer:' . $cartNumber);
+
+        $order = new Order();
+        $order->number = $cartNumber;
+        $order->setCustomer($credUser);
+        Craft::$app->getElements()->saveElement($order, false);
+
+        try {
+            $cart = Plugin::getInstance()->getCarts()->getCart();
+
+            // The credentialed cart should have been forgotten, so a fresh anonymous cart is returned.
+            self::assertNull($cart->getCustomerId());
+        } finally {
+            Craft::$app->getUser()->setIdentity($originalIdentity);
+            Craft::$app->getElements()->deleteElement($order, true);
+        }
+    }
+
+    /**
+     * When a session has been authorized to use a cart (e.g. it was loaded via a valid load-cart
+     * token), an anonymous visitor should be able to retrieve that credentialed user's cart.
+     *
+     * @see https://github.com/craftcms/commerce/issues/4225
+     */
+    public function testAuthorizedCredentialedCartServedToAnonymous(): void
+    {
+        $cartNumber = Plugin::getInstance()->getCarts()->generateCartNumber();
+        Plugin::getInstance()->set('carts', $this->make(Carts::class, [
+            'getSessionCartNumber' => fn() => $cartNumber,
+        ]));
+
+        $credUser = $this->tester->grabFixture('customer')->getElement('credentialed-user');
+        $originalIdentity = Craft::$app->getUser()->getIdentity();
+        Craft::$app->getUser()->setIdentity(null);
+
+        $order = new Order();
+        $order->number = $cartNumber;
+        $order->setCustomer($credUser);
+        Craft::$app->getElements()->saveElement($order, false);
+
+        // Mirror what CartController::actionLoadCart() does after validating a token.
+        Craft::$app->getSession()->set('commerce:anonymousCartWithCredentialedCustomer:' . $cartNumber, true);
+
+        try {
+            $cart = Plugin::getInstance()->getCarts()->getCart();
+
+            // The cart is served as-is; the anonymous visitor doesn't take ownership.
+            self::assertSame($cartNumber, $cart->number);
+            self::assertEquals($credUser->id, $cart->getCustomerId());
+        } finally {
+            Craft::$app->getUser()->setIdentity($originalIdentity);
+            Craft::$app->getSession()->remove('commerce:anonymousCartWithCredentialedCustomer:' . $cartNumber);
+            Craft::$app->getElements()->deleteElement($cart, true);
+        }
+    }
+
+    /**
+     * When a logged-in user loads another credentialed user's cart via an authorized session,
+     * the cart should be acquired to the logged-in user's account.
+     *
+     * @see https://github.com/craftcms/commerce/issues/4225
+     */
+    public function testAuthorizedCredentialedCartAcquiredByLoggedInUser(): void
+    {
+        $cartNumber = Plugin::getInstance()->getCarts()->generateCartNumber();
+        Plugin::getInstance()->set('carts', $this->make(Carts::class, [
+            'getSessionCartNumber' => fn() => $cartNumber,
+        ]));
+
+        $credUser = $this->tester->grabFixture('customer')->getElement('credentialed-user');
+        $loadingUser = $this->tester->grabFixture('customer')->getElement('customer1');
+        $originalIdentity = Craft::$app->getUser()->getIdentity();
+        Craft::$app->getUser()->setIdentity($loadingUser);
+        Craft::$app->getUser()->getIdentity()->password = $loadingUser->password;
+
+        $order = new Order();
+        $order->number = $cartNumber;
+        $order->setCustomer($credUser);
+        Craft::$app->getElements()->saveElement($order, false);
+        self::assertEquals($credUser->id, $order->getCustomerId());
+
+        // Mirror what CartController::actionLoadCart() does after validating a token.
+        Craft::$app->getSession()->set('commerce:anonymousCartWithCredentialedCustomer:' . $cartNumber, true);
+
+        try {
+            $cart = Plugin::getInstance()->getCarts()->getCart();
+
+            // The cart is retained and acquired to the logged-in user.
+            self::assertSame($cartNumber, $cart->number);
+            self::assertEquals($loadingUser->id, $cart->getCustomerId());
+            self::assertEquals($loadingUser->email, $cart->getEmail());
+        } finally {
+            Craft::$app->getUser()->setIdentity($originalIdentity);
+            Craft::$app->getSession()->remove('commerce:anonymousCartWithCredentialedCustomer:' . $cartNumber);
+            Craft::$app->getElements()->deleteElement($cart, true);
+        }
+    }
+
+    public function testPeekCartDoesNotStartCartSession(): void
+    {
+        $originalCarts = Plugin::getInstance()->getCarts();
+        $cartNumber = $originalCarts->generateCartNumber();
+        $cookieName = $originalCarts->cartCookie['name'];
+
+        $order = new Order();
+        $order->number = $cartNumber;
+        Craft::$app->getElements()->saveElement($order, false);
+
+        $carts = $this->make(Carts::class, [
+            'setSessionCartNumber' => function() {
+                self::fail('Peek cart retrieval should not update the cart session.');
+            },
+        ]);
+        $carts->cartCookie = ['name' => $cookieName];
+        Plugin::getInstance()->set('carts', $carts);
+
+        $requestCookies = new \yii\web\CookieCollection();
+        $requestCookies->add(new \yii\web\Cookie([
+            'name' => $cookieName,
+            'value' => $cartNumber,
+        ]));
+        $originalRequest = Craft::$app->getRequest();
+        $requestMock = $this->make(Request::class, [
+            'getCookies' => $requestCookies,
+        ]);
+        Craft::$app->set('request', $requestMock);
+
+        try {
+            $cart = Plugin::getInstance()->getCarts()->peekCart();
+
+            self::assertNotNull($cart);
+            self::assertSame($cartNumber, $cart->number);
+        } finally {
+            Craft::$app->set('request', $originalRequest);
+            Craft::$app->getElements()->deleteElement($order, true);
+        }
+    }
+
+    public function testPeekCartReturnsNullWithNoCookie(): void
+    {
+        $cookieName = Plugin::getInstance()->getCarts()->cartCookie['name'];
+
+        $carts = $this->make(Carts::class);
+        $carts->cartCookie = ['name' => $cookieName];
+        Plugin::getInstance()->set('carts', $carts);
+
+        $originalRequest = Craft::$app->getRequest();
+        $requestMock = $this->make(Request::class, [
+            'getCookies' => new \yii\web\CookieCollection(),
+        ]);
+        Craft::$app->set('request', $requestMock);
+
+        try {
+            $cart = Plugin::getInstance()->getCarts()->peekCart();
+            self::assertNull($cart);
+        } finally {
+            Craft::$app->set('request', $originalRequest);
+        }
     }
 }

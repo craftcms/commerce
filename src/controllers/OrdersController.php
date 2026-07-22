@@ -22,6 +22,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\LineItemType;
+use craft\commerce\enums\OrderNoticeType;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\errors\RefundException;
@@ -84,6 +85,7 @@ use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\MethodNotAllowedHttpException;
+use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 /**
@@ -483,6 +485,39 @@ JS, []);
     }
 
     /**
+     * Returns the available shipping method options for the order in its current draft state.
+     *
+     * @throws Exception
+     * @since 5.7.0
+     */
+    public function actionGetShippingMethodOptions(): Response
+    {
+        $this->requireAcceptsJson();
+        $this->requirePostRequest();
+
+        $data = $this->request->getRawBody();
+        $orderRequestData = Json::decodeIfJson($data);
+
+        $order = Plugin::getInstance()->getOrders()->getOrderById($orderRequestData['order']['id']);
+
+        if (!$order) {
+            return $this->asFailure(Craft::t('commerce', 'Invalid Order ID'));
+        }
+
+        $this->enforceManageOrderPermissions($order);
+
+        $this->_updateOrder($order, $orderRequestData);
+
+        if ($order->validate(null, false) && $order->getRecalculationMode() == Order::RECALCULATION_MODE_ALL) {
+            $order->recalculate();
+        }
+
+        return $this->asSuccess(data: [
+            'shippingMethodOptions' => $order->toArray([], ['availableShippingMethodOptions'])['availableShippingMethodOptions'],
+        ]);
+    }
+
+    /**
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      */
@@ -612,11 +647,11 @@ JS, []);
 
         $extraFields = [
             'lineItems.snapshot',
-            'availableShippingMethodOptions',
             'billingAddress',
             'shippingAddress',
             'orderSite',
             'notices',
+            'adminNotices',
             'loadCartUrl',
             'store',
             'totalCommittedStock',
@@ -936,6 +971,31 @@ JS, []);
     }
 
     /**
+     * Returns a secure load-cart URL (with token) for the given cart number.
+     * Intended for CP use via the "Share cart" element action.
+     *
+     * @throws BadRequestHttpException
+     * @throws NotFoundHttpException
+     * @since 5.7.0
+     */
+    public function actionGetLoadCartUrl(): Response
+    {
+        $this->requireAcceptsJson();
+        $this->requirePermission('commerce-manageOrders');
+
+        $number = $this->request->getRequiredParam('number');
+        $cart = Order::find()->number($number)->isCompleted(false)->one();
+
+        if (!$cart) {
+            throw new NotFoundHttpException('Cart not found.');
+        }
+
+        return $this->asSuccess(data: [
+            'url' => Plugin::getInstance()->getCarts()->getLoadCartUrl($cart),
+        ]);
+    }
+
+    /**
      * @throws BadRequestHttpException
      * @throws InvalidConfigException
      * @throws Throwable
@@ -1157,7 +1217,7 @@ JS, []);
             }
 
             // For backend stripe payments we cant use the 3D secure form.
-            /** @TODO remove at next breaking change */
+            /** @todo Remove the legacy PaymentIntents `getOldPaymentFormHtml()` branch in Commerce 6.0 */
             /** @phpstan-ignore-next-line */
             if ($gateway instanceof PaymentIntents) {
                 /** @phpstan-ignore-next-line */
@@ -1348,6 +1408,128 @@ JS, []);
             'baseCurrencyPaymentAmountAsCurrency' => $baseCurrencyPaymentAmountAsCurrency,
             'baseCurrencyPaymentAmount' => $baseCurrencyPaymentAmount,
         ]);
+    }
+
+    /**
+     * @since 5.7.0
+     */
+    public function actionReassignModal(): Response
+    {
+        $this->requireCpRequest();
+        $this->requireAcceptsJson();
+        $this->requirePermission('deleteUsers');
+
+        $oldUserIds = $this->request->getRequiredParam('oldUserIds');
+
+        return $this->asCpModal()
+            ->action('commerce/orders/reassign')
+            ->contentHtml(fn() =>
+                Cp::elementSelectFieldHtml([
+                    'label' => Craft::t('commerce', 'Choose a new customer'),
+                    'name' => 'newUserId',
+                    'elementType' => User::class,
+                    'criteria' => [
+                        'id' => array_map(fn($id) => "not $id", $oldUserIds),
+                    ],
+                    'single' => true,
+                ]) .
+                implode('', array_map(fn($id) => Html::hiddenInput('oldUserIds[]', $id), $oldUserIds))
+            )
+            ->submitButtonLabel(Craft::t('app', 'Reassign'));
+    }
+
+    /**
+     * @since 5.7.0
+     */
+    public function actionReassign(): Response
+    {
+        $this->requireCpRequest();
+        $this->requireAcceptsJson();
+        $this->requirePermission('deleteUsers');
+
+        $oldUserIds = array_map(fn($id) => (int)$id, $this->request->getRequiredParam('oldUserIds'));
+        $newUserId = (int)$this->request->getRequiredBodyParam('newUserId');
+
+        if (!$newUserId) {
+            return $this->asFailure(Craft::t('commerce', 'No new customer selected.'));
+        }
+
+        try {
+            $count = Plugin::getInstance()->getOrders()->reassignOrders($oldUserIds, $newUserId);
+        } catch (\Exception) {
+            return $this->asFailure(Craft::t('commerce', 'Unable to reassign orders.'));
+        }
+
+        return $this->asSuccess(Craft::t('app', '{type} reassigned.', [
+            'type' => $count === 1 ? Order::displayName() : Order::pluralDisplayName(),
+        ]));
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @since 5.7.0
+     */
+    public function actionRemoveCustomerDataModal(): Response
+    {
+        $this->requireCpRequest();
+        $this->requireAcceptsJson();
+        $this->requirePermission('deleteUsers');
+
+        $orderIds = array_map(fn($id) => (int)$id, $this->request->getRequiredParam('orderIds'));
+
+        return $this->asCpModal()
+            ->action('commerce/orders/remove-customer-data')
+            ->contentHtml(fn() =>
+                Html::tag('p', Craft::t('commerce', 'Remove customer association and email from the {numOrders, plural, =1{order} other{orders}}. Optionally select additional customer data to remove below', [
+                    'numOrders' => count($orderIds),
+                ])) .
+                Html::beginTag('div') .
+                Cp::checkboxSelectFieldHtml([
+                    'label' => Craft::t('commerce', 'Customer data'),
+                    'name' => 'customerData',
+                    'options' => [
+                        'billingAddressId' => Craft::t('commerce', 'Billing Address'),
+                        'shippingAddressId' => Craft::t('commerce', 'Shipping Address'),
+                        'orderCompletedEmail' => Craft::t('commerce', 'Completed Email'),
+                    ],
+                    'values' => null,
+                    'showAllOption' => true,
+                ]) .
+                Html::endTag('div') .
+                implode('', array_map(fn($id) => Html::hiddenInput('orderIds[]', (string)$id), $orderIds))
+            )
+            ->submitButtonLabel(Craft::t('commerce', 'Remove customer data'));
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @since 5.7.0
+     */
+    public function actionRemoveCustomerData(): Response
+    {
+        $this->requireCpRequest();
+        $this->requireAcceptsJson();
+        $this->requirePermission('deleteUsers');
+
+        $orderIds = array_map(fn($id) => (int)$id, $this->request->getRequiredParam('orderIds'));
+        $customerData = $this->request->getBodyParam('customerData', []);
+        $customerData = $customerData === '' ? [] : $customerData;
+
+        $customerData = $customerData === '*' ? ['billingAddressId', 'shippingAddressId', 'orderCompletedEmail'] : $customerData;
+
+        $dataToRemove = array_merge(['customerId', 'email'], $customerData);
+
+        try {
+            Plugin::getInstance()->getOrders()->removeCustomerData($orderIds, $dataToRemove);
+        } catch (\Exception) {
+            return $this->asFailure(Craft::t('commerce', 'Unable to remove order data.'));
+        }
+
+        return $this->asSuccess(Craft::t('commerce', 'Order customer data removed.'));
     }
 
     /**
@@ -1637,19 +1819,36 @@ JS, []);
             }
         }
 
-        $shippingMethod = $order->shippingMethodHandle ? Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle($order->shippingMethodHandle) : null;
-        if ($shippingMethod) {
-            $order->shippingMethodName = $shippingMethod->name ?? null;
+        if (!$order->shippingMethodHandle) {
+            // If no shipping method or it is being removed nullify the name
+            $order->shippingMethodName = null;
+        } elseif (!empty($orderRequestData['order']['shippingMethodName'])) {
+            // If the shipping method name is being submitted, use it.
+            // This is particularly useful for custom shipping methods as they can't be retrieved from the DB via their handle
+            $order->shippingMethodName = $orderRequestData['order']['shippingMethodName'];
+        } else {
+            // Fallback to attempting to retrieve the shipping method
+            $shippingMethod = Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle($order->shippingMethodHandle);
+            if ($shippingMethod) {
+                $order->shippingMethodName = $shippingMethod->name ?? null;
+            }
         }
 
-        $order->clearNotices();
+        // CP save has full control over all notices including admin ones
+        $order->clearNotices(noticeTypes: [OrderNoticeType::Customer, OrderNoticeType::Admin]);
 
         // Create Notices on Order
         $notices = [];
-        foreach ($orderRequestData['order']['notices'] as $notice) {
+        foreach ($orderRequestData['order']['notices'] ?? [] as $notice) {
             $notices[] = Craft::createObject([
                 'class' => OrderNotice::class,
-                'attributes' => $notice,
+                'attributes' => array_merge($notice, ['noticeType' => OrderNoticeType::Customer]),
+            ]);
+        }
+        foreach ($orderRequestData['order']['adminNotices'] ?? [] as $notice) {
+            $notices[] = Craft::createObject([
+                'class' => OrderNotice::class,
+                'attributes' => array_merge($notice, ['noticeType' => OrderNoticeType::Admin]),
             ]);
         }
         $order->addNotices($notices);
@@ -1974,7 +2173,7 @@ JS, []);
             /** @var PurchasableInterface|null $purchasable */
             $purchasable = ArrayHelper::firstWhere($purchasablesById, 'id', $row['id']);
             if ($purchasable) {
-                // @TODO revisit when updating currencies for stores
+                // @TODO Revisit purchasable price lookup once per-store currency handling is finalized
                 $row['price'] = $purchasable->getSalePrice();
                 $row['promotionalPrice'] = $purchasable->getPromotionalPrice();
                 $row['priceAsCurrency'] = MoneyHelper::toString(MoneyHelper::toMoney(['value' => $purchasable->getSalePrice(), 'currency' => $baseCurrency]));
@@ -2011,7 +2210,7 @@ JS, []);
                 'totalAddresses' => $totalAddresses,
                 'photoThumbHtml' => $customer->getThumbHtml(100),
 
-                // @TODO remove when update order edit to use `photoThumbHtml`
+                // @TODO Remove `photoThumbUrl` once the order edit Vue UI is updated to use `photoThumbHtml` instead
                 'photoThumbUrl' => '',
             ];
     }

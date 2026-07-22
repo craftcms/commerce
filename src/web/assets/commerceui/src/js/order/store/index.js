@@ -21,6 +21,7 @@ export default new Vuex.Store({
     orderData: null,
     recentlyAddedLineItems: [],
     unloadEventInit: false,
+    shippingMethodOptions: null,
   },
 
   getters: {
@@ -178,17 +179,11 @@ export default new Vuex.Store({
     },
 
     shippingMethods(state) {
-      const shippingMethodsObject = JSON.parse(
-        JSON.stringify(state.draft.order.availableShippingMethodOptions)
-      );
-      const shippingMethods = [];
-
-      for (let key in shippingMethodsObject) {
-        const shippingMethod = shippingMethodsObject[key];
-        shippingMethods.push(shippingMethod);
+      if (!state.shippingMethodOptions) {
+        return [];
       }
 
-      return shippingMethods;
+      return Object.values(state.shippingMethodOptions);
     },
 
     orderStatuses() {
@@ -388,33 +383,22 @@ export default new Vuex.Store({
     },
 
     handleTabs({state}) {
-      const tabManagerMenuBtn =
-        Craft.cp.tabManager.$menuBtn.data('disclosureMenu');
-      const tabsDropdownMenu = tabManagerMenuBtn;
-      if (tabsDropdownMenu !== undefined) {
-        const optionSelector =
-          '[id^="' + tabsDropdownMenu.menuId + '-option-"]';
+      const tabManager = Craft.cp.tabManager;
+      if (!tabManager || !tabManager.menu) {
+        return;
+      }
 
-        const staticOptions = tabsDropdownMenu.$container.find(
-          optionSelector + '[data-id^="static-fields-"]'
-        );
-        const fieldsOptions = tabsDropdownMenu.$container.find(
-          optionSelector + '[data-id^="fields-"]'
-        );
+      const staticOptions = tabManager.menu.find(
+        'a[data-id^="static-fields-"]'
+      );
+      const fieldsOptions = tabManager.menu.find('a[data-id^="fields-"]');
 
-        if (state.editing) {
-          staticOptions.disable();
-          staticOptions.parent().addClass('hidden');
-
-          fieldsOptions.enable();
-          fieldsOptions.parent().removeClass('hidden');
-        } else {
-          staticOptions.enable();
-          staticOptions.parent().removeClass('hidden');
-
-          fieldsOptions.disable();
-          fieldsOptions.parent().addClass('hidden');
-        }
+      if (state.editing) {
+        staticOptions.parent().addClass('hidden');
+        fieldsOptions.parent().removeClass('hidden');
+      } else {
+        staticOptions.parent().removeClass('hidden');
+        fieldsOptions.parent().addClass('hidden');
       }
     },
 
@@ -610,6 +594,10 @@ export default new Vuex.Store({
 
     updateRecentlyAddedLineItems(state, lineItemIdentifier) {
       state.recentlyAddedLineItems.push(lineItemIdentifier);
+    },
+
+    updateShippingMethodOptions(state, shippingMethodOptions) {
+      state.shippingMethodOptions = shippingMethodOptions;
     },
   },
 });

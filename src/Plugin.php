@@ -44,6 +44,8 @@ use craft\commerce\fieldlayoutelements\VariantsField as VariantsLayoutElement;
 use craft\commerce\fieldlayoutelements\VariantTitleField;
 use craft\commerce\fields\Products as ProductsField;
 use craft\commerce\fields\Variants as VariantsField;
+use craft\commerce\gql\handlers\HasProduct;
+use craft\commerce\gql\handlers\HasVariant;
 use craft\commerce\gql\handlers\RelatedProducts;
 use craft\commerce\gql\handlers\RelatedVariants;
 use craft\commerce\gql\interfaces\elements\Product as GqlProductInterface;
@@ -155,6 +157,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
+use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\models\Site;
@@ -265,7 +268,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.6.0.0';
+    public string $schemaVersion = '5.7.0.0';
 
     /**
      * @inheritdoc
@@ -392,8 +395,8 @@ class Plugin extends BasePlugin
             ];
         }
 
-        $hasEditableProductTypes = Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds(true);
-        if ($hasEditableProductTypes) {
+        $hasViewableProductTypes = Plugin::getInstance()->getProductTypes()->getViewableProductTypeIds(true);
+        if ($hasViewableProductTypes) {
             $ret['subnav']['products'] = [
                 'label' => Craft::t('commerce', 'Products'),
                 'url' => 'commerce/products',
@@ -588,90 +591,136 @@ class Plugin extends BasePlugin
     private function _registerPermissions(): void
     {
         Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event) {
-            $event->permissions[] = [
-                'heading' => Craft::t('commerce', 'Craft Commerce'),
-                'permissions' => $this->_registerProductTypePermission() + [
-                        'commerce-manageOrders' => [
-                            'label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
-                                'commerce-editOrders' => [
-                                    'label' => Craft::t('commerce', 'Edit orders'),
-                                ],
-                                'commerce-deleteOrders' => [
-                                    'label' => Craft::t('commerce', 'Delete orders'),
-                                ],
-                                'commerce-capturePayment' => [
-                                    'label' => Craft::t('commerce', 'Capture payment'),
-                                ],
-                                'commerce-refundPayment' => [
-                                    'label' => Craft::t('commerce', 'Refund payment'),
-                                ],
-
-                            ],
-                        ],
-                        'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
-                        'commerce-manageSubscriptionPlans' => ['label' => Craft::t('commerce', 'Manage subscription plans')],
-                        'commerce-manageInventoryStockLevels' => ['label' => Craft::t('commerce', 'Manage inventory stock levels')],
-                        'commerce-manageInventoryLocations' => ['label' => Craft::t('commerce', 'Manage inventory locations')],
-                        'commerce-manageInventoryTransfers' => ['label' => Craft::t('commerce', 'Manage inventory transfers')],
-                        'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings'),
-                            'nested' => [
-                                'commerce-manageGeneralStoreSettings' => ['label' => Craft::t('commerce', 'Manage general store settings')],
-                                'commerce-managePaymentCurrencies' => ['label' => Craft::t('commerce', 'Manage payment currencies')],
-                                'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping')],
-                                'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes')],
-                                'commerce-managePromotions' => $this->_registerPromotionPermission(),
-                            ],
-                        ],
-                        'commerce-manageDonationSettings' => ['label' => Craft::t('commerce', 'Manage donation settings')],
-                    ],
-            ];
+            $this->_productPermissions($event->permissions);
+            $this->_orderPermissions($event->permissions);
+            $this->_subscriptionPermissions($event->permissions);
+            $this->_inventoryPermissions($event->permissions);
+            $this->_adminPermissions($event->permissions);
         });
     }
 
-    /**
-     * @return array
-     */
-    private function _registerProductTypePermission(): array
+    private function _productPermissions(array &$permissions): void
     {
         $productTypes = self::getInstance()->getProductTypes()->getAllProductTypes();
 
-        $productTypePermissions = [];
-        foreach ($productTypes as $productType) {
-            $suffix = ':' . $productType->uid;
+        if (empty($productTypes)) {
+            return;
+        }
 
-            $productTypePermissions['commerce-editProductType' . $suffix] = [
-                'label' => Craft::t('commerce', 'Edit “{type}” products', ['type' => $productType->name]),
-                'nested' => [
-                    "commerce-createProducts$suffix" => [
-                        'label' => Craft::t('commerce', 'Create products'),
-                    ],
-                    "commerce-deleteProducts$suffix" => [
-                        'label' => Craft::t('commerce', 'Delete products'),
+        $pluralType = Product::pluralLowerDisplayName();
+
+        foreach ($productTypes as $productType) {
+            $permissions[] = [
+                'heading' => Craft::t('commerce', 'Craft Commerce - Product Type - {name}', [
+                    'name' => Craft::t('site', $productType->name),
+                ]),
+                'permissions' => [
+                    "commerce-viewProductType:$productType->uid" => [
+                        'label' => Craft::t('app', 'View {type}', ['type' => $pluralType]),
+                        'info' => Craft::t('app', 'Allows viewing existing {type} and creating drafts for them.', [
+                            'type' => $pluralType,
+                        ]),
+                        'nested' => [
+                            "commerce-createProductType:$productType->uid" => [
+                                'label' => StringHelper::upperCaseFirst(Craft::t('app', 'Create {type}', ['type' => $pluralType])),
+                                'info' => Craft::t('app', 'Allows creating drafts of new {type}.', ['type' => $pluralType]),
+                            ],
+                            "commerce-saveProductType:$productType->uid" => [
+                                'label' => StringHelper::upperCaseFirst(Craft::t('app', 'Save {type}', ['type' => $pluralType])),
+                                'info' => Craft::t('app', 'Allows fully saving canonical {type} (directly or by applying drafts).', [
+                                    'type' => $pluralType,
+                                ]),
+                            ],
+                            "commerce-deleteProductType:$productType->uid" => [
+                                'label' => StringHelper::upperCaseFirst(Craft::t('app', 'Delete {type}', ['type' => $pluralType])),
+                                'info' => Craft::t('app', 'Allows deleting {type} for all sites.', [
+                                    'type' => $pluralType,
+                                ]),
+                            ],
+                        ],
                     ],
                 ],
             ];
         }
-
-        return $productTypePermissions;
     }
 
-    /**
-     * @return array
-     */
-    private function _registerPromotionPermission(): array
+    private function _orderPermissions(array &$permissions): void
     {
-        return [
-            'label' => Craft::t('commerce', 'Manage promotions'),
-            'nested' => [
-                'commerce-editSales' => ['label' => Craft::t('commerce', 'Edit sales')],
-                'commerce-createSales' => ['label' => Craft::t('commerce', 'Create sales')],
-                'commerce-deleteSales' => ['label' => Craft::t('commerce', 'Delete sales')],
-                'commerce-editCatalogPricingRules' => ['label' => Craft::t('commerce', 'Edit catalog pricing rules')],
-                'commerce-createCatalogPricingRules' => ['label' => Craft::t('commerce', 'Create catalog pricing rules')],
-                'commerce-deleteCatalogPricingRules' => ['label' => Craft::t('commerce', 'Delete catalog pricing rules')],
-                'commerce-editDiscounts' => ['label' => Craft::t('commerce', 'Edit discounts')],
-                'commerce-createDiscounts' => ['label' => Craft::t('commerce', 'Create discounts')],
-                'commerce-deleteDiscounts' => ['label' => Craft::t('commerce', 'Delete discounts')],
+        $permissions[] = [
+            'heading' => Craft::t('commerce', 'Craft Commerce - Orders'),
+            'permissions' => [
+                'commerce-manageOrders' => [
+                    'label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
+                        'commerce-editOrders' => [
+                            'label' => Craft::t('commerce', 'Edit orders'),
+                        ],
+                        'commerce-deleteOrders' => [
+                            'label' => Craft::t('commerce', 'Delete orders'),
+                        ],
+                        'commerce-capturePayment' => [
+                            'label' => Craft::t('commerce', 'Capture payment'),
+                        ],
+                        'commerce-refundPayment' => [
+                            'label' => Craft::t('commerce', 'Refund payment'),
+                        ],
+
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    private function _subscriptionPermissions(array &$permissions): void
+    {
+        $permissions[] = [
+            'heading' => Craft::t('commerce', 'Craft Commerce - Subscriptions'),
+            'permissions' => [
+                'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
+                'commerce-manageSubscriptionPlans' => ['label' => Craft::t('commerce', 'Manage subscription plans')],
+            ],
+        ];
+    }
+
+    private function _inventoryPermissions(array &$permissions): void
+    {
+        $permissions[] = [
+            'heading' => Craft::t('commerce', 'Craft Commerce - Inventory'),
+            'permissions' => [
+                'commerce-manageInventoryStockLevels' => ['label' => Craft::t('commerce', 'Manage inventory stock levels')],
+                'commerce-manageInventoryLocations' => ['label' => Craft::t('commerce', 'Manage inventory locations')],
+                'commerce-manageInventoryTransfers' => ['label' => Craft::t('commerce', 'Manage inventory transfers')],
+            ],
+        ];
+    }
+
+    private function _adminPermissions(array &$permissions): void
+    {
+        $permissions[] = [
+            'heading' => Craft::t('commerce', 'Craft Commerce - Administration'),
+            'permissions' => [
+                'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings'),
+                    'nested' => [
+                        'commerce-manageGeneralStoreSettings' => ['label' => Craft::t('commerce', 'Manage general store settings')],
+                        'commerce-managePaymentCurrencies' => ['label' => Craft::t('commerce', 'Manage payment currencies')],
+                        'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping')],
+                        'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes')],
+                        'commerce-managePromotions' => [
+                            'label' => Craft::t('commerce', 'Manage promotions'),
+                            'nested' => [
+                                'commerce-editSales' => ['label' => Craft::t('commerce', 'Edit sales')],
+                                'commerce-createSales' => ['label' => Craft::t('commerce', 'Create sales')],
+                                'commerce-deleteSales' => ['label' => Craft::t('commerce', 'Delete sales')],
+                                'commerce-editCatalogPricingRules' => ['label' => Craft::t('commerce', 'Edit catalog pricing rules')],
+                                'commerce-createCatalogPricingRules' => ['label' => Craft::t('commerce', 'Create catalog pricing rules')],
+                                'commerce-deleteCatalogPricingRules' => ['label' => Craft::t('commerce', 'Delete catalog pricing rules')],
+                                'commerce-editDiscounts' => ['label' => Craft::t('commerce', 'Edit discounts')],
+                                'commerce-createDiscounts' => ['label' => Craft::t('commerce', 'Create discounts')],
+                                'commerce-deleteDiscounts' => ['label' => Craft::t('commerce', 'Delete discounts')],
+                            ],
+                        ],
+                    ],
+                ],
+                'commerce-manageDonationSettings' => ['label' => Craft::t('commerce', 'Manage donation settings')],
             ],
         ];
     }
@@ -777,9 +826,8 @@ class Plugin extends BasePlugin
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getStores(), 'afterSaveCraftSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_DELETE_SITE, [$this->getStores(), 'afterDeleteCraftSiteHandler']);
 
-        Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);
-        Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getOrders(), 'beforeDeleteUserHandler']);
-
+        Event::on(UserElement::class, UserElement::EVENT_DEFINE_DELETION_BLOCKERS, [$this->getOrders(), 'beforeDeleteUserHandler']);
+        Event::on(UserElement::class, UserElement::EVENT_DEFINE_DELETION_BLOCKERS, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);
         Event::on(Address::class, Address::EVENT_AFTER_SAVE, [$this->getOrders(), 'afterSaveAddressHandler']);
 
         Event::on(
@@ -868,6 +916,12 @@ class Plugin extends BasePlugin
                         'heading' => Craft::t('commerce', 'Order PDF Download Link'),
                         'subject' => Craft::t('commerce', 'Your Order PDF Download Link'),
                         'body' => $this->_getDefaultPdfDownloadMessage(),
+                    ],
+                    [
+                        'key' => 'commerce_cart_recovery',
+                        'heading' => Craft::t('commerce', 'Cart Recovery Link'),
+                        'subject' => Craft::t('commerce', 'Your Cart Recovery Link'),
+                        'body' => $this->_getDefaultCartRecoveryMessage(),
                     ],
                 ]);
             }
@@ -1044,6 +1098,8 @@ class Plugin extends BasePlugin
     private function _registerGqlArgumentHandlers(): void
     {
         Event::on(ArgumentManager::class, ArgumentManager::EVENT_DEFINE_GQL_ARGUMENT_HANDLERS, static function(RegisterGqlArgumentHandlersEvent $event) {
+            $event->handlers['hasProduct'] = HasProduct::class;
+            $event->handlers['hasVariant'] = HasVariant::class;
             $event->handlers['relatedToProducts'] = RelatedProducts::class;
             $event->handlers['relatedToVariants'] = RelatedVariants::class;
         });
@@ -1174,7 +1230,6 @@ class Plugin extends BasePlugin
             $module->panels['commerce'] = new CommercePanel([
                 'id' => 'commerce',
                 'module' => $module,
-                'cart' => !Craft::$app->getRequest()->getIsCpRequest() ? Plugin::getInstance()->getCarts()->getCart() : null,
             ]);
         });
     }
@@ -1308,7 +1363,7 @@ class Plugin extends BasePlugin
                 'action' => function(): int {
                     /** @var ResaveController $controller */
                     $controller = Craft::$app->controller;
-                    // @TODO Remove this check when Commerce requires Craft 5.5
+                    // @TODO Remove this version_compare and property_exists guard once Commerce composer.json requires Craft 5.5+ (where ResaveController::$withFields is always available)
                     if (version_compare(Craft::$app->getInfo()->version, '5.5.0', '>=') && !empty($controller->withFields)) {
                         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Order::class);
                         if (!$controller->hasTheFields($fieldLayout)) {
@@ -1329,7 +1384,7 @@ class Plugin extends BasePlugin
                 'action' => function(): int {
                     /** @var ResaveController $controller */
                     $controller = Craft::$app->controller;
-                    // @TODO Remove this check when Commerce requires Craft 5.5
+                    // @TODO Remove this version_compare and property_exists guard once Commerce composer.json requires Craft 5.5+ (where ResaveController::$withFields is always available)
                     if (version_compare(Craft::$app->getInfo()->version, '5.5.0', '>=') && !empty($controller->withFields)) {
                         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Order::class);
                         if (!$controller->hasTheFields($fieldLayout)) {
@@ -1358,6 +1413,20 @@ class Plugin extends BasePlugin
         return "Hello,\n\n" .
             "You requested a PDF download for your order. Click the link below to download your PDF:\n\n" .
             "[Download PDF]({{ link }})\n\n" .
+            "**Please note:** This link will expire for security purposes.\n\n" .
+            "Thank you!";
+    }
+
+    /**
+     * Returns the default message body for the cart recovery email.
+     *
+     * @return string
+     */
+    private function _getDefaultCartRecoveryMessage(): string
+    {
+        return "Hello,\n\n" .
+            "You requested a link to recover your shopping cart. Click the link below to continue shopping:\n\n" .
+            "[Recover My Cart]({{ link }})\n\n" .
             "**Please note:** This link will expire for security purposes.\n\n" .
             "Thank you!";
     }

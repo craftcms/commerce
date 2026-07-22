@@ -11,11 +11,13 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Locale;
 use craft\commerce\Plugin;
+use craft\filters\IpRateLimitIdentity;
 use craft\helpers\UrlHelper;
 use craft\web\View;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidCallException;
+use yii\filters\RateLimiter;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\RangeNotSatisfiableHttpException;
@@ -30,6 +32,29 @@ use yii\web\Response;
 class DownloadsController extends BaseFrontEndController
 {
     /**
+     * @inheritdoc
+     */
+    public function behaviors(): array
+    {
+        return array_merge(parent::behaviors(), [
+            'pdfChallengeRateLimiter' => [
+                'class' => RateLimiter::class,
+                'only' => ['pdf-challenge'],
+                'enableRateLimitHeaders' => false,
+                'user' => function() {
+                    $request = Craft::$app->getRequest();
+                    return new IpRateLimitIdentity([
+                        'limit' => 1,
+                        'window' => 30,
+                        'keyPrefix' => 'pdf-challenge-rate-limit',
+                        'ip' => $request->getUserIP() ?? 'unknown',
+                    ]);
+                },
+            ],
+        ]);
+    }
+
+    /**
      * Renders the email challenge template with the provided parameters.
      *
      * @param Order $order The order to display
@@ -43,12 +68,12 @@ class DownloadsController extends BaseFrontEndController
      * @since 4.9.5
      */
     private function renderEmailChallenge(
-        Order $order,
-        string $orderNumber,
+        Order   $order,
+        string  $orderNumber,
         ?string $pdfHandle,
-        string $option,
-        bool $inline,
-        array $errors = [],
+        string  $option,
+        bool    $inline,
+        array   $errors = [],
         ?string $email = null,
     ): Response {
         $params = [
@@ -81,8 +106,13 @@ class DownloadsController extends BaseFrontEndController
         $number = $this->request->getQueryParam('number');
         $pdfHandle = $this->request->getQueryParam('pdfHandle');
         $option = $this->request->getQueryParam('option', '');
-        $inline = (bool) $this->request->getQueryParam('inline', false);
-        $token = $this->request->getQueryParam('token');
+        $inline = (bool)$this->request->getQueryParam('inline', false);
+        $token = $this->request->getQueryParam('code');
+
+        // Maybe they are coming in on an "old" link with "token" instead of "code" as the query param, so check for that too.
+        if (!$token) {
+            $token = $this->request->getQueryParam('token');
+        }
 
         if (!$number) {
             throw new BadRequestHttpException('Order number required');
@@ -108,8 +138,7 @@ class DownloadsController extends BaseFrontEndController
 
             // Validate token structure and order number
             if (!$tokenData || !isset($tokenData[1]['orderNumber']) || $tokenData[1]['orderNumber'] !== $number) {
-                // Invalid token - redirect to challenge form with error
-                Craft::$app->getSession()->setError(Craft::t('commerce', 'The download link is invalid. Please request a new one.'));
+                Craft::$app->getSession()->setError(Craft::t('commerce', 'The download link has expired. Please request a new one.'));
                 return $this->redirect(UrlHelper::actionUrl('commerce/downloads/email-challenge', [
                     'number' => $number,
                     'pdfHandle' => $pdfHandle,
@@ -118,23 +147,6 @@ class DownloadsController extends BaseFrontEndController
                 ]));
             }
 
-            // Check if token has expired based on the timestamp in the token data
-            if (isset($tokenData[1]['expiresAt'])) {
-                $expiresAt = $tokenData[1]['expiresAt'];
-                $now = (new \DateTime())->getTimestamp();
-
-                if ($now > $expiresAt) {
-                    // Token expired - redirect to email challenge form
-                    return $this->redirect(UrlHelper::actionUrl('commerce/downloads/email-challenge', [
-                        'number' => $number,
-                        'pdfHandle' => $pdfHandle,
-                        'option' => $option,
-                        'inline' => $inline,
-                    ]));
-                }
-            }
-
-            // Token is valid
             $hasValidToken = true;
         }
 
@@ -190,7 +202,7 @@ class DownloadsController extends BaseFrontEndController
         // Set previous language back
         Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale->id);
 
-        $fileName = $this->getView()->renderObjectTemplate((string)$pdf->fileNameFormat, $order);
+        $fileName = $this->getView()->renderSandboxedObjectTemplate((string)$pdf->fileNameFormat, $order);
         if (!$fileName) {
             $fileName = $pdf->handle . '-' . $order->number;
         }
@@ -212,7 +224,7 @@ class DownloadsController extends BaseFrontEndController
         $number = $this->request->getQueryParam('number');
         $pdfHandle = $this->request->getQueryParam('pdfHandle');
         $option = $this->request->getQueryParam('option', '');
-        $inline = (bool) $this->request->getQueryParam('inline', false);
+        $inline = (bool)$this->request->getQueryParam('inline', false);
 
         if (!$number) {
             throw new BadRequestHttpException('Order number required');
@@ -245,7 +257,7 @@ class DownloadsController extends BaseFrontEndController
         $orderNumberHash = $this->request->getBodyParam('orderNumberHash');
         $pdfHandle = $this->request->getBodyParam('pdfHandle');
         $option = $this->request->getBodyParam('option', '');
-        $inline = (bool) $this->request->getBodyParam('inline', false);
+        $inline = (bool)$this->request->getBodyParam('inline', false);
 
         if (!$orderNumberHash) {
             throw new BadRequestHttpException('Order number hash is required');

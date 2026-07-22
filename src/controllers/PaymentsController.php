@@ -125,7 +125,7 @@ class PaymentsController extends BaseFrontEndController
                 return null;
             }
 
-            // TODO Fix this in Commerce 4. `order` if completed, `cartVariableName` if no completed. #COM-36
+            // @TODO Fix the response variable name in Commerce 6.0: use `order` when completed and `cartVariableName` when not completed #COM-36
             $this->_cartVariableName = 'order'; // can not override the name of the order cart in json responses for orders
         } else {
             $order = $plugin->getCarts()->getCart();
@@ -363,12 +363,12 @@ class PaymentsController extends BaseFrontEndController
         // Save the return and cancel URLs to the order
         $returnUrl = $this->request->getValidatedBodyParam('redirect');
         if ($returnUrl !== null) {
-            $order->returnUrl = $this->getView()->renderObjectTemplate($returnUrl, $order);
+            $order->returnUrl = $this->getView()->renderSandboxedObjectTemplate($returnUrl, $order);
         }
 
         $cancelUrl = $this->request->getValidatedBodyParam('cancelUrl');
         if ($cancelUrl !== null) {
-            $order->cancelUrl = $this->getView()->renderObjectTemplate($cancelUrl, $order);
+            $order->cancelUrl = $this->getView()->renderSandboxedObjectTemplate($cancelUrl, $order);
         }
 
         // Do one final save to confirm the price does not change out from under the customer. Also removes any out of stock items etc.
@@ -456,6 +456,10 @@ class PaymentsController extends BaseFrontEndController
         if ((!$partialAllowed || !$gateway->supportsPartialPayment()) && $order->isPaymentAmountPartial()) {
             $error = Craft::t('commerce', 'Partial payment not allowed.');
 
+            if (!$order->isCompleted) {
+                $order->setRecalculationMode(Order::RECALCULATION_MODE_ALL);
+            }
+
             return $this->asModelFailure(
                 $paymentForm,
                 $error,
@@ -484,6 +488,11 @@ class PaymentsController extends BaseFrontEndController
         }
 
         if (!$success) {
+            // Reset so the cart can still be edited and recalculated after a failed payment.
+            if (!$order->isCompleted) {
+                $order->setRecalculationMode(Order::RECALCULATION_MODE_ALL);
+            }
+
             // Keep old paymentFormErrors as is.
             $originalPaymentFormErrors = $paymentForm->getErrors();
 
@@ -496,7 +505,7 @@ class PaymentsController extends BaseFrontEndController
                 'paymentForm',
                 [
                     $this->_cartVariableName => $this->cartArray($order),
-                    // TODO: Remove this in Commerce 6.0
+                    // @TODO Remove the legacy `paymentFormErrors` key in Commerce 6.0
                     'paymentFormErrors' => $originalPaymentFormErrors,
                 ],
                 [

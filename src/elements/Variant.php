@@ -42,6 +42,7 @@ use craft\helpers\Cp;
 use craft\helpers\Db;
 use craft\helpers\ElementHelper;
 use craft\helpers\Html;
+use craft\helpers\Sequence;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use Throwable;
@@ -265,7 +266,7 @@ class Variant extends Purchasable implements NestedElementInterface
         if ($owner) {
             $uiLabelFormat = $owner->getType()->variantUiLabelFormat;
             if ($uiLabelFormat !== '{title}') {
-                $uiLabel = Craft::$app->getView()->renderObjectTemplate($uiLabelFormat, $this);
+                $uiLabel = Craft::$app->getView()->renderSandboxedObjectTemplate($uiLabelFormat, $this);
                 if ($uiLabel !== '') {
                     return $uiLabel;
                 }
@@ -379,7 +380,7 @@ class Variant extends Purchasable implements NestedElementInterface
 
     /**
      * @return bool
-     * TODO: Remove in next breakpoint
+     * @todo Remove in Commerce 6.0 along with the deprecated `deletedWithProduct` property (use `deletedWithOwner` instead)
      */
     public function getDeletedWithProduct(): bool
     {
@@ -391,7 +392,7 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @param $value
      * @return void
-     * TODO: Remove in next breakpoint
+     * @todo Remove in Commerce 6.0 along with the deprecated `deletedWithProduct` property (use `deletedWithOwner` instead)
      */
     public function setDeletedWithProduct($value): void
     {
@@ -678,7 +679,7 @@ class Variant extends Purchasable implements NestedElementInterface
         $description = $this->title;
 
         if ($format = $this->getOwner()->getType()->descriptionFormat) {
-            if ($rendered = Craft::$app->getView()->renderObjectTemplate($format, $this)) {
+            if ($rendered = Craft::$app->getView()->renderSandboxedObjectTemplate($format, $this)) {
                 $description = $rendered;
             }
         }
@@ -705,7 +706,7 @@ class Variant extends Purchasable implements NestedElementInterface
             // Set Craft to the product's site's language, in case the title format has any static translations
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
-            $this->title = Craft::$app->getView()->renderObjectTemplate($type->variantTitleFormat, $this);
+            $this->title = Craft::$app->getView()->renderSandboxedObjectTemplate($type->variantTitleFormat, $this);
             Craft::$app->language = $language;
         }
     }
@@ -724,7 +725,33 @@ class Variant extends Purchasable implements NestedElementInterface
             // Set Craft to the product’s site’s language, in case the title format has any static translations
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
-            $this->sku = Craft::$app->getView()->renderObjectTemplate($type->skuFormat, $this);
+            $this->sku = Craft::$app->getView()->renderSandboxedObjectTemplate($type->skuFormat, $this);
+
+            $skuExistsQuery = function(string $sku, ?int $id) {
+                $query = (new Query())
+                    ->select(['sku'])
+                    ->from(Table::PURCHASABLES)
+                    ->where(['sku' => $sku]);
+
+                // Make sure it isn't for the purchasable we are currently saving
+                if ($id) {
+                    $query->andWhere(['not', ['id' => $id]]);
+                }
+
+                return $query;
+            };
+
+            // Ensure there isn't a clash with an existing SKU when using auto formats
+            if ($skuExistsQuery($this->getSku(), $this->id)->exists()) {
+                // If there is a clash, we need to append a number to the end.
+                do {
+                    $seq = Sequence::next('sku::' . $this->sku);
+                    $newSku = $this->sku . '-' . $seq;
+                } while ($skuExistsQuery($newSku, $this->id)->exists());
+
+                $this->sku = $newSku;
+            }
+
             Craft::$app->language = $language;
         }
     }
@@ -1103,7 +1130,7 @@ class Variant extends Purchasable implements NestedElementInterface
         parent::afterSave($isNew);
 
         if (!$this->propagating && $this->isDefault && $ownerId && $this->duplicateOf === null) {
-            // @TODO - this data is now joined in on the product query so can be removed at the next breaking change
+            // @TODO Remove this denormalized default-variant data write in Commerce 6.0; the product query now joins this data directly
             $defaultData = [
                 'defaultVariantId' => $this->id,
                 'defaultSku' => $this->getSkuAsText(),
@@ -1113,12 +1140,10 @@ class Variant extends Purchasable implements NestedElementInterface
                 'defaultWidth' => $this->width,
                 'defaultWeight' => $this->weight,
             ];
-            DB::update(Table::PRODUCTS, $defaultData, [
-                // Update the default variant data for the product and any other product that use this variant as their default
-                'or',
-                ['id' => $ownerId],
-                ['defaultVariantId' => $this->id],
-            ]);
+            // Update the product that owns this variant
+            Db::update(Table::PRODUCTS, $defaultData, ['id' => $ownerId]);
+            // Update any other product that references this variant as its default (split from the above to avoid deadlocks from non-deterministic lock ordering with OR-clauses)
+            Db::update(Table::PRODUCTS, $defaultData, ['and', ['defaultVariantId' => $this->id], ['not', ['id' => $ownerId]]]);
         }
     }
 
@@ -1219,6 +1244,19 @@ class Variant extends Purchasable implements NestedElementInterface
         }
 
         return parent::beforeSave($isNew);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function afterAssignedId(): void
+    {
+        if (ElementHelper::isDraftOrRevision($this)) {
+            return;
+        }
+
+        $product = $this->getOwner();
+        $this->updateTitle($product);
     }
 
     /**
@@ -1428,6 +1466,12 @@ class Variant extends Purchasable implements NestedElementInterface
             'product' => [
                 'label' => Craft::t('commerce', 'Product'),
             ],
+            'isDefault' => [
+                'label' => Craft::t('commerce', 'Default'),
+            ],
+            'promotable' => [
+                'label' => Craft::t('commerce', 'Promotable'),
+            ],
         ]);
     }
 
@@ -1443,6 +1487,40 @@ class Variant extends Purchasable implements NestedElementInterface
             }
 
             return sprintf('<span class="status %s"></span> %s', $product->getStatus(), Html::encode($product->title));
+        }
+
+        if ($attribute === 'isDefault') {
+            if ($this->isDefault) {
+                $isDefault = Html::tag('span', '', [
+                    'class' => 'checkbox-icon',
+                    'role' => 'img',
+                    'title' => Craft::t('app', 'Enabled'),
+                    'aria' => [
+                        'label' => Craft::t('app', 'Enabled'),
+                    ],
+                ]);
+                return $isDefault . Html::tag('span', ' ' . Craft::t('commerce', 'Default'), [
+                    'class' => 'card-only-label',
+                    'style' => 'display:none;',
+                ]) . Html::tag('style', '.card-content .card-only-label { display: inline !important; }');
+            }
+        }
+
+        if ($attribute === 'promotable') {
+            if ($this->promotable) {
+                $promotable = Html::tag('span', '', [
+                    'class' => 'checkbox-icon',
+                    'role' => 'img',
+                    'title' => Craft::t('app', 'Enabled'),
+                    'aria' => [
+                        'label' => Craft::t('app', 'Enabled'),
+                    ],
+                ]);
+                return $promotable . Html::tag('span', ' ' . Craft::t('commerce', 'Promotable'), [
+                    'class' => 'card-only-label',
+                    'style' => 'display:none;',
+                ]) . Html::tag('style', '.card-content .card-only-label { display: inline !important; }');
+            }
         }
 
         return parent::attributeHtml($attribute);

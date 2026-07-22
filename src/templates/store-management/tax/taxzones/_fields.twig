@@ -44,4 +44,6 @@
         errors: taxZone is defined ? taxZone.getErrors('default')
     }) }}
 
-    {{ conditionField|raw }}
+    {{ forms.field({
+        label: 'Address Condition'|t('app'),
+    }, condition.builderHtml) }}

@@ -138,7 +138,7 @@ class LineItemStatuses extends Component
         }
 
         // Make sure no statuses that are not archived share the handle
-        // @TODO can this be removed now it is handled by validation?
+        // @TODO Confirm LineItemStatus validation already enforces handle uniqueness per store and remove this duplicate runtime check if so
         $existingStatus = $this->getLineItemStatusByHandle($lineItemStatus->handle, $lineItemStatus->storeId);
 
         if ($existingStatus && (!$lineItemStatus->id || $lineItemStatus->id !== $existingStatus->id)) {

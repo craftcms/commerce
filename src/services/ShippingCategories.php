@@ -323,7 +323,7 @@ class ShippingCategories extends Component
         // Always need at least the default category
         if (empty($rows)) {
             try {
-                // @TODO fix this properly
+                // @TODO Stop relying on the default shipping category as a fallback here; either ensure product types always have at least one category linked, or surface the empty state to the caller
                 $shippingCategory = $this->getAllShippingCategories()->firstWhere('default', true);
             } catch (InvalidConfigException) {
                 return [];

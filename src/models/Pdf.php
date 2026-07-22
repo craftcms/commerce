@@ -62,9 +62,9 @@ class Pdf extends Model implements HasStoreInterface
     public bool $isDefault = false;
 
     /**
-     * @var string|null Template path
+     * @var string Template path
      */
-    public ?string $templatePath = null;
+    public string $templatePath = '';
 
     /**
      * @var string|null Filename format
@@ -144,6 +144,7 @@ class Pdf extends Model implements HasStoreInterface
                 'id',
                 'isDefault',
                 'language',
+                'linkExpiry',
                 'name',
                 'paperOrientation',
                 'paperSize',
@@ -196,7 +197,7 @@ class Pdf extends Model implements HasStoreInterface
         return [
             'description' => $this->description,
             'enabled' => $this->enabled,
-            'fileNameFormat' => $this->fileNameFormat,
+            'fileNameFormat' => $this->fileNameFormat ?? '',
             'handle' => $this->handle,
             'isDefault' => $this->isDefault,
             'language' => $this->language,

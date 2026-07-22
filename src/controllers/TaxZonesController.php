@@ -134,9 +134,6 @@ JS;
         $condition->mainTag = 'div';
         $condition->name = 'condition';
         $condition->id = 'condition';
-        $conditionField = Cp::fieldHtml($condition->getBuilderHtml(), [
-            'label' => Craft::t('app', 'Address Condition'),
-        ]);
 
         DebugPanel::prependOrAppendModelTab(model: $taxZone, prepend: true);
 
@@ -158,7 +155,7 @@ JS;
             ->contentTemplate('commerce/store-management/tax/taxzones/_edit', [
                 'taxZone' => $taxZone,
                 'store' => $store,
-                'conditionField' => $conditionField,
+                'condition' => $condition,
             ]);
     }
 

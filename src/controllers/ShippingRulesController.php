@@ -14,7 +14,6 @@ use craft\commerce\models\ShippingRule;
 use craft\commerce\models\ShippingRuleCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
-use craft\helpers\Cp;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use craft\helpers\MoneyHelper;
@@ -86,12 +85,9 @@ class ShippingRulesController extends BaseShippingSettingsController
         $condition->mainTag = 'div';
         $condition->name = 'condition';
         $condition->id = 'condition';
-        $conditionField = Cp::fieldHtml($condition->getBuilderHtml(), [
-            'label' => Craft::t('app', 'Address Condition'),
-        ]);
 
         $variables['newShippingZoneFields'] = $this->getView()->namespaceInputs(
-            $this->getView()->renderTemplate('commerce/store-management/shipping/shippingzones/_fields', ['conditionField' => $conditionField])
+            $this->getView()->renderTemplate('commerce/store-management/shipping/shippingzones/_fields', ['condition' => $condition])
         );
         $variables['newShippingZoneJs'] = $this->getView()->clearJsBuffer(false);
         $this->getView()->setNamespace(null);

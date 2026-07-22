@@ -1,7 +1,8 @@
 <?php
 
-// Using the data from moneyphp/money until we actually move to the package in Craft Commerce 2 // TODO Read Redirectly from library #COM-52
+// Using the data from moneyphp/money until we actually move to the package in Craft Commerce 2
 // https://raw.githubusercontent.com/moneyphp/money/master/resources/currency.php
+// @TODO Read currency data directly from the moneyphp/money library instead of maintaining this static copy #COM-52
 
 return [
     'AFN' => [

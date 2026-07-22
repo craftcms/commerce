@@ -755,7 +755,10 @@ class ProductQuery extends ElementQuery
 
             $this->subQuery->leftJoin(['catalogprices' => $catalogPricesQuery], '[[catalogprices.purchasableId]] = [[commerce_products.defaultVariantId]] AND [[catalogprices.storeId]] = [[sitestores.storeId]]');
         } else {
-            $this->subQuery->leftJoin(['purchasablesstores' => Table::PURCHASABLES_STORES], '[[purchasablesstores.storeId]] = [[sitestores.storeId]] AND [[purchasablesstores.purchasableId]] = [[commerce_products.defaultVariantId]]');
+            // For speed in Postgres we only need this if the `defaultPrice` criteria is being used.
+            if (isset($this->defaultPrice)) {
+                $this->subQuery->leftJoin(['purchasablesstores' => Table::PURCHASABLES_STORES], '[[purchasablesstores.storeId]] = [[sitestores.storeId]] AND [[purchasablesstores.purchasableId]] = [[commerce_products.defaultVariantId]]');
+            }
         }
 
         return parent::afterPrepare();
@@ -848,8 +851,10 @@ class ProductQuery extends ElementQuery
         }
 
         $this->_applyHasVariantParam();
-        $this->_applyEditableParam($this->editable, 'commerce-editProductType');
-        $this->_applyEditableParam($this->savable, 'commerce-editProductType');
+        // Mirrors EntryQuery: "editable" means accessible in the editing UI (view permission),
+        // not necessarily savable. Use ->savable() to filter by save permission.
+        $this->_applyPermissionParam($this->editable, 'commerce-viewProductType');
+        $this->_applyPermissionParam($this->savable, 'commerce-saveProductType');
         $this->_applyRefParam();
 
         return parent::beforePrepare();
@@ -888,7 +893,7 @@ class ProductQuery extends ElementQuery
      * @param string $permissionPrefix
      * @throws QueryAbortedException
      */
-    private function _applyEditableParam(?bool $value, string $permissionPrefix): void
+    private function _applyPermissionParam(?bool $value, string $permissionPrefix): void
     {
         if ($value === null) {
             return;

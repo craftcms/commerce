@@ -10,8 +10,10 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\errors\CurrencyException;
+use craft\commerce\events\PaymentCurrencyRateEvent;
 use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\models\PaymentCurrency;
+use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\db\Query;
@@ -41,9 +43,34 @@ use yii\db\StaleObjectException;
 class PaymentCurrencies extends Component
 {
     /**
+     * @event PaymentCurrencyRateEvent The event that is triggered when a payment currency rate is being resolved.
+     * Set `$event->rate` to override the rate used for conversions and historical transaction snapshots.
+     * @since 5.7.0
+     */
+    public const EVENT_DEFINE_PAYMENT_CURRENCY_RATE = 'definePaymentCurrencyRate';
+
+    /**
      * @var null|Collection<PaymentCurrency>[]
      */
     private ?array $_allPaymentCurrencies = null;
+
+    /**
+     * Returns the rate for a payment currency, after giving event handlers a chance to override it.
+     *
+     * @since 5.7.0
+     */
+    public function getRateFor(PaymentCurrency $currency, ?Transaction $transaction = null): float
+    {
+        $event = new PaymentCurrencyRateEvent([
+            'rate' => $currency->rate,
+            'paymentCurrency' => $currency,
+            'transaction' => $transaction,
+        ]);
+
+        $this->trigger(self::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $event);
+
+        return $event->rate;
+    }
 
     /**
      * Get payment currency by its ID.
@@ -197,10 +224,10 @@ class PaymentCurrencies extends Component
 
         if ($this->getPrimaryPaymentCurrency()->iso != $fromCurrency) {
             // now the amount is in the primary currency
-            $amount /= $fromCurrency->rate;
+            $amount /= $this->getRateFor($fromCurrency);
         }
 
-        $result = $amount * $toCurrency->rate;
+        $result = $amount * $this->getRateFor($toCurrency);
 
         if ($round) {
             return CurrencyHelper::round($result, $toCurrency);
@@ -276,7 +303,7 @@ class PaymentCurrencies extends Component
         $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         $storeCurrency = Plugin::getInstance()->getStores()->getStoreById($storeId)->getCurrency();
-        $nonPrimaryCurrencies = $this->getNonPrimaryPaymentCurrencies($storeId)->mapWithKeys(fn(PaymentCurrency $currency) => [$currency->iso => (string)$currency->rate]);
+        $nonPrimaryCurrencies = $this->getNonPrimaryPaymentCurrencies($storeId)->mapWithKeys(fn(PaymentCurrency $currency) => [$currency->iso => (string)$this->getRateFor($currency)]);
 
         $exchange = [$storeCurrency->getCode() => $nonPrimaryCurrencies->all()];
 

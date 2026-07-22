@@ -1101,14 +1101,19 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             // If this is a nested element, check if the owner is a draft and is being applied
             if ($this instanceof NestedElementInterface) {
                 $owner = $this->getOwner();
+                // A draft is only being "applied" if the owner is the canonical of the draft.
+                // Without this id check, "Save as a new product" from a draft would trip this branch
+                // and steal the original variant's inventory item via the transfer logic below.
                 $isOwnerDraftApplying = $owner
                     && $owner->getIsCanonical()
                     && $owner->duplicateOf !== null
-                    && $owner->duplicateOf->getIsDraft();
+                    && $owner->duplicateOf->getIsDraft()
+                    && $owner->duplicateOf->getCanonicalId() === $owner->id;
 
                 $isOwnerRevisionApplying = $owner
                     && $owner->duplicateOf !== null
-                    && $owner->duplicateOf->getIsRevision();
+                    && $owner->duplicateOf->getIsRevision()
+                    && $owner->duplicateOf->getCanonicalId() === $owner->id;
             }
 
             if (!$this->getIsRevision()) {
@@ -1143,30 +1148,30 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
             // Always create the inventory item even if it's a temporary draft (in the slide) since we want to allow stock to be
             // added to inventory before it is saved as a permanent variant.
-            if (static::hasInventory()) {
-                if ($canonicalPurchasableId) {
-                    if ($isOwnerDraftApplying && $this->duplicateOf !== null) {
-                        /** @var InventoryItemRecord|null $inventoryItem */
-                        $inventoryItem = InventoryItemRecord::find()->where(['purchasableId' => $this->duplicateOf->id])->one();
-                        if ($inventoryItem) {
-                            $inventoryItem->purchasableId = $canonicalPurchasableId;
-                            $inventoryItem->save();
-                            $this->inventoryItemId = $inventoryItem->id;
-                        }
-                    } else {
-                        // Set the inventory item data
-                        /** @var InventoryItemRecord|null $inventoryItem */
-                        $inventoryItem = InventoryItemRecord::find()->where(['purchasableId' => $canonicalPurchasableId])->one();
-                        if (!$inventoryItem) {
-                            $inventoryItem = new InventoryItemRecord();
-                            $inventoryItem->purchasableId = $canonicalPurchasableId;
-                            $inventoryItem->countryCodeOfOrigin = '';
-                            $inventoryItem->administrativeAreaCodeOfOrigin = '';
-                            $inventoryItem->harmonizedSystemCode = '';
-                            $inventoryItem->save();
-                            $this->inventoryItemId = $inventoryItem->id;
+            if (static::hasInventory() && $canonicalPurchasableId) {
+                /** @var InventoryItemRecord|null $inventoryItem */
+                $inventoryItem = null;
+
+                // When applying a draft to its canonical, hand the source's inventory
+                // item over so any stock movements made on the draft persist.
+                if ($isOwnerDraftApplying && $this->duplicateOf !== null) {
+                    /** @var InventoryItemRecord|null $inventoryItem */
+                    $inventoryItem = InventoryItemRecord::find()->where(['purchasableId' => $this->duplicateOf->id])->one();
+                    if ($inventoryItem && $inventoryItem->purchasableId != $canonicalPurchasableId) {
+                        $inventoryItem->purchasableId = $canonicalPurchasableId;
+                        if (!$inventoryItem->save()) {
+                            // Could not transfer (e.g. canonical already has its own row); fall through to the find-or-create below.
+                            $inventoryItem = null;
                         }
                     }
+                }
+
+                if (!$inventoryItem) {
+                    $inventoryItem = Plugin::getInstance()->getInventory()->ensureInventoryItemRecord($this);
+                }
+
+                if ($inventoryItem) {
+                    $this->inventoryItemId = $inventoryItem->id;
                 }
             }
         }
@@ -1350,16 +1355,16 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     protected function shippingCategoryFieldHtml(bool $static): string
     {
-        $shippingCategory = null;
-        if ($this->shippingCategoryId) {
-            $shippingCategory = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId, $this->storeId);
-        }
+        $availableShippingCategories = $this->availableShippingCategories();
+        $shippingCategory = collect($availableShippingCategories)->firstWhere('id', $this->shippingCategoryId)
+            ?? collect($availableShippingCategories)->first();
 
         return CommerceCp::shippingCategoryFieldHtml([
             'label' => Craft::t('commerce', 'Shipping Category'),
             'id' => 'shippingCategoryId',
             'name' => 'shippingCategoryId',
             'value' => $shippingCategory,
+            'options' => $availableShippingCategories,
             'limit' => 1,
             'min' => 1,
             'disabled' => $static,
@@ -1386,16 +1391,16 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     protected function taxCategoryFieldHtml(bool $static): string
     {
-        $taxCategory = null;
-        if ($this->taxCategoryId) {
-            $taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
-        }
+        $availableTaxCategories = $this->availableTaxCategories();
+        $taxCategory = collect($availableTaxCategories)->firstWhere('id', $this->taxCategoryId)
+            ?? collect($availableTaxCategories)->first();
 
         return CommerceCp::taxCategoryFieldHtml([
             'label' => Craft::t('commerce', 'Tax Category'),
             'id' => 'taxCategoryId',
             'name' => 'taxCategoryId',
             'value' => $taxCategory,
+            'options' => $availableTaxCategories,
             'limit' => 1,
             'min' => 1,
             'disabled' => $static,
@@ -1433,6 +1438,23 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             }
 
             return $price;
+        }
+
+        if ($attribute === 'availableForPurchase') {
+            if ($this->availableForPurchase) {
+                $icon = Html::tag('span', '', [
+                    'class' => 'checkbox-icon',
+                    'role' => 'img',
+                    'title' => Craft::t('app', 'Enabled'),
+                    'aria' => [
+                        'label' => Craft::t('app', 'Enabled'),
+                    ],
+                ]);
+                return $icon . Html::tag('span', ' ' . Craft::t('commerce', 'Available for purchase'), [
+                    'class' => 'card-only-label',
+                    'style' => 'display:none;',
+                ]) . Html::tag('style', '.card-content .card-only-label { display: inline !important; }');
+            }
         }
 
         return match ($attribute) {

@@ -25,7 +25,7 @@ class m250301_120000_add_gateway_order_condition extends Migration
         $projectConfig->muteEvents = true;
 
         $gateways = (new Query())
-            ->select(['id', 'uid'])
+            ->select(['id', 'uid', 'isArchived'])
             ->from(Table::GATEWAYS)
             ->all();
 
@@ -42,8 +42,10 @@ class m250301_120000_add_gateway_order_condition extends Migration
                 ['id' => $gateway['id']]
             );
 
-            $config['orderCondition'] = $orderCondition;
-            $projectConfig->set(Gateways::CONFIG_GATEWAY_KEY . '.' . $gateway['uid'], $config);
+            if ($config && !$gateway['isArchived']) {
+                $config['orderCondition'] = $orderCondition;
+                $projectConfig->set(Gateways::CONFIG_GATEWAY_KEY . '.' . $gateway['uid'], $config);
+            }
         }
 
         $projectConfig->muteEvents = false;

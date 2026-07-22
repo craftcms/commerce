@@ -129,7 +129,7 @@ class Plans extends Component
      *
      * @return Plan[]
      * @deprecated in 4.0. Use [[getPlansByGatewayId]] instead.
-     * TODO: remove in 6.0
+     * @todo remove in Commerce 6.0
      */
     public function getAllGatewayPlans(int $gatewayId): array
     {
@@ -380,10 +380,10 @@ class Plans extends Component
     private function _getAllPlans(): array
     {
         if ($this->_allPlans === null) {
+            $this->_allPlans = [];
             $plans = $this->_createPlansQuery()->all();
 
             if (!empty($plans)) {
-                $this->_allPlans = [];
                 $plans = $this->_populatePlans($plans);
                 foreach ($plans as $plan) {
                     $this->_allPlans[$plan->id] = $plan;
@@ -391,6 +391,6 @@ class Plans extends Component
             }
         }
 
-        return $this->_allPlans ?? [];
+        return $this->_allPlans;
     }
 }

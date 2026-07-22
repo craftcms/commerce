@@ -354,14 +354,15 @@ class Pdfs extends Component
             $pdfRecord->name = $data['name'];
             $pdfRecord->handle = $data['handle'];
             $pdfRecord->description = $data['description'];
-            $pdfRecord->templatePath = $data['templatePath'];
-            $pdfRecord->fileNameFormat = $data['fileNameFormat'];
+            $pdfRecord->templatePath = $data['templatePath'] ?? '';
+            $pdfRecord->fileNameFormat = $data['fileNameFormat'] ?? '';
             $pdfRecord->enabled = $data['enabled'];
             $pdfRecord->sortOrder = $data['sortOrder'];
             $pdfRecord->isDefault = $data['isDefault'];
             $pdfRecord->language = $data['language'] ?? PdfRecord::LOCALE_ORDER_LANGUAGE;
             $pdfRecord->paperOrientation = $data['paperOrientation'] ?? PdfRecord::PAPER_ORIENTATION_PORTRAIT;
             $pdfRecord->paperSize = $data['paperSize'] ?? 'letter';
+            $pdfRecord->linkExpiry = $data['linkExpiry'] ?? 86400;
 
             $pdfRecord->uid = $pdfUid;
 
@@ -441,8 +442,8 @@ class Pdfs extends Component
      */
     public function reorderPdfs(array $ids): bool
     {
-        // TODO Add event
-        // @TODO make reordering consistent across features
+        // @TODO Fire BEFORE_REORDER_PDFS / AFTER_REORDER_PDFS events around this loop so plugins can react to PDF sort order changes
+        // @TODO Align this reorder implementation with how other Commerce features handle reordering (project config-driven, single transaction, consistent event names)
         foreach ($ids as $index => $id) {
             if ($pdf = $this->getPdfById($id)) {
                 $pdf->sortOrder = $index + 1;
@@ -481,22 +482,18 @@ class Pdfs extends Component
             throw new \InvalidArgumentException("Can not find a PDF to generate URL.");
         }
 
-        $expiryTimestamp = (new \DateTime())->add(new \DateInterval('PT' . $pdf->linkExpiry . 'S'))->getTimestamp();
+        $expiryDate = (new \DateTime())->add(new \DateInterval('PT' . $pdf->linkExpiry . 'S'));
 
-        // Create a token for secure PDF access with expiry in the data payload
-        // This way the token itself never expires, but we validate the timestamp in the download controller
-        $token = Craft::$app->getTokens()->createToken([
-            'commerce/downloads/pdf',
-            [
-                'orderNumber' => $order->number,
-                'expiresAt' => $expiryTimestamp,
-            ],
-        ]);
+        $token = Craft::$app->getTokens()->createToken(
+            ['commerce/downloads/pdf', ['orderNumber' => $order->number]],
+            null,
+            $expiryDate
+        );
 
         // Build the URL parameters
         $params = [
             'number' => $order->number,
-            'token' => $token,
+            'code' => $token,
         ];
 
         if ($pdfHandle !== null) {
@@ -511,7 +508,13 @@ class Pdfs extends Component
             $params['inline'] = true;
         }
 
-        return UrlHelper::siteUrl('actions/commerce/downloads/pdf', $params);
+        $request = Craft::$app->getRequest();
+        $isCpRequest = $request->getIsCpRequest();
+        $request->setIsCpRequest(false);
+        $url = UrlHelper::actionUrl('commerce/downloads/pdf', $params);
+        $request->setIsCpRequest($isCpRequest);
+
+        return $url;
     }
 
     /**
@@ -559,7 +562,7 @@ class Pdfs extends Component
         $originalFormattingLanguage = Craft::$app->formattingLocale;
         $pdfLanguage = $pdf?->getRenderLanguage($order) ?? $originalLanguage;
 
-        // TODO add event
+        // @TODO Fire a BEFORE_SWITCH_PDF_LANGUAGE event here so plugins can override or observe the language used when rendering the PDF
         Locale::switchAppLanguage($pdfLanguage);
 
         $oldTemplateMode = $view->getTemplateMode();
@@ -574,7 +577,7 @@ class Pdfs extends Component
         }
 
         try {
-            // TODO Add event
+            // @TODO Fire a BEFORE_RENDER_PDF_TEMPLATE event around the renderTemplate() call so plugins can inspect or modify variables/template right before HTML is generated
             $html = $view->renderTemplate($event->template, $variables);
         } catch (\Exception $e) {
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
@@ -672,7 +675,7 @@ class Pdfs extends Component
      */
     private function _createPdfsQuery(): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'description',
                 'enabled',
@@ -692,5 +695,12 @@ class Pdfs extends Component
             ->orderBy('name')
             ->from([Table::PDFS])
             ->orderBy(['sortOrder' => SORT_ASC]);
+
+        // @TODO Remove this columnExists check in Commerce 6.0 once the schema guarantees the linkExpiry column on the pdfs table
+        if (Craft::$app->getDb()->columnExists(Table::PDFS, 'linkExpiry')) {
+            $query->addSelect('linkExpiry');
+        }
+
+        return $query;
     }
 }

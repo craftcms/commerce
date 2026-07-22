@@ -79,7 +79,7 @@ abstract class Zone extends BaseModel implements ZoneInterface, HasStoreInterfac
         if (!$condition instanceof ZoneAddressCondition) {
             $condition['class'] = ZoneAddressCondition::class;
 
-            // @TODO remove at next breaking change. Fix for misconfiguration during 3.x -> 4.x migration
+            // @TODO Remove this 3.x -> 4.x migration fallback that forces the elementType to Address in Commerce 6.0
             $condition['elementType'] = Address::class;
 
             /** @var ZoneAddressCondition $condition */

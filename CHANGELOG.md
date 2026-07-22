@@ -2,8 +2,175 @@
 
 ## Unreleased
 
+- Fixed a bug where guest customers could not load a credentialed cart with a valid URL token. ([#4225](https://github.com/craftcms/commerce/issues/4225))
+- Fixed a bug where the value could become jumbled when typing into the quantity field of the inventory level and inventory movement modals. ([#3920](https://github.com/craftcms/commerce/issues/3920))
+- Fixed a bug where the “Variant Search” product condition rule wasn’t returning any results. ([#4339](https://github.com/craftcms/commerce/issues/4339))
+- Fixed a bug where product variant field layout tabs displayed incorrectly on variant slideouts. ([#4335](https://github.com/craftcms/commerce/issues/4335))
+- Fixed a PHP error that could occur when serializing a line item object. ([#4337](https://github.com/craftcms/commerce/issues/4337))
+- Fixed a performance issue that occurred when resaving products in multi-site setups. ([#4305](https://github.com/craftcms/commerce/issues/4305))
+
+## 5.7.0 - 2026-07-16
+
+### Store Management
+
+- Order edit screens now show notices to store administrators if there was a fluke with the order, such as a coupon/discount’s total usage being exceeded or inventory dropping below zero.
+- Added the “Contains Purchasables” order condition rule. ([#4242](https://github.com/craftcms/commerce/issues/4242))
+- Added the “Has Admin Notices” order condition rule.
+- Added deletion blockers for users with existing orders or subscriptions.
+- The “Share cart…” order element action now generates a secure tokenized URL.
+- The inventory screen now has a “View” menu for showing/hiding table columns. ([#4193](https://github.com/craftcms/commerce/pull/4193))
+
+### Administration
+
+- Craft Commerce user permissions are now organized into conceptual groups.
+- Product permissions have been split into separate “View”, “Create”, “Save”, and “Delete” permissions.
+- Added the `loadCartUrlExpiry` setting, for controlling how long cart load links remain valid (seven days by default).
+
+### Development
+
+- The `commerce/cart/get-cart` action now supports a `peek` param, which returns cart info without creating a new cart or setting cookies. ([#4263](https://github.com/craftcms/commerce/pull/4263))
+- The `commerce/cart/load-cart` action now returns JSON responses for `application/json` requests.
+
+### Extensibility
+
+- Added `craft\commerce\base\ShippingMethod::clearMatchingShippingRuleCache()`.
+- Added `craft\commerce\controllers\CartController::actionCartChallenge()`.
+- Added `craft\commerce\controllers\CartController::actionCartSent()`.
+- Added `craft\commerce\controllers\CartController::actionEmailChallenge()`.
+- Added `craft\commerce\controllers\OrdersController::actionGetLoadCartUrl()`.
+- Added `craft\commerce\controllers\OrdersController::actionGetShippingMethodOptions()`.
+- Added `craft\commerce\controllers\OrdersController::actionReassign()`.
+- Added `craft\commerce\controllers\OrdersController::actionReassignModal()`.
+- Added `craft\commerce\controllers\OrdersController::actionRemoveCustomerData()`.
+- Added `craft\commerce\controllers\OrdersController::actionRemoveCustomerDataModal()`.
+- Added `craft\commerce\controllers\SubscriptionsController::actionDeleteSubscriptions()`.
+- Added `craft\commerce\controllers\SubscriptionsController::actionDeleteSubscriptionsModal()`.
+- Added `craft\commerce\db\Table::CATALOG_PRICING_QUEUE`.
+- Added `craft\commerce\elements\Order::getAdminNotices()`.
+- Added `craft\commerce\elements\Order::getCustomerDeleted()`.
+- Added `craft\commerce\elements\Order::hasAdminNotices()`.
+- Added `craft\commerce\elements\Order::hasPurchasables()`.
+- Added `craft\commerce\elements\Order::hasPurchasables()`.
+- Added `craft\commerce\elements\Order::setCustomerDeleted()`.
+- Added `craft\commerce\elements\conditions\orders\ContainsPurchasablesConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\HasAdminNoticesConditionRule`.
+- Added `craft\commerce\elements\db\OrderQuery::$containsPurchasables`.
+- Added `craft\commerce\elements\db\OrderQuery::$containsPurchasables`.
+- Added `craft\commerce\elements\db\OrderQuery::$hasAdminNotices`.
+- Added `craft\commerce\elements\db\OrderQuery::containsPurchasables()`.
+- Added `craft\commerce\elements\db\OrderQuery::containsPurchasables()`.
+- Added `craft\commerce\elements\db\OrderQuery::hasAdminNotices()`.
+- Added `craft\commerce\elements\deletionblockers\OrderCustomersDeletionBlocker`.
+- Added `craft\commerce\elements\deletionblockers\SubscriptionCustomersDeletionBlocker`.
+- Added `craft\commerce\enums\ContainsPurchasablesMatch`.
+- Added `craft\commerce\enums\ContainsPurchasablesMatch`.
+- Added `craft\commerce\enums\OrderNoticeType`.
+- Added `craft\commerce\events\PaymentCurrencyRateEvent`.
+- Added `craft\commerce\models\OrderNotice::$noticeType`.
+- Added `craft\commerce\models\Settings::$loadCartUrlExpiry`.
+- Added `craft\commerce\records\CatalogPricingQueue`.
+- Added `craft\commerce\services\Carts::getLoadCartUrl()`.
+- Added `craft\commerce\services\Carts::peekCart()`.
+- Added `craft\commerce\services\CatalogPricing::deleteCatalogPricingQueueRowById()`.
+- Added `craft\commerce\services\CatalogPricing::releaseCatalogPricingQueueRowById()`.
+- Added `craft\commerce\services\CatalogPricing::reserveCatalogPricingQueueRow()`.
+- Added `craft\commerce\services\Orders::reassignOrders()`.
+- Added `craft\commerce\services\Orders::removeCustomerData()`.
+- Added `craft\commerce\services\PaymentCurrencies::EVENT_DEFINE_PAYMENT_CURRENCY_RATE`.
+- Added `craft\commerce\services\PaymentCurrencies::getRateFor()`.
+- Added `craft\commerce\services\ProductTypes::getCreatableProductTypeIds()`.
+- Added `craft\commerce\services\ProductTypes::getViewableProductTypeIds()`.
+- Added `craft\commerce\services\ProductTypes::getViewableProductTypes()`.
+- Added `craft\commerce\services\ShippingRuleCategories::getAllShippingRuleCategoriesData()`.
+- `craft\commerce\elements\Order::clearNotices()` now has a `$noticeTypes` argument.
+- `craft\commerce\elements\Order::getLoadCartUrl()` now returns a secure tokenized URL.
+- `craft\commerce\elements\Order::getNotices()` no longer returns admin notices. Use `getAdminNotices()` instead.
+- `craft\commerce\elements\Subscription::getSubscriber()` now returns `?User` instead of `User`.
+- Deprecated `craft\commerce\services\ProductTypes::getEditableProductTypeIds()`. `getViewableProductTypeIds()` should be used instead.
+- Deprecated `craft\commerce\services\ProductTypes::getEditableProductTypes()`. `getViewableProductTypes()` should be used instead.
+- Deprecated `craft\commerce\services\ProductTypes::hasPermission()`. `$user->can()` should be used instead.
+
 ### System
-- Fixed a bug where suspended and failed-to-start subscriptions weren't shown on user profile pages in the control panel. ([#4219](https://github.com/craftcms/commerce/issues/4219))
+
+- The `commerce/cart/cart-challenge` and `commerce/downloads/pdf-challenge` actions are now rate-limited based on IP.
+- Improved the performance of shipping method and rule matching.
+- Improved the performance of catalog pricing queue jobs.
+- Cart load URLs are now generated with time-limited security tokens, which are now required when loading carts from non-authenticated requests.
+- `craft\commerce\services\Carts::getCart()` now ensures the cart can always be recalculated. ([#4332](https://github.com/craftcms/commerce/issues/4332#issuecomment-4966010281))
+- Craft Commerce now requires Craft CMS 5.10.0 or later.
+- Craft Commerce now requires `ibericode/vat` 2.0 or later.
+- Craft Commerce now supports `dompdf/dompdf` 3.x, in addition to 2.x.
+- Fixed a bug where variants with `{id}` in their Variant Title Format weren’t always getting created with the correct generated title. ([#4308](https://github.com/craftcms/commerce/pull/4308))
+
+## 5.6.7 - 2026-07-01
+
+- Fixed [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) server-side template injection vulnerability. ([#](#))
+- Fixed a bug where purchasables’ stock caches weren’t getting cleared after orders were completed.
+- Fixed a bug where `InventoryRestockMovement` would incorrectly validate movements with only one invalid transaction type.
+- Fixed a bug where inventory search was case-sensitive on PostgreSQL. ([#4326](https://github.com/craftcms/commerce/issues/4326))
+- Fixed an error that could occur when creating or editing a shipping rule. ([#4321](https://github.com/craftcms/commerce/issues/4321))
+- Fixed a bug where some settings weren’t being saved to the project config. ([#4324](https://github.com/craftcms/commerce/issues/4324))
+
+## 5.6.6.1 - 2026-06-18
+
+- Fixed a bug where Date Range widget settings could break when settings were reopened. ([#4306](https://github.com/craftcms/commerce/issues/4306))
+
+## 5.6.6 - 2026-06-17
+
+- PDF download URLs now use the `code` query param instead of `token` ([#4303](https://github.com/craftcms/commerce/issues/4303)).
+- Fixed a bug where the debug toolbar could trigger cart recalculation in multi-site setups, potentially causing some line items to be removed from the cart. ([#4317](https://github.com/craftcms/commerce/issues/4317))
+- Fixed a bug where Date Range widget settings could break when settings were reopened. ([#4306](https://github.com/craftcms/commerce/issues/4306))
+- Fixed a bug where new orders created in the control panel could default to a non-primary site in multi-site/single-store installs. ([#4310](https://github.com/craftcms/commerce/issues/4310))
+- Fixed a PHP error that could occur when opening a product with a provisional draft. ([#4314](https://github.com/craftcms/commerce/issues/4314))
+- Fixed a bug where tax zones, shipping categories, and tax categories created via “Create” slideouts were saved to the primary store rather than the current store. ([#4313](https://github.com/craftcms/commerce/issues/4313))
+- Fixed a SQL error that could occur when running `project-config/apply` if a PDF had an empty `templatePath`. ([#4316](https://github.com/craftcms/commerce/issues/4316))
+- Fixed a bug where two simultaneous requests to manually complete an order could result in a coupon being used twice. ([Hackrate#1343](#))
+- Fixed a bug where fulfilling an order with purchasables in different inventory locations would only fulfil items from one location. ([#4299](https://github.com/craftcms/commerce/issues/4299))
+- Fixed a PHP error that could occur when applying project config changes after updating.
+
+## 5.6.5 - 2026-05-14
+
+- Cart requests that include a `couponCode` param are now rate-limited.
+- Fixed a bug where redundant database queries could be executed when no subscription plans existed. ([#4285](https://github.com/craftcms/commerce/issues/4285))
+- Fixed an error that occurred when executing a GraphQL query with `relatedTo*` arguments within `hasProduct` or `hasVariant` fields. ([#4297](https://github.com/craftcms/commerce/issues/4297))
+- Fixed [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) enumeration vulnerability. ([GHSA-h5gm-x9wr-vhcm](https://github.com/craftcms/commerce/security/advisories/GHSA-h5gm-x9wr-vhcm))
+- Fixed [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) business logic vulnerability. ([GHSA-78vr-q6cf-c7p6](https://github.com/craftcms/cms/security/advisories/GHSA-78vr-q6cf-c7p6))
+
+## 5.6.4 - 2026-05-06
+
+- Fixed a SQL error that occurred when processing a fulfillment on PostgreSQL. ([#4291](https://github.com/craftcms/commerce/issues/4291))
+- Fixed a bug where custom field layout tabs were duplicated in the tab overflow menu on order edit pages. ([#4293](https://github.com/craftcms/commerce/issues/4293))
+- Fixed a bug where the “Set default variant” action wasn’t immediately reflected in the variant index. ([#4294](https://github.com/craftcms/commerce/issues/4294))
+- Fixed a PHP error that occurred when variants were missing an inventory item. ([#3837](https://github.com/craftcms/commerce/issues/3837))
+
+## 5.6.3 - 2026-04-29
+
+- Improved product query performance. ([#4281](https://github.com/craftcms/commerce/issues/4281))
+- PDF download tokens now use Craft’s native token expiry.
+- Fixed a bug where the “Commerce” page within user account settings wasn’t retaining view options for orders, carts, and subscriptions.
+- Fixed a PHP error that could occur when editing field layouts that contained Commerce Products fields. ([#4282](https://github.com/craftcms/commerce/issues/4282))
+- Fixed a deadlock that could occur when saving products with many variants concurrently. ([#4287](https://github.com/craftcms/commerce/issues/4287))
+
+## 5.6.2 - 2026-04-15
+
+- Improved the performance of migrations when upgrading to Commerce 5. ([#4277](https://github.com/craftcms/commerce/issues/4277))
+- Fixed a bug where variants weren’t getting saved if their auto-generated SKU wasn’t unique. ([#4249](https://github.com/craftcms/commerce/issues/4249))
+- Fixed a PHP error that could occur when marking an inventory transfer as pending. ([#4267](https://github.com/craftcms/commerce/issues/4267))
+- Fixed a bug where reordering disabled variants wasn’t working properly. ([#4270](https://github.com/craftcms/commerce/issues/4270))
+- Fixed a bug where `craft\commerce\services\Carts::forgetCart()` wasn’t working if `getCart()` was subsequently called. ([#4279](https://github.com/craftcms/commerce/issues/4279))
+
+## 5.6.1.1 - 2026-03-27
+
+- Fixed a bug where PDF Link Duration didn’t save. ([#4265](https://github.com/craftcms/commerce/issues/4265))
+
+## 5.6.1 - 2026-03-25
+
+- Gateway edit screens now include billing and shipping address conditions. ([#4259](https://github.com/craftcms/commerce/pull/4259))
+- Variant cards can now have “Default”, “Promotable”, and “Available for purchase” attributes.
+- Fixed a bug where PDF URLs could have an incorrect domain. ([#4248](https://github.com/craftcms/commerce/issues/4248))
+- Fixed a bug where user profile screens weren’t showing suspended and failed-to-start subscriptions. ([#4219](https://github.com/craftcms/commerce/issues/4219))
+- Fixed a bug where carts weren’t respecting the `COMMERCE_PAYMENT_CURRENCY` PHP constant.
+- Fixed a bug where variants’ tax and shipping category dropdowns weren’t respecting product type restrictions. ([#4258](https://github.com/craftcms/commerce/issues/4258))
 
 ## 5.6.0 - 2026-03-11
 
@@ -28,7 +195,7 @@
 - Cart numbers are now generated using a cryptographically secure random number generator.
 - Cart controller actions that accept an explicit cart number are now rate limited to mitigate enumeration attacks.
 - Fixed a PHP error that could occur when using the manual gateway. ([#4245](https://github.com/craftcms/commerce/pull/4245))
-- Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities. ([GHSA-875v-7m49-8x88](https://github.com/craftcms/commerce/security/advisories/GHSA-875v-7m49-8x88), [GHSA-r54v-qq87-px5r](https://github.com/craftcms/commerce/security/advisories/GHSA-r54v-qq87-px5r))
+- Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities. ([GHSA-875v-7m49-8x88](https://github.com/craftcms/commerce/security/advisories/GHSA-875v-7m49-8x88))
 - Fixed a [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) information disclosure vulnerability. ([GHSA-3vxg-x5f8-f5qf](https://github.com/craftcms/commerce/security/advisories/GHSA-3vxg-x5f8-f5qf))
 
 ## 5.5.4 - 2026-02-18
@@ -37,7 +204,7 @@
 - Fixed an error that could occur when editing inventory locations. ([#4233](https://github.com/craftcms/commerce/issues/4233))
 - Fixed a SQL error that could occur when querying for unfulfilled orders on PostgreSQL. ([#4228](https://github.com/craftcms/commerce/issues/4228))
 - Fixed an error that could occur when resaving variants. ([#4226](https://github.com/craftcms/commerce/issues/4226))
-- Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities in the control panel. (GHSA-r54v-qq87-px5r)
+- Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerabilities in the control panel. ([GHSA-r54v-qq87-px5r](https://github.com/craftcms/commerce/security/advisories/GHSA-r54v-qq87-px5r))
 - Added `craft\commerce\helpers\ProductQuery::cleanseQueryCriteria()`.
 
 ## 5.5.3 - 2026-02-09

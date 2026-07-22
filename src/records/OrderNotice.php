@@ -19,6 +19,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $type
  * @property string $attribute
  * @property string $message
+ * @property string $noticeType
  * @property Order $order
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.3

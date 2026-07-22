@@ -152,6 +152,7 @@ class PdfsController extends BaseAdminController
         $pdf->enabled = $this->request->getBodyParam('enabled');
         $pdf->isDefault = $this->request->getBodyParam('isDefault');
         $pdf->language = $this->request->getBodyParam('language');
+        $pdf->linkExpiry = (int)$this->request->getBodyParam('linkExpiry');
         $pdf->paperSize = $this->request->getBodyParam('paperSize');
         $pdf->paperOrientation = $this->request->getBodyParam('paperOrientation');
 

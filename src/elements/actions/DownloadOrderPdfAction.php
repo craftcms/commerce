@@ -192,7 +192,7 @@ JS;
      */
     private function _pdfFileName(Pdf $pdf, Order $order): string
     {
-        $fileName = Craft::$app->getView()->renderObjectTemplate($pdf->fileNameFormat, $order);
+        $fileName = Craft::$app->getView()->renderSandboxedObjectTemplate($pdf->fileNameFormat, $order);
         if (!$fileName) {
             $fileName = $pdf->handle . '-' . $order->number;
         }
