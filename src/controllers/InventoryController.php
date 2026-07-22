@@ -625,6 +625,13 @@ JS, [
             'note' => $note,
         ];
 
+        // Live preview refresh only swaps the preview region, leaving the form inputs untouched.
+        if ($this->request->getParam('preview')) {
+            return $this->asJson([
+                'previewHtml' => Craft::$app->getView()->renderTemplate('commerce/inventory/levels/_updateInventoryLevelPreview', $params),
+            ]);
+        }
+
         return $this->asCpModal()
             ->action('commerce/inventory/update-levels')
             ->submitButtonLabel(Craft::t('commerce', 'Update'))
@@ -719,6 +726,13 @@ JS, [
             'toInventoryTransactionTypes' => $movableTo,
             'maxFromQuantity' => $fromTotal,
         ];
+
+        // Live preview refresh only swaps the preview region, leaving the form inputs untouched.
+        if ($this->request->getParam('preview')) {
+            return $this->asJson([
+                'previewHtml' => Craft::$app->getView()->renderTemplate('commerce/inventory/levels/_inventoryMovementPreview', $params),
+            ]);
+        }
 
         return $this->asCpModal()
             ->action('commerce/inventory/save-inventory-movement')

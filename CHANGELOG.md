@@ -2,9 +2,12 @@
 
 ## Unreleased
 
-- Fixed a bug where anonymous customers could not load a credentialed cart even with a valid URL token. ([#4225](https://github.com/craftcms/commerce/issues/4225))
+- Fixed a bug where guest customers could not load a credentialed cart with a valid URL token. ([#4225](https://github.com/craftcms/commerce/issues/4225))
+- Fixed a bug where the value could become jumbled when typing into the quantity field of the inventory level and inventory movement modals. ([#3920](https://github.com/craftcms/commerce/issues/3920))
+- Fixed a bug where the “Variant Search” product condition rule wasn’t returning any results. ([#4339](https://github.com/craftcms/commerce/issues/4339))
 - Fixed a bug where product variant field layout tabs displayed incorrectly on variant slideouts. ([#4335](https://github.com/craftcms/commerce/issues/4335))
 - Fixed a PHP error that could occur when serializing a line item object. ([#4337](https://github.com/craftcms/commerce/issues/4337))
+- Fixed a performance issue that occurred when resaving products in multi-site setups. ([#4305](https://github.com/craftcms/commerce/issues/4305))
 
 ## 5.7.0 - 2026-07-16
 
