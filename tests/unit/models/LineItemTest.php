@@ -213,4 +213,53 @@ class LineItemTest extends Unit
 
         self::assertEquals(20.00, $order->getTotal());
     }
+
+    /**
+     * @return void
+     * @since 5.1.0
+     */
+    public function testCustomLineItemToArrayDoesNotThrow(): void
+    {
+        $lineItem = new LineItem();
+        $lineItem->type = LineItemType::Custom;
+        $lineItem->description = 'Custom';
+        $lineItem->setSku('custom-sku');
+        $lineItem->setPrice(10.00);
+        $lineItem->qty = 2;
+
+        $order = new Order();
+        $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
+        $order->setLineItems([$lineItem]);
+
+        self::assertNotContains('purchasable', $lineItem->extraFields());
+
+        $data = $lineItem->toArray([], ['*']);
+        self::assertIsArray($data);
+
+        $data = $lineItem->toArray([], ['purchasable']);
+        self::assertIsArray($data);
+        self::assertArrayNotHasKey('purchasable', $data);
+    }
+
+    /**
+     * @return void
+     * @since 5.1.0
+     */
+    public function testPurchasableLineItemToArrayIncludesPurchasable(): void
+    {
+        $variant = Variant::find()->sku('rad-hood')->one();
+        $lineItem = new LineItem();
+        $lineItem->populateFromPurchasable($variant);
+        $lineItem->qty = 1;
+
+        $order = new Order();
+        $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
+        $order->setLineItems([$lineItem]);
+
+        self::assertContains('purchasable', $lineItem->extraFields());
+
+        $data = $lineItem->toArray([], ['purchasable']);
+        self::assertArrayHasKey('purchasable', $data);
+        self::assertNotNull($data['purchasable']);
+    }
 }
