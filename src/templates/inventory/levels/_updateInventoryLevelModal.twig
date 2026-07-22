@@ -38,21 +38,8 @@
     value: note
 }) }}
 
-<div id="inventory-levels">
-{% for inventoryLevel in inventoryLevels %}
-    <div class="flex">
-        <div class="flex-grow">
-            <span class="code">{{ inventoryLevel.inventoryItem.getPurchasable('*').sku }}</span>
-        </div>
-
-        {% if updateAction == 'set' %}
-            <div>{{ attribute(inventoryLevel, type~'Total') }} &rarr; {{ quantity }}</div>
-        {% endif %}
-        {% if updateAction == 'adjust' %}
-            <div>{{ attribute(inventoryLevel, type~'Total') }} &rarr; {{ attribute(inventoryLevel, type~'Total') + quantity }}</div>
-        {% endif %}
-    </div>
-{% endfor %}
+<div id="inventory-levels" class="js-inventory-levels-preview">
+{% include 'commerce/inventory/levels/_updateInventoryLevelPreview' %}
 </div>
 
 {{ forms.hidden({
