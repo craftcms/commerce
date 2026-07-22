@@ -253,13 +253,17 @@ class Carts extends Component
         }
 
         // Don't return a cart that belongs to a credentialed user who isn't currently logged in
-        // as that user. Mirrors the privacy check in _getCart(), but without forgetting the cart
+        // as that user, unless this session has been authorized to use it (e.g. loaded via a valid
+        // load-cart token). Mirrors the privacy check in _getCart(), but without forgetting the cart
         // (which would set a Set-Cookie header and defeat the purpose of this method).
         $cartCustomer = $cart->getCustomer();
         if ($cartCustomer && $cartCustomer->getIsCredentialed()) {
-            $currentUser = Craft::$app->getUser()->getIdentity();
-            if (!$currentUser || $currentUser->id != $cartCustomer->id) {
-                return null;
+            $authorizedForCredentialedCart = Craft::$app->getSession()->get('commerce:anonymousCartWithCredentialedCustomer:' . $cart->number, false);
+            if (!$authorizedForCredentialedCart) {
+                $currentUser = Craft::$app->getUser()->getIdentity();
+                if (!$currentUser || $currentUser->id != $cartCustomer->id) {
+                    return null;
+                }
             }
         }
 
@@ -293,17 +297,20 @@ class Carts extends Component
 
         $cartCustomer = $cart?->getCustomer();
 
-        // Did an anonymous user provide an email that belonged to a credentialed user?
-        // See CartController::actionUpdate()
-        $anonymousCartWithCredentialedCustomer = $cart && Craft::$app->getSession()->get('commerce:anonymousCartWithCredentialedCustomer:' . $cart->number, false);
+        // Is this session authorized to use a cart that belongs to a credentialed user? This is the
+        // case when an anonymous user submitted the credentialed user's email to the cart (see
+        // CartController::actionUpdate()), or when the cart was loaded via a valid load-cart token
+        // (see CartController::actionLoadCart()).
+        $authorizedForCredentialedCart = $cart && Craft::$app->getSession()->get('commerce:anonymousCartWithCredentialedCustomer:' . $cart->number, false);
 
         if ($cart && $cartCustomer && $cartCustomer->getIsCredentialed() &&
+            !$authorizedForCredentialedCart &&
             (
-                // Forget cart if they are not logged-in, and they didn't submit the credentialed users email to the cart.
-                (!$currentUser && !$anonymousCartWithCredentialedCustomer)
+                // Forget cart if they are not logged-in.
+                !$currentUser
                 ||
                 // Forget cart if the logged-in user is not the same as the cart customer.
-                ($currentUser && $currentUser->id != $cartCustomer->id)
+                $currentUser->id != $cartCustomer->id
             )
         ) {
             $this->forgetCart();

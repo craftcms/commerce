@@ -229,6 +229,120 @@ class CartsTest extends Unit
         Craft::$app->getElements()->deleteElement($cart, true);
     }
 
+    /**
+     * A credentialed user's cart must not be served to an anonymous visitor when the session
+     * hasn't been authorized to use it (the default privacy guard).
+     *
+     * @see https://github.com/craftcms/commerce/issues/4225
+     */
+    public function testCredentialedCartForgottenForAnonymousWithoutAuthorization(): void
+    {
+        $cartNumber = Plugin::getInstance()->getCarts()->generateCartNumber();
+        Plugin::getInstance()->set('carts', $this->make(Carts::class, [
+            'getSessionCartNumber' => fn() => $cartNumber,
+        ]));
+
+        $credUser = $this->tester->grabFixture('customer')->getElement('credentialed-user');
+        $originalIdentity = Craft::$app->getUser()->getIdentity();
+        Craft::$app->getUser()->setIdentity(null);
+        Craft::$app->getSession()->remove('commerce:anonymousCartWithCredentialedCustomer:' . $cartNumber);
+
+        $order = new Order();
+        $order->number = $cartNumber;
+        $order->setCustomer($credUser);
+        Craft::$app->getElements()->saveElement($order, false);
+
+        try {
+            $cart = Plugin::getInstance()->getCarts()->getCart();
+
+            // The credentialed cart should have been forgotten, so a fresh anonymous cart is returned.
+            self::assertNull($cart->getCustomerId());
+        } finally {
+            Craft::$app->getUser()->setIdentity($originalIdentity);
+            Craft::$app->getElements()->deleteElement($order, true);
+        }
+    }
+
+    /**
+     * When a session has been authorized to use a cart (e.g. it was loaded via a valid load-cart
+     * token), an anonymous visitor should be able to retrieve that credentialed user's cart.
+     *
+     * @see https://github.com/craftcms/commerce/issues/4225
+     */
+    public function testAuthorizedCredentialedCartServedToAnonymous(): void
+    {
+        $cartNumber = Plugin::getInstance()->getCarts()->generateCartNumber();
+        Plugin::getInstance()->set('carts', $this->make(Carts::class, [
+            'getSessionCartNumber' => fn() => $cartNumber,
+        ]));
+
+        $credUser = $this->tester->grabFixture('customer')->getElement('credentialed-user');
+        $originalIdentity = Craft::$app->getUser()->getIdentity();
+        Craft::$app->getUser()->setIdentity(null);
+
+        $order = new Order();
+        $order->number = $cartNumber;
+        $order->setCustomer($credUser);
+        Craft::$app->getElements()->saveElement($order, false);
+
+        // Mirror what CartController::actionLoadCart() does after validating a token.
+        Craft::$app->getSession()->set('commerce:anonymousCartWithCredentialedCustomer:' . $cartNumber, true);
+
+        try {
+            $cart = Plugin::getInstance()->getCarts()->getCart();
+
+            // The cart is served as-is; the anonymous visitor doesn't take ownership.
+            self::assertSame($cartNumber, $cart->number);
+            self::assertEquals($credUser->id, $cart->getCustomerId());
+        } finally {
+            Craft::$app->getUser()->setIdentity($originalIdentity);
+            Craft::$app->getSession()->remove('commerce:anonymousCartWithCredentialedCustomer:' . $cartNumber);
+            Craft::$app->getElements()->deleteElement($cart, true);
+        }
+    }
+
+    /**
+     * When a logged-in user loads another credentialed user's cart via an authorized session,
+     * the cart should be acquired to the logged-in user's account.
+     *
+     * @see https://github.com/craftcms/commerce/issues/4225
+     */
+    public function testAuthorizedCredentialedCartAcquiredByLoggedInUser(): void
+    {
+        $cartNumber = Plugin::getInstance()->getCarts()->generateCartNumber();
+        Plugin::getInstance()->set('carts', $this->make(Carts::class, [
+            'getSessionCartNumber' => fn() => $cartNumber,
+        ]));
+
+        $credUser = $this->tester->grabFixture('customer')->getElement('credentialed-user');
+        $loadingUser = $this->tester->grabFixture('customer')->getElement('customer1');
+        $originalIdentity = Craft::$app->getUser()->getIdentity();
+        Craft::$app->getUser()->setIdentity($loadingUser);
+        Craft::$app->getUser()->getIdentity()->password = $loadingUser->password;
+
+        $order = new Order();
+        $order->number = $cartNumber;
+        $order->setCustomer($credUser);
+        Craft::$app->getElements()->saveElement($order, false);
+        self::assertEquals($credUser->id, $order->getCustomerId());
+
+        // Mirror what CartController::actionLoadCart() does after validating a token.
+        Craft::$app->getSession()->set('commerce:anonymousCartWithCredentialedCustomer:' . $cartNumber, true);
+
+        try {
+            $cart = Plugin::getInstance()->getCarts()->getCart();
+
+            // The cart is retained and acquired to the logged-in user.
+            self::assertSame($cartNumber, $cart->number);
+            self::assertEquals($loadingUser->id, $cart->getCustomerId());
+            self::assertEquals($loadingUser->email, $cart->getEmail());
+        } finally {
+            Craft::$app->getUser()->setIdentity($originalIdentity);
+            Craft::$app->getSession()->remove('commerce:anonymousCartWithCredentialedCustomer:' . $cartNumber);
+            Craft::$app->getElements()->deleteElement($cart, true);
+        }
+    }
+
     public function testPeekCartDoesNotStartCartSession(): void
     {
         $originalCarts = Plugin::getInstance()->getCarts();

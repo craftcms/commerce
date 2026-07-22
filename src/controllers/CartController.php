@@ -508,6 +508,12 @@ class CartController extends BaseFrontEndController
         $carts->forgetCart();
         $carts->setSessionCartNumber($number);
 
+        // Reaching this point means the cart was loaded via a valid token or by an authorized user.
+        // Authorize this session to use the cart even if it belongs to a credentialed user who isn't
+        // (yet) logged in. If the loader is logged in, Carts::getCart() will acquire the cart to their
+        // account on the next retrieval.
+        Craft::$app->getSession()->set('commerce:anonymousCartWithCredentialedCustomer:' . $number, true);
+
         if ($this->request->getAcceptsJson()) {
             return $this->asSuccess();
         }
