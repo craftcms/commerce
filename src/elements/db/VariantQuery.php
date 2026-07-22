@@ -778,8 +778,8 @@ class VariantQuery extends PurchasableQuery
         }
 
         $this->_applyHasProductParam();
-        $this->_applyEditableParam($this->editable, 'commerce-editProductType');
-        $this->_applyEditableParam($this->savable, 'commerce-editProductType');
+        $this->_applyEditableParam($this->editable, 'commerce-viewProductType');
+        $this->_applyEditableParam($this->savable, 'commerce-saveProductType');
 
         return parent::beforePrepare();
     }

@@ -14,6 +14,7 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\enums\LineItemType;
+use craft\commerce\enums\OrderNoticeType;
 use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\events\DiscountEvent;
 use craft\commerce\events\MatchLineItemEvent;
@@ -22,6 +23,7 @@ use craft\commerce\models\Coupon;
 use craft\commerce\models\Discount;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
+use craft\commerce\models\OrderNotice;
 use craft\commerce\Plugin;
 use craft\commerce\records\Coupon as CouponRecord;
 use craft\commerce\records\CustomerDiscountUse;
@@ -564,7 +566,7 @@ class Discounts extends Component
         $discounts = [];
 
         if ($purchasable->getId()) {
-            // @TODO figure out speed issue when there are a lot of discounts
+            // @TODO Optimize this loop on stores with many discounts; the per-discount Category/Entry relatedTo queries make it O(discounts) and can be slow
             foreach ($this->getAllDiscounts($purchasable->getStoreId()) as $discount) {
                 // Get discount by related purchasable
                 $purchasableIds = $discount->getPurchasableIds();
@@ -616,7 +618,7 @@ class Discounts extends Component
                 return false;
             }
 
-            // TODO: Rename to allEntries in Commerce 5
+            // @TODO Rename Discount::$allCategories to $allEntries in Commerce 6.0 to reflect the entryfication (categoryIds may now reference entry IDs)
             if (!$discount->allCategories) {
                 $key = 'relationshipType:' . $discount->categoryRelationshipType . ':purchasableId:' . $purchasable->getId() . ':categoryIds:' . implode('|', $discount->getCategoryIds());
 
@@ -947,7 +949,7 @@ class Discounts extends Component
      */
     public function ensureSortOrder(?int $storeId = null): void
     {
-        // @TODO ensure sort order per store
+        // @TODO Iterate over all stores when no storeId is passed, so sort order is normalized per-store rather than only for the current store
         $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         $table = Table::DISCOUNTS;
@@ -1220,6 +1222,30 @@ SQL;
                 ])
                 ->execute();
 
+            // Check if the total use limit has been exceeded (race condition / oversell scenario)
+            if (($discount['totalDiscountUseLimit'] ?? 0) > 0) {
+                $updatedUses = (new Query())
+                    ->select(['totalDiscountUses'])
+                    ->from([Table::DISCOUNTS])
+                    ->where(['id' => $discount['discountUseId']])
+                    ->scalar();
+                if ($updatedUses > $discount['totalDiscountUseLimit']) {
+                    $notice = Craft::createObject([
+                        'class' => OrderNotice::class,
+                        'attributes' => [
+                            'type' => 'discountUsageExceeded',
+                            'attribute' => 'couponCode',
+                            'message' => Craft::t('commerce', 'The discount "{name}" has exceeded its total usage limit of {limit}.', [
+                                'name' => $discount['name'] ?? $discount['discountUseId'],
+                                'limit' => $discount['totalDiscountUseLimit'],
+                            ]),
+                            'noticeType' => OrderNoticeType::Admin,
+                        ],
+                    ]);
+                    $order->addNotice($notice);
+                }
+            }
+
             // if there was a coupon on the order update its usage
             if ($order->couponCode && $coupon = CouponRecord::findOne(['code' => $order->couponCode, 'discountId' => $discount['discountUseId']])) {
                 Craft::$app->getDb()->createCommand()
@@ -1229,6 +1255,23 @@ SQL;
                         'id' => $coupon->id,
                     ])
                     ->execute();
+
+                // Check if the coupon's max uses has been exceeded
+                if ($coupon->maxUses !== null && ($coupon->uses + 1) > $coupon->maxUses) {
+                    $notice = Craft::createObject([
+                        'class' => OrderNotice::class,
+                        'attributes' => [
+                            'type' => 'couponUsageExceeded',
+                            'attribute' => 'couponCode',
+                            'message' => Craft::t('commerce', 'The coupon "{code}" has exceeded its usage limit of {limit}.', [
+                                'code' => $order->couponCode,
+                                'limit' => $coupon->maxUses,
+                            ]),
+                            'noticeType' => OrderNoticeType::Admin,
+                        ],
+                    ]);
+                    $order->addNotice($notice);
+                }
             }
 
             // Reset internal cache
@@ -1378,7 +1421,7 @@ SQL;
     private function _populateDiscounts(array $discounts): array
     {
         foreach ($discounts as &$discount) {
-            // @TODO remove this when we can widen the accepted params on the setters
+            // @TODO Remove this manual JSON decoding / default-value massaging once the Discount setters accept raw DB values (JSON strings, nulls) directly
 
             $discount['purchasableIds'] = !empty($discount['purchasableIds']) ? Json::decodeIfJson($discount['purchasableIds'], true) : [];
             // IDs can be either category ID or entry ID due to the entryfication

@@ -249,7 +249,7 @@ class TransfersController extends BaseCpController
 
         $html .= Html::hiddenInput('transferId', $transferId);
 
-        // TODO: Allow shortcut to receive and reject all
+        // @TODO Add shortcut links to accept-all and reject-all unreceived items in the receive-transfer modal
         // $html .= Html::a(Craft::t('commerce', 'Accept All Unreceived'), '#');
         // $html .= Html::a(Craft::t('commerce', 'Reject All Unreceived'), '#');
 

@@ -13,6 +13,8 @@ use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\enums\ContainsPurchasablesMatch;
+use craft\commerce\enums\OrderNoticeType;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
 use craft\db\Query;
@@ -211,6 +213,11 @@ class OrderQuery extends ElementQuery
     public mixed $hasPurchasables = null;
 
     /**
+     * @var array{purchasables: array<int|PurchasableInterface>, match: ContainsPurchasablesMatch}|null
+     */
+    public ?array $containsPurchasables = null;
+
+    /**
      * @var bool|null Whether the order has any transactions
      */
     public ?bool $hasTransactions = null;
@@ -219,6 +226,11 @@ class OrderQuery extends ElementQuery
      * @var bool|null Whether the order has any line items.
      */
     public ?bool $hasLineItems = null;
+
+    /**
+     * @var bool|null Whether the order has any admin notices.
+     */
+    public ?bool $hasAdminNotices = null;
 
     /**
      * @var bool Eager loads all relational data (addresses, adjustments, users, line items, transactions) for the resulting orders.
@@ -1357,6 +1369,12 @@ class OrderQuery extends ElementQuery
         return $this;
     }
 
+    public function hasAdminNotices(?bool $value = true): static
+    {
+        $this->hasAdminNotices = $value;
+        return $this;
+    }
+
     /**
      * Narrows the query results to only carts that have at least one transaction.
      *
@@ -1401,6 +1419,34 @@ class OrderQuery extends ElementQuery
     public function hasPurchasables(mixed $value): OrderQuery
     {
         $this->hasPurchasables = $value;
+
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on whether orders contain specific purchasables,
+     * with support for 'any', 'all', and 'only' match modes.
+     *
+     * The `purchasables` key accepts a mixed array of integer IDs and/or
+     * [[PurchasableInterface]] objects:
+     *
+     * ```php
+     * // IDs only
+     * ->containsPurchasables(['purchasables' => [1, 2, 3], 'match' => 'any'])
+     *
+     * // Objects only
+     * ->containsPurchasables(['purchasables' => [$variant1, $variant2], 'match' => 'all'])
+     *
+     * // Mixed
+     * ->containsPurchasables(['purchasables' => [1, $variant2, 3], 'match' => 'only'])
+     * ```
+     *
+     * @param array{purchasables: array<int|PurchasableInterface>, match: ContainsPurchasablesMatch} $value
+     * @return static self reference
+     */
+    public function containsPurchasables(array $value): OrderQuery
+    {
+        $this->containsPurchasables = $value;
 
         return $this;
     }
@@ -1555,7 +1601,7 @@ class OrderQuery extends ElementQuery
      */
     public function populate($rows): array
     {
-        // @TODO remove at next breaking change
+        // @TODO Remove in Commerce 6.0 once the `email` column is dropped from `commerce_orders` (email now lives on the customer)
         // Remove `email` key from each row.
         array_walk($rows, function(&$row) {
             if (array_key_exists('email', $row)) {
@@ -1616,7 +1662,7 @@ class OrderQuery extends ElementQuery
             'commerce_orders.orderStatusId',
             'commerce_orders.dateOrdered',
 
-            // @TODO remove at next breaking change
+            // @TODO Remove in Commerce 6.0 once the `email` column is dropped from `commerce_orders` (email now lives on the customer)
             'commerce_orders.email',
 
             'commerce_orders.isCompleted',
@@ -1639,6 +1685,7 @@ class OrderQuery extends ElementQuery
             'commerce_orders.gatewayId',
             'commerce_orders.paymentSourceId',
             'commerce_orders.customerId',
+            'commerce_orders.customerDeleted',
             'commerce_orders.dateUpdated',
             'commerce_orders.registerUserOnOrderComplete',
             'commerce_orders.saveBillingAddressOnOrderComplete',
@@ -1832,6 +1879,59 @@ class OrderQuery extends ElementQuery
             ]);
         }
 
+        if (isset($this->containsPurchasables)) {
+            $purchasableIds = [];
+            $purchasables = $this->containsPurchasables['purchasables'];
+            $match = $this->containsPurchasables['match'];
+
+            if (!is_array($purchasables)) {
+                $purchasables = [$purchasables];
+            }
+
+            foreach ($purchasables as $purchasable) {
+                if ($purchasable instanceof PurchasableInterface) {
+                    $purchasableIds[] = $purchasable->getId();
+                } elseif (is_numeric($purchasable)) {
+                    $purchasableIds[] = $purchasable;
+                }
+            }
+
+            $purchasableIds = array_values(array_filter($purchasableIds));
+
+            if ($match === ContainsPurchasablesMatch::All || $match === ContainsPurchasablesMatch::Only) {
+                // Every requested purchasable must have its own line item (AND logic)
+                foreach ($purchasableIds as $id) {
+                    $this->subQuery->andWhere([
+                        'exists',
+                        (new Query())
+                            ->from(['lineitems' => Table::LINEITEMS])
+                            ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]'))
+                            ->andWhere(['[[lineitems.purchasableId]]' => $id]),
+                    ]);
+                }
+
+                if ($match === ContainsPurchasablesMatch::Only) {
+                    // No line items with a purchasable outside the set, and no custom line items
+                    $this->subQuery->andWhere([
+                        'not exists',
+                        (new Query())
+                            ->from(['lineitems' => Table::LINEITEMS])
+                            ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]'))
+                            ->andWhere(['or', ['[[lineitems.purchasableId]]' => null], ['not', ['[[lineitems.purchasableId]]' => $purchasableIds]]]),
+                    ]);
+                }
+            } else {
+                // ContainsPurchasablesMatch::Any: at least one of the purchasables must be in the order
+                $this->subQuery->andWhere([
+                    'exists',
+                    (new Query())
+                        ->from(['lineitems' => Table::LINEITEMS])
+                        ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]'))
+                        ->andWhere(['[[lineitems.purchasableId]]' => $purchasableIds]),
+                ]);
+            }
+        }
+
         // Allow true or false but not null
         if (isset($this->hasTransactions)) {
             $this->subQuery->andWhere([
@@ -1849,6 +1949,17 @@ class OrderQuery extends ElementQuery
                 (new Query())
                     ->from(['lineitems' => Table::LINEITEMS])
                     ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]')),
+            ]);
+        }
+
+        if (isset($this->hasAdminNotices)) {
+            $this->subQuery->andWhere([
+                $this->hasAdminNotices ? 'exists' : 'not exists',
+                (new Query())
+                    ->select([new Expression('1')])
+                    ->from(['adminNotices' => Table::ORDERNOTICES])
+                    ->where(new Expression('[[adminNotices.orderId]] = [[elements.id]]'))
+                    ->andWhere(['adminNotices.noticeType' => OrderNoticeType::Admin->value]),
             ]);
         }
 

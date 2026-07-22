@@ -16,7 +16,9 @@ use craft\commerce\models\CatalogPricing as CatalogPricingModel;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\CatalogPricing as CatalogPricingJob;
+use craft\commerce\records\CatalogPricingQueue as CatalogPricingQueueRecord;
 use craft\db\Query;
+use craft\errors\DeprecationException;
 use craft\errors\SiteNotFoundException;
 use craft\events\ModelEvent;
 use craft\helpers\ArrayHelper;
@@ -111,7 +113,7 @@ class CatalogPricing extends Component
             ->groupBy('catalogPricingRuleId')
             ->column();
 
-        // @TODO maybe mark prices as pending update here?
+        // @TODO Consider marking catalog prices for the affected purchasables as pending here so consumers can detect a stale state while regeneration is in progress
 
         $cprStartTime = microtime(true);
         if ($showConsoleOutput) {
@@ -497,44 +499,29 @@ class CatalogPricing extends Component
      */
     public function createCatalogPricingJob(array $config = [], int $priority = 100): void
     {
-        // Mark prices as pending when creating a job
-        // pick out `purchasableIds`, `catalogPricingRuleIds` and `storeId` from config into new array
-        $catalogPricingRuleIds = $config['catalogPricingRuleIds'] ?? null;
-        $purchasableIds = $config['purchasableIds'] ?? null;
-        $storeId = $config['storeId'] ?? null;
-        $this->markPricesAsUpdatePending($catalogPricingRuleIds, $purchasableIds, $storeId);
+        $catalogPricingRuleIds = $this->_normalizeIds($config['catalogPricingRuleIds'] ?? null);
+        $purchasableIds = $this->_normalizeIds($config['purchasableIds'] ?? null);
 
-        $config = array_merge([
-            'class' => CatalogPricingJob::class,
-        ], $config);
-
-        $job = Craft::createObject($config);
-        QueueHelper::push($job, 100);
-
-        $jobsCache = Craft::$app->getCache()->get('catalog-pricing-jobs');
-        if ($jobsCache === false) {
-            $jobsCache = 0;
-        }
-
-        $jobsCache += 1;
-
-        Craft::$app->getCache()->set('catalog-pricing-jobs', $jobsCache, 0);
-    }
-
-    /**
-     * @param CatalogPricingJob $catalogPricingJob
-     * @return void
-     */
-    public function clearCatalogPricingJob(CatalogPricingJob $catalogPricingJob): void
-    {
-        $jobsCache = Craft::$app->getCache()->get('catalog-pricing-jobs');
-        if ($jobsCache === false) {
+        if ($catalogPricingRuleIds === [] && $purchasableIds === []) {
             return;
         }
 
-        $jobsCache -= 1;
+        $storeId = $config['storeId'] ?? null;
+        $this->markPricesAsUpdatePending($catalogPricingRuleIds, $purchasableIds, $storeId);
 
-        Craft::$app->getCache()->set('catalog-pricing-jobs', $jobsCache, 0);
+        // Queue purchasable-based and rule-based work into separate rows so they are never cross-contaminated.
+        // Catalog pricing rules determine which purchasables are relevant, so the two must be processed independently.
+
+        if (!empty($purchasableIds) || ($purchasableIds === null && empty($catalogPricingRuleIds))) {
+            // Specific purchasable IDs: these will be regenerated against all applicable rules
+            $this->_queueCatalogPricingIds($storeId, CatalogPricingQueueRecord::TYPE_PURCHASABLE, $purchasableIds);
+        }
+
+        if (!empty($catalogPricingRuleIds)) {
+            $this->_queueCatalogPricingIds($storeId, CatalogPricingQueueRecord::TYPE_RULE, $catalogPricingRuleIds);
+        }
+
+        QueueHelper::push(Craft::createObject(CatalogPricingJob::class), $priority);
     }
 
     /**
@@ -542,12 +529,152 @@ class CatalogPricing extends Component
      */
     public function areCatalogPricingJobsRunning(): bool
     {
-        if (empty(Craft::$app->getCache()->get('catalog-pricing-jobs'))) {
-            return false;
+        return (new Query())
+            ->from(Table::CATALOG_PRICING_QUEUE)
+            ->exists();
+    }
+
+    /**
+     * Reserves one pending queue row for processing.
+     *
+     * @return CatalogPricingQueueRecord|null
+     * @since 5.7.0
+     */
+    public function reserveCatalogPricingQueueRow(): ?CatalogPricingQueueRecord
+    {
+        $mutex = Craft::$app->getMutex();
+
+        // Use the same lock as the write methods so that reservation and inserts/merges are fully serialised.
+        // Non-blocking: if a write operation is currently holding the lock, return null and let the next
+        // queue job execution pick up the row instead.
+        if (!$mutex->acquire('catalogpricingqueue', 0)) {
+            return null;
         }
 
-        return true;
+        try {
+            $pendingId = (new Query())
+                ->select(['id'])
+                ->from(Table::CATALOG_PRICING_QUEUE)
+                ->where(['reserved' => false])
+                ->orderBy(['id' => SORT_ASC])
+                ->scalar();
+
+            if (!$pendingId) {
+                return null;
+            }
+
+            /** @var CatalogPricingQueueRecord|null $record */
+            $record = CatalogPricingQueueRecord::findOne(['id' => (int)$pendingId, 'reserved' => false]);
+
+            if (!$record) {
+                return null;
+            }
+
+            $record->reserved = true;
+            $record->save(false);
+
+            return $record;
+        } finally {
+            $mutex->release('catalogpricingqueue');
+        }
     }
+
+    /**
+     * @param int $id
+     * @return void
+     * @throws Exception
+     * @since 5.7.0
+     */
+    public function releaseCatalogPricingQueueRowById(int $id): void
+    {
+        $record = CatalogPricingQueueRecord::findOne($id);
+        if ($record) {
+            $record->reserved = false;
+            $record->save(false);
+        }
+    }
+
+    /**
+     * @param int $id
+     * @return void
+     * @since 5.7.0
+     */
+    public function deleteCatalogPricingQueueRowById(int $id): void
+    {
+        CatalogPricingQueueRecord::deleteAll(['id' => $id]);
+    }
+
+    /**
+     * Queues catalog pricing regeneration IDs by row type, merging into any existing unreserved row
+     * for the same store and type.
+     *
+     * @param int|null $storeId
+     * @param string $type
+     * @param array|null $ids
+     * @return void
+     * @throws Exception
+     * @throws \RuntimeException if the queue mutex cannot be acquired
+     */
+    private function _queueCatalogPricingIds(?int $storeId, string $type, ?array $ids): void
+    {
+        $mutex = Craft::$app->getMutex();
+
+        if (!$mutex->acquire('catalogpricingqueue', 5)) {
+            throw new \RuntimeException('Unable to acquire the catalog pricing queue mutex.');
+        }
+
+        try {
+            // Merge into an existing unreserved row for the same store and type.
+            // _mergeIdSets keeps null when either side is null (broader scope wins).
+            /** @var CatalogPricingQueueRecord|null $pendingRecord */
+            $pendingRecord = CatalogPricingQueueRecord::findOne([
+                'storeId' => $storeId,
+                'type' => $type,
+                'reserved' => false,
+            ]);
+
+            if ($pendingRecord) {
+                // Merge IDs, preserving null to represent the broader "all IDs" scope.
+                $pendingIds = $pendingRecord->getIds();
+                $ids = ($pendingIds === null || $ids === null)
+                    ? null
+                    : $this->_normalizeIds(array_merge($pendingIds, $ids));
+
+                $pendingRecord->setIds($ids);
+                $pendingRecord->save(false);
+
+                return;
+            }
+
+            $record = new CatalogPricingQueueRecord();
+            $record->storeId = $storeId;
+            $record->type = $type;
+            $record->setIds($ids);
+            $record->reserved = false;
+            $record->save(false);
+        } finally {
+            $mutex->release('catalogpricingqueue');
+        }
+    }
+
+    /**
+     * @param array|null $ids
+     * @return array|null
+     * @since 5.7.0
+     */
+    private function _normalizeIds(?array $ids): ?array
+    {
+        if ($ids === null) {
+            return null;
+        }
+
+        $ids = array_map(fn(mixed $id) => (int)$id, $ids);
+        $ids = array_values(array_unique(array_filter($ids, fn(int $id) => $id > 0)));
+        sort($ids, SORT_NUMERIC);
+
+        return $ids;
+    }
+
 
     /**
      * Creates query for catalog pricing.
@@ -559,6 +686,7 @@ class CatalogPricing extends Component
      * @param CatalogPricingCondition|null $condition
      * @return Query
      * @throws InvalidConfigException
+     * @throws DeprecationException
      * @deprecated in 5.1.0. Use `createCatalogPricesQuery()` instead.
      */
     public function createCatalogPricingQuery(?int $userId = null, int|string|null $storeId = null, ?bool $isPromotionalPrice = null, bool $allPrices = false, ?CatalogPricingCondition $condition = null): Query

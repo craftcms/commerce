@@ -131,7 +131,7 @@ class TaxRate extends Model implements HasStoreInterface, Chippable
     public function attributes(): array
     {
         $names = parent::attributes();
-        $names[] = 'isVat'; // TODO remove in Commerce 6.x
+        $names[] = 'isVat'; // @TODO Remove the deprecated `isVat` attribute in Commerce 6.0
         return $names;
     }
 

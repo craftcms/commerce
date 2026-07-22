@@ -19,6 +19,7 @@ use craft\commerce\models\ProductType;
 use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
+use craft\commerce\records\CatalogPricingQueue;
 use craft\commerce\records\CatalogPricingRule;
 use craft\commerce\records\InventoryLocation;
 use craft\commerce\records\TaxCategory;
@@ -118,7 +119,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::CATALOG_PRICING);
         $this->createTable(Table::CATALOG_PRICING, [
             'id' => $this->primaryKey(),
-            'price' => $this->decimal(14, 4), // TODO probably store as string?
+            'price' => $this->decimal(14, 4), // @TODO Consider storing as string to avoid float-precision issues
             'purchasableId' => $this->integer()->notNull(),
             'storeId' => $this->integer(),
             'catalogPricingRuleId' => $this->integer(),
@@ -127,6 +128,18 @@ class Install extends Migration
             'dateTo' => $this->dateTime(),
             'isPromotionalPrice' => $this->boolean()->defaultValue(false),
             'hasUpdatePending' => $this->boolean()->defaultValue(false),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
+        $this->archiveTableIfExists(Table::CATALOG_PRICING_QUEUE);
+        $this->createTable(Table::CATALOG_PRICING_QUEUE, [
+            'id' => $this->primaryKey(),
+            'storeId' => $this->integer(),
+            'type' => $this->enum('type', [CatalogPricingQueue::TYPE_PURCHASABLE, CatalogPricingQueue::TYPE_RULE])->notNull(),
+            'ids' => $this->mediumText(),
+            'reserved' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -189,7 +202,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        // TODO: rename to `discount_entries` table in Commerce 5 or remove if purchasable condition builder can replace it
+        // @TODO Rename to `discount_entries` table in Commerce 6.0, or remove if the purchasable condition builder fully replaces it
         $this->archiveTableIfExists(Table::DISCOUNT_CATEGORIES);
         $this->createTable(Table::DISCOUNT_CATEGORIES, [
             'id' => $this->primaryKey(),
@@ -455,6 +468,7 @@ class Install extends Migration
             'type' => $this->string(),
             'attribute' => $this->string(),
             'message' => $this->text(),
+            'noticeType' => $this->string()->notNull()->defaultValue('customer'),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -487,6 +501,7 @@ class Install extends Migration
             'gatewayId' => $this->integer(),
             'paymentSourceId' => $this->integer(),
             'customerId' => $this->integer(), // Customer ID is a User element ID
+            'customerDeleted' => $this->boolean()->notNull()->defaultValue(false),
             'orderStatusId' => $this->integer(),
             'number' => $this->string(32),
             'reference' => $this->string(),
@@ -719,8 +734,8 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'purchasableId' => $this->integer()->notNull(),
             'storeId' => $this->integer()->notNull(),
-            'basePrice' => $this->decimal(14, 4), // @TODO - should this be a string?
-            'basePromotionalPrice' => $this->decimal(14, 4), // @TODO - should this be a string?
+            'basePrice' => $this->decimal(14, 4), // @TODO Consider storing as string to avoid float-precision issues
+            'basePromotionalPrice' => $this->decimal(14, 4), // @TODO Consider storing as string to avoid float-precision issues
             'promotable' => $this->boolean()->notNull()->defaultValue(false),
             'availableForPurchase' => $this->boolean()->notNull()->defaultValue(true),
             'freeShipping' => $this->boolean()->notNull()->defaultValue(true),
@@ -747,7 +762,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        // TODO: rename to `sale_entries` table in Commerce 5 or remove if purchasable condition builder can replace it
+        // @TODO Rename to `sale_entries` table in Commerce 6.0, or remove if the purchasable condition builder fully replaces it
         $this->archiveTableIfExists(Table::SALE_CATEGORIES);
         $this->createTable(Table::SALE_CATEGORIES, [
             'id' => $this->primaryKey(),
@@ -1050,7 +1065,7 @@ class Install extends Migration
             'id' => $this->integer()->notNull(),
             'primaryOwnerId' => $this->integer(),
             'isDefault' => $this->boolean()->notNull()->defaultValue(false),
-            'deletedWithProduct' => $this->boolean()->notNull()->defaultValue(false), // TODO: Remove in 6.0
+            'deletedWithProduct' => $this->boolean()->notNull()->defaultValue(false), // @TODO Remove in Commerce 6.0
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -1090,6 +1105,8 @@ class Install extends Migration
         $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId', 'isPromotionalPrice', 'price', 'catalogPricingRuleId', 'dateFrom', 'dateTo'], false);
         $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId', 'isPromotionalPrice', 'price'], false);
         $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId'], false);
+        $this->createIndex(null, Table::CATALOG_PRICING_QUEUE, 'reserved', false);
+        $this->createIndex(null, Table::CATALOG_PRICING_QUEUE, ['storeId', 'type', 'reserved'], false);
         $this->createIndex(null, Table::CATALOG_PRICING_RULES, 'storeId', false);
         $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'catalogPricingRuleId', false);
         $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'userId', false);
@@ -1214,6 +1231,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::CATALOG_PRICING, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CATALOG_PRICING, ['storeId'], Table::STORES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::CATALOG_PRICING, ['userId'], CraftTable::USERS, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::CATALOG_PRICING_QUEUE, ['storeId'], Table::STORES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CATALOG_PRICING_RULES, ['storeId'], Table::STORES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_USERS, ['catalogPricingRuleId'], Table::CATALOG_PRICING_RULES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_USERS, ['userId'], CraftTable::USERS, ['id'], 'CASCADE', 'CASCADE');
@@ -1310,7 +1328,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['orderId'], Table::ORDERS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['planId'], Table::PLANS, ['id'], 'RESTRICT');
-        $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['userId'], CraftTable::USERS, ['id'], 'RESTRICT');
+        $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['userId'], CraftTable::USERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::TAXRATES, ['storeId'], Table::STORES, ['id'], 'CASCADE', null);
         $this->addForeignKey(null, Table::TAXRATES, ['taxCategoryId'], Table::TAXCATEGORIES, ['id'], null, 'CASCADE');
         $this->addForeignKey(null, Table::TAXRATES, ['taxZoneId'], Table::TAXZONES, ['id'], null, 'CASCADE');
@@ -1354,7 +1372,7 @@ class Install extends Migration
         } elseif ($installedInProjectConfig) {
 
             // Start fix for a bad commerce project config from the 5.0.0-beta.1
-            // TODO: Remove this in the next major release
+            // @TODO Remove this fix-up for the 5.0.0-beta.1 bad store key in Commerce 6.0
             $commerce = $projectConfig->get('commerce', true);
 
             foreach (array_keys($commerce) as $key) {

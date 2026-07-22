@@ -175,7 +175,7 @@ class InventoryLocations extends Component
 //                Craft::$app->getElements()->saveElement($draftTransfer, false);
 //            }
 
-            // TODO: Add draft purchase order swapping
+            // @TODO Reassign any draft purchase orders that target the deactivated inventory location to the destination location (mirroring the draft transfer handling above)
 
             $inventoryLevels = Plugin::getInstance()->getInventory()->getInventoryLocationLevels($deactivateInventoryLocation->inventoryLocation);
             /** @var InventoryLevel $inventoryLevel */

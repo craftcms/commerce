@@ -58,7 +58,7 @@ class TopProductTypes extends Stat
         $selectTotalRevenue = new Expression('SUM([[li.total]]) as revenue');
         $orderByRevenue = new Expression('SUM([[li.total]]) DESC');
 
-        $editableProductTypeIds = Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds();
+        $viewableProductTypeIds = Plugin::getInstance()->getProductTypes()->getViewableProductTypeIds();
 
         $results = $this->_createStatQuery()
             ->select([
@@ -78,7 +78,7 @@ class TopProductTypes extends Stat
                 ['es.siteId' => $primarySite->id],
             ])
             ->andWhere(['not', ['pt.name' => null]])
-            ->andWhere(['pt.id' => $editableProductTypeIds])
+            ->andWhere(['pt.id' => $viewableProductTypeIds])
             ->groupBy('[[pt.id]]')
             ->orderBy($this->type == 'revenue' ? $orderByRevenue : $orderByQty)
             ->limit($this->limit);

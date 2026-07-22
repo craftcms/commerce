@@ -1,0 +1,6 @@
+<p>{{ 'Move {qty} from {fromType} to {toType}'|t('commerce',
+    {
+        qty: inventoryMovement.quantity,
+        fromType: inventoryMovement.fromInventoryTransactionType.typeAsLabel(),
+        toType: inventoryMovement.toInventoryTransactionType.typeAsLabel()
+    }) }}</p>

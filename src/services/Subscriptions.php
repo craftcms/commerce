@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\Plan;
 use craft\commerce\base\SubscriptionGatewayInterface;
+use craft\commerce\elements\deletionblockers\SubscriptionCustomersDeletionBlocker;
 use craft\commerce\elements\Subscription;
 use craft\commerce\errors\SubscriptionException;
 use craft\commerce\events\CancelSubscriptionEvent;
@@ -22,10 +23,11 @@ use craft\commerce\models\subscriptions\SubscriptionForm;
 use craft\commerce\models\subscriptions\SubscriptionPayment;
 use craft\commerce\models\subscriptions\SwitchPlansForm;
 use craft\commerce\records\Subscription as SubscriptionRecord;
+use craft\elements\ElementCollection;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\events\ConfigEvent;
-use craft\events\ModelEvent;
+use craft\events\DefineElementDeletionBlockersEvent;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\models\FieldLayout;
@@ -34,7 +36,6 @@ use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
-use yii\base\UserException;
 
 /**
  * Subscriptions service.
@@ -396,19 +397,34 @@ class Subscriptions extends Component
     /**
      * Prevent deleting a user if they have any subscriptions - active or otherwise.
      *
-     * @param ModelEvent $event the event.
+     * @param DefineElementDeletionBlockersEvent $event the event.
      */
-    public function beforeDeleteUserHandler(ModelEvent $event): void
+    public function beforeDeleteUserHandler(DefineElementDeletionBlockersEvent $event): void
     {
-        /** @var User $user */
-        $user = $event->sender;
+        /** @var ElementCollection<int|string, Subscription> $subscriptions */
+        $subscriptions = Subscription::find()
+            ->userId($event->elements->ids()->all())
+            ->status(null)
+            ->limit(null)
+            ->collect();
 
-        // If there are any subscriptions, make sure that this is not allowed.
-        if ($this->doesUserHaveSubscriptions($user->id)) {
-            // TODO revise this stop-gap measure when Craft CMS gets a way to hook into the user delete process.
-            throw new UserException(Craft::t('commerce', 'Unable to delete user {user}: the user has a Craft Commerce subscription.', [
-                'user' => $user->id,
-            ]));
+        foreach ($subscriptions->groupBy(fn(Subscription $subscription) => (string)($subscription->gatewayId ?? 0)) as $gatewaySubscriptions) {
+            /** @var Subscription $first */
+            $first = $gatewaySubscriptions->first();
+            $gateway = $first->getGateway();
+
+            if (!$gateway instanceof SubscriptionGatewayInterface) {
+                continue;
+            }
+
+            $event->blockers[] = new SubscriptionCustomersDeletionBlocker(
+                $event->elements,
+                $event->hardDelete,
+                [
+                    'gatewayId' => $first->gatewayId,
+                    'subscriptions' => $gatewaySubscriptions,
+                ]
+            );
         }
     }
 

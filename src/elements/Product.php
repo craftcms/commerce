@@ -11,6 +11,7 @@ use Craft;
 use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\base\Field;
+use craft\behaviors\DraftBehavior;
 use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\StoreTrait;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
@@ -225,7 +226,7 @@ class Product extends Element implements HasStoreInterface
     protected static function defineSources(string $context = null): array
     {
         if ($context == 'index') {
-            $productTypes = Plugin::getInstance()->getProductTypes()->getEditableProductTypes();
+            $productTypes = Plugin::getInstance()->getProductTypes()->getViewableProductTypes();
             $editable = true;
         } else {
             $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
@@ -256,14 +257,14 @@ class Product extends Element implements HasStoreInterface
 
         foreach ($productTypes as $productType) {
             $key = 'productType:' . $productType->uid;
-            $canEditProducts = $user && $user->can('commerce-editProductType:' . $productType->uid);
+            $canSaveProducts = $user && $user->can('commerce-saveProductType:' . $productType->uid);
 
             $sources[$key] = [
                 'key' => $key,
                 'label' => Craft::t('site', $productType->name),
                 'data' => [
                     'handle' => $productType->handle,
-                    'editable' => $canEditProducts,
+                    'editable' => $canSaveProducts,
                 ],
                 'criteria' => [
                     'typeId' => $productType->id,
@@ -276,7 +277,7 @@ class Product extends Element implements HasStoreInterface
             if ($productType->isStructure) {
                 $sources[$key]['defaultSort'] = ['structure', 'asc'];
                 $sources[$key]['structureId'] = $productType->structureId;
-                $sources[$key]['structureEditable'] = $canEditProducts;
+                $sources[$key]['structureEditable'] = $canSaveProducts;
             } else {
                 $sources[$key]['defaultSort'] = ['postDate', 'desc'];
             }
@@ -356,7 +357,7 @@ class Product extends Element implements HasStoreInterface
         switch ($source) {
             case '*':
             {
-                $productTypes = Plugin::getInstance()->getProductTypes()->getEditableProductTypes();
+                $productTypes = Plugin::getInstance()->getProductTypes()->getViewableProductTypes();
                 break;
             }
             default:
@@ -398,14 +399,13 @@ class Product extends Element implements HasStoreInterface
         } elseif (!empty($productTypes)) {
             $userSession = Craft::$app->getUser();
             $currentUser = $userSession->getIdentity();
-            $productTypeService = Plugin::getInstance()->getProductTypes();
 
             foreach ($productTypes as $productType) {
-                $canDelete = $productTypeService->hasPermission($currentUser, $productType, 'commerce-deleteProducts');
-                $canCreate = $productTypeService->hasPermission($currentUser, $productType, 'commerce-createProducts');
-                $canEdit = $productTypeService->hasPermission($currentUser, $productType, 'commerce-editProductType');
+                $canDelete = $currentUser->can('commerce-deleteProductType:' . $productType->uid);
+                $canCreate = $currentUser->can('commerce-createProductType:' . $productType->uid);
+                $canSave = $currentUser->can('commerce-saveProductType:' . $productType->uid);
 
-                if ($canCreate) {
+                if ($canCreate && $canSave) {
                     // Duplicate
                     $actions[] = [
                         'type' => Duplicate::class,
@@ -423,7 +423,7 @@ class Product extends Element implements HasStoreInterface
                     $actions[] = $deleteAction;
                 }
 
-                if ($canEdit) {
+                if ($canSave) {
                     $actions[] = SetStatus::class;
                 }
 
@@ -952,7 +952,7 @@ JS, [
             return false;
         }
 
-        return $user->can('commerce-editProductType:' . $productType->uid);
+        return $user->can('commerce-viewProductType:' . $productType->uid);
     }
 
     /**
@@ -970,7 +970,17 @@ JS, [
             return false;
         }
 
-        return $user->can('commerce-editProductType:' . $productType->uid);
+        if ($this->getIsDraft()) {
+            /** @var static|DraftBehavior $this */
+            return $this->canCreateDrafts($user);
+        }
+
+        // New products require create permission
+        if (!$this->id) {
+            return $user->can('commerce-createProductType:' . $productType->uid);
+        }
+
+        return $user->can('commerce-saveProductType:' . $productType->uid);
     }
 
     /**
@@ -988,7 +998,8 @@ JS, [
             return false;
         }
 
-        return Plugin::getInstance()->getProductTypes()->hasPermission($user, $productType, 'commerce-createProducts');
+        return $user->can('commerce-createProductType:' . $productType->uid)
+            && $user->can('commerce-saveProductType:' . $productType->uid);
     }
 
     /**
@@ -1006,7 +1017,7 @@ JS, [
             return false;
         }
 
-        return Plugin::getInstance()->getProductTypes()->hasPermission($user, $productType, 'commerce-deleteProducts');
+        return $user->can('commerce-deleteProductType:' . $productType->uid);
     }
 
     /**
@@ -1032,7 +1043,7 @@ JS, [
     {
         $productType = $this->getType();
 
-        $productTypes = Collection::make(Plugin::getInstance()->getProductTypes()->getEditableProductTypes());
+        $productTypes = Collection::make(Plugin::getInstance()->getProductTypes()->getViewableProductTypes());
         /** @var Collection $productTypeOptions */
         $productTypeOptions = $productTypes
             ->map(fn(ProductType $t) => [
@@ -1065,7 +1076,7 @@ JS, [
         if ($this->typeId) {
             $uiLabelFormat = $this->getType()->productUiLabelFormat;
             if ($uiLabelFormat !== '{title}') {
-                $uiLabel = Craft::$app->getView()->renderObjectTemplate($uiLabelFormat, $this);
+                $uiLabel = Craft::$app->getView()->renderSandboxedObjectTemplate($uiLabelFormat, $this);
                 if ($uiLabel !== '') {
                     return $uiLabel;
                 }
@@ -1220,7 +1231,7 @@ JS, [
         }
 
         // When reordering variants we need to make sure disabled variants are included when calculating sort order
-        // @TODO: Remove in 6.0 when updating `getVariants()` to start returning an element query instance.
+        // @TODO Remove this controller-based default in Commerce 6.0 when `getVariants()` is updated to return an element query instance
         $includeDisabled ??= Craft::$app->controller instanceof NestedElementsController;
 
         return $this->_variants->filter(fn(Variant $variant) => $includeDisabled || ($variant->getStatus() === self::STATUS_ENABLED));
@@ -1765,7 +1776,7 @@ JS, [
             // Set Craft to the entry's site's language, in case the title format has any static translations
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
-            $title = Craft::$app->getView()->renderObjectTemplate($productType->productTitleFormat, $this);
+            $title = Craft::$app->getView()->renderSandboxedObjectTemplate($productType->productTitleFormat, $this);
             if ($title !== '') {
                 $this->title = $title;
             }
@@ -1784,7 +1795,7 @@ JS, [
         foreach ($this->getVariants(true) as $variant) {
             if (!$variant->sku && $type->skuFormat) {
                 try {
-                    $variant->sku = Craft::$app->getView()->renderObjectTemplate($type->skuFormat, $variant);
+                    $variant->sku = Craft::$app->getView()->renderSandboxedObjectTemplate($type->skuFormat, $variant);
                 } catch (\Exception $e) {
                     Craft::error('Craft Commerce could not generate the supplied SKU format: ' . $e->getMessage(), __METHOD__);
                     $variant->sku = '';
@@ -2176,7 +2187,7 @@ JS, [
         $this->getVariantManager()->maintainNestedElements($this, $isNew);
         parent::afterPropagate($isNew);
 
-        // @TODO improve performance by collating all purchasable IDs updated during request
+        // @TODO Collate purchasable IDs updated across the request and queue a single catalog pricing job, rather than one per product propagate
         if (!$this->getIsDraft()) {
             Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
                 'purchasableIds' => $this->getVariants()->pluck('id')->all(),

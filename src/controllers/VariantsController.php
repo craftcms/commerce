@@ -7,6 +7,8 @@
 
 namespace craft\commerce\controllers;
 
+use craft\commerce\Plugin;
+use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
 /**
@@ -17,6 +19,19 @@ use yii\web\Response;
  */
 class VariantsController extends BaseCpController
 {
+    /**
+     * @inheritdoc
+     * @throws ForbiddenHttpException
+     */
+    public function init(): void
+    {
+        parent::init();
+
+        if (empty(Plugin::getInstance()->getProductTypes()->getViewableProductTypeIds(true))) {
+            throw new ForbiddenHttpException('User is not permitted to view any product types.');
+        }
+    }
+
     /**
      * @return Response
      */

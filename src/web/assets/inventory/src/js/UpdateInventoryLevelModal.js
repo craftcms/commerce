@@ -9,6 +9,7 @@ if (typeof Craft.Commerce === typeof undefined) {
 Craft.Commerce.UpdateInventoryLevelModal = Craft.CpModal.extend({
   $quantityInput: null,
   $typeInput: null,
+  $preview: null,
 
   init: function (settings) {
     this.desiredWidth = 400;
@@ -28,6 +29,8 @@ Craft.Commerce.UpdateInventoryLevelModal = Craft.CpModal.extend({
     const typeId = Craft.namespaceId('updateAction', this.namespace);
     this.$typeInput = this.$container.find('#' + typeId);
     this.addListener(this.$typeInput, 'change', this.refresh);
+
+    this.$preview = this.$container.find('.js-inventory-levels-preview');
   },
   refresh: function () {
     let postData = Garnish.getPostData(this.$container);
@@ -35,22 +38,18 @@ Craft.Commerce.UpdateInventoryLevelModal = Craft.CpModal.extend({
 
     let data = {
       data: expandedData,
+      // `preview` is a query param so it survives the X-Craft-Namespace body stripping
+      params: {preview: 1},
       headers: {
         'X-Craft-Namespace': this.namespace,
       },
     };
 
+    // Only swap the preview region, never the form inputs — replacing the
+    // quantity input mid-typing would reset the caret and clobber keystrokes.
     Craft.sendActionRequest('POST', this.action, data).then((response) => {
-      this.showLoadSpinner();
-      this.update(response.data)
-        .then(() => {
-          // focus on the quantity input
-          this.$quantityInput.trigger('focus');
-          this.updateSizeAndPosition();
-        })
-        .finally(() => {
-          this.hideLoadSpinner();
-        });
+      this.$preview.html(response.data.previewHtml);
+      this.updateSizeAndPosition();
     });
   },
   debounce: function (func, delay) {

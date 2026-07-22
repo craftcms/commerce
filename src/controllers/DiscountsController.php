@@ -575,7 +575,7 @@ JS;
         $idsOrdered = [];
         foreach ($ids as $id) {
             // Temporary -1 because the `reorderDiscounts()` method will increment the key before saving.
-            // @TODO update this when we can change the behaviour of the `reorderDiscounts()` method.
+            // @TODO Remove the `$key - 1` offset once `reorderDiscounts()` can be changed to not pre-increment the key (Commerce 6.0)
             $idsOrdered[$key - 1] = $id;
             $key++;
         }
@@ -601,7 +601,7 @@ JS;
         $page = $this->request->getRequiredBodyParam('page');
         $perPage = $this->request->getRequiredBodyParam('perPage');
 
-        // @TODO figure out moving based on `storeId`
+        // @TODO Scope discount move-to-page operations by `storeId` so reordering only affects the active store
 
         if (AdminTable::moveToPage(Table::DISCOUNTS, $id, $page, $perPage)) {
             return $this->asSuccess(Craft::t('commerce', 'Discounts reordered.'));

@@ -149,6 +149,15 @@ class Settings extends Model
     public ?string $loadCartRedirectUrl = null;
 
     /**
+     * @var int How long (in seconds) a cart recovery link should remain valid before expiring.
+     * Default is 604800 (7 days).
+     *
+     * @group Cart
+     * @since 5.7.0
+     */
+    public int $loadCartUrlExpiry = 604800;
+
+    /**
      * @var array|null ISO codes for supported payment currencies.
      *
      * See [Payment Currencies](https://craftcms.com/docs/commerce/5.x/system/payment-currencies.html).

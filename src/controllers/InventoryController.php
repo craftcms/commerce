@@ -21,6 +21,8 @@ use craft\commerce\models\InventoryItem;
 use craft\commerce\models\InventoryLocation;
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\inventory\InventoryAsset;
+use craft\db\Query;
+use craft\db\Table as CraftTable;
 use craft\enums\MenuItemType;
 use craft\errors\DeprecationException;
 use craft\helpers\AdminTable;
@@ -224,12 +226,12 @@ class InventoryController extends BaseCpController
         $inventoryLevelsManagerContainerId = $this->request->getRequiredParam('containerId');
         $inventoryItemId = $this->request->getParam('inventoryItemId'); // Used for quick link to manage stock
         $page = $this->request->getParam('page', 1);
-        $limit = $this->request->getParam('per_page', 25);
+        $limit = $this->request->getParam('per_page', 15);
         $offset = ($page - 1) * $limit;
         $inventoryLocationId = (int)Craft::$app->getRequest()->getParam('inventoryLocationId');
         $search = $this->request->getParam('search');
 
-        $inventoryQuery = Plugin::getInstance()->getInventory()->getInventoryLevelQuery(limit: $limit, offset: $offset)
+        $inventoryQuery = Plugin::getInstance()->getInventory()->getInventoryLevelQuery(limit: $limit, offset: $offset, inventoryLocationId: $inventoryLocationId)
             ->andWhere(['inventoryLocationId' => $inventoryLocationId]);
 
         if ($inventoryItemId) {
@@ -243,7 +245,8 @@ class InventoryController extends BaseCpController
         $inventoryQuery->andWhere(['not', ['elements.id' => null]]);
 
         if ($search) {
-            $inventoryQuery->andWhere(['or', ['like', 'purchasables.description', $search], ['like', 'purchasables.sku', $search]]);
+            $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ilike' : 'like';
+            $inventoryQuery->andWhere(['or', [$likeOperator, 'purchasables.description', $search], [$likeOperator, 'purchasables.sku', $search]]);
         }
 
         $sort = $this->request->getParam('sort');
@@ -288,12 +291,35 @@ class InventoryController extends BaseCpController
             ->offset(null)
             ->count();
 
+        // Batch-load all purchasables for this page in one query per element type,
+        // rather than one getElementById call per row.
+        $requestedSite = Cp::requestedSite();
+        $purchasableIds = array_unique(array_filter(array_column($inventoryTableData, 'purchasableId')));
+        $purchasablesMap = [];
+        if ($purchasableIds) {
+            $elementTypes = (new Query())
+                ->select(['id', 'type'])
+                ->from(CraftTable::ELEMENTS)
+                ->where(['id' => $purchasableIds])
+                ->pairs();
+            $byType = [];
+            foreach ($elementTypes as $id => $type) {
+                /** @var class-string<\craft\base\Element> $type */
+                $byType[$type][] = $id;
+            }
+            foreach ($byType as $type => $ids) {
+                foreach ($type::find()->id($ids)->siteId($requestedSite->id)->all() as $element) {
+                    $purchasablesMap[$element->id] = $element;
+                }
+            }
+        }
+
         $view = Craft::$app->getView();
         $time = microtime(true);
         foreach ($inventoryTableData as $key => &$inventoryLevel) {
             $id = $inventoryLevel['inventoryItemId'];
             /** @var ?Purchasable $purchasable */
-            $purchasable = \Craft::$app->getElements()->getElementById($inventoryLevel['purchasableId'], siteId: Cp::requestedSite()->id);
+            $purchasable = $purchasablesMap[$inventoryLevel['purchasableId']] ?? null;
             $inventoryItemDomId = sprintf("edit-$id-link-%s", mt_rand());
             if ($purchasable) {
                 // When providing the `labelHtml` option we need to encode it ourselves
@@ -323,7 +349,7 @@ JS, [
                 $inventoryLevelsManagerContainerId,
             ]);
 
-            // TODO: Look to reduce the number of modal click listeners.
+            // @TODO Reduce the number of per-row modal click listeners registered here for inventory level columns
             $columnTypes = [...InventoryTransactionType::values(), 'onHand'];
             ArrayHelper::removeValue($columnTypes, 'fulfilled');
             foreach ($columnTypes as $type) {
@@ -599,6 +625,13 @@ JS, [
             'note' => $note,
         ];
 
+        // Live preview refresh only swaps the preview region, leaving the form inputs untouched.
+        if ($this->request->getParam('preview')) {
+            return $this->asJson([
+                'previewHtml' => Craft::$app->getView()->renderTemplate('commerce/inventory/levels/_updateInventoryLevelPreview', $params),
+            ]);
+        }
+
         return $this->asCpModal()
             ->action('commerce/inventory/update-levels')
             ->submitButtonLabel(Craft::t('commerce', 'Update'))
@@ -693,6 +726,13 @@ JS, [
             'toInventoryTransactionTypes' => $movableTo,
             'maxFromQuantity' => $fromTotal,
         ];
+
+        // Live preview refresh only swaps the preview region, leaving the form inputs untouched.
+        if ($this->request->getParam('preview')) {
+            return $this->asJson([
+                'previewHtml' => Craft::$app->getView()->renderTemplate('commerce/inventory/levels/_inventoryMovementPreview', $params),
+            ]);
+        }
 
         return $this->asCpModal()
             ->action('commerce/inventory/save-inventory-movement')

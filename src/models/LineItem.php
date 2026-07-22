@@ -375,7 +375,7 @@ class LineItem extends Model implements HasStoreInterface
             return $options;
         };
 
-        // TODO make this consistent no matter what the DB driver is. Will be a "breaking" change. #COM-46
+        // @TODO Normalize emoji handling in options to a consistent shape across DB drivers (currently only stripped when MB4 is unsupported); breaking change targeted for Commerce 6.0 #COM-46
         if (Craft::$app->getDb()->getSupportsMb4()) {
             $this->_options = $options;
         } else {
@@ -585,7 +585,7 @@ class LineItem extends Model implements HasStoreInterface
             }
         }
 
-        // TODO: If order is complete, qty can not be less that total fulfilled across locations
+        // @TODO Add a validation rule preventing qty from being reduced below the total fulfilled quantity across inventory locations when the order is complete
 
         return $rules;
     }
@@ -669,15 +669,15 @@ class LineItem extends Model implements HasStoreInterface
      */
     public function extraFields(): array
     {
-        return [
+        return array_values(array_filter([
             'lineItemStatus',
             'order',
-            'purchasable',
+            $this->type === LineItemType::Purchasable ? 'purchasable' : null,
             'shippingCategory',
             'snapshot',
             'taxCategory',
             'fulfilledTotalQuantity',
-        ];
+        ], fn($value) => $value !== null));
     }
 
     /**
@@ -896,7 +896,7 @@ class LineItem extends Model implements HasStoreInterface
         Craft::$app->getDeprecator()->log(__METHOD__, '`LineItem::populateFromPurchasable()` has been deprecated. Use `LineItem::populate()` instead.');
 
         if ($this->type === LineItemType::Custom) {
-            // @TODO: Throw exception at next breaking change release
+            // @TODO Throw an exception instead of logging a warning when populating a custom line item from a purchasable, in Commerce 6.0
             Craft::warning('Cannot populate a custom line item from a purchasable', 'commerce');
             return;
         }
@@ -947,7 +947,7 @@ class LineItem extends Model implements HasStoreInterface
         }
 
         $snapshot = [
-            // @TODO move these to base purchasable on next breaking change
+            // @TODO Move these common snapshot fields (price, sku, description, purchasableId, cpEditUrl, options) into the base purchasable's getSnapshot() in Commerce 6.0
             'price' => $purchasable->getPrice(),
             'sku' => $purchasable->getSku(),
             'description' => $purchasable->getDescription(),

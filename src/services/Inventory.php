@@ -17,6 +17,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\InventoryUpdateQuantityType;
 use craft\commerce\enums\LineItemType;
+use craft\commerce\enums\OrderNoticeType;
 use craft\commerce\events\InventoryMovementEvent;
 use craft\commerce\events\UpdateInventoryLevelEvent;
 use craft\commerce\models\inventory\InventoryCommittedMovement;
@@ -28,6 +29,7 @@ use craft\commerce\models\InventoryItem;
 use craft\commerce\models\InventoryLevel;
 use craft\commerce\models\InventoryLocation;
 use craft\commerce\models\InventoryTransaction;
+use craft\commerce\models\OrderNotice;
 use craft\commerce\Plugin;
 use craft\commerce\records\InventoryItem as InventoryItemRecord;
 use craft\db\Query;
@@ -227,7 +229,7 @@ class Inventory extends Component
         $inventoryItemId = $inventoryItem instanceof InventoryItem ? $inventoryItem->id : $inventoryItem;
         $inventoryLocationId = $inventoryLocation instanceof InventoryLocation ? $inventoryLocation->id : $inventoryLocation;
 
-        $result = $this->getInventoryLevelQuery(withTrashed: $withTrashed)
+        $result = $this->getInventoryLevelQuery(withTrashed: $withTrashed, inventoryLocationId: $inventoryLocationId)
             ->andWhere([
                 'inventoryLocationId' => $inventoryLocationId,
                 'inventoryItemId' => $inventoryItemId,
@@ -310,7 +312,7 @@ class Inventory extends Component
      */
     public function getInventoryLocationLevels(InventoryLocation $inventoryLocation, bool $withTrashed = false): Collection
     {
-        $levels = $this->getInventoryLevelQuery(withTrashed: $withTrashed)
+        $levels = $this->getInventoryLevelQuery(withTrashed: $withTrashed, inventoryLocationId: $inventoryLocation->id)
             ->andWhere(['inventoryLocationId' => $inventoryLocation->id])
             ->andWhere(['not', ['elements.id' => null]])
             ->collect();
@@ -333,7 +335,7 @@ class Inventory extends Component
      * @param bool $withTrashed
      * @return Query
      */
-    public function getInventoryLevelQuery(?int $limit = null, ?int $offset = null, bool $withTrashed = false): Query
+    public function getInventoryLevelQuery(?int $limit = null, ?int $offset = null, bool $withTrashed = false, ?int $inventoryLocationId = null): Query
     {
         $inventoryTotals = (new Query())
             ->select([
@@ -346,6 +348,12 @@ class Inventory extends Component
             ->join('CROSS JOIN', ['ii' => Table::INVENTORYITEMS]) // ...every inventory item
             ->leftJoin(['it' => Table::INVENTORYTRANSACTIONS], "[[il.id]] = [[it.inventoryLocationId]] AND [[ii.id]] = [[it.inventoryItemId]]")
             ->groupBy(['[[il.id]]', '[[ii.id]]', '[[it.type]]']);
+
+        // Scoping the location in the subquery prevents the CROSS JOIN from expanding
+        // to all locations × all items before the outer WHERE can filter it down.
+        if ($inventoryLocationId !== null) {
+            $inventoryTotals->andWhere(['il.id' => $inventoryLocationId]);
+        }
 
         $query = (new Query())
             ->select([
@@ -420,11 +428,10 @@ class Inventory extends Component
 
             $transaction->commit();
 
-            // TODO: Potentially move this to a job in the queue
+            // @TODO Consider pushing updateStoreStockCache() into a queued job so inventory updates don't block on cache regeneration
             // Update all purchasables stock
-            $purchasables = $updateInventoryLevels->getPurchasables();
-            if ($purchasables) {
-                Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasables[0], true);
+            foreach ($updateInventoryLevels->getPurchasables() as $purchasable) {
+                Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
             }
 
             // Trigger event for each successful update
@@ -486,7 +493,7 @@ class Inventory extends Component
 
         if (!$inventoryLocation) {
             // If no inventory location exists, we can't update inventory
-            // TODO change method to return false or throw an exception
+            // @TODO Change this method's return type and either return false or throw a typed exception when no inventory location is available, so callers can react instead of silently succeeding
             return;
         }
 
@@ -650,7 +657,7 @@ class Inventory extends Component
 
             $transaction->commit();
 
-            // TODO: Potentially move this to a job in the queue
+            // @TODO Consider pushing the per-movement updateStoreStockCache() calls into a queued job so large batch movements don't block on cache regeneration
             foreach ($inventoryMovements as $inventoryMovement) {
                 // Update all purchasables stock
                 $purchasable = $inventoryMovement->getInventoryItem()->getPurchasable();
@@ -951,6 +958,26 @@ class Inventory extends Component
             if ($purchasable = Craft::$app->getElements()->getElementById($key)) {
                 if ($purchasable instanceof Purchasable) {
                     Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
+
+                    // If the purchasable doesn't allow out of stock purchases, check whether the movement
+                    // pushed available stock below zero (e.g. due to concurrent orders).
+                    if (!$purchasable->allowOutOfStockPurchases) {
+                        $freshLevel = $this->getInventoryLevel($inventoryLevel->inventoryItemId, $inventoryLevel->inventoryLocationId);
+                        if ($freshLevel && $freshLevel->availableTotal < 0) {
+                            $notice = Craft::createObject([
+                                'class' => OrderNotice::class,
+                                'attributes' => [
+                                    'type' => 'inventoryBelowZero',
+                                    'attribute' => 'lineItems',
+                                    'message' => Craft::t('commerce', 'Available inventory for "{description}" has gone below zero.', [
+                                        'description' => $purchasable->getDescription(),
+                                    ]),
+                                    'noticeType' => OrderNoticeType::Admin,
+                                ],
+                            ]);
+                            $order->addNotice($notice);
+                        }
+                    }
                 }
             }
         }

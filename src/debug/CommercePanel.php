@@ -10,6 +10,7 @@ namespace craft\commerce\debug;
 use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\events\CommerceDebugPanelDataEvent;
+use craft\commerce\Plugin;
 use yii\debug\Panel;
 
 /**
@@ -80,6 +81,10 @@ class CommercePanel extends Panel
     {
         $nav = [];
         $content = [];
+
+        if (!Craft::$app->getRequest()->getIsCpRequest()) {
+            $this->cart = Plugin::getInstance()->getCarts()->getCart();
+        }
 
         if ($this->cart) {
             $nav[] = 'Cart';

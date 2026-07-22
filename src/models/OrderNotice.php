@@ -9,12 +9,14 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
+use craft\commerce\enums\OrderNoticeType;
 use craft\commerce\Plugin;
 use yii\base\InvalidConfigException;
 
 /**
  * Order notice model.
  *
+ * @property OrderNoticeType $noticeType
  * @property Order|null $order
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -48,6 +50,12 @@ class OrderNotice extends Model
     public ?int $orderId = null;
 
     /**
+     * @var OrderNoticeType Whether this notice is for customers or admins only.
+     * @since 5.7.0
+     */
+    private OrderNoticeType $_noticeType = OrderNoticeType::Customer;
+
+    /**
      * @var Order|null The order this notice belongs to
      */
     private ?Order $_order = null;
@@ -60,13 +68,25 @@ class OrderNotice extends Model
         return $this->message ?: '';
     }
 
+    public function getNoticeType(): OrderNoticeType
+    {
+        return $this->_noticeType;
+    }
+
+    public function setNoticeType(string|OrderNoticeType $noticeType): void
+    {
+        $this->_noticeType = $noticeType instanceof OrderNoticeType
+            ? $noticeType
+            : OrderNoticeType::from($noticeType);
+    }
+
     /**
      * @inheritdoc
      */
     protected function defineRules(): array
     {
         return [
-            [['id'], 'safe'],
+            [['id', 'noticeType'], 'safe'],
             [['type', 'message', 'attribute', 'orderId'], 'required'],
             [['orderId'], 'integer'],
         ];
