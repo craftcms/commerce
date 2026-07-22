@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.7.1 - 2026-07-22
 
 - Fixed a bug where guest customers couldn’t load credentialed carts with a valid token. ([#4225](https://github.com/craftcms/commerce/issues/4225))
 - Fixed a bug where Quantity fields’ input values could become jumbled within inventory modals. ([#3920](https://github.com/craftcms/commerce/issues/3920))
