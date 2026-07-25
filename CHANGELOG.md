@@ -128,8 +128,6 @@
 - Fixed a PHP error that could occur when applying project config changes after updating.
 - Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) TOCTOU race condition discount code vulnerability. ([GHSA-wjxr-5jcm-hjgj](https://github.com/craftcms/commerce/security/advisories/GHSA-wjxr-5jcm-hjgj))
 
-- Fixed a bug where two simultaneous requests to manually complete an order could result in a coupon being used twice. ([Hackrate#1343](#))
-
 ## 5.6.5 - 2026-05-14
 
 - Cart requests that include a `couponCode` param are now rate-limited.
