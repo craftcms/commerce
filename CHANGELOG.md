@@ -23,7 +23,7 @@
 ### System
 
 - Cart load URLs are now generated with time-limited security tokens, which are now required when loading carts from non-authenticated requests.
-- Fixed [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) server-side template injection vulnerability. ([#](#))
+- Fixed [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) server-side template injection vulnerability.
 - PDF download URLs now use the `code` query param instead of `token` ([#4303](https://github.com/craftcms/commerce/issues/4303)).
 
 ## 4.11.2 - 2026-05-14
