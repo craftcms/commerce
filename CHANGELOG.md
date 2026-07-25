@@ -104,7 +104,7 @@
 
 ## 5.6.7 - 2026-07-01
 
-- Fixed [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) server-side template injection vulnerability. ([#](#))
+- Fixed [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) server-side template injection vulnerability.
 - Fixed a bug where purchasables’ stock caches weren’t getting cleared after orders were completed.
 - Fixed a bug where `InventoryRestockMovement` would incorrectly validate movements with only one invalid transaction type.
 - Fixed a bug where inventory search was case-sensitive on PostgreSQL. ([#4326](https://github.com/craftcms/commerce/issues/4326))
