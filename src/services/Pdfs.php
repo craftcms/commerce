@@ -510,10 +510,17 @@ class Pdfs extends Component
 
         $request = Craft::$app->getRequest();
         $isCpRequest = $request->getIsCpRequest();
-        $request->setIsCpRequest(false);
+        
+        if (!$request->getIsConsoleRequest()) {
+            $request->setIsCpRequest(false);
+        }
+        
         $url = UrlHelper::actionUrl('commerce/downloads/pdf', $params);
-        $request->setIsCpRequest($isCpRequest);
-
+        
+        if (!$request->getIsConsoleRequest()) {
+            $request->setIsCpRequest($isCpRequest);
+        }
+        
         return $url;
     }
 
