@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) business logic vulnerability. ([#](#))
+- Fixed [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) business logic vulnerability. (GHSA-gcqr-xrx9-grcf)
 
 ## 5.7.1 - 2026-07-22
 
