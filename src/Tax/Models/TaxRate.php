@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Tax\Models;
 
-use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Component\Contracts\Chippable;
@@ -53,9 +52,8 @@ class TaxRate extends Component implements HasStoreInterface, Chippable
     #[\Override]
     public static function get(int|string $id): ?static
     {
-        // TODO: migrate to app(TaxRates::class)->getTaxRateById() once service migrated to src/
         /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getTaxRates()->getTaxRateById($id);
+        return app(\CraftCms\Commerce\Services\TaxRates::class)->getTaxRateById($id);
     }
 
     #[\Override]
@@ -83,9 +81,7 @@ class TaxRate extends Component implements HasStoreInterface, Chippable
     public function getTaxZone(): ?TaxAddressZone
     {
         if ($this->_taxZone === null && $this->taxZoneId) {
-            // TODO: migrate to app(TaxZones::class)->getTaxZoneById() once service migrated to src/
-            /** @phpstan-ignore-next-line */
-            $this->_taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($this->taxZoneId, $this->storeId);
+            $this->_taxZone = app(\CraftCms\Commerce\Services\TaxZones::class)->getTaxZoneById($this->taxZoneId, $this->storeId);
         }
 
         return $this->_taxZone;
@@ -94,9 +90,7 @@ class TaxRate extends Component implements HasStoreInterface, Chippable
     public function getTaxCategory(): ?TaxCategory
     {
         if (!isset($this->_taxCategory) && $this->taxCategoryId) {
-            // TODO: migrate to app(TaxCategories::class)->getTaxCategoryById() once service migrated to src/
-            /** @phpstan-ignore-next-line */
-            $this->_taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
+            $this->_taxCategory = app(\CraftCms\Commerce\Services\TaxCategories::class)->getTaxCategoryById($this->taxCategoryId);
         }
 
         return $this->_taxCategory;
@@ -120,9 +114,7 @@ class TaxRate extends Component implements HasStoreInterface, Chippable
     public function getSelectedEnabledTaxIdValidators(): array
     {
         $selectedValidators = $this->taxIdValidators;
-        // TODO: migrate to app(Taxes::class)->getEnabledTaxIdValidators() once service migrated to src/
-        /** @phpstan-ignore-next-line */
-        $validators = Plugin::getInstance()->getTaxes()->getEnabledTaxIdValidators();
+        $validators = app(\CraftCms\Commerce\Services\Taxes::class)->getEnabledTaxIdValidators();
         $activeValidators = [];
         foreach ($validators as $validator) {
             if (in_array($validator::class, $selectedValidators)) {

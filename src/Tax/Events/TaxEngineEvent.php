@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Tax\Events;
 
-use craft\commerce\base\TaxEngineInterface;
+use CraftCms\Commerce\Tax\Contracts\TaxEngineInterface;
 
 class TaxEngineEvent
 {

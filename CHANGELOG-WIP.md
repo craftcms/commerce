@@ -4,6 +4,35 @@
 
 - Updated `dompdf/dompdf` to `^3.1.6` (from `^2.0.2`).
 
+### Laravel Migration — Stage 6d: Tax services
+
+All tax services migrated from `craft\commerce\services` to
+`CraftCms\Commerce\Services` under the Craft 6 service pattern.
+
+- `craft\commerce\services\TaxRates` → `CraftCms\Commerce\Services\TaxRates`
+- `craft\commerce\services\Taxes` → `CraftCms\Commerce\Services\Taxes`
+- `craft\commerce\services\Vat` → `CraftCms\Commerce\Services\Vat`
+
+Legacy `Plugin::getInstance()->getXxx()` access keeps working — each old service
+class is now a thin Yii2 Component wrapper delegating every method via `app()`.
+
+Two leaf dependencies of `Taxes` were migrated alongside it as bonus work:
+- `craft\commerce\engines\Tax` → `CraftCms\Commerce\Tax\Engines\Tax` (legacy class is now a `class_alias` stub)
+- `craft\commerce\taxidvalidators\EuVatIdValidator` → `CraftCms\Commerce\Tax\Models\EuVatIdValidator` (legacy class is now a `class_alias` stub); swapped `Craft::createGuzzleClient()` for the `Http` facade and `Craft::error()` for `Log::error()`
+- `CraftCms\Commerce\Tax\Events\TaxEngineEvent::$engine` now type-hints the new `CraftCms\Commerce\Tax\Contracts\TaxEngineInterface` instead of the legacy one
+
+The two `Taxes` events (`EVENT_REGISTER_TAX_ID_VALIDATORS`, `EVENT_REGISTER_TAX_ENGINE`)
+still fire through the legacy `Plugin::getInstance()->getTaxes()` component so
+existing `Event::on(Taxes::class, ...)` listeners keep working (TODO: migrate
+event firing to Laravel once the event system is bridged).
+
+Also resolved TODOs in `CraftCms\Commerce\Tax\Models\TaxRate`, `TaxCategory`,
+and `TaxAddressZone` — they now call the new service classes directly instead
+of going through `Plugin::getInstance()`.
+
+Removed `craft\commerce\services\Vat::getVatValidator()`, deprecated since
+5.3.0 in favor of `Taxes::getEnabledTaxIdValidators()`.
+
 ### Laravel Migration — Stage 6c: Shipping services
 
 All shipping services migrated from `craft\commerce\services` to

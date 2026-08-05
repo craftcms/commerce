@@ -18,9 +18,9 @@ class TaxAddressZone extends Zone implements Chippable
     #[\Override]
     public static function get(int|string $id): ?static
     {
-        // TODO: migrate to app(TaxZones::class)->getTaxZoneById() once service migrated to src/
         foreach (Plugin::getInstance()->getStores()->getAllStores() as $store) {
-            $zone = Plugin::getInstance()->getTaxZones()->getTaxZoneById((int)$id, $store->id);
+            /** @phpstan-ignore-next-line */
+            $zone = app(\CraftCms\Commerce\Services\TaxZones::class)->getTaxZoneById((int)$id, $store->id);
             if ($zone !== null) {
                 /** @phpstan-ignore-next-line */
                 return $zone;

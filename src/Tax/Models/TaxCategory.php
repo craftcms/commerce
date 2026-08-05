@@ -45,9 +45,8 @@ class TaxCategory extends Component implements Chippable, Colorable, Iconic
     #[\Override]
     public static function get(int|string $id): ?static
     {
-        // TODO: migrate to app(TaxCategories::class)->getTaxCategoryById() once service migrated to src/
         /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($id);
+        return app(\CraftCms\Commerce\Services\TaxCategories::class)->getTaxCategoryById($id);
     }
 
     #[\Override]
@@ -76,7 +75,7 @@ class TaxCategory extends Component implements Chippable, Colorable, Iconic
 
     public function getTaxRates(?int $storeId = null): Collection
     {
-        return Plugin::getInstance()->getTaxRates()->getAllTaxRates($storeId)->where('taxCategoryId', $this->id);
+        return app(\CraftCms\Commerce\Services\TaxRates::class)->getAllTaxRates($storeId)->where('taxCategoryId', $this->id);
     }
 
     public function getCpEditUrl(?int $storeId = null): string
