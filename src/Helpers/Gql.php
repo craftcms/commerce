@@ -6,8 +6,8 @@ namespace CraftCms\Commerce\Helpers;
 
 use craft\commerce\models\ProductType;
 use craft\commerce\Plugin;
-use craft\helpers\Gql as GqlHelper;
-use CraftCms\Cms\Gql\Models\GqlSchema;
+use CraftCms\Cms\Gql\Data\GqlSchema;
+use CraftCms\Cms\Gql\GqlHelper;
 
 class Gql extends GqlHelper
 {

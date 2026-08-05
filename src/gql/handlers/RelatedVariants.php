@@ -8,7 +8,7 @@
 namespace craft\commerce\gql\handlers;
 
 use craft\commerce\elements\Variant;
-use craft\gql\base\RelationArgumentHandler;
+use CraftCms\Cms\Gql\Handlers\RelationArgumentHandler;
 
 /**
  * Class RelatedVariants

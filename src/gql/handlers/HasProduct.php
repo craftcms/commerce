@@ -7,7 +7,7 @@
 
 namespace craft\commerce\gql\handlers;
 
-use craft\gql\base\ArgumentHandler;
+use CraftCms\Cms\Gql\Handlers\ArgumentHandler;
 
 /**
  * Class HasProduct
