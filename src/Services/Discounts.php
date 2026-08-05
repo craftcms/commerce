@@ -17,7 +17,7 @@ use craft\elements\Category;
 use craft\elements\Entry;
 use craft\elements\User;
 use CraftCms\Commerce\Database\Table;
-use CraftCms\Commerce\Inventory\Enums\OrderNoticeType;
+use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 use CraftCms\Commerce\Order\Models\OrderNotice;
 use CraftCms\Commerce\Promotion\Events\DiscountEvent;
 use CraftCms\Commerce\Promotion\Events\MatchLineItemEvent;

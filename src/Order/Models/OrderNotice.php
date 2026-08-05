@@ -7,7 +7,7 @@ namespace CraftCms\Commerce\Order\Models;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
-use CraftCms\Commerce\Inventory\Enums\OrderNoticeType;
+use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 
 class OrderNotice extends Component
 {

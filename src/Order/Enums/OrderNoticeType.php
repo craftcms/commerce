@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Inventory\Enums;
+namespace CraftCms\Commerce\Order\Enums;
 
 use CraftCms\Commerce\Base\EnumHelpersTrait;
 

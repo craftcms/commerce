@@ -5,5 +5,5 @@
  * @license https://craftcms.github.io/license/
  */
 
-/** @deprecated use {@see \CraftCms\Commerce\Inventory\Enums\OrderNoticeType} */
-class_alias(\CraftCms\Commerce\Inventory\Enums\OrderNoticeType::class, 'craft\commerce\enums\OrderNoticeType');
+/** @deprecated use {@see \CraftCms\Commerce\Order\Enums\OrderNoticeType} */
+class_alias(\CraftCms\Commerce\Order\Enums\OrderNoticeType::class, 'craft\commerce\enums\OrderNoticeType');
