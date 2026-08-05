@@ -1,18 +1,9 @@
 <?php
 
-namespace craft\commerce\migrations;
-
 use craft\commerce\db\Table;
 use craft\db\Migration;
 
-/**
- * m260505_071943_add_orders_customerDeleted_column migration.
- */
-class m260505_071943_add_orders_customerDeleted_column extends Migration
-{
-    /**
-     * @inheritdoc
-     */
+return new class extends Migration {
     public function safeUp(): bool
     {
         // Add the `customerDeleted` boolean column to the `orders` table
@@ -25,12 +16,9 @@ class m260505_071943_add_orders_customerDeleted_column extends Migration
         return true;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function safeDown(): bool
     {
-        echo "m260505_071943_add_orders_customerDeleted_column cannot be reverted.\n";
+        echo "2026_05_05_071943_add_orders_customerDeleted_column cannot be reverted.\n";
         return false;
     }
-}
+};

@@ -1,19 +1,10 @@
 <?php
 
-namespace craft\commerce\migrations;
-
 use craft\commerce\db\Table;
 use craft\db\Migration;
 use craft\db\Table as CraftTable;
 
-/**
- * m260507_000000_subscriptions_nullable_userId migration.
- */
-class m260507_000000_subscriptions_nullable_userId extends Migration
-{
-    /**
-     * @inheritdoc
-     */
+return new class extends Migration {
     public function safeUp(): bool
     {
         // Drop the existing RESTRICT FK and replace with CASCADE so subscriptions
@@ -24,12 +15,9 @@ class m260507_000000_subscriptions_nullable_userId extends Migration
         return true;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function safeDown(): bool
     {
-        echo "m260507_000000_subscriptions_nullable_userId cannot be reverted.\n";
+        echo "2026_05_07_000000_subscriptions_nullable_userId cannot be reverted.\n";
         return false;
     }
-}
+};

@@ -1,25 +1,16 @@
 <?php
 
-namespace craft\commerce\migrations;
-
-use Craft;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\db\Table;
 
 /**
- * m260226_120000_product_type_permissions migration.
- *
  * Migrates product type permissions from the old naming scheme to the new one:
  * - commerce-editProductType:{uid} → commerce-viewProductType:{uid} + commerce-saveProductType:{uid}
  * - commerce-createProducts:{uid} → commerce-createProductType:{uid}
  * - commerce-deleteProducts:{uid} → commerce-deleteProductType:{uid}
  */
-class m260226_120000_product_type_permissions extends Migration
-{
-    /**
-     * @inheritdoc
-     */
+return new class extends Migration {
     public function safeUp(): bool
     {
         // Get all product type UIDs from the database
@@ -104,12 +95,9 @@ class m260226_120000_product_type_permissions extends Migration
         return true;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function safeDown(): bool
     {
         // Permission migrations are not reversible
         return true;
     }
-}
+};

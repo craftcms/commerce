@@ -1,29 +1,21 @@
 <?php
 
-namespace craft\commerce\migrations;
-
 use craft\db\Migration;
 use craft\db\Query;
 use craft\db\Table;
 use yii\db\Expression;
 
 /**
- * m260616_000000_rename_allVariants_changedattributes migration.
+ * Between Commerce 5.2 and 5.5.2, the NestedElementManager for variants used 'allVariants'
+ * as the attribute name instead of 'variants'. This caused 'allVariants' to be written into
+ * the {{%changedattributes}} table. After upgrading, Craft's mergeCanonicalChanges() would
+ * try to access $product->allVariants (which no longer exists), throwing an UnknownPropertyException
+ * when opening a product with a provisional draft.
+ * This migration renames any lingering 'allVariants' entries to 'variants' for Product elements.
  */
-class m260616_000000_rename_allVariants_changedattributes extends Migration
-{
-    /**
-     * @inheritdoc
-     */
+return new class extends Migration {
     public function safeUp(): bool
     {
-        // Between Commerce 5.2 and 5.5.2, the NestedElementManager for variants used 'allVariants'
-        // as the attribute name instead of 'variants'. This caused 'allVariants' to be written into
-        // the {{%changedattributes}} table. After upgrading, Craft's mergeCanonicalChanges() would
-        // try to access $product->allVariants (which no longer exists), throwing an UnknownPropertyException
-        // when opening a product with a provisional draft.
-        // This migration renames any lingering 'allVariants' entries to 'variants' for Product elements.
-
         $productSubquery = (new Query())
             ->select(['id'])
             ->from([Table::ELEMENTS])
@@ -52,12 +44,9 @@ class m260616_000000_rename_allVariants_changedattributes extends Migration
         return true;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function safeDown(): bool
     {
-        echo "m260616_000000_rename_allVariants_changedattributes cannot be reverted.\n";
+        echo "2026_06_16_000000_rename_allVariants_changedattributes cannot be reverted.\n";
         return false;
     }
-}
+};

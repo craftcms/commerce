@@ -1,19 +1,10 @@
 <?php
 
-namespace craft\commerce\migrations;
-
 use craft\commerce\db\Table;
 use craft\commerce\records\CatalogPricingQueue;
 use craft\db\Migration;
 
-/**
- * m260407_000000_add_catalog_pricing_queue_table migration.
- */
-class m260407_000000_add_catalog_pricing_queue_table extends Migration
-{
-    /**
-     * @inheritdoc
-     */
+return new class extends Migration {
     public function safeUp(): bool
     {
         if (!$this->db->tableExists(Table::CATALOG_PRICING_QUEUE)) {
@@ -36,12 +27,9 @@ class m260407_000000_add_catalog_pricing_queue_table extends Migration
         return true;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function safeDown(): bool
     {
-        echo "m260407_000000_add_catalog_pricing_queue_table cannot be reverted.\n";
+        echo "2026_04_07_000000_add_catalog_pricing_queue_table cannot be reverted.\n";
         return false;
     }
-}
+};
