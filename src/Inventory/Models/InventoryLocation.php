@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Inventory\Models;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Component\Contracts\Actionable;
@@ -13,6 +12,7 @@ use CraftCms\Cms\Component\Contracts\CpEditable;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Services\InventoryLocations;
 use DateTime;
 use Illuminate\Validation\Rule;
 use function CraftCms\Cms\t;
@@ -36,9 +36,8 @@ class InventoryLocation extends Component implements Chippable, CpEditable, Acti
     #[\Override]
     public static function get(int|string $id): ?static
     {
-        // TODO: migrate to app(InventoryLocations::class)->getInventoryLocationById() once service migrated to src/
         /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($id);
+        return app(InventoryLocations::class)->getInventoryLocationById($id);
     }
 
     #[\Override]

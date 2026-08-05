@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Transfer\Models;
 
 use craft\commerce\elements\Transfer;
-use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Commerce\Inventory\Models\InventoryItem;
+use CraftCms\Commerce\Services\Inventory;
 use CraftCms\Commerce\Transfer\Enums\TransferStatusType;
 
 class TransferDetail extends Component
@@ -41,9 +41,7 @@ class TransferDetail extends Component
             return null;
         }
 
-        // TODO: migrate to app(Inventory::class)->getInventoryItemById() once service migrated to src/
-        /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getInventory()->getInventoryItemById($this->inventoryItemId);
+        return app(Inventory::class)->getInventoryItemById($this->inventoryItemId);
     }
 
     public function getTransfer(): ?Transfer

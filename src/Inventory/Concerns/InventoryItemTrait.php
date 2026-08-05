@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Inventory\Concerns;
 
-use craft\commerce\Plugin;
 use CraftCms\Commerce\Inventory\Models\InventoryItem;
+use CraftCms\Commerce\Services\Inventory;
 
 trait InventoryItemTrait
 {
@@ -26,9 +26,7 @@ trait InventoryItemTrait
         }
 
         if ($this->inventoryItemId) {
-            // TODO: migrate to app(Inventory::class)->getInventoryItemById() once service migrated to src/
-            /** @phpstan-ignore-next-line */
-            $this->_inventoryItem = Plugin::getInstance()->getInventory()->getInventoryItemById($this->inventoryItemId);
+            $this->_inventoryItem = app(Inventory::class)->getInventoryItemById($this->inventoryItemId);
             return $this->_inventoryItem;
         }
 

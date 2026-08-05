@@ -11,6 +11,7 @@ use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Support\Env;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Services\InventoryLocations;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Money\Currency as MoneyCurrency;
@@ -339,13 +340,11 @@ class Store extends Component
 
     public function getInventoryLocations(): Collection
     {
-        /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getInventoryLocations()->getInventoryLocations($this->id);
+        return app(InventoryLocations::class)->getInventoryLocations($this->id);
     }
 
     public function getInventoryLocationsOptions(): array
     {
-        /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getInventoryLocations()->getInventoryLocations($this->id)->map(fn($location) => ['value' => $location->id, 'label' => $location->getUiLabel()])->toArray();
+        return app(InventoryLocations::class)->getInventoryLocations($this->id)->map(fn($location) => ['value' => $location->id, 'label' => $location->getUiLabel()])->toArray();
     }
 }

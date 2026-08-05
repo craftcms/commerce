@@ -4,6 +4,97 @@
 
 - Updated `dompdf/dompdf` to `^3.1.6` (from `^2.0.2`).
 
+### Bug fix: legacy service stubs must type-hint the new namespace, not the `class_alias` name
+
+Discovered while verifying Stage 6e: PHP's runtime type enforcement does
+**not** treat a `class_alias()`-derived name as interchangeable with its
+target for parameter/return/property type declarations, even though
+`get_class()`/`instanceof`/`new` all work correctly through the alias. A
+legacy stub method declared as `function getFoo(): ?Foo` (where `Foo` is
+`use craft\commerce\models\Foo;`, an alias) throws a `TypeError` when it
+returns an instance produced by the new service (which returns
+`CraftCms\Commerce\X\Models\Foo` directly) — confirmed with a minimal
+reproduction, and reproduces identically for parameter types.
+
+Fixed by importing the new FQCN directly (under the old short name) in
+every affected stub file, so the declared type IS the type actually
+returned/accepted:
+- `TaxRates`, `Taxes` (`getEngine(): TaxEngineInterface` — needed two
+  imports, since the class's own `implements TaxEngineInterface` must stay
+  on the legacy interface while `getEngine()`'s return must point at the
+  new one)
+- `Inventory`, `InventoryLocations`
+- `Coupons`, `CatalogPricingRules`, `Discounts` (`Coupon`/`Discount` only —
+  `LineItem`/`PurchasableInterface` correctly stay on the legacy classes,
+  which aren't migrated), `Sales`
+
+Stage 6a/6c stubs (`ShippingMethods`, `ShippingRules`, `TaxCategories`,
+`TaxZones`, etc.) already used the new-FQCN pattern and needed no changes.
+
+**Not fixed, flagged for follow-up** (found while verifying, out of scope
+for this fix since they're unrelated to the stub pattern):
+- `CraftCms\Commerce\Promotion\Events\DiscountEvent::$discount` is still
+  typed `craft\commerce\models\Discount` (a typed *property*, same root
+  cause) — throws when `Discounts::saveDiscount()` assigns it. Pre-existing
+  since Stage 3/6b.
+- `CraftCms\Commerce\Inventory\Models\InventoryManualMovement::toLocationAfterQuantity()`
+  (and `fromLocationAfterQuantity()`) declare `: int` but
+  `DB::table(...)->value(...)` can return a numeric string from MySQL,
+  which fails under `strict_types`. Pre-existing since Stage 5c.
+- Given parameter types are affected by the same bug, there's likely a
+  broader population of these across `src-yii2/`/`src/` wherever a
+  legacy-aliased type hint receives a new-namespace object — this fix only
+  covers what's proven broken (service stub returns) and the resulting
+  investigation; a full audit is separate follow-up work.
+- `craft\commerce\collections\UpdateInventoryLevelCollection::make()` had
+  a signature incompatible with the current `Illuminate\Support\Collection::make($items = [], ...$args)`
+  (missing the variadic `...$args`), causing a compile-time fatal on any
+  use — fixed alongside this, since it blocked verifying `Inventory::executeUpdateInventoryLevels()`.
+
+### Laravel Migration — Stage 6e: Inventory services
+
+`Inventory` and `InventoryLocations` migrated from `craft\commerce\services` to
+`CraftCms\Commerce\Services`. Legacy classes become thin Yii2 Component
+wrappers delegating via `app()`.
+
+- `craft\commerce\services\Inventory` → `CraftCms\Commerce\Services\Inventory`
+- `craft\commerce\services\InventoryLocations` → `CraftCms\Commerce\Services\InventoryLocations`
+
+`Transfers` (the service) is **deferred** — it's tied to the `Transfer`
+element and Craft's legacy Field Layout/project-config system
+(`ConfigEvent`, `craft\models\FieldLayout`, `TransferManagementField`),
+none of which are migrated yet. Same blocker class as `ProductType` in
+Stage 5.
+
+Cross-cutting swaps applied:
+- All raw SQL (`craft\db\Query`, `[[col]]` quoting, `yii\db\Expression`)
+  converted to Laravel's query builder, including a subquery join
+  (`leftJoinSub`) and raw `CASE WHEN` pivots (`selectRaw` with bindings)
+  in `getInventoryLevelQuery()`.
+- `Craft::$app->getDb()->beginTransaction()/commit()/rollBack()` → `DB::beginTransaction()/commit()/rollBack()`
+- `Craft::$app->getUser()->getIdentity()?->id` → `request()->craftUser()?->id`
+- `Db::prepareDateForDb(new \DateTime())` → `now()->toDateTimeString()`
+
+`getInventoryLevelQuery()`'s `$limit`/`$offset` params must only call
+`->limit()`/`->offset()` when non-null — Laravel's query builder (unlike
+Yii2's `Query`) emits a literal `OFFSET 0` for a null offset, which MySQL
+rejects without an accompanying `LIMIT`.
+
+The two `Inventory` events (`EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL`,
+`EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT`) still fire through the legacy
+`Plugin::getInstance()->getInventory()` component so existing
+`Event::on(Inventory::class, ...)` listeners keep working (TODO: migrate
+event firing to Laravel once the event system is bridged). The two
+`InventoryLocations` element-authorization event handlers
+(`authorizeInventoryLocationAddressView`/`Edit`) are still registered
+against the legacy component instance in `Plugin.php` for the same reason.
+
+Also resolved TODOs in `InventoryItemTrait`, `InventoryLocationTrait`,
+`InventoryLevel`, `InventoryTransaction`, `InventoryFulfillmentLevel`,
+`InventoryLocation`, `DeactivateInventoryLocation`, `TransferDetail`, and
+`Store` — they now call the new services directly instead of going
+through `Plugin::getInstance()`.
+
 ### Laravel Migration — Stage 6d: Tax services
 
 All tax services migrated from `craft\commerce\services` to

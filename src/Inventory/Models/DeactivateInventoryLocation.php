@@ -7,6 +7,7 @@ namespace CraftCms\Commerce\Inventory\Models;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Services\Inventory;
 use Illuminate\Support\Facades\DB;
 use function CraftCms\Cms\t;
 
@@ -60,9 +61,7 @@ class DeactivateInventoryLocation extends Component
 
     public function hasOutStandingCommittedStock(): bool
     {
-        // TODO: migrate to app(Inventory::class)->getInventoryLocationLevels() once service migrated to src/
-        /** @phpstan-ignore-next-line */
-        $committedTotal = Plugin::getInstance()->getInventory()->getInventoryLocationLevels($this->inventoryLocation)
+        $committedTotal = app(Inventory::class)->getInventoryLocationLevels($this->inventoryLocation)
             ->sum('committedTotal');
 
         return $committedTotal > 0;
@@ -70,9 +69,7 @@ class DeactivateInventoryLocation extends Component
 
     public function hasOutStandingIncomingStock(): bool
     {
-        // TODO: migrate to app(Inventory::class)->getInventoryLocationLevels() once service migrated to src/
-        /** @phpstan-ignore-next-line */
-        $incomingTotal = Plugin::getInstance()->getInventory()->getInventoryLocationLevels($this->inventoryLocation)
+        $incomingTotal = app(Inventory::class)->getInventoryLocationLevels($this->inventoryLocation)
             ->sum('incomingTotal');
 
         return $incomingTotal > 0;

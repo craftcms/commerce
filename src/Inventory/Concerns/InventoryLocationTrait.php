@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Inventory\Concerns;
 
-use craft\commerce\Plugin;
 use CraftCms\Commerce\Inventory\Models\InventoryLocation;
+use CraftCms\Commerce\Services\InventoryLocations;
 
 trait InventoryLocationTrait
 {
@@ -26,9 +26,7 @@ trait InventoryLocationTrait
         }
 
         if ($this->inventoryLocationId) {
-            // TODO: migrate to app(InventoryLocations::class)->getInventoryLocationById() once service migrated to src/
-            /** @phpstan-ignore-next-line */
-            $this->_inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($this->inventoryLocationId);
+            $this->_inventoryLocation = app(InventoryLocations::class)->getInventoryLocationById($this->inventoryLocationId);
             return $this->_inventoryLocation;
         }
 

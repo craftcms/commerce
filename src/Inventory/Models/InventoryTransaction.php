@@ -11,6 +11,8 @@ use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Cms\User\Elements\User;
+use CraftCms\Commerce\Services\Inventory;
+use CraftCms\Commerce\Services\InventoryLocations;
 use DateTime;
 
 class InventoryTransaction extends Component
@@ -37,16 +39,12 @@ class InventoryTransaction extends Component
 
     public function getInventoryItem(): InventoryItem
     {
-        // TODO: migrate to app(Inventory::class)->getInventoryItemById() once service migrated to src/
-        /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getInventory()->getInventoryItemById($this->inventoryItemId);
+        return app(Inventory::class)->getInventoryItemById($this->inventoryItemId);
     }
 
-    public function getInventoryLocation(): \craft\commerce\models\InventoryLocation
+    public function getInventoryLocation(): InventoryLocation
     {
-        // TODO: migrate to app(InventoryLocations::class)->getInventoryLocationById() once service migrated to src/
-        /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($this->inventoryLocationId);
+        return app(InventoryLocations::class)->getInventoryLocationById($this->inventoryLocationId);
     }
 
     public function getPurchasable(): Purchasable

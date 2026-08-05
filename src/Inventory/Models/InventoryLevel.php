@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Inventory\Models;
 
 use craft\commerce\base\Purchasable;
-use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
+use CraftCms\Commerce\Services\Inventory;
+use CraftCms\Commerce\Services\InventoryLocations;
 
 class InventoryLevel extends Component
 {
@@ -51,9 +52,7 @@ class InventoryLevel extends Component
     public function getInventoryItem(): InventoryItem
     {
         if ($this->_inventoryItem === null) {
-            // TODO: migrate to app(Inventory::class)->getInventoryItemById() once service migrated to src/
-            /** @phpstan-ignore-next-line */
-            $this->_inventoryItem = Plugin::getInstance()->getInventory()->getInventoryItemById($this->inventoryItemId);
+            $this->_inventoryItem = app(Inventory::class)->getInventoryItemById($this->inventoryItemId);
         }
         return $this->_inventoryItem;
     }
@@ -64,11 +63,9 @@ class InventoryLevel extends Component
         $this->inventoryItemId = $inventoryItem->id;
     }
 
-    public function getInventoryLocation(): \craft\commerce\models\InventoryLocation
+    public function getInventoryLocation(): InventoryLocation
     {
-        // TODO: migrate to app(InventoryLocations::class)->getInventoryLocationById() once service migrated to src/
-        /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($this->inventoryLocationId);
+        return app(InventoryLocations::class)->getInventoryLocationById($this->inventoryLocationId);
     }
 
     public function getPurchasable(null|string|int $siteId = null): Purchasable
