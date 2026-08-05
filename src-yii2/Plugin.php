@@ -9,7 +9,6 @@ namespace craft\commerce;
 
 use Craft;
 use craft\base\Model;
-use craft\base\Plugin as BasePlugin;
 use craft\ckeditor\events\DefineLinkOptionsEvent;
 use craft\ckeditor\Field as CKEditorField;
 use craft\commerce\base\Purchasable;
@@ -59,55 +58,17 @@ use craft\commerce\migrations\Install;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Settings;
 use craft\commerce\plugin\Routes;
-use craft\commerce\plugin\Services as CommerceServices;
 use craft\commerce\plugin\Variables;
-use craft\commerce\services\Carts;
-use craft\commerce\services\CatalogPricing;
-use craft\commerce\services\CatalogPricingRules;
-use craft\commerce\services\Coupons;
-use craft\commerce\services\Currencies;
-use craft\commerce\services\Customers;
-use craft\commerce\services\Discounts;
 use craft\commerce\services\Emails;
-use craft\commerce\services\Formulas;
 use craft\commerce\services\Gateways;
-use craft\commerce\services\Inventory;
-use craft\commerce\services\InventoryLocations;
-use craft\commerce\services\LineItems;
 use craft\commerce\services\LineItemStatuses;
-use craft\commerce\services\OrderAdjustments;
-use craft\commerce\services\OrderHistories;
-use craft\commerce\services\OrderNotices;
-use craft\commerce\services\Orders as OrdersService;
 use craft\commerce\services\OrderStatuses;
-use craft\commerce\services\PaymentCurrencies;
-use craft\commerce\services\Payments;
-use craft\commerce\services\PaymentSources;
+use craft\commerce\services\Orders as OrdersService;
 use craft\commerce\services\Pdfs;
-use craft\commerce\services\Plans;
-use craft\commerce\services\Products;
 use craft\commerce\services\ProductTypes;
-use craft\commerce\services\Purchasables;
-use craft\commerce\services\Sales;
-use craft\commerce\services\ShippingCategories;
-use craft\commerce\services\ShippingMethods;
-use craft\commerce\services\ShippingRuleCategories;
-use craft\commerce\services\ShippingRules;
-use craft\commerce\services\ShippingZones;
-use craft\commerce\services\Store;
 use craft\commerce\services\Stores;
-use craft\commerce\services\StoreSettings;
 use craft\commerce\services\Subscriptions;
-use craft\commerce\services\TaxCategories;
-use craft\commerce\services\Taxes;
-use craft\commerce\services\TaxRates;
-use craft\commerce\services\TaxZones;
-use craft\commerce\services\Transactions;
-use craft\commerce\services\Transfers;
 use craft\commerce\services\Transfers as TransfersService;
-use craft\commerce\services\Variants as VariantsService;
-use craft\commerce\services\Vat;
-use craft\commerce\services\Webhooks;
 use craft\commerce\web\twig\CraftVariableBehavior;
 use craft\commerce\web\twig\Extension;
 use craft\commerce\widgets\AverageOrderTotal;
@@ -129,6 +90,7 @@ use craft\db\Query;
 use craft\elements\Address;
 use craft\elements\db\UserQuery;
 use craft\elements\User as UserElement;
+use CraftCms\Cms\Cp\Data\NavItem;
 use CraftCms\Cms\Edition as CmsEdition;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\DefineConsoleActionsEvent;
@@ -176,6 +138,7 @@ use craft\web\Application;
 use craft\web\twig\variables\CraftVariable;
 use CraftCms\Cms\Twig\Variables\CraftVariable as NewCraftVariable;
 use CraftCms\Cms\Update\Updates;
+use CraftCms\Commerce\Plugin as BasePlugin;
 use Exception;
 use Illuminate\Support\Collection;
 use yii\base\Event;
@@ -196,61 +159,6 @@ class Plugin extends BasePlugin
     public const EDITION_ENTERPRISE = 'enterprise';
 
     public const EDITION_PRO_STORE_LIMIT = 5;
-
-    public static function config(): array
-    {
-        return [
-            'components' => [
-                'carts' => ['class' => Carts::class],
-                'catalogPricing' => ['class' => CatalogPricing::class],
-                'catalogPricingRules' => ['class' => CatalogPricingRules::class],
-                'coupons' => ['class' => Coupons::class],
-                'currencies' => ['class' => Currencies::class],
-                'customers' => ['class' => Customers::class],
-                'discounts' => ['class' => Discounts::class],
-                'emails' => ['class' => Emails::class],
-                'formulas' => ['class' => Formulas::class],
-                'gateways' => ['class' => Gateways::class],
-                'inventory' => ['class' => Inventory::class],
-                'inventoryLocations' => ['class' => InventoryLocations::class],
-                'lineItemStatuses' => ['class' => LineItemStatuses::class],
-                'lineItems' => ['class' => LineItems::class],
-                'orderAdjustments' => ['class' => OrderAdjustments::class],
-                'orderHistories' => ['class' => OrderHistories::class],
-                'orderNotices' => ['class' => OrderNotices::class],
-                'orderStatuses' => ['class' => OrderStatuses::class],
-                'orders' => ['class' => OrdersService::class],
-                'paymentCurrencies' => ['class' => PaymentCurrencies::class],
-                'paymentMethods' => ['class' => Gateways::class],
-                'paymentSources' => ['class' => PaymentSources::class],
-                'payments' => ['class' => Payments::class],
-                'pdfs' => ['class' => Pdfs::class],
-                'plans' => ['class' => Plans::class],
-                'productTypes' => ['class' => ProductTypes::class],
-                'products' => ['class' => Products::class],
-                'purchasables' => ['class' => Purchasables::class],
-                'sales' => ['class' => Sales::class],
-                'shippingCategories' => ['class' => ShippingCategories::class],
-                'shippingMethods' => ['class' => ShippingMethods::class],
-                'shippingRuleCategories' => ['class' => ShippingRuleCategories::class],
-                'shippingRules' => ['class' => ShippingRules::class],
-                'shippingZones' => ['class' => ShippingZones::class],
-                'store' => ['class' => Store::class],
-                'storeSettings' => ['class' => StoreSettings::class],
-                'stores' => ['class' => Stores::class],
-                'subscriptions' => ['class' => Subscriptions::class],
-                'taxCategories' => ['class' => TaxCategories::class],
-                'taxRates' => ['class' => TaxRates::class],
-                'taxZones' => ['class' => TaxZones::class],
-                'taxes' => ['class' => Taxes::class],
-                'transactions' => ['class' => Transactions::class],
-                'transfers' => ['class' => Transfers::class],
-                'variants' => ['class' => VariantsService::class],
-                'vat' => ['class' => Vat::class],
-                'webhooks' => ['class' => Webhooks::class],
-            ],
-        ];
-    }
 
     /**
      * Returns the editions for Craft Commerce
@@ -295,13 +203,11 @@ class Plugin extends BasePlugin
      */
     public bool $hasReadOnlyCpSettings = true;
 
-    use CommerceServices;
     use Variables;
     use Routes;
 
-    public function init(): void
+    public function boot(): void
     {
-        parent::init();
         $request = Craft::$app->getRequest();
 
         $this->_addTwigExtensions();
@@ -360,9 +266,14 @@ class Plugin extends BasePlugin
         return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('commerce/settings/general'));
     }
 
-    public function getCpNavItem(): ?array
+    public function getCpNavItem(): NavItem|array|null
     {
-        $ret = parent::getCpNavItem();
+        // The base class returns a NavItem object; convert to the array shape this method has
+        // always built, since NavItem::$subnav doesn't support the assoc-array-keyed-by-handle
+        // nested assignments below.
+        $ret = parent::getCpNavItem()?->toArray() ?? [];
+        $ret['subnav'] = is_array($ret['subnav'] ?? null) ? $ret['subnav'] : [];
+
         $userService = Craft::$app->getUser();
 
         if ($userService->checkPermission('accessPlugin-commerce')) {
