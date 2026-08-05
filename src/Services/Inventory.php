@@ -21,18 +21,21 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Inventory\Contracts\InventoryMovementInterface;
 use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
 use CraftCms\Commerce\Inventory\Enums\InventoryUpdateQuantityType;
+use CraftCms\Commerce\Inventory\Enums\OrderNoticeType;
 use CraftCms\Commerce\Inventory\Models\InventoryFulfillmentLevel;
 use CraftCms\Commerce\Inventory\Models\InventoryItem;
 use CraftCms\Commerce\Inventory\Models\InventoryLevel;
 use CraftCms\Commerce\Inventory\Models\InventoryLocation;
 use CraftCms\Commerce\Inventory\Models\InventoryTransaction;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
+use CraftCms\Commerce\Order\Models\OrderNotice;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 use Throwable;
+use function CraftCms\Cms\t;
 
 #[Singleton]
 class Inventory
@@ -161,7 +164,7 @@ class Inventory
         $inventoryItemId = $inventoryItem instanceof InventoryItem ? $inventoryItem->id : $inventoryItem;
         $inventoryLocationId = $inventoryLocation instanceof InventoryLocation ? $inventoryLocation->id : $inventoryLocation;
 
-        $result = $this->getInventoryLevelQuery(withTrashed: $withTrashed)
+        $result = $this->getInventoryLevelQuery(withTrashed: $withTrashed, inventoryLocationId: $inventoryLocationId)
             ->where('it.inventoryLocationId', $inventoryLocationId)
             ->where('it.inventoryItemId', $inventoryItemId)
             ->first();
@@ -218,7 +221,7 @@ class Inventory
      */
     public function getInventoryLocationLevels(InventoryLocation $inventoryLocation, bool $withTrashed = false): Collection
     {
-        $levels = $this->getInventoryLevelQuery(withTrashed: $withTrashed)
+        $levels = $this->getInventoryLevelQuery(withTrashed: $withTrashed, inventoryLocationId: $inventoryLocation->id)
             ->where('it.inventoryLocationId', $inventoryLocation->id)
             ->whereNotNull('elements.id')
             ->get();
@@ -237,7 +240,7 @@ class Inventory
     /**
      * Returns the totals for inventory items grouped by location and purchasable/inventoryItem.
      */
-    public function getInventoryLevelQuery(?int $limit = null, ?int $offset = null, bool $withTrashed = false): Builder
+    public function getInventoryLevelQuery(?int $limit = null, ?int $offset = null, bool $withTrashed = false, ?int $inventoryLocationId = null): Builder
     {
         $inventoryTotals = DB::table(Table::INVENTORYLOCATIONS . ' as il')
             ->select([
@@ -252,6 +255,12 @@ class Inventory
                     ->on('ii.id', '=', 'it.inventoryItemId');
             })
             ->groupBy('il.id', 'ii.id', 'it.type');
+
+        // Scoping the location in the subquery prevents the CROSS JOIN from expanding
+        // to all locations × all items before the outer WHERE can filter it down.
+        if ($inventoryLocationId !== null) {
+            $inventoryTotals->where('il.id', $inventoryLocationId);
+        }
 
         $query = DB::table(Table::INVENTORYITEMS . ' as ii')
             ->selectRaw('ii.id as inventoryItemId')
@@ -781,6 +790,23 @@ class Inventory
                 if ($purchasable instanceof Purchasable) {
                     /** @phpstan-ignore-next-line */
                     Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
+
+                    // If the purchasable doesn't allow out of stock purchases, check whether the movement
+                    // pushed available stock below zero (e.g. due to concurrent orders).
+                    if (!$purchasable->allowOutOfStockPurchases) {
+                        $freshLevel = $this->getInventoryLevel($inventoryLevel->inventoryItemId, $inventoryLevel->inventoryLocationId);
+                        if ($freshLevel && $freshLevel->availableTotal < 0) {
+                            $notice = new OrderNotice([
+                                'type' => 'inventoryBelowZero',
+                                'attribute' => 'lineItems',
+                                'message' => t('Available inventory for "{description}" has gone below zero.', [
+                                    'description' => $purchasable->getDescription(),
+                                ], category: 'commerce'),
+                                'noticeType' => OrderNoticeType::Admin,
+                            ]);
+                            $order->addNotice($notice);
+                        }
+                    }
                 }
             }
         }

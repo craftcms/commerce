@@ -288,7 +288,7 @@ class DiscountsTest extends Unit
         );
     }
 
-    // TODO: More tests required. Like lineItemMatching category and purchasableIds based features. #COM-54
+    // @TODO Add coverage for lineItemMatching against category and purchasableIds based discount conditions #COM-54
 
     /**
      * @throws Exception
@@ -298,7 +298,7 @@ class DiscountsTest extends Unit
     {
         $discountId = $this->tester->grabFixture('discounts')['discount_with_coupon']['id'];
 
-        // TODO: Update this test to create a full real order that saves. #COM-54
+        // @TODO Replace the mocked Order with a fully saved real order to exercise the complete code path #COM-54
         /** @var Order $order */
         $order = $this->make(Order::class, [
             'getAdjustmentsByType' => function($type) use ($discountId) {

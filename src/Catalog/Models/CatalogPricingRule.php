@@ -68,6 +68,10 @@ class CatalogPricingRule extends Component implements HasStoreInterface
 
     private ?array $_userIds = null;
 
+    /**
+     * @var array
+     * @todo Remove the unused $_metadata property in Commerce 6.0
+     */
     private array $_metadata = [];
 
     #[\Override]

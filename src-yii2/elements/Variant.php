@@ -266,7 +266,7 @@ class Variant extends Purchasable implements NestedElementInterface
         if ($owner) {
             $uiLabelFormat = $owner->getType()->variantUiLabelFormat;
             if ($uiLabelFormat !== '{title}') {
-                $uiLabel = Craft::$app->getView()->renderObjectTemplate($uiLabelFormat, $this);
+                $uiLabel = Craft::$app->getView()->renderSandboxedObjectTemplate($uiLabelFormat, $this);
                 if ($uiLabel !== '') {
                     return $uiLabel;
                 }
@@ -380,7 +380,7 @@ class Variant extends Purchasable implements NestedElementInterface
 
     /**
      * @return bool
-     * TODO: Remove in next breakpoint
+     * @todo Remove in Commerce 6.0 along with the deprecated `deletedWithProduct` property (use `deletedWithOwner` instead)
      */
     public function getDeletedWithProduct(): bool
     {
@@ -392,7 +392,7 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @param $value
      * @return void
-     * TODO: Remove in next breakpoint
+     * @todo Remove in Commerce 6.0 along with the deprecated `deletedWithProduct` property (use `deletedWithOwner` instead)
      */
     public function setDeletedWithProduct($value): void
     {
@@ -679,7 +679,7 @@ class Variant extends Purchasable implements NestedElementInterface
         $description = $this->title;
 
         if ($format = $this->getOwner()->getType()->descriptionFormat) {
-            if ($rendered = Craft::$app->getView()->renderObjectTemplate($format, $this)) {
+            if ($rendered = Craft::$app->getView()->renderSandboxedObjectTemplate($format, $this)) {
                 $description = $rendered;
             }
         }
@@ -706,7 +706,7 @@ class Variant extends Purchasable implements NestedElementInterface
             // Set Craft to the product's site's language, in case the title format has any static translations
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
-            $this->title = Craft::$app->getView()->renderObjectTemplate($type->variantTitleFormat, $this);
+            $this->title = Craft::$app->getView()->renderSandboxedObjectTemplate($type->variantTitleFormat, $this);
             Craft::$app->language = $language;
         }
     }
@@ -725,7 +725,7 @@ class Variant extends Purchasable implements NestedElementInterface
             // Set Craft to the product’s site’s language, in case the title format has any static translations
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
-            $this->sku = Craft::$app->getView()->renderObjectTemplate($type->skuFormat, $this);
+            $this->sku = Craft::$app->getView()->renderSandboxedObjectTemplate($type->skuFormat, $this);
 
             $skuExistsQuery = function(string $sku, ?int $id) {
                 $query = new Query()
@@ -1130,7 +1130,7 @@ class Variant extends Purchasable implements NestedElementInterface
         parent::afterSave($isNew);
 
         if (!$this->propagating && $this->isDefault && $ownerId && $this->duplicateOf === null) {
-            // @TODO - this data is now joined in on the product query so can be removed at the next breaking change
+            // @TODO Remove this denormalized default-variant data write in Commerce 6.0; the product query now joins this data directly
             $defaultData = [
                 'defaultVariantId' => $this->id,
                 'defaultSku' => $this->getSkuAsText(),
@@ -1240,6 +1240,19 @@ class Variant extends Purchasable implements NestedElementInterface
         }
 
         return parent::beforeSave($isNew);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function afterAssignedId(): void
+    {
+        if (ElementHelper::isDraftOrRevision($this)) {
+            return;
+        }
+
+        $product = $this->getOwner();
+        $this->updateTitle($product);
     }
 
     /**

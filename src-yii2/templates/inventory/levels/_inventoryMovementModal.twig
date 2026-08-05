@@ -24,12 +24,9 @@
     value: inventoryMovement.note
 }) }}
 
-<p>{{ 'Move {qty} from {fromType} to {toType}'|t('commerce',
-    {
-        qty: inventoryMovement.quantity,
-        fromType: inventoryMovement.fromInventoryTransactionType.typeAsLabel(),
-        toType: inventoryMovement.toInventoryTransactionType.typeAsLabel()
-    }) }}
+<div class="js-inventory-movement-preview">
+{% include 'commerce/inventory/levels/_inventoryMovementPreview' %}
+</div>
 
 {{ forms.hidden({
     name: 'inventoryMovement[fromInventoryLocationId]',

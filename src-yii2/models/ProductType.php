@@ -324,7 +324,7 @@ class ProductType extends Model implements FieldLayoutProviderInterface
             ['fieldLayout', 'validateFieldLayout'],
             ['variantFieldLayout', 'validateVariantFieldLayout'],
             ['siteSettings', 'required', 'message' => Craft::t('commerce','At least one site must be enabled for the product type.')],
-            [['isStructure', 'defaultPlacement', 'maxLevels', 'structureId'], 'safe'],
+            [['isStructure', 'defaultPlacement', 'maxLevels', 'structureId', 'productUiLabelFormat', 'variantUiLabelFormat'], 'safe'],
             [['previewTargets'], 'validatePreviewTargets'],
         ];
     }

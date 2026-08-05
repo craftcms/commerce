@@ -8,6 +8,7 @@
 namespace unit\elements\variant;
 
 use Codeception\Test\Unit;
+use Craft;
 use craft\base\Element;
 use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\purchasables\PurchasableConditionRule;
@@ -19,6 +20,7 @@ use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\db\Query;
+use craft\elements\User;
 use craftcommercetests\fixtures\ProductFixture;
 use craftcommercetests\fixtures\ShippingCategoryFixture;
 use UnitTester;
@@ -444,5 +446,121 @@ class VariantQueryTest extends Unit
             'product-not-disabled-array' => [['not', Element::STATUS_DISABLED], 3],
             'product-not-enabled' => [['not', Element::STATUS_ENABLED], 0],
         ];
+    }
+
+    /**
+     * Regression test for VariantQuery::beforePrepare() checking the current
+     * `commerce-viewProductType` permission (rather than the retired
+     * `commerce-editProductType` permission) when the `editable` param is set.
+     *
+     * @return void
+     * @since 5.7.0
+     */
+    public function testEditableRespectsViewProductTypePermission(): void
+    {
+        $originalIdentity = Craft::$app->getUser()->getIdentity();
+        $teesUid = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle('tShirts')->uid;
+
+        $user = new User();
+        $user->id = 999999;
+        $user->admin = false;
+        Craft::$app->getUser()->setIdentity($user);
+
+        $this->tester->mockMethods(
+            Craft::$app,
+            'userPermissions',
+            [
+                'getPermissionsByUserId' => fn() => ["commerce-viewproducttype:$teesUid"],
+            ],
+            []
+        );
+
+        try {
+            $query = Variant::find();
+            $query->editable(true);
+            $skus = $query->collect()->map(fn(Variant $v) => $v->getSku())->all();
+            sort($skus);
+
+            // Only the two variants belonging to the "tShirts" product type should be returned.
+            self::assertEquals(['hct-blue', 'hct-white'], $skus);
+        } finally {
+            Craft::$app->getUser()->setIdentity($originalIdentity);
+        }
+    }
+
+    /**
+     * Regression test for VariantQuery::beforePrepare() checking the current
+     * `commerce-saveProductType` permission (rather than the retired
+     * `commerce-editProductType` permission) when the `savable` param is set.
+     *
+     * @return void
+     * @since 5.7.0
+     */
+    public function testSavableRespectsSaveProductTypePermission(): void
+    {
+        $originalIdentity = Craft::$app->getUser()->getIdentity();
+        $teesUid = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle('tShirts')->uid;
+
+        $user = new User();
+        $user->id = 999999;
+        $user->admin = false;
+        Craft::$app->getUser()->setIdentity($user);
+
+        $this->tester->mockMethods(
+            Craft::$app,
+            'userPermissions',
+            [
+                'getPermissionsByUserId' => fn() => ["commerce-saveproducttype:$teesUid"],
+            ],
+            []
+        );
+
+        try {
+            $query = Variant::find();
+            $query->savable(true);
+            $skus = $query->collect()->map(fn(Variant $v) => $v->getSku())->all();
+            sort($skus);
+
+            // Only the two variants belonging to the "tShirts" product type should be returned.
+            self::assertEquals(['hct-blue', 'hct-white'], $skus);
+        } finally {
+            Craft::$app->getUser()->setIdentity($originalIdentity);
+        }
+    }
+
+    /**
+     * Pins the fix: holding only the retired `commerce-editProductType` permission
+     * must NOT satisfy editable()/savable() anymore.
+     *
+     * @return void
+     * @since 5.7.0
+     */
+    public function testEditableIgnoresLegacyEditProductTypePermission(): void
+    {
+        $originalIdentity = Craft::$app->getUser()->getIdentity();
+        $teesUid = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle('tShirts')->uid;
+
+        $user = new User();
+        $user->id = 999999;
+        $user->admin = false;
+        Craft::$app->getUser()->setIdentity($user);
+
+        $this->tester->mockMethods(
+            Craft::$app,
+            'userPermissions',
+            [
+                'getPermissionsByUserId' => fn() => ["commerce-editproducttype:$teesUid"],
+            ],
+            []
+        );
+
+        try {
+            $query = Variant::find();
+            $query->editable(true);
+
+            self::assertCount(0, $query->all());
+        } finally {
+            Craft::$app->getUser()->setIdentity($originalIdentity);
+        }
     }
 }

@@ -281,7 +281,7 @@ class CustomerBehavior extends Behavior
      */
     public function getPrimaryPaymentSourceId(): ?int
     {
-        // @TODO remove fallback code and just always enforce a primary payment source if one exists at next breaking change
+        // @TODO Remove this fallback in Commerce 6.0 and always enforce a primary payment source when one exists
         if ($this->_primaryPaymentSourceId === null) {
             $customer = $this->_getCustomerRecord();
             if (!$customer) {

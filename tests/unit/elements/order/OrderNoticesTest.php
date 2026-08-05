@@ -10,6 +10,7 @@ namespace craftcommercetests\unit\elements\order;
 use Codeception\Test\Unit;
 use Craft;
 use craft\commerce\elements\Order;
+use craft\commerce\enums\OrderNoticeType;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\Plugin;
 use UnitTester;
@@ -142,6 +143,137 @@ class OrderNoticesTest extends Unit
         self::assertCount(1, $this->order->getNotices('couponNotValid'));
         self::assertTrue($this->order->hasNotices(null, 'lineItems'));
         self::assertCount(2, $this->order->getNotices(null, 'lineItems'));
+    }
+
+    /**
+     * @group OrderNotices
+     */
+    public function testForAdminNoticesHiddenByDefault(): void
+    {
+        $adminNotice = Craft::createObject([
+            'class' => OrderNotice::class,
+            'attributes' => [
+                'type' => 'adminAlert',
+                'attribute' => 'order',
+                'message' => 'This order needs review.',
+                'noticeType' => OrderNoticeType::Admin,
+            ],
+        ]);
+
+        $customerNotice = Craft::createObject([
+            'class' => OrderNotice::class,
+            'attributes' => [
+                'type' => 'priceChange',
+                'attribute' => 'lineItems',
+                'message' => 'A price changed.',
+            ],
+        ]);
+
+        $this->order->addNotices([$adminNotice, $customerNotice]);
+
+        // getNotices() must not return admin notices
+        self::assertCount(1, $this->order->getNotices());
+        self::assertEquals('priceChange', $this->order->getNotices()[0]->type);
+
+        self::assertFalse($this->order->hasNotices('adminAlert'));
+    }
+
+    /**
+     * @group OrderNotices
+     */
+    public function testGetAdminNotices(): void
+    {
+        $adminNotice = Craft::createObject([
+            'class' => OrderNotice::class,
+            'attributes' => [
+                'type' => 'adminAlert',
+                'attribute' => 'order',
+                'message' => 'This order needs review.',
+                'noticeType' => OrderNoticeType::Admin,
+            ],
+        ]);
+
+        $customerNotice = Craft::createObject([
+            'class' => OrderNotice::class,
+            'attributes' => [
+                'type' => 'priceChange',
+                'attribute' => 'lineItems',
+                'message' => 'A price changed.',
+            ],
+        ]);
+
+        $this->order->addNotices([$adminNotice, $customerNotice]);
+
+        self::assertCount(1, $this->order->getAdminNotices());
+        self::assertEquals('adminAlert', $this->order->getAdminNotices()[0]->type);
+        self::assertTrue($this->order->hasAdminNotices());
+    }
+
+    /**
+     * @group OrderNotices
+     */
+    public function testClearNoticesPreservesAdminByDefault(): void
+    {
+        $adminNotice = Craft::createObject([
+            'class' => OrderNotice::class,
+            'attributes' => [
+                'type' => 'adminAlert',
+                'attribute' => 'order',
+                'message' => 'This order needs review.',
+                'noticeType' => OrderNoticeType::Admin,
+            ],
+        ]);
+
+        $customerNotice = Craft::createObject([
+            'class' => OrderNotice::class,
+            'attributes' => [
+                'type' => 'priceChange',
+                'attribute' => 'lineItems',
+                'message' => 'A price changed.',
+            ],
+        ]);
+
+        $this->order->addNotices([$adminNotice, $customerNotice]);
+
+        // Clearing without the flag preserves admin notices
+        $this->order->clearNotices();
+
+        self::assertCount(0, $this->order->getNotices());
+        self::assertCount(1, $this->order->getAdminNotices());
+        self::assertTrue($this->order->hasAdminNotices());
+    }
+
+    /**
+     * @group OrderNotices
+     */
+    public function testClearNoticesWithFlagClearsAll(): void
+    {
+        $adminNotice = Craft::createObject([
+            'class' => OrderNotice::class,
+            'attributes' => [
+                'type' => 'adminAlert',
+                'attribute' => 'order',
+                'message' => 'This order needs review.',
+                'noticeType' => OrderNoticeType::Admin,
+            ],
+        ]);
+
+        $customerNotice = Craft::createObject([
+            'class' => OrderNotice::class,
+            'attributes' => [
+                'type' => 'priceChange',
+                'attribute' => 'lineItems',
+                'message' => 'A price changed.',
+            ],
+        ]);
+
+        $this->order->addNotices([$adminNotice, $customerNotice]);
+
+        $this->order->clearNotices(noticeTypes: [OrderNoticeType::Customer, OrderNoticeType::Admin]);
+
+        self::assertCount(0, $this->order->getNotices());
+        self::assertCount(0, $this->order->getAdminNotices());
+        self::assertFalse($this->order->hasAdminNotices());
     }
 
     /**

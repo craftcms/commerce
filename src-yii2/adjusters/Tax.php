@@ -21,8 +21,8 @@ use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\commerce\taxidvalidators\EuVatIdValidator;
 use craft\elements\Address;
-use Ibericode\Vat\Validator;
 use Exception;
+use Ibericode\Vat\Validator;
 use Illuminate\Support\Collection;
 use Money\Teller;
 use yii\base\InvalidConfigException;
@@ -192,7 +192,7 @@ class Tax extends Component implements AdjusterInterface
                 // We need to display the adjustment that removed the included tax
                 $adjustment->name = Craft::t('site', $taxRate->name) . ' ' . Craft::t('commerce', 'Removed');
                 $adjustment->amount = $orderLevelAmountToBeRemovedByDiscount;
-                $adjustment->type = 'discount'; // TODO Not use a discount adjustment, but modify the price of the item instead. #COM-26
+                $adjustment->type = 'discount'; // @TODO Stop using a discount adjustment for removed included tax and instead modify the item price directly #COM-26
                 $adjustment->included = false;
 
                 $adjustments[] = $adjustment;

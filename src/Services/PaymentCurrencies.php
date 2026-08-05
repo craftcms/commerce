@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Services;
 
+use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Payment\Events\PaymentCurrencyRateEvent;
 use CraftCms\Commerce\Payment\Models\PaymentCurrency;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
@@ -21,8 +23,38 @@ use function CraftCms\Cms\t;
 #[Singleton]
 class PaymentCurrencies
 {
+    /**
+     * The event that is triggered when a payment currency rate is being resolved.
+     * Set `$event->rate` to override the rate used for conversions and historical transaction snapshots.
+     *
+     * @since 5.7.0
+     */
+    public const EVENT_DEFINE_PAYMENT_CURRENCY_RATE = 'definePaymentCurrencyRate';
+
     /** @var array<int, Collection<int, PaymentCurrency>>|null */
     private ?array $allPaymentCurrencies = null;
+
+    /**
+     * Returns the rate for a payment currency, after giving event handlers a chance to override it.
+     *
+     * @since 5.7.0
+     */
+    public function getRateFor(PaymentCurrency $currency, ?Transaction $transaction = null): float
+    {
+        $event = new PaymentCurrencyRateEvent();
+        $event->rate = $currency->rate;
+        $event->paymentCurrency = $currency;
+        $event->transaction = $transaction;
+
+        // TODO: migrate event firing to Laravel once the event system is bridged
+        /** @phpstan-ignore-next-line */
+        if (Plugin::getInstance()->getPaymentCurrencies()->hasEventHandlers(self::EVENT_DEFINE_PAYMENT_CURRENCY_RATE)) {
+            /** @phpstan-ignore-next-line */
+            Plugin::getInstance()->getPaymentCurrencies()->trigger(self::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $event);
+        }
+
+        return $event->rate;
+    }
 
     public function getPaymentCurrencyById(int $id, ?int $storeId = null): ?PaymentCurrency
     {
@@ -111,11 +143,11 @@ class PaymentCurrencies
 
         $primary = $this->getPrimaryPaymentCurrency();
         if (!$primary) {
-            return $amount * $destination->rate;
+            return $amount * $this->getRateFor($destination);
         }
 
         // Amount is already in the primary currency; convert to destination.
-        return $amount * $destination->rate;
+        return $amount * $this->getRateFor($destination);
     }
 
     public function savePaymentCurrency(PaymentCurrency $model, bool $runValidation = true): bool
@@ -194,7 +226,7 @@ class PaymentCurrencies
         /** @phpstan-ignore-next-line */
         $storeCurrency = Plugin::getInstance()->getStores()->getStoreById($storeId)->getCurrency();
         $nonPrimaryCurrencies = $this->getNonPrimaryPaymentCurrencies($storeId)
-            ->mapWithKeys(fn(PaymentCurrency $c) => [$c->iso => (string) $c->rate]);
+            ->mapWithKeys(fn(PaymentCurrency $c) => [$c->iso => (string) $this->getRateFor($c)]);
 
         $exchange = [$storeCurrency->getCode() => $nonPrimaryCurrencies->all()];
 

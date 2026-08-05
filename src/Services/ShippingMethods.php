@@ -11,6 +11,7 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface;
 use CraftCms\Commerce\Shipping\Contracts\ShippingRuleInterface;
 use CraftCms\Commerce\Shipping\Events\RegisterAvailableShippingMethodsEvent;
+use CraftCms\Commerce\Shipping\Models\BaseShippingMethod;
 use CraftCms\Commerce\Shipping\Models\ShippingMethod;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
@@ -83,8 +84,10 @@ class ShippingMethods
 
         $matchingMethods = [];
         foreach ($event->getShippingMethods() as $method) {
-            $totalPrice = $method->getPriceForOrder($order);
             if ($method->getIsEnabled() && $method->matchOrder($order)) {
+                // Now we know the method matches, let's get the price
+                $totalPrice = $method->getPriceForOrder($order);
+
                 $matchingMethods[$method->getHandle()] = [
                     'method' => $method,
                     'price' => $totalPrice,
@@ -98,6 +101,11 @@ class ShippingMethods
         foreach ($matchingMethods as $item) {
             $method = $item['method'];
             $shippingMethods[$method->getHandle()] = $method;
+
+            // Clear the matching cache in case things change in the future
+            if ($method instanceof BaseShippingMethod) {
+                $method->clearMatchingShippingRuleCache();
+            }
         }
 
         $this->serializedOrdersByNumber = [];

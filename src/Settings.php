@@ -31,6 +31,8 @@ class Settings extends Model
 
     public ?string $loadCartRedirectUrl = null;
 
+    public int $loadCartUrlExpiry = 604800;
+
     public ?array $paymentCurrency = null;
 
     public bool $pdfAllowRemoteImages = false;

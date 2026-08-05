@@ -230,10 +230,10 @@ class Transactions extends Component
             // Amount is always in the base currency
             $transaction->amount = $amount;
 
-            // Capture historical rate
-            $transaction->paymentRate = $paymentCurrency->rate;
-
             $transaction->setOrder($order);
+
+            // Capture historical rate
+            $transaction->paymentRate = Plugin::getInstance()->getPaymentCurrencies()->getRateFor($paymentCurrency, $transaction);
         }
 
         $user = Craft::$app->getUser()->getIdentity();

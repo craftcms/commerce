@@ -7,6 +7,7 @@ namespace CraftCms\Commerce\Order\Models;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
+use CraftCms\Commerce\Inventory\Enums\OrderNoticeType;
 
 class OrderNotice extends Component
 {
@@ -20,11 +21,25 @@ class OrderNotice extends Component
 
     public ?int $orderId = null;
 
+    private OrderNoticeType $_noticeType = OrderNoticeType::Customer;
+
     private ?Order $_order = null;
 
     public function __toString(): string
     {
         return $this->message ?: '';
+    }
+
+    public function getNoticeType(): OrderNoticeType
+    {
+        return $this->_noticeType;
+    }
+
+    public function setNoticeType(string|OrderNoticeType $noticeType): void
+    {
+        $this->_noticeType = $noticeType instanceof OrderNoticeType
+            ? $noticeType
+            : OrderNoticeType::from($noticeType);
     }
 
     #[\Override]
@@ -35,6 +50,7 @@ class OrderNotice extends Component
             'message' => ['required', 'string'],
             'attribute' => ['required', 'string'],
             'orderId' => ['required', 'integer'],
+            'noticeType' => ['string'],
         ];
     }
 

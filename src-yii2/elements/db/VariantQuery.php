@@ -529,8 +529,10 @@ class VariantQuery extends PurchasableQuery
             ->innerJoin(['elements_owners' => CraftTable::ELEMENTS_OWNERS], $ownersCondition);
 
         $sortOrderIndex = Db::findIndex(CraftTable::ELEMENTS_OWNERS, ['sortOrder'], false);
-        // Forcing the use of the `sortOrder` index if no custom `orderBy` is set
-        if (Craft::$app->getDb()->getIsMysql() && $sortOrderIndex !== null && empty($this->orderBy)) {
+        // Forcing the use of the `sortOrder` index only when listing (no specific element/owner filter),
+        // so MySQL doesn't prefer it over targeted indexes when querying by ID.
+        $hasSpecificFilter = !empty($this->id) || !empty($this->ownerId) || !empty($this->primaryOwnerId);
+        if (Craft::$app->getDb()->getIsMysql() && $sortOrderIndex !== null && empty($this->orderBy) && !$hasSpecificFilter) {
             $elementOwnersTable = Craft::$app->getDb()->schema->getRawTableName(\craft\db\Table::ELEMENTS_OWNERS);
             $this->subQuery->innerJoin([new Expression('[[' . $elementOwnersTable . ']] AS elements_owners USE INDEX (' . $sortOrderIndex . ')')], $ownersCondition);
         } else {
@@ -785,8 +787,8 @@ class VariantQuery extends PurchasableQuery
         }
 
         $this->_applyHasProductParam();
-        $this->_applyEditableParam($this->editable, 'commerce-editProductType');
-        $this->_applyEditableParam($this->savable, 'commerce-editProductType');
+        $this->_applyEditableParam($this->editable, 'commerce-viewProductType');
+        $this->_applyEditableParam($this->savable, 'commerce-saveProductType');
 
         return parent::beforePrepare();
     }

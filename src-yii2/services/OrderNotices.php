@@ -71,6 +71,7 @@ class OrderNotices extends Component
         return new Query()
             ->select([
                 'attribute',
+                'noticeType',
                 'id',
                 'message',
                 'orderId',

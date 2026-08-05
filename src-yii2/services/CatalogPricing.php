@@ -3,7 +3,7 @@
 namespace craft\commerce\services;
 
 use craft\commerce\elements\conditions\purchasables\CatalogPricingCondition;
-use craft\commerce\queue\jobs\CatalogPricing as CatalogPricingJob;
+use craft\commerce\records\CatalogPricingQueue as CatalogPricingQueueRecord;
 use craft\events\ModelEvent;
 use craft\queue\QueueInterface;
 use Illuminate\Support\Collection;
@@ -55,14 +55,24 @@ class CatalogPricing extends Component
         app(\CraftCms\Commerce\Services\CatalogPricing::class)->createCatalogPricingJob($config, $priority);
     }
 
-    public function clearCatalogPricingJob(CatalogPricingJob $catalogPricingJob): void
-    {
-        app(\CraftCms\Commerce\Services\CatalogPricing::class)->clearCatalogPricingJob($catalogPricingJob);
-    }
-
     public function areCatalogPricingJobsRunning(): bool
     {
         return app(\CraftCms\Commerce\Services\CatalogPricing::class)->areCatalogPricingJobsRunning();
+    }
+
+    public function reserveCatalogPricingQueueRow(): ?CatalogPricingQueueRecord
+    {
+        return app(\CraftCms\Commerce\Services\CatalogPricing::class)->reserveCatalogPricingQueueRow();
+    }
+
+    public function releaseCatalogPricingQueueRowById(int $id): void
+    {
+        app(\CraftCms\Commerce\Services\CatalogPricing::class)->releaseCatalogPricingQueueRowById($id);
+    }
+
+    public function deleteCatalogPricingQueueRowById(int $id): void
+    {
+        app(\CraftCms\Commerce\Services\CatalogPricing::class)->deleteCatalogPricingQueueRowById($id);
     }
 
     // TODO: return type will differ (Builder vs craft\db\Query) — update callers when migrated

@@ -430,7 +430,7 @@ class Customers extends Component
         $user->pending = true;
         $user->setScenario(Element::SCENARIO_ESSENTIALS);
 
-        // @TODO remove check at next major Craft version bump
+        // @TODO Remove this property_exists guard once Commerce requires a Craft version where User::$affiliatedSiteId always exists
         if (property_exists($user, 'affiliatedSiteId')) {
             $user->affiliatedSiteId = $order->orderSiteId;
         }

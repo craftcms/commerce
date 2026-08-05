@@ -14,19 +14,37 @@ use Illuminate\Support\Facades\DB;
 class ShippingRuleCategories
 {
     /**
+     * @var array<int, array<int, ShippingRuleCategory>>|null
+     */
+    private ?array $allShippingRuleCategories = null;
+
+    /**
+     * Returns all shipping rule categories, keyed by rule ID then category ID, memoized for the
+     * lifetime of the request to avoid N+1 queries when categories are fetched one rule at a time.
+     */
+    public function getAllShippingRuleCategoriesData(): array
+    {
+        if ($this->allShippingRuleCategories === null) {
+            $rows = $this->query()->get();
+            $categoriesByRuleId = [];
+
+            foreach ($rows as $row) {
+                $row = (array) $row;
+                $categoriesByRuleId[$row['shippingRuleId']][$row['shippingCategoryId']] = new ShippingRuleCategory($row);
+            }
+
+            $this->allShippingRuleCategories = $categoriesByRuleId;
+        }
+
+        return $this->allShippingRuleCategories;
+    }
+
+    /**
      * @return array<int, ShippingRuleCategory>
      */
     public function getShippingRuleCategoriesByRuleId(int $ruleId): array
     {
-        $rows = $this->query()->where('shippingRuleId', $ruleId)->get()->all();
-        $categories = [];
-
-        foreach ($rows as $row) {
-            $row = (array) $row;
-            $categories[$row['shippingCategoryId']] = new ShippingRuleCategory($row);
-        }
-
-        return $categories;
+        return $this->getAllShippingRuleCategoriesData()[$ruleId] ?? [];
     }
 
     /**
@@ -76,6 +94,8 @@ class ShippingRuleCategories
         /** @phpstan-ignore-next-line */
         $model->id = $record->id;
 
+        $this->allShippingRuleCategories = null;
+
         return true;
     }
 
@@ -85,6 +105,8 @@ class ShippingRuleCategories
         $record = ShippingRuleCategoryRecord::findOne($id);
 
         if ($record) {
+            $this->allShippingRuleCategories = null;
+
             return (bool) $record->delete();
         }
 

@@ -41,6 +41,11 @@ abstract class BaseShippingMethod extends Component implements ShippingMethodInt
 
     private ?ShippingMethodCustomerCondition $_customerCondition = null;
 
+    /**
+     * @var array<string, ShippingRuleInterface|null>
+     */
+    private array $_matchingRuleByOrderNumber = [];
+
     public function getType(): string
     {
         throw new \BadMethodCallException('Not implemented.');
@@ -163,11 +168,8 @@ abstract class BaseShippingMethod extends Component implements ShippingMethodInt
             return false;
         }
 
-        /** @var ShippingRuleInterface $rule */
-        foreach ($this->getShippingRules()->all() as $rule) {
-            if ($rule->matchOrder($order)) {
-                return true;
-            }
+        if ($this->getMatchingShippingRule($order)) {
+            return true;
         }
 
         return false;
@@ -175,14 +177,26 @@ abstract class BaseShippingMethod extends Component implements ShippingMethodInt
 
     public function getMatchingShippingRule(Order $order): ?ShippingRuleInterface
     {
+        if (array_key_exists($order->number, $this->_matchingRuleByOrderNumber)) {
+            return $this->_matchingRuleByOrderNumber[$order->number];
+        }
+
         foreach ($this->getShippingRules() as $rule) {
             /** @var ShippingRuleInterface $rule */
             if ($rule->matchOrder($order)) {
-                return $rule;
+                return $this->_matchingRuleByOrderNumber[$order->number] = $rule;
             }
         }
 
-        return null;
+        return $this->_matchingRuleByOrderNumber[$order->number] = null;
+    }
+
+    /**
+     * @return void
+     */
+    public function clearMatchingShippingRuleCache(): void
+    {
+        $this->_matchingRuleByOrderNumber = [];
     }
 
     public function getPriceForOrder(Order $order): float

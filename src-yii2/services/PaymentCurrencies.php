@@ -2,6 +2,7 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\models\Transaction;
 use CraftCms\Commerce\Payment\Models\PaymentCurrency;
 use Illuminate\Support\Collection;
 use Money\Currency;
@@ -13,6 +14,16 @@ use yii\base\Component;
  */
 class PaymentCurrencies extends Component
 {
+    /**
+     * @since 5.7.0
+     */
+    public const EVENT_DEFINE_PAYMENT_CURRENCY_RATE = 'definePaymentCurrencyRate';
+
+    public function getRateFor(PaymentCurrency $currency, ?Transaction $transaction = null): float
+    {
+        return app(\CraftCms\Commerce\Services\PaymentCurrencies::class)->getRateFor($currency, $transaction);
+    }
+
     public function getPaymentCurrencyById(int $id, ?int $storeId = null): ?PaymentCurrency
     {
         return app(\CraftCms\Commerce\Services\PaymentCurrencies::class)->getPaymentCurrencyById($id, $storeId);
@@ -74,10 +85,10 @@ class PaymentCurrencies extends Component
         $primary = $svc->getPrimaryPaymentCurrency();
         if ($primary && $primary->iso !== $fromCurrency) {
             // amount is not in primary currency; normalize back to primary first
-            $amount /= $from->rate;
+            $amount /= $svc->getRateFor($from);
         }
 
-        $result = $amount * $to->rate;
+        $result = $amount * $svc->getRateFor($to);
 
         if ($round) {
             return \craft\commerce\helpers\Currency::round($result, $to);

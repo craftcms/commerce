@@ -122,4 +122,6 @@ readonly class Table
     public const INVENTORYLOCATIONS_STORES = 'commerce_inventorylocations_stores';
 
     public const INVENTORYTRANSACTIONS = 'commerce_inventorytransactions';
+
+    public const CATALOG_PRICING_QUEUE = 'commerce_catalogpricing_queue';
 }

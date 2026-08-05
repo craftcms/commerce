@@ -1,5 +1,71 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Merged 5.x
+
+Merged `5.x` (323 commits since the 6.x branch point) into `6.x`. 5.x had
+no `src-yii2`/`src` split, so every 5.x change landed against the old flat
+`src/` structure; each conflict was resolved by porting the underlying
+change into whichever file now holds that logic — the `src-yii2/` legacy
+stub if not yet migrated, or the `CraftCms\Commerce\` Laravel class if it
+is (per Stage 6b/6c/6e as applicable). No 5.x change was dropped; where a
+file was untouched by the merge it's because 5.x's own change there was
+superficial (comment/TODO wording) and the newer Laravel version had
+already superseded it.
+
+Notable ports:
+- **Catalog pricing queue** — replaced the old cache-counter job-dedup
+  approach in `CatalogPricing::createCatalogPricingJob()`/`areCatalogPricingJobsRunning()`
+  with a persistent `commerce_catalogpricing_queue` table
+  (`CatalogPricingQueue` record, `m260407_000000_add_catalog_pricing_queue_table`
+  migration), with mutex-guarded merge-on-conflict inserts and
+  reserve/release/delete methods for the queue job to claim rows.
+- **Order notices** — new `noticeType` (customer/admin) column and enum
+  (`OrderNoticeType`) on `commerce_ordernotices`
+  (`m260615_000000_add_notice_type_to_order_notices`). `Discounts::orderCompleteHandler()`
+  now raises an admin notice when a discount/coupon's usage limit is
+  exceeded by a race condition; `Inventory::executeInventoryMovements()`
+  raises one when available stock goes below zero for a purchasable that
+  disallows oversells.
+- **Payment currency rate override** — new `PaymentCurrencies::EVENT_DEFINE_PAYMENT_CURRENCY_RATE`
+  event (`getRateFor()`), fired from `convert()`/`convertAmount()`/`convertCurrency()`,
+  letting plugins override the conversion rate used for historical
+  transaction snapshots.
+- **Perf**: `ShippingMethods::getMatchingShippingMethods()` now only prices
+  methods that already matched (was pricing every method up front);
+  `BaseShippingMethod` memoizes the matched shipping rule per order number
+  (`clearMatchingShippingRuleCache()` resets it between matching passes);
+  `ShippingRuleCategories` and `ShippingRule`'s order/customer condition
+  getters are now lazily built and memoized instead of eagerly constructed
+  on every set; `Inventory::getInventoryLevelQuery()` takes an optional
+  `$inventoryLocationId` to scope the subquery instead of cross-joining
+  every location.
+- **Fix**: `ProductVariantSearchConditionRule` no longer routes its search
+  value through `paramValue()`, which corrupted it by prepending an
+  operator prefix meant for `Db::parseParam()`.
+- **Fix**: email `To:`/`Bcc:`/`Cc:`/`Reply-To:`/subject/template-path
+  fields now render through `renderSandboxedString()` instead of
+  `renderString()`, closing a template-injection vector on user-editable
+  email settings.
+- Product type permissions renamed (`commerce-editProductType` →
+  `commerce-viewProductType` + `commerce-saveProductType`;
+  `commerce-createProducts` → `commerce-createProductType`;
+  `commerce-deleteProducts` → `commerce-deleteProductType`;
+  `m260226_120000_product_type_permissions` migrates existing installs).
+  `ProductTypes::hasPermission()` is deprecated in favor of `$user->can()`.
+- `ibericode/vat` bumped to `^2.0`; the `Ibericode\Vat\Validator` import in
+  `adjusters/Tax.php` (already required by 6.x's own dependency bump) is
+  now deduplicated rather than appearing twice.
+- New `Settings::$loadCartUrlExpiry` (default 604800s/7 days) controls how
+  long a cart-recovery link stays valid.
+- Added CP deletion blockers (`OrderCustomersDeletionBlocker`,
+  `SubscriptionCustomersDeletionBlocker`) that warn when deleting a user
+  with completed orders or subscriptions, offering reassign/remove-data
+  actions. Paired with an `orders.customerDeleted` flag column
+  (`m260505_071943_add_orders_customerDeleted_column`) and the
+  `commerce_subscriptions.userId` FK changed from `RESTRICT` to `CASCADE`
+  (`m260507_000000_subscriptions_nullable_userId`) so orders/subscriptions
+  survive a hard user delete instead of blocking it or leaving a dangling FK.
+
 ### Dependencies
 
 - Updated `dompdf/dompdf` to `^3.1.6` (from `^2.0.2`).

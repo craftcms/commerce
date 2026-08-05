@@ -59,7 +59,7 @@ class OrderStatusesFixture extends BaseModelFixture
      */
     public function unload(): void
     {
-        // TODO remove this when we figure out why things are being unlaoded twice #COM-54
+        // @TODO Remove this muteEvents workaround once we identify why fixtures are being unloaded twice #COM-54
         $_muteEvents = Craft::$app->getProjectConfig()->muteEvents;
         Craft::$app->getProjectConfig()->muteEvents = false;
 

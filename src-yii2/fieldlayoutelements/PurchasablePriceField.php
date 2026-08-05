@@ -129,18 +129,18 @@ JS;
             $toggleAttributes['data-init-prices'] = 'true';
             $toggleContent = PurchasableHelper::catalogPricingRulesTableByPurchasableId($element->id, $element->storeId) .
                 Html::beginTag('div', ['class' => 'flex']) .
-                // New catalog price button
-                Html::button(Craft::t('commerce', 'Add catalog price'), [
-                    'class' => 'btn icon add js-cpr-slideout',
-                    'data-icon' => 'plus',
-                    'data-store-id' => $element->storeId,
-                    'data-store-handle' => $element->getStore()->handle,
-                    'data-purchasable-id' => $element->id,
-                    'data-asdsa' => $element->firstSave,
-                ]) .
-                Cp::renderTemplate('commerce/prices/_status', [
-                    'areCatalogPricingJobsRunning' => Plugin::getInstance()->getCatalogPricing()->areCatalogPricingJobsRunning(),
-                ]);
+                    // New catalog price button
+                    Html::button(Craft::t('commerce', 'Add catalog price'), [
+                        'class' => 'btn icon add js-cpr-slideout',
+                        'data-icon' => 'plus',
+                        'data-store-id' => $element->storeId,
+                        'data-store-handle' => $element->getStore()->handle,
+                        'data-purchasable-id' => $element->id,
+                    ]) .
+                    Cp::renderTemplate('commerce/prices/_status', [
+                        'areCatalogPricingJobsRunning' => Plugin::getInstance()->getCatalogPricing()->areCatalogPricingJobsRunning(),
+                    ]) .
+                Html::endTag('div');
         } else {
             /** @var Sale[] $relatedSales */
             $relatedSales = Plugin::getInstance()->getSales()->getSalesRelatedToPurchasable($element);
@@ -204,8 +204,7 @@ JS;
                     Html::tag(
                         'div',
                         // Prices table
-                        $toggleContent .
-                        Html::endTag('div'),
+                        $toggleContent,
                         [
                             'id' => 'purchasable-toggle',
                             'class' => 'hidden',

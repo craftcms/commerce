@@ -21,6 +21,7 @@ use craft\events\ModelEvent;
 use craft\helpers\ConfigHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
+use craft\helpers\UrlHelper;
 use DateTime;
 use Throwable;
 use yii\base\Component;
@@ -134,7 +135,7 @@ class Carts extends Component
      */
     public function getCart(bool $forceSave = false): Order
     {
-        $this->loadCookie(); // TODO: need to see if this should be added to other runtime methods too
+        $this->loadCookie(); // @TODO Audit other public runtime entry points (e.g. forgetCart, restorePreviousCartForCurrentUser) to see if they also need loadCookie() called first
 
         $this->_getCartCount++; //useful when debugging
         $currentUser = Craft::$app->getUser()->getIdentity();
@@ -157,6 +158,12 @@ class Carts extends Component
             ]);
         } elseif ($this->_cart->orderSiteId != Craft::$app->getSites()->getCurrentSite()->id) {
             $this->_cart->orderSiteId = Craft::$app->getSites()->getCurrentSite()->id;
+            $forceSave = true;
+        }
+
+        // Just in case the cart go put into a non all recalculation mode
+        if ($this->_cart->getRecalculationMode() !== Order::RECALCULATION_MODE_ALL) {
+            $this->_cart->setRecalculationMode(Order::RECALCULATION_MODE_ALL);
             $forceSave = true;
         }
 
@@ -210,6 +217,61 @@ class Carts extends Component
     }
 
     /**
+     * Returns the existing cart for this session without creating one, setting cookies, or touching the session.
+     * Returns null if no cart cookie is present or no matching cart exists.
+     *
+     * @since 5.7.0
+     */
+    public function peekCart(): ?Order
+    {
+        if (isset($this->_cart)) {
+            return $this->_cart;
+        }
+
+        if ($this->_cartNumber === false) {
+            return null;
+        }
+
+        if (!$this->_cartNumber) {
+            $cookieNumber = Craft::$app->getRequest()->getCookies()->getValue($this->cartCookie['name'], false);
+            if (!$cookieNumber) {
+                return null;
+            }
+            $this->_cartNumber = $cookieNumber;
+        }
+
+        /** @var Order|null $cart */
+        $cart = Order::find()
+            ->number($this->_cartNumber)
+            ->storeId(Plugin::getInstance()->getStores()->getCurrentStore()->id)
+            ->isCompleted(false)
+            ->trashed(false)
+            ->one();
+
+        if (!$cart) {
+            return null;
+        }
+
+        // Don't return a cart that belongs to a credentialed user who isn't currently logged in
+        // as that user, unless this session has been authorized to use it (e.g. loaded via a valid
+        // load-cart token). Mirrors the privacy check in _getCart(), but without forgetting the cart
+        // (which would set a Set-Cookie header and defeat the purpose of this method).
+        $cartCustomer = $cart->getCustomer();
+        if ($cartCustomer && $cartCustomer->getIsCredentialed()) {
+            $authorizedForCredentialedCart = Craft::$app->getSession()->get('commerce:anonymousCartWithCredentialedCustomer:' . $cart->number, false);
+            if (!$authorizedForCredentialedCart) {
+                $currentUser = Craft::$app->getUser()->getIdentity();
+                if (!$currentUser || $currentUser->id != $cartCustomer->id) {
+                    return null;
+                }
+            }
+        }
+
+        $this->_cart = $cart;
+        return $this->_cart;
+    }
+
+    /**
      * Get the current cart for this session.
      */
     private function _getCart(): ?Order
@@ -235,17 +297,20 @@ class Carts extends Component
 
         $cartCustomer = $cart?->getCustomer();
 
-        // Did an anonymous user provide an email that belonged to a credentialed user?
-        // See CartController::actionUpdate()
-        $anonymousCartWithCredentialedCustomer = $cart && Craft::$app->getSession()->get('commerce:anonymousCartWithCredentialedCustomer:' . $cart->number, false);
+        // Is this session authorized to use a cart that belongs to a credentialed user? This is the
+        // case when an anonymous user submitted the credentialed user's email to the cart (see
+        // CartController::actionUpdate()), or when the cart was loaded via a valid load-cart token
+        // (see CartController::actionLoadCart()).
+        $authorizedForCredentialedCart = $cart && Craft::$app->getSession()->get('commerce:anonymousCartWithCredentialedCustomer:' . $cart->number, false);
 
         if ($cart && $cartCustomer && $cartCustomer->getIsCredentialed() &&
+            !$authorizedForCredentialedCart &&
             (
-                // Forget cart if they are not logged-in, and they didn't submit the credentialed users email to the cart.
-                (!$currentUser && !$anonymousCartWithCredentialedCustomer)
+                // Forget cart if they are not logged-in.
+                !$currentUser
                 ||
                 // Forget cart if the logged-in user is not the same as the cart customer.
-                ($currentUser && $currentUser->id != $cartCustomer->id)
+                $currentUser->id != $cartCustomer->id
             )
         ) {
             $this->forgetCart();
@@ -371,6 +436,35 @@ class Carts extends Component
             ]));
             Craft::$app->getResponse()->getCookies()->add($cookie);
         }
+    }
+
+    /**
+     * Returns a URL to load a cart with a secure token.
+     *
+     * @param Order $cart The cart to generate the load URL for
+     * @return string The URL with secure token
+     * @since 5.7.0
+     */
+    public function getLoadCartUrl(Order $cart): string
+    {
+        $linkExpiry = Plugin::getInstance()->getSettings()->loadCartUrlExpiry;
+        $expiryDate = DateTimeHelper::currentUTCDateTime()->add(DateTimeHelper::secondsToInterval($linkExpiry));
+
+        $token = Craft::$app->getTokens()->createToken([
+            'commerce/cart/load-cart',
+            ['cartNumber' => $cart->number],
+        ], expiryDate: $expiryDate);
+
+        $request = Craft::$app->getRequest();
+        $isCpRequest = $request->getIsCpRequest();
+        $request->setIsCpRequest(false);
+        $url = UrlHelper::actionUrl('commerce/cart/load-cart', [
+            'number' => $cart->number,
+            'code' => $token,
+        ]);
+        $request->setIsCpRequest($isCpRequest);
+
+        return $url;
     }
 
     /**
@@ -525,7 +619,7 @@ class Carts extends Component
 
     /**
      * Gets the current payment currency ISO code
-     * @TODO: Fix this for next breaking change version
+     * @todo in Commerce 6.0, replace the COMMERCE_PAYMENT_CURRENCY constant with a proper per-store config setting and surface validation errors instead of throwing InvalidConfigException
      */
     private function _getCartPaymentCurrencyIso(): string
     {

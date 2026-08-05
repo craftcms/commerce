@@ -50,11 +50,17 @@ class ProductVariantSearchConditionRule extends BaseTextConditionRule implements
     }
 
     /**
-     * @inheritdoc
+     * Returns the raw search value.
+     *
+     * Note we can't use [[paramValue()]] here because it prepends the operator
+     * (e.g. `=`) intended for [[\craft\helpers\Db::parseParam()]], which would
+     * corrupt the value once it's passed to [[\craft\elements\db\ElementQuery::search()]].
+     *
+     * @return string
      */
-    protected function paramValue(): ?string
+    private function searchValue(): string
     {
-        return trim((string) parent::paramValue());
+        return trim((string) $this->value);
     }
 
     /**
@@ -64,7 +70,7 @@ class ProductVariantSearchConditionRule extends BaseTextConditionRule implements
     {
         $variantQuery = Variant::find();
         $variantQuery->select(['commerce_variants.primaryOwnerId as id']);
-        $variantQuery->search($this->paramValue());
+        $variantQuery->search($this->searchValue());
 
         /** @var ProductQuery $query */
         $query->andWhere(['elements.id' => $variantQuery]);
@@ -84,7 +90,7 @@ class ProductVariantSearchConditionRule extends BaseTextConditionRule implements
 
         // Perform a variant query search to ensure it is the same process as `modifyQuery`
         $variantQuery = Variant::find();
-        $variantQuery->search($this->paramValue());
+        $variantQuery->search($this->searchValue());
         $variantQuery->id($variantIds);
 
         return $variantQuery->count() > 0;

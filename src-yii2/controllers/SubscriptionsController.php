@@ -19,6 +19,8 @@ use craft\commerce\records\Subscription as SubscriptionRecord;
 use craft\commerce\stripe\gateways\PaymentIntents;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\helpers\App;
+use craft\helpers\Cp;
+use craft\helpers\Html;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use Throwable;
@@ -236,9 +238,9 @@ class SubscriptionsController extends BaseController
         } catch (SubscriptionException $exception) {
             $error = $exception->getMessage();
         }
-        
+
         if ($subscription && $returnUrl) {
-            $returnUrl = $this->getView()->renderObjectTemplate($returnUrl, $subscription);
+            $returnUrl = $this->getView()->renderSandboxedObjectTemplate($returnUrl, $subscription);
             $subscriptionRecord = SubscriptionRecord::findOne($subscription->id);
             $subscriptionRecord->returnUrl = $returnUrl;
             $subscriptionRecord->save();
@@ -467,6 +469,160 @@ class SubscriptionsController extends BaseController
         return $this->asSuccess(redirect: $subscription->returnUrl);
     }
 
+
+    /**
+     * @since 5.7.0
+     */
+    public function actionDeleteSubscriptionsModal(): Response
+    {
+        $this->requireCpRequest();
+        $this->requireAcceptsJson();
+        $this->requirePermission('deleteUsers');
+
+        $numSubscriptions = count($this->request->getRequiredParam('subscriptionIds'));
+
+        return $this->_renderGatewayCancelModal('commerce/subscriptions/delete-subscriptions')
+            ->submitButtonLabel(Craft::t('app', 'Delete {type}', [
+                'type' => $numSubscriptions === 1 ? Subscription::lowerDisplayName() : Subscription::pluralLowerDisplayName(),
+            ]));
+    }
+
+    /**
+     * @since 5.7.0
+     */
+    public function actionDeleteSubscriptions(): Response
+    {
+        $this->requireCpRequest();
+        $this->requireAcceptsJson();
+        $this->requirePermission('deleteUsers');
+
+        $subscriptions = $this->_subscriptionsFromRequest();
+        $this->_cancelSubscriptionsAtGateway($subscriptions);
+
+        foreach ($subscriptions as $subscription) {
+            if (!Craft::$app->getElements()->deleteElement($subscription)) {
+                Craft::warning('Failed to delete subscription ' . $subscription->id . ' (' . $subscription->reference . ')', __METHOD__);
+            }
+        }
+
+        $numSubscriptions = count($subscriptions);
+
+        return $this->asSuccess(Craft::t('app', '{type} deleted.', [
+            'type' => $numSubscriptions === 1 ? Subscription::displayName() : Subscription::pluralDisplayName(),
+        ]));
+    }
+
+    /**
+     * Returns the gateway cancel modal response, with an action URL for the submit endpoint.
+     */
+    private function _renderGatewayCancelModal(string $actionUrl): \craft\web\Response
+    {
+        $subscriptionIds = collect($this->request->getRequiredParam('subscriptionIds'))->filter()->map(fn($id) => (int)$id)->all();
+        $gatewayId = (int)$this->request->getRequiredParam('gatewayId');
+
+        $gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId);
+        $subscription = Subscription::find()->id($subscriptionIds)->status(null)->one();
+
+        $cancelFormHtml = '';
+        if ($gateway instanceof SubscriptionGateway && $subscription) {
+            $cancelFormHtml = $gateway->getCancelSubscriptionFormHtml($subscription);
+        }
+
+        return $this->asCpModal()
+            ->action($actionUrl)
+            ->contentHtml(function() use ($cancelFormHtml, $subscriptionIds, $gatewayId) {
+                $view = Craft::$app->getView();
+
+                if ($cancelFormHtml) {
+                    $view->registerJsWithVars(
+                        fn($formId, $inputName) => <<<JS
+                            (function() {
+                                var form = document.getElementById($formId);
+                                var radios = document.querySelectorAll(`input[name=$inputName]`);
+                                function toggle() {
+                                    var checked = document.querySelector(`input[name=$inputName]:checked`);
+                                    form.style.display = (checked && checked.value === '1') ? '' : 'none';
+                                }
+                                radios.forEach(function(r) { r.addEventListener('change', toggle); });
+                            })();
+                            JS,
+                        [
+                            $view->namespaceInputId('cancel-form'),
+                            $view->namespaceInputName('cancelWithGateway'),
+                        ]
+                    );
+                }
+
+                return Cp::fieldHtml('template:_includes/forms/radioGroup.twig', [
+                        'label' => Craft::t('commerce', 'Gateway'),
+                        'name' => 'cancelWithGateway',
+                        'value' => '1',
+                        'options' => [
+                            ['label' => Craft::t('commerce', 'Cancel with gateway now'), 'value' => '1'],
+                            ['label' => Craft::t('commerce', 'Leave gateway subscription as-is'), 'value' => '0'],
+                        ],
+                    ]) .
+                    ($cancelFormHtml ? Html::tag('div', $cancelFormHtml, ['id' => 'cancel-form']) : '') .
+                    implode('', array_map(fn($id) => Html::hiddenInput('subscriptionIds[]', (string)$id), $subscriptionIds)) .
+                    Html::hiddenInput('gatewayId', (string)$gatewayId);
+            });
+    }
+
+    /**
+     * @return Subscription[]
+     */
+    private function _subscriptionsFromRequest(): array
+    {
+        $subscriptionIds = collect($this->request->getRequiredParam('subscriptionIds'))->filter()->map(fn($id) => (int)$id)->all();
+
+        return Subscription::find()
+            ->id($subscriptionIds)
+            ->status(null)
+            ->all();
+    }
+
+    /**
+     * Cancels the given subscriptions at the gateway if the request opted in. Returns whether anything was cancelled.
+     *
+     * @param Subscription[] $subscriptions
+     */
+    private function _cancelSubscriptionsAtGateway(array $subscriptions): bool
+    {
+        $cancelWithGateway = (bool)$this->request->getBodyParam('cancelWithGateway', false);
+        if (!$cancelWithGateway) {
+            return false;
+        }
+
+        $gatewayId = (int)$this->request->getRequiredParam('gatewayId');
+        $gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId);
+        if (!$gateway instanceof SubscriptionGateway) {
+            return false;
+        }
+
+        $parameters = $gateway->getCancelSubscriptionFormModel();
+        foreach ($parameters->attributes() as $attribute) {
+            $value = $this->request->getBodyParam($attribute);
+            if ($value !== null) {
+                $parameters->$attribute = $value;
+            }
+        }
+
+        $subscriptionsService = Plugin::getInstance()->getSubscriptions();
+        $cancelled = false;
+
+        foreach ($subscriptions as $subscription) {
+            if (!$subscription->isExpired) {
+                try {
+                    $subscriptionsService->cancelSubscription($subscription, $parameters);
+                    $cancelled = true;
+                } catch (Throwable $e) {
+                    Craft::warning('Failed to cancel subscription ' . $subscription->reference . ' with gateway: ' . $e->getMessage(), __METHOD__);
+                }
+            }
+        }
+
+        return $cancelled;
+    }
 
     /**
      * @param Subscription $subscription

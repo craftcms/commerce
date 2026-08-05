@@ -503,7 +503,7 @@ class Emails extends Component
         if ($email->recipientType == EmailRecord::TYPE_CUSTOM) {
             // To:
             try {
-                $emails = $view->renderString($email->getTo(), $renderVariables);
+                $emails = $view->renderSandboxedString($email->getTo(), $renderVariables);
                 $emails = preg_split('/[\s,]+/', (string) $emails);
 
                 $newEmail->setTo($emails);
@@ -541,7 +541,7 @@ class Emails extends Component
         // BCC:
         if ($bccSetting = $email->getBcc()) {
             try {
-                $bcc = $view->renderString($bccSetting, $renderVariables);
+                $bcc = $view->renderSandboxedString($bccSetting, $renderVariables);
                 $bcc = str_replace(';', ',', $bcc);
                 $bcc = preg_split('/[\s,]+/', $bcc);
 
@@ -571,7 +571,7 @@ class Emails extends Component
         // CC:
         if ($ccSetting = $email->getCc()) {
             try {
-                $cc = $view->renderString($ccSetting, $renderVariables);
+                $cc = $view->renderSandboxedString($ccSetting, $renderVariables);
                 $cc = str_replace(';', ',', $cc);
                 $cc = preg_split('/[\s,]+/', $cc);
 
@@ -601,7 +601,7 @@ class Emails extends Component
         if ($email->replyTo) {
             // Reply To:
             try {
-                $newEmail->setReplyTo($view->renderString($email->replyTo, $renderVariables));
+                $newEmail->setReplyTo($view->renderSandboxedString($email->replyTo, $renderVariables));
             } catch (\Exception $e) {
                 Craft::$app->getErrorHandler()->logException($e);
 
@@ -624,7 +624,7 @@ class Emails extends Component
 
         // Subject:
         try {
-            $newEmail->setSubject($view->renderString($email->subject, $renderVariables));
+            $newEmail->setSubject($view->renderSandboxedString($email->subject, $renderVariables));
         } catch (\Exception $e) {
             Craft::$app->getErrorHandler()->logException($e);
 
@@ -646,7 +646,7 @@ class Emails extends Component
 
         // Template Path
         try {
-            $templatePath = $view->renderString($email->templatePath, $renderVariables);
+            $templatePath = $view->renderSandboxedString($email->templatePath, $renderVariables);
         } catch (\Exception $e) {
             Craft::$app->getErrorHandler()->logException($e);
 
@@ -687,7 +687,7 @@ class Emails extends Component
 
         if ($email->plainTextTemplatePath) {
             try {
-                $plainTextTemplatePath = $view->renderString($email->plainTextTemplatePath, $renderVariables);
+                $plainTextTemplatePath = $view->renderSandboxedString($email->plainTextTemplatePath, $renderVariables);
             } catch (\Exception $e) {
                 Craft::$app->getErrorHandler()->logException($e);
 
@@ -753,7 +753,7 @@ class Emails extends Component
                 $defaultFileName = $pdf->handle . '-' . $order->number;
                 if ($pdf->fileNameFormat) {
                     try {
-                        $fileName = $view->renderObjectTemplate($pdf->fileNameFormat, $order);
+                        $fileName = $view->renderSandboxedObjectTemplate($pdf->fileNameFormat, $order);
                     } catch (\Throwable) {
                         $fileName = $defaultFileName;
                     }
@@ -865,7 +865,7 @@ class Emails extends Component
 
                 // Plugins that stop a email being sent should not declare that the sending failed, just that it would blocking of the send.
                 // The blocking of the send will still be logged as an error though for now.
-                // TODO make this cleaner in Commerce 4 #COM-49
+                // @TODO Clean up this behavior in Commerce 6.0 so plugins that block a send can signal "blocked" distinctly from "failed" without it being logged as an error #COM-49
                 // https://github.com/craftcms/commerce/issues/1842
                 return true;
             }

@@ -1,0 +1,83 @@
+{% extends '_layouts/basecp.twig' %}
+{% import '_includes/forms.twig' as forms %}
+{% set title = "Recover Cart"|t('commerce') %}
+{% set bodyClass = 'login' %}
+
+{% set hasLogo = CraftEdition >= CraftPro and craft.rebrand.isLogoUploaded %}
+
+{% if hasLogo %}
+    {% set logo = craft.rebrand.logo %}
+{% endif %}
+
+{% block body %}
+    <main>
+        <div id="recovercart">
+        {% if hasLogo %}
+        <h1>
+            {{ tag('img', {
+                id: 'login-logo',
+                src: logo.url,
+                alt: systemName,
+                width: logo.width,
+                height: logo.height,
+            }) }}
+        </h1>
+        {% endif %}
+
+        {% if craft.app.session.hasFlash('error') %}
+            <div class="error">
+                {{ craft.app.session.getFlash('error') }}
+            </div>
+        {% endif %}
+
+        <div class="pane secondary">
+            {% tag 'form' with {
+                'action': url(''),
+                method: 'post',
+                'accept-charset': 'UTF-8',
+            } %}
+                <h1>{{ 'Expired Link'|t('commerce') }}</h1>
+                <p class="confirmInfo">{{ 'A cart recovery link will be sent to {email}.'|t('commerce', {email: cart.getMaskedEmail()}) }}</p>
+
+            {{ csrfInput() }}
+            {{ actionInput('commerce/cart/cart-challenge') }}
+            {{ hiddenInput('cartNumberHash', cartNumber|hash) }}
+
+            {{ forms.submitButton({
+                class: ['fullwidth', 'last'],
+                label: 'Send'|t('app'),
+                spinner: true,
+            }) }}
+            {% endtag %}
+
+        </div>
+
+        </div>
+    </main>
+{% endblock %}
+
+{% css %}
+main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1rem;
+}
+
+#recovercart {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    #recovercart {
+        max-width: 100%;
+    }
+}
+
+.confirmInfo{
+    text-wrap: balance;
+}
+{% endcss %}

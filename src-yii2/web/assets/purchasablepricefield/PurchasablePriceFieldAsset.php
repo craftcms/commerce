@@ -38,7 +38,7 @@ class PurchasablePriceFieldAsset extends AssetBundle
 
         if ($view instanceof View) {
             $view->registerTranslations('commerce', [
-                // @TODO add translations
+                // @TODO Register translation keys for the user-facing strings used by purchasablepricefield.js (e.g. via Craft::t('commerce', '...'))
             ]);
         }
     }

@@ -91,7 +91,7 @@ class PaymentCurrenciesController extends BaseStoreManagementController
         }
 
         if ($currency->id) {
-            $title = $currency->iso; // TODO: get the currency name
+            $title = $currency->iso; // @TODO Use the full currency name instead of the ISO code for the page title
         } else {
             $title = Craft::t('commerce', 'Create a new currency');
         }

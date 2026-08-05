@@ -475,7 +475,7 @@ class Gateways extends Component
             ->orderBy(['sortOrder' => SORT_ASC])
             ->from([Table::GATEWAYS]);
 
-        // TODO: remove after next breakpoint
+        // @TODO Remove these columnExists checks in Commerce 6.0 once the schema guarantees orderCondition / billingAddressCondition / shippingAddressCondition columns on the gateways table
         $db = Craft::$app->getDb();
         if ($db->columnExists(Table::GATEWAYS, 'orderCondition')) {
             $query->addSelect('orderCondition');
