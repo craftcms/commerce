@@ -2,7 +2,7 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\models\CatalogPricingRule;
+use CraftCms\Commerce\Catalog\Models\CatalogPricingRule;
 use craft\events\ModelEvent;
 use craft\events\UserGroupsAssignEvent;
 use Illuminate\Support\Collection;

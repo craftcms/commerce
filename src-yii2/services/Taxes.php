@@ -5,6 +5,7 @@ namespace craft\commerce\services;
 use craft\base\Component;
 use craft\commerce\base\TaxEngineInterface;
 use craft\commerce\base\TaxIdValidatorInterface;
+use CraftCms\Commerce\Tax\Contracts\TaxEngineInterface as NewTaxEngineInterface;
 use Illuminate\Support\Collection;
 
 /**
@@ -38,7 +39,7 @@ class Taxes extends Component implements TaxEngineInterface
         return app(\CraftCms\Commerce\Services\Taxes::class)->getEnabledTaxIdValidators();
     }
 
-    public function getEngine(): TaxEngineInterface
+    public function getEngine(): NewTaxEngineInterface
     {
         return app(\CraftCms\Commerce\Services\Taxes::class)->getEngine();
     }

@@ -25,7 +25,7 @@ class UpdateInventoryLevelCollection extends Collection
      * @param array $items
      * @return static
      */
-    public static function make($items = [])
+    public static function make($items = [], ...$args)
     {
         foreach ($items as &$item) {
             if ($item instanceof UpdateInventoryLevel) {

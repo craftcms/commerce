@@ -4,9 +4,9 @@ namespace craft\commerce\services;
 
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
-use craft\commerce\models\Coupon;
-use craft\commerce\models\Discount;
 use craft\commerce\models\LineItem;
+use CraftCms\Commerce\Promotion\Models\Coupon;
+use CraftCms\Commerce\Promotion\Models\Discount;
 use Illuminate\Support\Collection;
 use yii\base\Component;
 

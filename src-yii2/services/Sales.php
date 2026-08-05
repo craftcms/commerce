@@ -4,7 +4,7 @@ namespace craft\commerce\services;
 
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
-use craft\commerce\models\Sale;
+use CraftCms\Commerce\Promotion\Models\Sale;
 use yii\base\Component;
 
 /**
