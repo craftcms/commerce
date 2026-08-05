@@ -26,7 +26,7 @@ use craft\commerce\models\subscriptions\SwitchPlansForm;
 use craft\commerce\models\Transaction;
 use craft\elements\User;
 use craft\helpers\StringHelper;
-use craft\web\Response as WebResponse;
+use Illuminate\Http\Response;
 use craft\web\View;
 use http\Exception\InvalidArgumentException;
 use yii\base\NotSupportedException;
@@ -150,7 +150,7 @@ class Dummy extends SubscriptionGateway
     /**
      * @inheritdoc
      */
-    public function processWebHook(): WebResponse
+    public function processWebHook(): Response
     {
         throw new NotSupportedException(self::class . ' does not support processWebhook()');
     }

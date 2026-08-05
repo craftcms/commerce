@@ -18,7 +18,7 @@ use craft\commerce\models\PaymentSource;
 use craft\commerce\models\responses\Manual as ManualRequestResponse;
 use craft\commerce\models\Transaction;
 use craft\helpers\App;
-use craft\web\Response as WebResponse;
+use Illuminate\Http\Response;
 
 /**
  * Manual represents a manual gateway.
@@ -128,7 +128,7 @@ class Manual extends Gateway
     /**
      * @inheritdoc
      */
-    public function processWebHook(): WebResponse
+    public function processWebHook(): Response
     {
         throw new NotImplementedException(Craft::t('commerce', 'This gateway does not support that functionality.'));
     }

@@ -14,7 +14,7 @@ use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\models\Transaction;
-use craft\web\Response as WebResponse;
+use Illuminate\Http\Response;
 use yii\base\NotSupportedException;
 
 /**
@@ -103,7 +103,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     /**
      * @inheritdoc
      */
-    public function processWebHook(): WebResponse
+    public function processWebHook(): Response
     {
         throw new NotSupportedException();
     }

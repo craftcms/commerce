@@ -65,7 +65,7 @@ class ShippingMethod extends BaseShippingMethod implements Chippable, Colorable,
     public static function get(int|string $id): ?static
     {
         /** @phpstan-ignore-next-line */
-        return app(\CraftCms\Commerce\Services\ShippingMethods::class)->getShippingMethodById($id);
+        return app(ShippingMethods::class)->getShippingMethodById($id);
     }
 
     public function getUiLabel(): string
