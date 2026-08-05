@@ -10,7 +10,7 @@ use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\CatalogPricing as CatalogPricingJob;
 use craft\commerce\records\CatalogPricingQueue as CatalogPricingQueueRecord;
 use craft\helpers\Console;
-use craft\helpers\Db;
+use craft\helpers\Db as CraftDb;
 use CraftCms\Commerce\Catalog\Models\CatalogPricing as CatalogPricingModel;
 use CraftCms\Commerce\Database\Table;
 use DateTime;
@@ -137,9 +137,9 @@ class CatalogPricing
                         $store->id,
                         $catalogPricingRule->isPromotionalPrice,
                         $catalogPricingRule->id,
-                        // TODO: migrate to Laravel date helper once Db::prepareDateForDb is replaced
-                        $catalogPricingRule->dateFrom ? Db::prepareDateForDb($catalogPricingRule->dateFrom) : null,
-                        $catalogPricingRule->dateTo ? Db::prepareDateForDb($catalogPricingRule->dateTo) : null,
+                        // TODO: migrate to Laravel date helper once CraftDb::prepareDateForDb is replaced
+                        $catalogPricingRule->dateFrom ? CraftDb::prepareDateForDb($catalogPricingRule->dateFrom) : null,
+                        $catalogPricingRule->dateTo ? CraftDb::prepareDateForDb($catalogPricingRule->dateTo) : null,
                         false,
                     ];
                 }
@@ -558,9 +558,9 @@ class CatalogPricing
         $condition->modifyQuery($query);
 
         $query->where(function($q) {
-            $q->whereNull('dateFrom')->orWhereRaw('dateFrom <= ?', [Db::prepareDateForDb(new DateTime())]);
+            $q->whereNull('dateFrom')->orWhereRaw('dateFrom <= ?', [CraftDb::prepareDateForDb(new DateTime())]);
         })->where(function($q) {
-            $q->whereNull('dateTo')->orWhereRaw('dateTo >= ?', [Db::prepareDateForDb(new DateTime())]);
+            $q->whereNull('dateTo')->orWhereRaw('dateTo >= ?', [CraftDb::prepareDateForDb(new DateTime())]);
         });
 
         if (!$allPrices) {
@@ -601,9 +601,9 @@ class CatalogPricing
         $condition->modifyQuery($query);
 
         $query->where(function($q) {
-            $q->whereNull('dateFrom')->orWhereRaw('dateFrom <= ?', [Db::prepareDateForDb(new DateTime())]);
+            $q->whereNull('dateFrom')->orWhereRaw('dateFrom <= ?', [CraftDb::prepareDateForDb(new DateTime())]);
         })->where(function($q) {
-            $q->whereNull('dateTo')->orWhereRaw('dateTo >= ?', [Db::prepareDateForDb(new DateTime())]);
+            $q->whereNull('dateTo')->orWhereRaw('dateTo >= ?', [CraftDb::prepareDateForDb(new DateTime())]);
         })->orderBy('purchasableId')->orderBy('price');
 
         if (!$allPrices) {
