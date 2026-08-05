@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Dependencies
+
+- Updated `dompdf/dompdf` to `^3.1.6` (from `^2.0.2`).
+
 ### Laravel Migration — Stage 6c: Shipping services
 
 All shipping services migrated from `craft\commerce\services` to
