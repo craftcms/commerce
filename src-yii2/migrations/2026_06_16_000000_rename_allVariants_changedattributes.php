@@ -1,9 +1,8 @@
 <?php
 
-use craft\db\Migration;
-use craft\db\Query;
-use craft\db\Table;
-use yii\db\Expression;
+use CraftCms\Cms\Database\Migration;
+use CraftCms\Cms\Database\Table;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Between Commerce 5.2 and 5.5.2, the NestedElementManager for variants used 'allVariants'
@@ -14,39 +13,42 @@ use yii\db\Expression;
  * This migration renames any lingering 'allVariants' entries to 'variants' for Product elements.
  */
 return new class extends Migration {
-    public function safeUp(): bool
+    public function up(): void
     {
-        $productSubquery = (new Query())
-            ->select(['id'])
-            ->from([Table::ELEMENTS])
-            ->where(['type' => 'craft\commerce\elements\Product']);
-
         // Insert 'variants' rows for Products that have 'allVariants' but no existing 'variants' entry
-        $select = (new Query())
-            ->select(['ca.elementId', 'ca.siteId', new Expression("'variants'"), 'ca.dateUpdated', 'ca.propagated', 'ca.userId'])
-            ->from(['ca' => '{{%changedattributes}}'])
-            ->where(['ca.attribute' => 'allVariants', 'ca.elementId' => $productSubquery])
-            ->andWhere('NOT EXISTS (SELECT 1 FROM {{%changedattributes}} [[ca2]] WHERE [[ca2.elementId]] = [[ca.elementId]] AND [[ca2.siteId]] = [[ca.siteId]] AND [[ca2.attribute]] = \'variants\')');
-
-        [$sql, $params] = $this->db->getQueryBuilder()->build($select);
-        $table = $this->db->quoteTableName('{{%changedattributes}}');
-        $this->db->createCommand(
-            "INSERT INTO $table ([[elementId]], [[siteId]], [[attribute]], [[dateUpdated]], [[propagated]], [[userId]]) $sql",
-            $params
-        )->execute();
+        DB::table(Table::CHANGEDATTRIBUTES)->insertUsing(
+            ['elementId', 'siteId', 'attribute', 'dateUpdated', 'propagated', 'userId'],
+            function ($query) {
+                $query->from(Table::CHANGEDATTRIBUTES . ' as ca')
+                    ->select(['ca.elementId', 'ca.siteId', DB::raw("'variants'"), 'ca.dateUpdated', 'ca.propagated', 'ca.userId'])
+                    ->where('ca.attribute', 'allVariants')
+                    ->whereIn('ca.elementId', $this->productIdsQuery())
+                    ->whereNotExists(function ($subQuery) {
+                        $subQuery->select(DB::raw(1))
+                            ->from(Table::CHANGEDATTRIBUTES . ' as ca2')
+                            ->whereColumn('ca2.elementId', 'ca.elementId')
+                            ->whereColumn('ca2.siteId', 'ca.siteId')
+                            ->where('ca2.attribute', 'variants');
+                    });
+            }
+        );
 
         // Delete all 'allVariants' rows for Products
-        $this->delete('{{%changedattributes}}', [
-            'attribute' => 'allVariants',
-            'elementId' => $productSubquery,
-        ]);
-
-        return true;
+        DB::table(Table::CHANGEDATTRIBUTES)
+            ->where('attribute', 'allVariants')
+            ->whereIn('elementId', $this->productIdsQuery())
+            ->delete();
     }
 
-    public function safeDown(): bool
+    public function down(): void
     {
-        echo "2026_06_16_000000_rename_allVariants_changedattributes cannot be reverted.\n";
-        return false;
+        $this->output->error('2026_06_16_000000_rename_allVariants_changedattributes cannot be reverted.');
+    }
+
+    private function productIdsQuery(): \Illuminate\Database\Query\Builder
+    {
+        return DB::table(Table::ELEMENTS)
+            ->where('type', 'craft\commerce\elements\Product')
+            ->select('id');
     }
 };

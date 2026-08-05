@@ -1,24 +1,24 @@
 <?php
 
-use craft\commerce\db\Table;
-use craft\db\Migration;
+use CraftCms\Cms\Database\Migration;
+use CraftCms\Commerce\Database\Table;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    public function safeUp(): bool
+    public function up(): void
     {
-        // Add the `customerDeleted` boolean column to the `orders` table
-        if ($this->getDb()->columnExists(Table::ORDERS, 'customerDeleted')) {
-            return true;
+        if (Schema::hasColumn(Table::ORDERS, 'customerDeleted')) {
+            return;
         }
 
-        $this->addColumn(Table::ORDERS, 'customerDeleted', $this->boolean()->notNull()->defaultValue(false)->after('customerId'));
-
-        return true;
+        Schema::table(Table::ORDERS, function (Blueprint $table) {
+            $table->boolean('customerDeleted')->default(false)->after('customerId');
+        });
     }
 
-    public function safeDown(): bool
+    public function down(): void
     {
-        echo "2026_05_05_071943_add_orders_customerDeleted_column cannot be reverted.\n";
-        return false;
+        $this->output->error('2026_05_05_071943_add_orders_customerDeleted_column cannot be reverted.');
     }
 };

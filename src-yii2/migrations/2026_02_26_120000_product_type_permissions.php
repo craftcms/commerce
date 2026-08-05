@@ -1,8 +1,9 @@
 <?php
 
-use craft\db\Migration;
-use craft\db\Query;
-use craft\db\Table;
+use CraftCms\Cms\Database\Migration;
+use CraftCms\Commerce\Database\Table as CommerceTable;
+use CraftCms\Cms\Database\Table;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Migrates product type permissions from the old naming scheme to the new one:
@@ -11,27 +12,20 @@ use craft\db\Table;
  * - commerce-deleteProducts:{uid} → commerce-deleteProductType:{uid}
  */
 return new class extends Migration {
-    public function safeUp(): bool
+    public function up(): void
     {
-        // Get all product type UIDs from the database
-        $productTypeUids = (new Query())
-            ->select(['uid'])
-            ->from('{{%commerce_producttypes}}')
-            ->column($this->db);
+        $productTypeUids = DB::table(CommerceTable::PRODUCTTYPES)->pluck('uid');
 
-        // Build the permission mapping
-        $map = []; // oldPermission => [newPermission, ...]
+        // Build the permission mapping: oldPermission => [newPermission, ...]
+        $map = [];
         foreach ($productTypeUids as $uid) {
-            // commerce-editProductType → commerce-viewProductType + commerce-saveProductType
             $map[strtolower("commerce-editProductType:$uid")] = [
                 strtolower("commerce-viewProductType:$uid"),
                 strtolower("commerce-saveProductType:$uid"),
             ];
-            // commerce-createProducts → commerce-createProductType
             $map[strtolower("commerce-createProducts:$uid")] = [
                 strtolower("commerce-createProductType:$uid"),
             ];
-            // commerce-deleteProducts → commerce-deleteProductType
             $map[strtolower("commerce-deleteProducts:$uid")] = [
                 strtolower("commerce-deleteProductType:$uid"),
             ];
@@ -39,35 +33,26 @@ return new class extends Migration {
 
         // Migrate user permissions in the database
         foreach ($map as $oldPermission => $newPermissions) {
-            // Find all users with the old permission
-            $userIds = (new Query())
-                ->select(['upu.userId'])
-                ->from(['upu' => Table::USERPERMISSIONS_USERS])
-                ->innerJoin(['up' => Table::USERPERMISSIONS], '[[up.id]] = [[upu.permissionId]]')
-                ->where(['up.name' => $oldPermission])
-                ->column($this->db);
+            $userIds = DB::table(Table::USERPERMISSIONS_USERS . ' as upu')
+                ->join(Table::USERPERMISSIONS . ' as up', 'up.id', '=', 'upu.permissionId')
+                ->where('up.name', $oldPermission)
+                ->pluck('upu.userId')
+                ->unique()
+                ->values();
 
-            $userIds = array_unique($userIds);
+            if ($userIds->isEmpty()) {
+                continue;
+            }
 
-            if (!empty($userIds)) {
-                foreach ($newPermissions as $newPermission) {
-                    // Delete the permission if it already exists
-                    $this->delete(Table::USERPERMISSIONS, [
-                        'name' => $newPermission,
-                    ]);
+            foreach ($newPermissions as $newPermission) {
+                // Delete the permission if it already exists
+                DB::table(Table::USERPERMISSIONS)->where('name', $newPermission)->delete();
 
-                    $this->insert(Table::USERPERMISSIONS, [
-                        'name' => $newPermission,
-                    ]);
-                    $newPermissionId = $this->db->getLastInsertID(Table::USERPERMISSIONS);
+                $newPermissionId = DB::table(Table::USERPERMISSIONS)->insertGetId(['name' => $newPermission]);
 
-                    $insert = [];
-                    foreach ($userIds as $userId) {
-                        $insert[] = [$newPermissionId, $userId];
-                    }
-
-                    $this->batchInsert(Table::USERPERMISSIONS_USERS, ['permissionId', 'userId'], $insert);
-                }
+                DB::table(Table::USERPERMISSIONS_USERS)->insert(
+                    $userIds->map(fn($userId) => ['permissionId' => $newPermissionId, 'userId' => $userId])->all()
+                );
             }
         }
 
@@ -91,13 +76,10 @@ return new class extends Migration {
                 $projectConfig->set("users.groups.$uid.permissions", array_keys($groupPermissions));
             }
         }
-
-        return true;
     }
 
-    public function safeDown(): bool
+    public function down(): void
     {
         // Permission migrations are not reversible
-        return true;
     }
 };

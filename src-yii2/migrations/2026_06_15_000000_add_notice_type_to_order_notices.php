@@ -1,24 +1,26 @@
 <?php
 
-use craft\commerce\db\Table;
-use craft\db\Migration;
+use CraftCms\Cms\Database\Migration;
+use CraftCms\Commerce\Database\Table;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    public function safeUp(): bool
+    public function up(): void
     {
-        if (!$this->db->columnExists(Table::ORDERNOTICES, 'noticeType')) {
-            $this->addColumn(Table::ORDERNOTICES, 'noticeType', $this->string()->notNull()->defaultValue('customer'));
+        if (!Schema::hasColumn(Table::ORDERNOTICES, 'noticeType')) {
+            Schema::table(Table::ORDERNOTICES, function (Blueprint $table) {
+                $table->string('noticeType')->default('customer');
+            });
         }
-
-        return true;
     }
 
-    public function safeDown(): bool
+    public function down(): void
     {
-        if ($this->db->columnExists(Table::ORDERNOTICES, 'noticeType')) {
-            $this->dropColumn(Table::ORDERNOTICES, 'noticeType');
+        if (Schema::hasColumn(Table::ORDERNOTICES, 'noticeType')) {
+            Schema::table(Table::ORDERNOTICES, function (Blueprint $table) {
+                $table->dropColumn('noticeType');
+            });
         }
-
-        return true;
     }
 };
