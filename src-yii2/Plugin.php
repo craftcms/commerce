@@ -57,6 +57,7 @@ use craft\commerce\linktypes\Product as ProductLinkType;
 use craft\commerce\migrations\Install;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Settings;
+use craft\commerce\plugin\LegacyRoutingModule;
 use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Variables;
 use craft\commerce\services\Emails;
@@ -208,6 +209,15 @@ class Plugin extends BasePlugin
 
     public function boot(): void
     {
+        // craft\commerce\Plugin no longer extends yii\base\Module (it extends the new
+        // CraftCms\Commerce\Plugin instead), so Yii2's controller resolution can no longer
+        // find craft\commerce\controllers\* via Craft::$app->getModule('commerce') on its
+        // own. Register a minimal module purely for that lookup; the legacy UrlManager
+        // rules below still route correctly, but without this every one of them 404s.
+        if (Craft::$app->getModule('commerce') === null) {
+            Craft::$app->setModule('commerce', new LegacyRoutingModule('commerce'));
+        }
+
         $request = Craft::$app->getRequest();
 
         $this->_addTwigExtensions();
