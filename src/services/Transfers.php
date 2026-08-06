@@ -4,7 +4,6 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\db\Table;
-use craft\commerce\elements\Order;
 use craft\commerce\elements\Transfer;
 use craft\commerce\fieldlayoutelements\TransferManagementField;
 use craft\commerce\models\TransferDetail;
