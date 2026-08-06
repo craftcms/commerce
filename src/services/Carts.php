@@ -570,16 +570,16 @@ class Carts extends Component
             return 0;
         }
 
+        // The searchindex table is probably MyISAM, though
+        Craft::$app->getDb()->createCommand()
+            ->delete('{{%searchindex}}', ['elementId' => $event->inactiveCartsQuery])
+            ->execute();
+
         // Taken from craft\services\Elements::deleteElement(); Using the method directly
         // takes too many resources since it retrieves the order before deleting it.
         // Delete the elements table rows, which will cascade across all other InnoDB tables
         Craft::$app->getDb()->createCommand()
             ->delete('{{%elements}}', ['id' => $event->inactiveCartsQuery])
-            ->execute();
-
-        // The searchindex table is probably MyISAM, though
-        Craft::$app->getDb()->createCommand()
-            ->delete('{{%searchindex}}', ['elementId' => $event->inactiveCartsQuery])
             ->execute();
 
         return $cartIdsQuery->count();
