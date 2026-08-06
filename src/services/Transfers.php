@@ -40,13 +40,13 @@ class Transfers extends Component
 
         if (empty($data) || empty(reset($data))) {
             // Delete the field layout
-            $fieldsService->deleteLayoutsByType(Order::class);
+            $fieldsService->deleteLayoutsByType(Transfer::class);
             return;
         }
 
         // Save the field layout
         $layout = FieldLayout::createFromConfig(reset($data));
-        $layout->id = $fieldsService->getLayoutByType(Order::class)->id;
+        $layout->id = $fieldsService->getLayoutByType(Transfer::class)->id;
         $layout->type = Transfer::class;
         $layout->uid = key($data);
         $fieldsService->saveLayout($layout, false);
