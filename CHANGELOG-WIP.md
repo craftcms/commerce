@@ -11,8 +11,20 @@ component locator backing the 46 `Plugin::getInstance()->getFoo()`
 service getters (838 call sites across `src-yii2/`), ported as
 `src/Plugin/Concerns/HasServices.php`, a lazy-instantiate-and-cache
 trait mirroring the old getter API exactly. `src-yii2/plugin/Services.php`
-is deleted; `src-yii2/plugin/Routes.php` and `Variables.php` are
-unchanged (they never depended on Module-ness).
+is deleted; `Variables.php` is unchanged (never depended on Module-ness).
+
+`src-yii2/plugin/Routes.php` (the `Event::on(UrlManager::class,
+EVENT_REGISTER_CP_URL_RULES, ...)` registrations) turned out to have a
+subtler dependency: the URL rules themselves still register and match
+fine, but `yii\base\Module::createController()` resolves a matched
+route like `commerce/orders/order-index` by looking up
+`Craft::$app->getModule('commerce')` for the controller namespace —
+which only ever worked because `craft\commerce\Plugin` was itself a
+`Module` (via the old `craft\base\Plugin` ancestry). Once it wasn't,
+every legacy-dispatched Commerce route 404ed despite matching
+correctly. Fixed with `src-yii2/plugin/LegacyRoutingModule.php`, a
+minimal `yii\base\Module` (routing-only, no settings/services)
+registered via `Craft::$app->setModule('commerce', ...)` in `boot()`.
 
 Everything else in the old `init()` (event registrations, projectConfig
 listeners, GQL, widgets, permissions, etc.) didn't depend on Module-ness
