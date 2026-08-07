@@ -1,5 +1,52 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 6i: Customer & misc services (Stage 6 complete)
+
+Migrated the last nine services — `Customers`, `Subscriptions`, `Plans`,
+`Emails`, `Pdfs`, `Formulas`, `Webhooks`, `Stores`, and `StoreSettings` —
+to `src/Services/`, completing Stage 6. Removed the `Store` service
+entirely (deprecated since 5.0.0 in favor of `Stores`, zero call sites
+beyond its own registration).
+
+`Subscriptions` and `Plans` turned out tractable despite being tied to
+the unmigrated `Subscription` element and `Plan` base class: both stay
+as legacy type-hints throughout (the same pattern already established for
+`Order` in `Orders`/`Payments`), and `Subscriptions`' own field layout
+handlers are single-layout (not the dual-`FieldLayoutBehavior` blocker
+that deferred `ProductTypes`), so they only needed the same
+`craft\models\FieldLayout` passthrough already used in `Orders`.
+
+Found and fixed three more latent bugs while migrating:
+- `PlanEvent`, `CreateSubscriptionEvent`, and `SubscriptionSwitchPlansEvent`
+  (Stage 3) all imported a non-existent `craft\commerce\models\Plan` —
+  there is no `models\Plan`, only `base\Plan`. Fixed all three imports.
+- `WebhookEvent::$response` (Stage 3) was typed `Illuminate\Http\Response`,
+  but `WebhooksController` and the gateway webhook pipeline it runs on are
+  still entirely Yii2, so the only real value that will ever reach it is a
+  `yii\web\Response`. Widened to a union of both until that pipeline
+  migrates.
+- `RefundTransactionEvent`-style: `Carts::purgeIncompleteCarts()`'s
+  Yii2 `Query::count()` can return a numeric string depending on the DB
+  driver; the original had no return type declared, so the new strict
+  `int` return type surfaced this only once added.
+
+`Carts::init()` (Yii2 lifecycle) becomes a constructor. `Carts` is the
+checkout-critical path in this stage, so beyond `tinker` checks it was
+verified with a real HTTP request through `commerce/cart/get-cart`,
+confirming the full new constructor and cart-lookup logic runs correctly
+before hitting the same pre-existing `OrderQuery` bug already confirmed
+independent of this work in Stage 6g/6h.
+
+`CartPurgeEvent::$inactiveCartsQuery` is typed `craft\db\Query`
+specifically so third-party listeners can extend the purge query, so
+`purgeIncompleteCarts()` keeps building it the Yii2 way rather than
+switching to the Laravel query builder, to honor that contract.
+
+Resolved now-unblocked TODOs across `OrderStatus`, `Sale`, `StoreTrait`,
+`CatalogPricing`/`CatalogPricingRule`, `ShippingRule`, `Email`, and
+`DeactivateInventoryLocation` that were waiting on `Stores`, `Emails`,
+`Pdfs`, `Formulas`, `Purchasables`, or `CatalogPricingRules`.
+
 ### Laravel Migration — Stage 6h: Orders & Carts services
 
 Migrated `Orders`, `Carts`, `OrderNotices`, `OrderHistories`,

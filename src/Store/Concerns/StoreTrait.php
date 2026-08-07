@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Store\Concerns;
 
-use craft\commerce\Plugin;
+use CraftCms\Commerce\Services\Stores;
 
 trait StoreTrait
 {
@@ -12,9 +12,7 @@ trait StoreTrait
 
     public function getStore(): \craft\commerce\models\Store
     {
-        // TODO: migrate to app(Stores::class)->getStoreById() once service migrated to src/
-        /** @phpstan-ignore-next-line */
-        if (!$store = Plugin::getInstance()->getStores()->getStoreById($this->storeId)) {
+        if (!$store = app(Stores::class)->getStoreById($this->storeId)) {
             throw new \InvalidArgumentException('Invalid store ID: ' . $this->storeId);
         }
 

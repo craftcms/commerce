@@ -123,7 +123,6 @@ class CatalogPricingRule extends Component implements HasStoreInterface
     public function getPurchasableIds(): ?array
     {
         if ($this->_purchasableIds === null) {
-            // TODO: migrate to app(Stores::class) once service migrated to src/
             $siteIds = $this->getStore()->getSites()->map(fn($site) => $site->id)->all();
             $productVariantIds = null;
 

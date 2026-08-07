@@ -1,0 +1,740 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CraftCms\Commerce\Services;
+
+use craft\commerce\models\OrderStatus;
+use craft\commerce\models\SiteStore;
+use craft\commerce\models\Store;
+use craft\commerce\Plugin;
+use craft\commerce\records\PaymentCurrency;
+use craft\commerce\records\ShippingCategory;
+use craft\commerce\records\SiteStore as SiteStoreRecord;
+use craft\commerce\records\Store as StoreRecord;
+use craft\elements\Address;
+use craft\events\ConfigEvent;
+use craft\events\SiteEvent;
+use craft\helpers\Db as CraftDb;
+use craft\models\Site;
+use CraftCms\Cms\Database\Table as CraftTable;
+use CraftCms\Cms\ProjectConfig\ProjectConfigHelper;
+use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Helpers\ProjectConfigData;
+use CraftCms\Commerce\Store\Events\DeleteStoreEvent;
+use CraftCms\Commerce\Store\Events\StoreEvent;
+use Exception;
+use Illuminate\Container\Attributes\Singleton;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Throwable;
+
+#[Singleton]
+class Stores
+{
+    public const string EVENT_BEFORE_DELETE_STORE = 'beforeDeleteStore';
+
+    public const string EVENT_AFTER_DELETE_STORE = 'afterDeleteStore';
+
+    public const string EVENT_BEFORE_APPLY_STORE_DELETE = 'beforeApplyStoreDelete';
+
+    public const string EVENT_BEFORE_SAVE_STORE = 'beforeSaveStore';
+
+    public const string EVENT_AFTER_SAVE_STORE = 'afterSaveStore';
+
+    /**
+     * The project config path to stores data.
+     */
+    public const string CONFIG_STORES_KEY = 'commerce.stores';
+
+    /**
+     * The project config path to site stores data.
+     */
+    public const string CONFIG_SITESTORES_KEY = 'commerce.sitestores';
+
+    /**
+     * @var Collection<int, Store>|null
+     */
+    private ?Collection $allStores = null;
+
+    /**
+     * @var Collection<int, Store>|null
+     */
+    private ?Collection $allStoresBySiteId = null;
+
+    /**
+     * @var Collection<int, SiteStore>|null
+     */
+    private ?Collection $allSiteStores = null;
+
+    private function loadAllStores(): void
+    {
+        if (isset($this->allStores)) {
+            return;
+        }
+
+        $results = $this->query()->get();
+        $siteStores = $this->siteStoresQuery()->select(['storeId', 'siteId'])->get();
+
+        $allStores = [];
+        $allStoresBySiteId = [];
+
+        foreach ($results as $row) {
+            $store = new Store((array)$row);
+
+            $allStores[] = $store;
+
+            foreach ($siteStores->where('storeId', $store->id) as $siteStore) {
+                $allStoresBySiteId[$siteStore->siteId] = $store;
+            }
+        }
+
+        $this->allStores = collect($allStores);
+        $this->allStoresBySiteId = collect($allStoresBySiteId);
+    }
+
+    /**
+     * Returns the current store.
+     */
+    public function getCurrentStore(): Store
+    {
+        return $this->getStoreBySiteId(\Craft::$app->getSites()->getCurrentSite()->id) ?? $this->getPrimaryStore();
+    }
+
+    /**
+     * @return Collection<int, Store>
+     */
+    public function getAllStores(): Collection
+    {
+        if ($this->allStores === null) {
+            $this->loadAllStores();
+        }
+
+        return $this->allStores ?? collect();
+    }
+
+    public function getStoreById(int $id): ?Store
+    {
+        return $this->getAllStores()->firstWhere('id', $id);
+    }
+
+    public function getStoreByUid(string $uid): ?Store
+    {
+        return $this->getAllStores()->firstWhere('uid', $uid);
+    }
+
+    public function getStoreBySiteId(int $siteId): ?Store
+    {
+        if ($this->allStoresBySiteId === null) {
+            // Population of `allStoresBySiteId` is done in `loadAllStores()`
+            $this->loadAllStores();
+        }
+
+        return $this->allStoresBySiteId?->get($siteId);
+    }
+
+    public function getStoreByHandle(string $handle): ?Store
+    {
+        return $this->getAllStores()->firstWhere('handle', $handle);
+    }
+
+    /**
+     * Returns a collections of stores that are available to a user.
+     *
+     * @return Collection<int, Store>
+     */
+    public function getStoresByUserId(int $userId): Collection
+    {
+        $user = \Craft::$app->getUsers()->getUserById($userId);
+
+        if (!$user) {
+            throw new \yii\base\InvalidConfigException('Invalid user ID: ' . $userId);
+        }
+
+        $allStores = $this->getAllStores();
+        if (!\Craft::$app->getIsMultiSite()) {
+            return $allStores;
+        }
+
+        return $allStores->filter(function(Store $store) use ($user) {
+            $siteUids = $store->getSites()->map(fn(Site $site) => $site->uid);
+
+            foreach ($siteUids as $siteUid) {
+                if ($user->can('editSite:' . $siteUid)) {
+                    return true;
+                }
+            }
+
+            return false;
+        });
+    }
+
+    /**
+     * Saves a store.
+     */
+    public function saveStore(Store $store, bool $runValidation = true): bool
+    {
+        $isNewStore = !$store->id;
+
+        // Raise 'beforeSaveStore' event
+        // TODO: migrate event firing to Laravel once event system is bridged
+        /** @phpstan-ignore-next-line */
+        if (Plugin::getInstance()->getStores()->hasEventHandlers(self::EVENT_BEFORE_SAVE_STORE)) {
+            $beforeEvent = new StoreEvent();
+            $beforeEvent->store = $store;
+            $beforeEvent->isNew = $isNewStore;
+            /** @phpstan-ignore-next-line */
+            Plugin::getInstance()->getStores()->trigger(self::EVENT_BEFORE_SAVE_STORE, $beforeEvent);
+        }
+
+        if ($runValidation && !$store->validate()) {
+            Log::info('Store not saved due to validation error.');
+            return false;
+        }
+
+        if ($isNewStore) {
+            $store->uid = Str::uuid()->toString();
+        } elseif (!$store->uid) {
+            $store->uid = CraftDb::uidById(Table::STORES, $store->id);
+        }
+
+        $projectConfigService = \Craft::$app->getProjectConfig();
+        $configPath = self::CONFIG_STORES_KEY . '.' . $store->uid;
+        $projectConfigService->set(
+            $configPath,
+            $store->getConfig(),
+            "Save the \"{$store->handle}\" store"
+        );
+
+        // Now that we have a store ID, save it on the model
+        if ($isNewStore) {
+            $store->id = CraftDb::idByUid(Table::STORES, $store->uid);
+
+            // Create any default data we need for the store
+            $orderStatus = new OrderStatus([
+                'name' => 'New',
+                'handle' => 'new',
+                'color' => 'green',
+                'default' => true,
+                'storeId' => $store->id,
+            ]);
+            Plugin::getInstance()->getOrderStatuses()->saveOrderStatus($orderStatus);
+        }
+
+        // Update the other primary store.
+        if ($store->primary) {
+            foreach ($projectConfigService->get(self::CONFIG_STORES_KEY) as $uid => $config) {
+                if ($uid !== $store->uid && isset($config['primary']) && $config['primary'] === true) {
+                    $configPath = self::CONFIG_STORES_KEY . '.' . $uid;
+                    $config['primary'] = false; // Set the other to false
+                    $projectConfigService->set(
+                        $configPath,
+                        $config,
+                        "Set the \"{$config['name']}\" store to not be primary"
+                    );
+                }
+            }
+        }
+
+        $this->refreshStores();
+
+        return true;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function deleteStoreById(int $storeId): bool
+    {
+        $store = $this->getStoreById($storeId);
+
+        if (!$store) {
+            return false;
+        }
+
+        return $this->deleteStore($store);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function deleteStore(Store $store): bool
+    {
+        // Make sure this isn't the primary site
+        if ($store->id === $this->getPrimaryStore()?->id) {
+            throw new Exception('You cannot delete the primary store.');
+        }
+
+        // Raise 'beforeDeleteStore' event
+        // TODO: migrate event firing to Laravel once event system is bridged
+        /** @phpstan-ignore-next-line */
+        if (Plugin::getInstance()->getStores()->hasEventHandlers(self::EVENT_BEFORE_DELETE_STORE)) {
+            $event = new DeleteStoreEvent();
+            $event->store = $store;
+            /** @phpstan-ignore-next-line */
+            Plugin::getInstance()->getStores()->trigger(self::EVENT_BEFORE_DELETE_STORE, $event);
+        }
+
+        $path = self::CONFIG_STORES_KEY . '.' . $store->uid;
+        \Craft::$app->getProjectConfig()->remove($path, "Delete the \"{$store->handle}\" store");
+
+        return true;
+    }
+
+    /**
+     * Handle store status change.
+     *
+     * @throws Throwable
+     */
+    public function handleChangedStore(ConfigEvent $event): void
+    {
+        $storeUid = $event->tokenMatches[0];
+        $data = $event->newValue;
+
+        $transaction = \Craft::$app->getDb()->beginTransaction();
+        try {
+            $storeRecord = $this->getStoreRecord($storeUid);
+            $isNewStore = $storeRecord->getIsNewRecord();
+
+            $storeRecord->uid = $storeUid;
+            $storeRecord->name = $data['name'];
+            $storeRecord->handle = $data['handle'];
+            $storeRecord->primary = $data['primary'];
+
+            $storeRecord->autoSetNewCartAddresses = ($data['autoSetNewCartAddresses'] ?? false);
+            $storeRecord->autoSetCartShippingMethodOption = ($data['autoSetCartShippingMethodOption'] ?? false);
+            $storeRecord->autoSetPaymentSource = ($data['autoSetPaymentSource'] ?? false);
+            $storeRecord->allowEmptyCartOnCheckout = ($data['allowEmptyCartOnCheckout'] ?? false);
+            $storeRecord->allowCheckoutWithoutPayment = ($data['allowCheckoutWithoutPayment'] ?? false);
+            $storeRecord->allowPartialPaymentOnCheckout = ($data['allowPartialPaymentOnCheckout'] ?? false);
+            $storeRecord->requireShippingAddressAtCheckout = ($data['requireShippingAddressAtCheckout'] ?? false);
+            $storeRecord->requireBillingAddressAtCheckout = ($data['requireBillingAddressAtCheckout'] ?? false);
+            $storeRecord->requireShippingMethodSelectionAtCheckout = ($data['requireShippingMethodSelectionAtCheckout'] ?? false);
+            $storeRecord->useBillingAddressForTax = ($data['useBillingAddressForTax'] ?? false);
+            $storeRecord->validateOrganizationTaxIdAsVatId = ($data['validateOrganizationTaxIdAsVatId'] ?? false);
+            $storeRecord->freeOrderPaymentStrategy = ($data['freeOrderPaymentStrategy'] ?? 'complete');
+            $storeRecord->minimumTotalPriceStrategy = ($data['minimumTotalPriceStrategy'] ?? 'default');
+            $storeRecord->orderReferenceFormat = ($data['orderReferenceFormat'] ?? '{{number[:7]}}');
+            $storeRecord->currency = ($data['currency'] ?? null);
+            $storeRecord->sortOrder = ($data['sortOrder'] ?? 99);
+
+            $storeRecord->save(false);
+
+            $transaction->commit();
+        } catch (Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
+        // Did the primary site just change?
+        if ($data['primary']) {
+            DB::table(Table::STORES)->where('id', '!=', $storeRecord->id)->update(['primary' => false]);
+            DB::table(Table::STORES)->where('id', $storeRecord->id)->update(['primary' => true]);
+        }
+
+        $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($data['currency'] ?? '', $storeRecord->id);
+        if (!$paymentCurrency) {
+            DB::table(Table::PAYMENTCURRENCIES)->insert([
+                'iso' => $data['currency'] ?? 'USD',
+                'storeId' => $storeRecord->id,
+                'rate' => 1,
+            ]);
+        }
+
+        if (Plugin::getInstance()->getShippingCategories()->getAllShippingCategories($storeRecord->id)->isEmpty()) {
+            DB::table(Table::SHIPPINGCATEGORIES)->insert([
+                'name' => 'General',
+                'handle' => 'general',
+                'default' => true,
+                'storeId' => $storeRecord->id,
+            ]);
+        }
+
+        $this->refreshStores();
+
+        // Raise 'afterSaveStore' event
+        // TODO: migrate event firing to Laravel once event system is bridged
+        /** @phpstan-ignore-next-line */
+        if (Plugin::getInstance()->getStores()->hasEventHandlers(self::EVENT_AFTER_SAVE_STORE)) {
+            $afterEvent = new StoreEvent();
+            $afterEvent->store = $this->getStoreById($storeRecord->id);
+            $afterEvent->isNew = $isNewStore;
+            /** @phpstan-ignore-next-line */
+            Plugin::getInstance()->getStores()->trigger(self::EVENT_AFTER_SAVE_STORE, $afterEvent);
+        }
+    }
+
+    /**
+     * Handle a deleted Store.
+     *
+     * @throws Throwable
+     */
+    public function handleDeletedStore(ConfigEvent $event): void
+    {
+        $storeUid = $event->tokenMatches[0];
+        $storeRecord = $this->getStoreRecord($storeUid);
+
+        if (!$storeRecord->id) {
+            return;
+        }
+
+        /** @var Store $store */
+        $store = $this->getStoreById($storeRecord->id);
+
+        // Raise 'beforeApplyStoreDelete' event
+        // TODO: migrate event firing to Laravel once event system is bridged
+        /** @phpstan-ignore-next-line */
+        if (Plugin::getInstance()->getStores()->hasEventHandlers(self::EVENT_BEFORE_APPLY_STORE_DELETE)) {
+            $blockerEvent = new DeleteStoreEvent();
+            $blockerEvent->store = $store;
+            /** @phpstan-ignore-next-line */
+            Plugin::getInstance()->getStores()->trigger(self::EVENT_BEFORE_APPLY_STORE_DELETE, $blockerEvent);
+        }
+
+        $transaction = \Craft::$app->getDb()->beginTransaction();
+
+        try {
+            $locationAddressId = $store->getSettings()->getLocationAddressId();
+
+            DB::table(Table::STORES)->where('id', $storeRecord->id)->delete();
+
+            // Delete store address
+            if ($locationAddressId) {
+                \Craft::$app->getElements()->deleteElementById($locationAddressId, Address::class, hardDelete: true);
+            }
+
+            $transaction->commit();
+        } catch (Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
+        // Refresh stores
+        $this->refreshStores();
+
+        // Make sure any site store for this store is reassigned to the primary store
+        $siteStores = collect($this->getAllSiteStores())->where('storeId', $store->id)->all();
+        foreach ($siteStores as $siteStore) {
+            $siteStore->storeId = $this->getPrimaryStore()->id;
+            $this->saveSiteStore($siteStore);
+        }
+
+        // Raise 'afterDeleteStore' event
+        // TODO: migrate event firing to Laravel once event system is bridged
+        /** @phpstan-ignore-next-line */
+        if (Plugin::getInstance()->getStores()->hasEventHandlers(self::EVENT_AFTER_DELETE_STORE)) {
+            $afterEvent = new DeleteStoreEvent();
+            $afterEvent->store = $store;
+            /** @phpstan-ignore-next-line */
+            Plugin::getInstance()->getStores()->trigger(self::EVENT_AFTER_DELETE_STORE, $afterEvent);
+        }
+    }
+
+    /**
+     * Refresh the status of all stores based on the DB data.
+     */
+    public function refreshStores(): void
+    {
+        $this->allStores = null;
+        $this->allStoresBySiteId = null;
+        $this->loadAllStores();
+    }
+
+    /**
+     * Returns the primary store.
+     */
+    public function getPrimaryStore(): ?Store
+    {
+        return $this->getAllStores()->firstWhere('primary', true);
+    }
+
+    /**
+     * @param int[] $ids
+     */
+    public function reorderStores(array $ids): bool
+    {
+        $projectConfig = \Craft::$app->getProjectConfig();
+
+        $uidsByIds = CraftDb::uidsByIds(Table::STORES, $ids);
+
+        foreach ($ids as $sortOrder => $id) {
+            if (!empty($uidsByIds[$id])) {
+                $uid = $uidsByIds[$id];
+                $projectConfig->set(self::CONFIG_STORES_KEY . '.' . $uid . '.sortOrder', $sortOrder + 1);
+            }
+        }
+
+        $this->refreshStores();
+
+        return true;
+    }
+
+    /**
+     * Gets a store record by uid.
+     */
+    private function getStoreRecord(string $uid): StoreRecord
+    {
+        if ($store = StoreRecord::findOne(['uid' => $uid])) {
+            return $store;
+        }
+
+        return new StoreRecord();
+    }
+
+    private function query(): Builder
+    {
+        $selectColumns = [
+            'handle',
+            'id',
+            'name',
+            'primary',
+            'uid',
+        ];
+
+        // TODO: Remove this schemaVersion guard in Commerce 6.0 once all installs are past schema 5.0.72 and the store settings columns are guaranteed to exist
+        $commerce = \Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
+        $hasSettingsColumns = $commerce && version_compare($commerce['schemaVersion'], '5.0.72', '>=');
+
+        if ($hasSettingsColumns) {
+            $selectColumns = array_merge($selectColumns, [
+                'allowCheckoutWithoutPayment',
+                'allowEmptyCartOnCheckout',
+                'allowPartialPaymentOnCheckout',
+                'autoSetCartShippingMethodOption',
+                'autoSetNewCartAddresses',
+                'autoSetPaymentSource',
+                'currency',
+                'freeOrderPaymentStrategy',
+                'minimumTotalPriceStrategy',
+                'orderReferenceFormat',
+                'requireBillingAddressAtCheckout',
+                'requireShippingAddressAtCheckout',
+                'requireShippingMethodSelectionAtCheckout',
+                'sortOrder',
+                'useBillingAddressForTax',
+                'validateOrganizationTaxIdAsVatId',
+            ]);
+        }
+
+        $query = DB::table(Table::STORES)->select($selectColumns);
+
+        if ($hasSettingsColumns) {
+            $query->orderBy('sortOrder');
+        }
+
+        return $query;
+    }
+
+    /**
+     * @return Collection<int, Site>
+     */
+    public function getAllSitesForStore(Store $store): Collection
+    {
+        $sites = \Craft::$app->getSites()->getAllSites();
+
+        return $this->getAllSiteStores()
+            ->filter(fn(SiteStore $siteStore) => $siteStore->storeId == $store->id)
+            ->map(fn(SiteStore $siteStore) => collect($sites)->firstWhere('id', $siteStore->siteId));
+    }
+
+    /**
+     * @return Collection<int, SiteStore>
+     */
+    public function getAllSiteStores(): Collection
+    {
+        if ($this->allSiteStores !== null) {
+            return $this->allSiteStores;
+        }
+
+        $siteStores = [];
+        foreach ($this->siteStoresQuery()->get() as $store) {
+            $siteStores[] = new SiteStore((array)$store);
+        }
+
+        return !empty($siteStores) ? $this->allSiteStores = collect($siteStores) : collect();
+    }
+
+    /**
+     * Returns sites that are assigned to more than one store assigned, so that other new stores can use them.
+     */
+    public function getSiteIdsAvailableForAssignmentToNewStores(): array
+    {
+        // Sites that are assigned to more than one store
+        $storeIds = DB::table(Table::SITESTORES)
+            ->select('storeId')
+            ->groupBy('storeId')
+            ->havingRaw('COUNT(storeId) > 1')
+            ->pluck('storeId');
+
+        return DB::table(Table::SITESTORES)
+            ->select('siteId')
+            ->whereIn('storeId', $storeIds)
+            ->groupBy('siteId')
+            ->pluck('siteId')
+            ->all();
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function saveSiteStore(SiteStore $siteStore, bool $runValidation = true): bool
+    {
+        if ($runValidation && !$siteStore->validate()) {
+            Log::info('Site store mapping not saved due to validation error.');
+            return false;
+        }
+
+        // We use the same UID as the site since we only have one record per site.
+        // This also makes it easier to see what site a store is mapped to in the project config.
+        $craftSite = \Craft::$app->getSites()->getSiteById($siteStore->siteId);
+        if (!$craftSite) {
+            throw new \yii\base\InvalidConfigException('Invalid site ID: ' . $siteStore->siteId);
+        }
+
+        if (!$siteStore->uid) {
+            $siteStore->uid = CraftDb::uidById(CraftTable::SITES, $siteStore->siteId);
+        }
+
+        $projectConfigService = \Craft::$app->getProjectConfig();
+        $configPath = self::CONFIG_SITESTORES_KEY . '.' . $siteStore->uid;
+        $projectConfigService->set(
+            $configPath,
+            $siteStore->getConfig(),
+            "Save the \"{$craftSite->handle}\" commerce site store mapping"
+        );
+
+        $this->refreshStores();
+
+        return true;
+    }
+
+    /**
+     * Handle site store mapping change.
+     *
+     * @throws Throwable
+     */
+    public function handleChangedSiteStore(ConfigEvent $event): void
+    {
+        ProjectConfigHelper::ensureAllSitesProcessed();
+        ProjectConfigData::ensureAllStoresProcessed();
+
+        $siteStoreUid = $event->tokenMatches[0];
+        $data = $event->newValue;
+
+        $transaction = \Craft::$app->getDb()->beginTransaction();
+        try {
+            $siteStoreRecord = SiteStoreRecord::findOne(['uid' => $siteStoreUid]);
+
+            if (!$siteStoreRecord) {
+                $siteStoreRecord = new SiteStoreRecord();
+            }
+
+            $siteStoreRecord->siteId = CraftDb::idByUid(CraftTable::SITES, $siteStoreUid);
+            $siteStoreRecord->storeId = CraftDb::idByUid(Table::STORES, $data['store']);
+            $siteStoreRecord->uid = $siteStoreUid;
+
+            $siteStoreRecord->save(false);
+
+            $transaction->commit();
+
+            $this->refreshStores();
+        } catch (Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Handle a deleted Store.
+     *
+     * @throws Throwable
+     */
+    public function handleDeletedSiteStore(ConfigEvent $event): void
+    {
+        $storeStoreUid = $event->tokenMatches[0];
+        $siteStoreRecord = SiteStoreRecord::findOne(['uid' => $storeStoreUid]); // site_stores uses the site UID
+
+        if (!$siteStoreRecord) {
+            return;
+        }
+
+        $transaction = \Craft::$app->getDb()->beginTransaction();
+
+        try {
+            DB::table(Table::SITESTORES)->where('siteId', $siteStoreRecord->siteId)->delete();
+
+            $transaction->commit();
+
+            $this->refreshStores();
+        } catch (Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function afterSaveCraftSiteHandler(SiteEvent $event): void
+    {
+        $siteStore = SiteStoreRecord::findOne(['siteId' => $event->site->id]);
+
+        // Only create it if it doesn't exist.
+        // The saving of the store does not currently change the store relation, but if it did,
+        // we would need to mutate the existing record.
+        if (!$siteStore) {
+            $siteStore = new SiteStore();
+            $siteStore->siteId = $event->site->id;
+            $siteStore->storeId = $this->getPrimaryStore()->id;
+            $siteStore->uid = $event->site->uid;
+            $this->saveSiteStore($siteStore);
+        }
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function afterDeleteCraftSiteHandler(SiteEvent $event): void
+    {
+        $siteStores = $this->getAllSiteStores();
+        $siteStore = $siteStores->firstWhere('siteId', $event->site->id);
+
+        if (!$siteStore) {
+            return;
+        }
+
+        $store = $this->getStoreById($siteStore->storeId);
+
+        $isStoreOrphaned = true;
+        foreach ($siteStores as $ss) {
+            if ($ss->siteId !== $siteStore->siteId && $ss->storeId === $siteStore->storeId) {
+                $isStoreOrphaned = false;
+                break;
+            }
+        }
+
+        // If this was the primary store, make another the primary
+        if ($store->primary && $isStoreOrphaned) {
+            // make another store primary
+            $store = $this->getAllStores()->firstWhere('primary', false);
+            $store->primary = true;
+            $this->saveStore($store);
+        }
+
+        // Delete the old siteStore record
+        \Craft::$app->getProjectConfig()->remove(self::CONFIG_SITESTORES_KEY . '.' . $siteStore->uid);
+    }
+
+    private function siteStoresQuery(): Builder
+    {
+        return DB::table(Table::SITESTORES)
+            ->select([
+                'siteId',
+                'storeId',
+                'uid',
+            ]);
+    }
+}
