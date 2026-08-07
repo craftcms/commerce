@@ -1,5 +1,50 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 6f: Payment services
+
+Migrated `Transactions`, `PaymentSources`, `Gateways`, and `Payments` to
+`src/Services/`, in that dependency order (Transactions has no
+same-stage dependents; Payments depends on all three of the others).
+Legacy `src-yii2/services/*.php` stubs now delegate to
+`app(CraftCms\Commerce\Services\X::class)` per-method, per the project's
+established stub pattern.
+
+`Transactions` and `PaymentSources` swap their Yii2 `craft\db\Query`
+query builders for `Illuminate\Support\Facades\DB` (`DB::table(...)`),
+matching the pattern already established in `Coupons`/`ShippingMethods`.
+`Gateways` keeps `craft\helpers\Db` (aliased `CraftDb` to avoid a
+case-insensitive collision with the `DB` facade import) for
+`idByUid()`/`uidsByIds()`/`prepareDateForDb()`, since those have no new
+namespace equivalent yet, and keeps `Craft::$app->getProjectConfig()`
+directly for the same reason — this is the first migrated service to
+touch project config, and no bridge/facade exists for it yet.
+
+Removed `Gateways::getGatewayOverrides()` (deprecated since 3.3, unused
+by anything else, and dependent only on the legacy
+`commerce-gateways.php` config-file override mechanism) along with its
+`$_overrides` cache and the override-merging branch in `createGateway()`.
+Also removed the `#[\Deprecated]`-since-4.0 `Transactions::deleteTransaction()`
+(superseded by `deleteTransactionById()`, zero call sites).
+
+Found and fixed a latent bug while wiring `Payments`: the already-migrated
+`TransactionEvent`, `PaymentSourceEvent`, `ProcessPaymentEvent`, and
+`RefundTransactionEvent` classes (Stage 3) are plain property bags with
+no constructor. Constructing them Yii2-style
+(`new TransactionEvent(['transaction' => $x])`) silently discards the
+array argument instead of throwing — PHP allows extra constructor
+arguments when no `__construct` is defined — so every event fired this
+way carried an uninitialized `transaction` property. Fixed the four
+call sites across `Transactions`, `PaymentSources`, and `Payments` to
+construct-then-assign instead. Also widened
+`RefundTransactionEvent::$amount` to `?float` (was non-nullable `float`),
+since `Payments::refundTransaction()`'s `null` (= full refund) is a
+normal, common input on the only real call path this event has ever had.
+
+Resolved the `Gateways`-dependent TODOs left in
+`Payment\Models\Transaction::getGateway()` and
+`Payment\Models\PaymentSource::getGateway()` now that the service they
+were waiting on exists in `src/`.
+
 ### Laravel Migration — Stage 8: Plugin.php + ServiceProvider
 
 `craft\commerce\Plugin` now extends `CraftCms\Commerce\Plugin` (new,

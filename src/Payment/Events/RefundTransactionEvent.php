@@ -8,6 +8,6 @@ use craft\commerce\models\Transaction;
 
 class RefundTransactionEvent extends TransactionEvent
 {
-    public float $amount;
+    public ?float $amount = null;
     public Transaction $refundTransaction;
 }

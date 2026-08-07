@@ -8,6 +8,9 @@ use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
+use CraftCms\Commerce\Services\Gateways;
+use CraftCms\Commerce\Services\PaymentCurrencies;
+use CraftCms\Commerce\Services\Transactions;
 use DateTime;
 
 class Transaction extends Component
@@ -64,9 +67,7 @@ class Transaction extends Component
     {
         $this->hash = md5(uniqid((string)mt_rand(), true));
 
-        // TODO: migrate to app(PaymentCurrencies::class)->getPrimaryPaymentCurrencyIso() once service migrated to src/
-        /** @phpstan-ignore-next-line */
-        $primaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        $primaryCurrency = app(PaymentCurrencies::class)->getPrimaryPaymentCurrencyIso();
         $this->currency ??= $primaryCurrency;
         $this->paymentCurrency ??= $primaryCurrency;
 
@@ -85,31 +86,23 @@ class Transaction extends Component
 
     public function canCapture(): bool
     {
-        // TODO: migrate to app(Transactions::class)->canCaptureTransaction() once service migrated to src/
-        /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getTransactions()->canCaptureTransaction($this);
+        return app(Transactions::class)->canCaptureTransaction($this);
     }
 
     public function canRefund(): bool
     {
-        // TODO: migrate to app(Transactions::class)->canRefundTransaction() once service migrated to src/
-        /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getTransactions()->canRefundTransaction($this);
+        return app(Transactions::class)->canRefundTransaction($this);
     }
 
     public function getRefundableAmount(): float
     {
-        // TODO: migrate to app(Transactions::class)->refundableAmountForTransaction() once service migrated to src/
-        /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getTransactions()->refundableAmountForTransaction($this);
+        return app(Transactions::class)->refundableAmountForTransaction($this);
     }
 
     public function getParent(): ?Transaction
     {
         if ($this->_parentTransaction === null && $this->parentId) {
-            // TODO: migrate to app(Transactions::class)->getTransactionById() once service migrated to src/
-            /** @phpstan-ignore-next-line */
-            $this->_parentTransaction = Plugin::getInstance()->getTransactions()->getTransactionById($this->parentId);
+            $this->_parentTransaction = app(Transactions::class)->getTransactionById($this->parentId);
         }
 
         return $this->_parentTransaction;
@@ -136,9 +129,7 @@ class Transaction extends Component
     public function getGateway(): ?Gateway
     {
         if (!isset($this->_gateway) && $this->gatewayId) {
-            // TODO: migrate to app(Gateways::class)->getGatewayById() once service migrated to src/
-            /** @phpstan-ignore-next-line */
-            $this->_gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
+            $this->_gateway = app(Gateways::class)->getGatewayById($this->gatewayId);
         }
 
         return $this->_gateway;
@@ -152,9 +143,7 @@ class Transaction extends Component
     public function getChildTransactions(): array
     {
         if (!isset($this->_children) && $this->id) {
-            // TODO: migrate to app(Transactions::class)->getChildrenByTransactionId() once service migrated to src/
-            /** @phpstan-ignore-next-line */
-            $this->_children = Plugin::getInstance()->getTransactions()->getChildrenByTransactionId($this->id);
+            $this->_children = app(Transactions::class)->getChildrenByTransactionId($this->id);
         }
 
         return $this->_children ?? [];
