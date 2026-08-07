@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Payment\Models;
 
-use craft\commerce\Plugin as Commerce;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Facades\Deprecator;
 use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
+use CraftCms\Commerce\Services\Gateways;
 use Illuminate\Validation\Rule;
 
 class PaymentSource extends Component
@@ -61,9 +61,7 @@ class PaymentSource extends Component
     public function getGateway(): ?GatewayInterface
     {
         if ($this->_gateway === null && $this->gatewayId) {
-            // TODO: migrate to app(Gateways::class)->getGatewayById() once service migrated to src/
-            /** @phpstan-ignore-next-line */
-            $this->_gateway = Commerce::getInstance()->getGateways()->getGatewayById($this->gatewayId);
+            $this->_gateway = app(Gateways::class)->getGatewayById($this->gatewayId);
         }
 
         return $this->_gateway;

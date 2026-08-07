@@ -1,391 +1,75 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\services;
 
-use Craft;
-use craft\commerce\base\GatewayInterface;
-use craft\commerce\db\Table;
-use craft\commerce\errors\PaymentSourceException;
-use craft\commerce\events\PaymentSourceEvent;
 use craft\commerce\models\payments\BasePaymentForm;
-use craft\commerce\models\PaymentSource;
-use craft\commerce\Plugin;
-use craft\commerce\records\PaymentSource as PaymentSourceRecord;
-use craft\db\Query;
-use craft\errors\SiteNotFoundException;
+use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
+use CraftCms\Commerce\Payment\Models\PaymentSource;
 use Illuminate\Support\Collection;
-use Throwable;
 use yii\base\Component;
-use yii\base\InvalidConfigException;
 
 /**
- * Payment Sources service.
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
+ * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Services\PaymentSources::class)` instead.
  */
 class PaymentSources extends Component
 {
-    /**
-     * @event PaymentSourceEvent The event that is triggered when a payment source is deleted.
-     *
-     * ```php
-     * use craft\commerce\events\PaymentSourceEvent;
-     * use craft\commerce\services\PaymentSources;
-     * use craft\commerce\models\PaymentSource;
-     * use yii\base\Event;
-     *
-     * Event::on(
-     *     PaymentSources::class,
-     *     PaymentSources::EVENT_DELETE_PAYMENT_SOURCE,
-     *     function(PaymentSourceEvent $event) {
-     *         // @var PaymentSource $source
-     *         $source = $event->paymentSource;
-     *
-     *         // Warn a user they don’t have any valid payment sources saved
-     *         // ...
-     *     }
-     * );
-     * ```
-     */
-    public const EVENT_DELETE_PAYMENT_SOURCE = 'deletePaymentSource';
+    public const EVENT_DELETE_PAYMENT_SOURCE = \CraftCms\Commerce\Services\PaymentSources::EVENT_DELETE_PAYMENT_SOURCE;
+
+    public const EVENT_BEFORE_SAVE_PAYMENT_SOURCE = \CraftCms\Commerce\Services\PaymentSources::EVENT_BEFORE_SAVE_PAYMENT_SOURCE;
+
+    public const EVENT_AFTER_SAVE_PAYMENT_SOURCE = \CraftCms\Commerce\Services\PaymentSources::EVENT_AFTER_SAVE_PAYMENT_SOURCE;
 
     /**
-     * @event PaymentSourceEvent The event that is triggered before a payment source is added.
-     *
-     * ```php
-     * use craft\commerce\events\PaymentSourceEvent;
-     * use craft\commerce\services\PaymentSources;
-     * use craft\commerce\models\PaymentSource;
-     * use yii\base\Event;
-     *
-     * Event::on(
-     *     PaymentSources::class,
-     *     PaymentSources::EVENT_BEFORE_SAVE_PAYMENT_SOURCE,
-     *     function(PaymentSourceEvent $event) {
-     *         // @var PaymentSource $source
-     *         $source = $event->paymentSource;
-     *
-     *         // ...
-     *     }
-     * );
-     * ```
-     */
-    public const EVENT_BEFORE_SAVE_PAYMENT_SOURCE = 'beforeSavePaymentSource';
-
-    /**
-     * @event PaymentSourceEvent The event that is triggered after a payment source is added.
-     *
-     * ```php
-     * use craft\commerce\events\PaymentSourceEvent;
-     * use craft\commerce\services\PaymentSources;
-     * use craft\commerce\models\PaymentSource;
-     * use yii\base\Event;
-     *
-     * Event::on(
-     *     PaymentSources::class,
-     *     PaymentSources::EVENT_AFTER_SAVE_PAYMENT_SOURCE,
-     *     function(PaymentSourceEvent $event) {
-     *         // @var PaymentSource $source
-     *         $source = $event->paymentSource;
-     *
-     *         // Settle any outstanding balance
-     *         // ...
-     *     }
-     * );
-     * ```
-     */
-    public const EVENT_AFTER_SAVE_PAYMENT_SOURCE = 'afterSavePaymentSource';
-
-    /**
-     * Returns a customer's payment sources, per the customer's ID.
-     *
-     * @param int|null $customerId the user's ID
-     * @param int|null $gatewayId the gateway's ID
-     * @return Collection<PaymentSource>
-     * @throws InvalidConfigException
-     * @throws SiteNotFoundException
-     * @noinspection PhpUnused
+     * @return Collection<int, PaymentSource>
      */
     public function getAllPaymentSourcesByCustomerId(?int $customerId = null, ?int $gatewayId = null): Collection
     {
-        if ($customerId === null) {
-            return collect();
-        }
-
-        $query = $this->_createPaymentSourcesQuery()
-            ->innerJoin(['gateways' => Table::GATEWAYS], 'gateways.id = [[ps.gatewayId]]')
-            ->where(['customerId' => $customerId]);
-
-        if ($gatewayId) {
-            $query->andWhere(['gatewayId' => $gatewayId]);
-        }
-
-        $results = $query->all();
-
-        $sources = [];
-
-        foreach ($results as $result) {
-            $sources[] = Craft::createObject([
-                'class' => PaymentSource::class,
-                'attributes' => $result,
-            ]);
-        }
-
-        return collect($sources);
+        return app(\CraftCms\Commerce\Services\PaymentSources::class)->getAllPaymentSourcesByCustomerId($customerId, $gatewayId);
     }
 
     /**
-     * Returns all payment sources for a gateway.
-     *
-     * @param int|null $gatewayId the gateway's ID
-     * @return Collection
-     * @throws InvalidConfigException
+     * @return Collection<int, PaymentSource>
      */
     public function getAllPaymentSourcesByGatewayId(?int $gatewayId = null): Collection
     {
-        if ($gatewayId === null) {
-            return collect();
-        }
-
-        $results = $this->_createPaymentSourcesQuery()
-            ->where(['gatewayId' => $gatewayId])
-            ->all();
-
-        $sources = [];
-
-        foreach ($results as $result) {
-            $sources[] = Craft::createObject([
-                'class' => PaymentSource::class,
-                'attributes' => $result,
-            ]);
-        }
-
-        return collect($sources);
+        return app(\CraftCms\Commerce\Services\PaymentSources::class)->getAllPaymentSourcesByGatewayId($gatewayId);
     }
 
     /**
-     * Returns a customer's payment sources on a gateway, per the customer/user's ID.
-     *
-     * @param int|null $gatewayId the gateway's ID
-     * @param int|null $customerId the user's ID
-     * @return Collection<PaymentSource>
-     * @throws InvalidConfigException
+     * @return Collection<int, PaymentSource>
      */
     public function getAllGatewayPaymentSourcesByCustomerId(?int $gatewayId = null, ?int $customerId = null): Collection
     {
-        if ($gatewayId === null || $customerId === null) {
-            return collect();
-        }
-
-        $results = $this->_createPaymentSourcesQuery()
-            ->where(['customerId' => $customerId])
-            ->andWhere(['gatewayId' => $gatewayId])
-            ->all();
-
-        $sources = [];
-
-        foreach ($results as $result) {
-            $sources[] = Craft::createObject([
-                'class' => PaymentSource::class,
-                'attributes' => $result,
-            ]);
-        }
-
-        return collect($sources);
+        return app(\CraftCms\Commerce\Services\PaymentSources::class)->getAllGatewayPaymentSourcesByCustomerId($gatewayId, $customerId);
     }
 
-    /**
-     * Returns a payment source by its gateways token
-     *
-     * @param string $token the payment gateway's token
-     * @param int $gatewayId the gateway's ID
-     * @return PaymentSource|null
-     * @throws InvalidConfigException
-     */
     public function getPaymentSourceByTokenAndGatewayId(string $token, int $gatewayId): ?PaymentSource
     {
-        $result = $this->_createPaymentSourcesQuery()
-            ->where(['token' => $token])
-            ->andWhere(['gatewayId' => $gatewayId])
-            ->one();
-
-        return $result ? Craft::createObject(['class' => PaymentSource::class, 'attributes' => $result]) : null;
+        return app(\CraftCms\Commerce\Services\PaymentSources::class)->getPaymentSourceByTokenAndGatewayId($token, $gatewayId);
     }
 
-    /**
-     * Returns a payment source by its ID.
-     *
-     * @param int $sourceId the source ID
-     * @return PaymentSource|null
-     * @throws InvalidConfigException
-     * @throws SiteNotFoundException
-     */
     public function getPaymentSourceById(int $sourceId): ?PaymentSource
     {
-        $result = $this->_createPaymentSourcesQuery()
-            ->where(['[[ps.id]]' => $sourceId])
-            ->innerJoin(['gateways' => Table::GATEWAYS], 'gateways.id = [[ps.gatewayId]]') // ensure it is a gateway payment source
-            ->one();
-
-        return $result ? Craft::createObject(['class' => PaymentSource::class, 'attributes' => $result]) : null;
+        return app(\CraftCms\Commerce\Services\PaymentSources::class)->getPaymentSourceById($sourceId);
     }
 
-    /**
-     * Returns a payment source by its ID and user ID.
-     *
-     * @param int $sourceId the source ID
-     * @param int $userId the source's user ID
-     */
     public function getPaymentSourceByIdAndUserId(int $sourceId, int $userId): ?PaymentSource
     {
-        $result = $this->_createPaymentSourcesQuery()
-            ->where(['id' => $sourceId])
-            ->andWhere(['customerId' => $userId])
-            ->one();
-
-        return $result ? new PaymentSource($result) : null;
+        return app(\CraftCms\Commerce\Services\PaymentSources::class)->getPaymentSourceByIdAndUserId($sourceId, $userId);
     }
 
-    /**
-     * Creates a payment source for a user in the gateway based on a payment form.
-     *
-     * @param int $customerId the user's ID
-     * @param GatewayInterface $gateway the gateway
-     * @param BasePaymentForm $paymentForm the payment form to use
-     * @param string|null $sourceDescription the payment form to use
-     * @return PaymentSource The saved payment source.
-     * @throws InvalidConfigException
-     * @throws PaymentSourceException If unable to create the payment source
-     */
     public function createPaymentSource(int $customerId, GatewayInterface $gateway, BasePaymentForm $paymentForm, ?string $sourceDescription = null, bool $makePrimarySource = false): PaymentSource
     {
-        $source = $gateway->createPaymentSource($paymentForm, $customerId);
-
-        $source->customerId = $customerId;
-
-        if (!empty($sourceDescription)) {
-            $source->description = $sourceDescription;
-        }
-
-        if (!$this->savePaymentSource($source)) {
-            throw new PaymentSourceException(Craft::t('commerce', 'Could not create the payment source.'));
-        }
-
-        if ($makePrimarySource) {
-            Plugin::getInstance()->getCustomers()->savePrimaryPaymentSourceId($source->getCustomer(), $source->id);
-        }
-
-        return $source;
+        return app(\CraftCms\Commerce\Services\PaymentSources::class)->createPaymentSource($customerId, $gateway, $paymentForm, $sourceDescription, $makePrimarySource);
     }
 
-    /**
-     * Saves a payment source.
-     *
-     * @param PaymentSource $paymentSource The payment source being saved.
-     * @param bool $runValidation should we validate this payment source before saving.
-     * @return bool Whether the payment source was saved successfully
-     * @throws InvalidConfigException if the payment source couldn't be found
-     */
     public function savePaymentSource(PaymentSource $paymentSource, bool $runValidation = true): bool
     {
-        if ($paymentSource->id) {
-            $record = PaymentSourceRecord::findOne($paymentSource->id);
-
-            if (!$record) {
-                throw new InvalidConfigException(Craft::t('commerce', 'No payment source exists with the ID “{id}”',
-                    ['id' => $paymentSource->id]));
-            }
-        } else {
-            $record = new PaymentSourceRecord();
-        }
-
-        // fire a 'beforeSavePaymentSource' event
-        if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_PAYMENT_SOURCE)) {
-            $this->trigger(self::EVENT_BEFORE_SAVE_PAYMENT_SOURCE, new PaymentSourceEvent([
-                'paymentSource' => $paymentSource,
-            ]));
-        }
-
-        if ($runValidation && !$paymentSource->validate()) {
-            Craft::info('Payment source not saved due to validation error.', __METHOD__);
-
-            return false;
-        }
-
-        $record->customerId = $paymentSource->customerId;
-        $record->gatewayId = $paymentSource->gatewayId;
-        $record->token = $paymentSource->token;
-        $record->description = $paymentSource->description;
-        $record->response = $paymentSource->response;
-
-        // Save it!
-        $record->save(false);
-
-        // Now that we have a record ID, save it on the model
-        $paymentSource->id = $record->id;
-
-        // fire a 'afterSavePaymentSource' event
-        if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_PAYMENT_SOURCE)) {
-            $this->trigger(self::EVENT_AFTER_SAVE_PAYMENT_SOURCE, new PaymentSourceEvent([
-                'paymentSource' => $paymentSource,
-            ]));
-        }
-
-        return true;
+        return app(\CraftCms\Commerce\Services\PaymentSources::class)->savePaymentSource($paymentSource, $runValidation);
     }
 
-    /**
-     * Delete a payment source by its ID.
-     *
-     * @param int $id The ID
-     * @throws Throwable in case something went wrong when deleting.
-     */
     public function deletePaymentSourceById(int $id): bool
     {
-        $record = PaymentSourceRecord::findOne($id);
-
-        if ($record) {
-            $gateway = Plugin::getInstance()->getGateways()->getGatewayById($record->gatewayId);
-
-            $gateway?->deletePaymentSource($record->token);
-
-            $paymentSource = $this->getPaymentSourceById($id);
-
-            // Fire an 'deletePaymentSource' event.
-            if ($this->hasEventHandlers(self::EVENT_DELETE_PAYMENT_SOURCE)) {
-                $this->trigger(self::EVENT_DELETE_PAYMENT_SOURCE, new PaymentSourceEvent([
-                    'paymentSource' => $paymentSource,
-                ]));
-            }
-
-            return (bool)$record->delete();
-        }
-
-        return false;
-    }
-
-    /**
-     * Returns a Query object prepped for retrieving gateways.
-     *
-     * @return Query The query object.
-     */
-    private function _createPaymentSourcesQuery(): Query
-    {
-        return new Query()
-            ->select([
-                'ps.description',
-                'ps.gatewayId',
-                'ps.id',
-                'ps.response',
-                'ps.token',
-                'ps.customerId',
-            ])
-            ->from(['ps' => Table::PAYMENTSOURCES]);
+        return app(\CraftCms\Commerce\Services\PaymentSources::class)->deletePaymentSourceById($id);
     }
 }
