@@ -7,6 +7,7 @@
 
 namespace craftcommercetests\unit\adjusters;
 
+use Codeception\Stub\Expected;
 use Codeception\Test\Unit;
 use Craft;
 use craft\base\Event;
@@ -21,38 +22,34 @@ use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\services\Discounts;
 use craft\commerce\services\ShippingMethods;
 use craftcommercetests\fixtures\ProductFixture;
+use ReflectionMethod;
 use Throwable;
 use UnitTester;
 
 /**
  * ShippingTest
  *
- * Covers a real-world bug report: a third-party shipping method plugin
- * registers its shipping methods dynamically via
- * {@see ShippingMethods::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS} every
- * time `getMatchingShippingMethods()` is called, rather than storing a
- * static, persisted method. That, by itself, is fine - a plugin not matching
- * an order is expected, ordinary behaviour for a cart.
+ * Covers a real-world bug: a third-party shipping method plugin registers
+ * its methods dynamically via
+ * {@see ShippingMethods::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS} on every
+ * call, rather than a static, persisted method. A method later failing to
+ * match is normal cart behaviour and not the bug on its own.
  *
- * The actual bug was that this could happen to an order that had *already
- * been completed and paid for*. `Order::updateOrderPaidInformation()` locks
- * `recalculationMode` to `NONE` for the duration of marking an order
- * complete, but was then unconditionally restoring whatever mode the order
- * was in *before* it completed - `RECALCULATION_MODE_ALL`, since it was a
- * cart a moment ago. If anything saved/recalculated that same order
- * afterwards (a queue job, a webhook, a fulfillment plugin hooking a
- * payment-complete event), Commerce would wipe and rebuild every adjustment
- * on an order that had already been paid in full - and if the third-party
- * shipping method no longer matched at that point, the shipping cost would
- * silently disappear from a completed order, leaving it looking "overpaid"
- * relative to what was actually collected.
+ * The real bug: this could happen to an order that had *already completed
+ * and been paid for*. `Order::updateOrderPaidInformation()` locks
+ * `recalculationMode` to `NONE` while completing an order, but then
+ * unconditionally restored whatever mode it had before - `ALL`, since it was
+ * a cart a moment ago. Any later save/recalculate (a queue job, webhook, or
+ * fulfillment plugin) would then rebuild every adjustment on an already-paid
+ * order, and if the third-party shipping method no longer matched, its cost
+ * would silently vanish, leaving the order looking overpaid.
  *
- * Fixed by only restoring the original recalculation mode when the order
- * did *not* complete as a result of the call - see
+ * Fixed by only restoring the original recalculation mode when the call
+ * didn't complete the order - see
  * {@see testCompletedAndPaidOrderStaysLockedAgainstRecalculation()} for the
  * fix, and {@see testUpdatingPaidInformationWithoutCompletingStaysRecalculable()}
- * for confirmation that a cart which takes a payment without completing
- * (e.g. a partial payment) remains editable/recalculable as before.
+ * confirming a cart that takes a payment without completing (e.g. a partial
+ * payment) stays editable/recalculable as before.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  */
@@ -69,8 +66,8 @@ class ShippingTest extends Unit
     protected ?Plugin $pluginInstance = null;
 
     /**
-     * Toggled mid-test to simulate the third-party plugin's registration
-     * handler starting to match the order, then failing to on a later call.
+     * Toggled mid-test to simulate the registration handler matching the
+     * order, then failing to on a later call.
      *
      * @var bool
      */
@@ -103,13 +100,13 @@ class ShippingTest extends Unit
         $this->pluginInstance = Plugin::getInstance();
         $this->_thirdPartyMethodMatches = true;
 
-        // No discounts in play; keeps the test isolated from DB fixture state.
+        // No discounts in play; keeps the test isolated from fixture state.
         $this->pluginInstance->set('discounts', $this->make(Discounts::class, [
             'getAllActiveDiscounts' => fn() => [],
         ]));
 
-        // Simulate a third-party plugin that registers a shipping method by
-        // re-evaluating live availability every time it's asked, instead of
+        // Simulate a third-party plugin registering a shipping method by
+        // re-evaluating live availability on every call, instead of
         // returning a static, persisted method.
         Event::on(
             ShippingMethods::class,
@@ -117,10 +114,9 @@ class ShippingTest extends Unit
             function(RegisterAvailableShippingMethodsEvent $event) {
                 $shippingMethods = $event->getShippingMethods();
                 $shippingMethods->push($this->make(ShippingMethod::class, [
-                    // Third-party plugins have to set this themselves on the methods they
-                    // register (e.g. Postie's `Service::registerShippingMethods()` does the
-                    // same) - `Order::getAvailableShippingMethodOptions()` silently drops any
-                    // `ShippingMethod` instance whose `storeId` doesn't match the order's.
+                    // Plugins must set this themselves on methods they register -
+                    // `Order::getAvailableShippingMethodOptions()` silently drops any
+                    // `ShippingMethod` whose `storeId` doesn't match the order's.
                     'storeId' => $event->order->storeId,
                     'handle' => 'thirdPartyFlatRate',
                     'name' => 'Third Party Flat Rate',
@@ -141,7 +137,10 @@ class ShippingTest extends Unit
         Event::off(ShippingMethods::class, ShippingMethods::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS);
 
         foreach ($this->_deleteElementIds as $elementId) {
-            Craft::$app->getElements()->deleteElementById($elementId, null, null, true);
+            // Pass the element type explicitly: one test saves an anonymous
+            // subclass of Order as a spy, whose class name in the `elements`
+            // table's `type` column can't be resolved back via `class_exists()`.
+            Craft::$app->getElements()->deleteElementById($elementId, Order::class, null, true);
         }
         $this->_deleteElementIds = [];
 
@@ -149,9 +148,8 @@ class ShippingTest extends Unit
     }
 
     /**
-     * Building block: confirms `Shipping::adjust()` in isolation does exactly
-     * what it should when a registered method stops matching - drop the
-     * adjustment, no error. This is *correct* behaviour for a cart, and is
+     * Confirms `Shipping::adjust()` correctly drops the adjustment (no error)
+     * when a registered method stops matching. Correct cart behaviour, and
      * not, by itself, the bug.
      */
     public function testAdjusterDropsAdjustmentWhenMethodDoesNotMatch(): void
@@ -180,19 +178,18 @@ class ShippingTest extends Unit
     }
 
     /**
-     * Confirms the fix: a real order that has already been completed *and
-     * paid in full* - including the third-party shipping cost - stays
-     * locked against recalculation, even when the third-party plugin's
-     * handler later stops matching. Before the fix, `recalculate()` would
-     * still run in `RECALCULATION_MODE_ALL` here and silently drop the
-     * shipping cost from a paid order.
+     * Confirms the fix: an order already completed and paid in full -
+     * including the shipping cost - stays locked against recalculation,
+     * even after the registration handler stops matching. Before the fix,
+     * `recalculate()` would still run in `RECALCULATION_MODE_ALL` here and
+     * silently drop the shipping cost from a paid order.
      *
      * @throws Throwable
      */
     public function testCompletedAndPaidOrderStaysLockedAgainstRecalculation(): void
     {
-        // A real, saved cart order - `recalculate()` requires a saved order,
-        // and only a real element exercises `afterSave()`/`markAsComplete()`/
+        // A real, saved cart order - `recalculate()` requires one, and only a
+        // real element exercises `afterSave()`/`markAsComplete()`/
         // `updateOrderPaidInformation()` the way production code does.
         $order = new Order();
         Craft::$app->getElements()->saveElement($order, false);
@@ -210,11 +207,11 @@ class ShippingTest extends Unit
         $gateway = $this->pluginInstance->getGateways()->getGatewayByHandle('dummy');
         $order->gatewayId = $gateway->id;
 
-        // Cart is untouched, so recalculation mode defaults to `ALL` - this
-        // is the same state the order is in throughout a normal checkout.
+        // Cart is untouched, so recalculation mode defaults to `ALL`, as
+        // throughout a normal checkout.
         self::assertEquals(Order::RECALCULATION_MODE_ALL, $order->getRecalculationMode());
 
-        // Checkout: the third-party method matches, its cost gets applied and persisted.
+        // Checkout: the method matches, its cost gets applied and persisted.
         $order->recalculate();
         Craft::$app->getElements()->saveElement($order, false);
 
@@ -239,12 +236,10 @@ class ShippingTest extends Unit
             'A completed order must stay locked against recalculation.'
         );
 
-        // Some time later - a queue job, a webhook, a fulfillment plugin
-        // reacting to payment completion - something recalculates this same
-        // completed order again. This time the third-party plugin's
-        // registration handler fails to match (its own route/context check
-        // fails outside the checkout flow, or its live rate lookup errors).
-        // None of that matters now, because recalculation is locked out.
+        // Some time later - a queue job, webhook, or fulfillment plugin -
+        // something recalculates this completed order again, and this time
+        // the registration handler fails to match. Doesn't matter now,
+        // since recalculation is locked out.
         $this->_thirdPartyMethodMatches = false;
 
         $order->recalculate();
@@ -259,10 +254,69 @@ class ShippingTest extends Unit
     }
 
     /**
-     * Confirms the fix doesn't regress the case it needs to leave alone: a
-     * cart that receives a payment/authorization update but does *not*
-     * complete as a result (e.g. a partial payment) must remain fully
-     * editable and recalculable, exactly as before the fix.
+     * Control test: proves the bug was real by simulating the old,
+     * unconditional restore that `updateOrderPaidInformation()` used to do -
+     * manually unlocking a completed, paid order back to
+     * `RECALCULATION_MODE_ALL` and saving it. This isn't something the fixed
+     * code does; it's here to show the failure mode described in the class
+     * docblock actually happens, and that the other tests in this file would
+     * catch a regression back to it.
+     *
+     * @throws Throwable
+     */
+    public function testManuallyUnlockingRecalculationModeOnCompletedOrderDropsShippingCost(): void
+    {
+        $order = new Order();
+        Craft::$app->getElements()->saveElement($order, false);
+        $this->_deleteElementIds[] = $order->id;
+
+        $variant = Variant::find()->indexBy('sku')->all()['hct-white'];
+        $lineItem = $this->pluginInstance->getLineItems()->create($order, [
+            'purchasableId' => $variant->id,
+            'qty' => 1,
+            'note' => '',
+        ]);
+        $order->setLineItems([$lineItem]);
+        $order->shippingMethodHandle = 'thirdPartyFlatRate';
+
+        $gateway = $this->pluginInstance->getGateways()->getGatewayByHandle('dummy');
+        $order->gatewayId = $gateway->id;
+
+        $order->recalculate();
+        Craft::$app->getElements()->saveElement($order, false);
+
+        $totalCollected = $order->getTotalPrice();
+        self::assertGreaterThan(0, $order->getTotalShippingCost(), 'Sanity check: shipping cost was applied before payment.');
+
+        $transaction = $this->pluginInstance->getTransactions()->createTransaction($order, typeOverride: TransactionRecord::TYPE_PURCHASE);
+        $transaction->status = TransactionRecord::STATUS_SUCCESS;
+        $this->pluginInstance->getTransactions()->saveTransaction($transaction);
+
+        self::assertTrue($order->isCompleted);
+        self::assertEquals(Order::RECALCULATION_MODE_NONE, $order->getRecalculationMode());
+
+        // Simulate the pre-fix bug: restore the cart's original mode after
+        // completion instead of staying locked at `NONE`.
+        $order->setRecalculationMode(Order::RECALCULATION_MODE_ALL);
+
+        // The registration handler stops matching, then something saves the
+        // order - `afterSave()` unconditionally calls `recalculate()`, which
+        // now actually runs, since mode is `ALL` again.
+        $this->_thirdPartyMethodMatches = false;
+        Craft::$app->getElements()->saveElement($order, false);
+
+        // The shipping cost silently disappeared, even though the order is
+        // still marked completed and paid - this is the bug.
+        self::assertTrue($order->isCompleted);
+        self::assertEquals(0.0, $order->getTotalShippingCost());
+        self::assertLessThan($totalCollected, $order->getTotalPrice());
+        self::assertGreaterThan($order->getTotalPrice(), $order->getTotalPaid(), 'Order now looks overpaid relative to its (wrongly recalculated) total.');
+    }
+
+    /**
+     * Confirms the fix doesn't regress the case it must leave alone: a cart
+     * that receives a payment/authorization update without completing (e.g.
+     * a partial payment) stays fully editable and recalculable, as before.
      *
      * @throws Throwable
      */
@@ -272,9 +326,8 @@ class ShippingTest extends Unit
         Craft::$app->getElements()->saveElement($order, false);
         $this->_deleteElementIds[] = $order->id;
 
-        // A real, priced line item - an empty cart has a $0 total, which is
-        // trivially "paid in full" with no outstanding balance. That's not
-        // what we're testing here: this needs a genuine amount still owing.
+        // A real, priced line item - an empty cart's $0 total is trivially
+        // "paid in full", but this needs a genuine amount still owing.
         $variant = Variant::find()->indexBy('sku')->all()['hct-white'];
         $lineItem = $this->pluginInstance->getLineItems()->create($order, [
             'purchasableId' => $variant->id,
@@ -288,9 +341,9 @@ class ShippingTest extends Unit
         self::assertTrue($order->hasOutstandingBalance(), 'Sanity check: the order has an amount still owing.');
         self::assertEquals(Order::RECALCULATION_MODE_ALL, $order->getRecalculationMode());
 
-        // Nothing paid or authorized, so this cannot complete the order - it
-        // still exercises the same lock/restore logic `updateOrderPaidInformation()`
-        // runs through on every payment/authorization update, successful or not.
+        // Nothing paid or authorized, so this can't complete the order, but
+        // it still exercises the same lock/restore logic that
+        // `updateOrderPaidInformation()` runs on every payment update.
         $order->updateOrderPaidInformation();
 
         self::assertFalse($order->isCompleted, 'Sanity check: nothing was paid, so the order has not completed.');
@@ -299,5 +352,74 @@ class ShippingTest extends Unit
             $order->getRecalculationMode(),
             'A cart that receives a payment update without completing must remain fully recalculable.'
         );
+    }
+
+    /**
+     * Confirms that saving an already-completed, already-paid order again
+     * afterwards - as custom code might do, e.g. a controller action or
+     * queue job unrelated to shipping - has no adverse effect.
+     * `updateOrderPaidInformation()` already saves the order itself; this
+     * covers an *extra* save on top of that. Recalculation stays locked at
+     * `NONE`, so the extra save is a no-op as far as adjustments go.
+     *
+     * Also spies on `updateOrderPaidInformation()` itself, to confirm it's
+     * actually the successful transaction save that triggers it, rather than
+     * this test only happening to reproduce the same end state some other way.
+     *
+     * @throws Throwable
+     */
+    public function testSavingCompletedOrderAgainAfterPaymentHasNoAdverseEffect(): void
+    {
+        // A spy on `updateOrderPaidInformation()`: still runs the real method
+        // via reflection (invoking the original, bypassing this override),
+        // but additionally expects to be called exactly once. `Expected::once()`
+        // is verified automatically when the test finishes.
+        $order = $this->make(Order::class, [
+            'updateOrderPaidInformation' => Expected::once(function() use (&$order) {
+                (new ReflectionMethod(Order::class, 'updateOrderPaidInformation'))->invoke($order);
+            }),
+        ]);
+        Craft::$app->getElements()->saveElement($order, false);
+        $this->_deleteElementIds[] = $order->id;
+
+        $variant = Variant::find()->indexBy('sku')->all()['hct-white'];
+        $lineItem = $this->pluginInstance->getLineItems()->create($order, [
+            'purchasableId' => $variant->id,
+            'qty' => 1,
+            'note' => '',
+        ]);
+        $order->setLineItems([$lineItem]);
+        $order->shippingMethodHandle = 'thirdPartyFlatRate';
+
+        $gateway = $this->pluginInstance->getGateways()->getGatewayByHandle('dummy');
+        $order->gatewayId = $gateway->id;
+
+        $order->recalculate();
+        Craft::$app->getElements()->saveElement($order, false);
+
+        $totalCollected = $order->getTotalPrice();
+        $shippingCost = $order->getTotalShippingCost();
+        self::assertGreaterThan(0, $shippingCost, 'Sanity check: shipping cost was applied before payment.');
+
+        $transaction = $this->pluginInstance->getTransactions()->createTransaction($order, typeOverride: TransactionRecord::TYPE_PURCHASE);
+        $transaction->status = TransactionRecord::STATUS_SUCCESS;
+        $this->pluginInstance->getTransactions()->saveTransaction($transaction);
+
+        self::assertTrue($order->isCompleted);
+
+        // The registration handler stops matching some time later - it
+        // doesn't matter, because recalculation is locked out.
+        $this->_thirdPartyMethodMatches = false;
+
+        // Custom code saves the already-completed, already-paid order again,
+        // for reasons unrelated to shipping/adjustments.
+        Craft::$app->getElements()->saveElement($order, false);
+
+        self::assertTrue($order->isCompleted);
+        self::assertEquals(Order::RECALCULATION_MODE_NONE, $order->getRecalculationMode());
+        self::assertEquals($shippingCost, $order->getTotalShippingCost(), 'Shipping cost must survive an unrelated save.');
+        self::assertEquals($totalCollected, $order->getTotalPrice());
+        self::assertEquals($totalCollected, $order->getTotalPaid());
+        self::assertFalse($order->hasOutstandingBalance());
     }
 }
