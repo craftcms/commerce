@@ -1,5 +1,25 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 6g: Catalog services
+
+Migrated `Products`, `Variants`, and `Purchasables` to `src/Services/`.
+`Products::getProductById()`'s structure-ID lookup and
+`Purchasables::updateStoreStockCache()`'s stock update swap their Yii2
+`craft\db\Query`/`createCommand()` for `Illuminate\Support\Facades\DB`,
+matching the established pattern. `Products::afterSaveSiteHandler()`'s
+`craft\helpers\Queue::push(new craft\queue\jobs\PropagateElements(...))`
+becomes `dispatch(new CraftCms\Cms\Element\Jobs\PropagateElements(...))`
+— both deprecated in favor of their Laravel-native equivalents — matching
+the equivalent call in Craft core's own `Sites::handleChangedSite()`,
+including passing `isNewSite: true` for this same "new site with an old
+primary site" scenario, which the old Yii2 job had no equivalent flag for.
+
+Deferred `ProductTypes` (1067 lines) to Stage 7: `saveProductType()`
+directly persists the same dual `FieldLayoutBehavior` (Product + Variant)
+data that already deferred the `ProductType` model itself in Stage 5l,
+plus depends on the unmigrated `craft\models\FieldLayout` and
+`craft\services\Structures`. Same blocker class as `Transfers` (Stage 6e).
+
 ### Laravel Migration — Stage 6f: Payment services
 
 Migrated `Transactions`, `PaymentSources`, `Gateways`, and `Payments` to
