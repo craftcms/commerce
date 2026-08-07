@@ -9,6 +9,7 @@ use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Component\Contracts\Chippable;
 use CraftCms\Cms\Cp\Html\StatusHtml;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Services\OrderStatuses;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
 use DateTime;
@@ -141,9 +142,8 @@ class OrderStatus extends Component implements HasStoreInterface, Chippable
     #[\Override]
     public static function get(int|string $id): ?static
     {
-        // TODO: migrate to app(OrderStatuses::class)->getOrderStatusById() once service migrated to src/
         /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($id);
+        return app(OrderStatuses::class)->getOrderStatusById($id);
     }
 
     #[\Override]

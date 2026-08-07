@@ -10,6 +10,7 @@ use CraftCms\Cms\Component\Contracts\Chippable;
 use CraftCms\Cms\Cp\Html\StatusHtml;
 use CraftCms\Cms\Cp\RequestedSite;
 use CraftCms\Cms\Support\Url;
+use CraftCms\Commerce\Services\LineItemStatuses;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
 use DateTime;
 use function CraftCms\Cms\t;
@@ -53,9 +54,7 @@ class LineItemStatus extends Component implements HasStoreInterface, Chippable
         $site = app(RequestedSite::class)->get();
         $storeId = $site ? Plugin::getInstance()->getStores()->getStoreBySiteId($site->id)?->id : null;
 
-        // TODO: migrate to app(LineItemStatuses::class)->getLineItemStatusById() once service migrated to src/
-        /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getLineItemStatuses()->getLineItemStatusById($id, $storeId);
+        return app(LineItemStatuses::class)->getLineItemStatusById($id, $storeId);
     }
 
     #[\Override]

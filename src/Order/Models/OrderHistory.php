@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Order\Models;
 
 use craft\commerce\elements\Order;
-use craft\commerce\Plugin;
+use craft\commerce\models\OrderStatus;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Cms\User\Elements\User;
+use CraftCms\Commerce\Services\Orders;
+use CraftCms\Commerce\Services\OrderStatuses;
 use DateTime;
 
 class OrderHistory extends Component
@@ -34,7 +36,7 @@ class OrderHistory extends Component
     public function getOrder(): ?Order
     {
         if ($this->_order === null) {
-            $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
+            $this->_order = app(Orders::class)->getOrderById($this->orderId);
         }
 
         return $this->_order;
@@ -46,24 +48,24 @@ class OrderHistory extends Component
         $this->orderId = $order->id;
     }
 
-    public function getPrevStatus(): ?\craft\commerce\models\OrderStatus
+    public function getPrevStatus(): ?OrderStatus
     {
         if ($this->prevStatusId === null) {
             return null;
         }
 
-        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($this->getOrder()?->storeId);
+        $orderStatuses = app(OrderStatuses::class)->getAllOrderStatuses($this->getOrder()?->storeId);
 
         return collect($orderStatuses)->first(fn($status) => $status->id === $this->prevStatusId);
     }
 
-    public function getNewStatus(): ?\craft\commerce\models\OrderStatus
+    public function getNewStatus(): ?OrderStatus
     {
         if ($this->newStatusId === null) {
             return null;
         }
 
-        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($this->getOrder()?->storeId);
+        $orderStatuses = app(OrderStatuses::class)->getAllOrderStatuses($this->getOrder()?->storeId);
 
         return collect($orderStatuses)->first(fn($status) => $status->id === $this->newStatusId);
     }

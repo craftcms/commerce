@@ -9,6 +9,7 @@ use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Json;
+use CraftCms\Commerce\Services\Orders;
 
 class OrderAdjustment extends Component
 {
@@ -73,9 +74,7 @@ class OrderAdjustment extends Component
     public function getOrder(): ?Order
     {
         if (!isset($this->_order) && $this->orderId) {
-            // TODO: migrate to app(Orders::class)->getOrderById() once service migrated to src/
-            /** @phpstan-ignore-next-line */
-            $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
+            $this->_order = app(Orders::class)->getOrderById($this->orderId);
         }
 
         return $this->_order;
