@@ -1,5 +1,75 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 8: Plugin.php + ServiceProvider
+
+`craft\commerce\Plugin` now extends `CraftCms\Commerce\Plugin` (new,
+`src/Plugin.php`, extends `CraftCms\Cms\Plugin\Plugin`) instead of the
+legacy `craft\base\Plugin` (a `yii\base\Module`). These two plugin
+systems are not bridged, so this drops Commerce out of the Yii2
+Module/component-locator system entirely — the only real gap was the
+component locator backing the 46 `Plugin::getInstance()->getFoo()`
+service getters (838 call sites across `src-yii2/`), ported as
+`src/Plugin/Concerns/HasServices.php`, a lazy-instantiate-and-cache
+trait mirroring the old getter API exactly. `src-yii2/plugin/Services.php`
+is deleted; `Variables.php` is unchanged (never depended on Module-ness).
+
+`src-yii2/plugin/Routes.php` (the `Event::on(UrlManager::class,
+EVENT_REGISTER_CP_URL_RULES, ...)` registrations) turned out to have a
+subtler dependency: the URL rules themselves still register and match
+fine, but `yii\base\Module::createController()` resolves a matched
+route like `commerce/orders/order-index` by looking up
+`Craft::$app->getModule('commerce')` for the controller namespace —
+which only ever worked because `craft\commerce\Plugin` was itself a
+`Module` (via the old `craft\base\Plugin` ancestry). Once it wasn't,
+every legacy-dispatched Commerce route 404ed despite matching
+correctly. Fixed with `src-yii2/plugin/LegacyRoutingModule.php`, a
+minimal `yii\base\Module` (routing-only, no settings/services)
+registered via `Craft::$app->setModule('commerce', ...)` in `boot()`.
+
+Everything else in the old `init()` (event registrations, projectConfig
+listeners, GQL, widgets, permissions, etc.) didn't depend on Module-ness
+either — it's all static `Event::on()` calls and `$this->getFoo()` getter
+calls — so `init()` just became `boot()` with its body otherwise
+untouched.
+
+One real behavioral fix: the new base's `getCpNavItem()` returns a
+`NavItem` object instead of an array, and `NavItem::$subnav` defaults to
+`false` (not `[]`), so the existing `$ret['subnav']['orders'] = [...]`
+pattern needed the object converted to an array (`NavItem::toArray()`)
+and `subnav` normalized to `[]` first.
+
+`is()`/`$edition`/`editions()` needed no porting — already provided by
+the new base's `HasEditions` concern with identical semantics. Only
+`Plugin::getInstance()->id` (one call site, `Products.php`) needed
+fixing, to `->handle`, since the new base has no `id` property.
+
+### Fix: migrations fatal under Craft 6's Laravel migrate runner
+
+`ddev artisan craft:migrate/all` fataled with "Cannot redeclare class"
+on every Commerce migration. Laravel's `Migrator::getMigrationClass()`
+derives a class name from the filename assuming the
+`YYYY_MM_DD_HHMMSS_description.php` convention; Commerce's Yii2-style
+`mYYMMDD_HHMMSS_description.php` files don't fit, so the derivation
+produces a bogus name, the "already loaded" guard misses, and the
+Migrator does a second bare `require` on a file already `require_once`'d.
+
+Renamed and rewrote the 6 migrations that hadn't been applied anywhere
+yet as genuine Laravel migrations (`return new class extends
+CraftCms\Cms\Database\Migration`, using `Schema`/`DB` facades) — a
+Yii2 `Migration` object can never satisfy Laravel's
+`MigrationStarted`/`MigrationEnded` events, which hard-type-hint
+`Illuminate\Database\Migrations\Migration`. Deleted the other 134:
+`Install.php` already represents the full current schema and they're
+already applied everywhere that matters, so per the plugin migration
+docs' own guidance ("bring Install up to date, then cull the rest")
+they no longer need to exist as files.
+
+Also added `getConnection()`/`withinTransaction` compatibility members
+to the yii2-adapter's `craft\db\Migration` (cms-6 repo) — needed
+regardless, since `Install.php` (which stays Yii2-style; it's looked up
+by hardcoded filename rather than going through the naming-derivation
+path) runs through the same Migrator.
+
 ### Dependencies
 
 - Updated `dompdf/dompdf` to `^3.1.6` (from `^2.0.2`).

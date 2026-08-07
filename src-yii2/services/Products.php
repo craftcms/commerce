@@ -58,7 +58,7 @@ class Products extends Component
         if (
             $event->isNew &&
             isset($event->oldPrimarySiteId) &&
-            Craft::$app->getPlugins()->isPluginInstalled(Plugin::getInstance()->id)
+            Craft::$app->getPlugins()->isPluginInstalled(Plugin::getInstance()->handle)
         ) {
             Queue::push(new PropagateElements([
                 'elementType' => Product::class,
