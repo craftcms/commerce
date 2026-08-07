@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Subscription\Events;
 
+use craft\commerce\base\Plan;
 use craft\commerce\elements\Subscription;
-use craft\commerce\models\Plan;
 use craft\commerce\models\subscriptions\SwitchPlansForm;
 use CraftCms\Cms\Shared\Concerns\ValidatableEvent;
 

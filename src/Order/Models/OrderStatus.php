@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Models;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Component\Contracts\Chippable;
 use CraftCms\Cms\Cp\Html\StatusHtml;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Services\Emails;
 use CraftCms\Commerce\Services\OrderStatuses;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
@@ -98,9 +98,7 @@ class OrderStatus extends Component implements HasStoreInterface, Chippable
 
     public function getEmails(): array
     {
-        // TODO: migrate to app(Emails::class)->getAllEmailsByOrderStatusId() once service migrated to src/
-        /** @phpstan-ignore-next-line */
-        return $this->id ? Plugin::getInstance()->getEmails()->getAllEmailsByOrderStatusId($this->id) : [];
+        return $this->id ? app(Emails::class)->getAllEmailsByOrderStatusId($this->id) : [];
     }
 
     public function getLabelHtml(): string

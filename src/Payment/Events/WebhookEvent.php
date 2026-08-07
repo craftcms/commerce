@@ -6,9 +6,16 @@ namespace CraftCms\Commerce\Payment\Events;
 
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
 use Illuminate\Http\Response;
+use yii\web\Response as YiiResponse;
 
 class WebhookEvent
 {
     public GatewayInterface $gateway;
-    public Response $response;
+
+    /**
+     * The webhook response. Still a {@see YiiResponse} in practice until
+     * {@see WebhooksController} and the gateway request/response pipeline it
+     * runs on are migrated off the legacy Yii2 controller system.
+     */
+    public YiiResponse|Response $response;
 }

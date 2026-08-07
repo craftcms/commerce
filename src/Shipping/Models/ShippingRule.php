@@ -7,11 +7,11 @@ namespace CraftCms\Commerce\Shipping\Models;
 use craft\commerce\elements\conditions\customers\ShippingRuleCustomerCondition;
 use craft\commerce\elements\conditions\orders\ShippingRuleOrderCondition;
 use craft\commerce\elements\Order;
-use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Json;
+use CraftCms\Commerce\Services\Formulas;
 use CraftCms\Commerce\Shipping\Contracts\ShippingRuleInterface;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
@@ -79,12 +79,9 @@ class ShippingRule extends Component implements ShippingRuleInterface, HasStoreI
                 'max:65000',
                 function(string $attribute, mixed $value, \Closure $fail) {
                     if ($value) {
-                        // TODO: migrate to app(Orders::class) once service migrated to src/
                         $order = Order::find()->one() ?? new Order();
                         $orderAsArray = app(\CraftCms\Commerce\Services\ShippingMethods::class)->getSerializedOrderForMatchingRules($order);
-                        // TODO: migrate to app(Formulas::class) once service migrated to src/
-                        /** @phpstan-ignore-next-line */
-                        if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($value, ['order' => $orderAsArray])) {
+                        if (!app(Formulas::class)->validateConditionSyntax($value, ['order' => $orderAsArray])) {
                             $fail(t('Invalid order condition syntax.', category: 'commerce'));
                         }
                     }
@@ -236,9 +233,7 @@ class ShippingRule extends Component implements ShippingRuleInterface, HasStoreI
 
         if ($this->orderConditionFormula) {
             $orderAsArray = app(\CraftCms\Commerce\Services\ShippingMethods::class)->getSerializedOrderForMatchingRules($order);
-            // TODO: migrate to app(Formulas::class) once service migrated to src/
-            /** @phpstan-ignore-next-line */
-            if (!Plugin::getInstance()->getFormulas()->evaluateCondition($this->orderConditionFormula, ['order' => $orderAsArray], 'Evaluate Shipping Rule Order Condition Formula')) {
+            if (!app(Formulas::class)->evaluateCondition($this->orderConditionFormula, ['order' => $orderAsArray], 'Evaluate Shipping Rule Order Condition Formula')) {
                 return false;
             }
         }

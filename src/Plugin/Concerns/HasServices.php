@@ -37,7 +37,6 @@ use craft\commerce\services\ShippingMethods;
 use craft\commerce\services\ShippingRuleCategories;
 use craft\commerce\services\ShippingRules;
 use craft\commerce\services\ShippingZones;
-use craft\commerce\services\Store;
 use craft\commerce\services\Stores;
 use craft\commerce\services\StoreSettings;
 use craft\commerce\services\Subscriptions;
@@ -54,7 +53,7 @@ use yii\base\InvalidConfigException;
 
 /**
  * Replaces the Yii2 `yii\di\ServiceLocator` component locator that `Plugin::getInstance()->getFoo()`
- * relied on when Commerce extended `craft\base\Plugin` (a `yii\base\Module`). Every one of these 46
+ * relied on when Commerce extended `craft\base\Plugin` (a `yii\base\Module`). Every one of these
  * getters is still called throughout src-yii2/ exactly as before; only the underlying lazy-instantiate-
  * and-cache mechanism changed.
  */
@@ -100,7 +99,6 @@ trait HasServices
         'shippingRuleCategories' => ShippingRuleCategories::class,
         'shippingRules' => ShippingRules::class,
         'shippingZones' => ShippingZones::class,
-        'store' => Store::class,
         'storeSettings' => StoreSettings::class,
         'stores' => Stores::class,
         'subscriptions' => Subscriptions::class,
@@ -295,11 +293,6 @@ trait HasServices
     public function getShippingZones(): ShippingZones
     {
         return $this->get('shippingZones');
-    }
-
-    public function getStore(): Store
-    {
-        return $this->get('store');
     }
 
     public function getStoreSettings(): StoreSettings

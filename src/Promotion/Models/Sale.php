@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Promotion\Models;
 
-use craft\commerce\Plugin;
 use craft\commerce\records\Sale as SaleRecord;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Services\Stores;
 use DateTime;
 use Illuminate\Support\Facades\DB;
 
@@ -74,9 +74,7 @@ class Sale extends Component
 
     public function getCpEditUrl(): string
     {
-        // TODO: migrate to app(Stores::class)->getPrimaryStore() once service migrated to src/
-        /** @phpstan-ignore-next-line */
-        $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        $store = app(Stores::class)->getPrimaryStore();
         return $store->getStoreSettingsUrl('sales/' . $this->id);
     }
 

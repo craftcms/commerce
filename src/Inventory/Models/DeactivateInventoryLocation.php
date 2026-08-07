@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Inventory\Models;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Services\Inventory;
+use CraftCms\Commerce\Services\Stores;
 use Illuminate\Support\Facades\DB;
 use function CraftCms\Cms\t;
 
@@ -34,9 +34,7 @@ class DeactivateInventoryLocation extends Component
                     }
                 },
                 function(string $attribute, mixed $value, \Closure $fail) {
-                    // TODO: migrate to app(Stores::class)->getAllStores() once service migrated to src/
-                    /** @phpstan-ignore-next-line */
-                    $stores = Plugin::getInstance()->getStores()->getAllStores();
+                    $stores = app(Stores::class)->getAllStores();
                     foreach ($stores as $store) {
                         $locations = $store->getInventoryLocations();
                         if ($locations->count() == 1 && $locations->contains('id', $this->inventoryLocation->id)) {
