@@ -458,10 +458,12 @@ class Carts extends Component
         $request = Craft::$app->getRequest();
         $isCpRequest = $request->getIsCpRequest();
         $request->setIsCpRequest(false);
+
         $url = UrlHelper::actionUrl('commerce/cart/load-cart', [
             'number' => $cart->number,
             'code' => $token,
         ]);
+        
         $request->setIsCpRequest($isCpRequest);
 
         return $url;
