@@ -6,9 +6,9 @@ namespace CraftCms\Commerce\Payment\Models;
 
 use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
-use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Commerce\Services\Gateways;
+use CraftCms\Commerce\Services\Orders;
 use CraftCms\Commerce\Services\PaymentCurrencies;
 use CraftCms\Commerce\Services\Transactions;
 use DateTime;
@@ -111,9 +111,7 @@ class Transaction extends Component
     public function getOrder(): ?Order
     {
         if (!isset($this->_order) && $this->orderId) {
-            // TODO: migrate to app(Orders::class)->getOrderById() once service migrated to src/
-            /** @phpstan-ignore-next-line */
-            $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
+            $this->_order = app(Orders::class)->getOrderById($this->orderId);
         }
 
         return $this->_order;

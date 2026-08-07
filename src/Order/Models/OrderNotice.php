@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Order\Models;
 
 use craft\commerce\elements\Order;
-use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
+use CraftCms\Commerce\Services\Orders;
 
 class OrderNotice extends Component
 {
@@ -63,7 +63,7 @@ class OrderNotice extends Component
     public function getOrder(): ?Order
     {
         if (!isset($this->_order) && $this->orderId) {
-            $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
+            $this->_order = app(Orders::class)->getOrderById($this->orderId);
         }
 
         return $this->_order;

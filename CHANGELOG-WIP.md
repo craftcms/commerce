@@ -1,5 +1,49 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 6h: Orders & Carts services
+
+Migrated `Orders`, `Carts`, `OrderNotices`, `OrderHistories`,
+`OrderAdjustments`, `OrderStatuses`, and `LineItemStatuses` to
+`src/Services/`. Deferred `LineItems`: its entire purpose is CRUD on the
+still-unmigrated `craft\commerce\models\LineItem` (deferred in Stage 5n),
+same blocker class as `ProductTypes`/`Transfers`.
+
+`Carts::init()` (a Yii2 component lifecycle method — session-based
+pre-Commerce-4.0 cart migration, cookie-name setup) becomes a
+constructor, since the new base is a plain `#[Singleton]` class with no
+`init()` hook; both run exactly once per resolution, so the timing is
+unchanged. Removed the `#[\Deprecated]`-since-4.0 `Carts::getCartName()`
+(superseded by `$cartCookie['name']`, zero call sites).
+`CartPurgeEvent::$inactiveCartsQuery` is typed `craft\db\Query` (a Stage 3
+event, already migrated) specifically so third-party listeners can extend
+the purge query — `Carts::purgeIncompleteCarts()` keeps building that
+query the Yii2 way rather than switching to the Laravel query builder, to
+honor that contract.
+
+Found and fixed two real bugs while migrating:
+- `OrderStatuses::getOrderCountByStatus()`'s join used
+  `craft\db\Table::ELEMENTS`, which is the Yii2-prefixed placeholder
+  string `{{%elements}}` — meaningless to Laravel's query builder, which
+  has no Yii2 prefix-substitution layer. Fixed to
+  `CraftCms\Cms\Database\Table::ELEMENTS` (the plain `'elements'`
+  equivalent). Found and fixed the identical latent bug in
+  `CatalogPricing::generateCatalogPrices()` (Stage 6b) while auditing for
+  other occurrences of the same mistake.
+- `Carts::purgeIncompleteCarts()` declared a strict `int` return type on
+  a method that returns `Query::count()`, which Yii2 can return as a
+  numeric string depending on the DB driver — the original had no return
+  type declared, so this only surfaced once the migration added one.
+
+Verified live via `php craft tinker` against the real dev DB, plus a
+real HTTP request through `commerce/cart/get-cart` for `Carts` given its
+checkout-critical scope — it ran the full new constructor and cart
+lookup path and reached the same pre-existing `OrderQuery`/`VariantQuery`/
+`ProductQuery` element-query bugs already confirmed independent of this
+work (Stage 7 territory: these queries reference `commerce_orders`/
+`commerce_products`/`commerce_variants` columns in `ORDER BY`/join
+clauses without actually joining those tables — reproduces identically
+on unmodified `6.x`).
+
 ### Laravel Migration — Stage 6g: Catalog services
 
 Migrated `Products`, `Variants`, and `Purchasables` to `src/Services/`.

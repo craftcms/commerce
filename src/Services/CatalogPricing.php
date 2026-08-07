@@ -39,7 +39,7 @@ class CatalogPricing
 
         if ($isAllPurchasables) {
             $purchasableIds = DB::table(Table::PURCHASABLES . ' as purchasables')
-                ->join(\craft\db\Table::ELEMENTS . ' as e', 'e.id', '=', 'purchasables.id')
+                ->join(\CraftCms\Cms\Database\Table::ELEMENTS . ' as e', 'e.id', '=', 'purchasables.id')
                 ->whereNull('e.revisionId')
                 ->whereNull('e.draftId')
                 ->pluck('purchasables.id')
@@ -48,7 +48,7 @@ class CatalogPricing
             $allowedPurchasableIds = [];
             foreach (array_chunk($purchasableIds, 2000) as $chunk) {
                 $allowed = DB::table(Table::PURCHASABLES . ' as purchasables')
-                    ->join(\craft\db\Table::ELEMENTS . ' as e', 'e.id', '=', 'purchasables.id')
+                    ->join(\CraftCms\Cms\Database\Table::ELEMENTS . ' as e', 'e.id', '=', 'purchasables.id')
                     ->whereNull('e.revisionId')
                     ->whereNull('e.draftId')
                     ->whereIn('purchasables.id', $chunk)
