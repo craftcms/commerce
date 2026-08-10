@@ -1782,8 +1782,11 @@ class Order extends Element implements HasStoreInterface
             $this->trigger(self::EVENT_AFTER_ORDER_AUTHORIZED);
         }
 
-        // restore recalculation lock state
-        $this->setRecalculationMode($originalRecalculationMode);
+        // Restore the original recalculation mode, unless this call completed the order
+        // a completed order must stay locked at `RECALCULATION_MODE_NONE` rather than reverting to its cart mode.
+        if (!$this->isCompleted) {
+            $this->setRecalculationMode($originalRecalculationMode);
+        }
     }
 
     /**
