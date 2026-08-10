@@ -47,6 +47,11 @@ class InventoryLocations extends Component
     private ?Collection $_allLocationsWithTrashed = null;
 
     /**
+     * @var array<int, array<int>> Inventory location IDs for a store, indexed by store ID.
+     */
+    private array $_inventoryLocationIdsByStore = [];
+
+    /**
      * Returns all inventory locations.
      *
      * @param bool $withTrashed
@@ -96,12 +101,16 @@ class InventoryLocations extends Component
     {
         $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-        $locationIds = (new Query())
-            ->select(['inventoryLocationId'])
-            ->from([Table::INVENTORYLOCATIONS_STORES])
-            ->orderBy(['sortOrder' => SORT_ASC])
-            ->where(['storeId' => $storeId])
-            ->column();
+        if (!isset($this->_inventoryLocationIdsByStore[$storeId])) {
+            $this->_inventoryLocationIdsByStore[$storeId] = (new Query())
+                ->select(['inventoryLocationId'])
+                ->from([Table::INVENTORYLOCATIONS_STORES])
+                ->orderBy(['sortOrder' => SORT_ASC])
+                ->where(['storeId' => $storeId])
+                ->column();
+        }
+
+        $locationIds = $this->_inventoryLocationIdsByStore[$storeId];
 
         // Keep the order of the locationIds
         return $this->_getAllInventoryLocations($withTrashed)->whereIn('id', $locationIds)->sortBy(fn($inventoryLocation) => array_search($inventoryLocation->id, $locationIds));
@@ -137,6 +146,9 @@ class InventoryLocations extends Component
             }
 
             $transaction->commit();
+
+            // Clear memoization cache
+            $this->_inventoryLocationIdsByStore = [];
         } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;

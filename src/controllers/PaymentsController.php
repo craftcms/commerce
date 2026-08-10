@@ -145,6 +145,18 @@ class PaymentsController extends BaseFrontEndController
             return $this->asFailure($error);
         }
 
+        // Paying by order number + email is an anonymous flow: it doesn't prove the requester is
+        // logged in as the order's own customer. If the order already has a payment source on file
+        // (e.g. attached earlier by the credentialed customer), clear it unless the current user
+        // actually is that customer, so it can't be charged anonymously.
+        if ($number !== null && $isSiteRequestAndAllowed && $order->paymentSourceId) {
+            $orderCustomer = $order->getCustomer();
+            $isLoggedInAsOrderCustomer = $currentUser && $orderCustomer && $currentUser->id == $orderCustomer->id;
+            if (!$isLoggedInAsOrderCustomer) {
+                $order->setPaymentSource(null);
+            }
+        }
+
         if ($order->getStore()->getRequireShippingAddressAtCheckout() && !$order->shippingAddressId) {
             $error = Craft::t('commerce', 'Shipping address required.');
             return $this->asFailure($error, data: [

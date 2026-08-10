@@ -2,7 +2,11 @@
 
 ## Unreleased
 
+- Fixed a bug where inactive carts’ search index rows weren’t being purged. ([#4344](https://github.com/craftcms/commerce/issues/4344))
+- Fixed a bug where a transfer field layout would delete the order field layout. ([#4345](https://github.com/craftcms/commerce/issues/4345))
+- Fixed a bug where generating a PDF or cart-load URL from a console request returned a blank URL. ([#4343](https://github.com/craftcms/commerce/pull/4343))
 - Fixed a bug where completed orders could unintentionally have their recalculation mode set to "all". ([#4342](https://github.com/craftcms/commerce/issues/4342))
+- Fixed [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) business logic vulnerability. (GHSA-gcqr-xrx9-grcf)
 
 ## 5.7.1 - 2026-07-22
 
@@ -108,7 +112,7 @@
 
 ## 5.6.7 - 2026-07-01
 
-- Fixed [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) server-side template injection vulnerability. ([#](#))
+- Fixed [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) server-side template injection vulnerability.
 - Fixed a bug where purchasables’ stock caches weren’t getting cleared after orders were completed.
 - Fixed a bug where `InventoryRestockMovement` would incorrectly validate movements with only one invalid transaction type.
 - Fixed a bug where inventory search was case-sensitive on PostgreSQL. ([#4326](https://github.com/craftcms/commerce/issues/4326))
@@ -128,9 +132,9 @@
 - Fixed a PHP error that could occur when opening a product with a provisional draft. ([#4314](https://github.com/craftcms/commerce/issues/4314))
 - Fixed a bug where tax zones, shipping categories, and tax categories created via “Create” slideouts were saved to the primary store rather than the current store. ([#4313](https://github.com/craftcms/commerce/issues/4313))
 - Fixed a SQL error that could occur when running `project-config/apply` if a PDF had an empty `templatePath`. ([#4316](https://github.com/craftcms/commerce/issues/4316))
-- Fixed a bug where two simultaneous requests to manually complete an order could result in a coupon being used twice. ([Hackrate#1343](#))
-- Fixed a bug where fulfilling an order with purchasables in different inventory locations would only fulfil items from one location. ([#4299](https://github.com/craftcms/commerce/issues/4299))
+- Fixed a bug where fulfilling an order with purchasables in different inventory locations would only fulfill items from one location. ([#4299](https://github.com/craftcms/commerce/issues/4299))
 - Fixed a PHP error that could occur when applying project config changes after updating.
+- Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) TOCTOU race condition discount code vulnerability. ([GHSA-wjxr-5jcm-hjgj](https://github.com/craftcms/commerce/security/advisories/GHSA-wjxr-5jcm-hjgj))
 
 ## 5.6.5 - 2026-05-14
 
