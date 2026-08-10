@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Helpers;
 
 use Craft;
-use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Order as OrderElement;
 use craft\commerce\enums\LineItemType;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\Plugin;
+use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 
 class Order
 {
@@ -50,7 +50,7 @@ class Order
                 continue;
             }
 
-            /** @var Purchasable $purchasable */
+            /** @var PurchasableInterface $purchasable */
             $purchasable = $lineItem->getPurchasable();
             if (!$purchasable || !Plugin::getInstance()->getPurchasables()->isPurchasableAvailable($purchasable, $order)) {
                 $message = t('{description} is no longer available.', ['description' => $lineItem->getDescription()], category: 'commerce');

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Inventory\Models;
 
-use craft\commerce\base\Purchasable;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use DateTime;
 use Illuminate\Validation\Rule;
 
@@ -29,9 +29,9 @@ class InventoryItem extends Component
 
     public ?DateTime $dateUpdated = null;
 
-    private ?Purchasable $_purchasable = null;
+    private ?PurchasableInterface $_purchasable = null;
 
-    public function getPurchasable(null|string|int $siteId = null): ?Purchasable
+    public function getPurchasable(null|string|int $siteId = null): ?PurchasableInterface
     {
         if ($this->_purchasable !== null) {
             return $this->_purchasable;

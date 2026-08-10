@@ -29,6 +29,7 @@ use CraftCms\Commerce\Inventory\Models\InventoryTransaction;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Order\Models\OrderNotice;
+use CraftCms\Commerce\Purchasable\Elements\Purchasable as NewPurchasable;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
@@ -47,7 +48,7 @@ class Inventory
     /**
      * @return Collection<int, InventoryLevel>
      */
-    public function getInventoryLevelsForPurchasable(Purchasable $purchasable): Collection
+    public function getInventoryLevelsForPurchasable(Purchasable|NewPurchasable $purchasable): Collection
     {
         $inventoryLevels = collect();
 
@@ -80,7 +81,7 @@ class Inventory
         return $inventoryLevels;
     }
 
-    public function getInventoryItemByPurchasable(Purchasable $purchasable): InventoryItem
+    public function getInventoryItemByPurchasable(Purchasable|NewPurchasable $purchasable): InventoryItem
     {
         // Self-heal: if the purchasable has somehow ended up without an associated
         // inventory item (e.g. due to a draft-apply or duplicate path that didn't
@@ -101,7 +102,7 @@ class Inventory
      * their canonical. Returns null if the purchasable type does not track inventory
      * or there is no canonical id yet.
      */
-    public function ensureInventoryItemRecord(Purchasable $purchasable): ?InventoryItemRecord
+    public function ensureInventoryItemRecord(Purchasable|NewPurchasable $purchasable): ?InventoryItemRecord
     {
         if (!$purchasable::hasInventory()) {
             return null;
@@ -380,7 +381,7 @@ class Inventory
     /**
      * @param array<string, mixed> $updateInventoryLevelAttributes
      */
-    public function updatePurchasableInventoryLevel(Purchasable $purchasable, int $quantity, array $updateInventoryLevelAttributes = []): void
+    public function updatePurchasableInventoryLevel(Purchasable|NewPurchasable $purchasable, int $quantity, array $updateInventoryLevelAttributes = []): void
     {
         $inventoryLocation = $purchasable->getStore()->getInventoryLocations()->first();
 
@@ -787,7 +788,7 @@ class Inventory
         foreach ($selectedInventoryLevelForItem as $key => $inventoryLevel) {
             /** @phpstan-ignore-next-line */
             if ($purchasable = \Craft::$app->getElements()->getElementById($key)) {
-                if ($purchasable instanceof Purchasable) {
+                if ($purchasable instanceof Purchasable || $purchasable instanceof NewPurchasable) {
                     /** @phpstan-ignore-next-line */
                     Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
 

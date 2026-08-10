@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Purchasable\Contracts;
 
-use craft\base\ElementInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
-use craft\commerce\models\ShippingCategory;
-use craft\commerce\models\Store;
-use craft\commerce\models\TaxCategory;
+use CraftCms\Cms\Element\Contracts\ElementInterface;
+use CraftCms\Commerce\Shipping\Models\ShippingCategory;
+use CraftCms\Commerce\Store\Models\Store;
+use CraftCms\Commerce\Tax\Models\TaxCategory;
 
 interface PurchasableInterface extends ElementInterface
 {

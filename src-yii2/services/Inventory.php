@@ -12,6 +12,7 @@ use CraftCms\Commerce\Inventory\Models\InventoryItem;
 use CraftCms\Commerce\Inventory\Models\InventoryLevel;
 use CraftCms\Commerce\Inventory\Models\InventoryLocation;
 use CraftCms\Commerce\Inventory\Models\InventoryTransaction;
+use CraftCms\Commerce\Purchasable\Elements\Purchasable as NewPurchasable;
 use Illuminate\Support\Collection;
 use yii\base\Component;
 
@@ -33,17 +34,17 @@ class Inventory extends Component
     /**
      * @return Collection<InventoryLevel>
      */
-    public function getInventoryLevelsForPurchasable(Purchasable $purchasable): Collection
+    public function getInventoryLevelsForPurchasable(Purchasable|NewPurchasable $purchasable): Collection
     {
         return app(\CraftCms\Commerce\Services\Inventory::class)->getInventoryLevelsForPurchasable($purchasable);
     }
 
-    public function getInventoryItemByPurchasable(Purchasable $purchasable): InventoryItem
+    public function getInventoryItemByPurchasable(Purchasable|NewPurchasable $purchasable): InventoryItem
     {
         return app(\CraftCms\Commerce\Services\Inventory::class)->getInventoryItemByPurchasable($purchasable);
     }
 
-    public function ensureInventoryItemRecord(Purchasable $purchasable): ?InventoryItemRecord
+    public function ensureInventoryItemRecord(Purchasable|NewPurchasable $purchasable): ?InventoryItemRecord
     {
         return app(\CraftCms\Commerce\Services\Inventory::class)->ensureInventoryItemRecord($purchasable);
     }
@@ -106,7 +107,7 @@ class Inventory extends Component
     /**
      * @param array $updateInventoryLevelAttributes
      */
-    public function updatePurchasableInventoryLevel(Purchasable $purchasable, int $quantity, array $updateInventoryLevelAttributes = []): void
+    public function updatePurchasableInventoryLevel(Purchasable|NewPurchasable $purchasable, int $quantity, array $updateInventoryLevelAttributes = []): void
     {
         app(\CraftCms\Commerce\Services\Inventory::class)->updatePurchasableInventoryLevel($purchasable, $quantity, $updateInventoryLevelAttributes);
     }

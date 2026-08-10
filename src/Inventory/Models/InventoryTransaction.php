@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Inventory\Models;
 
-use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Cms\User\Elements\User;
+use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Services\Inventory;
 use CraftCms\Commerce\Services\InventoryLocations;
 use DateTime;
@@ -47,7 +47,7 @@ class InventoryTransaction extends Component
         return app(InventoryLocations::class)->getInventoryLocationById($this->inventoryLocationId);
     }
 
-    public function getPurchasable(): Purchasable
+    public function getPurchasable(): PurchasableInterface
     {
         return $this->getInventoryItem()->getPurchasable();
     }
