@@ -124,6 +124,7 @@ class OrderRecalculationTest extends Unit
                     'getMatchingShippingRule' => fn(Order $order) => null,
                     'getPriceForOrder' => fn(Order $order) => 8.99,
                     'matchOrder' => fn(Order $order) => $this->_thirdPartyMethodMatches,
+                ]));
             }
         );
     }
