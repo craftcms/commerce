@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where completed orders could unintentionally have their recalculation mode set to "all". ([#4342](https://github.com/craftcms/commerce/issues/4342))
+
 ## 5.7.1 - 2026-07-22
 
 - Fixed a bug where guest customers couldn’t load credentialed carts with a valid token. ([#4225](https://github.com/craftcms/commerce/issues/4225))
