@@ -121,10 +121,9 @@ class OrderRecalculationTest extends Unit
                     'handle' => 'thirdPartyFlatRate',
                     'name' => 'Third Party Flat Rate',
                     'getIsEnabled' => true,
-                    'getMatchingShippingRule' => fn() => null,
-                    'getPriceForOrder' => fn() => 8.99,
-                    'matchOrder' => fn() => $this->_thirdPartyMethodMatches,
-                ]));
+                    'getMatchingShippingRule' => fn(Order $order) => null,
+                    'getPriceForOrder' => fn(Order $order) => 8.99,
+                    'matchOrder' => fn(Order $order) => $this->_thirdPartyMethodMatches,
             }
         );
     }
