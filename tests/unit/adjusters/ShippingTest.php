@@ -373,8 +373,10 @@ class ShippingTest extends Unit
         // A spy on `updateOrderPaidInformation()`: still runs the real method
         // via reflection (invoking the original, bypassing this override),
         // but additionally expects to be called exactly once. `Expected::once()`
-        // is verified automatically when the test finishes.
-        $order = $this->make(Order::class, [
+        // is verified automatically when the test finishes. Uses `construct()`
+        // rather than `make()` so Order's real constructor/`init()` still runs
+        // (e.g. defaulting `siteId`), instead of leaving the order half-built.
+        $order = $this->construct(Order::class, [], [
             'updateOrderPaidInformation' => Expected::once(function() use (&$order) {
                 (new ReflectionMethod(Order::class, 'updateOrderPaidInformation'))->invoke($order);
             }),
