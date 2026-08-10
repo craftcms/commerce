@@ -1,5 +1,61 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 7a: Purchasable & Donation elements
+
+Migrated `craft\commerce\elements\Donation`, its record, and its query to
+`CraftCms\Commerce\Purchasable\Elements\Donation`,
+`CraftCms\Commerce\Purchasable\Models\Donation` (Eloquent), and
+`CraftCms\Commerce\Purchasable\Queries\DonationQuery`. The abstract
+`craft\commerce\base\Purchasable` element also got a new-namespace sibling,
+`CraftCms\Commerce\Purchasable\Elements\Purchasable`, along with
+`Purchasable\Queries\PurchasableQuery` and `Purchasable\Validation\{PurchasableRules,DonationRules}`.
+`Variant` still extends the legacy `craft\commerce\base\Purchasable` (deferred
+with `ProductType`/`Product`, see Stage 5l), so the legacy base and its query
+are left as full implementations rather than `class_alias` stubs — Donation is
+the only current subclass of the new base.
+
+Found and fixed several latent bugs surfaced by having a real, non-abstract
+purchasable in the new namespace for the first time:
+- `ElementQuery::applySelectParams()` (cms-6) unwraps any `Expression` column
+  back into a plain `"column [as alias]"` string and re-wraps it as an
+  identifier — fine for simple columns, but it mangles anything more complex
+  (e.g. a `CASE WHEN...END` expression) into invalid SQL. `PurchasableQuery`
+  avoided this entirely by moving the `salePrice`/`catalogPricingRuleId`
+  computations into joined subqueries (plain `DB::table()` builders, never
+  touched by that method) instead of raw expressions in `$this->query`'s own
+  select list.
+- Relatedly, `salePrice` was being selected as an output column at all in both
+  the catalog-pricing and plain-pricing branches, which threw "Setting
+  read-only property" on hydration — `salePrice` is a getter-only virtual
+  attribute (`Purchasable::getSalePrice()`) with no setter. It's no longer
+  selected for hydration in either branch, only referenced in `whereParam()`
+  filters and joined-subquery `WHERE`/`GROUP BY` clauses, which don't write it
+  back to the element.
+- `Donation::find()` now returns the new `PurchasableQuery`, not the legacy
+  one, so the `instanceof \craft\commerce\elements\db\PurchasableQuery` checks
+  in `Purchasables::getPurchasableById()` and `OrdersController` silently
+  stopped matching for donations (breaking the `forCustomer()` catalog-pricing
+  scope). Both now check for either query class.
+- `Services\Inventory` and both its legacy wrappers (`src-yii2/services/{Inventory,Purchasables}.php`)
+  type-hinted their `$purchasable` parameters against the legacy
+  `craft\commerce\base\Purchasable` class, which threw a `TypeError` the
+  moment a `Donation` (or any other new-namespace purchasable) was passed in.
+  Widened to `Purchasable|NewPurchasable` (or, where the method already used
+  it consistently for its siblings, `PurchasableInterface`). Same fix applied
+  to the `getPurchasable()` return types on `InventoryItem`, `InventoryLevel`,
+  `InventoryFulfillmentLevel`, and `InventoryTransaction`.
+- `PurchasableQuery::forCustomer()`'s customer-id lookup and
+  `Purchasable::afterSave()`'s primary-site check still used
+  `\Craft::$app->getUser()->getIdentity()`/`\Craft::$app->getSites()` — old
+  Craft-core calls, not permitted in `src/`. Replaced with `currentUser()?->getCraftUserId()`
+  and `Sites::getPrimarySite()`.
+
+Verified with a real save → refetch → availability/stock checks → delete
+cycle against the dev database via `php craft exec:exec` (Codeception is
+currently unable to boot at all in this environment — `craft\test\TestSetup`
+no longer exists — a pre-existing, unrelated infrastructure gap, not
+something this stage introduced or fixed).
+
 ### Laravel Migration — Stage 6i: Customer & misc services (Stage 6 complete)
 
 Migrated the last nine services — `Customers`, `Subscriptions`, `Plans`,

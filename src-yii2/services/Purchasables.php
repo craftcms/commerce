@@ -2,7 +2,6 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Order;
 use craft\elements\User;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
@@ -25,7 +24,7 @@ class Purchasables extends Component
     /**
      * @throws Throwable
      */
-    public function isPurchasableOutOfStockPurchasingAllowed(Purchasable $purchasable, ?Order $order = null, ?User $currentUser = null): bool
+    public function isPurchasableOutOfStockPurchasingAllowed(PurchasableInterface $purchasable, ?Order $order = null, ?User $currentUser = null): bool
     {
         return app(\CraftCms\Commerce\Services\Purchasables::class)->isPurchasableOutOfStockPurchasingAllowed($purchasable, $order, $currentUser);
     }
@@ -40,7 +39,7 @@ class Purchasables extends Component
         return app(\CraftCms\Commerce\Services\Purchasables::class)->isPurchasableShippable($purchasable, $order, $currentUser);
     }
 
-    public function updateStoreStockCache(Purchasable $purchasable, bool $allSites = false): void
+    public function updateStoreStockCache(PurchasableInterface $purchasable, bool $allSites = false): void
     {
         app(\CraftCms\Commerce\Services\Purchasables::class)->updateStoreStockCache($purchasable, $allSites);
     }

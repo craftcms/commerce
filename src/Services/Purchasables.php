@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Services;
 
-use craft\commerce\base\Purchasable;
 use craft\commerce\elements\db\PurchasableQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
@@ -16,6 +15,7 @@ use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Events\PurchasableAvailableEvent;
 use CraftCms\Commerce\Purchasable\Events\PurchasableOutOfStockPurchasesAllowedEvent;
 use CraftCms\Commerce\Purchasable\Events\PurchasableShippableEvent;
+use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery as NewPurchasableQuery;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -41,7 +41,7 @@ class Purchasables
     /**
      * @throws Throwable
      */
-    public function isPurchasableOutOfStockPurchasingAllowed(Purchasable $purchasable, ?Order $order = null, ?User $currentUser = null): bool
+    public function isPurchasableOutOfStockPurchasingAllowed(PurchasableInterface $purchasable, ?Order $order = null, ?User $currentUser = null): bool
     {
         $currentUser ??= \Craft::$app->getUser()->getIdentity();
 
@@ -49,6 +49,7 @@ class Purchasables
         $event->order = $order;
         $event->purchasable = $purchasable;
         $event->currentUser = $currentUser;
+        /** @phpstan-ignore-next-line */
         $event->outOfStockPurchasesAllowed = $purchasable->allowOutOfStockPurchases;
 
         // TODO: migrate event firing to Laravel once event system is bridged
@@ -104,7 +105,7 @@ class Purchasables
     /**
      * Updated the cached stock value for the purchasable in a store.
      */
-    public function updateStoreStockCache(Purchasable $purchasable, bool $allSites = false): void
+    public function updateStoreStockCache(PurchasableInterface $purchasable, bool $allSites = false): void
     {
         if ($allSites) {
             $purchasables = $purchasable::find()
@@ -115,7 +116,7 @@ class Purchasables
             $purchasables = [$purchasable];
         }
 
-        /** @var Purchasable $purchasable */
+        /** @var PurchasableInterface $purchasable */
         foreach ($purchasables as $purchasable) {
             $stock = Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($purchasable)->sum('availableTotal');
 
@@ -166,7 +167,8 @@ class Purchasables
             ->provisionalDrafts(null)
             ->revisions(null);
 
-        if ($query instanceof PurchasableQuery) {
+        // Donation (migrated) returns the new PurchasableQuery; Product/Variant (not yet migrated) still return the legacy one.
+        if ($query instanceof PurchasableQuery || $query instanceof NewPurchasableQuery) {
             $query->forCustomer($forCustomer);
         }
 

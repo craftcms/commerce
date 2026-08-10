@@ -70,6 +70,7 @@ use craft\web\assets\inputmask\InputmaskAsset;
 use craft\web\assets\money\MoneyAsset;
 use craft\web\Controller;
 use craft\web\View;
+use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery as NewPurchasableQuery;
 use DateTime;
 use DateTimeZone;
 use Throwable;
@@ -2159,7 +2160,8 @@ JS, []);
 
             $query->status(null);
 
-            if ($query instanceof PurchasableQuery) {
+            // Donation (migrated) returns the new PurchasableQuery; Product/Variant (not yet migrated) still return the legacy one.
+            if ($query instanceof PurchasableQuery || $query instanceof NewPurchasableQuery) {
                 $query->forCustomer($customerId);
             }
 

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Inventory\Models;
 
-use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
+use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Services\Inventory;
 use CraftCms\Commerce\Services\InventoryLocations;
 
@@ -54,7 +54,7 @@ class InventoryFulfillmentLevel extends Component
         return $order;
     }
 
-    public function getPurchasable(null|string|int $siteId = null): Purchasable
+    public function getPurchasable(null|string|int $siteId = null): PurchasableInterface
     {
         return $this->getInventoryItem()->getPurchasable($siteId);
     }
