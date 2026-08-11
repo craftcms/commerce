@@ -1,5 +1,109 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 7c: LineItem
+
+Migrated `craft\commerce\models\LineItem` (business logic) and
+`craft\commerce\records\LineItem` (persistence) to `CraftCms\Commerce\Order\LineItem\*`,
+and `craft\commerce\services\LineItems` to `CraftCms\Commerce\Services\LineItems`.
+
+**Not a unified Eloquent class, unlike `Order`.** The first draft merged both
+into one Eloquent model, reasoning that — unlike `Order`, which had to split
+into `Elements\Order` + `Models\Order` because an Element can't also extend
+Eloquent — `LineItem` isn't an Element, so there's no equivalent forced split.
+That draft was wrong: it broke a real behavioral guarantee. Yii2's `Model`
+routes bare property access (`$lineItem->price`) through a same-named
+`getPrice()` method; Eloquent's `__get()` does not — it only consults real
+attributes/casts/accessors, never an arbitrary `getPrice()` method. Legacy
+adjusters (`Tax.php`, `Discount.php`, still fully unmigrated) and the
+already-migrated `Order::recalculate()` all read computed values like
+`$item->salePrice` as bare properties, and `Purchasable`/`Donation`'s
+`populateLineItem()` *writes* `$lineItem->price = ...` expecting `setPrice()`'s
+side effect (clearing a cached sale price) to run. On Eloquent, both of those
+would have silently done the wrong thing — reading/writing the raw DB column
+instead of the computed value — with no error to signal it.
+
+The fix, following the `Entry\Data\EntryType` / `Entry\Models\EntryType` split
+in cms-6: `Order\LineItem\Data\LineItem` is the rich business object (a
+`Component`, like the legacy model was a `Model` — same bare-property-routes-
+through-getter guarantee), and `Order\LineItem\Models\LineItem` is a genuinely
+thin Eloquent model used only for persistence. The `LineItems` service bridges
+the two: reads hydrate a `Data\LineItem` field-by-field from the Eloquent row
+(deliberately *not* passing `$record->getAttributes()` into the constructor —
+several persisted columns, like `optionsSignature`/`salePrice`/`subtotal`/
+`total`/`promotionalAmount`, back pure computed getters with no setter on the
+Data object, so passing them as constructor config throws "Setting read-only
+property"); saves find-or-create the Eloquent row and copy the Data object's
+current attributes onto it.
+
+Other notable decisions:
+- FK columns (`orderId`, `purchasableId`, `taxCategoryId`,
+  `shippingCategoryId`, `lineItemStatusId`) resolve to an Element (`Order`),
+  other Elements (`Purchasable`/`Donation`), or `Component`-based Models
+  (`TaxCategory`, `ShippingCategory`, `LineItemStatus`) — none of them plain
+  single-table Eloquent models — so `getOrder()`/`setOrder()`,
+  `getPurchasable()`/`setPurchasable()`, `getTaxCategory()`,
+  `getShippingCategory()`, `getLineItemStatus()`/`setLineItemStatus()` stay
+  hand-written getters/setters with private memoization caches, exactly like
+  the legacy model; no native Eloquent relations were attempted anywhere.
+- `CurrencyAttributeBehavior` (Yii2, not portable) is replaced with 11
+  explicit `get*AsCurrency()` methods, mirroring `Purchasable`/`Order`.
+- The thin Eloquent model needs explicit numeric/boolean/JSON casts for every
+  column — MySQL returns `DECIMAL` columns as strings via PDO by default, and
+  the Data object's properties are strictly typed (`float`/`int`), so an
+  uncast `weight`/`price`/etc. throws a `TypeError` the moment a fetched row
+  gets copied across.
+- Dropped 5.x-deprecated API after confirming no call sites anywhere in
+  `src/` or `src-yii2/`: `LineItem::getSaleAmount()`, `refreshFromPurchasable()`,
+  `populateFromPurchasable()`, `getOnSale()`, and `LineItems::createLineItem()`.
+- Kept legacy: `craft\commerce\errors\StoreNotFoundException` (no migrated
+  equivalent yet); `craft\commerce\records\TaxRate::TAXABLE_*` constants (the
+  migrated `Tax\Models\TaxRate` didn't carry these over). Event firing still
+  bridges through `Plugin::getInstance()->getLineItems()` pending the Laravel
+  event-system bridge, matching `Purchasables`/`Inventory`/`LineItemStatuses`.
+
+Found and fixed three more real bugs while wiring this in:
+- **A genuine circular class-alias load.** `PurchasableInterface::afterOrderComplete()`
+  was updated to type-hint the new `Order`/`LineItem` directly, but the legacy
+  `craft\commerce\base\Purchasable` (still `Variant`'s parent, untouched and
+  deferred) implements that same interface and still imported the *old*
+  `Order`/`LineItem` names for its own copy of that method signature. Having
+  the interface and one of its implementers reference the same class via two
+  different names sent PHP into "During inheritance of X, while autoloading
+  Y" — a real fatal, not just a `TypeError` — the moment anything touched
+  `Variant`. Fixed by pointing the legacy base's imports at the new
+  namespaces directly (a trivial, behavior-neutral import swap, since both
+  names are the same class either way).
+- **`Order.php`'s `_saveLineItems()`** used `LineItemRecord::find()->where(...)->all()`
+  (ActiveRecord) to diff previous-vs-current line items and `$previousLineItem->delete()`
+  to remove stale ones — neither exists on the new Eloquent model. Rewritten
+  to use `app(LineItems::class)->getAllLineItemsByOrderId()` (which conveniently
+  already returns rich `Data\LineItem` objects, removing the need for a
+  second `getLineItemById()` call to build the removal event's payload) and
+  `DB::table(Table::LINEITEMS)->where('id', ...)->delete()`.
+- **The same `class_alias`-timing `TypeError` from Stage 7b's Guiding
+  Principle 9**, hit again — this time via the legacy `LineItems` service
+  wrapper's own method signatures (`resolveLineItem(): LineItem` etc.),
+  which resolved `LineItem`/`Order` through their old aliased names. Fixed
+  by having the wrapper import the new namespaces directly instead, same as
+  every other fix of this kind. Confirmed (but did not fix, out of scope)
+  that most other legacy service wrappers from earlier stages have the same
+  latent exposure via `use craft\commerce\elements\Order;` — it doesn't
+  surface in normal request flows because Craft's own bootstrap touches the
+  real `Order` class early via element-type registration, so the alias is
+  already warm by the time application code runs; it only bites isolated
+  scripts that touch a legacy wrapper as the first-ever reference to a given
+  aliased class in that PHP process.
+
+Verified live via `php craft exec:exec`: confirmed bare property access
+(`$lineItem->price`, `$lineItem->salePrice`) correctly routes through the
+computed getters on both a fresh and a refetched `Data\LineItem`; a full
+new-order → resolve a line item via both the new and legacy service →
+add → save → refetch → totals cycle; removing a line item and resaving to
+exercise the rewritten deletion branch; and the legacy `Plugin::getInstance()->getLineItems()`
+wrapper end-to-end. `Order` (`Elements\Order`) was the last consumer still on
+the legacy `models\LineItem`/`records\LineItem`, exactly as flagged when
+Order was migrated in Stage 7b — it's now fully on the new namespace.
+
 ### Laravel Migration — Stage 7b: Order element
 
 Migrated `craft\commerce\elements\Order` (4026 lines, plus the three traits it

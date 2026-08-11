@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Models;
 
-use craft\commerce\elements\Order;
-use craft\commerce\models\LineItem;
-use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Json;
+use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\LineItem\Data\LineItem;
+use CraftCms\Commerce\Services\LineItems;
 use CraftCms\Commerce\Services\Orders;
 
 class OrderAdjustment extends Component
@@ -58,9 +58,7 @@ class OrderAdjustment extends Component
     public function getLineItem(): ?LineItem
     {
         if ($this->_lineItem === null && $this->lineItemId) {
-            // TODO: migrate to app(LineItems::class)->getLineItemById() once service migrated to src/
-            /** @phpstan-ignore-next-line */
-            $this->_lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($this->lineItemId);
+            $this->_lineItem = app(LineItems::class)->getLineItemById($this->lineItemId);
         }
 
         return $this->_lineItem;
