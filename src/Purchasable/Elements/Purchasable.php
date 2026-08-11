@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Purchasable\Elements;
 
-use craft\commerce\elements\Order;
-use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\commerce\records\InventoryItem as InventoryItemRecord;
 use craft\commerce\records\Purchasable as PurchasableRecord;
@@ -24,6 +22,9 @@ use CraftCms\Commerce\Helpers\Localization;
 use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
 use CraftCms\Commerce\Inventory\Models\InventoryItem;
 use CraftCms\Commerce\Inventory\Models\InventoryLevel;
+use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\LineItem\Data\LineItem;
+use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Order\Models\OrderNotice;
 use CraftCms\Commerce\Promotion\Models\Sale;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
@@ -625,7 +626,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             [
                 'qty',
                 function($attribute, $params, Validator $validator) use ($lineItem, $lineItemQuantitiesByPurchasableId) {
-                    if ($lineItem->type == \craft\commerce\enums\LineItemType::Custom) {
+                    if ($lineItem->type == LineItemType::Custom) {
                         return;
                     }
 

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Purchasable\Elements;
 
-use craft\commerce\models\LineItem;
 use craft\commerce\records\PurchasableStore as PurchasableStoreRecord;
 use CraftCms\Cms\Support\Url;
+use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Purchasable\Models\Donation as DonationRecord;
 use CraftCms\Commerce\Purchasable\Queries\DonationQuery;
 use CraftCms\Commerce\Purchasable\Validation\DonationRules;

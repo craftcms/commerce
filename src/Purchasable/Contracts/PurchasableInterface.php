@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Purchasable\Contracts;
 
-use craft\commerce\elements\Order;
-use craft\commerce\models\LineItem;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
+use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Shipping\Models\ShippingCategory;
 use CraftCms\Commerce\Store\Models\Store;
 use CraftCms\Commerce\Tax\Models\TaxCategory;

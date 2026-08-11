@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Inventory\Models;
 
-use craft\commerce\elements\Order;
-use craft\commerce\models\LineItem;
-use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Cms\User\Elements\User;
+use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Services\Inventory;
 use CraftCms\Commerce\Services\InventoryLocations;
+use CraftCms\Commerce\Services\LineItems;
 use DateTime;
 
 class InventoryTransaction extends Component
@@ -58,9 +58,7 @@ class InventoryTransaction extends Component
             return null;
         }
 
-        // TODO: migrate to app(LineItems::class)->getLineItemById() once service migrated to src/
-        /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getLineItems()->getLineItemById($this->lineItemId);
+        return app(LineItems::class)->getLineItemById($this->lineItemId);
     }
 
     public function getOrder(): ?Order

@@ -16,9 +16,7 @@ use craft\commerce\elements\conditions\orders\OrderStatusConditionRule;
 use craft\commerce\errors\LineItemNotFoundException;
 use craft\commerce\errors\OrderAdjustmentNotFoundException;
 use craft\commerce\exports\Expanded;
-use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
-use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\records\OrderNotice as OrderNoticeRecord;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\errors\MutexException;
@@ -63,6 +61,7 @@ use CraftCms\Commerce\Order\Events\LineItemEvent;
 use CraftCms\Commerce\Order\Events\OrderLineItemsRefreshEvent;
 use CraftCms\Commerce\Order\Events\OrderNoticeEvent;
 use CraftCms\Commerce\Order\Exceptions\OrderStatusException;
+use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\Models\Order as OrderRecord;
 use CraftCms\Commerce\Order\Queries\OrderQuery;
 use CraftCms\Commerce\Order\Models\OrderAdjustment;
@@ -81,6 +80,7 @@ use CraftCms\Commerce\Services\Customers;
 use CraftCms\Commerce\Services\Discounts;
 use CraftCms\Commerce\Services\Gateways;
 use CraftCms\Commerce\Services\Inventory;
+use CraftCms\Commerce\Services\LineItems;
 use CraftCms\Commerce\Services\OrderAdjustments;
 use CraftCms\Commerce\Services\OrderHistories;
 use CraftCms\Commerce\Services\OrderStatuses;
@@ -1244,7 +1244,7 @@ class Order extends Element implements HasStoreInterface
         app(Inventory::class)->orderCompleteHandler($this);
 
         foreach ($this->getLineItems() as $lineItem) {
-            Plugin::getInstance()->getLineItems()->orderCompleteHandler($lineItem, $this);
+            app(LineItems::class)->orderCompleteHandler($lineItem, $this);
         }
 
         // Persist any admin notices added by the handlers above.
@@ -2234,8 +2234,7 @@ class Order extends Element implements HasStoreInterface
     public function getLineItems(): array
     {
         if (!isset($this->_lineItems)) {
-            // TODO: migrate to app(LineItems::class)->getAllLineItemsByOrderId() once LineItems service migrates to src/
-            $lineItems = $this->id ? Plugin::getInstance()->getLineItems()->getAllLineItemsByOrderId($this->id) : [];
+            $lineItems = $this->id ? app(LineItems::class)->getAllLineItemsByOrderId($this->id) : [];
             foreach ($lineItems as $lineItem) {
                 $lineItem->setOrder($this);
             }
@@ -4051,10 +4050,7 @@ class Order extends Element implements HasStoreInterface
     private function _saveLineItems(): void
     {
         // Line items that are currently in the DB
-        /** @var null|array|LineItemRecord[] $previousLineItems */
-        $previousLineItems = LineItemRecord::find()
-            ->where(['orderId' => $this->id])
-            ->all();
+        $previousLineItems = $this->id ? app(LineItems::class)->getAllLineItemsByOrderId($this->id) : [];
 
         $currentLineItemIds = [];
 
@@ -4067,14 +4063,11 @@ class Order extends Element implements HasStoreInterface
         // Delete any line items that no longer will be saved on this order.
         foreach ($previousLineItems as $previousLineItem) {
             if (!in_array($previousLineItem->id, $currentLineItemIds, false)) {
-                // TODO: migrate to app(LineItems::class)->getLineItemById() once LineItems service migrates to src/
-                $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($previousLineItem->id);
-
-                $previousLineItem->delete();
+                DB::table(Table::LINEITEMS)->where('id', $previousLineItem->id)->delete();
 
                 if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM)) {
                     $this->trigger(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM, new LineItemEvent([
-                        'lineItem' => $lineItem,
+                        'lineItem' => $previousLineItem,
                     ]));
                 }
             }
@@ -4088,8 +4081,7 @@ class Order extends Element implements HasStoreInterface
 
             try {
                 // Don't run validation as validation of the line item should happen before saving the order
-                // TODO: migrate to app(LineItems::class)->saveLineItem() once LineItems service migrates to src/
-                Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
+                app(LineItems::class)->saveLineItem($lineItem, false);
             } catch (LineItemNotFoundException) {
                 // If the line item was not found, it means it may have previously existed but was already deleted (race condition).
                 // See: https://github.com/craftcms/commerce/issues/3283

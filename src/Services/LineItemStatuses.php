@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Services;
 
-use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\commerce\records\LineItemStatus as LineItemStatusRecord;
 use craft\events\ConfigEvent;
@@ -12,6 +11,7 @@ use craft\helpers\Db as CraftDb;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
 use CraftCms\Commerce\Order\Events\DefaultLineItemStatusEvent;
+use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\Models\LineItemStatus;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;
