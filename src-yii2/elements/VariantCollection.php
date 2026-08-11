@@ -7,8 +7,8 @@
 
 namespace craft\commerce\elements;
 
-use craft\elements\ElementCollection;
-use Illuminate\Support\Collection;
+use CraftCms\Cms\Element\ElementCollection;
+use CraftCms\Commerce\Catalog\Elements\Variant;
 
 /**
  * VariantCollection represents a collection of Variant elements.

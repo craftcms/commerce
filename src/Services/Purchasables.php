@@ -6,7 +6,7 @@ namespace CraftCms\Commerce\Services;
 
 use craft\commerce\elements\db\PurchasableQuery;
 use craft\commerce\elements\Order;
-use craft\commerce\elements\Variant;
+use CraftCms\Commerce\Catalog\Elements\Variant;
 use craft\commerce\Plugin;
 use craft\elements\User;
 use craft\events\RegisterComponentTypesEvent;

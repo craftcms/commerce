@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Catalog\Events;
 
-use craft\commerce\elements\Variant;
+use CraftCms\Commerce\Catalog\Elements\Variant;
 
 class CustomizeVariantSnapshotFieldsEvent
 {
-    public Variant $variant;
-    public ?array $fields = null;
+    public function __construct(
+        public Variant $variant,
+        public ?array $fields = null,
+    ) {}
 }

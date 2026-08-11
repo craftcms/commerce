@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Catalog\Events;
 
-use craft\commerce\elements\Product;
+use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Cms\Shared\Concerns\ValidatableEvent;
 
 class ProductEvent

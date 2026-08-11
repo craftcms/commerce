@@ -9,7 +9,7 @@ namespace craft\commerce\fieldlayoutelements;
 
 use Craft;
 use craft\base\ElementInterface;
-use craft\commerce\elements\Product;
+use CraftCms\Commerce\Catalog\Elements\Product;
 use craft\enums\ElementIndexViewMode;
 use craft\fieldlayoutelements\BaseNativeField;
 use yii\base\InvalidArgumentException;

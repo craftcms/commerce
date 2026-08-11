@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Services;
 
-use craft\commerce\elements\Variant;
+use CraftCms\Commerce\Catalog\Elements\Variant;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingCategory as ShippingCategoryRecord;
 use CraftCms\Cms\Element\Jobs\ResaveElements;

@@ -13,4 +13,10 @@ class Order extends BaseModel
     protected $table = Table::ORDERS;
 
     public $timestamps = false;
+
+    /**
+     * `id` is a foreign key to `elements.id`, not an auto-increment column — without this,
+     * Eloquent overwrites it with `lastInsertId()` (0, for a non-auto-increment PK) after insert.
+     */
+    public $incrementing = false;
 }

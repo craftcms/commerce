@@ -1,5 +1,88 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 7d: Product & Variant
+
+Migrated `craft\commerce\elements\{Product,Variant}`, their element queries,
+and their records to `CraftCms\Commerce\Catalog\{Elements,Queries,Models}\*`.
+`ProductType` stays fully legacy for now (Stage 7e) — Product/Variant only
+ever consume it through its public getters, never a hard dependency.
+
+`Variant` extends the abstract `CraftCms\Commerce\Purchasable\Elements\Purchasable`
+base built in Stage 7a for `Donation` — that base turned out to already be a
+complete superset of the legacy `craft\commerce\base\Purchasable` (confirmed
+by diffing every method name between the two), including special-casing
+`NestedElementInterface` in `afterSave()` for exactly the draft/revision
+ownership-transfer logic `Variant` needs, even though only non-nested
+`Donation` used it until now. No changes were needed to that base file.
+`craft\commerce\base\Purchasable` (the legacy 1599-line abstract base) is now
+a `class_alias` stub, since `Variant` was its last extender.
+
+**Bugs found and fixed while verifying the save cycle live** (none were
+introduced by this stage — all three predate it and were latent because
+nothing had exercised these paths with real data yet):
+
+- **Eloquent `id` silently reset to `0` after insert.** `commerce_products.id`,
+  `commerce_variants.id` (and, discovered by extension, `commerce_orders.id`
+  and `commerce_donations.id`) are foreign keys to `elements.id`, not
+  auto-increment columns. Eloquent defaults every model to
+  `$incrementing = true`, so after `INSERT` it overwrites the model's `id`
+  with `$pdo->lastInsertId()` — which MySQL returns as `0` for a table with no
+  auto-increment column. `Product::afterSave()` then propagated that `0` back
+  onto the element itself (`$this->id = $record->id`), corrupting the owner's
+  ID before nested variant saves ran. `Order`/`Donation` never hit this
+  because neither reads the record's `id` back after `save()` — same
+  underlying defect, just never triggered. Fixed by adding
+  `public $incrementing = false;` to `Catalog\Models\{Product,Variant}`,
+  `Order\Models\Order`, and `Purchasable\Models\Donation`.
+- **`Variant::availableShippingCategories()` called `->pluck()` directly on a
+  plain `array`.** `ShippingCategories::getShippingCategoriesByProductTypeId()`
+  returns `array`, not a `Collection` — needed a `collect()` wrapper, matching
+  the (correct) tax-category equivalent five lines below it.
+- **Event classes instantiated with a Yii2 config array silently do nothing.**
+  `new CustomizeProductSnapshotFieldsEvent(['product' => ..., 'fields' => ...])`
+  compiles and runs without error, but a plain PHP class with no constructor
+  ignores constructor arguments entirely — properties keep their defaults, and
+  reading an uninitialized typed property (e.g. `$event->product`) later
+  throws. The original Yii2 class extended `yii\base\Event`, which supplied
+  the config-array constructor; that behavior was lost when the class was
+  migrated to `src/` in Stage 3, but nothing updated the call site. Fixed the
+  4 events `Variant::getSnapshot()` uses
+  (`Customize{Product,Variant}Snapshot{Fields,Data}Event`) with real
+  constructors (promoted properties, matching cms-6's own event convention
+  like `ProjectConfig\Events\ConfigEvent`), and updated the call sites to
+  named-argument construction.
+  ⚠️ **This same defect affects the rest of the Events layer** — of the 56
+  classes moved to `src/*/Events/` in Stage 3, only the 4 fixed here now have
+  a real constructor. The rest (`Order\Events\LineItemEvent`,
+  `Catalog\Events\ProductEvent`, etc.) still silently discard their
+  constructor array and will throw "must not be accessed before
+  initialization" the moment a listener reads a required property. This is
+  **not** new to this stage — it predates it — but wasn't caught until a real
+  save cycle exercised one of these event triggers. Confirmed already present
+  in shipped code: `Order.php`'s `EVENT_AFTER_ADD_LINE_ITEM`/
+  `EVENT_AFTER_REMOVE_LINE_ITEM`/etc. triggers all construct `LineItemEvent`
+  the same broken way. Needs a dedicated remediation pass across
+  `src/*/Events/*.php` plus every call site — tracked as a follow-up in
+  `laravel-migration-private.md`, not fixed here beyond this stage's own
+  scope.
+
+**Verification.** No working Codeception harness in this environment; used
+live `php craft exec:exec` calls via ddev. Confirmed: legacy aliases resolve
+correctly (`Product`, `Variant`, `base\Purchasable`, records, queries);
+`Product::find()`/`Variant::find()` return the new query classes and execute
+correctly with 15+ query-parameter combinations; a full save cycle (product +
+nested variant, with the CP's `variants` dirty-attribute marker set
+manually since there's no CP UI to drive it) round-tripped correctly after
+the fixes above, including `defaultVariantId`/`defaultSku`/`defaultPrice`
+propagation and SKU-uniqueness/min-max-qty validation; `getSnapshot()`
+verified after the event-constructor fix. One save-cycle path (URI generation
+against a product type with a real `uriFormat`) is blocked by a pre-existing,
+confirmed-unrelated CMS-core bug — `renderObjectTemplate()` reliably throws
+"Cannot redeclare class CraftCms\Cms\Section\øSections" on first render in
+this environment, reproduced with a bare `Template::renderObjectTemplate()`
+call with zero Commerce code involved. Same class of issue noted in Stage 7a;
+not fixed here (out of scope, cms-6 core).
+
 ### Laravel Migration — Stage 7c: LineItem
 
 Migrated `craft\commerce\models\LineItem` (business logic) and
@@ -983,6 +1066,7 @@ Key changes:
 ### Laravel Migration — Stage 3: Events (Call-site Updates)
 - All `src-yii2/` event instantiation call sites updated from Yii2 array-config syntax (`new XxxEvent(['prop' => $val])`) to PHP 8 named argument syntax (`new XxxEvent(prop: $val)`).
 - All new `CraftCms\Commerce\*\Events\` classes now use constructor property promotion for clean, typed initialization.
+  **Correction (added during Stage 7d):** this was not actually completed. Of the 56 event classes moved in this stage, only 4 have a real constructor as of Stage 7d (the ones Stage 7d itself fixed). The other ~52 are still bare classes with no constructor at all, and most call sites (including already-shipped ones, e.g. `Order.php`'s `LineItemEvent` triggers from Stage 7b) still construct them with a Yii2-style array, which silently does nothing — see the "Events layer silently discards its constructor data" follow-up in `laravel-migration-private.md`.
 - Fixed `phpstan.neon` to work with Craft 6's restructured vendor layout (removed dependency on `craftcms/phpstan.neon`, added correct `scanFiles` and `scanDirectories` for legacy code awareness).
 - Fixed `CraftCms\Commerce\Subscription\Events\PlanEvent`, `CreateSubscriptionEvent`, and `SubscriptionSwitchPlansEvent` to import `craft\commerce\base\Plan` (not the non-existent `craft\commerce\models\Plan`).
 
