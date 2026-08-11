@@ -11,7 +11,7 @@ use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
-use craft\commerce\elements\Product;
+use CraftCms\Commerce\Catalog\Elements\Product;
 use craft\commerce\helpers\Localization;
 use craft\commerce\models\Coupon;
 use craft\commerce\models\Discount;

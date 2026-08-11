@@ -10,7 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
-use craft\commerce\elements\Product;
+use CraftCms\Commerce\Catalog\Elements\Product;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Sale as SaleRecord;

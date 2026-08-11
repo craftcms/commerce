@@ -22,7 +22,7 @@ use function CraftCms\Cms\t;
 class Donation extends Purchasable
 {
     /**
-     * By default the donation is not available for purchase.
+     * By default, the donation is not available for purchase.
      */
     public bool $availableForPurchase = false;
 

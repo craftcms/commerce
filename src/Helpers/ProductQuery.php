@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Helpers;
 
 use Craft;
-use craft\commerce\elements\Product;
+use CraftCms\Commerce\Catalog\Elements\Product;
 use craft\controllers\ElementIndexesController;
 use craft\controllers\ElementSearchController;
 use craft\helpers\ElementHelper;

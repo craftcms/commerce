@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Services;
 
-use craft\commerce\elements\Product;
+use CraftCms\Commerce\Catalog\Elements\Product;
 use craft\commerce\Plugin;
 use craft\events\SiteEvent;
 use CraftCms\Cms\Element\Jobs\PropagateElements;

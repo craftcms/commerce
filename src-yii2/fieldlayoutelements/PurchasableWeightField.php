@@ -10,7 +10,7 @@ namespace craft\commerce\fieldlayoutelements;
 use Craft;
 use craft\base\ElementInterface;
 use craft\commerce\base\Purchasable;
-use craft\commerce\elements\Variant;
+use CraftCms\Commerce\Catalog\Elements\Variant;
 use craft\commerce\Plugin;
 use craft\fieldlayoutelements\BaseNativeField;
 use craft\helpers\Cp;

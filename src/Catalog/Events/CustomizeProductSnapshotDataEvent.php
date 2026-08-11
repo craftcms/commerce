@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Catalog\Events;
 
-use craft\commerce\elements\Product;
+use CraftCms\Commerce\Catalog\Elements\Product;
 
 class CustomizeProductSnapshotDataEvent
 {
-    public Product $product;
-    public array $fieldData;
+    public function __construct(
+        public Product $product,
+        public array $fieldData,
+    ) {}
 }

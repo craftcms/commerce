@@ -9,8 +9,8 @@ use craft\commerce\elements\conditions\customers\CatalogPricingRuleCustomerCondi
 use craft\commerce\elements\conditions\products\CatalogPricingRuleProductCondition;
 use craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasableCondition;
 use craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantCondition;
-use craft\commerce\elements\Product;
-use craft\commerce\elements\Variant;
+use CraftCms\Commerce\Catalog\Elements\Product;
+use CraftCms\Commerce\Catalog\Elements\Variant;
 use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingRule as PricingCatalogRuleRecord;
 use craft\elements\db\ElementQuery;
