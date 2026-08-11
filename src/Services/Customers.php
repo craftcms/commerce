@@ -8,7 +8,6 @@ use craft\base\Element;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Customer as CustomerRecord;
-use craft\commerce\records\Order as OrderRecord;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
@@ -16,6 +15,7 @@ use craft\errors\UnsupportedSiteException;
 use craft\mail\Mailer;
 use craft\mail\Message;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Order\Models\Order as OrderRecord;
 use CraftCms\Commerce\Payment\Events\UpdatePrimaryPaymentSourceEvent;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;
@@ -115,14 +115,10 @@ class Customers
 
         // clear the primary address flags if they were set as it only applies to the cart
         if ($order->makePrimaryBillingAddress || $order->makePrimaryShippingAddress) {
-            OrderRecord::updateAll([
+            OrderRecord::query()->where('id', $order->id)->update([
                 'makePrimaryBillingAddress' => false,
                 'makePrimaryShippingAddress' => false,
-            ],
-                [
-                    'id' => $order->id,
-                ]
-            );
+            ]);
         }
     }
 
@@ -303,14 +299,10 @@ class Customers
 
         // Manually update the order DB record to avoid looped element saves
         if ($newSourceBillingAddressId || $newSourceShippingAddressId) {
-            \craft\commerce\records\Order::updateAll([
+            OrderRecord::query()->where('id', $order->id)->update([
                 'sourceBillingAddressId' => $order->sourceBillingAddressId,
                 'sourceShippingAddressId' => $order->sourceShippingAddressId,
-            ],
-                [
-                    'id' => $order->id,
-                ]
-            );
+            ]);
         }
     }
 

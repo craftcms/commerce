@@ -1,5 +1,102 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 7b: Order element
+
+Migrated `craft\commerce\elements\Order` (4026 lines, plus the three traits it
+composed — `OrderElementTrait`, `OrderNoticesTrait`, `OrderValidatorsTrait`,
+folded directly into the class rather than kept as separate files since
+nothing else used them), its query, and its record to
+`CraftCms\Commerce\Order\Elements\Order`,
+`CraftCms\Commerce\Order\Queries\OrderQuery`, and a new Eloquent
+`CraftCms\Commerce\Order\Models\Order` (replacing the ActiveRecord). Also
+migrated the 4 small `errors\*` exception classes to `Order\Exceptions\`
+(dropping the Yii2 `getName()` mechanism, which incidentally removes
+`OrderAdjustmentNotFoundException::getName()`'s copy-paste bug — it returned
+"Line Item not found").
+
+`LineItem` and its record stay legacy throughout (deferred to the next
+stage — Order still type-hints `craft\commerce\models\LineItem`/
+`records\LineItem` everywhere), as does the abstract `base\Gateway` class and
+`Plugin::getInstance()->getLineItems()`. Every other `Plugin::getInstance()->getX()`
+call was swapped for `app(CraftCms\Commerce\Services\X::class)` since all of
+Order's other service dependencies are already migrated (Stage 6).
+`CurrencyAttributeBehavior` (a Yii2 behavior, not portable to Laravel) is
+replaced with explicit `*AsCurrency` getters, mirroring the pattern already
+established on `Purchasable` in Stage 7a; the 9 imperative validators from
+`OrderValidatorsTrait` became plain methods wired through `afterValidate()`/
+`prepareForValidation()` rather than forced into declarative Illuminate
+rules, since they mutate notices and nested-model errors under dotted
+attribute keys.
+
+Drafted via two parallel agents (element+validation/exceptions, and the
+query), then reviewed and fixed by hand. Found and fixed several real bugs
+during review and live verification:
+- `Order::find()` still returned the **legacy** `OrderQuery` (a stale
+  import left over from drafting the element before the new `OrderQuery`
+  existed) — completely defeating the query migration. Fixed to return the
+  new one.
+- `Order`'s own `init()`/`beforeValidate(): bool` overrides used Yii2
+  lifecycle hooks that don't exist on the new `Element` base at all (it has
+  no `init()`; the pre-validation hook is `prepareForValidation(): void`,
+  Illuminate-style) — both `#[Override]` attributes would have been a hard
+  compile error. Converted `init()`'s defaulting logic into a `__construct()`
+  override (run after `parent::__construct($config)`), and renamed
+  `beforeValidate()` to `prepareForValidation()`.
+- Two more instances of the Stage 7a "which `Purchasable` base is this"
+  bug: `lineItemsByPurchasable()` was typed against the new `Purchasable`
+  base only (rejecting `Donation` was fine, but would've rejected
+  `Product`/`Variant` once they're real args) — widened to
+  `PurchasableInterface`; `afterDelete()`'s stock-cache-refresh check
+  `instanceof Purchasable` only matched the *new* base, so it silently
+  stopped updating stock caches for anything still on the legacy base
+  (i.e. every real Product/Variant order) — widened to check both.
+- `Store::getCurrency()` returns a `Money\Currency` object (this changed
+  when `Store` was migrated in Stage 5k), but `Order::$currency` and
+  `$_paymentCurrency` are plain `?string` ISO-code properties — the ported
+  `init()`/`getPaymentCurrency()` logic assigned the object directly,
+  which would `TypeError` on the very first order without an explicit
+  currency. Both now call `->getCurrency()?->getCode()`.
+- Several already-migrated `Order\Events\*` classes (`DefaultOrderStatusEvent`,
+  `OrderNoticeEvent`, `DefaultLineItemStatusEvent`, `OrderStatusEmailsEvent`,
+  `CartEvent`, `OrderStatusEvent`, `ModifyCartInfoEvent`) were migrated back
+  in Stage 3, before `OrderStatus`/`OrderNotice`/`LineItemStatus`/`Order`
+  itself existed in the new namespace, and still type-hinted the legacy
+  classes. Since `class_alias` doesn't reliably satisfy `instanceof`/
+  parameter-type checks for a name that's never been referenced yet in a
+  given PHP process (confirmed independent of these changes — reproduces
+  identically assigning a freshly-migrated `TaxRate` to a legacy-typed
+  property elsewhere in the codebase), a real order-completion call threw
+  a `TypeError` the first time `getDefaultOrderStatusForOrder()` populated
+  one of these events. Updated all of them to the new namespaces.
+- Same latent bug, hit directly rather than via an Event: `src-yii2/adjusters/Tax.php`
+  (fully legacy, untouched by this migration otherwise) type-hinted the
+  legacy, aliased `models\TaxRate` while the already-migrated `TaxRates`
+  service hands it a `CraftCms\Commerce\Tax\Models\TaxRate` instance
+  directly — same alias-timing TypeError, blocking every order recalculation
+  that hits a tax rate. Repointed the import at the real class.
+- `Customers::orderCompleteHandler()`/`savePrimaryAddressesFromOrder()`
+  (both already-migrated, Stage 6i) called `OrderRecord::updateAll(...)` —
+  a Yii2 ActiveRecord static method with no Eloquent equivalent — against
+  what was about to become the new Eloquent `Order` model. Converted both
+  to `OrderRecord::query()->where(...)->update([...])`.
+
+Verified live via `php craft exec:exec` against the dev database: fetch
+through the new `OrderQuery`, notice add/clear, a full new-order → add a
+real line item (a Stage 7a `Donation`) → save → refetch → totals →
+`markAsComplete()` → paid-status cycle, plus confirming the legacy alias and
+`Plugin::getInstance()->getOrderStatuses()` paths still resolve correctly.
+One piece of `markAsComplete()` — reference-number generation via
+`renderObjectTemplate()` — could not be verified in this environment: it
+throws a `Cannot redeclare class CraftCms\Cms\Section\øSections` fatal
+error, but this reproduces identically calling `renderObjectTemplate()`
+against the already-shipped, unrelated `Donation` element, confirming it's
+a pre-existing CMS-level bug independent of this work, not something this
+stage introduced.
+
+Also noticed but out of scope for this stage: `TaxRatesController.php` has
+the same stale `models\TaxRate` import as the `Tax` adjuster did — not fixed
+since it isn't on Order's execution path and wasn't blocking verification.
+
 ### Laravel Migration — Stage 7a: Purchasable & Donation elements
 
 Migrated `craft\commerce\elements\Donation`, its record, and its query to

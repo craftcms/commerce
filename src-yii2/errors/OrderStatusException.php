@@ -1,20 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\errors;
 
-use yii\base\Exception;
+/** @deprecated use {@see \CraftCms\Commerce\Order\Exceptions\OrderStatusException} */
+class_alias(\CraftCms\Commerce\Order\Exceptions\OrderStatusException::class, 'craft\commerce\errors\OrderStatusException');
 
-/**
- * Class DefaultOrderStatusNotFoundException
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
- */
-class OrderStatusException extends Exception
-{
+/** @phpstan-ignore-next-line */
+if (false) {
+    class OrderStatusException extends \CraftCms\Commerce\Order\Exceptions\OrderStatusException {}
 }
