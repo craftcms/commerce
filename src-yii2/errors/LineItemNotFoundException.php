@@ -1,27 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\errors;
 
-use yii\base\Exception;
+/** @deprecated use {@see \CraftCms\Commerce\Order\Exceptions\LineItemNotFoundException} */
+class_alias(\CraftCms\Commerce\Order\Exceptions\LineItemNotFoundException::class, 'craft\commerce\errors\LineItemNotFoundException');
 
-/**
- * Class LineItemNotFoundException
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.9
- */
-class LineItemNotFoundException extends Exception
-{
-    /**
-     * @return string the user-friendly name of this exception
-     */
-    public function getName(): string
-    {
-        return 'Line Item not found';
-    }
+/** @phpstan-ignore-next-line */
+if (false) {
+    class LineItemNotFoundException extends \CraftCms\Commerce\Order\Exceptions\LineItemNotFoundException {}
 }

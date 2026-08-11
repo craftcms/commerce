@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Events;
 
-use craft\commerce\elements\Order;
-use craft\commerce\models\OrderStatus;
+use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\Models\OrderStatus;
 
 class DefaultOrderStatusEvent
 {

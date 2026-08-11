@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Order\Events;
 
 use craft\commerce\models\LineItem;
-use craft\commerce\models\LineItemStatus;
+use CraftCms\Commerce\Order\Models\LineItemStatus;
 
 class DefaultLineItemStatusEvent
 {
