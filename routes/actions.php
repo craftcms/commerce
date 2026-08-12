@@ -1,6 +1,7 @@
 <?php
 
 use CraftCms\Cms\Http\Middleware\RequireAdmin;
+use CraftCms\Commerce\Http\Controllers\CartController;
 use CraftCms\Commerce\Http\Controllers\DonationsController;
 use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingController;
 use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingRulesController;
@@ -23,11 +24,28 @@ use CraftCms\Commerce\Http\Controllers\Settings\TaxRatesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxZonesController;
 use CraftCms\Commerce\Http\Controllers\UserOrdersController;
 use CraftCms\Commerce\Http\Controllers\WebhooksController;
+use CraftCms\Commerce\Http\RateLimiters\CartChallengeRateLimiter;
+use CraftCms\Commerce\Http\RateLimiters\CartRateLimiter;
 use Illuminate\Support\Facades\Route;
 
 Route::post('webhooks/process-webhook', [WebhooksController::class, 'processWebhook']);
 
 Route::match(['get', 'post'], 'user-orders/get-orders', [UserOrdersController::class, 'getOrders']);
+
+// Anonymous by design — carts are usable by guests. Rate-limited (not auth-gated) to blunt
+// enumeration/brute-force attempts against the number/couponCode params.
+Route::middleware('throttle:' . CartRateLimiter::NAME)->group(function () {
+    Route::get('cart/get-cart', [CartController::class, 'getCart']);
+    Route::post('cart/update-cart', [CartController::class, 'updateCart']);
+    Route::match(['get', 'post'], 'cart/load-cart', [CartController::class, 'loadCart']);
+    Route::post('cart/complete', [CartController::class, 'complete']);
+});
+
+Route::post('cart/forget-cart', [CartController::class, 'forgetCart']);
+Route::get('cart/email-challenge', [CartController::class, 'emailChallenge']);
+Route::post('cart/cart-challenge', [CartController::class, 'cartChallenge'])
+    ->middleware('throttle:' . CartChallengeRateLimiter::NAME);
+Route::get('cart/cart-sent', [CartController::class, 'cartSent']);
 
 // These are also reachable, unauthenticated, at their site-side action URL (per
 // CraftCms\Cms\Plugin\Concerns\HasRoutes::registerActionRoutes()) — the `auth`/`can`

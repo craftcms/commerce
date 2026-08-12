@@ -1,5 +1,65 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 9f (partial): Controllers & Routes (Cart)
+
+Migrated `CartController` (1,022 lines, the largest front-end controller so far) to
+`src/Http/Controllers/`. `BaseFrontEndController` stays in `src-yii2/` — `DownloadsController`,
+`PaymentSourcesController`, `PaymentsController`, `UsersController` still extend it.
+
+- **Mutex → `Cache::lock()`**: Yii2's `Craft::$app->getMutex()->acquire($name, $timeout)` (blocks
+  up to `$timeout` seconds, returns bool) is replaced by `Cache::lock($name, $ttl)->block($timeout)`
+  — confirmed real, pervasive pattern (`ElementDraftsController`, `SaveElementController`,
+  `ProjectConfig`, `Structures`, etc. in cms-6). Key difference: Laravel's `block()` *throws*
+  `LockTimeoutException` on failure instead of returning `false` — both call sites (`updateCart()`'s
+  hard failure, `complete()`'s graceful add-error-and-continue) now catch it and reproduce the
+  original branch behavior explicitly, rather than relying on a bool return that no longer happens.
+- **Yii2 `RateLimiter` behavior → named Laravel rate limiters + `throttle:` middleware**: added
+  `src/Http/RateLimiters/{CartRateLimiter,CartChallengeRateLimiter}.php` (mirroring cms-6's own
+  `LoginRateLimiter` pattern exactly — a plain class with a `limit(Request): Limit` method),
+  registered via `RateLimiter::for()` in `Plugin::register()` (per Stage 9a's finding that
+  `boot()` never fires for a plugin). `CartRateLimiter` returns `Limit::none()` when neither
+  `number` nor `couponCode` is present, matching the legacy behavior's conditional `user` callback
+  that only rate-limited requests carrying those params. Applied via `->middleware('throttle:...')`
+  on the route group in `routes/actions.php`, replacing the controller-level `behaviors()` override.
+- **`Element::setScenario(Element::SCENARIO_LIVE)` → `$ruleset->useScenario(ElementRules::
+  SCENARIO_LIVE)`**: confirmed via existing precedent in the already-migrated `Order::
+  validateAddress()` (`src/Order/Elements/Order.php`).
+- **Simplified `_returnCart()`'s attribute-scoped validation**: legacy built an explicit attribute
+  list via `activeAttributes()` (a Yii2 Model concept with no equivalent under the new Ruleset
+  validation system) merged with custom-field attributes gated behind a `Composer\Semver` Craft-
+  version check the code's own comment marked `@TODO Remove ... once Craft >= 4.4 is the minimum
+  requirement` — now permanently true for Commerce 6. Replaced with a plain `$this->cart->
+  validate(null, false)`, which validates the full ruleset (confirmed via direct research into
+  `CraftCms\RulesetValidation\Ruleset`/`Validates` trait source — passing `null` skips the
+  `->only()` attribute filter entirely rather than requiring an explicit "everything" list).
+  Verified end-to-end via a real `updateCart()` round-trip against an actual cart in the dev DB
+  that reached this exact line and returned a real "Cart updated." success response.
+- `Craft::$app->getElements()->saveElement($cart, $runValidation, $propagate, $updateSearchIndex)`
+  → `Elements::saveElement(...)` facade call — confirmed identical first-4-param order/meaning via
+  direct signature comparison, new optional trailing params left at their defaults.
+- Dropped the Yii2 `$isConsoleRequest`/cookie-based mutex-key fallback branches specific to
+  console-dispatched web requests — this controller is reachable only via real HTTP routing now
+  (no `Craft::$app->runAction()`-style console dispatch path exists for it anymore), so those
+  branches were dead weight, not a behavior change for any real caller.
+- `getBodyParam()` call sites were **not** ported to `Request::post()` — despite the naming
+  symmetry, Laravel's `post()` only reads the raw POST-body `ParameterBag` and does **not**
+  transparently parse a JSON request body the way Yii2's `getBodyParam()` did. Used `Request::
+  input()` (merged query+body, JSON-aware) everywhere instead, accepting the minor superset of
+  also honoring query-string params on POST-only routes — a low-risk tradeoff against silently
+  breaking JSON-driven cart AJAX calls, which was the real, load-bearing risk.
+- `cartArray()`'s `EVENT_MODIFY_CART_INFO` extension point ports to a plain `event(new
+  ModifyCartInfoEvent(...))` dispatch — the event class itself (`src/Order/Events/
+  ModifyCartInfoEvent.php`) was already migrated in an earlier stage as a plain data class; this
+  is the first time anything actually dispatches it.
+- **Verification**: `route:list` confirmed all 8 routes (dual CP/site-registered) with the correct
+  HTTP verbs and `throttle:` middleware. Direct `craft exec:exec` testing included a full
+  `updateCart()` round-trip against a real cart row (mutex acquired via a real `Cache::lock`,
+  validate+save succeeded, `asModelSuccess()` returned the expected JSON), plus `forgetCart()`,
+  `cartSent()`, and `emailChallenge()`/404-not-found-cart checks. Remaining failures were the
+  established console-context limitations inside still-legacy internals the controller calls into
+  (`craft\console\Request::getUserIP()`/`getCookies()` inside `src-yii2/services/Carts.php`) — not
+  regressions in the new controller.
+
 ### Laravel Migration — Stage 9f (partial): Controllers & Routes (Order/Line Item Statuses, User Orders)
 
 Migrated `OrderStatusesController`, `LineItemStatusesController` to

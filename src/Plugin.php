@@ -6,9 +6,13 @@ namespace CraftCms\Commerce;
 
 use CraftCms\Cms\Plugin\Plugin as BasePlugin;
 use CraftCms\Cms\Route\Routes;
+use CraftCms\Commerce\Http\RateLimiters\CartChallengeRateLimiter;
+use CraftCms\Commerce\Http\RateLimiters\CartRateLimiter;
 use CraftCms\Commerce\Plugin\Concerns\HasPermissions;
 use CraftCms\Commerce\Plugin\Concerns\HasServices;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 
 class Plugin extends BasePlugin
 {
@@ -24,5 +28,8 @@ class Plugin extends BasePlugin
             $routes->actionTriggerUriPrefix() . '/commerce/webhooks/process-webhook',
             $routes->cpActionTriggerUriPrefix() . '/commerce/webhooks/process-webhook',
         ]);
+
+        RateLimiter::for(CartRateLimiter::NAME, fn(Request $request) => app(CartRateLimiter::class)->limit($request));
+        RateLimiter::for(CartChallengeRateLimiter::NAME, fn(Request $request) => app(CartChallengeRateLimiter::class)->limit($request));
     }
 }
