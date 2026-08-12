@@ -72,19 +72,9 @@ trait Routes
 
             // Settings
 
-            $event->rules['commerce/settings/stores'] = 'commerce/stores/stores-index';
-            $event->rules['commerce/settings/stores/new'] = 'commerce/stores/edit-store';
-            $event->rules['commerce/settings/stores/<storeId:\d+>'] = 'commerce/stores/edit-store';
+            // commerce/settings/stores* and commerce/settings/sites are now registered in routes/cp.php
 
-            $event->rules['commerce/settings/sites'] = 'commerce/stores/edit-site-stores';
-
-            $event->rules['commerce/settings/general'] = 'commerce/settings/edit';
-
-            $event->rules['commerce/settings/ordersettings'] = 'commerce/order-settings/edit';
-
-            $event->rules['commerce/settings/transfers'] = 'commerce/settings/edit-transfer-settings';
-
-            $event->rules['commerce/settings/subscriptions'] = 'commerce/settings/edit-subscription-settings';
+            // commerce/settings/general, ordersettings, transfers, and subscriptions are now registered in routes/cp.php
 
             // commerce/settings/gateways* is now registered in routes/cp.php
 
@@ -104,13 +94,7 @@ trait Routes
             $event->rules['commerce/settings/lineitemstatuses/<storeHandle:{handle}>/new'] = 'commerce/line-item-statuses/edit';
             $event->rules['commerce/settings/lineitemstatuses/<storeHandle:{handle}>/<id:\d+>'] = 'commerce/line-item-statuses/edit';
 
-            // Store Settings
-            $event->rules['commerce/store-management'] = 'commerce/store-management/index'; // Redirects to the first store
-            $event->rules['commerce/store-management/<storeHandle:{handle}>'] = 'commerce/store-management/edit';
-
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/payment-currencies'] = 'commerce/payment-currencies/index';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/payment-currencies/new'] = 'commerce/payment-currencies/edit';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/payment-currencies/<id:\d+>'] = 'commerce/payment-currencies/edit';
+            // Store Settings and Payment Currencies are now registered in routes/cp.php
 
             // Shipping is now registered in routes/cp.php
 

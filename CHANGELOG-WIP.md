@@ -1,5 +1,43 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 9e: Controllers & Routes (Store & Settings)
+
+Migrated `StoreManagementController`, `StoresController`, `SettingsController`,
+`OrderSettingsController`, `PaymentCurrenciesController` to `src/Http/Controllers/Settings/`.
+`BaseStoreManagementController` deleted — nothing extends it anymore.
+
+- **Found and fixed a real, already-merged authorization gap spanning Stages 9b–9d**:
+  `BaseStoreManagementController::init()` unconditionally required `commerce-manageStoreSettings`
+  for *every* subclass, on top of each area's own specific permission
+  (`commerce-manageShipping`/`commerce-manageTaxes`/`commerce-managePromotions`). The route
+  middleware added in 9b/9c/9d only checked the specific permission, missing this base check
+  entirely. Fixed by wrapping the whole `commerce/store-management/*` route group (in both
+  `routes/cp.php` and `routes/actions.php`) in a `can:commerce-manageStoreSettings` middleware
+  layer, with each area's specific permission nested inside it — restores the exact compound
+  check the legacy `init()` enforced. `PaymentCurrenciesController` and `StoreManagementController`
+  only ever needed the base permission (no area-specific one), consistent with the legacy source.
+  `PromotionsController`'s bare redirect route is unaffected (it extends `BaseCpController`, not
+  `BaseStoreManagementController`).
+- **Found and fixed a real, pre-existing bug in `src-yii2/services/Transfers.php`**:
+  `getFieldLayout()` was still typed against the legacy `craft\models\FieldLayout`/
+  `craft\models\FieldLayoutTab`, but `Craft::$app->getFields()->getLayoutByType()` now returns the
+  new `CraftCms\Cms\FieldLayout\FieldLayout` — a `TypeError` on every call. Nothing exercised this
+  method until `SettingsController::editTransferSettings()` wired it into a route. Fixed by
+  switching the imports/type hints to the new `FieldLayout`/`FieldLayoutTab` classes, which expose
+  the same `getTabs()`/`setTabs()`/`isFieldIncluded()`/`setLayout()`/`setElements()` API — confirmed
+  via the identical tab-injection pattern already in `src/Catalog/ProductType/Data/ProductType.php`.
+- `SettingsController::actionSites()` deliberately dropped — its template
+  (`commerce/settings/sites/_edit.twig`) doesn't exist on disk; the real `commerce/settings/sites`
+  URL has always pointed at `StoresController::editSiteStores()` instead. Pre-existing dead code,
+  not a migration regression.
+- **Verification**: `route:list` confirmed every new route (index/edit/save/delete pages plus
+  action endpoints) and the corrected middleware chains (`commerce-manageStoreSettings` alone
+  for `StoreManagementController`/`PaymentCurrenciesController`; compounded with the area-specific
+  permission for Shipping/Tax/Promotions). Direct `craft exec:exec` invocation of every new
+  controller method surfaced only known console-context limitations (`currentUser` null,
+  `craft\console\Request::getSegments()` missing) — no new regressions once the two real bugs
+  above were fixed.
+
 ### Laravel Migration — Stage 9d: Controllers & Routes (Promotions)
 
 Migrated `SalesController`, `DiscountsController`, `CatalogPricingRulesController`,

@@ -6,11 +6,16 @@ use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingController;
 use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingRulesController;
 use CraftCms\Commerce\Http\Controllers\Settings\DiscountsController;
 use CraftCms\Commerce\Http\Controllers\Settings\GatewaysController;
+use CraftCms\Commerce\Http\Controllers\Settings\OrderSettingsController;
+use CraftCms\Commerce\Http\Controllers\Settings\PaymentCurrenciesController;
 use CraftCms\Commerce\Http\Controllers\Settings\SalesController;
+use CraftCms\Commerce\Http\Controllers\Settings\SettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\ShippingCategoriesController;
 use CraftCms\Commerce\Http\Controllers\Settings\ShippingMethodsController;
 use CraftCms\Commerce\Http\Controllers\Settings\ShippingRulesController;
 use CraftCms\Commerce\Http\Controllers\Settings\ShippingZonesController;
+use CraftCms\Commerce\Http\Controllers\Settings\StoreManagementController;
+use CraftCms\Commerce\Http\Controllers\Settings\StoresController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxCategoriesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxRatesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxZonesController;
@@ -29,67 +34,87 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->g
     Route::post('gateways/save', [GatewaysController::class, 'save']);
     Route::post('gateways/archive', [GatewaysController::class, 'archive']);
     Route::post('gateways/reorder', [GatewaysController::class, 'reorder']);
+
+    Route::post('settings/save-settings', [SettingsController::class, 'saveSettings']);
+    Route::post('settings/save-transfer-settings', [SettingsController::class, 'saveTransferSettings']);
+    Route::post('settings/save-subscription-settings', [SettingsController::class, 'saveSubscriptionSettings']);
+    Route::post('order-settings/save', [OrderSettingsController::class, 'save']);
+
+    Route::post('stores/save-store', [StoresController::class, 'saveStore']);
+    Route::post('stores/delete-store', [StoresController::class, 'deleteStore']);
+    Route::post('stores/reorder-stores', [StoresController::class, 'reorderStores']);
+    Route::post('stores/save-site-stores', [StoresController::class, 'saveSiteStores']);
 });
 
-Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageShipping'])->group(function () {
-    Route::post('shipping-zones/save', [ShippingZonesController::class, 'save']);
-    Route::post('shipping-zones/delete', [ShippingZonesController::class, 'delete']);
-    Route::post('shipping-zones/test-zip', [ShippingZonesController::class, 'testZip']);
+// BaseStoreManagementController::init() always required commerce-manageStoreSettings, on top of
+// whichever more specific permission each feature area's own controller adds — every route in
+// this group must check both, matching that legacy compound check exactly.
+Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStoreSettings'])->group(function () {
+    Route::post('store-management/save', [StoreManagementController::class, 'save']);
 
-    Route::post('shipping-methods/save', [ShippingMethodsController::class, 'save']);
-    Route::post('shipping-methods/delete', [ShippingMethodsController::class, 'delete']);
-    Route::post('shipping-methods/update-status', [ShippingMethodsController::class, 'updateStatus']);
+    Route::post('payment-currencies/save', [PaymentCurrenciesController::class, 'save']);
+    Route::post('payment-currencies/delete', [PaymentCurrenciesController::class, 'delete']);
 
-    Route::post('shipping-rules/save', [ShippingRulesController::class, 'save']);
-    Route::post('shipping-rules/duplicate', [ShippingRulesController::class, 'duplicate']);
-    Route::post('shipping-rules/reorder', [ShippingRulesController::class, 'reorder']);
-    Route::post('shipping-rules/delete', [ShippingRulesController::class, 'delete']);
+    Route::middleware('can:commerce-manageShipping')->group(function () {
+        Route::post('shipping-zones/save', [ShippingZonesController::class, 'save']);
+        Route::post('shipping-zones/delete', [ShippingZonesController::class, 'delete']);
+        Route::post('shipping-zones/test-zip', [ShippingZonesController::class, 'testZip']);
 
-    Route::post('shipping-categories/save', [ShippingCategoriesController::class, 'save']);
-    Route::post('shipping-categories/delete', [ShippingCategoriesController::class, 'delete']);
-    Route::post('shipping-categories/set-default-category', [ShippingCategoriesController::class, 'setDefaultCategory']);
-});
+        Route::post('shipping-methods/save', [ShippingMethodsController::class, 'save']);
+        Route::post('shipping-methods/delete', [ShippingMethodsController::class, 'delete']);
+        Route::post('shipping-methods/update-status', [ShippingMethodsController::class, 'updateStatus']);
 
-Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageTaxes'])->group(function () {
-    Route::post('tax-zones/save', [TaxZonesController::class, 'save']);
-    Route::post('tax-zones/delete', [TaxZonesController::class, 'delete']);
-    Route::post('tax-zones/test-zip', [TaxZonesController::class, 'testZip']);
+        Route::post('shipping-rules/save', [ShippingRulesController::class, 'save']);
+        Route::post('shipping-rules/duplicate', [ShippingRulesController::class, 'duplicate']);
+        Route::post('shipping-rules/reorder', [ShippingRulesController::class, 'reorder']);
+        Route::post('shipping-rules/delete', [ShippingRulesController::class, 'delete']);
 
-    Route::post('tax-categories/save', [TaxCategoriesController::class, 'save']);
-    Route::post('tax-categories/delete', [TaxCategoriesController::class, 'delete']);
-    Route::post('tax-categories/set-default-category', [TaxCategoriesController::class, 'setDefaultCategory']);
+        Route::post('shipping-categories/save', [ShippingCategoriesController::class, 'save']);
+        Route::post('shipping-categories/delete', [ShippingCategoriesController::class, 'delete']);
+        Route::post('shipping-categories/set-default-category', [ShippingCategoriesController::class, 'setDefaultCategory']);
+    });
 
-    Route::post('tax-rates/save', [TaxRatesController::class, 'save']);
-    Route::post('tax-rates/delete', [TaxRatesController::class, 'delete']);
-    Route::post('tax-rates/update-status', [TaxRatesController::class, 'updateStatus']);
-});
+    Route::middleware('can:commerce-manageTaxes')->group(function () {
+        Route::post('tax-zones/save', [TaxZonesController::class, 'save']);
+        Route::post('tax-zones/delete', [TaxZonesController::class, 'delete']);
+        Route::post('tax-zones/test-zip', [TaxZonesController::class, 'testZip']);
 
-Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-managePromotions'])->group(function () {
-    Route::post('sales/save', [SalesController::class, 'save']);
-    Route::post('sales/reorder', [SalesController::class, 'reorder']);
-    Route::post('sales/delete', [SalesController::class, 'delete']);
-    Route::match(['get', 'post'], 'sales/get-all-sales', [SalesController::class, 'getAllSales']);
-    Route::post('sales/get-sales-by-product-id', [SalesController::class, 'getSalesByProductId']);
-    Route::post('sales/get-sales-by-purchasable-id', [SalesController::class, 'getSalesByPurchasableId']);
-    Route::post('sales/add-purchasable-to-sale', [SalesController::class, 'addPurchasableToSale']);
-    Route::post('sales/update-status', [SalesController::class, 'updateStatus']);
+        Route::post('tax-categories/save', [TaxCategoriesController::class, 'save']);
+        Route::post('tax-categories/delete', [TaxCategoriesController::class, 'delete']);
+        Route::post('tax-categories/set-default-category', [TaxCategoriesController::class, 'setDefaultCategory']);
 
-    Route::match(['get', 'post'], 'discounts/table-data', [DiscountsController::class, 'tableData']);
-    Route::post('discounts/save', [DiscountsController::class, 'save']);
-    Route::post('discounts/reorder', [DiscountsController::class, 'reorder']);
-    Route::post('discounts/move-to-page', [DiscountsController::class, 'moveToPage']);
-    Route::post('discounts/delete', [DiscountsController::class, 'delete']);
-    Route::post('discounts/clear-discount-uses', [DiscountsController::class, 'clearDiscountUses']);
-    Route::post('discounts/update-status', [DiscountsController::class, 'updateStatus']);
-    Route::post('discounts/get-discounts-by-purchasable-id', [DiscountsController::class, 'getDiscountsByPurchasableId']);
-    Route::post('discounts/generate-coupons', [DiscountsController::class, 'generateCoupons']);
+        Route::post('tax-rates/save', [TaxRatesController::class, 'save']);
+        Route::post('tax-rates/delete', [TaxRatesController::class, 'delete']);
+        Route::post('tax-rates/update-status', [TaxRatesController::class, 'updateStatus']);
+    });
 
-    Route::post('catalog-pricing-rules/save', [CatalogPricingRulesController::class, 'save']);
-    Route::post('catalog-pricing-rules/delete', [CatalogPricingRulesController::class, 'delete']);
-    Route::post('catalog-pricing-rules/update-status', [CatalogPricingRulesController::class, 'updateStatus']);
+    Route::middleware('can:commerce-managePromotions')->group(function () {
+        Route::post('sales/save', [SalesController::class, 'save']);
+        Route::post('sales/reorder', [SalesController::class, 'reorder']);
+        Route::post('sales/delete', [SalesController::class, 'delete']);
+        Route::match(['get', 'post'], 'sales/get-all-sales', [SalesController::class, 'getAllSales']);
+        Route::post('sales/get-sales-by-product-id', [SalesController::class, 'getSalesByProductId']);
+        Route::post('sales/get-sales-by-purchasable-id', [SalesController::class, 'getSalesByPurchasableId']);
+        Route::post('sales/add-purchasable-to-sale', [SalesController::class, 'addPurchasableToSale']);
+        Route::post('sales/update-status', [SalesController::class, 'updateStatus']);
 
-    Route::post('catalog-pricing/filter', [CatalogPricingController::class, 'filter']);
-    Route::post('catalog-pricing/prices', [CatalogPricingController::class, 'prices']);
-    Route::get('catalog-pricing/queue-status', [CatalogPricingController::class, 'queueStatus']);
-    Route::post('catalog-pricing/get-catalog-prices', [CatalogPricingController::class, 'getCatalogPrices']);
+        Route::match(['get', 'post'], 'discounts/table-data', [DiscountsController::class, 'tableData']);
+        Route::post('discounts/save', [DiscountsController::class, 'save']);
+        Route::post('discounts/reorder', [DiscountsController::class, 'reorder']);
+        Route::post('discounts/move-to-page', [DiscountsController::class, 'moveToPage']);
+        Route::post('discounts/delete', [DiscountsController::class, 'delete']);
+        Route::post('discounts/clear-discount-uses', [DiscountsController::class, 'clearDiscountUses']);
+        Route::post('discounts/update-status', [DiscountsController::class, 'updateStatus']);
+        Route::post('discounts/get-discounts-by-purchasable-id', [DiscountsController::class, 'getDiscountsByPurchasableId']);
+        Route::post('discounts/generate-coupons', [DiscountsController::class, 'generateCoupons']);
+
+        Route::post('catalog-pricing-rules/save', [CatalogPricingRulesController::class, 'save']);
+        Route::post('catalog-pricing-rules/delete', [CatalogPricingRulesController::class, 'delete']);
+        Route::post('catalog-pricing-rules/update-status', [CatalogPricingRulesController::class, 'updateStatus']);
+
+        Route::post('catalog-pricing/filter', [CatalogPricingController::class, 'filter']);
+        Route::post('catalog-pricing/prices', [CatalogPricingController::class, 'prices']);
+        Route::get('catalog-pricing/queue-status', [CatalogPricingController::class, 'queueStatus']);
+        Route::post('catalog-pricing/get-catalog-prices', [CatalogPricingController::class, 'getCatalogPrices']);
+    });
 });
