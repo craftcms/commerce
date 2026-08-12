@@ -18,6 +18,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+use function CraftCms\Cms\currentUserElement;
+
 #[Singleton]
 class Transactions
 {
@@ -169,7 +171,7 @@ class Transactions
             $transaction->paymentRate = app(PaymentCurrencies::class)->getRateFor($paymentCurrency, $transaction);
         }
 
-        $user = \Craft::$app->getUser()->getIdentity();
+        $user = currentUserElement();
 
         if ($user) {
             $transaction->userId = $user->id;

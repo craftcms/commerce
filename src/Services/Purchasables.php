@@ -8,6 +8,9 @@ use craft\commerce\elements\db\PurchasableQuery;
 use craft\commerce\elements\Order;
 use CraftCms\Commerce\Catalog\Elements\Variant;
 use craft\commerce\Plugin;
+use CraftCms\Cms\Support\Facades\ElementCaches;
+use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\User\Elements\User;
 use craft\events\RegisterComponentTypesEvent;
 use CraftCms\Commerce\Database\Table;
@@ -21,6 +24,8 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 use yii\base\InvalidArgumentException;
+
+use function CraftCms\Cms\currentUserElement;
 
 #[Singleton]
 class Purchasables
@@ -43,7 +48,7 @@ class Purchasables
      */
     public function isPurchasableOutOfStockPurchasingAllowed(PurchasableInterface $purchasable, ?Order $order = null, ?User $currentUser = null): bool
     {
-        $currentUser ??= \Craft::$app->getUser()->getIdentity();
+        $currentUser ??= currentUserElement();
 
         $event = new PurchasableOutOfStockPurchasesAllowedEvent(
             purchasable: $purchasable,
@@ -65,7 +70,7 @@ class Purchasables
 
     public function isPurchasableAvailable(PurchasableInterface $purchasable, ?Order $order = null, ?User $currentUser = null): bool
     {
-        $currentUser ??= \Craft::$app->getUser()->getIdentity();
+        $currentUser ??= currentUserElement();
 
         $event = new PurchasableAvailableEvent(
             purchasable: $purchasable,
@@ -86,7 +91,7 @@ class Purchasables
 
     public function isPurchasableShippable(PurchasableInterface $purchasable, ?Order $order = null, ?User $currentUser = null): bool
     {
-        $currentUser ??= \Craft::$app->getUser()->getIdentity();
+        $currentUser ??= currentUserElement();
 
         $event = new PurchasableShippableEvent(
             purchasable: $purchasable,
@@ -129,7 +134,7 @@ class Purchasables
                 ->update(['stock' => $stock]);
 
             // Since we are updating the stock directly in the database, clear the cache
-            \Craft::$app->getElements()->invalidateCachesForElement($purchasable);
+            ElementCaches::invalidateForElement($purchasable);
         }
     }
 
@@ -142,7 +147,7 @@ class Purchasables
     {
         $this->purchasableById?->pull($purchasableId);
 
-        return \Craft::$app->getElements()->deleteElementById($purchasableId);
+        return Elements::deleteElementById($purchasableId);
     }
 
     /**
@@ -155,14 +160,14 @@ class Purchasables
             return $this->purchasableById->get($purchasableId);
         }
 
-        $siteId ??= \Craft::$app->getSites()->getCurrentSite()->id;
-        $elementType = \Craft::$app->getElements()->getElementTypeById($purchasableId);
+        $siteId ??= Sites::getCurrentSite()->id;
+        $elementType = Elements::getElementTypeById($purchasableId);
 
         if ($elementType === null || !class_exists($elementType)) {
             return null;
         }
 
-        $query = \Craft::$app->getElements()->createElementQuery($elementType)
+        $query = Elements::createElementQuery($elementType)
             ->id($purchasableId)
             ->siteId($siteId)
             ->status(null)

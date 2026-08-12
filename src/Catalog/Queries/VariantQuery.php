@@ -33,6 +33,7 @@ use Override;
 use Tpetry\QueryExpressions\Language\Alias;
 
 use function CraftCms\Cms\currentUser;
+use function CraftCms\Cms\currentUserElement;
 
 /**
  * @extends PurchasableQuery<Variant>
@@ -589,9 +590,7 @@ class VariantQuery extends PurchasableQuery implements NestedElementQueryInterfa
             $userGroupIds = [];
 
             // TODO: migrate to the new user API once the User element's groups are available on CraftUser
-            /** @phpstan-ignore-next-line */
-            if ($user = \Craft::$app->getUser()->getIdentity()) {
-                /** @phpstan-ignore-next-line */
+            if ($user = currentUserElement()) {
                 $userGroupIds = array_column($user->getGroups(), 'id');
             }
 

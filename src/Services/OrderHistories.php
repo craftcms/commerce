@@ -12,8 +12,10 @@ use CraftCms\Commerce\Order\Events\OrderStatusEvent;
 use CraftCms\Commerce\Order\Models\OrderHistory;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;
+use CraftCms\Cms\Support\Facades\Users;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\t;
 
 #[Singleton]
@@ -64,13 +66,13 @@ class OrderHistories
         if (!\Craft::$app->request->isConsoleRequest
             && !\Craft::$app->getResponse()->isSent
             && (\Craft::$app->getSession()->getHasSessionId() || \Craft::$app->getSession()->getIsActive())
-            && $currentUser = \Craft::$app->getUser()->getIdentity()
+            && $currentUser = currentUserElement()
         ) {
             $userId = $currentUser->id;
         }
 
         if ($userId) {
-            $user = \Craft::$app->getUsers()->getUserById($userId);
+            $user = Users::getUserById($userId);
             if ($user) {
                 $orderHistoryModel->userId = $userId;
                 $orderHistoryModel->userName = $user->fullName ?? $user->email;

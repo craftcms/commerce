@@ -12,6 +12,8 @@ use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\Element\Queries\Exceptions\ElementNotFoundException;
 use CraftCms\Cms\Element\Exceptions\InvalidElementException;
 use CraftCms\Cms\Element\Exceptions\UnsupportedSiteException;
+use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Cms\Support\Facades\Users;
 use craft\mail\Mailer;
 use craft\mail\Message;
 use CraftCms\Commerce\Database\Table;
@@ -21,6 +23,8 @@ use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;
 use yii\base\Event;
 use yii\mail\MailEvent;
+
+use function CraftCms\Cms\t;
 
 #[Singleton]
 class Customers
@@ -249,7 +253,7 @@ class Customers
 
         if ($saveBillingAddress && $saveShippingAddress && $order->hasMatchingAddresses()) {
             // Only save one address if they are matching
-            $newAddress = \Craft::$app->getElements()->duplicateElement(
+            $newAddress = Elements::duplicateElement(
                 $order->getBillingAddress(),
                 [
                     'primaryOwner' => $order->getCustomer(),
@@ -260,7 +264,7 @@ class Customers
             $newSourceShippingAddressId = $newAddress->id;
         } else {
             if ($saveBillingAddress) {
-                $newBillingAddress = \Craft::$app->getElements()->duplicateElement($order->getBillingAddress(),
+                $newBillingAddress = Elements::duplicateElement($order->getBillingAddress(),
                     [
                         'primaryOwner' => $order->getCustomer(),
                         'owner' => $order->getCustomer(),
@@ -270,7 +274,7 @@ class Customers
             }
 
             if ($saveShippingAddress) {
-                $newShippingAddress = \Craft::$app->getElements()->duplicateElement(
+                $newShippingAddress = Elements::duplicateElement(
                     $order->getShippingAddress(),
                     [
                         'primaryOwner' => $order->getCustomer(),
@@ -332,8 +336,8 @@ class Customers
             $user->affiliatedSiteId = $order->orderSiteId;
         }
 
-        if (\Craft::$app->getElements()->saveElement($user)) {
-            \Craft::$app->getUsers()->assignUserToDefaultGroup($user);
+        if (Elements::saveElement($user)) {
+            Users::assignUserToDefaultGroup($user);
 
             Event::once(Mailer::class, Mailer::EVENT_BEFORE_PREP, function(MailEvent $event) use ($user) {
                 if (!$event->message instanceof Message) {
@@ -363,13 +367,13 @@ class Customers
 
                 // If there is only one address make sure we don't add duplicates to the user
                 if ($order->hasMatchingAddresses()) {
-                    $newAttributes['title'] = \Craft::t('app', 'Address');
+                    $newAttributes['title'] = t('Address', category: 'app');
                     $shippingAddress = null;
                 }
 
                 // Copy addresses to user
                 if ($billingAddress) {
-                    $newBillingAddress = \Craft::$app->getElements()->duplicateElement($billingAddress, $newAttributes);
+                    $newBillingAddress = Elements::duplicateElement($billingAddress, $newAttributes);
 
                     /**
                      * Because we are cloning from an order address the `CustomerAddressBehavior` hasn't been instantiated
@@ -385,7 +389,7 @@ class Customers
                 }
 
                 if ($shippingAddress) {
-                    $newShippingAddress = \Craft::$app->getElements()->duplicateElement($shippingAddress, $newAttributes);
+                    $newShippingAddress = Elements::duplicateElement($shippingAddress, $newAttributes);
 
                     /**
                      * Because we are cloning from an order address the `CustomerAddressBehavior` hasn't been instantiated

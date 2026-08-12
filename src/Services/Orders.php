@@ -14,6 +14,9 @@ use craft\events\ModelEvent;
 use CraftCms\Cms\FieldLayout\FieldLayout;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\ProjectConfig\ProjectConfigHelper;
+use CraftCms\Cms\Support\Facades\ElementCaches;
+use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Commerce\Database\Table;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;
@@ -33,20 +36,19 @@ class Orders
         $data = $event->newValue;
 
         ProjectConfigHelper::ensureAllFieldsProcessed();
-        $fieldsService = \Craft::$app->getFields();
 
         if (empty($data) || empty(reset($data))) {
             // Delete the field layout
-            $fieldsService->deleteLayoutsByType(Order::class);
+            Fields::deleteLayoutsByType(Order::class);
             return;
         }
 
         // Save the field layout
         $layout = FieldLayout::createFromConfig(reset($data));
-        $layout->id = $fieldsService->getLayoutByType(Order::class)->id;
+        $layout->id = Fields::getLayoutByType(Order::class)->id;
         $layout->type = Order::class;
         $layout->uid = key($data);
-        $fieldsService->saveLayout($layout, false);
+        Fields::saveLayout($layout, false);
     }
 
     /**
@@ -54,7 +56,7 @@ class Orders
      */
     public function handleDeletedFieldLayout(): void
     {
-        \Craft::$app->getFields()->deleteLayoutsByType(Order::class);
+        Fields::deleteLayoutsByType(Order::class);
     }
 
     /**
@@ -186,7 +188,7 @@ class Orders
             ]);
 
         // Invalidate all order caches
-        \Craft::$app->getElements()->invalidateCachesForElementType(Order::class);
+        ElementCaches::invalidateForElementType(Order::class);
 
         return $count;
     }
@@ -222,7 +224,7 @@ class Orders
             ->whereIn('id', (array)$orderIds)
             ->update($data);
 
-        \Craft::$app->getElements()->invalidateCachesForElementType(Order::class);
+        ElementCaches::invalidateForElementType(Order::class);
 
         return $count;
     }
@@ -256,7 +258,7 @@ class Orders
         foreach ($carts as $cart) {
             // Update the billing address
             if ($cart->sourceBillingAddressId === $address->id) {
-                $newBillingAddress = \Craft::$app->getElements()->duplicateElement($address, [
+                $newBillingAddress = Elements::duplicateElement($address, [
                     'primaryOwner' => $cart,
                     'owner' => $cart,
                     'title' => t('Billing Address', category: 'commerce'),
@@ -266,7 +268,7 @@ class Orders
 
             // Update the shipping address
             if ($cart->sourceShippingAddressId === $address->id) {
-                $newShippingAddress = \Craft::$app->getElements()->duplicateElement($address, [
+                $newShippingAddress = Elements::duplicateElement($address, [
                     'primaryOwner' => $cart,
                     'owner' => $cart,
                     'title' => t('Shipping Address', category: 'commerce'),
@@ -275,7 +277,7 @@ class Orders
             }
 
             // Save the cart to trigger events and recalculations.
-            \Craft::$app->getElements()->saveElement($cart, false);
+            Elements::saveElement($cart, false);
         }
     }
 }

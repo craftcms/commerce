@@ -11,6 +11,8 @@ use craft\events\ConfigEvent;
 use craft\helpers\Db as CraftDb;
 use craft\helpers\FileHelper;
 use craft\web\View;
+use CraftCms\Cms\Support\Facades\Path;
+use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\Support\File;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Database\Table;
@@ -139,7 +141,7 @@ class Pdfs
 
         $configPath = self::CONFIG_PDFS_KEY . '.' . $pdf->uid;
         $configData = $pdf->getConfig();
-        \Craft::$app->getProjectConfig()->set($configPath, $configData);
+        ProjectConfig::set($configPath, $configData);
 
         if ($isNewPdf) {
             $pdf->id = CraftDb::idByUid(Table::PDFS, $pdf->uid);
@@ -228,7 +230,7 @@ class Pdfs
                 /** @phpstan-ignore-next-line */
                 Plugin::getInstance()->getPdfs()->trigger(self::EVENT_BEFORE_DELETE_PDF, $event);
             }
-            \Craft::$app->getProjectConfig()->remove(self::CONFIG_PDFS_KEY . '.' . $pdf->uid);
+            ProjectConfig::remove(self::CONFIG_PDFS_KEY . '.' . $pdf->uid);
         }
 
         return true;
@@ -390,10 +392,9 @@ class Pdfs
         $view->setTemplateMode($oldTemplateMode);
 
         // Set the config options
-        $pathService = \Craft::$app->getPath();
-        $dompdfTempDir = $pathService->getTempPath() . DIRECTORY_SEPARATOR . 'commerce_dompdf';
-        $dompdfFontCache = $pathService->getCachePath() . DIRECTORY_SEPARATOR . 'commerce_dompdf';
-        $dompdfLogFile = $pathService->getLogPath() . DIRECTORY_SEPARATOR . 'commerce_dompdf.htm';
+        $dompdfTempDir = Path::temp() . DIRECTORY_SEPARATOR . 'commerce_dompdf';
+        $dompdfFontCache = Path::cache() . DIRECTORY_SEPARATOR . 'commerce_dompdf';
+        $dompdfLogFile = Path::logs() . DIRECTORY_SEPARATOR . 'commerce_dompdf.htm';
 
         // Ensure directories are created
         File::makeDirectory($dompdfTempDir);

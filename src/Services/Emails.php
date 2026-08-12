@@ -13,6 +13,8 @@ use craft\helpers\Db as CraftDb;
 use craft\mail\Message;
 use CraftCms\Cms\Asset\AssetsHelper as Assets;
 use CraftCms\Cms\Support\DateTimeHelper;
+use CraftCms\Cms\Support\Facades\ProjectConfig;
+use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Email\Events\EmailEvent;
 use CraftCms\Commerce\Email\Events\MailEvent;
@@ -125,7 +127,7 @@ class Emails
 
         $configPath = self::CONFIG_EMAILS_KEY . '.' . $email->uid;
         $configData = $email->getConfig();
-        \Craft::$app->getProjectConfig()->set($configPath, $configData);
+        ProjectConfig::set($configPath, $configData);
 
         if ($isNewEmail) {
             $email->id = CraftDb::idByUid(Table::EMAILS, $email->uid);
@@ -148,7 +150,7 @@ class Emails
 
         $pdfUid = $data['pdf'] ?? null;
         if ($pdfUid) {
-            \Craft::$app->getProjectConfig()->processConfigChanges(Pdfs::CONFIG_PDFS_KEY . '.' . $pdfUid);
+            ProjectConfig::processConfigChanges(Pdfs::CONFIG_PDFS_KEY . '.' . $pdfUid);
         }
 
         $transaction = \Craft::$app->getDb()->beginTransaction();
@@ -156,7 +158,7 @@ class Emails
             $emailRecord = $this->getEmailRecord($emailUid);
             $isNewEmail = $emailRecord->getIsNewRecord();
             $store = Plugin::getInstance()->getStores()->getStoreByUid($data['store']);
-            $renderSite = array_key_exists('renderSite', $data) && $data['renderSite'] !== null ? \Craft::$app->getSites()->getSiteByUid($data['renderSite']) : null;
+            $renderSite = array_key_exists('renderSite', $data) && $data['renderSite'] !== null ? Sites::getSiteByUid($data['renderSite']) : null;
 
             $emailRecord->storeId = $store->id;
             $emailRecord->name = $data['name'];
@@ -218,7 +220,7 @@ class Emails
                 Plugin::getInstance()->getEmails()->trigger(self::EVENT_BEFORE_DELETE_EMAIL, $event);
             }
 
-            \Craft::$app->getProjectConfig()->remove(self::CONFIG_EMAILS_KEY . '.' . $email->uid);
+            ProjectConfig::remove(self::CONFIG_EMAILS_KEY . '.' . $email->uid);
         }
 
         return true;
@@ -610,8 +612,8 @@ class Emails
             }
         }
 
-        $originalSiteId = \Craft::$app->getSites()->getCurrentSite()->id;
-        \Craft::$app->getSites()->setCurrentSite($emailSite);
+        $originalSiteId = Sites::getCurrentSite()->id;
+        Sites::setCurrentSite($emailSite);
 
         // Render HTML body
         try {
@@ -629,7 +631,7 @@ class Emails
             ], category: 'commerce');
             Log::error($error);
 
-            \Craft::$app->getSites()->setCurrentSite($originalSiteId);
+            Sites::setCurrentSite($originalSiteId);
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
             $view->setTemplateMode($oldTemplateMode);
             $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
@@ -654,7 +656,7 @@ class Emails
                 ], category: 'commerce');
                 Log::error($error);
 
-                \Craft::$app->getSites()->setCurrentSite($originalSiteId);
+                Sites::setCurrentSite($originalSiteId);
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
@@ -685,7 +687,7 @@ class Emails
 
                 Log::info($notice);
 
-                \Craft::$app->getSites()->setCurrentSite($originalSiteId);
+                Sites::setCurrentSite($originalSiteId);
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
@@ -705,7 +707,7 @@ class Emails
 
                 Log::error($error);
 
-                \Craft::$app->getSites()->setCurrentSite($originalSiteId);
+                Sites::setCurrentSite($originalSiteId);
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
                 $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
@@ -725,7 +727,7 @@ class Emails
 
             Log::error($error);
 
-            \Craft::$app->getSites()->setCurrentSite($originalSiteId);
+            Sites::setCurrentSite($originalSiteId);
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
             $view->setTemplateMode($oldTemplateMode);
             $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
@@ -748,7 +750,7 @@ class Emails
             Plugin::getInstance()->getEmails()->trigger(self::EVENT_AFTER_SEND_MAIL, $afterEvent);
         }
 
-        \Craft::$app->getSites()->setCurrentSite($originalSiteId);
+        Sites::setCurrentSite($originalSiteId);
         Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
         $view->setTemplateMode($oldTemplateMode);
         $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;

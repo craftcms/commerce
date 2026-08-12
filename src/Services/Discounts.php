@@ -15,6 +15,8 @@ use craft\commerce\records\DiscountPurchasable as DiscountPurchasableRecord;
 use craft\commerce\records\EmailDiscountUse as EmailDiscountUseRecord;
 use craft\elements\Category;
 use CraftCms\Cms\Entry\Elements\Entry;
+use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
@@ -29,6 +31,7 @@ use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\t;
 
 #[Singleton]
@@ -384,9 +387,7 @@ class Discounts
             return false;
         }
 
-        // TODO: update to new site API once migrated
-        /** @phpstan-ignore-next-line */
-        $siteId = $lineItem->order->orderSiteId ?? \Craft::$app->getSites()->getCurrentSite()->id;
+        $siteId = $lineItem->order->orderSiteId ?? Sites::getCurrentSite()->id;
 
         if ($lineItem->getOnPromotion() && $discount->excludeOnPromotion) {
             return false;
@@ -675,9 +676,7 @@ class Discounts
 
             foreach ($model->getPurchasableIds() as $purchasableId) {
                 $relation = new DiscountPurchasableRecord();
-                // TODO: update to new Elements API once migrated
-                /** @phpstan-ignore-next-line */
-                $element = \Craft::$app->getElements()->getElementById($purchasableId, siteId: $siteIds);
+                $element = Elements::getElementById($purchasableId, siteId: $siteIds);
                 /** @phpstan-ignore-next-line */
                 $relation->purchasableType = $element::class;
                 /** @phpstan-ignore-next-line */
@@ -1039,11 +1038,10 @@ class Discounts
                 return false;
             }
 
-            // TODO: update to new request/user API once migrated
+            // TODO: update to new request API once migrated
             /** @phpstan-ignore-next-line */
             if (\Craft::$app->getRequest()->getIsSiteRequest()) {
-                /** @phpstan-ignore-next-line */
-                $currentUser = \Craft::$app->getUser()->getIdentity();
+                $currentUser = currentUserElement();
                 $isCustomerCurrentUser = ($currentUser && $currentUser->id == $user->id);
 
                 if (!$isCustomerCurrentUser) {

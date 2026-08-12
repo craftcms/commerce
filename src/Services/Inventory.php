@@ -17,6 +17,7 @@ use craft\commerce\models\inventory\UpdateInventoryLevelInTransfer;
 use craft\commerce\Plugin;
 use craft\commerce\records\InventoryItem as InventoryItemRecord;
 use CraftCms\Cms\Database\Table as CraftTable;
+use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Inventory\Contracts\InventoryMovementInterface;
 use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
@@ -787,7 +788,7 @@ class Inventory
 
         foreach ($selectedInventoryLevelForItem as $key => $inventoryLevel) {
             /** @phpstan-ignore-next-line */
-            if ($purchasable = \Craft::$app->getElements()->getElementById($key)) {
+            if ($purchasable = Elements::getElementById($key)) {
                 if ($purchasable instanceof Purchasable || $purchasable instanceof NewPurchasable) {
                     /** @phpstan-ignore-next-line */
                     Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);

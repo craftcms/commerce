@@ -13,6 +13,7 @@ use craft\events\ConfigEvent;
 use craft\helpers\Db as CraftDb;
 use craft\helpers\Queue;
 use CraftCms\Cms\Database\Table as CraftTable;
+use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Email\Events\EmailEvent;
 use CraftCms\Commerce\Helpers\Locale;
@@ -192,12 +193,10 @@ class OrderStatuses
         // if this is the only order status, set it as the default
         $orderStatus->default = empty($otherStatuses) ? true : $orderStatus->default;
 
-        $projectConfig = \Craft::$app->getProjectConfig();
-
         $configData = $orderStatus->dateDeleted ? null : $orderStatus->getConfig($emailIds);
 
         $configPath = self::CONFIG_STATUSES_KEY . '.' . $statusUid;
-        $projectConfig->set($configPath, $configData, force: $force);
+        ProjectConfig::set($configPath, $configData, force: $force);
 
         if ($isNewStatus) {
             $orderStatus->id = CraftDb::idByUid(Table::ORDERSTATUSES, $statusUid);
@@ -258,7 +257,7 @@ class OrderStatuses
 
             if (!empty($data['emails'])) {
                 foreach ($data['emails'] as $emailUid) {
-                    \Craft::$app->projectConfig->processConfigChanges(Emails::CONFIG_EMAILS_KEY . '.' . $emailUid);
+                    ProjectConfig::processConfigChanges(Emails::CONFIG_EMAILS_KEY . '.' . $emailUid);
                 }
 
                 $emailIds = CraftDb::idsByUids(Table::EMAILS, $data['emails']);
@@ -299,7 +298,7 @@ class OrderStatuses
             return false;
         }
 
-        \Craft::$app->getProjectConfig()->remove(self::CONFIG_STATUSES_KEY . '.' . $orderStatus->uid);
+        ProjectConfig::remove(self::CONFIG_STATUSES_KEY . '.' . $orderStatus->uid);
         return true;
     }
 
@@ -335,13 +334,12 @@ class OrderStatuses
     {
         $emailUid = $event->email->uid;
 
-        $projectConfig = \Craft::$app->getProjectConfig();
-        $statuses = $projectConfig->get(self::CONFIG_STATUSES_KEY);
+        $statuses = ProjectConfig::get(self::CONFIG_STATUSES_KEY);
 
         // Loop through the volumes and prune the UID from field layouts.
         if (is_array($statuses)) {
             foreach ($statuses as $orderStatusUid => $orderStatus) {
-                $projectConfig->remove(self::CONFIG_STATUSES_KEY . '.' . $orderStatusUid . '.emails.' . $emailUid);
+                ProjectConfig::remove(self::CONFIG_STATUSES_KEY . '.' . $orderStatusUid . '.emails.' . $emailUid);
             }
         }
     }
@@ -409,14 +407,12 @@ class OrderStatuses
      */
     public function reorderOrderStatuses(array $ids): bool
     {
-        $projectConfig = \Craft::$app->getProjectConfig();
-
         $uidsByIds = CraftDb::uidsByIds(Table::ORDERSTATUSES, $ids);
 
         foreach ($ids as $orderStatus => $statusId) {
             if (!empty($uidsByIds[$statusId])) {
                 $statusUid = $uidsByIds[$statusId];
-                $projectConfig->set(self::CONFIG_STATUSES_KEY . '.' . $statusUid . '.sortOrder', $orderStatus + 1);
+                ProjectConfig::set(self::CONFIG_STATUSES_KEY . '.' . $statusUid . '.sortOrder', $orderStatus + 1);
             }
         }
 
