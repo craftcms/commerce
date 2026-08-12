@@ -11,5 +11,7 @@ class PurgeAddressesEvent
 {
     use ValidatableEvent;
 
-    public ?Query $addressesQuery = null;
+    public function __construct(
+        public ?Query $addressesQuery = null,
+    ) {}
 }

@@ -12,7 +12,9 @@ class OrderStatusEmailsEvent
 {
     use ValidatableEvent;
 
-    public OrderHistory $orderHistory;
-    public Order $order;
-    public array $emails;
+    public function __construct(
+        public OrderHistory $orderHistory,
+        public Order $order,
+        public array $emails,
+    ) {}
 }

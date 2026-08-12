@@ -9,10 +9,12 @@ use craft\commerce\models\Pdf;
 
 class PdfRenderEvent
 {
-    public Order $order;
-    public string $option;
-    public string $template;
-    public array $variables;
-    public ?string $pdf = null;
-    public ?Pdf $sourcePdf = null;
+    public function __construct(
+        public Order $order,
+        public string $option,
+        public string $template,
+        public array $variables,
+        public ?string $pdf = null,
+        public ?Pdf $sourcePdf = null,
+    ) {}
 }

@@ -9,6 +9,8 @@ use CraftCms\Commerce\Order\Models\LineItemStatus;
 
 class DefaultLineItemStatusEvent
 {
-    public ?LineItemStatus $lineItemStatus = null;
-    public LineItem $lineItem;
+    public function __construct(
+        public LineItem $lineItem,
+        public ?LineItemStatus $lineItemStatus = null,
+    ) {}
 }

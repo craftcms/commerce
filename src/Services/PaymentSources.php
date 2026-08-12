@@ -174,8 +174,7 @@ class PaymentSources
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getPaymentSources()->hasEventHandlers(self::EVENT_BEFORE_SAVE_PAYMENT_SOURCE)) {
-            $event = new PaymentSourceEvent();
-            $event->paymentSource = $paymentSource;
+            $event = new PaymentSourceEvent(paymentSource: $paymentSource);
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getPaymentSources()->trigger(self::EVENT_BEFORE_SAVE_PAYMENT_SOURCE, $event);
         }
@@ -207,8 +206,7 @@ class PaymentSources
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getPaymentSources()->hasEventHandlers(self::EVENT_AFTER_SAVE_PAYMENT_SOURCE)) {
-            $event = new PaymentSourceEvent();
-            $event->paymentSource = $paymentSource;
+            $event = new PaymentSourceEvent(paymentSource: $paymentSource);
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getPaymentSources()->trigger(self::EVENT_AFTER_SAVE_PAYMENT_SOURCE, $event);
         }
@@ -235,8 +233,7 @@ class PaymentSources
             // TODO: migrate event firing to Laravel once event system is bridged
             /** @phpstan-ignore-next-line */
             if (Plugin::getInstance()->getPaymentSources()->hasEventHandlers(self::EVENT_DELETE_PAYMENT_SOURCE)) {
-                $event = new PaymentSourceEvent();
-                $event->paymentSource = $paymentSource;
+                $event = new PaymentSourceEvent(paymentSource: $paymentSource);
                 /** @phpstan-ignore-next-line */
                 Plugin::getInstance()->getPaymentSources()->trigger(self::EVENT_DELETE_PAYMENT_SOURCE, $event);
             }

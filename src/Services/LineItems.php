@@ -139,9 +139,10 @@ class LineItems
         $legacyService = Plugin::getInstance()->getLineItems();
 
         if ($legacyService->hasEventHandlers(self::EVENT_BEFORE_SAVE_LINE_ITEM)) {
-            $event = new LineItemEvent();
-            $event->lineItem = $lineItem;
-            $event->isNew = $isNewLineItem;
+            $event = new LineItemEvent(
+                lineItem: $lineItem,
+                isNew: $isNewLineItem,
+            );
             $legacyService->trigger(self::EVENT_BEFORE_SAVE_LINE_ITEM, $event);
         }
 
@@ -172,9 +173,10 @@ class LineItems
         }
 
         if ($success && $legacyService->hasEventHandlers(self::EVENT_AFTER_SAVE_LINE_ITEM)) {
-            $event = new LineItemEvent();
-            $event->lineItem = $lineItem;
-            $event->isNew = $isNewLineItem;
+            $event = new LineItemEvent(
+                lineItem: $lineItem,
+                isNew: $isNewLineItem,
+            );
             $legacyService->trigger(self::EVENT_AFTER_SAVE_LINE_ITEM, $event);
         }
 
@@ -235,9 +237,10 @@ class LineItems
         /** @phpstan-ignore-next-line */
         $legacyService = Plugin::getInstance()->getLineItems();
         if ($legacyService->hasEventHandlers(self::EVENT_CREATE_LINE_ITEM)) {
-            $event = new LineItemEvent();
-            $event->lineItem = $lineItem;
-            $event->isNew = true;
+            $event = new LineItemEvent(
+                lineItem: $lineItem,
+                isNew: true,
+            );
             $legacyService->trigger(self::EVENT_CREATE_LINE_ITEM, $event);
         }
 

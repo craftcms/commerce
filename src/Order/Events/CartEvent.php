@@ -12,6 +12,8 @@ class CartEvent
 {
     use ValidatableEvent;
 
-    public LineItem $lineItem;
-    public Order $order;
+    public function __construct(
+        public LineItem $lineItem,
+        public Order $order,
+    ) {}
 }

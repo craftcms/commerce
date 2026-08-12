@@ -9,8 +9,11 @@ use Illuminate\Support\Collection;
 
 class RegisterAvailableShippingMethodsEvent
 {
-    public Order $order;
     private ?Collection $_shippingMethods = null;
+
+    public function __construct(
+        public Order $order,
+    ) {}
 
     public function setShippingMethods(Collection|array $shippingMethods): void
     {

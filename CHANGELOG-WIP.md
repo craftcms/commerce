@@ -1,5 +1,60 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Events layer: missing-constructor bug fix
+
+Fixed the cross-cutting bug flagged as a HIGH PRIORITY follow-up during Stage 7d/7e:
+of the 56 event classes moved to `src/*/Events/*.php` in Stage 3, only 4 had a real
+constructor (the `Catalog\Events\Customize*SnapshotEvent` classes, fixed as part of
+Stage 7d because that stage's own code constructed them). The other 51 were bare
+classes with no `__construct()` at all — a holdover from dropping the Yii2 `yii\base\Event`
+base class (whose `BaseObject` ancestor supplied a config-array constructor) without
+replacing the call sites that still constructed events Yii2-style:
+`new SomeEvent(['prop' => $val])`. PHP does not error when you pass a constructor
+argument to a class with no declared `__construct()` — the array is silently discarded.
+A required typed property then throws "must not be accessed before initialization"
+the instant any listener reads it; a property with a default just silently keeps that
+default forever. This was live in already-shipped code (e.g. every `Order.php`
+`LineItemEvent` trigger from Stage 7b).
+
+**Fix**: every affected event class got a real constructor with PHP 8 promoted
+properties, matching its exact original types/nullability/defaults, and every call
+site (both the `new X([...])` array-config pattern and the `new X(); $x->prop = ...;`
+empty-then-assign pattern) was updated to named-argument construction. ~100 call
+sites across ~35 consumer files, plus the 51 event classes themselves.
+
+Found and fixed 3 more latent issues while verifying:
+- `DefaultOrderStatusEvent::$orderStatus` was declared non-nullable `OrderStatus`, but
+  `OrderStatuses::getDefaultOrderStatusForOrder()` (whose own return type is already
+  `?OrderStatus`) can legitimately pass `null` when a store has no default order
+  status configured. Previously this was invisible (the broken constructor silently
+  dropped it either way); now it's a real, avoidable `TypeError` waiting to happen.
+  Widened to `?OrderStatus`.
+- `SaleEvent`/`SaleMatchEvent`/`TransactionEvent`/`RefundTransactionEvent`/
+  `ProcessPaymentEvent`/`PaymentCurrencyRateEvent` imported the legacy aliased
+  `craft\commerce\models\{Sale,Transaction}` instead of the already-migrated
+  `CraftCms\Commerce\{Promotion,Payment}\Models\{Sale,Transaction}` — a
+  Guiding-Principle-9 alias-timing risk, same class of issue as Stage 7c/7d, caught by
+  phpstan flagging a type mismatch between the constructor's declared param type and
+  what every real call site actually passes. Updated both files' imports.
+- `src/Services/ProductTypes.php` (Stage 7e) constructed `ProductTypeEvent` via its
+  fully-qualified legacy alias (`new \craft\commerce\events\ProductTypeEvent()`)
+  instead of importing the new namespace directly — fixed to match this project's
+  established convention.
+
+**Verification**: confirmed via reflection that all 51 classes have a real,
+parameter-bearing constructor (not an inherited empty one, except `DeleteStoreEvent`
+which correctly inherits `StoreEvent`'s). Confirmed end-to-end through the real
+dispatch pipeline: registered a Laravel `Event::listen(SaleEvent::class, ...)`
+listener, called `Sales::saveSale()`, and confirmed the captured event object carried
+a fully-populated, correctly-typed `Sale` instance and correct `isNew` — proving the
+fix works through actual application code, not just in isolation. Also discovered
+along the way that different already-migrated services use two different event-firing
+mechanisms — `Sales.php` dispatches natively via Laravel's `event()` helper, while
+`LineItems.php`/`ProductTypes.php` still bridge through the legacy Yii2 component's
+`trigger()` (documented as a `// TODO: migrate event firing to Laravel` in each) —
+both are equally valid for this fix, but it's worth knowing the two patterns coexist
+when doing future event-related work.
+
 ### Laravel Migration — Stage 7e: ProductType
 
 Migrated `craft\commerce\models\ProductType` and `craft\commerce\records\{ProductType,ProductTypeSite}`

@@ -11,6 +11,8 @@ class ProductEvent
 {
     use ValidatableEvent;
 
-    public Product $product;
-    public bool $isNew;
+    public function __construct(
+        public Product $product,
+        public bool $isNew,
+    ) {}
 }

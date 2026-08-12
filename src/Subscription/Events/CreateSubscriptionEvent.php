@@ -13,7 +13,9 @@ class CreateSubscriptionEvent
 {
     use ValidatableEvent;
 
-    public User $user;
-    public Plan $plan;
-    public SubscriptionForm $parameters;
+    public function __construct(
+        public User $user,
+        public Plan $plan,
+        public SubscriptionForm $parameters,
+    ) {}
 }

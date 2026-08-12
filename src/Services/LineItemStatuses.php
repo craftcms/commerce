@@ -70,9 +70,10 @@ class LineItemStatuses
 
         $lineItemStatus = $this->getDefaultLineItemStatus($order->getStore()->id);
 
-        $event = new DefaultLineItemStatusEvent();
-        $event->lineItemStatus = $lineItemStatus;
-        $event->lineItem = $lineItem;
+        $event = new DefaultLineItemStatusEvent(
+            lineItem: $lineItem,
+            lineItemStatus: $lineItemStatus,
+        );
 
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */

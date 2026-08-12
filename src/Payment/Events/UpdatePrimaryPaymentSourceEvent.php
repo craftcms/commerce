@@ -8,7 +8,9 @@ use CraftCms\Cms\User\Elements\User;
 
 class UpdatePrimaryPaymentSourceEvent
 {
-    public ?int $previousPrimaryPaymentSourceId = null;
-    public ?int $newPrimaryPaymentSourceId = null;
-    public User $customer;
+    public function __construct(
+        public User $customer,
+        public ?int $previousPrimaryPaymentSourceId = null,
+        public ?int $newPrimaryPaymentSourceId = null,
+    ) {}
 }

@@ -22,6 +22,7 @@ use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\Support\Facades\Structures;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Catalog\Elements\Variant;
+use CraftCms\Commerce\Catalog\Events\ProductTypeEvent;
 use CraftCms\Commerce\Catalog\Models\ProductTypeSite;
 use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
 use CraftCms\Commerce\Catalog\ProductType\Exceptions\ProductTypeNotFoundException;
@@ -239,9 +240,10 @@ class ProductTypes
         $legacyService = \craft\commerce\Plugin::getInstance()->getProductTypes();
 
         if ($legacyService->hasEventHandlers(self::EVENT_BEFORE_SAVE_PRODUCTTYPE)) {
-            $event = new \craft\commerce\events\ProductTypeEvent();
-            $event->productType = $productType;
-            $event->isNew = $isNewProductType;
+            $event = new ProductTypeEvent(
+                productType: $productType,
+                isNew: $isNewProductType,
+            );
             $legacyService->trigger(self::EVENT_BEFORE_SAVE_PRODUCTTYPE, $event);
         }
 
@@ -545,9 +547,10 @@ class ProductTypes
         /** @phpstan-ignore-next-line */
         $legacyService = \craft\commerce\Plugin::getInstance()->getProductTypes();
         if ($legacyService->hasEventHandlers(self::EVENT_AFTER_SAVE_PRODUCTTYPE)) {
-            $event = new \craft\commerce\events\ProductTypeEvent();
-            $event->productType = $this->getProductTypeById($record->id);
-            $event->isNew = empty($this->_savingProductTypes[$productTypeUid]);
+            $event = new ProductTypeEvent(
+                productType: $this->getProductTypeById($record->id),
+                isNew: empty($this->_savingProductTypes[$productTypeUid]),
+            );
             $legacyService->trigger(self::EVENT_AFTER_SAVE_PRODUCTTYPE, $event);
         }
     }

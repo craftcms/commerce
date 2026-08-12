@@ -11,5 +11,7 @@ class PaymentSourceEvent
 {
     use ValidatableEvent;
 
-    public PaymentSource $paymentSource;
+    public function __construct(
+        public PaymentSource $paymentSource,
+    ) {}
 }

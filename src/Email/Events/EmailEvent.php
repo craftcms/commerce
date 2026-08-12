@@ -8,6 +8,8 @@ use craft\commerce\models\Email;
 
 class EmailEvent
 {
-    public Email $email;
-    public bool $isNew = false;
+    public function __construct(
+        public Email $email,
+        public bool $isNew = false,
+    ) {}
 }

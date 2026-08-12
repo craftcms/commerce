@@ -8,5 +8,7 @@ use craft\commerce\models\inventory\UpdateInventoryLevel;
 
 class UpdateInventoryLevelEvent
 {
-    public UpdateInventoryLevel $updateInventoryLevel;
+    public function __construct(
+        public UpdateInventoryLevel $updateInventoryLevel,
+    ) {}
 }

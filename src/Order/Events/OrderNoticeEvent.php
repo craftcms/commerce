@@ -11,5 +11,7 @@ class OrderNoticeEvent
 {
     use ValidatableEvent;
 
-    public OrderNotice $orderNotice;
+    public function __construct(
+        public OrderNotice $orderNotice,
+    ) {}
 }

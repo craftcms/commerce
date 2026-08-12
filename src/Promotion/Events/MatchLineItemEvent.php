@@ -12,6 +12,8 @@ class MatchLineItemEvent
 {
     use ValidatableEvent;
 
-    public LineItem $lineItem;
-    public Discount $discount;
+    public function __construct(
+        public LineItem $lineItem,
+        public Discount $discount,
+    ) {}
 }

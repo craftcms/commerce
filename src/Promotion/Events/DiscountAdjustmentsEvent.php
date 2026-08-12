@@ -12,7 +12,9 @@ class DiscountAdjustmentsEvent
 {
     use ValidatableEvent;
 
-    public Order $order;
-    public Discount $discount;
-    public array $adjustments;
+    public function __construct(
+        public Order $order,
+        public Discount $discount,
+        public array $adjustments,
+    ) {}
 }

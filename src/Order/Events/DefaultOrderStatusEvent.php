@@ -9,6 +9,8 @@ use CraftCms\Commerce\Order\Models\OrderStatus;
 
 class DefaultOrderStatusEvent
 {
-    public OrderStatus $orderStatus;
-    public Order $order;
+    public function __construct(
+        public ?OrderStatus $orderStatus,
+        public Order $order,
+    ) {}
 }

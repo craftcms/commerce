@@ -11,5 +11,7 @@ class CartPurgeEvent
 {
     use ValidatableEvent;
 
-    public Query $inactiveCartsQuery;
+    public function __construct(
+        public Query $inactiveCartsQuery,
+    ) {}
 }

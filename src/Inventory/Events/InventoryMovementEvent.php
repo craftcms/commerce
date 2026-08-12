@@ -8,5 +8,7 @@ use CraftCms\Commerce\Inventory\Contracts\InventoryMovementInterface;
 
 class InventoryMovementEvent
 {
-    public InventoryMovementInterface $inventoryMovement;
+    public function __construct(
+        public InventoryMovementInterface $inventoryMovement,
+    ) {}
 }

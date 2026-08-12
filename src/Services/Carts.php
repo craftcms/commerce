@@ -468,8 +468,7 @@ class Carts
             ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => CraftDb::prepareDateForDb($edge)])
             ->from(['orders' => Table::ORDERS]);
 
-        $event = new CartPurgeEvent();
-        $event->inactiveCartsQuery = $cartIdsQuery;
+        $event = new CartPurgeEvent(inactiveCartsQuery: $cartIdsQuery);
 
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */

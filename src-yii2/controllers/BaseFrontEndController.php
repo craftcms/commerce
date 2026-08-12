@@ -59,10 +59,10 @@ class BaseFrontEndController extends BaseController
         $cartInfo = $cart->toArray([], $extraFields);
 
         // Fire a 'modifyCartContent' event
-        $event = new ModifyCartInfoEvent([
-            'cartInfo' => $cartInfo,
-            'cart' => $cart,
-        ]);
+        $event = new ModifyCartInfoEvent(
+            cartInfo: $cartInfo,
+            cart: $cart,
+        );
 
         $this->trigger(self::EVENT_MODIFY_CART_INFO, $event);
 

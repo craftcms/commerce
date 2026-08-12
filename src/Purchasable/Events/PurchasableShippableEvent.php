@@ -10,8 +10,10 @@ use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 
 class PurchasableShippableEvent
 {
-    public ?Order $order = null;
-    public PurchasableInterface $purchasable;
-    public ?User $currentUser = null;
-    public bool $isShippable;
+    public function __construct(
+        public PurchasableInterface $purchasable,
+        public bool $isShippable,
+        public ?Order $order = null,
+        public ?User $currentUser = null,
+    ) {}
 }

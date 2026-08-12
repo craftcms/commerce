@@ -106,9 +106,10 @@ class Emails
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getEmails()->hasEventHandlers(self::EVENT_BEFORE_SAVE_EMAIL)) {
-            $beforeEvent = new EmailEvent();
-            $beforeEvent->email = $email;
-            $beforeEvent->isNew = $isNewEmail;
+            $beforeEvent = new EmailEvent(
+                email: $email,
+                isNew: $isNewEmail,
+            );
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getEmails()->trigger(self::EVENT_BEFORE_SAVE_EMAIL, $beforeEvent);
         }
@@ -187,9 +188,10 @@ class Emails
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getEmails()->hasEventHandlers(self::EVENT_AFTER_SAVE_EMAIL)) {
-            $afterEvent = new EmailEvent();
-            $afterEvent->email = $this->getEmailById($emailRecord->id, $emailRecord->storeId);
-            $afterEvent->isNew = $isNewEmail;
+            $afterEvent = new EmailEvent(
+                email: $this->getEmailById($emailRecord->id, $emailRecord->storeId),
+                isNew: $isNewEmail,
+            );
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getEmails()->trigger(self::EVENT_AFTER_SAVE_EMAIL, $afterEvent);
         }
@@ -209,8 +211,9 @@ class Emails
             // TODO: migrate event firing to Laravel once event system is bridged
             /** @phpstan-ignore-next-line */
             if (Plugin::getInstance()->getEmails()->hasEventHandlers(self::EVENT_BEFORE_DELETE_EMAIL)) {
-                $event = new EmailEvent();
-                $event->email = $this->getEmailById($id, $email->storeId);
+                $event = new EmailEvent(
+                    email: $this->getEmailById($id, $email->storeId),
+                );
                 /** @phpstan-ignore-next-line */
                 Plugin::getInstance()->getEmails()->trigger(self::EVENT_BEFORE_DELETE_EMAIL, $event);
             }
@@ -242,8 +245,9 @@ class Emails
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getEmails()->hasEventHandlers(self::EVENT_AFTER_DELETE_EMAIL)) {
-            $afterEvent = new EmailEvent();
-            $afterEvent->email = $email;
+            $afterEvent = new EmailEvent(
+                email: $email,
+            );
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getEmails()->trigger(self::EVENT_AFTER_DELETE_EMAIL, $afterEvent);
         }
@@ -661,12 +665,13 @@ class Emails
 
         try {
             // Raise 'beforeSendEmail' event
-            $event = new MailEvent();
-            $event->craftEmail = $newEmail;
-            $event->commerceEmail = $email;
-            $event->order = $order;
-            $event->orderHistory = $orderHistory;
-            $event->orderData = $orderData;
+            $event = new MailEvent(
+                craftEmail: $newEmail,
+                commerceEmail: $email,
+                order: $order,
+                orderHistory: $orderHistory,
+                orderData: $orderData,
+            );
 
             // TODO: migrate event firing to Laravel once event system is bridged
             /** @phpstan-ignore-next-line */
@@ -732,12 +737,13 @@ class Emails
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getEmails()->hasEventHandlers(self::EVENT_AFTER_SEND_MAIL)) {
-            $afterEvent = new MailEvent();
-            $afterEvent->craftEmail = $newEmail;
-            $afterEvent->commerceEmail = $email;
-            $afterEvent->order = $order;
-            $afterEvent->orderHistory = $orderHistory;
-            $afterEvent->orderData = $orderData;
+            $afterEvent = new MailEvent(
+                craftEmail: $newEmail,
+                commerceEmail: $email,
+                order: $order,
+                orderHistory: $orderHistory,
+                orderData: $orderData,
+            );
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getEmails()->trigger(self::EVENT_AFTER_SEND_MAIL, $afterEvent);
         }

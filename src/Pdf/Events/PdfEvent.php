@@ -8,6 +8,8 @@ use craft\commerce\models\Pdf;
 
 class PdfEvent
 {
-    public Pdf $pdf;
-    public bool $isNew = false;
+    public function __construct(
+        public Pdf $pdf,
+        public bool $isNew = false,
+    ) {}
 }

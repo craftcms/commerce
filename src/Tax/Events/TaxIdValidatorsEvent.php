@@ -6,5 +6,7 @@ namespace CraftCms\Commerce\Tax\Events;
 
 class TaxIdValidatorsEvent
 {
-    public array $validators = [];
+    public function __construct(
+        public array $validators = [],
+    ) {}
 }

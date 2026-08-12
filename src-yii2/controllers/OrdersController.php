@@ -803,10 +803,10 @@ JS, []);
 
         // Trigger event before working out the total and limiting the results for pagination
         if ($this->hasEventHandlers(self::EVENT_MODIFY_PURCHASABLES_TABLE_QUERY)) {
-            $event = new ModifyPurchasablesTableQueryEvent([
-                'query' => $sqlQuery,
-                'search' => $search,
-            ]);
+            $event = new ModifyPurchasablesTableQueryEvent(
+                query: $sqlQuery,
+                search: $search,
+            );
             $this->trigger(self::EVENT_MODIFY_PURCHASABLES_TABLE_QUERY, $event);
             $sqlQuery = $event->query;
         }

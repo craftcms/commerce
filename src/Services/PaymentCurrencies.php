@@ -41,10 +41,11 @@ class PaymentCurrencies
      */
     public function getRateFor(PaymentCurrency $currency, ?Transaction $transaction = null): float
     {
-        $event = new PaymentCurrencyRateEvent();
-        $event->rate = $currency->rate;
-        $event->paymentCurrency = $currency;
-        $event->transaction = $transaction;
+        $event = new PaymentCurrencyRateEvent(
+            rate: $currency->rate,
+            paymentCurrency: $currency,
+            transaction: $transaction,
+        );
 
         // TODO: migrate event firing to Laravel once the event system is bridged
         /** @phpstan-ignore-next-line */

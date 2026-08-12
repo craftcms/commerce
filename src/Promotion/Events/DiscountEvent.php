@@ -8,6 +8,8 @@ use craft\commerce\models\Discount;
 
 class DiscountEvent
 {
-    public Discount $discount;
-    public bool $isNew;
+    public function __construct(
+        public Discount $discount,
+        public bool $isNew,
+    ) {}
 }

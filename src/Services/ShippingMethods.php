@@ -71,8 +71,9 @@ class ShippingMethods
     {
         $methods = $this->getAllShippingMethods($order->storeId);
 
-        $event = new RegisterAvailableShippingMethodsEvent();
-        $event->order = $order;
+        $event = new RegisterAvailableShippingMethodsEvent(
+            order: $order,
+        );
         $event->setShippingMethods($methods);
 
         // TODO: migrate event firing to Laravel once event system is bridged

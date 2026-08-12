@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Promotion\Events;
 
-use craft\commerce\models\Sale;
+use CraftCms\Commerce\Promotion\Models\Sale;
 
 class SaleEvent
 {
-    public Sale $sale;
-    public bool $isNew = false;
+    public function __construct(
+        public Sale $sale,
+        public bool $isNew = false,
+    ) {}
 }

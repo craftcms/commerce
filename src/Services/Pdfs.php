@@ -120,9 +120,10 @@ class Pdfs
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getPdfs()->hasEventHandlers(self::EVENT_BEFORE_SAVE_PDF)) {
-            $beforeEvent = new PdfEvent();
-            $beforeEvent->pdf = $pdf;
-            $beforeEvent->isNew = $isNewPdf;
+            $beforeEvent = new PdfEvent(
+                pdf: $pdf,
+                isNew: $isNewPdf,
+            );
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getPdfs()->trigger(self::EVENT_BEFORE_SAVE_PDF, $beforeEvent);
         }
@@ -198,9 +199,10 @@ class Pdfs
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getPdfs()->hasEventHandlers(self::EVENT_AFTER_SAVE_PDF)) {
-            $afterEvent = new PdfEvent();
-            $afterEvent->pdf = $this->getPdfById($pdfRecord->id, $pdfRecord->storeId);
-            $afterEvent->isNew = $isNewPdf;
+            $afterEvent = new PdfEvent(
+                pdf: $this->getPdfById($pdfRecord->id, $pdfRecord->storeId),
+                isNew: $isNewPdf,
+            );
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getPdfs()->trigger(self::EVENT_AFTER_SAVE_PDF, $afterEvent);
         }
@@ -220,8 +222,9 @@ class Pdfs
             // TODO: migrate event firing to Laravel once event system is bridged
             /** @phpstan-ignore-next-line */
             if (Plugin::getInstance()->getPdfs()->hasEventHandlers(self::EVENT_BEFORE_DELETE_PDF)) {
-                $event = new PdfEvent();
-                $event->pdf = $this->getPdfById($pdf->id, $pdf->storeId);
+                $event = new PdfEvent(
+                    pdf: $this->getPdfById($pdf->id, $pdf->storeId),
+                );
                 /** @phpstan-ignore-next-line */
                 Plugin::getInstance()->getPdfs()->trigger(self::EVENT_BEFORE_DELETE_PDF, $event);
             }
@@ -333,12 +336,13 @@ class Pdfs
         }
 
         // Raise 'beforeRenderPdf' event
-        $event = new PdfRenderEvent();
-        $event->order = $order;
-        $event->option = $option;
-        $event->template = $templatePath;
-        $event->variables = $variables;
-        $event->sourcePdf = $pdf;
+        $event = new PdfRenderEvent(
+            order: $order,
+            option: $option,
+            template: $templatePath,
+            variables: $variables,
+            sourcePdf: $pdf,
+        );
 
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
@@ -420,8 +424,9 @@ class Pdfs
             $options->setDefaultPaperSize($pdf->paperSize);
         }
 
-        $renderOptionsEvent = new PdfRenderOptionsEvent();
-        $renderOptionsEvent->options = $options;
+        $renderOptionsEvent = new PdfRenderOptionsEvent(
+            options: $options,
+        );
 
         // Set additional render options
         // TODO: migrate event firing to Laravel once event system is bridged
@@ -437,13 +442,14 @@ class Pdfs
         $dompdf->render();
 
         // Raise 'afterRenderPdf' event
-        $afterEvent = new PdfRenderEvent();
-        $afterEvent->order = $event->order;
-        $afterEvent->option = $event->option;
-        $afterEvent->template = $event->template;
-        $afterEvent->variables = $variables;
-        $afterEvent->pdf = $dompdf->output();
-        $afterEvent->sourcePdf = $pdf;
+        $afterEvent = new PdfRenderEvent(
+            order: $event->order,
+            option: $event->option,
+            template: $event->template,
+            variables: $variables,
+            pdf: $dompdf->output(),
+            sourcePdf: $pdf,
+        );
 
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */

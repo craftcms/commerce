@@ -8,5 +8,7 @@ use craft\commerce\base\Plan;
 
 class PlanEvent
 {
-    public Plan $plan;
+    public function __construct(
+        public Plan $plan,
+    ) {}
 }
