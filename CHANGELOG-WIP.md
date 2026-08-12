@@ -1,5 +1,76 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 9a: Controllers & Routes (foundation + 3 controllers)
+
+First slice of the largest remaining migration stage: 48 Yii2 controllers / 214 `action*()`
+methods, currently routed entirely through Yii2's automatic convention + one explicit CP
+URL-rule map (`src-yii2/plugin/Routes.php`). Craft 6 has no automatic controller routing and no
+base controller class at all, so this is a bigger architectural break than prior stages. This
+slice covers the foundation plus three controllers chosen to prove out the three distinct
+patterns the remaining ~45 controllers will fall into — full details and what's explicitly
+deferred are in `laravel-migration-private.md`.
+
+- Added `routes/{web,cp,actions}.php` — auto-discovered by `CraftCms\Cms\Plugin\Concerns\HasRoutes`.
+- Added `Plugin::getPermissions()` (via new `Plugin\Concerns\HasPermissions`), porting the 4
+  static permission groups from `src-yii2/Plugin.php::_registerPermissions()` as
+  `CraftCms\Cms\User\Data\Permission` objects. `_productPermissions()` (dynamic, per-product-type)
+  deferred to whichever session migrates `ProductTypesController`. The legacy registration stays
+  active in parallel until every permission is ported.
+- Migrated `WebhooksController` (anonymous action-path pattern), `DonationsController` (simple
+  CP settings screen), `Settings\GatewaysController` (list-based CRUD CP settings screen — the
+  template for ~15 similar controllers) to `src/Http/Controllers/`. **Legacy `src-yii2/controllers/
+  {Webhooks,Donations,Gateways}Controller.php` were deleted outright**, not converted to stubs —
+  unlike services, nothing in the app resolves controller classes by name anymore (routing is
+  100% explicit now), so there's no reason to keep a legacy shim around once a controller is
+  migrated.
+- **Three load-bearing discoveries, made by reading cms-6's actual source (the public CP-screen
+  docs are incomplete) and confirmed live against the running app — future controller
+  migrations should rely on these instead of re-deriving them:**
+  1. `Plugin::boot()` (standard Laravel `ServiceProvider` lifecycle) is **never called** by
+     Craft's plugin system, even though `Plugin extends ServiceProvider` — confirmed by direct
+     test (a debug side-effect in `boot()` never ran; the same one in `register()` did). Craft's
+     plugin manager calls `register()` and its own internal `bootPlugin()` (which fires the fixed
+     `bootHasX()` trait sequence), but not `boot()`. Any one-off plugin-level bootstrapping code
+     (e.g. `PreventRequestForgery::except()` for a CSRF-exempt webhook route) needs to go in
+     `register()`, not `boot()`.
+  2. CP forms built with `actionInput()`/`redirectInput()` (the classic Craft convention, used
+     everywhere in Commerce's still-legacy Twig templates) **post back to the current page URL**
+     with an `action` body param — they do **not** post to the literal action-route string. A
+     global `CraftCms\Cms\Http\Middleware\HandleActionRequest` middleware (registered before
+     routing, via `ActionRouteResolver`) rewrites the request's effective URI from that `action`
+     param before Laravel's router ever runs. This means a controller's save/archive/reorder
+     endpoints reached this way must be registered in `routes/actions.php` (auto-prefixed with
+     the plugin handle, and — importantly — auto-registered a second time at the anonymous
+     site-side action URL too, so route-level `auth`/`can:` middleware is what actually protects
+     them, not the URL), not in `routes/cp.php` at whatever "pretty" URL the page itself lives at.
+  3. Two different Twig rendering entry points replace Yii2's `$this->renderTemplate()`,
+     depending on the template's own shape: `CpScreenResponse::contentTemplate()` for templates
+     that are bare content fragments with no `{% extends %}` (e.g. `commerce/donation/_edit.twig`);
+     the plain `pageTemplate()` helper for templates that already `{% extends "commerce/_layouts/
+     ..." %}`/build their own full CP page (e.g. `commerce/settings/gateways/{index,_edit}.twig`).
+     Using the wrong one either double-wraps the page chrome or renders a bare fragment with none.
+- **Known gap, not fixed this session**: `RespondsWithFlash::asModelFailure()` redirects back on
+  a failed save rather than Yii2's inline same-request re-render, and Commerce's legacy Twig edit
+  templates don't yet read Laravel's `old()`/session-flash data — so a failed `GatewaysController::
+  save()` currently redirects back to a blank/default edit form rather than the user's attempted
+  input. This is an explicitly-flagged architectural difference (see cms-6's own equivalent
+  `VolumesController`/`FilesystemsController`, which have the exact same behavior), not unique to
+  this migration — tracked as a follow-up for whichever session addresses form-repopulation UX
+  broadly, rather than fixed ad hoc per controller.
+- **Verification**: `ddev artisan route:list --path=commerce -v` confirmed all routes/middleware
+  registered as designed. The webhook endpoint was verified end-to-end over real HTTP in all
+  three reachable forms (pretty URL, site action path, CP action path) — first hit a real CSRF
+  419 (fixed via the `register()` discovery above), then a real `TypeError` (`getGatewayById()`
+  needs `int`, `$request->input()` returns `string` — fixed with an explicit cast), then
+  confirmed correctly returning 404 for an unknown gateway across all three URLs. Unauthenticated
+  CP routes correctly redirect to login. `DonationsController`/`GatewaysController`'s controller
+  logic and Commerce's own content templates were verified error-free via direct invocation
+  through `craft exec:exec`; full authenticated CP-chrome rendering could not be exercised this
+  way (Craft's own CP header/layout partials need a real logged-in `currentUser()`, which a
+  console context doesn't have) — recommend a real authenticated browser pass before treating
+  Donations/Gateways as production-ready, though the routing/CSRF/permission layer underneath is
+  proven end-to-end via the webhook test.
+
 ### Laravel Migration — CatalogPricingCondition and its rules
 
 Migrated `craft\commerce\elements\conditions\purchasables\{CatalogPricingCondition,

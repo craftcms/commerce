@@ -21,12 +21,10 @@ trait Routes
 {
     /**
      * @since 3.1.10
+     * @deprecated the webhook route is now registered in routes/web.php and routes/actions.php.
      */
     private function _registerSiteRoutes(): void
     {
-        Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_SITE_URL_RULES, function(RegisterUrlRulesEvent $event) {
-            $event->rules['commerce/webhooks/process-webhook/gateway/<gatewayId:\d+>'] = 'commerce/webhooks/process-webhook';
-        });
     }
 
     /**
@@ -88,9 +86,7 @@ trait Routes
 
             $event->rules['commerce/settings/subscriptions'] = 'commerce/settings/edit-subscription-settings';
 
-            $event->rules['commerce/settings/gateways'] = 'commerce/gateways/index';
-            $event->rules['commerce/settings/gateways/new'] = 'commerce/gateways/edit';
-            $event->rules['commerce/settings/gateways/<id:\d+>'] = 'commerce/gateways/edit';
+            // commerce/settings/gateways* is now registered in routes/cp.php
 
             $event->rules['commerce/settings/emails'] = 'commerce/emails/index';
             $event->rules['commerce/settings/emails/<storeHandle:{handle}>/new'] = 'commerce/emails/edit';
@@ -172,8 +168,7 @@ trait Routes
             $event->rules['commerce/inventory/transfers'] = 'commerce/transfers/index';
             $event->rules['commerce/inventory/transfers/<elementId:\\d+>'] = 'elements/edit';
 
-            // Donations
-            $event->rules['commerce/donations'] = 'commerce/donations/edit';
+            // commerce/donations is now registered in routes/cp.php
         });
     }
 }
