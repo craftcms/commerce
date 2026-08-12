@@ -2,7 +2,11 @@
 
 use CraftCms\Cms\Http\Middleware\RequireAdmin;
 use CraftCms\Commerce\Http\Controllers\DonationsController;
+use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingController;
+use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingRulesController;
+use CraftCms\Commerce\Http\Controllers\Settings\DiscountsController;
 use CraftCms\Commerce\Http\Controllers\Settings\GatewaysController;
+use CraftCms\Commerce\Http\Controllers\Settings\SalesController;
 use CraftCms\Commerce\Http\Controllers\Settings\ShippingCategoriesController;
 use CraftCms\Commerce\Http\Controllers\Settings\ShippingMethodsController;
 use CraftCms\Commerce\Http\Controllers\Settings\ShippingRulesController;
@@ -55,4 +59,23 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
             Route::get('taxrates/new', [TaxRatesController::class, 'edit']);
             Route::get('taxrates/{id}', [TaxRatesController::class, 'edit'])->whereNumber('id');
         });
+
+    Route::middleware('can:commerce-managePromotions')->group(function () {
+        Route::get('commerce/promotions', fn() => redirect('commerce/promotions/sales'));
+        Route::get('commerce/catalog-pricing', [CatalogPricingController::class, 'index']);
+
+        Route::prefix('commerce/store-management/{storeHandle}')->group(function () {
+            Route::get('sales', [SalesController::class, 'index']);
+            Route::get('sales/new', [SalesController::class, 'edit']);
+            Route::get('sales/{id}', [SalesController::class, 'edit'])->whereNumber('id');
+
+            Route::get('discounts', [DiscountsController::class, 'index']);
+            Route::get('discounts/new', [DiscountsController::class, 'edit']);
+            Route::get('discounts/{id}', [DiscountsController::class, 'edit'])->whereNumber('id');
+
+            Route::get('pricing-rules', [CatalogPricingRulesController::class, 'index']);
+            Route::get('pricing-rules/new', [CatalogPricingRulesController::class, 'edit']);
+            Route::get('pricing-rules/{id}', [CatalogPricingRulesController::class, 'edit'])->whereNumber('id');
+        });
+    });
 });

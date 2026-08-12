@@ -1,5 +1,35 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 9d: Controllers & Routes (Promotions)
+
+Migrated `SalesController`, `DiscountsController`, `CatalogPricingRulesController`,
+`CatalogPricingController`, `PromotionsController` to `src/Http/Controllers/Settings/`.
+
+- **Found and fixed a real correctness gap from Stage 9b**: `pageTemplate()`-based controllers
+  (as opposed to `CpScreenResponse`-based ones) need `storeSwitcher`/`storeSettingsNav` passed
+  explicitly — the legacy `BaseStoreManagementController::renderTemplate()` override injected
+  these into *every* template automatically, a behavior `HasStoreManagementScreen` doesn't
+  replicate (by design — it only wraps the `CpScreenResponse` path). Retroactively fixed
+  `ShippingRulesController::edit()` (missed in 9b) to pass `storeSwitcher` explicitly, and did
+  the same for `SalesController::index()`/`::edit()` (both `pageTemplate()`-based) here.
+- `CatalogPricingController` doesn't use `HasStoreManagementScreen` at all — its `index()`
+  template extends `commerce/_layouts/cp` directly (not `store-management`), and it isn't
+  store-scoped at the URL level (site is resolved from a query param instead).
+- `PromotionsController` is a single-line redirect (`commerce/promotions` → `commerce/promotions/
+  sales`) — implemented as a route closure rather than a controller class. Note: this redirect
+  target doesn't correspond to any registered route (sales now lives at
+  `commerce/store-management/{storeHandle}/sales`) — this was **already true in the original**
+  (the redirect predates the store-management URL structure, and the CP nav already bypasses
+  this controller entirely, linking straight to `commerce/store-management/{store}/discounts`).
+  Preserved as-is rather than "fixed", since changing 404-vs-not behavior here is out of scope.
+- `BaseStoreManagementController` is **not** deleted yet — `PaymentCurrenciesController` and
+  `StoreManagementController` (Stage 9e) still extend it directly.
+- **Verification**: `route:list` confirmed all ~58 new routes/middleware. Direct `craft
+  exec:exec` invocation of `edit()` on all three permission-gated controllers correctly
+  triggered a 403 (confirmed `currentUserElement()` is legitimately `null` in a console context
+  — this demonstrates the authorization gate working, not a bug). `CatalogPricingController::
+  index()` and `canUseSales()`/`canUseCatalogPricingRules()` guards verified independently.
+
 ### Laravel Migration — Stage 9c: Controllers & Routes (Tax)
 
 Migrated `TaxZonesController`, `TaxCategoriesController`, `TaxRatesController` to

@@ -1,0 +1,186 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CraftCms\Commerce\Http\Controllers\Settings;
+
+use craft\commerce\helpers\Purchasable;
+use craft\commerce\models\CatalogPricing;
+use craft\commerce\Plugin;
+use craft\commerce\web\assets\catalogpricing\CatalogPricingAsset;
+use craft\helpers\Cp;
+use craft\helpers\Html;
+use craft\web\assets\htmx\HtmxAsset;
+use CraftCms\Cms\Support\Facades\Conditions;
+use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Cms\Support\Facades\Sites;
+use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
+use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingPurchasableConditionRule;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response as JsonResponseAlias;
+
+use function CraftCms\Cms\pageTemplate;
+use function CraftCms\Cms\t;
+use function CraftCms\Cms\template;
+
+readonly class CatalogPricingController
+{
+    private function guard(): void
+    {
+        abort_unless(Plugin::getInstance()->getCatalogPricingRules()->canUseCatalogPricingRules(), 403, 'Unable to use catalog pricing rules while sales exist.');
+    }
+
+    public function index(Request $request): string
+    {
+        $this->guard();
+
+        $siteHandle = $request->query('site');
+        $site = $siteHandle === null ? Sites::getPrimarySite() : \Craft::$app->getSites()->getSiteByHandle($siteHandle);
+        abort_if($site === null, 404, 'Site not found');
+
+        $store = $site->getStore();
+
+        $purchasableId = $request->query('purchasableId');
+        $conditionBuilder = Conditions::createCondition([
+            'class' => CatalogPricingCondition::class,
+            'allPrices' => true,
+        ]);
+
+        if ($purchasableId && $purchasableElementType = Elements::getElementTypeById($purchasableId)) {
+            $purchasableConditionRule = Conditions::createConditionRule([
+                'class' => CatalogPricingPurchasableConditionRule::class,
+                'elementIds' => [$purchasableElementType => [$purchasableId]],
+            ]);
+
+            $conditionBuilder->addConditionRule($purchasableConditionRule);
+        }
+
+        $catalogPrices = Plugin::getInstance()->getCatalogPricing()->getCatalogPrices($store->id, $conditionBuilder, limit: 100, offset: 0);
+        $pageInfo = Plugin::getInstance()->getCatalogPricing()->getCatalogPricesPageInfo($store->id, $conditionBuilder);
+
+        \Craft::$app->getView()->registerAssetBundle(HtmxAsset::class);
+        \Craft::$app->getView()->registerAssetBundle(CatalogPricingAsset::class);
+
+        return pageTemplate('commerce/prices/_index', [
+            'catalogPrices' => $catalogPrices->all(),
+            'pageInfo' => $pageInfo,
+            'condition' => $conditionBuilder,
+            'areCatalogPricingJobsRunning' => Plugin::getInstance()->getCatalogPricing()->areCatalogPricingJobsRunning(),
+        ], TemplateMode::Cp);
+    }
+
+    public function filter(Request $request): JsonResponseAlias
+    {
+        $this->guard();
+
+        $condition = $request->input('condition') ?? ['class' => CatalogPricingCondition::class];
+        $conditionBuilder = Conditions::createCondition($condition);
+        $conditionBuilderHtml = $conditionBuilder->getBuilderHtml();
+
+        $view = \Craft::$app->getView();
+
+        return response()->json([
+            'condition' => $conditionBuilder->getConfig(),
+            'hudHtml' => $conditionBuilderHtml,
+            'headHtml' => $view->getHeadHtml(),
+            'bodyHtml' => $view->getBodyHtml(),
+        ]);
+    }
+
+    public function prices(Request $request): JsonResponseAlias
+    {
+        $this->guard();
+
+        $siteId = $request->input('siteId');
+        abort_if($siteId === null, 400, 'siteId is required');
+        $condition = $request->input('condition');
+        $searchText = $request->input('searchText');
+        $limit = $request->input('limit');
+        $offset = $request->input('offset', 0);
+        $includeBasePrices = $request->input('includeBasePrices', true);
+        $forPurchasable = $request->input('forPurchasable', false);
+
+        $conditionBuilder = null;
+        if ($condition && isset($condition['condition'])) {
+            /** @var CatalogPricingCondition $conditionBuilder */
+            $conditionBuilder = Conditions::createCondition($condition['condition']);
+        }
+
+        $site = \Craft::$app->getSites()->getSiteById($siteId);
+        abort_if($site === null, 400, 'Invalid site ID: ' . $siteId);
+
+        $catalogPrices = Plugin::getInstance()->getCatalogPricing()->getCatalogPrices($site->getStore()->id, $conditionBuilder, $includeBasePrices, $searchText, $limit, $offset);
+        $catalogPricesPageInfo = null;
+        if ($limit !== null && $offset !== null) {
+            $catalogPricesPageInfo = Plugin::getInstance()->getCatalogPricing()->getCatalogPricesPageInfo($site->getStore()->id, $conditionBuilder, $includeBasePrices, $searchText, $limit, $offset);
+        }
+
+        $view = \Craft::$app->getView();
+
+        $tableHtml = template('commerce/prices/_table', [
+            'catalogPrices' => $catalogPrices->all(),
+            'showPurchasable' => !$forPurchasable,
+            'removeMargin' => $forPurchasable,
+        ]);
+
+        return response()->json([
+            'headHtml' => $view->getHeadHtml(),
+            'bodyHtml' => $view->getBodyHtml(),
+            'tableHtml' => $tableHtml,
+            'pageInfo' => $catalogPricesPageInfo,
+        ]);
+    }
+
+    public function queueStatus(): string
+    {
+        $this->guard();
+
+        $site = Cp::requestedSite();
+        $storeHandle = $site?->getStore()->handle ?? null;
+
+        return template('commerce/prices/_polling', [
+            'areCatalogPricingJobsRunning' => Plugin::getInstance()->getCatalogPricing()->areCatalogPricingJobsRunning(),
+            'storeHandle' => $storeHandle,
+        ]);
+    }
+
+    public function getCatalogPrices(Request $request): ?string
+    {
+        $this->guard();
+
+        // @TODO Remove this action once the catalog pricing UI refactor lands and no longer needs this endpoint
+        $purchasableId = $request->input('purchasableId');
+        $storeId = $request->input('storeId');
+
+        if ($purchasableId === null || $storeId === null) {
+            return Html::tag('div', t('Purchasable ID is required.', category: 'commerce'), ['class' => 'error']);
+        }
+
+        $isPriceRecalculation = $request->has('basePrice') || $request->has('basePromotionalPrice');
+
+        if (!$isPriceRecalculation) {
+            return Purchasable::catalogPricingRulesTableByPurchasableId($purchasableId, $storeId);
+        }
+
+        $basePrice = $request->input('basePrice');
+        $basePromotionalPrice = $request->input('basePromotionalPrice');
+
+        $basePrice = $basePrice ? (float)$basePrice : null;
+        $basePromotionalPrice = $basePromotionalPrice ? (float)$basePromotionalPrice : null;
+
+        $allPurchasableRules = Plugin::getInstance()->getCatalogPricingRules()->getAllCatalogPricingRulesByPurchasableId($purchasableId, $storeId);
+        $catalogPricing = Plugin::getInstance()->getCatalogPricing()->getCatalogPricesByPurchasableId($purchasableId);
+
+        $catalogPricing->each(function(CatalogPricing $cp) use ($basePrice, $basePromotionalPrice, $allPurchasableRules) {
+            $rule = $allPurchasableRules->firstWhere('id', $cp->catalogPricingRuleId);
+            if (!$rule) {
+                return;
+            }
+
+            $cp->price = Plugin::getInstance()->getCatalogPricingRules()->generateRulePriceFromPrice($basePrice, $basePromotionalPrice, $rule);
+        });
+
+        return Purchasable::catalogPricingRulesTableByPurchasableId($purchasableId, $storeId, $catalogPricing);
+    }
+}

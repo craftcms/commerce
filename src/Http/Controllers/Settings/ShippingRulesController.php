@@ -85,6 +85,7 @@ readonly class ShippingRulesController
             'categoryShippingOptions' => $categoryShippingOptions,
             'storeId' => $store->id,
             'storeHandle' => $store->handle,
+            'storeSwitcher' => $this->getStoreSwitcher($store->handle),
         ], TemplateMode::Cp);
     }
 

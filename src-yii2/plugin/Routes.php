@@ -116,20 +116,7 @@ trait Routes
 
             // Taxes are now registered in routes/cp.php
 
-            // Sales
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/sales'] = 'commerce/sales/index';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/sales/new'] = 'commerce/sales/edit';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/sales/<id:\d+>'] = 'commerce/sales/edit';
-
-            // Discounts
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/discounts'] = 'commerce/discounts/index';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/discounts/new'] = 'commerce/discounts/edit';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/discounts/<id:\d+>'] = 'commerce/discounts/edit';
-
-            // Pricing
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/pricing-rules'] = 'commerce/catalog-pricing-rules/index';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/pricing-rules/new'] = 'commerce/catalog-pricing-rules/edit';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/pricing-rules/<id:\d+>'] = 'commerce/catalog-pricing-rules/edit';
+            // Sales, Discounts, and Pricing Rules are now registered in routes/cp.php
 
             // Inventory
             $event->rules['commerce/inventory'] = 'commerce/inventory/edit-location-levels'; // redirect to the first location
