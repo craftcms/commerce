@@ -15,7 +15,6 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CustomerAddressBehavior;
 use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\behaviors\StoreBehavior;
-use craft\commerce\controllers\UsersController as CommerceUsersController;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
@@ -86,7 +85,6 @@ use craft\commerce\widgets\TotalRevenue;
 use craft\console\Application as ConsoleApplication;
 use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;
-use craft\controllers\UsersController;
 use craft\db\Query;
 use craft\elements\Address;
 use craft\elements\db\UserQuery;
@@ -95,7 +93,6 @@ use CraftCms\Cms\Cp\Data\NavItem;
 use CraftCms\Cms\Edition as CmsEdition;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\DefineConsoleActionsEvent;
-use craft\events\DefineEditUserScreensEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
 use craft\events\DeleteSiteEvent;
 use craft\events\PopulateElementsEvent;
@@ -772,13 +769,7 @@ class Plugin extends BasePlugin
         //     }
         // });
 
-        // Add Commerce info to user edit screen
-        Event::on(UsersController::class, UsersController::EVENT_DEFINE_EDIT_SCREENS, function(DefineEditUserScreensEvent $event) {
-            // Add Commerce screen to user edit screen if the user has permission to access Commerce
-            if (Craft::$app->getUser()->checkPermission('accessPlugin-commerce')) {
-                $event->screens[CommerceUsersController::SCREEN_COMMERCE] = ['label' => Craft::t('commerce', 'Commerce')];
-            }
-        });
+        // Commerce screen on the Edit User screen is now registered in src/Plugin.php
 
         // Don't attach behavior if Craft is in the middle of an update
         if (! app(Updates::class)->isCraftUpdatePending()) {

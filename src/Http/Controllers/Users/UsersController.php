@@ -1,56 +1,39 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
-namespace craft\commerce\controllers;
+declare(strict_types=1);
 
-use Craft;
-use craft\commerce\elements\Order;
+namespace CraftCms\Commerce\Http\Controllers\Users;
+
 use craft\commerce\elements\Subscription;
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
-use craft\controllers\EditUserTrait;
 use craft\helpers\ArrayHelper;
-use craft\helpers\Cp;
 use craft\helpers\Html;
-use craft\web\CpScreenResponseBehavior;
-use yii\base\InvalidConfigException;
-use yii\web\BadRequestHttpException;
-use yii\web\ForbiddenHttpException;
-use yii\web\Response;
+use CraftCms\Cms\Cp\Html\ElementIndexHtml;
+use CraftCms\Cms\Http\Controllers\Users\EditUserTrait;
+use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Commerce\Order\Elements\Order;
 
-/**
- * Class User Controller
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 5.0.0
- */
-class UsersController extends BaseFrontEndController
+use function CraftCms\Cms\currentUser;
+use function CraftCms\Cms\t;
+
+readonly class UsersController
 {
     use EditUserTrait;
 
-    public const SCREEN_COMMERCE = 'commerce';
+    public const string SCREEN_COMMERCE = 'commerce';
 
-    /**
-     * @param int|null $userId
-     * @return Response
-     * @throws BadRequestHttpException
-     * @throws ForbiddenHttpException
-     * @throws \Throwable
-     * @throws InvalidConfigException
-     */
-    public function actionIndex(?int $userId = null): Response
+    public function __construct(
+        private ElementIndexHtml $elementIndexHtml,
+    ) {}
+
+    public function index(?int $userId = null): CpScreenResponse
     {
         $user = $this->editedUser($userId);
 
-        /** @var Response|CpScreenResponseBehavior $response */
-        $response = $this->asEditUserScreen($user, 'commerce');
+        $response = $this->asEditUserScreen($user, self::SCREEN_COMMERCE);
 
-        $view = Craft::$app->getView();
-        $view->registerAssetBundle(CommerceCpAsset::class);
+        \Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
 
         $config = [
             'context' => 'embedded-index',
@@ -66,14 +49,14 @@ class UsersController extends BaseFrontEndController
         $content = '';
         $key = 'Commerce-Users-element-indexes-%s';
 
-        if (Craft::$app->getUser()->getIdentity()->can('commerce-manageOrders')) {
+        if (currentUser()?->can('commerce-manageOrders')) {
             $completedOrdersKey = sprintf($key, 'completed-orders');
             $activeCartsKey = sprintf($key, 'active-carts');
             $inactiveCartsKey = sprintf($key, 'inactive-carts');
 
-            $content .= Html::tag('h2', Craft::t('commerce', 'Orders')) .
+            $content .= Html::tag('h2', t('Orders', category: 'commerce')) .
                 Html::beginTag('div', ['class' => 'commerce-user-orders']) .
-                Cp::elementIndexHtml(Order::class, ArrayHelper::merge($config, [
+                $this->elementIndexHtml->html(Order::class, ArrayHelper::merge($config, [
                     'id' => $completedOrdersKey,
                     'jsSettings' => [
                         'criteria' => ['isCompleted' => true],
@@ -84,9 +67,9 @@ class UsersController extends BaseFrontEndController
 
                 Html::tag('hr') .
 
-                Html::tag('h2', Craft::t('commerce', 'Active Carts')) .
+                Html::tag('h2', t('Active Carts', category: 'commerce')) .
                 Html::beginTag('div', ['class' => 'commerce-user-active-carts']) .
-                Cp::elementIndexHtml(Order::class, ArrayHelper::merge($config, [
+                $this->elementIndexHtml->html(Order::class, ArrayHelper::merge($config, [
                     'id' => $activeCartsKey,
                     'jsSettings' => [
                         'criteria' => [
@@ -100,9 +83,9 @@ class UsersController extends BaseFrontEndController
 
                 Html::tag('hr') .
 
-                Html::tag('h2', Craft::t('commerce', 'Inactive Carts')) .
+                Html::tag('h2', t('Inactive Carts', category: 'commerce')) .
                 Html::beginTag('div', ['class' => 'commerce-user-active-carts']) .
-                Cp::elementIndexHtml(Order::class, ArrayHelper::merge($config, [
+                $this->elementIndexHtml->html(Order::class, ArrayHelper::merge($config, [
                     'id' => $inactiveCartsKey,
                     'jsSettings' => [
                         'criteria' => [
@@ -115,24 +98,23 @@ class UsersController extends BaseFrontEndController
                 Html::endTag('div');
         }
 
-
-        if (Craft::$app->getUser()->getIdentity()->can('commerce-manageSubscriptions') and !empty(Plugin::getInstance()->getPlans()->getAllPlans())) {
+        if (currentUser()?->can('commerce-manageSubscriptions') && !empty(Plugin::getInstance()->getPlans()->getAllPlans())) {
             $subscriptionsKey = sprintf($key, 'subscriptions');
             $content .= Html::tag('hr') .
-                Html::tag('h2', Craft::t('commerce', 'Subscriptions')) .
+                Html::tag('h2', t('Subscriptions', category: 'commerce')) .
                 Html::beginTag('div', ['class' => 'commerce-user-subscriptions']) .
-                    Cp::elementIndexHtml(Subscription::class, [
-                        'id' => $subscriptionsKey,
-                        'context' => 'embedded-index',
-                        'sources' => false,
-                        'jsSettings' => [
-                            'criteria' => [
-                                'userId' => $user->id,
-                                'status' => null,
-                            ],
-                            'storageKey' => $subscriptionsKey,
+                $this->elementIndexHtml->html(Subscription::class, [
+                    'id' => $subscriptionsKey,
+                    'context' => 'embedded-index',
+                    'sources' => false,
+                    'jsSettings' => [
+                        'criteria' => [
+                            'userId' => $user->id,
+                            'status' => null,
                         ],
-                    ]) .
+                        'storageKey' => $subscriptionsKey,
+                    ],
+                ]) .
                 Html::endTag('div');
         }
 

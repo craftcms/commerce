@@ -5,6 +5,7 @@ use CraftCms\Commerce\Http\Controllers\DonationsController;
 use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingController;
 use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingRulesController;
 use CraftCms\Commerce\Http\Controllers\Settings\DiscountsController;
+use CraftCms\Commerce\Http\Controllers\Settings\EmailsController;
 use CraftCms\Commerce\Http\Controllers\Settings\GatewaysController;
 use CraftCms\Commerce\Http\Controllers\InventoryController;
 use CraftCms\Commerce\Http\Controllers\InventoryLocationsController;
@@ -13,6 +14,7 @@ use CraftCms\Commerce\Http\Controllers\Settings\LineItemStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderSettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\PaymentCurrenciesController;
+use CraftCms\Commerce\Http\Controllers\Settings\PdfsController;
 use CraftCms\Commerce\Http\Controllers\Settings\PlansController;
 use CraftCms\Commerce\Http\Controllers\ProductsController;
 use CraftCms\Commerce\Http\Controllers\Settings\ProductTypesController;
@@ -29,6 +31,7 @@ use CraftCms\Commerce\Http\Controllers\Settings\TaxCategoriesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxRatesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxZonesController;
 use CraftCms\Commerce\Http\Controllers\TransfersController;
+use CraftCms\Commerce\Http\Controllers\Users\UsersController;
 use CraftCms\Commerce\Http\Controllers\VariantsController;
 use Illuminate\Support\Facades\Route;
 
@@ -62,6 +65,14 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
         Route::get('commerce/settings/producttypes', [ProductTypesController::class, 'productTypeIndex']);
         Route::get('commerce/settings/producttypes/new', [ProductTypesController::class, 'editProductType']);
         Route::get('commerce/settings/producttypes/{productTypeId}', [ProductTypesController::class, 'editProductType'])->whereNumber('productTypeId');
+
+        Route::get('commerce/settings/emails', [EmailsController::class, 'index']);
+        Route::get('commerce/settings/emails/{storeHandle}/new', [EmailsController::class, 'edit']);
+        Route::get('commerce/settings/emails/{storeHandle}/{id}', [EmailsController::class, 'edit'])->whereNumber('id');
+
+        Route::get('commerce/settings/pdfs', [PdfsController::class, 'index']);
+        Route::get('commerce/settings/pdfs/{storeHandle}/new', [PdfsController::class, 'edit']);
+        Route::get('commerce/settings/pdfs/{storeHandle}/{id}', [PdfsController::class, 'edit'])->whereNumber('id');
     });
 
     // ProductsController/VariantsController extend BaseCpController directly (no extra
@@ -183,3 +194,12 @@ Route::middleware(['auth', 'can:commerce-manageSubscriptions'])
     ->get('commerce/subscriptions/{plan?}', [SubscriptionsController::class, 'index']);
 Route::middleware('auth')
     ->get('commerce/subscriptions/{subscriptionId}', [SubscriptionsController::class, 'edit'])->whereNumber('subscriptionId');
+
+// The Commerce screen on the Edit User screen — permission is enforced inline via the
+// EditUserScreensResolving listener in src/Plugin.php (only shows the tab/registers the
+// screen if the viewer can access Commerce), matching every other Edit User screen's `auth`-only
+// route-level requirement.
+Route::middleware('auth')->group(function () {
+    Route::get('myaccount/commerce', [UsersController::class, 'index']);
+    Route::get('users/{userId}/commerce', [UsersController::class, 'index'])->whereNumber('userId');
+});

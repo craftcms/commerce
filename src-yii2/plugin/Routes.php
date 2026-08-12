@@ -35,9 +35,8 @@ trait Routes
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules['commerce'] = ['template' => 'commerce/index'];
 
-            // User edit screen
-            $event->rules['myaccount/commerce'] = 'commerce/users/index';
-            $event->rules['users/<userId:\d+>/commerce'] = 'commerce/users/index';
+            // User edit screen ("myaccount/commerce" / "users/<id>/commerce") is now registered
+            // in routes/cp.php
 
             // Products / Variants — index and create are now registered in routes/cp.php; the
             // element-edit rules below are Craft core's own generic element-editing route, not a
@@ -59,13 +58,7 @@ trait Routes
 
             // commerce/settings/gateways* is now registered in routes/cp.php
 
-            $event->rules['commerce/settings/emails'] = 'commerce/emails/index';
-            $event->rules['commerce/settings/emails/<storeHandle:{handle}>/new'] = 'commerce/emails/edit';
-            $event->rules['commerce/settings/emails/<storeHandle:{handle}>/<id:\d+>'] = 'commerce/emails/edit';
-
-            $event->rules['commerce/settings/pdfs'] = 'commerce/pdfs/index';
-            $event->rules['commerce/settings/pdfs/<storeHandle:{handle}>/new'] = 'commerce/pdfs/edit';
-            $event->rules['commerce/settings/pdfs/<storeHandle:{handle}>/<id:\d+>'] = 'commerce/pdfs/edit';
+            // Emails and PDFs are now registered in routes/cp.php
 
             // Order Statuses and Line Item Statuses are now registered in routes/cp.php
 

@@ -7,7 +7,11 @@ use CraftCms\Commerce\Http\Controllers\DonationsController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
 use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingController;
 use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingRulesController;
+use CraftCms\Commerce\Http\Controllers\DownloadsController;
+use CraftCms\Commerce\Http\Controllers\EmailPreviewController;
 use CraftCms\Commerce\Http\Controllers\Settings\DiscountsController;
+use CraftCms\Commerce\Http\Controllers\Settings\EmailsController;
+use CraftCms\Commerce\Http\Controllers\FormulasController;
 use CraftCms\Commerce\Http\Controllers\Settings\GatewaysController;
 use CraftCms\Commerce\Http\Controllers\InventoryController;
 use CraftCms\Commerce\Http\Controllers\InventoryLocationsController;
@@ -17,6 +21,7 @@ use CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\PaymentCurrenciesController;
 use CraftCms\Commerce\Http\Controllers\PaymentSourcesController;
 use CraftCms\Commerce\Http\Controllers\PaymentsController;
+use CraftCms\Commerce\Http\Controllers\Settings\PdfsController;
 use CraftCms\Commerce\Http\Controllers\Settings\PlansController;
 use CraftCms\Commerce\Http\Controllers\Settings\ProductTypesController;
 use CraftCms\Commerce\Http\Controllers\Settings\SalesController;
@@ -36,6 +41,7 @@ use CraftCms\Commerce\Http\Controllers\UserOrdersController;
 use CraftCms\Commerce\Http\Controllers\WebhooksController;
 use CraftCms\Commerce\Http\RateLimiters\CartChallengeRateLimiter;
 use CraftCms\Commerce\Http\RateLimiters\CartRateLimiter;
+use CraftCms\Commerce\Http\RateLimiters\PdfChallengeRateLimiter;
 use Illuminate\Support\Facades\Route;
 
 Route::post('webhooks/process-webhook', [WebhooksController::class, 'processWebhook']);
@@ -269,3 +275,30 @@ Route::middleware([RequireCpRequest::class, 'can:deleteUsers'])->group(function 
     Route::get('subscriptions/delete-subscriptions-modal', [SubscriptionsController::class, 'deleteSubscriptionsModal']);
     Route::post('subscriptions/delete-subscriptions', [SubscriptionsController::class, 'deleteSubscriptions']);
 });
+
+Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->group(function () {
+    Route::post('emails/save', [EmailsController::class, 'save']);
+    Route::post('emails/delete', [EmailsController::class, 'delete']);
+
+    Route::post('pdfs/save', [PdfsController::class, 'save']);
+    Route::post('pdfs/delete', [PdfsController::class, 'delete']);
+    Route::post('pdfs/reorder', [PdfsController::class, 'reorder']);
+});
+
+Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
+    Route::post('formulas/validate-condition', [FormulasController::class, 'validateCondition']);
+    Route::post('formulas/validate-formula', [FormulasController::class, 'validateFormula']);
+});
+
+// Rendered inside an iframe from the email edit screen's preview button — admin-only, matching
+// the legacy controller's plain `requireAdmin(false)` (it never extended a Commerce base
+// controller, so there was never an accessPlugin-commerce check here either).
+Route::middleware(RequireAdmin::class)->get('email-preview/render', [EmailPreviewController::class, 'render']);
+
+// Anonymous by design — customers download/request order PDFs without being logged in.
+// pdf-challenge is rate-limited (not auth-gated) to blunt brute-forcing of order numbers/hashes.
+Route::get('downloads/pdf', [DownloadsController::class, 'pdf']);
+Route::get('downloads/email-challenge', [DownloadsController::class, 'emailChallenge']);
+Route::post('downloads/pdf-challenge', [DownloadsController::class, 'pdfChallenge'])
+    ->middleware('throttle:' . PdfChallengeRateLimiter::NAME);
+Route::get('downloads/pdf-sent', [DownloadsController::class, 'pdfSent']);

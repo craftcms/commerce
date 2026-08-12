@@ -1,5 +1,69 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 9k: Controllers & Routes (Email, PDF, Users, Misc) — Stage 9 complete
+
+Migrated the final six legacy controllers — `EmailsController`, `PdfsController` to
+`src/Http/Controllers/Settings/`; `FormulasController`, `EmailPreviewController`,
+`DownloadsController` to `src/Http/Controllers/`; `UsersController` to
+`src/Http/Controllers/Users/` — completing the full 48-controller Yii2 → Laravel controller
+migration started in Stage 9a. `src-yii2/controllers/` has been deleted in its entirety,
+including all four base classes (`BaseController`, `BaseCpController`, `BaseAdminController`,
+`BaseFrontEndController`) now that nothing extends them.
+
+- `EmailsController`/`PdfsController` follow the same store-scoped settings-screen pattern as
+  every other Stage 9 settings controller (`CpScreenResponse`/`RespondsWithFlash`, `readOnly`
+  from `GeneralConfig::$allowAdminChanges`). `PdfsController::reorder()` was written fresh with
+  the `abort_unless($request->input('ids'), 400, ...)` guard from Stage 9j's finding rather than
+  needing a retroactive fix.
+- `FormulasController` is a two-action AJAX-only controller (condition/formula syntax
+  validation) — no permission logic of its own, gated entirely by
+  `can:accessPlugin-commerce` at the route level.
+- `EmailPreviewController` never extended a Commerce base controller (plain `craft\web\
+  Controller`, imperative `requireAdmin(false)`) — ported to a route gated by `RequireAdmin`
+  alone, no `accessPlugin-commerce` check (matching the legacy controller's narrower scope).
+  **Found and fixed a real query bug during live testing**: the legacy random-order-selection
+  logic (`$orderQuery->orderBy('RAND()')` / `orderBy('RANDOM()')` for MySQL/Postgres) throws
+  `Unknown column 'RAND()'` on the new Laravel-based `ElementQuery` — unlike Yii2's query
+  builder, passing a raw SQL function string to `orderBy()` gets treated as a column identifier
+  and quoted. Fixed by switching to `orderByRaw()`, which forwards through `ElementQuery::__call()`
+  to the underlying query builder unchanged. Also found the method's return type was declared
+  `Response` even though every branch actually returns a bare Twig-rendered `string` — fixed the
+  signature during testing before it ever shipped.
+- `DownloadsController` and `UsersController` both extended the now-deleted
+  `BaseFrontEndController` — in both cases only for its `allowAnonymous = true` default, since
+  neither calls the base class's other member (`cartArray()`, already available via the
+  `HasCartArray` trait for controllers that do). `DownloadsController`'s per-IP
+  `pdf-challenge` rate limit (1 request/30s, previously a `yii\filters\RateLimiter` +
+  `IpRateLimitIdentity` behavior scoped to one action) is now a named `PdfChallengeRateLimiter`
+  (`Limit::perSecond(1, 30)->by($request->ip())`) registered in `Plugin::register()` and applied
+  via `->middleware('throttle:...')` on just the `pdf-challenge` route — same shape as the
+  existing `CartChallengeRateLimiter`.
+- `UsersController` (adds a "Commerce" tab to the Edit User screen, showing the customer's
+  orders/carts/subscriptions) required a genuinely different pattern than every other Stage 9
+  controller: the legacy `craft\controllers\EditUserTrait`/`UsersController::
+  EVENT_DEFINE_EDIT_SCREENS` Yii event no longer drives the Edit User screen at all in the new
+  system. The new equivalent is `CraftCms\Cms\Http\Controllers\Users\EditUserTrait` (a trait
+  consumed by dedicated per-screen controllers, not a single monolithic controller with tabs)
+  plus a plain Laravel event, `CraftCms\Cms\User\Events\EditUserScreensResolving`, fired once
+  while the screen list is being built. Ported by: (1) a new `UsersController` under
+  `Http/Controllers/Users/` that also uses the core `EditUserTrait`, resolves the edited user via
+  `editedUser()`, and returns `asEditUserScreen($user, 'commerce')->contentHtml($content)` — the
+  `contentHtml()` injection method is unchanged from the legacy screen's approach; (2) a listener
+  registered in `Plugin::register()` (`Event::listen(EditUserScreensResolving::class, ...)`)
+  that adds the `commerce` nav entry when `currentUser()?->can('accessPlugin-commerce')`,
+  replacing the legacy `Event::on(UsersController::class, UsersController::
+  EVENT_DEFINE_EDIT_SCREENS, ...)` registration removed from `src-yii2/Plugin.php`. No static
+  `Cp::elementIndexHtml()` helper exists anymore either — replaced by the injectable
+  `CraftCms\Cms\Cp\Html\ElementIndexHtml` service (`app(ElementIndexHtml::class)->html($type,
+  $config)`), constructor-injected into the new controller.
+- **Verification**: `route:list` confirmed every new CP/action/myaccount route, including the
+  `myaccount/commerce` and `users/{userId}/commerce` Edit-User-screen routes. Live
+  `craft exec:exec` testing exercised `EmailsController::edit()`/`PdfsController::edit()` (both
+  build a real `CpScreenResponse` against the primary store with no errors), `FormulasController`'s
+  both actions (valid/empty input), `DownloadsController::pdf()`'s missing-order-number guard, and
+  `EmailPreviewController::render()`'s missing-email fallback path (which is what surfaced the
+  `orderByRaw()` and return-type bugs above).
+
 ### Laravel Migration — Stage 9j: Controllers & Routes (Subscriptions)
 
 Migrated `SubscriptionsController` to `src/Http/Controllers/`, and `PlansController` to
