@@ -39,13 +39,10 @@ trait Routes
             $event->rules['myaccount/commerce'] = 'commerce/users/index';
             $event->rules['users/<userId:\d+>/commerce'] = 'commerce/users/index';
 
-            // Products / Variants
-            $event->rules['commerce/products'] = 'commerce/products/product-index';
-            $event->rules['commerce/variants'] = 'commerce/variants/index';
-            $event->rules['commerce/products/<productTypeHandle:{handle}>'] = 'commerce/products/product-index';
-            $event->rules['commerce/variants/<productTypeHandle:{handle}>'] = 'commerce/variants/index';
+            // Products / Variants — index and create are now registered in routes/cp.php; the
+            // element-edit rules below are Craft core's own generic element-editing route, not a
+            // Commerce controller, so they stay here.
             $event->rules['commerce/variants/<elementId:\d+><slug:(?:-[^\/]*)?>'] = 'elements/edit';
-            $event->rules['commerce/products/<productType:{handle}>/new'] = 'commerce/products/create';
             $event->rules['commerce/products/<productTypeHandle:{handle}>/<elementId:\d+><slug:(?:-[^\/]*)?>'] = 'elements/edit';
 
             $event->rules['commerce/subscriptions'] = 'commerce/subscriptions/index';
@@ -57,10 +54,7 @@ trait Routes
             $event->rules['commerce/subscription-plans/<planId:\d+>'] = 'commerce/plans/edit-plan';
             $event->rules['commerce/subscription-plans/new'] = 'commerce/plans/edit-plan';
 
-            // Product Types
-            $event->rules['commerce/settings/producttypes'] = 'commerce/product-types/product-type-index';
-            $event->rules['commerce/settings/producttypes/<productTypeId:\d+>'] = 'commerce/product-types/edit-product-type';
-            $event->rules['commerce/settings/producttypes/new'] = 'commerce/product-types/edit-product-type';
+            // Product Types are now registered in routes/cp.php
 
             // Orders are now registered in routes/cp.php
 

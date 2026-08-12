@@ -11,6 +11,8 @@ use CraftCms\Commerce\Http\Controllers\Settings\LineItemStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderSettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\PaymentCurrenciesController;
+use CraftCms\Commerce\Http\Controllers\ProductsController;
+use CraftCms\Commerce\Http\Controllers\Settings\ProductTypesController;
 use CraftCms\Commerce\Http\Controllers\Settings\SalesController;
 use CraftCms\Commerce\Http\Controllers\Settings\SettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\ShippingCategoriesController;
@@ -22,6 +24,7 @@ use CraftCms\Commerce\Http\Controllers\Settings\StoresController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxCategoriesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxRatesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxZonesController;
+use CraftCms\Commerce\Http\Controllers\VariantsController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
@@ -50,7 +53,18 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
         Route::get('commerce/settings/lineitemstatuses', [LineItemStatusesController::class, 'index']);
         Route::get('commerce/settings/lineitemstatuses/{storeHandle}/new', [LineItemStatusesController::class, 'edit']);
         Route::get('commerce/settings/lineitemstatuses/{storeHandle}/{id}', [LineItemStatusesController::class, 'edit'])->whereNumber('id');
+
+        Route::get('commerce/settings/producttypes', [ProductTypesController::class, 'productTypeIndex']);
+        Route::get('commerce/settings/producttypes/new', [ProductTypesController::class, 'editProductType']);
+        Route::get('commerce/settings/producttypes/{productTypeId}', [ProductTypesController::class, 'editProductType'])->whereNumber('productTypeId');
     });
+
+    // ProductsController/VariantsController extend BaseCpController directly (no extra
+    // permission beyond accessPlugin-commerce) — each additionally guards its own methods with
+    // an inline "does the user have access to any product type" check.
+    Route::get('commerce/products/{productType}/new', [ProductsController::class, 'create']);
+    Route::get('commerce/products/{productTypeHandle?}', [ProductsController::class, 'productIndex']);
+    Route::get('commerce/variants/{productTypeHandle?}', [VariantsController::class, 'index']);
 
     // BaseStoreManagementController::init() always required commerce-manageStoreSettings, on
     // top of whichever more specific permission each feature area's own controller adds — every

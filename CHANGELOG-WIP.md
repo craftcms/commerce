@@ -1,5 +1,48 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 9g: Controllers & Routes (Catalog)
+
+Migrated `ProductsController`, `VariantsController` to `src/Http/Controllers/`, and
+`ProductTypesController` to `src/Http/Controllers/Settings/`.
+
+- `Element::SCENARIO_ESSENTIALS` → `$product->ruleset->useScenario(ElementRules::
+  SCENARIO_ESSENTIALS)` — same replacement pattern as `SCENARIO_LIVE` in Stages 9b/9f, confirmed
+  via cms-6's own `StoreEntryController` (the real "create a new draft entry" reference
+  implementation) rather than guessed.
+- `Craft::$app->getElements()->canSave($product, $user)` → `$product->canSave($user)` — same
+  authorization-moved-onto-the-element pattern as `canView()`/`canDelete()` found in Stage 9f.
+- `Craft::$app->getDrafts()->saveElementAsDraft(...)` kept as the legacy accessor call (confirmed
+  a real, identically-shaped `CraftCms\Cms\Element\Drafts::saveElementAsDraft()` backs it, per
+  `StoreEntryController`'s own usage) — no change needed beyond the calls already made through it.
+- `craft\helpers\ElementHelper::generateSlug()`/`tempSlug()` → `CraftCms\Cms\Element\
+  ElementHelper` (confirmed via explicit `@deprecated` pointer in the legacy shim);
+  `craft\helpers\DateTimeHelper::now()` → Laravel's own `now()` global (also explicitly
+  deprecated in favor of it); `craft\helpers\DateTimeHelper::pause()`/`resume()`/`toDateTime()`
+  → `CraftCms\Cms\Support\DateTimeHelper` (no deprecation pointer, but a real class with matching
+  methods); `craft\enums\PropagationMethod` → `CraftCms\Cms\Element\Enums\PropagationMethod`.
+- **Asset bundles left as-is**: confirmed via `docs/6.x/extend/assets.md` that a newer
+  `LegacyAssetInterface`/`InternalAssetRegistry` system exists, but the docs themselves flag it as
+  "deprecated, proactively... a stopgap" on the way to an Inertia-based UI — not worth migrating
+  Commerce's asset bundles (`CommerceCpAsset`, `ProductIndexAsset`, `EditSectionAsset`, etc.) to a
+  system that's already superseded. Every `registerAssetBundle()` call throughout this whole
+  controller migration (Stages 9a-9g) is left on the legacy path, confirmed still working via live
+  testing every time.
+- **New, more reliable console-testing technique found**: `auth()->login($user)`/`auth()->
+  setUser($user)` hang indefinitely under `craft exec:exec` (documented in Stage 9f), but
+  `request()->setUserResolver(fn() => $user)` does not — it satisfies `request()->user()`/
+  `request()->craftUser()` (and anything built on those, e.g. `ProductTypes::
+  getViewableProductTypeIds()`) without hanging. It does **not** satisfy `currentUser()`/
+  `currentUserElement()` (the `CraftCms\Cms` global helpers), which resolve through a different
+  path (the Auth facade/guard) — so permission gates built on those two helpers specifically are
+  still only verifiable as an anonymous/403 case through this harness. Use `setUserResolver()`
+  as the default technique for future stages; it's strictly better than not testing at all.
+- **Verification**: `route:list` confirmed all new routes. Live `craft exec:exec` testing (using
+  the new `setUserResolver()` technique) fully exercised `ProductTypesController::
+  productTypeIndex()` and `editProductType()` end-to-end as an authenticated admin with no errors.
+  `ProductsController::create()` was verified up to its `currentUserElement()` gate (product
+  type lookup, site resolution, and editable-site fallback all confirmed correct) — blocked only
+  by the `currentUserElement()` resolution gap just documented, not a defect in the new code.
+
 ### Laravel Migration — Stage 9f (final): Controllers & Routes (Orders)
 
 Migrated `OrdersController` (2,227 lines, 29 actions — the largest and highest-risk single

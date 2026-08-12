@@ -13,6 +13,7 @@ use CraftCms\Commerce\Http\Controllers\Settings\LineItemStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderSettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\PaymentCurrenciesController;
+use CraftCms\Commerce\Http\Controllers\Settings\ProductTypesController;
 use CraftCms\Commerce\Http\Controllers\Settings\SalesController;
 use CraftCms\Commerce\Http\Controllers\Settings\SettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\ShippingCategoriesController;
@@ -78,6 +79,9 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->g
     Route::post('line-item-statuses/save', [LineItemStatusesController::class, 'save']);
     Route::post('line-item-statuses/reorder', [LineItemStatusesController::class, 'reorder']);
     Route::post('line-item-statuses/archive', [LineItemStatusesController::class, 'archive']);
+
+    Route::post('product-types/save-product-type', [ProductTypesController::class, 'saveProductType']);
+    Route::post('product-types/delete-product-type', [ProductTypesController::class, 'deleteProductType']);
 });
 
 // BaseStoreManagementController::init() always required commerce-manageStoreSettings, on top of
