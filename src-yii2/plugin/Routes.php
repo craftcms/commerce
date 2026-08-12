@@ -86,13 +86,7 @@ trait Routes
             $event->rules['commerce/settings/pdfs/<storeHandle:{handle}>/new'] = 'commerce/pdfs/edit';
             $event->rules['commerce/settings/pdfs/<storeHandle:{handle}>/<id:\d+>'] = 'commerce/pdfs/edit';
 
-            $event->rules['commerce/settings/orderstatuses'] = 'commerce/order-statuses/index';
-            $event->rules['commerce/settings/orderstatuses/<storeHandle:{handle}>/new'] = 'commerce/order-statuses/edit';
-            $event->rules['commerce/settings/orderstatuses/<storeHandle:{handle}>/<id:\d+>'] = 'commerce/order-statuses/edit';
-
-            $event->rules['commerce/settings/lineitemstatuses'] = 'commerce/line-item-statuses/index';
-            $event->rules['commerce/settings/lineitemstatuses/<storeHandle:{handle}>/new'] = 'commerce/line-item-statuses/edit';
-            $event->rules['commerce/settings/lineitemstatuses/<storeHandle:{handle}>/<id:\d+>'] = 'commerce/line-item-statuses/edit';
+            // Order Statuses and Line Item Statuses are now registered in routes/cp.php
 
             // Store Settings and Payment Currencies are now registered in routes/cp.php
 

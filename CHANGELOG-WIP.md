@@ -1,5 +1,38 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 9f (partial): Controllers & Routes (Order/Line Item Statuses, User Orders)
+
+Migrated `OrderStatusesController`, `LineItemStatusesController` to
+`src/Http/Controllers/Settings/`, and `UserOrdersController` to
+`src/Http/Controllers/`. `BaseAdminController`-style (`RequireAdmin` route middleware) for the
+first two; `UserOrdersController` is a single anonymous JSON action (matches
+`BaseFrontEndController`'s `allowAnonymous = true`), registered in `routes/actions.php` with no
+`auth` middleware. `BaseFrontEndController` itself is **not** deleted — `CartController`,
+`DownloadsController`, `PaymentSourcesController`, `PaymentsController`, `UsersController` still
+extend it (remaining Stage 9f/9h/9k work).
+
+- Both `index()` templates extend `commerce/_layouts/settings` directly (own crumbs/title) →
+  `pageTemplate()`; both `_edit` templates are bare content fragments → `CpScreenResponse`. Same
+  per-template-shape check as every prior sub-stage, this time both patterns appear within the
+  same controller.
+- **Found and fixed a real bug**: `OrderStatusesController::edit()`'s email dropdown (`Plugin::
+  getInstance()->getEmails()->getAllEmails()`) now returns `CraftCms\Commerce\Email\Models\Email`
+  (already migrated to `src/`), not the legacy `craft\commerce\models\Email` the new controller
+  was initially typed against — a `TypeError` on the `mapWithKeys()` closure's parameter type.
+  Fixed by importing the new `Email` model instead.
+- `getOrderStatuses()`/`reorder()`/`delete()` on `OrderStatusesController` and `reorder()`/
+  `archive()` on `LineItemStatusesController` all sit under `BaseAdminController::init()`'s
+  unconditional `requireAdmin(false)` in the legacy source (not just the index/edit screens) —
+  replicated by putting every one of these action routes in the existing shared `RequireAdmin`
+  group in `routes/actions.php`, alongside Gateways/Settings/Stores/OrderSettings.
+- **Verification**: `route:list` confirmed all new page and action routes (including the
+  dual CP/site registration for `user-orders/get-orders`). Direct `craft exec:exec` invocation
+  of `index()`/`edit()`/`save()`/`reorder()`/`delete()`/`archive()`/`getOrderStatuses()` — a real
+  `save()` round-trip actually created and then deleted a test order status to confirm the model
+  save path works end-to-end, not just that it returns a response object. Remaining failures were
+  the known console-context limitations (`currentUser` null, missing `Accept` header on the
+  synthetic request) — not regressions.
+
 ### Laravel Migration — Stage 9e: Controllers & Routes (Store & Settings)
 
 Migrated `StoreManagementController`, `StoresController`, `SettingsController`,

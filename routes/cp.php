@@ -6,7 +6,9 @@ use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingController;
 use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingRulesController;
 use CraftCms\Commerce\Http\Controllers\Settings\DiscountsController;
 use CraftCms\Commerce\Http\Controllers\Settings\GatewaysController;
+use CraftCms\Commerce\Http\Controllers\Settings\LineItemStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderSettingsController;
+use CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\PaymentCurrenciesController;
 use CraftCms\Commerce\Http\Controllers\Settings\SalesController;
 use CraftCms\Commerce\Http\Controllers\Settings\SettingsController;
@@ -39,6 +41,14 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
         Route::get('commerce/settings/stores/new', [StoresController::class, 'editStore']);
         Route::get('commerce/settings/stores/{storeId}', [StoresController::class, 'editStore'])->whereNumber('storeId');
         Route::get('commerce/settings/sites', [StoresController::class, 'editSiteStores']);
+
+        Route::get('commerce/settings/orderstatuses', [OrderStatusesController::class, 'index']);
+        Route::get('commerce/settings/orderstatuses/{storeHandle}/new', [OrderStatusesController::class, 'edit']);
+        Route::get('commerce/settings/orderstatuses/{storeHandle}/{id}', [OrderStatusesController::class, 'edit'])->whereNumber('id');
+
+        Route::get('commerce/settings/lineitemstatuses', [LineItemStatusesController::class, 'index']);
+        Route::get('commerce/settings/lineitemstatuses/{storeHandle}/new', [LineItemStatusesController::class, 'edit']);
+        Route::get('commerce/settings/lineitemstatuses/{storeHandle}/{id}', [LineItemStatusesController::class, 'edit'])->whereNumber('id');
     });
 
     // BaseStoreManagementController::init() always required commerce-manageStoreSettings, on

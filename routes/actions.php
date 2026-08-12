@@ -6,7 +6,9 @@ use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingController;
 use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingRulesController;
 use CraftCms\Commerce\Http\Controllers\Settings\DiscountsController;
 use CraftCms\Commerce\Http\Controllers\Settings\GatewaysController;
+use CraftCms\Commerce\Http\Controllers\Settings\LineItemStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderSettingsController;
+use CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\PaymentCurrenciesController;
 use CraftCms\Commerce\Http\Controllers\Settings\SalesController;
 use CraftCms\Commerce\Http\Controllers\Settings\SettingsController;
@@ -19,10 +21,13 @@ use CraftCms\Commerce\Http\Controllers\Settings\StoresController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxCategoriesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxRatesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxZonesController;
+use CraftCms\Commerce\Http\Controllers\UserOrdersController;
 use CraftCms\Commerce\Http\Controllers\WebhooksController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('webhooks/process-webhook', [WebhooksController::class, 'processWebhook']);
+
+Route::match(['get', 'post'], 'user-orders/get-orders', [UserOrdersController::class, 'getOrders']);
 
 // These are also reachable, unauthenticated, at their site-side action URL (per
 // CraftCms\Cms\Plugin\Concerns\HasRoutes::registerActionRoutes()) — the `auth`/`can`
@@ -44,6 +49,15 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->g
     Route::post('stores/delete-store', [StoresController::class, 'deleteStore']);
     Route::post('stores/reorder-stores', [StoresController::class, 'reorderStores']);
     Route::post('stores/save-site-stores', [StoresController::class, 'saveSiteStores']);
+
+    Route::post('order-statuses/save', [OrderStatusesController::class, 'save']);
+    Route::match(['get', 'post'], 'order-statuses/get-order-statuses', [OrderStatusesController::class, 'getOrderStatuses']);
+    Route::post('order-statuses/reorder', [OrderStatusesController::class, 'reorder']);
+    Route::post('order-statuses/delete', [OrderStatusesController::class, 'delete']);
+
+    Route::post('line-item-statuses/save', [LineItemStatusesController::class, 'save']);
+    Route::post('line-item-statuses/reorder', [LineItemStatusesController::class, 'reorder']);
+    Route::post('line-item-statuses/archive', [LineItemStatusesController::class, 'archive']);
 });
 
 // BaseStoreManagementController::init() always required commerce-manageStoreSettings, on top of
