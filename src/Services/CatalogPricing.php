@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Services;
 
-use craft\commerce\elements\conditions\purchasables\CatalogPricingCondition;
-use craft\commerce\elements\conditions\purchasables\CatalogPricingCustomerConditionRule;
 use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\CatalogPricing as CatalogPricingJob;
 use craft\commerce\records\CatalogPricingQueue as CatalogPricingQueueRecord;
@@ -13,6 +11,8 @@ use craft\helpers\Console;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Commerce\Catalog\Models\CatalogPricing as CatalogPricingModel;
+use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
+use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCustomerConditionRule;
 use CraftCms\Commerce\Database\Table;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;
@@ -528,7 +528,6 @@ class CatalogPricing
 
     /**
      * Creates a query for catalog prices, selecting price/promotionalPrice/salePrice columns.
-     * TODO: Migrate CatalogPricingCondition and CatalogPricingCustomerConditionRule to new element conditions system
      */
     public function createCatalogPricesQuery(?int $userId = null, int|string|null $storeId = null, bool $allPrices = false, ?CatalogPricingCondition $condition = null): \Illuminate\Database\Query\Builder
     {
@@ -539,23 +538,18 @@ class CatalogPricing
                 DB::raw('MIN(price) AS salePrice'),
             ]);
 
-        // TODO: Migrate to new element conditions system
-        /** @phpstan-ignore-next-line */
         $condition ??= Conditions::createCondition([
             'class' => CatalogPricingCondition::class,
             'allPrices' => $allPrices,
         ]);
 
         if ($userId) {
-            // TODO: update CatalogPricingCustomerConditionRule once conditions migrated
-            /** @phpstan-ignore-next-line */
             $condition->addConditionRule(Conditions::createConditionRule([
                 'class' => CatalogPricingCustomerConditionRule::class,
                 'customerId' => $userId,
             ]));
         }
 
-        /** @phpstan-ignore-next-line */
         $condition->modifyQuery($query);
 
         $query->where(function($q) {
@@ -583,22 +577,18 @@ class CatalogPricing
         $query = DB::table(Table::CATALOG_PRICING . ' as cp')
             ->select([DB::raw('MIN(price) as price')]);
 
-        // TODO: Migrate to new element conditions system
-        /** @phpstan-ignore-next-line */
         $condition ??= Conditions::createCondition([
             'class' => CatalogPricingCondition::class,
             'allPrices' => $allPrices,
         ]);
 
         if ($userId) {
-            /** @phpstan-ignore-next-line */
             $condition->addConditionRule(Conditions::createConditionRule([
                 'class' => CatalogPricingCustomerConditionRule::class,
                 'customerId' => $userId,
             ]));
         }
 
-        /** @phpstan-ignore-next-line */
         $condition->modifyQuery($query);
 
         $query->where(function($q) {
@@ -647,7 +637,6 @@ class CatalogPricing
         $query->joinSub($subQuery, 'purchasables', 'purchasables.id', '=', 'cp.purchasableId');
 
         if ($conditionBuilder !== null) {
-            /** @phpstan-ignore-next-line */
             $conditionBuilder->modifyQuery($query);
         }
 

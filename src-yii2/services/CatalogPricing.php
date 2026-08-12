@@ -2,8 +2,8 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\elements\conditions\purchasables\CatalogPricingCondition;
 use craft\commerce\records\CatalogPricingQueue as CatalogPricingQueueRecord;
+use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
 use craft\events\ModelEvent;
 use craft\queue\QueueInterface;
 use Illuminate\Support\Collection;
