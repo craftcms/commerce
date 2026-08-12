@@ -10,8 +10,6 @@ namespace craft\commerce\fieldlayoutelements;
 use Craft;
 use craft\base\ElementInterface;
 use craft\commerce\base\Purchasable;
-use craft\commerce\elements\conditions\purchasables\CatalogPricingCondition;
-use craft\commerce\elements\conditions\purchasables\CatalogPricingPurchasableConditionRule;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\Sale;
@@ -22,6 +20,8 @@ use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\web\assets\htmx\HtmxAsset;
+use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
+use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingPurchasableConditionRule;
 use yii\base\InvalidArgumentException;
 
 /**

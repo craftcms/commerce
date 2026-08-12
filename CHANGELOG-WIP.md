@@ -1,5 +1,56 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — CatalogPricingCondition and its rules
+
+Migrated `craft\commerce\elements\conditions\purchasables\{CatalogPricingCondition,
+CatalogPricingPurchasableConditionRule,CatalogPricingCustomerConditionRule}` to
+`CraftCms\Commerce\CatalogPricing\Conditions\*`, alongside `CatalogPricingConditionRuleInterface`
+(already relocated to `src/CatalogPricing/Contracts/` in an earlier stage, now fully
+implementable). This fixes a real fatal error discovered while live-verifying the Phase 2
+facade cleanup: the legacy `CatalogPricingCondition` overrode `getConfig()`, which Craft 6 made
+`final` on the new `CraftCms\Cms\Condition\BaseCondition` — any code path that constructed one
+(`CatalogPricing::createCatalogPrices/PricingQuery()`, the catalog pricing CP page, the
+purchasable price field's condition builder) fataled outright.
+
+- `defineRules()` → `getRules()`, Illuminate-style. Critically, `allPrices` had to be added as a
+  `getRules()` key — under the new `Conditions::createCondition()`, that array doubles as the
+  allowlist of properties `['class' => ..., 'allPrices' => ...]` config actually gets applied to
+  (Yii2's `Craft::createObject()` did unfiltered property assignment; the new one filters by
+  `array_keys($condition->getRules())`). Without this, `allPrices` would have silently stayed
+  `false` regardless of what was passed in.
+- `modifyQuery(craft\db\Query $query)` → `modifyQuery(Illuminate\Database\Query\Builder $query)`
+  on the condition, both rule classes, and the `CatalogPricingConditionRuleInterface` contract —
+  the real call site (`src/Services/CatalogPricing.php`) has passed an Illuminate builder for a
+  while now (via `DB::table(...)`), so this was a second latent `TypeError` waiting behind the
+  `final`-method fatal. Rewrote the Yii2 array-condition/subquery logic (`andWhere([...])`,
+  nested `craft\db\Query` subqueries) as Illuminate `where()`/`whereIn()`/closures — verified the
+  generated SQL is semantically identical to the original for all three cases (no restriction,
+  "no user-specific rules", "rules for a specific customer").
+- `CatalogPricingPurchasableConditionRule::modifyQuery()`'s `$query->andWhere(['purchasableId' =>
+  $ids])` → `$query->whereIn('purchasableId', $ids)`.
+- Dropped the dead `defineRules()` overrides on both rule classes (never called by the new
+  validation stack) in favor of real `getRules()` overrides.
+- `Craft::t('commerce', ...)` → `t(..., category: 'commerce')` on both rule classes'
+  `getLabel()`; `craft\elements\User` → `CraftCms\Cms\User\Elements\User` in the customer rule.
+- Left `craft\helpers\{Html,Cp,ArrayHelper}` and `craft\commerce\Plugin`/`base\PurchasableInterface`
+  (docblock only) as legacy references — no confirmed-safe new equivalent for the first three
+  (not `class_alias`-based; see the craft-core-reference cleanup methodology), and the Commerce
+  namespace ones are still a legitimate exception during the transition.
+- Legacy `src-yii2/elements/conditions/purchasables/*.php` files are now thin `class_alias`
+  stubs. Updated the three still-legacy consumers' imports (`CatalogPricingController.php`,
+  `PurchasablePriceField.php`, `src-yii2/services/CatalogPricing.php`) to the new namespace.
+- Removed the now-stale "TODO: Migrate ... once conditions migrated" comments and
+  `@phpstan-ignore-next-line` markers in `src/Services/CatalogPricing.php`'s three query-building
+  methods, now that the types genuinely line up.
+
+**Verification**: `php -l` on all touched/new files; `Conditions::createCondition()`/
+`createConditionRule()` round-tripped live via `ddev`/`craft exec:exec` (confirmed `allPrices`
+and `customerId` are actually applied, not silently dropped); `CatalogPricing::
+createCatalogPricesQuery()` inspected via `->toSql()`/`->getBindings()` for the no-restriction,
+"no user rules", and "specific customer" cases, and executed against the real dev database; the
+full `getCatalogPrices()` public API path (the one the catalog pricing CP page actually calls)
+also verified end-to-end; confirmed the legacy `class_alias` still resolves correctly.
+
 ### Laravel Migration — Craft core reference cleanup, Phase 2
 
 Completed the follow-up flagged at the end of Phase 1: swapped `\Craft::$app->getX()->method()`

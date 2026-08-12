@@ -9,8 +9,6 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\behaviors\StoreBehavior;
-use craft\commerce\elements\conditions\purchasables\CatalogPricingCondition;
-use craft\commerce\elements\conditions\purchasables\CatalogPricingPurchasableConditionRule;
 use craft\commerce\helpers\Purchasable;
 use craft\commerce\models\CatalogPricing;
 use craft\commerce\Plugin;
@@ -20,6 +18,8 @@ use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\models\Site;
 use craft\web\assets\htmx\HtmxAsset;
+use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
+use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingPurchasableConditionRule;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
