@@ -84,18 +84,9 @@ trait Routes
 
             // Sales, Discounts, and Pricing Rules are now registered in routes/cp.php
 
-            // Inventory
-            $event->rules['commerce/inventory'] = 'commerce/inventory/edit-location-levels'; // redirect to the first location
-            $event->rules['commerce/inventory/levels'] = 'commerce/inventory/edit-location-levels'; // redirect to the first location
-
-            $event->rules['commerce/inventory/item/<inventoryItemId:\d+>'] = 'commerce/inventory/item-edit';
-            $event->rules['commerce/inventory/levels/<inventoryLocationHandle:{handle}>'] = 'commerce/inventory/edit-location-levels';
-
-            $event->rules['commerce/inventory-locations'] = 'commerce/inventory-locations/index';
-            $event->rules['commerce/inventory-locations/new'] = 'commerce/inventory-locations/edit';
-            $event->rules['commerce/inventory-locations/<inventoryLocationId:\d+>'] = 'commerce/inventory-locations/edit';
-
-            $event->rules['commerce/inventory/transfers'] = 'commerce/transfers/index';
+            // Inventory, Inventory Locations, and Transfers index/edit are now registered in
+            // routes/cp.php — the element-edit rule below is Craft core's own generic
+            // element-editing route, not a Commerce controller, so it stays here.
             $event->rules['commerce/inventory/transfers/<elementId:\\d+>'] = 'elements/edit';
 
             // commerce/donations is now registered in routes/cp.php

@@ -1,6 +1,8 @@
 {% namespace 'inventoryLocationAddress' %}
-{{ form.render()|raw }}
+{{ extraFieldsHtml|raw }}
 {% endnamespace %}
+
+{{ form|raw }}
 
 {% hook "cp.commerce.inventoryLocation.edit" %}
 

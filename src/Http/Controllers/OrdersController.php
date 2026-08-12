@@ -44,6 +44,10 @@ use craft\web\assets\money\MoneyAsset;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Element\Validation\ElementRules;
 use CraftCms\Cms\Field\Field;
+use CraftCms\Cms\FieldLayout\FieldLayoutCompiler;
+use CraftCms\Cms\Form\Enums\ControlMode;
+use CraftCms\Cms\Form\FormContext;
+use CraftCms\Cms\Form\FormHtmlRenderer;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpModalResponse;
 use CraftCms\Cms\Support\Facades\Elements;
@@ -1226,17 +1230,36 @@ JS, []);
             $variables['title'] = t('Cart {number}', ['number' => $order->getShortNumber()], category: 'commerce');
         }
 
-        $fieldLayout = \Craft::$app->getFields()->getLayoutByType(Order::class);
-        $staticForm = $fieldLayout->createForm($order, true, [
-            'namespace' => 'static_fields',
-            'tabIdPrefix' => 'static-fields',
-        ]);
-        $dynamicForm = $fieldLayout->createForm($order, false, [
-            'tabIdPrefix' => 'fields',
-        ]);
+        $fieldLayout = $order->getFieldLayout();
+        // The legacy FieldLayout::createForm()/FieldLayoutForm API is gone — form building now
+        // goes through FieldLayoutCompiler (produces an immutable FormPayload) + FormHtmlRenderer
+        // (renders that payload to HTML/tab data), matching cms-6's own EditElementController::
+        // prepareEditor(). There's no more tabIdPrefix (namespace alone drives both input names
+        // and DOM ids) — the static (read-only) form gets its own namespace so its tab ids never
+        // collide with the dynamic form's; the dynamic (editable) form is left unnamespaced so its
+        // submitted field names still match what setFieldValuesFromRequest('fields') expects.
+        $renderer = app(FormHtmlRenderer::class);
 
-        $variables['staticFieldsHtml'] = $staticForm->render(false);
-        $variables['dynamicFieldsHtml'] = $dynamicForm->render(false);
+        $staticPayload = app(FieldLayoutCompiler::class)->compile(
+            $fieldLayout,
+            $order,
+            new FormContext(
+                namespace: 'static_fields',
+                mode: ControlMode::ReadOnly,
+            ),
+        );
+        $dynamicPayload = app(FieldLayoutCompiler::class)->compile(
+            $fieldLayout,
+            $order,
+            new FormContext(
+                errors: $order->errors()->getMessages(),
+                mode: ControlMode::Editable,
+                refreshable: true,
+            ),
+        );
+
+        $variables['staticFieldsHtml'] = $renderer->render($staticPayload);
+        $variables['dynamicFieldsHtml'] = $renderer->render($dynamicPayload);
 
         $variables['tabs'] = [];
 
@@ -1246,12 +1269,12 @@ JS, []);
             'class' => null,
         ];
 
-        foreach ($staticForm->getTabMenu() as $tabId => $tab) {
+        foreach ($renderer->tabMenu($staticPayload) as $tabId => $tab) {
             $tab['class'] .= ' custom-tab static';
             $variables['tabs'][$tabId] = $tab;
         }
 
-        foreach ($dynamicForm->getTabMenu() as $tabId => $tab) {
+        foreach ($renderer->tabMenu($dynamicPayload) as $tabId => $tab) {
             $tab['class'] .= ' custom-tab';
             $variables['tabs'][$tabId] = $tab;
         }

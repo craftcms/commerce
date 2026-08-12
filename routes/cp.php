@@ -6,6 +6,8 @@ use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingController;
 use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingRulesController;
 use CraftCms\Commerce\Http\Controllers\Settings\DiscountsController;
 use CraftCms\Commerce\Http\Controllers\Settings\GatewaysController;
+use CraftCms\Commerce\Http\Controllers\InventoryController;
+use CraftCms\Commerce\Http\Controllers\InventoryLocationsController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
 use CraftCms\Commerce\Http\Controllers\Settings\LineItemStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderSettingsController;
@@ -24,6 +26,7 @@ use CraftCms\Commerce\Http\Controllers\Settings\StoresController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxCategoriesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxRatesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxZonesController;
+use CraftCms\Commerce\Http\Controllers\TransfersController;
 use CraftCms\Commerce\Http\Controllers\VariantsController;
 use Illuminate\Support\Facades\Route;
 
@@ -143,4 +146,22 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
         Route::get('commerce/orders/{storeHandle}/create', [OrdersController::class, 'create']);
         Route::get('commerce/orders/{orderStatusHandle?}', [OrdersController::class, 'orderIndex']);
     });
+
+    // InventoryController checks commerce-manageInventoryStockLevels inline on every action
+    // (not via init()) — replicated here as a route-group-wide permission instead.
+    Route::middleware('can:commerce-manageInventoryStockLevels')->group(function () {
+        Route::get('commerce/inventory/item/{inventoryItemId}', [InventoryController::class, 'itemEdit'])->whereNumber('inventoryItemId');
+        Route::get('commerce/inventory/levels/{inventoryLocationHandle}', [InventoryController::class, 'editLocationLevels']);
+        Route::get('commerce/inventory/levels', [InventoryController::class, 'editLocationLevels']);
+        Route::get('commerce/inventory', [InventoryController::class, 'editLocationLevels']);
+    });
+
+    Route::middleware('can:commerce-manageInventoryLocations')->group(function () {
+        Route::get('commerce/inventory-locations', [InventoryLocationsController::class, 'index']);
+        Route::get('commerce/inventory-locations/new', [InventoryLocationsController::class, 'edit']);
+        Route::get('commerce/inventory-locations/{inventoryLocationId}', [InventoryLocationsController::class, 'edit'])->whereNumber('inventoryLocationId');
+    });
+
+    Route::middleware('can:commerce-manageInventoryTransfers')
+        ->get('commerce/inventory/transfers', [TransfersController::class, 'index']);
 });

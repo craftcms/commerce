@@ -1,5 +1,54 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 9i: Controllers & Routes (Inventory)
+
+Migrated `InventoryController`, `InventoryLocationsController`, `TransfersController` to
+`src/Http/Controllers/`.
+
+- **Found and fixed a critical, real architectural gap affecting already-merged Stage 9f
+  code**: `FieldLayout::createForm()` — used to build a Twig-renderable field-layout edit form
+  with manually-manipulable tabs — no longer exists on the new-system `FieldLayout` class at
+  all. `InventoryLocationsController::edit()` needs this (to embed an Address's field layout
+  inside its own screen with injected hidden fields); so, retroactively discovered, does
+  `OrdersController::updateTemplateVariables()` (merged in Stage 9f) — its two `createForm()`
+  calls both passed `tabIdPrefix` in the config array, which throws immediately in the new
+  system's legacy compat shim, meaning **`commerce/orders/{id}` has been throwing a hard
+  exception on every load since Stage 9f merged**. Root-caused via a dedicated research pass
+  into cms-6's own already-migrated `EditElementController::prepareEditor()` (the real reference
+  implementation) and fixed both call sites the same way: dropped the legacy `FieldLayoutForm`
+  bridge entirely and adopted the actual new pipeline — `CraftCms\Cms\FieldLayout\
+  FieldLayoutCompiler::compile($fieldLayout, $element, new FormContext(...))` producing an
+  immutable `FormPayload`, rendered via `CraftCms\Cms\Form\FormHtmlRenderer::render($payload)`/
+  `::tabMenu($payload)`. There's no more `tabIdPrefix` (a single `namespace` now drives both
+  input names and tab/DOM ids), and the payload can't be mutated the way `$form->tabs` used to
+  be — `InventoryLocationsController::edit()`'s hidden-field injection moved from PHP-side tab
+  manipulation into the Twig template directly (`_edit.twig`, rendered around `{{ form|raw }}`
+  instead of `{{ form.render()|raw }}`), matching how `EditElementController` itself does the
+  same thing (concatenating `Html::hiddenInput()` around the rendered form content, never
+  mutating the compiled payload). Left a `TODO` for stripping the address field layout's
+  redundant title/`LabelField` (a cosmetic UI gap, not a functional one) via the
+  `FieldLayoutFormResolving` event once that's worth the complexity.
+  **`SubscriptionsController` (Stage 9j) already uses only the safe `createForm()`+`getTabMenu()`
+  subset with no `tabIdPrefix`/`tabs` mutation — confirmed unaffected, but will still need the
+  same `FieldLayoutCompiler` swap when migrated, since the legacy method doesn't exist at all.**
+- Confirmed `$element->getFieldLayout()` (the normal way to get an element's field layout) is
+  exactly the right input to `FieldLayoutCompiler::compile()` — no special accessor needed,
+  unlike the false lead of trying to route through `Craft::$app->getFields()` for a
+  bridge-wrapped type (which turned out to return the same bare core class anyway).
+- `CpScreenResponse::prepareScreen(callable $value)` — confirmed the real replacement for the
+  legacy `prepareScreen()` callback (used by `InventoryController::itemEdit()`'s htmx-processing
+  hook), with the exact same `($screen, $containerId)` callback signature.
+- **Verification**: `route:list` confirmed all new routes. Live `craft exec:exec` testing fully
+  exercised `InventoryLocationsController::index()` and `edit()` end-to-end (including a full
+  `toResponse()` render of the fixed field-layout form, confirmed to only fail afterward on the
+  same known console-context `currentUser` limitation seen throughout this migration), and
+  `OrdersController::updateTemplateVariables()` directly via reflection (bypassing the
+  `currentUserElement()`-gated `enforceManageOrderPermissions()` check that blocks a full
+  `editOrder()` call in this console-testing harness) — confirmed it now runs to completion with
+  no errors. `InventoryController::editLocationLevels()` and `TransfersController::index()` also
+  verified (the latter hits the same known element-index Twig-context limitation as
+  `orderIndex()`/`ProductsController::productIndex()` from earlier stages, not a regression).
+
 ### Laravel Migration — Stage 9h: Controllers & Routes (Payments)
 
 Migrated `PaymentsController`, `PaymentSourcesController` to `src/Http/Controllers/`.

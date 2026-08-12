@@ -9,6 +9,8 @@ use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingController;
 use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingRulesController;
 use CraftCms\Commerce\Http\Controllers\Settings\DiscountsController;
 use CraftCms\Commerce\Http\Controllers\Settings\GatewaysController;
+use CraftCms\Commerce\Http\Controllers\InventoryController;
+use CraftCms\Commerce\Http\Controllers\InventoryLocationsController;
 use CraftCms\Commerce\Http\Controllers\Settings\LineItemStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderSettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController;
@@ -27,6 +29,7 @@ use CraftCms\Commerce\Http\Controllers\Settings\StoresController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxCategoriesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxRatesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxZonesController;
+use CraftCms\Commerce\Http\Controllers\TransfersController;
 use CraftCms\Commerce\Http\Controllers\UserOrdersController;
 use CraftCms\Commerce\Http\Controllers\WebhooksController;
 use CraftCms\Commerce\Http\RateLimiters\CartChallengeRateLimiter;
@@ -205,4 +208,32 @@ Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function () {
         Route::get('orders/remove-customer-data-modal', [OrdersController::class, 'removeCustomerDataModal']);
         Route::post('orders/remove-customer-data', [OrdersController::class, 'removeCustomerData']);
     });
+});
+
+// InventoryController checks commerce-manageInventoryStockLevels inline on every action
+// (not via init()) — replicated here as a route-group-wide permission instead.
+Route::middleware(['auth', 'can:commerce-manageInventoryStockLevels'])->group(function () {
+    Route::post('inventory/item-save', [InventoryController::class, 'itemSave']);
+    Route::get('inventory/inventory-levels-table-data', [InventoryController::class, 'inventoryLevelsTableData']);
+    Route::post('inventory/update-levels', [InventoryController::class, 'updateLevels']);
+    Route::get('inventory/edit-update-levels-modal', [InventoryController::class, 'editUpdateLevelsModal']);
+    Route::post('inventory/save-inventory-movement', [InventoryController::class, 'saveInventoryMovement']);
+    Route::get('inventory/edit-movement-modal', [InventoryController::class, 'editMovementModal']);
+    Route::get('inventory/unfulfilled-orders', [InventoryController::class, 'unfulfilledOrders']);
+});
+
+Route::middleware(['auth', 'can:commerce-manageInventoryLocations'])->group(function () {
+    Route::post('inventory-locations/save', [InventoryLocationsController::class, 'save']);
+    Route::get('inventory-locations/inventory-locations-table-data', [InventoryLocationsController::class, 'inventoryLocationsTableData']);
+    Route::get('inventory-locations/prepare-delete-modal', [InventoryLocationsController::class, 'prepareDeleteModal']);
+    Route::post('inventory-locations/deactivate', [InventoryLocationsController::class, 'deactivate']);
+});
+
+Route::middleware(['auth', 'can:commerce-manageInventoryTransfers'])->group(function () {
+    Route::get('transfers/create', [TransfersController::class, 'create']);
+    Route::post('transfers/mark-as-pending', [TransfersController::class, 'markAsPending']);
+    Route::post('transfers/save-settings', [TransfersController::class, 'saveSettings']);
+    Route::post('transfers/receive-transfer', [TransfersController::class, 'receiveTransfer']);
+    Route::get('transfers/receive-transfer-screen', [TransfersController::class, 'receiveTransferScreen']);
+    Route::get('transfers/render-management', [TransfersController::class, 'renderManagement']);
 });

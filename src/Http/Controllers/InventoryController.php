@@ -1,172 +1,118 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
-namespace craft\commerce\controllers;
+declare(strict_types=1);
 
-use Craft;
+namespace CraftCms\Commerce\Http\Controllers;
+
 use craft\commerce\base\Purchasable;
 use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\collections\UpdateInventoryLevelCollection;
-use craft\commerce\db\Table;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\InventoryUpdateQuantityType;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\inventory\InventoryManualMovement;
 use craft\commerce\models\inventory\UpdateInventoryLevel;
-use craft\commerce\models\InventoryItem;
-use craft\commerce\models\InventoryLocation;
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\inventory\InventoryAsset;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\enums\MenuItemType;
-use craft\errors\DeprecationException;
 use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\web\assets\htmx\HtmxAsset;
-use craft\web\CpScreenResponseBehavior;
-use yii\base\InvalidConfigException;
-use yii\db\Exception;
-use yii\web\BadRequestHttpException;
-use yii\web\HttpException;
-use yii\web\NotFoundHttpException;
-use yii\web\Response;
+use CraftCms\Cms\Http\RespondsWithFlash;
+use CraftCms\Cms\Http\Responses\CpModalResponse;
+use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Facades\HtmlStack;
+use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Database\Table;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-/**
- * Inventory controller
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 5.0.0
- */
-class InventoryController extends BaseCpController
+use function CraftCms\Cms\currentUserElement;
+use function CraftCms\Cms\t;
+use function CraftCms\Cms\template;
+
+readonly class InventoryController
 {
-    public $defaultAction = 'index';
+    use RespondsWithFlash;
 
-    /**
-     * @param int|null $inventoryItemId
-     * @param InventoryItem|null $inventoryItem
-     * @return Response
-     * @throws NotFoundHttpException
-     * @throws InvalidConfigException
-     */
-    public function actionItemEdit(?int $inventoryItemId = null, ?InventoryItem $inventoryItem = null): Response
+    public function itemEdit(?int $inventoryItemId = null): CpScreenResponse
     {
-        $this->requirePermission('commerce-manageInventoryStockLevels');
+        \Craft::$app->getView()->registerAssetBundle(HtmxAsset::class);
 
-        $view = Craft::$app->getView();
-        $view->registerAssetBundle(HtmxAsset::class);
+        abort_if($inventoryItemId === null, 404, 'Inventory Item not found');
 
-        if ($inventoryItemId !== null) {
-            if ($inventoryItem === null) {
-                $inventoryItem = Plugin::getInstance()->getInventory()->getInventoryItemById($inventoryItemId);
-            }
-        } else {
-            if ($inventoryItem === null) {
-                throw new NotFoundHttpException('Inventory Item not found');
-            }
-        }
+        $inventoryItem = Plugin::getInstance()->getInventory()->getInventoryItemById($inventoryItemId);
 
-        $params = [
-            'inventoryItem' => $inventoryItem,
-        ];
-
-        return $this->asCpScreen()
+        return new CpScreenResponse()
             ->title('Inventory Item')
             ->action('commerce/inventory/item-save')
-            ->submitButtonLabel(Craft::t('app', 'Save'))
+            ->submitButtonLabel(t('Save'))
             ->redirectUrl('commerce/inventory')
-            ->contentTemplate('commerce/inventory/item/_edit.twig', $params)
-            ->addCrumb(Craft::t('commerce', 'Inventory'), 'commerce/inventory')
-            ->tabs(
-                [
-                    'details' => [
-                        'label' => Craft::t('commerce', 'Details'),
-                        'url' => '#details',
-                    ],
-                    'history' => [
-                        'label' => Craft::t('commerce', 'History'),
-                        'url' => '#history',
-                    ],
-                ])
-            ->prepareScreen(
-                function(Response $response, string $containerId) {
-                    /** @var CpScreenResponseBehavior $response */
-                    $this->getView()->registerJs('htmx.process(document.getElementById("' . $containerId . '"));');
-                }
-            );
+            ->contentTemplate('commerce/inventory/item/_edit.twig', ['inventoryItem' => $inventoryItem])
+            ->addCrumb(t('Inventory', category: 'commerce'), 'commerce/inventory')
+            ->tabs([
+                'details' => [
+                    'label' => t('Details', category: 'commerce'),
+                    'url' => '#details',
+                ],
+                'history' => [
+                    'label' => t('History', category: 'commerce'),
+                    'url' => '#history',
+                ],
+            ])
+            ->prepareScreen(function($screen, string $containerId) {
+                HtmlStack::js('htmx.process(document.getElementById("' . $containerId . '"));');
+            });
     }
 
-    /**
-     * @return Response
-     * @throws HttpException
-     * @throws InvalidConfigException
-     * @throws BadRequestHttpException
-     */
-    public function actionItemSave(): Response
+    public function itemSave(Request $request): Response
     {
-        $this->requirePermission('commerce-manageInventoryStockLevels');
+        $inventoryItemId = $request->input('inventoryItemId');
+        abort_if(!$inventoryItemId, 404);
 
-        $inventoryItemId = Craft::$app->getRequest()->getRequiredParam('inventoryItemId');
+        $inventoryItem = Plugin::getInstance()->getInventory()->getInventoryItemById((int)$inventoryItemId);
+        abort_if(!$inventoryItem, 404);
 
-        if ($inventoryItemId) {
-            $inventoryItem = Plugin::getInstance()->getInventory()->getInventoryItemById($inventoryItemId);
-        } else {
-            throw new HttpException(404);
-        }
-
-        $inventoryItem->countryCodeOfOrigin = Craft::$app->getRequest()->getParam('countryCodeOfOrigin', $inventoryItem->countryCodeOfOrigin);
-        $inventoryItem->administrativeAreaCodeOfOrigin = Craft::$app->getRequest()->getParam('administrativeAreaCodeOfOrigin', $inventoryItem->administrativeAreaCodeOfOrigin);
-        $inventoryItem->harmonizedSystemCode = Craft::$app->getRequest()->getParam('harmonizedSystemCode', $inventoryItem->harmonizedSystemCode);
+        $inventoryItem->countryCodeOfOrigin = $request->input('countryCodeOfOrigin', $inventoryItem->countryCodeOfOrigin);
+        $inventoryItem->administrativeAreaCodeOfOrigin = $request->input('administrativeAreaCodeOfOrigin', $inventoryItem->administrativeAreaCodeOfOrigin);
+        $inventoryItem->harmonizedSystemCode = $request->input('harmonizedSystemCode', $inventoryItem->harmonizedSystemCode);
 
         $success = Plugin::getInstance()->getInventory()->saveInventoryItem($inventoryItem);
 
         if (!$success) {
-            return $this->asModelFailure($inventoryItem, Craft::t('app', 'Couldn’t save inventory item.'), 'inventoryItem');
+            return $this->asModelFailure($inventoryItem, t('Couldn\'t save inventory item.'), 'inventoryItem');
         }
 
-        return $this->asModelSuccess($inventoryItem, Craft::t('app', 'inventory Item saved.'), 'inventoryItem');
+        return $this->asModelSuccess($inventoryItem, t('Inventory Item saved.'), 'inventoryItem');
     }
 
-    /**
-     * commerce/inventory action
-     *
-     * @param string|null $inventoryLocationHandle
-     * @return Response
-     * @throws InvalidConfigException
-     * @throws DeprecationException
-     */
-    public function actionEditLocationLevels(?string $inventoryLocationHandle = null): Response
+    public function editLocationLevels(Request $request, ?string $inventoryLocationHandle = null): Response
     {
-        $this->requirePermission('commerce-manageInventoryStockLevels');
-        $view = Craft::$app->getView();
-        $view->registerAssetBundle(InventoryAsset::class);
+        \Craft::$app->getView()->registerAssetBundle(InventoryAsset::class);
 
-        $inventoryItemId = $this->request->getQueryParam('inventoryItemId'); // Used for quick link to manage stock
+        $inventoryItemId = $request->query('inventoryItemId'); // Used for quick link to manage stock
         $inventoryLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
 
         if (!$inventoryLocationHandle) {
-            $inventoryLocationHandle = Craft::$app->getRequest()->getParam('inventoryLocationHandle');
+            $inventoryLocationHandle = $request->input('inventoryLocationHandle');
 
             if (!$inventoryLocationHandle) {
-                return $this->redirect('commerce/inventory/levels/' . $inventoryLocations[0]->handle);
+                return redirect('commerce/inventory/levels/' . $inventoryLocations[0]->handle);
             }
         }
 
-        $search = Craft::$app->getRequest()->getQueryParam('search');
+        $search = $request->query('search');
 
         $currentLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationByHandle($inventoryLocationHandle);
         $selectedItem = 'manage-' . $currentLocation->handle;
-        $title = $currentLocation->getUiLabel() . ' ' . Craft::t('commerce', 'Inventory');
+        $title = $currentLocation->getUiLabel() . ' ' . t('Inventory', category: 'commerce');
 
         $locationMenuItems = [];
 
-        /** @var InventoryLocation $location */
         foreach ($inventoryLocations as $location) {
             $locationMenuItems[] = [
                 'label' => $location->getUiLabel(),
@@ -176,7 +122,7 @@ class InventoryController extends BaseCpController
         }
         $crumbs = [
             [
-                'label' => Craft::t('commerce', 'Inventory'),
+                'label' => t('Inventory', category: 'commerce'),
                 'url' => 'commerce/inventory',
             ],
         ];
@@ -185,7 +131,7 @@ class InventoryController extends BaseCpController
             $crumbs[] = [
                 'icon' => 'warehouse',
                 'menu' => [
-                    'label' => Craft::t('app', 'Select section'),
+                    'label' => t('Select section'),
                     'items' => $locationMenuItems,
                 ],
             ];
@@ -196,10 +142,10 @@ class InventoryController extends BaseCpController
             ];
         }
 
-        return $this->asCpScreen()
+        return new CpScreenResponse()
             ->title($title)
             ->site(Cp::requestedSite())
-            ->selectableSites(Craft::$app->getSites()->getEditableSites())
+            ->selectableSites(\Craft::$app->getSites()->getEditableSites())
             ->action(null)
             ->crumbs($crumbs)
             ->contentTemplate('commerce/inventory/levels/_index', compact(
@@ -212,24 +158,18 @@ class InventoryController extends BaseCpController
             ->selectedSubnavItem('inventory');
     }
 
-    /**
-     * @return Response
-     * @throws BadRequestHttpException
-     * @throws InvalidConfigException
-     * @throws \Throwable
-     */
-    public function actionInventoryLevelsTableData(): Response
+    public function inventoryLevelsTableData(Request $request): Response
     {
-        $this->requirePermission('commerce-manageInventoryStockLevels');
+        $currentUser = currentUserElement();
+        $inventoryLevelsManagerContainerId = $request->input('containerId');
+        abort_if(!$inventoryLevelsManagerContainerId, 400, 'Missing containerId');
 
-        $currentUser = Craft::$app->getUser()->getIdentity();
-        $inventoryLevelsManagerContainerId = $this->request->getRequiredParam('containerId');
-        $inventoryItemId = $this->request->getParam('inventoryItemId'); // Used for quick link to manage stock
-        $page = $this->request->getParam('page', 1);
-        $limit = $this->request->getParam('per_page', 15);
+        $inventoryItemId = $request->input('inventoryItemId'); // Used for quick link to manage stock
+        $page = (int)$request->input('page', 1);
+        $limit = (int)$request->input('per_page', 15);
         $offset = ($page - 1) * $limit;
-        $inventoryLocationId = (int)Craft::$app->getRequest()->getParam('inventoryLocationId');
-        $search = $this->request->getParam('search');
+        $inventoryLocationId = (int)$request->input('inventoryLocationId');
+        $search = $request->input('search');
 
         $inventoryQuery = Plugin::getInstance()->getInventory()->getInventoryLevelQuery(limit: $limit, offset: $offset, inventoryLocationId: $inventoryLocationId)
             ->andWhere(['inventoryLocationId' => $inventoryLocationId]);
@@ -245,17 +185,18 @@ class InventoryController extends BaseCpController
         $inventoryQuery->andWhere(['not', ['elements.id' => null]]);
 
         if ($search) {
-            $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ilike' : 'like';
+            $likeOperator = \Craft::$app->getDb()->getIsPgsql() ? 'ilike' : 'like';
             $inventoryQuery->andWhere(['or', [$likeOperator, 'purchasables.description', $search], [$likeOperator, 'purchasables.sku', $search]]);
         }
 
-        $sort = $this->request->getParam('sort');
+        $sort = $request->input('sort');
         if ($sort) {
             $field = $sort[0]['sortField'];
             $direction = $sort[0]['direction'];
 
             // Validate the sorting inputs
-            if (!in_array($direction, ['asc', 'desc']) ||
+            if (
+                !in_array($direction, ['asc', 'desc']) ||
                 !in_array($field, [
                     'item',
                     'sku',
@@ -267,7 +208,8 @@ class InventoryController extends BaseCpController
                     'availableTotal',
                     'onHandTotal',
                     'incomingTotal',
-                ])) {
+                ])
+            ) {
                 $field = null;
                 $direction = null;
             }
@@ -297,7 +239,7 @@ class InventoryController extends BaseCpController
         $purchasableIds = array_unique(array_filter(array_column($inventoryTableData, 'purchasableId')));
         $purchasablesMap = [];
         if ($purchasableIds) {
-            $elementTypes = (new Query())
+            $elementTypes = new Query()
                 ->select(['id', 'type'])
                 ->from(CraftTable::ELEMENTS)
                 ->where(['id' => $purchasableIds])
@@ -314,7 +256,6 @@ class InventoryController extends BaseCpController
             }
         }
 
-        $view = Craft::$app->getView();
         $time = microtime(true);
         foreach ($inventoryTableData as $key => &$inventoryLevel) {
             $id = $inventoryLevel['inventoryItemId'];
@@ -335,8 +276,8 @@ class InventoryController extends BaseCpController
             $inventoryLevel['sku'] = Html::tag('span', Html::a(Html::encode($inventoryLevel['sku']), "#", ['id' => "$inventoryItemDomId", 'class' => 'code']));
             $inventoryLevel['id'] = $id;
 
-            $view->registerJsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS
-$('#' + $id).on('click', (e) => {
+            HtmlStack::jsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS
+\$('#' + $id).on('click', (e) => {
 	e.preventDefault();
 	const slideout = new Craft.CpScreenSlideout('commerce/inventory/item-edit', $params);
 	slideout.on('close', (e) => {
@@ -366,12 +307,12 @@ JS, [
                     $items['orderLinks'] = [
                         'type' => MenuItemType::Button,
                         'id' => $showOrderLinksId,
-                        'label' => Craft::t('commerce', 'See Orders'),
+                        'label' => t('See Orders', category: 'commerce'),
                         'icon' => 'cart-shopping',
                     ];
 
-                    $view->registerJsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS
-$('#' + $id).on('click', (e) => {
+                    HtmlStack::jsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS
+\$('#' + $id).on('click', (e) => {
     e.preventDefault();
     let modal = new Craft.CpModal('commerce/inventory/unfulfilled-orders', {
         containerElement: 'div',
@@ -402,12 +343,12 @@ JS, [
                     $items['set'] = [
                         'type' => MenuItemType::Button,
                         'id' => $setId,
-                        'label' => Craft::t('commerce', 'Set Quantity'),
+                        'label' => t('Set Quantity', category: 'commerce'),
                         'icon' => 'bullseye',
                     ];
 
-                    $view->registerJsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS
-$('#' + $id).on('click', (e) => {
+                    HtmlStack::jsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS
+\$('#' + $id).on('click', (e) => {
     e.preventDefault();
     let modal = new Craft.Commerce.UpdateInventoryLevelModal({
         params: $params,
@@ -438,11 +379,11 @@ JS, [
                         'type' => MenuItemType::Button,
                         'id' => $adjustId,
                         'icon' => 'arrow-trend-up',
-                        'label' => Craft::t('commerce', 'Adjust Quantity'),
+                        'label' => t('Adjust Quantity', category: 'commerce'),
                     ];
 
-                    $view->registerJsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS
-$('#' + $id).on('click', (e) => {
+                    HtmlStack::jsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS
+\$('#' + $id).on('click', (e) => {
     e.preventDefault();
     let modal = new Craft.Commerce.UpdateInventoryLevelModal({
         params: $params,
@@ -475,11 +416,11 @@ JS, [
                         'type' => MenuItemType::Button,
                         'id' => $movementId,
                         'icon' => 'arrow-right',
-                        'label' => Craft::t('commerce', 'Move Inventory'),
+                        'label' => t('Move Inventory', category: 'commerce'),
                     ];
 
-                    $view->registerJsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS
-$('#' + $id).on('click', (e) => {
+                    HtmlStack::jsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS
+\$('#' + $id).on('click', (e) => {
     e.preventDefault();
     let modal = new Craft.Commerce.InventoryMovementModal({
         params: $params,
@@ -505,10 +446,9 @@ JS, [
                     ]);
                 }
 
-
                 $config = [
                     'class' => '',
-                    'hiddenLabel' => Craft::t('app', 'Actions'),
+                    'hiddenLabel' => t('Actions'),
                     'buttonAttributes' => [
                         'class' => ['action-btn'],
                         'data' => [
@@ -524,35 +464,28 @@ JS, [
                 $inventoryLevel[$type] = $valueDiv . (count($items) ? $actionButton : '');
             }
         }
+        unset($inventoryLevel);
 
-        $totalTime = sprintf(' (time: %.3fs)', microtime(true) - $time);
-        return $this->asJson([
-            'pagination' => AdminTable::paginationLinks($page, $total, $limit),
+        return response()->json([
+            'pagination' => AdminTable::paginationLinks($page, (int)$total, $limit),
             'data' => $inventoryTableData,
-            'headHtml' => $view->getHeadHtml(),
-            'bodyHtml' => $view->getBodyHtml(),
+            'headHtml' => HtmlStack::headHtml(),
+            'bodyHtml' => HtmlStack::bodyHtml(),
         ]);
     }
 
-    /**
-     * @return Response
-     * @throws InvalidConfigException
-     * @throws BadRequestHttpException
-     */
-    public function actionUpdateLevels(): Response
+    public function updateLevels(Request $request): Response
     {
-        $this->requirePermission('commerce-manageInventoryStockLevels');
-
-        $updateAction = InventoryUpdateQuantityType::from(Craft::$app->getRequest()->getRequiredParam('updateAction'));
-        $quantity = (int)Craft::$app->getRequest()->getRequiredParam('quantity');
-        $note = Craft::$app->getRequest()->getRequiredParam('note');
-        $inventoryLocationId = (int)Craft::$app->getRequest()->getRequiredParam('inventoryLocationId');
-        $inventoryItemIds = Craft::$app->getRequest()->getRequiredParam('ids');
-        $type = Craft::$app->getRequest()->getRequiredParam('type');
+        $updateAction = InventoryUpdateQuantityType::from($request->input('updateAction'));
+        $quantity = (int)$request->input('quantity');
+        $note = $request->input('note');
+        $inventoryLocationId = (int)$request->input('inventoryLocationId');
+        $inventoryItemIds = $request->input('ids');
+        $type = $request->input('type');
 
         // We don't add zero amounts as transactions movements
         if ($updateAction === InventoryUpdateQuantityType::ADJUST && $quantity == 0) {
-            return $this->asFailure(Craft::t('commerce', 'No inventory changes made.'));
+            return $this->asFailure(t('No inventory changes made.', category: 'commerce'));
         }
 
         $errors = [];
@@ -570,15 +503,12 @@ JS, [
             $updateInventoryLevels->push($updateInventoryLevel);
         }
 
-
         if (!Plugin::getInstance()->getInventory()->executeUpdateInventoryLevels($updateInventoryLevels)) {
-            $errors['updateQuantities'] = [Craft::t('commerce', 'Inventory could not be set.')];
+            $errors['updateQuantities'] = [t('Inventory could not be set.', category: 'commerce')];
         }
 
         if (count($errors) > 0) {
-            return $this->asFailure(Craft::t('commerce', 'Inventory was not updated.',),
-                ['errors' => $errors]
-            );
+            return $this->asFailure(t('Inventory was not updated.', category: 'commerce'), ['errors' => $errors]);
         }
 
         $resultingInventoryLevels = [];
@@ -587,27 +517,20 @@ JS, [
             $resultingInventoryLevels[] = Plugin::getInstance()->getInventory()->getInventoryLevel($updateInventoryLevel->inventoryItemId, $updateInventoryLevel->inventoryLocationId);
         }
 
-        return $this->asSuccess(Craft::t('commerce', 'Inventory updated.'), [
+        return $this->asSuccess(t('Inventory updated.', category: 'commerce'), [
             'updatedItems' => collect($resultingInventoryLevels)->toArray(),
         ]);
     }
 
-    /**
-     * @return Response
-     * @throws BadRequestHttpException
-     * @throws DeprecationException
-     * @throws InvalidConfigException
-     */
-    public function actionEditUpdateLevelsModal(): Response
+    public function editUpdateLevelsModal(Request $request): Response
     {
-        $this->requirePermission('commerce-manageInventoryStockLevels');
-
-        $inventoryLocationId = (int)$this->request->getParam('inventoryLocationId');
-        $note = $this->request->getParam('note', '');
-        $inventoryItemIds = (array)$this->request->getParam('ids', []); // param needs to be 'ids' to be compatible with admin table
-        $updateAction = $this->request->getParam('updateAction', 'adjust');
-        $quantity = (int)$this->request->getParam('quantity', 0);
-        $type = $this->request->getRequiredParam('type');
+        $inventoryLocationId = (int)$request->input('inventoryLocationId');
+        $note = $request->input('note', '');
+        $inventoryItemIds = (array)$request->input('ids', []); // param needs to be 'ids' to be compatible with admin table
+        $updateAction = $request->input('updateAction', 'adjust');
+        $quantity = (int)$request->input('quantity', 0);
+        $type = $request->input('type');
+        abort_if(!$type, 400, 'Missing type');
 
         $inventoryLevels = [];
         foreach ($inventoryItemIds as $inventoryItemId) {
@@ -626,38 +549,30 @@ JS, [
         ];
 
         // Live preview refresh only swaps the preview region, leaving the form inputs untouched.
-        if ($this->request->getParam('preview')) {
-            return $this->asJson([
-                'previewHtml' => Craft::$app->getView()->renderTemplate('commerce/inventory/levels/_updateInventoryLevelPreview', $params),
+        if ($request->input('preview')) {
+            return response()->json([
+                'previewHtml' => template('commerce/inventory/levels/_updateInventoryLevelPreview', $params, TemplateMode::Cp),
             ]);
         }
 
-        return $this->asCpModal()
+        return new CpModalResponse()
             ->action('commerce/inventory/update-levels')
-            ->submitButtonLabel(Craft::t('commerce', 'Update'))
+            ->submitButtonLabel(t('Update', category: 'commerce'))
             ->contentTemplate('commerce/inventory/levels/_updateInventoryLevelModal', $params);
     }
 
-    /**
-     * @return Response
-     * @throws BadRequestHttpException
-     * @throws InvalidConfigException
-     * @throws Exception
-     */
-    public function actionSaveInventoryMovement(): Response
+    public function saveInventoryMovement(Request $request): Response
     {
-        $this->requirePermission('commerce-manageInventoryStockLevels');
-
-        $fromInventoryLocationId = (int)Craft::$app->getRequest()->getRequiredParam('inventoryMovement.fromInventoryLocationId');
-        $toInventoryLocationId = (int)Craft::$app->getRequest()->getRequiredParam('inventoryMovement.toInventoryLocationId');
-        $note = Craft::$app->getRequest()->getRequiredParam('inventoryMovement.note');
-        $fromInventoryTransactionType = Craft::$app->getRequest()->getRequiredParam('inventoryMovement.fromInventoryTransactionType');
-        $toInventoryTransactionType = Craft::$app->getRequest()->getRequiredParam('inventoryMovement.toInventoryTransactionType');
-        $inventoryItemId = Craft::$app->getRequest()->getRequiredParam('inventoryMovement.inventoryItemId');
-        $quantity = (int)Craft::$app->getRequest()->getRequiredParam('inventoryMovement.quantity');
+        $fromInventoryLocationId = (int)$request->input('inventoryMovement.fromInventoryLocationId');
+        $toInventoryLocationId = (int)$request->input('inventoryMovement.toInventoryLocationId');
+        $note = $request->input('inventoryMovement.note');
+        $fromInventoryTransactionType = $request->input('inventoryMovement.fromInventoryTransactionType');
+        $toInventoryTransactionType = $request->input('inventoryMovement.toInventoryTransactionType');
+        $inventoryItemId = $request->input('inventoryMovement.inventoryItemId');
+        $quantity = (int)$request->input('inventoryMovement.quantity');
 
         if ($quantity == 0) {
-            return $this->asSuccess(Craft::t('commerce', 'No inventory movements made.'));
+            return $this->asSuccess(t('No inventory movements made.', category: 'commerce'));
         }
 
         $inventoryMovement = new InventoryManualMovement();
@@ -673,29 +588,22 @@ JS, [
             /** @var InventoryMovementCollection $inventoryMovementCollection */
             $inventoryMovementCollection = InventoryMovementCollection::make()->push($inventoryMovement);
             if (!Plugin::getInstance()->getInventory()->executeInventoryMovements($inventoryMovementCollection)) {
-                return $this->asFailure(Craft::t('commerce', 'Inventory movement could not be saved.'));
+                return $this->asFailure(t('Inventory movement could not be saved.', category: 'commerce'));
             }
         }
 
-        return $this->asSuccess(Craft::t('commerce', 'Inventory movement saved.'));
+        return $this->asSuccess(t('Inventory movement saved.', category: 'commerce'));
     }
 
-    /**
-     * @return Response
-     * @throws BadRequestHttpException
-     * @throws InvalidConfigException
-     */
-    public function actionEditMovementModal(): Response
+    public function editMovementModal(Request $request): Response
     {
-        $this->requirePermission('commerce-manageInventoryStockLevels');
-
-        $fromInventoryLocationId = (int)Craft::$app->getRequest()->getRequiredParam('inventoryMovement.fromInventoryLocationId');
-        $toInventoryLocationId = (int)Craft::$app->getRequest()->getParam('inventoryMovement.toInventoryLocationId', $fromInventoryLocationId);
-        $note = Craft::$app->getRequest()->getParam('inventoryMovement.note', '');
-        $fromInventoryTransactionType = Craft::$app->getRequest()->getParam('inventoryMovement.fromInventoryTransactionType');
-        $toInventoryTransactionType = Craft::$app->getRequest()->getParam('inventoryMovement.toInventoryTransactionType');
-        $inventoryItemId = Craft::$app->getRequest()->getParam('inventoryMovement.inventoryItemId');
-        $quantity = (int)Craft::$app->getRequest()->getParam('inventoryMovement.quantity', 0);
+        $fromInventoryLocationId = (int)$request->input('inventoryMovement.fromInventoryLocationId');
+        $toInventoryLocationId = (int)$request->input('inventoryMovement.toInventoryLocationId', $fromInventoryLocationId);
+        $note = $request->input('inventoryMovement.note', '');
+        $fromInventoryTransactionType = $request->input('inventoryMovement.fromInventoryTransactionType');
+        $toInventoryTransactionType = $request->input('inventoryMovement.toInventoryTransactionType');
+        $inventoryItemId = $request->input('inventoryMovement.inventoryItemId');
+        $quantity = (int)$request->input('inventoryMovement.quantity', 0);
 
         $movableTo = collect(InventoryTransactionType::allowedManualMoveTransactionTypes())
             ->filter(fn($type) => $type->value !== $fromInventoryTransactionType)
@@ -728,39 +636,28 @@ JS, [
         ];
 
         // Live preview refresh only swaps the preview region, leaving the form inputs untouched.
-        if ($this->request->getParam('preview')) {
-            return $this->asJson([
-                'previewHtml' => Craft::$app->getView()->renderTemplate('commerce/inventory/levels/_inventoryMovementPreview', $params),
+        if ($request->input('preview')) {
+            return response()->json([
+                'previewHtml' => template('commerce/inventory/levels/_inventoryMovementPreview', $params, TemplateMode::Cp),
             ]);
         }
 
-        return $this->asCpModal()
+        return new CpModalResponse()
             ->action('commerce/inventory/save-inventory-movement')
-            ->submitButtonLabel(Craft::t('commerce', 'Move'))
+            ->submitButtonLabel(t('Move', category: 'commerce'))
             ->contentTemplate('commerce/inventory/levels/_inventoryMovementModal', $params);
     }
 
-    /**
-     * @return Response
-     * @throws InvalidConfigException
-     */
-    public function actionUnfulfilledOrders(): Response
+    public function unfulfilledOrders(Request $request): CpModalResponse
     {
-        $this->requirePermission('commerce-manageInventoryStockLevels');
-
-        $view = Craft::$app->getView();
-        $view->registerAssetBundle(InventoryAsset::class);
-
-        $inventoryLocationId = Craft::$app->getRequest()->getParam('inventoryLocationId');
-        $inventoryItemId = Craft::$app->getRequest()->getParam('inventoryItemId');
+        $inventoryLocationId = $request->input('inventoryLocationId');
+        $inventoryItemId = $request->input('inventoryItemId');
 
         $orders = Plugin::getInstance()->getInventory()->getUnfulfilledOrders($inventoryItemId, $inventoryLocationId);
 
-        $title = Craft::t('commerce', '{count} Unfulfilled Orders', [
-            'count' => count($orders),
-        ]);
+        $title = t('{count} Unfulfilled Orders', ['count' => count($orders)], category: 'commerce');
 
-        return $this->asCpModal()
+        return new CpModalResponse()
             ->contentTemplate('commerce/inventory/levels/_unfulfilledOrdersModal', compact(
                 'title',
                 'orders'
