@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.7.2 - 2026-08-12
 
 - Fixed a bug where inactive carts’ search index rows weren’t being purged. ([#4344](https://github.com/craftcms/commerce/issues/4344))
 - Fixed a bug where saving the transfer field layout would override the order field layout. ([#4345](https://github.com/craftcms/commerce/issues/4345))
