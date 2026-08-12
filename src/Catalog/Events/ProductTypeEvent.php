@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Catalog\Events;
 
-use craft\commerce\models\ProductType;
+use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
 
 class ProductTypeEvent
 {

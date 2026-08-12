@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Catalog\Models;
 
-use craft\commerce\models\ProductType;
-use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Support\Facades\Sites;
+use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
+use CraftCms\Commerce\Services\ProductTypes;
 
 class ProductTypeSite extends Component
 {
@@ -42,9 +42,7 @@ class ProductTypeSite extends Component
             throw new \InvalidArgumentException('Product type site is missing its product type ID');
         }
 
-        // TODO: migrate to app(ProductTypes::class)->getProductTypeById() once service migrated to src/
-        /** @phpstan-ignore-next-line */
-        if (($this->_productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($this->productTypeId)) === null) {
+        if (($this->_productType = app(ProductTypes::class)->getProductTypeById($this->productTypeId)) === null) {
             throw new \InvalidArgumentException('Invalid product type ID: ' . $this->productTypeId);
         }
 

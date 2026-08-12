@@ -10,7 +10,7 @@ use craft\commerce\elements\actions\CreateSale;
 use craft\commerce\elements\conditions\products\ProductCondition;
 use craft\commerce\elements\conditions\products\ProductTypeConditionRule;
 use craft\commerce\elements\VariantCollection;
-use craft\commerce\models\ProductType;
+use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
 use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\ResaveProductVariants;
 use craft\events\ElementCriteriaEvent;

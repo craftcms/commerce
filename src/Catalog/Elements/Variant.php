@@ -6,7 +6,7 @@ namespace CraftCms\Commerce\Catalog\Elements;
 
 use craft\commerce\elements\actions\SetDefaultVariant;
 use craft\commerce\elements\conditions\variants\VariantCondition;
-use craft\commerce\models\ProductType;
+use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Element\Actions\Copy;

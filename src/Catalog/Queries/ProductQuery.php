@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Catalog\Queries;
 
 use Closure;
-use craft\commerce\models\ProductType;
+use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Element\Queries\ElementQuery;
 use CraftCms\Cms\Element\Queries\Exceptions\QueryAbortedException;
