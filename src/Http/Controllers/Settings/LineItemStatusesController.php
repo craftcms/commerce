@@ -122,6 +122,7 @@ readonly class LineItemStatusesController
     public function reorder(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
+        abort_unless($request->input('ids'), 400, 'Missing ids');
 
         $ids = Json::decode($request->input('ids'));
 

@@ -13,6 +13,7 @@ use CraftCms\Commerce\Http\Controllers\Settings\LineItemStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderSettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\PaymentCurrenciesController;
+use CraftCms\Commerce\Http\Controllers\Settings\PlansController;
 use CraftCms\Commerce\Http\Controllers\ProductsController;
 use CraftCms\Commerce\Http\Controllers\Settings\ProductTypesController;
 use CraftCms\Commerce\Http\Controllers\Settings\SalesController;
@@ -23,6 +24,7 @@ use CraftCms\Commerce\Http\Controllers\Settings\ShippingRulesController;
 use CraftCms\Commerce\Http\Controllers\Settings\ShippingZonesController;
 use CraftCms\Commerce\Http\Controllers\Settings\StoreManagementController;
 use CraftCms\Commerce\Http\Controllers\Settings\StoresController;
+use CraftCms\Commerce\Http\Controllers\SubscriptionsController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxCategoriesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxRatesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxZonesController;
@@ -164,4 +166,20 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
 
     Route::middleware('can:commerce-manageInventoryTransfers')
         ->get('commerce/inventory/transfers', [TransfersController::class, 'index']);
+
+    Route::get('commerce/subscription-plans', [PlansController::class, 'planIndex']);
+    Route::middleware('can:commerce-manageSubscriptions')->group(function () {
+        Route::get('commerce/subscription-plans/new', [PlansController::class, 'editPlan']);
+        Route::get('commerce/subscription-plans/{planId}', [PlansController::class, 'editPlan'])->whereNumber('planId');
+    });
 });
+
+// SubscriptionsController extends the plain Yii2 BaseController — no blanket
+// accessPlugin-commerce check at all. index() explicitly requires commerce-manageSubscriptions;
+// edit() only checks per-subscription view permission inline (a subscription's own owner can
+// reach it even without commerce-manageSubscriptions), so it must not be wrapped in either
+// permission — just `auth`.
+Route::middleware(['auth', 'can:commerce-manageSubscriptions'])
+    ->get('commerce/subscriptions/{plan?}', [SubscriptionsController::class, 'index']);
+Route::middleware('auth')
+    ->get('commerce/subscriptions/{subscriptionId}', [SubscriptionsController::class, 'edit'])->whereNumber('subscriptionId');

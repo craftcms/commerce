@@ -1,5 +1,43 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 9j: Controllers & Routes (Subscriptions)
+
+Migrated `SubscriptionsController` to `src/Http/Controllers/`, and `PlansController` to
+`src/Http/Controllers/Settings/`.
+
+- `SubscriptionsController` extends the plain Yii2 `BaseController` (no blanket
+  `accessPlugin-commerce`/permission check at all) and checks authorization per-action, in three
+  different shapes: `index()` needs `commerce-manageSubscriptions` explicitly; `edit()`/`save()`
+  only check per-subscription ownership/view permission inline (a subscription's own customer can
+  reach these without `commerce-manageSubscriptions`); `subscribe()`/`reactivate()`/`switch()`/
+  `cancel()` only need a logged-in user (any authenticated customer managing their own
+  subscription); `completeSubscription()` is a fully anonymous gateway webhook callback;
+  `deleteSubscriptions(Modal)?()` need `deleteUsers` + a real CP request. Route middleware
+  replicates each of these exactly rather than defaulting to one blanket permission — see
+  `routes/cp.php`/`routes/actions.php` for the per-action breakdown.
+- Same `FieldLayoutCompiler`/`FormHtmlRenderer` swap as Stages 9f/9i for `edit()`'s custom-fields
+  form — this file was flagged in advance (Stage 9i's changelog entry) as using only the safe
+  `createForm()`+`getTabMenu()` subset, confirmed straightforward to port with no `tabIdPrefix`/
+  `$form->tabs` complications.
+- `Craft::$app->getMutex()` → `Cache::lock()` for `completeSubscription()`'s transaction lock,
+  same pattern as `CartController`/`PaymentsController`.
+- **Found and fixed a systemic gap across 6 already-merged files** (Stages 9d/9e/9f/9i):
+  `Json::decode($request->input('ids'))` in every `reorder()`-style action
+  (`DiscountsController`, `SalesController`, `ShippingRulesController`, `OrderStatusesController`,
+  `LineItemStatusesController`, `StoresController`) was missing the equivalent of legacy's
+  `getRequiredBodyParam('ids')` check — a missing `ids` param fell through to `Json::decode(null)`
+  then into a strictly `array`-typed service parameter, producing an ugly `TypeError` instead of
+  a clean 400. Found while writing the identical `PlansController::reorder()` fresh and confirming
+  what the *correct* shape should look like, then grepped for the same unguarded pattern
+  everywhere else it had already shipped. Added `abort_unless($request->input('ids'), 400, ...)`
+  before the decode in all 7 places (6 retroactive + the new one).
+- **Verification**: `route:list` confirmed all new routes and their per-action-specific
+  permission middleware. Live `craft exec:exec` testing fully exercised `PlansController::
+  planIndex()` and `editPlan()` end-to-end with no errors, confirmed `SubscriptionsController::
+  index()`/`edit()` correctly gate on the anonymous/console user (403/404 as expected), confirmed
+  `completeSubscription()`'s missing-param guard, and confirmed the `reorder()` fix converts a
+  `TypeError` into a clean 400 across a live re-test.
+
 ### Laravel Migration — Stage 9i: Controllers & Routes (Inventory)
 
 Migrated `InventoryController`, `InventoryLocationsController`, `TransfersController` to

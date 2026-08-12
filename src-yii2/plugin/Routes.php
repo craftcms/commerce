@@ -45,14 +45,7 @@ trait Routes
             $event->rules['commerce/variants/<elementId:\d+><slug:(?:-[^\/]*)?>'] = 'elements/edit';
             $event->rules['commerce/products/<productTypeHandle:{handle}>/<elementId:\d+><slug:(?:-[^\/]*)?>'] = 'elements/edit';
 
-            $event->rules['commerce/subscriptions'] = 'commerce/subscriptions/index';
-            $event->rules['commerce/subscriptions/<plan:{handle}>'] = 'commerce/subscriptions/index';
-            $event->rules['commerce/subscriptions/<subscriptionId:\d+>'] = 'commerce/subscriptions/edit';
-
-            // Subscription plans
-            $event->rules['commerce/subscription-plans'] = 'commerce/plans/plan-index';
-            $event->rules['commerce/subscription-plans/<planId:\d+>'] = 'commerce/plans/edit-plan';
-            $event->rules['commerce/subscription-plans/new'] = 'commerce/plans/edit-plan';
+            // Subscriptions and Subscription Plans are now registered in routes/cp.php
 
             // Product Types are now registered in routes/cp.php
 
