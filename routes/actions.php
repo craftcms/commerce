@@ -1,8 +1,10 @@
 <?php
 
 use CraftCms\Cms\Http\Middleware\RequireAdmin;
+use CraftCms\Cms\Http\Middleware\RequireCpRequest;
 use CraftCms\Commerce\Http\Controllers\CartController;
 use CraftCms\Commerce\Http\Controllers\DonationsController;
+use CraftCms\Commerce\Http\Controllers\OrdersController;
 use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingController;
 use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingRulesController;
 use CraftCms\Commerce\Http\Controllers\Settings\DiscountsController;
@@ -148,5 +150,44 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
         Route::post('catalog-pricing/prices', [CatalogPricingController::class, 'prices']);
         Route::get('catalog-pricing/queue-status', [CatalogPricingController::class, 'queueStatus']);
         Route::post('catalog-pricing/get-catalog-prices', [CatalogPricingController::class, 'getCatalogPrices']);
+    });
+});
+
+// OrdersController extends the plain Yii2 Controller (not BaseCpController) — its init() only
+// ever checked commerce-manageOrders, not accessPlugin-commerce.
+Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function () {
+    Route::post('orders/fulfill', [OrdersController::class, 'fulfill']);
+    Route::get('orders/fulfillment-modal', [OrdersController::class, 'fulfillmentModal']);
+    Route::post('orders/save', [OrdersController::class, 'save']);
+    Route::post('orders/delete-order', [OrdersController::class, 'deleteOrder']);
+    Route::post('orders/refresh', [OrdersController::class, 'refresh']);
+    Route::post('orders/get-shipping-method-options', [OrdersController::class, 'getShippingMethodOptions']);
+    Route::get('orders/user-orders-table', [OrdersController::class, 'userOrdersTable']);
+    Route::get('orders/purchasables-table', [OrdersController::class, 'purchasablesTable']);
+    Route::get('orders/customer-search', [OrdersController::class, 'customerSearch']);
+    Route::get('orders/get-customer-addresses', [OrdersController::class, 'getCustomerAddresses']);
+    Route::get('orders/get-order-address', [OrdersController::class, 'getOrderAddress']);
+    Route::post('orders/validate-address', [OrdersController::class, 'validateAddress']);
+    Route::post('orders/create-customer', [OrdersController::class, 'createCustomer']);
+    Route::get('orders/get-load-cart-url', [OrdersController::class, 'getLoadCartUrl']);
+    Route::get('orders/send-email', [OrdersController::class, 'sendEmail']);
+    Route::get('orders/update-order-address', [OrdersController::class, 'updateOrderAddress']);
+    Route::get('orders/get-index-sources-badge-counts', [OrdersController::class, 'getIndexSourcesBadgeCounts']);
+    Route::get('orders/get-payment-modal', [OrdersController::class, 'getPaymentModal']);
+    Route::post('orders/payment-amount-data', [OrdersController::class, 'paymentAmountData']);
+
+    Route::post('orders/copy-address-to-user', [OrdersController::class, 'copyAddressToUser'])
+        ->middleware('can:editUsers');
+
+    Route::middleware('can:commerce-capturePayment')
+        ->post('orders/transaction-capture', [OrdersController::class, 'transactionCapture']);
+    Route::middleware('can:commerce-refundPayment')
+        ->post('orders/transaction-refund', [OrdersController::class, 'transactionRefund']);
+
+    Route::middleware([RequireCpRequest::class, 'can:deleteUsers'])->group(function () {
+        Route::get('orders/reassign-modal', [OrdersController::class, 'reassignModal']);
+        Route::post('orders/reassign', [OrdersController::class, 'reassign']);
+        Route::get('orders/remove-customer-data-modal', [OrdersController::class, 'removeCustomerDataModal']);
+        Route::post('orders/remove-customer-data', [OrdersController::class, 'removeCustomerData']);
     });
 });

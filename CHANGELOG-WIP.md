@@ -1,5 +1,62 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 9f (final): Controllers & Routes (Orders)
+
+Migrated `OrdersController` (2,227 lines, 29 actions — the largest and highest-risk single
+controller in the whole migration, covering order editing, transactions/refunds, and customer/
+address management) to `src/Http/Controllers/`. This completes Stage 9f.
+
+- **Found and fixed a real, repeated bug class specific to this migration**: the legacy file has
+  no `declare(strict_types=1)`, so PHP silently coerced numeric strings (every raw
+  `$request->input()`/`query()` value) into the `int`-typed parameters of half a dozen strictly-
+  typed service methods (`getOrderById`, `getTransactionById`, `getUserById`, `getEmailById`,
+  `getStoreBySiteId`, `getInventoryLocationById`, `getPurchasableById`, `AdminTable::
+  paginationLinks()`). The new file *does* declare `strict_types=1` (per this project's own
+  convention for new code), so every one of those call sites needed an explicit `(int)` cast —
+  found via live `craft exec:exec` `TypeError`s on `purchasablesTable()`
+  (`getStoreBySiteId()`/`paginationLinks()`), then proactively audited and fixed every other
+  matching call site in the file rather than waiting to hit each one individually.
+- **Found and fixed a real, pre-existing bug in `transactionRefund()`**: `$transaction->
+  paymentCurrency` was read before the `if (!$transaction)` null check — reordered so the null
+  check runs first, matching what the code was clearly trying to do.
+- **`Craft::$app->getElements()->canView($order)`/`canDelete($order)` → `$order->canView($user)`/
+  `canDelete($user)`**: authorization moved from the Elements service onto the element itself and
+  now takes an explicit `User` in the new element system, rather than implicitly checking the
+  current session user. Replaced with `($user = currentUserElement()) && $order->canView($user)`.
+- **`Element::setScenario(Element::SCENARIO_LIVE)` → `$order->ruleset->useScenario(ElementRules::
+  SCENARIO_LIVE)`** — same replacement already established for `CartController` (this stage) and
+  already used by the already-migrated `Order::validateAddress()`.
+- **Dropped `activeAttributes()`-based attribute-scoped validation** in `save()`, same reasoning
+  and replacement (`validate(null, false)`) as `CartController`'s `_returnCart()`.
+- `Craft::$app->getUser()->getIdentity()` → `currentUserElement()`; `Craft::$app->getView()->
+  registerJs($js, View::POS_BEGIN)` → `HtmlStack::js($js, Position::BodyBegin)` (confirmed real
+  facade replacement, `src/Support/Facades/HtmlStack.php` in cms-6); `$this->asCpModal()` →
+  `new CpModalResponse()` (confirmed real, near-identical fluent API); `$this->requireCpRequest()`
+  → `RequireCpRequest::class` route middleware (applied to the 4 CP-only actions —
+  `reassign(Modal)?`, `removeCustomerData(Modal)?` — alongside their `deleteUsers` permission,
+  nested inside the controller-wide `commerce-manageOrders` group).
+- `OrdersController` extends the plain Yii2 `Controller` (not `BaseCpController`/
+  `BaseAdminController`) — its own `init()` only ever checked `commerce-manageOrders`, never
+  `accessPlugin-commerce`. Its action routes in `routes/actions.php` reflect that (no
+  `accessPlugin-commerce` check), while its CP page routes in `routes/cp.php` sit inside the
+  existing outer `accessPlugin-commerce` group for consistency with every other CP page route —
+  harmless in practice since `commerce-manageOrders` can only be granted to a user who already has
+  plugin access, per Craft's nested-permission model.
+- **Testing limitation found and documented (not a bug in the new code)**: `auth()->login($user)`
+  and `auth()->setUser($user)` both hang indefinitely under `craft exec:exec`'s console context in
+  this dev environment — meaning the handful of actions that call `enforceManageOrderPermissions()`
+  (`editOrder`, `save`, `refresh`, `getShippingMethodOptions`, `deleteOrder`) couldn't be exercised
+  end-to-end as an authenticated user through this harness. Verified everything up to that gate
+  instead (confirmed each one reaches `enforceManageOrderPermissions()` cleanly with no unrelated
+  errors, and confirmed the gate itself correctly 403s for the anonymous/console user) — the
+  downstream `validate(null, false)` + `Elements::saveElement()` logic is identical to
+  `CartController::returnCart()`'s already-verified full end-to-end success.
+- **Verification**: `route:list` confirmed all 58 new routes (29 actions × dual CP/site
+  registration, plus 3 CP pages) with correct HTTP verbs and the correct compound permission
+  chains. Live `craft exec:exec` testing fully exercised `purchasablesTable()` (including the
+  `ModifyPurchasablesTableQueryEvent` dispatch) and `getIndexSourcesBadgeCounts()` end-to-end
+  successfully after the `strict_types` fixes above.
+
 ### Laravel Migration — Stage 9f (partial): Controllers & Routes (Cart)
 
 Migrated `CartController` (1,022 lines, the largest front-end controller so far) to

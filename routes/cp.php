@@ -6,6 +6,7 @@ use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingController;
 use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingRulesController;
 use CraftCms\Commerce\Http\Controllers\Settings\DiscountsController;
 use CraftCms\Commerce\Http\Controllers\Settings\GatewaysController;
+use CraftCms\Commerce\Http\Controllers\OrdersController;
 use CraftCms\Commerce\Http\Controllers\Settings\LineItemStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderSettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController;
@@ -120,4 +121,12 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
     // PromotionsController extends BaseCpController (not BaseStoreManagementController) — it
     // only ever needed accessPlugin-commerce, not commerce-manageStoreSettings.
     Route::get('commerce/promotions', fn() => redirect('commerce/promotions/sales'));
+
+    // OrdersController extends the plain Yii2 Controller (not BaseCpController) — its init()
+    // only ever checked commerce-manageOrders, not accessPlugin-commerce.
+    Route::middleware('can:commerce-manageOrders')->group(function () {
+        Route::get('commerce/orders/{orderId}', [OrdersController::class, 'editOrder'])->whereNumber('orderId');
+        Route::get('commerce/orders/{storeHandle}/create', [OrdersController::class, 'create']);
+        Route::get('commerce/orders/{orderStatusHandle?}', [OrdersController::class, 'orderIndex']);
+    });
 });

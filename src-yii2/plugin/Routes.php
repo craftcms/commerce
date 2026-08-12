@@ -62,13 +62,7 @@ trait Routes
             $event->rules['commerce/settings/producttypes/<productTypeId:\d+>'] = 'commerce/product-types/edit-product-type';
             $event->rules['commerce/settings/producttypes/new'] = 'commerce/product-types/edit-product-type';
 
-            // Orders
-            $event->rules['commerce/orders'] = 'commerce/orders/order-index';
-            $event->rules['commerce/orders/<orderId:\d+>'] = 'commerce/orders/edit-order';
-
-            $event->rules['commerce/orders/<storeHandle:{handle}>/create'] = 'commerce/orders/create';
-
-            $event->rules['commerce/orders/<orderStatusHandle:{handle}>'] = 'commerce/orders/order-index';
+            // Orders are now registered in routes/cp.php
 
             // Settings
 
