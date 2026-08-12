@@ -13,6 +13,8 @@ use CraftCms\Cms\Shared\Enums\Color;
 use DateTime;
 use Illuminate\Support\Collection;
 
+use function CraftCms\Cms\t;
+
 class TaxCategory extends Component implements Chippable, Colorable, Iconic
 {
     public ?int $id = null;

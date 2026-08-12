@@ -7,6 +7,9 @@ use CraftCms\Commerce\Http\Controllers\Settings\ShippingCategoriesController;
 use CraftCms\Commerce\Http\Controllers\Settings\ShippingMethodsController;
 use CraftCms\Commerce\Http\Controllers\Settings\ShippingRulesController;
 use CraftCms\Commerce\Http\Controllers\Settings\ShippingZonesController;
+use CraftCms\Commerce\Http\Controllers\Settings\TaxCategoriesController;
+use CraftCms\Commerce\Http\Controllers\Settings\TaxRatesController;
+use CraftCms\Commerce\Http\Controllers\Settings\TaxZonesController;
 use CraftCms\Commerce\Http\Controllers\WebhooksController;
 use Illuminate\Support\Facades\Route;
 
@@ -41,4 +44,18 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageShip
     Route::post('shipping-categories/save', [ShippingCategoriesController::class, 'save']);
     Route::post('shipping-categories/delete', [ShippingCategoriesController::class, 'delete']);
     Route::post('shipping-categories/set-default-category', [ShippingCategoriesController::class, 'setDefaultCategory']);
+});
+
+Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageTaxes'])->group(function () {
+    Route::post('tax-zones/save', [TaxZonesController::class, 'save']);
+    Route::post('tax-zones/delete', [TaxZonesController::class, 'delete']);
+    Route::post('tax-zones/test-zip', [TaxZonesController::class, 'testZip']);
+
+    Route::post('tax-categories/save', [TaxCategoriesController::class, 'save']);
+    Route::post('tax-categories/delete', [TaxCategoriesController::class, 'delete']);
+    Route::post('tax-categories/set-default-category', [TaxCategoriesController::class, 'setDefaultCategory']);
+
+    Route::post('tax-rates/save', [TaxRatesController::class, 'save']);
+    Route::post('tax-rates/delete', [TaxRatesController::class, 'delete']);
+    Route::post('tax-rates/update-status', [TaxRatesController::class, 'updateStatus']);
 });

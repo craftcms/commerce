@@ -7,6 +7,9 @@ use CraftCms\Commerce\Http\Controllers\Settings\ShippingCategoriesController;
 use CraftCms\Commerce\Http\Controllers\Settings\ShippingMethodsController;
 use CraftCms\Commerce\Http\Controllers\Settings\ShippingRulesController;
 use CraftCms\Commerce\Http\Controllers\Settings\ShippingZonesController;
+use CraftCms\Commerce\Http\Controllers\Settings\TaxCategoriesController;
+use CraftCms\Commerce\Http\Controllers\Settings\TaxRatesController;
+use CraftCms\Commerce\Http\Controllers\Settings\TaxZonesController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
@@ -35,5 +38,21 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
             Route::get('shippingmethods/{id}', [ShippingMethodsController::class, 'edit'])->whereNumber('id');
             Route::get('shippingmethods/{methodId}/shippingrules/new', [ShippingRulesController::class, 'edit'])->whereNumber('methodId');
             Route::get('shippingmethods/{methodId}/shippingrules/{ruleId}', [ShippingRulesController::class, 'edit'])->whereNumber(['methodId', 'ruleId']);
+        });
+
+    Route::middleware('can:commerce-manageTaxes')
+        ->prefix('commerce/store-management/{storeHandle}')
+        ->group(function () {
+            Route::get('taxcategories', [TaxCategoriesController::class, 'index']);
+            Route::get('taxcategories/new', [TaxCategoriesController::class, 'edit']);
+            Route::get('taxcategories/{id}', [TaxCategoriesController::class, 'edit'])->whereNumber('id');
+
+            Route::get('taxzones', [TaxZonesController::class, 'index']);
+            Route::get('taxzones/new', [TaxZonesController::class, 'edit']);
+            Route::get('taxzones/{id}', [TaxZonesController::class, 'edit'])->whereNumber('id');
+
+            Route::get('taxrates', [TaxRatesController::class, 'index']);
+            Route::get('taxrates/new', [TaxRatesController::class, 'edit']);
+            Route::get('taxrates/{id}', [TaxRatesController::class, 'edit'])->whereNumber('id');
         });
 });

@@ -1,5 +1,26 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 9c: Controllers & Routes (Tax)
+
+Migrated `TaxZonesController`, `TaxCategoriesController`, `TaxRatesController` to
+`src/Http/Controllers/Settings/`, reusing Stage 9b's `HasStoreManagementScreen` trait
+(`can:commerce-manageTaxes` in place of `commerce-manageShipping`). `BaseTaxSettingsController`
+and the 3 legacy controllers deleted outright. All 3 templates are bare content fragments (no
+`{% extends %}`), so all 3 use `CpScreenResponse` (no `pageTemplate()` needed this time, unlike
+9b's `ShippingRulesController`).
+
+**Found and fixed another instance of the same latent bug from 9b**: `Tax\Models\TaxCategory::
+getUiLabel()` also called the global `t()` helper without importing it (`ShippingMethod`/
+`ShippingAddressZone`/`TaxRate`/`TaxAddressZone` models all correctly import it — only
+`ShippingCategory` and now `TaxCategory` were missing it). Proactively grepped every
+`getUiLabel()` implementation under `src/` for the same missing-import pattern afterward — no
+further instances found.
+
+**Verification**: `route:list --path=tax -v` confirmed all 27 routes/middleware; direct
+`craft exec:exec` invocation of all 3 `edit()` methods confirmed clean `CpScreenResponse`
+construction (including exercising the `Cp::chipHtml()`/`getUiLabel()` path that caught the bug
+above).
+
 ### Laravel Migration — Stage 9b: Controllers & Routes (Shipping)
 
 Migrated `ShippingZonesController`, `ShippingMethodsController`, `ShippingRulesController`,

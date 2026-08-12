@@ -114,17 +114,7 @@ trait Routes
 
             // Shipping is now registered in routes/cp.php
 
-            // Taxes
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/taxcategories'] = 'commerce/tax-categories/index';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/taxcategories/new'] = 'commerce/tax-categories/edit';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/taxcategories/<id:\d+>'] = 'commerce/tax-categories/edit';
-
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/taxzones'] = 'commerce/tax-zones/index';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/taxzones/new'] = 'commerce/tax-zones/edit';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/taxzones/<id:\d+>'] = 'commerce/tax-zones/edit';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/taxrates'] = 'commerce/tax-rates/index';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/taxrates/new'] = 'commerce/tax-rates/edit';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/taxrates/<id:\d+>'] = 'commerce/tax-rates/edit';
+            // Taxes are now registered in routes/cp.php
 
             // Sales
             $event->rules['commerce/store-management/<storeHandle:{handle}>/sales'] = 'commerce/sales/index';
