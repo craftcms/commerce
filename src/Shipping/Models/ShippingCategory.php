@@ -14,6 +14,8 @@ use CraftCms\Cms\Shared\Enums\Color;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
 use DateTime;
 
+use function CraftCms\Cms\t;
+
 class ShippingCategory extends Component implements HasStoreInterface, Chippable, Colorable, Iconic
 {
     public ?int $id = null;

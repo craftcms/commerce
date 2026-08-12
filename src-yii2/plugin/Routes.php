@@ -112,20 +112,7 @@ trait Routes
             $event->rules['commerce/store-management/<storeHandle:{handle}>/payment-currencies/new'] = 'commerce/payment-currencies/edit';
             $event->rules['commerce/store-management/<storeHandle:{handle}>/payment-currencies/<id:\d+>'] = 'commerce/payment-currencies/edit';
 
-            // Shipping
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/shippingzones'] = 'commerce/shipping-zones/index';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/shippingzones/new'] = 'commerce/shipping-zones/edit';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/shippingzones/<id:\d+>'] = 'commerce/shipping-zones/edit';
-
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/shippingcategories'] = 'commerce/shipping-categories/index';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/shippingcategories/new'] = 'commerce/shipping-categories/edit';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/shippingcategories/<id:\d+>'] = 'commerce/shipping-categories/edit';
-
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/shippingmethods'] = 'commerce/shipping-methods/index';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/shippingmethods/new'] = 'commerce/shipping-methods/edit';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/shippingmethods/<id:\d+>'] = 'commerce/shipping-methods/edit';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/shippingmethods/<methodId:\d+>/shippingrules/new'] = 'commerce/shipping-rules/edit';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/shippingmethods/<methodId:\d+>/shippingrules/<ruleId:\d+>'] = 'commerce/shipping-rules/edit';
+            // Shipping is now registered in routes/cp.php
 
             // Taxes
             $event->rules['commerce/store-management/<storeHandle:{handle}>/taxcategories'] = 'commerce/tax-categories/index';

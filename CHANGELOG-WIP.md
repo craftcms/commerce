@@ -1,5 +1,40 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 9b: Controllers & Routes (Shipping)
+
+Migrated `ShippingZonesController`, `ShippingMethodsController`, `ShippingRulesController`,
+`ShippingCategoriesController` to `src/Http/Controllers/Settings/`, and `BaseShippingSettingsController`
+to a new `Http\Controllers\Concerns\HasStoreManagementScreen` trait (`resolveStore()` +
+`storeManagementCpScreen()`, ported 1:1 from `BaseStoreManagementController`'s
+`asStoreManagementCpScreen()`/`getStoreSwitcher()`/`getStoreSettingsNav()`) — the shared
+store-scoped CP screen chrome needed by every one of stages 9b–9e's controllers. Legacy
+`src-yii2/controllers/{BaseShippingSettings,ShippingZones,ShippingMethods,ShippingRules,
+ShippingCategories}Controller.php` deleted outright.
+
+- `ShippingRulesController::edit()` is the first controller in this migration confirmed to need
+  the plain `pageTemplate()` helper rather than `CpScreenResponse` — its template
+  (`shippingrules/_edit.twig`) `{% extends "commerce/_layouts/store-management" %}` and sets its
+  own crumbs/tabs in Twig, unlike its sibling `shippingzones|shippingmethods|shippingcategories/
+  _edit.twig` (bare `{% block content %}` fragments, no `{% extends %}`) — confirms the
+  "check every template" rule from Stage 9a is a real, recurring distinction within the same
+  domain, not a one-off.
+- Replaced two Yii2 "return void + `setRouteParams()` + implicit re-render" actions
+  (`ShippingRulesController::actionSave()`, and `ShippingCategoriesController::
+  actionSetDefaultCategory()`'s "return null") with `asModelSuccess()`/`asModelFailure()` or
+  `asSuccess()`/`asFailure()`, matching the pattern established in Stage 9a.
+- **Found and fixed a real pre-existing bug** while live-verifying: `Shipping\Models\
+  ShippingCategory::getUiLabel()` calls the global `t()` helper without importing it
+  (`use function CraftCms\Cms\t;` was missing — present on the sibling `ShippingMethod`/
+  `ShippingAddressZone` models, just not this one). Latent since whatever earlier stage migrated
+  this model, since nothing had exercised `Chippable::getUiLabel()` on a `ShippingCategory`
+  until this controller's `index()` wired it into `Cp::chipHtml()`.
+- **Verification**: `route:list --path=shipping -v` confirmed all 37 routes/middleware; direct
+  `craft exec:exec` invocation of every controller method confirmed correct
+  `CpScreenResponse`/string construction with no errors from controller logic (the only failures
+  were the established, expected console-context limitation — `craft\console\Request` lacking
+  `getSegments()`/a session store, which any real HTTP request has). Full authenticated-browser
+  verification not done this pass either, same caveat as Stage 9a.
+
 ### Laravel Migration — Stage 9a: Controllers & Routes (foundation + 3 controllers)
 
 First slice of the largest remaining migration stage: 48 Yii2 controllers / 214 `action*()`
