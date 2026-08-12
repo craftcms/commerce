@@ -1,5 +1,81 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 7e: ProductType
+
+Migrated `craft\commerce\models\ProductType` and `craft\commerce\records\{ProductType,ProductTypeSite}`
+to `CraftCms\Commerce\Catalog\ProductType\{Data,Models}\*`, and `craft\commerce\services\ProductTypes`
+to `CraftCms\Commerce\Services\ProductTypes`. This was the piece deliberately deferred out of Stage 7d:
+`ProductType` needs **two** independent field layouts (`Product`'s custom fields and `Variant`'s), but
+`CraftCms\Cms\FieldLayout\Concerns\HasFieldLayout` only supports one field layout per host class.
+
+**The dual-field-layout design.** Legacy solved this with two independently-configured Yii2
+`FieldLayoutBehavior` instances attached under different names. Rather than build two small
+standalone "provider" objects each using `HasFieldLayout` (which would have required its
+closure-based `setFieldLayoutId(callable)` configuration path — confirmed via a full search of
+cms-6 to have zero real-world usage anywhere, making it an untested pattern to lean on), the new
+`ProductType` hand-rolls two independent getter/setter pairs
+(`get/setProductFieldLayout()`, `get/setVariantFieldLayout()`), each resolving its own
+`FieldLayout` and setting `$fieldLayout->provider = $this`. This mirrors the trait's own ~15 lines
+of real logic closely enough to diff cleanly against the legacy behavior-based version, and avoids
+introducing an unproven pattern. `ProductType` implements
+`CraftCms\Cms\FieldLayout\Contracts\FieldLayoutProviderInterface` (its `getFieldLayout()` aliases
+to `getProductFieldLayout()`, matching the legacy interface method) — this also resolves a
+phpstan-only type mismatch from Stage 7d, where `Variant.php` sets `$fieldLayout->provider =
+$productType` but legacy `ProductType` only implemented the *old* `craft\base\FieldLayoutProviderInterface`.
+
+**Data/Model split**, same as `LineItem` (Stage 7c) and cms-6's own `Entry\Data\EntryType` /
+`Entry\Models\EntryType`: `Catalog\ProductType\Data\ProductType` (rich `Component`, validation,
+computed field layouts, CP URLs) + `Catalog\ProductType\Models\ProductType` (thin Eloquent,
+persistence only). `commerce_producttypes.id` is a genuine auto-increment column (unlike
+`Product`/`Variant`/`Order`/`Donation`), so no `$incrementing = false` override needed here.
+`ProductTypeSite` (migrated in an earlier stage as a Data-only `Component`, with a `// TODO:
+migrate to app(ProductTypes::class)...` marker) got its missing thin Eloquent counterpart —
+`Catalog\ProductType\Models\ProductTypeSite` — and the TODO was resolved.
+
+Validation moved from Yii2 `HandleValidator`/`UniqueValidator` configs to the modern pattern
+already established in cms-6 (`CraftCms\Cms\Validation\Rules\HandleRule` +
+`Illuminate\Validation\Rule::unique(...)->ignore(...)`, matching `CraftCms\Cms\Entry\Validation\EntryTypeRules`)
+rather than porting the legacy validator classes. The imperative validators (field layout
+validation, preview targets) stayed as plain methods wired through `afterValidate()`, matching the
+`OrderRules`/`ProductRules` precedent.
+
+**Bugs found and fixed while verifying live** (none introduced by this stage — all three were
+latent, only surfaced by exercising the actual save-and-persist path):
+
+- **`getAttributes()` passthrough threw for `ProductTypeSite`.** Unlike `ProductType` itself
+  (every Eloquent column has a same-named Data property), `ProductTypeSiteRecord`'s attributes
+  include `dateCreated`/`dateUpdated`/`uid`, none of which the `ProductTypeSite` Data class
+  declares. `Component::__set()` throws `UnknownPropertyException` for genuinely undeclared
+  properties (it does **not** silently ignore them the way Yii2's config-array constructor does) —
+  confirmed live, not just by re-reading `Typecast::configure()`'s source. Fixed by hydrating
+  `ProductTypeSite` via explicit property assignment, same fix pattern as `LineItem` in Stage 7c.
+- **Site-settings records need explicit `dateCreated`/`dateUpdated`.** `ProductTypeSiteRecord` has
+  `$timestamps = false` (matching the established thin-model convention), so nothing set those
+  `NOT NULL` columns on insert — the DB rejected the row (`Field 'dateCreated' doesn't have a
+  default value`). Fixed by setting both explicitly before `save()`, matching how the main
+  `ProductType` record already did it.
+- **`craft\events\ConfigEvent` (legacy), not the new `CraftCms\Cms\ProjectConfig\Events\ConfigEvent`,
+  is what `handleChangedProductType()`/`handleDeletedProductType()` actually receive at runtime.**
+  This one is a correction to this project's own tracking, not just this stage's code — see
+  `laravel-migration-private.md`'s craft-core-reference follow-up for the full explanation:
+  `Craft::$app->getProjectConfig()` (as called from still-legacy `Plugin.php`) resolves to the
+  legacy `craft\services\ProjectConfig` wrapper, whose `onAdd()`/`onUpdate()`/`onRemove()`
+  subscribe to the new project config system internally but **reconstruct a legacy `ConfigEvent`**
+  before invoking the registered handler. Confirmed live (`TypeError` when type-hinting the new
+  class) and by cross-checking already-shipped `Gateways::handleChangedGateway()`, which already
+  uses the old type and works correctly — it was never a bug.
+
+**Verification.** Live via `php craft exec:exec` (ddev). Confirmed: legacy aliases resolve for the
+model, both records, and the exception class; field layout resolution returns real `FieldLayout`
+objects with the correct `provider` for both product and variant layouts; `getConfig()`,
+`validate()`, `getSiteSettings()`, `getShippingCategories()`/`getTaxCategories()` all work; a full
+`saveProductType()` round trip through the real project-config event pipeline (not a direct method
+call) correctly persisted a new product type plus **both** independent field layouts (with real,
+distinct IDs) and its site settings, then `deleteProductTypeById()` cleanly removed everything with
+no orphaned rows. `ProductTypesController.php`'s two `getBehavior(...)->setFieldLayout(...)` call
+sites (the only writer of in-memory field layouts) updated to the new `setProductFieldLayout()`/
+`setVariantFieldLayout()` methods.
+
 ### Laravel Migration — Stage 7d: Product & Variant
 
 Migrated `craft\commerce\elements\{Product,Variant}`, their element queries,

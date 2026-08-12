@@ -8,13 +8,12 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\behaviors\FieldLayoutBehavior;
-use craft\commerce\elements\Product;
-use craft\commerce\elements\Variant;
-use craft\commerce\models\ProductType;
-use craft\commerce\models\ProductTypeSite;
 use craft\commerce\Plugin;
 use craft\enums\PropagationMethod;
+use CraftCms\Commerce\Catalog\Elements\Product;
+use CraftCms\Commerce\Catalog\Elements\Variant;
+use CraftCms\Commerce\Catalog\Models\ProductTypeSite;
+use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
 use craft\web\assets\editsection\EditSectionAsset;
 use Throwable;
 use yii\web\BadRequestHttpException;
@@ -195,16 +194,12 @@ class ProductTypesController extends BaseAdminController
         // Set the product type field layout
         $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
         $fieldLayout->type = Product::class;
-        /** @var FieldLayoutBehavior $behavior */
-        $behavior = $productType->getBehavior('productFieldLayout');
-        $behavior->setFieldLayout($fieldLayout);
+        $productType->setProductFieldLayout($fieldLayout);
 
         // Set the variant field layout
         $variantFieldLayout = Craft::$app->getFields()->assembleLayoutFromPost('variant-layout');
         $variantFieldLayout->type = Variant::class;
-        /** @var FieldLayoutBehavior $behavior */
-        $behavior = $productType->getBehavior('variantFieldLayout');
-        $behavior->setFieldLayout($variantFieldLayout);
+        $productType->setVariantFieldLayout($variantFieldLayout);
 
         // Save it
         if (Plugin::getInstance()->getProductTypes()->saveProductType($productType)) {
