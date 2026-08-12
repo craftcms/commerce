@@ -13,6 +13,8 @@ use CraftCms\Commerce\Http\Controllers\Settings\LineItemStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderSettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\PaymentCurrenciesController;
+use CraftCms\Commerce\Http\Controllers\PaymentSourcesController;
+use CraftCms\Commerce\Http\Controllers\PaymentsController;
 use CraftCms\Commerce\Http\Controllers\Settings\ProductTypesController;
 use CraftCms\Commerce\Http\Controllers\Settings\SalesController;
 use CraftCms\Commerce\Http\Controllers\Settings\SettingsController;
@@ -49,6 +51,15 @@ Route::get('cart/email-challenge', [CartController::class, 'emailChallenge']);
 Route::post('cart/cart-challenge', [CartController::class, 'cartChallenge'])
     ->middleware('throttle:' . CartChallengeRateLimiter::NAME);
 Route::get('cart/cart-sent', [CartController::class, 'cartSent']);
+
+// Anonymous by design — guest checkout must be able to pay. Each action gates its own
+// order/customer-ownership checks inline (mirrors CartController's own permission model).
+Route::post('payments/pay', [PaymentsController::class, 'pay']);
+Route::match(['get', 'post'], 'payments/complete-payment', [PaymentsController::class, 'completePayment']);
+
+Route::post('payment-sources/add', [PaymentSourcesController::class, 'add']);
+Route::post('payment-sources/set-primary-payment-source', [PaymentSourcesController::class, 'setPrimaryPaymentSource']);
+Route::post('payment-sources/delete', [PaymentSourcesController::class, 'delete']);
 
 // These are also reachable, unauthenticated, at their site-side action URL (per
 // CraftCms\Cms\Plugin\Concerns\HasRoutes::registerActionRoutes()) — the `auth`/`can`

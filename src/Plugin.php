@@ -21,12 +21,14 @@ class Plugin extends BasePlugin
 
     public function register(): void
     {
-        // Gateway webhooks can't provide a CSRF token
+        // Gateway webhooks and off-site payment returns can't provide a CSRF token
         $routes = app(Routes::class);
         PreventRequestForgery::except([
             'commerce/webhooks/process-webhook/gateway/*',
             $routes->actionTriggerUriPrefix() . '/commerce/webhooks/process-webhook',
             $routes->cpActionTriggerUriPrefix() . '/commerce/webhooks/process-webhook',
+            $routes->actionTriggerUriPrefix() . '/commerce/payments/complete-payment',
+            $routes->cpActionTriggerUriPrefix() . '/commerce/payments/complete-payment',
         ]);
 
         RateLimiter::for(CartRateLimiter::NAME, fn(Request $request) => app(CartRateLimiter::class)->limit($request));

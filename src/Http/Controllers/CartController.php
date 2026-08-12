@@ -12,8 +12,8 @@ use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Helpers\LineItem as LineItemHelper;
+use CraftCms\Commerce\Http\Controllers\Concerns\HasCartArray;
 use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Order\Events\ModifyCartInfoEvent;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use Illuminate\Contracts\Cache\Lock;
 use Illuminate\Contracts\Cache\LockTimeoutException;
@@ -27,6 +27,7 @@ use function CraftCms\Cms\t;
 
 class CartController
 {
+    use HasCartArray;
     use RespondsWithFlash;
 
     private Order $cart;
@@ -511,28 +512,6 @@ class CartController
         return pageTemplate('commerce/_cart/email-sent', [
             'email' => $cart->getMaskedEmail(),
         ], TemplateMode::Cp);
-    }
-
-    protected function cartArray(Order $cart): array
-    {
-        $extraFields = [
-            'availableShippingMethodOptions',
-            'billingAddress',
-            'lineItems.snapshot',
-            'notices',
-            'shippingAddress',
-        ];
-
-        $cartInfo = $cart->toArray([], $extraFields);
-
-        $event = new ModifyCartInfoEvent(
-            cartInfo: $cartInfo,
-            cart: $cart,
-        );
-
-        event($event);
-
-        return $event->cartInfo;
     }
 
     private function getCartLineItemById(?int $lineItemId): ?LineItem

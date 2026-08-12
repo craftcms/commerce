@@ -1,5 +1,31 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 9h: Controllers & Routes (Payments)
+
+Migrated `PaymentsController`, `PaymentSourcesController` to `src/Http/Controllers/`.
+`BaseFrontEndController` stays in `src-yii2/` — `DownloadsController`, `UsersController` still
+extend it (Stage 9k).
+
+- **Extracted `cartArray()` into a shared `HasCartArray` trait** (`src/Http/Controllers/
+  Concerns/HasCartArray.php`) — per the plan noted in Stage 9f's tracker entry, now that
+  `PaymentsController` is a second real consumer alongside `CartController`. `CartController`
+  updated to use the trait instead of its own copy.
+- Same mutex (`Cache::lock()`+`LockTimeoutException`) and rate-limiting-free anonymous-route
+  pattern as `CartController` — `PaymentsController`'s actions were never in the legacy
+  `RateLimiter` behavior's `only` list, so no `throttle:` middleware needed here.
+- `enableCsrfValidation = false` (legacy `beforeAction()` override for `complete-payment`, since
+  off-site gateway redirects can't carry a CSRF token) → added `commerce/payments/complete-payment`
+  to the existing `PreventRequestForgery::except([...])` call in `Plugin::register()`, alongside
+  the webhook exemption from Stage 9a.
+- `craft\commerce\models\PaymentSource` → confirmed real new namespace `CraftCms\Commerce\Payment\
+  Models\PaymentSource` (a type-hint-only reference, no behavior change).
+- **Verification**: `route:list` confirmed all 5 new routes (anonymous, no `auth`/`can:`
+  middleware — each action gates its own auth/ownership checks inline, matching the legacy
+  `BaseFrontEndController`'s `allowAnonymous = true`). Live `craft exec:exec` testing confirmed
+  `PaymentSourcesController::{add,setPrimaryPaymentSource,delete}` all correctly 401 for an
+  anonymous/console user, and `PaymentsController::pay()` reaches into the same pre-existing
+  console-context service limitations already documented for `CartController` (not a regression).
+
 ### Laravel Migration — Stage 9g: Controllers & Routes (Catalog)
 
 Migrated `ProductsController`, `VariantsController` to `src/Http/Controllers/`, and
