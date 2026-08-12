@@ -8,8 +8,8 @@ use Craft;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use craft\controllers\ElementIndexesController;
 use craft\controllers\ElementSearchController;
-use craft\helpers\ElementHelper;
 use CraftCms\Cms\Element\Element;
+use CraftCms\Cms\Element\ElementHelper;
 use CraftCms\Cms\Support\Query;
 use DateTime;
 

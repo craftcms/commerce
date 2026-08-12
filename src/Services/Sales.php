@@ -10,7 +10,7 @@ use craft\commerce\records\SaleCategory as SaleCategoryRecord;
 use craft\commerce\records\SalePurchasable as SalePurchasableRecord;
 use craft\commerce\records\SaleUserGroup as SaleUserGroupRecord;
 use craft\elements\Category;
-use craft\elements\Entry;
+use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Promotion\Events\SaleEvent;
 use CraftCms\Commerce\Promotion\Events\SaleMatchEvent;
@@ -405,9 +405,9 @@ class Sales
         if (!$isNew) {
             // TODO: update to new date helper once migrated
             /** @phpstan-ignore-next-line */
-            $model->dateCreated = \craft\helpers\DateTimeHelper::toDateTime($record->dateCreated);
+            $model->dateCreated = \CraftCms\Cms\Support\DateTimeHelper::toDateTime($record->dateCreated);
             /** @phpstan-ignore-next-line */
-            $model->dateUpdated = \craft\helpers\DateTimeHelper::toDateTime($record->dateUpdated);
+            $model->dateUpdated = \CraftCms\Cms\Support\DateTimeHelper::toDateTime($record->dateUpdated);
         }
 
         DB::beginTransaction();
@@ -419,9 +419,9 @@ class Sales
 
             // TODO: update to new date helper once migrated
             /** @phpstan-ignore-next-line */
-            $model->dateCreated = \craft\helpers\DateTimeHelper::toDateTime($record->dateCreated);
+            $model->dateCreated = \CraftCms\Cms\Support\DateTimeHelper::toDateTime($record->dateCreated);
             /** @phpstan-ignore-next-line */
-            $model->dateUpdated = \craft\helpers\DateTimeHelper::toDateTime($record->dateUpdated);
+            $model->dateUpdated = \CraftCms\Cms\Support\DateTimeHelper::toDateTime($record->dateUpdated);
 
             /** @phpstan-ignore-next-line */
             SaleUserGroupRecord::deleteAll(['saleId' => $model->id]);

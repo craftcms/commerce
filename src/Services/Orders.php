@@ -6,12 +6,12 @@ namespace CraftCms\Commerce\Services;
 
 use craft\commerce\elements\deletionblockers\OrderCustomersDeletionBlocker;
 use craft\commerce\elements\Order;
-use craft\elements\Address;
-use craft\elements\User;
+use CraftCms\Cms\Address\Elements\Address;
+use CraftCms\Cms\User\Elements\User;
 use craft\events\ConfigEvent;
 use craft\events\DefineElementDeletionBlockersEvent;
 use craft\events\ModelEvent;
-use craft\models\FieldLayout;
+use CraftCms\Cms\FieldLayout\FieldLayout;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\ProjectConfig\ProjectConfigHelper;
 use CraftCms\Commerce\Database\Table;

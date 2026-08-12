@@ -14,7 +14,7 @@ use CraftCms\Commerce\Catalog\Elements\Variant;
 use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingRule as PricingCatalogRuleRecord;
 use craft\elements\db\ElementQuery;
-use craft\elements\User;
+use CraftCms\Cms\User\Elements\User;
 use craft\events\CancelableEvent;
 use craft\helpers\Db;
 use CraftCms\Cms\Component\Component;
