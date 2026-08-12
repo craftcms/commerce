@@ -1,5 +1,53 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Craft core reference cleanup, Phase 1
+
+Fixed the "genuine violations" from the earlier craft-core-reference audit: already-migrated
+`src/` files still importing old `craft\*` core classes where a real `CraftCms\Cms\*`
+equivalent now exists, across `Catalog/Models/CatalogPricingRule.php`, `Helpers/ProductQuery.php`,
+and `Services/{CatalogPricingRules,Customers,Discounts,Emails,Orders,OrderHistories,
+Purchasables,Sales,Stores,Subscriptions}.php`:
+
+- `craft\elements\{User,Address,Entry,ElementCollection}` → `CraftCms\Cms\{User\Elements\User,Address\Elements\Address,Entry\Elements\Entry,Element\ElementCollection}`
+- `craft\models\FieldLayout` → `CraftCms\Cms\FieldLayout\FieldLayout`
+- `craft\models\Site` → `CraftCms\Cms\Site\Data\Site`
+- `craft\errors\{ElementNotFoundException,InvalidElementException,UnsupportedSiteException}` → `CraftCms\Cms\Element\{Queries\Exceptions\ElementNotFoundException,Exceptions\InvalidElementException,Exceptions\UnsupportedSiteException}`
+- `craft\helpers\DateTimeHelper::toDateTime()` → `CraftCms\Cms\Support\DateTimeHelper::toDateTime()`
+- `craft\helpers\ElementHelper::cleanseQueryCriteria()` → `CraftCms\Cms\Element\ElementHelper::cleanseQueryCriteria()`
+- `craft\helpers\Assets::tempFilePath()` → `CraftCms\Cms\Asset\AssetsHelper::tempFilePath()`
+
+**Two more corrections to the original audit**, on top of the `FieldLayout` one already
+caught in Stage 7e: `craft\models\Site` was assumed to alias `Site\Models\Site` but actually
+aliases `Site\Data\Site` (confirmed via `yii2-adapter/src/ClassAliases.php`), and
+`craft\helpers\Assets` was assumed to have a facade equivalent, but the legacy `Assets` class
+is a plain static helper (`class Assets extends CraftCms\Cms\Asset\AssetsHelper`), not a
+facade proxy — the actual target is `AssetsHelper`, imported `as Assets` to keep call sites
+unchanged.
+
+**Also discovered the audit's proposed fixes weren't uniformly safe at the method level**:
+`craft\helpers\DateTimeHelper` and `ElementHelper` are not `class_alias`-based (unlike the
+element/model/exception swaps above, which are genuine aliases and therefore risk-free) — they're
+real subclasses in `yii2-adapter/legacy/helpers/` extending the new classes. Some methods are
+purely inherited (safe to call via the new class directly — `toDateTime()`,
+`cleanseQueryCriteria()`, `tempFilePath()`); others exist *only* on the legacy subclass
+(`DateTimeHelper::now()`, `::secondsToInterval()`, `::currentUTCDateTime()`, still used in
+`Carts.php`/`Plans.php`) and have no new-class equivalent at all — left untouched rather than
+guessed at.
+
+**Phase 2 not started**: `\Craft::$app->getX()->method()` → Facade swaps (`Elements`,
+`ProjectConfig`, `Sites`, `Users`, `Fields`, `Plugins`, `Path`, `Conditions` all have real
+facades). This category needs the same per-method verification as above, since the legacy
+`craft\services\*` wrapper classes are hand-written compat shims, not simple aliases or
+inheritance — confirmed one real trap already: `craft\services\Elements::invalidateCachesForElementType()`
+does not delegate to what would be the obvious facade method, it calls a completely different
+internal object (`$this->elementCaches()->invalidateForElementType()`). See
+`laravel-migration-private.md`'s craft-core-reference follow-up for the full verification
+procedure before attempting this phase.
+
+**Verification**: all touched files pass `php -l`; live-verified via ddev that every affected
+service still boots and its core methods still execute correctly (`Sales::getAllSales()`,
+`Stores::getAllStores()`, etc.) after the import swaps.
+
 ### Laravel Migration — Events layer: missing-constructor bug fix
 
 Fixed the cross-cutting bug flagged as a HIGH PRIORITY follow-up during Stage 7d/7e:

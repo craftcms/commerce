@@ -6,7 +6,7 @@ namespace CraftCms\Commerce\Services;
 
 use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
-use craft\elements\User;
+use CraftCms\Cms\User\Elements\User;
 use craft\events\ModelEvent;
 use craft\events\UserGroupsAssignEvent;
 use CraftCms\Commerce\Catalog\Models\CatalogPricingRule;

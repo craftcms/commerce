@@ -14,8 +14,8 @@ use craft\commerce\records\DiscountCategory as DiscountCategoryRecord;
 use craft\commerce\records\DiscountPurchasable as DiscountPurchasableRecord;
 use craft\commerce\records\EmailDiscountUse as EmailDiscountUseRecord;
 use craft\elements\Category;
-use craft\elements\Entry;
-use craft\elements\User;
+use CraftCms\Cms\Entry\Elements\Entry;
+use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 use CraftCms\Commerce\Order\Models\OrderNotice;
@@ -550,9 +550,9 @@ class Discounts
         if (!$isNew) {
             // TODO: update to new date helper once migrated
             /** @phpstan-ignore-next-line */
-            $model->dateCreated = \craft\helpers\DateTimeHelper::toDateTime($record->dateCreated);
+            $model->dateCreated = \CraftCms\Cms\Support\DateTimeHelper::toDateTime($record->dateCreated);
             /** @phpstan-ignore-next-line */
-            $model->dateUpdated = \craft\helpers\DateTimeHelper::toDateTime($record->dateUpdated);
+            $model->dateUpdated = \CraftCms\Cms\Support\DateTimeHelper::toDateTime($record->dateUpdated);
         }
 
         $ev = new DiscountEvent(discount: $model, isNew: $isNew);
@@ -650,9 +650,9 @@ class Discounts
 
             // TODO: update to new date helper once migrated
             /** @phpstan-ignore-next-line */
-            $model->dateCreated = \craft\helpers\DateTimeHelper::toDateTime($record->dateCreated);
+            $model->dateCreated = \CraftCms\Cms\Support\DateTimeHelper::toDateTime($record->dateCreated);
             /** @phpstan-ignore-next-line */
-            $model->dateUpdated = \craft\helpers\DateTimeHelper::toDateTime($record->dateUpdated);
+            $model->dateUpdated = \CraftCms\Cms\Support\DateTimeHelper::toDateTime($record->dateUpdated);
 
             /** @phpstan-ignore-next-line */
             DiscountPurchasableRecord::deleteAll(['discountId' => $model->id]);

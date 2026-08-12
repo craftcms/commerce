@@ -144,7 +144,7 @@ class OrderHistories
         /** @phpstan-ignore-next-line */
         $model->id = $record->id;
         /** @phpstan-ignore-next-line */
-        $model->dateCreated = \craft\helpers\DateTimeHelper::toDateTime($record->dateCreated);
+        $model->dateCreated = \CraftCms\Cms\Support\DateTimeHelper::toDateTime($record->dateCreated);
 
         return true;
     }

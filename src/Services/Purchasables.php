@@ -8,7 +8,7 @@ use craft\commerce\elements\db\PurchasableQuery;
 use craft\commerce\elements\Order;
 use CraftCms\Commerce\Catalog\Elements\Variant;
 use craft\commerce\Plugin;
-use craft\elements\User;
+use CraftCms\Cms\User\Elements\User;
 use craft\events\RegisterComponentTypesEvent;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
