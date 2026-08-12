@@ -9,13 +9,14 @@ namespace craft\commerce\web\assets\commercecp;
 
 use Craft;
 use craft\commerce\behaviors\StoreBehavior;
-use craft\commerce\models\ProductType;
 use craft\commerce\Plugin;
 use craft\helpers\Json;
 use craft\models\Site;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
 use craft\web\View;
+use CraftCms\Cms\Support\Facades\Sites;
+use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
 use yii\web\JqueryAsset;
 
 /**
@@ -103,7 +104,7 @@ JS;
     private function _commerceData(): array
     {
         $sitesStores = [];
-        foreach (Craft::$app->getSites()->getAllSites() as $site) {
+        foreach (Sites::getAllSites() as $site) {
             /** @var Site|StoreBehavior $site */
             $sitesStores[$site->id] = $site->getStore()->id;
         }

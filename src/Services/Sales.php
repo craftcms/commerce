@@ -11,6 +11,8 @@ use craft\commerce\records\SalePurchasable as SalePurchasableRecord;
 use craft\commerce\records\SaleUserGroup as SaleUserGroupRecord;
 use craft\elements\Category;
 use CraftCms\Cms\Entry\Elements\Entry;
+use CraftCms\Cms\Support\Facades\ElementCaches;
+use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Promotion\Events\SaleEvent;
 use CraftCms\Commerce\Promotion\Events\SaleMatchEvent;
@@ -20,6 +22,7 @@ use DateTime;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\t;
 
 #[Singleton]
@@ -306,10 +309,7 @@ class Sales
 
         if (!$order && !$sale->allGroups) {
             $userGroups = null;
-            // TODO: update to new user API once migrated
-            /** @phpstan-ignore-next-line */
-            if ($currentUser = \Craft::$app->getUser()->getIdentity()) {
-                /** @phpstan-ignore-next-line */
+            if ($currentUser = currentUserElement()) {
                 $userGroups = array_column($currentUser->getGroups(), 'id');
             }
 
@@ -454,9 +454,7 @@ class Sales
                 $relation = new SalePurchasableRecord();
                 /** @phpstan-ignore-next-line */
                 $relation->purchasableId = $purchasableId;
-                // TODO: update to new Elements API once migrated
-                /** @phpstan-ignore-next-line */
-                $purchasable = \Craft::$app->getElements()->getElementById($purchasableId, null, null, ['trashed' => null]);
+                $purchasable = Elements::getElementById($purchasableId, null, null, ['trashed' => null]);
                 /** @phpstan-ignore-next-line */
                 $relation->purchasableType = $purchasable::class;
                 /** @phpstan-ignore-next-line */
@@ -464,9 +462,7 @@ class Sales
                 /** @phpstan-ignore-next-line */
                 $relation->save(false);
 
-                // TODO: update to new Elements API once migrated
-                /** @phpstan-ignore-next-line */
-                \Craft::$app->getElements()->invalidateCachesForElement($purchasable);
+                ElementCaches::invalidateForElement($purchasable);
             }
 
             DB::commit();

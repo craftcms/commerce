@@ -8,6 +8,7 @@ use CraftCms\Commerce\Catalog\Elements\Variant;
 use craft\commerce\Plugin;
 use craft\gql\types\QueryArgument;
 use CraftCms\Cms\Gql\Contracts\GqlInlineFragmentFieldInterface;
+use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Commerce\Helpers\Gql as GqlCommerceHelper;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Container\Attributes\Singleton;
@@ -45,7 +46,7 @@ class Variants
      */
     public function getVariantById(int $variantId, ?int $siteId = null): ?Variant
     {
-        return \Craft::$app->getElements()->getElementById($variantId, Variant::class, $siteId);
+        return Elements::getElementById($variantId, Variant::class, $siteId);
     }
 
     /**

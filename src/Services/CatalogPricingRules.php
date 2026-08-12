@@ -6,6 +6,7 @@ namespace CraftCms\Commerce\Services;
 
 use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
+use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Cms\User\Elements\User;
 use craft\events\ModelEvent;
 use craft\events\UserGroupsAssignEvent;
@@ -161,9 +162,7 @@ class CatalogPricingRules
             }
 
             /** @var User $user */
-            // TODO: update to use new User element API once migrated
-            /** @phpstan-ignore-next-line */
-            $user = $event instanceof ModelEvent ? $event->sender : \Craft::$app->getUsers()->getUserById($event->userId);
+            $user = $event instanceof ModelEvent ? $event->sender : Users::getUserById($event->userId);
 
             $rules->each(function(CatalogPricingRule $rule) use ($user) {
                 $customerCondition = $rule->getCustomerCondition();

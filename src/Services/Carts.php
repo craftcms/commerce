@@ -10,6 +10,7 @@ use craft\db\Query;
 use craft\events\ModelEvent;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Support\Config;
+use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Events\CartPurgeEvent;
@@ -17,6 +18,8 @@ use DateTime;
 use Illuminate\Container\Attributes\Singleton;
 use Throwable;
 use yii\web\Cookie;
+
+use function CraftCms\Cms\currentUserElement;
 
 #[Singleton]
 class Carts
@@ -74,13 +77,13 @@ class Carts
     {
         $this->loadCookie(); // @TODO Audit other public runtime entry points (e.g. forgetCart, restorePreviousCartForCurrentUser) to see if they also need loadCookie() called first
 
-        $currentUser = \Craft::$app->getUser()->getIdentity();
+        $currentUser = currentUserElement();
 
         // If there is no cart set for this request, and we can't get a cart from session, create one.
         if (!isset($this->cart) && !$this->cart = $this->getCartFromSession()) {
             $cartAttributes = [
                 'number' => $this->getSessionCartNumber(),
-                'orderSiteId' => \Craft::$app->getSites()->getCurrentSite()->id,
+                'orderSiteId' => Sites::getCurrentSite()->id,
                 'storeId' => Plugin::getInstance()->getStores()->getCurrentStore()->id,
             ];
 
@@ -92,8 +95,8 @@ class Carts
                 'class' => Order::class,
                 'attributes' => $cartAttributes,
             ]);
-        } elseif ($this->cart->orderSiteId != \Craft::$app->getSites()->getCurrentSite()->id) {
-            $this->cart->orderSiteId = \Craft::$app->getSites()->getCurrentSite()->id;
+        } elseif ($this->cart->orderSiteId != Sites::getCurrentSite()->id) {
+            $this->cart->orderSiteId = Sites::getCurrentSite()->id;
             $forceSave = true;
         }
 
@@ -127,7 +130,7 @@ class Carts
         // These values should always be kept up to date when a cart is retrieved from session.
         $this->cart->lastIp = \Craft::$app->getRequest()->getUserIP();
         $this->cart->orderLanguage = \Craft::$app->language;
-        $this->cart->orderSiteId = \Craft::$app->getSites()->getHasCurrentSite() ? \Craft::$app->getSites()->getCurrentSite()->id : \Craft::$app->getSites()->getPrimarySite()->id;
+        $this->cart->orderSiteId = Sites::getHasCurrentSite() ? Sites::getCurrentSite()->id : Sites::getPrimarySite()->id;
         $this->cart->paymentCurrency = $this->getCartPaymentCurrencyIso();
         $this->cart->origin = Order::ORIGIN_WEB;
 
@@ -194,7 +197,7 @@ class Carts
         if ($cartCustomer && $cartCustomer->getIsCredentialed()) {
             $authorizedForCredentialedCart = \Craft::$app->getSession()->get('commerce:anonymousCartWithCredentialedCustomer:' . $cart->number, false);
             if (!$authorizedForCredentialedCart) {
-                $currentUser = \Craft::$app->getUser()->getIdentity();
+                $currentUser = currentUserElement();
                 if (!$currentUser || $currentUser->id != $cartCustomer->id) {
                     return null;
                 }
@@ -227,7 +230,7 @@ class Carts
             return null;
         }
 
-        $currentUser = \Craft::$app->getUser()->getIdentity();
+        $currentUser = currentUserElement();
 
         $cartCustomer = $cart?->getCustomer();
 
@@ -388,7 +391,7 @@ class Carts
      */
     public function restorePreviousCartForCurrentUser(): void
     {
-        $currentUser = \Craft::$app->getUser()->getIdentity();
+        $currentUser = currentUserElement();
         $currentStoreId = Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         if (!$currentUser) {
@@ -554,7 +557,7 @@ class Carts
         $isUserSaveAction = $segments == $userSaveSegments;
 
         // we have a cart number, currently anon, and the current action being executed is user save
-        if (!\Craft::$app->getUser()->getIdentity() &&
+        if (!currentUserElement() &&
             !\Craft::$app->getRequest()->getIsCpRequest() &&
             $isUserSaveAction
         ) {

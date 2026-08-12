@@ -8,6 +8,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\LineItemStatus as LineItemStatusRecord;
 use craft\events\ConfigEvent;
 use craft\helpers\Db as CraftDb;
+use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
 use CraftCms\Commerce\Order\Events\DefaultLineItemStatusEvent;
@@ -109,12 +110,10 @@ class LineItemStatuses
             return false;
         }
 
-        $projectConfig = \Craft::$app->getProjectConfig();
-
         $configData = $lineItemStatus->isArchived ? null : $lineItemStatus->getConfig();
 
         $configPath = self::CONFIG_STATUSES_KEY . '.' . $statusUid;
-        $projectConfig->set($configPath, $configData);
+        ProjectConfig::set($configPath, $configData);
 
         if ($isNewStatus) {
             $lineItemStatus->id = CraftDb::idByUid(Table::LINEITEMSTATUSES, $statusUid);
@@ -251,14 +250,12 @@ class LineItemStatuses
      */
     public function reorderLineItemStatuses(array $ids): bool
     {
-        $projectConfig = \Craft::$app->getProjectConfig();
-
         $uidsByIds = CraftDb::uidsByIds(Table::LINEITEMSTATUSES, $ids);
 
         foreach ($ids as $lineItemStatus => $statusId) {
             if (!empty($uidsByIds[$statusId])) {
                 $statusUid = $uidsByIds[$statusId];
-                $projectConfig->set(self::CONFIG_STATUSES_KEY . '.' . $statusUid . '.sortOrder', $lineItemStatus + 1);
+                ProjectConfig::set(self::CONFIG_STATUSES_KEY . '.' . $statusUid . '.sortOrder', $lineItemStatus + 1);
             }
         }
 

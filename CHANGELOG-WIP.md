@@ -1,5 +1,73 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Craft core reference cleanup, Phase 2
+
+Completed the follow-up flagged at the end of Phase 1: swapped `\Craft::$app->getX()->method()`
+service-locator calls in already-migrated `src/` code for their real Laravel facade
+equivalents, wherever the legacy `craft\services\*` wrapper method was confirmed to be a pure
+1:1 delegation. Touched `Catalog/Queries/VariantQuery.php` and 21 files under `Services/`.
+
+- `Craft::$app->getUser()->getIdentity()` → `CraftCms\Cms\currentUserElement()` (13 call sites
+  across `Carts`, `Discounts`, `Purchasables`, `Sales`, `Transactions`, `OrderHistories`,
+  `VariantQuery`) — this is the documented Craft 6 replacement (see `Auth::craftUser()` /
+  `request()->craftUser()`), using the `?->asElement()`-returning helper since every call site
+  needed the `User` element itself (`->id`, `->email`, `->getGroups()`, `->can()`, or a typed
+  `?User` param), not just the `CraftUser` interface.
+- `Craft::$app->getElements()->{saveElement,deleteElementById,getElementById,duplicateElement,
+  createElementQuery,getElementTypeById}()` → `CraftCms\Cms\Support\Facades\Elements`
+- `Craft::$app->getElements()->{invalidateCachesForElement,invalidateCachesForElementType}()` →
+  `CraftCms\Cms\Support\Facades\ElementCaches::{invalidateForElement,invalidateForElementType}()`
+  — this is the real fix for the trap flagged in Phase 1: the legacy method doesn't call the
+  `Elements` service at all, it routes through a completely different `ElementCaches` object, so
+  the correct swap targets a different facade with renamed methods, not `Elements::` directly.
+- `Craft::$app->getProjectConfig()->{set,remove,get,processConfigChanges}()` →
+  `CraftCms\Cms\Support\Facades\ProjectConfig` (also `Craft::$app->projectConfig->...` property
+  access, same underlying object)
+- `Craft::$app->getSites()->{getCurrentSite,getPrimarySite,getAllSites,getSiteById,getSiteByUid,
+  getHasCurrentSite,setCurrentSite}()` → `CraftCms\Cms\Support\Facades\Sites` — the legacy
+  read methods actually return a re-wrapped `craft\models\Site` (different object, and `array`
+  instead of `Collection` for `getAllSites()`), which is normally unsafe to swap blindly, but
+  every call site in Commerce only ever reads `->id`/`->handle`/`->uid` off the result, which
+  exist identically on the new `Site\Data\Site`, so the swap is behaviorally identical here.
+- `Craft::$app->getIsMultiSite()` → `Sites::isMultiSite()`
+- `Craft::$app->getUsers()->{getUserById,assignUserToDefaultGroup}()` →
+  `CraftCms\Cms\Support\Facades\Users`
+- `Craft::$app->getFields()->{deleteLayoutsByType,getLayoutByType,saveLayout}()` →
+  `CraftCms\Cms\Support\Facades\Fields`
+- `Craft::$app->getConditions()->{createCondition,createConditionRule}()` →
+  `CraftCms\Cms\Support\Facades\Conditions`
+- `Craft::$app->getPlugins()->{isPluginInstalled,getStoredPluginInfo}()` →
+  `CraftCms\Cms\Support\Facades\Plugins`
+- `Craft::$app->getPath()->{getTempPath,getCachePath,getLogPath}()` →
+  `CraftCms\Cms\Support\Facades\Path::{temp,cache,logs}()` (renamed methods)
+- `Craft::t('app'/'commerce', ...)` → `t(..., category: 'app'/'commerce')` in `Customers.php`
+
+**One more confirmed trap, left untouched on purpose**: `Craft::$app->getUsers()->
+sendActivationEmail()` in `Customers.php` does not delegate to the new `Users` service's
+method of the same name — the legacy path calls the generic `$user->sendEmailVerificationNotification()`,
+while the new service sends a distinct `ActivationNotification` with an explicitly-generated
+verification code. Swapping would change which email gets sent, so this one stays on the
+legacy service-locator call.
+
+**Discovered while verifying, unrelated to this change, not fixed**: instantiating the legacy
+`craft\commerce\elements\conditions\purchasables\CatalogPricingCondition` (via either the old
+`Craft::$app->getConditions()->createCondition()` or the new `Conditions::createCondition()` —
+confirmed identical on both paths) currently fatals with "Cannot override final method
+`CraftCms\Cms\Condition\BaseCondition::getConfig()`", since Craft 6 made that method `final` and
+the legacy condition class still overrides it. This blocks any code path that constructs a
+`CatalogPricingCondition`/`CatalogPricingCustomerConditionRule` (e.g.
+`CatalogPricing::createCatalogPrices/PricingQuery()`) until those condition classes are migrated
+off the legacy base — tracked as part of the already-known "migrate to new element conditions
+system" TODOs in that file, not introduced by this change.
+
+**Verification**: all touched files pass `php -l`; live-verified via ddev (`craft exec:exec`)
+that every affected service still boots and its core methods still execute correctly against
+real data — `Sites`, `Stores`, `Products`, `Variants`, `Purchasables`, `Sales`, `Discounts`,
+`CatalogPricingRules`, `Emails`, `Pdfs`, `Gateways`, `LineItemStatuses`, `OrderStatuses`,
+`Subscriptions`, `Inventory`, `Orders`, plus the legacy `Plugin::getInstance()->getX()` alias
+paths (to catch alias-timing issues) and a real `ElementCaches`/`Elements` round trip against an
+existing order.
+
 ### Laravel Migration — Craft core reference cleanup, Phase 1
 
 Fixed the "genuine violations" from the earlier craft-core-reference audit: already-migrated

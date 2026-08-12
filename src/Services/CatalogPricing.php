@@ -11,6 +11,7 @@ use craft\commerce\queue\jobs\CatalogPricing as CatalogPricingJob;
 use craft\commerce\records\CatalogPricingQueue as CatalogPricingQueueRecord;
 use craft\helpers\Console;
 use craft\helpers\Db as CraftDb;
+use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Commerce\Catalog\Models\CatalogPricing as CatalogPricingModel;
 use CraftCms\Commerce\Database\Table;
 use DateTime;
@@ -540,7 +541,7 @@ class CatalogPricing
 
         // TODO: Migrate to new element conditions system
         /** @phpstan-ignore-next-line */
-        $condition ??= \Craft::$app->getConditions()->createCondition([
+        $condition ??= Conditions::createCondition([
             'class' => CatalogPricingCondition::class,
             'allPrices' => $allPrices,
         ]);
@@ -548,7 +549,7 @@ class CatalogPricing
         if ($userId) {
             // TODO: update CatalogPricingCustomerConditionRule once conditions migrated
             /** @phpstan-ignore-next-line */
-            $condition->addConditionRule(\Craft::$app->getConditions()->createConditionRule([
+            $condition->addConditionRule(Conditions::createConditionRule([
                 'class' => CatalogPricingCustomerConditionRule::class,
                 'customerId' => $userId,
             ]));
@@ -584,14 +585,14 @@ class CatalogPricing
 
         // TODO: Migrate to new element conditions system
         /** @phpstan-ignore-next-line */
-        $condition ??= \Craft::$app->getConditions()->createCondition([
+        $condition ??= Conditions::createCondition([
             'class' => CatalogPricingCondition::class,
             'allPrices' => $allPrices,
         ]);
 
         if ($userId) {
             /** @phpstan-ignore-next-line */
-            $condition->addConditionRule(\Craft::$app->getConditions()->createConditionRule([
+            $condition->addConditionRule(Conditions::createConditionRule([
                 'class' => CatalogPricingCustomerConditionRule::class,
                 'customerId' => $userId,
             ]));

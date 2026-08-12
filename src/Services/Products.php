@@ -8,6 +8,8 @@ use CraftCms\Commerce\Catalog\Elements\Product;
 use craft\commerce\Plugin;
 use craft\events\SiteEvent;
 use CraftCms\Cms\Element\Jobs\PropagateElements;
+use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Cms\Support\Facades\Plugins;
 use CraftCms\Commerce\Database\Table;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;
@@ -34,7 +36,7 @@ class Products
                 ->value('productTypes.structureId');
         }
 
-        return \Craft::$app->getElements()->getElementById($id, Product::class, $siteId, $criteria);
+        return Elements::getElementById($id, Product::class, $siteId, $criteria);
     }
 
     /**
@@ -45,7 +47,7 @@ class Products
         if (
             $event->isNew &&
             isset($event->oldPrimarySiteId) &&
-            \Craft::$app->getPlugins()->isPluginInstalled(Plugin::getInstance()->handle)
+            Plugins::isPluginInstalled(Plugin::getInstance()->handle)
         ) {
             dispatch(new PropagateElements(
                 elementType: Product::class,

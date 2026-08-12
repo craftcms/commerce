@@ -23,6 +23,8 @@ use craft\events\DefineElementDeletionBlockersEvent;
 use craft\helpers\DateTimeHelper;
 use CraftCms\Cms\FieldLayout\FieldLayout;
 use CraftCms\Cms\ProjectConfig\ProjectConfigHelper;
+use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Commerce\Subscription\Events\CancelSubscriptionEvent;
 use CraftCms\Commerce\Subscription\Events\CreateSubscriptionEvent;
 use CraftCms\Commerce\Subscription\Events\SubscriptionEvent;
@@ -72,20 +74,19 @@ class Subscriptions
         $data = $event->newValue;
 
         ProjectConfigHelper::ensureAllFieldsProcessed();
-        $fieldsService = \Craft::$app->getFields();
 
         if (empty($data) || empty(reset($data))) {
             // Delete the field layout
-            $fieldsService->deleteLayoutsByType(Subscription::class);
+            Fields::deleteLayoutsByType(Subscription::class);
             return;
         }
 
         // Save the field layout
         $layout = FieldLayout::createFromConfig(reset($data));
-        $layout->id = $fieldsService->getLayoutByType(Subscription::class)->id;
+        $layout->id = Fields::getLayoutByType(Subscription::class)->id;
         $layout->type = Subscription::class;
         $layout->uid = key($data);
-        $fieldsService->saveLayout($layout, false);
+        Fields::saveLayout($layout, false);
     }
 
     /**
@@ -93,7 +94,7 @@ class Subscriptions
      */
     public function handleDeletedFieldLayout(): void
     {
-        \Craft::$app->getFields()->deleteLayoutsByType(Subscription::class);
+        Fields::deleteLayoutsByType(Subscription::class);
     }
 
     /**
@@ -147,7 +148,7 @@ class Subscriptions
             $subscription->dateExpired = DateTimeHelper::toDateTime('now');
         }
 
-        \Craft::$app->getElements()->saveElement($subscription, false);
+        Elements::saveElement($subscription, false);
 
         // Raise 'afterExpireSubscription' event
         // TODO: migrate event firing to Laravel once event system is bridged
@@ -237,7 +238,7 @@ class Subscriptions
 
         $subscription->setFieldValues($fieldValues);
 
-        \Craft::$app->getElements()->saveElement($subscription, false);
+        Elements::saveElement($subscription, false);
 
         // Raise 'afterCreateSubscription' event
         // TODO: migrate event firing to Laravel once event system is bridged
@@ -289,7 +290,7 @@ class Subscriptions
             $subscription->dateCanceled = null;
             $subscription->subscriptionData = $response->getData();
 
-            \Craft::$app->getElements()->saveElement($subscription, false);
+            Elements::saveElement($subscription, false);
 
             // Raise 'afterReactivateSubscription' event
             // TODO: migrate event firing to Laravel once event system is bridged
@@ -357,7 +358,7 @@ class Subscriptions
         $subscription->isCanceled = false;
         $subscription->isExpired = false;
 
-        \Craft::$app->getElements()->saveElement($subscription);
+        Elements::saveElement($subscription);
 
         // Raise 'afterSwitchSubscriptionPlan' event
         // TODO: migrate event firing to Laravel once event system is bridged
@@ -418,7 +419,7 @@ class Subscriptions
             $subscription->setSubscriptionData($response->getData());
 
             try {
-                \Craft::$app->getElements()->saveElement($subscription, false);
+                Elements::saveElement($subscription, false);
 
                 // Raise 'afterCancelSubscription' event
                 // TODO: migrate event firing to Laravel once event system is bridged
@@ -455,7 +456,7 @@ class Subscriptions
             Plugin::getInstance()->getSubscriptions()->trigger(self::EVENT_BEFORE_UPDATE_SUBSCRIPTION, $event);
         }
 
-        return \Craft::$app->getElements()->saveElement($subscription);
+        return Elements::saveElement($subscription);
     }
 
     /**
@@ -477,6 +478,6 @@ class Subscriptions
 
         $subscription->nextPaymentDate = $paidUntil;
 
-        return \Craft::$app->getElements()->saveElement($subscription);
+        return Elements::saveElement($subscription);
     }
 }

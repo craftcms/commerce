@@ -19,6 +19,11 @@ use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\ProjectConfig\ProjectConfigHelper;
+use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Cms\Support\Facades\Plugins;
+use CraftCms\Cms\Support\Facades\ProjectConfig;
+use CraftCms\Cms\Support\Facades\Sites;
+use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
 use CraftCms\Commerce\Store\Events\DeleteStoreEvent;
@@ -101,7 +106,7 @@ class Stores
      */
     public function getCurrentStore(): Store
     {
-        return $this->getStoreBySiteId(\Craft::$app->getSites()->getCurrentSite()->id) ?? $this->getPrimaryStore();
+        return $this->getStoreBySiteId(Sites::getCurrentSite()->id) ?? $this->getPrimaryStore();
     }
 
     /**
@@ -148,14 +153,14 @@ class Stores
      */
     public function getStoresByUserId(int $userId): Collection
     {
-        $user = \Craft::$app->getUsers()->getUserById($userId);
+        $user = Users::getUserById($userId);
 
         if (!$user) {
             throw new \yii\base\InvalidConfigException('Invalid user ID: ' . $userId);
         }
 
         $allStores = $this->getAllStores();
-        if (!\Craft::$app->getIsMultiSite()) {
+        if (!Sites::isMultiSite()) {
             return $allStores;
         }
 
@@ -202,9 +207,8 @@ class Stores
             $store->uid = CraftDb::uidById(Table::STORES, $store->id);
         }
 
-        $projectConfigService = \Craft::$app->getProjectConfig();
         $configPath = self::CONFIG_STORES_KEY . '.' . $store->uid;
-        $projectConfigService->set(
+        ProjectConfig::set(
             $configPath,
             $store->getConfig(),
             "Save the \"{$store->handle}\" store"
@@ -227,11 +231,11 @@ class Stores
 
         // Update the other primary store.
         if ($store->primary) {
-            foreach ($projectConfigService->get(self::CONFIG_STORES_KEY) as $uid => $config) {
+            foreach (ProjectConfig::get(self::CONFIG_STORES_KEY) as $uid => $config) {
                 if ($uid !== $store->uid && isset($config['primary']) && $config['primary'] === true) {
                     $configPath = self::CONFIG_STORES_KEY . '.' . $uid;
                     $config['primary'] = false; // Set the other to false
-                    $projectConfigService->set(
+                    ProjectConfig::set(
                         $configPath,
                         $config,
                         "Set the \"{$config['name']}\" store to not be primary"
@@ -281,7 +285,7 @@ class Stores
         }
 
         $path = self::CONFIG_STORES_KEY . '.' . $store->uid;
-        \Craft::$app->getProjectConfig()->remove($path, "Delete the \"{$store->handle}\" store");
+        ProjectConfig::remove($path, "Delete the \"{$store->handle}\" store");
 
         return true;
     }
@@ -407,7 +411,7 @@ class Stores
 
             // Delete store address
             if ($locationAddressId) {
-                \Craft::$app->getElements()->deleteElementById($locationAddressId, Address::class, hardDelete: true);
+                Elements::deleteElementById($locationAddressId, Address::class, hardDelete: true);
             }
 
             $transaction->commit();
@@ -461,14 +465,12 @@ class Stores
      */
     public function reorderStores(array $ids): bool
     {
-        $projectConfig = \Craft::$app->getProjectConfig();
-
         $uidsByIds = CraftDb::uidsByIds(Table::STORES, $ids);
 
         foreach ($ids as $sortOrder => $id) {
             if (!empty($uidsByIds[$id])) {
                 $uid = $uidsByIds[$id];
-                $projectConfig->set(self::CONFIG_STORES_KEY . '.' . $uid . '.sortOrder', $sortOrder + 1);
+                ProjectConfig::set(self::CONFIG_STORES_KEY . '.' . $uid . '.sortOrder', $sortOrder + 1);
             }
         }
 
@@ -500,7 +502,7 @@ class Stores
         ];
 
         // TODO: Remove this schemaVersion guard in Commerce 6.0 once all installs are past schema 5.0.72 and the store settings columns are guaranteed to exist
-        $commerce = \Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
+        $commerce = Plugins::getStoredPluginInfo('commerce');
         $hasSettingsColumns = $commerce && version_compare($commerce['schemaVersion'], '5.0.72', '>=');
 
         if ($hasSettingsColumns) {
@@ -538,7 +540,7 @@ class Stores
      */
     public function getAllSitesForStore(Store $store): Collection
     {
-        $sites = \Craft::$app->getSites()->getAllSites();
+        $sites = Sites::getAllSites();
 
         return $this->getAllSiteStores()
             ->filter(fn(SiteStore $siteStore) => $siteStore->storeId == $store->id)
@@ -594,7 +596,7 @@ class Stores
 
         // We use the same UID as the site since we only have one record per site.
         // This also makes it easier to see what site a store is mapped to in the project config.
-        $craftSite = \Craft::$app->getSites()->getSiteById($siteStore->siteId);
+        $craftSite = Sites::getSiteById($siteStore->siteId);
         if (!$craftSite) {
             throw new \yii\base\InvalidConfigException('Invalid site ID: ' . $siteStore->siteId);
         }
@@ -603,9 +605,8 @@ class Stores
             $siteStore->uid = CraftDb::uidById(CraftTable::SITES, $siteStore->siteId);
         }
 
-        $projectConfigService = \Craft::$app->getProjectConfig();
         $configPath = self::CONFIG_SITESTORES_KEY . '.' . $siteStore->uid;
-        $projectConfigService->set(
+        ProjectConfig::set(
             $configPath,
             $siteStore->getConfig(),
             "Save the \"{$craftSite->handle}\" commerce site store mapping"
@@ -730,7 +731,7 @@ class Stores
         }
 
         // Delete the old siteStore record
-        \Craft::$app->getProjectConfig()->remove(self::CONFIG_SITESTORES_KEY . '.' . $siteStore->uid);
+        ProjectConfig::remove(self::CONFIG_SITESTORES_KEY . '.' . $siteStore->uid);
     }
 
     private function siteStoresQuery(): Builder

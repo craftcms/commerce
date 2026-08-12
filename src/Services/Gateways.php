@@ -17,6 +17,7 @@ use craft\events\RegisterComponentTypesEvent;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Component\ComponentHelper;
 use CraftCms\Cms\Component\Exceptions\MissingComponentException;
+use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
 use DateTime;
@@ -178,12 +179,10 @@ class Gateways
             return false;
         }
 
-        $projectConfig = \Craft::$app->getProjectConfig();
-
         $configData = $gateway->isArchived ? null : $gateway->getConfig();
 
         $configPath = self::CONFIG_GATEWAY_KEY . '.' . $gatewayUid;
-        $projectConfig->set($configPath, $configData);
+        ProjectConfig::set($configPath, $configData);
 
         if ($isNewGateway) {
             $gateway->id = CraftDb::idByUid(Table::GATEWAYS, $gatewayUid);
@@ -273,14 +272,12 @@ class Gateways
      */
     public function reorderGateways(array $ids): bool
     {
-        $projectConfig = \Craft::$app->getProjectConfig();
-
         $uidsByIds = CraftDb::uidsByIds(Table::GATEWAYS, $ids);
 
         foreach ($ids as $gatewayOrder => $gatewayId) {
             if (!empty($uidsByIds[$gatewayId])) {
                 $gatewayUid = $uidsByIds[$gatewayId];
-                $projectConfig->set(self::CONFIG_GATEWAY_KEY . '.' . $gatewayUid . '.sortOrder', $gatewayOrder + 1);
+                ProjectConfig::set(self::CONFIG_GATEWAY_KEY . '.' . $gatewayUid . '.sortOrder', $gatewayOrder + 1);
             }
         }
 
