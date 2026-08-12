@@ -45,12 +45,13 @@ class Purchasables
     {
         $currentUser ??= \Craft::$app->getUser()->getIdentity();
 
-        $event = new PurchasableOutOfStockPurchasesAllowedEvent();
-        $event->order = $order;
-        $event->purchasable = $purchasable;
-        $event->currentUser = $currentUser;
-        /** @phpstan-ignore-next-line */
-        $event->outOfStockPurchasesAllowed = $purchasable->allowOutOfStockPurchases;
+        $event = new PurchasableOutOfStockPurchasesAllowedEvent(
+            purchasable: $purchasable,
+            order: $order,
+            currentUser: $currentUser,
+            /** @phpstan-ignore-next-line */
+            outOfStockPurchasesAllowed: $purchasable->allowOutOfStockPurchases,
+        );
 
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
@@ -66,11 +67,12 @@ class Purchasables
     {
         $currentUser ??= \Craft::$app->getUser()->getIdentity();
 
-        $event = new PurchasableAvailableEvent();
-        $event->order = $order;
-        $event->purchasable = $purchasable;
-        $event->currentUser = $currentUser;
-        $event->isAvailable = $purchasable->getIsAvailable();
+        $event = new PurchasableAvailableEvent(
+            purchasable: $purchasable,
+            isAvailable: $purchasable->getIsAvailable(),
+            order: $order,
+            currentUser: $currentUser,
+        );
 
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
@@ -86,11 +88,12 @@ class Purchasables
     {
         $currentUser ??= \Craft::$app->getUser()->getIdentity();
 
-        $event = new PurchasableShippableEvent();
-        $event->order = $order;
-        $event->purchasable = $purchasable;
-        $event->currentUser = $currentUser;
-        $event->isShippable = $purchasable->getIsShippable();
+        $event = new PurchasableShippableEvent(
+            purchasable: $purchasable,
+            isShippable: $purchasable->getIsShippable(),
+            order: $order,
+            currentUser: $currentUser,
+        );
 
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */

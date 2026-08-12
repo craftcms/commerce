@@ -6,6 +6,8 @@ namespace CraftCms\Commerce\Events;
 
 class UpgradeEvent
 {
-    public array $v3columnMap = [];
-    public array $v3tables = [];
+    public function __construct(
+        public array $v3columnMap = [],
+        public array $v3tables = [],
+    ) {}
 }

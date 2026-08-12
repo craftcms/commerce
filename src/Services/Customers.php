@@ -66,10 +66,11 @@ class Customers
         $user->primaryPaymentSourceId = $paymentSourceId;
 
         if ($originalPaymentSourceId != $paymentSourceId) {
-            $event = new UpdatePrimaryPaymentSourceEvent();
-            $event->previousPrimaryPaymentSourceId = $originalPaymentSourceId;
-            $event->newPrimaryPaymentSourceId = $paymentSourceId;
-            $event->customer = $user;
+            $event = new UpdatePrimaryPaymentSourceEvent(
+                customer: $user,
+                previousPrimaryPaymentSourceId: $originalPaymentSourceId,
+                newPrimaryPaymentSourceId: $paymentSourceId,
+            );
 
             // TODO: migrate event firing to Laravel once event system is bridged
             /** @phpstan-ignore-next-line */

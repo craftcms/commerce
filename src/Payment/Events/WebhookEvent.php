@@ -10,12 +10,14 @@ use yii\web\Response as YiiResponse;
 
 class WebhookEvent
 {
-    public GatewayInterface $gateway;
-
     /**
      * The webhook response. Still a {@see YiiResponse} in practice until
      * {@see WebhooksController} and the gateway request/response pipeline it
      * runs on are migrated off the legacy Yii2 controller system.
      */
     public YiiResponse|Response $response;
+
+    public function __construct(
+        public GatewayInterface $gateway,
+    ) {}
 }

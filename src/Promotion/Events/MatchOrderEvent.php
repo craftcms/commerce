@@ -12,6 +12,8 @@ class MatchOrderEvent
 {
     use ValidatableEvent;
 
-    public Order $order;
-    public Discount $discount;
+    public function __construct(
+        public Order $order,
+        public Discount $discount,
+    ) {}
 }

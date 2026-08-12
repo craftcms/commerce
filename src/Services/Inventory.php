@@ -348,9 +348,9 @@ class Inventory
             /** @phpstan-ignore-next-line */
             if (Plugin::getInstance()->getInventory()->hasEventHandlers(self::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL)) {
                 /** @phpstan-ignore-next-line */
-                Plugin::getInstance()->getInventory()->trigger(self::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL, new UpdateInventoryLevelEvent([
-                    'updateInventoryLevel' => $updateInventoryLevel,
-                ]));
+                Plugin::getInstance()->getInventory()->trigger(self::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL, new UpdateInventoryLevelEvent(
+                    updateInventoryLevel: $updateInventoryLevel,
+                ));
             }
         }
 
@@ -543,9 +543,9 @@ class Inventory
             /** @phpstan-ignore-next-line */
             if (Plugin::getInstance()->getInventory()->hasEventHandlers(self::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT)) {
                 /** @phpstan-ignore-next-line */
-                Plugin::getInstance()->getInventory()->trigger(self::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT, new InventoryMovementEvent([
-                    'inventoryMovement' => $inventoryMovement,
-                ]));
+                Plugin::getInstance()->getInventory()->trigger(self::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT, new InventoryMovementEvent(
+                    inventoryMovement: $inventoryMovement,
+                ));
             }
         }
 

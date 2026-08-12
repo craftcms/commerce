@@ -8,5 +8,7 @@ use Dompdf\Options;
 
 class PdfRenderOptionsEvent
 {
-    public Options $options;
+    public function __construct(
+        public Options $options,
+    ) {}
 }

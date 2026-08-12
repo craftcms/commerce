@@ -14,9 +14,11 @@ class MailEvent
 {
     use ValidatableEvent;
 
-    public Message $craftEmail;
-    public Email $commerceEmail;
-    public Order $order;
-    public ?OrderHistory $orderHistory = null;
-    public ?array $orderData = null;
+    public function __construct(
+        public Message $craftEmail,
+        public Email $commerceEmail,
+        public Order $order,
+        public ?OrderHistory $orderHistory = null,
+        public ?array $orderData = null,
+    ) {}
 }

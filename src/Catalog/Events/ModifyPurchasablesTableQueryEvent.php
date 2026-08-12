@@ -8,6 +8,8 @@ use craft\db\Query;
 
 class ModifyPurchasablesTableQueryEvent
 {
-    public Query $query;
-    public ?string $search = null;
+    public function __construct(
+        public Query $query,
+        public ?string $search = null,
+    ) {}
 }

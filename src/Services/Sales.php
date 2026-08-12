@@ -334,9 +334,7 @@ class Sales
             }
         }
 
-        $event = new SaleMatchEvent();
-        $event->sale = $sale;
-        $event->purchasable = $purchasable;
+        $event = new SaleMatchEvent(sale: $sale, purchasable: $purchasable, isNew: false);
         event($event);
 
         if ($order) {
@@ -370,9 +368,7 @@ class Sales
             return false;
         }
 
-        $beforeEv = new SaleEvent();
-        $beforeEv->sale = $model;
-        $beforeEv->isNew = $isNew;
+        $beforeEv = new SaleEvent(sale: $model, isNew: $isNew);
         event($beforeEv);
 
         /** @phpstan-ignore-next-line */
@@ -477,9 +473,7 @@ class Sales
 
             $this->clearCaches();
 
-            $afterEv = new SaleEvent();
-            $afterEv->sale = $model;
-            $afterEv->isNew = $isNew;
+            $afterEv = new SaleEvent(sale: $model, isNew: $isNew);
             event($afterEv);
 
             return true;
@@ -517,9 +511,7 @@ class Sales
         $result = (bool) $record->delete();
 
         if ($result) {
-            $ev = new SaleEvent();
-            $ev->sale = $sale;
-            $ev->isNew = false;
+            $ev = new SaleEvent(sale: $sale, isNew: false);
             event($ev);
         }
 

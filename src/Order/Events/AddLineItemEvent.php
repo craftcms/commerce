@@ -11,6 +11,8 @@ class AddLineItemEvent
 {
     use ValidatableEvent;
 
-    public LineItem $lineItem;
-    public bool $isNew = false;
+    public function __construct(
+        public LineItem $lineItem,
+        public bool $isNew = false,
+    ) {}
 }

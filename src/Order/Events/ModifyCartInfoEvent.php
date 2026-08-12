@@ -8,6 +8,8 @@ use CraftCms\Commerce\Order\Elements\Order;
 
 class ModifyCartInfoEvent
 {
-    public array $cartInfo = [];
-    public ?Order $cart = null;
+    public function __construct(
+        public array $cartInfo = [],
+        public ?Order $cart = null,
+    ) {}
 }

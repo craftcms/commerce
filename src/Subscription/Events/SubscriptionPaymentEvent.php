@@ -10,7 +10,9 @@ use DateTime;
 
 class SubscriptionPaymentEvent
 {
-    public Subscription $subscription;
-    public SubscriptionPayment $payment;
-    public DateTime $paidUntil;
+    public function __construct(
+        public Subscription $subscription,
+        public SubscriptionPayment $payment,
+        public DateTime $paidUntil,
+    ) {}
 }

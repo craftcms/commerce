@@ -312,11 +312,11 @@ class Discount extends Component implements AdjusterInterface
         }
 
         // Raise the 'afterDiscountAdjustmentsCreated' event
-        $event = new DiscountAdjustmentsEvent([
-            'order' => $this->_order,
-            'discount' => $discount,
-            'adjustments' => $adjustments,
-        ]);
+        $event = new DiscountAdjustmentsEvent(
+            order: $this->_order,
+            discount: $discount,
+            adjustments: $adjustments,
+        );
 
         $this->trigger(self::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED, $event);
 

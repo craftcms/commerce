@@ -8,5 +8,7 @@ use CraftCms\Commerce\Catalog\Elements\Variant;
 
 class PurchaseVariantEvent
 {
-    public Variant $variant;
+    public function __construct(
+        public Variant $variant,
+    ) {}
 }

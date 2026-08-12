@@ -119,9 +119,10 @@ class OrderStatuses
     {
         $orderStatus = $this->getDefaultOrderStatus($order->storeId);
 
-        $event = new DefaultOrderStatusEvent();
-        $event->orderStatus = $orderStatus;
-        $event->order = $order;
+        $event = new DefaultOrderStatusEvent(
+            orderStatus: $orderStatus,
+            order: $order,
+        );
 
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
@@ -357,10 +358,11 @@ class OrderStatuses
         }
 
         // Raising 'beforeOrderStatusChange' event
-        $event = new OrderStatusEmailsEvent();
-        $event->orderHistory = $orderHistory;
-        $event->order = $order;
-        $event->emails = $status->getEmails();
+        $event = new OrderStatusEmailsEvent(
+            orderHistory: $orderHistory,
+            order: $order,
+            emails: $status->getEmails(),
+        );
         $event->isValid = !$order->suppressEmails;
 
         // TODO: migrate event firing to Laravel once event system is bridged

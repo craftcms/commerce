@@ -1270,9 +1270,9 @@ class Order extends Element implements HasStoreInterface
         }
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_REMOVE_LINE_ITEM)) {
-            $this->trigger(self::EVENT_AFTER_REMOVE_LINE_ITEM, new LineItemEvent([
-                'lineItem' => $lineItem,
-            ]));
+            $this->trigger(self::EVENT_AFTER_REMOVE_LINE_ITEM, new LineItemEvent(
+                lineItem: $lineItem,
+            ));
         }
     }
 
@@ -1285,7 +1285,7 @@ class Order extends Element implements HasStoreInterface
         $isNew = ($lineItem->id === null);
 
         if ($isNew && $this->hasEventHandlers(self::EVENT_BEFORE_ADD_LINE_ITEM)) {
-            $lineItemEvent = new AddLineItemEvent(compact('lineItem', 'isNew'));
+            $lineItemEvent = new AddLineItemEvent(lineItem: $lineItem, isNew: $isNew);
             $this->trigger(self::EVENT_BEFORE_ADD_LINE_ITEM, $lineItemEvent);
 
             if (!$lineItemEvent->isValid) {
@@ -1309,10 +1309,10 @@ class Order extends Element implements HasStoreInterface
 
         // Raising the 'afterAddLineItemToOrder' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_ADD_LINE_ITEM)) {
-            $this->trigger(self::EVENT_AFTER_ADD_LINE_ITEM, new LineItemEvent([
-                'lineItem' => $lineItem,
-                'isNew' => !$replaced,
-            ]));
+            $this->trigger(self::EVENT_AFTER_ADD_LINE_ITEM, new LineItemEvent(
+                lineItem: $lineItem,
+                isNew: !$replaced,
+            ));
         }
     }
 
@@ -1379,10 +1379,10 @@ class Order extends Element implements HasStoreInterface
 
             $recalculateOrder = false;
             if ($this->hasEventHandlers(self::EVENT_BEFORE_LINE_ITEMS_REFRESHED)) {
-                $event = new OrderLineItemsRefreshEvent([
-                    'lineItems' => $this->getLineItems(),
-                    'recalculate' => $recalculateOrder,
-                ]);
+                $event = new OrderLineItemsRefreshEvent(
+                    lineItems: $this->getLineItems(),
+                    recalculate: $recalculateOrder,
+                );
                 $this->trigger(self::EVENT_BEFORE_LINE_ITEMS_REFRESHED, $event);
 
                 $this->setLineItems($event->lineItems);
@@ -1433,10 +1433,10 @@ class Order extends Element implements HasStoreInterface
             }
 
             if ($this->hasEventHandlers(self::EVENT_AFTER_LINE_ITEMS_REFRESHED)) {
-                $event = new OrderLineItemsRefreshEvent([
-                    'lineItems' => $this->getLineItems(),
-                    'recalculate' => $recalculateOrder,
-                ]);
+                $event = new OrderLineItemsRefreshEvent(
+                    lineItems: $this->getLineItems(),
+                    recalculate: $recalculateOrder,
+                );
                 $this->trigger(self::EVENT_AFTER_LINE_ITEMS_REFRESHED, $event);
 
                 $this->setLineItems($event->lineItems);
@@ -4012,9 +4012,9 @@ class Order extends Element implements HasStoreInterface
         // We are never updating a notice, just adding it or keeping it.
         foreach (array_merge($this->getNotices(), $this->getAdminNotices()) as $notice) {
             if ($notice->id === null) {
-                $orderNoticeEvent = new OrderNoticeEvent([
-                    'orderNotice' => $notice,
-                ]);
+                $orderNoticeEvent = new OrderNoticeEvent(
+                    orderNotice: $notice,
+                );
 
                 // Raising the 'beforeAddNoticeToOrder' event
                 if ($this->hasEventHandlers(self::EVENT_BEFORE_APPLY_ADD_NOTICE)) {
@@ -4066,9 +4066,9 @@ class Order extends Element implements HasStoreInterface
                 DB::table(Table::LINEITEMS)->where('id', $previousLineItem->id)->delete();
 
                 if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM)) {
-                    $this->trigger(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM, new LineItemEvent([
-                        'lineItem' => $previousLineItem,
-                    ]));
+                    $this->trigger(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM, new LineItemEvent(
+                        lineItem: $previousLineItem,
+                    ));
                 }
             }
         }
@@ -4092,10 +4092,10 @@ class Order extends Element implements HasStoreInterface
             if ($originalId === null) {
                 // Raising the 'afterAddLineItemToOrder' event
                 if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_ADD_LINE_ITEM)) {
-                    $this->trigger(self::EVENT_AFTER_APPLY_ADD_LINE_ITEM, new LineItemEvent([
-                        'lineItem' => $lineItem,
-                        'isNew' => true,
-                    ]));
+                    $this->trigger(self::EVENT_AFTER_APPLY_ADD_LINE_ITEM, new LineItemEvent(
+                        lineItem: $lineItem,
+                        isNew: true,
+                    ));
                 }
             }
 

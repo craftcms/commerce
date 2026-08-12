@@ -13,8 +13,10 @@ class SubscriptionSwitchPlansEvent
 {
     use ValidatableEvent;
 
-    public Plan $oldPlan;
-    public Subscription $subscription;
-    public Plan $newPlan;
-    public SwitchPlansForm $parameters;
+    public function __construct(
+        public Plan $oldPlan,
+        public Subscription $subscription,
+        public Plan $newPlan,
+        public SwitchPlansForm $parameters,
+    ) {}
 }

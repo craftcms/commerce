@@ -12,6 +12,8 @@ class CancelSubscriptionEvent
 {
     use ValidatableEvent;
 
-    public Subscription $subscription;
-    public CancelSubscriptionForm $parameters;
+    public function __construct(
+        public Subscription $subscription,
+        public CancelSubscriptionForm $parameters,
+    ) {}
 }

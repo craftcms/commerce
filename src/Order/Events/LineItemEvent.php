@@ -8,6 +8,8 @@ use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 
 class LineItemEvent
 {
-    public LineItem $lineItem;
-    public bool $isNew = false;
+    public function __construct(
+        public LineItem $lineItem,
+        public bool $isNew = false,
+    ) {}
 }

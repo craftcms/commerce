@@ -9,6 +9,8 @@ use CraftCms\Commerce\Order\Models\OrderHistory;
 
 class OrderStatusEvent
 {
-    public OrderHistory $orderHistory;
-    public Order $order;
+    public function __construct(
+        public OrderHistory $orderHistory,
+        public Order $order,
+    ) {}
 }

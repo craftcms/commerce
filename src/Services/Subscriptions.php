@@ -153,8 +153,7 @@ class Subscriptions
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getSubscriptions()->hasEventHandlers(self::EVENT_AFTER_EXPIRE_SUBSCRIPTION)) {
-            $event = new SubscriptionEvent();
-            $event->subscription = $subscription;
+            $event = new SubscriptionEvent(subscription: $subscription);
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getSubscriptions()->trigger(self::EVENT_AFTER_EXPIRE_SUBSCRIPTION, $event);
         }
@@ -197,10 +196,7 @@ class Subscriptions
         $gateway = $plan->getGateway();
 
         // Raise 'beforeCreateSubscription' event
-        $event = new CreateSubscriptionEvent();
-        $event->user = $user;
-        $event->plan = $plan;
-        $event->parameters = $parameters;
+        $event = new CreateSubscriptionEvent(user: $user, plan: $plan, parameters: $parameters);
 
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
@@ -247,8 +243,7 @@ class Subscriptions
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getSubscriptions()->hasEventHandlers(self::EVENT_AFTER_CREATE_SUBSCRIPTION)) {
-            $afterEvent = new SubscriptionEvent();
-            $afterEvent->subscription = $subscription;
+            $afterEvent = new SubscriptionEvent(subscription: $subscription);
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getSubscriptions()->trigger(self::EVENT_AFTER_CREATE_SUBSCRIPTION, $afterEvent);
         }
@@ -273,8 +268,7 @@ class Subscriptions
         }
 
         // Raise 'beforeReactivateSubscription' event
-        $event = new SubscriptionEvent();
-        $event->subscription = $subscription;
+        $event = new SubscriptionEvent(subscription: $subscription);
 
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
@@ -301,8 +295,7 @@ class Subscriptions
             // TODO: migrate event firing to Laravel once event system is bridged
             /** @phpstan-ignore-next-line */
             if (Plugin::getInstance()->getSubscriptions()->hasEventHandlers(self::EVENT_AFTER_REACTIVATE_SUBSCRIPTION)) {
-                $afterEvent = new SubscriptionEvent();
-                $afterEvent->subscription = $subscription;
+                $afterEvent = new SubscriptionEvent(subscription: $subscription);
                 /** @phpstan-ignore-next-line */
                 Plugin::getInstance()->getSubscriptions()->trigger(self::EVENT_AFTER_REACTIVATE_SUBSCRIPTION, $afterEvent);
             }
@@ -339,11 +332,7 @@ class Subscriptions
         }
 
         // Raise 'beforeSwitchSubscriptionPlan' event
-        $event = new SubscriptionSwitchPlansEvent();
-        $event->oldPlan = $oldPlan;
-        $event->subscription = $subscription;
-        $event->newPlan = $plan;
-        $event->parameters = $parameters;
+        $event = new SubscriptionSwitchPlansEvent(oldPlan: $oldPlan, subscription: $subscription, newPlan: $plan, parameters: $parameters);
 
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
@@ -374,11 +363,7 @@ class Subscriptions
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getSubscriptions()->hasEventHandlers(self::EVENT_AFTER_SWITCH_SUBSCRIPTION_PLAN)) {
-            $afterEvent = new SubscriptionSwitchPlansEvent();
-            $afterEvent->oldPlan = $oldPlan;
-            $afterEvent->subscription = $subscription;
-            $afterEvent->newPlan = $plan;
-            $afterEvent->parameters = $parameters;
+            $afterEvent = new SubscriptionSwitchPlansEvent(oldPlan: $oldPlan, subscription: $subscription, newPlan: $plan, parameters: $parameters);
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getSubscriptions()->trigger(self::EVENT_AFTER_SWITCH_SUBSCRIPTION_PLAN, $afterEvent);
         }
@@ -401,9 +386,7 @@ class Subscriptions
         }
 
         // Raise 'beforeCancelSubscription' event
-        $event = new CancelSubscriptionEvent();
-        $event->subscription = $subscription;
-        $event->parameters = $parameters;
+        $event = new CancelSubscriptionEvent(subscription: $subscription, parameters: $parameters);
 
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
@@ -441,9 +424,7 @@ class Subscriptions
                 // TODO: migrate event firing to Laravel once event system is bridged
                 /** @phpstan-ignore-next-line */
                 if (Plugin::getInstance()->getSubscriptions()->hasEventHandlers(self::EVENT_AFTER_CANCEL_SUBSCRIPTION)) {
-                    $afterEvent = new CancelSubscriptionEvent();
-                    $afterEvent->subscription = $subscription;
-                    $afterEvent->parameters = $parameters;
+                    $afterEvent = new CancelSubscriptionEvent(subscription: $subscription, parameters: $parameters);
                     /** @phpstan-ignore-next-line */
                     Plugin::getInstance()->getSubscriptions()->trigger(self::EVENT_AFTER_CANCEL_SUBSCRIPTION, $afterEvent);
                 }
@@ -469,8 +450,7 @@ class Subscriptions
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getSubscriptions()->hasEventHandlers(self::EVENT_BEFORE_UPDATE_SUBSCRIPTION)) {
-            $event = new SubscriptionEvent();
-            $event->subscription = $subscription;
+            $event = new SubscriptionEvent(subscription: $subscription);
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getSubscriptions()->trigger(self::EVENT_BEFORE_UPDATE_SUBSCRIPTION, $event);
         }
@@ -490,10 +470,7 @@ class Subscriptions
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getSubscriptions()->hasEventHandlers(self::EVENT_RECEIVE_SUBSCRIPTION_PAYMENT)) {
-            $event = new SubscriptionPaymentEvent();
-            $event->subscription = $subscription;
-            $event->payment = $payment;
-            $event->paidUntil = $paidUntil;
+            $event = new SubscriptionPaymentEvent(subscription: $subscription, payment: $payment, paidUntil: $paidUntil);
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getSubscriptions()->trigger(self::EVENT_RECEIVE_SUBSCRIPTION_PAYMENT, $event);
         }

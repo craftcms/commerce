@@ -6,6 +6,8 @@ namespace CraftCms\Commerce\Order\Events;
 
 class OrderLineItemsRefreshEvent
 {
-    public array $lineItems;
-    public bool $recalculate = false;
+    public function __construct(
+        public array $lineItems,
+        public bool $recalculate = false,
+    ) {}
 }

@@ -10,8 +10,10 @@ use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 
 class PurchasableOutOfStockPurchasesAllowedEvent
 {
-    public ?Order $order = null;
-    public PurchasableInterface $purchasable;
-    public ?User $currentUser = null;
-    public bool $outOfStockPurchasesAllowed = false;
+    public function __construct(
+        public PurchasableInterface $purchasable,
+        public ?Order $order = null,
+        public ?User $currentUser = null,
+        public bool $outOfStockPurchasesAllowed = false,
+    ) {}
 }

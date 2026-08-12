@@ -431,9 +431,7 @@ class Discounts
             }
         }
 
-        $event = new MatchLineItemEvent();
-        $event->lineItem = $lineItem;
-        $event->discount = $discount;
+        $event = new MatchLineItemEvent(lineItem: $lineItem, discount: $discount);
         event($event);
 
         return $event->isValid;
@@ -528,9 +526,7 @@ class Discounts
             }
         }
 
-        $event = new MatchOrderEvent();
-        $event->order = $order;
-        $event->discount = $discount;
+        $event = new MatchOrderEvent(order: $order, discount: $discount);
         event($event);
 
         return $event->isValid;
@@ -559,9 +555,7 @@ class Discounts
             $model->dateUpdated = \craft\helpers\DateTimeHelper::toDateTime($record->dateUpdated);
         }
 
-        $ev = new DiscountEvent();
-        $ev->discount = $model;
-        $ev->isNew = $isNew;
+        $ev = new DiscountEvent(discount: $model, isNew: $isNew);
         event($ev);
 
         if ($runValidation && !$model->validate()) {
@@ -700,9 +694,7 @@ class Discounts
 
             $this->ensureSortOrder($model->storeId);
 
-            $afterEv = new DiscountEvent();
-            $afterEv->discount = $model;
-            $afterEv->isNew = $isNew;
+            $afterEv = new DiscountEvent(discount: $model, isNew: $isNew);
             event($afterEv);
 
             $this->clearCaches();
@@ -734,9 +726,7 @@ class Discounts
         if ($result) {
             $this->ensureSortOrder($storeId);
 
-            $ev = new DiscountEvent();
-            $ev->discount = $discount;
-            $ev->isNew = false;
+            $ev = new DiscountEvent(discount: $discount, isNew: false);
             event($ev);
         }
 

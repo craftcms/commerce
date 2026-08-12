@@ -11,6 +11,8 @@ class StoreEvent
 {
     use ValidatableEvent;
 
-    public Store $store;
-    public bool $isNew = false;
+    public function __construct(
+        public Store $store,
+        public bool $isNew = false,
+    ) {}
 }

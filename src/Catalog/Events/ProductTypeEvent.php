@@ -8,6 +8,8 @@ use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
 
 class ProductTypeEvent
 {
-    public ?ProductType $productType = null;
-    public bool $isNew = false;
+    public function __construct(
+        public ?ProductType $productType = null,
+        public bool $isNew = false,
+    ) {}
 }

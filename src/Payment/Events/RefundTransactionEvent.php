@@ -4,10 +4,16 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Payment\Events;
 
-use craft\commerce\models\Transaction;
+use CraftCms\Commerce\Payment\Models\Transaction;
 
 class RefundTransactionEvent extends TransactionEvent
 {
-    public ?float $amount = null;
     public Transaction $refundTransaction;
+
+    public function __construct(
+        Transaction $transaction,
+        public ?float $amount = null,
+    ) {
+        parent::__construct($transaction);
+    }
 }

@@ -136,8 +136,7 @@ class Plans
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getPlans()->hasEventHandlers(self::EVENT_BEFORE_SAVE_PLAN)) {
-            $beforeEvent = new PlanEvent();
-            $beforeEvent->plan = $plan;
+            $beforeEvent = new PlanEvent(plan: $plan);
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getPlans()->trigger(self::EVENT_BEFORE_SAVE_PLAN, $beforeEvent);
         }
@@ -180,8 +179,7 @@ class Plans
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getPlans()->hasEventHandlers(self::EVENT_AFTER_SAVE_PLAN)) {
-            $afterEvent = new PlanEvent();
-            $afterEvent->plan = $plan;
+            $afterEvent = new PlanEvent(plan: $plan);
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getPlans()->trigger(self::EVENT_AFTER_SAVE_PLAN, $afterEvent);
         }
@@ -207,8 +205,7 @@ class Plans
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getPlans()->hasEventHandlers(self::EVENT_ARCHIVE_PLAN)) {
-            $event = new PlanEvent();
-            $event->plan = $plan;
+            $event = new PlanEvent(plan: $plan);
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getPlans()->trigger(self::EVENT_ARCHIVE_PLAN, $event);
         }

@@ -28,8 +28,7 @@ class Webhooks
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getWebhooks()->hasEventHandlers(self::EVENT_BEFORE_PROCESS_WEBHOOK)) {
-            $beforeEvent = new WebhookEvent();
-            $beforeEvent->gateway = $gateway;
+            $beforeEvent = new WebhookEvent(gateway: $gateway);
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getWebhooks()->trigger(self::EVENT_BEFORE_PROCESS_WEBHOOK, $beforeEvent);
         }
@@ -68,8 +67,7 @@ class Webhooks
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getWebhooks()->hasEventHandlers(self::EVENT_AFTER_PROCESS_WEBHOOK)) {
-            $afterEvent = new WebhookEvent();
-            $afterEvent->gateway = $gateway;
+            $afterEvent = new WebhookEvent(gateway: $gateway);
             $afterEvent->response = $response;
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getWebhooks()->trigger(self::EVENT_AFTER_PROCESS_WEBHOOK, $afterEvent);

@@ -31,8 +31,9 @@ class Taxes implements TaxEngineInterface
     {
         $validators = [new EuVatIdValidator()];
 
-        $event = new TaxIdValidatorsEvent();
-        $event->validators = $validators;
+        $event = new TaxIdValidatorsEvent(
+            validators: $validators,
+        );
 
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */

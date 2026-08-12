@@ -617,9 +617,10 @@ class LineItem extends Component implements HasStoreInterface
         $lineItemsService = Plugin::getInstance()->getLineItems();
 
         if ($lineItemsService->hasEventHandlers($lineItemsService::EVENT_POPULATE_LINE_ITEM)) {
-            $event = new LineItemEvent();
-            $event->lineItem = $this;
-            $event->isNew = !$this->id;
+            $event = new LineItemEvent(
+                lineItem: $this,
+                isNew: !$this->id,
+            );
             $lineItemsService->trigger($lineItemsService::EVENT_POPULATE_LINE_ITEM, $event);
         }
     }
