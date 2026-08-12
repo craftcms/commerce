@@ -3,10 +3,10 @@
 ## Unreleased
 
 - Fixed a bug where inactive carts’ search index rows weren’t being purged. ([#4344](https://github.com/craftcms/commerce/issues/4344))
-- Fixed a bug where a transfer field layout would delete the order field layout. ([#4345](https://github.com/craftcms/commerce/issues/4345))
+- Fixed a bug where saving the transfer field layout would override the order field layout. ([#4345](https://github.com/craftcms/commerce/issues/4345))
 - Fixed a bug where generating a PDF or cart-load URL from a console request returned a blank URL. ([#4343](https://github.com/craftcms/commerce/pull/4343))
-- Fixed a bug where completed orders could unintentionally have their recalculation mode set to "all". ([#4342](https://github.com/craftcms/commerce/issues/4342))
-- Fixed [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) business logic vulnerability. (GHSA-gcqr-xrx9-grcf)
+- Fixed a bug where completed orders could unintentionally have their recalculation mode set to “all”. ([#4342](https://github.com/craftcms/commerce/issues/4342))
+- Fixed a [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) business logic vulnerability. (GHSA-gcqr-xrx9-grcf)
 
 ## 5.7.1 - 2026-07-22
 
