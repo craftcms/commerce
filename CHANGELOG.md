@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.12.2 - 2026-08-13
 
 - Fixed a bug where inactive carts’ search index rows weren’t being purged. ([#4344](https://github.com/craftcms/commerce/issues/4344))
 
