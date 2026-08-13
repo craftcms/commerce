@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 use yii\base\Component;
 
 /**
- * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Services\ShippingRules::class)` instead.
+ * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Shipping\ShippingRules::class)` instead.
  */
 class ShippingRules extends Component
 {
@@ -16,7 +16,7 @@ class ShippingRules extends Component
      */
     public function getAllShippingRules(): Collection
     {
-        return app(\CraftCms\Commerce\Services\ShippingRules::class)->getAllShippingRules();
+        return app(\CraftCms\Commerce\Shipping\ShippingRules::class)->getAllShippingRules();
     }
 
     /**
@@ -24,26 +24,26 @@ class ShippingRules extends Component
      */
     public function getAllShippingRulesByShippingMethodId(int $methodId): Collection
     {
-        return app(\CraftCms\Commerce\Services\ShippingRules::class)->getAllShippingRulesByShippingMethodId($methodId);
+        return app(\CraftCms\Commerce\Shipping\ShippingRules::class)->getAllShippingRulesByShippingMethodId($methodId);
     }
 
     public function getShippingRuleById(int $id): ?ShippingRule
     {
-        return app(\CraftCms\Commerce\Services\ShippingRules::class)->getShippingRuleById($id);
+        return app(\CraftCms\Commerce\Shipping\ShippingRules::class)->getShippingRuleById($id);
     }
 
     public function saveShippingRule(ShippingRule $model, bool $runValidation = true): bool
     {
-        return app(\CraftCms\Commerce\Services\ShippingRules::class)->saveShippingRule($model, $runValidation);
+        return app(\CraftCms\Commerce\Shipping\ShippingRules::class)->saveShippingRule($model, $runValidation);
     }
 
     public function reorderShippingRules(array $ids): bool
     {
-        return app(\CraftCms\Commerce\Services\ShippingRules::class)->reorderShippingRules($ids);
+        return app(\CraftCms\Commerce\Shipping\ShippingRules::class)->reorderShippingRules($ids);
     }
 
     public function deleteShippingRuleById(int $id): bool
     {
-        return app(\CraftCms\Commerce\Services\ShippingRules::class)->deleteShippingRuleById($id);
+        return app(\CraftCms\Commerce\Shipping\ShippingRules::class)->deleteShippingRuleById($id);
     }
 }

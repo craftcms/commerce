@@ -6,7 +6,7 @@ use CraftCms\Commerce\Shipping\Models\ShippingRuleCategory;
 use yii\base\Component;
 
 /**
- * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Services\ShippingRuleCategories::class)` instead.
+ * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Shipping\ShippingRuleCategories::class)` instead.
  */
 class ShippingRuleCategories extends Component
 {
@@ -15,7 +15,7 @@ class ShippingRuleCategories extends Component
      */
     public function getShippingRuleCategoriesByRuleId(int $ruleId): array
     {
-        return app(\CraftCms\Commerce\Services\ShippingRuleCategories::class)->getShippingRuleCategoriesByRuleId($ruleId);
+        return app(\CraftCms\Commerce\Shipping\ShippingRuleCategories::class)->getShippingRuleCategoriesByRuleId($ruleId);
     }
 
     /**
@@ -24,16 +24,16 @@ class ShippingRuleCategories extends Component
      */
     public function getShippingRuleCategoriesByRuleIds(array $ruleIds): array
     {
-        return app(\CraftCms\Commerce\Services\ShippingRuleCategories::class)->getShippingRuleCategoriesByRuleIds($ruleIds);
+        return app(\CraftCms\Commerce\Shipping\ShippingRuleCategories::class)->getShippingRuleCategoriesByRuleIds($ruleIds);
     }
 
     public function createShippingRuleCategory(ShippingRuleCategory $model, bool $runValidation = true): bool
     {
-        return app(\CraftCms\Commerce\Services\ShippingRuleCategories::class)->createShippingRuleCategory($model, $runValidation);
+        return app(\CraftCms\Commerce\Shipping\ShippingRuleCategories::class)->createShippingRuleCategory($model, $runValidation);
     }
 
     public function deleteShippingRuleCategoryById(int $id): bool
     {
-        return app(\CraftCms\Commerce\Services\ShippingRuleCategories::class)->deleteShippingRuleCategoryById($id);
+        return app(\CraftCms\Commerce\Shipping\ShippingRuleCategories::class)->deleteShippingRuleCategoryById($id);
     }
 }

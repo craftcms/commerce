@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Shipping;
 
 use craft\commerce\Plugin;
-use craft\commerce\records\ShippingRule as ShippingRuleRecord;
-use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Shipping\Models\ShippingRule;
 use CraftCms\Commerce\Shipping\Models\ShippingRuleCategory;
+use CraftCms\Commerce\Shipping\Records\ShippingRule as ShippingRuleRecord;
+use CraftCms\Commerce\Shipping\Records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -61,8 +61,7 @@ class ShippingRules
     public function saveShippingRule(ShippingRule $model, bool $runValidation = true): bool
     {
         if ($model->id) {
-            /** @phpstan-ignore-next-line */
-            $record = ShippingRuleRecord::findOne($model->id);
+            $record = ShippingRuleRecord::find($model->id);
             if (!$record) {
                 throw new \RuntimeException(t('No shipping rule exists with the ID "{id}"', ['id' => $model->id], category: 'commerce'));
             }
@@ -98,8 +97,7 @@ class ShippingRules
         $record->customerCondition = $model->getCustomerCondition()->getConfig();
 
         if (empty($record->priority) && empty($model->priority)) {
-            /** @phpstan-ignore-next-line */
-            $count = ShippingRuleRecord::find()->where(['methodId' => $model->methodId])->count();
+            $count = ShippingRuleRecord::where('methodId', $model->methodId)->count();
             $record->priority = $model->priority = $count + 1;
         } elseif ($model->priority) {
             $record->priority = $model->priority;
@@ -107,11 +105,10 @@ class ShippingRules
             $model->priority = $record->priority;
         }
 
-        $record->save(false);
+        $record->save();
         $model->id = $record->id;
 
-        /** @phpstan-ignore-next-line */
-        ShippingRuleCategoryRecord::deleteAll(['shippingRuleId' => $model->id]);
+        ShippingRuleCategoryRecord::where('shippingRuleId', $model->id)->delete();
 
         foreach (app(ShippingCategories::class)->getAllShippingCategories($model->storeId) as $shippingCategory) {
             $ruleCategory = $model->getShippingRuleCategories()[$shippingCategory->id] ?? null;
@@ -153,8 +150,7 @@ class ShippingRules
 
     public function deleteShippingRuleById(int $id): bool
     {
-        /** @phpstan-ignore-next-line */
-        $record = ShippingRuleRecord::findOne($id);
+        $record = ShippingRuleRecord::find($id);
 
         if ($record) {
             $result = (bool) $record->delete();

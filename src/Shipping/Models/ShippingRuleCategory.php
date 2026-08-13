@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Shipping\Models;
 
 use CraftCms\Cms\Component\Component;
-use CraftCms\Commerce\Services\ShippingCategories;
-use CraftCms\Commerce\Services\ShippingRules;
+use CraftCms\Commerce\Shipping\ShippingCategories;
+use CraftCms\Commerce\Shipping\ShippingRules;
 
 class ShippingRuleCategory extends Component
 {

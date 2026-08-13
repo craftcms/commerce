@@ -23,7 +23,7 @@ use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Catalog\Models\ProductTypeSite;
 use CraftCms\Commerce\Catalog\ProductType\Validation\ProductTypeRules;
 use CraftCms\Commerce\Services\ProductTypes;
-use CraftCms\Commerce\Services\ShippingCategories;
+use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Tax\TaxCategories;
 use CraftCms\Commerce\Shipping\Models\ShippingCategory;
 use CraftCms\Commerce\Tax\Models\TaxCategory;

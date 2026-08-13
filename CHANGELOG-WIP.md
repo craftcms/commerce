@@ -1,5 +1,16 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 10c: Service Namespace & Record Cleanup (Shipping cluster)
+
+Third slice of Stage 10: `Services\{ShippingCategories,ShippingZones,ShippingMethods,ShippingRules,ShippingRuleCategories}` → `Shipping\*`.
+
+- All 5 replaced their legacy `craft\commerce\records\*` `ActiveRecord` classes with new thin Eloquent models under `Shipping\Records\*`. `ShippingCategory` needed `SoftDeletes` (same `dateDeleted` shape as Stage 10b's `TaxCategory`); the rest are plain hard-delete rows.
+- `ShippingRuleCategory`'s `CONDITION_ALLOW`/`CONDITION_DISALLOW`/`CONDITION_REQUIRE` constants moved onto the new Eloquent class (same treatment as Stage 10b's `TaxRate` constants) and repointed its 2 consumers (`Shipping\Models\ShippingRule`, `Http\Controllers\Settings\ShippingRulesController`).
+- Found and converted 2 more genuine leftover persistence usages, same shape as Stage 10b's `TaxRatesController::updateStatus()`: `ShippingMethodsController::updateStatus()` (`ShippingMethodRecord::find()->where(['id' => $ids])->all()` → `whereIn('id', $ids)->get()` in a `DB::transaction()`), and `ShippingRules::saveShippingRule()`'s priority-numbering query (`ShippingRuleRecord::find()->where(['methodId' => ...])->count()` → `ShippingRuleRecord::where('methodId', ...)->count()`).
+- Found another dead unused import while relocating (same shape as Stage 10a's `PaymentCurrency` in `Stores.php`): `Stores.php` also imported `craft\commerce\records\ShippingCategory` without ever using it — removed.
+- `craft\commerce\records\{ShippingZone,ShippingMethod,ShippingRule,ShippingRuleCategory}` are now fully unreferenced and deleted. `craft\commerce\records\ShippingCategory` is kept, same reasoning as Stage 10b's `TaxCategory` — still used by `tests/fixtures/ShippingCategoryFixture.php`'s Codeception `ActiveFixture` and a test exercising its Yii2-specific soft-delete query methods (`findTrashed()`).
+- **Verification**: live via `craft exec:exec` — fetched the default shipping category, round-tripped create → soft-delete → confirm-trashed through the new Eloquent model, fetched zones/methods/rules for the primary store, and confirmed the relocated `CONDITION_ALLOW` constant.
+
 ### Laravel Migration — Stage 10b: Service Namespace & Record Cleanup (Tax cluster)
 
 Second slice of Stage 10: `Services\{TaxCategories,TaxZones,Taxes,TaxRates,Vat}` → `Tax\*`.

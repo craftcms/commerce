@@ -35,7 +35,7 @@ use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Services\Inventory;
 use CraftCms\Commerce\Services\Purchasables;
 use CraftCms\Commerce\Services\Sales;
-use CraftCms\Commerce\Services\ShippingCategories;
+use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Services\Stores;
 use CraftCms\Commerce\Tax\TaxCategories;
 use CraftCms\Commerce\Shipping\Models\ShippingCategory;

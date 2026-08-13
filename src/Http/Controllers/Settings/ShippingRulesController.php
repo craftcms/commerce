@@ -8,7 +8,7 @@ use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\models\ShippingRule;
 use craft\commerce\models\ShippingRuleCategory;
 use craft\commerce\Plugin;
-use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
+use CraftCms\Commerce\Shipping\Records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use craft\helpers\MoneyHelper;

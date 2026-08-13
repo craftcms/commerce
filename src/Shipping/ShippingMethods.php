@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Shipping;
 
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
-use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface;
 use CraftCms\Commerce\Shipping\Contracts\ShippingRuleInterface;
 use CraftCms\Commerce\Shipping\Events\RegisterAvailableShippingMethodsEvent;
 use CraftCms\Commerce\Shipping\Models\BaseShippingMethod;
 use CraftCms\Commerce\Shipping\Models\ShippingMethod;
+use CraftCms\Commerce\Shipping\Records\ShippingMethod as ShippingMethodRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -137,8 +137,7 @@ class ShippingMethods
     public function saveShippingMethod(ShippingMethod $model, bool $runValidation = true): bool
     {
         if ($model->id) {
-            /** @phpstan-ignore-next-line */
-            $record = ShippingMethodRecord::findOne($model->id);
+            $record = ShippingMethodRecord::find($model->id);
             if (!$record) {
                 throw new \RuntimeException(t('No shipping method exists with the ID "{id}"', ['id' => $model->id], category: 'commerce'));
             }
@@ -161,7 +160,7 @@ class ShippingMethods
         $record->customerCondition = $model->getCustomerCondition()->getConfig();
         $record->enabled = $model->enabled;
 
-        $record->save(false);
+        $record->save();
         $model->id = $record->id;
 
         $this->clearCache();
@@ -180,8 +179,7 @@ class ShippingMethods
                 app(ShippingRules::class)->deleteShippingRuleById($rule->id);
             }
 
-            /** @phpstan-ignore-next-line */
-            $record = ShippingMethodRecord::findOne($id);
+            $record = ShippingMethodRecord::find($id);
             $record->delete();
 
             DB::commit();

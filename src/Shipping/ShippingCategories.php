@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Shipping;
 
-use CraftCms\Commerce\Catalog\Elements\Variant;
 use craft\commerce\Plugin;
-use craft\commerce\records\ShippingCategory as ShippingCategoryRecord;
 use CraftCms\Cms\Element\Jobs\ResaveElements;
+use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Shipping\Models\ShippingCategory;
+use CraftCms\Commerce\Shipping\Records\ShippingCategory as ShippingCategoryRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -85,8 +85,7 @@ class ShippingCategories
     public function saveShippingCategory(ShippingCategory $shippingCategory, bool $runValidation = true): bool
     {
         if ($shippingCategory->id) {
-            /** @phpstan-ignore-next-line */
-            $record = ShippingCategoryRecord::findOne($shippingCategory->id);
+            $record = ShippingCategoryRecord::find($shippingCategory->id);
             if (!$record) {
                 throw new \RuntimeException(t('No shipping category exists with the ID “{id}”', ['id' => $shippingCategory->id], category: 'commerce'));
             }
@@ -106,17 +105,16 @@ class ShippingCategories
         $record->color = $shippingCategory->color;
         $record->default = $shippingCategory->default;
 
-        $record->save(false);
+        $record->save();
 
         $shippingCategory->id = $record->id;
 
         // If this was the default, clear default on all others in the same store.
         if ($shippingCategory->default) {
-            /** @phpstan-ignore-next-line */
-            ShippingCategoryRecord::updateAll(
-                ['default' => false],
-                ['and', ['storeId' => $record->storeId], ['not', ['id' => $record->id]]],
-            );
+            ShippingCategoryRecord::withTrashed()
+                ->where('storeId', $record->storeId)
+                ->where('id', '!=', $record->id)
+                ->update(['default' => false]);
         }
 
         $currentProductTypeIds = DB::table(Table::PRODUCTTYPES_SHIPPINGCATEGORIES)
@@ -175,14 +173,13 @@ class ShippingCategories
 
     public function deleteShippingCategoryById(int $id): bool
     {
-        /** @phpstan-ignore-next-line */
-        $shippingCategory = ShippingCategoryRecord::findOne($id);
+        $shippingCategory = ShippingCategoryRecord::find($id);
 
         if ($shippingCategory === null || $shippingCategory->default) {
             return false;
         }
 
-        if ($shippingCategory->softDelete()) {
+        if ($shippingCategory->delete()) {
             $this->allShippingCategories = null;
             return true;
         }

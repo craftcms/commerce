@@ -25,7 +25,7 @@ use CraftCms\Commerce\Services\LineItemStatuses;
 use CraftCms\Commerce\Services\Orders;
 use CraftCms\Commerce\Services\Purchasables;
 use CraftCms\Commerce\Services\Sales;
-use CraftCms\Commerce\Services\ShippingCategories;
+use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Tax\TaxCategories;
 use CraftCms\Commerce\Shipping\Models\ShippingCategory;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;

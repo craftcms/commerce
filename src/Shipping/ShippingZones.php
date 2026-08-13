@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Shipping;
 
 use craft\commerce\Plugin;
-use craft\commerce\records\ShippingZone as ShippingZoneRecord;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Shipping\Models\ShippingAddressZone;
+use CraftCms\Commerce\Shipping\Records\ShippingZone as ShippingZoneRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -49,8 +49,7 @@ class ShippingZones
     public function saveShippingZone(ShippingAddressZone $model, bool $runValidation = true): bool
     {
         if ($model->id) {
-            /** @phpstan-ignore-next-line */
-            $record = ShippingZoneRecord::findOne($model->id);
+            $record = ShippingZoneRecord::find($model->id);
             if (!$record) {
                 throw new \RuntimeException(t('No shipping zone exists with the ID “{id}”', ['id' => $model->id], category: 'commerce'));
             }
@@ -77,8 +76,7 @@ class ShippingZones
 
     public function deleteShippingZoneById(int $id): bool
     {
-        /** @phpstan-ignore-next-line */
-        $record = ShippingZoneRecord::findOne($id);
+        $record = ShippingZoneRecord::find($id);
 
         if (!$record) {
             return false;

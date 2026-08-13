@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Shipping;
 
-use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Shipping\Models\ShippingRuleCategory;
+use CraftCms\Commerce\Shipping\Records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;
 
@@ -76,22 +76,14 @@ class ShippingRuleCategories
 
         $record = new ShippingRuleCategoryRecord();
 
-        /** @phpstan-ignore-next-line */
         $record->shippingRuleId = $model->shippingRuleId;
-        /** @phpstan-ignore-next-line */
         $record->shippingCategoryId = $model->shippingCategoryId;
-        /** @phpstan-ignore-next-line */
         $record->condition = $model->condition;
-        /** @phpstan-ignore-next-line */
         $record->perItemRate = $model->perItemRate;
-        /** @phpstan-ignore-next-line */
         $record->weightRate = $model->weightRate;
-        /** @phpstan-ignore-next-line */
         $record->percentageRate = $model->percentageRate;
 
-        /** @phpstan-ignore-next-line */
-        $record->save(false);
-        /** @phpstan-ignore-next-line */
+        $record->save();
         $model->id = $record->id;
 
         $this->allShippingRuleCategories = null;
@@ -101,8 +93,7 @@ class ShippingRuleCategories
 
     public function deleteShippingRuleCategoryById(int $id): bool
     {
-        /** @phpstan-ignore-next-line */
-        $record = ShippingRuleCategoryRecord::findOne($id);
+        $record = ShippingRuleCategoryRecord::find($id);
 
         if ($record) {
             $this->allShippingRuleCategories = null;

@@ -6,7 +6,6 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\Plugin;
-use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\Json;
@@ -15,7 +14,9 @@ use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Html as NewHtml;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
+use CraftCms\Commerce\Shipping\Records\ShippingMethod as ShippingMethodRecord;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 use function CraftCms\Cms\t;
@@ -226,17 +227,14 @@ JS;
 
         abort_if(empty($ids), 400, 'Missing ids');
 
-        $transaction = \Craft::$app->getDb()->beginTransaction();
-        $shippingMethods = ShippingMethodRecord::find()
-            ->where(['id' => $ids])
-            ->all();
+        DB::transaction(function() use ($ids, $status) {
+            $shippingMethods = ShippingMethodRecord::whereIn('id', $ids)->get();
 
-        /** @var ShippingMethodRecord $shippingMethod */
-        foreach ($shippingMethods as $shippingMethod) {
-            $shippingMethod->enabled = ($status == 'enabled');
-            $shippingMethod->save();
-        }
-        $transaction->commit();
+            foreach ($shippingMethods as $shippingMethod) {
+                $shippingMethod->enabled = ($status == 'enabled');
+                $shippingMethod->save();
+            }
+        });
 
         return $this->asSuccess(t('Shipping methods updated.', category: 'commerce'));
     }

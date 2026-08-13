@@ -7,7 +7,7 @@ namespace CraftCms\Commerce\Shipping\Models;
 use craft\commerce\elements\conditions\customers\ShippingRuleCustomerCondition;
 use craft\commerce\elements\conditions\orders\ShippingRuleOrderCondition;
 use craft\commerce\elements\Order;
-use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
+use CraftCms\Commerce\Shipping\Records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Json;
@@ -80,7 +80,7 @@ class ShippingRule extends Component implements ShippingRuleInterface, HasStoreI
                 function(string $attribute, mixed $value, \Closure $fail) {
                     if ($value) {
                         $order = Order::find()->one() ?? new Order();
-                        $orderAsArray = app(\CraftCms\Commerce\Services\ShippingMethods::class)->getSerializedOrderForMatchingRules($order);
+                        $orderAsArray = app(\CraftCms\Commerce\Shipping\ShippingMethods::class)->getSerializedOrderForMatchingRules($order);
                         if (!app(Formulas::class)->validateConditionSyntax($value, ['order' => $orderAsArray])) {
                             $fail(t('Invalid order condition syntax.', category: 'commerce'));
                         }
@@ -232,7 +232,7 @@ class ShippingRule extends Component implements ShippingRuleInterface, HasStoreI
         }
 
         if ($this->orderConditionFormula) {
-            $orderAsArray = app(\CraftCms\Commerce\Services\ShippingMethods::class)->getSerializedOrderForMatchingRules($order);
+            $orderAsArray = app(\CraftCms\Commerce\Shipping\ShippingMethods::class)->getSerializedOrderForMatchingRules($order);
             if (!app(Formulas::class)->evaluateCondition($this->orderConditionFormula, ['order' => $orderAsArray], 'Evaluate Shipping Rule Order Condition Formula')) {
                 return false;
             }
@@ -244,7 +244,7 @@ class ShippingRule extends Component implements ShippingRuleInterface, HasStoreI
     public function getShippingRuleCategories(): array
     {
         if ($this->_shippingRuleCategories === null && $this->id) {
-            $this->_shippingRuleCategories = app(\CraftCms\Commerce\Services\ShippingRuleCategories::class)->getShippingRuleCategoriesByRuleId($this->id);
+            $this->_shippingRuleCategories = app(\CraftCms\Commerce\Shipping\ShippingRuleCategories::class)->getShippingRuleCategoriesByRuleId($this->id);
         }
 
         return $this->_shippingRuleCategories ?? [];

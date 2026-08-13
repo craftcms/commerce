@@ -10,7 +10,7 @@ use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Purchasable\Models\Donation as DonationRecord;
 use CraftCms\Commerce\Purchasable\Queries\DonationQuery;
 use CraftCms\Commerce\Purchasable\Validation\DonationRules;
-use CraftCms\Commerce\Services\ShippingCategories;
+use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Services\Stores;
 use CraftCms\Commerce\Store\Models\Store;
 use CraftCms\RulesetValidation\Attributes\Ruleset;

@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 use yii\base\Component;
 
 /**
- * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Services\ShippingCategories::class)` instead.
+ * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Shipping\ShippingCategories::class)` instead.
  */
 class ShippingCategories extends Component
 {
@@ -16,7 +16,7 @@ class ShippingCategories extends Component
      */
     public function getAllShippingCategories(?int $storeId = null, bool $withTrashed = false): Collection
     {
-        return app(\CraftCms\Commerce\Services\ShippingCategories::class)->getAllShippingCategories($storeId, $withTrashed);
+        return app(\CraftCms\Commerce\Shipping\ShippingCategories::class)->getAllShippingCategories($storeId, $withTrashed);
     }
 
     /**
@@ -24,32 +24,32 @@ class ShippingCategories extends Component
      */
     public function getAllShippingCategoriesAsList(?int $storeId = null): array
     {
-        return app(\CraftCms\Commerce\Services\ShippingCategories::class)->getAllShippingCategoriesAsList($storeId);
+        return app(\CraftCms\Commerce\Shipping\ShippingCategories::class)->getAllShippingCategoriesAsList($storeId);
     }
 
     public function getShippingCategoryById(int $shippingCategoryId, ?int $storeId = null): ?ShippingCategory
     {
-        return app(\CraftCms\Commerce\Services\ShippingCategories::class)->getShippingCategoryById($shippingCategoryId, $storeId);
+        return app(\CraftCms\Commerce\Shipping\ShippingCategories::class)->getShippingCategoryById($shippingCategoryId, $storeId);
     }
 
     public function getShippingCategoryByHandle(string $shippingCategoryHandle, ?int $storeId = null): ?ShippingCategory
     {
-        return app(\CraftCms\Commerce\Services\ShippingCategories::class)->getShippingCategoryByHandle($shippingCategoryHandle, $storeId);
+        return app(\CraftCms\Commerce\Shipping\ShippingCategories::class)->getShippingCategoryByHandle($shippingCategoryHandle, $storeId);
     }
 
     public function getDefaultShippingCategory(int $storeId): ShippingCategory
     {
-        return app(\CraftCms\Commerce\Services\ShippingCategories::class)->getDefaultShippingCategory($storeId);
+        return app(\CraftCms\Commerce\Shipping\ShippingCategories::class)->getDefaultShippingCategory($storeId);
     }
 
     public function saveShippingCategory(ShippingCategory $shippingCategory, bool $runValidation = true): bool
     {
-        return app(\CraftCms\Commerce\Services\ShippingCategories::class)->saveShippingCategory($shippingCategory, $runValidation);
+        return app(\CraftCms\Commerce\Shipping\ShippingCategories::class)->saveShippingCategory($shippingCategory, $runValidation);
     }
 
     public function deleteShippingCategoryById(int $id): bool
     {
-        return app(\CraftCms\Commerce\Services\ShippingCategories::class)->deleteShippingCategoryById($id);
+        return app(\CraftCms\Commerce\Shipping\ShippingCategories::class)->deleteShippingCategoryById($id);
     }
 
     /**
@@ -57,11 +57,11 @@ class ShippingCategories extends Component
      */
     public function getShippingCategoriesByProductTypeId(int $productTypeId): array
     {
-        return app(\CraftCms\Commerce\Services\ShippingCategories::class)->getShippingCategoriesByProductTypeId($productTypeId);
+        return app(\CraftCms\Commerce\Shipping\ShippingCategories::class)->getShippingCategoriesByProductTypeId($productTypeId);
     }
 
     public function clearCaches(): void
     {
-        app(\CraftCms\Commerce\Services\ShippingCategories::class)->clearCaches();
+        app(\CraftCms\Commerce\Shipping\ShippingCategories::class)->clearCaches();
     }
 }

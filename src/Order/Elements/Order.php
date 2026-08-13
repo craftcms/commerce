@@ -88,7 +88,7 @@ use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Services\PaymentSources;
 use CraftCms\Commerce\Services\Pdfs;
 use CraftCms\Commerce\Services\Purchasables;
-use CraftCms\Commerce\Services\ShippingMethods;
+use CraftCms\Commerce\Shipping\ShippingMethods;
 use CraftCms\Commerce\Services\Stores;
 use CraftCms\Commerce\Services\Transactions;
 use CraftCms\Commerce\Tax\Vat;

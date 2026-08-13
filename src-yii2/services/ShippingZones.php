@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 use yii\base\Component;
 
 /**
- * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Services\ShippingZones::class)` instead.
+ * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Shipping\ShippingZones::class)` instead.
  */
 class ShippingZones extends Component
 {
@@ -16,21 +16,21 @@ class ShippingZones extends Component
      */
     public function getAllShippingZones(?int $storeId = null): Collection
     {
-        return app(\CraftCms\Commerce\Services\ShippingZones::class)->getAllShippingZones($storeId);
+        return app(\CraftCms\Commerce\Shipping\ShippingZones::class)->getAllShippingZones($storeId);
     }
 
     public function getShippingZoneById(int $id, ?int $storeId = null): ?ShippingAddressZone
     {
-        return app(\CraftCms\Commerce\Services\ShippingZones::class)->getShippingZoneById($id, $storeId);
+        return app(\CraftCms\Commerce\Shipping\ShippingZones::class)->getShippingZoneById($id, $storeId);
     }
 
     public function saveShippingZone(ShippingAddressZone $model, bool $runValidation = true): bool
     {
-        return app(\CraftCms\Commerce\Services\ShippingZones::class)->saveShippingZone($model, $runValidation);
+        return app(\CraftCms\Commerce\Shipping\ShippingZones::class)->saveShippingZone($model, $runValidation);
     }
 
     public function deleteShippingZoneById(int $id): bool
     {
-        return app(\CraftCms\Commerce\Services\ShippingZones::class)->deleteShippingZoneById($id);
+        return app(\CraftCms\Commerce\Shipping\ShippingZones::class)->deleteShippingZoneById($id);
     }
 }

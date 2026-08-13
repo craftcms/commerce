@@ -47,7 +47,7 @@ class ShippingMethod extends BaseShippingMethod implements Chippable, Colorable,
             return collect();
         }
 
-        return app(\CraftCms\Commerce\Services\ShippingRules::class)->getAllShippingRulesByShippingMethodId($this->id);
+        return app(\CraftCms\Commerce\Shipping\ShippingRules::class)->getAllShippingRulesByShippingMethodId($this->id);
     }
 
     #[\Override]
