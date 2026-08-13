@@ -8,8 +8,8 @@ use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
-use CraftCms\Commerce\Services\LineItems;
-use CraftCms\Commerce\Services\Orders;
+use CraftCms\Commerce\Order\LineItem\LineItems;
+use CraftCms\Commerce\Order\Orders;
 
 class OrderAdjustment extends Component
 {

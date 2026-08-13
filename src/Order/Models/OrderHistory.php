@@ -9,8 +9,8 @@ use craft\commerce\models\OrderStatus;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Cms\User\Elements\User;
-use CraftCms\Commerce\Services\Orders;
-use CraftCms\Commerce\Services\OrderStatuses;
+use CraftCms\Commerce\Order\Orders;
+use CraftCms\Commerce\Order\OrderStatuses;
 use DateTime;
 
 class OrderHistory extends Component

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Order;
 
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
-use craft\commerce\records\OrderHistory as OrderHistoryRecord;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Events\OrderStatusEvent;
 use CraftCms\Commerce\Order\Models\OrderHistory;
+use CraftCms\Commerce\Order\Records\OrderHistory as OrderHistoryRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;
 use CraftCms\Cms\Support\Facades\Users;
@@ -110,8 +110,7 @@ class OrderHistories
     public function saveOrderHistory(OrderHistory $model, bool $runValidation = true): bool
     {
         if ($model->id) {
-            /** @phpstan-ignore-next-line */
-            $record = OrderHistoryRecord::findOne($model->id);
+            $record = OrderHistoryRecord::find($model->id);
 
             if (!$record) {
                 throw new \yii\base\Exception(t('No order history exists with the ID "{id}"', ['id' => $model->id], category: 'commerce'));
@@ -126,24 +125,16 @@ class OrderHistories
             return false;
         }
 
-        /** @phpstan-ignore-next-line */
         $record->message = $model->message;
-        /** @phpstan-ignore-next-line */
         $record->newStatusId = $model->newStatusId;
-        /** @phpstan-ignore-next-line */
         $record->prevStatusId = $model->prevStatusId;
-        /** @phpstan-ignore-next-line */
         $record->userId = $model->userId;
-        /** @phpstan-ignore-next-line */
         $record->userName = $model->userName;
-        /** @phpstan-ignore-next-line */
         $record->orderId = $model->orderId;
 
-        /** @phpstan-ignore-next-line */
-        $record->save(false);
+        $record->save();
 
         // Now that we have a record ID, save it on the model
-        /** @phpstan-ignore-next-line */
         $model->id = $record->id;
         /** @phpstan-ignore-next-line */
         $model->dateCreated = \CraftCms\Cms\Support\DateTimeHelper::toDateTime($record->dateCreated);
@@ -156,11 +147,9 @@ class OrderHistories
      */
     public function deleteOrderHistoryById(int $id): bool
     {
-        /** @phpstan-ignore-next-line */
-        $orderHistory = OrderHistoryRecord::findOne($id);
+        $orderHistory = OrderHistoryRecord::find($id);
 
         if ($orderHistory) {
-            /** @phpstan-ignore-next-line */
             return (bool)$orderHistory->delete();
         }
 

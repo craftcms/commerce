@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Order;
 
 use craft\commerce\elements\Order;
 use CraftCms\Commerce\Database\Table;

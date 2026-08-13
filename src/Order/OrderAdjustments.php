@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Order;
 
 use craft\commerce\adjusters\Discount;
 use craft\commerce\adjusters\Shipping;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\OrderAdjustmentNotFoundException;
 use craft\commerce\Plugin;
-use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\events\RegisterComponentTypesEvent;
+use CraftCms\Cms\Support\Json;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Adjuster\Contracts\AdjusterInterface;
 use CraftCms\Commerce\Order\Models\OrderAdjustment;
-use CraftCms\Cms\Support\Json;
+use CraftCms\Commerce\Order\Records\OrderAdjustment as OrderAdjustmentRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -100,8 +100,7 @@ class OrderAdjustments
         if ($newAdjustment) {
             $record = new OrderAdjustmentRecord();
         } else {
-            /** @phpstan-ignore-next-line */
-            $record = OrderAdjustmentRecord::findOne($orderAdjustment->id);
+            $record = OrderAdjustmentRecord::find($orderAdjustment->id);
 
             if (!$record) {
                 throw new OrderAdjustmentNotFoundException('Order Adjustment with ID "' . $orderAdjustment->id . '" not found!');
@@ -113,34 +112,21 @@ class OrderAdjustments
             return false;
         }
 
-        /** @phpstan-ignore-next-line */
         $record->name = $orderAdjustment->name;
-        /** @phpstan-ignore-next-line */
         $record->type = $orderAdjustment->type;
-        /** @phpstan-ignore-next-line */
         $record->description = $orderAdjustment->description;
-        /** @phpstan-ignore-next-line */
         $record->amount = $orderAdjustment->amount;
-        /** @phpstan-ignore-next-line */
         $record->included = $orderAdjustment->included;
-        /** @phpstan-ignore-next-line */
         $record->sourceSnapshot = $orderAdjustment->getSourceSnapshot();
-        /** @phpstan-ignore-next-line */
         $record->lineItemId = $orderAdjustment->getLineItem()->id ?? null;
-        /** @phpstan-ignore-next-line */
         $record->orderId = $orderAdjustment->getOrder()->id ?? null;
-        /** @phpstan-ignore-next-line */
         $record->isEstimated = $orderAdjustment->isEstimated;
 
-        /** @phpstan-ignore-next-line */
-        $record->save(false);
+        $record->save();
 
         // Update the model with the latest IDs
-        /** @phpstan-ignore-next-line */
         $orderAdjustment->id = $record->id;
-        /** @phpstan-ignore-next-line */
         $orderAdjustment->orderId = $record->orderId;
-        /** @phpstan-ignore-next-line */
         $orderAdjustment->lineItemId = $record->lineItemId;
 
         return true;
@@ -151,8 +137,7 @@ class OrderAdjustments
      */
     public function deleteAllOrderAdjustmentsByOrderId(int $orderId): bool
     {
-        /** @phpstan-ignore-next-line */
-        return (bool)OrderAdjustmentRecord::deleteAll(['orderId' => $orderId]);
+        return (bool)OrderAdjustmentRecord::where('orderId', $orderId)->delete();
     }
 
     /**
@@ -160,15 +145,13 @@ class OrderAdjustments
      */
     public function deleteOrderAdjustmentByAdjustmentId(int $adjustmentId): bool
     {
-        /** @phpstan-ignore-next-line */
-        $orderAdjustment = OrderAdjustmentRecord::findOne($adjustmentId);
+        $orderAdjustment = OrderAdjustmentRecord::find($adjustmentId);
 
         if (!$orderAdjustment) {
             return false;
         }
 
-        /** @phpstan-ignore-next-line */
-        return $orderAdjustment->delete();
+        return (bool)$orderAdjustment->delete();
     }
 
     /**

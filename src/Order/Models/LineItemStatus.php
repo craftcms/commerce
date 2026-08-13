@@ -10,7 +10,7 @@ use CraftCms\Cms\Component\Contracts\Chippable;
 use CraftCms\Cms\Cp\Html\StatusHtml;
 use CraftCms\Cms\Cp\RequestedSite;
 use CraftCms\Cms\Support\Url;
-use CraftCms\Commerce\Services\LineItemStatuses;
+use CraftCms\Commerce\Order\LineItemStatuses;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
 use DateTime;
 use function CraftCms\Cms\t;

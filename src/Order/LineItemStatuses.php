@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Order;
 
 use craft\commerce\Plugin;
-use craft\commerce\records\LineItemStatus as LineItemStatusRecord;
 use craft\events\ConfigEvent;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
@@ -14,6 +13,7 @@ use CraftCms\Commerce\Helpers\ProjectConfigData;
 use CraftCms\Commerce\Order\Events\DefaultLineItemStatusEvent;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\Models\LineItemStatus;
+use CraftCms\Commerce\Order\Records\LineItemStatus as LineItemStatusRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
@@ -151,13 +151,12 @@ class LineItemStatuses
             $statusRecord->isArchived = false;
             $statusRecord->dateArchived = null;
 
-            $statusRecord->save(false);
+            $statusRecord->save();
 
             if ($statusRecord->default) {
-                LineItemStatusRecord::updateAll(['default' => 0], ['and',
-                    ['not', ['id' => $statusRecord->id]],
-                    ['storeId' => $statusRecord->storeId],
-                ]);
+                LineItemStatusRecord::where('id', '!=', $statusRecord->id)
+                    ->where('storeId', $statusRecord->storeId)
+                    ->update(['default' => false]);
             }
 
             $transaction->commit();
@@ -198,7 +197,7 @@ class LineItemStatuses
             $lineItemStatusRecord->isArchived = true;
             $lineItemStatusRecord->dateArchived = CraftDb::prepareDateForDb(new \DateTime());
 
-            $lineItemStatusRecord->save(false);
+            $lineItemStatusRecord->save();
 
             $transaction->commit();
 
@@ -286,8 +285,7 @@ class LineItemStatuses
      */
     private function getLineItemStatusRecord(string $uid): LineItemStatusRecord
     {
-        /** @phpstan-ignore-next-line */
-        if ($lineItemStatus = LineItemStatusRecord::findOne(['uid' => $uid])) {
+        if ($lineItemStatus = LineItemStatusRecord::where('uid', $uid)->first()) {
             return $lineItemStatus;
         }
 

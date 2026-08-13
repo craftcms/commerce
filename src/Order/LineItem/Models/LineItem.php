@@ -11,7 +11,7 @@ use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 /**
  * Thin Eloquent persistence model for the `commerce_lineitems` table.
  *
- * This holds no business logic — it's used internally by {@see \CraftCms\Commerce\Services\LineItems}
+ * This holds no business logic — it's used internally by {@see \CraftCms\Commerce\Order\LineItem\LineItems}
  * to read/write rows, which are then hydrated into (or persisted from) the rich
  * {@see \CraftCms\Commerce\Order\LineItem\Data\LineItem} object that the rest of the codebase
  * actually works with. Mirrors the `Entry\Data\EntryType` / `Entry\Models\EntryType` split in cms-6.

@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Order;
 
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\SendEmail;
-use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\commerce\services\Emails;
 use craft\events\ConfigEvent;
 use craft\helpers\Db as CraftDb;
@@ -22,6 +21,7 @@ use CraftCms\Commerce\Order\Events\DefaultOrderStatusEvent;
 use CraftCms\Commerce\Order\Events\OrderStatusEmailsEvent;
 use CraftCms\Commerce\Order\Models\OrderHistory;
 use CraftCms\Commerce\Order\Models\OrderStatus;
+use CraftCms\Commerce\Order\Records\OrderStatus as OrderStatusRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
@@ -248,10 +248,9 @@ class OrderStatuses
             if ($statusRecord->dateDeleted) {
                 $statusRecord->restore();
             } else {
-                $statusRecord->save(false);
+                $statusRecord->save();
             }
 
-            $connection = \Craft::$app->getDb();
             // Drop them all and we will recreate the new ones.
             DB::table(Table::ORDERSTATUS_EMAILS)->where('orderStatusId', $statusRecord->id)->delete();
 
@@ -315,7 +314,7 @@ class OrderStatuses
         try {
             $orderStatusRecord = $this->getOrderStatusRecord($orderStatusUid);
 
-            $orderStatusRecord->softDelete();
+            $orderStatusRecord->delete();
 
             $transaction->commit();
         } catch (Throwable $e) {
@@ -448,8 +447,6 @@ class OrderStatuses
      */
     private function getOrderStatusRecord(string $uid): OrderStatusRecord
     {
-        /** @var ?OrderStatusRecord $orderStatus */
-        $orderStatus = OrderStatusRecord::findWithTrashed()->where(['uid' => $uid])->one();
-        return $orderStatus ?: new OrderStatusRecord();
+        return OrderStatusRecord::withTrashed()->where('uid', $uid)->first() ?? new OrderStatusRecord();
     }
 }

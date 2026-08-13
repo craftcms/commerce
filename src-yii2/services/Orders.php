@@ -10,30 +10,30 @@ use craft\events\ModelEvent;
 use yii\base\Component;
 
 /**
- * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Services\Orders::class)` instead.
+ * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Order\Orders::class)` instead.
  */
 class Orders extends Component
 {
-    public const CONFIG_FIELDLAYOUT_KEY = \CraftCms\Commerce\Services\Orders::CONFIG_FIELDLAYOUT_KEY;
+    public const CONFIG_FIELDLAYOUT_KEY = \CraftCms\Commerce\Order\Orders::CONFIG_FIELDLAYOUT_KEY;
 
     public function handleChangedFieldLayout(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Services\Orders::class)->handleChangedFieldLayout($event);
+        app(\CraftCms\Commerce\Order\Orders::class)->handleChangedFieldLayout($event);
     }
 
     public function handleDeletedFieldLayout(): void
     {
-        app(\CraftCms\Commerce\Services\Orders::class)->handleDeletedFieldLayout();
+        app(\CraftCms\Commerce\Order\Orders::class)->handleDeletedFieldLayout();
     }
 
     public function getOrderById(int $id): ?Order
     {
-        return app(\CraftCms\Commerce\Services\Orders::class)->getOrderById($id);
+        return app(\CraftCms\Commerce\Order\Orders::class)->getOrderById($id);
     }
 
     public function getOrderByNumber(string $number): ?Order
     {
-        return app(\CraftCms\Commerce\Services\Orders::class)->getOrderByNumber($number);
+        return app(\CraftCms\Commerce\Order\Orders::class)->getOrderByNumber($number);
     }
 
     /**
@@ -41,7 +41,7 @@ class Orders extends Component
      */
     public function getOrdersByCustomer(User|int $customer): ?array
     {
-        return app(\CraftCms\Commerce\Services\Orders::class)->getOrdersByCustomer($customer);
+        return app(\CraftCms\Commerce\Order\Orders::class)->getOrdersByCustomer($customer);
     }
 
     /**
@@ -49,7 +49,7 @@ class Orders extends Component
      */
     public function getOrdersByEmail(string $email): ?array
     {
-        return app(\CraftCms\Commerce\Services\Orders::class)->getOrdersByEmail($email);
+        return app(\CraftCms\Commerce\Order\Orders::class)->getOrdersByEmail($email);
     }
 
     /**
@@ -58,12 +58,12 @@ class Orders extends Component
      */
     public function eagerLoadAddressesForOrders(array $orders): array
     {
-        return app(\CraftCms\Commerce\Services\Orders::class)->eagerLoadAddressesForOrders($orders);
+        return app(\CraftCms\Commerce\Order\Orders::class)->eagerLoadAddressesForOrders($orders);
     }
 
     public function beforeDeleteUserHandler(DefineElementDeletionBlockersEvent $event): void
     {
-        app(\CraftCms\Commerce\Services\Orders::class)->beforeDeleteUserHandler($event);
+        app(\CraftCms\Commerce\Order\Orders::class)->beforeDeleteUserHandler($event);
     }
 
     /**
@@ -71,7 +71,7 @@ class Orders extends Component
      */
     public function reassignOrders(int|array $oldUserId, int $newUserId): int
     {
-        return app(\CraftCms\Commerce\Services\Orders::class)->reassignOrders($oldUserId, $newUserId);
+        return app(\CraftCms\Commerce\Order\Orders::class)->reassignOrders($oldUserId, $newUserId);
     }
 
     /**
@@ -79,11 +79,11 @@ class Orders extends Component
      */
     public function removeCustomerData(int|array $orderIds, array $dataToRemove = ['customerId', 'email']): int
     {
-        return app(\CraftCms\Commerce\Services\Orders::class)->removeCustomerData($orderIds, $dataToRemove);
+        return app(\CraftCms\Commerce\Order\Orders::class)->removeCustomerData($orderIds, $dataToRemove);
     }
 
     public function afterSaveAddressHandler(ModelEvent $event): void
     {
-        app(\CraftCms\Commerce\Services\Orders::class)->afterSaveAddressHandler($event);
+        app(\CraftCms\Commerce\Order\Orders::class)->afterSaveAddressHandler($event);
     }
 }

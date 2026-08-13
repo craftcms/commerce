@@ -1,5 +1,15 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 10i: Service Namespace & Record Cleanup (Order cluster)
+
+Ninth slice of Stage 10, and the biggest by service count: `Services\{Orders,Carts,OrderNotices,OrderHistories,OrderAdjustments,OrderStatuses,LineItemStatuses,LineItems}` → `Order\*` (`LineItems` nested to `Order\LineItem\LineItems`, matching its existing `Data`/`Models`/`Enums` sub-namespace since Stage 7c).
+
+- `Orders`, `Carts`, `OrderNotices` had zero legacy record usage — pure namespace moves. `LineItems` has been fully Eloquent since Stage 7c — also a pure move.
+- `OrderHistories`, `OrderAdjustments`, and `LineItemStatuses` replaced their legacy `craft\commerce\records\{OrderHistory,OrderAdjustment,LineItemStatus}` `ActiveRecord` classes with new Eloquent models under `Order\Records\*`. None soft-delete.
+- `OrderStatuses` replaced `craft\commerce\records\OrderStatus` with a new Eloquent model using `SoftDeletes` (same `dateDeleted` shape as Stage 10b/10c/10f) — `findWithTrashed()`/`softDelete()`/`restore()` map to `::withTrashed()`/`->delete()`/`->restore()` respectively, same as the established pattern.
+- **All three of `OrderHistory`/`OrderAdjustment`/`LineItemStatus` are now fully unreferenced and deleted.** `OrderStatus` stays — unlike prior stages' fixture-file dependencies, this one is used directly inside two Codeception *fixture data* files (`tests/fixtures/data/{orders,order-statuses}.php`, which run real `::find()` queries against it to resolve seed IDs/UIDs), not just a `Fixture` class — same underlying reasoning as finding #25, just a different shape of dependent.
+- **Verification**: live via `craft exec:exec` — listed order statuses/line item statuses/order adjustments/order histories for the primary store, resolved all 8 services, and round-tripped a full order status create → soft-delete → confirm-excluded-from-`find()` cycle through the new Eloquent model.
+
 ### Laravel Migration — Stage 10h: Service Namespace & Record Cleanup (Payment/Gateway cluster)
 
 Eighth slice of Stage 10: `Services\{Transactions,PaymentSources,Payments,Webhooks,Gateways}` → `Payment\*` (`Gateways` nested to `Payment\Gateway\Gateways`, matching its existing `Contracts`/`Responses` sub-namespace).

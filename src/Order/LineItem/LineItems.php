@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Order\LineItem;
 
 use craft\commerce\Plugin;
 use CraftCms\Commerce\Helpers\LineItem as LineItemHelper;
