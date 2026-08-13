@@ -91,7 +91,7 @@ use CraftCms\Commerce\Services\Purchasables;
 use CraftCms\Commerce\Services\ShippingMethods;
 use CraftCms\Commerce\Services\Stores;
 use CraftCms\Commerce\Services\Transactions;
-use CraftCms\Commerce\Services\Vat;
+use CraftCms\Commerce\Tax\Vat;
 use CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface;
 use CraftCms\Commerce\Shipping\Models\ShippingMethod;
 use CraftCms\Commerce\Shipping\Models\ShippingMethodOption;

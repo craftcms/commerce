@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Tax;
 
 use craft\commerce\Plugin;
 use CraftCms\Commerce\Tax\Contracts\TaxEngineInterface;

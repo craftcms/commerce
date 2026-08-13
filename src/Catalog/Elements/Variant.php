@@ -39,7 +39,7 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use CraftCms\Commerce\Services\ShippingCategories;
-use CraftCms\Commerce\Services\TaxCategories;
+use CraftCms\Commerce\Tax\TaxCategories;
 use CraftCms\Commerce\Shipping\Models\ShippingCategory;
 use CraftCms\Commerce\Tax\Models\TaxCategory;
 use CraftCms\RulesetValidation\Attributes\Ruleset;

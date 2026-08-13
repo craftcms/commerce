@@ -8,7 +8,6 @@ use craft\commerce\helpers\Cp as CommerceCp;
 use craft\commerce\helpers\Localization;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
-use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\Json;
@@ -18,7 +17,9 @@ use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Html as NewHtml;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
+use CraftCms\Commerce\Tax\Records\TaxRate as TaxRateRecord;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 use function CraftCms\Cms\t;
@@ -273,17 +274,14 @@ JS;
 
         abort_if(empty($ids), 400, 'Missing ids');
 
-        $transaction = \Craft::$app->getDb()->beginTransaction();
-        $taxRates = TaxRateRecord::find()
-            ->where(['id' => $ids])
-            ->all();
+        DB::transaction(function() use ($ids, $status) {
+            $taxRates = TaxRateRecord::whereIn('id', $ids)->get();
 
-        /** @var TaxRateRecord $taxRate */
-        foreach ($taxRates as $taxRate) {
-            $taxRate->enabled = ($status == 'enabled');
-            $taxRate->save();
-        }
-        $transaction->commit();
+            foreach ($taxRates as $taxRate) {
+                $taxRate->enabled = ($status == 'enabled');
+                $taxRate->save();
+            }
+        });
 
         return $this->asSuccess(t('Tax rates updated.', category: 'commerce'));
     }

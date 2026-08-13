@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Tax\Models;
 
-use craft\commerce\records\TaxRate as TaxRateRecord;
+use CraftCms\Commerce\Tax\Records\TaxRate as TaxRateRecord;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Component\Contracts\Chippable;
 use CraftCms\Cms\Support\Facades\I18N;
@@ -53,7 +53,7 @@ class TaxRate extends Component implements HasStoreInterface, Chippable
     public static function get(int|string $id): ?static
     {
         /** @phpstan-ignore-next-line */
-        return app(\CraftCms\Commerce\Services\TaxRates::class)->getTaxRateById($id);
+        return app(\CraftCms\Commerce\Tax\TaxRates::class)->getTaxRateById($id);
     }
 
     #[\Override]
@@ -81,7 +81,7 @@ class TaxRate extends Component implements HasStoreInterface, Chippable
     public function getTaxZone(): ?TaxAddressZone
     {
         if ($this->_taxZone === null && $this->taxZoneId) {
-            $this->_taxZone = app(\CraftCms\Commerce\Services\TaxZones::class)->getTaxZoneById($this->taxZoneId, $this->storeId);
+            $this->_taxZone = app(\CraftCms\Commerce\Tax\TaxZones::class)->getTaxZoneById($this->taxZoneId, $this->storeId);
         }
 
         return $this->_taxZone;
@@ -90,7 +90,7 @@ class TaxRate extends Component implements HasStoreInterface, Chippable
     public function getTaxCategory(): ?TaxCategory
     {
         if (!isset($this->_taxCategory) && $this->taxCategoryId) {
-            $this->_taxCategory = app(\CraftCms\Commerce\Services\TaxCategories::class)->getTaxCategoryById($this->taxCategoryId);
+            $this->_taxCategory = app(\CraftCms\Commerce\Tax\TaxCategories::class)->getTaxCategoryById($this->taxCategoryId);
         }
 
         return $this->_taxCategory;
@@ -114,7 +114,7 @@ class TaxRate extends Component implements HasStoreInterface, Chippable
     public function getSelectedEnabledTaxIdValidators(): array
     {
         $selectedValidators = $this->taxIdValidators;
-        $validators = app(\CraftCms\Commerce\Services\Taxes::class)->getEnabledTaxIdValidators();
+        $validators = app(\CraftCms\Commerce\Tax\Taxes::class)->getEnabledTaxIdValidators();
         $activeValidators = [];
         foreach ($validators as $validator) {
             if (in_array($validator::class, $selectedValidators)) {

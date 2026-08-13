@@ -24,7 +24,7 @@ use CraftCms\Commerce\Catalog\Models\ProductTypeSite;
 use CraftCms\Commerce\Catalog\ProductType\Validation\ProductTypeRules;
 use CraftCms\Commerce\Services\ProductTypes;
 use CraftCms\Commerce\Services\ShippingCategories;
-use CraftCms\Commerce\Services\TaxCategories;
+use CraftCms\Commerce\Tax\TaxCategories;
 use CraftCms\Commerce\Shipping\Models\ShippingCategory;
 use CraftCms\Commerce\Tax\Models\TaxCategory;
 use CraftCms\RulesetValidation\Attributes\Ruleset;

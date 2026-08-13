@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Tax;
 
 use craft\commerce\Plugin;
-use craft\commerce\records\TaxZone as TaxZoneRecord;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Tax\Models\TaxAddressZone;
+use CraftCms\Commerce\Tax\Records\TaxZone as TaxZoneRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -49,8 +49,7 @@ class TaxZones
     public function saveTaxZone(TaxAddressZone $model, bool $runValidation = true): bool
     {
         if ($model->id) {
-            /** @phpstan-ignore-next-line */
-            $record = TaxZoneRecord::findOne($model->id);
+            $record = TaxZoneRecord::find($model->id);
             if (!$record) {
                 throw new \RuntimeException(t('No tax zone exists with the ID “{id}”', ['id' => $model->id], category: 'commerce'));
             }
@@ -75,11 +74,9 @@ class TaxZones
 
         // If this was the default, clear default on all others in the same store.
         if ($model->default) {
-            /** @phpstan-ignore-next-line */
-            TaxZoneRecord::updateAll(
-                ['default' => false],
-                ['and', ['not', ['id' => $model->id]], ['storeId' => $model->storeId]],
-            );
+            TaxZoneRecord::where('id', '!=', $model->id)
+                ->where('storeId', $model->storeId)
+                ->update(['default' => false]);
         }
 
         $this->clearCaches();
@@ -89,8 +86,7 @@ class TaxZones
 
     public function deleteTaxZoneById(int $id): bool
     {
-        /** @phpstan-ignore-next-line */
-        $record = TaxZoneRecord::findOne($id);
+        $record = TaxZoneRecord::find($id);
 
         if (!$record) {
             return false;

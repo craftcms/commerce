@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 use yii\base\Component;
 
 /**
- * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Services\TaxRates::class)` instead.
+ * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Tax\TaxRates::class)` instead.
  */
 class TaxRates extends Component
 {
@@ -16,7 +16,7 @@ class TaxRates extends Component
      */
     public function getAllTaxRates(?int $storeId = null): Collection
     {
-        return app(\CraftCms\Commerce\Services\TaxRates::class)->getAllTaxRates($storeId);
+        return app(\CraftCms\Commerce\Tax\TaxRates::class)->getAllTaxRates($storeId);
     }
 
     /**
@@ -24,7 +24,7 @@ class TaxRates extends Component
      */
     public function getAllEnabledTaxRates(?int $storeId = null): Collection
     {
-        return app(\CraftCms\Commerce\Services\TaxRates::class)->getAllEnabledTaxRates($storeId);
+        return app(\CraftCms\Commerce\Tax\TaxRates::class)->getAllEnabledTaxRates($storeId);
     }
 
     /**
@@ -32,21 +32,21 @@ class TaxRates extends Component
      */
     public function getTaxRatesByTaxZoneId(int $taxZoneId, ?int $storeId = null): Collection
     {
-        return app(\CraftCms\Commerce\Services\TaxRates::class)->getTaxRatesByTaxZoneId($taxZoneId, $storeId);
+        return app(\CraftCms\Commerce\Tax\TaxRates::class)->getTaxRatesByTaxZoneId($taxZoneId, $storeId);
     }
 
     public function getTaxRateById(int $id, ?int $storeId = null): ?TaxRate
     {
-        return app(\CraftCms\Commerce\Services\TaxRates::class)->getTaxRateById($id, $storeId);
+        return app(\CraftCms\Commerce\Tax\TaxRates::class)->getTaxRateById($id, $storeId);
     }
 
     public function saveTaxRate(TaxRate $model, bool $runValidation = true): bool
     {
-        return app(\CraftCms\Commerce\Services\TaxRates::class)->saveTaxRate($model, $runValidation);
+        return app(\CraftCms\Commerce\Tax\TaxRates::class)->saveTaxRate($model, $runValidation);
     }
 
     public function deleteTaxRateById(int $id): bool
     {
-        return app(\CraftCms\Commerce\Services\TaxRates::class)->deleteTaxRateById($id);
+        return app(\CraftCms\Commerce\Tax\TaxRates::class)->deleteTaxRateById($id);
     }
 }

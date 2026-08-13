@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Tax;
 
 use craft\commerce\Plugin;
-use craft\commerce\records\TaxRate as TaxRateRecord;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Tax\Models\TaxRate;
+use CraftCms\Commerce\Tax\Records\TaxRate as TaxRateRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -66,8 +66,7 @@ class TaxRates
     public function saveTaxRate(TaxRate $model, bool $runValidation = true): bool
     {
         if ($model->id) {
-            /** @phpstan-ignore-next-line */
-            $record = TaxRateRecord::findOne($model->id);
+            $record = TaxRateRecord::find($model->id);
             if (!$record) {
                 throw new RuntimeException(t('No tax rate exists with the ID “{id}”', ['id' => $model->id], category: 'commerce'));
             }
@@ -96,8 +95,7 @@ class TaxRates
         $record->enabled = $model->enabled;
         $record->taxIdValidators = $model->taxIdValidators;
 
-        if (!$record->isEverywhere && $record->taxZoneId && empty($record->getErrors('taxZoneId'))) {
-            /** @phpstan-ignore-next-line */
+        if (!$record->isEverywhere && $record->taxZoneId) {
             $taxZone = app(TaxZones::class)->getTaxZoneById($record->taxZoneId, $record->storeId);
 
             if (!$taxZone) {
@@ -111,7 +109,7 @@ class TaxRates
             }
         }
 
-        $record->save(false);
+        $record->save();
 
         $model->id = $record->id;
         $this->clearCache();
@@ -121,8 +119,7 @@ class TaxRates
 
     public function deleteTaxRateById(int $id): bool
     {
-        /** @phpstan-ignore-next-line */
-        $record = TaxRateRecord::findOne($id);
+        $record = TaxRateRecord::find($id);
 
         if (!$record) {
             return false;

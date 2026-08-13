@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Tax;
 
-use CraftCms\Commerce\Catalog\Elements\Product;
-use craft\commerce\records\TaxCategory as TaxCategoryRecord;
 use CraftCms\Cms\Element\Jobs\ResaveElements;
+use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Tax\Models\TaxCategory;
+use CraftCms\Commerce\Tax\Records\TaxCategory as TaxCategoryRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -86,8 +86,7 @@ class TaxCategories
     public function saveTaxCategory(TaxCategory $taxCategory, bool $runValidation = true): bool
     {
         if ($taxCategory->id) {
-            /** @phpstan-ignore-next-line */
-            $record = TaxCategoryRecord::findOne($taxCategory->id);
+            $record = TaxCategoryRecord::find($taxCategory->id);
 
             if (!$record) {
                 throw new \RuntimeException(t('No tax category exists with the ID “{id}”', ['id' => $taxCategory->id], category: 'commerce'));
@@ -107,14 +106,13 @@ class TaxCategories
         $record->color = $taxCategory->color;
         $record->default = $taxCategory->default;
 
-        $record->save(false);
+        $record->save();
 
         $taxCategory->id = $record->id;
 
         // If this was the default, clear default on all others.
         if ($taxCategory->default) {
-            /** @phpstan-ignore-next-line */
-            TaxCategoryRecord::updateAll(['default' => false], ['not', ['id' => $record->id]]);
+            TaxCategoryRecord::withTrashed()->where('id', '!=', $record->id)->update(['default' => false]);
         }
 
         $currentProductTypeIds = DB::table(Table::PRODUCTTYPES_TAXCATEGORIES)
@@ -149,14 +147,13 @@ class TaxCategories
 
     public function deleteTaxCategoryById(int $id): bool
     {
-        /** @phpstan-ignore-next-line */
-        $taxCategory = TaxCategoryRecord::findOne($id);
+        $taxCategory = TaxCategoryRecord::find($id);
 
         if ($taxCategory === null || $taxCategory->default) {
             return false;
         }
 
-        if ($taxCategory->softDelete()) {
+        if ($taxCategory->delete()) {
             $this->allTaxCategories = null;
             return true;
         }

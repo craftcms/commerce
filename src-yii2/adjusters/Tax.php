@@ -17,7 +17,7 @@ use craft\commerce\helpers\Currency;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\Plugin;
-use craft\commerce\records\TaxRate as TaxRateRecord;
+use CraftCms\Commerce\Tax\Records\TaxRate as TaxRateRecord;
 use craft\commerce\taxidvalidators\EuVatIdValidator;
 use craft\elements\Address;
 use CraftCms\Commerce\Tax\Models\TaxRate;

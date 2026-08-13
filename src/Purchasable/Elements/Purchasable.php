@@ -37,7 +37,7 @@ use CraftCms\Commerce\Services\Purchasables;
 use CraftCms\Commerce\Services\Sales;
 use CraftCms\Commerce\Services\ShippingCategories;
 use CraftCms\Commerce\Services\Stores;
-use CraftCms\Commerce\Services\TaxCategories;
+use CraftCms\Commerce\Tax\TaxCategories;
 use CraftCms\Commerce\Shipping\Models\ShippingCategory;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
 use CraftCms\Commerce\Store\Models\Store;

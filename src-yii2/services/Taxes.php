@@ -9,7 +9,7 @@ use CraftCms\Commerce\Tax\Contracts\TaxEngineInterface as NewTaxEngineInterface;
 use Illuminate\Support\Collection;
 
 /**
- * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Services\Taxes::class)` instead.
+ * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Tax\Taxes::class)` instead.
  */
 class Taxes extends Component implements TaxEngineInterface
 {
@@ -28,7 +28,7 @@ class Taxes extends Component implements TaxEngineInterface
      */
     public function getTaxIdValidators(): Collection
     {
-        return app(\CraftCms\Commerce\Services\Taxes::class)->getTaxIdValidators();
+        return app(\CraftCms\Commerce\Tax\Taxes::class)->getTaxIdValidators();
     }
 
     /**
@@ -36,96 +36,96 @@ class Taxes extends Component implements TaxEngineInterface
      */
     public function getEnabledTaxIdValidators(): Collection
     {
-        return app(\CraftCms\Commerce\Services\Taxes::class)->getEnabledTaxIdValidators();
+        return app(\CraftCms\Commerce\Tax\Taxes::class)->getEnabledTaxIdValidators();
     }
 
     public function getEngine(): NewTaxEngineInterface
     {
-        return app(\CraftCms\Commerce\Services\Taxes::class)->getEngine();
+        return app(\CraftCms\Commerce\Tax\Taxes::class)->getEngine();
     }
 
     public function taxAdjusterClass(): string
     {
-        return app(\CraftCms\Commerce\Services\Taxes::class)->taxAdjusterClass();
+        return app(\CraftCms\Commerce\Tax\Taxes::class)->taxAdjusterClass();
     }
 
     public function viewTaxCategories(): bool
     {
-        return app(\CraftCms\Commerce\Services\Taxes::class)->viewTaxCategories();
+        return app(\CraftCms\Commerce\Tax\Taxes::class)->viewTaxCategories();
     }
 
     public function createTaxCategories(): bool
     {
-        return app(\CraftCms\Commerce\Services\Taxes::class)->createTaxCategories();
+        return app(\CraftCms\Commerce\Tax\Taxes::class)->createTaxCategories();
     }
 
     public function editTaxCategories(): bool
     {
-        return app(\CraftCms\Commerce\Services\Taxes::class)->editTaxCategories();
+        return app(\CraftCms\Commerce\Tax\Taxes::class)->editTaxCategories();
     }
 
     public function deleteTaxCategories(): bool
     {
-        return app(\CraftCms\Commerce\Services\Taxes::class)->deleteTaxCategories();
+        return app(\CraftCms\Commerce\Tax\Taxes::class)->deleteTaxCategories();
     }
 
     public function taxCategoryActionHtml(): string
     {
-        return app(\CraftCms\Commerce\Services\Taxes::class)->taxCategoryActionHtml();
+        return app(\CraftCms\Commerce\Tax\Taxes::class)->taxCategoryActionHtml();
     }
 
     public function viewTaxZones(): bool
     {
-        return app(\CraftCms\Commerce\Services\Taxes::class)->viewTaxZones();
+        return app(\CraftCms\Commerce\Tax\Taxes::class)->viewTaxZones();
     }
 
     public function editTaxZones(): bool
     {
-        return app(\CraftCms\Commerce\Services\Taxes::class)->editTaxZones();
+        return app(\CraftCms\Commerce\Tax\Taxes::class)->editTaxZones();
     }
 
     public function viewTaxRates(): bool
     {
-        return app(\CraftCms\Commerce\Services\Taxes::class)->viewTaxRates();
+        return app(\CraftCms\Commerce\Tax\Taxes::class)->viewTaxRates();
     }
 
     public function editTaxRates(): bool
     {
-        return app(\CraftCms\Commerce\Services\Taxes::class)->editTaxRates();
+        return app(\CraftCms\Commerce\Tax\Taxes::class)->editTaxRates();
     }
 
     public function cpTaxNavSubItems(): array
     {
-        return app(\CraftCms\Commerce\Services\Taxes::class)->cpTaxNavSubItems();
+        return app(\CraftCms\Commerce\Tax\Taxes::class)->cpTaxNavSubItems();
     }
 
     public function createTaxZones(): bool
     {
-        return app(\CraftCms\Commerce\Services\Taxes::class)->createTaxZones();
+        return app(\CraftCms\Commerce\Tax\Taxes::class)->createTaxZones();
     }
 
     public function deleteTaxZones(): bool
     {
-        return app(\CraftCms\Commerce\Services\Taxes::class)->deleteTaxZones();
+        return app(\CraftCms\Commerce\Tax\Taxes::class)->deleteTaxZones();
     }
 
     public function taxZoneActionHtml(): string
     {
-        return app(\CraftCms\Commerce\Services\Taxes::class)->taxZoneActionHtml();
+        return app(\CraftCms\Commerce\Tax\Taxes::class)->taxZoneActionHtml();
     }
 
     public function createTaxRates(): bool
     {
-        return app(\CraftCms\Commerce\Services\Taxes::class)->createTaxRates();
+        return app(\CraftCms\Commerce\Tax\Taxes::class)->createTaxRates();
     }
 
     public function deleteTaxRates(): bool
     {
-        return app(\CraftCms\Commerce\Services\Taxes::class)->deleteTaxRates();
+        return app(\CraftCms\Commerce\Tax\Taxes::class)->deleteTaxRates();
     }
 
     public function taxRateActionHtml(): string
     {
-        return app(\CraftCms\Commerce\Services\Taxes::class)->taxRateActionHtml();
+        return app(\CraftCms\Commerce\Tax\Taxes::class)->taxRateActionHtml();
     }
 }
