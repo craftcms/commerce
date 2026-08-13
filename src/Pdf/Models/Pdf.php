@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Pdf\Models;
 
 use craft\commerce\elements\Order;
-use craft\commerce\records\Pdf as PdfRecord;
+use CraftCms\Commerce\Pdf\Records\Pdf as PdfRecord;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Database\Table;

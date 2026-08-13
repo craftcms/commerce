@@ -9,7 +9,7 @@ use craft\commerce\models\Email;
 use craft\commerce\models\Pdf;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
-use craft\commerce\records\Email as EmailRecord;
+use CraftCms\Commerce\Email\Records\Email as EmailRecord;
 use craft\helpers\App;
 use craft\helpers\ArrayHelper;
 use craft\models\Site;

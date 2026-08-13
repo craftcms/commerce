@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Email\Models;
 
 use craft\commerce\elements\Order;
-use craft\commerce\records\Email as EmailRecord;
+use CraftCms\Commerce\Email\Records\Email as EmailRecord;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Support\Env;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Pdf\Models\Pdf as PdfModel;
-use CraftCms\Commerce\Services\Pdfs;
+use CraftCms\Commerce\Pdf\Pdfs;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
 

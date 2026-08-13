@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Pdf;
 
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
-use craft\commerce\records\Pdf as PdfRecord;
 use craft\events\ConfigEvent;
 use craft\helpers\Db as CraftDb;
 use craft\helpers\FileHelper;
@@ -22,6 +21,7 @@ use CraftCms\Commerce\Pdf\Events\PdfEvent;
 use CraftCms\Commerce\Pdf\Events\PdfRenderEvent;
 use CraftCms\Commerce\Pdf\Events\PdfRenderOptionsEvent;
 use CraftCms\Commerce\Pdf\Models\Pdf;
+use CraftCms\Commerce\Pdf\Records\Pdf as PdfRecord;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Illuminate\Container\Attributes\Singleton;
@@ -163,7 +163,7 @@ class Pdfs
         $transaction = \Craft::$app->getDb()->beginTransaction();
         try {
             $pdfRecord = $this->getPdfRecord($pdfUid);
-            $isNewPdf = $pdfRecord->getIsNewRecord();
+            $isNewPdf = !$pdfRecord->exists;
             $store = Plugin::getInstance()->getStores()->getStoreByUid($data['store']);
 
             $pdfRecord->storeId = $store->id;
@@ -182,13 +182,12 @@ class Pdfs
 
             $pdfRecord->uid = $pdfUid;
 
-            $pdfRecord->save(false);
+            $pdfRecord->save();
 
             if ($pdfRecord->isDefault) {
-                PdfRecord::updateAll(['isDefault' => false], ['and',
-                    ['not', ['id' => $pdfRecord->id]],
-                    ['storeId' => $pdfRecord->storeId],
-                ]);
+                PdfRecord::where('id', '!=', $pdfRecord->id)
+                    ->where('storeId', $pdfRecord->storeId)
+                    ->update(['isDefault' => false]);
             }
 
             $transaction->commit();
@@ -217,7 +216,7 @@ class Pdfs
      */
     public function deletePdfById(int $id): bool
     {
-        $pdf = PdfRecord::findOne($id);
+        $pdf = PdfRecord::find($id);
 
         if ($pdf) {
             // Raise 'beforeDeletePdf' event
@@ -464,7 +463,7 @@ class Pdfs
      */
     private function getPdfRecord(string $uid): PdfRecord
     {
-        if ($pdf = PdfRecord::findOne(['uid' => $uid])) {
+        if ($pdf = PdfRecord::where('uid', $uid)->first()) {
             return $pdf;
         }
 

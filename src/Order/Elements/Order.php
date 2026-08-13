@@ -86,7 +86,7 @@ use CraftCms\Commerce\Order\OrderHistories;
 use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Payment\PaymentSources;
-use CraftCms\Commerce\Services\Pdfs;
+use CraftCms\Commerce\Pdf\Pdfs;
 use CraftCms\Commerce\Purchasable\Purchasables;
 use CraftCms\Commerce\Shipping\ShippingMethods;
 use CraftCms\Commerce\Store\Stores;

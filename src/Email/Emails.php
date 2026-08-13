@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Email;
 
 use craft\commerce\elements\Order;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
-use craft\commerce\records\Email as EmailRecord;
 use craft\events\ConfigEvent;
 use craft\helpers\Db as CraftDb;
 use craft\mail\Message;
@@ -19,6 +18,7 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Email\Events\EmailEvent;
 use CraftCms\Commerce\Email\Events\MailEvent;
 use CraftCms\Commerce\Email\Models\Email;
+use CraftCms\Commerce\Email\Records\Email as EmailRecord;
 use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
 use DateTime;
@@ -156,7 +156,7 @@ class Emails
         $transaction = \Craft::$app->getDb()->beginTransaction();
         try {
             $emailRecord = $this->getEmailRecord($emailUid);
-            $isNewEmail = $emailRecord->getIsNewRecord();
+            $isNewEmail = !$emailRecord->exists;
             $store = Plugin::getInstance()->getStores()->getStoreByUid($data['store']);
             $renderSite = array_key_exists('renderSite', $data) && $data['renderSite'] !== null ? Sites::getSiteByUid($data['renderSite']) : null;
 
@@ -178,7 +178,7 @@ class Emails
             $emailRecord->language = $data['language'] ?? EmailRecord::LOCALE_ORDER_LANGUAGE;
             $emailRecord->renderSiteId = $renderSite?->id ?? null;
 
-            $emailRecord->save(false);
+            $emailRecord->save();
 
             $transaction->commit();
         } catch (Throwable $e) {
@@ -206,7 +206,7 @@ class Emails
      */
     public function deleteEmailById(int $id): bool
     {
-        $email = EmailRecord::findOne($id);
+        $email = EmailRecord::find($id);
 
         if ($email) {
             // Raise 'beforeDeleteEmail' event
@@ -816,7 +816,7 @@ class Emails
      */
     private function getEmailRecord(string $uid): EmailRecord
     {
-        if ($email = EmailRecord::findOne(['uid' => $uid])) {
+        if ($email = EmailRecord::where('uid', $uid)->first()) {
             return $email;
         }
 

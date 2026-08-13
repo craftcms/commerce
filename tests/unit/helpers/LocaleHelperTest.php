@@ -13,8 +13,8 @@ use craft\commerce\elements\Order;
 use craft\commerce\helpers\Locale;
 use craft\commerce\models\Email;
 use craft\commerce\models\Pdf;
-use craft\commerce\records\Email as EmailRecord;
-use craft\commerce\records\Pdf as PdfRecord;
+use CraftCms\Commerce\Email\Records\Email as EmailRecord;
+use CraftCms\Commerce\Pdf\Records\Pdf as PdfRecord;
 use UnitTester;
 use yii\base\InvalidArgumentException;
 

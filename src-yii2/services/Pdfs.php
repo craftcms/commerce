@@ -10,35 +10,35 @@ use Throwable;
 use yii\base\Component;
 
 /**
- * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Services\Pdfs::class)` instead.
+ * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Pdf\Pdfs::class)` instead.
  */
 class Pdfs extends Component
 {
-    public const EVENT_BEFORE_SAVE_PDF = \CraftCms\Commerce\Services\Pdfs::EVENT_BEFORE_SAVE_PDF;
+    public const EVENT_BEFORE_SAVE_PDF = \CraftCms\Commerce\Pdf\Pdfs::EVENT_BEFORE_SAVE_PDF;
 
-    public const EVENT_AFTER_SAVE_PDF = \CraftCms\Commerce\Services\Pdfs::EVENT_AFTER_SAVE_PDF;
+    public const EVENT_AFTER_SAVE_PDF = \CraftCms\Commerce\Pdf\Pdfs::EVENT_AFTER_SAVE_PDF;
 
-    public const EVENT_BEFORE_RENDER_PDF = \CraftCms\Commerce\Services\Pdfs::EVENT_BEFORE_RENDER_PDF;
+    public const EVENT_BEFORE_RENDER_PDF = \CraftCms\Commerce\Pdf\Pdfs::EVENT_BEFORE_RENDER_PDF;
 
-    public const EVENT_AFTER_RENDER_PDF = \CraftCms\Commerce\Services\Pdfs::EVENT_AFTER_RENDER_PDF;
+    public const EVENT_AFTER_RENDER_PDF = \CraftCms\Commerce\Pdf\Pdfs::EVENT_AFTER_RENDER_PDF;
 
-    public const EVENT_MODIFY_RENDER_OPTIONS = \CraftCms\Commerce\Services\Pdfs::EVENT_MODIFY_RENDER_OPTIONS;
+    public const EVENT_MODIFY_RENDER_OPTIONS = \CraftCms\Commerce\Pdf\Pdfs::EVENT_MODIFY_RENDER_OPTIONS;
 
-    public const EVENT_BEFORE_DELETE_PDF = \CraftCms\Commerce\Services\Pdfs::EVENT_BEFORE_DELETE_PDF;
+    public const EVENT_BEFORE_DELETE_PDF = \CraftCms\Commerce\Pdf\Pdfs::EVENT_BEFORE_DELETE_PDF;
 
-    public const CONFIG_PDFS_KEY = \CraftCms\Commerce\Services\Pdfs::CONFIG_PDFS_KEY;
+    public const CONFIG_PDFS_KEY = \CraftCms\Commerce\Pdf\Pdfs::CONFIG_PDFS_KEY;
 
     /**
      * @return Collection<int, Pdf>
      */
     public function getAllPdfs(?int $storeId = null): Collection
     {
-        return app(\CraftCms\Commerce\Services\Pdfs::class)->getAllPdfs($storeId);
+        return app(\CraftCms\Commerce\Pdf\Pdfs::class)->getAllPdfs($storeId);
     }
 
     public function getHasEnabledPdf(?int $storeId = null): bool
     {
-        return app(\CraftCms\Commerce\Services\Pdfs::class)->getHasEnabledPdf($storeId);
+        return app(\CraftCms\Commerce\Pdf\Pdfs::class)->getHasEnabledPdf($storeId);
     }
 
     /**
@@ -46,37 +46,37 @@ class Pdfs extends Component
      */
     public function getAllEnabledPdfs(?int $storeId = null): Collection
     {
-        return app(\CraftCms\Commerce\Services\Pdfs::class)->getAllEnabledPdfs($storeId);
+        return app(\CraftCms\Commerce\Pdf\Pdfs::class)->getAllEnabledPdfs($storeId);
     }
 
     public function getDefaultPdf(?int $storeId = null): ?Pdf
     {
-        return app(\CraftCms\Commerce\Services\Pdfs::class)->getDefaultPdf($storeId);
+        return app(\CraftCms\Commerce\Pdf\Pdfs::class)->getDefaultPdf($storeId);
     }
 
     public function getPdfByHandle(string $handle, ?int $storeId = null): ?Pdf
     {
-        return app(\CraftCms\Commerce\Services\Pdfs::class)->getPdfByHandle($handle, $storeId);
+        return app(\CraftCms\Commerce\Pdf\Pdfs::class)->getPdfByHandle($handle, $storeId);
     }
 
     public function getPdfById(int $id, ?int $storeId = null): ?Pdf
     {
-        return app(\CraftCms\Commerce\Services\Pdfs::class)->getPdfById($id, $storeId);
+        return app(\CraftCms\Commerce\Pdf\Pdfs::class)->getPdfById($id, $storeId);
     }
 
     public function savePdf(Pdf $pdf, bool $runValidation = true): bool
     {
-        return app(\CraftCms\Commerce\Services\Pdfs::class)->savePdf($pdf, $runValidation);
+        return app(\CraftCms\Commerce\Pdf\Pdfs::class)->savePdf($pdf, $runValidation);
     }
 
     public function handleChangedPdf(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Services\Pdfs::class)->handleChangedPdf($event);
+        app(\CraftCms\Commerce\Pdf\Pdfs::class)->handleChangedPdf($event);
     }
 
     public function deletePdfById(int $id): bool
     {
-        return app(\CraftCms\Commerce\Services\Pdfs::class)->deletePdfById($id);
+        return app(\CraftCms\Commerce\Pdf\Pdfs::class)->deletePdfById($id);
     }
 
     /**
@@ -84,7 +84,7 @@ class Pdfs extends Component
      */
     public function handleDeletedPdf(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Services\Pdfs::class)->handleDeletedPdf($event);
+        app(\CraftCms\Commerce\Pdf\Pdfs::class)->handleDeletedPdf($event);
     }
 
     /**
@@ -92,16 +92,16 @@ class Pdfs extends Component
      */
     public function reorderPdfs(array $ids): bool
     {
-        return app(\CraftCms\Commerce\Services\Pdfs::class)->reorderPdfs($ids);
+        return app(\CraftCms\Commerce\Pdf\Pdfs::class)->reorderPdfs($ids);
     }
 
     public function getPdfUrl(Order $order, ?string $option = null, ?string $pdfHandle = null, bool $inline = false): string
     {
-        return app(\CraftCms\Commerce\Services\Pdfs::class)->getPdfUrl($order, $option, $pdfHandle, $inline);
+        return app(\CraftCms\Commerce\Pdf\Pdfs::class)->getPdfUrl($order, $option, $pdfHandle, $inline);
     }
 
     public function renderPdfForOrder(Order $order, string $option = '', ?string $templatePath = null, array $variables = [], ?Pdf $pdf = null): string
     {
-        return app(\CraftCms\Commerce\Services\Pdfs::class)->renderPdfForOrder($order, $option, $templatePath, $variables, $pdf);
+        return app(\CraftCms\Commerce\Pdf\Pdfs::class)->renderPdfForOrder($order, $option, $templatePath, $variables, $pdf);
     }
 }

@@ -1,5 +1,16 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 10l: Service Namespace & Record Cleanup (Email/Pdf cluster)
+
+Twelfth slice of Stage 10: `Services\{Emails,Pdfs}` → `Email\Emails`/`Pdf\Pdfs`.
+
+- Replaced `craft\commerce\records\{Email,Pdf}` with new Eloquent models under `Email\Records\Email`/`Pdf\Records\Pdf`. Neither soft-deletes.
+- **Found the same `getIsNewRecord()` bug (first seen in Stage 10j) twice more in this cluster**: both `Emails::handleChangedEmail()` and `Pdfs::handleChangedPdf()` called `$record->getIsNewRecord()`, a Yii2 `ActiveRecord`-only method with no Eloquent equivalent. Fixed both the same way as 10j: `!$record->exists`.
+- `Pdfs::handleChangedPdf()` also had a leftover `updateAll(['isDefault' => false], ['and', ['not', ['id' => $pdfRecord->id]], ['storeId' => $pdfRecord->storeId]])` bulk-toggle (clearing the previous default PDF for a store) — converted to `PdfRecord::where('id', '!=', $pdfRecord->id)->where('storeId', $pdfRecord->storeId)->update(['isDefault' => false])`.
+- Both records' `LOCALE_ORDER_LANGUAGE` constants (plus `Email::{TYPE_CUSTOMER,TYPE_CUSTOM}` and `Pdf::{PAPER_ORIENTATION_PORTRAIT,PAPER_ORIENTATION_LANDSCAPE}`) moved onto the new Eloquent classes, repointing 5 constants-only consumers: `Email\Models\Email`, `Pdf\Models\Pdf`, `Http\Controllers\Settings\{EmailsController,PdfsController}`, and `tests/unit/helpers/LocaleHelperTest.php`.
+- **Both legacy records stay** — both still `use StoreRecordTrait`, the same broad reason Stage 10j's `Store`/`SiteStore`/`StoreSettings` stayed put; `Email` additionally has `tests/fixtures/EmailsFixture.php` and `tests/fixtures/data/emails.php` as direct dependents. `src/` no longer references either.
+- **Verification**: live via `craft exec:exec` — listed emails/pdfs for the primary store, and round-tripped a full PDF create → find-via-Eloquent-record → delete → confirm-gone cycle.
+
 ### Laravel Migration — Stage 10k: Service Namespace & Record Cleanup (Subscription cluster)
 
 Eleventh slice of Stage 10: `Services\{Subscriptions,Plans}` → `Subscription\*`.

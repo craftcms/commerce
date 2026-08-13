@@ -8,7 +8,7 @@ use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Component\Contracts\Chippable;
 use CraftCms\Cms\Cp\Html\StatusHtml;
 use CraftCms\Commerce\Database\Table;
-use CraftCms\Commerce\Services\Emails;
+use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;

@@ -8,7 +8,7 @@ use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Pdf;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
-use craft\commerce\records\Pdf as PdfRecord;
+use CraftCms\Commerce\Pdf\Records\Pdf as PdfRecord;
 use craft\helpers\Json;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
