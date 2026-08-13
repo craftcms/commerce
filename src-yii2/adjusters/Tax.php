@@ -12,7 +12,7 @@ use craft\base\Component;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\base\TaxIdValidatorInterface;
 use craft\commerce\elements\Order;
-use craft\commerce\errors\StoreNotFoundException;
+use CraftCms\Commerce\Store\Exceptions\StoreNotFoundException;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\TaxAddressZone;

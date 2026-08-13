@@ -89,7 +89,7 @@ class OrderMarkAsCompleteTest extends Unit
      * @throws \Throwable
      * @throws \craft\commerce\errors\CurrencyException
      * @throws \craft\commerce\errors\OrderStatusException
-     * @throws \craft\commerce\errors\TransactionException
+     * @throws \CraftCms\Commerce\Payment\Exceptions\TransactionException
      * @throws \craft\errors\ElementNotFoundException
      * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException

@@ -11,7 +11,7 @@ use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\elements\Order;
-use craft\commerce\errors\NotImplementedException;
+use CraftCms\Commerce\Exceptions\NotImplementedException;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\payments\OffsitePaymentForm;
 use craft\commerce\models\PaymentSource;

@@ -3,9 +3,9 @@
 namespace craft\commerce\services;
 
 use craft\commerce\elements\Order;
-use craft\commerce\errors\PaymentException;
-use craft\commerce\errors\RefundException;
-use craft\commerce\errors\TransactionException;
+use CraftCms\Commerce\Payment\Exceptions\PaymentException;
+use CraftCms\Commerce\Payment\Exceptions\RefundException;
+use CraftCms\Commerce\Payment\Exceptions\TransactionException;
 use craft\commerce\models\payments\BasePaymentForm;
 use CraftCms\Commerce\Payment\Models\Transaction;
 use yii\base\Component;

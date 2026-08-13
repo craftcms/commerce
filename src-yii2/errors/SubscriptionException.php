@@ -1,20 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\errors;
 
-use yii\base\Exception;
+/** @deprecated use {@see \CraftCms\Commerce\Subscription\Exceptions\SubscriptionException} */
+class_alias(\CraftCms\Commerce\Subscription\Exceptions\SubscriptionException::class, 'craft\commerce\errors\SubscriptionException');
 
-/**
- * Class SubscriptionException
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
- */
-class SubscriptionException extends Exception
-{
+/** @phpstan-ignore-next-line */
+if (false) {
+    class SubscriptionException extends \CraftCms\Commerce\Subscription\Exceptions\SubscriptionException {}
 }

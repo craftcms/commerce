@@ -6,7 +6,7 @@ namespace CraftCms\Commerce\Payment;
 
 use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
-use craft\commerce\errors\TransactionException;
+use CraftCms\Commerce\Payment\Exceptions\TransactionException;
 use craft\commerce\Plugin;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Currency;

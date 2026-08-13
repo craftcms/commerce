@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Order\LineItem\Data;
 
 use Closure;
-use craft\commerce\errors\StoreNotFoundException;
+use CraftCms\Commerce\Store\Exceptions\StoreNotFoundException;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Json;

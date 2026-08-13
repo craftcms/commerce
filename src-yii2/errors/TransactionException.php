@@ -1,20 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\errors;
 
-use yii\base\Exception;
+/** @deprecated use {@see \CraftCms\Commerce\Payment\Exceptions\TransactionException} */
+class_alias(\CraftCms\Commerce\Payment\Exceptions\TransactionException::class, 'craft\commerce\errors\TransactionException');
 
-/**
- * Class TransactionException
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
- */
-class TransactionException extends Exception
-{
+/** @phpstan-ignore-next-line */
+if (false) {
+    class TransactionException extends \CraftCms\Commerce\Payment\Exceptions\TransactionException {}
 }

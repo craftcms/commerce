@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers;
 
 use craft\commerce\errors\CurrencyException;
-use craft\commerce\errors\PaymentException;
-use craft\commerce\errors\PaymentSourceCreatedLaterException;
-use craft\commerce\errors\PaymentSourceException;
+use CraftCms\Commerce\Payment\Exceptions\PaymentException;
+use CraftCms\Commerce\Payment\Exceptions\PaymentSourceCreatedLaterException;
+use CraftCms\Commerce\Payment\Exceptions\PaymentSourceException;
 use craft\commerce\helpers\Localization;
 use craft\commerce\helpers\PaymentForm;
 use craft\commerce\Plugin;

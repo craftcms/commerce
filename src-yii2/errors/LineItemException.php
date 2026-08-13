@@ -1,20 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\errors;
 
-use yii\base\Exception;
+/** @deprecated use {@see \CraftCms\Commerce\Order\Exceptions\LineItemException} */
+class_alias(\CraftCms\Commerce\Order\Exceptions\LineItemException::class, 'craft\commerce\errors\LineItemException');
 
-/**
- * Class LineItemException
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
- */
-class LineItemException extends Exception
-{
+/** @phpstan-ignore-next-line */
+if (false) {
+    class LineItemException extends \CraftCms\Commerce\Order\Exceptions\LineItemException {}
 }

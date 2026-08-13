@@ -12,7 +12,7 @@ use Codeception\Test\Unit;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
-use craft\commerce\errors\TransactionException;
+use CraftCms\Commerce\Payment\Exceptions\TransactionException;
 use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\DateTimeHelper;

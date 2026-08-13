@@ -6,7 +6,7 @@ namespace CraftCms\Commerce\Http\Controllers;
 
 use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\elements\Subscription;
-use craft\commerce\errors\SubscriptionException;
+use CraftCms\Commerce\Subscription\Exceptions\SubscriptionException;
 use craft\commerce\helpers\PaymentForm;
 use craft\commerce\Plugin;
 use craft\commerce\stripe\gateways\PaymentIntents;

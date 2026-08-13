@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Payment;
 
-use craft\commerce\errors\PaymentSourceException;
+use CraftCms\Commerce\Payment\Exceptions\PaymentSourceException;
 use craft\commerce\Plugin;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Payment\Events\PaymentSourceEvent;

@@ -8,7 +8,7 @@ use craft\commerce\base\Plan;
 use craft\commerce\base\SubscriptionGatewayInterface;
 use craft\commerce\elements\deletionblockers\SubscriptionCustomersDeletionBlocker;
 use craft\commerce\elements\Subscription;
-use craft\commerce\errors\SubscriptionException;
+use CraftCms\Commerce\Subscription\Exceptions\SubscriptionException;
 use craft\commerce\models\subscriptions\CancelSubscriptionForm;
 use craft\commerce\models\subscriptions\SubscriptionForm;
 use craft\commerce\models\subscriptions\SubscriptionPayment;

@@ -1,20 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\errors;
 
-use yii\base\Exception;
+/** @deprecated use {@see \CraftCms\Commerce\Payment\Gateway\Exceptions\GatewayException} */
+class_alias(\CraftCms\Commerce\Payment\Gateway\Exceptions\GatewayException::class, 'craft\commerce\errors\GatewayException');
 
-/**
- * Class GatewayException
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
- */
-class GatewayException extends Exception
-{
+/** @phpstan-ignore-next-line */
+if (false) {
+    class GatewayException extends \CraftCms\Commerce\Payment\Gateway\Exceptions\GatewayException {}
 }

@@ -8,7 +8,7 @@
 namespace craft\commerce\base;
 
 use craft\commerce\elements\Subscription;
-use craft\commerce\errors\NotImplementedException;
+use CraftCms\Commerce\Exceptions\NotImplementedException;
 use craft\commerce\models\subscriptions\CancelSubscriptionForm;
 use craft\commerce\models\subscriptions\SubscriptionForm;
 use craft\commerce\models\subscriptions\SwitchPlansForm;

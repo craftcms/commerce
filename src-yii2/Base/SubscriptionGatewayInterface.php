@@ -8,8 +8,8 @@
 namespace craft\commerce\base;
 
 use craft\commerce\elements\Subscription;
-use craft\commerce\errors\NotImplementedException;
-use craft\commerce\errors\SubscriptionException;
+use CraftCms\Commerce\Exceptions\NotImplementedException;
+use CraftCms\Commerce\Subscription\Exceptions\SubscriptionException;
 use craft\commerce\models\subscriptions\CancelSubscriptionForm;
 use craft\commerce\models\subscriptions\SubscriptionForm;
 use craft\commerce\models\subscriptions\SubscriptionPayment;

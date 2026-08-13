@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Payment;
 
 use craft\commerce\elements\Order;
-use craft\commerce\errors\PaymentException;
-use craft\commerce\errors\RefundException;
-use craft\commerce\errors\SubscriptionException;
-use craft\commerce\errors\TransactionException;
+use CraftCms\Commerce\Payment\Exceptions\PaymentException;
+use CraftCms\Commerce\Payment\Exceptions\RefundException;
+use CraftCms\Commerce\Subscription\Exceptions\SubscriptionException;
+use CraftCms\Commerce\Payment\Exceptions\TransactionException;
 use craft\commerce\Plugin;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Payment\Events\ProcessPaymentEvent;

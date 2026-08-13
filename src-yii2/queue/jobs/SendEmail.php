@@ -8,7 +8,7 @@
 namespace craft\commerce\queue\jobs;
 
 use craft\commerce\elements\Order;
-use craft\commerce\errors\EmailException;
+use CraftCms\Commerce\Email\Exceptions\EmailException;
 use craft\commerce\Plugin;
 use craft\queue\BaseJob;
 use yii\base\InvalidConfigException;

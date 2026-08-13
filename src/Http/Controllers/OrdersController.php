@@ -13,7 +13,7 @@ use craft\commerce\db\Table;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\LineItemType;
 use craft\commerce\enums\OrderNoticeType;
-use craft\commerce\errors\RefundException;
+use CraftCms\Commerce\Payment\Exceptions\RefundException;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\LineItem as LineItemHelper;
