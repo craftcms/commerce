@@ -15,7 +15,7 @@ use craft\commerce\elements\conditions\orders\OrderCondition;
 use craft\commerce\elements\conditions\orders\OrderStatusConditionRule;
 use craft\commerce\errors\LineItemNotFoundException;
 use craft\commerce\errors\OrderAdjustmentNotFoundException;
-use craft\commerce\exports\Expanded;
+use CraftCms\Commerce\Order\Exporters\Expanded;
 use craft\commerce\Plugin;
 use craft\commerce\records\OrderNotice as OrderNoticeRecord;
 use craft\errors\MutexException;

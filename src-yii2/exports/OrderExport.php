@@ -1,88 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\exports;
 
-use Craft;
-use craft\base\ElementExporter;
-use craft\commerce\adjusters\Discount;
-use craft\commerce\adjusters\Shipping;
-use craft\commerce\adjusters\Tax;
-use craft\commerce\db\Table;
-use craft\db\Query as CraftQuery;
-use craft\elements\db\ElementQueryInterface;
+/** @deprecated use {@see \CraftCms\Commerce\Order\Exporters\OrderExport} */
+class_alias(\CraftCms\Commerce\Order\Exporters\OrderExport::class, 'craft\commerce\exports\OrderExport');
 
-class OrderExport extends ElementExporter
-{
-    /**
-     * @inheritDoc
-     */
-    public static function displayName(): string
-    {
-        return Craft::t('commerce', 'Orders (Legacy)');
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function export(ElementQueryInterface $query): mixed
-    {
-        $orderIds = $query->ids();
-
-        $columns = [
-            'id',
-            'number',
-            'email',
-            'gatewayId',
-            'paymentSourceId',
-            'customerId',
-            'orderStatusId',
-            'couponCode',
-            'itemTotal',
-            'totalTax' => new CraftQuery()
-                ->select('SUM([[amount]])')
-                ->from(Table::ORDERADJUSTMENTS)
-                ->where('[[orderId]] = ' . Table::ORDERS . '.[[id]]')
-                ->andWhere(['type' => Tax::ADJUSTMENT_TYPE])
-                ->andWhere(['included' => 0]),
-            'totalTaxIncluded' => new CraftQuery()
-                ->select('SUM([[amount]])')
-                ->from(Table::ORDERADJUSTMENTS)
-                ->where('[[orderId]] = ' . Table::ORDERS . '.[[id]]')
-                ->andWhere(['type' => Tax::ADJUSTMENT_TYPE])
-                ->andWhere(['included' => 1]),
-            'totalShipping' => new CraftQuery()
-                ->select('SUM([[amount]])')
-                ->from(Table::ORDERADJUSTMENTS)
-                ->where('[[orderId]] = ' . Table::ORDERS . '.[[id]]')
-                ->andWhere(['type' => Shipping::ADJUSTMENT_TYPE]),
-            'totalDiscount' => new CraftQuery()
-                ->select('SUM([[amount]])')
-                ->from(Table::ORDERADJUSTMENTS)
-                ->where('[[orderId]] = ' . Table::ORDERS . '.[[id]]')
-                ->andWhere(['type' => Discount::ADJUSTMENT_TYPE]),
-            'totalPrice',
-            'totalPaid',
-            'paidStatus',
-            'isCompleted',
-            'dateOrdered',
-            'datePaid',
-            'currency',
-            'paymentCurrency',
-            'lastIp',
-            'orderLanguage',
-            'message',
-            'shippingMethodHandle',
-        ];
-
-        return new CraftQuery()
-            ->select($columns)
-            ->from(Table::ORDERS)
-            ->where(['id' => $orderIds])
-            ->all();
-    }
+/** @phpstan-ignore-next-line */
+if (false) {
+    class OrderExport extends \CraftCms\Commerce\Order\Exporters\OrderExport {}
 }

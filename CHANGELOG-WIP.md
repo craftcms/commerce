@@ -1,5 +1,15 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 11d: Order Exporters
+
+Fourth slice of Stage 11 — `src-yii2/exports/{Expanded,LineItemExport,OrderExport}` moved to `Order\Exporters\*`.
+
+- `Expanded` extends cms-6 core's own already-migrated `CraftCms\Cms\Element\Exporters\Expanded`, which changed its `ElementQuery::each()` contract from a `foreach`-able generator to a callback+batch-size form (`$query->each(function($element) {...}, 100)`), added `ComponentHelper::datetimeAttributes()`/`DateTimeHelper::toIso8601()` handling for date fields, and resolves fields via `app(Fields::class)` instead of `Craft::$app->getFields()`. Rebuilt Commerce's override against this new base, keeping the same "identical to parent, plus extra fields" shape (`adjustments`, `billingAddress`, `shippingAddress`, `transactions` — all already valid `Order::extraFields()` entries).
+- **Found and fixed a real bug introduced while porting**: the cms-6 reference's `uksort($elementArr, fn($a, $b) => $attributes[$a] <=> $attributes[$b])` step (added by core to preserve attribute ordering) assumes every key in `$elementArr` also exists in `$attributes` — true for core's own version, but false the moment Commerce's override adds `$extraAttributes` to the `toArray()` call, since those keys (e.g. `transactions`) were never in `$attributes`. This threw `Undefined array key "transactions"` the first time it was live-tested. The *original* pre-migration Commerce `Expanded` never had this sort step at all (it's a cms-6-core-only addition), so the fix was to simply not port that step, rather than trying to patch the comparator.
+- `LineItemExport`/`OrderExport` convert their Yii2 `craft\db\Query`-based correlated aggregate subqueries (`SUM(amount) WHERE ... = outerTable.column`) to Laravel's query builder using `selectSub($subqueryBuilder, $alias)` + `whereColumn()` for the correlation — first use of this pattern in the migration; verified live that the generated SQL still executes and returns the same computed columns (`totalTax`, `totalTaxIncluded`, `totalShipping`, `totalDiscount`).
+- Repointed the 2 real registration sites: `Order\Elements\Order::defineExporters()` (already-migrated) and `src-yii2/Plugin.php::_registerElementExports()` (still-legacy, registers `OrderExport`/`LineItemExport` via the Yii2 `EVENT_REGISTER_EXPORTERS` event).
+- **Verification**: live via `craft exec:exec` — confirmed all 3 legacy aliases resolve correctly, confirmed `Order::exporters()` includes the new `Expanded` and excludes the CMS-core default, and ran real `export()` calls against real orders for all three exporters (including one with an actual line item), confirming correct row counts, the `adjustments` extra-field, and all 4 computed aggregate columns.
+
 ### Laravel Migration — Stage 11c: Order Calculation Adjusters
 
 Third slice of Stage 11 — `src-yii2/adjusters/{Tax,Shipping,Discount}` moved to `Order\Adjuster\{Tax,Shipping,Discount}`.
