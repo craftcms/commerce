@@ -463,7 +463,7 @@ abstract class Stat implements StatInterface
         return $return;
     }
 
-    private function formatDateForDb(DateTime $date): string
+    protected function formatDateForDb(DateTime $date): string
     {
         $date = clone $date;
         $date->setTimezone(new DateTimeZone('UTC'));

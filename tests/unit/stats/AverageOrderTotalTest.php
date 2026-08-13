@@ -9,8 +9,8 @@ namespace craftcommercetests\unit\stats;
 
 use Codeception\Test\Unit;
 use craft\commerce\Plugin;
-use craft\commerce\stats\AverageOrderTotal;
 use craftcommercetests\fixtures\OrdersFixture;
+use CraftCms\Commerce\Stats\AverageOrderTotal;
 use DateTime;
 use UnitTester;
 

@@ -1,36 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\stats;
 
-use craft\commerce\base\Stat;
-use yii\db\Expression;
+/** @deprecated use {@see \CraftCms\Commerce\Stats\AverageOrderTotal} */
+class_alias(\CraftCms\Commerce\Stats\AverageOrderTotal::class, 'craft\commerce\stats\AverageOrderTotal');
 
-/**
- * Average Order Total Stat
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.0
- */
-class AverageOrderTotal extends Stat
-{
-    /**
-     * @inheritdoc
-     */
-    protected string $_handle = 'averageOrderTotal';
-
-    /**
-     * @inheritDoc
-     */
-    public function getData(): string|int|bool|null
-    {
-        $query = $this->_createStatQuery();
-        $query->select([new Expression('ROUND(SUM([[total]]) / COUNT([[orders.id]]), 4) as averageOrderTotal')]);
-
-        return $query->scalar();
-    }
+/** @phpstan-ignore-next-line */
+if (false) {
+    class AverageOrderTotal extends \CraftCms\Commerce\Stats\AverageOrderTotal {}
 }

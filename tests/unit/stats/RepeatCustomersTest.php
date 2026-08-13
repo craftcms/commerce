@@ -9,8 +9,8 @@ namespace craftcommercetests\unit\stats;
 
 use Codeception\Test\Unit;
 use craft\commerce\Plugin;
-use craft\commerce\stats\RepeatCustomers;
 use craftcommercetests\fixtures\OrdersFixture;
+use CraftCms\Commerce\Stats\RepeatCustomers;
 use DateTime;
 use DateTimeZone;
 use Exception;

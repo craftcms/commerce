@@ -1,5 +1,14 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 12b: Simple Number Widgets
+
+Second slice of Stage 12 — `AverageOrderTotal`, `NewCustomers`, `RepeatCustomers` (stat + widget pairs), the simplest shape (single/double aggregate query, no charts, no extra `type` setting) — establishes the settings-form pattern every later widget in this stage reuses.
+
+- Stats moved to `Stats\{AverageOrderTotal,NewCustomers,RepeatCustomers}`, converting their Yii2 `Query` usage (including `NewCustomers`' `NOT IN (subquery)` and `RepeatCustomers`' double-query group-count pattern) to Laravel's query builder.
+- Widgets moved to `Dashboard\Widgets\{AverageOrderTotal,NewCustomers,RepeatCustomers}`, each `extends \CraftCms\Cms\Dashboard\Widgets\Widget`. Per the plan's settings-UI decision, `getSettingsHtml()`'s Twig-rendered store-switcher/date-range-picker/order-status-selectize screen is replaced with a `settingsForm()` returning the new `Form` system's `Choice` controls — added `StatWidgetTrait::statSettingsFields()` (store select, date-range select, order-status multi-select) as the shared building block every later widget in this stage will reuse, plus `getDateRangeOptions()` (deliberately excludes `DATE_RANGE_CUSTOM` — the old custom-range JS date picker has no equivalent in the new Form control set, matching the agreed simplification). `getBodyHtml()` keeps rendering the same legacy Twig templates (via the new `template()` helper) and registering the same legacy `StatWidgetsAsset`/`CommerceWidgetsAsset` bundles (via `\Craft::$app->getView()->registerAssetBundle()`) — both confirmed working unchanged from new-namespace code.
+- `Craft::$app->getUser()->checkPermission()` → `currentUser()?->can() ?? false`; `init()`'s post-construct setup logic moved into an overridden `__construct()` (the new `Component`/`Widget` base has no `init()` lifecycle hook — confirmed via the real `RecentEntries`/`NewUsers` cms-6 reference widgets, which do the same).
+- **Verification**: live via `craft exec:exec` — confirmed all 6 legacy aliases resolve correctly, ran all 3 stats' `get()` against the real dev database, and exercised every widget's `displayName()`/`icon()`/`maxColspan()`/`isSelectable()`/`getTitle()`/`settingsForm()`/`getBodyHtml()` without error.
+
 ### Laravel Migration — Stage 12a: Stat/StatWidget Base Classes
 
 First slice of Stage 12 (Dashboard Stats & Widgets) — new abstract `Stats\Stat` (port of `src-yii2/Base/Stat.php`) and `Dashboard\Widgets\Concerns\StatWidgetTrait` (port of `Base/StatWidgetTrait.php`), laying the foundation the 10 stat classes and 11 widget classes will build on in subsequent sub-stages. No widgets/stats are wired up to these yet — this slice creates and verifies the base machinery in isolation.
