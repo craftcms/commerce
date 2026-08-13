@@ -2,17 +2,12 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Promotion;
 
 use craft\commerce\adjusters\Discount as DiscountAdjuster;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
-use craft\commerce\records\CustomerDiscountUse;
-use craft\commerce\records\Discount as DiscountRecord;
-use craft\commerce\records\DiscountCategory as DiscountCategoryRecord;
-use craft\commerce\records\DiscountPurchasable as DiscountPurchasableRecord;
-use craft\commerce\records\EmailDiscountUse as EmailDiscountUseRecord;
 use craft\elements\Category;
 use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Support\Facades\Elements;
@@ -26,6 +21,12 @@ use CraftCms\Commerce\Promotion\Events\MatchLineItemEvent;
 use CraftCms\Commerce\Promotion\Events\MatchOrderEvent;
 use CraftCms\Commerce\Promotion\Models\Coupon;
 use CraftCms\Commerce\Promotion\Models\Discount;
+use CraftCms\Commerce\Promotion\Records\Coupon as CouponRecord;
+use CraftCms\Commerce\Promotion\Records\CustomerDiscountUse;
+use CraftCms\Commerce\Promotion\Records\Discount as DiscountRecord;
+use CraftCms\Commerce\Promotion\Records\DiscountCategory as DiscountCategoryRecord;
+use CraftCms\Commerce\Promotion\Records\DiscountPurchasable as DiscountPurchasableRecord;
+use CraftCms\Commerce\Promotion\Records\EmailDiscountUse as EmailDiscountUseRecord;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
@@ -538,8 +539,7 @@ class Discounts
         $isNew = !$model->id;
 
         if ($model->id) {
-            /** @phpstan-ignore-next-line */
-            $record = DiscountRecord::findOne($model->id);
+            $record = DiscountRecord::find($model->id);
 
             if (!$record) {
                 throw new \RuntimeException(t('No discount exists with the ID "{id}"', ['id' => $model->id], category: 'commerce'));
@@ -645,8 +645,7 @@ class Discounts
         DB::beginTransaction();
 
         try {
-            /** @phpstan-ignore-next-line */
-            $record->save(false);
+            $record->save();
             $model->id = $record->id;
 
             // TODO: update to new date helper once migrated
@@ -655,10 +654,8 @@ class Discounts
             /** @phpstan-ignore-next-line */
             $model->dateUpdated = \CraftCms\Cms\Support\DateTimeHelper::toDateTime($record->dateUpdated);
 
-            /** @phpstan-ignore-next-line */
-            DiscountPurchasableRecord::deleteAll(['discountId' => $model->id]);
-            /** @phpstan-ignore-next-line */
-            DiscountCategoryRecord::deleteAll(['discountId' => $model->id]);
+            DiscountPurchasableRecord::where('discountId', $model->id)->delete();
+            DiscountCategoryRecord::where('discountId', $model->id)->delete();
 
             // TODO: update getStore()->getSites() when Store/Sites migrated
             /** @phpstan-ignore-next-line */
@@ -666,28 +663,21 @@ class Discounts
 
             foreach ($model->getCategoryIds() as $categoryId) {
                 $relation = new DiscountCategoryRecord();
-                /** @phpstan-ignore-next-line */
                 $relation->categoryId = $categoryId;
-                /** @phpstan-ignore-next-line */
                 $relation->discountId = $model->id;
-                /** @phpstan-ignore-next-line */
-                $relation->save(false);
+                $relation->save();
             }
 
             foreach ($model->getPurchasableIds() as $purchasableId) {
                 $relation = new DiscountPurchasableRecord();
                 $element = Elements::getElementById($purchasableId, siteId: $siteIds);
-                /** @phpstan-ignore-next-line */
                 $relation->purchasableType = $element::class;
-                /** @phpstan-ignore-next-line */
                 $relation->purchasableId = $purchasableId;
-                /** @phpstan-ignore-next-line */
                 $relation->discountId = $model->id;
-                /** @phpstan-ignore-next-line */
-                $relation->save(false);
+                $relation->save();
             }
 
-            app(\CraftCms\Commerce\Services\Coupons::class)->saveDiscountCoupons($model);
+            app(\CraftCms\Commerce\Promotion\Coupons::class)->saveDiscountCoupons($model);
 
             DB::commit();
 
@@ -707,19 +697,15 @@ class Discounts
 
     public function deleteDiscountById(int $id): bool
     {
-        /** @phpstan-ignore-next-line */
-        $discountRecord = DiscountRecord::findOne($id);
+        $discountRecord = DiscountRecord::find($id);
 
         if (!$discountRecord) {
             return false;
         }
 
-        /** @phpstan-ignore-next-line */
         $discount = $this->getDiscountById($id, $discountRecord->storeId);
-        /** @phpstan-ignore-next-line */
         $storeId = $discount->storeId;
 
-        /** @phpstan-ignore-next-line */
         $result = (bool) $discountRecord->delete();
 
         if ($result) {
@@ -824,7 +810,7 @@ class Discounts
             $couponModel->discountId = $discountId;
         }
 
-        $result = app(\CraftCms\Commerce\Services\Coupons::class)->saveCoupon($couponModel);
+        $result = app(\CraftCms\Commerce\Promotion\Coupons::class)->saveCoupon($couponModel);
 
         if ($result) {
             $this->clearCaches();
@@ -881,19 +867,15 @@ class Discounts
 
         foreach ($discounts as $discount) {
             if ($user && $user->getIsCredentialed()) {
-                /** @phpstan-ignore-next-line */
-                $userDiscountUseRecord = CustomerDiscountUse::find()->where(['customerId' => $user->id, 'discountId' => $discount['discountUseId']])->one();
+                $userDiscountUseRecord = CustomerDiscountUse::where('customerId', $user->id)
+                    ->where('discountId', $discount['discountUseId'])
+                    ->first();
 
                 if (!$userDiscountUseRecord) {
-                    /** @phpstan-ignore-next-line */
                     $userDiscountUseRecord = new CustomerDiscountUse();
-                    /** @phpstan-ignore-next-line */
                     $userDiscountUseRecord->customerId = $user->id;
-                    /** @phpstan-ignore-next-line */
                     $userDiscountUseRecord->discountId = $discount['discountUseId'];
-                    /** @phpstan-ignore-next-line */
                     $userDiscountUseRecord->uses = 1;
-                    /** @phpstan-ignore-next-line */
                     $userDiscountUseRecord->save();
                 } else {
                     DB::table(Table::CUSTOMER_DISCOUNTUSES)
@@ -903,18 +885,15 @@ class Discounts
                 }
             }
 
-            /** @phpstan-ignore-next-line */
-            $emailRecord = EmailDiscountUseRecord::find()->where(['email' => $order->getEmail(), 'discountId' => $discount['discountUseId']])->one();
+            $emailRecord = EmailDiscountUseRecord::where('email', $order->getEmail())
+                ->where('discountId', $discount['discountUseId'])
+                ->first();
 
             if (!$emailRecord) {
                 $emailRecord = new EmailDiscountUseRecord();
-                /** @phpstan-ignore-next-line */
                 $emailRecord->email = $order->getEmail();
-                /** @phpstan-ignore-next-line */
                 $emailRecord->discountId = $discount['discountUseId'];
-                /** @phpstan-ignore-next-line */
                 $emailRecord->uses = 1;
-                /** @phpstan-ignore-next-line */
                 $emailRecord->save();
             } else {
                 DB::table(Table::EMAIL_DISCOUNTUSES)
@@ -945,9 +924,9 @@ class Discounts
             }
 
             if ($order->couponCode) {
-                // TODO: update CouponRecord reference when records are migrated to Eloquent
-                /** @phpstan-ignore-next-line */
-                $coupon = \craft\commerce\records\Coupon::findOne(['code' => $order->couponCode, 'discountId' => $discount['discountUseId']]);
+                $coupon = CouponRecord::where('code', $order->couponCode)
+                    ->where('discountId', $discount['discountUseId'])
+                    ->first();
                 if ($coupon) {
                     DB::table(Table::COUPONS)->where('id', $coupon->id)->increment('uses');
 

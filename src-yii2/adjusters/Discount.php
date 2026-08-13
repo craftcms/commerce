@@ -16,7 +16,7 @@ use craft\commerce\models\Discount as DiscountModel;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
-use craft\commerce\records\Discount as DiscountRecord;
+use CraftCms\Commerce\Promotion\Records\Discount as DiscountRecord;
 use craft\helpers\ArrayHelper;
 use Money\Teller;
 use yii\base\InvalidConfigException;

@@ -2,13 +2,9 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Promotion;
 
 use craft\commerce\Plugin;
-use craft\commerce\records\Sale as SaleRecord;
-use craft\commerce\records\SaleCategory as SaleCategoryRecord;
-use craft\commerce\records\SalePurchasable as SalePurchasableRecord;
-use craft\commerce\records\SaleUserGroup as SaleUserGroupRecord;
 use craft\elements\Category;
 use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Support\Facades\ElementCaches;
@@ -17,6 +13,10 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Promotion\Events\SaleEvent;
 use CraftCms\Commerce\Promotion\Events\SaleMatchEvent;
 use CraftCms\Commerce\Promotion\Models\Sale;
+use CraftCms\Commerce\Promotion\Records\Sale as SaleRecord;
+use CraftCms\Commerce\Promotion\Records\SaleCategory as SaleCategoryRecord;
+use CraftCms\Commerce\Promotion\Records\SalePurchasable as SalePurchasableRecord;
+use CraftCms\Commerce\Promotion\Records\SaleUserGroup as SaleUserGroupRecord;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;
@@ -352,11 +352,9 @@ class Sales
         $isNew = !$model->id;
 
         if ($isNew) {
-            /** @phpstan-ignore-next-line */
             $record = new SaleRecord();
         } else {
-            /** @phpstan-ignore-next-line */
-            $record = SaleRecord::findOne($model->id);
+            $record = SaleRecord::find($model->id);
 
             if (!$record) {
                 throw new \RuntimeException(t('No sale exists with the ID "{id}"', ['id' => $model->id], category: 'commerce'));
@@ -413,8 +411,7 @@ class Sales
         DB::beginTransaction();
 
         try {
-            /** @phpstan-ignore-next-line */
-            $record->save(false);
+            $record->save();
             $model->id = $record->id;
 
             // TODO: update to new date helper once migrated
@@ -423,44 +420,31 @@ class Sales
             /** @phpstan-ignore-next-line */
             $model->dateUpdated = \CraftCms\Cms\Support\DateTimeHelper::toDateTime($record->dateUpdated);
 
-            /** @phpstan-ignore-next-line */
-            SaleUserGroupRecord::deleteAll(['saleId' => $model->id]);
-            /** @phpstan-ignore-next-line */
-            SalePurchasableRecord::deleteAll(['saleId' => $model->id]);
-            /** @phpstan-ignore-next-line */
-            SaleCategoryRecord::deleteAll(['saleId' => $model->id]);
+            SaleUserGroupRecord::where('saleId', $model->id)->delete();
+            SalePurchasableRecord::where('saleId', $model->id)->delete();
+            SaleCategoryRecord::where('saleId', $model->id)->delete();
 
             foreach ($model->getUserGroupIds() as $groupId) {
                 $relation = new SaleUserGroupRecord();
-                /** @phpstan-ignore-next-line */
                 $relation->userGroupId = $groupId;
-                /** @phpstan-ignore-next-line */
                 $relation->saleId = $model->id;
-                /** @phpstan-ignore-next-line */
-                $relation->save(false);
+                $relation->save();
             }
 
             foreach ($model->getCategoryIds() as $categoryId) {
                 $relation = new SaleCategoryRecord();
-                /** @phpstan-ignore-next-line */
                 $relation->categoryId = $categoryId;
-                /** @phpstan-ignore-next-line */
                 $relation->saleId = $model->id;
-                /** @phpstan-ignore-next-line */
-                $relation->save(false);
+                $relation->save();
             }
 
             foreach ($model->getPurchasableIds() as $purchasableId) {
                 $relation = new SalePurchasableRecord();
-                /** @phpstan-ignore-next-line */
                 $relation->purchasableId = $purchasableId;
                 $purchasable = Elements::getElementById($purchasableId, null, null, ['trashed' => null]);
-                /** @phpstan-ignore-next-line */
                 $relation->purchasableType = $purchasable::class;
-                /** @phpstan-ignore-next-line */
                 $relation->saleId = $model->id;
-                /** @phpstan-ignore-next-line */
-                $relation->save(false);
+                $relation->save();
 
                 ElementCaches::invalidateForElement($purchasable);
             }
@@ -492,8 +476,7 @@ class Sales
 
     public function deleteSaleById(int $id): bool
     {
-        /** @phpstan-ignore-next-line */
-        $record = SaleRecord::findOne($id);
+        $record = SaleRecord::find($id);
 
         if (!$record) {
             return false;
@@ -503,7 +486,6 @@ class Sales
 
         $this->clearCaches();
 
-        /** @phpstan-ignore-next-line */
         $result = (bool) $record->delete();
 
         if ($result) {

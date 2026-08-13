@@ -1,5 +1,16 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 10d: Service Namespace & Record Cleanup (Promotion cluster)
+
+Fourth slice of Stage 10, and the largest so far: `Services\{Discounts,Sales,Coupons}` → `Promotion\*`.
+
+- `Discounts` alone touched 6 legacy record classes (`Discount`, `DiscountCategory`, `DiscountPurchasable`, `CustomerDiscountUse`, `EmailDiscountUse`, plus an inline fully-qualified `\craft\commerce\records\Coupon::findOne()` call) — all replaced with new Eloquent models under `Promotion\Records\*`. `Sales` similarly replaced `Sale`, `SaleCategory`, `SalePurchasable`, `SaleUserGroup`. `Coupons` replaced `Coupon`.
+- `Discount`'s `TYPE_*`/`CATEGORY_RELATIONSHIP_TYPE_*`/`APPLIED_TO_*` and `Sale`'s `APPLY_*`/`CATEGORY_RELATIONSHIP_TYPE_*` constants moved onto their new Eloquent classes (same treatment as Stage 10b/10c), repointing `Promotion\Models\{Discount,Sale}`, `Http\Controllers\Settings\{DiscountsController,SalesController}`, `Catalog\Queries\VariantQuery`, and the still-legacy `src-yii2\adjusters\Discount`.
+- Converted 2 more real leftover `ActiveRecord` bulk-toggle queries to Eloquent, same shape as Stage 10b/10c: `DiscountsController::updateStatus()` and `SalesController::updateStatus()`.
+- **Found and fixed a real, independently-shippable bug while live-testing `saveDiscount()`**: `Promotion\Events\{DiscountEvent,MatchOrderEvent,MatchLineItemEvent,DiscountAdjustmentsEvent}` all still type-hinted their `$discount` constructor property against the legacy `craft\commerce\models\Discount`, even though every actual caller (`Discounts` service, and the still-legacy `src-yii2\adjusters\Discount` — which sources its `$discount` from `Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts()`, i.e. the *new* service) has passed the new `Promotion\Models\Discount` since Stage 6b. PHP enforces constructor property type declarations at runtime regardless of docblocks, so this wasn't just a phpstan nit — `saveDiscount()` (and, more seriously, the discount adjuster's `EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED` firing during real order calculation) would throw a `TypeError` on every invocation. Fixed by repointing all four events at `Promotion\Models\Discount`. `Promotion\Events\{SaleEvent,SaleMatchEvent}` were already correct.
+- `craft\commerce\records\{DiscountCategory,DiscountPurchasable,CustomerDiscountUse,EmailDiscountUse,Sale,SaleCategory,SalePurchasable,SaleUserGroup}` are now fully unreferenced and deleted (8 files — the biggest single-stage cleanup so far). `craft\commerce\records\{Discount,Coupon}` are kept, same reasoning as prior stages — `Discount` is still used by `tests/fixtures/DiscountsFixture.php` and 2 tests; `Coupon` by that same fixture plus the still-legacy `src-yii2\validators\CouponsValidator` and a test.
+- **Verification**: live via `craft exec:exec` — listed discounts for the primary store, round-tripped a full discount create → delete → confirm-gone cycle (which is what surfaced the `DiscountEvent` bug above), generated coupon codes, listed sales, and confirmed both relocated constant sets.
+
 ### Laravel Migration — Stage 10c: Service Namespace & Record Cleanup (Shipping cluster)
 
 Third slice of Stage 10: `Services\{ShippingCategories,ShippingZones,ShippingMethods,ShippingRules,ShippingRuleCategories}` → `Shipping\*`.

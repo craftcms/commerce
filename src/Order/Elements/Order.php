@@ -77,7 +77,7 @@ use CraftCms\Commerce\Purchasable\Elements\Purchasable as NewPurchasable;
 use CraftCms\Commerce\Services\Carts;
 use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Services\Customers;
-use CraftCms\Commerce\Services\Discounts;
+use CraftCms\Commerce\Promotion\Discounts;
 use CraftCms\Commerce\Services\Gateways;
 use CraftCms\Commerce\Services\Inventory;
 use CraftCms\Commerce\Services\LineItems;

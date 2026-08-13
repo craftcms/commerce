@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Promotion\Events;
 
-use craft\commerce\models\Discount;
+use CraftCms\Commerce\Promotion\Models\Discount;
 
 class DiscountEvent
 {

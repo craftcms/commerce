@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Promotion;
 
-use craft\commerce\records\Coupon as CouponRecord;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Promotion\Models\Coupon;
 use CraftCms\Commerce\Promotion\Models\Discount;
+use CraftCms\Commerce\Promotion\Records\Coupon as CouponRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -94,14 +94,12 @@ class Coupons
 
     public function deleteCouponById(int $id): bool
     {
-        /** @phpstan-ignore-next-line */
-        $record = CouponRecord::findOne($id);
+        $record = CouponRecord::find($id);
 
         if (!$record) {
             return false;
         }
 
-        /** @phpstan-ignore-next-line */
         return (bool) $record->delete();
     }
 
@@ -145,8 +143,7 @@ class Coupons
     public function saveCoupon(Coupon $coupon, bool $runValidation = true): bool
     {
         if ($coupon->id) {
-            /** @phpstan-ignore-next-line */
-            $record = CouponRecord::findOne($coupon->id);
+            $record = CouponRecord::find($coupon->id);
 
             if (!$record) {
                 throw new \RuntimeException("Invalid coupon ID: {$coupon->id}");
@@ -160,17 +157,12 @@ class Coupons
             return false;
         }
 
-        /** @phpstan-ignore-next-line */
         $record->code = $coupon->code;
-        /** @phpstan-ignore-next-line */
         $record->discountId = $coupon->discountId;
-        /** @phpstan-ignore-next-line */
         $record->uses = $coupon->uses;
-        /** @phpstan-ignore-next-line */
         $record->maxUses = $coupon->maxUses;
 
-        /** @phpstan-ignore-next-line */
-        $record->save(false);
+        $record->save();
 
         $coupon->id = $record->id;
 

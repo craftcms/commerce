@@ -11,7 +11,7 @@ use craft\commerce\helpers\Localization;
 use craft\commerce\models\Coupon;
 use craft\commerce\models\Discount;
 use craft\commerce\Plugin;
-use craft\commerce\records\Discount as DiscountRecord;
+use CraftCms\Commerce\Promotion\Records\Discount as DiscountRecord;
 use craft\commerce\services\Coupons;
 use craft\commerce\web\assets\coupons\CouponsAsset;
 use craft\db\Query;
@@ -32,6 +32,7 @@ use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 use function CraftCms\Cms\currentUserElement;
@@ -546,17 +547,14 @@ JS;
 
         abort_if(empty($ids), 400, 'Missing ids');
 
-        $transaction = \Craft::$app->getDb()->beginTransaction();
-        $discounts = DiscountRecord::find()
-            ->where(['id' => $ids])
-            ->all();
+        DB::transaction(function() use ($ids, $status) {
+            $discounts = DiscountRecord::whereIn('id', $ids)->get();
 
-        /** @var DiscountRecord $discount */
-        foreach ($discounts as $discount) {
-            $discount->enabled = ($status == 'enabled');
-            $discount->save();
-        }
-        $transaction->commit();
+            foreach ($discounts as $discount) {
+                $discount->enabled = ($status == 'enabled');
+                $discount->save();
+            }
+        });
 
         return $this->asSuccess(t('Discounts updated.', category: 'commerce'));
     }

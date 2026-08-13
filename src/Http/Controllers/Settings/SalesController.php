@@ -8,7 +8,7 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
-use craft\commerce\records\Sale as SaleRecord;
+use CraftCms\Commerce\Promotion\Records\Sale as SaleRecord;
 use craft\elements\Category;
 use craft\elements\Entry;
 use craft\helpers\ArrayHelper;
@@ -22,6 +22,7 @@ use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 use function CraftCms\Cms\currentUserElement;
@@ -306,17 +307,14 @@ readonly class SalesController
 
         abort_if(empty($ids), 400, 'Missing ids');
 
-        $transaction = \Craft::$app->getDb()->beginTransaction();
-        $sales = SaleRecord::find()
-            ->where(['id' => $ids])
-            ->all();
+        DB::transaction(function() use ($ids, $status) {
+            $sales = SaleRecord::whereIn('id', $ids)->get();
 
-        /** @var SaleRecord $sale */
-        foreach ($sales as $sale) {
-            $sale->enabled = ($status == 'enabled');
-            $sale->save();
-        }
-        $transaction->commit();
+            foreach ($sales as $sale) {
+                $sale->enabled = ($status == 'enabled');
+                $sale->save();
+            }
+        });
 
         return $this->asSuccess(t('Sales updated.', category: 'commerce'));
     }

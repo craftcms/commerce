@@ -8,18 +8,18 @@ use CraftCms\Commerce\Promotion\Models\Sale;
 use yii\base\Component;
 
 /**
- * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Services\Sales::class)` instead.
+ * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Promotion\Sales::class)` instead.
  */
 class Sales extends Component
 {
     public function canUseSales(): bool
     {
-        return app(\CraftCms\Commerce\Services\Sales::class)->canUseSales();
+        return app(\CraftCms\Commerce\Promotion\Sales::class)->canUseSales();
     }
 
     public function getSaleById(int $id): ?Sale
     {
-        return app(\CraftCms\Commerce\Services\Sales::class)->getSaleById($id);
+        return app(\CraftCms\Commerce\Promotion\Sales::class)->getSaleById($id);
     }
 
     /**
@@ -27,7 +27,7 @@ class Sales extends Component
      */
     public function getAllSales(): array
     {
-        return app(\CraftCms\Commerce\Services\Sales::class)->getAllSales();
+        return app(\CraftCms\Commerce\Promotion\Sales::class)->getAllSales();
     }
 
     /**
@@ -35,7 +35,7 @@ class Sales extends Component
      */
     public function getSalesForPurchasable(PurchasableInterface $purchasable, ?Order $order = null): array
     {
-        return app(\CraftCms\Commerce\Services\Sales::class)->getSalesForPurchasable($purchasable, $order);
+        return app(\CraftCms\Commerce\Promotion\Sales::class)->getSalesForPurchasable($purchasable, $order);
     }
 
     /**
@@ -43,31 +43,31 @@ class Sales extends Component
      */
     public function getSalesRelatedToPurchasable(PurchasableInterface $purchasable): array
     {
-        return app(\CraftCms\Commerce\Services\Sales::class)->getSalesRelatedToPurchasable($purchasable);
+        return app(\CraftCms\Commerce\Promotion\Sales::class)->getSalesRelatedToPurchasable($purchasable);
     }
 
     public function getSalePriceForPurchasable(PurchasableInterface $purchasable, ?Order $order = null): float
     {
-        return app(\CraftCms\Commerce\Services\Sales::class)->getSalePriceForPurchasable($purchasable, $order);
+        return app(\CraftCms\Commerce\Promotion\Sales::class)->getSalePriceForPurchasable($purchasable, $order);
     }
 
     public function matchPurchasableAndSale(PurchasableInterface $purchasable, Sale $sale, ?Order $order = null): bool
     {
-        return app(\CraftCms\Commerce\Services\Sales::class)->matchPurchasableAndSale($purchasable, $sale, $order);
+        return app(\CraftCms\Commerce\Promotion\Sales::class)->matchPurchasableAndSale($purchasable, $sale, $order);
     }
 
     public function saveSale(Sale $model, bool $runValidation = true): bool
     {
-        return app(\CraftCms\Commerce\Services\Sales::class)->saveSale($model, $runValidation);
+        return app(\CraftCms\Commerce\Promotion\Sales::class)->saveSale($model, $runValidation);
     }
 
     public function reorderSales(array $ids): bool
     {
-        return app(\CraftCms\Commerce\Services\Sales::class)->reorderSales($ids);
+        return app(\CraftCms\Commerce\Promotion\Sales::class)->reorderSales($ids);
     }
 
     public function deleteSaleById(int $id): bool
     {
-        return app(\CraftCms\Commerce\Services\Sales::class)->deleteSaleById($id);
+        return app(\CraftCms\Commerce\Promotion\Sales::class)->deleteSaleById($id);
     }
 }

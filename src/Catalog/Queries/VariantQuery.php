@@ -6,7 +6,7 @@ namespace CraftCms\Commerce\Catalog\Queries;
 
 use Closure;
 use craft\commerce\elements\VariantCollection;
-use craft\commerce\records\Sale as SaleRecord;
+use CraftCms\Commerce\Promotion\Records\Sale as SaleRecord;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
@@ -23,7 +23,7 @@ use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\ProductQuery as ProductQueryHelper;
 use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery;
-use CraftCms\Commerce\Services\Sales;
+use CraftCms\Commerce\Promotion\Sales;
 use DateTime;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
