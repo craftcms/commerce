@@ -7,22 +7,22 @@ use yii\base\Component;
 use yii\base\InvalidConfigException;
 
 /**
- * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Services\Plans::class)` instead.
+ * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Subscription\Plans::class)` instead.
  */
 class Plans extends Component
 {
-    public const EVENT_ARCHIVE_PLAN = \CraftCms\Commerce\Services\Plans::EVENT_ARCHIVE_PLAN;
+    public const EVENT_ARCHIVE_PLAN = \CraftCms\Commerce\Subscription\Plans::EVENT_ARCHIVE_PLAN;
 
-    public const EVENT_BEFORE_SAVE_PLAN = \CraftCms\Commerce\Services\Plans::EVENT_BEFORE_SAVE_PLAN;
+    public const EVENT_BEFORE_SAVE_PLAN = \CraftCms\Commerce\Subscription\Plans::EVENT_BEFORE_SAVE_PLAN;
 
-    public const EVENT_AFTER_SAVE_PLAN = \CraftCms\Commerce\Services\Plans::EVENT_AFTER_SAVE_PLAN;
+    public const EVENT_AFTER_SAVE_PLAN = \CraftCms\Commerce\Subscription\Plans::EVENT_AFTER_SAVE_PLAN;
 
     /**
      * @return Plan[]
      */
     public function getAllPlans(): array
     {
-        return app(\CraftCms\Commerce\Services\Plans::class)->getAllPlans();
+        return app(\CraftCms\Commerce\Subscription\Plans::class)->getAllPlans();
     }
 
     /**
@@ -30,7 +30,7 @@ class Plans extends Component
      */
     public function getAllEnabledPlans(): array
     {
-        return app(\CraftCms\Commerce\Services\Plans::class)->getAllEnabledPlans();
+        return app(\CraftCms\Commerce\Subscription\Plans::class)->getAllEnabledPlans();
     }
 
     /**
@@ -38,27 +38,27 @@ class Plans extends Component
      */
     public function getPlansByGatewayId(int $gatewayId): array
     {
-        return app(\CraftCms\Commerce\Services\Plans::class)->getPlansByGatewayId($gatewayId);
+        return app(\CraftCms\Commerce\Subscription\Plans::class)->getPlansByGatewayId($gatewayId);
     }
 
     public function getPlanById(int $planId): ?Plan
     {
-        return app(\CraftCms\Commerce\Services\Plans::class)->getPlanById($planId);
+        return app(\CraftCms\Commerce\Subscription\Plans::class)->getPlanById($planId);
     }
 
     public function getPlanByUid(string $planUid): ?Plan
     {
-        return app(\CraftCms\Commerce\Services\Plans::class)->getPlanByUid($planUid);
+        return app(\CraftCms\Commerce\Subscription\Plans::class)->getPlanByUid($planUid);
     }
 
     public function getPlanByHandle(string $handle): ?Plan
     {
-        return app(\CraftCms\Commerce\Services\Plans::class)->getPlanByHandle($handle);
+        return app(\CraftCms\Commerce\Subscription\Plans::class)->getPlanByHandle($handle);
     }
 
     public function getPlanByReference(string $reference): ?Plan
     {
-        return app(\CraftCms\Commerce\Services\Plans::class)->getPlanByReference($reference);
+        return app(\CraftCms\Commerce\Subscription\Plans::class)->getPlanByReference($reference);
     }
 
     /**
@@ -66,7 +66,7 @@ class Plans extends Component
      */
     public function getPlansByInformationEntryId(int $entryId): array
     {
-        return app(\CraftCms\Commerce\Services\Plans::class)->getPlansByInformationEntryId($entryId);
+        return app(\CraftCms\Commerce\Subscription\Plans::class)->getPlansByInformationEntryId($entryId);
     }
 
     /**
@@ -74,7 +74,7 @@ class Plans extends Component
      */
     public function savePlan(Plan $plan, bool $runValidation = true): bool
     {
-        return app(\CraftCms\Commerce\Services\Plans::class)->savePlan($plan, $runValidation);
+        return app(\CraftCms\Commerce\Subscription\Plans::class)->savePlan($plan, $runValidation);
     }
 
     /**
@@ -82,7 +82,7 @@ class Plans extends Component
      */
     public function archivePlanById(int $id): bool
     {
-        return app(\CraftCms\Commerce\Services\Plans::class)->archivePlanById($id);
+        return app(\CraftCms\Commerce\Subscription\Plans::class)->archivePlanById($id);
     }
 
     /**
@@ -90,6 +90,6 @@ class Plans extends Component
      */
     public function reorderPlans(array $ids): bool
     {
-        return app(\CraftCms\Commerce\Services\Plans::class)->reorderPlans($ids);
+        return app(\CraftCms\Commerce\Subscription\Plans::class)->reorderPlans($ids);
     }
 }

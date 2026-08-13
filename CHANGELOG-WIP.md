@@ -1,5 +1,14 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 10k: Service Namespace & Record Cleanup (Subscription cluster)
+
+Eleventh slice of Stage 10: `Services\{Subscriptions,Plans}` → `Subscription\*`.
+
+- Replaced `craft\commerce\records\{Plan,Subscription}` with new Eloquent models under `Subscription\Records\*`. `Subscription` is a special case: the still-legacy `craft\commerce\elements\Subscription` element uses the *same* legacy `craft\commerce\records\Subscription` class for its own element/type-table pairing (the classic Craft "elements + type-specific table" split), so the new Eloquent class is a read/update-only sibling for `src/`, not a replacement for that pairing — documented directly in the new class's docblock so a future reader doesn't try to use it for inserts.
+- Found a second real consumer of the legacy `Subscription` record outside the service: `Http\Controllers\SubscriptionsController::subscribe()` updates a subscription's `returnUrl` directly via the record — repointed to the new Eloquent class.
+- Both legacy records stay: `Plan` is used by `tests/fixtures/SubscriptionPlansFixture.php`; `Subscription` is used by the legacy `Subscription` element itself (not a fixture this time — a live element/record pairing, the same category of "can't touch this without migrating the whole element" constraint noted for `Store`'s trait in Stage 10j). `src/` no longer references either.
+- **Verification**: live via `craft exec:exec` — resolved both services, listed all plans, and exercised both subscription-count queries against the new Eloquent record.
+
 ### Laravel Migration — Stage 10j: Service Namespace & Record Cleanup (Store cluster)
 
 Tenth slice of Stage 10: `Services\{Stores,StoreSettings}` → `Store\*`.

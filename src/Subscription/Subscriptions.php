@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Subscription;
 
 use craft\commerce\base\Plan;
 use craft\commerce\base\SubscriptionGatewayInterface;
@@ -14,7 +14,6 @@ use craft\commerce\models\subscriptions\SubscriptionForm;
 use craft\commerce\models\subscriptions\SubscriptionPayment;
 use craft\commerce\models\subscriptions\SwitchPlansForm;
 use craft\commerce\Plugin;
-use craft\commerce\records\Subscription as SubscriptionRecord;
 use CraftCms\Cms\Element\ElementCollection;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\Element\Queries\Exceptions\ElementNotFoundException;
@@ -30,6 +29,7 @@ use CraftCms\Commerce\Subscription\Events\CreateSubscriptionEvent;
 use CraftCms\Commerce\Subscription\Events\SubscriptionEvent;
 use CraftCms\Commerce\Subscription\Events\SubscriptionPaymentEvent;
 use CraftCms\Commerce\Subscription\Events\SubscriptionSwitchPlansEvent;
+use CraftCms\Commerce\Subscription\Records\Subscription as SubscriptionRecord;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;
 use Throwable;
@@ -167,7 +167,7 @@ class Subscriptions
      */
     public function getSubscriptionCountByPlanId(int $planId): int
     {
-        return SubscriptionRecord::find()->where(['planId' => $planId])->count();
+        return SubscriptionRecord::where('planId', $planId)->count();
     }
 
     /**
@@ -175,7 +175,7 @@ class Subscriptions
      */
     public function doesUserHaveSubscriptions(int $userId): bool
     {
-        return (bool)SubscriptionRecord::find()->where(['userId' => $userId])->count();
+        return SubscriptionRecord::where('userId', $userId)->exists();
     }
 
     /**

@@ -20,50 +20,50 @@ use yii\base\Exception;
 use yii\base\InvalidConfigException;
 
 /**
- * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Services\Subscriptions::class)` instead.
+ * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Subscription\Subscriptions::class)` instead.
  */
 class Subscriptions extends Component
 {
-    public const EVENT_AFTER_EXPIRE_SUBSCRIPTION = \CraftCms\Commerce\Services\Subscriptions::EVENT_AFTER_EXPIRE_SUBSCRIPTION;
+    public const EVENT_AFTER_EXPIRE_SUBSCRIPTION = \CraftCms\Commerce\Subscription\Subscriptions::EVENT_AFTER_EXPIRE_SUBSCRIPTION;
 
-    public const EVENT_BEFORE_CREATE_SUBSCRIPTION = \CraftCms\Commerce\Services\Subscriptions::EVENT_BEFORE_CREATE_SUBSCRIPTION;
+    public const EVENT_BEFORE_CREATE_SUBSCRIPTION = \CraftCms\Commerce\Subscription\Subscriptions::EVENT_BEFORE_CREATE_SUBSCRIPTION;
 
-    public const EVENT_AFTER_CREATE_SUBSCRIPTION = \CraftCms\Commerce\Services\Subscriptions::EVENT_AFTER_CREATE_SUBSCRIPTION;
+    public const EVENT_AFTER_CREATE_SUBSCRIPTION = \CraftCms\Commerce\Subscription\Subscriptions::EVENT_AFTER_CREATE_SUBSCRIPTION;
 
-    public const EVENT_BEFORE_REACTIVATE_SUBSCRIPTION = \CraftCms\Commerce\Services\Subscriptions::EVENT_BEFORE_REACTIVATE_SUBSCRIPTION;
+    public const EVENT_BEFORE_REACTIVATE_SUBSCRIPTION = \CraftCms\Commerce\Subscription\Subscriptions::EVENT_BEFORE_REACTIVATE_SUBSCRIPTION;
 
-    public const EVENT_AFTER_REACTIVATE_SUBSCRIPTION = \CraftCms\Commerce\Services\Subscriptions::EVENT_AFTER_REACTIVATE_SUBSCRIPTION;
+    public const EVENT_AFTER_REACTIVATE_SUBSCRIPTION = \CraftCms\Commerce\Subscription\Subscriptions::EVENT_AFTER_REACTIVATE_SUBSCRIPTION;
 
-    public const EVENT_BEFORE_SWITCH_SUBSCRIPTION_PLAN = \CraftCms\Commerce\Services\Subscriptions::EVENT_BEFORE_SWITCH_SUBSCRIPTION_PLAN;
+    public const EVENT_BEFORE_SWITCH_SUBSCRIPTION_PLAN = \CraftCms\Commerce\Subscription\Subscriptions::EVENT_BEFORE_SWITCH_SUBSCRIPTION_PLAN;
 
-    public const EVENT_AFTER_SWITCH_SUBSCRIPTION_PLAN = \CraftCms\Commerce\Services\Subscriptions::EVENT_AFTER_SWITCH_SUBSCRIPTION_PLAN;
+    public const EVENT_AFTER_SWITCH_SUBSCRIPTION_PLAN = \CraftCms\Commerce\Subscription\Subscriptions::EVENT_AFTER_SWITCH_SUBSCRIPTION_PLAN;
 
-    public const EVENT_BEFORE_CANCEL_SUBSCRIPTION = \CraftCms\Commerce\Services\Subscriptions::EVENT_BEFORE_CANCEL_SUBSCRIPTION;
+    public const EVENT_BEFORE_CANCEL_SUBSCRIPTION = \CraftCms\Commerce\Subscription\Subscriptions::EVENT_BEFORE_CANCEL_SUBSCRIPTION;
 
-    public const EVENT_AFTER_CANCEL_SUBSCRIPTION = \CraftCms\Commerce\Services\Subscriptions::EVENT_AFTER_CANCEL_SUBSCRIPTION;
+    public const EVENT_AFTER_CANCEL_SUBSCRIPTION = \CraftCms\Commerce\Subscription\Subscriptions::EVENT_AFTER_CANCEL_SUBSCRIPTION;
 
-    public const EVENT_BEFORE_UPDATE_SUBSCRIPTION = \CraftCms\Commerce\Services\Subscriptions::EVENT_BEFORE_UPDATE_SUBSCRIPTION;
+    public const EVENT_BEFORE_UPDATE_SUBSCRIPTION = \CraftCms\Commerce\Subscription\Subscriptions::EVENT_BEFORE_UPDATE_SUBSCRIPTION;
 
-    public const EVENT_RECEIVE_SUBSCRIPTION_PAYMENT = \CraftCms\Commerce\Services\Subscriptions::EVENT_RECEIVE_SUBSCRIPTION_PAYMENT;
+    public const EVENT_RECEIVE_SUBSCRIPTION_PAYMENT = \CraftCms\Commerce\Subscription\Subscriptions::EVENT_RECEIVE_SUBSCRIPTION_PAYMENT;
 
-    public const CONFIG_FIELDLAYOUT_KEY = \CraftCms\Commerce\Services\Subscriptions::CONFIG_FIELDLAYOUT_KEY;
+    public const CONFIG_FIELDLAYOUT_KEY = \CraftCms\Commerce\Subscription\Subscriptions::CONFIG_FIELDLAYOUT_KEY;
 
     /**
      * @throws Exception
      */
     public function handleChangedFieldLayout(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Services\Subscriptions::class)->handleChangedFieldLayout($event);
+        app(\CraftCms\Commerce\Subscription\Subscriptions::class)->handleChangedFieldLayout($event);
     }
 
     public function handleDeletedFieldLayout(): void
     {
-        app(\CraftCms\Commerce\Services\Subscriptions::class)->handleDeletedFieldLayout();
+        app(\CraftCms\Commerce\Subscription\Subscriptions::class)->handleDeletedFieldLayout();
     }
 
     public function beforeDeleteUserHandler(DefineElementDeletionBlockersEvent $event): void
     {
-        app(\CraftCms\Commerce\Services\Subscriptions::class)->beforeDeleteUserHandler($event);
+        app(\CraftCms\Commerce\Subscription\Subscriptions::class)->beforeDeleteUserHandler($event);
     }
 
     /**
@@ -73,17 +73,17 @@ class Subscriptions extends Component
      */
     public function expireSubscription(Subscription $subscription, ?DateTime $dateTime = null): bool
     {
-        return app(\CraftCms\Commerce\Services\Subscriptions::class)->expireSubscription($subscription, $dateTime);
+        return app(\CraftCms\Commerce\Subscription\Subscriptions::class)->expireSubscription($subscription, $dateTime);
     }
 
     public function getSubscriptionCountByPlanId(int $planId): int
     {
-        return app(\CraftCms\Commerce\Services\Subscriptions::class)->getSubscriptionCountByPlanId($planId);
+        return app(\CraftCms\Commerce\Subscription\Subscriptions::class)->getSubscriptionCountByPlanId($planId);
     }
 
     public function doesUserHaveSubscriptions(int $userId): bool
     {
-        return app(\CraftCms\Commerce\Services\Subscriptions::class)->doesUserHaveSubscriptions($userId);
+        return app(\CraftCms\Commerce\Subscription\Subscriptions::class)->doesUserHaveSubscriptions($userId);
     }
 
     /**
@@ -95,7 +95,7 @@ class Subscriptions extends Component
      */
     public function createSubscription(User $user, Plan $plan, SubscriptionForm $parameters, array $fieldValues = []): Subscription
     {
-        return app(\CraftCms\Commerce\Services\Subscriptions::class)->createSubscription($user, $plan, $parameters, $fieldValues);
+        return app(\CraftCms\Commerce\Subscription\Subscriptions::class)->createSubscription($user, $plan, $parameters, $fieldValues);
     }
 
     /**
@@ -106,7 +106,7 @@ class Subscriptions extends Component
      */
     public function reactivateSubscription(Subscription $subscription): bool
     {
-        return app(\CraftCms\Commerce\Services\Subscriptions::class)->reactivateSubscription($subscription);
+        return app(\CraftCms\Commerce\Subscription\Subscriptions::class)->reactivateSubscription($subscription);
     }
 
     /**
@@ -117,7 +117,7 @@ class Subscriptions extends Component
      */
     public function switchSubscriptionPlan(Subscription $subscription, Plan $plan, SwitchPlansForm $parameters): bool
     {
-        return app(\CraftCms\Commerce\Services\Subscriptions::class)->switchSubscriptionPlan($subscription, $plan, $parameters);
+        return app(\CraftCms\Commerce\Subscription\Subscriptions::class)->switchSubscriptionPlan($subscription, $plan, $parameters);
     }
 
     /**
@@ -126,7 +126,7 @@ class Subscriptions extends Component
      */
     public function cancelSubscription(Subscription $subscription, CancelSubscriptionForm $parameters): bool
     {
-        return app(\CraftCms\Commerce\Services\Subscriptions::class)->cancelSubscription($subscription, $parameters);
+        return app(\CraftCms\Commerce\Subscription\Subscriptions::class)->cancelSubscription($subscription, $parameters);
     }
 
     /**
@@ -136,7 +136,7 @@ class Subscriptions extends Component
      */
     public function updateSubscription(Subscription $subscription): bool
     {
-        return app(\CraftCms\Commerce\Services\Subscriptions::class)->updateSubscription($subscription);
+        return app(\CraftCms\Commerce\Subscription\Subscriptions::class)->updateSubscription($subscription);
     }
 
     /**
@@ -146,6 +146,6 @@ class Subscriptions extends Component
      */
     public function receivePayment(Subscription $subscription, SubscriptionPayment $payment, DateTime $paidUntil): bool
     {
-        return app(\CraftCms\Commerce\Services\Subscriptions::class)->receivePayment($subscription, $payment, $paidUntil);
+        return app(\CraftCms\Commerce\Subscription\Subscriptions::class)->receivePayment($subscription, $payment, $paidUntil);
     }
 }

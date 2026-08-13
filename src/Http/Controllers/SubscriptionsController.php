@@ -9,7 +9,7 @@ use craft\commerce\elements\Subscription;
 use craft\commerce\errors\SubscriptionException;
 use craft\commerce\helpers\PaymentForm;
 use craft\commerce\Plugin;
-use craft\commerce\records\Subscription as SubscriptionRecord;
+use CraftCms\Commerce\Subscription\Records\Subscription as SubscriptionRecord;
 use craft\commerce\stripe\gateways\PaymentIntents;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use CraftCms\Cms\Element\Validation\ElementRules;
@@ -198,7 +198,7 @@ readonly class SubscriptionsController
 
         if ($subscription && $returnUrl) {
             $returnUrl = renderSandboxedObjectTemplate($returnUrl, $subscription);
-            $subscriptionRecord = SubscriptionRecord::findOne($subscription->id);
+            $subscriptionRecord = SubscriptionRecord::find($subscription->id);
             $subscriptionRecord->returnUrl = $returnUrl;
             $subscriptionRecord->save();
             $subscription->returnUrl = $returnUrl;

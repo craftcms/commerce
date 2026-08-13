@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Subscription;
 
 use craft\commerce\base\Plan;
 use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\Plugin;
-use craft\commerce\records\Plan as PlanRecord;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Subscription\Events\PlanEvent;
+use CraftCms\Commerce\Subscription\Records\Plan as PlanRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -122,8 +122,7 @@ class Plans
     public function savePlan(Plan $plan, bool $runValidation = true): bool
     {
         if ($plan->id) {
-            /** @phpstan-ignore-next-line */
-            $record = PlanRecord::findOne($plan->id);
+            $record = PlanRecord::find($plan->id);
 
             if (!$record) {
                 throw new InvalidConfigException(t('No subscription plan exists with the ID "{id}"', ['id' => $plan->id], category: 'commerce'));
@@ -147,32 +146,20 @@ class Plans
             return false;
         }
 
-        /** @phpstan-ignore-next-line */
         $record->gatewayId = $plan->gatewayId;
-        /** @phpstan-ignore-next-line */
         $record->name = $plan->name;
-        /** @phpstan-ignore-next-line */
         $record->handle = $plan->handle;
-        /** @phpstan-ignore-next-line */
         $record->planInformationId = $plan->planInformationId;
-        /** @phpstan-ignore-next-line */
         $record->reference = $plan->reference;
-        /** @phpstan-ignore-next-line */
         $record->planData = $plan->planData;
-        /** @phpstan-ignore-next-line */
         $record->enabled = $plan->enabled;
-        /** @phpstan-ignore-next-line */
         $record->isArchived = $plan->isArchived;
-        /** @phpstan-ignore-next-line */
         $record->dateArchived = CraftDb::prepareDateForDb($plan->dateArchived);
-        /** @phpstan-ignore-next-line */
         $record->sortOrder = $plan->sortOrder ?? 99;
 
-        /** @phpstan-ignore-next-line */
-        $record->save(false);
+        $record->save();
 
         // Now that we have a record ID, save it on the model
-        /** @phpstan-ignore-next-line */
         $plan->id = $record->id;
 
         // Raise 'afterSavePlan' event
