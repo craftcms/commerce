@@ -1,5 +1,13 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 12e: Chart Widgets
+
+Fifth slice of Stage 12 — `TotalOrders`, `TotalOrdersByCountry`, `TotalRevenue` (stat + widget pairs), the three chart-bearing widgets. Per the plan's agreed approach, chart rendering keeps the existing server-side Chart.js pipeline (data embedded into the Twig response, same frozen-legacy `StatWidgetsAsset`/`ChartJsAsset` JS) rather than adopting cms-6 core's newer AJAX+D3 pattern.
+
+- Stats moved to `Stats\{TotalOrders,TotalOrdersByCountry,TotalRevenue}`. `TotalOrders`' plain `COUNT(orders.id)` scalar simplifies to `createStatQuery()->count()` (equivalent since `orders.id` is never null across the query's inner join). `TotalOrdersByCountry`'s "other countries" negation query (only reached once the top-N result set is full) converts to `whereNotIn()`. `TotalRevenue` interpolates `$this->type` (`total` or `totalPaid`) directly into a `SUM(...)` column name — validated against a hardcoded allow-list immediately before use, same safety property preserved from the original.
+- Widgets moved to `Dashboard\Widgets\{TotalOrders,TotalOrdersByCountry,TotalRevenue}`. `TotalOrders`' "Show Chart?" and `TotalRevenue`'s "Show Order Count?" boolean settings — missed in the initial pass over `getBodyHtml()`/`getSettingsHtml()` alone, only caught by reading the actual settings Twig template — use the new Form system's `Lightswitch` control, confirmed to have the same `make()`/`value()` fluent API as `Choice`/`Number`. `TotalRevenue::defineRules()` (the one widget in this whole stage with custom Yii validation) becomes `getRules()` returning a Laravel validation array (`Rule::in([...])`) directly, matching the `ConfigurableComponent` contract's expectations — no `parent::getRules()` merge needed, matching the real `RecentEntries::getRules()` reference pattern.
+- **Verification**: live via `craft exec:exec` — confirmed all 6 legacy aliases resolve, ran all 3 stats' `get()` (including `TotalOrdersByCountry` for both `shipping`/`billing` types and `TotalRevenue` for both `total`/`totalPaid` plus an invalid-type input confirming the allow-list fallback), and exercised every widget's full metadata/`settingsForm()`/`getBodyHtml()` pipeline — including `TotalOrders` with `showChart` both on and off, since that flag branches its `getTitle()`/`getSubtitle()`/`getBodyHtml()` output.
+
 ### Laravel Migration — Stage 12d: TopProducts
 
 Fourth slice of Stage 12 — `TopProducts` (stat + widget), the most complex pair: a correlated subquery for per-product tax/discount/shipping adjustment totals, a dynamically-built revenue expression driven by a `revenueOptions` checkbox-group setting, and DB-engine-conditional `IFNULL`/`COALESCE`.

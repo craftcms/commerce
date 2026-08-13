@@ -1,45 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\stats;
 
-use craft\commerce\base\Stat;
-use yii\db\Expression;
+/** @deprecated use {@see \CraftCms\Commerce\Stats\TotalOrders} */
+class_alias(\CraftCms\Commerce\Stats\TotalOrders::class, 'craft\commerce\stats\TotalOrders');
 
-/**
- * Total Orders Stat
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.0
- */
-class TotalOrders extends Stat
-{
-    /**
-     * @inheritdoc
-     */
-    protected string $_handle = 'totalOrders';
-
-    /**
-     * @inheritDoc
-     */
-    public function getData(): array
-    {
-        $query = $this->_createStatQuery();
-        $query->select([new Expression('COUNT([[orders.id]]) as total')]);
-
-        $chartData = $this->_createChartQuery([
-            new Expression('COUNT([[orders.id]]) as total'),
-        ], [
-            'total' => 0,
-        ]);
-
-        return [
-            'total' => $query->scalar(),
-            'chart' => $chartData,
-        ];
-    }
+/** @phpstan-ignore-next-line */
+if (false) {
+    class TotalOrders extends \CraftCms\Commerce\Stats\TotalOrders {}
 }
