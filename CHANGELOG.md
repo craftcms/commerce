@@ -1,8 +1,11 @@
 # Release Notes for Craft Commerce
 
-## 4.12.1 - 2026-08-12
+## Unreleased
 
 - Fixed a bug where inactive carts’ search index rows weren’t being purged. ([#4344](https://github.com/craftcms/commerce/issues/4344))
+
+## 4.12.1 - 2026-08-12
+
 - Fixed a bug where generating a PDF or cart-load URL from a console request returned a blank URL. ([#4343](https://github.com/craftcms/commerce/pull/4343))
 
 ## 4.12.0 - 2026-07-16
