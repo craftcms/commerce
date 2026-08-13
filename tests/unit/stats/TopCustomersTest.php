@@ -10,12 +10,12 @@ namespace craftcommercetests\unit\stats;
 use Codeception\Test\Unit;
 use Craft;
 use craft\commerce\Plugin;
-use craft\commerce\stats\TopCustomers;
 use craft\elements\User;
 use craftcommercetests\fixtures\OrdersFixture;
 use DateTime;
 use DateTimeZone;
 use Exception;
+use CraftCms\Commerce\Stats\TopCustomers;
 use UnitTester;
 
 /**

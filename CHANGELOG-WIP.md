@@ -1,5 +1,13 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 12c: Table Widgets
+
+Third slice of Stage 12 — `TopCustomers`, `TopProductTypes`, `TopPurchasables` (stat + widget pairs), each with a `type` setting toggling between two sort/aggregate modes and rendering their body via the legacy `AdminTableAsset`-based table (kept as-is).
+
+- Stats moved to `Stats\{TopCustomers,TopProductTypes,TopPurchasables}`, converting their multi-table joins (`li`/`p`/`v`/`pr`/`pt`, plus `users`/`elements_sites` for `TopCustomers`/`TopProductTypes` respectively) to Laravel's query builder. `TopProductTypes`' conditional join (`elements_sites` joined on a column comparison AND a bound-value site-ID filter) uses a join-closure (`leftJoin($table, function($join) {...})`) — this migration's first use of that pattern, needed because Laravel's simple 3-arg `join()` only supports a single column-to-column comparison.
+- Widgets moved to `Dashboard\Widgets\{TopCustomers,TopProductTypes,TopPurchasables}`, each adding a `type` `Choice` field (and `TopPurchasables` a second `nameField` choice) on top of `statSettingsFields()`.
+- **Verification gap, documented rather than silently skipped**: `TopProductTypes`/`TopPurchasables` both call `Catalog\ProductType\ProductTypes::getViewableProductTypeIds()`, which does `request()->craftUser()->can(...)` with no null-guard — fatal in this unauthenticated console (`craft exec:exec`) context, since real CP usage always has a logged-in user (confirmed as pre-existing and unrelated to Stage 12 — it's Stage 7e code, not touched here). Attempted a quick, bounded `Auth::loginUsingId()` workaround for verification purposes; it didn't hang (good) but failed on an underlying Eloquent-model/ID mismatch, not worth pursuing further. Verified everything else live (class aliases, both stats' `getHandle()`, all widget metadata methods, `settingsForm()` for all three, `TopCustomers`' full `getData()` including its real `users` join) and confirmed the two blocked queries' structure via careful manual comparison against the original — both share the exact same `createStatQuery()` foundation already proven correct by `TopCustomers`' live join execution.
+
 ### Laravel Migration — Stage 12b: Simple Number Widgets
 
 Second slice of Stage 12 — `AverageOrderTotal`, `NewCustomers`, `RepeatCustomers` (stat + widget pairs), the simplest shape (single/double aggregate query, no charts, no extra `type` setting) — establishes the settings-form pattern every later widget in this stage reuses.
