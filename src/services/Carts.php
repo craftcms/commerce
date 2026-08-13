@@ -432,16 +432,16 @@ class Carts extends Component
             ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => Db::prepareDateForDb($edge)])
             ->from(['orders' => Table::ORDERS]);
 
+        // The searchindex table is probably MyISAM, though
+        Craft::$app->getDb()->createCommand()
+            ->delete('{{%searchindex}}', ['elementId' => $cartIdsQuery])
+            ->execute();
+
         // Taken from craft\services\Elements::deleteElement(); Using the method directly
         // takes too many resources since it retrieves the order before deleting it.
         // Delete the elements table rows, which will cascade across all other InnoDB tables
         Craft::$app->getDb()->createCommand()
             ->delete('{{%elements}}', ['id' => $cartIdsQuery])
-            ->execute();
-
-        // The searchindex table is probably MyISAM, though
-        Craft::$app->getDb()->createCommand()
-            ->delete('{{%searchindex}}', ['elementId' => $cartIdsQuery])
             ->execute();
 
         return $cartIdsQuery->count();
