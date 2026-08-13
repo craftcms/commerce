@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order;
 
-use craft\commerce\adjusters\Discount;
-use craft\commerce\adjusters\Shipping;
 use craft\commerce\elements\Order;
+use CraftCms\Commerce\Order\Adjuster\Discount;
+use CraftCms\Commerce\Order\Adjuster\Shipping;
 use craft\commerce\errors\OrderAdjustmentNotFoundException;
 use craft\commerce\Plugin;
 use craft\events\RegisterComponentTypesEvent;

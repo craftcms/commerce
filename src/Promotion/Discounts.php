@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Promotion;
 
-use craft\commerce\adjusters\Discount as DiscountAdjuster;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
@@ -14,6 +13,7 @@ use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Order\Adjuster\Discount as DiscountAdjuster;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 use CraftCms\Commerce\Order\Models\OrderNotice;
 use CraftCms\Commerce\Promotion\Events\DiscountEvent;
@@ -841,8 +841,6 @@ class Discounts
      */
     public function orderCompleteHandler(Order $order): void
     {
-        // TODO: update DiscountAdjuster::ADJUSTMENT_TYPE reference when migrated
-        /** @phpstan-ignore-next-line */
         $discountAdjustments = $order->getAdjustmentsByType(DiscountAdjuster::ADJUSTMENT_TYPE);
 
         if (empty($discountAdjustments)) {

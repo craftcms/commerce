@@ -8,7 +8,6 @@
 namespace craftcommercetests\unit\adjusters;
 
 use Codeception\Test\Unit;
-use craft\commerce\adjusters\Discount;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Discount as DiscountModel;
@@ -17,6 +16,7 @@ use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
 use craft\commerce\services\Discounts;
 use craft\helpers\ArrayHelper;
+use CraftCms\Commerce\Order\Adjuster\Discount;
 
 /**
  * DiscountTest

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Tax\Engines;
 
 use CraftCms\Cms\Component\Component;
+use CraftCms\Commerce\Order\Adjuster\Tax as TaxAdjuster;
 use CraftCms\Commerce\Tax\Contracts\TaxEngineInterface;
 
 class Tax extends Component implements TaxEngineInterface
@@ -18,7 +19,7 @@ class Tax extends Component implements TaxEngineInterface
     #[\Override]
     public function taxAdjusterClass(): string
     {
-        return \craft\commerce\adjusters\Tax::class;
+        return TaxAdjuster::class;
     }
 
     #[\Override]

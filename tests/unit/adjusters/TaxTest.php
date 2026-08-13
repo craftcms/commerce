@@ -9,7 +9,6 @@ namespace craftcommercetests\unit\adjusters;
 
 use Codeception\Test\Unit;
 use Craft;
-use craft\commerce\adjusters\Tax;
 use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
@@ -21,6 +20,7 @@ use craft\elements\Address;
 use craft\elements\conditions\addresses\CountryConditionRule;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
+use CraftCms\Commerce\Order\Adjuster\Tax;
 
 /**
  * CartTest
