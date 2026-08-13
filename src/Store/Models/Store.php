@@ -11,7 +11,7 @@ use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Support\Env;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Database\Table;
-use CraftCms\Commerce\Services\InventoryLocations;
+use CraftCms\Commerce\Inventory\InventoryLocations;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Money\Currency as MoneyCurrency;

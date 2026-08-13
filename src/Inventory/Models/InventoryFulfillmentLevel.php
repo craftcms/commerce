@@ -8,8 +8,8 @@ use CraftCms\Cms\Component\Component;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
-use CraftCms\Commerce\Services\Inventory;
-use CraftCms\Commerce\Services\InventoryLocations;
+use CraftCms\Commerce\Inventory\Inventory;
+use CraftCms\Commerce\Inventory\InventoryLocations;
 use CraftCms\Commerce\Services\LineItems;
 
 class InventoryFulfillmentLevel extends Component

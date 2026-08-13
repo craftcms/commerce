@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Inventory;
 
 use craft\commerce\base\Purchasable;
 use craft\commerce\collections\InventoryMovementCollection;
@@ -15,7 +15,6 @@ use craft\commerce\models\inventory\InventoryManualMovement;
 use craft\commerce\models\inventory\UpdateInventoryLevel;
 use craft\commerce\models\inventory\UpdateInventoryLevelInTransfer;
 use craft\commerce\Plugin;
-use craft\commerce\records\InventoryItem as InventoryItemRecord;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Commerce\Database\Table;
@@ -27,6 +26,7 @@ use CraftCms\Commerce\Inventory\Models\InventoryItem;
 use CraftCms\Commerce\Inventory\Models\InventoryLevel;
 use CraftCms\Commerce\Inventory\Models\InventoryLocation;
 use CraftCms\Commerce\Inventory\Models\InventoryTransaction;
+use CraftCms\Commerce\Inventory\Records\InventoryItem as InventoryItemRecord;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Order\Models\OrderNotice;
@@ -114,10 +114,7 @@ class Inventory
             return null;
         }
 
-        /** @var InventoryItemRecord|null $record */
-        $record = InventoryItemRecord::find()
-            ->where(['purchasableId' => $canonicalId])
-            ->one();
+        $record = InventoryItemRecord::where('purchasableId', $canonicalId)->first();
 
         if (!$record) {
             $record = new InventoryItemRecord();
@@ -180,10 +177,7 @@ class Inventory
 
     public function saveInventoryItem(InventoryItem $inventoryItem): bool
     {
-        /** @var ?InventoryItemRecord $inventoryItemRecord */
-        $inventoryItemRecord = InventoryItemRecord::find()
-            ->where(['id' => $inventoryItem->id])
-            ->one();
+        $inventoryItemRecord = InventoryItemRecord::find($inventoryItem->id);
 
         if ($inventoryItemRecord === null) {
             throw new RuntimeException('No inventory item exists with the ID “' . $inventoryItem->id . '”');

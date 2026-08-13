@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Purchasable\Elements;
 
 use craft\commerce\Plugin;
-use craft\commerce\records\InventoryItem as InventoryItemRecord;
+use CraftCms\Commerce\Inventory\Records\InventoryItem as InventoryItemRecord;
 use craft\commerce\records\Purchasable as PurchasableRecord;
 use craft\commerce\records\PurchasableStore;
 use CraftCms\Cms\Element\Contracts\NestedElementInterface;
@@ -32,7 +32,7 @@ use CraftCms\Commerce\Purchasable\Validation\PurchasableRules;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\Payment\Currencies;
-use CraftCms\Commerce\Services\Inventory;
+use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Services\Purchasables;
 use CraftCms\Commerce\Promotion\Sales;
 use CraftCms\Commerce\Shipping\ShippingCategories;
@@ -851,8 +851,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                 // When applying a draft to its canonical, hand the source's inventory
                 // item over so any stock movements made on the draft persist.
                 if ($isOwnerDraftApplying && $this->duplicateOf !== null) {
-                    /** @var InventoryItemRecord|null $inventoryItem */
-                    $inventoryItem = InventoryItemRecord::find()->where(['purchasableId' => $this->duplicateOf->id])->one();
+                    $inventoryItem = InventoryItemRecord::where('purchasableId', $this->duplicateOf->id)->first();
                     if ($inventoryItem && $inventoryItem->purchasableId != $canonicalPurchasableId) {
                         $inventoryItem->purchasableId = $canonicalPurchasableId;
                         if (!$inventoryItem->save()) {

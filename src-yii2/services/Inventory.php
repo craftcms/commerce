@@ -6,7 +6,6 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\collections\UpdateInventoryLevelCollection;
 use craft\commerce\elements\Order;
-use craft\commerce\records\InventoryItem as InventoryItemRecord;
 use CraftCms\Commerce\Inventory\Models\InventoryFulfillmentLevel;
 use CraftCms\Commerce\Inventory\Models\InventoryItem;
 use CraftCms\Commerce\Inventory\Models\InventoryLevel;
@@ -17,7 +16,7 @@ use Illuminate\Support\Collection;
 use yii\base\Component;
 
 /**
- * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Services\Inventory::class)` instead.
+ * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Inventory\Inventory::class)` instead.
  */
 class Inventory extends Component
 {
@@ -36,22 +35,22 @@ class Inventory extends Component
      */
     public function getInventoryLevelsForPurchasable(Purchasable|NewPurchasable $purchasable): Collection
     {
-        return app(\CraftCms\Commerce\Services\Inventory::class)->getInventoryLevelsForPurchasable($purchasable);
+        return app(\CraftCms\Commerce\Inventory\Inventory::class)->getInventoryLevelsForPurchasable($purchasable);
     }
 
     public function getInventoryItemByPurchasable(Purchasable|NewPurchasable $purchasable): InventoryItem
     {
-        return app(\CraftCms\Commerce\Services\Inventory::class)->getInventoryItemByPurchasable($purchasable);
+        return app(\CraftCms\Commerce\Inventory\Inventory::class)->getInventoryItemByPurchasable($purchasable);
     }
 
     public function ensureInventoryItemRecord(Purchasable|NewPurchasable $purchasable): ?InventoryItemRecord
     {
-        return app(\CraftCms\Commerce\Services\Inventory::class)->ensureInventoryItemRecord($purchasable);
+        return app(\CraftCms\Commerce\Inventory\Inventory::class)->ensureInventoryItemRecord($purchasable);
     }
 
     public function getInventoryItemById(int $id): InventoryItem
     {
-        return app(\CraftCms\Commerce\Services\Inventory::class)->getInventoryItemById($id);
+        return app(\CraftCms\Commerce\Inventory\Inventory::class)->getInventoryItemById($id);
     }
 
     /**
@@ -60,17 +59,17 @@ class Inventory extends Component
      */
     public function getInventoryItemsByIds(array $ids): Collection
     {
-        return app(\CraftCms\Commerce\Services\Inventory::class)->getInventoryItemsByIds($ids);
+        return app(\CraftCms\Commerce\Inventory\Inventory::class)->getInventoryItemsByIds($ids);
     }
 
     public function getInventoryLevel(InventoryItem|int $inventoryItem, InventoryLocation|int $inventoryLocation, bool $withTrashed = false): ?InventoryLevel
     {
-        return app(\CraftCms\Commerce\Services\Inventory::class)->getInventoryLevel($inventoryItem, $inventoryLocation, $withTrashed);
+        return app(\CraftCms\Commerce\Inventory\Inventory::class)->getInventoryLevel($inventoryItem, $inventoryLocation, $withTrashed);
     }
 
     public function saveInventoryItem(InventoryItem $inventoryItem, bool $validate = true): bool
     {
-        return app(\CraftCms\Commerce\Services\Inventory::class)->saveInventoryItem($inventoryItem);
+        return app(\CraftCms\Commerce\Inventory\Inventory::class)->saveInventoryItem($inventoryItem);
     }
 
     /**
@@ -78,22 +77,22 @@ class Inventory extends Component
      */
     public function getInventoryLocationLevels(InventoryLocation $inventoryLocation, bool $withTrashed = false): Collection
     {
-        return app(\CraftCms\Commerce\Services\Inventory::class)->getInventoryLocationLevels($inventoryLocation, $withTrashed);
+        return app(\CraftCms\Commerce\Inventory\Inventory::class)->getInventoryLocationLevels($inventoryLocation, $withTrashed);
     }
 
     public function getInventoryLevelQuery(?int $limit = null, ?int $offset = null, bool $withTrashed = false): \Illuminate\Database\Query\Builder
     {
-        return app(\CraftCms\Commerce\Services\Inventory::class)->getInventoryLevelQuery($limit, $offset, $withTrashed);
+        return app(\CraftCms\Commerce\Inventory\Inventory::class)->getInventoryLevelQuery($limit, $offset, $withTrashed);
     }
 
     public function getInventoryItemQuery(): \Illuminate\Database\Query\Builder
     {
-        return app(\CraftCms\Commerce\Services\Inventory::class)->getInventoryItemQuery();
+        return app(\CraftCms\Commerce\Inventory\Inventory::class)->getInventoryItemQuery();
     }
 
     public function executeUpdateInventoryLevels(UpdateInventoryLevelCollection $updateInventoryLevels): bool
     {
-        return app(\CraftCms\Commerce\Services\Inventory::class)->executeUpdateInventoryLevels($updateInventoryLevels);
+        return app(\CraftCms\Commerce\Inventory\Inventory::class)->executeUpdateInventoryLevels($updateInventoryLevels);
     }
 
     /**
@@ -101,7 +100,7 @@ class Inventory extends Component
      */
     public function updateInventoryLevel(int $inventoryItemId, int $quantity, array $updateInventoryLevelAttributes = []): void
     {
-        app(\CraftCms\Commerce\Services\Inventory::class)->updateInventoryLevel($inventoryItemId, $quantity, $updateInventoryLevelAttributes);
+        app(\CraftCms\Commerce\Inventory\Inventory::class)->updateInventoryLevel($inventoryItemId, $quantity, $updateInventoryLevelAttributes);
     }
 
     /**
@@ -109,27 +108,27 @@ class Inventory extends Component
      */
     public function updatePurchasableInventoryLevel(Purchasable|NewPurchasable $purchasable, int $quantity, array $updateInventoryLevelAttributes = []): void
     {
-        app(\CraftCms\Commerce\Services\Inventory::class)->updatePurchasableInventoryLevel($purchasable, $quantity, $updateInventoryLevelAttributes);
+        app(\CraftCms\Commerce\Inventory\Inventory::class)->updatePurchasableInventoryLevel($purchasable, $quantity, $updateInventoryLevelAttributes);
     }
 
     public function executeInventoryMovements(InventoryMovementCollection $inventoryMovements): bool
     {
-        return app(\CraftCms\Commerce\Services\Inventory::class)->executeInventoryMovements($inventoryMovements);
+        return app(\CraftCms\Commerce\Inventory\Inventory::class)->executeInventoryMovements($inventoryMovements);
     }
 
     public function getMovementHash(): string
     {
-        return app(\CraftCms\Commerce\Services\Inventory::class)->getMovementHash();
+        return app(\CraftCms\Commerce\Inventory\Inventory::class)->getMovementHash();
     }
 
     public function getUnfulfilledOrders(InventoryItem|int $inventoryItem, InventoryLocation|int $inventoryLocation): array
     {
-        return app(\CraftCms\Commerce\Services\Inventory::class)->getUnfulfilledOrders($inventoryItem, $inventoryLocation);
+        return app(\CraftCms\Commerce\Inventory\Inventory::class)->getUnfulfilledOrders($inventoryItem, $inventoryLocation);
     }
 
     public function getTransactionQuery(): \Illuminate\Database\Query\Builder
     {
-        return app(\CraftCms\Commerce\Services\Inventory::class)->getTransactionQuery();
+        return app(\CraftCms\Commerce\Inventory\Inventory::class)->getTransactionQuery();
     }
 
     /**
@@ -137,7 +136,7 @@ class Inventory extends Component
      */
     public function getInventoryTransactions(InventoryItem $inventoryItem, InventoryLocation $inventoryLocation): Collection
     {
-        return app(\CraftCms\Commerce\Services\Inventory::class)->getInventoryTransactions($inventoryItem, $inventoryLocation);
+        return app(\CraftCms\Commerce\Inventory\Inventory::class)->getInventoryTransactions($inventoryItem, $inventoryLocation);
     }
 
     /**
@@ -145,11 +144,11 @@ class Inventory extends Component
      */
     public function getInventoryFulfillmentLevels(Order $order): Collection
     {
-        return app(\CraftCms\Commerce\Services\Inventory::class)->getInventoryFulfillmentLevels($order);
+        return app(\CraftCms\Commerce\Inventory\Inventory::class)->getInventoryFulfillmentLevels($order);
     }
 
     public function orderCompleteHandler(Order $order): void
     {
-        app(\CraftCms\Commerce\Services\Inventory::class)->orderCompleteHandler($order);
+        app(\CraftCms\Commerce\Inventory\Inventory::class)->orderCompleteHandler($order);
     }
 }

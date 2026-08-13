@@ -1,5 +1,15 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 10f: Service Namespace & Record Cleanup (Inventory cluster)
+
+Sixth slice of Stage 10: `Services\{Inventory,InventoryLocations}` → `Inventory\*`.
+
+- Replaced `craft\commerce\records\InventoryItem` (no soft-delete) and `craft\commerce\records\InventoryLocation` (soft-deletes via `dateDeleted`) with new Eloquent models under `Inventory\Records\*`; `InventoryLocation` uses `SoftDeletes`.
+- `InventoryItemRecord` had a second real consumer outside the service itself: `Purchasable\Elements\Purchasable`'s draft-apply logic (transferring an inventory item from a draft's duplicate-of source to the canonical element) — repointed to the new Eloquent class.
+- Found and removed another dead unused import while relocating (same shape as Stage 10a/10c): the legacy `src-yii2/services/Inventory.php` wrapper imported `craft\commerce\records\InventoryItem` but only ever used the *business* `Inventory\Models\InventoryItem` class (imported separately, same short name) in its type hints — the record import was never actually referenced.
+- `craft\commerce\records\InventoryItem` is now fully unreferenced and deleted. `craft\commerce\records\InventoryLocation` is kept — `src-yii2/migrations/Install.php` constructs one directly to seed the default inventory location on install, the same "frozen migration, not a fixture" reason as Stage 10e's `CatalogPricingRule`/`CatalogPricingQueue`.
+- **Verification**: live via `craft exec:exec` — listed inventory locations and fetched an inventory item row, then round-tripped a full inventory-location create (with a real saved `Address` element) → soft-delete → confirm-excluded-from-`find()` cycle through the new Eloquent model.
+
 ### Laravel Migration — Stage 10e: Service Namespace & Record Cleanup (CatalogPricing cluster)
 
 Fifth slice of Stage 10: `Services\{CatalogPricing,CatalogPricingRules}` → `CatalogPricing\*`.

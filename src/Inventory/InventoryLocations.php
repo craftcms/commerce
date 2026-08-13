@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Inventory;
 
 use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\models\inventory\InventoryLocationDeactivatedMovement;
 use craft\commerce\Plugin;
-use craft\commerce\records\InventoryLocation as InventoryLocationRecord;
 use craft\events\AuthorizationCheckEvent;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Commerce\Database\Table;
@@ -15,6 +14,7 @@ use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
 use CraftCms\Commerce\Inventory\Models\DeactivateInventoryLocation;
 use CraftCms\Commerce\Inventory\Models\InventoryLevel;
 use CraftCms\Commerce\Inventory\Models\InventoryLocation;
+use CraftCms\Commerce\Inventory\Records\InventoryLocation as InventoryLocationRecord;
 use CraftCms\Commerce\Store\Models\Store;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
@@ -111,8 +111,7 @@ class InventoryLocations
         DB::beginTransaction();
 
         try {
-            /** @phpstan-ignore-next-line */
-            $inventoryLocationRecord = InventoryLocationRecord::findOne($deactivateInventoryLocation->inventoryLocation->id);
+            $inventoryLocationRecord = InventoryLocationRecord::find($deactivateInventoryLocation->inventoryLocation->id);
 
             // TODO: Add draft purchase order swapping
 
@@ -143,8 +142,7 @@ class InventoryLocations
             }
 
             // Finally soft delete it now that it's all migrated
-            /** @phpstan-ignore-next-line */
-            $inventoryLocationRecord->softDelete();
+            $inventoryLocationRecord->delete();
 
             DB::commit();
 
@@ -174,10 +172,7 @@ class InventoryLocations
         DB::beginTransaction();
 
         try {
-            /** @phpstan-ignore-next-line */
-            $locationRecord = InventoryLocationRecord::find()
-                ->where(['id' => $inventoryLocation->id])
-                ->one();
+            $locationRecord = InventoryLocationRecord::find($inventoryLocation->id);
 
             if ($locationRecord === null) {
                 $locationRecord = new InventoryLocationRecord();
@@ -187,7 +182,7 @@ class InventoryLocations
             $locationRecord->handle = $inventoryLocation->handle;
             $locationRecord->addressId = $inventoryLocation->getAddress()->id;
 
-            $locationRecord->save(false);
+            $locationRecord->save();
 
             if ($isNewLocation) {
                 $inventoryLocation->id = $locationRecord->id;

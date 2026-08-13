@@ -10,7 +10,7 @@ use Illuminate\Support\Collection;
 use yii\base\Component;
 
 /**
- * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Services\InventoryLocations::class)` instead.
+ * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Inventory\InventoryLocations::class)` instead.
  */
 class InventoryLocations extends Component
 {
@@ -19,17 +19,17 @@ class InventoryLocations extends Component
      */
     public function getAllInventoryLocations(bool $withTrashed = false): Collection
     {
-        return app(\CraftCms\Commerce\Services\InventoryLocations::class)->getAllInventoryLocations($withTrashed);
+        return app(\CraftCms\Commerce\Inventory\InventoryLocations::class)->getAllInventoryLocations($withTrashed);
     }
 
     public function getAllInventoryLocationsAsList(bool $withTrashed = false): array
     {
-        return app(\CraftCms\Commerce\Services\InventoryLocations::class)->getAllInventoryLocationsAsList($withTrashed);
+        return app(\CraftCms\Commerce\Inventory\InventoryLocations::class)->getAllInventoryLocationsAsList($withTrashed);
     }
 
     public function getInventoryLocationById(int $id, bool $withTrashed = false): ?InventoryLocation
     {
-        return app(\CraftCms\Commerce\Services\InventoryLocations::class)->getInventoryLocationById($id, $withTrashed);
+        return app(\CraftCms\Commerce\Inventory\InventoryLocations::class)->getInventoryLocationById($id, $withTrashed);
     }
 
     /**
@@ -37,36 +37,36 @@ class InventoryLocations extends Component
      */
     public function getInventoryLocations(?int $storeId = null, bool $withTrashed = false): Collection
     {
-        return app(\CraftCms\Commerce\Services\InventoryLocations::class)->getInventoryLocations($storeId, $withTrashed);
+        return app(\CraftCms\Commerce\Inventory\InventoryLocations::class)->getInventoryLocations($storeId, $withTrashed);
     }
 
     public function saveStoreInventoryLocations(Store $store, array $inventoryLocationIds): bool
     {
-        return app(\CraftCms\Commerce\Services\InventoryLocations::class)->saveStoreInventoryLocations($store, $inventoryLocationIds);
+        return app(\CraftCms\Commerce\Inventory\InventoryLocations::class)->saveStoreInventoryLocations($store, $inventoryLocationIds);
     }
 
     public function executeDeactivateInventoryLocation(DeactivateInventoryLocation $deactivateInventoryLocation): bool
     {
-        return app(\CraftCms\Commerce\Services\InventoryLocations::class)->executeDeactivateInventoryLocation($deactivateInventoryLocation);
+        return app(\CraftCms\Commerce\Inventory\InventoryLocations::class)->executeDeactivateInventoryLocation($deactivateInventoryLocation);
     }
 
     public function getInventoryLocationByHandle(string $handle): ?InventoryLocation
     {
-        return app(\CraftCms\Commerce\Services\InventoryLocations::class)->getInventoryLocationByHandle($handle);
+        return app(\CraftCms\Commerce\Inventory\InventoryLocations::class)->getInventoryLocationByHandle($handle);
     }
 
     public function saveInventoryLocation(InventoryLocation $inventoryLocation, bool $runValidation = true): bool
     {
-        return app(\CraftCms\Commerce\Services\InventoryLocations::class)->saveInventoryLocation($inventoryLocation, $runValidation);
+        return app(\CraftCms\Commerce\Inventory\InventoryLocations::class)->saveInventoryLocation($inventoryLocation, $runValidation);
     }
 
     public function authorizeInventoryLocationAddressView(AuthorizationCheckEvent $event): void
     {
-        app(\CraftCms\Commerce\Services\InventoryLocations::class)->authorizeInventoryLocationAddressView($event);
+        app(\CraftCms\Commerce\Inventory\InventoryLocations::class)->authorizeInventoryLocationAddressView($event);
     }
 
     public function authorizeInventoryLocationAddressEdit(AuthorizationCheckEvent $event): void
     {
-        app(\CraftCms\Commerce\Services\InventoryLocations::class)->authorizeInventoryLocationAddressEdit($event);
+        app(\CraftCms\Commerce\Inventory\InventoryLocations::class)->authorizeInventoryLocationAddressEdit($event);
     }
 }

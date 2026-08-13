@@ -7,7 +7,7 @@ namespace CraftCms\Commerce\Transfer\Models;
 use craft\commerce\elements\Transfer;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Commerce\Inventory\Models\InventoryItem;
-use CraftCms\Commerce\Services\Inventory;
+use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Transfer\Enums\TransferStatusType;
 
 class TransferDetail extends Component

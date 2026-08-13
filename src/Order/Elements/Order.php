@@ -79,7 +79,7 @@ use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Services\Customers;
 use CraftCms\Commerce\Promotion\Discounts;
 use CraftCms\Commerce\Services\Gateways;
-use CraftCms\Commerce\Services\Inventory;
+use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Services\LineItems;
 use CraftCms\Commerce\Services\OrderAdjustments;
 use CraftCms\Commerce\Services\OrderHistories;

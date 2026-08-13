@@ -12,7 +12,7 @@ use CraftCms\Cms\Component\Contracts\CpEditable;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Database\Table;
-use CraftCms\Commerce\Services\InventoryLocations;
+use CraftCms\Commerce\Inventory\InventoryLocations;
 use DateTime;
 use Illuminate\Validation\Rule;
 use function CraftCms\Cms\t;
