@@ -133,7 +133,7 @@ class TotalOrdersByCountry extends Widget
     }
 
     #[\Override]
-    public function settingsForm(FormContext $context = new FormContext): ?Form
+    public function settingsForm(FormContext $context = new FormContext()): ?Form
     {
         \Craft::$app->getView()->registerAssetBundle(CommerceWidgetsAsset::class);
 

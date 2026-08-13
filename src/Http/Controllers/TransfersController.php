@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
-use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
 use craft\commerce\elements\Transfer;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\InventoryUpdateQuantityType;
@@ -22,6 +20,8 @@ use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
+use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 

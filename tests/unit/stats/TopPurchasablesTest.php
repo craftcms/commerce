@@ -13,11 +13,11 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
+use CraftCms\Commerce\Stats\TopPurchasables;
 use craftcommercetests\fixtures\OrdersFixture;
 use DateTime;
 use DateTimeZone;
 use Exception;
-use CraftCms\Commerce\Stats\TopPurchasables;
 use UnitTester;
 
 /**

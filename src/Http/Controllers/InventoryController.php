@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers;
 
 use craft\commerce\base\Purchasable;
-use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
-use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\InventoryUpdateQuantityType;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
@@ -28,6 +26,8 @@ use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
+use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 

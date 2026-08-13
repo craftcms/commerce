@@ -11,13 +11,13 @@ use Codeception\Test\Unit;
 use craft\commerce\models\ProductType;
 use craft\commerce\Plugin;
 use craft\elements\User;
+use CraftCms\Commerce\Stats\TopProducts;
+use CraftCms\Commerce\Stats\TopProductTypes;
 use craftcommercetests\fixtures\OrdersFixture;
 use DateTime;
 use DateTimeZone;
 use Exception;
 use UnitTester;
-use CraftCms\Commerce\Stats\TopProducts;
-use CraftCms\Commerce\Stats\TopProductTypes;
 
 /**
  * TopProductTypesTest

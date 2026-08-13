@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Inventory;
 
 use craft\commerce\base\Purchasable;
-use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
-use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
 use craft\commerce\elements\Order;
 use craft\commerce\events\InventoryMovementEvent;
 use craft\commerce\events\UpdateInventoryLevelEvent;
@@ -18,6 +16,8 @@ use craft\commerce\Plugin;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
+use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
 use CraftCms\Commerce\Inventory\Contracts\InventoryMovementInterface;
 use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
 use CraftCms\Commerce\Inventory\Enums\InventoryUpdateQuantityType;

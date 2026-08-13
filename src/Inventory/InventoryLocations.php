@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Inventory;
 
-use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use craft\commerce\models\inventory\InventoryLocationDeactivatedMovement;
 use craft\commerce\Plugin;
 use craft\events\AuthorizationCheckEvent;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
 use CraftCms\Commerce\Inventory\Models\DeactivateInventoryLocation;
 use CraftCms\Commerce\Inventory\Models\InventoryLevel;

@@ -6,7 +6,6 @@ namespace CraftCms\Commerce\Http\Controllers;
 
 use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\elements\Subscription;
-use CraftCms\Commerce\Subscription\Exceptions\SubscriptionException;
 use craft\commerce\helpers\PaymentForm;
 use craft\commerce\Plugin;
 use craft\commerce\stripe\gateways\PaymentIntents;
@@ -20,6 +19,7 @@ use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpModalResponse;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Subscription\Exceptions\SubscriptionException;
 use CraftCms\Commerce\Subscription\Records\Subscription as SubscriptionRecord;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Http\Request;

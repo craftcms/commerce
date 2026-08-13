@@ -1,5 +1,16 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 12f: Orders Widget & Cleanup (Stage 12 complete)
+
+Final slice of Stage 12 — `Orders` (the "Recent Orders" widget, the only one of the 11 with no paired `Stat` class — it queries `Order::find()` directly), repointing `src-yii2/Plugin.php::_registerWidgets()`'s imports to the new namespace, and a final import-alphabetization pass.
+
+- `Dashboard\Widgets\Orders` exposes `storeId`/`orderStatuses`/`limit` settings (no `dateRange` — this widget has no date-range concept at all, unlike every other widget in this stage) via the new Form system; `limit` uses the `Number` control (confirmed same API as `Choice`/`Lightswitch`, matching the real `RecentEntries::settingsForm()` reference usage).
+- Repointed all 11 `use craft\commerce\widgets\*` imports in `src-yii2/Plugin.php::_registerWidgets()` to the new `Dashboard\Widgets\*` namespace — the method body itself (`$event->types[] = X::class;`) needed no changes.
+- **Confirmed, not fixed**: `_registerWidgets()` only runs when `$request->getIsCpRequest()` is true (gated in `Plugin.php::init()`, unchanged by this migration) — meaning it never fires under `craft exec:exec`'s console context, so the widget-type *registration* itself couldn't be directly observed live. This is pre-existing behavior (true before this migration touched anything here) — verified the `Orders` widget class directly instead (metadata, `settingsForm()`, `getBodyHtml()`), which is unaffected by the registration-gating question.
+- Ran `composer run fix-cs` (matching Stage 10n's precedent) across `src/` and `tests/` — 36 fixable issues across 24 files, all pure `use`-line reordering (verified via `git diff`) plus one stylistic `new FormContext` → `new FormContext()` parens normalization from `php-cs-fixer`. Caught leftover import disorder not just from this stage but from Stage 10/11's own bulk-`sed` passes too (several `Http\Controllers\*`/`Order\*`/`Payment\*` files) — confirms import-order drift accumulates across stages until a pass like this one sweeps it, consistent with why this cleanup step exists at the end of every multi-sub-stage effort.
+
+**Stage 12 (Dashboard Stats & Widgets) is complete.** All 10 stat classes and all 11 widget classes have been migrated from `src-yii2/{stats,widgets}/` to `Stats\*`/`Dashboard\Widgets\*`, with every Yii2 `Query`/`ActiveQuery` usage converted to Laravel's query builder.
+
 ### Laravel Migration — Stage 12e: Chart Widgets
 
 Fifth slice of Stage 12 — `TotalOrders`, `TotalOrdersByCountry`, `TotalRevenue` (stat + widget pairs), the three chart-bearing widgets. Per the plan's agreed approach, chart rendering keeps the existing server-side Chart.js pipeline (data embedded into the Twig response, same frozen-legacy `StatWidgetsAsset`/`ChartJsAsset` JS) rather than adopting cms-6 core's newer AJAX+D3 pattern.

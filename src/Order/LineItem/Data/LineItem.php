@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Order\LineItem\Data;
 
 use Closure;
-use CraftCms\Commerce\Store\Exceptions\StoreNotFoundException;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Json;
@@ -27,6 +26,7 @@ use CraftCms\Commerce\Purchasable\Purchasables;
 use CraftCms\Commerce\Shipping\Models\ShippingCategory;
 use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
+use CraftCms\Commerce\Store\Exceptions\StoreNotFoundException;
 use CraftCms\Commerce\Store\Models\Store;
 use CraftCms\Commerce\Tax\Models\TaxCategory;
 use CraftCms\Commerce\Tax\Records\TaxRate as TaxRateRecord;
