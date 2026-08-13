@@ -14,7 +14,7 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\Plugin;
-use craft\commerce\records\Transaction as TransactionRecord;
+use CraftCms\Commerce\Payment\Records\Transaction as TransactionRecord;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\DateTimeHelper;
 use craftcommercetests\fixtures\OrdersFixture;

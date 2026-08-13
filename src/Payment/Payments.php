@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Payment;
 
 use craft\commerce\elements\Order;
 use craft\commerce\errors\PaymentException;
@@ -10,7 +10,7 @@ use craft\commerce\errors\RefundException;
 use craft\commerce\errors\SubscriptionException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\Plugin;
-use craft\commerce\records\Transaction as TransactionRecord;
+use CraftCms\Commerce\Payment\Records\Transaction as TransactionRecord;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Payment\Events\ProcessPaymentEvent;
 use CraftCms\Commerce\Payment\Events\RefundTransactionEvent;

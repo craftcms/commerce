@@ -7,10 +7,10 @@ namespace CraftCms\Commerce\Payment\Models;
 use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
 use CraftCms\Cms\Component\Component;
-use CraftCms\Commerce\Services\Gateways;
+use CraftCms\Commerce\Payment\Gateway\Gateways;
 use CraftCms\Commerce\Services\Orders;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
-use CraftCms\Commerce\Services\Transactions;
+use CraftCms\Commerce\Payment\Transactions;
 use DateTime;
 
 class Transaction extends Component

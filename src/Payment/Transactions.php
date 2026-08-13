@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Payment;
 
 use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\Plugin;
-use craft\commerce\records\Transaction as TransactionRecord;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Payment\Events\TransactionEvent;
 use CraftCms\Commerce\Payment\Models\Transaction;
+use CraftCms\Commerce\Payment\Records\Transaction as TransactionRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -198,11 +198,9 @@ class Transactions
      */
     public function deleteTransactionById(int $id): bool
     {
-        /** @phpstan-ignore-next-line */
-        $record = TransactionRecord::findOne($id);
+        $record = TransactionRecord::find($id);
 
         if ($record) {
-            /** @phpstan-ignore-next-line */
             return (bool)$record->delete();
         }
 
@@ -349,17 +347,13 @@ class Transactions
             'parentId',
         ];
 
-        /** @phpstan-ignore-next-line */
         $record = new TransactionRecord();
 
         foreach ($fields as $field) {
-            /** @phpstan-ignore-next-line */
             $record->$field = $model->$field;
         }
 
-        /** @phpstan-ignore-next-line */
-        $record->save(false);
-        /** @phpstan-ignore-next-line */
+        $record->save();
         $model->id = $record->id;
 
         if ($model->status === TransactionRecord::STATUS_SUCCESS) {

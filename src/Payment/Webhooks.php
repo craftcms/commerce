@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Payment;
 
 use craft\commerce\Plugin;
 use CraftCms\Commerce\Payment\Events\WebhookEvent;

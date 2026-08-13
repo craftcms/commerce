@@ -10,7 +10,7 @@ use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
-use CraftCms\Commerce\Services\Gateways;
+use CraftCms\Commerce\Payment\Gateway\Gateways;
 use Illuminate\Validation\Rule;
 
 class PaymentSource extends Component

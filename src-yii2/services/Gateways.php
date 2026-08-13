@@ -10,20 +10,20 @@ use Throwable;
 use yii\base\Component;
 
 /**
- * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Services\Gateways::class)` instead.
+ * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)` instead.
  */
 class Gateways extends Component
 {
-    public const EVENT_REGISTER_GATEWAY_TYPES = \CraftCms\Commerce\Services\Gateways::EVENT_REGISTER_GATEWAY_TYPES;
+    public const EVENT_REGISTER_GATEWAY_TYPES = \CraftCms\Commerce\Payment\Gateway\Gateways::EVENT_REGISTER_GATEWAY_TYPES;
 
-    public const CONFIG_GATEWAY_KEY = \CraftCms\Commerce\Services\Gateways::CONFIG_GATEWAY_KEY;
+    public const CONFIG_GATEWAY_KEY = \CraftCms\Commerce\Payment\Gateway\Gateways::CONFIG_GATEWAY_KEY;
 
     /**
      * @return string[]
      */
     public function getAllGatewayTypes(): array
     {
-        return app(\CraftCms\Commerce\Services\Gateways::class)->getAllGatewayTypes();
+        return app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)->getAllGatewayTypes();
     }
 
     /**
@@ -31,7 +31,7 @@ class Gateways extends Component
      */
     public function getAllCustomerEnabledGateways(): Collection
     {
-        return app(\CraftCms\Commerce\Services\Gateways::class)->getAllCustomerEnabledGateways();
+        return app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)->getAllCustomerEnabledGateways();
     }
 
     /**
@@ -39,7 +39,7 @@ class Gateways extends Component
      */
     public function getAllCustomerEnabledGatewaysAndAvailableForUseWithOrder(Order $order): Collection
     {
-        return app(\CraftCms\Commerce\Services\Gateways::class)->getAllCustomerEnabledGatewaysAndAvailableForUseWithOrder($order);
+        return app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)->getAllCustomerEnabledGatewaysAndAvailableForUseWithOrder($order);
     }
 
     /**
@@ -47,7 +47,7 @@ class Gateways extends Component
      */
     public function getAllSubscriptionGateways(): Collection
     {
-        return app(\CraftCms\Commerce\Services\Gateways::class)->getAllSubscriptionGateways();
+        return app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)->getAllSubscriptionGateways();
     }
 
     /**
@@ -55,7 +55,7 @@ class Gateways extends Component
      */
     public function getAllGateways(): Collection
     {
-        return app(\CraftCms\Commerce\Services\Gateways::class)->getAllGateways();
+        return app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)->getAllGateways();
     }
 
     /**
@@ -63,27 +63,27 @@ class Gateways extends Component
      */
     public function getAllArchivedGateways(): array
     {
-        return app(\CraftCms\Commerce\Services\Gateways::class)->getAllArchivedGateways();
+        return app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)->getAllArchivedGateways();
     }
 
     public function archiveGatewayById(int $id): bool
     {
-        return app(\CraftCms\Commerce\Services\Gateways::class)->archiveGatewayById($id);
+        return app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)->archiveGatewayById($id);
     }
 
     public function getGatewayById(int $id): ?Gateway
     {
-        return app(\CraftCms\Commerce\Services\Gateways::class)->getGatewayById($id);
+        return app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)->getGatewayById($id);
     }
 
     public function getGatewayByHandle(string $handle): ?Gateway
     {
-        return app(\CraftCms\Commerce\Services\Gateways::class)->getGatewayByHandle($handle);
+        return app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)->getGatewayByHandle($handle);
     }
 
     public function saveGateway(Gateway $gateway, bool $runValidation = true): bool
     {
-        return app(\CraftCms\Commerce\Services\Gateways::class)->saveGateway($gateway, $runValidation);
+        return app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)->saveGateway($gateway, $runValidation);
     }
 
     /**
@@ -91,7 +91,7 @@ class Gateways extends Component
      */
     public function handleChangedGateway(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Services\Gateways::class)->handleChangedGateway($event);
+        app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)->handleChangedGateway($event);
     }
 
     /**
@@ -99,7 +99,7 @@ class Gateways extends Component
      */
     public function handleArchivedGateway(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Services\Gateways::class)->handleArchivedGateway($event);
+        app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)->handleArchivedGateway($event);
     }
 
     /**
@@ -107,11 +107,11 @@ class Gateways extends Component
      */
     public function reorderGateways(array $ids): bool
     {
-        return app(\CraftCms\Commerce\Services\Gateways::class)->reorderGateways($ids);
+        return app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)->reorderGateways($ids);
     }
 
     public function createGateway(string|array $config): Gateway
     {
-        return app(\CraftCms\Commerce\Services\Gateways::class)->createGateway($config);
+        return app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)->createGateway($config);
     }
 }

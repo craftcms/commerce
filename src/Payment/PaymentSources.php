@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Payment;
 
 use craft\commerce\errors\PaymentSourceException;
 use craft\commerce\Plugin;
-use craft\commerce\records\PaymentSource as PaymentSourceRecord;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Payment\Events\PaymentSourceEvent;
 use CraftCms\Commerce\Payment\Forms\BasePaymentForm;
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
 use CraftCms\Commerce\Payment\Models\PaymentSource;
+use CraftCms\Commerce\Payment\Records\PaymentSource as PaymentSourceRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
@@ -160,8 +160,7 @@ class PaymentSources
     public function savePaymentSource(PaymentSource $paymentSource, bool $runValidation = true): bool
     {
         if ($paymentSource->id) {
-            /** @phpstan-ignore-next-line */
-            $record = PaymentSourceRecord::findOne($paymentSource->id);
+            $record = PaymentSourceRecord::find($paymentSource->id);
 
             if (!$record) {
                 throw new InvalidConfigException(t('No payment source exists with the ID "{id}"', ['id' => $paymentSource->id], category: 'commerce'));
@@ -185,21 +184,14 @@ class PaymentSources
             return false;
         }
 
-        /** @phpstan-ignore-next-line */
         $record->customerId = $paymentSource->customerId;
-        /** @phpstan-ignore-next-line */
         $record->gatewayId = $paymentSource->gatewayId;
-        /** @phpstan-ignore-next-line */
         $record->token = $paymentSource->token;
-        /** @phpstan-ignore-next-line */
         $record->description = $paymentSource->description;
-        /** @phpstan-ignore-next-line */
         $record->response = $paymentSource->response;
 
-        /** @phpstan-ignore-next-line */
-        $record->save(false);
+        $record->save();
 
-        /** @phpstan-ignore-next-line */
         $paymentSource->id = $record->id;
 
         // Raise 'afterSavePaymentSource' event
@@ -219,8 +211,7 @@ class PaymentSources
      */
     public function deletePaymentSourceById(int $id): bool
     {
-        /** @phpstan-ignore-next-line */
-        $record = PaymentSourceRecord::findOne($id);
+        $record = PaymentSourceRecord::find($id);
 
         if ($record) {
             $gateway = Plugin::getInstance()->getGateways()->getGatewayById($record->gatewayId);
@@ -238,7 +229,6 @@ class PaymentSources
                 Plugin::getInstance()->getPaymentSources()->trigger(self::EVENT_DELETE_PAYMENT_SOURCE, $event);
             }
 
-            /** @phpstan-ignore-next-line */
             return (bool)$record->delete();
         }
 

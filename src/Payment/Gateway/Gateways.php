@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Payment\Gateway;
 
 use craft\commerce\base\Gateway;
 use craft\commerce\base\SubscriptionGateway;
@@ -11,7 +11,6 @@ use craft\commerce\gateways\Dummy;
 use craft\commerce\gateways\Manual;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\Plugin;
-use craft\commerce\records\Gateway as GatewayRecord;
 use craft\events\ConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\helpers\Db as CraftDb;
@@ -20,6 +19,7 @@ use CraftCms\Cms\Component\Exceptions\MissingComponentException;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
+use CraftCms\Commerce\Payment\Gateway\Records\Gateway as GatewayRecord;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;
@@ -230,7 +230,7 @@ class Gateways
             $gatewayRecord->dateArchived = null;
             $gatewayRecord->uid = $gatewayUid;
 
-            $gatewayRecord->save(false);
+            $gatewayRecord->save();
 
             $transaction->commit();
         } catch (Throwable $e) {
@@ -255,7 +255,7 @@ class Gateways
             $gatewayRecord->isArchived = true;
             $gatewayRecord->dateArchived = CraftDb::prepareDateForDb(new DateTime());
 
-            $gatewayRecord->save(false);
+            $gatewayRecord->save();
 
             $transaction->commit();
         } catch (Throwable $e) {
@@ -352,8 +352,7 @@ class Gateways
      */
     private function _getGatewayRecord(string $uid): GatewayRecord
     {
-        /** @phpstan-ignore-next-line */
-        if ($gateway = GatewayRecord::findOne(['uid' => $uid])) {
+        if ($gateway = GatewayRecord::where('uid', $uid)->first()) {
             return $gateway;
         }
 

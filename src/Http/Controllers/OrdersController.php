@@ -28,7 +28,7 @@ use craft\commerce\models\OrderNotice;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
-use craft\commerce\records\Transaction as TransactionRecord;
+use CraftCms\Commerce\Payment\Records\Transaction as TransactionRecord;
 use craft\commerce\stripe\gateways\PaymentIntents;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceOrderAsset;

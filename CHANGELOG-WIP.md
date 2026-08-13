@@ -1,5 +1,15 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 10h: Service Namespace & Record Cleanup (Payment/Gateway cluster)
+
+Eighth slice of Stage 10: `Services\{Transactions,PaymentSources,Payments,Webhooks,Gateways}` → `Payment\*` (`Gateways` nested to `Payment\Gateway\Gateways`, matching its existing `Contracts`/`Responses` sub-namespace).
+
+- `Transactions`, `PaymentSources`, and `Gateways` replaced their legacy `craft\commerce\records\{Transaction,PaymentSource,Gateway}` `ActiveRecord` classes with new Eloquent models — `Transaction`/`PaymentSource` under `Payment\Records\*`, `Gateway` under `Payment\Gateway\Records\*` to match the service's own nesting. None soft-delete.
+- `Transaction`'s `TYPE_*`/`STATUS_*` constants moved onto the new Eloquent class, repointing 5 other consumers that only ever used them as an enum (never persistence): `Payments` (the service itself), `Order\Elements\Order`, `Http\Controllers\OrdersController`, and 3 unit tests (`OrderMarkAsCompleteTest`, `OrderPaymentAmountTest`, `OrderQueryTest`) — all confirmed constants-only via grep before repointing.
+- `Payments` and `Webhooks` had no direct record usage of their own (`Payments` only consumes `Transaction`'s constants; `Webhooks` is pure event/mutex orchestration) — namespace move only for those two.
+- **All three legacy records are now fully unreferenced and deleted** — first Stage 10 cluster since 10d where every record could be removed outright, with no lingering fixture/migration/validator dependency anywhere in the codebase (confirmed via grep across `tests/`, `src-yii2/migrations/`, and `src-yii2/validators/` before deleting, per finding #25's lesson from 10b).
+- **Verification**: live via `craft exec:exec` — listed gateways, fetched transactions/payment sources for the primary store, confirmed the relocated `TYPE_AUTHORIZE` constant, and round-tripped a full gateway create (via direct Eloquent construction, mirroring what `handleChangedGateway()` does) → find-by-handle → delete → confirm-gone cycle.
+
 ### Laravel Migration — Stage 10g: Service Namespace & Record Cleanup (Catalog/Purchasable cluster)
 
 Seventh slice of Stage 10, and the first with zero legacy `ActiveRecord` usage to convert — `Products`, `Variants`, and `ProductTypes` (already fully Eloquent since Stage 7e) go to `Catalog\*`; `Purchasables` goes to `Purchasable\Purchasables`. `ProductTypes` in particular was still sitting in the flat `Services\` namespace despite its persistence layer already being Eloquent (`Catalog\ProductType\Models\{ProductType,ProductTypeSite}`) — just needed the namespace move, `ProductTypes` nested to `Catalog\ProductType\ProductTypes` to match the existing `Data`/`Models`/`Exceptions` sub-namespace convention for that domain.

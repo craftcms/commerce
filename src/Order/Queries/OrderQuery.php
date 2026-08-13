@@ -20,7 +20,7 @@ use CraftCms\Commerce\Services\Customers;
 use CraftCms\Commerce\Services\OrderAdjustments;
 use CraftCms\Commerce\Services\OrderNotices;
 use CraftCms\Commerce\Services\Orders;
-use CraftCms\Commerce\Services\Transactions;
+use CraftCms\Commerce\Payment\Transactions;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
