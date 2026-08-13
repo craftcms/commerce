@@ -33,7 +33,7 @@ use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Inventory\Inventory;
-use CraftCms\Commerce\Services\Purchasables;
+use CraftCms\Commerce\Purchasable\Purchasables;
 use CraftCms\Commerce\Promotion\Sales;
 use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Services\Stores;

@@ -7,7 +7,7 @@ namespace CraftCms\Commerce\Catalog\Models;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
-use CraftCms\Commerce\Services\Purchasables;
+use CraftCms\Commerce\Purchasable\Purchasables;
 use CraftCms\Commerce\Services\Stores;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;

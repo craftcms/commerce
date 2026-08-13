@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Catalog;
 
 use CraftCms\Commerce\Catalog\Elements\Variant;
 use craft\commerce\Plugin;

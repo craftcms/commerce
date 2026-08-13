@@ -8,7 +8,7 @@ use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
-use CraftCms\Commerce\Services\ProductTypes;
+use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 
 class ProductTypeSite extends Component
 {

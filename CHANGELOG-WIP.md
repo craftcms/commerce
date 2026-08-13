@@ -1,5 +1,12 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 10g: Service Namespace & Record Cleanup (Catalog/Purchasable cluster)
+
+Seventh slice of Stage 10, and the first with zero legacy `ActiveRecord` usage to convert — `Products`, `Variants`, and `ProductTypes` (already fully Eloquent since Stage 7e) go to `Catalog\*`; `Purchasables` goes to `Purchasable\Purchasables`. `ProductTypes` in particular was still sitting in the flat `Services\` namespace despite its persistence layer already being Eloquent (`Catalog\ProductType\Models\{ProductType,ProductTypeSite}`) — just needed the namespace move, `ProductTypes` nested to `Catalog\ProductType\ProductTypes` to match the existing `Data`/`Models`/`Exceptions` sub-namespace convention for that domain.
+
+- Pure namespace relocation, no persistence changes — a welcome break after Stage 10d's size.
+- **Verification**: live via `craft exec:exec` — resolved all four services from the container, listed product types, and fetched variants by product ID.
+
 ### Laravel Migration — Stage 10f: Service Namespace & Record Cleanup (Inventory cluster)
 
 Sixth slice of Stage 10: `Services\{Inventory,InventoryLocations}` → `Inventory\*`.

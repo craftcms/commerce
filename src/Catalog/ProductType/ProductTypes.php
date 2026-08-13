@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Catalog\ProductType;
 
 use craft\enums\PropagationMethod;
 use craft\events\ConfigEvent;

@@ -11,7 +11,7 @@ use CraftCms\Commerce\Database\Table;
  * Thin Eloquent persistence model for the `commerce_producttypes` table.
  *
  * This holds no business logic — it's written to from
- * {@see \CraftCms\Commerce\Services\ProductTypes::handleChangedProductType()} and read back by
+ * {@see \CraftCms\Commerce\Catalog\ProductType\ProductTypes::handleChangedProductType()} and read back by
  * the same service.
  */
 class ProductType extends BaseModel

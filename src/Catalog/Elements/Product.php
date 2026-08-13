@@ -64,7 +64,7 @@ use CraftCms\Commerce\Catalog\Validation\ProductRules;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
-use CraftCms\Commerce\Services\Products;
+use CraftCms\Commerce\Catalog\Products;
 use CraftCms\Commerce\Shipping\Models\ShippingCategory;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
 use CraftCms\Commerce\Tax\Models\TaxCategory;

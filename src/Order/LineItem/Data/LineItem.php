@@ -23,7 +23,7 @@ use CraftCms\Commerce\Promotion\Discounts;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Services\LineItemStatuses;
 use CraftCms\Commerce\Services\Orders;
-use CraftCms\Commerce\Services\Purchasables;
+use CraftCms\Commerce\Purchasable\Purchasables;
 use CraftCms\Commerce\Promotion\Sales;
 use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Tax\TaxCategories;

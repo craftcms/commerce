@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Purchasable;
 
 use craft\commerce\elements\db\PurchasableQuery;
 use craft\commerce\elements\Order;
