@@ -1,5 +1,16 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 11e: Collections (Stage 11 complete)
+
+Final slice of Stage 11 — `src-yii2/collections/{InventoryMovementCollection,UpdateInventoryLevelCollection}` moved to `Inventory\Collections\*`.
+
+- Both are thin `Illuminate\Support\Collection` subclasses, already typed against migrated `Inventory` models/enums — pure namespace move.
+- `UpdateInventoryLevelCollection::make()`'s `\Craft::createObject(UpdateInventoryLevel::class, ['config' => ['attributes' => $item]])` converted to a plain `new UpdateInventoryLevel($item)` — `UpdateInventoryLevel` already extends the new `Component` base, whose constructor (`__construct(array|object $config = [])`) applies the same config-array property assignment Yii2's `createObject()` was doing, just without the DI-container indirection.
+- Repointed 7 real consumers, including the still-fully-legacy `src-yii2/elements/Transfer.php` (safe — `class_alias` makes both names fully interchangeable regardless of which side is legacy).
+- **Verification**: live via `craft exec:exec` — confirmed both legacy aliases resolve correctly; this dev environment has zero real inventory items configured, so exercised `UpdateInventoryLevelCollection::make()`'s constructor-conversion path directly with a well-formed attribute array (confirming property assignment matches the old `Craft::createObject()` behavior) and confirmed `make()` is idempotent when passed already-constructed instances.
+
+**Stage 11 (Order Adjusters, Exporters, Exceptions & Loose-End Cleanup) is complete.**
+
 ### Laravel Migration — Stage 11d: Order Exporters
 
 Fourth slice of Stage 11 — `src-yii2/exports/{Expanded,LineItemExport,OrderExport}` moved to `Order\Exporters\*`.

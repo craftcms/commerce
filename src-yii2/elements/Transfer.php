@@ -4,7 +4,7 @@ namespace craft\commerce\elements;
 
 use Craft;
 use craft\base\Element;
-use craft\commerce\collections\UpdateInventoryLevelCollection;
+use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
 use craft\commerce\elements\conditions\transfers\TransferCondition;
 use craft\commerce\elements\db\TransferQuery;
 use craft\commerce\enums\InventoryTransactionType;

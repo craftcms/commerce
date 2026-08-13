@@ -1,52 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\collections;
 
-use craft\commerce\models\inventory\UpdateInventoryLevel;
-use craft\commerce\models\inventory\UpdateInventoryLevelInTransfer;
-use Illuminate\Support\Collection;
+/** @deprecated use {@see \CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection} */
+class_alias(\CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection::class, 'craft\commerce\collections\UpdateInventoryLevelCollection');
 
-/**
- * UpdateInventoryLevelCollection represents a collection of UpdateInventoryLevel models.
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 5.0.0
- */
-class UpdateInventoryLevelCollection extends Collection
-{
-    /**
-     * Creates a UpdateInventoryLevelCollection from an array of UpdateInventoryLevel attributes.
-     *
-     * @param array $items
-     * @return static
-     */
-    public static function make($items = [], ...$args)
-    {
-        foreach ($items as &$item) {
-            if ($item instanceof UpdateInventoryLevel) {
-                continue;
-            }
-
-            $item = \Craft::createObject(UpdateInventoryLevel::class, [
-                'config' => ['attributes' => $item],
-            ]);
-        }
-
-        /** @var static $collection */
-        $collection = parent::make($items);
-        return $collection;
-    }
-
-    /**
-     * @return array
-     */
-    public function getPurchasables(): array
-    {
-        return $this->map(fn(UpdateInventoryLevel|UpdateInventoryLevelInTransfer $updateInventoryLevel) => $updateInventoryLevel->getInventoryItem()->getPurchasable())->filter()->all();
-    }
+/** @phpstan-ignore-next-line */
+if (false) {
+    class UpdateInventoryLevelCollection extends \CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection {}
 }

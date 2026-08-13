@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Inventory;
 
 use craft\commerce\base\Purchasable;
-use craft\commerce\collections\InventoryMovementCollection;
-use craft\commerce\collections\UpdateInventoryLevelCollection;
+use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
+use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
 use craft\commerce\elements\Order;
 use craft\commerce\events\InventoryMovementEvent;
 use craft\commerce\events\UpdateInventoryLevelEvent;

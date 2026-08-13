@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Inventory;
 
-use craft\commerce\collections\InventoryMovementCollection;
+use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use craft\commerce\models\inventory\InventoryLocationDeactivatedMovement;
 use craft\commerce\Plugin;
 use craft\events\AuthorizationCheckEvent;

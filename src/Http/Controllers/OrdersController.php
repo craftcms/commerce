@@ -8,7 +8,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable as PurchasableElement;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\behaviors\StoreBehavior;
-use craft\commerce\collections\InventoryMovementCollection;
+use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use craft\commerce\db\Table;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\LineItemType;
