@@ -11,5 +11,6 @@ class ProductTypeEvent
     public function __construct(
         public ?ProductType $productType = null,
         public bool $isNew = false,
-    ) {}
+    ) {
+    }
 }

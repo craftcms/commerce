@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Helpers;
 
-use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Gql\Data\GqlSchema;
 use CraftCms\Cms\Gql\GqlHelper;
+use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
 
 class Gql extends GqlHelper
 {

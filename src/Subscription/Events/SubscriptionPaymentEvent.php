@@ -14,5 +14,6 @@ class SubscriptionPaymentEvent
         public Subscription $subscription,
         public SubscriptionPayment $payment,
         public DateTime $paidUntil,
-    ) {}
+    ) {
+    }
 }

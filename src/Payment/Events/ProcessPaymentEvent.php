@@ -6,9 +6,9 @@ namespace CraftCms\Commerce\Payment\Events;
 
 use craft\commerce\elements\Order;
 use craft\commerce\models\payments\BasePaymentForm;
-use CraftCms\Commerce\Payment\Models\Transaction;
 use CraftCms\Cms\Shared\Concerns\ValidatableEvent;
 use CraftCms\Commerce\Payment\Gateway\Contracts\RequestResponseInterface;
+use CraftCms\Commerce\Payment\Models\Transaction;
 
 class ProcessPaymentEvent
 {
@@ -20,5 +20,6 @@ class ProcessPaymentEvent
     public function __construct(
         public Order $order,
         public BasePaymentForm $form,
-    ) {}
+    ) {
+    }
 }

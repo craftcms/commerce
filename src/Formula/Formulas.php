@@ -6,15 +6,15 @@ namespace CraftCms\Commerce\Formula;
 
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Twig\Environment;
+use Exception;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\Cache;
-use function CraftCms\Cms\t;
-use Exception;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use Twig\Extension\SandboxExtension;
 use Twig\Loader\FilesystemLoader;
 use Twig\Sandbox\SecurityPolicy;
+use function CraftCms\Cms\t;
 
 #[Singleton]
 class Formulas

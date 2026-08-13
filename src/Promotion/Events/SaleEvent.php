@@ -11,5 +11,6 @@ class SaleEvent
     public function __construct(
         public Sale $sale,
         public bool $isNew = false,
-    ) {}
+    ) {
+    }
 }

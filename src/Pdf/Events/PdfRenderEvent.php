@@ -16,5 +16,6 @@ class PdfRenderEvent
         public array $variables,
         public ?string $pdf = null,
         public ?Pdf $sourcePdf = null,
-    ) {}
+    ) {
+    }
 }

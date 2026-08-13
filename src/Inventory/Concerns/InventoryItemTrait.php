@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Inventory\Concerns;
 
-use CraftCms\Commerce\Inventory\Models\InventoryItem;
 use CraftCms\Commerce\Inventory\Inventory;
+use CraftCms\Commerce\Inventory\Models\InventoryItem;
 
 trait InventoryItemTrait
 {

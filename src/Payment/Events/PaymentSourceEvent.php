@@ -13,5 +13,6 @@ class PaymentSourceEvent
 
     public function __construct(
         public PaymentSource $paymentSource,
-    ) {}
+    ) {
+    }
 }

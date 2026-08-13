@@ -10,5 +10,6 @@ class InventoryMovementEvent
 {
     public function __construct(
         public InventoryMovementInterface $inventoryMovement,
-    ) {}
+    ) {
+    }
 }

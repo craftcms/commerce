@@ -12,5 +12,6 @@ class UpdatePrimaryPaymentSourceEvent
         public User $customer,
         public ?int $previousPrimaryPaymentSourceId = null,
         public ?int $newPrimaryPaymentSourceId = null,
-    ) {}
+    ) {
+    }
 }

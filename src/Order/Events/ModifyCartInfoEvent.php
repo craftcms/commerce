@@ -11,5 +11,6 @@ class ModifyCartInfoEvent
     public function __construct(
         public array $cartInfo = [],
         public ?Order $cart = null,
-    ) {}
+    ) {
+    }
 }

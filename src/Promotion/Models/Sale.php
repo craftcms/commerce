@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Promotion\Models;
 
-use CraftCms\Commerce\Promotion\Records\Sale as SaleRecord;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Promotion\Records\Sale as SaleRecord;
 use CraftCms\Commerce\Store\Stores;
 use DateTime;
 use Illuminate\Support\Facades\DB;

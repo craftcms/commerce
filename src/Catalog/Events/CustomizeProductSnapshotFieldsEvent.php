@@ -11,5 +11,6 @@ class CustomizeProductSnapshotFieldsEvent
     public function __construct(
         public Product $product,
         public ?array $fields = null,
-    ) {}
+    ) {
+    }
 }

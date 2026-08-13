@@ -13,5 +13,6 @@ class PurgeAddressesEvent
 
     public function __construct(
         public ?Query $addressesQuery = null,
-    ) {}
+    ) {
+    }
 }

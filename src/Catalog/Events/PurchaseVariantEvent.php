@@ -10,5 +10,6 @@ class PurchaseVariantEvent
 {
     public function __construct(
         public Variant $variant,
-    ) {}
+    ) {
+    }
 }

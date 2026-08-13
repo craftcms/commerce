@@ -11,5 +11,6 @@ class EmailEvent
     public function __construct(
         public Email $email,
         public bool $isNew = false,
-    ) {}
+    ) {
+    }
 }

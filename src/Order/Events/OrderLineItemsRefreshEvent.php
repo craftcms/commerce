@@ -9,5 +9,6 @@ class OrderLineItemsRefreshEvent
     public function __construct(
         public array $lineItems,
         public bool $recalculate = false,
-    ) {}
+    ) {
+    }
 }

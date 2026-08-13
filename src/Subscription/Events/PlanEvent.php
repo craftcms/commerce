@@ -10,5 +10,6 @@ class PlanEvent
 {
     public function __construct(
         public Plan $plan,
-    ) {}
+    ) {
+    }
 }

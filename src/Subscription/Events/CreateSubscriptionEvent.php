@@ -17,5 +17,6 @@ class CreateSubscriptionEvent
         public User $user,
         public Plan $plan,
         public SubscriptionForm $parameters,
-    ) {}
+    ) {
+    }
 }

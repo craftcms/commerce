@@ -12,5 +12,6 @@ class DefaultLineItemStatusEvent
     public function __construct(
         public LineItem $lineItem,
         public ?LineItemStatus $lineItemStatus = null,
-    ) {}
+    ) {
+    }
 }

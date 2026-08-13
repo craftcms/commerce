@@ -13,7 +13,8 @@ class RegisterAvailableShippingMethodsEvent
 
     public function __construct(
         public Order $order,
-    ) {}
+    ) {
+    }
 
     public function setShippingMethods(Collection|array $shippingMethods): void
     {

@@ -13,5 +13,6 @@ class CartPurgeEvent
 
     public function __construct(
         public Query $inactiveCartsQuery,
-    ) {}
+    ) {
+    }
 }

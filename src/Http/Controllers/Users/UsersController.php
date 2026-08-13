@@ -25,7 +25,8 @@ readonly class UsersController
 
     public function __construct(
         private ElementIndexHtml $elementIndexHtml,
-    ) {}
+    ) {
+    }
 
     public function index(?int $userId = null): CpScreenResponse
     {

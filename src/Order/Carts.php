@@ -16,7 +16,6 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Events\CartPurgeEvent;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;
-use Throwable;
 use yii\web\Cookie;
 
 use function CraftCms\Cms\currentUserElement;

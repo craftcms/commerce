@@ -14,5 +14,6 @@ class ReportEvent
         public mixed $columns = null,
         public mixed $orders = null,
         public mixed $format = null,
-    ) {}
+    ) {
+    }
 }

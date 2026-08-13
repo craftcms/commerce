@@ -15,5 +15,6 @@ class CartEvent
     public function __construct(
         public LineItem $lineItem,
         public Order $order,
-    ) {}
+    ) {
+    }
 }

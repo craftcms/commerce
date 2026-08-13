@@ -10,5 +10,6 @@ class PdfRenderOptionsEvent
 {
     public function __construct(
         public Options $options,
-    ) {}
+    ) {
+    }
 }

@@ -8,5 +8,6 @@ class TaxIdValidatorsEvent
 {
     public function __construct(
         public array $validators = [],
-    ) {}
+    ) {
+    }
 }

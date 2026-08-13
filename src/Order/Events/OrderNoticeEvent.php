@@ -13,5 +13,6 @@ class OrderNoticeEvent
 
     public function __construct(
         public OrderNotice $orderNotice,
-    ) {}
+    ) {
+    }
 }

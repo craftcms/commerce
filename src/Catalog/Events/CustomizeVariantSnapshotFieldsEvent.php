@@ -11,5 +11,6 @@ class CustomizeVariantSnapshotFieldsEvent
     public function __construct(
         public Variant $variant,
         public ?array $fields = null,
-    ) {}
+    ) {
+    }
 }

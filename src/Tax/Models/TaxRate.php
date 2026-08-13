@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Tax\Models;
 
-use CraftCms\Commerce\Tax\Records\TaxRate as TaxRateRecord;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Component\Contracts\Chippable;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
+use CraftCms\Commerce\Tax\Records\TaxRate as TaxRateRecord;
 use DateTime;
 use function CraftCms\Cms\t;
 

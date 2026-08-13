@@ -8,12 +8,12 @@ use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Pdf;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
-use CraftCms\Commerce\Pdf\Records\Pdf as PdfRecord;
 use craft\helpers\Json;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Pdf\Records\Pdf as PdfRecord;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 

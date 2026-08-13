@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Catalog\Queries;
 
 use Closure;
-use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Element\Queries\ElementQuery;
 use CraftCms\Cms\Element\Queries\Exceptions\QueryAbortedException;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Catalog\Elements\Variant;
-use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
+use CraftCms\Commerce\Database\Table;
 use DateTime;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
@@ -383,7 +383,8 @@ class ProductQuery extends ElementQuery
                 ->where(function(Builder $query) use ($currentTime) {
                     $query->whereNull('commerce_products.expiryDate')
                         ->orWhere('commerce_products.expiryDate', '>', $currentTime);
-                }),
+                }
+            ),
             Product::STATUS_PENDING => fn(Builder $query) => $query
                 ->whereBool('elements.enabled', true)
                 ->whereBool('elements_sites.enabled', true)

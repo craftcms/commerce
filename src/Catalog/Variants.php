@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Catalog;
 
-use CraftCms\Commerce\Catalog\Elements\Variant;
 use craft\commerce\Plugin;
 use craft\gql\types\QueryArgument;
 use CraftCms\Cms\Gql\Contracts\GqlInlineFragmentFieldInterface;
 use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Helpers\Gql as GqlCommerceHelper;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Container\Attributes\Singleton;

@@ -10,5 +10,6 @@ class UpdateInventoryLevelEvent
 {
     public function __construct(
         public UpdateInventoryLevel $updateInventoryLevel,
-    ) {}
+    ) {
+    }
 }

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Pdf\Models;
 
 use craft\commerce\elements\Order;
-use CraftCms\Commerce\Pdf\Records\Pdf as PdfRecord;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Pdf\Records\Pdf as PdfRecord;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
 use Dompdf\Adapter\CPDF;

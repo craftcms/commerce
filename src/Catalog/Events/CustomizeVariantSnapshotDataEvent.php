@@ -11,5 +11,6 @@ class CustomizeVariantSnapshotDataEvent
     public function __construct(
         public Variant $variant,
         public array $fieldData,
-    ) {}
+    ) {
+    }
 }

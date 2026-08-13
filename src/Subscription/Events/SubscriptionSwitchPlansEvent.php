@@ -18,5 +18,6 @@ class SubscriptionSwitchPlansEvent
         public Subscription $subscription,
         public Plan $newPlan,
         public SwitchPlansForm $parameters,
-    ) {}
+    ) {
+    }
 }

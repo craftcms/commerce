@@ -11,5 +11,6 @@ class PdfEvent
     public function __construct(
         public Pdf $pdf,
         public bool $isNew = false,
-    ) {}
+    ) {
+    }
 }

@@ -14,5 +14,6 @@ class StoreEvent
     public function __construct(
         public Store $store,
         public bool $isNew = false,
-    ) {}
+    ) {
+    }
 }

@@ -6,13 +6,13 @@ namespace CraftCms\Commerce\Order;
 
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Events\OrderStatusEvent;
 use CraftCms\Commerce\Order\Models\OrderHistory;
 use CraftCms\Commerce\Order\Records\OrderHistory as OrderHistoryRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;
-use CraftCms\Cms\Support\Facades\Users;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use function CraftCms\Cms\currentUserElement;

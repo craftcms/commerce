@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Catalog\Models;
 
 use CraftCms\Cms\Component\Component;
-use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
+use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Purchasables;
-use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
+use CraftCms\Commerce\Store\Stores;
 use DateTime;
 
 class CatalogPricing extends Component implements HasStoreInterface

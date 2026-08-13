@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Purchasable\Queries;
 
 use CraftCms\Cms\Element\Queries\ElementQuery;
-use CraftCms\Commerce\Database\Table;
-use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
+use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use CraftCms\Commerce\Shipping\Models\ShippingCategory;
 use CraftCms\Commerce\Tax\Models\TaxCategory;
 use Illuminate\Support\Facades\DB;

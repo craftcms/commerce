@@ -16,5 +16,6 @@ class SaleMatchEvent
         public Sale $sale,
         public PurchasableInterface $purchasable,
         public bool $isNew,
-    ) {}
+    ) {
+    }
 }

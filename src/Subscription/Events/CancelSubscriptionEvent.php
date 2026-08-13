@@ -15,5 +15,6 @@ class CancelSubscriptionEvent
     public function __construct(
         public Subscription $subscription,
         public CancelSubscriptionForm $parameters,
-    ) {}
+    ) {
+    }
 }

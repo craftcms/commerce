@@ -11,5 +11,6 @@ class ModifyPurchasablesTableQueryEvent
     public function __construct(
         public Query $query,
         public ?string $search = null,
-    ) {}
+    ) {
+    }
 }

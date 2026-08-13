@@ -12,5 +12,6 @@ class DefaultOrderStatusEvent
     public function __construct(
         public ?OrderStatus $orderStatus,
         public Order $order,
-    ) {}
+    ) {
+    }
 }

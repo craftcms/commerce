@@ -6,13 +6,13 @@ namespace CraftCms\Commerce\Purchasable;
 
 use craft\commerce\elements\db\PurchasableQuery;
 use craft\commerce\elements\Order;
-use CraftCms\Commerce\Catalog\Elements\Variant;
 use craft\commerce\Plugin;
+use craft\events\RegisterComponentTypesEvent;
 use CraftCms\Cms\Support\Facades\ElementCaches;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\User\Elements\User;
-use craft\events\RegisterComponentTypesEvent;
+use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Events\PurchasableAvailableEvent;

@@ -16,5 +16,6 @@ class OrderStatusEmailsEvent
         public OrderHistory $orderHistory,
         public Order $order,
         public array $emails,
-    ) {}
+    ) {
+    }
 }

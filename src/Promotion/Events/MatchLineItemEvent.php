@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Promotion\Events;
 
-use CraftCms\Commerce\Promotion\Models\Discount;
 use CraftCms\Cms\Shared\Concerns\ValidatableEvent;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
+use CraftCms\Commerce\Promotion\Models\Discount;
 
 class MatchLineItemEvent
 {
@@ -15,5 +15,6 @@ class MatchLineItemEvent
     public function __construct(
         public LineItem $lineItem,
         public Discount $discount,
-    ) {}
+    ) {
+    }
 }

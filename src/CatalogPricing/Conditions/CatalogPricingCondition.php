@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\CatalogPricing\Conditions;
 
+use craft\helpers\ArrayHelper;
 use CraftCms\Cms\Condition\BaseCondition;
 use CraftCms\Cms\Condition\Contracts\ConditionRuleInterface;
 use CraftCms\Commerce\CatalogPricing\Contracts\CatalogPricingConditionRuleInterface;
 use CraftCms\Commerce\Database\Table;
-use craft\helpers\ArrayHelper;
 use Illuminate\Database\Query\Builder;
 use Override;
 

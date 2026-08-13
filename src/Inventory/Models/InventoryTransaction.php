@@ -7,12 +7,12 @@ namespace CraftCms\Commerce\Inventory\Models;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Cms\User\Elements\User;
-use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Order\LineItem\Data\LineItem;
-use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Inventory\InventoryLocations;
+use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\LineItem\LineItems;
+use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use DateTime;
 
 class InventoryTransaction extends Component

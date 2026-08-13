@@ -15,5 +15,6 @@ class PurchasableOutOfStockPurchasesAllowedEvent
         public ?Order $order = null,
         public ?User $currentUser = null,
         public bool $outOfStockPurchasesAllowed = false,
-    ) {}
+    ) {
+    }
 }

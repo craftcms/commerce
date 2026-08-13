@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Helpers;
 
 use Craft;
-use CraftCms\Commerce\Catalog\Elements\Product;
 use craft\controllers\ElementIndexesController;
 use craft\controllers\ElementSearchController;
 use CraftCms\Cms\Element\Element;
 use CraftCms\Cms\Element\ElementHelper;
 use CraftCms\Cms\Support\Query;
+use CraftCms\Commerce\Catalog\Elements\Product;
 use DateTime;
 
 class ProductQuery

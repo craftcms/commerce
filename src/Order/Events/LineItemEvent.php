@@ -11,5 +11,6 @@ class LineItemEvent
     public function __construct(
         public LineItem $lineItem,
         public bool $isNew = false,
-    ) {}
+    ) {
+    }
 }

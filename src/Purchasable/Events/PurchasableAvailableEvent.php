@@ -15,5 +15,6 @@ class PurchasableAvailableEvent
         public bool $isAvailable,
         public ?Order $order = null,
         public ?User $currentUser = null,
-    ) {}
+    ) {
+    }
 }

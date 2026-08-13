@@ -12,5 +12,6 @@ class OrderStatusEvent
     public function __construct(
         public OrderHistory $orderHistory,
         public Order $order,
-    ) {}
+    ) {
+    }
 }

@@ -19,5 +19,6 @@ class WebhookEvent
 
     public function __construct(
         public GatewayInterface $gateway,
-    ) {}
+    ) {
+    }
 }

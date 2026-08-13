@@ -15,5 +15,6 @@ class PurchasableShippableEvent
         public bool $isShippable,
         public ?Order $order = null,
         public ?User $currentUser = null,
-    ) {}
+    ) {
+    }
 }

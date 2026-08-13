@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Shipping;
 
-use craft\commerce\Plugin;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Shipping\Models\ShippingRule;
 use CraftCms\Commerce\Shipping\Models\ShippingRuleCategory;

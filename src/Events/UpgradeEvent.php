@@ -9,5 +9,6 @@ class UpgradeEvent
     public function __construct(
         public array $v3columnMap = [],
         public array $v3tables = [],
-    ) {}
+    ) {
+    }
 }

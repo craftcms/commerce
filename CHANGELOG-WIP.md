@@ -1,5 +1,13 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 10n: Final Import Alphabetization Pass
+
+Final slice of Stage 10, and the last thing needed to close it out — Stage 10's repeated bulk `sed` namespace-repointing passes (one per cluster, 10a through 10m) inserted or replaced individual `use` lines in place without re-sorting the surrounding block, leaving many files' imports out of alphabetical order. Rather than re-sort the same block after every sub-stage, this was deliberately deferred to a single pass at the end.
+
+- Ran `composer run fix-cs` (`ecs check --fix`, `craft\ecs\SetList::CRAFT_CMS_4`) across `src/` and `tests/` — 107 files fixed, all via `PhpCsFixer\Fixer\Import\OrderedImportsFixer` (plus `BinaryOperatorSpacesFixer` catching one unrelated pre-existing spacing nit in a test file). Pure formatting — every diff is a `use` line reorder, verified via `git diff` that no non-`use` content changed and `php -l` across all 107 touched files.
+- `src/Order/Elements/Order.php` — the single most bulk-sed-touched file across all of Stage 10 (repointed in 10h and again in 10m) — had accumulated the most disorder; now fully sorted along with every other consumer file the stage touched.
+- `src/Services/` is now fully empty and has been removed — all 44 services that started this stage in the flat `CraftCms\Commerce\Services` namespace now live in their feature namespace, matching the CMS 6 core convention. **Stage 10 is complete.**
+
 ### Laravel Migration — Stage 10m: Service Namespace & Record Cleanup (Customer/Formula cluster)
 
 Thirteenth slice of Stage 10, and the last cluster with any remaining `craft\commerce\records\*` usage to convert: `Services\Customers` → `Customer\Customers` (new top-level namespace), `Services\Formulas` → `Formula\Formulas` (new top-level namespace).

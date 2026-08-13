@@ -20,5 +20,6 @@ class MailEvent
         public Order $order,
         public ?OrderHistory $orderHistory = null,
         public ?array $orderData = null,
-    ) {}
+    ) {
+    }
 }

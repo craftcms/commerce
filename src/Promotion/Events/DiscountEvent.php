@@ -11,5 +11,6 @@ class DiscountEvent
     public function __construct(
         public Discount $discount,
         public bool $isNew,
-    ) {}
+    ) {
+    }
 }

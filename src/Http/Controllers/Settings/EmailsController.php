@@ -9,7 +9,6 @@ use craft\commerce\models\Email;
 use craft\commerce\models\Pdf;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
-use CraftCms\Commerce\Email\Records\Email as EmailRecord;
 use craft\helpers\App;
 use craft\helpers\ArrayHelper;
 use craft\models\Site;
@@ -17,6 +16,7 @@ use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Email\Records\Email as EmailRecord;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 

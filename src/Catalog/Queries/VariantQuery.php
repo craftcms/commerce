@@ -6,7 +6,6 @@ namespace CraftCms\Commerce\Catalog\Queries;
 
 use Closure;
 use craft\commerce\elements\VariantCollection;
-use CraftCms\Commerce\Promotion\Records\Sale as SaleRecord;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
@@ -14,16 +13,17 @@ use CraftCms\Cms\Element\Element;
 use CraftCms\Cms\Element\Queries\Concerns\QueriesNestedElements;
 use CraftCms\Cms\Element\Queries\Contracts\NestedElementQueryInterface;
 use CraftCms\Cms\Element\Queries\Exceptions\QueryAbortedException;
-use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\FieldLayout\FieldLayout;
+use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\Facades\Deprecator;
 use CraftCms\Cms\Support\Query;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\ProductQuery as ProductQueryHelper;
-use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery;
+use CraftCms\Commerce\Promotion\Records\Sale as SaleRecord;
 use CraftCms\Commerce\Promotion\Sales;
+use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery;
 use DateTime;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
@@ -468,7 +468,8 @@ class VariantQuery extends PurchasableQuery implements NestedElementQueryInterfa
                 ->where(function(Builder $query) use ($currentTime) {
                     $query->whereNull('commerce_products.expiryDate')
                         ->orWhere('commerce_products.expiryDate', '>', $currentTime);
-                }),
+                }
+            ),
             Product::STATUS_PENDING => fn(Builder $query) => $query
                 ->whereBool('product_elements.enabled', true)
                 ->whereBool('product_elements_sites.enabled', true)

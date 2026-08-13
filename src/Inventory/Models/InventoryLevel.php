@@ -7,9 +7,9 @@ namespace CraftCms\Commerce\Inventory\Models;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
-use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Inventory\InventoryLocations;
+use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 
 class InventoryLevel extends Component
 {
