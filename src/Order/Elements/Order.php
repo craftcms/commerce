@@ -76,7 +76,7 @@ use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable as NewPurchasable;
 use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Payment\Currencies;
-use CraftCms\Commerce\Services\Customers;
+use CraftCms\Commerce\Customer\Customers;
 use CraftCms\Commerce\Promotion\Discounts;
 use CraftCms\Commerce\Payment\Gateway\Gateways;
 use CraftCms\Commerce\Inventory\Inventory;
@@ -375,14 +375,14 @@ class Order extends Element implements HasStoreInterface
      * This is persisted while the order is a cart, and is only used during the update cart request
      * or on order completion when new addresses are being saved.
      *
-     * @see \CraftCms\Commerce\Services\Customers::_saveAddressesFromOrder()
+     * @see \CraftCms\Commerce\Customer\Customers::_saveAddressesFromOrder()
      */
     public bool $makePrimaryShippingAddress = false;
 
     /**
      * Whether the billing address should be made the primary address of the order's customer.
      *
-     * @see \CraftCms\Commerce\Services\Customers::_saveAddressesFromOrder()
+     * @see \CraftCms\Commerce\Customer\Customers::_saveAddressesFromOrder()
      */
     public bool $makePrimaryBillingAddress = false;
 

@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Customer;
 
 use craft\base\Element;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
-use craft\commerce\records\Customer as CustomerRecord;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\Element\Queries\Exceptions\ElementNotFoundException;
 use CraftCms\Cms\Element\Exceptions\InvalidElementException;
@@ -16,6 +15,7 @@ use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Users;
 use craft\mail\Mailer;
 use craft\mail\Message;
+use CraftCms\Commerce\Customer\Records\Customer as CustomerRecord;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Models\Order as OrderRecord;
 use CraftCms\Commerce\Payment\Events\UpdatePrimaryPaymentSourceEvent;
@@ -153,8 +153,7 @@ class Customers
      */
     public function ensureCustomer(User $user): CustomerRecord
     {
-        /** @var CustomerRecord|null $customerRecord */
-        $customerRecord = CustomerRecord::find()->where(['customerId' => $user->id])->one();
+        $customerRecord = CustomerRecord::where('customerId', $user->id)->first();
         if (!$customerRecord) {
             $customerRecord = new CustomerRecord();
             $customerRecord->customerId = $user->id;

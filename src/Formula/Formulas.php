@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Formula;
 
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Twig\Environment;

@@ -11,7 +11,7 @@ use CraftCms\Commerce\Shipping\Records\ShippingRuleCategory as ShippingRuleCateg
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Json;
-use CraftCms\Commerce\Services\Formulas;
+use CraftCms\Commerce\Formula\Formulas;
 use CraftCms\Commerce\Shipping\Contracts\ShippingRuleInterface;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;

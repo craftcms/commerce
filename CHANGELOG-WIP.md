@@ -1,5 +1,14 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 10m: Service Namespace & Record Cleanup (Customer/Formula cluster)
+
+Thirteenth slice of Stage 10, and the last cluster with any remaining `craft\commerce\records\*` usage to convert: `Services\Customers` → `Customer\Customers` (new top-level namespace), `Services\Formulas` → `Formula\Formulas` (new top-level namespace).
+
+- Replaced `craft\commerce\records\Customer` with a new Eloquent model, `Customer\Records\Customer` — `ensureCustomer()`'s lookup converted from `CustomerRecord::find()->where([...])->one()` to `CustomerRecord::where('customerId', $user->id)->first()`.
+- `Formulas` has no record usage at all — pure namespace move, no persistence changes.
+- **Legacy `craft\commerce\records\Customer` record stays** — a new reason, distinct from every prior kept-record case this stage: the still-legacy `src-yii2/behaviors/CustomerBehavior.php` (a Yii2 behavior attached to every `User` element) queries it directly via `Customer::find()->where(['customerId' => ...])->one()`. `src-yii2/services/Customers.php`'s legacy wrapper also needed its `use craft\commerce\records\Customer as CustomerRecord;` import repointed to the new Eloquent class (its `ensureCustomer(): CustomerRecord` return type is a real, runtime-checked declaration — leaving it pointed at the legacy class would have thrown a `TypeError` the moment the underlying service started returning the new Eloquent object).
+- **Verification**: live via `craft exec:exec` — exercised `Formulas::validateConditionSyntax()`/`evaluateCondition()`, then `ensureCustomer()` (confirming it now returns the new Eloquent `Customer\Records\Customer`), a `where()`-based re-fetch confirming the same row, and a direct record save. Also surfaced (but did not fix, as it's a separate pre-existing integration gap unrelated to this stage's scope) a `User::EVENT_DEFINE_RULES`/`EVENT_DEFINE_FIELDS`-undefined-constant error that fires whenever a dynamic property is set on a `User` element that still has the legacy `CustomerBehavior` attached — a `CustomerBehavior`/new-`User`-element compatibility issue, not a `Customers`/`Formulas` service or record issue.
+
 ### Laravel Migration — Stage 10l: Service Namespace & Record Cleanup (Email/Pdf cluster)
 
 Twelfth slice of Stage 10: `Services\{Emails,Pdfs}` → `Email\Emails`/`Pdf\Pdfs`.

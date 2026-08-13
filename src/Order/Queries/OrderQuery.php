@@ -16,7 +16,7 @@ use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 use CraftCms\Commerce\Order\Models\OrderStatus;
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
-use CraftCms\Commerce\Services\Customers;
+use CraftCms\Commerce\Customer\Customers;
 use CraftCms\Commerce\Order\OrderAdjustments;
 use CraftCms\Commerce\Order\OrderNotices;
 use CraftCms\Commerce\Order\Orders;
