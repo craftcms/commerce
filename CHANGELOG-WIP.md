@@ -1,5 +1,13 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 12d: TopProducts
+
+Fourth slice of Stage 12 — `TopProducts` (stat + widget), the most complex pair: a correlated subquery for per-product tax/discount/shipping adjustment totals, a dynamically-built revenue expression driven by a `revenueOptions` checkbox-group setting, and DB-engine-conditional `IFNULL`/`COALESCE`.
+
+- `Stats\TopProducts`'s `createAdjustmentsSubQuery()` (per-product `SUM(CASE WHEN type='...' THEN amount END)` aggregates from `commerce_orderadjustments`) converts to a `DB::table()` builder, joined into the main query via `leftJoinSub()` — this migration's first use of that method. `getAdjustmentsSelect()`/`getGroupBy()`/`getOrderBy()` (which conditionally append `+`/`-` terms and `GROUP BY`/`ORDER BY` columns based on which revenue options are selected) keep building plain SQL strings exactly as before, just dropping Yii2's `[[column]]` quoting syntax, then get passed to `selectRaw()`/`groupByRaw()`/`orderByRaw()`. `Craft::$app->getDb()->getIsPgsql()` → `DB::connection()->getDriverName() === 'pgsql'`.
+- `Dashboard\Widgets\TopProducts`'s `revenueOptions` setting (previously 4 checkboxes, each with its own instructions text and JS-driven enable/disable tied to the `type` select) becomes a single `Choice::make('revenueOptions')->multiple()` field — the new Form system's `Choice` control doesn't support per-option instructions, so each option's description is folded into its label text instead (e.g. "Discount — Include line item discounts."); the JS-driven conditional enable/disable is dropped along with every other widget's custom JS in this stage (the field is now always visible/editable, only *meaningfully* affecting output when `type` is `revenue` — matching the same class of simplification as the dropped date-range picker).
+- **Verification**: live via `craft exec:exec` — confirmed the legacy alias, and ran `getData()` for all three meaningfully-different code paths (`qty` type, `revenue` type with the default 4 options selected, `revenue` type with only 1 option selected — the last one is what actually exercises the `revenue_custom` column and the correlated `leftJoinSub` adjustments query) with zero SQL errors, plus the widget's full `settingsForm()`/`getBodyHtml()` pipeline including the custom-revenue-options variant.
+
 ### Laravel Migration — Stage 12c: Table Widgets
 
 Third slice of Stage 12 — `TopCustomers`, `TopProductTypes`, `TopPurchasables` (stat + widget pairs), each with a `type` setting toggling between two sort/aggregate modes and rendering their body via the legacy `AdminTableAsset`-based table (kept as-is).
