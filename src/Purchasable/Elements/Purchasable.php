@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Purchasable\Elements;
 
 use craft\commerce\Plugin;
-use craft\commerce\records\Purchasable as PurchasableRecord;
-use craft\commerce\records\PurchasableStore;
 use CraftCms\Cms\Element\Contracts\NestedElementInterface;
 use CraftCms\Cms\Element\Element;
 use CraftCms\Cms\Support\Facades\I18N;
@@ -34,6 +32,8 @@ use CraftCms\Commerce\Promotion\Models\Sale;
 use CraftCms\Commerce\Promotion\Sales;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Purchasables;
+use CraftCms\Commerce\Purchasable\Records\Purchasable as PurchasableRecord;
+use CraftCms\Commerce\Purchasable\Records\PurchasableStore;
 use CraftCms\Commerce\Purchasable\Validation\PurchasableRules;
 use CraftCms\Commerce\Shipping\Models\ShippingCategory;
 use CraftCms\Commerce\Shipping\ShippingCategories;
@@ -820,8 +820,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                 }
             }
 
-            /** @phpstan-ignore-next-line */
-            $purchasable = PurchasableRecord::findOne($purchasableId);
+            $purchasable = PurchasableRecord::find($purchasableId);
 
             if (!$purchasable) {
                 $purchasable = new PurchasableRecord();
@@ -840,7 +839,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                 $purchasable->description = $this->getDescription();
             }
 
-            $purchasable->save(false);
+            $purchasable->save();
 
             // Always create the inventory item even if it's a temporary draft (in the slide) since we want to allow stock to be
             // added to inventory before it is saved as a permanent variant.
@@ -873,10 +872,9 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
         if ($purchasableId) {
             // Set Purchasables stores data
-            $purchasableStoreRecord = PurchasableStore::findOne([
-                'purchasableId' => $purchasableId,
-                'storeId' => $this->getStoreId(),
-            ]);
+            $purchasableStoreRecord = PurchasableStore::where('purchasableId', $purchasableId)
+                ->where('storeId', $this->getStoreId())
+                ->first();
             if (!$purchasableStoreRecord) {
                 $purchasableStoreRecord = new PurchasableStore();
                 $purchasableStoreRecord->storeId = $this->getStore()->id;
@@ -897,10 +895,9 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
                     if ($this->duplicateOf !== null) {
                         // If this is a duplicate, copy the values from the original purchasable stores record
-                        $purchasableStoreRecordDuplicate = PurchasableStore::findOne([
-                            'purchasableId' => $this->duplicateOf->id,
-                            'storeId' => $this->getStoreId(),
-                        ]);
+                        $purchasableStoreRecordDuplicate = PurchasableStore::where('purchasableId', $this->duplicateOf->id)
+                            ->where('storeId', $this->getStoreId())
+                            ->first();
 
                         if ($purchasableStoreRecordDuplicate) {
                             $purchasableStoreRecord->basePrice = $purchasableStoreRecordDuplicate->basePrice;
@@ -934,7 +931,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                 $purchasableStoreRecord->shippingCategoryId = $this->getShippingCategoryId();
             }
 
-            $purchasableStoreRecord->save(false);
+            $purchasableStoreRecord->save();
         }
 
         parent::afterSave($isNew);
@@ -957,8 +954,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function afterDelete(): void
     {
-        /** @phpstan-ignore-next-line */
-        $purchasable = PurchasableRecord::findOne($this->id);
+        $purchasable = PurchasableRecord::find($this->id);
 
         $purchasable?->delete();
 

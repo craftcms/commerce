@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Purchasable;
 
-use craft\commerce\elements\db\PurchasableQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\events\RegisterComponentTypesEvent;
@@ -18,7 +17,7 @@ use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Events\PurchasableAvailableEvent;
 use CraftCms\Commerce\Purchasable\Events\PurchasableOutOfStockPurchasesAllowedEvent;
 use CraftCms\Commerce\Purchasable\Events\PurchasableShippableEvent;
-use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery as NewPurchasableQuery;
+use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -175,8 +174,7 @@ class Purchasables
             ->provisionalDrafts(null)
             ->revisions(null);
 
-        // Donation (migrated) returns the new PurchasableQuery; Product/Variant (not yet migrated) still return the legacy one.
-        if ($query instanceof PurchasableQuery || $query instanceof NewPurchasableQuery) {
+        if ($query instanceof PurchasableQuery) {
             $query->forCustomer($forCustomer);
         }
 

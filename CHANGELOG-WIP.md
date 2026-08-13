@@ -1,5 +1,16 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 11a: Loose-End Cleanup (Purchasable/PurchasableStore Records, Dead Code)
+
+First slice of Stage 11 — closing three real gaps discovered while surveying what's left in `src-yii2/` after Stage 10.
+
+- **Converted `craft\commerce\records\{Purchasable,PurchasableStore}` to Eloquent** (`Purchasable\Records\{Purchasable,PurchasableStore}`) — these were the only two `craft\commerce\records\*` classes still directly used by already-migrated code (`Purchasable\Elements\Purchasable` and `Purchasable\Elements\Donation`), a real violation of the migration's "no legacy records in `src/`" principle left over from Stage 7a. `Purchasable`'s `id` is a foreign key to `elements.id` (needs `$incrementing = false`, same as `Purchasable\Models\Donation`). Converted `findOne()`/`save(false)` calls to their Eloquent equivalents.
+- **Both legacy records are fully deleted, not just repointed** — a better outcome than initially planned. `PurchasableStore` `use`s `StoreRecordTrait` (shared with 7 other still-legacy records), so the original plan assumed it had to stay like `Store`/`Email`/`Pdf`/`Customer` before it. Re-verifying turned up zero other consumers anywhere in the codebase (no fixture, no migration, no other legacy class calling its `getPurchasable()` relation) — using a shared trait doesn't by itself require a record to stay if nothing external actually depends on that specific record. Deleted both.
+- **Deleted 3 more confirmed-orphaned legacy files**: `src-yii2/elements/db/PurchasableQuery.php` (921 lines — nothing extends it anymore; `Variant`/`Donation`'s query classes both already extend the new `Purchasable\Queries\PurchasableQuery`, `Product`'s extends `ElementQuery` directly), `src-yii2/records/CatalogPricing.php`, `src-yii2/records/OrderStatusEmail.php` (zero references anywhere).
+- Removed 2 stale `instanceof PurchasableQuery` defensive branches (and their inaccurate "Product/Variant (not yet migrated)" comments — both were migrated in Stage 7d) in `Purchasable\Purchasables.php` and `Http\Controllers\OrdersController.php`.
+- Fixed a stale test assertion in `tests/unit/elements/donation/DonationQueryTest.php` that asserted `Donation::find()` was an instance of the legacy `PurchasableQuery` — it never was (it's always extended the new one) — repointed to the new class.
+- **Verification**: live via `craft exec:exec` — a full donation create → verify-via-both-new-Eloquent-records → delete → confirm-gone round trip, which exercises the exact `Purchasable::afterSave()`/`afterDelete()` code paths shared by every `Purchasable` subtype (`Donation` calls `parent::afterSave()`/doesn't override `afterDelete()` at all).
+
 ### Laravel Migration — Stage 10n: Final Import Alphabetization Pass
 
 Final slice of Stage 10, and the last thing needed to close it out — Stage 10's repeated bulk `sed` namespace-repointing passes (one per cluster, 10a through 10m) inserted or replaced individual `use` lines in place without re-sorting the surrounding block, leaving many files' imports out of alphabetical order. Rather than re-sort the same block after every sub-stage, this was deliberately deferred to a single pass at the end.

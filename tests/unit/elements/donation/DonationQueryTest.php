@@ -11,10 +11,10 @@ use Codeception\Test\Unit;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\db\DonationQuery;
-use craft\commerce\elements\db\PurchasableQuery;
 use craft\commerce\elements\Donation;
 use craft\commerce\Plugin;
 use craft\db\Query;
+use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery;
 use craftcommercetests\fixtures\StoreFixture;
 use UnitTester;
 

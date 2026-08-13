@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Purchasable\Elements;
 
-use craft\commerce\records\PurchasableStore as PurchasableStoreRecord;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Purchasable\Models\Donation as DonationRecord;
 use CraftCms\Commerce\Purchasable\Queries\DonationQuery;
+use CraftCms\Commerce\Purchasable\Records\PurchasableStore as PurchasableStoreRecord;
 use CraftCms\Commerce\Purchasable\Validation\DonationRules;
 use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Store\Models\Store;
@@ -187,7 +187,9 @@ class Donation extends Purchasable
         $stores
             ->filter(fn(Store $s) => $s->id !== $this->getStore()->id)
             ->each(function(Store $store) use ($isNew) {
-                $purchasableStoreRecord = PurchasableStoreRecord::findOne(['purchasableId' => $this->id, 'storeId' => $store->id]);
+                $purchasableStoreRecord = PurchasableStoreRecord::where('purchasableId', $this->id)
+                    ->where('storeId', $store->id)
+                    ->first();
                 if ($isNew || !$purchasableStoreRecord) {
                     $purchasableStoreRecord = new PurchasableStoreRecord();
                     $purchasableStoreRecord->purchasableId = $this->id;
@@ -206,7 +208,7 @@ class Donation extends Purchasable
                 $purchasableStoreRecord->freeShipping = true;
                 $purchasableStoreRecord->shippingCategoryId = app(ShippingCategories::class)->getDefaultShippingCategory($store->id)->id;
 
-                $purchasableStoreRecord->save(false);
+                $purchasableStoreRecord->save();
             });
     }
 }

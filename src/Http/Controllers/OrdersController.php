@@ -10,7 +10,6 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\db\Table;
-use craft\commerce\elements\db\PurchasableQuery;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\LineItemType;
 use craft\commerce\enums\OrderNoticeType;
@@ -59,7 +58,7 @@ use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Catalog\Events\ModifyPurchasablesTableQueryEvent;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Records\Transaction as TransactionRecord;
-use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery as NewPurchasableQuery;
+use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery;
 use DateTime;
 use DateTimeZone;
 use Illuminate\Http\Request;
@@ -1831,8 +1830,7 @@ JS, []);
 
             $query->status(null);
 
-            // Donation (migrated) returns the new PurchasableQuery; Product/Variant (not yet migrated) still return the legacy one.
-            if ($query instanceof PurchasableQuery || $query instanceof NewPurchasableQuery) {
+            if ($query instanceof PurchasableQuery) {
                 $query->forCustomer($customerId);
             }
 
