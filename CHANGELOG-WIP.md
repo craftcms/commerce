@@ -1,5 +1,15 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 10j: Service Namespace & Record Cleanup (Store cluster)
+
+Tenth slice of Stage 10: `Services\{Stores,StoreSettings}` → `Store\*`.
+
+- Replaced `craft\commerce\records\{Store,SiteStore,StoreSettings}` with new Eloquent models under `Store\Records\*`. `SiteStore` and `StoreSettings` are both keyed by a foreign column rather than an auto-incrementing `id` (`siteId` for `SiteStore` — one row per site; the owning store's own `id` for `StoreSettings` — one row per store) — both need `protected $primaryKey`/`public $incrementing = false` set explicitly, same class of bug Stage 7d found and fixed on element-backed models.
+- Found 2 more real consumers outside the services themselves, both already-migrated business models still reaching into the legacy records: `Store\Models\Store`'s currency-change validator (`craft\commerce\records\Store::findOne(['id' => ..., 'currency' => ...]) === null`) and `Store\Models\StoreSettings::getLocationAddress()`'s `StoreSettingsRecord::updateAll(...)` — both repointed to the new Eloquent classes.
+- **Found and fixed a second real bug while converting `handleChangedStore()`**: it called `$storeRecord->getIsNewRecord()`, a Yii2 `ActiveRecord` method with no Eloquent equivalent — silently missing on the new model (Eloquent has no method by that name at all, so this would have been an immediate fatal `Error: Call to undefined method`). Fixed with Eloquent's own new-record check, `!$storeRecord->exists`.
+- **All three legacy records stay** — a new, broader reason than any prior stage: `src-yii2/Base/StoreRecordTrait.php` (a shared Yii2 `ActiveRecord`-relation trait, `getStore(): hasOne(Store::class, ...)`) is still `use`d by 8 other legacy records, several of which are themselves staying for their own fixture/migration reasons (`OrderStatus`, `Discount`, `CatalogPricingRule`, `ShippingCategory` from earlier stages, plus `Email`/`Pdf`/`PurchasableStore`/`CatalogPricing` not yet reached) — converting the trait would require converting all of them simultaneously, well outside this stage's scope. `src-yii2/behaviors/StoreLocationBehavior.php` similarly still depends on `StoreSettings` directly. `src/` itself no longer touches any of the three, which is what actually matters for this stage.
+- **Verification**: live via `craft exec:exec` — listed stores/site stores, fetched store settings for the primary store, and directly exercised both the new Eloquent `Store` record and the fixed currency-change check (`doesntExist()`) with matching and non-matching currencies.
+
 ### Laravel Migration — Stage 10i: Service Namespace & Record Cleanup (Order cluster)
 
 Ninth slice of Stage 10, and the biggest by service count: `Services\{Orders,Carts,OrderNotices,OrderHistories,OrderAdjustments,OrderStatuses,LineItemStatuses,LineItems}` → `Order\*` (`LineItems` nested to `Order\LineItem\LineItems`, matching its existing `Data`/`Models`/`Enums` sub-namespace since Stage 7c).

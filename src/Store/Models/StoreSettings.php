@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Store\Models;
 
 use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
-use craft\commerce\records\StoreSettings as StoreSettingsRecord;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Facades\Addresses;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Json;
+use CraftCms\Commerce\Store\Records\StoreSettings as StoreSettingsRecord;
 use Illuminate\Support\Arr;
 
 class StoreSettings extends Component
@@ -62,8 +62,7 @@ class StoreSettings extends Component
             $storeLocationAddress->countryCode = 'US';
             if (Elements::saveElement($storeLocationAddress, false)) {
                 $this->setLocationAddress($storeLocationAddress);
-                /** @phpstan-ignore-next-line */
-                StoreSettingsRecord::updateAll(['locationAddressId' => $this->_locationAddressId], ['id' => $this->id]);
+                StoreSettingsRecord::where('id', $this->id)->update(['locationAddressId' => $this->_locationAddressId]);
             } else {
                 throw new \Exception('Could not save store location address');
             }

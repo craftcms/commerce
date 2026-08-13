@@ -36,7 +36,7 @@ use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Purchasable\Purchasables;
 use CraftCms\Commerce\Promotion\Sales;
 use CraftCms\Commerce\Shipping\ShippingCategories;
-use CraftCms\Commerce\Services\Stores;
+use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Tax\TaxCategories;
 use CraftCms\Commerce\Shipping\Models\ShippingCategory;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Store;
 
 use craft\commerce\Plugin;
-use craft\commerce\records\StoreSettings as StoreSettingsRecord;
 use craft\events\AuthorizationCheckEvent;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Store\Models\StoreSettings as StoreSettingsModel;
+use CraftCms\Commerce\Store\Records\StoreSettings as StoreSettingsRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -77,8 +77,7 @@ class StoreSettings
      */
     public function saveStoreSettings(StoreSettingsModel $storeSettings): bool
     {
-        /** @phpstan-ignore-next-line */
-        $storeSettingsRecord = StoreSettingsRecord::findOne($storeSettings->id);
+        $storeSettingsRecord = StoreSettingsRecord::find($storeSettings->id);
 
         if (!$storeSettingsRecord) {
             throw new InvalidConfigException('Invalid store ID');
@@ -121,8 +120,7 @@ class StoreSettings
             return false;
         }
 
-        /** @phpstan-ignore-next-line */
-        $storeSettings = StoreSettingsRecord::findOne(['locationAddressId' => $event->element->getCanonicalId()]);
+        $storeSettings = StoreSettingsRecord::where('locationAddressId', $event->element->getCanonicalId())->first();
         if (!$storeSettings) {
             return false;
         }

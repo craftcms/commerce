@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Store\Concerns;
 
-use CraftCms\Commerce\Services\Stores;
+use CraftCms\Commerce\Store\Stores;
 
 trait StoreTrait
 {

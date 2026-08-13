@@ -11,27 +11,27 @@ use Throwable;
 use yii\base\Component;
 
 /**
- * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Services\Stores::class)` instead.
+ * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Store\Stores::class)` instead.
  */
 class Stores extends Component
 {
-    public const EVENT_BEFORE_DELETE_STORE = \CraftCms\Commerce\Services\Stores::EVENT_BEFORE_DELETE_STORE;
+    public const EVENT_BEFORE_DELETE_STORE = \CraftCms\Commerce\Store\Stores::EVENT_BEFORE_DELETE_STORE;
 
-    public const EVENT_AFTER_DELETE_STORE = \CraftCms\Commerce\Services\Stores::EVENT_AFTER_DELETE_STORE;
+    public const EVENT_AFTER_DELETE_STORE = \CraftCms\Commerce\Store\Stores::EVENT_AFTER_DELETE_STORE;
 
-    public const EVENT_BEFORE_APPLY_STORE_DELETE = \CraftCms\Commerce\Services\Stores::EVENT_BEFORE_APPLY_STORE_DELETE;
+    public const EVENT_BEFORE_APPLY_STORE_DELETE = \CraftCms\Commerce\Store\Stores::EVENT_BEFORE_APPLY_STORE_DELETE;
 
-    public const EVENT_BEFORE_SAVE_STORE = \CraftCms\Commerce\Services\Stores::EVENT_BEFORE_SAVE_STORE;
+    public const EVENT_BEFORE_SAVE_STORE = \CraftCms\Commerce\Store\Stores::EVENT_BEFORE_SAVE_STORE;
 
-    public const EVENT_AFTER_SAVE_STORE = \CraftCms\Commerce\Services\Stores::EVENT_AFTER_SAVE_STORE;
+    public const EVENT_AFTER_SAVE_STORE = \CraftCms\Commerce\Store\Stores::EVENT_AFTER_SAVE_STORE;
 
-    public const CONFIG_STORES_KEY = \CraftCms\Commerce\Services\Stores::CONFIG_STORES_KEY;
+    public const CONFIG_STORES_KEY = \CraftCms\Commerce\Store\Stores::CONFIG_STORES_KEY;
 
-    public const CONFIG_SITESTORES_KEY = \CraftCms\Commerce\Services\Stores::CONFIG_SITESTORES_KEY;
+    public const CONFIG_SITESTORES_KEY = \CraftCms\Commerce\Store\Stores::CONFIG_SITESTORES_KEY;
 
     public function getCurrentStore(): Store
     {
-        return app(\CraftCms\Commerce\Services\Stores::class)->getCurrentStore();
+        return app(\CraftCms\Commerce\Store\Stores::class)->getCurrentStore();
     }
 
     /**
@@ -39,27 +39,27 @@ class Stores extends Component
      */
     public function getAllStores(): Collection
     {
-        return app(\CraftCms\Commerce\Services\Stores::class)->getAllStores();
+        return app(\CraftCms\Commerce\Store\Stores::class)->getAllStores();
     }
 
     public function getStoreById(int $id): ?Store
     {
-        return app(\CraftCms\Commerce\Services\Stores::class)->getStoreById($id);
+        return app(\CraftCms\Commerce\Store\Stores::class)->getStoreById($id);
     }
 
     public function getStoreByUid(string $uid): ?Store
     {
-        return app(\CraftCms\Commerce\Services\Stores::class)->getStoreByUid($uid);
+        return app(\CraftCms\Commerce\Store\Stores::class)->getStoreByUid($uid);
     }
 
     public function getStoreBySiteId(int $siteId): ?Store
     {
-        return app(\CraftCms\Commerce\Services\Stores::class)->getStoreBySiteId($siteId);
+        return app(\CraftCms\Commerce\Store\Stores::class)->getStoreBySiteId($siteId);
     }
 
     public function getStoreByHandle(string $handle): ?Store
     {
-        return app(\CraftCms\Commerce\Services\Stores::class)->getStoreByHandle($handle);
+        return app(\CraftCms\Commerce\Store\Stores::class)->getStoreByHandle($handle);
     }
 
     /**
@@ -67,22 +67,22 @@ class Stores extends Component
      */
     public function getStoresByUserId(int $userId): Collection
     {
-        return app(\CraftCms\Commerce\Services\Stores::class)->getStoresByUserId($userId);
+        return app(\CraftCms\Commerce\Store\Stores::class)->getStoresByUserId($userId);
     }
 
     public function saveStore(Store $store, bool $runValidation = true): bool
     {
-        return app(\CraftCms\Commerce\Services\Stores::class)->saveStore($store, $runValidation);
+        return app(\CraftCms\Commerce\Store\Stores::class)->saveStore($store, $runValidation);
     }
 
     public function deleteStoreById(int $storeId): bool
     {
-        return app(\CraftCms\Commerce\Services\Stores::class)->deleteStoreById($storeId);
+        return app(\CraftCms\Commerce\Store\Stores::class)->deleteStoreById($storeId);
     }
 
     public function deleteStore(Store $store): bool
     {
-        return app(\CraftCms\Commerce\Services\Stores::class)->deleteStore($store);
+        return app(\CraftCms\Commerce\Store\Stores::class)->deleteStore($store);
     }
 
     /**
@@ -90,7 +90,7 @@ class Stores extends Component
      */
     public function handleChangedStore(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Services\Stores::class)->handleChangedStore($event);
+        app(\CraftCms\Commerce\Store\Stores::class)->handleChangedStore($event);
     }
 
     /**
@@ -98,17 +98,17 @@ class Stores extends Component
      */
     public function handleDeletedStore(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Services\Stores::class)->handleDeletedStore($event);
+        app(\CraftCms\Commerce\Store\Stores::class)->handleDeletedStore($event);
     }
 
     public function refreshStores(): void
     {
-        app(\CraftCms\Commerce\Services\Stores::class)->refreshStores();
+        app(\CraftCms\Commerce\Store\Stores::class)->refreshStores();
     }
 
     public function getPrimaryStore(): ?Store
     {
-        return app(\CraftCms\Commerce\Services\Stores::class)->getPrimaryStore();
+        return app(\CraftCms\Commerce\Store\Stores::class)->getPrimaryStore();
     }
 
     /**
@@ -116,7 +116,7 @@ class Stores extends Component
      */
     public function reorderStores(array $ids): bool
     {
-        return app(\CraftCms\Commerce\Services\Stores::class)->reorderStores($ids);
+        return app(\CraftCms\Commerce\Store\Stores::class)->reorderStores($ids);
     }
 
     /**
@@ -124,7 +124,7 @@ class Stores extends Component
      */
     public function getAllSitesForStore(Store $store): Collection
     {
-        return app(\CraftCms\Commerce\Services\Stores::class)->getAllSitesForStore($store);
+        return app(\CraftCms\Commerce\Store\Stores::class)->getAllSitesForStore($store);
     }
 
     /**
@@ -132,12 +132,12 @@ class Stores extends Component
      */
     public function getAllSiteStores(): Collection
     {
-        return app(\CraftCms\Commerce\Services\Stores::class)->getAllSiteStores();
+        return app(\CraftCms\Commerce\Store\Stores::class)->getAllSiteStores();
     }
 
     public function getSiteIdsAvailableForAssignmentToNewStores(): array
     {
-        return app(\CraftCms\Commerce\Services\Stores::class)->getSiteIdsAvailableForAssignmentToNewStores();
+        return app(\CraftCms\Commerce\Store\Stores::class)->getSiteIdsAvailableForAssignmentToNewStores();
     }
 
     /**
@@ -145,7 +145,7 @@ class Stores extends Component
      */
     public function saveSiteStore(SiteStore $siteStore, bool $runValidation = true): bool
     {
-        return app(\CraftCms\Commerce\Services\Stores::class)->saveSiteStore($siteStore, $runValidation);
+        return app(\CraftCms\Commerce\Store\Stores::class)->saveSiteStore($siteStore, $runValidation);
     }
 
     /**
@@ -153,7 +153,7 @@ class Stores extends Component
      */
     public function handleChangedSiteStore(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Services\Stores::class)->handleChangedSiteStore($event);
+        app(\CraftCms\Commerce\Store\Stores::class)->handleChangedSiteStore($event);
     }
 
     /**
@@ -161,7 +161,7 @@ class Stores extends Component
      */
     public function handleDeletedSiteStore(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Services\Stores::class)->handleDeletedSiteStore($event);
+        app(\CraftCms\Commerce\Store\Stores::class)->handleDeletedSiteStore($event);
     }
 
     /**
@@ -169,7 +169,7 @@ class Stores extends Component
      */
     public function afterSaveCraftSiteHandler(SiteEvent $event): void
     {
-        app(\CraftCms\Commerce\Services\Stores::class)->afterSaveCraftSiteHandler($event);
+        app(\CraftCms\Commerce\Store\Stores::class)->afterSaveCraftSiteHandler($event);
     }
 
     /**
@@ -177,6 +177,6 @@ class Stores extends Component
      */
     public function afterDeleteCraftSiteHandler(SiteEvent $event): void
     {
-        app(\CraftCms\Commerce\Services\Stores::class)->afterDeleteCraftSiteHandler($event);
+        app(\CraftCms\Commerce\Store\Stores::class)->afterDeleteCraftSiteHandler($event);
     }
 }

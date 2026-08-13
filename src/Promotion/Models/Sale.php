@@ -8,7 +8,7 @@ use CraftCms\Commerce\Promotion\Records\Sale as SaleRecord;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Commerce\Database\Table;
-use CraftCms\Commerce\Services\Stores;
+use CraftCms\Commerce\Store\Stores;
 use DateTime;
 use Illuminate\Support\Facades\DB;
 

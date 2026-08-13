@@ -7,7 +7,7 @@ namespace CraftCms\Commerce\Inventory\Models;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Inventory\Inventory;
-use CraftCms\Commerce\Services\Stores;
+use CraftCms\Commerce\Store\Stores;
 use Illuminate\Support\Facades\DB;
 use function CraftCms\Cms\t;
 

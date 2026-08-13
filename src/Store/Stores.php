@@ -2,14 +2,12 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Store;
 
 use craft\commerce\models\OrderStatus;
 use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
-use craft\commerce\records\SiteStore as SiteStoreRecord;
-use craft\commerce\records\Store as StoreRecord;
 use CraftCms\Cms\Address\Elements\Address;
 use craft\events\ConfigEvent;
 use craft\events\SiteEvent;
@@ -26,6 +24,8 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
 use CraftCms\Commerce\Store\Events\DeleteStoreEvent;
 use CraftCms\Commerce\Store\Events\StoreEvent;
+use CraftCms\Commerce\Store\Records\SiteStore as SiteStoreRecord;
+use CraftCms\Commerce\Store\Records\Store as StoreRecord;
 use Exception;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;
@@ -301,7 +301,7 @@ class Stores
         $transaction = \Craft::$app->getDb()->beginTransaction();
         try {
             $storeRecord = $this->getStoreRecord($storeUid);
-            $isNewStore = $storeRecord->getIsNewRecord();
+            $isNewStore = !$storeRecord->exists;
 
             $storeRecord->uid = $storeUid;
             $storeRecord->name = $data['name'];
@@ -325,7 +325,7 @@ class Stores
             $storeRecord->currency = ($data['currency'] ?? null);
             $storeRecord->sortOrder = ($data['sortOrder'] ?? 99);
 
-            $storeRecord->save(false);
+            $storeRecord->save();
 
             $transaction->commit();
         } catch (Throwable $e) {
@@ -482,7 +482,7 @@ class Stores
      */
     private function getStoreRecord(string $uid): StoreRecord
     {
-        if ($store = StoreRecord::findOne(['uid' => $uid])) {
+        if ($store = StoreRecord::where('uid', $uid)->first()) {
             return $store;
         }
 
@@ -630,7 +630,7 @@ class Stores
 
         $transaction = \Craft::$app->getDb()->beginTransaction();
         try {
-            $siteStoreRecord = SiteStoreRecord::findOne(['uid' => $siteStoreUid]);
+            $siteStoreRecord = SiteStoreRecord::where('uid', $siteStoreUid)->first();
 
             if (!$siteStoreRecord) {
                 $siteStoreRecord = new SiteStoreRecord();
@@ -640,7 +640,7 @@ class Stores
             $siteStoreRecord->storeId = CraftDb::idByUid(Table::STORES, $data['store']);
             $siteStoreRecord->uid = $siteStoreUid;
 
-            $siteStoreRecord->save(false);
+            $siteStoreRecord->save();
 
             $transaction->commit();
 
@@ -659,7 +659,7 @@ class Stores
     public function handleDeletedSiteStore(ConfigEvent $event): void
     {
         $storeStoreUid = $event->tokenMatches[0];
-        $siteStoreRecord = SiteStoreRecord::findOne(['uid' => $storeStoreUid]); // site_stores uses the site UID
+        $siteStoreRecord = SiteStoreRecord::where('uid', $storeStoreUid)->first(); // site_stores uses the site UID
 
         if (!$siteStoreRecord) {
             return;
@@ -684,7 +684,7 @@ class Stores
      */
     public function afterSaveCraftSiteHandler(SiteEvent $event): void
     {
-        $siteStore = SiteStoreRecord::findOne(['siteId' => $event->site->id]);
+        $siteStore = SiteStoreRecord::find($event->site->id);
 
         // Only create it if it doesn't exist.
         // The saving of the store does not currently change the store relation, but if it did,

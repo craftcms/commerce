@@ -74,8 +74,9 @@ class Store extends Component
                     if (!$this->id) {
                         return;
                     }
-                    /** @phpstan-ignore-next-line */
-                    $isCurrencyChanging = \craft\commerce\records\Store::findOne(['id' => $this->id, 'currency' => $value]) === null;
+                    $isCurrencyChanging = \CraftCms\Commerce\Store\Records\Store::where('id', $this->id)
+                        ->where('currency', $value)
+                        ->doesntExist();
                     if (!$isCurrencyChanging) {
                         return;
                     }
