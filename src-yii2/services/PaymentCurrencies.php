@@ -10,7 +10,7 @@ use Money\Money;
 use yii\base\Component;
 
 /**
- * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Services\PaymentCurrencies::class)` instead.
+ * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Payment\PaymentCurrencies::class)` instead.
  */
 class PaymentCurrencies extends Component
 {
@@ -21,12 +21,12 @@ class PaymentCurrencies extends Component
 
     public function getRateFor(PaymentCurrency $currency, ?Transaction $transaction = null): float
     {
-        return app(\CraftCms\Commerce\Services\PaymentCurrencies::class)->getRateFor($currency, $transaction);
+        return app(\CraftCms\Commerce\Payment\PaymentCurrencies::class)->getRateFor($currency, $transaction);
     }
 
     public function getPaymentCurrencyById(int $id, ?int $storeId = null): ?PaymentCurrency
     {
-        return app(\CraftCms\Commerce\Services\PaymentCurrencies::class)->getPaymentCurrencyById($id, $storeId);
+        return app(\CraftCms\Commerce\Payment\PaymentCurrencies::class)->getPaymentCurrencyById($id, $storeId);
     }
 
     /**
@@ -34,22 +34,22 @@ class PaymentCurrencies extends Component
      */
     public function getAllPaymentCurrencies(?int $storeId = null): Collection
     {
-        return app(\CraftCms\Commerce\Services\PaymentCurrencies::class)->getAllPaymentCurrencies($storeId);
+        return app(\CraftCms\Commerce\Payment\PaymentCurrencies::class)->getAllPaymentCurrencies($storeId);
     }
 
     public function getPaymentCurrencyByIso(string $iso, ?int $storeId = null): ?PaymentCurrency
     {
-        return app(\CraftCms\Commerce\Services\PaymentCurrencies::class)->getPaymentCurrencyByIso($iso, $storeId);
+        return app(\CraftCms\Commerce\Payment\PaymentCurrencies::class)->getPaymentCurrencyByIso($iso, $storeId);
     }
 
     public function getPrimaryPaymentCurrencyIso(?int $storeId = null): string
     {
-        return app(\CraftCms\Commerce\Services\PaymentCurrencies::class)->getPrimaryPaymentCurrencyIso($storeId);
+        return app(\CraftCms\Commerce\Payment\PaymentCurrencies::class)->getPrimaryPaymentCurrencyIso($storeId);
     }
 
     public function getPrimaryPaymentCurrency(?int $storeId = null): ?PaymentCurrency
     {
-        return app(\CraftCms\Commerce\Services\PaymentCurrencies::class)->getPrimaryPaymentCurrency($storeId);
+        return app(\CraftCms\Commerce\Payment\PaymentCurrencies::class)->getPrimaryPaymentCurrency($storeId);
     }
 
     /**
@@ -57,12 +57,12 @@ class PaymentCurrencies extends Component
      */
     public function getNonPrimaryPaymentCurrencies(?int $storeId = null): Collection
     {
-        return app(\CraftCms\Commerce\Services\PaymentCurrencies::class)->getNonPrimaryPaymentCurrencies($storeId);
+        return app(\CraftCms\Commerce\Payment\PaymentCurrencies::class)->getNonPrimaryPaymentCurrencies($storeId);
     }
 
     public function convert(float $amount, string $currency): float
     {
-        return app(\CraftCms\Commerce\Services\PaymentCurrencies::class)->convert($amount, $currency);
+        return app(\CraftCms\Commerce\Payment\PaymentCurrencies::class)->convert($amount, $currency);
     }
 
     /**
@@ -74,7 +74,7 @@ class PaymentCurrencies extends Component
      */
     public function convertCurrency(float $amount, string $fromCurrency, string $toCurrency, bool $round = false): float
     {
-        $svc = app(\CraftCms\Commerce\Services\PaymentCurrencies::class);
+        $svc = app(\CraftCms\Commerce\Payment\PaymentCurrencies::class);
         $from = $svc->getPaymentCurrencyByIso($fromCurrency);
         $to = $svc->getPaymentCurrencyByIso($toCurrency);
 
@@ -99,16 +99,16 @@ class PaymentCurrencies extends Component
 
     public function savePaymentCurrency(PaymentCurrency $model, bool $runValidation = true): bool
     {
-        return app(\CraftCms\Commerce\Services\PaymentCurrencies::class)->savePaymentCurrency($model, $runValidation);
+        return app(\CraftCms\Commerce\Payment\PaymentCurrencies::class)->savePaymentCurrency($model, $runValidation);
     }
 
     public function deletePaymentCurrencyById(int $id): bool
     {
-        return app(\CraftCms\Commerce\Services\PaymentCurrencies::class)->deletePaymentCurrencyById($id);
+        return app(\CraftCms\Commerce\Payment\PaymentCurrencies::class)->deletePaymentCurrencyById($id);
     }
 
     public function convertAmount(Money $amount, Currency|string $currency, ?int $storeId = null): Money
     {
-        return app(\CraftCms\Commerce\Services\PaymentCurrencies::class)->convertAmount($amount, $currency, $storeId);
+        return app(\CraftCms\Commerce\Payment\PaymentCurrencies::class)->convertAmount($amount, $currency, $storeId);
     }
 }

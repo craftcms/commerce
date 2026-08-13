@@ -31,7 +31,7 @@ use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Validation\PurchasableRules;
 use CraftCms\Commerce\Services\CatalogPricing;
 use CraftCms\Commerce\Services\CatalogPricingRules;
-use CraftCms\Commerce\Services\Currencies;
+use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Services\Inventory;
 use CraftCms\Commerce\Services\Purchasables;
 use CraftCms\Commerce\Services\Sales;

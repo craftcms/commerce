@@ -9,7 +9,7 @@ use craft\commerce\elements\Order;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Commerce\Services\Gateways;
 use CraftCms\Commerce\Services\Orders;
-use CraftCms\Commerce\Services\PaymentCurrencies;
+use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Services\Transactions;
 use DateTime;
 

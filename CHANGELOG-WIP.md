@@ -1,5 +1,15 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 10a: Service Namespace & Record Cleanup (Currencies, PaymentCurrencies)
+
+First slice of Stage 10: relocating the 44 services flat-namespaced under `CraftCms\Commerce\Services\*` (Stage 6) into their proper feature namespace, and replacing any remaining `craft\commerce\records\*` usage with Eloquent along the way. Doing this domain-by-domain, combining the namespace move and the record conversion in each slice rather than as separate passes.
+
+- `Services\Currencies` → `Payment\Currencies` (no persistence of its own — pure Money-library ISO/teller wrapper — trivial move).
+- `Services\PaymentCurrencies` → `Payment\PaymentCurrencies`. Replaced `craft\commerce\records\PaymentCurrency` (Yii2 `ActiveRecord`) with a new thin Eloquent model, `Payment\Records\PaymentCurrency` (extends `CraftCms\Cms\Shared\BaseModel`), mapped to the same `commerce_paymentcurrencies` table. Kept it in a new `Records/` sub-namespace, distinct from the existing business-object `Payment\Models\PaymentCurrency` (a `Component`-based model, unrelated to persistence) — deliberately not merging the two, since Stage 7c already found that Eloquent's `__get()` doesn't route bare property access through same-named getters the way `Component`/legacy `Model` does, which silently broke adjusters last time this was tried.
+- Updated the legacy `src-yii2/services/{Currencies,PaymentCurrencies}.php` wrapper `app()` calls, and every other `src/` call site (`Order\Elements\Order`, `Purchasable\Elements\Purchasable`, `Payment\Models\Transaction`) to the new namespace.
+- The legacy `craft\commerce\records\PaymentCurrency` ActiveRecord class is now fully unreferenced and deleted (including its one remaining consumer, `tests/unit/services/PaymentCurrenciesTest.php`, updated to use the new Eloquent model instead) — no `craft\commerce\records\*` class survives for this domain, matching Stage 7's own "no record survives, not even as a stub" principle.
+- **Verification**: Codeception and phpstan are both currently broken in the dev environment for reasons unrelated to this change (`craft\test\TestSetup` missing from the composer autoload map; a stale `phpstan.neon` path pointing at a nonexistent yii2-adapter file) — verified live instead via `craft exec:exec`: fetched a currency by ISO, listed/fetched the primary payment currency, and round-tripped a full create → find → delete cycle through the new Eloquent `Payment\Records\PaymentCurrency` model, confirming the row was actually persisted and removed.
+
 ### Laravel Migration — Stage 9k: Controllers & Routes (Email, PDF, Users, Misc) — Stage 9 complete
 
 Migrated the final six legacy controllers — `EmailsController`, `PdfsController` to

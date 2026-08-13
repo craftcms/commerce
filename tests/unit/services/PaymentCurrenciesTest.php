@@ -11,8 +11,8 @@ use Codeception\Test\Unit;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\events\PaymentCurrencyRateEvent;
 use craft\commerce\Plugin;
-use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\commerce\services\PaymentCurrencies;
+use CraftCms\Commerce\Payment\Records\PaymentCurrency as PaymentCurrencyRecord;
 use craftcommercetests\fixtures\PaymentCurrenciesFixture;
 use Money\Currency;
 use Money\Money;
@@ -255,7 +255,7 @@ class PaymentCurrenciesTest extends Unit
 
             self::assertTrue($this->pc->savePaymentCurrency($eur));
 
-            $record = PaymentCurrencyRecord::findOne(['id' => $eur->id]);
+            $record = PaymentCurrencyRecord::find($eur->id);
             self::assertNotNull($record);
             self::assertEquals(0.75, $record->rate, 'Raw admin-entered rate is persisted, not the event rate.');
 

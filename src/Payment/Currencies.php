@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Payment;
 
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;

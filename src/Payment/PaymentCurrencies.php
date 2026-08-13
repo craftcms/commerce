@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\Payment;
 
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
-use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Payment\Events\PaymentCurrencyRateEvent;
 use CraftCms\Commerce\Payment\Models\PaymentCurrency;
+use CraftCms\Commerce\Payment\Records\PaymentCurrency as PaymentCurrencyRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -154,10 +154,9 @@ class PaymentCurrencies
     public function savePaymentCurrency(PaymentCurrency $model, bool $runValidation = true): bool
     {
         if ($model->id) {
-            /** @phpstan-ignore-next-line */
-            $record = PaymentCurrencyRecord::findOne($model->id);
+            $record = PaymentCurrencyRecord::find($model->id);
             if (!$record) {
-                throw new \RuntimeException(t('No currency exists with the ID “{id}”', ['id' => $model->id], category: 'commerce'));
+                throw new \RuntimeException(t('No currency exists with the ID "{id}"', ['id' => $model->id], category: 'commerce'));
             }
         } else {
             $record = new PaymentCurrencyRecord();
@@ -172,7 +171,7 @@ class PaymentCurrencies
         // If this rate is primary, the rate must be 1.
         $record->rate = $model->getPrimary() ? 1 : $model->rate;
 
-        $record->save(false);
+        $record->save();
 
         $model->id = $record->id;
 
@@ -181,8 +180,7 @@ class PaymentCurrencies
 
     public function deletePaymentCurrencyById(int $id): bool
     {
-        /** @phpstan-ignore-next-line */
-        $paymentCurrency = PaymentCurrencyRecord::findOne($id);
+        $paymentCurrency = PaymentCurrencyRecord::find($id);
 
         if (!$paymentCurrency) {
             return false;

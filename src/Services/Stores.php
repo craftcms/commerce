@@ -8,7 +8,6 @@ use craft\commerce\models\OrderStatus;
 use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
-use craft\commerce\records\PaymentCurrency;
 use craft\commerce\records\ShippingCategory;
 use craft\commerce\records\SiteStore as SiteStoreRecord;
 use craft\commerce\records\Store as StoreRecord;
