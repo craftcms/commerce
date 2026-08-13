@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\CatalogPricing;
 
 use craft\commerce\Plugin;
-use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
-use CraftCms\Cms\Support\Facades\Users;
-use CraftCms\Cms\User\Elements\User;
 use craft\events\ModelEvent;
 use craft\events\UserGroupsAssignEvent;
+use CraftCms\Cms\Support\Facades\Users;
+use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Catalog\Models\CatalogPricingRule;
+use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule as CatalogPricingRuleRecord;
 use CraftCms\Commerce\Database\Table;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
@@ -193,11 +193,9 @@ class CatalogPricingRules
         $isNew = !$catalogPricingRule->id;
 
         if ($isNew) {
-            /** @phpstan-ignore-next-line */
             $record = new CatalogPricingRuleRecord();
         } else {
-            /** @phpstan-ignore-next-line */
-            $record = CatalogPricingRuleRecord::findOne($catalogPricingRule->id);
+            $record = CatalogPricingRuleRecord::find($catalogPricingRule->id);
 
             if (!$record) {
                 throw new \RuntimeException(t('No catalog pricing rule exists with the ID "{id}"', ['id' => $catalogPricingRule->id], category: 'commerce'));
@@ -243,8 +241,7 @@ class CatalogPricingRules
         DB::beginTransaction();
 
         try {
-            /** @phpstan-ignore-next-line */
-            $record->save(false);
+            $record->save();
             $catalogPricingRule->id = $record->id;
 
             DB::table(Table::CATALOG_PRICING_RULES_USERS)
@@ -280,8 +277,7 @@ class CatalogPricingRules
 
     public function deleteCatalogPricingRuleById(int $id): bool
     {
-        /** @phpstan-ignore-next-line */
-        $record = CatalogPricingRuleRecord::findOne($id);
+        $record = CatalogPricingRuleRecord::find($id);
 
         if (!$record) {
             return false;
@@ -289,7 +285,6 @@ class CatalogPricingRules
 
         $this->clearCaches();
 
-        /** @phpstan-ignore-next-line */
         return (bool) $record->delete();
     }
 

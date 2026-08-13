@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Services;
+namespace CraftCms\Commerce\CatalogPricing;
 
 use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\CatalogPricing as CatalogPricingJob;
-use craft\commerce\records\CatalogPricingQueue as CatalogPricingQueueRecord;
 use craft\helpers\Console;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Commerce\Catalog\Models\CatalogPricing as CatalogPricingModel;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCustomerConditionRule;
+use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingQueue as CatalogPricingQueueRecord;
 use CraftCms\Commerce\Database\Table;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;
@@ -436,15 +436,16 @@ class CatalogPricing
                 return null;
             }
 
-            /** @var CatalogPricingQueueRecord|null $record */
-            $record = CatalogPricingQueueRecord::findOne(['id' => (int)$pendingId, 'reserved' => false]);
+            $record = CatalogPricingQueueRecord::where('id', (int)$pendingId)
+                ->where('reserved', false)
+                ->first();
 
             if (!$record) {
                 return null;
             }
 
             $record->reserved = true;
-            $record->save(false);
+            $record->save();
 
             return $record;
         } finally {
@@ -454,16 +455,16 @@ class CatalogPricing
 
     public function releaseCatalogPricingQueueRowById(int $id): void
     {
-        $record = CatalogPricingQueueRecord::findOne($id);
+        $record = CatalogPricingQueueRecord::find($id);
         if ($record) {
             $record->reserved = false;
-            $record->save(false);
+            $record->save();
         }
     }
 
     public function deleteCatalogPricingQueueRowById(int $id): void
     {
-        CatalogPricingQueueRecord::deleteAll(['id' => $id]);
+        CatalogPricingQueueRecord::where('id', $id)->delete();
     }
 
     /**
@@ -482,22 +483,20 @@ class CatalogPricing
 
         try {
             // Merge into an existing unreserved row for the same store and type.
-            /** @var CatalogPricingQueueRecord|null $pendingRecord */
-            $pendingRecord = CatalogPricingQueueRecord::findOne([
-                'storeId' => $storeId,
-                'type' => $type,
-                'reserved' => false,
-            ]);
+            $pendingRecord = CatalogPricingQueueRecord::where('storeId', $storeId)
+                ->where('type', $type)
+                ->where('reserved', false)
+                ->first();
 
             if ($pendingRecord) {
                 // Merge IDs, preserving null to represent the broader "all IDs" scope.
-                $pendingIds = $pendingRecord->getIds();
+                $pendingIds = $pendingRecord->ids;
                 $ids = ($pendingIds === null || $ids === null)
                     ? null
                     : $this->_normalizeIds(array_merge($pendingIds, $ids));
 
-                $pendingRecord->setIds($ids);
-                $pendingRecord->save(false);
+                $pendingRecord->ids = $ids;
+                $pendingRecord->save();
 
                 return;
             }
@@ -505,9 +504,9 @@ class CatalogPricing
             $record = new CatalogPricingQueueRecord();
             $record->storeId = $storeId;
             $record->type = $type;
-            $record->setIds($ids);
+            $record->ids = $ids;
             $record->reserved = false;
-            $record->save(false);
+            $record->save();
         } finally {
             $mutex->release('catalogpricingqueue');
         }

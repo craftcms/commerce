@@ -42,7 +42,7 @@ class Sales
         // TODO: migrate to app(Stores::class)->getAllStores() once Stores service migrated
         /** @phpstan-ignore-next-line */
         $singleStore = Plugin::getInstance()->getStores()->getAllStores()->count() === 1;
-        $noCatalogPricingRules = app(\CraftCms\Commerce\Services\CatalogPricingRules::class)->getAllCatalogPricingRules()->isEmpty();
+        $noCatalogPricingRules = app(\CraftCms\Commerce\CatalogPricing\CatalogPricingRules::class)->getAllCatalogPricingRules()->isEmpty();
 
         return $singleStore && $noCatalogPricingRules;
     }

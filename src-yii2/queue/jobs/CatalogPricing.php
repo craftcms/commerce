@@ -8,7 +8,7 @@
 namespace craft\commerce\queue\jobs;
 
 use craft\commerce\Plugin;
-use craft\commerce\records\CatalogPricingQueue as CatalogPricingQueueRecord;
+use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingQueue as CatalogPricingQueueRecord;
 use craft\queue\BaseJob;
 
 class CatalogPricing extends BaseJob

@@ -11,7 +11,7 @@ use craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantConditi
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
-use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
+use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule as CatalogPricingRuleRecord;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
@@ -27,6 +27,7 @@ use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 use function CraftCms\Cms\currentUserElement;
@@ -325,19 +326,17 @@ JS;
 
         abort_if(empty($ids), 400, 'Missing ids');
 
-        $transaction = \Craft::$app->getDb()->beginTransaction();
-        $rules = CatalogPricingRuleRecord::find()
-            ->where(['id' => $ids])
-            ->all();
         $storeId = null;
 
-        /** @var CatalogPricingRuleRecord $rule */
-        foreach ($rules as $rule) {
-            $storeId ??= $rule->storeId;
-            $rule->enabled = ($status == 'enabled');
-            $rule->save();
-        }
-        $transaction->commit();
+        DB::transaction(function() use ($ids, $status, &$storeId) {
+            $rules = CatalogPricingRuleRecord::whereIn('id', $ids)->get();
+
+            foreach ($rules as $rule) {
+                $storeId ??= $rule->storeId;
+                $rule->enabled = ($status == 'enabled');
+                $rule->save();
+            }
+        });
 
         Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
             'catalogPricingRuleIds' => $ids,

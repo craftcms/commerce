@@ -1,5 +1,16 @@
 # Release Notes for Craft Commerce 6 WIP
 
+### Laravel Migration — Stage 10e: Service Namespace & Record Cleanup (CatalogPricing cluster)
+
+Fifth slice of Stage 10: `Services\{CatalogPricing,CatalogPricingRules}` → `CatalogPricing\*`.
+
+- Both replaced their legacy `craft\commerce\records\{CatalogPricingQueue,CatalogPricingRule}` `ActiveRecord` classes with new Eloquent models under `CatalogPricing\Records\*`.
+- `CatalogPricingQueue`'s custom `getIds()`/`setIds()` methods (manual `Json::encode()`/`decode()` around a text column) are replaced by a plain `'ids' => 'array'` Eloquent cast — callers now just read/write `$record->ids` directly.
+- `CatalogPricingRule`'s `APPLY_BY_PERCENT`/`APPLY_BY_FLAT`/`APPLY_TO_PERCENT`/`APPLY_TO_FLAT`/`APPLY_PRICE_TYPE_PRICE`/`APPLY_PRICE_TYPE_PROMOTIONAL_PRICE` constants moved onto the new Eloquent class, repointing `Catalog\Models\CatalogPricingRule` and `Http\Controllers\Settings\CatalogPricingRulesController`; `CatalogPricingQueue`'s `TYPE_PURCHASABLE`/`TYPE_RULE` constants repointed the still-legacy `src-yii2\queue\jobs\CatalogPricing` job.
+- Converted one more real leftover `ActiveRecord` bulk-toggle query to Eloquent, same shape as prior stages: `CatalogPricingRulesController::updateStatus()`.
+- **Both legacy records are kept as-is this time** (not deleted, but also not because of a fixture — a new reason): `src-yii2/migrations/Install.php` uses both directly for their table-creation `enum()` column definitions (`CatalogPricingQueue::TYPE_PURCHASABLE`/`TYPE_RULE`, `CatalogPricingRule::APPLY_PRICE_TYPE_*`). Migrations are frozen historical schema-application code and are never touched by this migration effort, so both legacy records stay put — `src/` itself no longer references either, which is what matters.
+- **Verification**: live via `craft exec:exec` — listed catalog pricing rules, confirmed the relocated `APPLY_BY_PERCENT` constant, and exercised the full catalog-pricing-queue lifecycle end-to-end: `createCatalogPricingJob()` → `reserveCatalogPricingQueueRow()` (confirming the merged `ids` array cast round-trips correctly) → `releaseCatalogPricingQueueRowById()` → `deleteCatalogPricingQueueRowById()` → confirmed gone.
+
 ### Laravel Migration — Stage 10d: Service Namespace & Record Cleanup (Promotion cluster)
 
 Fourth slice of Stage 10, and the largest so far: `Services\{Discounts,Sales,Coupons}` → `Promotion\*`.

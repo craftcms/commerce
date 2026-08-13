@@ -9,23 +9,23 @@ use Illuminate\Support\Collection;
 use yii\base\Component;
 
 /**
- * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Services\CatalogPricingRules::class)` instead.
+ * @deprecated 6.0.0 use `app(\CraftCms\Commerce\CatalogPricing\CatalogPricingRules::class)` instead.
  */
 class CatalogPricingRules extends Component
 {
     public function hasCatalogPricingRules(): bool
     {
-        return app(\CraftCms\Commerce\Services\CatalogPricingRules::class)->hasCatalogPricingRules();
+        return app(\CraftCms\Commerce\CatalogPricing\CatalogPricingRules::class)->hasCatalogPricingRules();
     }
 
     public function canUseCatalogPricingRules(): bool
     {
-        return app(\CraftCms\Commerce\Services\CatalogPricingRules::class)->canUseCatalogPricingRules();
+        return app(\CraftCms\Commerce\CatalogPricing\CatalogPricingRules::class)->canUseCatalogPricingRules();
     }
 
     public function getCatalogPricingRuleById(int $id, ?int $storeId = null): ?CatalogPricingRule
     {
-        return app(\CraftCms\Commerce\Services\CatalogPricingRules::class)->getCatalogPricingRuleById($id, $storeId);
+        return app(\CraftCms\Commerce\CatalogPricing\CatalogPricingRules::class)->getCatalogPricingRuleById($id, $storeId);
     }
 
     /**
@@ -33,7 +33,7 @@ class CatalogPricingRules extends Component
      */
     public function getAllCatalogPricingRules(?int $storeId = null): Collection
     {
-        return app(\CraftCms\Commerce\Services\CatalogPricingRules::class)->getAllCatalogPricingRules($storeId);
+        return app(\CraftCms\Commerce\CatalogPricing\CatalogPricingRules::class)->getAllCatalogPricingRules($storeId);
     }
 
     /**
@@ -41,7 +41,7 @@ class CatalogPricingRules extends Component
      */
     public function getAllCatalogPricingRulesByPurchasableId(int $purchasableId, ?int $storeId = null): Collection
     {
-        return app(\CraftCms\Commerce\Services\CatalogPricingRules::class)->getAllCatalogPricingRulesByPurchasableId($purchasableId, $storeId);
+        return app(\CraftCms\Commerce\CatalogPricing\CatalogPricingRules::class)->getAllCatalogPricingRulesByPurchasableId($purchasableId, $storeId);
     }
 
     /**
@@ -49,7 +49,7 @@ class CatalogPricingRules extends Component
      */
     public function getAllEnabledCatalogPricingRules(?int $storeId = null): Collection
     {
-        return app(\CraftCms\Commerce\Services\CatalogPricingRules::class)->getAllEnabledCatalogPricingRules($storeId);
+        return app(\CraftCms\Commerce\CatalogPricing\CatalogPricingRules::class)->getAllEnabledCatalogPricingRules($storeId);
     }
 
     /**
@@ -57,7 +57,7 @@ class CatalogPricingRules extends Component
      */
     public function getAllActiveCatalogPricingRules(?int $storeId = null): Collection
     {
-        return app(\CraftCms\Commerce\Services\CatalogPricingRules::class)->getAllActiveCatalogPricingRules($storeId);
+        return app(\CraftCms\Commerce\CatalogPricing\CatalogPricingRules::class)->getAllActiveCatalogPricingRules($storeId);
     }
 
     /**
@@ -65,26 +65,26 @@ class CatalogPricingRules extends Component
      */
     public function getAllCatalogPricingRulesWithUserConditions(?int $storeId = null): Collection
     {
-        return app(\CraftCms\Commerce\Services\CatalogPricingRules::class)->getAllCatalogPricingRulesWithUserConditions($storeId);
+        return app(\CraftCms\Commerce\CatalogPricing\CatalogPricingRules::class)->getAllCatalogPricingRulesWithUserConditions($storeId);
     }
 
     public function generateRulePriceFromPrice(?float $basePrice, ?float $basePromotionalPrice, CatalogPricingRule $catalogPricingRule): ?float
     {
-        return app(\CraftCms\Commerce\Services\CatalogPricingRules::class)->generateRulePriceFromPrice($basePrice, $basePromotionalPrice, $catalogPricingRule);
+        return app(\CraftCms\Commerce\CatalogPricing\CatalogPricingRules::class)->generateRulePriceFromPrice($basePrice, $basePromotionalPrice, $catalogPricingRule);
     }
 
     public function afterSaveUserHandler(ModelEvent|UserGroupsAssignEvent $event): void
     {
-        app(\CraftCms\Commerce\Services\CatalogPricingRules::class)->afterSaveUserHandler($event);
+        app(\CraftCms\Commerce\CatalogPricing\CatalogPricingRules::class)->afterSaveUserHandler($event);
     }
 
     public function saveCatalogPricingRule(CatalogPricingRule $catalogPricingRule, bool $runValidation = true): bool
     {
-        return app(\CraftCms\Commerce\Services\CatalogPricingRules::class)->saveCatalogPricingRule($catalogPricingRule, $runValidation);
+        return app(\CraftCms\Commerce\CatalogPricing\CatalogPricingRules::class)->saveCatalogPricingRule($catalogPricingRule, $runValidation);
     }
 
     public function deleteCatalogPricingRuleById(int $id): bool
     {
-        return app(\CraftCms\Commerce\Services\CatalogPricingRules::class)->deleteCatalogPricingRuleById($id);
+        return app(\CraftCms\Commerce\CatalogPricing\CatalogPricingRules::class)->deleteCatalogPricingRuleById($id);
     }
 }

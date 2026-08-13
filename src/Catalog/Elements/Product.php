@@ -63,7 +63,7 @@ use CraftCms\Commerce\Catalog\Queries\VariantQuery;
 use CraftCms\Commerce\Catalog\Validation\ProductRules;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
-use CraftCms\Commerce\Services\CatalogPricing;
+use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\Services\Products;
 use CraftCms\Commerce\Shipping\Models\ShippingCategory;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;

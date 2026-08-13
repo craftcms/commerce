@@ -12,7 +12,7 @@ use craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantConditi
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Catalog\Elements\Variant;
 use craft\commerce\Plugin;
-use craft\commerce\records\CatalogPricingRule as PricingCatalogRuleRecord;
+use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule as PricingCatalogRuleRecord;
 use craft\elements\db\ElementQuery;
 use CraftCms\Cms\User\Elements\User;
 use craft\events\CancelableEvent;

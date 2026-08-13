@@ -18,7 +18,7 @@ use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Order\Models\LineItemStatus;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
-use CraftCms\Commerce\Services\CatalogPricingRules;
+use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\Promotion\Discounts;
 use CraftCms\Commerce\Services\Inventory;
 use CraftCms\Commerce\Services\LineItemStatuses;
