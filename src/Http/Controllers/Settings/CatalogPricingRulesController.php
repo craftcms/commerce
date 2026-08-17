@@ -347,7 +347,7 @@ JS;
 
         $variables['percentSymbol'] = I18N::getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
         $primaryCurrencyIso = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-        $variables['currencySymbol'] = \Craft::$app->getLocale()->getCurrencySymbol($primaryCurrencyIso);
+        $variables['currencySymbol'] = I18N::getLocale()->getCurrencySymbol($primaryCurrencyIso);
 
         $variables['applyAmount'] = '';
         if ($catalogPricingRule->applyAmount !== null) {

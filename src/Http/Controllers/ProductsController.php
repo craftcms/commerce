@@ -10,7 +10,9 @@ use CraftCms\Cms\Element\ElementHelper;
 use CraftCms\Cms\Element\Validation\ElementRules;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\DateTimeHelper;
+use CraftCms\Cms\Structure\Structures;
 use CraftCms\Cms\Support\Facades\Drafts;
+use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use Illuminate\Http\Request;
@@ -46,21 +48,20 @@ readonly class ProductsController
         $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle($productTypeHandle);
         abort_unless($productType, 400, "Invalid product type handle: $productTypeHandle");
 
-        $sitesService = \Craft::$app->getSites();
         $siteId = $request->input('siteId');
 
         if ($siteId) {
-            $site = $sitesService->getSiteById($siteId);
+            $site = Sites::getSiteById($siteId);
             abort_unless($site, 400, "Invalid site ID: $siteId");
         } else {
             $site = \craft\helpers\Cp::requestedSite();
             abort_unless($site, 403, 'User not authorized to edit content in any sites.');
         }
 
-        $editableSiteIds = $sitesService->getEditableSiteIds();
-        if (!in_array($site->id, $editableSiteIds)) {
+        $editableSiteIds = Sites::getEditableSiteIds();
+        if (!$editableSiteIds->contains($site->id)) {
             // Go with the first one
-            $site = $sitesService->getSiteById($editableSiteIds[0]);
+            $site = Sites::getSiteById($editableSiteIds->first());
         }
 
         $user = currentUserElement();
@@ -134,12 +135,12 @@ readonly class ProductsController
                 $nextEntry = Plugin::getInstance()->getProducts()->getProductById((int)$nextId, $site->id, [
                     'structureId' => $productType->structureId,
                 ]);
-                \Craft::$app->getStructures()->moveBefore($productType->structureId, $product, $nextEntry);
+                app(Structures::class)->moveBefore($productType->structureId, $product, $nextEntry);
             } elseif ($prevId = $request->input('after')) {
                 $prevEntry = Plugin::getInstance()->getProducts()->getProductById((int)$prevId, $site->id, [
                     'structureId' => $productType->structureId,
                 ]);
-                \Craft::$app->getStructures()->moveAfter($productType->structureId, $product, $prevEntry);
+                app(Structures::class)->moveAfter($productType->structureId, $product, $prevEntry);
             }
         }
 

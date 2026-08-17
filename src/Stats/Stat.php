@@ -165,7 +165,7 @@ abstract class Stat implements StatInterface
                 $startDate = I18N::getFormatter()->asDate($this->_startDate, Locale::LENGTH_SHORT);
                 $endDate = I18N::getFormatter()->asDate($this->_endDate, Locale::LENGTH_SHORT);
 
-                if (\Craft::$app->getLocale()->getOrientation() == 'rtl') {
+                if (I18N::getLocale()->getOrientation() == 'rtl') {
                     return $endDate . ' - ' . $startDate;
                 }
 
@@ -303,12 +303,12 @@ abstract class Stat implements StatInterface
             $timezoneConversionSql = 'dateOrdered';
 
             if (\craft\helpers\Db::supportsTimeZones()) {
-                $timezoneConversionSql = "CONVERT_TZ(dateOrdered, 'UTC', '" . \Craft::$app->getTimeZone() . "')";
+                $timezoneConversionSql = "CONVERT_TZ(dateOrdered, 'UTC', '" . date_default_timezone_get() . "')";
             } else {
                 \Craft::getLogger()->log('For accurate Commerce statistics it is recommend to make sure you have the timezones table populated. https://craftcms.com/knowledge-base/populating-mysql-mariadb-timezone-tables', \Craft::getLogger()::LEVEL_WARNING, 'commerce');
             }
         } else {
-            $timezoneConversionSql = "((dateOrdered AT TIME ZONE 'UTC') AT TIME ZONE '" . \Craft::$app->getTimeZone() . "')";
+            $timezoneConversionSql = "((dateOrdered AT TIME ZONE 'UTC') AT TIME ZONE '" . date_default_timezone_get() . "')";
         }
 
         switch ($interval) {
