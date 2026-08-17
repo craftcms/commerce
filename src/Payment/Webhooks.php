@@ -9,11 +9,12 @@ use CraftCms\Commerce\Payment\Events\WebhookEvent;
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 use yii\web\BadRequestHttpException;
-use yii\web\Response;
+use yii\web\HttpException;
 
 #[Singleton]
 class Webhooks
@@ -63,8 +64,8 @@ class Webhooks
 
             Log::error($message);
 
-            $response = \Craft::$app->getResponse();
-            $response->setStatusCodeByException($exception);
+            $statusCode = $exception instanceof HttpException ? $exception->statusCode : 500;
+            $response = new Response('', $statusCode);
         }
 
         if ($useMutex) {

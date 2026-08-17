@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers;
 
 use craft\commerce\Plugin;
-use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 readonly class WebhooksController
 {
-    public function processWebhook(Request $request, ?int $gatewayId = null): Responsable
+    public function processWebhook(Request $request, ?int $gatewayId = null): Response
     {
         $gatewayId ??= $request->input('gateway');
 

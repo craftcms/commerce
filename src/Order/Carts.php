@@ -19,8 +19,8 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Events\CartPurgeEvent;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
-use yii\web\Cookie;
 
 use function CraftCms\Cms\currentUserElement;
 
@@ -266,12 +266,7 @@ class Carts
         // Force a new cart number to be generated when next requested.
         $this->cartNumber = false;
         if (!app()->runningInConsole()) {
-            // TODO: migrate to Laravel's response-cookie handling once Carts's response flow is redesigned for Craft 6
-            $cookie = \Craft::createObject(array_merge($this->cartCookie, [
-                'class' => Cookie::class,
-            ]));
-
-            \Craft::$app->getResponse()->getCookies()->remove($cookie, true);
+            Cookie::queue(Cookie::forget($this->cartCookie['name']));
         }
     }
 
@@ -343,13 +338,17 @@ class Carts
     {
         if (!app()->runningInConsole()) {
             $this->cartNumber = $cartNumber;
-            // TODO: migrate to Laravel's response-cookie handling once Carts's response flow is redesigned for Craft 6
-            $cookie = \Craft::createObject(array_merge($this->cartCookie, [
-                'class' => Cookie::class,
-                'value' => $cartNumber,
-                'expire' => time() + $this->cartCookieDuration,
-            ]));
-            \Craft::$app->getResponse()->getCookies()->add($cookie);
+            Cookie::queue(Cookie::make(
+                $this->cartCookie['name'],
+                $cartNumber,
+                (int)ceil($this->cartCookieDuration / 60),
+                '/',
+                $this->cartCookie['domain'] ?? null,
+                $this->cartCookie['secure'] ?? null,
+                $this->cartCookie['httpOnly'] ?? true,
+                false,
+                $this->cartCookie['sameSite'] ?? null,
+            ));
         }
     }
 

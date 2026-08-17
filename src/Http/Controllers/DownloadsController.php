@@ -95,9 +95,11 @@ readonly class DownloadsController
 
         $fileName = renderSandboxedObjectTemplate((string)$pdf->fileNameFormat, $order) ?: ($pdf->handle . '-' . $order->number);
 
-        return \Craft::$app->getResponse()->sendContentAsFile($renderedPdf, $fileName . '.pdf', [
-            'mimeType' => 'application/pdf',
-            'inline' => $inline,
+        $disposition = ($inline ? 'inline' : 'attachment') . '; filename="' . str_replace('"', '', $fileName . '.pdf') . '"';
+
+        return response($renderedPdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => $disposition,
         ]);
     }
 

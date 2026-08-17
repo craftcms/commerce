@@ -3,8 +3,8 @@
 namespace craft\commerce\services;
 
 use craft\commerce\base\GatewayInterface;
+use Illuminate\Http\Response;
 use yii\base\Component;
-use yii\web\Response;
 
 /**
  * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Payment\Webhooks::class)` instead.

@@ -64,7 +64,6 @@ class OrderHistories
 
         // If the user is logged in, use the current user
         if (!app()->runningInConsole()
-            && !\Craft::$app->getResponse()->isSent
             && session()->isStarted()
             && $currentUser = currentUserElement()
         ) {
