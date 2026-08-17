@@ -9,11 +9,14 @@ use craft\commerce\helpers\Locale;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
 use CraftCms\Cms\RouteToken\RouteTokens;
+use CraftCms\Cms\SystemMessage\Mailables\SystemMessageMailable;
 use CraftCms\Cms\View\TemplateMode;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\pageTemplate;
@@ -141,10 +144,19 @@ readonly class DownloadsController
 
         $downloadUrl = Plugin::getInstance()->getPdfs()->getPdfUrl($order, $option, $pdfHandle, $inline);
 
-        if (!\Craft::$app->getMailer()->composeFromKey('commerce_pdf_download', [
-            'link' => $downloadUrl,
-            'order' => $order,
-        ])->setTo($order->email)->send()) {
+        try {
+            $sent = Mail::to($order->email)->send(new SystemMessageMailable(
+                key: 'commerce_pdf_download',
+                variables: [
+                    'link' => $downloadUrl,
+                    'order' => $order,
+                ],
+            ));
+        } catch (Throwable) {
+            $sent = null;
+        }
+
+        if ($sent === null) {
             session()->flash('error', t('Failed to send email. Please try again.', category: 'commerce'));
             return $this->renderEmailChallenge($order, $orderNumber, $pdfHandle, $option, $inline);
         }

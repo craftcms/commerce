@@ -11,6 +11,7 @@ use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\RouteToken\RouteTokens;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Users;
+use CraftCms\Cms\SystemMessage\Mailables\SystemMessageMailable;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Helpers\LineItem as LineItemHelper;
@@ -23,7 +24,9 @@ use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\pageTemplate;
@@ -495,10 +498,19 @@ class CartController
 
         $loadCartUrl = Plugin::getInstance()->getCarts()->getLoadCartUrl($cart);
 
-        if (!\Craft::$app->getMailer()->composeFromKey('commerce_cart_recovery', [
-            'link' => $loadCartUrl,
-            'cart' => $cart,
-        ])->setTo($cart->email)->send()) {
+        try {
+            $sent = Mail::to($cart->email)->send(new SystemMessageMailable(
+                key: 'commerce_cart_recovery',
+                variables: [
+                    'link' => $loadCartUrl,
+                    'cart' => $cart,
+                ],
+            ));
+        } catch (Throwable) {
+            $sent = null;
+        }
+
+        if ($sent === null) {
             session()->flash('error', t('Failed to send email. Please try again.', category: 'commerce'));
             return $this->renderCartEmailChallenge($cart, $cartNumber);
         }
