@@ -14,6 +14,7 @@ use craft\helpers\Json;
 use craft\web\View;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html as NewHtml;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use Illuminate\Http\Request;
@@ -152,8 +153,8 @@ JS;
         $metaSidebar = '';
         if ($taxCategory->id) {
             $metaSidebar = Cp::metadataHtml([
-                t('Created at') => \Craft::$app->getFormatter()->asDatetime($taxCategory->dateCreated, 'short'),
-                t('Updated at') => \Craft::$app->getFormatter()->asDatetime($taxCategory->dateUpdated, 'short'),
+                t('Created at') => I18N::getFormatter()->asDatetime($taxCategory->dateCreated, 'short'),
+                t('Updated at') => I18N::getFormatter()->asDatetime($taxCategory->dateUpdated, 'short'),
             ]);
         }
 

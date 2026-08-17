@@ -10,6 +10,8 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Models\OrderStatus;
 use CraftCms\Commerce\Stats\Contracts\StatInterface;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
+use CraftCms\Cms\Support\Facades\I18N;
+use CraftCms\Cms\Translation\Locale;
 use DateInterval;
 use DateTime;
 use DateTimeZone;
@@ -160,8 +162,8 @@ abstract class Stat implements StatInterface
                     return '';
                 }
 
-                $startDate = \Craft::$app->getFormatter()->asDate($this->_startDate, \craft\i18n\Locale::LENGTH_SHORT);
-                $endDate = \Craft::$app->getFormatter()->asDate($this->_endDate, \craft\i18n\Locale::LENGTH_SHORT);
+                $startDate = I18N::getFormatter()->asDate($this->_startDate, Locale::LENGTH_SHORT);
+                $endDate = I18N::getFormatter()->asDate($this->_endDate, Locale::LENGTH_SHORT);
 
                 if (\Craft::$app->getLocale()->getOrientation() == 'rtl') {
                     return $endDate . ' - ' . $startDate;

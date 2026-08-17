@@ -15,6 +15,7 @@ use CraftCms\Cms\Form\Form;
 use CraftCms\Cms\Form\FormContext;
 use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\Support\DateTimeHelper;
+use CraftCms\Cms\Support\Facades\InputNamespace;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
@@ -119,7 +120,7 @@ class TotalOrdersByCountry extends Widget
         \Craft::$app->getView()->registerAssetBundle(StatWidgetsAsset::class);
 
         $id = 'total-orders-by-country' . StringHelper::randomString();
-        $namespaceId = \Craft::$app->getView()->namespaceInputId($id);
+        $namespaceId = InputNamespace::namespaceId($id);
 
         $labels = ArrayHelper::getColumn($stats, 'name', false);
         $totalOrders = ArrayHelper::getColumn($stats, 'total', false);

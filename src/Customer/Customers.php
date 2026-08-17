@@ -21,6 +21,7 @@ use CraftCms\Commerce\Order\Models\Order as OrderRecord;
 use CraftCms\Commerce\Payment\Events\UpdatePrimaryPaymentSourceEvent;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use yii\base\Event;
 use yii\mail\MailEvent;
 
@@ -352,10 +353,10 @@ class Customers
                 }
             });
 
-            $emailSent = \Craft::$app->getUsers()->sendActivationEmail($user);
+            $emailSent = Users::sendActivationEmail($user);
 
             if (!$emailSent) {
-                \Craft::warning('"registerUserOnOrderComplete" used to create the user, but couldn\'t send an activation email. Check your email settings.', __METHOD__);
+                Log::warning('"registerUserOnOrderComplete" used to create the user, but couldn\'t send an activation email. Check your email settings.');
             }
 
             if ($billingAddress || $shippingAddress) {
@@ -401,8 +402,7 @@ class Customers
             }
         } else {
             $errors = $user->getErrors();
-            \Craft::warning('Could not create user on order completion.', __METHOD__);
-            \Craft::warning($errors, __METHOD__);
+            Log::warning('Could not create user on order completion.', ['errors' => $errors]);
         }
     }
 }

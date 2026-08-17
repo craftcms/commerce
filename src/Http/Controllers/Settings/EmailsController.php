@@ -11,10 +11,11 @@ use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\helpers\App;
 use craft\helpers\ArrayHelper;
-use craft\models\Site;
+use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Email\Records\Email as EmailRecord;
 use Illuminate\Http\Request;
@@ -83,7 +84,7 @@ readonly class EmailsController
         $emailRenderSiteOptions = [
             null => t('The site the order was made in.', category: 'commerce'),
             ['optgroup' => t('Sites', category: 'commerce')],
-        ] + collect(\Craft::$app->getSites()->getAllSites())->mapWithKeys(fn(Site $site) => [$site->id => $site->name])->all();
+        ] + collect(Sites::getAllSites())->mapWithKeys(fn(Site $site) => [$site->id => $site->name])->all();
 
         return new CpScreenResponse()
             ->title($title)

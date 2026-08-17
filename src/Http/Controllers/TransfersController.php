@@ -17,8 +17,11 @@ use craft\commerce\services\Transfers;
 use CraftCms\Cms\Element\Validation\ElementRules;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Facades\Drafts;
 use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
+use Illuminate\Support\Facades\Log;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
@@ -43,7 +46,7 @@ readonly class TransfersController
         abort_unless($transfer->canSave($user), 403, 'User not authorized to save this transfer.');
 
         $transfer->ruleset->useScenario(ElementRules::SCENARIO_ESSENTIALS);
-        $success = \Craft::$app->getDrafts()->saveElementAsDraft($transfer, $user->id, null, null, false);
+        $success = Drafts::saveElementAsDraft($transfer, $user->id, null, null, false);
 
         if (!$success) {
             return $this->asModelFailure($transfer, t('Couldn\'t create {type}.', [
@@ -90,7 +93,7 @@ readonly class TransfersController
 
     public function saveSettings(): Response
     {
-        $fieldLayout = \Craft::$app->getFields()->assembleLayoutFromPost();
+        $fieldLayout = Fields::assembleLayoutFromPost();
 
         $fieldLayout->reservedFieldHandles = [
             'originLocationId',
@@ -177,7 +180,7 @@ readonly class TransfersController
             Plugin::getInstance()->getInventory()->executeUpdateInventoryLevels($inventoryUpdateCollection);
             Elements::saveElement($transfer, false);
         } catch (\Throwable $e) {
-            \Craft::error('Failed to save transfer details: ' . $e->getMessage(), __METHOD__);
+            Log::error('Failed to save transfer details: ' . $e->getMessage(), ['exception' => $e]);
             return $this->asFailure(t('Failed to receive transfer: {error}', ['error' => $e->getMessage()], category: 'commerce'));
         }
 

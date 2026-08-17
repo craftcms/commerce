@@ -17,6 +17,7 @@ use CraftCms\Cms\Form\Controls\Number;
 use CraftCms\Cms\Form\Form;
 use CraftCms\Cms\Form\FormContext;
 use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Support\Facades\InputNamespace;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
 
@@ -78,7 +79,7 @@ class Orders extends Widget
         $orders = $this->getOrders();
 
         $id = 'recent-orders-settings-' . StringHelper::randomString();
-        $namespaceId = \Craft::$app->getView()->namespaceInputId($id);
+        $namespaceId = InputNamespace::namespaceId($id);
 
         return template('commerce/_components/widgets/orders/recent/body', [
             'orders' => $orders,

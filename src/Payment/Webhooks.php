@@ -8,6 +8,7 @@ use craft\commerce\Plugin;
 use CraftCms\Commerce\Payment\Events\WebhookEvent;
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
 use Illuminate\Container\Attributes\Singleton;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 use yii\web\BadRequestHttpException;
 use yii\web\Response;
@@ -53,7 +54,7 @@ class Webhooks
             $message .= 'Exception thrown in ' . $exception->getFile() . ':' . $exception->getLine() . "\n";
             $message .= 'Stack trace:' . "\n" . $exception->getTraceAsString();
 
-            \Craft::error($message, 'commerce');
+            Log::error($message);
 
             $response = \Craft::$app->getResponse();
             $response->setStatusCodeByException($exception);

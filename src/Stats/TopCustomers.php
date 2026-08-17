@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Stats;
 
 use CraftCms\Cms\Database\Table as CmsTable;
+use CraftCms\Cms\Support\Facades\Users;
 
 /**
  * Top Customers Stat
@@ -64,7 +65,7 @@ class TopCustomers extends Stat
     public function prepareData($data): mixed
     {
         foreach ($data as &$topCustomer) {
-            $topCustomer['customer'] = \Craft::$app->getUsers()->getUserById($topCustomer['customerId']);
+            $topCustomer['customer'] = Users::getUserById($topCustomer['customerId']);
         }
 
         return $data;

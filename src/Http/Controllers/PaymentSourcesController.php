@@ -8,6 +8,7 @@ use craft\commerce\helpers\PaymentForm;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
@@ -47,7 +48,7 @@ readonly class PaymentSourcesController
         try {
             $paymentSource = $plugin->getPaymentSources()->createPaymentSource($customer->id, $gateway, $paymentForm, $description, $isPrimaryPaymentSource);
         } catch (Throwable $exception) {
-            \Craft::$app->getErrorHandler()->logException($exception);
+            Log::error($exception->getMessage(), ['exception' => $exception]);
             return $this->asModelFailure(
                 $paymentForm,
                 t('Could not create the payment source.', category: 'commerce'),

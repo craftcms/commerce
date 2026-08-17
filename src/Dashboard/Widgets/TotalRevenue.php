@@ -16,6 +16,7 @@ use CraftCms\Cms\Form\Form;
 use CraftCms\Cms\Form\FormContext;
 use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\Support\DateTimeHelper;
+use CraftCms\Cms\Support\Facades\InputNamespace;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
@@ -117,7 +118,7 @@ class TotalRevenue extends Widget
         \Craft::$app->getView()->registerAssetBundle(StatWidgetsAsset::class);
 
         $id = 'total-revenue' . StringHelper::randomString();
-        $namespaceId = \Craft::$app->getView()->namespaceInputId($id);
+        $namespaceId = InputNamespace::namespaceId($id);
 
         if (empty($stats)) {
             return Html::tag('p', t('No stats available.', category: 'commerce'), ['class' => 'zilch']);

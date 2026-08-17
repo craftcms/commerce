@@ -9,6 +9,7 @@ use craft\helpers\UrlHelper;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Helpers\LineItem as LineItemHelper;
@@ -221,7 +222,7 @@ class CartController
             $email = $request->input('email');
             if ($email && ($this->cart->getEmail() === null || $this->cart->getEmail() != $email)) {
                 try {
-                    $user = \Craft::$app->getUsers()->ensureUserByEmail($email);
+                    $user = Users::ensureUserByEmail($email);
                     $this->cart->setCustomer($user);
                     if ($user->getIsCredentialed()) {
                         session()->put('commerce:anonymousCartWithCredentialedCustomer:' . $this->cart->number, true);

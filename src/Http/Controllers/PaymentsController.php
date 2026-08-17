@@ -19,6 +19,7 @@ use CraftCms\Commerce\Payment\Models\PaymentSource;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 use function CraftCms\Cms\currentUser;
@@ -157,7 +158,7 @@ readonly class PaymentsController
             try {
                 $order->setPaymentCurrency($paymentCurrency);
             } catch (CurrencyException $exception) {
-                \Craft::$app->getErrorHandler()->logException($exception);
+                Log::error($exception->getMessage(), ['exception' => $exception]);
 
                 $order->addError('paymentCurrency', $exception->getMessage());
 
@@ -252,7 +253,7 @@ readonly class PaymentsController
                         $paymentForm->savePaymentSource = true;
                     }
                 } catch (PaymentSourceException $exception) {
-                    \Craft::$app->getErrorHandler()->logException($exception);
+                    Log::error($exception->getMessage(), ['exception' => $exception]);
 
                     return $this->asModelFailure(
                         $paymentForm,

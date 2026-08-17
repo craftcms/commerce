@@ -13,6 +13,7 @@ use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
+use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\View\TemplateMode;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -66,7 +67,7 @@ readonly class StoresController
             $allowCurrencyChange = true;
         }
 
-        $availableSiteOptions = collect(\Craft::$app->getSites()->getAllSites())->map(function($site) {
+        $availableSiteOptions = collect(Sites::getAllSites())->map(function($site) {
             $availableForAssignmentToNewStores = Plugin::getInstance()->getStores()->getSiteIdsAvailableForAssignmentToNewStores();
             return [
                 'label' => $site->name,
@@ -220,7 +221,7 @@ readonly class StoresController
         return pageTemplate('commerce/settings/stores/_siteStore', [
             'crumbs' => $crumbs,
             'stores' => Plugin::getInstance()->getStores()->getAllStores(),
-            'sites' => \Craft::$app->getSites()->getAllSites(),
+            'sites' => Sites::getAllSites(),
             'sitesStores' => Plugin::getInstance()->getStores()->getAllSiteStores(),
             'primaryStoreId' => Plugin::getInstance()->getStores()->getPrimaryStore()->id,
             'readOnly' => $this->readOnly,

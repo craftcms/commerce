@@ -9,11 +9,13 @@ use craft\commerce\Plugin;
 use craft\events\ConfigEvent;
 use craft\helpers\Db as CraftDb;
 use craft\helpers\FileHelper;
-use craft\web\View;
 use CraftCms\Cms\Support\Facades\Path;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
+use CraftCms\Cms\Support\Facades\Template;
 use CraftCms\Cms\Support\File;
 use CraftCms\Cms\Support\Url;
+use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Cms\View\TemplateResolver;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
@@ -357,38 +359,28 @@ class Pdfs
         $variables['order'] = $event->order;
         $variables['option'] = $event->option;
 
-        // Set Craft to the site template mode
-        $view = \Craft::$app->getView();
         $originalLanguage = \Craft::$app->language;
         $originalFormattingLanguage = \Craft::$app->formattingLocale;
         $pdfLanguage = $pdf?->getRenderLanguage($order) ?? $originalLanguage;
 
         Locale::switchAppLanguage($pdfLanguage);
 
-        $oldTemplateMode = $view->getTemplateMode();
-        $view->setTemplateMode(View::TEMPLATE_MODE_SITE);
-
-        if (!$event->template || !$view->doesTemplateExist($event->template)) {
-            // Restore the original template mode
-            $view->setTemplateMode($oldTemplateMode);
+        if (!$event->template || !app(TemplateResolver::class)->exists($event->template, TemplateMode::Site)) {
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
 
             throw new \Exception('PDF template file does not exist.');
         }
 
         try {
-            $html = $view->renderTemplate($event->template, $variables);
+            $html = Template::renderTemplate($event->template, $variables, TemplateMode::Site);
         } catch (\Exception $e) {
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
             // Set the pdf html to the render error.
-            \Craft::error('Order PDF render error. Order number: ' . $order->getShortNumber() . '. ' . $e->getMessage());
-            \Craft::$app->getErrorHandler()->logException($e);
+            Log::error('Order PDF render error. Order number: ' . $order->getShortNumber() . '. ' . $e->getMessage(), ['exception' => $e]);
             $html = t('An error occurred while generating this PDF.', category: 'commerce');
         }
 
         Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-        // Restore the original template mode
-        $view->setTemplateMode($oldTemplateMode);
 
         // Set the config options
         $dompdfTempDir = Path::temp() . DIRECTORY_SEPARATOR . 'commerce_dompdf';

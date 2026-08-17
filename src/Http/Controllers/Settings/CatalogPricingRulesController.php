@@ -18,7 +18,9 @@ use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use craft\helpers\MoneyHelper;
-use craft\i18n\Locale;
+use CraftCms\Cms\Support\Facades\I18N;
+use CraftCms\Cms\Support\Facades\UserGroups;
+use CraftCms\Cms\Translation\Locale;
 use craft\web\View;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
@@ -74,7 +76,7 @@ readonly class CatalogPricingRulesController
                     ? t('(off original price)', category: 'commerce')
                     : t('(new price)', category: 'commerce'));
 
-            $dateRange = ($pcr->dateFrom ? \Craft::$app->getFormatter()->asDatetime($pcr->dateFrom, 'short') : '∞') . ' - ' . ($pcr->dateTo ? \Craft::$app->getFormatter()->asDatetime($pcr->dateTo, 'short') : '∞');
+            $dateRange = ($pcr->dateFrom ? I18N::getFormatter()->asDatetime($pcr->dateFrom, 'short') : '∞') . ' - ' . ($pcr->dateTo ? I18N::getFormatter()->asDatetime($pcr->dateTo, 'short') : '∞');
             $dateRange = !$pcr->dateFrom && !$pcr->dateTo ? '∞' : $dateRange;
 
             $tableData[] = [
@@ -353,10 +355,10 @@ JS;
 
         $variables['title'] = $catalogPricingRule->id ? $catalogPricingRule->name : t('Create a new catalog pricing rule', category: 'commerce');
 
-        $groups = \Craft::$app->getUserGroups()->getAllGroups();
+        $groups = UserGroups::getAllGroups();
         $variables['groups'] = ArrayHelper::map($groups, 'id', 'name');
 
-        $variables['percentSymbol'] = \Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
+        $variables['percentSymbol'] = I18N::getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
         $primaryCurrencyIso = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $variables['currencySymbol'] = \Craft::$app->getLocale()->getCurrencySymbol($primaryCurrencyIso);
 
@@ -364,9 +366,9 @@ JS;
         if ($catalogPricingRule->applyAmount !== null) {
             if ($catalogPricingRule->apply == CatalogPricingRuleRecord::APPLY_BY_PERCENT || $catalogPricingRule->apply == CatalogPricingRuleRecord::APPLY_TO_PERCENT) {
                 $amount = -(float)$catalogPricingRule->applyAmount * 100;
-                $variables['applyAmount'] = \Craft::$app->getFormatter()->asDecimal($amount);
+                $variables['applyAmount'] = I18N::getFormatter()->asDecimal($amount);
             } else {
-                $variables['applyAmount'] = \Craft::$app->getFormatter()->asDecimal(-(float)$catalogPricingRule->applyAmount);
+                $variables['applyAmount'] = I18N::getFormatter()->asDecimal(-(float)$catalogPricingRule->applyAmount);
             }
         }
 

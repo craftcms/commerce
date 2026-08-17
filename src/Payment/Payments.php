@@ -18,6 +18,8 @@ use CraftCms\Commerce\Payment\Gateway\Contracts\RequestResponseInterface;
 use CraftCms\Commerce\Payment\Models\Transaction;
 use CraftCms\Commerce\Payment\Records\Transaction as TransactionRecord;
 use CraftCms\Commerce\Store\Models\Store;
+use CraftCms\Cms\Support\Facades\Template;
+use CraftCms\Cms\View\TemplateMode;
 use Exception;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\Log;
@@ -138,7 +140,7 @@ class Payments
                 $this->saveTransaction($transaction);
             }
 
-            \Craft::$app->getErrorHandler()->logException($e);
+            Log::error($e->getMessage(), ['exception' => $e]);
             throw new PaymentException($e->getMessage(), $e->getCode(), $e);
         }
     }
@@ -330,15 +332,7 @@ class Payments
                 // Set the action url to the responses redirect url
                 $variables['actionUrl'] = $response->getRedirectUrl();
 
-                // Set Craft to the site template mode
-                $templatesService = \Craft::$app->getView();
-                $oldTemplateMode = $templatesService->getTemplateMode();
-                $templatesService->setTemplateMode($templatesService::TEMPLATE_MODE_SITE);
-
-                $template = $templatesService->renderPageTemplate($gatewayPostRedirectTemplate, $variables);
-
-                // Restore the original template mode
-                $templatesService->setTemplateMode($oldTemplateMode);
+                $template = Template::renderPageTemplate($gatewayPostRedirectTemplate, $variables, TemplateMode::Site);
 
                 // Send the template back to the user.
                 ob_start();
@@ -370,7 +364,7 @@ class Payments
             $child->message = $e->getMessage();
             $this->saveTransaction($child);
 
-            \Craft::$app->getErrorHandler()->logException($e);
+            Log::error($e->getMessage(), ['exception' => $e]);
         }
 
         return $child;

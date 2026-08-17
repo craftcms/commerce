@@ -6,6 +6,7 @@ namespace CraftCms\Commerce\Stats;
 
 use craft\commerce\Plugin;
 use CraftCms\Cms\Database\Table as CmsTable;
+use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Commerce\Database\Table;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -89,7 +90,7 @@ class TopProducts extends Stat
     #[\Override]
     public function getData(): array
     {
-        $primarySite = \Craft::$app->getSites()->getPrimarySite();
+        $primarySite = Sites::getPrimarySite();
 
         $topProducts = $this->createStatQuery()
             ->select(['v.primaryOwnerId as id', 'es.title'])

@@ -10,6 +10,7 @@ use CraftCms\Cms\Element\ElementHelper;
 use CraftCms\Cms\Element\Validation\ElementRules;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\DateTimeHelper;
+use CraftCms\Cms\Support\Facades\Drafts;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use Illuminate\Http\Request;
@@ -116,7 +117,7 @@ readonly class ProductsController
 
         // Save it
         $product->ruleset->useScenario(ElementRules::SCENARIO_ESSENTIALS);
-        $success = \Craft::$app->getDrafts()->saveElementAsDraft($product, $user->id, markAsSaved: false);
+        $success = Drafts::saveElementAsDraft($product, $user->id, markAsSaved: false);
 
         // Resume time
         DateTimeHelper::resume();

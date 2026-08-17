@@ -12,6 +12,8 @@ use CraftCms\Cms\FieldLayout\FieldLayoutCompiler;
 use CraftCms\Cms\FieldLayout\LayoutElements\Addresses\AddressField;
 use CraftCms\Cms\Form\Enums\ControlMode;
 use CraftCms\Cms\Form\FormContext;
+use CraftCms\Cms\Support\Facades\Addresses;
+use CraftCms\Cms\Support\Facades\InputNamespace;
 use CraftCms\Cms\Form\FormHtmlRenderer;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpModalResponse;
@@ -67,7 +69,7 @@ readonly class InventoryLocationsController
             $title = t('Create a new inventory location');
         }
 
-        \Craft::$app->getView()->setNamespace('inventoryLocationAddress');
+        InputNamespace::set('inventoryLocationAddress');
 
         $address = $inventoryLocation->getAddress();
         $fieldLayout = $address->getFieldLayout();
@@ -127,7 +129,7 @@ readonly class InventoryLocationsController
             'addressField' => new AddressField(),
             'extraFieldsHtml' => $extraFieldsHtml,
             'form' => $form,
-            'countries' => \Craft::$app->getAddresses()->getCountryRepository()->getList(\Craft::$app->language),
+            'countries' => Addresses::getCountryRepository()->getList(\Craft::$app->language),
         ];
 
         return new CpScreenResponse()

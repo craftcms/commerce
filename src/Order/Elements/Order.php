@@ -6,7 +6,7 @@ namespace CraftCms\Commerce\Order\Elements;
 
 use CommerceGuys\Addressing\AddressInterface;
 use Craft;
-use craft\base\NameTrait;
+use CraftCms\Cms\Shared\Concerns\HasNames;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\actions\CopyLoadCartUrl;
 use craft\commerce\elements\actions\DownloadOrderPdfAction;
@@ -2605,7 +2605,7 @@ class Order extends Element implements HasStoreInterface
             return $field->handle;
         }, new AddressElement()->getFieldLayout()->getCustomFields());
 
-        $nameTraitProperties = array_map(static fn(ReflectionProperty $property) => $property->name, new ReflectionClass(NameTrait::class)->getProperties());
+        $nameTraitProperties = array_map(static fn(ReflectionProperty $property) => $property->name, new ReflectionClass(HasNames::class)->getProperties());
 
         $toArrayHandles = [...$nameTraitProperties, ...$addressAttributes, ...$customFieldHandles];
 

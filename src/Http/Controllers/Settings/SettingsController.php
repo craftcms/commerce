@@ -10,6 +10,8 @@ use craft\commerce\services\Transfers;
 use craft\helpers\StringHelper;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
+use CraftCms\Cms\Support\Facades\Fields;
+use CraftCms\Cms\Support\Facades\Plugins;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\View\TemplateMode;
 use Illuminate\Http\Request;
@@ -41,7 +43,7 @@ readonly class SettingsController
     {
         $plugin = Plugin::getInstance();
         $settings = $request->input('settings');
-        $pluginSettingsSaved = \Craft::$app->getPlugins()->savePluginSettings($plugin, $settings);
+        $pluginSettingsSaved = Plugins::savePluginSettings($plugin, $settings);
 
         if (!$pluginSettingsSaved) {
             return pageTemplate('commerce/settings/general/index', ['settings' => $plugin->getSettings()], TemplateMode::Cp);
@@ -52,7 +54,7 @@ readonly class SettingsController
 
     public function saveTransferSettings(): Response
     {
-        $fieldLayout = \Craft::$app->getFields()->assembleLayoutFromPost();
+        $fieldLayout = Fields::assembleLayoutFromPost();
 
         $fieldLayout->reservedFieldHandles = [
             'originLocationId',

@@ -12,6 +12,7 @@ use craft\helpers\Html;
 use craft\i18n\Formatter;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -69,7 +70,7 @@ readonly class PaymentCurrenciesController
         $currencyOptions = Plugin::getInstance()->getCurrencies()->getAllCurrenciesList();
         $hasCompletedOrders = Order::find()->isCompleted(true)->exists();
 
-        $formatter = \Craft::$app->getFormatter();
+        $formatter = I18N::getFormatter();
 
         $metaSidebarHtml = $currency->id ? Cp::metadataHtml([
             t('Created at') => $formatter->asDateTime($currency->dateCreated, Formatter::FORMAT_WIDTH_SHORT),

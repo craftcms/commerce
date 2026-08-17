@@ -12,6 +12,7 @@ use craft\helpers\Json;
 use craft\web\View;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html as NewHtml;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Shipping\Records\ShippingMethod as ShippingMethodRecord;
@@ -151,8 +152,8 @@ JS;
 
         if ($shippingMethod->id) {
             $metaDataHtml .= Cp::metadataHtml([
-                t('Created at') => \Craft::$app->getFormatter()->asDatetime($shippingMethod->dateCreated, 'short'),
-                t('Updated at') => \Craft::$app->getFormatter()->asDatetime($shippingMethod->dateUpdated, 'short'),
+                t('Created at') => I18N::getFormatter()->asDatetime($shippingMethod->dateCreated, 'short'),
+                t('Updated at') => I18N::getFormatter()->asDatetime($shippingMethod->dateUpdated, 'short'),
             ]);
         }
 

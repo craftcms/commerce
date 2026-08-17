@@ -36,7 +36,7 @@ readonly class CatalogPricingController
         $this->guard();
 
         $siteHandle = $request->query('site');
-        $site = $siteHandle === null ? Sites::getPrimarySite() : \Craft::$app->getSites()->getSiteByHandle($siteHandle);
+        $site = $siteHandle === null ? Sites::getPrimarySite() : Sites::getSiteByHandle($siteHandle);
         abort_if($site === null, 404, 'Site not found');
 
         $store = $site->getStore();
@@ -107,7 +107,7 @@ readonly class CatalogPricingController
             $conditionBuilder = Conditions::createCondition($condition['condition']);
         }
 
-        $site = \Craft::$app->getSites()->getSiteById($siteId);
+        $site = Sites::getSiteById($siteId);
         abort_if($site === null, 400, 'Invalid site ID: ' . $siteId);
 
         $catalogPrices = Plugin::getInstance()->getCatalogPricing()->getCatalogPrices($site->getStore()->id, $conditionBuilder, $includeBasePrices, $searchText, $limit, $offset);

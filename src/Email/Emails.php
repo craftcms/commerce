@@ -14,6 +14,9 @@ use CraftCms\Cms\Asset\AssetsHelper as Assets;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\Support\Facades\Sites;
+use CraftCms\Cms\Support\Facades\Template;
+use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Cms\View\TemplateResolver;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Email\Events\EmailEvent;
 use CraftCms\Commerce\Email\Events\MailEvent;
@@ -277,10 +280,6 @@ class Emails
             return false;
         }
 
-        // Set Craft to the site template mode
-        $view = \Craft::$app->getView();
-        $oldTemplateMode = $view->getTemplateMode();
-        $view->setTemplateMode($view::TEMPLATE_MODE_SITE);
         $option = 'email';
         $generalConfig = \Craft::$app->getConfig()->getGeneral();
         // Temporarily disable lazy transform generation
@@ -329,13 +328,11 @@ class Emails
         if ($email->recipientType == EmailRecord::TYPE_CUSTOM) {
             // To:
             try {
-                $emails = $view->renderSandboxedString($email->getTo(), $renderVariables);
+                $emails = Template::renderSandboxedString($email->getTo(), $renderVariables, TemplateMode::Site);
                 $emails = preg_split('/[\s,]+/', (string)$emails);
 
                 $newEmail->setTo($emails);
             } catch (\Exception $e) {
-                \Craft::$app->getErrorHandler()->logException($e);
-
                 $error = t('Email template parse error for custom email "{email}" in "To:". Order: "{order}". Template error: "{message}" {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -346,7 +343,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
@@ -358,7 +354,6 @@ class Emails
             Log::error($error);
 
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-            $view->setTemplateMode($oldTemplateMode);
             $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
@@ -367,7 +362,7 @@ class Emails
         // BCC:
         if ($bccSetting = $email->getBcc()) {
             try {
-                $bcc = $view->renderSandboxedString($bccSetting, $renderVariables);
+                $bcc = Template::renderSandboxedString($bccSetting, $renderVariables, TemplateMode::Site);
                 $bcc = str_replace(';', ',', $bcc);
                 $bcc = preg_split('/[\s,]+/', $bcc);
 
@@ -375,8 +370,6 @@ class Emails
                     $newEmail->setBcc($bcc);
                 }
             } catch (\Exception $e) {
-                \Craft::$app->getErrorHandler()->logException($e);
-
                 $error = t('Email template parse error for email "{email}" in "BCC:". Order: "{order}". Template error: "{message}" {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -387,7 +380,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
@@ -397,7 +389,7 @@ class Emails
         // CC:
         if ($ccSetting = $email->getCc()) {
             try {
-                $cc = $view->renderSandboxedString($ccSetting, $renderVariables);
+                $cc = Template::renderSandboxedString($ccSetting, $renderVariables, TemplateMode::Site);
                 $cc = str_replace(';', ',', $cc);
                 $cc = preg_split('/[\s,]+/', $cc);
 
@@ -405,8 +397,6 @@ class Emails
                     $newEmail->setCc($cc);
                 }
             } catch (\Exception $e) {
-                \Craft::$app->getErrorHandler()->logException($e);
-
                 $error = t('Email template parse error for email "{email}" in "CC:". Order: "{order}". Template error: "{message}" {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -417,7 +407,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
@@ -427,10 +416,8 @@ class Emails
         if ($email->replyTo) {
             // Reply To:
             try {
-                $newEmail->setReplyTo($view->renderSandboxedString($email->replyTo, $renderVariables));
+                $newEmail->setReplyTo(Template::renderSandboxedString($email->replyTo, $renderVariables, TemplateMode::Site));
             } catch (\Exception $e) {
-                \Craft::$app->getErrorHandler()->logException($e);
-
                 $error = t('Email template parse error for email "{email}" in "ReplyTo:". Order: "{order}". Template error: "{message}" {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -441,7 +428,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
@@ -450,10 +436,8 @@ class Emails
 
         // Subject:
         try {
-            $newEmail->setSubject($view->renderSandboxedString($email->subject, $renderVariables));
+            $newEmail->setSubject(Template::renderSandboxedString($email->subject, $renderVariables, TemplateMode::Site));
         } catch (\Exception $e) {
-            \Craft::$app->getErrorHandler()->logException($e);
-
             $error = t('Email template parse error for email "{email}" in "Subject:". Order: "{order}". Template error: "{message}" {file}:{line}', [
                 'email' => $email->name,
                 'order' => $order->getShortNumber(),
@@ -464,7 +448,6 @@ class Emails
             Log::error($error);
 
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-            $view->setTemplateMode($oldTemplateMode);
             $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
@@ -472,10 +455,8 @@ class Emails
 
         // Template Path
         try {
-            $templatePath = $view->renderSandboxedString($email->templatePath, $renderVariables);
+            $templatePath = Template::renderSandboxedString($email->templatePath, $renderVariables, TemplateMode::Site);
         } catch (\Exception $e) {
-            \Craft::$app->getErrorHandler()->logException($e);
-
             $error = t('Email template path parse error for email "{email}" in "Template Path". Order: "{order}". Template error: "{message}" {file}:{line}', [
                 'email' => $email->name,
                 'order' => $order->getShortNumber(),
@@ -486,14 +467,13 @@ class Emails
             Log::error($error);
 
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-            $view->setTemplateMode($oldTemplateMode);
             $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
         }
 
         // Email Body
-        if (!$view->doesTemplateExist($templatePath)) {
+        if (!app(TemplateResolver::class)->exists($templatePath, TemplateMode::Site)) {
             $error = t('Email template does not exist at "{templatePath}" which resulted in "{templateParsedPath}" for email "{email}". Order: "{order}".', [
                 'templatePath' => $email->templatePath,
                 'templateParsedPath' => $templatePath,
@@ -503,7 +483,6 @@ class Emails
             Log::error($error);
 
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-            $view->setTemplateMode($oldTemplateMode);
             $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
@@ -513,10 +492,8 @@ class Emails
 
         if ($email->plainTextTemplatePath) {
             try {
-                $plainTextTemplatePath = $view->renderSandboxedString($email->plainTextTemplatePath, $renderVariables);
+                $plainTextTemplatePath = Template::renderSandboxedString($email->plainTextTemplatePath, $renderVariables, TemplateMode::Site);
             } catch (\Exception $e) {
-                \Craft::$app->getErrorHandler()->logException($e);
-
                 $error = t('Email plain text template path parse error for email "{email}" in "Template Path". Order: "{order}". Template error: "{message}" {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -527,14 +504,13 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
 
             // Plain Text Body
-            if ($plainTextTemplatePath && !$view->doesTemplateExist($plainTextTemplatePath)) {
+            if ($plainTextTemplatePath && !app(TemplateResolver::class)->exists($plainTextTemplatePath, TemplateMode::Site)) {
                 $error = t('Email plain text template does not exist at "{templatePath}" which resulted in "{templateParsedPath}" for email "{email}". Order: "{order}".', [
                     'templatePath' => $email->plainTextTemplatePath,
                     'templateParsedPath' => $plainTextTemplatePath,
@@ -544,7 +520,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
@@ -553,7 +528,7 @@ class Emails
 
         if ($pdf = $email->getPdf()) {
             // Email Body
-            if (!$view->doesTemplateExist($pdf->templatePath)) {
+            if (!app(TemplateResolver::class)->exists($pdf->templatePath, TemplateMode::Site)) {
                 $error = t('Email PDF template does not exist at "{templatePath}" for email "{email}". Order: "{order}".', [
                     'templatePath' => $pdf->templatePath,
                     'email' => $email->name,
@@ -562,7 +537,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
@@ -579,7 +553,7 @@ class Emails
                 $defaultFileName = $pdf->handle . '-' . $order->number;
                 if ($pdf->fileNameFormat) {
                     try {
-                        $fileName = $view->renderSandboxedObjectTemplate($pdf->fileNameFormat, $order);
+                        $fileName = Template::renderSandboxedObjectTemplate($pdf->fileNameFormat, $order, [], TemplateMode::Site);
                     } catch (\Throwable) {
                         $fileName = $defaultFileName;
                     }
@@ -593,8 +567,6 @@ class Emails
                 $options = ['fileName' => $fileName . '.pdf', 'contentType' => 'application/pdf'];
                 $newEmail->attach($tempPath, $options);
             } catch (\Exception $e) {
-                \Craft::$app->getErrorHandler()->logException($e);
-
                 $error = t('Email PDF generation error for email "{email}". Order: "{order}". PDF Template error: "{message}" {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -605,7 +577,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
@@ -617,11 +588,9 @@ class Emails
 
         // Render HTML body
         try {
-            $body = $view->renderTemplate($templatePath, $renderVariables);
+            $body = Template::renderTemplate($templatePath, $renderVariables, TemplateMode::Site);
             $newEmail->setHtmlBody($body);
         } catch (\Exception $e) {
-            \Craft::$app->getErrorHandler()->logException($e);
-
             $error = t('Email template parse error for email "{email}". Order: "{order}". Template error: "{message}" {file}:{line}', [
                 'email' => $email->name,
                 'order' => $order->getShortNumber(),
@@ -633,7 +602,6 @@ class Emails
 
             Sites::setCurrentSite($originalSiteId);
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-            $view->setTemplateMode($oldTemplateMode);
             $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
@@ -642,11 +610,9 @@ class Emails
         // Render Plain Text body
         if ($plainTextTemplatePath) {
             try {
-                $plainTextBody = $view->renderTemplate($plainTextTemplatePath, $renderVariables);
+                $plainTextBody = Template::renderTemplate($plainTextTemplatePath, $renderVariables, TemplateMode::Site);
                 $newEmail->setTextBody($plainTextBody);
             } catch (\Exception $e) {
-                \Craft::$app->getErrorHandler()->logException($e);
-
                 $error = t('Email plain text template parse error for email "{email}". Order: "{order}". Template error: "{message}" {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -658,7 +624,6 @@ class Emails
 
                 Sites::setCurrentSite($originalSiteId);
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
@@ -689,7 +654,6 @@ class Emails
 
                 Sites::setCurrentSite($originalSiteId);
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 // Plugins that stop a email being sent should not declare that the sending failed, just that it would blocking of the send.
@@ -709,14 +673,11 @@ class Emails
 
                 Sites::setCurrentSite($originalSiteId);
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $view->setTemplateMode($oldTemplateMode);
                 $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
         } catch (\Exception $e) {
-            \Craft::$app->getErrorHandler()->logException($e);
-
             $error = t('Email "{email}" could not be sent for order "{order}". Error: {error} {file}:{line}', [
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
@@ -729,7 +690,6 @@ class Emails
 
             Sites::setCurrentSite($originalSiteId);
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-            $view->setTemplateMode($oldTemplateMode);
             $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
@@ -752,7 +712,6 @@ class Emails
 
         Sites::setCurrentSite($originalSiteId);
         Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-        $view->setTemplateMode($oldTemplateMode);
         $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
         // Clear out the temp PDF file if it was created.

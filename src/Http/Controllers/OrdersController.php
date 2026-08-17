@@ -30,7 +30,7 @@ use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
-use craft\elements\db\ElementQuery;
+use CraftCms\Cms\Element\Queries\ElementQuery;
 use craft\helpers\AdminTable;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Localization;
@@ -48,6 +48,9 @@ use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpModalResponse;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\HtmlStack;
+use CraftCms\Cms\Support\Facades\I18N;
+use CraftCms\Cms\Support\Facades\Sites;
+use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\View\Enums\Position;
@@ -78,7 +81,7 @@ class OrdersController
     {
         \Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
 
-        /** @var \craft\models\Site|StoreBehavior $site */
+        /** @var \CraftCms\Cms\Site\Data\Site|StoreBehavior $site */
         $site = \craft\helpers\Cp::requestedSite();
         $store = $site->getStore();
 
@@ -100,7 +103,7 @@ class OrdersController
         abort_unless($store, 400, "Invalid store handle: $storeHandle");
 
         $userId = $request->input('customerId');
-        $user = $userId ? \Craft::$app->getUsers()->getUserById((int)$userId) : null;
+        $user = $userId ? Users::getUserById((int)$userId) : null;
         abort_if($userId && !$user, 400, "Invalid user ID: $userId");
 
         $attributes = [
@@ -367,7 +370,7 @@ JS, []);
             return $this->asFailure(t('Customer ID is required.', category: 'commerce'));
         }
 
-        $customer = \Craft::$app->getUsers()->getUserById((int)$customerId);
+        $customer = Users::getUserById((int)$customerId);
 
         if (!$customer) {
             return $this->asFailure(t('Unable to retrieve customer.', category: 'commerce'));
@@ -565,7 +568,7 @@ JS, []);
         $limit = (int)$request->input('per_page', 10);
         $offset = ($page - 1) * $limit;
 
-        $user = \Craft::$app->getUsers()->getUserById((int)$id);
+        $user = Users::getUserById((int)$id);
 
         if (!$user) {
             return $this->asFailure(t('User not found.', category: 'commerce'));
@@ -643,7 +646,7 @@ JS, []);
         abort_if(!$email, 400, 'Missing email');
 
         try {
-            $user = \Craft::$app->getUsers()->ensureUserByEmail($email);
+            $user = Users::ensureUserByEmail($email);
             $user = $this->customerToArray($user);
         } catch (\Exception $e) {
             return $this->asFailure(message: $e->getMessage());
@@ -774,7 +777,7 @@ JS, []);
             return $this->asFailure(t('Address not found.', category: 'commerce'));
         }
 
-        $user = \Craft::$app->getUsers()->getUserById((int)$userId);
+        $user = Users::getUserById((int)$userId);
 
         if (!$user || !$user->getIsCredentialed()) {
             return $this->asFailure(t('Invalid user.', category: 'commerce'));
@@ -799,7 +802,7 @@ JS, []);
     {
         abort_unless($request->expectsJson(), 400);
 
-        /** @var \craft\models\Site|StoreBehavior|null $site */
+        /** @var \CraftCms\Cms\Site\Data\Site|StoreBehavior|null $site */
         $site = \craft\helpers\Cp::requestedSite();
         $storeId = $site?->getStore()->id ?? null;
 
@@ -1182,7 +1185,7 @@ JS, []);
 
         $orderArray = $order->toArray($orderFields, $extraFields);
 
-        if ($orderArray['customer'] && $orderArray['customer']['id'] && $customer = \Craft::$app->getUsers()->getUserById($orderArray['customer']['id'])) {
+        if ($orderArray['customer'] && $orderArray['customer']['id'] && $customer = Users::getUserById($orderArray['customer']['id'])) {
             $orderArray['customer'] = $this->customerToArray($customer);
         }
 
@@ -1200,8 +1203,8 @@ JS, []);
 
         if (!empty($orderArray['lineItems'])) {
             foreach ($orderArray['lineItems'] as &$lineItem) {
-                $lineItem['price'] = $lineItem['price'] !== null ? \Craft::$app->getFormatter()->asDecimal($lineItem['price'], $subUnit) : null;
-                $lineItem['promotionalPrice'] = $lineItem['promotionalPrice'] !== null ? \Craft::$app->getFormatter()->asDecimal($lineItem['promotionalPrice'], $subUnit) : null;
+                $lineItem['price'] = $lineItem['price'] !== null ? I18N::getFormatter()->asDecimal($lineItem['price'], $subUnit) : null;
+                $lineItem['promotionalPrice'] = $lineItem['promotionalPrice'] !== null ? I18N::getFormatter()->asDecimal($lineItem['promotionalPrice'], $subUnit) : null;
 
                 $lineItem['showForm'] = \craft\helpers\ArrayHelper::isAssociative($lineItem['options']) || (is_array($lineItem['options']) && empty($lineItem['options']));
                 $lineItem['purchasableCpEditUrl'] = $purchasableCpEditUrlByPurchasableId[$lineItem['purchasableId']] ?? null;
@@ -1376,7 +1379,7 @@ JS, []);
 
         // Pad the decimal mask with `#` to match the number of decimal places in the currency
         $subUnit = Plugin::getInstance()->getCurrencies()->getSubunitFor($order->currency);
-        $formattingLocale = \Craft::$app->getFormattingLocale();
+        $formattingLocale = I18N::getFormattingLocale();
 
         $currencyConfig = [
             'currency' => $order->currency,
@@ -1432,7 +1435,7 @@ JS, []);
 
         $hasSetCustomer = false;
         $customerId = $orderRequestData['order']['customerId'] ?? null;
-        if ($customerId && $customer = \Craft::$app->getUsers()->getUserById((int)$customerId)) {
+        if ($customerId && $customer = Users::getUserById((int)$customerId)) {
             $hasSetCustomer = true;
             $order->setCustomer($customer);
         } else {
@@ -1444,7 +1447,7 @@ JS, []);
         $order->orderSiteId = $orderRequestData['order']['orderSiteId'];
 
         // Set the order language based on the `orderSiteId`
-        if ($site = \Craft::$app->getSites()->getSiteById($order->orderSiteId)) {
+        if ($site = Sites::getSiteById($order->orderSiteId)) {
             $order->orderLanguage = $site->language;
         }
 

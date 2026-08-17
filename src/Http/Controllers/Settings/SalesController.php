@@ -9,14 +9,17 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\elements\Category;
-use craft\elements\Entry;
+use CraftCms\Cms\Entry\Elements\Entry;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use craft\helpers\Localization;
-use craft\i18n\Locale;
+use CraftCms\Cms\Translation\Locale;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Cms\Edition;
+use CraftCms\Cms\Support\Facades\I18N;
+use CraftCms\Cms\Support\Facades\UserGroups;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
@@ -330,14 +333,14 @@ readonly class SalesController
 
         $variables['title'] = $sale->id ? $sale->name : t('Create a new sale', category: 'commerce');
 
-        if (\Craft::$app->getEdition() == \Craft::Pro) {
-            $groups = \Craft::$app->getUserGroups()->getAllGroups();
+        if (Edition::get() === Edition::Pro) {
+            $groups = UserGroups::getAllGroups();
             $variables['groups'] = ArrayHelper::map($groups, 'id', 'name');
         } else {
             $variables['groups'] = [];
         }
 
-        $variables['percentSymbol'] = \Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
+        $variables['percentSymbol'] = I18N::getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
         $primaryCurrencyIso = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $variables['currencySymbol'] = \Craft::$app->getLocale()->getCurrencySymbol($primaryCurrencyIso);
 
@@ -345,9 +348,9 @@ readonly class SalesController
         if ($sale->applyAmount !== null) {
             if ($sale->apply == SaleRecord::APPLY_BY_PERCENT || $sale->apply == SaleRecord::APPLY_TO_PERCENT) {
                 $amount = -(float)$sale->applyAmount * 100;
-                $variables['saleApplyAmount'] = \Craft::$app->getFormatter()->asDecimal($amount);
+                $variables['saleApplyAmount'] = I18N::getFormatter()->asDecimal($amount);
             } else {
-                $variables['saleApplyAmount'] = \Craft::$app->getFormatter()->asDecimal(-(float)$sale->applyAmount);
+                $variables['saleApplyAmount'] = I18N::getFormatter()->asDecimal(-(float)$sale->applyAmount);
             }
         }
 

@@ -10,6 +10,7 @@ use craft\db\Query;
 use craft\events\ModelEvent;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Support\Config;
+use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Database\Table;
@@ -148,7 +149,7 @@ class Carts
 
         // If the cart has already been saved (has an ID), then only save if something else changed.
         if (($this->cart->id && $hasSomethingChangedOnCart) || $forceSave) {
-            \Craft::$app->getElements()->saveElement($this->cart, false);
+            Elements::saveElement($this->cart, false);
         }
 
         return $this->cart;

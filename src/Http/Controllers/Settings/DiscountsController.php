@@ -15,7 +15,7 @@ use craft\commerce\services\Coupons;
 use craft\commerce\web\assets\coupons\CouponsAsset;
 use craft\db\Query;
 use craft\elements\Category;
-use craft\elements\Entry;
+use CraftCms\Cms\Entry\Elements\Entry;
 use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
@@ -23,7 +23,10 @@ use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\MoneyHelper;
 use craft\helpers\UrlHelper;
-use craft\i18n\Locale;
+use CraftCms\Cms\Edition;
+use CraftCms\Cms\Support\Facades\I18N;
+use CraftCms\Cms\Support\Facades\UserGroups;
+use CraftCms\Cms\Translation\Locale;
 use craft\web\View;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
@@ -226,7 +229,7 @@ JS;
         $result = $sqlQuery->all();
 
         $tableData = [];
-        $dateFormat = \Craft::$app->getFormattingLocale()->getDateTimeFormat('short', Locale::FORMAT_PHP);
+        $dateFormat = I18N::getFormattingLocale()->getDateTimeFormat('short', Locale::FORMAT_PHP);
         foreach ($result as $item) {
             $dateFrom = $item['dateFrom'] ? DateTimeHelper::toDateTime($item['dateFrom']) : null;
             $dateTo = $item['dateTo'] ? DateTimeHelper::toDateTime($item['dateTo']) : null;
@@ -283,7 +286,7 @@ JS;
         $variables['discount'] = $discount;
 
         $this->populateVariables($variables);
-        $variables['percentSymbol'] = \Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
+        $variables['percentSymbol'] = I18N::getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
         \Craft::$app->getView()->registerAssetBundle(CouponsAsset::class);
 
         $variables['coupons'] = collect($discount->getCoupons())
@@ -593,8 +596,8 @@ JS;
 
         $variables['title'] = $discount->id ? $discount->name : t('Create a Discount', category: 'commerce');
 
-        if (\Craft::$app->getEdition() == \Craft::Pro) {
-            $groups = \Craft::$app->getUserGroups()->getAllGroups();
+        if (Edition::get() === Edition::Pro) {
+            $groups = UserGroups::getAllGroups();
             $variables['groups'] = ArrayHelper::map($groups, 'id', 'name');
         } else {
             $variables['groups'] = [];

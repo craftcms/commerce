@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Stats;
 
 use CraftCms\Cms\Database\Table as CmsTable;
+use CraftCms\Cms\Support\Facades\Addresses;
 
 use function CraftCms\Cms\t;
 
@@ -86,7 +87,7 @@ class TotalOrdersByCountry extends Stat
                 if (!$row['countryCode']) {
                     continue;
                 }
-                $row['name'] = \Craft::$app->getAddresses()->getCountryRepository()->get($row['countryCode'])->getName();
+                $row['name'] = Addresses::getCountryRepository()->get($row['countryCode'])->getName();
             }
         }
 

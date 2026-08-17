@@ -10,7 +10,7 @@ use craft\commerce\elements\conditions\products\CatalogPricingRuleProductConditi
 use craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasableCondition;
 use craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantCondition;
 use craft\commerce\Plugin;
-use craft\elements\db\ElementQuery;
+use CraftCms\Cms\Element\Queries\ElementQuery;
 use craft\events\CancelableEvent;
 use craft\helpers\Db;
 use CraftCms\Cms\Component\Component;

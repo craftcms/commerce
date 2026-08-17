@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Catalog\ProductType\Data;
 
 use craft\commerce\fieldlayoutelements\VariantsField;
-use craft\enums\PropagationMethod;
+use CraftCms\Cms\Element\Enums\PropagationMethod;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;

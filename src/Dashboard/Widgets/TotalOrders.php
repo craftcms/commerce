@@ -13,8 +13,10 @@ use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Form\Controls\Lightswitch;
 use CraftCms\Cms\Form\Form;
 use CraftCms\Cms\Form\FormContext;
+use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\Support\DateTimeHelper;
+use CraftCms\Cms\Support\Facades\InputNamespace;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
@@ -89,7 +91,7 @@ class TotalOrders extends Widget
 
         $stats = $this->stat->get();
         $total = $stats['total'] ?? 0;
-        $total = \Craft::$app->getFormatter()->asInteger($total);
+        $total = I18N::getFormatter()->asInteger($total);
 
         return t('{total} orders', ['total' => $total], category: 'commerce');
     }
@@ -121,10 +123,10 @@ class TotalOrders extends Widget
         $data = ArrayHelper::getColumn($chart, 'total', false);
 
         $timeFrame = $this->stat->getDateRangeWording();
-        $number = \Craft::$app->getFormatter()->asInteger($number);
+        $number = I18N::getFormatter()->asInteger($number);
 
         $id = 'total-orders' . StringHelper::randomString();
-        $namespaceId = \Craft::$app->getView()->namespaceInputId($id);
+        $namespaceId = InputNamespace::namespaceId($id);
 
         \Craft::$app->getView()->registerAssetBundle(StatWidgetsAsset::class);
 

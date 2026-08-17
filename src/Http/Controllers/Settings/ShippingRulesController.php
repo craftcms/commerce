@@ -12,6 +12,9 @@ use craft\helpers\Json;
 use craft\helpers\Localization;
 use craft\helpers\MoneyHelper;
 use CraftCms\Cms\Http\RespondsWithFlash;
+use CraftCms\Cms\Support\Facades\HtmlStack;
+use CraftCms\Cms\Support\Facades\InputNamespace;
+use CraftCms\Cms\Support\Facades\Template;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Shipping\Records\ShippingRuleCategory as ShippingRuleCategoryRecord;
@@ -43,8 +46,8 @@ readonly class ShippingRulesController
             $shippingRule->storeId = $shippingMethod->storeId;
         }
 
-        \Craft::$app->getView()->setNamespace('new');
-        \Craft::$app->getView()->startJsBuffer();
+        InputNamespace::set('new');
+        HtmlStack::startJsBuffer();
 
         $newZone = new ShippingAddressZone();
         $condition = $newZone->getCondition();
@@ -52,11 +55,11 @@ readonly class ShippingRulesController
         $condition->name = 'condition';
         $condition->id = 'condition';
 
-        $newShippingZoneFields = \Craft::$app->getView()->namespaceInputs(
-            \Craft::$app->getView()->renderTemplate('commerce/store-management/shipping/shippingzones/_fields', ['condition' => $condition])
+        $newShippingZoneFields = InputNamespace::namespaceInputs(
+            Template::renderTemplate('commerce/store-management/shipping/shippingzones/_fields', ['condition' => $condition])
         );
-        $newShippingZoneJs = \Craft::$app->getView()->clearJsBuffer(false);
-        \Craft::$app->getView()->setNamespace(null);
+        $newShippingZoneJs = HtmlStack::clearJsBuffer(false);
+        InputNamespace::set(null);
 
         $title = $ruleId ? $shippingRule->name : t('Create a new shipping rule', category: 'commerce');
 

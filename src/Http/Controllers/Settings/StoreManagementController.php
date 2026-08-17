@@ -8,12 +8,13 @@ use craft\commerce\base\HasStoreInterface;
 use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
 use craft\commerce\helpers\Cp as CommerceCp;
 use craft\commerce\Plugin;
-use craft\elements\Address;
 use craft\helpers\Cp;
 use craft\helpers\Html;
-use craft\models\Site;
+use CraftCms\Cms\Address\Elements\Address;
+use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Facades\Addresses;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -73,7 +74,7 @@ readonly class StoreManagementController
             return redirect($site->getStore()->getStoreSettingsUrl());
         }
 
-        $allCountries = \Craft::$app->getAddresses()->getCountryRepository()->getList(\Craft::$app->language);
+        $allCountries = Addresses::getCountryRepository()->getList(\Craft::$app->language);
 
         $locationFieldHtml = Cp::elementCardHtml($storeSettings->getLocationAddress(), [
             'context' => 'field',

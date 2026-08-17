@@ -11,10 +11,11 @@ use craft\commerce\Plugin;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\Json;
-use craft\i18n\Locale;
+use CraftCms\Cms\Translation\Locale;
 use craft\web\View;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html as NewHtml;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Tax\Records\TaxRate as TaxRateRecord;
@@ -142,7 +143,7 @@ JS;
 
         $store = $this->resolveStore($storeHandle);
         $storeHandle = $store->handle;
-        $percentSymbol = \Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
+        $percentSymbol = I18N::getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
         $plugin = Plugin::getInstance();
 

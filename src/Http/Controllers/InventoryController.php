@@ -24,6 +24,7 @@ use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpModalResponse;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\HtmlStack;
+use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
@@ -145,7 +146,7 @@ readonly class InventoryController
         return new CpScreenResponse()
             ->title($title)
             ->site(Cp::requestedSite())
-            ->selectableSites(\Craft::$app->getSites()->getEditableSites())
+            ->selectableSites(Sites::getEditableSites())
             ->action(null)
             ->crumbs($crumbs)
             ->contentTemplate('commerce/inventory/levels/_index', compact(

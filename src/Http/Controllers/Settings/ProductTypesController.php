@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\commerce\Plugin;
-use craft\enums\PropagationMethod;
+use CraftCms\Cms\Element\Enums\PropagationMethod;
 use craft\web\assets\editsection\EditSectionAsset;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Facades\Fields;
+use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Catalog\Models\ProductTypeSite;
@@ -132,11 +134,11 @@ readonly class ProductTypesController
         // Site-specific settings
         $allSiteSettings = [];
 
-        foreach (\Craft::$app->getSites()->getAllSites() as $site) {
+        foreach (Sites::getAllSites() as $site) {
             $postedSettings = $request->input('sites.' . $site->handle);
 
             // Skip disabled sites if this is a multi-site install
-            if (\Craft::$app->getIsMultiSite() && empty($postedSettings['enabled'])) {
+            if (Sites::isMultiSite() && empty($postedSettings['enabled'])) {
                 continue;
             }
 
@@ -160,12 +162,12 @@ readonly class ProductTypesController
         $productType->setSiteSettings($allSiteSettings);
 
         // Set the product type field layout
-        $fieldLayout = \Craft::$app->getFields()->assembleLayoutFromPost();
+        $fieldLayout = Fields::assembleLayoutFromPost();
         $fieldLayout->type = Product::class;
         $productType->setProductFieldLayout($fieldLayout);
 
         // Set the variant field layout
-        $variantFieldLayout = \Craft::$app->getFields()->assembleLayoutFromPost('variant-layout');
+        $variantFieldLayout = Fields::assembleLayoutFromPost('variant-layout');
         $variantFieldLayout->type = Variant::class;
         $productType->setVariantFieldLayout($variantFieldLayout);
 

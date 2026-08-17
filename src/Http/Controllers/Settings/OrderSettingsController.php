@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\commerce\elements\Order;
 use craft\commerce\services\Orders;
 use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
+use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Order\Elements\Order;
 use Symfony\Component\HttpFoundation\Response;
 
 use function CraftCms\Cms\pageTemplate;
@@ -30,7 +31,7 @@ readonly class OrderSettingsController
 
     public function edit(): string
     {
-        $fieldLayout = \Craft::$app->getFields()->getLayoutByType(Order::class);
+        $fieldLayout = Fields::getLayoutByType(Order::class);
 
         return pageTemplate('commerce/settings/ordersettings/_edit', [
             'fieldLayout' => $fieldLayout,
@@ -41,7 +42,7 @@ readonly class OrderSettingsController
 
     public function save(): Response
     {
-        $fieldLayout = \Craft::$app->getFields()->assembleLayoutFromPost();
+        $fieldLayout = Fields::assembleLayoutFromPost();
 
         $fieldLayout->reservedFieldHandles = [
             'billingAddress',

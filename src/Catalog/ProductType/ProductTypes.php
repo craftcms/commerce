@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Catalog\ProductType;
 
-use craft\enums\PropagationMethod;
+use CraftCms\Cms\Element\Enums\PropagationMethod;
 use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;
 use craft\events\SiteEvent;
@@ -20,6 +20,8 @@ use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\Support\Facades\Structures;
+use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Cms\View\TemplateResolver;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Catalog\Events\ProductTypeEvent;
@@ -626,15 +628,7 @@ class ProductTypes
         $productTypeSiteSettings = $productType->getSiteSettings();
 
         if (isset($productTypeSiteSettings[$siteId]) && $productTypeSiteSettings[$siteId]->hasUrls && $productTypeSiteSettings[$siteId]->template) {
-            $view = \Craft::$app->getView();
-            $oldTemplateMode = $view->getTemplateMode();
-            $view->setTemplateMode($view::TEMPLATE_MODE_SITE);
-
-            $templateExists = $view->doesTemplateExist($productTypeSiteSettings[$siteId]->template);
-
-            $view->setTemplateMode($oldTemplateMode);
-
-            return $templateExists;
+            return app(TemplateResolver::class)->exists($productTypeSiteSettings[$siteId]->template, TemplateMode::Site);
         }
 
         return false;
