@@ -162,7 +162,7 @@ class Pdfs
         $pdfUid = $event->tokenMatches[0];
         $data = $event->newValue;
 
-        $transaction = \Craft::$app->getDb()->beginTransaction();
+        DB::beginTransaction();
         try {
             $pdfRecord = $this->getPdfRecord($pdfUid);
             $isNewPdf = !$pdfRecord->exists;
@@ -192,9 +192,9 @@ class Pdfs
                     ->update(['isDefault' => false]);
             }
 
-            $transaction->commit();
+            DB::commit();
         } catch (\Exception $e) {
-            $transaction->rollBack();
+            DB::rollBack();
             throw $e;
         }
 
@@ -316,11 +316,11 @@ class Pdfs
             $params['inline'] = true;
         }
 
-        $request = \Craft::$app->getRequest();
-        $isCpRequest = $request->getIsCpRequest();
-        $request->setIsCpRequest(false);
+        $request = request();
+        $isCpRequest = $request->isCpRequest();
+        $request->attributes->set('isCpRequest', false);
         $url = Url::actionUrl('commerce/downloads/pdf', $params);
-        $request->setIsCpRequest($isCpRequest);
+        $request->attributes->set('isCpRequest', $isCpRequest);
 
         return $url;
     }

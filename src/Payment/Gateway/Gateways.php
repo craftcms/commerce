@@ -180,7 +180,7 @@ class Gateways
             return;
         }
 
-        $transaction = \Craft::$app->getDb()->beginTransaction();
+        DB::beginTransaction();
         try {
             $gatewayRecord = $this->_getGatewayRecord($gatewayUid);
 
@@ -204,9 +204,9 @@ class Gateways
 
             $gatewayRecord->save();
 
-            $transaction->commit();
+            DB::commit();
         } catch (Throwable $e) {
-            $transaction->rollBack();
+            DB::rollBack();
             throw $e;
         }
     }
@@ -220,7 +220,7 @@ class Gateways
     {
         $gatewayUid = $event->tokenMatches[0];
 
-        $transaction = \Craft::$app->getDb()->beginTransaction();
+        DB::beginTransaction();
         try {
             $gatewayRecord = $this->_getGatewayRecord($gatewayUid);
 
@@ -229,9 +229,9 @@ class Gateways
 
             $gatewayRecord->save();
 
-            $transaction->commit();
+            DB::commit();
         } catch (Throwable $e) {
-            $transaction->rollBack();
+            DB::rollBack();
             throw $e;
         }
     }

@@ -12,6 +12,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
 use CraftCms\Cms\View\TemplateMode;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 use function CraftCms\Cms\t;
 use function CraftCms\Cms\template;
@@ -32,7 +33,7 @@ readonly class EmailPreviewController
         } else {
             $orderQuery = Order::find()->isCompleted(true);
 
-            if (\Craft::$app->getDb()->getIsPgsql()) {
+            if (DB::connection()->getDriverName() === 'pgsql') {
                 $orderQuery->orderByRaw('RANDOM()');
             } else {
                 $orderQuery->orderByRaw('RAND()');

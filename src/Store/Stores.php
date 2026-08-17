@@ -298,7 +298,7 @@ class Stores
         $storeUid = $event->tokenMatches[0];
         $data = $event->newValue;
 
-        $transaction = \Craft::$app->getDb()->beginTransaction();
+        DB::beginTransaction();
         try {
             $storeRecord = $this->getStoreRecord($storeUid);
             $isNewStore = !$storeRecord->exists;
@@ -327,9 +327,9 @@ class Stores
 
             $storeRecord->save();
 
-            $transaction->commit();
+            DB::commit();
         } catch (Throwable $e) {
-            $transaction->rollBack();
+            DB::rollBack();
             throw $e;
         }
 
@@ -400,7 +400,7 @@ class Stores
             Plugin::getInstance()->getStores()->trigger(self::EVENT_BEFORE_APPLY_STORE_DELETE, $blockerEvent);
         }
 
-        $transaction = \Craft::$app->getDb()->beginTransaction();
+        DB::beginTransaction();
 
         try {
             $locationAddressId = $store->getSettings()->getLocationAddressId();
@@ -412,9 +412,9 @@ class Stores
                 Elements::deleteElementById($locationAddressId, Address::class, hardDelete: true);
             }
 
-            $transaction->commit();
+            DB::commit();
         } catch (Throwable $e) {
-            $transaction->rollBack();
+            DB::rollBack();
             throw $e;
         }
 
@@ -628,7 +628,7 @@ class Stores
         $siteStoreUid = $event->tokenMatches[0];
         $data = $event->newValue;
 
-        $transaction = \Craft::$app->getDb()->beginTransaction();
+        DB::beginTransaction();
         try {
             $siteStoreRecord = SiteStoreRecord::where('uid', $siteStoreUid)->first();
 
@@ -642,11 +642,11 @@ class Stores
 
             $siteStoreRecord->save();
 
-            $transaction->commit();
+            DB::commit();
 
             $this->refreshStores();
         } catch (Throwable $e) {
-            $transaction->rollBack();
+            DB::rollBack();
             throw $e;
         }
     }
@@ -665,16 +665,16 @@ class Stores
             return;
         }
 
-        $transaction = \Craft::$app->getDb()->beginTransaction();
+        DB::beginTransaction();
 
         try {
             DB::table(Table::SITESTORES)->where('siteId', $siteStoreRecord->siteId)->delete();
 
-            $transaction->commit();
+            DB::commit();
 
             $this->refreshStores();
         } catch (Throwable $e) {
-            $transaction->rollBack();
+            DB::rollBack();
             throw $e;
         }
     }

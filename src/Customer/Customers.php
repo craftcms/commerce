@@ -90,7 +90,7 @@ class Customers
      */
     public function loginHandler(): void
     {
-        $impersonating = \Craft::$app->getSession()->get(User::IMPERSONATE_KEY) !== null;
+        $impersonating = session()->get(User::IMPERSONATE_KEY) !== null;
         // Don't allow transition of current cart to a user that is being impersonated.
         if ($impersonating) {
             app(Carts::class)->forgetCart();

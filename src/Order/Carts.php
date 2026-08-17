@@ -9,6 +9,7 @@ use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\events\ModelEvent;
 use craft\helpers\Db as CraftDb;
+use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Support\Config;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Sites;
@@ -17,6 +18,7 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Events\CartPurgeEvent;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;
+use Illuminate\Support\Facades\DB;
 use yii\web\Cookie;
 
 use function CraftCms\Cms\currentUserElement;
@@ -54,16 +56,13 @@ class Carts
             $this->cartCookie['name'] = md5(sprintf('Craft.%s.%s.%s', self::class, \Craft::$app->id, $currentStore->handle)) . '_commerce_cart';
         }
 
-        $request = \Craft::$app->getRequest();
-        if (!$request->getIsConsoleRequest()) {
+        if (!app()->runningInConsole()) {
             $this->cartCookie = \Craft::cookieConfig($this->cartCookie);
 
-            $session = \Craft::$app->getSession();
-
             // Also check pre Commerce 4.0 for a cart number in the session just in case.
-            if (($session->getHasSessionId() || $session->getIsActive()) && $session->has('commerce_cart')) {
-                $this->setSessionCartNumber($session->get('commerce_cart'));
-                $session->remove('commerce_cart');
+            if (session()->isStarted() && session()->has('commerce_cart')) {
+                $this->setSessionCartNumber(session()->get('commerce_cart'));
+                session()->forget('commerce_cart');
             }
         }
     }
@@ -128,7 +127,7 @@ class Carts
         $originalUserId = $this->cart->getCustomerId();
 
         // These values should always be kept up to date when a cart is retrieved from session.
-        $this->cart->lastIp = \Craft::$app->getRequest()->getUserIP();
+        $this->cart->lastIp = request()->ip();
         $this->cart->orderLanguage = \Craft::$app->language;
         $this->cart->orderSiteId = Sites::getHasCurrentSite() ? Sites::getCurrentSite()->id : Sites::getPrimarySite()->id;
         $this->cart->paymentCurrency = $this->getCartPaymentCurrencyIso();
@@ -170,7 +169,7 @@ class Carts
         }
 
         if (!$this->cartNumber) {
-            $cookieNumber = \Craft::$app->getRequest()->getCookies()->getValue($this->cartCookie['name'], false);
+            $cookieNumber = request()->cookie($this->cartCookie['name'], false);
             if (!$cookieNumber) {
                 return null;
             }
@@ -195,7 +194,7 @@ class Carts
         // the cart (which would set a Set-Cookie header and defeat the purpose of this method).
         $cartCustomer = $cart->getCustomer();
         if ($cartCustomer && $cartCustomer->getIsCredentialed()) {
-            $authorizedForCredentialedCart = \Craft::$app->getSession()->get('commerce:anonymousCartWithCredentialedCustomer:' . $cart->number, false);
+            $authorizedForCredentialedCart = session()->get('commerce:anonymousCartWithCredentialedCustomer:' . $cart->number, false);
             if (!$authorizedForCredentialedCart) {
                 $currentUser = currentUserElement();
                 if (!$currentUser || $currentUser->id != $cartCustomer->id) {
@@ -238,7 +237,7 @@ class Carts
         // case when an anonymous user submitted the credentialed user's email to the cart (see
         // CartController::actionUpdate()), or when the cart was loaded via a valid load-cart token
         // (see CartController::actionLoadCart()).
-        $authorizedForCredentialedCart = $cart && \Craft::$app->getSession()->get('commerce:anonymousCartWithCredentialedCustomer:' . $cart->number, false);
+        $authorizedForCredentialedCart = $cart && session()->get('commerce:anonymousCartWithCredentialedCustomer:' . $cart->number, false);
 
         if ($cart && $cartCustomer && $cartCustomer->getIsCredentialed() &&
             !$authorizedForCredentialedCart &&
@@ -265,7 +264,8 @@ class Carts
         $this->cart = null;
         // Force a new cart number to be generated when next requested.
         $this->cartNumber = false;
-        if (!\Craft::$app->getRequest()->getIsConsoleRequest()) {
+        if (!app()->runningInConsole()) {
+            // TODO: migrate to Laravel's response-cookie handling once Carts's response flow is redesigned for Craft 6
             $cookie = \Craft::createObject(array_merge($this->cartCookie, [
                 'class' => Cookie::class,
             ]));
@@ -304,10 +304,7 @@ class Carts
         }
 
         if ($this->cartNumber === null) {
-            $request = \Craft::$app->getRequest();
-            $requestCookies = $request->getCookies();
-
-            return $requestCookies->getValue($this->cartCookie['name'], false) !== false;
+            return request()->cookie($this->cartCookie['name'], false) !== false;
         }
 
         return true;
@@ -318,12 +315,9 @@ class Carts
      */
     protected function getSessionCartNumber(): string
     {
-        if (!\Craft::$app->getRequest()->getIsConsoleRequest()) {
-            $request = \Craft::$app->getRequest();
-            $requestCookies = $request->getCookies();
-
+        if (!app()->runningInConsole()) {
             // Only try to retrieve the cart number from the cookie if `cartNumber` is `null`.
-            if ($this->cartNumber === null && $cookieNumber = $requestCookies->getValue($this->cartCookie['name'])) {
+            if ($this->cartNumber === null && $cookieNumber = request()->cookie($this->cartCookie['name'])) {
                 $this->cartNumber = $cookieNumber;
             }
         }
@@ -346,8 +340,9 @@ class Carts
      */
     public function setSessionCartNumber(string $cartNumber): void
     {
-        if (!\Craft::$app->getRequest()->getIsConsoleRequest()) {
+        if (!app()->runningInConsole()) {
             $this->cartNumber = $cartNumber;
+            // TODO: migrate to Laravel's response-cookie handling once Carts's response flow is redesigned for Craft 6
             $cookie = \Craft::createObject(array_merge($this->cartCookie, [
                 'class' => Cookie::class,
                 'value' => $cartNumber,
@@ -373,14 +368,14 @@ class Carts
             ['cartNumber' => $cart->number],
         ], expiryDate: $expiryDate);
 
-        $request = \Craft::$app->getRequest();
-        $isCpRequest = $request->getIsCpRequest();
-        $request->setIsCpRequest(false);
+        $request = request();
+        $isCpRequest = $request->isCpRequest();
+        $request->attributes->set('isCpRequest', false);
         $url = Url::actionUrl('commerce/cart/load-cart', [
             'number' => $cart->number,
             'code' => $token,
         ]);
-        $request->setIsCpRequest($isCpRequest);
+        $request->attributes->set('isCpRequest', $isCpRequest);
 
         return $url;
     }
@@ -484,19 +479,21 @@ class Carts
             return 0;
         }
 
+        $cartIds = $event->inactiveCartsQuery->column();
+
+        if (empty($cartIds)) {
+            return 0;
+        }
+
         // Taken from craft\services\Elements::deleteElement(); Using the method directly
         // takes too many resources since it retrieves the order before deleting it.
         // Delete the elements table rows, which will cascade across all other InnoDB tables
-        \Craft::$app->getDb()->createCommand()
-            ->delete('{{%elements}}', ['id' => $event->inactiveCartsQuery])
-            ->execute();
+        DB::table(CraftTable::ELEMENTS)->whereIn('id', $cartIds)->delete();
 
         // The searchindex table is probably MyISAM, though
-        \Craft::$app->getDb()->createCommand()
-            ->delete('{{%searchindex}}', ['elementId' => $event->inactiveCartsQuery])
-            ->execute();
+        DB::table(CraftTable::SEARCHINDEX)->whereIn('elementId', $cartIds)->delete();
 
-        return (int)$cartIdsQuery->count();
+        return count($cartIds);
     }
 
     protected function loadCookie(): void
@@ -513,15 +510,12 @@ class Carts
             return;
         }
 
-        $request = \Craft::$app->getRequest();
-        if (!$request->getIsConsoleRequest()) {
+        if (!app()->runningInConsole()) {
             $this->cartCookie = \Craft::cookieConfig($this->cartCookie);
 
-            $requestCookies = $request->getCookies();
-
             // If we have a cart cookie, assign it to the cart number.
-            if ($requestCookies->has($this->cartCookie['name'])) {
-                $this->setSessionCartNumber($requestCookies->getValue($this->cartCookie['name']));
+            if (request()->hasCookie($this->cartCookie['name'])) {
+                $this->setSessionCartNumber(request()->cookie($this->cartCookie['name']));
             }
         }
     }
@@ -552,18 +546,18 @@ class Carts
 
     public function afterSaveUserHandler(ModelEvent $event): void
     {
-        $segments = \Craft::$app->getRequest()->getActionSegments();
+        $segments = request()->actionSegments();
         $userSaveSegments = ['users', 'save-user'];
         $isUserSaveAction = $segments == $userSaveSegments;
 
         // we have a cart number, currently anon, and the current action being executed is user save
         if (!currentUserElement() &&
-            !\Craft::$app->getRequest()->getIsCpRequest() &&
+            !request()->isCpRequest() &&
             $isUserSaveAction
         ) {
             $currentCartNumber = $this->getSessionCartNumber();
             // Set the session flag to preserve the cart for this user
-            \Craft::$app->getSession()->set('commerce:anonymousCartWithCredentialedCustomer:' . $currentCartNumber, true);
+            session()->put('commerce:anonymousCartWithCredentialedCustomer:' . $currentCartNumber, true);
         }
     }
 }

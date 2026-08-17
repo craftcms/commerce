@@ -65,6 +65,7 @@ use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery;
 use DateTime;
 use DateTimeZone;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 use function CraftCms\Cms\currentUser;
@@ -457,7 +458,7 @@ JS, []);
         $offset = ($page - 1) * $limit;
 
         // Prepare purchasables query
-        $likeOperator = \Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
+        $likeOperator = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
         $sqlQuery = new Query()
             ->select(['purchasables.id', 'pstores.basePrice', 'purchasables.description', 'purchasables.sku', 'elements.type'])
             ->leftJoin(['elements' => CraftTable::ELEMENTS], [

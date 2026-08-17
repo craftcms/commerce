@@ -1015,9 +1015,7 @@ class Discounts
                 return false;
             }
 
-            // TODO: update to new request API once migrated
-            /** @phpstan-ignore-next-line */
-            if (\Craft::$app->getRequest()->getIsSiteRequest()) {
+            if (request()->isSiteRequest()) {
                 $currentUser = currentUserElement();
                 $isCustomerCurrentUser = ($currentUser && $currentUser->id == $user->id);
 

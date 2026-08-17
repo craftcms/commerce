@@ -156,7 +156,7 @@ class Emails
             ProjectConfig::processConfigChanges(Pdfs::CONFIG_PDFS_KEY . '.' . $pdfUid);
         }
 
-        $transaction = \Craft::$app->getDb()->beginTransaction();
+        DB::beginTransaction();
         try {
             $emailRecord = $this->getEmailRecord($emailUid);
             $isNewEmail = !$emailRecord->exists;
@@ -183,9 +183,9 @@ class Emails
 
             $emailRecord->save();
 
-            $transaction->commit();
+            DB::commit();
         } catch (Throwable $e) {
-            $transaction->rollBack();
+            DB::rollBack();
             throw $e;
         }
 

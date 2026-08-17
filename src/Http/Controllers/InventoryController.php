@@ -30,6 +30,7 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 use function CraftCms\Cms\currentUserElement;
@@ -186,7 +187,7 @@ readonly class InventoryController
         $inventoryQuery->andWhere(['not', ['elements.id' => null]]);
 
         if ($search) {
-            $likeOperator = \Craft::$app->getDb()->getIsPgsql() ? 'ilike' : 'like';
+            $likeOperator = DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
             $inventoryQuery->andWhere(['or', [$likeOperator, 'purchasables.description', $search], [$likeOperator, 'purchasables.sku', $search]]);
         }
 

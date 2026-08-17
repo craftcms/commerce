@@ -207,7 +207,7 @@ JS;
             ->orderBy(['sortOrder' => SORT_ASC]);
 
         if ($search) {
-            $likeOperator = \Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
+            $likeOperator = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
             $sqlQuery
                 ->andWhere([
                     'or',

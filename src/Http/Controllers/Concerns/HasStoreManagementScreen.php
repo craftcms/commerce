@@ -46,7 +46,7 @@ trait HasStoreManagementScreen
             // Most index pages need the admin table asset bundle
             \Craft::$app->getView()->registerAssetBundle(AdminTableAsset::class);
 
-            $segments = \Craft::$app->getRequest()->getSegments();
+            $segments = request()->segments();
             $selectedItem = count($segments) >= 4 ? $segments[3] : 'general';
 
             $screen->pageSidebarTemplate('commerce/_includes/_storeManagementNav', [
@@ -77,7 +77,7 @@ trait HasStoreManagementScreen
 
             return false;
         })->map(function(Store $s) use ($storeHandle) {
-            $segments = \Craft::$app->getRequest()->getSegments();
+            $segments = request()->segments();
             $storeSubSection = count($segments) >= 4 ? $segments[3] : null;
 
             return [

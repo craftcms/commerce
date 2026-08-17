@@ -228,7 +228,7 @@ class OrderStatuses
         $statusUid = $event->tokenMatches[0];
         $data = $event->newValue;
 
-        $transaction = \Craft::$app->getDb()->beginTransaction();
+        DB::beginTransaction();
         try {
             $statusRecord = $this->getOrderStatusRecord($statusUid);
 
@@ -269,9 +269,9 @@ class OrderStatuses
                 }
             }
 
-            $transaction->commit();
+            DB::commit();
         } catch (Throwable $e) {
-            $transaction->rollBack();
+            DB::rollBack();
             throw $e;
         }
     }
@@ -310,15 +310,15 @@ class OrderStatuses
     {
         $orderStatusUid = $event->tokenMatches[0];
 
-        $transaction = \Craft::$app->getDb()->beginTransaction();
+        DB::beginTransaction();
         try {
             $orderStatusRecord = $this->getOrderStatusRecord($orderStatusUid);
 
             $orderStatusRecord->delete();
 
-            $transaction->commit();
+            DB::commit();
         } catch (Throwable $e) {
-            $transaction->rollBack();
+            DB::rollBack();
             throw $e;
         }
 

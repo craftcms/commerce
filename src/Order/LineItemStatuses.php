@@ -136,7 +136,7 @@ class LineItemStatuses
         $statusUid = $event->tokenMatches[0];
         $data = $event->newValue;
 
-        $transaction = \Craft::$app->getDb()->beginTransaction();
+        DB::beginTransaction();
         try {
             $statusRecord = $this->getLineItemStatusRecord($statusUid);
             $store = Plugin::getInstance()->getStores()->getStoreByUid($data['store']);
@@ -159,9 +159,9 @@ class LineItemStatuses
                     ->update(['default' => false]);
             }
 
-            $transaction->commit();
+            DB::commit();
         } catch (Throwable $e) {
-            $transaction->rollBack();
+            DB::rollBack();
             throw $e;
         }
     }
@@ -190,7 +190,7 @@ class LineItemStatuses
     {
         $lineItemStatusUid = $event->tokenMatches[0];
 
-        $transaction = \Craft::$app->getDb()->beginTransaction();
+        DB::beginTransaction();
         try {
             $lineItemStatusRecord = $this->getLineItemStatusRecord($lineItemStatusUid);
 
@@ -199,11 +199,11 @@ class LineItemStatuses
 
             $lineItemStatusRecord->save();
 
-            $transaction->commit();
+            DB::commit();
 
             $this->clearCaches();
         } catch (Throwable $e) {
-            $transaction->rollBack();
+            DB::rollBack();
             throw $e;
         }
     }

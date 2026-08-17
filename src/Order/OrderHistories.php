@@ -63,9 +63,9 @@ class OrderHistories
         $userId = $order->getCustomerId();
 
         // If the user is logged in, use the current user
-        if (!\Craft::$app->request->isConsoleRequest
+        if (!app()->runningInConsole()
             && !\Craft::$app->getResponse()->isSent
-            && (\Craft::$app->getSession()->getHasSessionId() || \Craft::$app->getSession()->getIsActive())
+            && session()->isStarted()
             && $currentUser = currentUserElement()
         ) {
             $userId = $currentUser->id;
