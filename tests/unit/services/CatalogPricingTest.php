@@ -16,7 +16,7 @@ use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
-use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
+use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule as CatalogPricingRuleRecord;
 use craft\db\Query;
 use craftcommercetests\fixtures\ProductFixture;
 use UnitTester;

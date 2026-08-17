@@ -5,6 +5,8 @@ namespace craft\commerce\services;
 use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
 use craft\events\ConfigEvent;
+use CraftCms\Commerce\Payment\Gateway\GatewayTypes;
+use CraftCms\Yii2Adapter\Event\TypeRegistryCompatibility;
 use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
@@ -14,7 +16,8 @@ use yii\base\Component;
  */
 class Gateways extends Component
 {
-    public const EVENT_REGISTER_GATEWAY_TYPES = \CraftCms\Commerce\Payment\Gateway\Gateways::EVENT_REGISTER_GATEWAY_TYPES;
+    /** @deprecated in 6.0.0. Use `app(\CraftCms\Commerce\Payment\Gateway\GatewayTypes::class)->register()` instead. */
+    public const EVENT_REGISTER_GATEWAY_TYPES = 'registerGatewayTypes';
 
     public const CONFIG_GATEWAY_KEY = \CraftCms\Commerce\Payment\Gateway\Gateways::CONFIG_GATEWAY_KEY;
 
@@ -40,14 +43,6 @@ class Gateways extends Component
     public function getAllCustomerEnabledGatewaysAndAvailableForUseWithOrder(Order $order): Collection
     {
         return app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)->getAllCustomerEnabledGatewaysAndAvailableForUseWithOrder($order);
-    }
-
-    /**
-     * @return Collection<int, Gateway>
-     */
-    public function getAllSubscriptionGateways(): Collection
-    {
-        return app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)->getAllSubscriptionGateways();
     }
 
     /**
@@ -113,5 +108,11 @@ class Gateways extends Component
     public function createGateway(string|array $config): Gateway
     {
         return app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)->createGateway($config);
+    }
+
+    /** @internal */
+    public static function finalizeRegistrationEvents(): void
+    {
+        TypeRegistryCompatibility::reconcile(app(GatewayTypes::class), \craft\commerce\Plugin::getInstance()->getGateways(), self::EVENT_REGISTER_GATEWAY_TYPES);
     }
 }

@@ -16,7 +16,6 @@ use craft\commerce\elements\conditions\orders\OrderStatusConditionRule;
 use craft\commerce\errors\LineItemNotFoundException;
 use craft\commerce\errors\OrderAdjustmentNotFoundException;
 use craft\commerce\Plugin;
-use craft\commerce\records\OrderNotice as OrderNoticeRecord;
 use craft\errors\MutexException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
@@ -74,6 +73,7 @@ use CraftCms\Commerce\Order\OrderAdjustments;
 use CraftCms\Commerce\Order\OrderHistories;
 use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Order\Queries\OrderQuery;
+use CraftCms\Commerce\Order\Records\OrderNotice as OrderNoticeRecord;
 use CraftCms\Commerce\Order\Validation\OrderRules;
 use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
@@ -4005,7 +4005,7 @@ class Order extends Element implements HasStoreInterface
 
     private function _saveNotices(): void
     {
-        $previousNoticeIds = OrderNoticeRecord::find()->select(['id'])->where(['orderId' => $this->id])->column();
+        $previousNoticeIds = OrderNoticeRecord::where('orderId', $this->id)->pluck('id')->all();
 
         $currentNoticeIds = [];
 
@@ -4030,7 +4030,7 @@ class Order extends Element implements HasStoreInterface
                 $noticeRecord->attribute = $notice->attribute;
                 $noticeRecord->message = $notice->message;
                 $noticeRecord->noticeType = $notice->noticeType->value;
-                if ($noticeRecord->save(false)) {
+                if ($noticeRecord->save()) {
                     $notice->id = $noticeRecord->id;
                 }
             }
@@ -4040,7 +4040,7 @@ class Order extends Element implements HasStoreInterface
 
         // Delete any notices that are no longer on the order
         if ($deletableNoticeIds = array_diff($previousNoticeIds, $currentNoticeIds)) {
-            OrderNoticeRecord::deleteAll(['id' => $deletableNoticeIds]);
+            OrderNoticeRecord::whereIn('id', $deletableNoticeIds)->delete();
         }
     }
 

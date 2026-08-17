@@ -9,7 +9,6 @@ namespace craft\commerce\validators;
 
 use Craft;
 use craft\commerce\db\Table;
-use craft\commerce\records\Coupon;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use yii\validators\Validator;

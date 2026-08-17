@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce;
 
+use craft\commerce\services\Gateways as LegacyGateways;
+use craft\commerce\services\OrderAdjustments as LegacyOrderAdjustments;
+use craft\commerce\services\Purchasables as LegacyPurchasables;
+use CraftCms\Cms\Cms;
 use CraftCms\Cms\Plugin\Plugin as BasePlugin;
 use CraftCms\Cms\Route\Routes;
 use CraftCms\Cms\User\Events\EditUserScreensResolving;
@@ -25,6 +29,21 @@ class Plugin extends BasePlugin
 {
     use HasPermissions;
     use HasServices;
+
+    public function boot(): void
+    {
+        // Reconcile our type registries against any legacy `Event::on(...)` listeners for the
+        // deprecated EVENT_REGISTER_* constants, once every plugin has finished registering its listeners.
+        $this->app->booted(function() {
+            if (!Cms::isInstalled(strict: true)) {
+                return;
+            }
+
+            LegacyOrderAdjustments::finalizeRegistrationEvents();
+            LegacyGateways::finalizeRegistrationEvents();
+            LegacyPurchasables::finalizeRegistrationEvents();
+        });
+    }
 
     public function register(): void
     {

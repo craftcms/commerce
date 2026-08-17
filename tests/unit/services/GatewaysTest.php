@@ -60,6 +60,14 @@ class GatewaysTest extends Unit
         self::assertEquals($enabledKeys, ArrayHelper::getColumn($enabledGateways, 'name', false));
     }
 
+    public function testGetAllGatewayTypes(): void
+    {
+        self::assertEqualsCanonicalizing(
+            [Dummy::class, Manual::class],
+            Plugin::getInstance()->getGateways()->getAllGatewayTypes(),
+        );
+    }
+
     public function getAllCustomerEnabledGatewaysDataProvider(): array
     {
         return [

@@ -14,6 +14,7 @@ use craft\commerce\Plugin;
 use craft\commerce\services\Coupons;
 use craft\helpers\ArrayHelper;
 use craftcommercetests\fixtures\DiscountsFixture;
+use CraftCms\Commerce\Promotion\Records\Coupon as CouponRecord;
 use UnitTester;
 
 /**
@@ -203,7 +204,7 @@ class CouponsTest extends Unit
      */
     public function testDeleteCouponById(): void
     {
-        $couponRecord = new \craft\commerce\records\Coupon();
+        $couponRecord = new CouponRecord();
         $couponRecord->code = 'commerce_test_code';
         $couponRecord->discountId = $this->tester->grabFixture('discounts')['discount_with_coupon']['id'];
         $couponRecord->uses = 0;

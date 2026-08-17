@@ -44,8 +44,6 @@ trait Routes
             $event->rules['commerce/variants/<elementId:\d+><slug:(?:-[^\/]*)?>'] = 'elements/edit';
             $event->rules['commerce/products/<productTypeHandle:{handle}>/<elementId:\d+><slug:(?:-[^\/]*)?>'] = 'elements/edit';
 
-            // Subscriptions and Subscription Plans are now registered in routes/cp.php
-
             // Product Types are now registered in routes/cp.php
 
             // Orders are now registered in routes/cp.php
@@ -54,7 +52,7 @@ trait Routes
 
             // commerce/settings/stores* and commerce/settings/sites are now registered in routes/cp.php
 
-            // commerce/settings/general, ordersettings, transfers, and subscriptions are now registered in routes/cp.php
+            // commerce/settings/general, ordersettings, and transfers are now registered in routes/cp.php
 
             // commerce/settings/gateways* is now registered in routes/cp.php
 

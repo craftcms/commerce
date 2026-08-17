@@ -5,14 +5,9 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Payment\Gateway;
 
 use craft\commerce\base\Gateway;
-use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\elements\Order;
-use craft\commerce\gateways\Dummy;
-use craft\commerce\gateways\Manual;
 use craft\commerce\gateways\MissingGateway;
-use craft\commerce\Plugin;
 use craft\events\ConfigEvent;
-use craft\events\RegisterComponentTypesEvent;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Component\ComponentHelper;
 use CraftCms\Cms\Component\Exceptions\MissingComponentException;
@@ -34,8 +29,6 @@ use function CraftCms\Cms\t;
 #[Singleton]
 class Gateways
 {
-    public const string EVENT_REGISTER_GATEWAY_TYPES = 'registerGatewayTypes';
-
     public const string CONFIG_GATEWAY_KEY = 'commerce.gateways';
 
     /**
@@ -50,18 +43,7 @@ class Gateways
      */
     public function getAllGatewayTypes(): array
     {
-        $gatewayTypes = [
-            Dummy::class,
-            Manual::class,
-        ];
-
-        $event = new RegisterComponentTypesEvent(['types' => $gatewayTypes]);
-
-        // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
-        Plugin::getInstance()->getGateways()->trigger(self::EVENT_REGISTER_GATEWAY_TYPES, $event);
-
-        return $event->types;
+        return app(GatewayTypes::class)->types()->all();
     }
 
     /**
@@ -82,16 +64,6 @@ class Gateways
     public function getAllCustomerEnabledGatewaysAndAvailableForUseWithOrder(Order $order): Collection
     {
         return $this->getAllCustomerEnabledGateways()->filter(fn(Gateway $gateway) => $gateway->availableForUseWithOrder($order));
-    }
-
-    /**
-     * Returns all subscription gateways.
-     *
-     * @return Collection<int, GatewayInterface> All Subscription gateways
-     */
-    public function getAllSubscriptionGateways(): Collection
-    {
-        return $this->getAllGateways()->filter(fn(Gateway $gateway) => $gateway instanceof SubscriptionGateway);
     }
 
     /**

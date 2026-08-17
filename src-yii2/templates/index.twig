@@ -1,6 +1,5 @@
 {% set permissionsToView = {
     'commerce/orders': 'commerce-manageOrders',
-    'commerce/subscriptions': 'commerce-manageSubscriptions',
     'commerce/inventory' : 'commerce-manageInventoryStockLevels',
     'commerce/store-management' : 'commerce-manageStoreSettings',
 
@@ -55,10 +54,6 @@
 
 {% if currentUser.can('commerce-manageTaxes') %}
     {% redirect "commerce/store-management/#{primaryStore.handle}/taxrates" %}
-{% endif %}
-
-{% if currentUser.can('commerce-manageSubscriptions') %}
-    {% redirect 'commerce/subscriptions' %}
 {% endif %}
 
 {% exit 403 %}

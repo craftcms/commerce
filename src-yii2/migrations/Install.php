@@ -11,7 +11,6 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
-use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Transfer;
 use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
@@ -19,10 +18,6 @@ use craft\commerce\models\ProductType;
 use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
-use craft\commerce\records\CatalogPricingQueue;
-use craft\commerce\records\CatalogPricingRule;
-use craft\commerce\records\InventoryLocation;
-use craft\commerce\records\TaxCategory;
 use craft\commerce\services\Coupons;
 use craft\commerce\services\Gateways;
 use craft\commerce\services\Stores;
@@ -34,6 +29,9 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\MigrationHelper;
 use craft\helpers\StringHelper;
+use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingQueue;
+use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule;
+use CraftCms\Commerce\Inventory\Records\InventoryLocation;
 use ReflectionClass;
 use yii\base\NotSupportedException;
 
@@ -71,7 +69,10 @@ class Install extends Migration
             Order::class,
             Product::class,
             Variant::class,
-            Subscription::class,
+            // Subscription field layouts were removed in 6.0; this string mirrors the FQCN the
+            // now-deleted `craft\commerce\elements\Subscription` class used to have, so a leftover
+            // field layout row from an install that predates the removal is still cleaned up.
+            'craft\\commerce\\elements\\Subscription',
             Transfer::class,
         ]]);
 
@@ -1413,7 +1414,7 @@ class Install extends Migration
             'handle' => 'general',
             'default' => true,
         ];
-        $this->insert(TaxCategory::tableName(), $data);
+        $this->insert(Table::TAXCATEGORIES, $data);
     }
 
     /**
@@ -1424,7 +1425,7 @@ class Install extends Migration
         $inventoryLocation = new InventoryLocation();
         $inventoryLocation->name = 'Default';
         $inventoryLocation->handle = 'default';
-        $inventoryLocation->save(false);
+        $inventoryLocation->save();
 
         // get primary store from db query
         $storeId = (new Query())

@@ -9,7 +9,6 @@ namespace craft\commerce\helpers;
 
 use Craft;
 use craft\commerce\elements\Order as OrderElement;
-use craft\commerce\elements\Subscription;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\services\Emails;
@@ -83,16 +82,6 @@ class ProjectConfigData
         $output[self::_getProjectConfigKey(OrderStatuses::CONFIG_STATUSES_KEY)] = self::_getStatusData();
         $output[self::_getProjectConfigKey(LineItemStatuses::CONFIG_STATUSES_KEY)] = self::_getLineItemStatusData();
         $output[self::_getProjectConfigKey(ProductTypes::CONFIG_PRODUCTTYPES_KEY)] = self::_getProductTypeData();
-
-        $subscriptionFieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
-
-        if ($subscriptionFieldLayoutConfig = $subscriptionFieldLayout->getConfig()) {
-            $output['subscriptions'] = [
-                'fieldLayouts' => [
-                    $subscriptionFieldLayout->uid => $subscriptionFieldLayoutConfig,
-                ],
-            ];
-        }
 
         return array_filter($output);
     }

@@ -27,7 +27,6 @@ use craft\commerce\services\PaymentCurrencies;
 use craft\commerce\services\Payments;
 use craft\commerce\services\PaymentSources;
 use craft\commerce\services\Pdfs;
-use craft\commerce\services\Plans;
 use craft\commerce\services\Products;
 use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Purchasables;
@@ -39,7 +38,6 @@ use craft\commerce\services\ShippingRules;
 use craft\commerce\services\ShippingZones;
 use craft\commerce\services\Stores;
 use craft\commerce\services\StoreSettings;
-use craft\commerce\services\Subscriptions;
 use craft\commerce\services\TaxCategories;
 use craft\commerce\services\Taxes;
 use craft\commerce\services\TaxRates;
@@ -89,7 +87,6 @@ trait HasServices
         'payments' => Payments::class,
         'paymentSources' => PaymentSources::class,
         'pdfs' => Pdfs::class,
-        'plans' => Plans::class,
         'products' => Products::class,
         'productTypes' => ProductTypes::class,
         'purchasables' => Purchasables::class,
@@ -101,7 +98,6 @@ trait HasServices
         'shippingZones' => ShippingZones::class,
         'storeSettings' => StoreSettings::class,
         'stores' => Stores::class,
-        'subscriptions' => Subscriptions::class,
         'taxCategories' => TaxCategories::class,
         'taxes' => Taxes::class,
         'taxRates' => TaxRates::class,
@@ -245,11 +241,6 @@ trait HasServices
         return $this->get('pdfs');
     }
 
-    public function getPlans(): Plans
-    {
-        return $this->get('plans');
-    }
-
     public function getProducts(): Products
     {
         return $this->get('products');
@@ -303,11 +294,6 @@ trait HasServices
     public function getStores(): Stores
     {
         return $this->get('stores');
-    }
-
-    public function getSubscriptions(): Subscriptions
-    {
-        return $this->get('subscriptions');
     }
 
     public function getTaxCategories(): TaxCategories

@@ -14,10 +14,6 @@ use CraftCms\Commerce\Database\Table;
  * read/write rows, which are then hydrated into (or persisted from) the business
  * {@see \CraftCms\Commerce\Pdf\Models\Pdf} object that the rest of the codebase actually works
  * with.
- *
- * The legacy `craft\commerce\records\Pdf` stays alongside this class — it's still `use`d by
- * `StoreRecordTrait`, which several other still-legacy records depend on — this class only
- * replaces `src/`'s own usage.
  */
 class Pdf extends BaseModel
 {

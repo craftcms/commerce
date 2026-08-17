@@ -6,12 +6,10 @@ namespace CraftCms\Commerce\Purchasable;
 
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
-use craft\events\RegisterComponentTypesEvent;
 use CraftCms\Cms\Support\Facades\ElementCaches;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\User\Elements\User;
-use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Events\PurchasableAvailableEvent;
@@ -34,8 +32,6 @@ class Purchasables
     public const string EVENT_PURCHASABLE_AVAILABLE = 'purchasableAvailable';
 
     public const string EVENT_PURCHASABLE_SHIPPABLE = 'purchasableShippable';
-
-    public const string EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES = 'registerPurchasableElementTypes';
 
     /**
      * Memoization of purchasables by ID to avoid duplicate queries.
@@ -196,16 +192,6 @@ class Purchasables
      */
     public function getAllPurchasableElementTypes(): array
     {
-        $purchasableElementTypes = [
-            Variant::class,
-        ];
-
-        $event = new RegisterComponentTypesEvent(['types' => $purchasableElementTypes]);
-
-        // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
-        Plugin::getInstance()->getPurchasables()->trigger(self::EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES, $event);
-
-        return $event->types;
+        return app(PurchasableTypes::class)->types()->all();
     }
 }

@@ -19,7 +19,6 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
-use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Transfer;
 use craft\commerce\elements\Variant;
 use craft\commerce\events\EmailEvent;
@@ -65,7 +64,6 @@ use craft\commerce\services\Orders as OrdersService;
 use craft\commerce\services\Pdfs;
 use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Stores;
-use craft\commerce\services\Subscriptions;
 use craft\commerce\services\Transfers as TransfersService;
 use craft\commerce\web\twig\CraftVariableBehavior;
 use craft\commerce\web\twig\Extension;
@@ -324,20 +322,6 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions') && Plugin::getInstance()->getPlans()->getAllPlans()) {
-            $ret['subnav']['subscriptions'] = [
-                'label' => Craft::t('commerce', 'Subscriptions'),
-                'url' => 'commerce/subscriptions',
-            ];
-        }
-
-        if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptionPlans')) {
-            $ret['subnav']['subscription-plans'] = [
-                'label' => Craft::t('commerce', 'Subscription Plans'),
-                'url' => 'commerce/subscription-plans',
-            ];
-        }
-
         if (Craft::$app->getUser()->checkPermission('commerce-manageDonationSettings')) {
             $ret['subnav']['donations'] = [
                 'label' => Craft::t('commerce', 'Donations'),
@@ -489,7 +473,6 @@ class Plugin extends BasePlugin
         Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event) {
             $this->_productPermissions($event->permissions);
             $this->_orderPermissions($event->permissions);
-            $this->_subscriptionPermissions($event->permissions);
             $this->_inventoryPermissions($event->permissions);
             $this->_adminPermissions($event->permissions);
         });
@@ -562,17 +545,6 @@ class Plugin extends BasePlugin
 
                     ],
                 ],
-            ],
-        ];
-    }
-
-    private function _subscriptionPermissions(array &$permissions): void
-    {
-        $permissions[] = [
-            'heading' => Craft::t('commerce', 'Craft Commerce - Subscriptions'),
-            'permissions' => [
-                'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
-                'commerce-manageSubscriptionPlans' => ['label' => Craft::t('commerce', 'Manage subscription plans')],
             ],
         ];
     }
@@ -654,11 +626,6 @@ class Plugin extends BasePlugin
             ->onUpdate(TransfersService::CONFIG_FIELDLAYOUT_KEY, $transfersService->handleChangedFieldLayout(...))
             ->onRemove(TransfersService::CONFIG_FIELDLAYOUT_KEY, $transfersService->handleDeletedFieldLayout(...));
 
-        $subscriptionsService = $this->getSubscriptions();
-        $projectConfigService->onAdd(Subscriptions::CONFIG_FIELDLAYOUT_KEY, $subscriptionsService->handleChangedFieldLayout(...))
-            ->onUpdate(Subscriptions::CONFIG_FIELDLAYOUT_KEY, $subscriptionsService->handleChangedFieldLayout(...))
-            ->onRemove(Subscriptions::CONFIG_FIELDLAYOUT_KEY, $subscriptionsService->handleDeletedFieldLayout(...));
-
         $orderStatusService = $this->getOrderStatuses();
         $projectConfigService->onAdd(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', $orderStatusService->handleChangedOrderStatus(...))
             ->onUpdate(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', $orderStatusService->handleChangedOrderStatus(...))
@@ -723,7 +690,6 @@ class Plugin extends BasePlugin
         Event::on(Sites::class, Sites::EVENT_AFTER_DELETE_SITE, [$this->getStores(), 'afterDeleteCraftSiteHandler']);
 
         Event::on(UserElement::class, UserElement::EVENT_DEFINE_DELETION_BLOCKERS, [$this->getOrders(), 'beforeDeleteUserHandler']);
-        Event::on(UserElement::class, UserElement::EVENT_DEFINE_DELETION_BLOCKERS, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);
         Event::on(Address::class, Address::EVENT_AFTER_SAVE, [$this->getOrders(), 'afterSaveAddressHandler']);
 
         Event::on(
@@ -874,11 +840,6 @@ class Plugin extends BasePlugin
             Craft::configure($query, $criteria);
             return $query;
         });
-        NewCraftVariable::macro('subscriptions', static function(array $criteria = []) {
-            $query = Subscription::find();
-            Craft::configure($query, $criteria);
-            return $query;
-        });
         NewCraftVariable::macro('products', static function(array $criteria = []) {
             $query = Product::find();
             Craft::configure($query, $criteria);
@@ -940,7 +901,6 @@ class Plugin extends BasePlugin
             $e->types[] = Variant::class;
             $e->types[] = Product::class;
             $e->types[] = Order::class;
-            $e->types[] = Subscription::class;
             $e->types[] = Donation::class;
             $e->types[] = Transfer::class;
         });
@@ -1106,7 +1066,6 @@ class Plugin extends BasePlugin
             $gc->deletePartialElements(Donation::class, Table::DONATIONS, 'id');
             $gc->deletePartialElements(Order::class, Table::ORDERS, 'id');
             $gc->deletePartialElements(Product::class, Table::PRODUCTS, 'id');
-            $gc->deletePartialElements(Subscription::class, Table::SUBSCRIPTIONS, 'id');
             $gc->deletePartialElements(Variant::class, Table::VARIANTS, 'id');
             $gc->deletePartialElements(Transfer::class, Table::TRANSFERS, 'id');
         });

@@ -53,9 +53,9 @@ class CatalogPricing extends BaseJob
 
             if ($reservedRecord->type === CatalogPricingQueueRecord::TYPE_PURCHASABLE) {
                 // Specific purchasable IDs: regenerate against all applicable rules
-                $purchasableIds = $reservedRecord->getIds();
+                $purchasableIds = $reservedRecord->ids;
             } elseif ($reservedRecord->type === CatalogPricingQueueRecord::TYPE_RULE) {
-                $catalogPricingRuleIds = $reservedRecord->getIds();
+                $catalogPricingRuleIds = $reservedRecord->ids;
             } else {
                 throw new \UnexpectedValueException("Unrecognized catalog pricing queue row type: {$reservedRecord->type}");
             }

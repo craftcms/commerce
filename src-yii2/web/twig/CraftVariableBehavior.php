@@ -10,11 +10,9 @@ namespace craft\commerce\web\twig;
 use Craft;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\db\ProductQuery;
-use craft\commerce\elements\db\SubscriptionQuery;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
-use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
 use yii\base\Behavior;
@@ -49,19 +47,6 @@ class CraftVariableBehavior extends Behavior
     public function orders(array $criteria = []): OrderQuery
     {
         $query = Order::find();
-        Craft::configure($query, $criteria);
-        return $query;
-    }
-
-    /**
-     * Returns a new SubscriptionQuery instance.
-     *
-     * @param array $criteria
-     * @return SubscriptionQuery
-     */
-    public function subscriptions(array $criteria = []): SubscriptionQuery
-    {
-        $query = Subscription::find();
         Craft::configure($query, $criteria);
         return $query;
     }

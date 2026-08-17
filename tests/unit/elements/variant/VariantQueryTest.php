@@ -20,6 +20,7 @@ use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\db\Query;
+use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule as CatalogPricingRuleRecord;
 use craft\elements\User;
 use craftcommercetests\fixtures\ProductFixture;
 use craftcommercetests\fixtures\ShippingCategoryFixture;
@@ -268,9 +269,9 @@ class VariantQueryTest extends Unit
         // Create on the fly catalog pricing rule
         $primaryStore = Plugin::getInstance()->getStores()->getPrimaryStore();
         $catalogPricingRule = new CatalogPricingRule();
-        $catalogPricingRule->apply = \craft\commerce\records\CatalogPricingRule::APPLY_BY_PERCENT;
+        $catalogPricingRule->apply = CatalogPricingRuleRecord::APPLY_BY_PERCENT;
         $catalogPricingRule->applyAmount = 50 / -100;
-        $catalogPricingRule->applyPriceType = \craft\commerce\records\CatalogPricingRule::APPLY_PRICE_TYPE_PRICE;
+        $catalogPricingRule->applyPriceType = CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE;
         $catalogPricingRule->dateFrom = null;
         $catalogPricingRule->dateTo = null;
         $catalogPricingRule->description = '';
@@ -319,9 +320,9 @@ class VariantQueryTest extends Unit
         // Create on the fly catalog pricing rule
         $primaryStore = Plugin::getInstance()->getStores()->getPrimaryStore();
         $catalogPricingRule = new CatalogPricingRule();
-        $catalogPricingRule->apply = \craft\commerce\records\CatalogPricingRule::APPLY_BY_PERCENT;
+        $catalogPricingRule->apply = CatalogPricingRuleRecord::APPLY_BY_PERCENT;
         $catalogPricingRule->applyAmount = 50 / -100;
-        $catalogPricingRule->applyPriceType = \craft\commerce\records\CatalogPricingRule::APPLY_PRICE_TYPE_PRICE;
+        $catalogPricingRule->applyPriceType = CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE;
         $catalogPricingRule->dateFrom = null;
         $catalogPricingRule->dateTo = null;
         $catalogPricingRule->description = '';

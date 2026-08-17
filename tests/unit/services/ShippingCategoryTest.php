@@ -10,10 +10,10 @@ namespace craftcommercetests\unit\services;
 use Codeception\Test\Unit;
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
-use craft\commerce\records\ShippingCategory;
 use craft\commerce\services\ShippingCategories;
 use craft\helpers\Db;
 use craftcommercetests\fixtures\ProductFixture;
+use CraftCms\Commerce\Shipping\Records\ShippingCategory;
 use UnitTester;
 
 class ShippingCategoryTest extends Unit
@@ -51,9 +51,7 @@ class ShippingCategoryTest extends Unit
     public function testDeleteShippingCategory()
     {
         // Get the non-default shipping category from fixtures (anotherShippingCategory)
-        $shippingCategory = ShippingCategory::find()
-            ->where(['handle' => 'anotherShippingCategory'])
-            ->one();
+        $shippingCategory = ShippingCategory::where('handle', 'anotherShippingCategory')->first();
 
         $this->assertNotNull($shippingCategory, 'anotherShippingCategory fixture should exist');
         $this->assertFalse((bool)$shippingCategory->default, 'Test shipping category should not be default');
@@ -64,11 +62,11 @@ class ShippingCategoryTest extends Unit
 
         $this->assertTrue($result);
 
-        $shippingCategory = ShippingCategory::findOne($shippingCategoryId);
+        $shippingCategory = ShippingCategory::find($shippingCategoryId);
 
         $this->assertNull($shippingCategory);
 
-        $shippingCategory = ShippingCategory::findTrashed()->where(['id' => $shippingCategoryId])->one();
+        $shippingCategory = ShippingCategory::onlyTrashed()->where('id', $shippingCategoryId)->first();
 
         $this->assertInstanceOf(ShippingCategory::class, $shippingCategory);
 

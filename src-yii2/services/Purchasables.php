@@ -5,6 +5,8 @@ namespace craft\commerce\services;
 use craft\commerce\elements\Order;
 use craft\elements\User;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
+use CraftCms\Commerce\Purchasable\PurchasableTypes;
+use CraftCms\Yii2Adapter\Event\TypeRegistryCompatibility;
 use Throwable;
 use yii\base\Component;
 
@@ -19,7 +21,8 @@ class Purchasables extends Component
 
     public const EVENT_PURCHASABLE_SHIPPABLE = \CraftCms\Commerce\Purchasable\Purchasables::EVENT_PURCHASABLE_SHIPPABLE;
 
-    public const EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES = \CraftCms\Commerce\Purchasable\Purchasables::EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES;
+    /** @deprecated in 6.0.0. Use `app(\CraftCms\Commerce\Purchasable\PurchasableTypes::class)->register()` instead. */
+    public const EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES = 'registerPurchasableElementTypes';
 
     /**
      * @throws Throwable
@@ -63,5 +66,11 @@ class Purchasables extends Component
     public function getAllPurchasableElementTypes(): array
     {
         return app(\CraftCms\Commerce\Purchasable\Purchasables::class)->getAllPurchasableElementTypes();
+    }
+
+    /** @internal */
+    public static function finalizeRegistrationEvents(): void
+    {
+        TypeRegistryCompatibility::reconcile(app(PurchasableTypes::class), \craft\commerce\Plugin::getInstance()->getPurchasables(), self::EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES);
     }
 }

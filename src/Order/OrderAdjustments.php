@@ -6,15 +6,14 @@ namespace CraftCms\Commerce\Order;
 
 use craft\commerce\elements\Order;
 use craft\commerce\errors\OrderAdjustmentNotFoundException;
-use craft\commerce\Plugin;
-use craft\events\RegisterComponentTypesEvent;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Order\Adjuster\AdjusterTypes;
 use CraftCms\Commerce\Order\Adjuster\Contracts\AdjusterInterface;
-use CraftCms\Commerce\Order\Adjuster\Discount;
-use CraftCms\Commerce\Order\Adjuster\Shipping;
+use CraftCms\Commerce\Order\Adjuster\DiscountAdjusterTypes;
 use CraftCms\Commerce\Order\Models\OrderAdjustment;
 use CraftCms\Commerce\Order\Records\OrderAdjustment as OrderAdjustmentRecord;
+use CraftCms\Commerce\Tax\Taxes;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -23,10 +22,6 @@ use Illuminate\Support\Facades\Log;
 #[Singleton]
 class OrderAdjustments
 {
-    public const string EVENT_REGISTER_ORDER_ADJUSTERS = 'registerOrderAdjusters';
-
-    public const string EVENT_REGISTER_DISCOUNT_ADJUSTERS = 'registerDiscountAdjusters';
-
     /**
      * Get all order adjusters.
      *
@@ -34,27 +29,16 @@ class OrderAdjustments
      */
     public function getAdjusters(): array
     {
-        $adjusters = [];
-
-        $adjusters[] = Shipping::class;
+        $adjusters = app(AdjusterTypes::class)->types()->all();
 
         foreach ($this->getDiscountAdjusters() as $discountAdjuster) {
             $adjusters[] = $discountAdjuster;
         }
 
-        $taxEngine = Plugin::getInstance()->getTaxes()->getEngine();
+        $taxEngine = app(Taxes::class)->getEngine();
         $adjusters[] = $taxEngine->taxAdjusterClass();
 
-        $event = new RegisterComponentTypesEvent(['types' => $adjusters]);
-
-        // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
-        if (Plugin::getInstance()->getOrderAdjustments()->hasEventHandlers(self::EVENT_REGISTER_ORDER_ADJUSTERS)) {
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getOrderAdjustments()->trigger(self::EVENT_REGISTER_ORDER_ADJUSTERS, $event);
-        }
-
-        return $event->types;
+        return array_values(array_unique($adjusters));
     }
 
     public function getOrderAdjustmentById(int $id): ?OrderAdjustment
@@ -189,18 +173,7 @@ class OrderAdjustments
      */
     public function getDiscountAdjusters(): array
     {
-        $discountEvent = new RegisterComponentTypesEvent(['types' => []]);
-
-        // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
-        if (Plugin::getInstance()->getOrderAdjustments()->hasEventHandlers(self::EVENT_REGISTER_DISCOUNT_ADJUSTERS)) {
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getOrderAdjustments()->trigger(self::EVENT_REGISTER_DISCOUNT_ADJUSTERS, $discountEvent);
-        }
-
-        $discountEvent->types[] = Discount::class;
-
-        return $discountEvent->types;
+        return app(DiscountAdjusterTypes::class)->types()->all();
     }
 
     private function query(): Builder

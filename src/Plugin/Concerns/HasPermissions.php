@@ -27,14 +27,6 @@ trait HasPermissions
                 ]),
             ),
             new Permission(
-                key: 'commerce-manageSubscriptions',
-                label: t('Manage subscriptions', category: 'commerce'),
-            ),
-            new Permission(
-                key: 'commerce-manageSubscriptionPlans',
-                label: t('Manage subscription plans', category: 'commerce'),
-            ),
-            new Permission(
                 key: 'commerce-manageInventoryStockLevels',
                 label: t('Manage inventory stock levels', category: 'commerce'),
             ),

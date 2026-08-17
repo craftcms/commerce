@@ -48,23 +48,6 @@
         }) }}
 
         <hr>
-        <h3>{{ 'Subscription Settings'|t('commerce') }}</h3>
-        {{ forms.autosuggestField({
-            label: "Billing detail update URL"|t('commerce'),
-            instructions: "The URL to the page for updating billing details for a subscription, as well as handling 3DS authentication."|t('commerce'),
-            id: 'updateBillingDetailsUrl',
-            name: 'settings[updateBillingDetailsUrl]',
-            value: settings.updateBillingDetailsUrl,
-            errors: settings.getErrors('updateBillingDetailsUrl'),
-            required: false,
-            suggestEnvVars: true,
-            suggestAliases: true,
-            disabled: readOnly,
-            placeholder: "//example.com/subscriptions/updateBillingDetails",
-            warning: configWarning('updateBillingDetailsUrl', 'commerce'),
-        }) }}
-
-        <hr>
         <h3>{{ 'Control Panel Settings'|t('commerce') }}</h3>
         {{ forms.selectField({
             label: "Default View"|t('commerce'),

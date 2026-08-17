@@ -10,7 +10,7 @@ namespace unit\services;
 use Codeception\Test\Unit;
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
-use craft\commerce\records\CatalogPricingQueue as CatalogPricingQueueRecord;
+use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingQueue as CatalogPricingQueueRecord;
 use craftcommercetests\fixtures\StoreFixture;
 use UnitTester;
 
@@ -45,7 +45,7 @@ class CatalogPricingQueueTest extends Unit
     {
         parent::_before();
         // Clear the catalog pricing queue table before each test
-        CatalogPricingQueueRecord::deleteAll();
+        CatalogPricingQueueRecord::query()->delete();
         $this->_storeId = Plugin::getInstance()->getStores()->getPrimaryStore()->id;
     }
 
@@ -53,7 +53,7 @@ class CatalogPricingQueueTest extends Unit
     {
         parent::_after();
         // Clean up the queue table after each test
-        CatalogPricingQueueRecord::deleteAll();
+        CatalogPricingQueueRecord::query()->delete();
     }
 
     /**
@@ -68,14 +68,14 @@ class CatalogPricingQueueTest extends Unit
             'storeId' => $this->_storeId,
         ]);
 
-        $rows = CatalogPricingQueueRecord::find()->all();
+        $rows = CatalogPricingQueueRecord::all();
         self::assertCount(1, $rows);
 
         /** @var CatalogPricingQueueRecord $row */
         $row = $rows[0];
         self::assertEquals(CatalogPricingQueueRecord::TYPE_PURCHASABLE, $row->type);
         self::assertEquals($this->_storeId, $row->storeId);
-        self::assertEquals([1], $row->getIds());
+        self::assertEquals([1], $row->ids);
         self::assertFalse((bool)$row->reserved);
     }
 
@@ -89,14 +89,14 @@ class CatalogPricingQueueTest extends Unit
             'storeId' => $this->_storeId,
         ]);
 
-        $rows = CatalogPricingQueueRecord::find()->all();
+        $rows = CatalogPricingQueueRecord::all();
         self::assertCount(1, $rows);
 
         /** @var CatalogPricingQueueRecord $row */
         $row = $rows[0];
         self::assertEquals(CatalogPricingQueueRecord::TYPE_RULE, $row->type);
         self::assertEquals($this->_storeId, $row->storeId);
-        self::assertEquals([5], $row->getIds());
+        self::assertEquals([5], $row->ids);
         self::assertFalse((bool)$row->reserved);
     }
 
@@ -112,18 +112,18 @@ class CatalogPricingQueueTest extends Unit
         ]);
 
         /** @var CatalogPricingQueueRecord[] $rows */
-        $rows = CatalogPricingQueueRecord::find()->orderBy(['type' => SORT_ASC])->all();
+        $rows = CatalogPricingQueueRecord::orderBy('type')->get();
         self::assertCount(2, $rows);
 
         // First row should be purchasable type
         $purchasableRow = $rows[0];
         self::assertEquals(CatalogPricingQueueRecord::TYPE_PURCHASABLE, $purchasableRow->type);
-        self::assertEquals([1, 2], $purchasableRow->getIds());
+        self::assertEquals([1, 2], $purchasableRow->ids);
 
         // Second row should be rule type
         $ruleRow = $rows[1];
         self::assertEquals(CatalogPricingQueueRecord::TYPE_RULE, $ruleRow->type);
-        self::assertEquals([5, 6], $ruleRow->getIds());
+        self::assertEquals([5, 6], $ruleRow->ids);
     }
 
     /**
@@ -145,7 +145,7 @@ class CatalogPricingQueueTest extends Unit
         ]);
 
         /** @var CatalogPricingQueueRecord[] $rows */
-        $rows = CatalogPricingQueueRecord::find()->orderBy(['storeId' => SORT_ASC])->all();
+        $rows = CatalogPricingQueueRecord::orderBy('storeId')->get();
         self::assertCount(2, $rows);
 
         self::assertEquals($primaryStore->id, $rows[0]->storeId);
@@ -167,11 +167,11 @@ class CatalogPricingQueueTest extends Unit
             'storeId' => $this->_storeId,
         ]);
 
-        $rows = CatalogPricingQueueRecord::find()->all();
+        $rows = CatalogPricingQueueRecord::all();
         self::assertCount(1, $rows, 'Multiple queue calls should merge into a single row');
 
         $row = $rows[0];
-        self::assertEquals([1, 2, 3, 4], $row->getIds(), 'IDs should be merged and sorted');
+        self::assertEquals([1, 2, 3, 4], $row->ids, 'IDs should be merged and sorted');
     }
 
     /**
@@ -189,8 +189,8 @@ class CatalogPricingQueueTest extends Unit
             'storeId' => $this->_storeId,
         ]);
 
-        $row = CatalogPricingQueueRecord::findOne(['storeId' => $this->_storeId, 'type' => CatalogPricingQueueRecord::TYPE_PURCHASABLE]);
-        self::assertEquals([1, 2, 3, 4], $row->getIds(), 'Duplicate IDs should be removed and sorted');
+        $row = CatalogPricingQueueRecord::where(['storeId' => $this->_storeId, 'type' => CatalogPricingQueueRecord::TYPE_PURCHASABLE])->first();
+        self::assertEquals([1, 2, 3, 4], $row->ids, 'Duplicate IDs should be removed and sorted');
     }
 
     /**
@@ -203,9 +203,9 @@ class CatalogPricingQueueTest extends Unit
             'storeId' => null,
         ]);
 
-        $row = CatalogPricingQueueRecord::findOne(['type' => CatalogPricingQueueRecord::TYPE_PURCHASABLE]);
+        $row = CatalogPricingQueueRecord::where(['type' => CatalogPricingQueueRecord::TYPE_PURCHASABLE])->first();
         self::assertNull($row->storeId, 'storeId should be null to represent all stores');
-        self::assertEquals([1], $row->getIds());
+        self::assertEquals([1], $row->ids);
     }
 
     /**
@@ -225,8 +225,8 @@ class CatalogPricingQueueTest extends Unit
             'storeId' => $this->_storeId,
         ]);
 
-        $row = CatalogPricingQueueRecord::findOne(['storeId' => $this->_storeId, 'type' => CatalogPricingQueueRecord::TYPE_PURCHASABLE]);
-        self::assertNull($row->getIds(), 'IDs should be null (broader scope) when merging specific IDs with null');
+        $row = CatalogPricingQueueRecord::where(['storeId' => $this->_storeId, 'type' => CatalogPricingQueueRecord::TYPE_PURCHASABLE])->first();
+        self::assertNull($row->ids, 'IDs should be null (broader scope) when merging specific IDs with null');
     }
 
     /**
@@ -238,9 +238,9 @@ class CatalogPricingQueueTest extends Unit
         $record = new CatalogPricingQueueRecord();
         $record->storeId = $this->_storeId;
         $record->type = CatalogPricingQueueRecord::TYPE_PURCHASABLE;
-        $record->setIds([1]);
+        $record->ids = [1];
         $record->reserved = true;
-        $record->save(false);
+        $record->save();
 
         // Try to queue more IDs for the same store/type
         Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
@@ -249,22 +249,21 @@ class CatalogPricingQueueTest extends Unit
         ]);
 
         /** @var CatalogPricingQueueRecord[] $rows */
-        $rows = CatalogPricingQueueRecord::find()
-            ->where(['storeId' => $this->_storeId, 'type' => CatalogPricingQueueRecord::TYPE_PURCHASABLE])
-            ->orderBy(['reserved' => SORT_DESC])
-            ->all();
+        $rows = CatalogPricingQueueRecord::where(['storeId' => $this->_storeId, 'type' => CatalogPricingQueueRecord::TYPE_PURCHASABLE])
+            ->orderBy('reserved', 'desc')
+            ->get();
 
         self::assertCount(2, $rows, 'A new row should be created instead of merging into the reserved row');
 
         // One should be reserved with ID 1
         $reservedRow = $rows[0];
         self::assertNotNull($reservedRow);
-        self::assertEquals([1], $reservedRow->getIds());
+        self::assertEquals([1], $reservedRow->ids);
 
         // One should be unreserved with ID 2
         $unreservedRow = $rows[1];
         self::assertNotNull($unreservedRow);
-        self::assertEquals([2], $unreservedRow->getIds());
+        self::assertEquals([2], $unreservedRow->ids);
     }
 
     /**
@@ -277,8 +276,8 @@ class CatalogPricingQueueTest extends Unit
             'storeId' => $this->_storeId,
         ]);
 
-        $row = CatalogPricingQueueRecord::findOne(['storeId' => $this->_storeId]);
-        self::assertEquals([1, 5, 50, 100], $row->getIds(), 'IDs should be sorted numerically');
+        $row = CatalogPricingQueueRecord::where(['storeId' => $this->_storeId])->first();
+        self::assertEquals([1, 5, 50, 100], $row->ids, 'IDs should be sorted numerically');
     }
 
     /**
@@ -291,8 +290,8 @@ class CatalogPricingQueueTest extends Unit
             'storeId' => $this->_storeId,
         ]);
 
-        $row = CatalogPricingQueueRecord::findOne(['storeId' => $this->_storeId]);
-        self::assertEquals([1, 2], $row->getIds(), 'Zero and negative IDs should be filtered out');
+        $row = CatalogPricingQueueRecord::where(['storeId' => $this->_storeId])->first();
+        self::assertEquals([1, 2], $row->ids, 'Zero and negative IDs should be filtered out');
     }
 
     /**
@@ -321,16 +320,16 @@ class CatalogPricingQueueTest extends Unit
         ]);
 
         // All rows should be unreserved initially
-        self::assertCount(0, CatalogPricingQueueRecord::find()->where(['reserved' => true])->all());
+        self::assertCount(0, CatalogPricingQueueRecord::where(['reserved' => true])->get());
 
         $reserved = Plugin::getInstance()->getCatalogPricing()->reserveCatalogPricingQueueRow();
 
         self::assertNotNull($reserved, 'Should return a reserved row');
         self::assertTrue((bool)$reserved->reserved);
-        self::assertEquals([1], $reserved->getIds());
+        self::assertEquals([1], $reserved->ids);
 
         // Verify in database
-        $dbRow = CatalogPricingQueueRecord::findOne($reserved->id);
+        $dbRow = CatalogPricingQueueRecord::find($reserved->id);
         self::assertTrue((bool)$dbRow->reserved);
     }
 
@@ -351,11 +350,11 @@ class CatalogPricingQueueTest extends Unit
 
         $first = Plugin::getInstance()->getCatalogPricing()->reserveCatalogPricingQueueRow();
         self::assertNotNull($first);
-        self::assertEquals([1], $first->getIds());
+        self::assertEquals([1], $first->ids);
 
         $second = Plugin::getInstance()->getCatalogPricing()->reserveCatalogPricingQueueRow();
         self::assertNotNull($second);
-        self::assertEquals([2], $second->getIds());
+        self::assertEquals([2], $second->ids);
 
         $third = Plugin::getInstance()->getCatalogPricing()->reserveCatalogPricingQueueRow();
         self::assertNull($third, 'Should return null when no pending rows remain');
@@ -376,7 +375,7 @@ class CatalogPricingQueueTest extends Unit
 
         Plugin::getInstance()->getCatalogPricing()->releaseCatalogPricingQueueRowById($reserved->id);
 
-        $released = CatalogPricingQueueRecord::findOne($reserved->id);
+        $released = CatalogPricingQueueRecord::find($reserved->id);
         self::assertFalse((bool)$released->reserved);
     }
 
@@ -390,12 +389,12 @@ class CatalogPricingQueueTest extends Unit
             'storeId' => $this->_storeId,
         ]);
 
-        $row = CatalogPricingQueueRecord::findOne(['storeId' => $this->_storeId]);
+        $row = CatalogPricingQueueRecord::where(['storeId' => $this->_storeId])->first();
         self::assertNotNull($row);
 
         Plugin::getInstance()->getCatalogPricing()->deleteCatalogPricingQueueRowById($row->id);
 
-        $deleted = CatalogPricingQueueRecord::findOne($row->id);
+        $deleted = CatalogPricingQueueRecord::find($row->id);
         self::assertNull($deleted);
     }
 
@@ -415,7 +414,7 @@ class CatalogPricingQueueTest extends Unit
 
         // Verify the state of all rows
         /** @var CatalogPricingQueueRecord[] $allRows */
-        $allRows = CatalogPricingQueueRecord::find()->all();
+        $allRows = CatalogPricingQueueRecord::all();
         self::assertCount(count($expectedRows), $allRows, 'Should have expected number of rows');
 
         foreach ($expectedRows as $index => $expected) {
@@ -424,7 +423,7 @@ class CatalogPricingQueueTest extends Unit
             self::assertNotNull($row, "Row at index $index should exist");
             self::assertEquals($expected['storeId'] ?? null, $row->storeId, "Row $index storeId mismatch");
             self::assertEquals($expected['type'], $row->type, "Row $index type mismatch");
-            self::assertEquals($expected['ids'], $row->getIds(), "Row $index IDs mismatch");
+            self::assertEquals($expected['ids'], $row->ids, "Row $index IDs mismatch");
         }
     }
 

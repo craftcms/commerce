@@ -10,7 +10,6 @@ namespace craftcommercetests\unit\services;
 use Codeception\Test\Unit;
 use craft\commerce\models\Discount;
 use craft\commerce\Plugin;
-use craft\commerce\records\Discount as DiscountRecord;
 use craft\commerce\services\Discounts;
 use craft\elements\User;
 use craft\services\Users;

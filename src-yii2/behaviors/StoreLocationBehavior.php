@@ -2,8 +2,8 @@
 
 namespace craft\commerce\behaviors;
 
-use craft\commerce\records\StoreSettings;
 use craft\elements\Address;
+use CraftCms\Commerce\Store\Records\StoreSettings;
 use craft\events\AuthorizationCheckEvent;
 use craft\events\ModelEvent;
 use RuntimeException;
@@ -48,7 +48,7 @@ class StoreLocationBehavior extends Behavior
     {
         $address = $event->sender;
         /** @var StoreSettings $store */
-        $store = StoreSettings::find()->one(); // we only have one store right now, and we assume it is the first one
+        $store = StoreSettings::first(); // we only have one store right now, and we assume it is the first one
         $store->locationAddressId = $address->id;
         $store->save();
     }

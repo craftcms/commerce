@@ -27,6 +27,7 @@ use craftcommercetests\fixtures\CategoriesFixture;
 use craftcommercetests\fixtures\CustomerFixture;
 use craftcommercetests\fixtures\DiscountsFixture;
 use craftcommercetests\fixtures\ProductFixture;
+use CraftCms\Commerce\Promotion\Records\Discount as DiscountRecord;
 use DateInterval;
 use DateTime;
 use DateTimeZone;
@@ -389,7 +390,7 @@ class DiscountsTest extends Unit
         $storeId = Plugin::getInstance()->getStores()->getPrimaryStore()->id;
         // Create dummy discount records
         for ($i = 1; $i <= 5; $i++) {
-            $discount = new \craft\commerce\records\Discount();
+            $discount = new DiscountRecord();
             $discount->name = 'Dummy Discount ' . $i;
             // randomise the sort order
             $discount->sortOrder = $i + random_int(1, 15);

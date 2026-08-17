@@ -3,8 +3,11 @@
 namespace craft\commerce\services;
 
 use craft\commerce\elements\Order;
+use CraftCms\Commerce\Order\Adjuster\AdjusterTypes;
 use CraftCms\Commerce\Order\Adjuster\Contracts\AdjusterInterface;
+use CraftCms\Commerce\Order\Adjuster\DiscountAdjusterTypes;
 use CraftCms\Commerce\Order\Models\OrderAdjustment;
+use CraftCms\Yii2Adapter\Event\TypeRegistryCompatibility;
 use yii\base\Component;
 
 /**
@@ -12,9 +15,11 @@ use yii\base\Component;
  */
 class OrderAdjustments extends Component
 {
-    public const EVENT_REGISTER_ORDER_ADJUSTERS = \CraftCms\Commerce\Order\OrderAdjustments::EVENT_REGISTER_ORDER_ADJUSTERS;
+    /** @deprecated in 6.0.0. Use `app(\CraftCms\Commerce\Order\Adjuster\AdjusterTypes::class)->register()` instead. */
+    public const EVENT_REGISTER_ORDER_ADJUSTERS = 'registerOrderAdjusters';
 
-    public const EVENT_REGISTER_DISCOUNT_ADJUSTERS = \CraftCms\Commerce\Order\OrderAdjustments::EVENT_REGISTER_DISCOUNT_ADJUSTERS;
+    /** @deprecated in 6.0.0. Use `app(\CraftCms\Commerce\Order\Adjuster\DiscountAdjusterTypes::class)->register()` instead. */
+    public const EVENT_REGISTER_DISCOUNT_ADJUSTERS = 'registerDiscountAdjusters';
 
     /**
      * @return class-string<AdjusterInterface>[]
@@ -67,5 +72,14 @@ class OrderAdjustments extends Component
     public function getDiscountAdjusters(): array
     {
         return app(\CraftCms\Commerce\Order\OrderAdjustments::class)->getDiscountAdjusters();
+    }
+
+    /** @internal */
+    public static function finalizeRegistrationEvents(): void
+    {
+        $plugin = \craft\commerce\Plugin::getInstance()->getOrderAdjustments();
+
+        TypeRegistryCompatibility::reconcile(app(AdjusterTypes::class), $plugin, self::EVENT_REGISTER_ORDER_ADJUSTERS);
+        TypeRegistryCompatibility::reconcile(app(DiscountAdjusterTypes::class), $plugin, self::EVENT_REGISTER_DISCOUNT_ADJUSTERS);
     }
 }

@@ -12,10 +12,6 @@ use CraftCms\Commerce\Database\Table;
  *
  * This holds no business logic — it's used internally by
  * {@see \CraftCms\Commerce\Customer\Customers} to read/write rows.
- *
- * The legacy `craft\commerce\records\Customer` stays alongside this class — it's still `use`d
- * directly by the still-legacy `src-yii2\behaviors\CustomerBehavior`, which is attached to every
- * `User` element — this class only replaces `src/`'s own usage.
  */
 class Customer extends BaseModel
 {

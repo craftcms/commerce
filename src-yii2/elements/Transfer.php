@@ -14,10 +14,7 @@ use craft\commerce\models\inventory\UpdateInventoryLevelInTransfer;
 use craft\commerce\models\InventoryLocation;
 use craft\commerce\models\TransferDetail;
 use craft\commerce\Plugin;
-use craft\commerce\records\Transfer as TransferRecord;
-use craft\commerce\records\TransferDetail as TransferDetailRecord;
 use craft\commerce\web\assets\transfers\TransfersAsset;
-use craft\db\Query;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
@@ -26,6 +23,8 @@ use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\web\CpScreenResponseBehavior;
+use CraftCms\Commerce\Transfer\Records\Transfer as TransferRecord;
+use CraftCms\Commerce\Transfer\Records\TransferDetail as TransferDetailRecord;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -756,7 +755,7 @@ JS, [
     {
         if (!$this->propagating) {
             $transferId = $this->getCanonicalId();
-            $transferRecord = TransferRecord::findOne($transferId);
+            $transferRecord = TransferRecord::find($transferId);
 
             if (!$transferRecord) {
                 $transferRecord = new TransferRecord();
@@ -769,7 +768,7 @@ JS, [
             $transferRecord->destinationLocationId = $this->destinationLocationId;
             $transferRecord->transferStatus = $this->getTransferStatus()->value ?? TransferStatusType::DRAFT->value;
 
-            $transferRecord->save(false);
+            $transferRecord->save();
 
             if ($this->getTransferStatus() === TransferStatusType::PENDING && $originalTransferStatus == TransferStatusType::DRAFT->value) {
                 $inventoryUpdateCollection = new UpdateInventoryLevelCollection();
@@ -800,17 +799,13 @@ JS, [
                 Plugin::getInstance()->getInventory()->executeUpdateInventoryLevels($inventoryUpdateCollection);
             }
 
-            $existingDetailIds = new Query()
-                ->select('id')
-                ->from('{{%commerce_transferdetails}}')
-                ->where(['transferId' => $this->id])
-                ->column();
+            $existingDetailIds = TransferDetailRecord::where('transferId', $this->id)->pluck('id')->all();
 
             $currentDetailIds = [];
 
             foreach ($this->getDetails() as $detail) {
                 if ($detail->id) {
-                    $detailRecord = TransferDetailRecord::findOne($detail->id);
+                    $detailRecord = TransferDetailRecord::find($detail->id);
                 } else {
                     $detailRecord = new TransferDetailRecord();
                 }
@@ -830,13 +825,13 @@ JS, [
 
             $deletedDetailIds = array_diff($existingDetailIds, $currentDetailIds);
             if (!empty($deletedDetailIds)) {
-                TransferDetailRecord::deleteAll(['id' => $deletedDetailIds]);
+                TransferDetailRecord::whereIn('id', $deletedDetailIds)->delete();
             }
 
             $this->updateTransferStatus();
             $transferRecord->transferStatus = $this->getTransferStatus()->value;
 
-            $transferRecord->save(false);
+            $transferRecord->save();
         }
 
         parent::afterSave($isNew);

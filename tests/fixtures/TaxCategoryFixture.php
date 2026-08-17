@@ -1,20 +1,17 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
+
+declare(strict_types=1);
 
 namespace craftcommercetests\fixtures;
 
-use craft\commerce\records\TaxCategory;
-use craft\test\ActiveFixture;
+use craft\commerce\models\TaxCategory;
+use craft\commerce\Plugin;
 
 /**
  * Class TaxCategoryFixture
  * @package craftcommercetests\fixtures
  */
-class TaxCategoryFixture extends ActiveFixture
+class TaxCategoryFixture extends BaseModelFixture
 {
     /**
      * @inheritdoc
@@ -25,4 +22,29 @@ class TaxCategoryFixture extends ActiveFixture
      * @inheritdoc
      */
     public $modelClass = TaxCategory::class;
+
+    /**
+     * @inheritDoc
+     */
+    public string $saveMethod = 'saveTaxCategory';
+
+    /**
+     * @inheritDoc
+     */
+    public string $deleteMethod = 'deleteTaxCategoryById';
+
+    /**
+     * @inheritDoc
+     */
+    public $service = 'taxCategories';
+
+    /**
+     * @inheritDoc
+     */
+    public function init(): void
+    {
+        $this->service = Plugin::getInstance()->get($this->service);
+
+        parent::init();
+    }
 }

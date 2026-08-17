@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Transfer;
 use craft\commerce\Plugin;
-use craft\commerce\services\Subscriptions;
 use craft\commerce\services\Transfers;
 use craft\helpers\StringHelper;
 use CraftCms\Cms\Config\GeneralConfig;
@@ -85,32 +83,6 @@ readonly class SettingsController
         return $this->asSuccess(t('Transfer fields saved.', category: 'commerce'));
     }
 
-    public function saveSubscriptionSettings(): Response
-    {
-        $fieldLayout = \Craft::$app->getFields()->assembleLayoutFromPost();
-        $fieldLayout->reservedFieldHandles = [];
-        $fieldLayout->type = Subscription::class;
-
-        if (!$fieldLayout->validate()) {
-            return $this->asFailure(t('Couldn\'t save subscription fields.', category: 'commerce'));
-        }
-
-        if ($currentSubscriptionsFieldLayout = ProjectConfig::get(Subscriptions::CONFIG_FIELDLAYOUT_KEY)) {
-            $uid = array_key_first($currentSubscriptionsFieldLayout);
-        } else {
-            $uid = StringHelper::UUID();
-        }
-
-        $configData = [$uid => $fieldLayout->getConfig()];
-        $result = ProjectConfig::set(Subscriptions::CONFIG_FIELDLAYOUT_KEY, $configData, force: true);
-
-        if (!$result) {
-            return $this->asFailure(t('Couldn\'t save subscription fields.'));
-        }
-
-        return $this->asSuccess(t('Subscription fields saved.', category: 'commerce'));
-    }
-
     public function editTransferSettings(): string
     {
         $fieldLayout = Plugin::getInstance()->getTransfers()->getFieldLayout();
@@ -122,14 +94,4 @@ readonly class SettingsController
         ], TemplateMode::Cp);
     }
 
-    public function editSubscriptionSettings(): string
-    {
-        $fieldLayout = \Craft::$app->getFields()->getLayoutByType(Subscription::class);
-
-        return pageTemplate('commerce/settings/subscriptions/_edit', [
-            'fieldLayout' => $fieldLayout,
-            'title' => t('Subscription Settings', category: 'commerce'),
-            'readOnly' => $this->readOnly,
-        ], TemplateMode::Cp);
-    }
 }

@@ -22,7 +22,6 @@ use CraftCms\Commerce\Http\Controllers\Settings\PaymentCurrenciesController;
 use CraftCms\Commerce\Http\Controllers\PaymentSourcesController;
 use CraftCms\Commerce\Http\Controllers\PaymentsController;
 use CraftCms\Commerce\Http\Controllers\Settings\PdfsController;
-use CraftCms\Commerce\Http\Controllers\Settings\PlansController;
 use CraftCms\Commerce\Http\Controllers\Settings\ProductTypesController;
 use CraftCms\Commerce\Http\Controllers\Settings\SalesController;
 use CraftCms\Commerce\Http\Controllers\Settings\SettingsController;
@@ -35,7 +34,6 @@ use CraftCms\Commerce\Http\Controllers\Settings\StoresController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxCategoriesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxRatesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxZonesController;
-use CraftCms\Commerce\Http\Controllers\SubscriptionsController;
 use CraftCms\Commerce\Http\Controllers\TransfersController;
 use CraftCms\Commerce\Http\Controllers\UserOrdersController;
 use CraftCms\Commerce\Http\Controllers\WebhooksController;
@@ -85,7 +83,6 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->g
 
     Route::post('settings/save-settings', [SettingsController::class, 'saveSettings']);
     Route::post('settings/save-transfer-settings', [SettingsController::class, 'saveTransferSettings']);
-    Route::post('settings/save-subscription-settings', [SettingsController::class, 'saveSubscriptionSettings']);
     Route::post('order-settings/save', [OrderSettingsController::class, 'save']);
 
     Route::post('stores/save-store', [StoresController::class, 'saveStore']);
@@ -244,36 +241,6 @@ Route::middleware(['auth', 'can:commerce-manageInventoryTransfers'])->group(func
     Route::post('transfers/receive-transfer', [TransfersController::class, 'receiveTransfer']);
     Route::get('transfers/receive-transfer-screen', [TransfersController::class, 'receiveTransferScreen']);
     Route::get('transfers/render-management', [TransfersController::class, 'renderManagement']);
-});
-
-// PlansController extends BaseCpController (accessPlugin-commerce via init()); edit/save/archive
-// additionally require commerce-manageSubscriptions, matching the legacy per-action checks.
-Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
-    Route::middleware('can:commerce-manageSubscriptions')->group(function () {
-        Route::post('plans/save-plan', [PlansController::class, 'savePlan']);
-        Route::post('plans/archive-plan', [PlansController::class, 'archivePlan']);
-    });
-    Route::post('plans/reorder', [PlansController::class, 'reorder']);
-});
-
-// SubscriptionsController extends the plain Yii2 BaseController — no blanket
-// accessPlugin-commerce check. Each action gates itself inline (see routes/cp.php for why
-// save() isn't wrapped in commerce-manageSubscriptions); completeSubscription() is a gateway
-// webhook callback and stays fully anonymous.
-Route::middleware('can:commerce-manageSubscriptions')
-    ->post('subscriptions/refresh-payments', [SubscriptionsController::class, 'refreshPayments']);
-Route::middleware('auth')->post('subscriptions/save', [SubscriptionsController::class, 'save']);
-Route::middleware('auth')->group(function () {
-    Route::post('subscriptions/subscribe', [SubscriptionsController::class, 'subscribe']);
-    Route::post('subscriptions/reactivate', [SubscriptionsController::class, 'reactivate']);
-    Route::post('subscriptions/switch', [SubscriptionsController::class, 'switchPlan']);
-    Route::post('subscriptions/cancel', [SubscriptionsController::class, 'cancel']);
-});
-Route::match(['get', 'post'], 'subscriptions/complete-subscription', [SubscriptionsController::class, 'completeSubscription']);
-
-Route::middleware([RequireCpRequest::class, 'can:deleteUsers'])->group(function () {
-    Route::get('subscriptions/delete-subscriptions-modal', [SubscriptionsController::class, 'deleteSubscriptionsModal']);
-    Route::post('subscriptions/delete-subscriptions', [SubscriptionsController::class, 'deleteSubscriptions']);
 });
 
 Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->group(function () {

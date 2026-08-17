@@ -17,9 +17,8 @@ use CraftCms\Commerce\Database\Table;
  * {@see \CraftCms\Commerce\Purchasable\Models\PurchasableStore} object that the rest of the
  * codebase actually works with.
  *
- * The legacy `craft\commerce\records\PurchasableStore` is deleted — despite `use`ing
- * `StoreRecordTrait` (shared with several other still-legacy records), it had no consumer of
- * its own left anywhere in the codebase once `Purchasable`/`Donation` were repointed here.
+ * The legacy `craft\commerce\records\PurchasableStore` is deleted — it had no consumer of its
+ * own left anywhere in the codebase once `Purchasable`/`Donation` were repointed here.
  */
 class PurchasableStore extends BaseModel
 {

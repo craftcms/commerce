@@ -17,7 +17,6 @@ class Settings extends Model
     public const VIEW_URI_PRODUCTS = 'commerce/products';
     public const VIEW_URI_INVENTORY = 'commerce/inventory';
     public const VIEW_URI_STORE_MANAGEMENT = 'commerce/store-management';
-    public const VIEW_URI_SUBSCRIPTIONS = 'commerce/subscriptions';
 
     public mixed $activeCartDuration = 3600;
 
@@ -40,8 +39,6 @@ class Settings extends Model
     public bool $purgeInactiveCarts = true;
 
     public mixed $purgeInactiveCartsDuration = 7776000;
-
-    public string $updateBillingDetailsUrl = '';
 
     public bool $updateCartSearchIndexes = true;
 
@@ -128,7 +125,6 @@ class Settings extends Model
             self::VIEW_URI_PRODUCTS => t('Products', category: 'commerce'),
             self::VIEW_URI_INVENTORY => t('Inventory', category: 'commerce'),
             self::VIEW_URI_STORE_MANAGEMENT => t('Store Management', category: 'commerce'),
-            self::VIEW_URI_SUBSCRIPTIONS => t('Subscriptions', category: 'commerce'),
         ];
     }
 

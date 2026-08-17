@@ -11,10 +11,10 @@ use Codeception\Test\Unit;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\Plugin;
-use craft\commerce\records\TaxCategory;
 use craft\commerce\services\TaxCategories;
 use craft\helpers\Db;
 use craftcommercetests\fixtures\ProductFixture;
+use CraftCms\Commerce\Tax\Records\TaxCategory;
 use UnitTester;
 
 class TaxCategoryTest extends Unit
@@ -60,11 +60,11 @@ class TaxCategoryTest extends Unit
 
         $this->assertTrue($result);
 
-        $taxCategory = TaxCategory::findOne($taxCategoryId);
+        $taxCategory = TaxCategory::find($taxCategoryId);
 
         $this->assertNull($taxCategory);
 
-        $taxCategory = TaxCategory::findTrashed()->where(['id' => $taxCategoryId])->one();
+        $taxCategory = TaxCategory::onlyTrashed()->where('id', $taxCategoryId)->first();
 
         $this->assertInstanceOf(TaxCategory::class, $taxCategory);
 

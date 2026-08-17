@@ -8,23 +8,14 @@
 namespace craft\commerce\gateways;
 
 use Craft;
-use craft\commerce\base\Plan;
+use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
-use craft\commerce\base\SubscriptionGateway;
-use craft\commerce\base\SubscriptionResponseInterface;
-use craft\commerce\elements\Subscription;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\payments\CreditCardPaymentForm;
 use craft\commerce\models\payments\DummyPaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\models\responses\Dummy as DummyRequestResponse;
-use craft\commerce\models\responses\DummySubscriptionResponse;
-use craft\commerce\models\subscriptions\CancelSubscriptionForm;
-use craft\commerce\models\subscriptions\DummyPlan;
-use craft\commerce\models\subscriptions\SubscriptionForm;
-use craft\commerce\models\subscriptions\SwitchPlansForm;
 use craft\commerce\models\Transaction;
-use craft\elements\User;
 use craft\helpers\StringHelper;
 use Illuminate\Http\Response;
 use craft\web\View;
@@ -37,7 +28,7 @@ use yii\base\NotSupportedException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class Dummy extends SubscriptionGateway
+class Dummy extends Gateway
 {
     public function getPaymentFormHtml(array $params): ?string
     {
@@ -243,98 +234,4 @@ class Dummy extends SubscriptionGateway
         return false;
     }
 
-    public function getCancelSubscriptionFormHtml(Subscription $subscription): string
-    {
-        return '';
-    }
-
-    public function getCancelSubscriptionFormModel(): CancelSubscriptionForm
-    {
-        return new CancelSubscriptionForm();
-    }
-
-    public function getPlanSettingsHtml(array $params = []): ?string
-    {
-        return '<input type="hidden" name="reference" value="dummy.reference"/>';
-    }
-
-    public function getPlanModel(): Plan
-    {
-        return new DummyPlan();
-    }
-
-    public function getSubscriptionFormModel(): SubscriptionForm
-    {
-        return new SubscriptionForm();
-    }
-
-    public function getSwitchPlansFormModel(): SwitchPlansForm
-    {
-        return new SwitchPlansForm();
-    }
-
-    public function cancelSubscription(Subscription $subscription, CancelSubscriptionForm $parameters): SubscriptionResponseInterface
-    {
-        $response = new DummySubscriptionResponse();
-        $response->setIsCanceled(true);
-        return $response;
-    }
-
-    public function getNextPaymentAmount(Subscription $subscription): string
-    {
-        return '-';
-    }
-
-    public function getSubscriptionPayments(Subscription $subscription): array
-    {
-        return [];
-    }
-
-    public function getSubscriptionPlanByReference(string $reference): string
-    {
-        return 'dummy.plan';
-    }
-
-    public function getSubscriptionPlans(): array
-    {
-        return [];
-    }
-
-    public function subscribe(User $user, Plan $plan, SubscriptionForm $parameters): SubscriptionResponseInterface
-    {
-        $subscription = new DummySubscriptionResponse();
-        $subscription->setTrialDays($parameters->trialDays);
-
-        return $subscription;
-    }
-
-    public function switchSubscriptionPlan(Subscription $subscription, Plan $plan, SwitchPlansForm $parameters): SubscriptionResponseInterface
-    {
-        return new DummySubscriptionResponse();
-    }
-
-    public function supportsReactivation(): bool
-    {
-        return false;
-    }
-
-    public function supportsPlanSwitch(): bool
-    {
-        return true;
-    }
-
-    public function getBillingIssueDescription(Subscription $subscription): string
-    {
-        return '';
-    }
-
-    public function getBillingIssueResolveFormHtml(Subscription $subscription): string
-    {
-        return '';
-    }
-
-    public function getHasBillingIssues(Subscription $subscription): bool
-    {
-        return false;
-    }
 }

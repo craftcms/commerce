@@ -6,7 +6,6 @@ import './scss/purchasables.scss';
 import './scss/prices.scss';
 import './scss/registration.scss';
 import './scss/stores.scss';
-import './scss/subscriptions.scss';
 
 // JS
 import './js/Commerce';
@@ -15,7 +14,6 @@ import './js/CommerceOrderIndex';
 import './js/CommercePaymentModal';
 import './js/CommerceProductSalesModal';
 import './js/CommerceProductSelectInput';
-import './js/CommerceSubscriptionIndex';
 import './js/CommerceUpdateOrderStatusModal';
 import './js/DownloadOrderPdf';
 import './js/TableRowAdditionalInfoIcon';

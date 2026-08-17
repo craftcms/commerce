@@ -10,16 +10,15 @@ namespace craft\commerce\behaviors;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
-use craft\commerce\elements\Subscription;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\Plugin;
-use craft\commerce\records\Customer;
 use craft\elements\Address;
 use craft\elements\User;
 use craft\events\DefineFieldsEvent;
 use craft\events\DefineRulesEvent;
 use craft\events\ModelEvent;
 use craft\helpers\ArrayHelper;
+use CraftCms\Commerce\Customer\Records\Customer;
 use RuntimeException;
 use yii\base\Behavior;
 use yii\base\InvalidConfigException;
@@ -32,7 +31,6 @@ use yii\base\InvalidConfigException;
  * @property-read array $inactiveCarts
  * @property null|int $primaryShippingAddressId
  * @property-read null|Address $primaryBillingAddress
- * @property-read Subscription[] $subscriptions
  * @property null|int $primaryBillingAddressId
  * @property-read Order[] $orders
  * @property-read Address[] $addresses
@@ -59,11 +57,6 @@ class CustomerBehavior extends Behavior
      * @since 4.2
      */
     private ?int $_primaryPaymentSourceId = null;
-
-    /**
-     * @var array|null
-     */
-    private ?array $_subscriptions = null;
 
     /**
      * @var Customer|null
@@ -183,23 +176,6 @@ class CustomerBehavior extends Behavior
             ->withAll()
             ->orderBy('dateOrdered DESC')
             ->all();
-    }
-
-    /**
-     * Returns the subscription elements associated with this customer.
-     *
-     * @return Subscription[]
-     */
-    public function getSubscriptions(): array
-    {
-        if (null === $this->_subscriptions) {
-            $this->_subscriptions = Subscription::find()
-                ->user($this->owner)
-                ->status(null)
-                ->all();
-        }
-
-        return $this->_subscriptions ?? [];
     }
 
     /**
@@ -329,7 +305,7 @@ class CustomerBehavior extends Behavior
     {
         if (!$this->_customer instanceof Customer) {
             /** @var Customer|null $customer */
-            $customer = Customer::find()->where(['customerId' => $this->owner->id])->one();
+            $customer = Customer::where('customerId', $this->owner->id)->first();
             $this->_customer = $customer;
         }
 

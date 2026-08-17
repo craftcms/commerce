@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Users;
 
-use craft\commerce\elements\Subscription;
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\helpers\ArrayHelper;
@@ -96,26 +95,6 @@ readonly class UsersController
                         'storageKey' => $inactiveCartsKey,
                     ],
                 ])) .
-                Html::endTag('div');
-        }
-
-        if (currentUser()?->can('commerce-manageSubscriptions') && !empty(Plugin::getInstance()->getPlans()->getAllPlans())) {
-            $subscriptionsKey = sprintf($key, 'subscriptions');
-            $content .= Html::tag('hr') .
-                Html::tag('h2', t('Subscriptions', category: 'commerce')) .
-                Html::beginTag('div', ['class' => 'commerce-user-subscriptions']) .
-                $this->elementIndexHtml->html(Subscription::class, [
-                    'id' => $subscriptionsKey,
-                    'context' => 'embedded-index',
-                    'sources' => false,
-                    'jsSettings' => [
-                        'criteria' => [
-                            'userId' => $user->id,
-                            'status' => null,
-                        ],
-                        'storageKey' => $subscriptionsKey,
-                    ],
-                ]) .
                 Html::endTag('div');
         }
 

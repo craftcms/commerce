@@ -7,7 +7,7 @@
 
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
-use craft\commerce\records\OrderStatus;
+use CraftCms\Commerce\Order\Records\OrderStatus;
 
 $variants = Variant::find()->indexBy('sku')->all();
 
@@ -25,7 +25,7 @@ $hctBlueLineItem = !array_key_exists('hct-blue', $variants) ? [] : [
     'note' => '',
     'taxCategoryId' => 1,
 ];
-$orderStatuses = OrderStatus::find()->select(['id', 'handle'])->indexBy('handle')->column();
+$orderStatuses = OrderStatus::pluck('id', 'handle');
 
 $yesterday = new DateTime();
 $yesterday->setTimezone(new DateTimeZone('America/Los_Angeles'));

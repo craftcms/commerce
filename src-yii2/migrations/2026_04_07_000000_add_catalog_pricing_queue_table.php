@@ -1,8 +1,8 @@
 <?php
 
 use CraftCms\Cms\Database\Migration;
+use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingQueue;
 use CraftCms\Commerce\Database\Table;
-use craft\commerce\records\CatalogPricingQueue;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 

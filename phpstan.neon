@@ -5,7 +5,7 @@ parameters:
     scanDirectories:
         - src-yii2
     scanFiles:
-        - ../yii2-adapter/legacy/Craft.php
-        - ../yii2-adapter/lib/yii2/Yii.php
+        - ../cms-6/yii2-adapter/legacy/Craft.php
+        - ../cms-6/yii2-adapter/lib/yii2/Yii.php
         - vendor/twig/twig/src/Extension/CoreExtension.php
         - vendor/craftcms/cms/src/helpers.php

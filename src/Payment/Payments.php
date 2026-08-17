@@ -18,7 +18,6 @@ use CraftCms\Commerce\Payment\Gateway\Contracts\RequestResponseInterface;
 use CraftCms\Commerce\Payment\Models\Transaction;
 use CraftCms\Commerce\Payment\Records\Transaction as TransactionRecord;
 use CraftCms\Commerce\Store\Models\Store;
-use CraftCms\Commerce\Subscription\Exceptions\SubscriptionException;
 use Exception;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\Log;
@@ -389,11 +388,11 @@ class Payments
             $gateway = $parent->getGateway();
 
             if (!$gateway->supportsRefund()) {
-                throw new SubscriptionException(t('Gateway doesn\'t support refunds.', category: 'commerce'));
+                throw new RefundException(t('Gateway doesn\'t support refunds.', category: 'commerce'));
             }
 
             if ($amount < $parent->paymentAmount && !$gateway->supportsPartialRefund()) {
-                throw new SubscriptionException(t('Gateway doesn\'t support partial refunds.', category: 'commerce'));
+                throw new RefundException(t('Gateway doesn\'t support partial refunds.', category: 'commerce'));
             }
 
             $child = app(Transactions::class)->createTransaction(null, $parent, TransactionRecord::TYPE_REFUND);
