@@ -10,6 +10,7 @@ use craft\db\Query;
 use craft\events\ModelEvent;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Database\Table as CraftTable;
+use CraftCms\Cms\RouteToken\RouteTokens;
 use CraftCms\Cms\Support\Config;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Sites;
@@ -363,7 +364,7 @@ class Carts
         $linkExpiry = Plugin::getInstance()->getSettings()->loadCartUrlExpiry;
         $expiryDate = \craft\helpers\DateTimeHelper::currentUTCDateTime()->add(\craft\helpers\DateTimeHelper::secondsToInterval($linkExpiry));
 
-        $token = \Craft::$app->getTokens()->createToken([
+        $token = app(RouteTokens::class)->createToken([
             'commerce/cart/load-cart',
             ['cartNumber' => $cart->number],
         ], expiryDate: $expiryDate);

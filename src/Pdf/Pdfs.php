@@ -9,6 +9,7 @@ use craft\commerce\Plugin;
 use craft\events\ConfigEvent;
 use craft\helpers\Db as CraftDb;
 use craft\helpers\FileHelper;
+use CraftCms\Cms\RouteToken\RouteTokens;
 use CraftCms\Cms\Support\Facades\Path;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\Support\Facades\Template;
@@ -292,7 +293,7 @@ class Pdfs
 
         $expiryDate = new \DateTime()->add(new \DateInterval('PT' . $pdf->linkExpiry . 'S'));
 
-        $token = \Craft::$app->getTokens()->createToken(
+        $token = app(RouteTokens::class)->createToken(
             ['commerce/downloads/pdf', ['orderNumber' => $order->number]],
             null,
             $expiryDate

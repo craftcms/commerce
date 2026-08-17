@@ -65,6 +65,7 @@ use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery;
 use DateTime;
 use DateTimeZone;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -1374,7 +1375,7 @@ JS, []);
         HtmlStack::js('window.orderEdit.currentUserId = ' . \craft\helpers\Json::encode($currentUser?->id) . ';', Position::BodyBegin);
 
         HtmlStack::js('window.orderEdit.ordersIndexUrl = "' . \craft\helpers\UrlHelper::cpUrl('commerce/orders') . '"', Position::BodyBegin);
-        HtmlStack::js('window.orderEdit.ordersIndexUrlHashed = "' . \Craft::$app->getSecurity()->hashData('commerce/orders') . '"', Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.ordersIndexUrlHashed = "' . Crypt::encrypt('commerce/orders') . '"', Position::BodyBegin);
         HtmlStack::js('window.orderEdit.continueEditingUrl = "' . $order->cpEditUrl . '"', Position::BodyBegin);
         HtmlStack::js('window.orderEdit.userPhotoFallback = "' . \Craft::$app->getAssetManager()->getPublishedUrl('@app/web/assets/cp/dist', true, 'images/user.svg') . '"', Position::BodyBegin);
 

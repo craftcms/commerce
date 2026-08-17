@@ -8,6 +8,7 @@ use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Http\RespondsWithFlash;
+use CraftCms\Cms\RouteToken\RouteTokens;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Cms\User\Elements\User;
@@ -18,8 +19,10 @@ use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use Illuminate\Contracts\Cache\Lock;
 use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Crypt;
 use Symfony\Component\HttpFoundation\Response;
 
 use function CraftCms\Cms\currentUserElement;
@@ -340,7 +343,7 @@ class CartController
 
             // Check token if provided
             if ($token) {
-                $tokenData = \Craft::$app->getTokens()->getTokenRoute($token);
+                $tokenData = app(RouteTokens::class)->getTokenRoute($token);
 
                 if (!$tokenData || !isset($tokenData[1]['cartNumber']) || $tokenData[1]['cartNumber'] !== $number) {
                     $error = t('The cart recovery link is invalid. Please request a new one.', category: 'commerce');
@@ -480,7 +483,11 @@ class CartController
         $cartNumberHash = $request->input('cartNumberHash');
         abort_unless($cartNumberHash, 400, 'Cart number hash is required');
 
-        $cartNumber = \Craft::$app->getSecurity()->validateData($cartNumberHash);
+        try {
+            $cartNumber = Crypt::decrypt($cartNumberHash);
+        } catch (DecryptException) {
+            $cartNumber = false;
+        }
         abort_if($cartNumber === false, 400, 'Invalid cart number hash');
 
         $cart = Order::find()->number($cartNumber)->isCompleted(false)->one();
@@ -504,7 +511,11 @@ class CartController
         $cartNumberHash = $request->query('hash');
         abort_unless($cartNumberHash, 400, 'Hash parameter required');
 
-        $cartNumber = \Craft::$app->getSecurity()->validateData($cartNumberHash);
+        try {
+            $cartNumber = Crypt::decrypt($cartNumberHash);
+        } catch (DecryptException) {
+            $cartNumber = false;
+        }
         abort_if($cartNumber === false, 400, 'Invalid hash parameter');
 
         $cart = Order::find()->number($cartNumber)->isCompleted(false)->one();

@@ -8,8 +8,11 @@ use craft\commerce\elements\Order;
 use craft\commerce\helpers\Locale;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
+use CraftCms\Cms\RouteToken\RouteTokens;
 use CraftCms\Cms\View\TemplateMode;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Symfony\Component\HttpFoundation\Response;
 
 use function CraftCms\Cms\currentUserElement;
@@ -36,7 +39,7 @@ readonly class DownloadsController
         $hasValidToken = false;
 
         if ($token) {
-            $tokenData = \Craft::$app->getTokens()->getTokenRoute($token);
+            $tokenData = app(RouteTokens::class)->getTokenRoute($token);
 
             if (!$tokenData || !isset($tokenData[1]['orderNumber']) || $tokenData[1]['orderNumber'] !== $number) {
                 session()->flash('error', t('The download link has expired. Please request a new one.', category: 'commerce'));
@@ -124,7 +127,11 @@ readonly class DownloadsController
 
         abort_unless($orderNumberHash, 400, 'Order number hash is required');
 
-        $orderNumber = \Craft::$app->getSecurity()->validateData($orderNumberHash);
+        try {
+            $orderNumber = Crypt::decrypt($orderNumberHash);
+        } catch (DecryptException) {
+            $orderNumber = false;
+        }
         abort_if($orderNumber === false, 400, 'Invalid order number hash');
 
         $order = Plugin::getInstance()->getOrders()->getOrderByNumber($orderNumber);
@@ -150,7 +157,11 @@ readonly class DownloadsController
         $orderNumberHash = $request->query('hash');
         abort_unless($orderNumberHash, 400, 'Hash parameter required');
 
-        $orderNumber = \Craft::$app->getSecurity()->validateData($orderNumberHash);
+        try {
+            $orderNumber = Crypt::decrypt($orderNumberHash);
+        } catch (DecryptException) {
+            $orderNumber = false;
+        }
         abort_if($orderNumber === false, 400, 'Invalid hash parameter');
 
         $order = Plugin::getInstance()->getOrders()->getOrderByNumber($orderNumber);
