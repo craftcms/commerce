@@ -26,15 +26,6 @@ readonly class PaymentCurrenciesController
 
     public function index(?string $storeHandle = null): CpScreenResponse
     {
-        \Craft::$app->getView()->registerTranslations('commerce', [
-            'Base',
-            'Code',
-            'Conversion Rate',
-            'Currency',
-            'No additional payment currencies exist yet.',
-            'Warning, deleting this currency will stop all payments and refunds in this currency, are you sure you want to delete "{name}"?',
-        ]);
-
         $store = $this->resolveStore($storeHandle);
         $storeHandle = $store->handle;
 

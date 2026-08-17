@@ -12,11 +12,12 @@ use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use CraftCms\Cms\Translation\Locale;
-use craft\web\View;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html as NewHtml;
+use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Tax\Records\TaxRate as TaxRateRecord;
 use Illuminate\Http\Request;
@@ -58,16 +59,6 @@ readonly class TaxRatesController
                 'category' => $taxRate->taxCategory ? Cp::chipHtml($taxRate->taxCategory) : '',
             ];
         }
-
-        \Craft::$app->getView()->registerTranslations('commerce', [
-            'Include in price?',
-            'Remove from price?',
-            'Name',
-            'Rate',
-            'Tax Category',
-            'Tax Zone',
-            'Yes',
-        ]);
 
         $buttonsHtml = Plugin::getInstance()->getTaxes()->taxRateActionHtml();
 
@@ -130,7 +121,7 @@ new Craft.VueAdminTable({
 });
 JS;
 
-        \Craft::$app->getView()->registerJs($js, View::POS_END);
+        HtmlStack::js($js, Position::BodyEnd);
 
         return $this->storeManagementCpScreen($storeHandle)
             ->additionalButtonsHtml($buttonsHtml)

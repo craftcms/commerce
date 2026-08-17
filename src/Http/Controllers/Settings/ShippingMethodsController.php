@@ -9,11 +9,12 @@ use craft\commerce\Plugin;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\Json;
-use craft\web\View;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html as NewHtml;
+use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Shipping\Records\ShippingMethod as ShippingMethodRecord;
 use Illuminate\Http\Request;
@@ -52,15 +53,6 @@ readonly class ShippingMethodsController
                 'status' => $shippingMethod->enabled,
             ];
         }
-
-        \Craft::$app->getView()->registerTranslations('commerce', [
-            'Disabled',
-            'Enabled',
-            'Handle',
-            'Name',
-            'Set status',
-            'Type',
-        ]);
 
         $tableData = Json::encode($tableData);
 
@@ -104,7 +96,7 @@ readonly class ShippingMethodsController
     });
 JS;
 
-        \Craft::$app->getView()->registerJs($js, View::POS_END);
+        HtmlStack::js($js, Position::BodyEnd);
 
         return $this->storeManagementCpScreen($storeHandle)
             ->additionalButtonsHtml(Html::a(t('New shipping method', category: 'commerce'), $store->getStoreSettingsUrl('shippingmethods/new'), ['class' => 'btn submit add icon']))
@@ -131,14 +123,6 @@ JS;
         $shippingRules = $shippingMethod->id !== null
             ? Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($shippingMethod->id)
             : [];
-
-        \Craft::$app->getView()->registerTranslations('commerce', [
-            'Couldn\'t reorder rules.',
-            'Description',
-            'No shipping rules exist yet.',
-            'Rules reordered.',
-            'Shipping Rule',
-        ]);
 
         $metaDataHtml = Html::beginTag('div', ['class' => 'meta']) .
             Cp::lightswitchFieldHtml([

@@ -11,11 +11,12 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\Json;
-use craft\web\View;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html as NewHtml;
+use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -52,16 +53,6 @@ readonly class TaxCategoriesController
                 '_showDelete' => $taxRates->isEmpty() && (count($taxCategories) > 1 && !$taxCategory->default),
             ];
         }
-
-        \Craft::$app->getView()->registerTranslations('commerce', [
-            'Default?',
-            'Description',
-            'Handle',
-            'Name',
-            'Set default category',
-            'Used By Tax Rates',
-            'Used by Tax Rates',
-        ]);
 
         $buttons = Plugin::getInstance()->getTaxes()->taxCategoryActionHtml();
         if (Plugin::getInstance()->getTaxes()->createTaxCategories()) {
@@ -116,7 +107,7 @@ readonly class TaxCategoriesController
     });
 JS;
 
-        \Craft::$app->getView()->registerJs($js, View::POS_END);
+        HtmlStack::js($js, Position::BodyEnd);
 
         return $this->storeManagementCpScreen($storeHandle, hasStoreSwitcher: false)
             ->additionalButtonsHtml($buttons)

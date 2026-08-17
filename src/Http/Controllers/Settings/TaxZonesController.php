@@ -9,11 +9,12 @@ use craft\commerce\Plugin;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\Json;
-use craft\web\View;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html as NewHtml;
+use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -43,8 +44,6 @@ readonly class TaxZonesController
             ];
         }
 
-        \Craft::$app->getView()->registerTranslations('commerce', ['Name', 'Description', 'Default Zone']);
-
         $tableData = Json::encode($tableData);
 
         $js = <<<JS
@@ -69,7 +68,7 @@ new Craft.VueAdminTable({
     tableData: {$tableData},
     });
 JS;
-        \Craft::$app->getView()->registerJs($js, View::POS_END);
+        HtmlStack::js($js, Position::BodyEnd);
 
         return $this->storeManagementCpScreen($storeHandle)
             ->additionalButtonsHtml(Html::a(t('New tax zone', category: 'commerce'), $store->getStoreSettingsUrl('taxzones/new'), ['class' => 'btn submit add icon']))

@@ -27,10 +27,11 @@ use CraftCms\Cms\Edition;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Facades\UserGroups;
 use CraftCms\Cms\Translation\Locale;
-use craft\web\View;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Cms\Support\Facades\HtmlStack;
+use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Promotion\Records\Discount as DiscountRecord;
@@ -53,24 +54,6 @@ readonly class DiscountsController
     public function index(?string $storeHandle = null): CpScreenResponse
     {
         $store = $this->resolveStore($storeHandle);
-
-        \Craft::$app->getView()->registerTranslations('commerce', [
-            'Couldn\'t reorder discounts.',
-            'Delete',
-            'Disabled',
-            'Discounts reordered.',
-            'Duration',
-            'Enabled',
-            'Require Coupon Code',
-            'Ignore Promotions?',
-            'Name',
-            'No discounts exist yet.',
-            'No',
-            'Set status',
-            'Stops Processing?',
-            'Times Used',
-            'Yes',
-        ]);
 
         $actionButtonHtml = currentUserElement()?->can('commerce-createDiscounts')
             ? Html::a(t('New discount', category: 'commerce'), $store->getStoreSettingsUrl('discounts/new'), ['class' => 'btn submit add icon'])
@@ -169,7 +152,7 @@ readonly class DiscountsController
   });
 JS;
 
-        \Craft::$app->getView()->registerJs($js, View::POS_END);
+        HtmlStack::js($js, Position::BodyEnd);
 
         return $this->storeManagementCpScreen($storeHandle)
             ->additionalButtonsHtml($actionButtonHtml)

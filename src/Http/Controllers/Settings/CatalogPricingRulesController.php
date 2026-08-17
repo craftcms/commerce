@@ -21,11 +21,12 @@ use craft\helpers\MoneyHelper;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Facades\UserGroups;
 use CraftCms\Cms\Translation\Locale;
-use craft\web\View;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Cms\Support\Facades\HtmlStack;
+use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule as CatalogPricingRuleRecord;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use Illuminate\Http\Request;
@@ -51,20 +52,6 @@ readonly class CatalogPricingRulesController
                 $store->getStoreSettingsUrl('pricing-rules/new'),
                 ['class' => 'btn submit add icon'])
             : '';
-
-        \Craft::$app->getView()->registerTranslations('commerce', [
-            'Delete',
-            'Disabled',
-            'Duration',
-            'Effect',
-            'Enabled',
-            'Is Promotional Price?',
-            'Name',
-            'No catalog pricing rules exist yet.',
-            'No',
-            'Set status',
-            'Yes',
-        ]);
 
         $tableData = [];
         $catalogPricingRules->each(function(CatalogPricingRule $pcr) use (&$tableData, $store) {
@@ -156,7 +143,7 @@ new Craft.VueAdminTable({
 });
 JS;
 
-        \Craft::$app->getView()->registerJs($js, View::POS_END);
+        HtmlStack::js($js, Position::BodyEnd);
 
         return $this->storeManagementCpScreen($storeHandle)
             ->additionalButtonsHtml($actionButtonHtml)

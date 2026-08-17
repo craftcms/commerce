@@ -8,11 +8,12 @@ use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\Plugin;
 use craft\helpers\Html;
 use craft\helpers\Json;
-use craft\web\View;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html as NewHtml;
+use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -57,8 +58,7 @@ readonly class ShippingZonesController
     });
 JS;
 
-        \Craft::$app->getView()->registerJs($js, View::POS_END);
-        \Craft::$app->getView()->registerTranslations('commerce', ['Name', 'Description']);
+        HtmlStack::js($js, Position::BodyEnd);
 
         return $this->storeManagementCpScreen($storeHandle)
             ->additionalButtonsHtml(Html::a(t('New shipping zone', category: 'commerce'), $store->getStoreSettingsUrl('shippingzones/new'), ['class' => 'btn submit add icon']))
