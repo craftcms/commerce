@@ -6,11 +6,11 @@ namespace CraftCms\Commerce\Catalog\ProductType\Data;
 
 use craft\commerce\fieldlayoutelements\VariantsField;
 use CraftCms\Cms\Element\Enums\PropagationMethod;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Database\Table as CraftTable;
+use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\FieldLayout\Contracts\FieldLayoutProviderInterface;
 use CraftCms\Cms\FieldLayout\FieldLayout;
 use CraftCms\Cms\FieldLayout\FieldLayoutTab;
@@ -208,7 +208,7 @@ class ProductType extends Component implements FieldLayoutProviderInterface
             return [];
         }
 
-        $this->setSiteSettings(ArrayHelper::index(app(ProductTypes::class)->getProductTypeSites($this->id), 'siteId'));
+        $this->setSiteSettings(Arr::keyBy(app(ProductTypes::class)->getProductTypeSites($this->id), 'siteId'));
 
         return $this->_siteSettings;
     }
@@ -308,7 +308,7 @@ class ProductType extends Component implements FieldLayoutProviderInterface
         if (!$fieldLayout->isFieldIncluded('variants')) {
             $layoutTabs = $fieldLayout->getTabs();
             $variantTabName = t('Variants', category: 'commerce');
-            if (ArrayHelper::contains($layoutTabs, 'name', $variantTabName)) {
+            if (Arr::contains($layoutTabs, 'name', $variantTabName)) {
                 $variantTabName .= ' ' . StringHelper::randomString(10);
             }
 

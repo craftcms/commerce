@@ -6,7 +6,7 @@ namespace CraftCms\Commerce\Order\Adjuster;
 
 use craft\commerce\adjusters\Discount as LegacyDiscount;
 use craft\commerce\Plugin;
-use craft\helpers\ArrayHelper;
+use CraftCms\Cms\Support\Arr;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Order\Adjuster\Contracts\AdjusterInterface;
 use CraftCms\Commerce\Order\Elements\Order;
@@ -128,15 +128,12 @@ class Discount implements AdjusterInterface
             }
 
             $lineItemsByPrice = $this->_order->getLineItems();
-            ArrayHelper::multisort($lineItemsByPrice, static function($item) use ($priceByLineItem) {
-                // sort by age if it exists or by name otherwise
-                /** @var LineItem $item */
-                $lineItemHashId = spl_object_hash($item);
-                return $priceByLineItem[$lineItemHashId];
-            }, SORT_DESC);
+            usort($lineItemsByPrice, static function(LineItem $a, LineItem $b) use ($priceByLineItem) {
+                return $priceByLineItem[spl_object_hash($b)] <=> $priceByLineItem[spl_object_hash($a)];
+            });
 
             // Remove non-promotable line items
-            $lineItemsByPrice = ArrayHelper::where($lineItemsByPrice, fn(LineItem $lineItem) => $lineItem->getIsPromotable(), true, true);
+            $lineItemsByPrice = Arr::where($lineItemsByPrice, fn(LineItem $lineItem) => $lineItem->getIsPromotable());
 
             // Loop over each order level adjustment and add an adjustment to each line item until it runs out.
             foreach ($orderLevelAdjustments as $orderLevelAdjustment) {

@@ -6,9 +6,9 @@ namespace CraftCms\Commerce\Http\Controllers\Users;
 
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
 use CraftCms\Cms\Cp\Html\ElementIndexHtml;
+use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Http\Controllers\Users\EditUserTrait;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Commerce\Order\Elements\Order;
@@ -56,7 +56,7 @@ readonly class UsersController
 
             $content .= Html::tag('h2', t('Orders', category: 'commerce')) .
                 Html::beginTag('div', ['class' => 'commerce-user-orders']) .
-                $this->elementIndexHtml->html(Order::class, ArrayHelper::merge($config, [
+                $this->elementIndexHtml->html(Order::class, Arr::merge($config, [
                     'id' => $completedOrdersKey,
                     'jsSettings' => [
                         'criteria' => ['isCompleted' => true],
@@ -69,7 +69,7 @@ readonly class UsersController
 
                 Html::tag('h2', t('Active Carts', category: 'commerce')) .
                 Html::beginTag('div', ['class' => 'commerce-user-active-carts']) .
-                $this->elementIndexHtml->html(Order::class, ArrayHelper::merge($config, [
+                $this->elementIndexHtml->html(Order::class, Arr::merge($config, [
                     'id' => $activeCartsKey,
                     'jsSettings' => [
                         'criteria' => [
@@ -85,7 +85,7 @@ readonly class UsersController
 
                 Html::tag('h2', t('Inactive Carts', category: 'commerce')) .
                 Html::beginTag('div', ['class' => 'commerce-user-active-carts']) .
-                $this->elementIndexHtml->html(Order::class, ArrayHelper::merge($config, [
+                $this->elementIndexHtml->html(Order::class, Arr::merge($config, [
                     'id' => $inactiveCartsKey,
                     'jsSettings' => [
                         'criteria' => [

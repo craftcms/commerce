@@ -8,7 +8,6 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\orderswidget\OrdersWidgetAsset;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\StringHelper;
 use CraftCms\Cms\Dashboard\Widgets\Widget;
@@ -17,6 +16,7 @@ use CraftCms\Cms\Form\Controls\Number;
 use CraftCms\Cms\Form\Form;
 use CraftCms\Cms\Form\FormContext;
 use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\Facades\InputNamespace;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
@@ -63,7 +63,7 @@ class Orders extends Widget
     public function getTitle(): ?string
     {
         if (!empty($this->orderStatuses) && count($this->orderStatuses) === 1) {
-            $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusByUid(ArrayHelper::firstValue($this->orderStatuses), $this->storeId);
+            $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusByUid(Arr::first($this->orderStatuses), $this->storeId);
 
             if ($orderStatus) {
                 return t('Recent Orders', category: 'commerce') . ' – ' . t($orderStatus->name, category: 'commerce');

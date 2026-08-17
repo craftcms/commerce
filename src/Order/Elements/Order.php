@@ -16,7 +16,6 @@ use craft\commerce\errors\LineItemNotFoundException;
 use craft\commerce\errors\OrderAdjustmentNotFoundException;
 use craft\commerce\Plugin;
 use craft\errors\MutexException;
-use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
 use CraftCms\Cms\Address\Elements\Address as AddressElement;
 use CraftCms\Cms\Component\ComponentHelper;
@@ -33,6 +32,7 @@ use CraftCms\Cms\Field\BaseRelationField;
 use CraftCms\Cms\Field\Contracts\FieldInterface;
 use CraftCms\Cms\FieldLayout\FieldLayout;
 use CraftCms\Cms\Site\Data\Site;
+use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\Facades\Addresses;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Facades\Deprecator;
@@ -1049,7 +1049,7 @@ class Order extends Element implements HasStoreInterface
             return false;
         }
 
-        $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
+        $this->shippingMethodHandle = array_key_first($availableMethodOptions);
 
         return true;
     }
@@ -1367,14 +1367,14 @@ class Order extends Element implements HasStoreInterface
             if (!$this->isCompleted && $this->getStore()->getAutoSetCartShippingMethodOption()) {
                 $availableMethodOptions = $this->getAvailableShippingMethodOptions();
                 if (!$this->shippingMethodHandle || !isset($availableMethodOptions[$this->shippingMethodHandle])) {
-                    $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
+                    $this->shippingMethodHandle = array_key_first($availableMethodOptions);
                 }
             }
 
             if (!$this->shippingMethodHandle) {
                 $this->shippingMethodName = null;
             } else {
-                $shippingMethod = ArrayHelper::firstWhere($this->getAvailableShippingMethodOptions(), 'handle', $this->shippingMethodHandle);
+                $shippingMethod = Arr::first($this->getAvailableShippingMethodOptions(), fn($option) => $option->handle == $this->shippingMethodHandle);
                 if ($shippingMethod) {
                     $this->shippingMethodName = $shippingMethod->getName();
                 }
@@ -1469,7 +1469,7 @@ class Order extends Element implements HasStoreInterface
             // if the currently selected shipping method is now not available after adjustments have run.
             $availableMethodOptions = $this->getAvailableShippingMethodOptions();
             if ($this->shippingMethodHandle && !isset($availableMethodOptions[$this->shippingMethodHandle])) {
-                $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
+                $this->shippingMethodHandle = array_key_first($availableMethodOptions);
                 $message = t('The previously-selected shipping method is no longer available.', category: 'commerce');
                 $orderNotice = new OrderNotice([
                     'type' => 'shippingMethodChanged',
@@ -1490,7 +1490,7 @@ class Order extends Element implements HasStoreInterface
     {
         // Matching will contain the core shipping methods and any plugin dynamically returned shipping methods.
         $methods = app(ShippingMethods::class)->getMatchingShippingMethods($this);
-        $matchingMethodHandles = ArrayHelper::getColumn($methods, fn(ShippingMethodInterface $sm) => $sm->getHandle());
+        $matchingMethodHandles = Arr::pluck($methods, fn(ShippingMethodInterface $sm) => $sm->getHandle());
 
         // Get all regular methods and add them to the list, for use only when the order is complete.
         if ($this->isCompleted) {
@@ -1499,7 +1499,7 @@ class Order extends Element implements HasStoreInterface
                 ->filter(fn(ShippingMethodInterface $sm) => $sm->getIsEnabled())
                 ->all();
 
-            $methods = ArrayHelper::merge($allShippingMethods, $methods);
+            $methods = Arr::merge($allShippingMethods, $methods);
         }
 
         $availableShippingMethodOptions = [];
@@ -1520,7 +1520,7 @@ class Order extends Element implements HasStoreInterface
                 }
             }
 
-            $matchesOrder = ArrayHelper::isIn($method->getHandle(), $matchingMethodHandles);
+            $matchesOrder = in_array($method->getHandle(), $matchingMethodHandles);
             $option->setOrder($this);
             $option->enabled = $method->getIsEnabled();
             $option->id = $method->getId();
@@ -2971,7 +2971,7 @@ class Order extends Element implements HasStoreInterface
      */
     public function getFirstNotice($type = null, $attribute = null): ?OrderNotice
     {
-        return ArrayHelper::firstValue($this->getNotices($type, $attribute));
+        return Arr::first($this->getNotices($type, $attribute));
     }
 
     /**
@@ -3049,14 +3049,14 @@ class Order extends Element implements HasStoreInterface
         }
 
         if ($type !== null && $attribute === null) {
-            return ArrayHelper::where($notices, 'type', $type);
+            return Arr::where($notices, fn(OrderNotice $n) => $n->type == $type);
         }
 
         if ($type === null && $attribute !== null) {
-            return ArrayHelper::where($notices, 'attribute', $attribute);
+            return Arr::where($notices, fn(OrderNotice $n) => $n->attribute == $attribute);
         }
 
-        return ArrayHelper::where($notices, fn(OrderNotice $n) => $n->attribute === $attribute && $n->type === $type, true, true, true);
+        return Arr::where($notices, fn(OrderNotice $n) => $n->attribute === $attribute && $n->type === $type);
     }
 
     public function validateGatewayId(string $attribute): void
@@ -3434,13 +3434,13 @@ class Order extends Element implements HasStoreInterface
                 $address = $this->getShippingAddress();
                 return $address ? Addresses::formatAddress($address) : '';
             case 'transactionReference':
-                return implode(' ', ArrayHelper::getColumn($this->getTransactions(), 'reference'));
+                return implode(' ', Arr::pluck($this->getTransactions(), 'reference'));
             case 'username':
                 return $this->getCustomer()->username ?? '';
             case 'skus':
-                return implode(' ', ArrayHelper::getColumn($this->getLineItems(), 'sku'));
+                return implode(' ', Arr::pluck($this->getLineItems(), 'sku'));
             case 'lineItemDescriptions':
-                return implode(' ', ArrayHelper::getColumn($this->getLineItems(), 'description'));
+                return implode(' ', Arr::pluck($this->getLineItems(), 'description'));
             case 'customerName':
                 return $this->getCustomer()->fullName ?? '';
             default:
@@ -3486,7 +3486,7 @@ class Order extends Element implements HasStoreInterface
                 'status' => $orderStatus->color,
                 'label' => t($orderStatus->name, category: 'site'),
                 'badgeCount' => 0,
-                'criteria' => ArrayHelper::merge($orderCriteria, ['orderStatusId' => $orderStatus->id]),
+                'criteria' => Arr::merge($orderCriteria, ['orderStatusId' => $orderStatus->id]),
                 'defaultSort' => ['dateOrdered', 'desc'],
                 'data' => [
                     'handle' => $orderStatus->handle,
@@ -3498,7 +3498,7 @@ class Order extends Element implements HasStoreInterface
         $sources[] = [
             'key' => 'carts:active:' . $store->handle,
             'label' => t('Active Carts', category: 'commerce'),
-            'criteria' => ArrayHelper::merge($criteriaActive, ['storeId' => $store->id]),
+            'criteria' => Arr::merge($criteriaActive, ['storeId' => $store->id]),
             'defaultSort' => ['commerce_orders.dateUpdated', 'asc'],
             'data' => [
                 'handle' => 'cartsActive',
@@ -3509,7 +3509,7 @@ class Order extends Element implements HasStoreInterface
         $sources[] = [
             'key' => 'carts:inactive:' . $store->handle,
             'label' => t('Inactive Carts', category: 'commerce'),
-            'criteria' => ArrayHelper::merge($criteriaInactive, ['storeId' => $store->id]),
+            'criteria' => Arr::merge($criteriaInactive, ['storeId' => $store->id]),
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
             'data' => [
                 'handle' => 'cartsInactive',
@@ -3520,7 +3520,7 @@ class Order extends Element implements HasStoreInterface
         $sources[] = [
             'key' => 'carts:attempted-payment:' . $store->handle,
             'label' => t('Attempted Payments', category: 'commerce'),
-            'criteria' => ArrayHelper::merge($criteriaAttemptedPayment, ['storeId' => $store->id]),
+            'criteria' => Arr::merge($criteriaAttemptedPayment, ['storeId' => $store->id]),
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
             'data' => [
                 'handle' => 'cartsAttemptedPayment',
@@ -3595,7 +3595,7 @@ class Order extends Element implements HasStoreInterface
     {
         $default = parent::defineExporters($source);
         // Remove the standard expanded exporter and use our own
-        ArrayHelper::removeValue($default, CraftExpanded::class);
+        $default = array_filter($default, fn($exporter) => $exporter !== CraftExpanded::class);
         $default[] = Expanded::class;
 
         return $default;
@@ -3802,7 +3802,7 @@ class Order extends Element implements HasStoreInterface
 
         // see if it's limited to one product type
         /** @var OrderStatusConditionRule|null $orderStatusConditionRule */
-        $orderStatusConditionRule = ArrayHelper::firstWhere($rules, fn($rule) => $rule instanceof OrderStatusConditionRule);
+        $orderStatusConditionRule = Arr::first($rules, fn($rule) => $rule instanceof OrderStatusConditionRule);
         $orderStatusOptions = $orderStatusConditionRule?->getValues();
 
         $currentSite = app(RequestedSite::class)->get() ?? Sites::getCurrentSite();
@@ -4142,7 +4142,7 @@ class Order extends Element implements HasStoreInterface
             ->ownerId($this->id);
 
         if (!empty($safeIds)) {
-            ArrayHelper::prependOrAppend($safeIds, 'not', true);
+            array_unshift($safeIds, 'not');
             $orphanedAddresses->id($safeIds);
         }
 

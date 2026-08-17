@@ -17,7 +17,7 @@ use craft\db\Query;
 use craft\elements\Category;
 use CraftCms\Cms\Entry\Elements\Entry;
 use craft\helpers\AdminTable;
-use craft\helpers\ArrayHelper;
+use CraftCms\Cms\Support\Arr;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
@@ -563,7 +563,7 @@ JS;
         $discounts = [];
         $purchasableDiscounts = Plugin::getInstance()->getDiscounts()->getDiscountsRelatedToPurchasable($purchasable);
         foreach ($purchasableDiscounts as $discount) {
-            if (!ArrayHelper::firstWhere($discounts, 'id', $discount->id)) {
+            if (!Arr::contains($discounts, 'id', $discount->id)) {
                 $discountArray = $discount->toArray();
                 $discountArray['cpEditUrl'] = $discount->getCpEditUrl();
                 $discounts[] = $discountArray;
@@ -581,7 +581,7 @@ JS;
 
         if (Edition::get() === Edition::Pro) {
             $groups = UserGroups::getAllGroups();
-            $variables['groups'] = ArrayHelper::map($groups, 'id', 'name');
+            $variables['groups'] = $groups->mapWithKeys(fn($group) => [$group->id => $group->name])->all();
         } else {
             $variables['groups'] = [];
         }

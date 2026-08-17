@@ -6,7 +6,7 @@ namespace CraftCms\Commerce\Dashboard\Widgets;
 
 use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
-use craft\helpers\ArrayHelper;
+use CraftCms\Cms\Support\Arr;
 use craft\helpers\Cp;
 use craft\helpers\StringHelper;
 use CraftCms\Cms\Dashboard\Widgets\Widget;
@@ -122,8 +122,8 @@ class TotalOrdersByCountry extends Widget
         $id = 'total-orders-by-country' . StringHelper::randomString();
         $namespaceId = InputNamespace::namespaceId($id);
 
-        $labels = ArrayHelper::getColumn($stats, 'name', false);
-        $totalOrders = ArrayHelper::getColumn($stats, 'total', false);
+        $labels = Arr::pluck($stats, 'name');
+        $totalOrders = Arr::pluck($stats, 'total');
 
         return template('commerce/_components/widgets/orders/country/body', compact(
             'stats',

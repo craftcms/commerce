@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Order\Adjuster;
 
 use craft\commerce\Plugin;
-use craft\helpers\ArrayHelper;
+use CraftCms\Cms\Support\Arr;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Order\Adjuster\Contracts\AdjusterInterface;
 use CraftCms\Commerce\Order\Elements\Order;
@@ -65,8 +65,8 @@ class Shipping implements AdjusterInterface
         $discounts = Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($order);
 
         // Check to see if we have shipping related discounts
-        $hasOrderLevelShippingRelatedDiscounts = (bool)ArrayHelper::firstWhere($discounts, 'hasFreeShippingForOrder', true, false);
-        $hasLineItemLevelShippingRelatedDiscounts = (bool)ArrayHelper::firstWhere($discounts, 'hasFreeShippingForMatchingItems', true, false);
+        $hasOrderLevelShippingRelatedDiscounts = Arr::contains($discounts, 'hasFreeShippingForOrder', true, false);
+        $hasLineItemLevelShippingRelatedDiscounts = Arr::contains($discounts, 'hasFreeShippingForMatchingItems', true, false);
 
         /** @var ShippingRule|null $rule */
         $rule = $shippingMethod->getMatchingShippingRule($this->_order);

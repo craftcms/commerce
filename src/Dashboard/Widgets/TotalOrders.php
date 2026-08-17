@@ -6,7 +6,7 @@ namespace CraftCms\Commerce\Dashboard\Widgets;
 
 use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
-use craft\helpers\ArrayHelper;
+use CraftCms\Cms\Support\Arr;
 use craft\helpers\Cp;
 use craft\helpers\StringHelper;
 use CraftCms\Cms\Dashboard\Widgets\Widget;
@@ -119,8 +119,8 @@ class TotalOrders extends Widget
         $number = $stats['total'] ?? 0;
         $chart = $stats['chart'] ?? [];
 
-        $labels = ArrayHelper::getColumn($chart, 'datekey', false);
-        $data = ArrayHelper::getColumn($chart, 'total', false);
+        $labels = Arr::pluck($chart, 'datekey');
+        $data = Arr::pluck($chart, 'total');
 
         $timeFrame = $this->stat->getDateRangeWording();
         $number = I18N::getFormatter()->asInteger($number);

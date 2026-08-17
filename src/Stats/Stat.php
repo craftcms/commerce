@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Stats;
 
-use craft\helpers\ArrayHelper;
+use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Models\OrderStatus;
@@ -363,7 +363,7 @@ abstract class Stat implements StatInterface
                 continue;
             }
 
-            $orderStatus = ArrayHelper::firstWhere($allOrderStatuses, fn(OrderStatus $os) => $orderStatus === $os->handle || $orderStatus === $os->uid);
+            $orderStatus = Arr::first($allOrderStatuses, fn(OrderStatus $os) => $orderStatus === $os->handle || $orderStatus === $os->uid);
             if (!$orderStatus) {
                 unset($this->_orderStatuses[$key]);
                 continue;
@@ -406,7 +406,7 @@ abstract class Stat implements StatInterface
         $orderStatuses = $this->getOrderStatuses();
         if (!empty($orderStatuses)) {
             $query->join(Table::ORDERSTATUSES . ' as os', 'orders.orderStatusId', '=', 'os.id')
-                ->whereIn('os.id', ArrayHelper::getColumn($orderStatuses, 'id'));
+                ->whereIn('os.id', Arr::pluck($orderStatuses, 'id'));
         }
 
         return $query;

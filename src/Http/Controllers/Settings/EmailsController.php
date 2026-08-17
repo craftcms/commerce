@@ -10,8 +10,8 @@ use craft\commerce\models\Pdf;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\helpers\App;
-use craft\helpers\ArrayHelper;
 use CraftCms\Cms\Site\Data\Site;
+use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
@@ -71,7 +71,7 @@ readonly class EmailsController
 
         $pdfs = Plugin::getInstance()->getPdfs()->getAllPdfs($email->storeId);
         $pdfList = [null => t('Do not attach a PDF to this email', category: 'commerce')];
-        $pdfList = ArrayHelper::merge($pdfList, $pdfs->mapWithKeys(fn(Pdf $pdf) => [$pdf->id => $pdf->name])->all());
+        $pdfList = Arr::merge($pdfList, $pdfs->mapWithKeys(fn(Pdf $pdf) => [$pdf->id => $pdf->name])->all());
         $senderAddressPlaceholder = App::mailSettings()->fromEmail;
         $senderNamePlaceholder = App::mailSettings()->fromName;
 

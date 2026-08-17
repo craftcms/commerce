@@ -6,7 +6,7 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\Plugin;
-use craft\helpers\ArrayHelper;
+use CraftCms\Cms\Support\Arr;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\Json;
@@ -127,7 +127,7 @@ JS;
         $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
         $productTypesOptions = [];
         if (!empty($productTypes)) {
-            $productTypesOptions = ArrayHelper::map($productTypes, 'id', fn($row) => ['label' => $row->name, 'value' => $row->id]);
+            $productTypesOptions = Arr::mapWithKeys($productTypes, fn($row) => [$row->id => ['label' => $row->name, 'value' => $row->id]]);
         }
 
         $allShippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories($store->id);
@@ -239,7 +239,7 @@ JS;
         abort_if(!$storeHandle || $store === null, 400, 'Invalid store.');
 
         if (!empty($ids)) {
-            $id = ArrayHelper::firstValue($ids);
+            $id = Arr::first($ids);
 
             $shippingCategory = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($id, $store->id);
             if ($shippingCategory) {

@@ -7,7 +7,7 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 use craft\commerce\models\Store;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
-use craft\helpers\ArrayHelper;
+use CraftCms\Cms\Support\Arr;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\Json;
@@ -132,7 +132,7 @@ JS;
 
         $productTypesOptions = [];
         if (!empty($productTypes)) {
-            $productTypesOptions = ArrayHelper::map($productTypes, 'id', fn($row) => ['label' => $row->name, 'value' => $row->id]);
+            $productTypesOptions = Arr::mapWithKeys($productTypes, fn($row) => [$row->id => ['label' => $row->name, 'value' => $row->id]]);
         }
 
         $allTaxCategoryIds = array_keys(Plugin::getInstance()->getTaxCategories()->getAllTaxCategories());
@@ -234,7 +234,7 @@ JS;
         $ids = $request->input('ids');
         abort_if(empty($ids), 400, 'Missing ids');
 
-        $id = ArrayHelper::firstValue($ids);
+        $id = Arr::first($ids);
 
         $taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($id);
         if ($taxCategory) {

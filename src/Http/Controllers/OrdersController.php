@@ -39,6 +39,7 @@ use craft\web\assets\inputmask\InputmaskAsset;
 use craft\web\assets\money\MoneyAsset;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Element\Validation\ElementRules;
+use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Field\Field;
 use CraftCms\Cms\FieldLayout\FieldLayoutCompiler;
 use CraftCms\Cms\Form\Enums\ControlMode;
@@ -1134,13 +1135,13 @@ JS, []);
             'slug',
         ];
         foreach ($removeProps as $removeProp) {
-            \craft\helpers\ArrayHelper::removeValue($orderFields, $removeProp);
+            $orderFields = array_filter($orderFields, fn($value) => $value !== $removeProp);
         }
 
         if (($fieldLayout = $order->getFieldLayout()) !== null) {
             foreach ($fieldLayout->getCustomFields() as $field) {
                 /** @var Field $field */
-                \craft\helpers\ArrayHelper::removeValue($orderFields, $field->handle);
+                $orderFields = array_filter($orderFields, fn($value) => $value !== $field->handle);
             }
         }
 
@@ -1208,7 +1209,9 @@ JS, []);
                 $lineItem['price'] = $lineItem['price'] !== null ? I18N::getFormatter()->asDecimal($lineItem['price'], $subUnit) : null;
                 $lineItem['promotionalPrice'] = $lineItem['promotionalPrice'] !== null ? I18N::getFormatter()->asDecimal($lineItem['promotionalPrice'], $subUnit) : null;
 
-                $lineItem['showForm'] = \craft\helpers\ArrayHelper::isAssociative($lineItem['options']) || (is_array($lineItem['options']) && empty($lineItem['options']));
+                $options = $lineItem['options'];
+                $isAssociativeOptions = is_array($options) && !empty($options) && count(array_filter(array_keys($options), 'is_string')) === count($options);
+                $lineItem['showForm'] = $isAssociativeOptions || (is_array($options) && empty($options));
                 $lineItem['purchasableCpEditUrl'] = $purchasableCpEditUrlByPurchasableId[$lineItem['purchasableId']] ?? null;
             }
             unset($lineItem);
@@ -1351,25 +1354,25 @@ JS, []);
         HtmlStack::js('window.orderEdit.lineItemTypes = ' . \craft\helpers\Json::encode($lineItemTypes) . ';', Position::BodyBegin);
 
         $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategoriesAsList();
-        HtmlStack::js('window.orderEdit.taxCategories = ' . \craft\helpers\Json::encode(\craft\helpers\ArrayHelper::toArray($taxCategories)) . ';', Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.taxCategories = ' . \craft\helpers\Json::encode(Arr::toArray($taxCategories)) . ';', Position::BodyBegin);
 
         $defaultTaxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
         HtmlStack::js('window.orderEdit.defaultTaxCategoryId = ' . \craft\helpers\Json::encode($defaultTaxCategoryId) . ';', Position::BodyBegin);
 
         $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList($order->storeId);
-        HtmlStack::js('window.orderEdit.shippingCategories = ' . \craft\helpers\Json::encode(\craft\helpers\ArrayHelper::toArray($shippingCategories)) . ';', Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.shippingCategories = ' . \craft\helpers\Json::encode(Arr::toArray($shippingCategories)) . ';', Position::BodyBegin);
 
         $defaultShippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($order->storeId)->id;
         HtmlStack::js('window.orderEdit.defaultShippingCategoryId = ' . \craft\helpers\Json::encode($defaultShippingCategoryId) . ';', Position::BodyBegin);
 
         $currentUser = currentUserElement();
 
-        $permissions = \craft\helpers\ArrayHelper::map([
+        $permissions = Arr::mapWithKeys([
             'editUsers',
             'commerce-manageOrders',
             'commerce-editOrders',
             'commerce-deleteOrders',
-        ], fn($permission) => $permission, fn($permission) => (bool)$currentUser?->can($permission));
+        ], fn($permission) => [$permission => (bool)$currentUser?->can($permission)]);
 
         HtmlStack::js('window.orderEdit.currentUserPermissions = ' . \craft\helpers\Json::encode($permissions) . ';', Position::BodyBegin);
         HtmlStack::js('window.orderEdit.currentUserId = ' . \craft\helpers\Json::encode($currentUser?->id) . ';', Position::BodyBegin);
@@ -1409,7 +1412,7 @@ JS, []);
         $emails = Plugin::getInstance()->getEmails()->getAllEnabledEmails($order->storeId);
         // Reset keys in case any have been removed, so the JS doesn't think it is an object
         $emails = array_values($emails->all());
-        HtmlStack::js('window.orderEdit.emailTemplates = ' . \craft\helpers\Json::encode(\craft\helpers\ArrayHelper::toArray($emails)) . ';', Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.emailTemplates = ' . \craft\helpers\Json::encode(Arr::toArray($emails)) . ';', Position::BodyBegin);
 
         $response = [];
         $response['order'] = $this->orderToArray($order);
@@ -1735,7 +1738,7 @@ JS, []);
         $return = [];
         $user = currentUserElement();
         foreach ($transactions as $transaction) {
-            if (!\craft\helpers\ArrayHelper::firstWhere($return, 'id', $transaction->id)) {
+            if (!Arr::contains($return, 'id', $transaction->id)) {
                 $refundCapture = '';
                 if ($user?->can('commerce-capturePayment') && $transaction->canCapture()) {
                     $refundCapture = template(
@@ -1844,7 +1847,7 @@ JS, []);
 
         foreach ($results as $row) {
             /** @var PurchasableInterface|null $purchasable */
-            $purchasable = \craft\helpers\ArrayHelper::firstWhere($purchasablesById, 'id', $row['id']);
+            $purchasable = Arr::first($purchasablesById, fn($p) => $p->id == $row['id']);
             if ($purchasable) {
                 // @TODO Revisit purchasable price lookup once per-store currency handling is finalized
                 $row['price'] = $purchasable->getSalePrice();

@@ -10,12 +10,12 @@ use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\elements\Category;
 use CraftCms\Cms\Entry\Elements\Entry;
-use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use CraftCms\Cms\Translation\Locale;
 use CraftCms\Cms\Http\RespondsWithFlash;
+use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Edition;
 use CraftCms\Cms\Support\Facades\I18N;
@@ -226,7 +226,7 @@ readonly class SalesController
         foreach ($product->getVariants(true) as $variant) {
             $variantSales = Plugin::getInstance()->getSales()->getSalesRelatedToPurchasable($variant);
             foreach ($variantSales as $sale) {
-                if (!ArrayHelper::firstWhere($sales, 'id', $sale->id)) {
+                if (!Arr::contains($sales, 'id', $sale->id)) {
                     $saleArray = $sale->toArray();
                     $saleArray['cpEditUrl'] = $sale->getCpEditUrl();
                     $sales[] = $saleArray;
@@ -255,7 +255,7 @@ readonly class SalesController
         $sales = [];
         $purchasableSales = Plugin::getInstance()->getSales()->getSalesRelatedToPurchasable($purchasable);
         foreach ($purchasableSales as $sale) {
-            if (!ArrayHelper::firstWhere($sales, 'id', $sale->id)) {
+            if (!Arr::contains($sales, 'id', $sale->id)) {
                 $saleArray = $sale->toArray();
                 $saleArray['cpEditUrl'] = $sale->getCpEditUrl();
                 $sales[] = $saleArray;
@@ -335,7 +335,7 @@ readonly class SalesController
 
         if (Edition::get() === Edition::Pro) {
             $groups = UserGroups::getAllGroups();
-            $variables['groups'] = ArrayHelper::map($groups, 'id', 'name');
+            $variables['groups'] = $groups->mapWithKeys(fn($group) => [$group->id => $group->name])->all();
         } else {
             $variables['groups'] = [];
         }

@@ -6,7 +6,7 @@ namespace CraftCms\Commerce\Dashboard\Widgets;
 
 use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
-use craft\helpers\ArrayHelper;
+use CraftCms\Cms\Support\Arr;
 use craft\helpers\Cp;
 use craft\helpers\StringHelper;
 use CraftCms\Cms\Dashboard\Widgets\Widget;
@@ -88,7 +88,7 @@ class TotalRevenue extends Widget
     public function getTitle(): ?string
     {
         $stats = $this->stat->get();
-        $revenue = ArrayHelper::getColumn($stats, 'revenue', false);
+        $revenue = Arr::pluck($stats, 'revenue');
         $total = round(array_sum($revenue), 0, \RoundingMode::HalfTowardsZero);
 
         $formattedTotal = Currency::formatAsCurrency($total, $this->getStore()->getCurrency()->getCode(), false, true, true);
@@ -124,7 +124,7 @@ class TotalRevenue extends Widget
             return Html::tag('p', t('No stats available.', category: 'commerce'), ['class' => 'zilch']);
         }
 
-        $labels = ArrayHelper::getColumn($stats, 'datekey', false);
+        $labels = Arr::pluck($stats, 'datekey');
         if ($chartInterval == 'month') {
             $labels = array_map(static function($label) {
                 [$year, $month] = explode('-', $label);
@@ -139,8 +139,8 @@ class TotalRevenue extends Widget
             }, $labels);
         }
 
-        $revenue = ArrayHelper::getColumn($stats, 'revenue', false);
-        $orderCount = ArrayHelper::getColumn($stats, 'count', false);
+        $revenue = Arr::pluck($stats, 'revenue');
+        $orderCount = Arr::pluck($stats, 'count');
         $widget = $this;
 
         return template('commerce/_components/widgets/orders/revenue/body', compact(

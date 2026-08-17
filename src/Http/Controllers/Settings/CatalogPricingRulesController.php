@@ -11,7 +11,6 @@ use craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantConditi
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
@@ -343,7 +342,7 @@ JS;
         $variables['title'] = $catalogPricingRule->id ? $catalogPricingRule->name : t('Create a new catalog pricing rule', category: 'commerce');
 
         $groups = UserGroups::getAllGroups();
-        $variables['groups'] = ArrayHelper::map($groups, 'id', 'name');
+        $variables['groups'] = $groups->mapWithKeys(fn($group) => [$group->id => $group->name])->all();
 
         $variables['percentSymbol'] = I18N::getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
         $primaryCurrencyIso = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();

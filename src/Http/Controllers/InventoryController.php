@@ -16,7 +16,6 @@ use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\enums\MenuItemType;
 use craft\helpers\AdminTable;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\web\assets\htmx\HtmxAsset;
@@ -294,7 +293,7 @@ JS, [
 
             // @TODO Reduce the number of per-row modal click listeners registered here for inventory level columns
             $columnTypes = [...InventoryTransactionType::values(), 'onHand'];
-            ArrayHelper::removeValue($columnTypes, 'fulfilled');
+            $columnTypes = array_filter($columnTypes, fn($type) => $type !== 'fulfilled');
             foreach ($columnTypes as $type) {
                 $items = [];
                 $id = $inventoryLevel['id'];

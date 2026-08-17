@@ -8,8 +8,8 @@ use craft\commerce\elements\Order;
 use craft\commerce\helpers\Locale;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
-use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
+use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\View\TemplateMode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -49,7 +49,7 @@ readonly class EmailPreviewController
 
             Locale::switchAppLanguage($emailLanguage);
 
-            $orderHistory = ArrayHelper::firstValue($order->getHistories()) ?: new OrderHistory();
+            $orderHistory = Arr::first($order->getHistories()) ?: new OrderHistory();
             $orderData = $order->toArray();
             $option = 'email';
 

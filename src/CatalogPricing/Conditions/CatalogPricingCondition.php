@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\CatalogPricing\Conditions;
 
-use craft\helpers\ArrayHelper;
 use CraftCms\Cms\Condition\BaseCondition;
 use CraftCms\Cms\Condition\Contracts\ConditionRuleInterface;
+use CraftCms\Cms\Support\Arr;
 use CraftCms\Commerce\CatalogPricing\Contracts\CatalogPricingConditionRuleInterface;
 use CraftCms\Commerce\Database\Table;
 use Illuminate\Database\Query\Builder;
@@ -79,7 +79,7 @@ class CatalogPricingCondition extends BaseCondition
         $rules = $this->getConditionRules();
 
         /** @var CatalogPricingCustomerConditionRule|null $customerRule */
-        $customerRule = ArrayHelper::firstWhere($rules, fn(ConditionRuleInterface $rule) => $rule instanceof CatalogPricingCustomerConditionRule);
+        $customerRule = Arr::first($rules, fn(ConditionRuleInterface $rule) => $rule instanceof CatalogPricingCustomerConditionRule);
 
         if ($customerRule) {
             foreach ($rules as $key => $rule) {
