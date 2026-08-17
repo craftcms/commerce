@@ -8,6 +8,8 @@ use craft\commerce\Plugin;
 use CraftCms\Commerce\Payment\Events\WebhookEvent;
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
 use Illuminate\Container\Attributes\Singleton;
+use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 use yii\web\BadRequestHttpException;
@@ -37,10 +39,15 @@ class Webhooks
         $transactionHash = $gateway->getTransactionHashFromWebhook();
         $useMutex = (bool)$transactionHash;
         $transactionLockName = 'commerceTransaction:' . $transactionHash;
-        $mutex = \Craft::$app->getMutex();
+        $lock = null;
 
-        if ($useMutex && !$mutex->acquire($transactionLockName, 15)) {
-            throw new \Exception('Unable to acquire a lock for transaction: ' . $transactionHash);
+        if ($useMutex) {
+            $lock = Cache::lock($transactionLockName, 60);
+            try {
+                $lock->block(15);
+            } catch (LockTimeoutException) {
+                throw new \Exception('Unable to acquire a lock for transaction: ' . $transactionHash);
+            }
         }
 
         try {
@@ -61,7 +68,7 @@ class Webhooks
         }
 
         if ($useMutex) {
-            $mutex->release($transactionLockName);
+            $lock->release();
         }
 
         // Fire a 'afterProcessWebhook' event

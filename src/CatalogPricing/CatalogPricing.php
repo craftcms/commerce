@@ -16,7 +16,9 @@ use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingQueue as CatalogPrici
 use CraftCms\Commerce\Database\Table;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 #[Singleton]
@@ -417,12 +419,12 @@ class CatalogPricing
      */
     public function reserveCatalogPricingQueueRow(): ?CatalogPricingQueueRecord
     {
-        $mutex = \Craft::$app->getMutex();
+        $lock = Cache::lock('catalogpricingqueue', 30);
 
         // Use the same lock as the write methods so that reservation and inserts/merges are fully serialised.
         // Non-blocking: if a write operation is currently holding the lock, return null and let the next
         // queue job execution pick up the row instead.
-        if (!$mutex->acquire('catalogpricingqueue', 0)) {
+        if (!$lock->get()) {
             return null;
         }
 
@@ -449,7 +451,7 @@ class CatalogPricing
 
             return $record;
         } finally {
-            $mutex->release('catalogpricingqueue');
+            $lock->release();
         }
     }
 
@@ -475,9 +477,10 @@ class CatalogPricing
      */
     private function _queueCatalogPricingIds(?int $storeId, string $type, ?array $ids): void
     {
-        $mutex = \Craft::$app->getMutex();
-
-        if (!$mutex->acquire('catalogpricingqueue', 5)) {
+        $lock = Cache::lock('catalogpricingqueue', 30);
+        try {
+            $lock->block(5);
+        } catch (LockTimeoutException) {
             throw new \RuntimeException('Unable to acquire the catalog pricing queue mutex.');
         }
 
@@ -508,7 +511,7 @@ class CatalogPricing
             $record->reserved = false;
             $record->save();
         } finally {
-            $mutex->release('catalogpricingqueue');
+            $lock->release();
         }
     }
 

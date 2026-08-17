@@ -22,6 +22,8 @@ use CraftCms\Cms\Support\Facades\Template;
 use CraftCms\Cms\View\TemplateMode;
 use Exception;
 use Illuminate\Container\Attributes\Singleton;
+use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 use Twig\Error\LoaderError;
@@ -225,9 +227,10 @@ class Payments
         }
 
         $transactionLockName = 'commerceTransaction:' . $transaction->hash;
-        $mutex = \Craft::$app->getMutex();
-
-        if (!$mutex->acquire($transactionLockName, 15)) {
+        $lock = Cache::lock($transactionLockName, 60);
+        try {
+            $lock->block(15);
+        } catch (LockTimeoutException) {
             throw new Exception('Unable to acquire a lock for transaction: ' . $transaction->hash);
         }
 
@@ -237,7 +240,7 @@ class Payments
         // If it's successful already, we're good.
         if (app(Transactions::class)->isTransactionSuccessful($transaction)) {
             $transaction->getOrder()->updateOrderPaidInformation();
-            $mutex->release($transactionLockName);
+            $lock->release();
             return true;
         }
 
@@ -252,7 +255,7 @@ class Payments
                 $response = $gateway->completeAuthorize($transaction);
                 break;
             default:
-                $mutex->release($transactionLockName);
+                $lock->release();
                 return false;
         }
 
@@ -285,7 +288,7 @@ class Payments
 
         $redirectData = [];
         if ($response->isRedirect() && $transaction->status === TransactionRecord::STATUS_REDIRECT) {
-            $mutex->release($transactionLockName);
+            $lock->release();
             $this->handleRedirect($response, $redirect, $redirectData);
             \Craft::$app->getResponse()->redirect($redirect);
             \Craft::$app->end();
@@ -295,7 +298,7 @@ class Payments
             $customError = $response->getMessage();
         }
 
-        $mutex->release($transactionLockName);
+        $lock->release();
 
         return $success;
     }

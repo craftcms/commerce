@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Order\Elements;
 
 use CommerceGuys\Addressing\AddressInterface;
-use Craft;
 use CraftCms\Cms\Shared\Concerns\HasNames;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\actions\CopyLoadCartUrl;
@@ -100,7 +99,9 @@ use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Tax\Vat;
 use CraftCms\RulesetValidation\Attributes\Ruleset;
 use DateTime;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\HtmlString;
@@ -1135,16 +1136,18 @@ class Order extends Element implements HasStoreInterface
      */
     public function markAsComplete(): bool
     {
-        // Use a mutex to make sure we check the order is not already complete due to a race condition.
+        // Use a lock to make sure we check the order is not already complete due to a race condition.
         $lockName = 'orderComplete:' . $this->id;
-        $mutex = Craft::$app->getMutex();
-        if (!$mutex->acquire($lockName, 5)) {
+        $lock = Cache::lock($lockName, 30);
+        try {
+            $lock->block(5);
+        } catch (LockTimeoutException) {
             throw new Exception('Unable to acquire a lock for completion of Order: ' . $this->id);
         }
 
         // Now that we have a lock, make sure this order is not already completed.
         if ($this->isCompleted) {
-            $mutex->release($lockName);
+            $lock->release();
             return true;
         }
 
@@ -1152,7 +1155,7 @@ class Order extends Element implements HasStoreInterface
         $completedInDb = OrderRecord::query()->where('isCompleted', true)->where('id', $this->id)->exists();
 
         if ($completedInDb) {
-            $mutex->release($lockName);
+            $lock->release();
             return true;
         }
 
@@ -1170,7 +1173,7 @@ class Order extends Element implements HasStoreInterface
         if ($orderStatus && $orderStatus->id) {
             $this->orderStatusId = $orderStatus->id;
         } else {
-            $mutex->release($lockName);
+            $lock->release();
             throw new OrderStatusException('Could not find a valid default order status.');
         }
 
@@ -1199,7 +1202,7 @@ class Order extends Element implements HasStoreInterface
                     $testReference = $baseReference . '-' . $suffix;
                 }
             } catch (Throwable $exception) {
-                $mutex->release($lockName);
+                $lock->release();
                 Log::error('Unable to generate order completion reference for order ID: ' . $this->id . ', with format: ' . $referenceTemplate . ', error: ' . $exception->getMessage());
                 throw $exception;
             }
@@ -1222,11 +1225,11 @@ class Order extends Element implements HasStoreInterface
                 'order' => json_encode($this->errors()->getMessages()),
             ], category: 'commerce'));
 
-            $mutex->release($lockName);
+            $lock->release();
             return false;
         }
 
-        $mutex->release($lockName);
+        $lock->release();
 
         $this->afterOrderComplete();
 
@@ -1546,8 +1549,10 @@ class Order extends Element implements HasStoreInterface
     public function afterSave(bool $isNew): void
     {
         $lockKey = "order-after-save:$this->number";
-        $mutex = Craft::$app->getMutex();
-        if (!$mutex->acquire($lockKey, 15)) {
+        $lock = Cache::lock($lockKey, 30);
+        try {
+            $lock->block(15);
+        } catch (LockTimeoutException) {
             throw new MutexException($lockKey, 'Could not acquire a lock to save the order.');
         }
 
@@ -1715,11 +1720,11 @@ class Order extends Element implements HasStoreInterface
             $this->_saveNotices();
             $this->_deleteOrphanedOrderAddresses();
         } catch (Exception $exception) {
-            $mutex->release($lockKey);
+            $lock->release();
             throw $exception;
         }
 
-        $mutex->release($lockKey);
+        $lock->release();
 
         // We can do this after the lock
         $this->_saveOrderHistory($oldStatusId, $orderRecord->orderStatusId);
