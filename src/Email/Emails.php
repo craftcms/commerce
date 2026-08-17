@@ -298,9 +298,7 @@ class Emails
         //sending emails
         $renderVariables = compact('order', 'orderHistory', 'option', 'orderData');
 
-        $mailer = \Craft::$app->getMailer();
-        /** @var Message $newEmail */
-        $newEmail = \Craft::createObject(['class' => $mailer->messageClass, 'mailer' => $mailer]);
+        $newEmail = new Message();
 
         $originalLanguage = \Craft::$app->language;
         $originalFormattingLanguage = \Craft::$app->formattingLocale;
@@ -664,20 +662,7 @@ class Emails
                 return true;
             }
 
-            if (!\Craft::$app->getMailer()->send($newEmail)) {
-                $error = t('Commerce email "{email}" could not be sent for order "{order}".', [
-                    'email' => $email->name,
-                    'order' => $order->getShortNumber(),
-                ], category: 'commerce');
-
-                Log::error($error);
-
-                Sites::setCurrentSite($originalSiteId);
-                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
-
-                return false;
-            }
+            app('mail.manager')->mailer()->getSymfonyTransport()->send($newEmail->getSymfonyEmail());
         } catch (\Exception $e) {
             $error = t('Email "{email}" could not be sent for order "{order}". Error: {error} {file}:{line}', [
                 'error' => $e->getMessage(),
