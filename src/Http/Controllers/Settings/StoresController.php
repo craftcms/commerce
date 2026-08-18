@@ -10,7 +10,7 @@ use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\helpers\Json;
-use craft\helpers\UrlHelper;
+use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Facades\Sites;
@@ -53,9 +53,9 @@ readonly class StoresController
         }
 
         $crumbs = [
-            ['label' => t('Commerce', category: 'commerce'), 'url' => UrlHelper::url('commerce')],
-            ['label' => t('Settings', category: 'commerce'), 'url' => UrlHelper::url('commerce/settings')],
-            ['label' => t('Stores'), 'url' => UrlHelper::url('commerce/settings/stores')],
+            ['label' => t('Commerce', category: 'commerce'), 'url' => Url::url('commerce')],
+            ['label' => t('Settings', category: 'commerce'), 'url' => Url::url('commerce/settings')],
+            ['label' => t('Stores'), 'url' => Url::url('commerce/settings/stores')],
         ];
 
         $hasOrders = $storeModel->id && Order::find()
@@ -151,27 +151,27 @@ readonly class StoresController
         $stores = Plugin::getInstance()->getStores()->getAllStores();
 
         $crumbs = [
-            ['label' => t('Commerce', category: 'commerce'), 'url' => UrlHelper::url('commerce')],
+            ['label' => t('Commerce', category: 'commerce'), 'url' => Url::url('commerce')],
         ];
 
         $menuItems = [];
         $stores->each(function(Store $s) use (&$menuItems) {
             $m = [];
-            $m[] = ['label' => t('Payment Currencies', category: 'commerce'), 'url' => UrlHelper::cpUrl('commerce/store-management/' . $s->handle . '/payment-currencies')];
-            $m[] = ['label' => t('Discounts', category: 'commerce'), 'url' => UrlHelper::cpUrl('commerce/store-management/' . $s->handle . '/discounts')];
+            $m[] = ['label' => t('Payment Currencies', category: 'commerce'), 'url' => Url::cpUrl('commerce/store-management/' . $s->handle . '/payment-currencies')];
+            $m[] = ['label' => t('Discounts', category: 'commerce'), 'url' => Url::cpUrl('commerce/store-management/' . $s->handle . '/discounts')];
 
             if (Plugin::getInstance()->getCatalogPricingRules()->canUseCatalogPricingRules()) {
-                $m[] = ['label' => t('Pricing Rules', category: 'commerce'), 'url' => UrlHelper::cpUrl('commerce/store-management/' . $s->handle . '/pricing-rules')];
+                $m[] = ['label' => t('Pricing Rules', category: 'commerce'), 'url' => Url::cpUrl('commerce/store-management/' . $s->handle . '/pricing-rules')];
             } else {
-                $m[] = ['label' => t('Sales', category: 'commerce'), 'url' => UrlHelper::cpUrl('commerce/store-management/' . $s->handle . '/sales')];
+                $m[] = ['label' => t('Sales', category: 'commerce'), 'url' => Url::cpUrl('commerce/store-management/' . $s->handle . '/sales')];
             }
 
-            $m[] = ['label' => t('Shipping Methods', category: 'commerce'), 'url' => UrlHelper::cpUrl('commerce/store-management/' . $s->handle . '/shippingmethods')];
-            $m[] = ['label' => t('Shipping Zones', category: 'commerce'), 'url' => UrlHelper::cpUrl('commerce/store-management/' . $s->handle . '/shippingzones')];
-            $m[] = ['label' => t('Shipping Categories', category: 'commerce'), 'url' => UrlHelper::cpUrl('commerce/store-management/' . $s->handle . '/shippingcategories')];
-            $m[] = ['label' => t('Tax Rates', category: 'commerce'), 'url' => UrlHelper::cpUrl('commerce/store-management/' . $s->handle . '/taxrates')];
-            $m[] = ['label' => t('Tax Zones', category: 'commerce'), 'url' => UrlHelper::cpUrl('commerce/store-management/' . $s->handle . '/taxzones')];
-            $m[] = ['label' => t('Tax Categories', category: 'commerce'), 'url' => UrlHelper::cpUrl('commerce/store-management/' . $s->handle . '/taxcategories')];
+            $m[] = ['label' => t('Shipping Methods', category: 'commerce'), 'url' => Url::cpUrl('commerce/store-management/' . $s->handle . '/shippingmethods')];
+            $m[] = ['label' => t('Shipping Zones', category: 'commerce'), 'url' => Url::cpUrl('commerce/store-management/' . $s->handle . '/shippingzones')];
+            $m[] = ['label' => t('Shipping Categories', category: 'commerce'), 'url' => Url::cpUrl('commerce/store-management/' . $s->handle . '/shippingcategories')];
+            $m[] = ['label' => t('Tax Rates', category: 'commerce'), 'url' => Url::cpUrl('commerce/store-management/' . $s->handle . '/taxrates')];
+            $m[] = ['label' => t('Tax Zones', category: 'commerce'), 'url' => Url::cpUrl('commerce/store-management/' . $s->handle . '/taxzones')];
+            $m[] = ['label' => t('Tax Categories', category: 'commerce'), 'url' => Url::cpUrl('commerce/store-management/' . $s->handle . '/taxcategories')];
 
             $menuItems[$s->handle] = $m;
         });
@@ -215,7 +215,7 @@ readonly class StoresController
     public function editSiteStores(): string
     {
         $crumbs = [
-            ['label' => t('Commerce', category: 'commerce'), 'url' => UrlHelper::url('commerce')],
+            ['label' => t('Commerce', category: 'commerce'), 'url' => Url::url('commerce')],
         ];
 
         return pageTemplate('commerce/settings/stores/_siteStore', [

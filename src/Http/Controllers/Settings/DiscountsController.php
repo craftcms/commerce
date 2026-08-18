@@ -18,11 +18,11 @@ use craft\elements\Category;
 use CraftCms\Cms\Entry\Elements\Entry;
 use craft\helpers\AdminTable;
 use CraftCms\Cms\Support\Arr;
-use craft\helpers\DateTimeHelper;
+use CraftCms\Cms\Support\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
-use craft\helpers\MoneyHelper;
-use craft\helpers\UrlHelper;
+use CraftCms\Cms\Support\Money;
+use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\Edition;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Facades\UserGroups;
@@ -94,7 +94,7 @@ readonly class DiscountsController
 
         $actions = Json::encode($actions);
 
-        $tableDataEndpoint = UrlHelper::actionUrl('commerce/discounts/table-data', ['storeId' => $store->id]);
+        $tableDataEndpoint = Url::actionUrl('commerce/discounts/table-data', ['storeId' => $store->id]);
 
         $js = <<<JS
     var actions = {$actions};
@@ -223,7 +223,7 @@ JS;
             $tableData[] = [
                 'id' => $item['id'],
                 'title' => t($item['name'], category: 'site'),
-                'url' => UrlHelper::cpUrl('commerce/store-management/' . $store->handle . '/discounts/' . $item['id']),
+                'url' => Url::cpUrl('commerce/store-management/' . $store->handle . '/discounts/' . $item['id']),
                 'status' => (bool)$item['enabled'],
                 'duration' => $dateRange,
                 'timesUsed' => $item['totalDiscountUses'],
@@ -351,7 +351,7 @@ JS;
             $attrValue = $request->input($attr) ?: ['value' => '0'];
             $attrValue['value'] = preg_replace('/[^0-9\.\-\,]/', '', (string)$attrValue['value']);
             $attrValue += ['currency' => $discount->getStore()->getCurrency()];
-            $attrValue = MoneyHelper::toDecimal(MoneyHelper::toMoney($attrValue));
+            $attrValue = Money::toDecimal(Money::toMoney($attrValue));
 
             if ($attr !== 'purchaseTotal') {
                 $attrValue = (float)$attrValue;

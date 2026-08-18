@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers;
 
 use craft\commerce\Plugin;
-use craft\helpers\UrlHelper;
+use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\RouteToken\RouteTokens;
@@ -316,7 +316,7 @@ class CartController
         $number = $request->input('number');
         $token = $request->input('code');
         $loadCartRedirectUrl = Plugin::getInstance()->getSettings()->loadCartRedirectUrl ?? '';
-        $redirect = UrlHelper::siteUrl($loadCartRedirectUrl);
+        $redirect = Url::siteUrl($loadCartRedirectUrl);
 
         if (!$number) {
             $error = t('A cart number must be specified.', category: 'commerce');
@@ -350,7 +350,7 @@ class CartController
 
                 if (!$tokenData || !isset($tokenData[1]['cartNumber']) || $tokenData[1]['cartNumber'] !== $number) {
                     $error = t('The cart recovery link is invalid. Please request a new one.', category: 'commerce');
-                    $challengeUrl = UrlHelper::actionUrl('commerce/cart/email-challenge', ['number' => $number]);
+                    $challengeUrl = Url::actionUrl('commerce/cart/email-challenge', ['number' => $number]);
                     if ($request->expectsJson()) {
                         return $this->asFailure($error, ['challengeUrl' => $challengeUrl]);
                     }
@@ -362,7 +362,7 @@ class CartController
 
             // Check permissions if no valid token
             if (!$hasValidToken) {
-                $challengeUrl = UrlHelper::actionUrl('commerce/cart/email-challenge', ['number' => $number]);
+                $challengeUrl = Url::actionUrl('commerce/cart/email-challenge', ['number' => $number]);
                 if ($currentUser) {
                     $isCartCustomer = $cart->getCustomer() && $cart->getCustomer()->id === $currentUser->id;
                     if (!$isCartCustomer) {
@@ -386,7 +386,7 @@ class CartController
             }
         }
 
-        $redirect = UrlHelper::siteUrl(path: $loadCartRedirectUrl, siteId: $cart->orderSiteId);
+        $redirect = Url::siteUrl(path: $loadCartRedirectUrl, siteId: $cart->orderSiteId);
         $carts->forgetCart();
         $carts->setSessionCartNumber($number);
 
@@ -515,7 +515,7 @@ class CartController
             return $this->renderCartEmailChallenge($cart, $cartNumber);
         }
 
-        return redirect(UrlHelper::actionUrl('commerce/cart/cart-sent', ['hash' => $cartNumberHash]));
+        return redirect(Url::actionUrl('commerce/cart/cart-sent', ['hash' => $cartNumberHash]));
     }
 
     public function cartSent(Request $request): string

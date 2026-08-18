@@ -17,6 +17,7 @@ use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Events\CartPurgeEvent;
+use DateInterval;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\Cookie;
@@ -285,7 +286,7 @@ class Carts
     {
         $edge = new DateTime();
         $activeCartDuration = Config::durationInSeconds(Plugin::getInstance()->getSettings()->activeCartDuration);
-        $interval = \craft\helpers\DateTimeHelper::secondsToInterval($activeCartDuration);
+        $interval = new DateInterval("PT{$activeCartDuration}S");
         $edge->sub($interval);
         return $edge->format(DateTime::ATOM);
     }
@@ -361,7 +362,7 @@ class Carts
     public function getLoadCartUrl(Order $cart): string
     {
         $linkExpiry = Plugin::getInstance()->getSettings()->loadCartUrlExpiry;
-        $expiryDate = \craft\helpers\DateTimeHelper::currentUTCDateTime()->add(\craft\helpers\DateTimeHelper::secondsToInterval($linkExpiry));
+        $expiryDate = now('UTC')->add(new DateInterval("PT{$linkExpiry}S"));
 
         $token = app(RouteTokens::class)->createToken([
             'commerce/cart/load-cart',
@@ -455,7 +456,7 @@ class Carts
 
         $configInterval = Config::durationInSeconds(Plugin::getInstance()->getSettings()->purgeInactiveCartsDuration);
         $edge = new DateTime();
-        $interval = \craft\helpers\DateTimeHelper::secondsToInterval($configInterval);
+        $interval = new DateInterval("PT{$configInterval}S");
         $edge->sub($interval);
 
         // This query is exposed via CartPurgeEvent::$inactiveCartsQuery as a legacy craft\db\Query,

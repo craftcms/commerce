@@ -10,7 +10,7 @@ use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\elements\Category;
 use CraftCms\Cms\Entry\Elements\Entry;
-use craft\helpers\DateTimeHelper;
+use CraftCms\Cms\Support\DateTimeHelper;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use CraftCms\Cms\Translation\Locale;

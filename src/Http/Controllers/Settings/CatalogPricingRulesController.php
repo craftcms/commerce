@@ -12,11 +12,11 @@ use craft\commerce\helpers\Currency;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
 use craft\helpers\Cp;
-use craft\helpers\DateTimeHelper;
+use CraftCms\Cms\Support\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\Localization;
-use craft\helpers\MoneyHelper;
+use CraftCms\Cms\Support\Money;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Facades\UserGroups;
 use CraftCms\Cms\Translation\Locale;
@@ -249,7 +249,7 @@ JS;
         } else {
             if (is_array($applyAmount)) {
                 $applyAmount += ['currency' => $catalogPricingRule->getStore()->getCurrency()];
-                $applyAmount = MoneyHelper::toDecimal(MoneyHelper::toMoney($applyAmount));
+                $applyAmount = Money::toDecimal(Money::toMoney($applyAmount));
             }
             $catalogPricingRule->applyAmount = (float)$applyAmount * -1;
         }

@@ -32,9 +32,10 @@ use craft\db\Query;
 use craft\db\Table as CraftTable;
 use CraftCms\Cms\Element\Queries\ElementQuery;
 use craft\helpers\AdminTable;
-use craft\helpers\DateTimeHelper;
+use CraftCms\Cms\Support\DateTimeHelper;
 use craft\helpers\Localization;
-use craft\helpers\MoneyHelper;
+use CraftCms\Cms\Support\Money;
+use CraftCms\Cms\Support\Url;
 use craft\web\assets\inputmask\InputmaskAsset;
 use craft\web\assets\money\MoneyAsset;
 use CraftCms\Cms\Address\Elements\Address;
@@ -938,8 +939,8 @@ JS, []);
         }
 
         $amount = $request->input('amount');
-        $amount = MoneyHelper::toMoney(array_merge($amount, ['currency' => $transaction->paymentCurrency]));
-        $amount = MoneyHelper::toDecimal($amount);
+        $amount = Money::toMoney(array_merge($amount, ['currency' => $transaction->paymentCurrency]));
+        $amount = Money::toDecimal($amount);
 
         $note = $request->input('note');
         abort_if($note === null, 400, 'Missing note');
@@ -989,8 +990,8 @@ JS, []);
         $order = Order::find()->id($orderId)->one();
         $baseCurrency = $order->currency;
 
-        $paymentAmount = MoneyHelper::toMoney(['value' => $paymentAmount, 'currency' => $baseCurrency, 'locale' => $locale]);
-        $paymentAmount = MoneyHelper::toDecimal($paymentAmount);
+        $paymentAmount = Money::toMoney(['value' => $paymentAmount, 'currency' => $baseCurrency, 'locale' => $locale]);
+        $paymentAmount = Money::toDecimal($paymentAmount);
 
         $baseCurrencyPaymentAmount = $paymentCurrencies->convertCurrency((float)$paymentAmount, $paymentCurrency, $baseCurrency);
         $baseCurrencyPaymentAmountAsCurrency = t('Pay {amount} of {currency} on the order.', ['amount' => Currency::formatAsCurrency($baseCurrencyPaymentAmount, $baseCurrency), 'currency' => $baseCurrency], category: 'commerce');
@@ -1377,7 +1378,7 @@ JS, []);
         HtmlStack::js('window.orderEdit.currentUserPermissions = ' . \craft\helpers\Json::encode($permissions) . ';', Position::BodyBegin);
         HtmlStack::js('window.orderEdit.currentUserId = ' . \craft\helpers\Json::encode($currentUser?->id) . ';', Position::BodyBegin);
 
-        HtmlStack::js('window.orderEdit.ordersIndexUrl = "' . \craft\helpers\UrlHelper::cpUrl('commerce/orders') . '"', Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.ordersIndexUrl = "' . Url::cpUrl('commerce/orders') . '"', Position::BodyBegin);
         HtmlStack::js('window.orderEdit.ordersIndexUrlHashed = "' . Crypt::encrypt('commerce/orders') . '"', Position::BodyBegin);
         HtmlStack::js('window.orderEdit.continueEditingUrl = "' . $order->cpEditUrl . '"', Position::BodyBegin);
         HtmlStack::js('window.orderEdit.userPhotoFallback = "' . \Craft::$app->getAssetManager()->getPublishedUrl('@app/web/assets/cp/dist', true, 'images/user.svg') . '"', Position::BodyBegin);
@@ -1852,7 +1853,7 @@ JS, []);
                 // @TODO Revisit purchasable price lookup once per-store currency handling is finalized
                 $row['price'] = $purchasable->getSalePrice();
                 $row['promotionalPrice'] = $purchasable->getPromotionalPrice();
-                $row['priceAsCurrency'] = MoneyHelper::toString(MoneyHelper::toMoney(['value' => $purchasable->getSalePrice(), 'currency' => $baseCurrency]));
+                $row['priceAsCurrency'] = Money::toString(Money::toMoney(['value' => $purchasable->getSalePrice(), 'currency' => $baseCurrency]));
                 $row['isAvailable'] = Plugin::getInstance()->getPurchasables()->isPurchasableAvailable($purchasable);
                 $row['detail'] = [
                     'title' => t('Information', category: 'commerce'),

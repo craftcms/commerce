@@ -13,6 +13,7 @@ use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Structure\Structures;
 use CraftCms\Cms\Support\Facades\Drafts;
 use CraftCms\Cms\Support\Facades\Sites;
+use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use Illuminate\Http\Request;
@@ -153,7 +154,7 @@ readonly class ProductsController
         ]));
 
         if (!$request->expectsJson()) {
-            return redirect(\craft\helpers\UrlHelper::urlWithParams($editUrl, [
+            return redirect(Url::urlWithParams($editUrl, [
                 'fresh' => 1,
             ]));
         }

@@ -7,7 +7,7 @@ namespace CraftCms\Commerce\Http\Controllers;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Locale;
 use craft\commerce\Plugin;
-use craft\helpers\UrlHelper;
+use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\RouteToken\RouteTokens;
 use CraftCms\Cms\SystemMessage\Mailables\SystemMessageMailable;
 use CraftCms\Cms\View\TemplateMode;
@@ -46,7 +46,7 @@ readonly class DownloadsController
 
             if (!$tokenData || !isset($tokenData[1]['orderNumber']) || $tokenData[1]['orderNumber'] !== $number) {
                 session()->flash('error', t('The download link has expired. Please request a new one.', category: 'commerce'));
-                return redirect(UrlHelper::actionUrl('commerce/downloads/email-challenge', [
+                return redirect(Url::actionUrl('commerce/downloads/email-challenge', [
                     'number' => $number,
                     'pdfHandle' => $pdfHandle,
                     'option' => $option,
@@ -58,7 +58,7 @@ readonly class DownloadsController
         }
 
         if (!$hasValidToken) {
-            $challengeUrl = UrlHelper::actionUrl('commerce/downloads/email-challenge', [
+            $challengeUrl = Url::actionUrl('commerce/downloads/email-challenge', [
                 'number' => $number,
                 'pdfHandle' => $pdfHandle,
                 'option' => $option,
@@ -163,7 +163,7 @@ readonly class DownloadsController
 
         session()->flash('notice', t('A new download link has been sent to {email}', ['email' => $order->getMaskedEmail()], category: 'commerce'));
 
-        return redirect(UrlHelper::actionUrl('commerce/downloads/pdf-sent', ['hash' => $orderNumberHash]));
+        return redirect(Url::actionUrl('commerce/downloads/pdf-sent', ['hash' => $orderNumberHash]));
     }
 
     public function pdfSent(Request $request): string

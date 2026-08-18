@@ -10,7 +10,7 @@ use craft\commerce\models\ShippingRuleCategory;
 use craft\commerce\Plugin;
 use craft\helpers\Json;
 use craft\helpers\Localization;
-use craft\helpers\MoneyHelper;
+use CraftCms\Cms\Support\Money;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\InputNamespace;
@@ -119,7 +119,7 @@ readonly class ShippingRulesController
             $input += [
                 'currency' => $shippingRule->getStore()->getCurrency(),
             ];
-            $shippingRule->$moneyInput = (float)MoneyHelper::toDecimal(MoneyHelper::toMoney($input));
+            $shippingRule->$moneyInput = (float)Money::toDecimal(Money::toMoney($input));
         }
 
         $shippingRule->name = $request->input('name');
@@ -139,12 +139,12 @@ readonly class ShippingRulesController
             $percentageRate = $ruleCategory['percentageRate'];
             $ruleCategory['perItemRate'] = (!isset($perItemRate) || trim((string)$perItemRate['value']) === '')
                 ? null
-                : MoneyHelper::toDecimal(MoneyHelper::toMoney(array_merge([
+                : Money::toDecimal(Money::toMoney(array_merge([
                     'currency' => $shippingRule->getStore()->getCurrency(),
                 ], $perItemRate)));
             $ruleCategory['weightRate'] = (!isset($weightRate) || trim((string)$weightRate['value']) === '')
                 ? null
-                : MoneyHelper::toDecimal(MoneyHelper::toMoney(array_merge([
+                : Money::toDecimal(Money::toMoney(array_merge([
                     'currency' => $shippingRule->getStore()->getCurrency(),
                 ], $weightRate)));
             $ruleCategory['percentageRate'] = (!isset($percentageRate) || trim((string)$percentageRate) === '') ? null : Localization::normalizeNumber($percentageRate);

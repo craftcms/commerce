@@ -63,7 +63,7 @@ readonly class TransfersController
         ]));
 
         if (!request()->expectsJson()) {
-            return redirect(\craft\helpers\UrlHelper::urlWithParams($editUrl, [
+            return redirect(\CraftCms\Cms\Support\Url::urlWithParams($editUrl, [
                 'fresh' => 1,
             ]));
         }
