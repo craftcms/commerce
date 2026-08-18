@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Models;
 
-use craft\commerce\elements\Order;
-use craft\commerce\models\OrderStatus;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Cms\User\Elements\User;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Orders;
 use CraftCms\Commerce\Order\OrderStatuses;
 use DateTime;

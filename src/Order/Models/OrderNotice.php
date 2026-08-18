@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Models;
 
-use craft\commerce\elements\Order;
 use CraftCms\Cms\Component\Component;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 use CraftCms\Commerce\Order\Orders;
 

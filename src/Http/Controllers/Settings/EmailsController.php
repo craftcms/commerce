@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\commerce\helpers\Locale as LocaleHelper;
-use craft\commerce\models\Email;
-use craft\commerce\models\Pdf;
-use craft\commerce\models\Store;
 use craft\helpers\App;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
@@ -17,8 +14,11 @@ use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Email\Emails;
+use CraftCms\Commerce\Email\Models\Email;
 use CraftCms\Commerce\Email\Records\Email as EmailRecord;
+use CraftCms\Commerce\Pdf\Models\Pdf;
 use CraftCms\Commerce\Pdf\Pdfs;
+use CraftCms\Commerce\Store\Models\Store;
 
 use CraftCms\Commerce\Store\Stores;
 use Illuminate\Http\Request;

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Purchasable;
 
-use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Support\Facades\ElementCaches;
 use CraftCms\Cms\Support\Facades\Elements;
@@ -12,6 +11,7 @@ use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Inventory\Inventory;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Events\PurchasableAvailableEvent;
 use CraftCms\Commerce\Purchasable\Events\PurchasableOutOfStockPurchasesAllowedEvent;

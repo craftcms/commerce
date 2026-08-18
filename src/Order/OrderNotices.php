@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order;
 
-use craft\commerce\elements\Order;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Models\OrderNotice;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;

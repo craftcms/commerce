@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Customer;
 
 use craft\base\Element;
-use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\mail\Mailer;
 use craft\mail\Message;
@@ -17,6 +16,7 @@ use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Customer\Records\Customer as CustomerRecord;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Models\Order as OrderRecord;
 use CraftCms\Commerce\Payment\Events\UpdatePrimaryPaymentSourceEvent;
 use Illuminate\Container\Attributes\Singleton;

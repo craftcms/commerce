@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use craft\commerce\errors\CurrencyException;
 use craft\commerce\helpers\Localization;
 use craft\commerce\helpers\PaymentForm;
 use craft\commerce\Plugin;
@@ -13,6 +12,7 @@ use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasCartArray;
 use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\Exceptions\CurrencyException;
 use CraftCms\Commerce\Order\Orders;
 use CraftCms\Commerce\Payment\Exceptions\PaymentException;
 use CraftCms\Commerce\Payment\Exceptions\PaymentSourceCreatedLaterException;

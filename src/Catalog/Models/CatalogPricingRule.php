@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Catalog\Models;
 
-use craft\commerce\base\Purchasable;
 use craft\commerce\elements\conditions\customers\CatalogPricingRuleCustomerCondition;
 use craft\commerce\elements\conditions\products\CatalogPricingRuleProductCondition;
 use craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasableCondition;
@@ -23,6 +22,7 @@ use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule as PricingCatalogRuleRecord;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Payment\Currencies;
+use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
 use DateTime;

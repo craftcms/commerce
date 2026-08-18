@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order;
 
-use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\SendEmail;
 use craft\events\ConfigEvent;
@@ -17,6 +16,7 @@ use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Email\Events\EmailEvent;
 use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Events\DefaultOrderStatusEvent;
 use CraftCms\Commerce\Order\Events\OrderStatusEmailsEvent;
 use CraftCms\Commerce\Order\Models\OrderHistory;

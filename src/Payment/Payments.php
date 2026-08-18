@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Payment;
 
-use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Support\Facades\Template;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Helpers\Currency;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Events\ProcessPaymentEvent;
 use CraftCms\Commerce\Payment\Events\RefundTransactionEvent;
 use CraftCms\Commerce\Payment\Events\TransactionEvent;

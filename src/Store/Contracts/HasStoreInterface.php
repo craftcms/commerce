@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Store\Contracts;
 
-use craft\commerce\models\Store;
+use CraftCms\Commerce\Store\Models\Store;
 
 interface HasStoreInterface
 {

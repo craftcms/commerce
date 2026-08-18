@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Shipping;
 
-use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface;
 use CraftCms\Commerce\Shipping\Contracts\ShippingRuleInterface;
 use CraftCms\Commerce\Shipping\Events\RegisterAvailableShippingMethodsEvent;

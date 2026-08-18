@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Payment\Forms;
 
-use craft\commerce\models\PaymentSource;
 use CraftCms\Cms\Component\Component;
+use CraftCms\Commerce\Payment\Models\PaymentSource;
 
 abstract class BasePaymentForm extends Component
 {

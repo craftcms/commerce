@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Promotion;
 
-use craft\commerce\base\PurchasableInterface;
-use craft\commerce\elements\Order;
 use craft\elements\Category;
 use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Support\Facades\Elements;
@@ -14,6 +12,7 @@ use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Formula\Formulas;
 use CraftCms\Commerce\Order\Adjuster\Discount as DiscountAdjuster;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 use CraftCms\Commerce\Order\Models\OrderNotice;
 use CraftCms\Commerce\Promotion\Events\DiscountEvent;
@@ -27,6 +26,7 @@ use CraftCms\Commerce\Promotion\Records\Discount as DiscountRecord;
 use CraftCms\Commerce\Promotion\Records\DiscountCategory as DiscountCategoryRecord;
 use CraftCms\Commerce\Promotion\Records\DiscountPurchasable as DiscountPurchasableRecord;
 use CraftCms\Commerce\Promotion\Records\EmailDiscountUse as EmailDiscountUseRecord;
+use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Store\Stores;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;

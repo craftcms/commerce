@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use craft\commerce\models\inventory\DeactivateInventoryLocation;
-use craft\commerce\models\InventoryLocation;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\FieldLayout\FieldLayoutCompiler;
@@ -22,6 +20,8 @@ use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\InputNamespace;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Commerce\Inventory\InventoryLocations;
+use CraftCms\Commerce\Inventory\Models\DeactivateInventoryLocation;
+use CraftCms\Commerce\Inventory\Models\InventoryLocation;
 use Illuminate\Http\Request;
 
 use Symfony\Component\HttpFoundation\Response;

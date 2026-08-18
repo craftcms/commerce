@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Payment\Gateway\Contracts;
 
-use craft\commerce\elements\Order;
-use craft\commerce\models\payments\BasePaymentForm;
-use craft\commerce\models\PaymentSource;
-use craft\commerce\models\Transaction;
 use CraftCms\Cms\Component\Contracts\SavableComponentInterface;
+use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Payment\Forms\BasePaymentForm;
+use CraftCms\Commerce\Payment\Models\PaymentSource;
+use CraftCms\Commerce\Payment\Models\Transaction;
 use Illuminate\Http\Response;
 use Throwable;
 

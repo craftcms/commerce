@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Store\Models;
 
-use craft\commerce\elements\Order;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Support\Env;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Inventory\InventoryLocations;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Store\Stores;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;

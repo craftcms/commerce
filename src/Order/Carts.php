@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order;
 
-use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\events\ModelEvent;
@@ -16,6 +15,7 @@ use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Events\CartPurgeEvent;
 use CraftCms\Commerce\Store\Stores;
 use DateInterval;

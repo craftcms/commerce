@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\commerce\elements\Order;
-use craft\commerce\models\PaymentCurrency;
 use craft\helpers\Cp;
 use craft\i18n\Formatter;
 use CraftCms\Cms\Http\RespondsWithFlash;
@@ -13,7 +11,9 @@ use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Currencies;
+use CraftCms\Commerce\Payment\Models\PaymentCurrency;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
 
 use Illuminate\Http\Request;

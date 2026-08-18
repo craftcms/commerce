@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order;
 
-use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Events\OrderStatusEvent;
 use CraftCms\Commerce\Order\Models\OrderHistory;
 use CraftCms\Commerce\Order\Records\OrderHistory as OrderHistoryRecord;

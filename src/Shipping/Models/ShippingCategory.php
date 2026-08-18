@@ -85,7 +85,7 @@ class ShippingCategory extends Component implements HasStoreInterface, Chippable
     }
 
     #[\Override]
-    public function getStore(): \craft\commerce\models\Store
+    public function getStore(): \CraftCms\Commerce\Store\Models\Store
     {
         if (!$store = app(Stores::class)->getStoreById($this->storeId)) {
             throw new \InvalidArgumentException('Invalid store ID: ' . $this->storeId);

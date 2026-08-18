@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Payment;
 
-use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Payment\Events\PaymentCurrencyRateEvent;
 use CraftCms\Commerce\Payment\Models\PaymentCurrency;
+use CraftCms\Commerce\Payment\Models\Transaction;
 use CraftCms\Commerce\Payment\Records\PaymentCurrency as PaymentCurrencyRecord;
 use CraftCms\Commerce\Store\Stores;
 use Illuminate\Container\Attributes\Singleton;

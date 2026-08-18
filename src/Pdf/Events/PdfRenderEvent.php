@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Pdf\Events;
 
-use craft\commerce\elements\Order;
-use craft\commerce\models\Pdf;
+use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Pdf\Models\Pdf;
 
 class PdfRenderEvent
 {

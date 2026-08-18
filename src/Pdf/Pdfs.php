@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Pdf;
 
-use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\events\ConfigEvent;
 use craft\helpers\Db as CraftDb;
@@ -20,6 +19,7 @@ use CraftCms\Cms\View\TemplateResolver;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Pdf\Events\PdfEvent;
 use CraftCms\Commerce\Pdf\Events\PdfRenderEvent;
 use CraftCms\Commerce\Pdf\Events\PdfRenderOptionsEvent;

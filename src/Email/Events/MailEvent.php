@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Email\Events;
 
-use craft\commerce\elements\Order;
-use craft\commerce\models\Email;
-use craft\commerce\models\OrderHistory;
 use craft\mail\Message;
 use CraftCms\Cms\Shared\Concerns\ValidatableEvent;
+use CraftCms\Commerce\Email\Models\Email;
+use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\Models\OrderHistory;
 
 class MailEvent
 {

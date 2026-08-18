@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Email\Events;
 
-use craft\commerce\models\Email;
+use CraftCms\Commerce\Email\Models\Email;
 
 class EmailEvent
 {

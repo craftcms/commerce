@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Order\Elements;
 
 use CommerceGuys\Addressing\AddressInterface;
-use craft\commerce\base\Purchasable;
 use craft\commerce\elements\actions\CopyLoadCartUrl;
 use craft\commerce\elements\actions\DownloadOrderPdfAction;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\conditions\orders\OrderCondition;
 use craft\commerce\elements\conditions\orders\OrderStatusConditionRule;
-use craft\commerce\errors\LineItemNotFoundException;
-use craft\commerce\errors\OrderAdjustmentNotFoundException;
 use craft\commerce\Plugin;
 use craft\errors\MutexException;
 use CraftCms\Cms\Address\Elements\Address as AddressElement;
@@ -58,6 +55,8 @@ use CraftCms\Commerce\Order\Events\AddLineItemEvent;
 use CraftCms\Commerce\Order\Events\LineItemEvent;
 use CraftCms\Commerce\Order\Events\OrderLineItemsRefreshEvent;
 use CraftCms\Commerce\Order\Events\OrderNoticeEvent;
+use CraftCms\Commerce\Order\Exceptions\LineItemNotFoundException;
+use CraftCms\Commerce\Order\Exceptions\OrderAdjustmentNotFoundException;
 use CraftCms\Commerce\Order\Exceptions\OrderStatusException;
 use CraftCms\Commerce\Order\Exporters\Expanded;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
@@ -2921,7 +2920,7 @@ class Order extends Element implements HasStoreInterface
         if ($this->isCompleted) {
             foreach ($this->_deletingLineItems as $lineItem) {
                 $purchasable = $lineItem->getPurchasable();
-                if (($purchasable instanceof Purchasable || $purchasable instanceof NewPurchasable) && $purchasable::hasInventory() && $purchasable->inventoryTracked) {
+                if ($purchasable instanceof NewPurchasable && $purchasable::hasInventory() && $purchasable->inventoryTracked) {
                     app(Purchasables::class)->updateStoreStockCache($purchasable, true);
                 }
             }

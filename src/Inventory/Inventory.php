@@ -4,14 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Inventory;
 
-use craft\commerce\base\Purchasable;
-use craft\commerce\elements\Order;
-use craft\commerce\events\InventoryMovementEvent;
-use craft\commerce\events\UpdateInventoryLevelEvent;
-use craft\commerce\models\inventory\InventoryCommittedMovement;
-use craft\commerce\models\inventory\InventoryManualMovement;
-use craft\commerce\models\inventory\UpdateInventoryLevel;
-use craft\commerce\models\inventory\UpdateInventoryLevelInTransfer;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Support\Facades\Elements;
@@ -21,12 +13,19 @@ use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
 use CraftCms\Commerce\Inventory\Contracts\InventoryMovementInterface;
 use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
 use CraftCms\Commerce\Inventory\Enums\InventoryUpdateQuantityType;
+use CraftCms\Commerce\Inventory\Events\InventoryMovementEvent;
+use CraftCms\Commerce\Inventory\Events\UpdateInventoryLevelEvent;
+use CraftCms\Commerce\Inventory\Models\InventoryCommittedMovement;
 use CraftCms\Commerce\Inventory\Models\InventoryFulfillmentLevel;
 use CraftCms\Commerce\Inventory\Models\InventoryItem;
 use CraftCms\Commerce\Inventory\Models\InventoryLevel;
 use CraftCms\Commerce\Inventory\Models\InventoryLocation;
+use CraftCms\Commerce\Inventory\Models\InventoryManualMovement;
 use CraftCms\Commerce\Inventory\Models\InventoryTransaction;
+use CraftCms\Commerce\Inventory\Models\UpdateInventoryLevel;
+use CraftCms\Commerce\Inventory\Models\UpdateInventoryLevelInTransfer;
 use CraftCms\Commerce\Inventory\Records\InventoryItem as InventoryItemRecord;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Order\Models\OrderNotice;
@@ -50,7 +49,7 @@ class Inventory
     /**
      * @return Collection<int, InventoryLevel>
      */
-    public function getInventoryLevelsForPurchasable(Purchasable|NewPurchasable $purchasable): Collection
+    public function getInventoryLevelsForPurchasable(NewPurchasable $purchasable): Collection
     {
         $inventoryLevels = collect();
 
@@ -83,7 +82,7 @@ class Inventory
         return $inventoryLevels;
     }
 
-    public function getInventoryItemByPurchasable(Purchasable|NewPurchasable $purchasable): InventoryItem
+    public function getInventoryItemByPurchasable(NewPurchasable $purchasable): InventoryItem
     {
         // Self-heal: if the purchasable has somehow ended up without an associated
         // inventory item (e.g. due to a draft-apply or duplicate path that didn't
@@ -104,7 +103,7 @@ class Inventory
      * their canonical. Returns null if the purchasable type does not track inventory
      * or there is no canonical id yet.
      */
-    public function ensureInventoryItemRecord(Purchasable|NewPurchasable $purchasable): ?InventoryItemRecord
+    public function ensureInventoryItemRecord(NewPurchasable $purchasable): ?InventoryItemRecord
     {
         if (!$purchasable::hasInventory()) {
             return null;
@@ -377,7 +376,7 @@ class Inventory
     /**
      * @param array<string, mixed> $updateInventoryLevelAttributes
      */
-    public function updatePurchasableInventoryLevel(Purchasable|NewPurchasable $purchasable, int $quantity, array $updateInventoryLevelAttributes = []): void
+    public function updatePurchasableInventoryLevel(NewPurchasable $purchasable, int $quantity, array $updateInventoryLevelAttributes = []): void
     {
         $inventoryLocation = $purchasable->getStore()->getInventoryLocations()->first();
 
@@ -784,7 +783,7 @@ class Inventory
         foreach ($selectedInventoryLevelForItem as $key => $inventoryLevel) {
             /** @phpstan-ignore-next-line */
             if ($purchasable = Elements::getElementById($key)) {
-                if ($purchasable instanceof Purchasable || $purchasable instanceof NewPurchasable) {
+                if ($purchasable instanceof NewPurchasable) {
                     /** @phpstan-ignore-next-line */
                     app(Purchasables::class)->updateStoreStockCache($purchasable, true);
 

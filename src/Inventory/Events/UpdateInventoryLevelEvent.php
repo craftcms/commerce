@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Inventory\Events;
 
-use craft\commerce\models\inventory\UpdateInventoryLevel;
+use CraftCms\Commerce\Inventory\Models\UpdateInventoryLevel;
 
 class UpdateInventoryLevelEvent
 {

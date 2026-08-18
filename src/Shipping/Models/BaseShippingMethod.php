@@ -6,10 +6,10 @@ namespace CraftCms\Commerce\Shipping\Models;
 
 use craft\commerce\elements\conditions\customers\ShippingMethodCustomerCondition;
 use craft\commerce\elements\conditions\orders\ShippingMethodOrderCondition;
-use craft\commerce\elements\Order;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Json;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface;
 use CraftCms\Commerce\Shipping\Contracts\ShippingRuleInterface;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;

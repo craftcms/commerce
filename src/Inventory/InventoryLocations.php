@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Inventory;
 
-use craft\commerce\models\inventory\InventoryLocationDeactivatedMovement;
 use craft\events\AuthorizationCheckEvent;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Commerce\Database\Table;
@@ -13,6 +12,7 @@ use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
 use CraftCms\Commerce\Inventory\Models\DeactivateInventoryLocation;
 use CraftCms\Commerce\Inventory\Models\InventoryLevel;
 use CraftCms\Commerce\Inventory\Models\InventoryLocation;
+use CraftCms\Commerce\Inventory\Models\InventoryLocationDeactivatedMovement;
 use CraftCms\Commerce\Inventory\Records\InventoryLocation as InventoryLocationRecord;
 use CraftCms\Commerce\Store\Models\Store;
 use CraftCms\Commerce\Store\Stores;

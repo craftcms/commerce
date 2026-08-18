@@ -9,7 +9,6 @@ use craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasabl
 use craft\commerce\elements\conditions\purchasables\PurchasableConditionRule;
 use craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantCondition;
 use craft\commerce\helpers\Currency;
-use craft\commerce\models\CatalogPricingRule;
 use craft\helpers\Cp;
 use craft\helpers\Localization;
 use CraftCms\Cms\Http\RespondsWithFlash;
@@ -25,6 +24,7 @@ use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Money;
 use CraftCms\Cms\Translation\Locale;
 use CraftCms\Cms\View\Enums\Position;
+use CraftCms\Commerce\Catalog\Models\CatalogPricingRule;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule as CatalogPricingRuleRecord;

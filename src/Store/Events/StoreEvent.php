@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Store\Events;
 
-use craft\commerce\models\Store;
 use CraftCms\Cms\Shared\Concerns\ValidatableEvent;
+use CraftCms\Commerce\Store\Models\Store;
 
 class StoreEvent
 {

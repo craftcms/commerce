@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Payment;
 
 use craft\commerce\base\Gateway;
-use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Currency;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Events\TransactionEvent;
 use CraftCms\Commerce\Payment\Exceptions\TransactionException;
 use CraftCms\Commerce\Payment\Models\Transaction;

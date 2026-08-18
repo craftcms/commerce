@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\commerce\base\Purchasable;
-use craft\commerce\base\PurchasableInterface;
-use craft\commerce\models\Sale;
 use craft\elements\Category;
 use craft\helpers\Localization;
 use CraftCms\Cms\Edition;
@@ -24,8 +21,11 @@ use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Catalog\Products;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
+use CraftCms\Commerce\Promotion\Models\Sale;
 use CraftCms\Commerce\Promotion\Records\Sale as SaleRecord;
 use CraftCms\Commerce\Promotion\Sales;
+use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
+use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 
 use CraftCms\Commerce\Purchasable\Purchasables;
 use Illuminate\Http\Request;

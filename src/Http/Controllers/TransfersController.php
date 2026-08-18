@@ -5,12 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers;
 
 use craft\commerce\elements\Transfer;
-use craft\commerce\enums\InventoryTransactionType;
-use craft\commerce\enums\InventoryUpdateQuantityType;
-use craft\commerce\enums\TransferStatusType;
 use craft\commerce\fieldlayoutelements\TransferManagementField;
-use craft\commerce\models\inventory\InventoryTransferMovement;
-use craft\commerce\models\inventory\UpdateInventoryLevel;
 use craft\commerce\models\TransferDetail;
 use craft\commerce\services\Transfers;
 use CraftCms\Cms\Element\Validation\ElementRules;
@@ -24,8 +19,13 @@ use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
+use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
+use CraftCms\Commerce\Inventory\Enums\InventoryUpdateQuantityType;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Inventory\InventoryLocations;
+use CraftCms\Commerce\Inventory\Models\InventoryTransferMovement;
+use CraftCms\Commerce\Inventory\Models\UpdateInventoryLevel;
+use CraftCms\Commerce\Transfer\Enums\TransferStatusType;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Log;

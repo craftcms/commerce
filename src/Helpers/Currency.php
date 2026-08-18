@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Helpers;
 
-use craft\commerce\errors\CurrencyException;
-use craft\commerce\models\PaymentCurrency;
 use CraftCms\Cms\Cp\Cp;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Twig\Exceptions\TemplateLoaderException;
+use CraftCms\Commerce\Order\Exceptions\CurrencyException;
 use CraftCms\Commerce\Payment\Currencies;
+use CraftCms\Commerce\Payment\Models\PaymentCurrency;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Store\Stores;
 use Money\Currencies\ISOCurrencies;

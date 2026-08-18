@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Payment\Gateway\Responses;
 
-use craft\commerce\models\payments\CreditCardPaymentForm;
+use CraftCms\Commerce\Payment\Forms\CreditCardPaymentForm;
 use CraftCms\Commerce\Payment\Gateway\Contracts\RequestResponseInterface;
 
 class Dummy implements RequestResponseInterface

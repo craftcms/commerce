@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\commerce\models\OrderStatus;
-use craft\commerce\models\Store;
 use craft\db\Query;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
@@ -15,7 +13,9 @@ use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Email\Models\Email;
+use CraftCms\Commerce\Order\Models\OrderStatus;
 use CraftCms\Commerce\Order\OrderStatuses;
+use CraftCms\Commerce\Store\Models\Store;
 use CraftCms\Commerce\Store\Stores;
 
 use Illuminate\Http\Request;

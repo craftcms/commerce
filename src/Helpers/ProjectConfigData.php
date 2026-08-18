@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Helpers;
 
-use craft\commerce\elements\Order as OrderElement;
-use craft\commerce\models\Store;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\Email\Emails;
+use CraftCms\Commerce\Order\Elements\Order as OrderElement;
 use CraftCms\Commerce\Order\LineItemStatuses;
 use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Payment\Gateway\Gateways;
 use CraftCms\Commerce\Pdf\Pdfs;
+use CraftCms\Commerce\Store\Models\Store;
 use CraftCms\Commerce\Store\Stores;
 
 class ProjectConfigData

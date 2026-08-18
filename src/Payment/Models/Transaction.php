@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Payment\Models;
 
 use craft\commerce\base\Gateway;
-use craft\commerce\elements\Order;
 use CraftCms\Cms\Component\Component;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Orders;
 use CraftCms\Commerce\Payment\Gateway\Gateways;
 use CraftCms\Commerce\Payment\PaymentCurrencies;

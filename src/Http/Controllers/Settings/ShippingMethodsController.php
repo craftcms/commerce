@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\commerce\models\ShippingMethod;
 use craft\helpers\Cp;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
@@ -14,6 +13,7 @@ use CraftCms\Cms\Support\Html as NewHtml;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
+use CraftCms\Commerce\Shipping\Models\ShippingMethod;
 use CraftCms\Commerce\Shipping\Records\ShippingMethod as ShippingMethodRecord;
 use CraftCms\Commerce\Shipping\ShippingMethods;
 use CraftCms\Commerce\Shipping\ShippingRules;

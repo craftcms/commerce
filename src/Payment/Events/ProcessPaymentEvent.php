@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Payment\Events;
 
-use craft\commerce\elements\Order;
-use craft\commerce\models\payments\BasePaymentForm;
 use CraftCms\Cms\Shared\Concerns\ValidatableEvent;
+use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Payment\Forms\BasePaymentForm;
 use CraftCms\Commerce\Payment\Gateway\Contracts\RequestResponseInterface;
 use CraftCms\Commerce\Payment\Models\Transaction;
 

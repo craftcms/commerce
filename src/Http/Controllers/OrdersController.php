@@ -5,25 +5,12 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers;
 
 use craft\commerce\base\Gateway;
-use craft\commerce\base\Purchasable as PurchasableElement;
-use craft\commerce\base\PurchasableInterface;
 use craft\commerce\behaviors\StoreBehavior;
-use craft\commerce\db\Table;
-use craft\commerce\enums\InventoryTransactionType;
-use craft\commerce\enums\LineItemType;
-use craft\commerce\enums\OrderNoticeType;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\helpers\Currency;
-use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\PaymentForm;
 use craft\commerce\helpers\Purchasable;
-use craft\commerce\models\inventory\InventoryFulfillMovement;
-use craft\commerce\models\LineItemStatus;
-use craft\commerce\models\OrderAdjustment;
-use craft\commerce\models\OrderNotice;
-use craft\commerce\models\OrderStatus;
-use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
 use craft\commerce\stripe\gateways\PaymentIntents;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
@@ -59,25 +46,37 @@ use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Catalog\Events\ModifyPurchasablesTableQueryEvent;
+use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Email\Emails;
+use CraftCms\Commerce\Helpers\LineItem as LineItemHelper;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
+use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Inventory\InventoryLocations;
+use CraftCms\Commerce\Inventory\Models\InventoryFulfillMovement;
 use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\Enums\OrderNoticeType;
+use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Order\LineItem\LineItems;
 use CraftCms\Commerce\Order\LineItemStatuses;
+use CraftCms\Commerce\Order\Models\LineItemStatus;
+use CraftCms\Commerce\Order\Models\OrderAdjustment;
+use CraftCms\Commerce\Order\Models\OrderNotice;
+use CraftCms\Commerce\Order\Models\OrderStatus;
 use CraftCms\Commerce\Order\OrderAdjustments;
 use CraftCms\Commerce\Order\Orders;
 use CraftCms\Commerce\Order\OrderStatuses;
-
 use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Payment\Exceptions\RefundException;
+
 use CraftCms\Commerce\Payment\Gateway\Gateways;
 use CraftCms\Commerce\Payment\Payments;
 use CraftCms\Commerce\Payment\Records\Transaction as TransactionRecord;
 use CraftCms\Commerce\Payment\Transactions;
+use CraftCms\Commerce\Pdf\Models\Pdf;
 use CraftCms\Commerce\Pdf\Pdfs;
+use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Purchasables;
 use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery;
 use CraftCms\Commerce\Shipping\ShippingCategories;
@@ -1187,7 +1186,7 @@ JS, []);
                 continue;
             }
 
-            /** @var Purchasable|PurchasableElement|null $purchasable */
+            /** @var Purchasable|\CraftCms\Commerce\Purchasable\Elements\Purchasable|null $purchasable */
             $purchasable = $lineItem->getPurchasable();
             if (!$purchasable || isset($purchasableCpEditUrlByPurchasableId[$purchasable->id])) {
                 continue;

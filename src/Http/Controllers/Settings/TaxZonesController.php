@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\commerce\models\TaxAddressZone;
 use craft\helpers\Cp;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
@@ -15,6 +14,7 @@ use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Formula\Formulas;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
+use CraftCms\Commerce\Tax\Models\TaxAddressZone;
 use CraftCms\Commerce\Tax\TaxZones;
 
 use Illuminate\Http\Request;

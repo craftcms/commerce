@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\commerce\helpers\Locale as LocaleHelper;
-use craft\commerce\models\Pdf;
-use craft\commerce\models\Store;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Pdf\Models\Pdf;
 use CraftCms\Commerce\Pdf\Pdfs;
 use CraftCms\Commerce\Pdf\Records\Pdf as PdfRecord;
+use CraftCms\Commerce\Store\Models\Store;
 use CraftCms\Commerce\Store\Stores;
 
 use Illuminate\Http\Request;

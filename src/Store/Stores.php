@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Store;
 
-use craft\commerce\models\OrderStatus;
-use craft\commerce\models\SiteStore;
-use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\events\ConfigEvent;
 use craft\events\SiteEvent;
@@ -22,11 +19,14 @@ use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
+use CraftCms\Commerce\Order\Models\OrderStatus;
 use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Store\Events\DeleteStoreEvent;
 use CraftCms\Commerce\Store\Events\StoreEvent;
+use CraftCms\Commerce\Store\Models\SiteStore;
+use CraftCms\Commerce\Store\Models\Store;
 use CraftCms\Commerce\Store\Records\SiteStore as SiteStoreRecord;
 use CraftCms\Commerce\Store\Records\Store as StoreRecord;
 use Exception;

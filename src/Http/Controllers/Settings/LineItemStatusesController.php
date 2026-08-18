@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\commerce\models\LineItemStatus;
-use craft\commerce\models\Store;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
@@ -13,6 +11,8 @@ use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\LineItemStatuses;
+use CraftCms\Commerce\Order\Models\LineItemStatus;
+use CraftCms\Commerce\Store\Models\Store;
 use CraftCms\Commerce\Store\Stores;
 use Illuminate\Http\Request;
 

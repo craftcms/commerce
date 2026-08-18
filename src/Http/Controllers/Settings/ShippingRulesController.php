@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\commerce\models\ShippingAddressZone;
-use craft\commerce\models\ShippingRule;
-use craft\commerce\models\ShippingRuleCategory;
 use craft\helpers\Localization;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Facades\HtmlStack;
@@ -16,6 +13,9 @@ use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Money;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
+use CraftCms\Commerce\Shipping\Models\ShippingAddressZone;
+use CraftCms\Commerce\Shipping\Models\ShippingRule;
+use CraftCms\Commerce\Shipping\Models\ShippingRuleCategory;
 use CraftCms\Commerce\Shipping\Records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use CraftCms\Commerce\Shipping\ShippingMethods;
 use CraftCms\Commerce\Shipping\ShippingRules;

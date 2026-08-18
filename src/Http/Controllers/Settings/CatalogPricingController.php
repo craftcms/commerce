@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\commerce\helpers\Purchasable;
-use craft\commerce\models\CatalogPricing;
 use craft\commerce\web\assets\catalogpricing\CatalogPricingAsset;
 use craft\helpers\Cp;
 use craft\web\assets\htmx\HtmxAsset;
@@ -14,6 +13,7 @@ use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Catalog\Models\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingPurchasableConditionRule;

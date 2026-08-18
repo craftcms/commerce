@@ -6,11 +6,11 @@ namespace CraftCms\Commerce\Shipping\Models;
 
 use craft\commerce\elements\conditions\customers\ShippingRuleCustomerCondition;
 use craft\commerce\elements\conditions\orders\ShippingRuleOrderCondition;
-use craft\commerce\elements\Order;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Commerce\Formula\Formulas;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Shipping\Contracts\ShippingRuleInterface;
 use CraftCms\Commerce\Shipping\Records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;

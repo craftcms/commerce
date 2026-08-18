@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Dashboard\Widgets;
 
-use craft\commerce\elements\Order;
 use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\orderswidget\OrdersWidgetAsset;
 use craft\helpers\Cp;
@@ -19,6 +18,7 @@ use CraftCms\Cms\Support\Facades\InputNamespace;
 use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
+use CraftCms\Commerce\Order\Elements\Order;
 
 use CraftCms\Commerce\Order\OrderStatuses;
 use function CraftCms\Cms\currentUser;

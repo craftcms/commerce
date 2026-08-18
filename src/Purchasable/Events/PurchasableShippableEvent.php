@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Purchasable\Events;
 
-use craft\commerce\elements\Order;
 use CraftCms\Cms\User\Elements\User;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 
 class PurchasableShippableEvent

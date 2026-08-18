@@ -6,7 +6,6 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\commerce\helpers\Cp as CommerceCp;
 use craft\commerce\helpers\Localization;
-use craft\commerce\models\TaxRate;
 use craft\helpers\Cp;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
@@ -17,6 +16,7 @@ use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Translation\Locale;
 use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
+use CraftCms\Commerce\Tax\Models\TaxRate;
 use CraftCms\Commerce\Tax\Records\TaxRate as TaxRateRecord;
 use CraftCms\Commerce\Tax\TaxCategories;
 use CraftCms\Commerce\Tax\Taxes;

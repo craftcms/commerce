@@ -80,7 +80,7 @@ class PaymentCurrency extends Component
         return $this->iso;
     }
 
-    public function getStore(): \craft\commerce\models\Store
+    public function getStore(): \CraftCms\Commerce\Store\Models\Store
     {
         $store = app(Stores::class)->getStoreById($this->storeId);
         if ($store === null) {

@@ -4,12 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\commerce\base\Purchasable;
-use craft\commerce\base\PurchasableInterface;
-use craft\commerce\db\Table;
 use craft\commerce\helpers\Localization;
-use craft\commerce\models\Coupon;
-use craft\commerce\models\Discount;
 use craft\commerce\web\assets\coupons\CouponsAsset;
 use craft\db\Query;
 use craft\elements\Category;
@@ -31,11 +26,16 @@ use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\Translation\Locale;
 use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Catalog\Elements\Product;
+use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Promotion\Coupons;
 use CraftCms\Commerce\Promotion\Discounts;
+use CraftCms\Commerce\Promotion\Models\Coupon;
+use CraftCms\Commerce\Promotion\Models\Discount;
 use CraftCms\Commerce\Promotion\Records\Discount as DiscountRecord;
+use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
+use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use CraftCms\Commerce\Purchasable\Purchasables;
 
 use CraftCms\Commerce\Store\Stores;

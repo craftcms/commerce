@@ -4,12 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use craft\commerce\base\Purchasable;
-use craft\commerce\enums\InventoryTransactionType;
-use craft\commerce\enums\InventoryUpdateQuantityType;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
-use craft\commerce\models\inventory\InventoryManualMovement;
-use craft\commerce\models\inventory\UpdateInventoryLevel;
 use craft\commerce\web\assets\inventory\InventoryAsset;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
@@ -27,8 +22,13 @@ use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
+use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
+use CraftCms\Commerce\Inventory\Enums\InventoryUpdateQuantityType;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Inventory\InventoryLocations;
+use CraftCms\Commerce\Inventory\Models\InventoryManualMovement;
+use CraftCms\Commerce\Inventory\Models\UpdateInventoryLevel;
+use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\DB;

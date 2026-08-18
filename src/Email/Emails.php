@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Email;
 
-use craft\commerce\elements\Order;
-use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
 use craft\events\ConfigEvent;
 use craft\helpers\Db as CraftDb;
@@ -25,6 +23,8 @@ use CraftCms\Commerce\Email\Models\Email;
 use CraftCms\Commerce\Email\Records\Email as EmailRecord;
 use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
+use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\Models\OrderHistory;
 use CraftCms\Commerce\Store\Stores;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;
