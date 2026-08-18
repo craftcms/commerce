@@ -6,15 +6,15 @@ namespace CraftCms\Commerce\Helpers;
 
 use craft\commerce\elements\Order as OrderElement;
 use craft\commerce\models\Store;
-use craft\commerce\services\Emails;
-use craft\commerce\services\Gateways;
-use craft\commerce\services\LineItemStatuses;
-use craft\commerce\services\OrderStatuses;
-use craft\commerce\services\Pdfs;
-use craft\commerce\services\ProductTypes;
-use craft\commerce\services\Stores;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
+use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
+use CraftCms\Commerce\Email\Emails;
+use CraftCms\Commerce\Order\LineItemStatuses;
+use CraftCms\Commerce\Order\OrderStatuses;
+use CraftCms\Commerce\Payment\Gateway\Gateways;
+use CraftCms\Commerce\Pdf\Pdfs;
+use CraftCms\Commerce\Store\Stores;
 
 class ProjectConfigData
 {
@@ -70,7 +70,7 @@ class ProjectConfigData
     private static function _rebuildGatewayProjectConfig(): array
     {
         $data = [];
-        foreach (app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)->getAllGateways() as $gateway) {
+        foreach (app(Gateways::class)->getAllGateways() as $gateway) {
             $data[$gateway->uid] = $gateway->getConfig();
         }
         return $data;
@@ -79,7 +79,7 @@ class ProjectConfigData
     private static function _getStoresData(): array
     {
         $data = [];
-        foreach (app(\CraftCms\Commerce\Store\Stores::class)->getAllStores() as $store) {
+        foreach (app(Stores::class)->getAllStores() as $store) {
             $data[$store->uid] = $store->getConfig();
         }
         return $data;
@@ -88,7 +88,7 @@ class ProjectConfigData
     private static function _getSiteStoresData(): array
     {
         $data = [];
-        foreach (app(\CraftCms\Commerce\Store\Stores::class)->getAllSiteStores() as $siteStore) {
+        foreach (app(Stores::class)->getAllSiteStores() as $siteStore) {
             $data[$siteStore->uid] = $siteStore->getConfig();
         }
         return $data;
@@ -97,7 +97,7 @@ class ProjectConfigData
     private static function _getProductTypeData(): array
     {
         $data = [];
-        foreach (app(\CraftCms\Commerce\Catalog\ProductType\ProductTypes::class)->getAllProductTypes() as $productType) {
+        foreach (app(ProductTypes::class)->getAllProductTypes() as $productType) {
             $data[$productType->uid] = $productType->getConfig();
         }
         return $data;
@@ -106,8 +106,8 @@ class ProjectConfigData
     private static function _getEmailData(): array
     {
         $data = [];
-        app(\CraftCms\Commerce\Store\Stores::class)->getAllStores()->each(function(Store $store) use (&$data) {
-            foreach (app(\CraftCms\Commerce\Email\Emails::class)->getAllEmails($store->id) as $email) {
+        app(Stores::class)->getAllStores()->each(function(Store $store) use (&$data) {
+            foreach (app(Emails::class)->getAllEmails($store->id) as $email) {
                 $data[$email->uid] = $email->getConfig();
             }
         });
@@ -117,8 +117,8 @@ class ProjectConfigData
     private static function _getPdfData(): array
     {
         $data = [];
-        app(\CraftCms\Commerce\Store\Stores::class)->getAllStores()->each(function(Store $store) use (&$data) {
-            foreach (app(\CraftCms\Commerce\Pdf\Pdfs::class)->getAllPdfs($store->id) as $pdf) {
+        app(Stores::class)->getAllStores()->each(function(Store $store) use (&$data) {
+            foreach (app(Pdfs::class)->getAllPdfs($store->id) as $pdf) {
                 $data[$pdf->uid] = $pdf->getConfig();
             }
         });
@@ -128,8 +128,8 @@ class ProjectConfigData
     private static function _getLineItemStatusData(): array
     {
         $data = [];
-        app(\CraftCms\Commerce\Store\Stores::class)->getAllStores()->each(function(Store $store) use (&$data) {
-            foreach (app(\CraftCms\Commerce\Order\LineItemStatuses::class)->getAllLineItemStatuses($store->id) as $status) {
+        app(Stores::class)->getAllStores()->each(function(Store $store) use (&$data) {
+            foreach (app(LineItemStatuses::class)->getAllLineItemStatuses($store->id) as $status) {
                 $data[$status->uid] = $status->getConfig();
             }
         });
@@ -139,8 +139,8 @@ class ProjectConfigData
     private static function _getStatusData(): array
     {
         $data = [];
-        app(\CraftCms\Commerce\Store\Stores::class)->getAllStores()->each(function(Store $store) use (&$data) {
-            foreach (app(\CraftCms\Commerce\Order\OrderStatuses::class)->getAllOrderStatuses($store->id) as $status) {
+        app(Stores::class)->getAllStores()->each(function(Store $store) use (&$data) {
+            foreach (app(OrderStatuses::class)->getAllOrderStatuses($store->id) as $status) {
                 $data[$status->uid] = $status->getConfig();
             }
         });

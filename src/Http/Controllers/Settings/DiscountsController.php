@@ -10,7 +10,6 @@ use craft\commerce\db\Table;
 use craft\commerce\helpers\Localization;
 use craft\commerce\models\Coupon;
 use craft\commerce\models\Discount;
-use craft\commerce\services\Coupons;
 use craft\commerce\web\assets\coupons\CouponsAsset;
 use craft\db\Query;
 use craft\elements\Category;
@@ -34,6 +33,7 @@ use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Payment\Currencies;
+use CraftCms\Commerce\Promotion\Coupons;
 use CraftCms\Commerce\Promotion\Discounts;
 use CraftCms\Commerce\Promotion\Records\Discount as DiscountRecord;
 use CraftCms\Commerce\Purchasable\Purchasables;
@@ -702,7 +702,7 @@ JS;
         $existingCodes = $request->input('existingCodes', []);
 
         try {
-            $coupons = app(\CraftCms\Commerce\Promotion\Coupons::class)->generateCouponCodes(count: $count, format: $format, existingCodes: $existingCodes);
+            $coupons = app(Coupons::class)->generateCouponCodes(count: $count, format: $format, existingCodes: $existingCodes);
         } catch (\Exception $e) {
             return $this->asFailure(message: t('Unable to generate coupon codes: {message}', ['message' => $e->getMessage()], category: 'commerce'));
         }
