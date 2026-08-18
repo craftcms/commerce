@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where the Commerce dashboard widgets could cause a PHP error for users without edit permissions on any site. ([#4347](https://github.com/craftcms/commerce/issues/4347))
+
 ## 5.7.2 - 2026-08-12
 
 - Fixed a bug where inactive carts’ search index rows weren’t being purged. ([#4344](https://github.com/craftcms/commerce/issues/4344))
