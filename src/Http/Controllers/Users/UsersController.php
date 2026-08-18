@@ -6,7 +6,7 @@ namespace CraftCms\Commerce\Http\Controllers\Users;
 
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
-use craft\helpers\Html;
+use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Cp\Html\ElementIndexHtml;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Http\Controllers\Users\EditUserTrait;

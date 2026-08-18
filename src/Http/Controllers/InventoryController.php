@@ -17,7 +17,7 @@ use craft\db\Table as CraftTable;
 use craft\enums\MenuItemType;
 use craft\helpers\AdminTable;
 use craft\helpers\Cp;
-use craft\helpers\Html;
+use CraftCms\Cms\Support\Html;
 use craft\web\assets\htmx\HtmxAsset;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpModalResponse;

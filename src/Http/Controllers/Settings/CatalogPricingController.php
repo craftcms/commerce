@@ -9,7 +9,7 @@ use craft\commerce\models\CatalogPricing;
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\catalogpricing\CatalogPricingAsset;
 use craft\helpers\Cp;
-use craft\helpers\Html;
+use CraftCms\Cms\Support\Html;
 use craft\web\assets\htmx\HtmxAsset;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Facades\Elements;

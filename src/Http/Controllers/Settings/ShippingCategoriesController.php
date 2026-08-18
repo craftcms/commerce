@@ -8,7 +8,6 @@ use craft\commerce\models\ShippingCategory;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Support\Arr;
 use craft\helpers\Cp;
-use craft\helpers\Html;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
@@ -36,18 +35,18 @@ readonly class ShippingCategoriesController
 
         $tableData = [];
         foreach ($shippingCategories as $shippingCategory) {
-            $label = Html::encode(t($shippingCategory->name, category: 'site'));
+            $label = NewHtml::encode(t($shippingCategory->name, category: 'site'));
             $tableData[] = [
                 'id' => $shippingCategory->id,
                 'title' => $label,
                 'chip' => Cp::chipHtml($shippingCategory, [
-                    'labelHtml' => Html::a($label, $shippingCategory->getCpEditUrl(), [
+                    'labelHtml' => NewHtml::a($label, $shippingCategory->getCpEditUrl(), [
                         'class' => ['chip-label', 'cell-bold'],
                     ]),
                 ]),
                 'url' => $shippingCategory->getCpEditUrl(),
                 'handle' => $shippingCategory->handle,
-                'description' => Html::encode(t($shippingCategory->description, category: 'site')),
+                'description' => NewHtml::encode(t($shippingCategory->description, category: 'site')),
                 'default' => $shippingCategory->default,
                 '_showDelete' => (count($shippingCategories) > 1 && !$shippingCategory->default),
             ];
@@ -99,7 +98,7 @@ JS;
         HtmlStack::js($js, Position::BodyEnd);
 
         return $this->storeManagementCpScreen($storeHandle)
-            ->additionalButtonsHtml(Html::a(
+            ->additionalButtonsHtml(NewHtml::a(
                 t('New shipping category', category: 'commerce'),
                 $store->getStoreSettingsUrl('shippingcategories/new'),
                 ['class' => 'btn submit add icon']

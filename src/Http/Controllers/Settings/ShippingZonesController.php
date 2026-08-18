@@ -6,7 +6,6 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\Plugin;
-use craft\helpers\Html;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
@@ -33,12 +32,12 @@ readonly class ShippingZonesController
 
         $tableData = [];
         foreach ($shippingZones as $shippingZone) {
-            $label = Html::encode(t($shippingZone->name, category: 'site'));
+            $label = NewHtml::encode(t($shippingZone->name, category: 'site'));
             $tableData[] = [
                 'id' => $shippingZone->id,
-                'title' => Html::a($label, $shippingZone->getCpEditUrl()),
+                'title' => NewHtml::a($label, $shippingZone->getCpEditUrl()),
                 'url' => $shippingZone->getCpEditUrl(),
-                'description' => Html::encode(t($shippingZone->description, category: 'site')),
+                'description' => NewHtml::encode(t($shippingZone->description, category: 'site')),
             ];
         }
 
@@ -61,7 +60,7 @@ JS;
         HtmlStack::js($js, Position::BodyEnd);
 
         return $this->storeManagementCpScreen($storeHandle)
-            ->additionalButtonsHtml(Html::a(t('New shipping zone', category: 'commerce'), $store->getStoreSettingsUrl('shippingzones/new'), ['class' => 'btn submit add icon']))
+            ->additionalButtonsHtml(NewHtml::a(t('New shipping zone', category: 'commerce'), $store->getStoreSettingsUrl('shippingzones/new'), ['class' => 'btn submit add icon']))
             ->contentHtml(NewHtml::tag('div', '', ['id' => 'shipping-vue-admin-table']));
     }
 

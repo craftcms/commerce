@@ -16,6 +16,7 @@ use craft\commerce\Plugin;
 use craft\commerce\services\Transfers;
 use CraftCms\Cms\Element\Validation\ElementRules;
 use CraftCms\Cms\Http\RespondsWithFlash;
+use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Drafts;
 use CraftCms\Cms\Support\Facades\Elements;
@@ -200,15 +201,15 @@ readonly class TransfersController
                 ->contentHtml('Cant find transfer');
         }
 
-        $html = \craft\helpers\Html::beginTag('div', [
+        $html = Html::beginTag('div', [
             'hx' => [
                 'action' => 'commerce/transfers/receive-transfer-modal-content',
             ],
         ]);
 
-        $html .= \craft\helpers\Html::tag('h2', t('Receive Transfer', category: 'commerce'));
+        $html .= Html::tag('h2', t('Receive Transfer', category: 'commerce'));
 
-        $html .= \craft\helpers\Html::hiddenInput('transferId', $transferId);
+        $html .= Html::hiddenInput('transferId', $transferId);
 
         // @TODO Add shortcut links to accept-all and reject-all unreceived items in the receive-transfer modal
         // $html .= Html::a(t('Accept All Unreceived', category: 'commerce'), '#');
@@ -220,19 +221,19 @@ readonly class TransfersController
             $key = $detail->uid;
             $purchasable = $detail->getInventoryItem()?->getPurchasable(\craft\helpers\Cp::requestedSite()->id);
             $label = $purchasable ? \craft\helpers\Cp::elementChipHtml($purchasable) : $detail->inventoryItemDescription;
-            $tableRows .= \craft\helpers\Html::beginTag('tr');
-            $tableRows .= \craft\helpers\Html::tag('td', $label);
-            $tableRows .= \craft\helpers\Html::tag('td', (string)$detail->quantityAccepted, ['class' => 'rightalign']);
-            $tableRows .= \craft\helpers\Html::tag('td',
-                \craft\helpers\Html::input('number', 'details[' . $key . '][accept]', '', [
+            $tableRows .= Html::beginTag('tr');
+            $tableRows .= Html::tag('td', $label);
+            $tableRows .= Html::tag('td', (string)$detail->quantityAccepted, ['class' => 'rightalign']);
+            $tableRows .= Html::tag('td',
+                Html::input('number', 'details[' . $key . '][accept]', '', [
                     'class' => 'text fullwidth',
                     'disabled' => $deleted,
                     'placeholder' => $deleted ? t('"{name}" deleted.', ['name' => $detail->inventoryItemDescription]) : '',
                 ])
             );
-            $tableRows .= \craft\helpers\Html::tag('td', (string)$detail->quantityRejected, ['class' => 'rightalign']);
-            $tableRows .= \craft\helpers\Html::tag('td',
-                \craft\helpers\Html::input('number', 'details[' . $key . '][reject]', '', [
+            $tableRows .= Html::tag('td', (string)$detail->quantityRejected, ['class' => 'rightalign']);
+            $tableRows .= Html::tag('td',
+                Html::input('number', 'details[' . $key . '][reject]', '', [
                     'class' => 'text fullwidth',
                     'disabled' => $deleted,
                     'placeholder' => $deleted ? t('"{name}" deleted.', ['name' => $detail->inventoryItemDescription]) : '',
@@ -240,20 +241,20 @@ readonly class TransfersController
             );
         }
 
-        $html .= \craft\helpers\Html::tag('table',
-            \craft\helpers\Html::tag('thead',
-                \craft\helpers\Html::tag('tr',
-                    \craft\helpers\Html::tag('th', t('Item', category: 'commerce')) .
-                    \craft\helpers\Html::tag('th', t('Accepted', category: 'commerce'), ['class' => 'rightalign']) .
-                    \craft\helpers\Html::tag('th', t('Accept', category: 'commerce')) .
-                    \craft\helpers\Html::tag('th', t('Rejected', category: 'commerce'), ['class' => 'rightalign']) .
-                    \craft\helpers\Html::tag('th', t('Reject', category: 'commerce'))
+        $html .= Html::tag('table',
+            Html::tag('thead',
+                Html::tag('tr',
+                    Html::tag('th', t('Item', category: 'commerce')) .
+                    Html::tag('th', t('Accepted', category: 'commerce'), ['class' => 'rightalign']) .
+                    Html::tag('th', t('Accept', category: 'commerce')) .
+                    Html::tag('th', t('Rejected', category: 'commerce'), ['class' => 'rightalign']) .
+                    Html::tag('th', t('Reject', category: 'commerce'))
                 )
             ) .
             $tableRows,
             ['class' => 'data fullwidth']);
 
-        $html .= \craft\helpers\Html::endTag('div');
+        $html .= Html::endTag('div');
 
         return new CpScreenResponse()
             ->action('commerce/transfers/receive-transfer')

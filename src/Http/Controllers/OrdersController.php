@@ -1034,7 +1034,7 @@ JS, []);
                 ],
                 'single' => true,
             ]) .
-                implode('', array_map(fn($id) => \craft\helpers\Html::hiddenInput('oldUserIds[]', $id), $oldUserIds)))
+                implode('', array_map(fn($id) => Html::hiddenInput('oldUserIds[]', $id), $oldUserIds)))
             ->submitButtonLabel(t('Reassign'));
     }
 
@@ -1068,10 +1068,10 @@ JS, []);
 
         return new CpModalResponse()
             ->action('commerce/orders/remove-customer-data')
-            ->contentHtml(fn() => \craft\helpers\Html::tag('p', t('Remove customer association and email from the {numOrders, plural, =1{order} other{orders}}. Optionally select additional customer data to remove below', [
+            ->contentHtml(fn() => Html::tag('p', t('Remove customer association and email from the {numOrders, plural, =1{order} other{orders}}. Optionally select additional customer data to remove below', [
                 'numOrders' => count($orderIds),
             ], category: 'commerce')) .
-                \craft\helpers\Html::beginTag('div') .
+                Html::beginTag('div') .
                 \craft\helpers\Cp::checkboxSelectFieldHtml([
                     'label' => t('Customer data', category: 'commerce'),
                     'name' => 'customerData',
@@ -1083,8 +1083,8 @@ JS, []);
                     'values' => null,
                     'showAllOption' => true,
                 ]) .
-                \craft\helpers\Html::endTag('div') .
-                implode('', array_map(fn($id) => \craft\helpers\Html::hiddenInput('orderIds[]', (string)$id), $orderIds)))
+                Html::endTag('div') .
+                implode('', array_map(fn($id) => Html::hiddenInput('orderIds[]', (string)$id), $orderIds)))
             ->submitButtonLabel(t('Remove customer data', category: 'commerce'));
     }
 
@@ -1773,26 +1773,26 @@ JS, []);
                     'id' => $transaction->id,
                     'level' => $level,
                     'type' => [
-                        'label' => \craft\helpers\Html::encode(t(\CraftCms\Cms\Support\Str::title($transaction->type), category: 'commerce')),
+                        'label' => Html::encode(t(\CraftCms\Cms\Support\Str::title($transaction->type), category: 'commerce')),
                         'level' => $level,
                     ],
                     'status' => [
                         'key' => $transaction->status,
-                        'label' => \craft\helpers\Html::encode(t(\CraftCms\Cms\Support\Str::title($transaction->status), category: 'commerce')),
+                        'label' => Html::encode(t(\CraftCms\Cms\Support\Str::title($transaction->status), category: 'commerce')),
                     ],
                     'paymentAmount' => $transaction->paymentAmountAsCurrency,
                     'amount' => $transaction->amountAsCurrency,
-                    'gateway' => \craft\helpers\Html::encode($transaction->gateway->name ?? t('Missing Gateway', category: 'commerce')),
+                    'gateway' => Html::encode($transaction->gateway->name ?? t('Missing Gateway', category: 'commerce')),
                     'date' => $transaction->dateUpdated ? $transaction->dateUpdated->format('H:i:s (jS M Y)') : '',
                     'info' => [
-                        ['label' => \craft\helpers\Html::encode(t('Transaction ID', category: 'commerce')), 'type' => 'code', 'value' => $transaction->id],
-                        ['label' => \craft\helpers\Html::encode(t('Transaction Hash', category: 'commerce')), 'type' => 'code', 'value' => $transaction->hash],
-                        ['label' => \craft\helpers\Html::encode(t('Gateway Reference', category: 'commerce')), 'type' => 'code', 'value' => $transaction->reference],
-                        ['label' => \craft\helpers\Html::encode(t('Gateway Message', category: 'commerce')), 'type' => 'text', 'value' => $transactionMessage],
-                        ['label' => \craft\helpers\Html::encode(t('Note', category: 'commerce')), 'type' => 'text', 'value' => \craft\helpers\Html::encode($transaction->note)],
-                        ['label' => \craft\helpers\Html::encode(t('Gateway Code', category: 'commerce')), 'type' => 'code', 'value' => $transaction->code],
-                        ['label' => \craft\helpers\Html::encode(t('Converted Price', category: 'commerce')), 'type' => 'text', 'value' => $transaction->paymentAmountAsCurrency . ' <small class="light">(1 ' . $transaction->currency . ' = ' . $transaction->paymentRate . ' ' . $transaction->paymentCurrency . ')</small>'],
-                        ['label' => \craft\helpers\Html::encode(t('Gateway Response', category: 'commerce')), 'type' => 'response', 'value' => $transactionResponse],
+                        ['label' => Html::encode(t('Transaction ID', category: 'commerce')), 'type' => 'code', 'value' => $transaction->id],
+                        ['label' => Html::encode(t('Transaction Hash', category: 'commerce')), 'type' => 'code', 'value' => $transaction->hash],
+                        ['label' => Html::encode(t('Gateway Reference', category: 'commerce')), 'type' => 'code', 'value' => $transaction->reference],
+                        ['label' => Html::encode(t('Gateway Message', category: 'commerce')), 'type' => 'text', 'value' => $transactionMessage],
+                        ['label' => Html::encode(t('Note', category: 'commerce')), 'type' => 'text', 'value' => Html::encode($transaction->note)],
+                        ['label' => Html::encode(t('Gateway Code', category: 'commerce')), 'type' => 'code', 'value' => $transaction->code],
+                        ['label' => Html::encode(t('Converted Price', category: 'commerce')), 'type' => 'text', 'value' => $transaction->paymentAmountAsCurrency . ' <small class="light">(1 ' . $transaction->currency . ' = ' . $transaction->paymentRate . ' ' . $transaction->paymentCurrency . ')</small>'],
+                        ['label' => Html::encode(t('Gateway Response', category: 'commerce')), 'type' => 'response', 'value' => $transactionResponse],
                     ],
                     'actions' => $refundCapture,
                 ];
@@ -1862,8 +1862,8 @@ JS, []);
                 ];
                 $row['newLineItemUid'] = (string)\CraftCms\Cms\Support\Str::uuid();
                 $row['newLineItemOptionsSignature'] = LineItemHelper::generateOptionsSignature([]);
-                $row['description'] = \craft\helpers\Html::encode($row['description']);
-                $row['sku'] = \craft\helpers\Html::encode($row['sku']);
+                $row['description'] = Html::encode($row['description']);
+                $row['sku'] = Html::encode($row['sku']);
                 $row['qty'] = '';
                 $purchasables[] = $row;
             }

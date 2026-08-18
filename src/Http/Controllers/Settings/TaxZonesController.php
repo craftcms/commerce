@@ -7,7 +7,6 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\Plugin;
 use craft\helpers\Cp;
-use craft\helpers\Html;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
@@ -34,12 +33,12 @@ readonly class TaxZonesController
 
         $tableData = [];
         foreach ($taxZones as $taxZone) {
-            $label = Html::encode(t($taxZone->name, category: 'site'));
+            $label = NewHtml::encode(t($taxZone->name, category: 'site'));
             $tableData[] = [
                 'id' => $taxZone->id,
-                'title' => Html::a($label, $taxZone->getCpEditUrl()),
+                'title' => NewHtml::a($label, $taxZone->getCpEditUrl()),
                 'url' => $taxZone->getCpEditUrl(),
-                'description' => Html::encode(t($taxZone->description, category: 'site')),
+                'description' => NewHtml::encode(t($taxZone->description, category: 'site')),
                 'default' => $taxZone->default,
             ];
         }
@@ -71,7 +70,7 @@ JS;
         HtmlStack::js($js, Position::BodyEnd);
 
         return $this->storeManagementCpScreen($storeHandle)
-            ->additionalButtonsHtml(Html::a(t('New tax zone', category: 'commerce'), $store->getStoreSettingsUrl('taxzones/new'), ['class' => 'btn submit add icon']))
+            ->additionalButtonsHtml(NewHtml::a(t('New tax zone', category: 'commerce'), $store->getStoreSettingsUrl('taxzones/new'), ['class' => 'btn submit add icon']))
             ->contentHtml(NewHtml::tag('div', '', ['id' => 'tax-vue-admin-table']));
     }
 

@@ -9,7 +9,6 @@ use craft\commerce\helpers\Localization;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\helpers\Cp;
-use craft\helpers\Html;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Translation\Locale;
 use CraftCms\Cms\Http\RespondsWithFlash;
@@ -45,17 +44,17 @@ readonly class TaxRatesController
 
         $tableData = [];
         foreach ($taxRates as $taxRate) {
-            $label = Html::encode(t($taxRate->name, category: 'site'));
+            $label = NewHtml::encode(t($taxRate->name, category: 'site'));
             $tableData[] = [
                 'id' => $taxRate->id,
                 'status' => $taxRate->enabled,
-                'title' => Html::a($label, $taxRate->getCpEditUrl()),
+                'title' => NewHtml::a($label, $taxRate->getCpEditUrl()),
                 'url' => $taxRate->getCpEditUrl(),
                 'rate' => $taxRate->getRateAsPercent(),
                 'included' => $taxRate->include,
                 'removeIncluded' => $taxRate->removeIncluded,
                 'vat' => $taxRate->isVat,
-                'zone' => $taxRate->isEverywhere ? t('Everywhere', category: 'commerce') : ($taxRate->taxZone ? Html::encode($taxRate->taxZone->name) : ''),
+                'zone' => $taxRate->isEverywhere ? t('Everywhere', category: 'commerce') : ($taxRate->taxZone ? NewHtml::encode($taxRate->taxZone->name) : ''),
                 'category' => $taxRate->taxCategory ? Cp::chipHtml($taxRate->taxCategory) : '',
             ];
         }
@@ -63,7 +62,7 @@ readonly class TaxRatesController
         $buttonsHtml = Plugin::getInstance()->getTaxes()->taxRateActionHtml();
 
         if (Plugin::getInstance()->getTaxes()->createTaxRates()) {
-            $buttonsHtml .= Html::a(t('New tax rate', category: 'commerce'), "commerce/store-management/$storeHandle/taxrates/new", [
+            $buttonsHtml .= NewHtml::a(t('New tax rate', category: 'commerce'), "commerce/store-management/$storeHandle/taxrates/new", [
                 'class' => 'btn submit add icon',
             ]);
         }

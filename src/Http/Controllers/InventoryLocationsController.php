@@ -9,6 +9,7 @@ use craft\commerce\models\InventoryLocation;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\FieldLayout\FieldLayoutCompiler;
+use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\FieldLayout\LayoutElements\Addresses\AddressField;
 use CraftCms\Cms\Form\Enums\ControlMode;
 use CraftCms\Cms\Form\FormContext;
@@ -46,7 +47,7 @@ readonly class InventoryLocationsController
         $userCanCreate = $currentUser?->can('commerce-createLocations');
 
         if ($userCanCreate && $showNewButton) {
-            $button = \craft\helpers\Html::a(
+            $button = Html::a(
                 t('New location', category: 'commerce'),
                 'commerce/inventory-locations/new',
                 ['class' => 'btn submit add icon']
@@ -100,7 +101,7 @@ readonly class InventoryLocationsController
         // These used to be injected directly into the compiled form's first tab; they're rendered
         // ahead of the form's own HTML instead now, namespaced to match (see _edit.twig).
         $extraFieldsHtml =
-            \craft\helpers\Html::hiddenInput('inventoryLocationId', (string)$inventoryLocationId) .
+            Html::hiddenInput('inventoryLocationId', (string)$inventoryLocationId) .
             \craft\helpers\Cp::textFieldHtml([
                 'name' => 'name',
                 'id' => 'name',
@@ -117,8 +118,8 @@ readonly class InventoryLocationsController
                 'label' => t('Handle', category: 'commerce'),
                 'errors' => $inventoryLocation->getErrors('handle'),
             ]) .
-            \craft\helpers\Html::hiddenInput('id', (string)$address->id) .
-            \craft\helpers\Html::tag('hr');
+            Html::hiddenInput('id', (string)$address->id) .
+            Html::tag('hr');
 
         $variables = [
             'inventoryLocationId' => $inventoryLocationId,
@@ -228,7 +229,7 @@ readonly class InventoryLocationsController
             $id = $inventoryLocation->id;
             $deleteButtonId = sprintf("deleteButton-$id-%s", mt_rand());
 
-            $deleteButton = \craft\helpers\Html::a('', '#', [
+            $deleteButton = Html::a('', '#', [
                 'role' => 'button',
                 'title' => t('Delete', category: 'commerce'),
                 'class' => 'delete icon',
@@ -253,7 +254,7 @@ JS, [
                 'id' => $inventoryLocation->id,
                 'title' => $inventoryLocation->getUiLabel(),
                 'handle' => $inventoryLocation->handle,
-                'address' => \craft\helpers\Html::encode($inventoryLocation->getAddressLine()),
+                'address' => Html::encode($inventoryLocation->getAddressLine()),
                 'url' => $inventoryLocation->getCpEditUrl(),
                 'delete' => $inventoryLocations->count() > 1 ? $deleteButton : '',
             ];

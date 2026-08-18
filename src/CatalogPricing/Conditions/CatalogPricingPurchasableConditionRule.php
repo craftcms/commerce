@@ -6,7 +6,7 @@ namespace CraftCms\Commerce\CatalogPricing\Conditions;
 
 use craft\commerce\Plugin;
 use craft\helpers\Cp;
-use craft\helpers\Html;
+use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Condition\BaseConditionRule;
 use CraftCms\Commerce\CatalogPricing\Contracts\CatalogPricingConditionRuleInterface;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;

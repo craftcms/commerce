@@ -9,7 +9,7 @@ use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
 use craft\commerce\helpers\Cp as CommerceCp;
 use craft\commerce\Plugin;
 use craft\helpers\Cp;
-use craft\helpers\Html;
+use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Http\RespondsWithFlash;

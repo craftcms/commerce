@@ -7,7 +7,6 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\Plugin;
 use craft\helpers\Cp;
-use craft\helpers\Html;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
@@ -36,14 +35,14 @@ readonly class ShippingMethodsController
 
         $tableData = [];
         foreach ($shippingMethods as $shippingMethod) {
-            $label = Html::encode(t($shippingMethod->name, category: 'site'));
+            $label = NewHtml::encode(t($shippingMethod->name, category: 'site'));
             $tableData[] = [
                 'id' => $shippingMethod->id,
                 'title' => $label,
                 'chip' => Cp::chipHtml($shippingMethod, [
                     'showStatus' => true,
                     'showThumb' => true,
-                    'labelHtml' => Html::a($label, $shippingMethod->getCpEditUrl(), [
+                    'labelHtml' => NewHtml::a($label, $shippingMethod->getCpEditUrl(), [
                         'class' => ['chip-label', 'cell-bold'],
                     ]),
                 ]),
@@ -99,7 +98,7 @@ JS;
         HtmlStack::js($js, Position::BodyEnd);
 
         return $this->storeManagementCpScreen($storeHandle)
-            ->additionalButtonsHtml(Html::a(t('New shipping method', category: 'commerce'), $store->getStoreSettingsUrl('shippingmethods/new'), ['class' => 'btn submit add icon']))
+            ->additionalButtonsHtml(NewHtml::a(t('New shipping method', category: 'commerce'), $store->getStoreSettingsUrl('shippingmethods/new'), ['class' => 'btn submit add icon']))
             ->contentHtml(NewHtml::tag('div', '', ['id' => 'shipping-vue-admin-table']));
     }
 
@@ -124,7 +123,7 @@ JS;
             ? Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($shippingMethod->id)
             : [];
 
-        $metaDataHtml = Html::beginTag('div', ['class' => 'meta']) .
+        $metaDataHtml = NewHtml::beginTag('div', ['class' => 'meta']) .
             Cp::lightswitchFieldHtml([
                 'label' => t('Enable this shipping method on the front end', category: 'commerce'),
                 'id' => 'enabled',
@@ -132,7 +131,7 @@ JS;
                 'on' => $shippingMethod->enabled,
                 'errors' => $shippingMethod->getErrors('enabled'),
             ]) .
-            Html::endTag('div');
+            NewHtml::endTag('div');
 
         if ($shippingMethod->id) {
             $metaDataHtml .= Cp::metadataHtml([

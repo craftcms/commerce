@@ -9,7 +9,6 @@ use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Support\Arr;
 use craft\helpers\Cp;
-use craft\helpers\Html;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
@@ -36,19 +35,19 @@ readonly class TaxCategoriesController
 
         $tableData = [];
         foreach ($taxCategories as $taxCategory) {
-            $label = Html::encode(t($taxCategory->name, category: 'site'));
+            $label = NewHtml::encode(t($taxCategory->name, category: 'site'));
             $taxRates = $taxCategory->getTaxRates($store->id);
             $tableData[] = [
                 'id' => $taxCategory->id,
                 'title' => $label,
                 'chip' => Cp::chipHtml($taxCategory, [
-                    'labelHtml' => Html::a($label, $taxCategory->getCpEditUrl($store->id), [
+                    'labelHtml' => NewHtml::a($label, $taxCategory->getCpEditUrl($store->id), [
                         'class' => ['chip-label', 'cell-bold'],
                     ]),
                 ]),
                 'url' => $taxCategory->getCpEditUrl($store->id),
                 'handle' => $taxCategory->handle,
-                'description' => Html::encode(t($taxCategory->description, category: 'site')),
+                'description' => NewHtml::encode(t($taxCategory->description, category: 'site')),
                 'default' => $taxCategory->default,
                 '_showDelete' => $taxRates->isEmpty() && (count($taxCategories) > 1 && !$taxCategory->default),
             ];
@@ -56,7 +55,7 @@ readonly class TaxCategoriesController
 
         $buttons = Plugin::getInstance()->getTaxes()->taxCategoryActionHtml();
         if (Plugin::getInstance()->getTaxes()->createTaxCategories()) {
-            $buttons .= Html::a(t('New tax category', category: 'commerce'), $store->getStoreSettingsUrl('taxcategories/new'), [
+            $buttons .= NewHtml::a(t('New tax category', category: 'commerce'), $store->getStoreSettingsUrl('taxcategories/new'), [
                 'class' => ['btn', 'submit', 'add', 'icon'],
             ]);
         }

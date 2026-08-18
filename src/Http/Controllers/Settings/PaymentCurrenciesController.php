@@ -8,7 +8,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
 use craft\helpers\Cp;
-use craft\helpers\Html;
+use CraftCms\Cms\Support\Html;
 use craft\i18n\Formatter;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;

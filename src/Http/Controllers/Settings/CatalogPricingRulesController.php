@@ -13,7 +13,7 @@ use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
 use craft\helpers\Cp;
 use CraftCms\Cms\Support\DateTimeHelper;
-use craft\helpers\Html;
+use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Json;
 use craft\helpers\Localization;
 use CraftCms\Cms\Support\Money;
