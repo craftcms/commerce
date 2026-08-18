@@ -7,7 +7,7 @@ namespace CraftCms\Commerce\Catalog\ProductType\Data;
 use craft\commerce\fieldlayoutelements\VariantsField;
 use CraftCms\Cms\Element\Enums\PropagationMethod;
 use craft\helpers\Db;
-use craft\helpers\StringHelper;
+use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Support\Arr;
@@ -309,7 +309,7 @@ class ProductType extends Component implements FieldLayoutProviderInterface
             $layoutTabs = $fieldLayout->getTabs();
             $variantTabName = t('Variants', category: 'commerce');
             if (Arr::contains($layoutTabs, 'name', $variantTabName)) {
-                $variantTabName .= ' ' . StringHelper::randomString(10);
+                $variantTabName .= ' ' . Str::random(10);
             }
 
             $contentTab = new FieldLayoutTab();
@@ -490,7 +490,7 @@ class ProductType extends Component implements FieldLayoutProviderInterface
 
         if ($this->isStructure) {
             $config['structure'] = [
-                'uid' => $this->structureId ? Db::uidById(CraftTable::STRUCTURES, $this->structureId) : StringHelper::UUID(),
+                'uid' => $this->structureId ? Db::uidById(CraftTable::STRUCTURES, $this->structureId) : (string)Str::uuid(),
             ];
         }
 
@@ -499,7 +499,7 @@ class ProductType extends Component implements FieldLayoutProviderInterface
 
             if ($fieldLayoutConfig) {
                 if (empty($fieldLayout->id)) {
-                    $layoutUid = StringHelper::UUID();
+                    $layoutUid = (string)Str::uuid();
                     $fieldLayout->uid = $layoutUid;
                 } else {
                     $layoutUid = Db::uidById(CraftTable::FIELDLAYOUTS, $fieldLayout->id);

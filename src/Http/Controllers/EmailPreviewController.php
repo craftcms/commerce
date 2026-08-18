@@ -8,7 +8,6 @@ use craft\commerce\elements\Order;
 use craft\commerce\helpers\Locale;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
-use craft\helpers\StringHelper;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\View\TemplateMode;
 use Illuminate\Http\Request;
@@ -22,8 +21,8 @@ readonly class EmailPreviewController
     public function render(Request $request): string
     {
         $email = $request->input('email');
-        $emailId = (int)StringHelper::split($email, ':')[0];
-        $storeId = (int)StringHelper::split($email, ':')[1];
+        $emailId = (int)preg_split('/\s*:\s*/', $email, -1, PREG_SPLIT_NO_EMPTY)[0];
+        $storeId = (int)preg_split('/\s*:\s*/', $email, -1, PREG_SPLIT_NO_EMPTY)[1];
         $email = Plugin::getInstance()->getEmails()->getEmailById($emailId, $storeId);
 
         $orderNumber = $request->input('number');

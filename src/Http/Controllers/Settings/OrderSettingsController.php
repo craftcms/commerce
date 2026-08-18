@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\commerce\services\Orders;
-use craft\helpers\StringHelper;
+use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Facades\Fields;
@@ -62,7 +62,7 @@ readonly class OrderSettingsController
         if ($currentOrderFieldLayout = ProjectConfig::get(Orders::CONFIG_FIELDLAYOUT_KEY)) {
             $uid = array_key_first($currentOrderFieldLayout);
         } else {
-            $uid = StringHelper::UUID();
+            $uid = (string)Str::uuid();
         }
 
         $configData = [$uid => $fieldLayout->getConfig()];

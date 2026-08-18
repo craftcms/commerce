@@ -7,7 +7,7 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 use craft\commerce\elements\Transfer;
 use craft\commerce\Plugin;
 use craft\commerce\services\Transfers;
-use craft\helpers\StringHelper;
+use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Facades\Fields;
@@ -72,7 +72,7 @@ readonly class SettingsController
         if ($currentTransfersFieldLayout = ProjectConfig::get(Transfers::CONFIG_FIELDLAYOUT_KEY)) {
             $uid = array_key_first($currentTransfersFieldLayout);
         } else {
-            $uid = StringHelper::UUID();
+            $uid = (string)Str::uuid();
         }
 
         $configData = [$uid => $fieldLayout->getConfig()];

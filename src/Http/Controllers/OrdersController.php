@@ -1594,7 +1594,7 @@ JS, []);
             $isPromotable = $lineItemData['isPromotable'] ?? null;
             $isShippable = $lineItemData['isShippable'] ?? null;
             $isTaxable = $lineItemData['isTaxable'] ?? null;
-            $uid = $lineItemData['uid'] ?? \craft\helpers\StringHelper::UUID();
+            $uid = $lineItemData['uid'] ?? (string)\CraftCms\Cms\Support\Str::uuid();
 
             if ($lineItemId) {
                 $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
@@ -1772,12 +1772,12 @@ JS, []);
                     'id' => $transaction->id,
                     'level' => $level,
                     'type' => [
-                        'label' => \craft\helpers\Html::encode(t(\craft\helpers\StringHelper::toTitleCase($transaction->type), category: 'commerce')),
+                        'label' => \craft\helpers\Html::encode(t(\CraftCms\Cms\Support\Str::title($transaction->type), category: 'commerce')),
                         'level' => $level,
                     ],
                     'status' => [
                         'key' => $transaction->status,
-                        'label' => \craft\helpers\Html::encode(t(\craft\helpers\StringHelper::toTitleCase($transaction->status), category: 'commerce')),
+                        'label' => \craft\helpers\Html::encode(t(\CraftCms\Cms\Support\Str::title($transaction->status), category: 'commerce')),
                     ],
                     'paymentAmount' => $transaction->paymentAmountAsCurrency,
                     'amount' => $transaction->amountAsCurrency,
@@ -1859,7 +1859,7 @@ JS, []);
                     'content' => $purchasable->getSnapshot(),
                     'showAsList' => true,
                 ];
-                $row['newLineItemUid'] = \craft\helpers\StringHelper::UUID();
+                $row['newLineItemUid'] = (string)\CraftCms\Cms\Support\Str::uuid();
                 $row['newLineItemOptionsSignature'] = LineItemHelper::generateOptionsSignature([]);
                 $row['description'] = \craft\helpers\Html::encode($row['description']);
                 $row['sku'] = \craft\helpers\Html::encode($row['sku']);

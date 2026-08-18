@@ -10,7 +10,7 @@ use craft\events\DeleteSiteEvent;
 use craft\events\SiteEvent;
 use craft\helpers\Cp;
 use craft\helpers\Db as CraftDb;
-use craft\helpers\StringHelper;
+use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\Element\Jobs\ResaveElements;
 use CraftCms\Cms\FieldLayout\FieldLayout;
 use CraftCms\Cms\ProjectConfig\ProjectConfigHelper;
@@ -256,7 +256,7 @@ class ProductTypes
         }
 
         if ($isNewProductType) {
-            $productType->uid = StringHelper::UUID();
+            $productType->uid = (string)Str::uuid();
         } else {
             $existingRecord = ProductTypeRecord::query()->find($productType->id);
 

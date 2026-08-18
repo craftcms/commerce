@@ -8,7 +8,7 @@ use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use CraftCms\Cms\Support\Arr;
 use craft\helpers\Cp;
-use craft\helpers\StringHelper;
+use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Form\Controls\Lightswitch;
 use CraftCms\Cms\Form\Form;
@@ -125,7 +125,7 @@ class TotalOrders extends Widget
         $timeFrame = $this->stat->getDateRangeWording();
         $number = I18N::getFormatter()->asInteger($number);
 
-        $id = 'total-orders' . StringHelper::randomString();
+        $id = 'total-orders' . Str::random();
         $namespaceId = InputNamespace::namespaceId($id);
 
         \Craft::$app->getView()->registerAssetBundle(StatWidgetsAsset::class);

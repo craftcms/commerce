@@ -8,7 +8,7 @@ use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use CraftCms\Cms\Support\Arr;
 use craft\helpers\Cp;
-use craft\helpers\StringHelper;
+use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Form\Controls\Choice;
 use CraftCms\Cms\Form\Form;
@@ -119,7 +119,7 @@ class TotalOrdersByCountry extends Widget
 
         \Craft::$app->getView()->registerAssetBundle(StatWidgetsAsset::class);
 
-        $id = 'total-orders-by-country' . StringHelper::randomString();
+        $id = 'total-orders-by-country' . Str::random();
         $namespaceId = InputNamespace::namespaceId($id);
 
         $labels = Arr::pluck($stats, 'name');

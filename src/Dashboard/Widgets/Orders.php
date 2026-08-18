@@ -9,7 +9,7 @@ use craft\commerce\Plugin;
 use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\orderswidget\OrdersWidgetAsset;
 use craft\helpers\Cp;
-use craft\helpers\StringHelper;
+use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Form\Controls\Choice;
 use CraftCms\Cms\Form\Controls\Number;
@@ -78,7 +78,7 @@ class Orders extends Widget
     {
         $orders = $this->getOrders();
 
-        $id = 'recent-orders-settings-' . StringHelper::randomString();
+        $id = 'recent-orders-settings-' . Str::random();
         $namespaceId = InputNamespace::namespaceId($id);
 
         return template('commerce/_components/widgets/orders/recent/body', [

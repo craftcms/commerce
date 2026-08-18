@@ -7,7 +7,7 @@ namespace CraftCms\Commerce\Dashboard\Widgets;
 use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\Cp;
-use craft\helpers\StringHelper;
+use CraftCms\Cms\Support\Str;
 use craft\web\assets\admintable\AdminTableAsset;
 use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Form\Controls\Choice;
@@ -137,7 +137,7 @@ class TopPurchasables extends Widget
             'nameField' => $this->nameField,
             'nameFieldLabel' => $this->nameFieldOptions[$this->nameField] ?? '',
             'typeLabel' => $this->typeOptions[$this->type] ?? '',
-            'id' => 'top-purchasables' . StringHelper::randomString(),
+            'id' => 'top-purchasables' . Str::random(),
         ], TemplateMode::Cp);
     }
 

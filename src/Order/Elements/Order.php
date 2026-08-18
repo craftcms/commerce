@@ -16,7 +16,6 @@ use craft\commerce\errors\LineItemNotFoundException;
 use craft\commerce\errors\OrderAdjustmentNotFoundException;
 use craft\commerce\Plugin;
 use craft\errors\MutexException;
-use craft\helpers\StringHelper;
 use CraftCms\Cms\Address\Elements\Address as AddressElement;
 use CraftCms\Cms\Component\ComponentHelper;
 use CraftCms\Cms\Cp\Html\StatusHtml;
@@ -2269,7 +2268,7 @@ class Order extends Element implements HasStoreInterface
         $teller = $this->getTeller();
 
         if (is_string($types)) {
-            $types = StringHelper::split($types);
+            $types = preg_split('/\s*,\s*/', $types, -1, PREG_SPLIT_NO_EMPTY);
         }
 
         foreach ($this->getAdjustments() as $adjustment) {

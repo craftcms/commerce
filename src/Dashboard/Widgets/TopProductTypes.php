@@ -7,7 +7,7 @@ namespace CraftCms\Commerce\Dashboard\Widgets;
 use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\Cp;
-use craft\helpers\StringHelper;
+use CraftCms\Cms\Support\Str;
 use craft\web\assets\admintable\AdminTableAsset;
 use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Form\Controls\Choice;
@@ -122,7 +122,7 @@ class TopProductTypes extends Widget
             'stats' => $stats,
             'type' => $this->type,
             'typeLabel' => $this->typeOptions[$this->type] ?? '',
-            'id' => 'top-product-types' . StringHelper::randomString(),
+            'id' => 'top-product-types' . Str::random(),
         ], TemplateMode::Cp);
     }
 

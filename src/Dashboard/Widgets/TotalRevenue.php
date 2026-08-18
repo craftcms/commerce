@@ -8,7 +8,7 @@ use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use CraftCms\Cms\Support\Arr;
 use craft\helpers\Cp;
-use craft\helpers\StringHelper;
+use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Form\Controls\Choice;
 use CraftCms\Cms\Form\Controls\Lightswitch;
@@ -117,7 +117,7 @@ class TotalRevenue extends Widget
 
         \Craft::$app->getView()->registerAssetBundle(StatWidgetsAsset::class);
 
-        $id = 'total-revenue' . StringHelper::randomString();
+        $id = 'total-revenue' . Str::random();
         $namespaceId = InputNamespace::namespaceId($id);
 
         if (empty($stats)) {

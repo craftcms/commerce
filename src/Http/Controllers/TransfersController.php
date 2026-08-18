@@ -111,7 +111,7 @@ readonly class TransfersController
         if ($currentTransfersFieldLayout = ProjectConfig::get(Transfers::CONFIG_FIELDLAYOUT_KEY)) {
             $uid = array_key_first($currentTransfersFieldLayout);
         } else {
-            $uid = \craft\helpers\StringHelper::UUID();
+            $uid = (string)\CraftCms\Cms\Support\Str::uuid();
         }
 
         $configData = [$uid => $fieldLayout->getConfig()];
@@ -295,7 +295,7 @@ readonly class TransfersController
             $addInventoryItemId = $request->input('newInventoryItemId', null);
             if ($addItem && $addInventoryItemId) {
                 $transfer->addDetail(new TransferDetail([
-                    'uid' => \craft\helpers\StringHelper::UUID(),
+                    'uid' => (string)\CraftCms\Cms\Support\Str::uuid(),
                     'inventoryItemId' => $addInventoryItemId,
                     'quantity' => 1,
                 ]));
