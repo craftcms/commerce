@@ -186,11 +186,11 @@ class OrdersController
 
                 $movement = new InventoryFulfillMovement();
                 $movement->fromInventoryLocation = $inventoryLocation;
-                $movement->inventoryItemId = $fulfillment['inventoryItemId'];
+                $movement->inventoryItemId = (int)$fulfillment['inventoryItemId'];
                 $movement->toInventoryLocation = $inventoryLocation;
                 $movement->fromInventoryTransactionType = InventoryTransactionType::COMMITTED;
                 $movement->toInventoryTransactionType = InventoryTransactionType::FULFILLED;
-                $movement->lineItemId = $fulfillment['lineItemId'];
+                $movement->lineItemId = (int)$fulfillment['lineItemId'];
                 $movement->quantity = $qty;
                 $movement->userId = currentUser()?->id;
                 $movements[] = $movement;

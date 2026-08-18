@@ -99,8 +99,8 @@ readonly class PdfsController
     public function save(Request $request): Response
     {
         $pdfsService = app(Pdfs::class);
-        $pdfId = $request->input('id');
-        $storeId = $request->input('storeId');
+        $pdfId = $request->input('id') ? (int)$request->input('id') : null;
+        $storeId = $request->input('storeId') ? (int)$request->input('storeId') : null;
 
         if ($pdfId) {
             $pdf = $pdfsService->getPdfById($pdfId, $storeId);
@@ -136,7 +136,7 @@ readonly class PdfsController
         $id = $request->input('id');
         abort_if(!$id, 400, 'Missing PDF id');
 
-        app(Pdfs::class)->deletePdfById($id);
+        app(Pdfs::class)->deletePdfById((int)$id);
 
         return $this->asSuccess();
     }

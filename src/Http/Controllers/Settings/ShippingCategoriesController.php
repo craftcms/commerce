@@ -163,8 +163,10 @@ JS;
     {
         $shippingCategory = new ShippingCategory();
 
-        $shippingCategory->id = $request->input('shippingCategoryId');
-        $shippingCategory->storeId = $request->input('storeId');
+        $shippingCategoryId = $request->input('shippingCategoryId');
+        $shippingCategory->id = $shippingCategoryId ? (int)$shippingCategoryId : null;
+        $storeId = $request->input('storeId');
+        $shippingCategory->storeId = $storeId ? (int)$storeId : null;
         $shippingCategory->name = $request->input('name');
         $shippingCategory->handle = $request->input('handle');
         $shippingCategory->icon = $request->input('icon');
@@ -178,7 +180,7 @@ JS;
             $postedProductTypes = $request->input('productTypes', []) ?: [];
             $productTypes = [];
             foreach ($postedProductTypes as $productTypeId) {
-                if ($productTypeId && $productType = app(ProductTypes::class)->getProductTypeById($productTypeId)) {
+                if ($productTypeId && $productType = app(ProductTypes::class)->getProductTypeById((int)$productTypeId)) {
                     $productTypes[] = $productType;
                 }
             }
@@ -218,7 +220,7 @@ JS;
 
         $failedIds = [];
         foreach ($ids as $deleteId) {
-            if (!app(ShippingCategories::class)->deleteShippingCategoryById($deleteId)) {
+            if (!app(ShippingCategories::class)->deleteShippingCategoryById((int)$deleteId)) {
                 $failedIds[] = $deleteId;
             }
         }
@@ -242,7 +244,7 @@ JS;
         if (!empty($ids)) {
             $id = Arr::first($ids);
 
-            $shippingCategory = app(ShippingCategories::class)->getShippingCategoryById($id, $store->id);
+            $shippingCategory = app(ShippingCategories::class)->getShippingCategoryById((int)$id, $store->id);
             if ($shippingCategory) {
                 $shippingCategory->default = true;
                 if (app(ShippingCategories::class)->saveShippingCategory($shippingCategory)) {

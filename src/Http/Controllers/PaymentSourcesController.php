@@ -31,6 +31,7 @@ readonly class PaymentSourcesController
         // Allow setting the payment method at time of submitting payment.
         $gatewayId = $request->input('gatewayId');
         abort_if(!$gatewayId, 400, 'Missing gatewayId');
+        $gatewayId = (int)$gatewayId;
 
         $isPrimaryPaymentSource = $request->input('isPrimaryPaymentSource', false);
 

@@ -172,7 +172,7 @@ JS;
     {
         $taxCategory = new TaxCategory();
 
-        $taxCategory->id = $request->input('taxCategoryId');
+        $taxCategory->id = $request->input('taxCategoryId') ? (int)$request->input('taxCategoryId') : null;
         $taxCategory->name = $request->input('name');
         $taxCategory->handle = $request->input('handle');
         $taxCategory->icon = $request->input('icon');
@@ -183,7 +183,7 @@ JS;
         $postedProductTypes = $request->input('productTypes', []) ?: [];
         $productTypes = [];
         foreach ($postedProductTypes as $productTypeId) {
-            if ($productTypeId && $productType = app(ProductTypes::class)->getProductTypeById($productTypeId)) {
+            if ($productTypeId && $productType = app(ProductTypes::class)->getProductTypeById((int)$productTypeId)) {
                 $productTypes[] = $productType;
             }
         }
@@ -218,7 +218,7 @@ JS;
 
         $failedIds = [];
         foreach ($ids as $deleteId) {
-            if (!app(TaxCategories::class)->deleteTaxCategoryById($deleteId)) {
+            if (!app(TaxCategories::class)->deleteTaxCategoryById((int)$deleteId)) {
                 $failedIds[] = $deleteId;
             }
         }
@@ -239,7 +239,7 @@ JS;
 
         $id = Arr::first($ids);
 
-        $taxCategory = app(TaxCategories::class)->getTaxCategoryById($id);
+        $taxCategory = app(TaxCategories::class)->getTaxCategoryById((int)$id);
         if ($taxCategory) {
             $taxCategory->default = true;
             if (app(TaxCategories::class)->saveTaxCategory($taxCategory)) {

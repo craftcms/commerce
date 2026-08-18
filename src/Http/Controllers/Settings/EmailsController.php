@@ -112,9 +112,10 @@ readonly class EmailsController
     public function save(Request $request): Response
     {
         $emailsService = app(Emails::class);
-        $emailId = $request->input('emailId');
+        $emailId = $request->input('emailId') ? (int)$request->input('emailId') : null;
         $storeId = $request->input('storeId');
         abort_if(!$storeId, 400, "Invalid store ID: $storeId");
+        $storeId = (int)$storeId;
 
         if ($emailId) {
             $email = $emailsService->getEmailById($emailId, $storeId);
@@ -137,7 +138,7 @@ readonly class EmailsController
         $email->templatePath = $request->input('templatePath');
         $email->plainTextTemplatePath = $request->input('plainTextTemplatePath');
         $pdfId = $request->input('pdfId');
-        $email->pdfId = $pdfId ?: null;
+        $email->pdfId = $pdfId ? (int)$pdfId : null;
         $email->language = $request->input('language');
         $email->renderSiteId = $renderSiteId ? (int)$renderSiteId : null;
         $email->setSenderAddress($request->input('senderAddress'));
@@ -157,7 +158,7 @@ readonly class EmailsController
         $id = $request->input('id');
         abort_if(!$id, 400, 'Missing email id');
 
-        if (!app(Emails::class)->deleteEmailById($id)) {
+        if (!app(Emails::class)->deleteEmailById((int)$id)) {
             return $this->asFailure(t('Couldn\'t delete email.', category: 'commerce'));
         }
 

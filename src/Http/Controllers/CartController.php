@@ -278,6 +278,7 @@ class CartController
 
         // Set Payment Gateway on cart
         if ($gatewayId = $request->input('gatewayId')) {
+            $gatewayId = (int)$gatewayId;
             if (app(Gateways::class)->getGatewayById($gatewayId)) {
                 $this->cart->setGatewayId($gatewayId);
             }
@@ -285,7 +286,7 @@ class CartController
 
         // Submit payment source on cart
         if (($paymentSourceId = $request->input('paymentSourceId')) !== null) {
-            if ($paymentSourceId && $paymentSource = app(PaymentSources::class)->getPaymentSourceById($paymentSourceId)) {
+            if ($paymentSourceId && $paymentSource = app(PaymentSources::class)->getPaymentSourceById((int)$paymentSourceId)) {
                 // The payment source can only be used by the same user as the cart's user.
                 $cartCustomerId = $this->cart->getCustomer()?->id;
                 $paymentSourceCustomerId = $paymentSource->getCustomer()?->id;

@@ -224,8 +224,8 @@ JS;
 
         $taxRate = new TaxRate();
 
-        $taxRate->id = $request->input('taxRateId');
-        $taxRate->storeId = $request->input('storeId');
+        $taxRate->id = $request->input('taxRateId') ? (int)$request->input('taxRateId') : null;
+        $taxRate->storeId = $request->input('storeId') ? (int)$request->input('storeId') : null;
         $taxRate->name = $request->input('name');
         $taxRate->code = $request->input('code');
         $taxRate->include = (bool)$request->input('include');
@@ -255,7 +255,7 @@ JS;
         $id = $request->input('id');
         abort_if(!$id, 400, 'Missing tax rate id');
 
-        app(TaxRates::class)->deleteTaxRateById($id);
+        app(TaxRates::class)->deleteTaxRateById((int)$id);
         return $this->asSuccess();
     }
 

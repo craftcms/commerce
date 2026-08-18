@@ -242,7 +242,7 @@ JS;
         ]);
     }
 
-    public function edit(?int $id = null, ?string $storeHandle = null): CpScreenResponse
+    public function edit(?string $storeHandle = null, ?int $id = null): CpScreenResponse
     {
         abort_unless(currentUserElement()?->can($id === null ? 'commerce-createDiscounts' : 'commerce-editDiscounts'), 403);
 

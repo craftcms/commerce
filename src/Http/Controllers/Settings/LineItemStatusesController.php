@@ -103,11 +103,12 @@ readonly class LineItemStatusesController
 
     public function save(Request $request): Response
     {
-        $id = $request->input('id');
-        $lineItemStatus = $id ? app(LineItemStatuses::class)->getLineItemStatusById($id, $request->input('storeId')) : null;
+        $id = $request->input('id') ? (int)$request->input('id') : null;
+        $storeId = $request->input('storeId') ? (int)$request->input('storeId') : null;
+        $lineItemStatus = $id ? app(LineItemStatuses::class)->getLineItemStatusById($id, $storeId) : null;
         $lineItemStatus ??= new LineItemStatus();
 
-        $lineItemStatus->storeId = $request->input('storeId');
+        $lineItemStatus->storeId = $storeId;
         $lineItemStatus->name = $request->input('name');
         $lineItemStatus->handle = $request->input('handle');
         $lineItemStatus->color = $request->input('color');

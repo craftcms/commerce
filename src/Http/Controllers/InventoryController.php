@@ -497,7 +497,7 @@ JS, [
             $updateInventoryLevel = new UpdateInventoryLevel();
             $updateInventoryLevel->type = $type;
             $updateInventoryLevel->updateAction = $updateAction;
-            $updateInventoryLevel->inventoryItemId = $inventoryItemId;
+            $updateInventoryLevel->inventoryItemId = (int)$inventoryItemId;
             $updateInventoryLevel->inventoryLocationId = $inventoryLocationId;
             $updateInventoryLevel->quantity = $quantity;
             $updateInventoryLevel->note = $note;
@@ -578,7 +578,7 @@ JS, [
         }
 
         $inventoryMovement = new InventoryManualMovement();
-        $inventoryMovement->inventoryItemId = $inventoryItemId;
+        $inventoryMovement->inventoryItemId = (int)$inventoryItemId;
         $inventoryMovement->fromInventoryLocation = app(InventoryLocations::class)->getInventoryLocationById($fromInventoryLocationId);
         $inventoryMovement->toInventoryLocation = app(InventoryLocations::class)->getInventoryLocationById($toInventoryLocationId);
         $inventoryMovement->fromInventoryTransactionType = InventoryTransactionType::from($fromInventoryTransactionType);
@@ -619,7 +619,7 @@ JS, [
         }
 
         $inventoryMovement = new InventoryManualMovement();
-        $inventoryMovement->inventoryItemId = $inventoryItemId;
+        $inventoryMovement->inventoryItemId = (int)$inventoryItemId;
         $inventoryMovement->fromInventoryLocation = app(InventoryLocations::class)->getInventoryLocationById($fromInventoryLocationId);
         $inventoryMovement->toInventoryLocation = app(InventoryLocations::class)->getInventoryLocationById($toInventoryLocationId);
         $inventoryMovement->fromInventoryTransactionType = InventoryTransactionType::from($fromInventoryTransactionType);
@@ -652,8 +652,8 @@ JS, [
 
     public function unfulfilledOrders(Request $request): CpModalResponse
     {
-        $inventoryLocationId = $request->input('inventoryLocationId');
-        $inventoryItemId = $request->input('inventoryItemId');
+        $inventoryLocationId = (int)$request->input('inventoryLocationId');
+        $inventoryItemId = (int)$request->input('inventoryItemId');
 
         $orders = app(Inventory::class)->getUnfulfilledOrders($inventoryItemId, $inventoryLocationId);
 

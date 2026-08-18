@@ -112,8 +112,8 @@ JS;
     {
         $shippingZone = new ShippingAddressZone();
 
-        $shippingZone->id = $request->input('shippingZoneId');
-        $shippingZone->storeId = $request->input('storeId');
+        $shippingZone->id = $request->input('shippingZoneId') ? (int)$request->input('shippingZoneId') : null;
+        $shippingZone->storeId = $request->input('storeId') ? (int)$request->input('storeId') : null;
         $shippingZone->name = $request->input('name');
         $shippingZone->description = $request->input('description');
         $shippingZone->setCondition($request->input('condition'));

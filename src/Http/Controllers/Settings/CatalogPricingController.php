@@ -41,7 +41,7 @@ readonly class CatalogPricingController
 
         $store = $site->getStore();
 
-        $purchasableId = $request->query('purchasableId');
+        $purchasableId = $request->query('purchasableId') ? (int)$request->query('purchasableId') : null;
         $conditionBuilder = Conditions::createCondition([
             'class' => CatalogPricingCondition::class,
             'allPrices' => true,
@@ -94,10 +94,13 @@ readonly class CatalogPricingController
 
         $siteId = $request->input('siteId');
         abort_if($siteId === null, 400, 'siteId is required');
+        $siteId = (int)$siteId;
         $condition = $request->input('condition');
         $searchText = $request->input('searchText');
         $limit = $request->input('limit');
+        $limit = $limit !== null ? (int)$limit : null;
         $offset = $request->input('offset', 0);
+        $offset = $offset !== null ? (int)$offset : null;
         $includeBasePrices = $request->input('includeBasePrices', true);
         $forPurchasable = $request->input('forPurchasable', false);
 
@@ -156,6 +159,9 @@ readonly class CatalogPricingController
         if ($purchasableId === null || $storeId === null) {
             return Html::tag('div', t('Purchasable ID is required.', category: 'commerce'), ['class' => 'error']);
         }
+
+        $purchasableId = (int)$purchasableId;
+        $storeId = (int)$storeId;
 
         $isPriceRecalculation = $request->has('basePrice') || $request->has('basePromotionalPrice');
 

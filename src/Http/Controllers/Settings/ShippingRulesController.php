@@ -103,9 +103,9 @@ readonly class ShippingRulesController
         $shippingRule = new ShippingRule();
 
         if (!$duplicate) {
-            $shippingRule->id = $request->input('id');
+            $shippingRule->id = $request->input('id') ? (int)$request->input('id') : null;
         }
-        $shippingRule->storeId = $request->input('storeId');
+        $shippingRule->storeId = $request->input('storeId') ? (int)$request->input('storeId') : null;
 
         $moneyInputs = [
             'baseRate',
@@ -125,10 +125,10 @@ readonly class ShippingRulesController
 
         $shippingRule->name = $request->input('name');
         $shippingRule->description = $request->input('description');
-        $shippingRule->methodId = $request->input('methodId');
+        $shippingRule->methodId = $request->input('methodId') ? (int)$request->input('methodId') : null;
         $shippingRule->enabled = (bool)$request->input('enabled');
         $shippingRule->orderConditionFormula = trim((string)$request->input('orderConditionFormula', ''));
-        $shippingRule->percentageRate = Localization::normalizeNumber($request->input('percentageRate'));
+        $shippingRule->percentageRate = (float)Localization::normalizeNumber($request->input('percentageRate'));
         $shippingRule->setOrderCondition($request->input('orderCondition'));
         $shippingRule->setCustomerCondition($request->input('customerCondition'));
 
@@ -182,6 +182,7 @@ readonly class ShippingRulesController
 
         $id = $request->input('id');
         abort_if(!$id, 400, 'Shipping rule ID not submitted');
+        $id = (int)$id;
 
         $rule = app(ShippingRules::class)->getShippingRuleById($id);
         abort_if($rule === null, 400, 'Cannot find shipping rule to delete');

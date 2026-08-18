@@ -63,7 +63,7 @@ readonly class SalesController
         ], TemplateMode::Cp);
     }
 
-    public function edit(?int $id = null, ?string $storeHandle = null): string
+    public function edit(?string $storeHandle = null, ?int $id = null): string
     {
         $this->guard();
 

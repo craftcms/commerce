@@ -40,7 +40,7 @@ readonly class PaymentCurrenciesController
             ->contentTemplate('commerce/store-management/paymentcurrencies/index', ['currencies' => $currencies, 'store' => $store]);
     }
 
-    public function edit(?int $id = null, ?string $storeHandle = null): CpScreenResponse
+    public function edit(?string $storeHandle = null, ?int $id = null): CpScreenResponse
     {
         $store = $this->resolveStore($storeHandle);
         $storeHandle = $store->handle;
@@ -90,10 +90,10 @@ readonly class PaymentCurrenciesController
     {
         $currency = new PaymentCurrency();
 
-        $currency->id = $request->input('currencyId');
-        $currency->storeId = $request->input('storeId');
+        $currency->id = $request->input('currencyId') ? (int)$request->input('currencyId') : null;
+        $currency->storeId = (int)$request->input('storeId');
         $currency->iso = $request->input('iso');
-        $currency->rate = $request->input('rate', 1);
+        $currency->rate = (float)$request->input('rate', 1);
 
         if (app(PaymentCurrencies::class)->savePaymentCurrency($currency)) {
             return $this->asModelSuccess($currency, t('Currency saved.', category: 'commerce'), 'currency');
@@ -109,7 +109,7 @@ readonly class PaymentCurrenciesController
         $id = $request->input('id');
         abort_if(!$id, 400, 'Missing currency id');
 
-        if (!app(PaymentCurrencies::class)->deletePaymentCurrencyById($id)) {
+        if (!app(PaymentCurrencies::class)->deletePaymentCurrencyById((int)$id)) {
             return $this->asFailure();
         }
 

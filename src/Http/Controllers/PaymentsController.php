@@ -177,6 +177,7 @@ readonly class PaymentsController
         // Set Payment Gateway on cart
         // Same as CartController::updateCart()
         if ($gatewayId = $request->input('gatewayId')) {
+            $gatewayId = (int)$gatewayId;
             if (app(Gateways::class)->getGatewayById($gatewayId)) {
                 $order->setGatewayId($gatewayId);
             }
@@ -185,6 +186,7 @@ readonly class PaymentsController
         // Submit payment source on cart
         // See CartController::updateCart()
         if ($paymentSourceId = $request->input('paymentSourceId')) {
+            $paymentSourceId = (int)$paymentSourceId;
             if ($paymentSource = app(PaymentSources::class)->getPaymentSourceById($paymentSourceId)) {
                 // The payment source can only be used by the same user as the cart's user.
                 $cartUserId = $order->getCustomer()?->id;
@@ -386,7 +388,7 @@ readonly class PaymentsController
                 if (is_array($cpPaymentAmount)) {
                     $cpPaymentAmount = $cpPaymentAmount['value'];
                 }
-                $cpPaymentAmount = Localization::normalizeNumber($cpPaymentAmount);
+                $cpPaymentAmount = (float)Localization::normalizeNumber($cpPaymentAmount);
 
                 $order->setPaymentAmount($cpPaymentAmount);
             } elseif ($request->input('paymentAmount')) {

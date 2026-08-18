@@ -146,7 +146,7 @@ readonly class TransfersController
                 $detail->quantityAccepted += $acceptedAmount;
 
                 $inventoryAcceptedMovement = new InventoryTransferMovement();
-                $inventoryAcceptedMovement->quantity = $acceptedAmount;
+                $inventoryAcceptedMovement->quantity = (int)$acceptedAmount;
                 $inventoryAcceptedMovement->transferId = $transfer->id;
                 $inventoryAcceptedMovement->setInventoryItem($detail->getInventoryItem());
                 $inventoryAcceptedMovement->toInventoryLocation = $transfer->getDestinationLocation();

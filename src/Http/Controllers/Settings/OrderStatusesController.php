@@ -110,8 +110,8 @@ readonly class OrderStatusesController
 
     public function save(Request $request): Response
     {
-        $id = $request->input('id');
-        $storeId = $request->input('storeId');
+        $id = $request->input('id') ? (int)$request->input('id') : null;
+        $storeId = $request->input('storeId') ? (int)$request->input('storeId') : null;
         $orderStatus = $id ? app(OrderStatuses::class)->getOrderStatusById($id, $storeId) : null;
         $orderStatus ??= new OrderStatus();
 
@@ -143,6 +143,7 @@ readonly class OrderStatusesController
 
         $storeId = $request->input('storeId');
         abort_if(!$storeId, 400, 'Missing store id');
+        $storeId = (int)$storeId;
 
         $store = app(Stores::class)->getStoreById($storeId);
         $allowableStoreIds = app(Stores::class)->getStoresByUserId(currentUser()?->id)->map(fn(Store $s) => $s->id)->all();

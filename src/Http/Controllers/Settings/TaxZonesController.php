@@ -123,8 +123,8 @@ JS;
     {
         $taxZone = new TaxAddressZone();
 
-        $taxZone->id = $request->input('taxZoneId');
-        $taxZone->storeId = $request->input('storeId');
+        $taxZone->id = $request->input('taxZoneId') ? (int)$request->input('taxZoneId') : null;
+        $taxZone->storeId = $request->input('storeId') ? (int)$request->input('storeId') : null;
         $taxZone->name = $request->input('name');
         $taxZone->description = $request->input('description');
         $taxZone->default = (bool)$request->input('default');

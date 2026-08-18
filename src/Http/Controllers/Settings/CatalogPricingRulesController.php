@@ -167,7 +167,7 @@ JS;
                 'storeId' => $store->id,
             ]);
 
-            $purchasableId = request()->input('purchasableId');
+            $purchasableId = request()->input('purchasableId') ? (int)request()->input('purchasableId') : null;
             if ($purchasableId && $purchasableType = Elements::getElementTypeById($purchasableId)) {
                 $purchasable = Elements::getElementById($purchasableId, $purchasableType, Cp::requestedSite()->id);
 
@@ -216,8 +216,8 @@ JS;
 
     public function save(Request $request): Response
     {
-        $id = $request->input('id');
-        $storeId = $request->input('storeId');
+        $id = $request->input('id') ? (int)$request->input('id') : null;
+        $storeId = $request->input('storeId') ? (int)$request->input('storeId') : null;
 
         if ($id) {
             $catalogPricingRule = app(CatalogPricingRules::class)->getCatalogPricingRuleById($id, $storeId);
@@ -297,7 +297,7 @@ JS;
         }
 
         foreach ($ids as $deleteId) {
-            app(CatalogPricingRules::class)->deleteCatalogPricingRuleById($deleteId);
+            app(CatalogPricingRules::class)->deleteCatalogPricingRuleById((int)$deleteId);
         }
 
         if ($request->expectsJson()) {

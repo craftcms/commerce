@@ -151,7 +151,7 @@ readonly class GatewaysController
 
         // If this is an existing gateway, populate with properties unchangeable by this action.
         if ($gatewayId) {
-            $savedGateway = $gatewayService->getGatewayById($gatewayId);
+            $savedGateway = $gatewayService->getGatewayById((int)$gatewayId);
             $config['uid'] = $savedGateway->uid;
             $config['sortOrder'] = $savedGateway->sortOrder;
         }

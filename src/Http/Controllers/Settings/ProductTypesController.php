@@ -93,10 +93,10 @@ readonly class ProductTypesController
     {
         abort_unless(currentUser()?->can('manageCommerce'), 403, t('This action is not allowed for the current user.', category: 'commerce'));
 
-        $productTypeId = $request->input('productTypeId');
+        $productTypeId = $request->input('productTypeId') ? (int)$request->input('productTypeId') : null;
 
         if ($productTypeId) {
-            $productType = app(ProductTypes::class)->getProductTypeById((int)$productTypeId);
+            $productType = app(ProductTypes::class)->getProductTypeById($productTypeId);
             abort_unless($productType, 400, "Invalid section ID: $productTypeId");
         } else {
             $productType = new ProductType();
@@ -116,7 +116,8 @@ readonly class ProductTypesController
         $productType->showSlugField = (bool)$request->input('showSlugField', $productType->showSlugField);
         $productType->slugTranslationMethod = $request->input('slugTranslationMethod', $productType->slugTranslationMethod);
         $productType->slugTranslationKeyFormat = $request->input('slugTranslationKeyFormat', $productType->slugTranslationKeyFormat);
-        $productType->maxVariants = $request->input('maxVariants') ?: null;
+        $maxVariants = $request->input('maxVariants');
+        $productType->maxVariants = $maxVariants ? (int)$maxVariants : null;
         $productType->hasVariantTitleField = $request->input('hasVariantTitleField', false);
         $productType->variantTitleFormat = $request->input('variantTitleFormat');
         $productType->variantUiLabelFormat = $request->input('variantUiLabelFormat');

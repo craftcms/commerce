@@ -160,12 +160,14 @@ JS;
     {
         $shippingMethod = new ShippingMethod();
 
-        $shippingMethod->id = $request->input('shippingMethodId');
+        $shippingMethodId = $request->input('shippingMethodId');
+        $shippingMethod->id = $shippingMethodId ? (int)$shippingMethodId : null;
         $shippingMethod->name = $request->input('name');
         $shippingMethod->handle = $request->input('handle');
         $shippingMethod->icon = $request->input('icon');
         $shippingMethod->color = $request->input('color');
-        $shippingMethod->storeId = $request->input('storeId');
+        $storeId = $request->input('storeId');
+        $shippingMethod->storeId = $storeId ? (int)$storeId : null;
         $shippingMethod->setOrderCondition($request->input('orderCondition'));
         $shippingMethod->setCustomerCondition($request->input('customerCondition'));
         $shippingMethod->enabled = (bool)$request->input('enabled');
@@ -191,7 +193,7 @@ JS;
 
         $failedIds = [];
         foreach ($ids as $deleteId) {
-            if (!app(ShippingMethods::class)->deleteShippingMethodById($deleteId)) {
+            if (!app(ShippingMethods::class)->deleteShippingMethodById((int)$deleteId)) {
                 $failedIds[] = $deleteId;
             }
         }

@@ -53,7 +53,7 @@ readonly class ProductsController
         $siteId = $request->input('siteId');
 
         if ($siteId) {
-            $site = Sites::getSiteById($siteId);
+            $site = Sites::getSiteById((int)$siteId);
             abort_unless($site, 400, "Invalid site ID: $siteId");
         } else {
             $site = \craft\helpers\Cp::requestedSite();
