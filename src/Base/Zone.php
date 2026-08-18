@@ -71,4 +71,12 @@ abstract class Zone extends Component implements HasStoreInterface
             'storeId' => ['required', 'integer'],
         ];
     }
+
+    #[\Override]
+    public function validationData(): array
+    {
+        return array_merge(parent::validationData(), [
+            'condition' => $this->_condition,
+        ]);
+    }
 }

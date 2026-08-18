@@ -64,6 +64,15 @@ class Store extends Component
     }
 
     #[\Override]
+    public function validationData(): array
+    {
+        return array_merge(parent::validationData(), [
+            'name' => $this->getName(false),
+            'currency' => $this->_currency,
+        ]);
+    }
+
+    #[\Override]
     public function getRules(): array
     {
         return [

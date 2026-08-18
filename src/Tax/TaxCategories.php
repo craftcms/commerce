@@ -133,10 +133,13 @@ class TaxCategories
             ->where('taxCategoryId', $record->id)
             ->delete();
 
+        $now = now()->toDateTimeString();
         foreach ($taxCategory->getProductTypes() as $productType) {
             DB::table(Table::PRODUCTTYPES_TAXCATEGORIES)->insert([
                 'productTypeId' => (int) $productType->id,
                 'taxCategoryId' => $taxCategory->id,
+                'dateCreated' => $now,
+                'dateUpdated' => $now,
             ]);
         }
 

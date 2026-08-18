@@ -99,6 +99,14 @@ class Email extends Component implements HasStoreInterface
         ];
     }
 
+    #[\Override]
+    public function validationData(): array
+    {
+        return array_merge(parent::validationData(), [
+            'to' => $this->getTo(false),
+        ]);
+    }
+
     public function getPdf(): ?PdfModel
     {
         if (!$this->pdfId) {

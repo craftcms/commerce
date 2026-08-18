@@ -97,7 +97,7 @@ readonly class StoresController
     public function saveStore(Request $request): Response
     {
         $storesService = app(Stores::class);
-        $storeId = $request->input('storeId');
+        $storeId = $request->input('storeId') ? (int)$request->input('storeId') : null;
 
         if ($storeId) {
             $store = $storesService->getStoreById($storeId);

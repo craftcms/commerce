@@ -208,10 +208,13 @@ class Customers
                     ->where('discountId', $discountId)
                     ->increment('uses', $uses);
             } else {
+                $now = now()->toDateTimeString();
                 DB::table(Table::CUSTOMER_DISCOUNTUSES)->insert([
                     'uses' => $uses,
                     'customerId' => $toId,
                     'discountId' => $discountId,
+                    'dateCreated' => $now,
+                    'dateUpdated' => $now,
                 ]);
             }
 

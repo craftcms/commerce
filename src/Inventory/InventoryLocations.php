@@ -84,11 +84,14 @@ class InventoryLocations
             DB::table(Table::INVENTORYLOCATIONS_STORES)->where('storeId', $store->id)->delete();
 
             $order = 1;
+            $now = now()->toDateTimeString();
             foreach ($inventoryLocationIds as $inventoryLocationId) {
                 DB::table(Table::INVENTORYLOCATIONS_STORES)->insert([
                     'storeId' => $store->id,
                     'inventoryLocationId' => $inventoryLocationId,
                     'sortOrder' => $order++,
+                    'dateCreated' => $now,
+                    'dateUpdated' => $now,
                 ]);
             }
 

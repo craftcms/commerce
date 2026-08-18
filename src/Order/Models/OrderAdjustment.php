@@ -96,4 +96,12 @@ class OrderAdjustment extends Component
             'lineItemId' => ['nullable', 'integer'],
         ];
     }
+
+    #[\Override]
+    public function validationData(): array
+    {
+        return array_merge(parent::validationData(), [
+            'sourceSnapshot' => $this->_sourceSnapshot,
+        ]);
+    }
 }

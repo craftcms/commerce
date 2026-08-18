@@ -344,19 +344,25 @@ class Stores
 
         $paymentCurrency = app(PaymentCurrencies::class)->getPaymentCurrencyByIso($data['currency'] ?? '', $storeRecord->id);
         if (!$paymentCurrency) {
+            $now = now()->toDateTimeString();
             DB::table(Table::PAYMENTCURRENCIES)->insert([
                 'iso' => $data['currency'] ?? 'USD',
                 'storeId' => $storeRecord->id,
                 'rate' => 1,
+                'dateCreated' => $now,
+                'dateUpdated' => $now,
             ]);
         }
 
         if (app(ShippingCategories::class)->getAllShippingCategories($storeRecord->id)->isEmpty()) {
+            $now = now()->toDateTimeString();
             DB::table(Table::SHIPPINGCATEGORIES)->insert([
                 'name' => 'General',
                 'handle' => 'general',
                 'default' => true,
                 'storeId' => $storeRecord->id,
+                'dateCreated' => $now,
+                'dateUpdated' => $now,
             ]);
         }
 

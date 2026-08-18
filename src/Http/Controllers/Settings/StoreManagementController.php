@@ -162,7 +162,7 @@ readonly class StoreManagementController
     {
         abort_unless(currentUser()?->can('commerce-manageGeneralStoreSettings'), 403);
 
-        $storeId = $request->input('id');
+        $storeId = (int)$request->input('id');
         $store = app(Stores::class)->getStoreById($storeId);
         $storeSettings = app(StoreSettings::class)->getStoreSettingsById($storeId);
         $currentUser = currentUserElement();

@@ -68,4 +68,17 @@ class Plugin extends BasePlugin
             }
         });
     }
+
+    /**
+     * The CP nav's `craft-icon` component resolves `icon` to a published icon
+     * *name* (e.g. `/vendor/craft/icons/solid/cart-shopping.svg`), not a
+     * filesystem path, so the base `cpNavIconPath()` (which points at
+     * `resources/icon-mask.svg`) never renders here. Use a published system
+     * icon until plugin-contributed custom icons are supported.
+     */
+    #[\Override]
+    protected function cpNavIconPath(): ?string
+    {
+        return 'cart-shopping';
+    }
 }

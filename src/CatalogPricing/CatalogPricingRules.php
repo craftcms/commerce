@@ -174,9 +174,12 @@ class CatalogPricingRules
                         ->exists();
 
                     if (!$exists) {
+                        $now = now()->toDateTimeString();
                         DB::table(Table::CATALOG_PRICING_RULES_USERS)->insert([
                             'userId' => $user->id,
                             'catalogPricingRuleId' => $rule->id,
+                            'dateCreated' => $now,
+                            'dateUpdated' => $now,
                         ]);
                     }
                 } else {

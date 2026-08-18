@@ -159,10 +159,13 @@ class ShippingCategories
             ->where('shippingCategoryId', $shippingCategory->id)
             ->delete();
 
+        $now = now()->toDateTimeString();
         foreach ($shippingCategory->getProductTypes() as $productType) {
             DB::table(Table::PRODUCTTYPES_SHIPPINGCATEGORIES)->insert([
                 'productTypeId' => (int) $productType->id,
                 'shippingCategoryId' => (int) $shippingCategory->id,
+                'dateCreated' => $now,
+                'dateUpdated' => $now,
             ]);
         }
 

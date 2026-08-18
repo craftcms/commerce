@@ -261,11 +261,14 @@ class OrderStatuses
                 }
 
                 $emailIds = CraftDb::idsByUids(Table::EMAILS, $data['emails']);
+                $now = now()->toDateTimeString();
 
                 foreach ($emailIds as $emailId) {
                     DB::table(Table::ORDERSTATUS_EMAILS)->insert([
                         'orderStatusId' => $statusRecord->id,
                         'emailId' => $emailId,
+                        'dateCreated' => $now,
+                        'dateUpdated' => $now,
                     ]);
                 }
             }
