@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers;
 
 use craft\commerce\base\Gateway;
-use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\PaymentForm;
 use craft\commerce\helpers\Purchasable;
 use craft\commerce\Plugin;
-use craft\commerce\stripe\gateways\PaymentIntents;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
@@ -103,7 +101,6 @@ class OrdersController
     {
         \Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
 
-        /** @var \CraftCms\Cms\Site\Data\Site|StoreBehavior $site */
         $site = \craft\helpers\Cp::requestedSite();
         $store = $site->getStore();
 
@@ -824,7 +821,6 @@ JS, []);
     {
         abort_unless($request->expectsJson(), 400);
 
-        /** @var \CraftCms\Cms\Site\Data\Site|StoreBehavior|null $site */
         $site = \craft\helpers\Cp::requestedSite();
         $storeId = $site?->getStore()->id ?? null;
 
@@ -880,21 +876,10 @@ JS, []);
                 $paymentFormModel = $gateway->getPaymentFormModel();
             }
 
-            // For backend stripe payments we cant use the 3D secure form.
-            /** @todo Remove the legacy PaymentIntents `getOldPaymentFormHtml()` branch in Commerce 6.0 */
-            /** @phpstan-ignore-next-line */
-            if ($gateway instanceof PaymentIntents) {
-                /** @phpstan-ignore-next-line */
-                $paymentFormHtml = $gateway->getOldPaymentFormHtml([
-                    'paymentForm' => $paymentFormModel,
-                    'order' => $order,
-                ]);
-            } else {
-                $paymentFormHtml = $gateway->getPaymentFormHtml([
-                    'paymentForm' => $paymentFormModel,
-                    'order' => $order,
-                ]);
-            }
+            $paymentFormHtml = $gateway->getPaymentFormHtml([
+                'paymentForm' => $paymentFormModel,
+                'order' => $order,
+            ]);
 
             $paymentFormHtml = Html::namespaceInputs($paymentFormHtml, PaymentForm::getPaymentFormNamespace($gateway->handle));
 

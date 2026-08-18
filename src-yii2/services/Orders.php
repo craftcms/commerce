@@ -5,8 +5,6 @@ namespace craft\commerce\services;
 use craft\commerce\elements\Order;
 use craft\elements\User;
 use craft\events\ConfigEvent;
-use craft\events\DefineElementDeletionBlockersEvent;
-use craft\events\ModelEvent;
 use yii\base\Component;
 
 /**
@@ -61,11 +59,6 @@ class Orders extends Component
         return app(\CraftCms\Commerce\Order\Orders::class)->eagerLoadAddressesForOrders($orders);
     }
 
-    public function beforeDeleteUserHandler(DefineElementDeletionBlockersEvent $event): void
-    {
-        app(\CraftCms\Commerce\Order\Orders::class)->beforeDeleteUserHandler($event);
-    }
-
     /**
      * @param int|int[] $oldUserId
      */
@@ -80,10 +73,5 @@ class Orders extends Component
     public function removeCustomerData(int|array $orderIds, array $dataToRemove = ['customerId', 'email']): int
     {
         return app(\CraftCms\Commerce\Order\Orders::class)->removeCustomerData($orderIds, $dataToRemove);
-    }
-
-    public function afterSaveAddressHandler(ModelEvent $event): void
-    {
-        app(\CraftCms\Commerce\Order\Orders::class)->afterSaveAddressHandler($event);
     }
 }

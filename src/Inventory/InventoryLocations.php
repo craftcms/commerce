@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Inventory;
 
-use craft\events\AuthorizationCheckEvent;
 use CraftCms\Cms\Address\Elements\Address;
+use CraftCms\Cms\Auth\Events\ElementAuthorizing;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
@@ -202,7 +202,7 @@ class InventoryLocations
         return true;
     }
 
-    public function authorizeInventoryLocationAddressView(AuthorizationCheckEvent $event): void
+    public function authorizeInventoryLocationAddressView(ElementAuthorizing $event): void
     {
         if (!$event->element instanceof Address) {
             return;
@@ -215,7 +215,7 @@ class InventoryLocations
         $event->authorized = true;
     }
 
-    public function authorizeInventoryLocationAddressEdit(AuthorizationCheckEvent $event): void
+    public function authorizeInventoryLocationAddressEdit(ElementAuthorizing $event): void
     {
         if (!$event->element instanceof Address) {
             return;

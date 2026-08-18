@@ -12,46 +12,21 @@ use craft\base\Model;
 use craft\ckeditor\events\DefineLinkOptionsEvent;
 use craft\ckeditor\Field as CKEditorField;
 use craft\commerce\base\Purchasable;
-use craft\commerce\behaviors\CustomerAddressBehavior;
-use craft\commerce\behaviors\CustomerBehavior;
-use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\db\Table;
-use craft\commerce\elements\Donation;
-use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Transfer;
 use craft\commerce\elements\Variant;
 use craft\commerce\events\EmailEvent;
-use craft\commerce\fieldlayoutelements\ProductTitleField;
-use craft\commerce\fieldlayoutelements\PurchasableAllowedQtyField;
-use craft\commerce\fieldlayoutelements\PurchasableAvailableForPurchaseField;
-use craft\commerce\fieldlayoutelements\PurchasableDimensionsField;
-use craft\commerce\fieldlayoutelements\PurchasableFreeShippingField;
-use craft\commerce\fieldlayoutelements\PurchasablePriceField;
-use craft\commerce\fieldlayoutelements\PurchasablePromotableField;
-use craft\commerce\fieldlayoutelements\PurchasableSkuField;
-use craft\commerce\fieldlayoutelements\PurchasableStockField;
-use craft\commerce\fieldlayoutelements\PurchasableWeightField;
-use craft\commerce\fieldlayoutelements\TransferManagementField;
-use craft\commerce\fieldlayoutelements\UserAddressSettings;
-use craft\commerce\fieldlayoutelements\VariantsField as VariantsLayoutElement;
-use craft\commerce\fieldlayoutelements\VariantTitleField;
 use craft\commerce\fields\Products as ProductsField;
 use craft\commerce\fields\Variants as VariantsField;
-use craft\commerce\gql\handlers\HasProduct;
-use craft\commerce\gql\handlers\HasVariant;
-use craft\commerce\gql\handlers\RelatedProducts;
-use craft\commerce\gql\handlers\RelatedVariants;
 use craft\commerce\gql\interfaces\elements\Product as GqlProductInterface;
 use craft\commerce\gql\interfaces\elements\Variant as GqlVariantInterface;
 use craft\commerce\gql\queries\Product as GqlProductQueries;
 use craft\commerce\gql\queries\Variant as GqlVariantQueries;
-use craft\commerce\gql\types\input\criteria\ProductRelation;
-use craft\commerce\gql\types\input\criteria\VariantRelation;
+use CraftCms\Commerce\Gql\Types\Input\Criteria\ProductRelation;
+use CraftCms\Commerce\Gql\Types\Input\Criteria\VariantRelation;
 use craft\commerce\helpers\ProjectConfigData;
-use craft\commerce\linktypes\Product as ProductLinkType;
 use craft\commerce\migrations\Install;
-use craft\commerce\models\ProductType;
 use craft\commerce\models\Settings;
 use craft\commerce\plugin\LegacyRoutingModule;
 use craft\commerce\plugin\Routes;
@@ -66,80 +41,29 @@ use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Stores;
 use craft\commerce\services\Transfers as TransfersService;
 use craft\commerce\web\twig\CraftVariableBehavior;
-use craft\commerce\web\twig\Extension;
-use craft\console\Application as ConsoleApplication;
-use craft\console\Controller as ConsoleController;
-use craft\console\controllers\ResaveController;
-use craft\db\Query;
-use craft\elements\Address;
 use craft\elements\db\UserQuery;
-use craft\elements\User as UserElement;
-use CraftCms\Cms\Cp\Data\NavItem;
 use CraftCms\Cms\Edition as CmsEdition;
-use craft\events\DefineBehaviorsEvent;
-use craft\events\DefineConsoleActionsEvent;
-use craft\events\DefineFieldLayoutFieldsEvent;
 use craft\events\DeleteSiteEvent;
 use craft\events\PopulateElementsEvent;
 use craft\events\RebuildConfigEvent;
-use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
-use craft\events\RegisterElementExportersEvent;
-use craft\events\RegisterEmailMessagesEvent;
-use craft\events\RegisterGqlArgumentHandlersEvent;
-use craft\events\RegisterGqlEagerLoadableFields;
 use craft\events\RegisterGqlQueriesEvent;
-use craft\events\RegisterGqlSchemaComponentsEvent;
 use craft\events\RegisterGqlTypesEvent;
-use craft\events\RegisterUserPermissionsEvent;
-use craft\fields\Link;
 use craft\fixfks\controllers\RestoreController;
-use craft\gql\ArgumentManager;
-use craft\gql\ElementQueryConditionBuilder;
 use craft\helpers\ArrayHelper;
-use craft\helpers\Console;
-use craft\helpers\Db;
-use craft\helpers\FileHelper;
-use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
-use craft\models\FieldLayout;
-use craft\models\Site;
 use craft\redactor\events\RegisterLinkOptionsEvent;
 use craft\redactor\Field as RedactorField;
-use craft\services\Dashboard;
 use craft\services\Elements;
 use craft\services\Fields;
-use craft\services\Gc;
 use craft\services\Gql;
 use craft\services\ProjectConfig;
 use craft\services\Sites;
-use craft\services\SystemMessages;
-use craft\services\UserPermissions;
-use craft\services\Users;
-use craft\utilities\ClearCaches;
 use craft\web\Application;
 use craft\web\twig\variables\CraftVariable;
-use CraftCms\Cms\Twig\Variables\CraftVariable as NewCraftVariable;
-use CraftCms\Cms\Update\Updates;
-use CraftCms\Commerce\Dashboard\Widgets\AverageOrderTotal;
-use CraftCms\Commerce\Dashboard\Widgets\NewCustomers;
-use CraftCms\Commerce\Dashboard\Widgets\Orders;
-use CraftCms\Commerce\Dashboard\Widgets\RepeatCustomers;
-use CraftCms\Commerce\Dashboard\Widgets\TopCustomers;
-use CraftCms\Commerce\Dashboard\Widgets\TopProducts;
-use CraftCms\Commerce\Dashboard\Widgets\TopProductTypes;
-use CraftCms\Commerce\Dashboard\Widgets\TopPurchasables;
-use CraftCms\Commerce\Dashboard\Widgets\TotalOrders;
-use CraftCms\Commerce\Dashboard\Widgets\TotalOrdersByCountry;
-use CraftCms\Commerce\Dashboard\Widgets\TotalRevenue;
-use CraftCms\Commerce\Order\Exporters\LineItemExport;
-use CraftCms\Commerce\Order\Exporters\OrderExport;
 use CraftCms\Commerce\Plugin as BasePlugin;
 use Exception;
-use Illuminate\Support\Collection;
 use yii\base\Event;
-use yii\console\ExitCode;
-use yii\web\User;
 
 /**
  * @property array $cpNavItem the control panel navigation menu
@@ -182,11 +106,6 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    public bool $hasCpSection = true;
-
-    /**
-     * @inheritdoc
-     */
     public string $minVersionRequired = '3.4.11';
 
     /**
@@ -204,6 +123,8 @@ class Plugin extends BasePlugin
 
     public function boot(): void
     {
+        parent::boot();
+
         // craft\commerce\Plugin no longer extends yii\base\Module (it extends the new
         // CraftCms\Commerce\Plugin instead), so Yii2's controller resolution can no longer
         // find craft\commerce\controllers\* via Craft::$app->getModule('commerce') on its
@@ -215,9 +136,7 @@ class Plugin extends BasePlugin
 
         $request = Craft::$app->getRequest();
 
-        $this->_addTwigExtensions();
         $this->_registerFieldTypes();
-        $this->_registerPermissions();
         $this->_registerCraftEventListeners();
         $this->_registerProjectConfigEventListeners();
         $this->_registerVariables();
@@ -226,20 +145,10 @@ class Plugin extends BasePlugin
         $this->_registerElementTypes();
         $this->_registerGqlInterfaces();
         $this->_registerGqlQueries();
-        $this->_registerGqlComponents();
-        $this->_registerGqlEagerLoadableFields();
-        $this->_registerGqlArgumentHandlers();
-        $this->_registerLinkTypes();
-        $this->_registerCacheTypes();
-        $this->_registerGarbageCollection();
+        $this->_registerRelatedToArguments();
 
-        if ($request->getIsConsoleRequest()) {
-            $this->_defineResaveCommand();
-        } elseif ($request->getIsCpRequest()) {
+        if ($request->getIsCpRequest()) {
             $this->_registerCpRoutes();
-            $this->_registerWidgets();
-            $this->_registerElementExports();
-            $this->_defineFieldLayoutElements();
             $this->_registerRedactorLinkOptions();
             $this->_registerCKEditorLinkOptions();
         } else {
@@ -271,110 +180,11 @@ class Plugin extends BasePlugin
         return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('commerce/settings/general'));
     }
 
-    public function getCpNavItem(): NavItem|array|null
-    {
-        // The base class returns a NavItem object; convert to the array shape this method has
-        // always built, since NavItem::$subnav doesn't support the assoc-array-keyed-by-handle
-        // nested assignments below.
-        $ret = parent::getCpNavItem()?->toArray() ?? [];
-        $ret['subnav'] = is_array($ret['subnav'] ?? null) ? $ret['subnav'] : [];
-
-        $userService = Craft::$app->getUser();
-
-        if ($userService->checkPermission('accessPlugin-commerce')) {
-            $ret['label'] = Craft::t('commerce', 'Commerce');
-        }
-
-        if ($userService->checkPermission('commerce-manageOrders')) {
-            $ret['subnav']['orders'] = [
-                'label' => Craft::t('commerce', 'Orders'),
-                'url' => 'commerce/orders',
-            ];
-        }
-
-        $hasViewableProductTypes = Plugin::getInstance()->getProductTypes()->getViewableProductTypeIds(true);
-        if ($hasViewableProductTypes) {
-            $ret['subnav']['products'] = [
-                'label' => Craft::t('commerce', 'Products'),
-                'url' => 'commerce/products',
-            ];
-        }
-
-        if (Craft::$app->getUser()->checkPermission('commerce-manageInventoryStockLevels')) {
-            $ret['subnav']['inventory'] = [
-                'label' => Craft::t('commerce', 'Inventory'),
-                'url' => 'commerce/inventory',
-            ];
-        }
-
-        if (Craft::$app->getUser()->checkPermission('commerce-manageInventoryLocations')) {
-            $ret['subnav']['inventory-locations'] = [
-                'label' => Craft::t('commerce', 'Inventory Locations'),
-                'url' => 'commerce/inventory-locations',
-            ];
-        }
-
-        $multipleLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations()->count() > 1;
-        if ($multipleLocations && Craft::$app->getUser()->checkPermission('commerce-manageInventoryTransfers')) {
-            $ret['subnav']['inventory-transfers'] = [
-                'label' => Craft::t('commerce', 'Inventory Transfers'),
-                'url' => 'commerce/inventory/transfers',
-            ];
-        }
-
-        if (Craft::$app->getUser()->checkPermission('commerce-manageDonationSettings')) {
-            $ret['subnav']['donations'] = [
-                'label' => Craft::t('commerce', 'Donations'),
-                'url' => 'commerce/donations',
-            ];
-        }
-
-        if (Craft::$app->getUser()->checkPermission('commerce-manageStoreSettings')) {
-            $ret['subnav']['store-management'] = [
-                'label' => Craft::t('commerce', 'Store Management'),
-                'url' => 'commerce/store-management',
-            ];
-        }
-
-        if (Craft::$app->getUser()->getIsAdmin()) {
-            $ret['subnav']['settings'] = [
-                'ariaLabel' => Craft::t('commerce', 'Commerce Settings'),
-                'label' => Craft::t('app', 'Settings'),
-                'url' => 'commerce/settings/general',
-            ];
-        }
-
-        return $ret;
-    }
-
-
     protected function createSettingsModel(): ?Model
     {
         return new Settings();
     }
 
-
-    /**
-     * Register Commerce’s twig extensions
-     */
-    private function _addTwigExtensions(): void
-    {
-        Craft::$app->view->registerTwigExtension(new Extension());
-    }
-
-    /**
-     * Register Link types
-     */
-    private function _registerLinkTypes(): void
-    {
-        if (!class_exists(Link::class)) {
-            return;
-        }
-
-        Event::on(Link::class, Link::EVENT_REGISTER_LINK_TYPES, function(RegisterComponentTypesEvent $event) {
-            $event->types[] = ProductLinkType::class;
-        });
-    }
 
     /**
      * Register links to product in the redactor rich text field
@@ -466,134 +276,6 @@ class Plugin extends BasePlugin
     }
 
     /**
-     * Register Commerce’s permissions
-     */
-    private function _registerPermissions(): void
-    {
-        Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event) {
-            $this->_productPermissions($event->permissions);
-            $this->_orderPermissions($event->permissions);
-            $this->_inventoryPermissions($event->permissions);
-            $this->_adminPermissions($event->permissions);
-        });
-    }
-
-    private function _productPermissions(array &$permissions): void
-    {
-        $productTypes = self::getInstance()->getProductTypes()->getAllProductTypes();
-
-        if (empty($productTypes)) {
-            return;
-        }
-
-        $pluralType = Product::pluralLowerDisplayName();
-
-        foreach ($productTypes as $productType) {
-            $permissions[] = [
-                'heading' => Craft::t('commerce', 'Craft Commerce - Product Type - {name}', [
-                    'name' => Craft::t('site', $productType->name),
-                ]),
-                'permissions' => [
-                    "commerce-viewProductType:$productType->uid" => [
-                        'label' => Craft::t('app', 'View {type}', ['type' => $pluralType]),
-                        'info' => Craft::t('app', 'Allows viewing existing {type} and creating drafts for them.', [
-                            'type' => $pluralType,
-                        ]),
-                        'nested' => [
-                            "commerce-createProductType:$productType->uid" => [
-                                'label' => StringHelper::upperCaseFirst(Craft::t('app', 'Create {type}', ['type' => $pluralType])),
-                                'info' => Craft::t('app', 'Allows creating drafts of new {type}.', ['type' => $pluralType]),
-                            ],
-                            "commerce-saveProductType:$productType->uid" => [
-                                'label' => StringHelper::upperCaseFirst(Craft::t('app', 'Save {type}', ['type' => $pluralType])),
-                                'info' => Craft::t('app', 'Allows fully saving canonical {type} (directly or by applying drafts).', [
-                                    'type' => $pluralType,
-                                ]),
-                            ],
-                            "commerce-deleteProductType:$productType->uid" => [
-                                'label' => StringHelper::upperCaseFirst(Craft::t('app', 'Delete {type}', ['type' => $pluralType])),
-                                'info' => Craft::t('app', 'Allows deleting {type} for all sites.', [
-                                    'type' => $pluralType,
-                                ]),
-                            ],
-                        ],
-                    ],
-                ],
-            ];
-        }
-    }
-
-    private function _orderPermissions(array &$permissions): void
-    {
-        $permissions[] = [
-            'heading' => Craft::t('commerce', 'Craft Commerce - Orders'),
-            'permissions' => [
-                'commerce-manageOrders' => [
-                    'label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
-                        'commerce-editOrders' => [
-                            'label' => Craft::t('commerce', 'Edit orders'),
-                        ],
-                        'commerce-deleteOrders' => [
-                            'label' => Craft::t('commerce', 'Delete orders'),
-                        ],
-                        'commerce-capturePayment' => [
-                            'label' => Craft::t('commerce', 'Capture payment'),
-                        ],
-                        'commerce-refundPayment' => [
-                            'label' => Craft::t('commerce', 'Refund payment'),
-                        ],
-
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    private function _inventoryPermissions(array &$permissions): void
-    {
-        $permissions[] = [
-            'heading' => Craft::t('commerce', 'Craft Commerce - Inventory'),
-            'permissions' => [
-                'commerce-manageInventoryStockLevels' => ['label' => Craft::t('commerce', 'Manage inventory stock levels')],
-                'commerce-manageInventoryLocations' => ['label' => Craft::t('commerce', 'Manage inventory locations')],
-                'commerce-manageInventoryTransfers' => ['label' => Craft::t('commerce', 'Manage inventory transfers')],
-            ],
-        ];
-    }
-
-    private function _adminPermissions(array &$permissions): void
-    {
-        $permissions[] = [
-            'heading' => Craft::t('commerce', 'Craft Commerce - Administration'),
-            'permissions' => [
-                'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings'),
-                    'nested' => [
-                        'commerce-manageGeneralStoreSettings' => ['label' => Craft::t('commerce', 'Manage general store settings')],
-                        'commerce-managePaymentCurrencies' => ['label' => Craft::t('commerce', 'Manage payment currencies')],
-                        'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping')],
-                        'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes')],
-                        'commerce-managePromotions' => [
-                            'label' => Craft::t('commerce', 'Manage promotions'),
-                            'nested' => [
-                                'commerce-editSales' => ['label' => Craft::t('commerce', 'Edit sales')],
-                                'commerce-createSales' => ['label' => Craft::t('commerce', 'Create sales')],
-                                'commerce-deleteSales' => ['label' => Craft::t('commerce', 'Delete sales')],
-                                'commerce-editCatalogPricingRules' => ['label' => Craft::t('commerce', 'Edit catalog pricing rules')],
-                                'commerce-createCatalogPricingRules' => ['label' => Craft::t('commerce', 'Create catalog pricing rules')],
-                                'commerce-deleteCatalogPricingRules' => ['label' => Craft::t('commerce', 'Delete catalog pricing rules')],
-                                'commerce-editDiscounts' => ['label' => Craft::t('commerce', 'Edit discounts')],
-                                'commerce-createDiscounts' => ['label' => Craft::t('commerce', 'Create discounts')],
-                                'commerce-deleteDiscounts' => ['label' => Craft::t('commerce', 'Delete discounts')],
-                            ],
-                        ],
-                    ],
-                ],
-                'commerce-manageDonationSettings' => ['label' => Craft::t('commerce', 'Manage donation settings')],
-            ],
-        ];
-    }
-
-    /**
      * Register Commerce’s project config event listeners
      */
     private function _registerProjectConfigEventListeners(): void
@@ -677,29 +359,6 @@ class Plugin extends BasePlugin
             return;
         }
 
-        if (!Craft::$app->getRequest()->isConsoleRequest) {
-            Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getCustomers(), 'loginHandler']);
-            Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getCarts(), 'forgetCart']);
-
-            Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCarts(), 'afterSaveUserHandler']);
-        }
-
-        Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'afterSaveSiteHandler']);
-        Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProducts(), 'afterSaveSiteHandler']);
-        Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getStores(), 'afterSaveCraftSiteHandler']);
-        Event::on(Sites::class, Sites::EVENT_AFTER_DELETE_SITE, [$this->getStores(), 'afterDeleteCraftSiteHandler']);
-
-        Event::on(UserElement::class, UserElement::EVENT_DEFINE_DELETION_BLOCKERS, [$this->getOrders(), 'beforeDeleteUserHandler']);
-        Event::on(Address::class, Address::EVENT_AFTER_SAVE, [$this->getOrders(), 'afterSaveAddressHandler']);
-
-        Event::on(
-            UserElement::class,
-            UserElement::EVENT_DEFINE_BEHAVIORS,
-            function(DefineBehaviorsEvent $event) {
-                $event->behaviors['commerce:customer'] = CustomerBehavior::class;
-            }
-        );
-
         // TODO: UserQuery::EVENT_AFTER_POPULATE_ELEMENTS was removed in Craft 6.
         // Re-wire customer attachment (primaryBillingAddressId / primaryShippingAddressId)
         // to the new element-loading lifecycle when its equivalent lands.
@@ -737,64 +396,7 @@ class Plugin extends BasePlugin
 
         // Commerce screen on the Edit User screen is now registered in src/Plugin.php
 
-        // Don't attach behavior if Craft is in the middle of an update
-        if (! app(Updates::class)->isCraftUpdatePending()) {
-            // Site models are instantiated early meaning we have to manually attach the behavior alongside using the event
-            $sites = Craft::$app->getSites()->getAllSites(true);
-            foreach ($sites as $site) {
-                $site->attachBehavior('commerce:store', StoreBehavior::class);
-            }
-            Event::on(Site::class, Site::EVENT_DEFINE_BEHAVIORS, function(DefineBehaviorsEvent $event) {
-                $event->behaviors['commerce:store'] = StoreBehavior::class;
-            });
-        }
-
-        Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCatalogPricingRules(), 'afterSaveUserHandler']);
-        Event::on(Users::class, Users::EVENT_AFTER_ASSIGN_USER_TO_GROUPS, [$this->getCatalogPricingRules(), 'afterSaveUserHandler']);
-
-        Event::on(Address::class, Address::EVENT_DEFINE_BEHAVIORS, function(DefineBehaviorsEvent $event) {
-            /** @var Address $address */
-            $address = $event->sender;
-
-            if ($address->ownerId) {
-                $owner = $address->getOwner();
-                if ($owner instanceof UserElement) {
-                    $event->behaviors['commerce:address'] = CustomerAddressBehavior::class;
-                }
-            }
-        });
-
         Event::on(Purchasable::class, Elements::EVENT_BEFORE_RESTORE_ELEMENT, [$this->getPurchasables(), 'beforeRestorePurchasableHandler']);
-
-        // Register system message for PDF download emails
-        Event::on(
-            SystemMessages::class,
-            SystemMessages::EVENT_REGISTER_MESSAGES,
-            function(RegisterEmailMessagesEvent $event) {
-                $event->messages = array_merge($event->messages, [
-                    [
-                        'key' => 'commerce_pdf_download',
-                        'heading' => Craft::t('commerce', 'Order PDF Download Link'),
-                        'subject' => Craft::t('commerce', 'Your Order PDF Download Link'),
-                        'body' => $this->_getDefaultPdfDownloadMessage(),
-                    ],
-                    [
-                        'key' => 'commerce_cart_recovery',
-                        'heading' => Craft::t('commerce', 'Cart Recovery Link'),
-                        'subject' => Craft::t('commerce', 'Your Cart Recovery Link'),
-                        'body' => $this->_getDefaultCartRecoveryMessage(),
-                    ],
-                ]);
-            }
-        );
-
-        Event::on(Elements::class, Elements::EVENT_AUTHORIZE_VIEW, [$this->getStoreSettings(), 'authorizeStoreLocationView']);
-        Event::on(Elements::class, Elements::EVENT_AUTHORIZE_SAVE, [$this->getStoreSettings(), 'authorizeStoreLocationEdit']);
-        Event::on(Elements::class, Elements::EVENT_AUTHORIZE_CREATE_DRAFTS, [$this->getStoreSettings(), 'authorizeStoreLocationEdit']);
-
-        Event::on(Elements::class, Elements::EVENT_AUTHORIZE_VIEW, [$this->getInventoryLocations(), 'authorizeInventoryLocationAddressView']);
-        Event::on(Elements::class, Elements::EVENT_AUTHORIZE_SAVE, [$this->getInventoryLocations(), 'authorizeInventoryLocationAddressEdit']);
-        Event::on(Elements::class, Elements::EVENT_AUTHORIZE_CREATE_DRAFTS, [$this->getInventoryLocations(), 'authorizeInventoryLocationAddressEdit']);
     }
 
     /**
@@ -809,49 +411,13 @@ class Plugin extends BasePlugin
     }
 
     /**
-     * Register Commerce’s widgets.
-     */
-    private function _registerWidgets(): void
-    {
-        Event::on(Dashboard::class, Dashboard::EVENT_REGISTER_WIDGET_TYPES, static function(RegisterComponentTypesEvent $event) {
-            $event->types[] = AverageOrderTotal::class;
-            $event->types[] = NewCustomers::class;
-            $event->types[] = Orders::class;
-            $event->types[] = RepeatCustomers::class;
-            $event->types[] = TotalOrders::class;
-            $event->types[] = TotalOrdersByCountry::class;
-            $event->types[] = TopCustomers::class;
-            $event->types[] = TopProducts::class;
-            $event->types[] = TopProductTypes::class;
-            $event->types[] = TopPurchasables::class;
-            $event->types[] = TotalRevenue::class;
-        });
-    }
-
-    /**
      * Register Commerce’s template variable.
      */
     private function _registerVariables(): void
     {
-        $plugin = $this;
-        NewCraftVariable::macro('commerce', static fn() => $plugin);
-        NewCraftVariable::macro('orders', static function(array $criteria = []) {
-            $query = Order::find();
-            Craft::configure($query, $criteria);
-            return $query;
-        });
-        NewCraftVariable::macro('products', static function(array $criteria = []) {
-            $query = Product::find();
-            Craft::configure($query, $criteria);
-            return $query;
-        });
-        NewCraftVariable::macro('variants', static function(array $criteria = []) {
-            $query = Variant::find();
-            Craft::configure($query, $criteria);
-            return $query;
-        });
-
-        // Legacy Yii2 CraftVariable (backward compat)
+        // Legacy Yii2 CraftVariable (backward compat) — `craft.commerce`/`craft.orders`/etc. for
+        // the new Twig variable system are registered via `NewCraftVariable::macro(...)` in
+        // src/Plugin.php now.
         Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, static function(Event $event) {
             /** @var CraftVariable $variable */
             $variable = $event->sender;
@@ -893,15 +459,12 @@ class Plugin extends BasePlugin
     }
 
     /**
-     * Register the element types supplied by Craft Commerce
+     * Register the element types supplied by Craft Commerce that haven't been ported to
+     * CraftCms\Commerce\Plugin's $elementTypes yet.
      */
     private function _registerElementTypes(): void
     {
         Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, static function(RegisterComponentTypesEvent $e) {
-            $e->types[] = Variant::class;
-            $e->types[] = Product::class;
-            $e->types[] = Order::class;
-            $e->types[] = Donation::class;
             $e->types[] = Transfer::class;
         });
     }
@@ -936,54 +499,13 @@ class Plugin extends BasePlugin
     }
 
     /**
-     * Register the Gql permissions
-     */
-    private function _registerGqlComponents(): void
-    {
-        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_SCHEMA_COMPONENTS, static function(RegisterGqlSchemaComponentsEvent $event) {
-            $queryComponents = [];
-
-            $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
-
-            if (!empty($productTypes)) {
-                $label = Craft::t('commerce', 'Products');
-                $productPermissions = [];
-
-                foreach ($productTypes as $productType) {
-                    $suffix = 'productTypes.' . $productType->uid;
-                    $productPermissions[$suffix . ':read'] = ['label' => Craft::t('commerce', 'View product type - {productType}', ['productType' => Craft::t('site', $productType->name)])];
-                }
-
-                $queryComponents[$label] = $productPermissions;
-            }
-
-            $event->queries = array_merge($event->queries, $queryComponents);
-        });
-    }
-
-    private function _registerGqlEagerLoadableFields(): void
-    {
-        Event::on(ElementQueryConditionBuilder::class, ElementQueryConditionBuilder::EVENT_REGISTER_GQL_EAGERLOADABLE_FIELDS, function(RegisterGqlEagerLoadableFields $event) {
-            $event->fieldList['variants'] = [ProductsField::class];
-            $event->fieldList['product'] = [VariantsField::class];
-        });
-    }
-
-    /**
-     * Register the Gql argument handlers
+     * Add relatedToProducts and relatedToVariants arguments to element queries.
      *
-     * @since 5.6.0
+     * The handlers for these arguments themselves are registered via
+     * CraftCms\Commerce\Plugin's boot() using the new GqlArguments registry.
      */
-    private function _registerGqlArgumentHandlers(): void
+    private function _registerRelatedToArguments(): void
     {
-        Event::on(ArgumentManager::class, ArgumentManager::EVENT_DEFINE_GQL_ARGUMENT_HANDLERS, static function(RegisterGqlArgumentHandlersEvent $event) {
-            $event->handlers['hasProduct'] = HasProduct::class;
-            $event->handlers['hasVariant'] = HasVariant::class;
-            $event->handlers['relatedToProducts'] = RelatedProducts::class;
-            $event->handlers['relatedToVariants'] = RelatedVariants::class;
-        });
-
-        // Add relatedToProducts and relatedToVariants arguments to element queries
         Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_QUERIES, static function(RegisterGqlQueriesEvent $event) {
             $relatedToProductsArg = [
                 'name' => 'relatedToProducts',
@@ -1006,278 +528,4 @@ class Plugin extends BasePlugin
         });
     }
 
-    /**
-     * Register the cache types
-     */
-    private function _registerCacheTypes(): void
-    {
-        // create the directory if it doesn't exist
-
-        $path = Craft::$app->getPath()->getRuntimePath() . DIRECTORY_SEPARATOR . 'commerce-order-exports';
-
-        try {
-            FileHelper::createDirectory($path);
-        } catch (\Exception $e) {
-            Craft::$app->getErrorHandler()->logException($e);
-        }
-
-        Event::on(ClearCaches::class, ClearCaches::EVENT_REGISTER_CACHE_OPTIONS, static function(RegisterCacheOptionsEvent $e) use ($path) {
-            try {
-                FileHelper::createDirectory($path);
-            } catch (\Exception $e) {
-                Craft::$app->getErrorHandler()->logException($e);
-            }
-
-            $e->options[] = [
-                'key' => 'commerce-order-exports',
-                'label' => Craft::t('commerce', 'Commerce order exports'),
-                'action' => static function() use ($path) {
-                    if (file_exists($path)) {
-                        FileHelper::clearDirectory($path);
-                    }
-                },
-            ];
-        });
-    }
-
-    /**
-     * Register the things that need to be garbage collected
-     *
-     * @since 2.2
-     */
-    private function _registerGarbageCollection(): void
-    {
-        Event::on(Gc::class, Gc::EVENT_RUN, function(Event $event) {
-            // Deletes carts that meet the purge settings
-            if (Craft::$app instanceof ConsoleApplication) {
-                Console::stdout('    > purging inactive carts ... ');
-            }
-            Plugin::getInstance()->getCarts()->purgeIncompleteCarts();
-            if (Craft::$app instanceof ConsoleApplication) {
-                Console::stdout("done\n", Console::FG_GREEN);
-            }
-
-            // Delete orphaned variants
-            Db::delete(Table::VARIANTS, ['primaryOwnerId' => null]);
-
-            // Delete partial elements
-            /** @var Gc $gc */
-            $gc = $event->sender;
-            $gc->deletePartialElements(Donation::class, Table::DONATIONS, 'id');
-            $gc->deletePartialElements(Order::class, Table::ORDERS, 'id');
-            $gc->deletePartialElements(Product::class, Table::PRODUCTS, 'id');
-            $gc->deletePartialElements(Variant::class, Table::VARIANTS, 'id');
-            $gc->deletePartialElements(Transfer::class, Table::TRANSFERS, 'id');
-        });
-    }
-
-    /**
-     * Register the element exportables
-     *
-     * @since 2.2
-     */
-    private function _registerElementExports(): void
-    {
-        Event::on(Order::class, Order::EVENT_REGISTER_EXPORTERS, static function(RegisterElementExportersEvent $e) {
-            $e->exporters[] = OrderExport::class;
-            $e->exporters[] = LineItemExport::class;
-        });
-    }
-
-    /**
-     * Registers additional standard fields for the product and variant field layout designers.
-     *
-     * @since 3.2.0
-     */
-    private function _defineFieldLayoutElements(): void
-    {
-        Event::on(FieldLayout::class, FieldLayout::EVENT_DEFINE_NATIVE_FIELDS, static function(DefineFieldLayoutFieldsEvent $e) {
-            /** @var FieldLayout $fieldLayout */
-            $fieldLayout = $e->sender;
-
-            switch ($fieldLayout->type) {
-                case Address::class:
-                    $e->fields[] = UserAddressSettings::class;
-                    break;
-                case Product::class:
-                    $e->fields[] = ProductTitleField::class;
-                    $e->fields[] = VariantsLayoutElement::class;
-                    break;
-                case Transfer::class:
-                    $e->fields[] = TransferManagementField::class;
-                    break;
-                case Variant::class:
-                    $e->fields[] = VariantTitleField::class;
-                    $e->fields[] = PurchasableSkuField::class;
-                    $e->fields[] = PurchasablePriceField::class;
-                    $e->fields[] = PurchasableStockField::class;
-                    $e->fields[] = PurchasableAvailableForPurchaseField::class;
-                    $e->fields[] = PurchasableAllowedQtyField::class;
-                    $e->fields[] = PurchasableFreeShippingField::class;
-                    $e->fields[] = PurchasablePromotableField::class;
-                    $e->fields[] = PurchasableDimensionsField::class;
-                    $e->fields[] = PurchasableWeightField::class;
-            }
-        });
-    }
-
-    /**
-     * Defines the `resave/products`, `resave/variants`, `resave/carts` and `resave/orders` commands.
-     */
-    private function _defineResaveCommand(): void
-    {
-        Event::on(ResaveController::class, ConsoleController::EVENT_DEFINE_ACTIONS, static function(DefineConsoleActionsEvent $e) {
-            $e->actions['products'] = [
-                'action' => function(): int {
-                    /** @var ResaveController $controller */
-                    $controller = Craft::$app->controller;
-                    $criteria = [];
-
-                    if ($controller->type !== null) {
-                        $criteria['type'] = explode(',', $controller->type);
-                    }
-
-                    if (!empty($controller->withFields)) {
-                        $handles = Collection::make(self::getInstance()->getProductTypes()->getAllProductTypes())
-                            ->filter(fn(ProductType $productType) => $controller->hasTheFields($productType->getProductFieldLayout()))
-                            ->map(fn(ProductType $productType) => $productType->handle)
-                            ->all();
-                        if (isset($criteria['type'])) {
-                            $criteria['type'] = array_intersect($criteria['type'], $handles);
-                        } else {
-                            $criteria['type'] = $handles;
-                        }
-
-                        if (empty($criteria['type'])) {
-                            $controller->output($controller->markdownToAnsi('No product types satisfy `--with-fields`.'));
-                            return ExitCode::UNSPECIFIED_ERROR;
-                        }
-                    }
-
-                    return $controller->resaveElements(Product::class, $criteria);
-                },
-                'options' => array_filter(['type', (property_exists(ResaveController::class, 'withFields') ? 'withFields' : null)]),
-                'helpSummary' => 'Re-saves Commerce products.',
-                'optionsHelp' => [
-                    'type' => 'The product type handle(s) of the products to resave.',
-                ],
-            ];
-
-            $e->actions['variants'] = [
-                'action' => function(): int {
-                    /** @var ResaveController $controller */
-                    $controller = Craft::$app->controller;
-                    $criteria = [];
-
-                    if ($controller->type !== null) {
-                        $criteria['type'] = explode(',', $controller->type);
-                    }
-                    if (!empty($controller->withFields)) {
-                        $handles = Collection::make(self::getInstance()->getProductTypes()->getAllProductTypes())
-                            ->filter(fn(ProductType $productType) => $controller->hasTheFields($productType->getVariantFieldLayout()))
-                            ->map(fn(ProductType $productType) => $productType->handle)
-                            ->all();
-                        if (isset($criteria['type'])) {
-                            $criteria['type'] = array_intersect($criteria['type'], $handles);
-                        } else {
-                            $criteria['type'] = $handles;
-                        }
-
-                        if (empty($criteria['type'])) {
-                            $controller->output($controller->markdownToAnsi('No variant types satisfy `--with-fields`.'));
-                            return ExitCode::UNSPECIFIED_ERROR;
-                        }
-                    }
-
-                    // Convert type handles to type IDs for the variant query
-                    if (!empty($criteria['type'])) {
-                        $criteria['typeId'] = new Query()
-                            ->select('id')
-                            ->from(Table::PRODUCTTYPES)
-                            ->where(['handle' => $criteria['type']])
-                            ->column();
-
-                        unset($criteria['type']);
-                    }
-
-                    return $controller->resaveElements(Variant::class, $criteria);
-                },
-                'options' => array_filter(['type', (property_exists(ResaveController::class, 'withFields') ? 'withFields' : null)]),
-                'helpSummary' => 'Re-saves Commerce variants.',
-                'optionsHelp' => [
-                    'type' => 'The product type handle(s) of the variants to resave.',
-                ],
-            ];
-
-            $e->actions['orders'] = [
-                'action' => function(): int {
-                    /** @var ResaveController $controller */
-                    $controller = Craft::$app->controller;
-                    // @TODO Remove this version_compare and property_exists guard once Commerce composer.json requires Craft 5.5+ (where ResaveController::$withFields is always available)
-                    if (version_compare(Craft::$app->getInfo()->version, '5.5.0', '>=') && !empty($controller->withFields)) {
-                        $fieldLayout = Craft::$app->getFields()->getLayoutByType(Order::class);
-                        if (!$controller->hasTheFields($fieldLayout)) {
-                            $controller->output($controller->markdownToAnsi('The order field layout doesn’t satisfy `--with-fields`.'));
-                            return ExitCode::UNSPECIFIED_ERROR;
-                        }
-                    }
-
-                    return $controller->resaveElements(Order::class, [
-                        'isCompleted' => true,
-                    ]);
-                },
-                'options' => array_filter([(property_exists(ResaveController::class, 'withFields') ? 'withFields' : null)]),
-                'helpSummary' => 'Re-saves completed Commerce orders.',
-            ];
-
-            $e->actions['carts'] = [
-                'action' => function(): int {
-                    /** @var ResaveController $controller */
-                    $controller = Craft::$app->controller;
-                    // @TODO Remove this version_compare and property_exists guard once Commerce composer.json requires Craft 5.5+ (where ResaveController::$withFields is always available)
-                    if (version_compare(Craft::$app->getInfo()->version, '5.5.0', '>=') && !empty($controller->withFields)) {
-                        $fieldLayout = Craft::$app->getFields()->getLayoutByType(Order::class);
-                        if (!$controller->hasTheFields($fieldLayout)) {
-                            $controller->output($controller->markdownToAnsi('The order field layout doesn’t satisfy `--with-fields`.'));
-                            return ExitCode::UNSPECIFIED_ERROR;
-                        }
-                    }
-
-                    return $controller->resaveElements(Order::class, [
-                        'isCompleted' => false,
-                    ]);
-                },
-                'options' => array_filter([(property_exists(ResaveController::class, 'withFields') ? 'withFields' : null)]),
-                'helpSummary' => 'Re-saves Commerce carts.',
-            ];
-        });
-    }
-
-    /**
-     * Returns the default message body for the PDF download email.
-     *
-     * @return string
-     */
-    private function _getDefaultPdfDownloadMessage(): string
-    {
-        return "Hello,\n\n" .
-            "You requested a PDF download for your order. Click the link below to download your PDF:\n\n" .
-            "[Download PDF]({{ link }})\n\n" .
-            "**Please note:** This link will expire for security purposes.\n\n" .
-            "Thank you!";
-    }
-
-    /**
-     * Returns the default message body for the cart recovery email.
-     *
-     * @return string
-     */
-    private function _getDefaultCartRecoveryMessage(): string
-    {
-        return "Hello,\n\n" .
-            "You requested a link to recover your shopping cart. Click the link below to continue shopping:\n\n" .
-            "[Recover My Cart]({{ link }})\n\n" .
-            "**Please note:** This link will expire for security purposes.\n\n" .
-            "Thank you!";
-    }
 }

@@ -21,6 +21,9 @@ use Orchestra\Testbench\Concerns\WithWorkbench;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Override;
 
+use function Orchestra\Testbench\default_skeleton_path;
+use function Orchestra\Testbench\package_path;
+
 class TestCase extends Orchestra
 {
     use RefreshDatabase;
@@ -37,6 +40,17 @@ class TestCase extends Orchestra
     #[Override]
     protected function setUp(): void
     {
+        // Testbench's `#[UsesVendor]` attribute symlinks `vendor/` into its
+        // temporary skeleton app too late — the skeleton app (and everything
+        // resolved during its boot, e.g. Craft's plugin manifest lookup, which
+        // reads `vendor/craftcms/plugins.php` relative to `app()->basePath()`)
+        // is already created by the time that attribute's `beforeEach()` fires.
+        // Create the symlink once, persistently, before the app exists at all.
+        $skeletonVendorPath = default_skeleton_path() . '/vendor';
+        if (!is_link($skeletonVendorPath) && !is_dir($skeletonVendorPath)) {
+            symlink(package_path('vendor'), $skeletonVendorPath);
+        }
+
         parent::setUp();
 
         config()->set('app.debug', true);

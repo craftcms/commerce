@@ -97,7 +97,10 @@
 
 - Added `CraftCms\Commerce\Customer\Customers`.
 - Added `CraftCms\Commerce\Customer\Records\Customer`.
+- Added `CraftCms\Commerce\Customer\Customers::afterSaveUserHandler()` and `afterSaveAddressHandler()`, listening for `CraftCms\Cms\Element\Events\ElementSaved` to persist primary billing/shipping addresses, primary payment sources, and order email syncing.
 - Deprecated `craft\commerce\services\Customers`. `CraftCms\Commerce\Customer\Customers` should be used instead.
+- Deprecated `craft\commerce\behaviors\CustomerBehavior`. `User::getPrimaryBillingAddressId()`, `getPrimaryShippingAddressId()`, `getPrimaryPaymentSourceId()`, `getActiveCarts()`, `getInactiveCarts()`, and `getOrders()` are now provided via a `Illuminate\Support\Traits\Macroable` macro instead.
+- Deprecated `craft\commerce\behaviors\CustomerAddressBehavior`. `Address::getIsPrimaryBilling()` and `getIsPrimaryShipping()` are now provided via a `Illuminate\Support\Traits\Macroable` macro instead.
 - Removed `craft\commerce\records\Customer`. `CraftCms\Commerce\Customer\Records\Customer` should be used instead.
 
 ### Dashboard & Widgets
@@ -628,6 +631,7 @@
 - Added `CraftCms\Commerce\Store\Events\DeleteStoreEvent`.
 - Added `CraftCms\Commerce\Store\Events\StoreEvent`.
 - Deprecated `craft\commerce\services\Stores`. `CraftCms\Commerce\Store\Stores` should be used instead.
+- Deprecated `craft\commerce\behaviors\StoreBehavior`. `Site::getStore()` is now provided via a `Illuminate\Support\Traits\Macroable` macro instead.
 - Deprecated `craft\commerce\services\StoreSettings`. `CraftCms\Commerce\Store\StoreSettings` should be used instead.
 - Deprecated `craft\commerce\models\Store`. `CraftCms\Commerce\Store\Models\Store` should be used instead.
 - Deprecated `craft\commerce\models\StoreSettings`. `CraftCms\Commerce\Store\Models\StoreSettings` should be used instead.
@@ -734,7 +738,15 @@
 ### Extensibility
 
 - Added `CraftCms\Commerce\Plugin`, extending `CraftCms\Cms\Plugin\Plugin`. `craft\commerce\Plugin` now extends this class instead of `craft\base\Plugin`.
-- Added `Plugin::getPermissions()`, exposing Commerce's permissions as `CraftCms\Cms\User\Data\Permission` objects.
+- Added `Plugin::getPermissions()`, exposing Commerce's permissions as `CraftCms\Cms\User\Data\Permission` objects, including a dynamic `commerce-viewProductType:{uid}` permission (with nested create/save/delete permissions) per product type.
+- Added `Plugin::getCpNavItem()`, building the Commerce CP nav item and its permission-gated subnav via `CraftCms\Cms\Cp\Data\NavItem` instead of the legacy array-based `getCpNavItem()` override.
+- Added `CraftCms\Commerce\Console\Commands\Resave\ResaveProductsCommand`, `ResaveVariantsCommand`, `ResaveOrdersCommand`, and `ResaveCartsCommand`, registered as `craft:resave:products`, `craft:resave:variants`, `craft:resave:orders`, and `craft:resave:carts` (also picked up automatically by `craft:resave:all`).
+- Added `CraftCms\Commerce\Support\ObjectState`, a `WeakMap`-backed per-instance state store used by the `Site`/`User`/`Address` `Macroable` macros above.
+- Added GraphQL schema component and eager-loadable field registration via `CraftCms\Cms\Gql\Events\GqlSchemaComponentsResolving` and `GqlEagerLoadableFieldsResolving`.
+- Added garbage collection registration via `CraftCms\Cms\GarbageCollection\Events\RunningGarbageCollection`, purging incomplete carts, orphaned variants, and partial Donation/Order/Product/Variant/Transfer elements.
+- Added `craft.commerce`, `craft.orders`, `craft.products`, and `craft.variants` Twig variables via `CraftCms\Cms\Twig\Variables\CraftVariable::macro()`.
+- Registered Commerce's Twig extension via the `CraftCms\Cms\Support\Facades\Twig` facade.
+- Added `CraftCms\Commerce\Order\Elements\Order::defineExporters()`, registering `CraftCms\Commerce\Order\Exporters\OrderExport` and `LineItemExport` alongside the default `Raw` and `Expanded` exporters.
 - Added `CraftCms\Commerce\Base\Zone`.
 - Added `CraftCms\Commerce\Base\ZoneInterface`.
 - Added `CraftCms\Commerce\Database\Table`.
@@ -756,3 +768,13 @@
 - Removed the Commerce Yii2 debug panel and all related classes (`CommercePanel`, `DebugPanel` helper, `CommerceDebugPanelDataEvent`, and its Twig views) — the Yii2 debug module they relied on no longer exists in Craft CMS 6.
 - Removed `src-yii2/etc/commands.php`, an unused "A&M quick commands" registration file with no references anywhere in the codebase.
 - Removed `src-yii2/etc/currencies.php`, a static copy of moneyphp/money's currency data that was superseded by `CraftCms\Commerce\Payment\Currencies`, which now reads currency data directly from the `moneyphp/money` package.
+
+### Testing
+
+- Renamed `tests/` to `tests-yii2/`, mirroring the `src`/`src-yii2` split, so `tests/` is reserved for Pest tests covering the new `src/` codebase.
+- Removed the Codeception test runner and harness (`codeception.yml`, suite configs, `_bootstrap.php`, `_craft/`, `_data/`, `_envs/`, `_output/`, `_support/`, env files, and the `codeception/*` Composer dependencies) — it's no longer run. The legacy `unit/`, `gql/`, and `fixtures/` test classes remain under `tests-yii2/` as reference material to port to Pest; the empty `acceptance/` and `functional/` suites were removed outright.
+- Added a Pest/Orchestra Testbench harness under `tests/` (`TestCase`, `UnitTestCase`, `Pest.php`, `Feature/`, `Unit/`, `Arch/`) for testing `CraftCms\Commerce\` code in `src/`. Run via `composer run tests`.
+- Added `craftcms/yii2-adapter` as a `require-dev` dependency and the standard Testbench `package:discover`/`package:purge-skeleton` Composer scripts — both needed for the plugin to install correctly under the standalone Testbench harness, since neither was ever required before (previously only exercised as part of the full `craft6a` project, which already provides them).
+- Added `database/migrations/Install.php` (`CraftCms\Commerce\Database\Migrations\Install`), a Laravel-style port of `src-yii2/migrations/Install.php`, so Commerce can be installed via `CraftCms\Cms\Plugin\Concerns\Installable::install()` (which runs a plugin's install migration through Laravel's `Migrator`, incompatible with the legacy Yii2 migration) — this is the first time Commerce has been installed through that code path, since production sites installed under the old Yii2 installer flow before this migration began. `getMigrationsPath()`'s "conventional path" check (`database/migrations/`) picks it up automatically ahead of the legacy path; no other wiring needed. `down()` is a one-line "cannot be reverted" warning, matching Craft core's own ported install migration.
+- Fixed `CraftCms\Commerce\Helpers\Locale::switchAppLanguage()` — it only mutated the legacy Yii2 `Craft::$app` locale state, which `CraftCms\Cms\Translation\I18N::getFormattingLocale()` (used by `Currency::formatAsCurrency()` and friends) doesn't read outside of CP requests; it now also calls `app()->setLocale()` so switching language actually affects number/currency formatting.
+- Fixed `CraftCms\Commerce\Store\Stores.php`'s schema-version guard (added for pre-5.0.72 upgrade compatibility) — right after a fresh plugin install, `Plugins::getStoredPluginInfo()` only has `['id', 'enabled']` cached (no `schemaVersion` yet), which threw an "undefined array key" error instead of the intended "assume old schema" fallback. A missing key now correctly means "just installed, definitely has the settings columns," not "pre-5.0.72."

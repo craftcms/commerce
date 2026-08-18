@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\CatalogPricing;
 
-use craft\events\ModelEvent;
-use craft\events\UserGroupsAssignEvent;
+use CraftCms\Cms\Element\Events\ElementSaved;
 use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Cms\User\Elements\User;
+use CraftCms\Cms\User\Events\UserAssignedToGroups;
 use CraftCms\Commerce\Catalog\Models\CatalogPricingRule;
 use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule as CatalogPricingRuleRecord;
 use CraftCms\Commerce\Database\Table;
@@ -146,12 +146,12 @@ class CatalogPricingRules
         return $catalogPricingRule->getRulePriceFromPrice($price);
     }
 
-    /**
-     * @param ModelEvent|UserGroupsAssignEvent $event
-     * TODO: Update when User element and Craft events are migrated to Laravel
-     */
-    public function afterSaveUserHandler(ModelEvent|UserGroupsAssignEvent $event): void
+    public function afterSaveUserHandler(ElementSaved|UserAssignedToGroups $event): void
     {
+        if ($event instanceof ElementSaved && !$event->element instanceof User) {
+            return;
+        }
+
         // TODO: migrate to app(Stores::class)->getAllStores() once Stores service migrated
         /** @phpstan-ignore-next-line */
         $stores = app(Stores::class)->getAllStores();
@@ -163,7 +163,7 @@ class CatalogPricingRules
             }
 
             /** @var User $user */
-            $user = $event instanceof ModelEvent ? $event->sender : Users::getUserById($event->userId);
+            $user = $event instanceof ElementSaved ? $event->element : Users::getUserById($event->userId);
 
             $rules->each(function(CatalogPricingRule $rule) use ($user) {
                 $customerCondition = $rule->getCustomerCondition();

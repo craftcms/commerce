@@ -59,6 +59,8 @@ use CraftCms\Commerce\Order\Exceptions\LineItemNotFoundException;
 use CraftCms\Commerce\Order\Exceptions\OrderAdjustmentNotFoundException;
 use CraftCms\Commerce\Order\Exceptions\OrderStatusException;
 use CraftCms\Commerce\Order\Exporters\Expanded;
+use CraftCms\Commerce\Order\Exporters\LineItemExport;
+use CraftCms\Commerce\Order\Exporters\OrderExport;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\LineItem\LineItems;
 use CraftCms\Commerce\Order\Models\Order as OrderRecord;
@@ -3591,6 +3593,8 @@ class Order extends Element implements HasStoreInterface
         // Remove the standard expanded exporter and use our own
         $default = array_filter($default, fn($exporter) => $exporter !== CraftExpanded::class);
         $default[] = Expanded::class;
+        $default[] = OrderExport::class;
+        $default[] = LineItemExport::class;
 
         return $default;
     }

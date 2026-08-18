@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Plugin\Concerns;
 
+use CraftCms\Commerce\Catalog\Elements\Product;
+use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Cms\User\Data\Permission;
 use Illuminate\Support\Collection;
 use Override;
@@ -16,6 +18,7 @@ trait HasPermissions
     protected function getPermissions(): array
     {
         return [
+            ...$this->productTypePermissions(),
             new Permission(
                 key: 'commerce-manageOrders',
                 label: t('Manage orders', category: 'commerce'),
@@ -68,5 +71,42 @@ trait HasPermissions
                 label: t('Manage donation settings', category: 'commerce'),
             ),
         ];
+    }
+
+    /**
+     * @return Permission[]
+     */
+    private function productTypePermissions(): array
+    {
+        $productTypes = app(ProductTypes::class)->getAllProductTypes();
+
+        if (empty($productTypes)) {
+            return [];
+        }
+
+        $pluralType = Product::pluralLowerDisplayName();
+
+        return array_map(fn($productType) => new Permission(
+            key: "commerce-viewProductType:$productType->uid",
+            label: t('View {type}', ['type' => $pluralType], category: 'app'),
+            info: t('Allows viewing existing {type} and creating drafts for them.', ['type' => $pluralType], category: 'app'),
+            nested: new Collection([
+                new Permission(
+                    key: "commerce-createProductType:$productType->uid",
+                    label: ucfirst(t('Create {type}', ['type' => $pluralType], category: 'app')),
+                    info: t('Allows creating drafts of new {type}.', ['type' => $pluralType], category: 'app'),
+                ),
+                new Permission(
+                    key: "commerce-saveProductType:$productType->uid",
+                    label: ucfirst(t('Save {type}', ['type' => $pluralType], category: 'app')),
+                    info: t('Allows fully saving canonical {type} (directly or by applying drafts).', ['type' => $pluralType], category: 'app'),
+                ),
+                new Permission(
+                    key: "commerce-deleteProductType:$productType->uid",
+                    label: ucfirst(t('Delete {type}', ['type' => $pluralType], category: 'app')),
+                    info: t('Allows deleting {type} for all sites.', ['type' => $pluralType], category: 'app'),
+                ),
+            ]),
+        ), $productTypes);
     }
 }

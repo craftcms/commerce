@@ -4,7 +4,6 @@ namespace craft\commerce\services;
 
 use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;
-use craft\events\SiteEvent;
 use CraftCms\Commerce\Catalog\Models\ProductTypeSite;
 use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
 use yii\base\Component;
@@ -126,10 +125,5 @@ class ProductTypes extends Component
     public function isProductTypeTemplateValid(ProductType $productType, int $siteId): bool
     {
         return app(\CraftCms\Commerce\Catalog\ProductType\ProductTypes::class)->isProductTypeTemplateValid($productType, $siteId);
-    }
-
-    public function afterSaveSiteHandler(SiteEvent $event): void
-    {
-        app(\CraftCms\Commerce\Catalog\ProductType\ProductTypes::class)->afterSaveSiteHandler($event);
     }
 }

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Store;
 
-use craft\events\AuthorizationCheckEvent;
 use CraftCms\Cms\Address\Elements\Address;
+use CraftCms\Cms\Auth\Events\ElementAuthorizing;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Store\Models\StoreSettings as StoreSettingsModel;
 use CraftCms\Commerce\Store\Records\StoreSettings as StoreSettingsRecord;
@@ -92,7 +92,7 @@ class StoreSettings
         return true;
     }
 
-    public function authorizeStoreLocationView(AuthorizationCheckEvent $event): void
+    public function authorizeStoreLocationView(ElementAuthorizing $event): void
     {
         if (!$this->checkStoreLocationAuthorization($event)) {
             return;
@@ -102,7 +102,7 @@ class StoreSettings
         $event->authorized = true;
     }
 
-    public function authorizeStoreLocationEdit(AuthorizationCheckEvent $event): void
+    public function authorizeStoreLocationEdit(ElementAuthorizing $event): void
     {
         if (!$this->checkStoreLocationAuthorization($event)) {
             return;
@@ -112,7 +112,7 @@ class StoreSettings
         $event->authorized = true;
     }
 
-    private function checkStoreLocationAuthorization(AuthorizationCheckEvent $event): StoreSettingsRecord|false
+    private function checkStoreLocationAuthorization(ElementAuthorizing $event): StoreSettingsRecord|false
     {
         if (!$event->element instanceof Address) {
             return false;

@@ -6,9 +6,9 @@ namespace CraftCms\Commerce\Order;
 
 use craft\commerce\Plugin;
 use craft\db\Query;
-use craft\events\ModelEvent;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Database\Table as CraftTable;
+use CraftCms\Cms\Element\Events\ElementSaved;
 use CraftCms\Cms\RouteToken\RouteTokens;
 use CraftCms\Cms\Support\Config;
 use CraftCms\Cms\Support\Facades\Elements;
@@ -546,7 +546,7 @@ class Carts
         return app(PaymentCurrencies::class)->getPrimaryPaymentCurrencyIso();
     }
 
-    public function afterSaveUserHandler(ModelEvent $event): void
+    public function afterSaveUserHandler(ElementSaved $event): void
     {
         $segments = request()->actionSegments();
         $userSaveSegments = ['users', 'save-user'];

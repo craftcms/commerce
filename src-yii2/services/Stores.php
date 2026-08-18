@@ -5,7 +5,6 @@ namespace craft\commerce\services;
 use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
 use craft\events\ConfigEvent;
-use craft\events\SiteEvent;
 use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
@@ -164,19 +163,4 @@ class Stores extends Component
         app(\CraftCms\Commerce\Store\Stores::class)->handleDeletedSiteStore($event);
     }
 
-    /**
-     * @throws Throwable
-     */
-    public function afterSaveCraftSiteHandler(SiteEvent $event): void
-    {
-        app(\CraftCms\Commerce\Store\Stores::class)->afterSaveCraftSiteHandler($event);
-    }
-
-    /**
-     * @throws Throwable
-     */
-    public function afterDeleteCraftSiteHandler(SiteEvent $event): void
-    {
-        app(\CraftCms\Commerce\Store\Stores::class)->afterDeleteCraftSiteHandler($event);
-    }
 }

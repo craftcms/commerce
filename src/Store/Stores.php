@@ -6,12 +6,13 @@ namespace CraftCms\Commerce\Store;
 
 use craft\commerce\Plugin;
 use craft\events\ConfigEvent;
-use craft\events\SiteEvent;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\ProjectConfig\ProjectConfigHelper;
 use CraftCms\Cms\Site\Data\Site;
+use CraftCms\Cms\Site\Events\SiteDeleted;
+use CraftCms\Cms\Site\Events\SiteSaved;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Plugins;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
@@ -509,8 +510,11 @@ class Stores
         ];
 
         // TODO: Remove this schemaVersion guard in Commerce 6.0 once all installs are past schema 5.0.72 and the store settings columns are guaranteed to exist
+        // Note: right after a fresh install (same request), Plugins::installPlugin() only caches
+        // ['id', 'enabled'] — no 'schemaVersion' yet — so a missing key means "freshly installed",
+        // which always has the settings columns, not "pre-5.0.72".
         $commerce = Plugins::getStoredPluginInfo('commerce');
-        $hasSettingsColumns = $commerce && version_compare($commerce['schemaVersion'], '5.0.72', '>=');
+        $hasSettingsColumns = !isset($commerce['schemaVersion']) || version_compare((string)$commerce['schemaVersion'], '5.0.72', '>=');
 
         if ($hasSettingsColumns) {
             $selectColumns = array_merge($selectColumns, [
@@ -691,7 +695,7 @@ class Stores
     /**
      * @throws Throwable
      */
-    public function afterSaveCraftSiteHandler(SiteEvent $event): void
+    public function afterSaveCraftSiteHandler(SiteSaved $event): void
     {
         $siteStore = SiteStoreRecord::find($event->site->id);
 
@@ -710,7 +714,7 @@ class Stores
     /**
      * @throws Throwable
      */
-    public function afterDeleteCraftSiteHandler(SiteEvent $event): void
+    public function afterDeleteCraftSiteHandler(SiteDeleted $event): void
     {
         $siteStores = $this->getAllSiteStores();
         $siteStore = $siteStores->firstWhere('siteId', $event->site->id);

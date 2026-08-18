@@ -23,6 +23,11 @@ class Locale
         }
 
         Craft::$app->set('formattingLocale', $locale);
+
+        // The Laravel-side app locale drives CraftCms\Cms\Translation\I18N::getFormattingLocale()'s
+        // fallback (used by number/currency formatting outside CP requests) — the Craft::$app
+        // assignments above don't reach it, so it needs to be set here too.
+        app()->setLocale($toLanguage);
     }
 
     public static function getSiteAndOtherLanguages(): array

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Catalog;
 
 use craft\commerce\Plugin;
-use craft\events\SiteEvent;
 use CraftCms\Cms\Element\Jobs\PropagateElements;
+use CraftCms\Cms\Site\Events\SiteSaved;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Plugins;
 use CraftCms\Commerce\Catalog\Elements\Product;
@@ -42,7 +42,7 @@ class Products
     /**
      * Handle a Site being saved.
      */
-    public function afterSaveSiteHandler(SiteEvent $event): void
+    public function afterSaveSiteHandler(SiteSaved $event): void
     {
         if (
             $event->isNew &&

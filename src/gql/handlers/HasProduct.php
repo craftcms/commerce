@@ -1,20 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
-namespace craft\commerce\gql\handlers;
+declare(strict_types=1);
+
+namespace CraftCms\Commerce\Gql\Handlers;
 
 use CraftCms\Cms\Gql\Handlers\ArgumentHandler;
 
-/**
- * Class HasProduct
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 5.6.5
- */
 class HasProduct extends ArgumentHandler
 {
     #[\Override]

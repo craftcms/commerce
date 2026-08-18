@@ -1,21 +1,12 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
-namespace craft\commerce\gql\handlers;
+declare(strict_types=1);
+
+namespace CraftCms\Commerce\Gql\Handlers;
 
 use CraftCms\Cms\Gql\Handlers\RelationArgumentHandler;
 use CraftCms\Commerce\Catalog\Elements\Product;
 
-/**
- * Class RelatedProducts
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 5.6.0
- */
 class RelatedProducts extends RelationArgumentHandler
 {
     #[\Override]

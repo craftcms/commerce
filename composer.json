@@ -29,13 +29,8 @@
     "moneyphp/money": "^4.2.0"
   },
   "require-dev": {
-    "codeception/codeception": "^5.0.11",
-    "codeception/module-asserts": "^3.0.0",
-    "codeception/module-datafactory": "^3.0.0",
-    "codeception/module-phpbrowser": "^3.0.0",
-    "codeception/module-rest": "^3.3.2",
-    "codeception/module-yii2": "^1.1.9",
     "craftcms/ecs": "dev-main",
+    "craftcms/yii2-adapter": "6.x-dev",
     "dg/bypass-finals": "^1.9",
     "fakerphp/faker": "^1.19.0",
     "league/factory-muffin": "^3.3.0",
@@ -51,7 +46,7 @@
     "psr-4": {
       "craft\\commerce\\": "src-yii2/",
       "CraftCms\\Commerce\\": "src/",
-      "craftcommercetests\\fixtures\\": "tests/fixtures/"
+      "craftcommercetests\\fixtures\\": "tests-yii2/fixtures/"
     }
   },
   "autoload-dev": {
@@ -70,14 +65,16 @@
     "check-cs": "ecs check --ansi",
     "fix-cs": "ecs check --ansi --fix",
     "phpstan": "phpstan --memory-limit=1G",
-    "testunit": [
-      "Composer\\Config::disableProcessTimeout",
-      "codecept run unit"
-    ],
     "tests": [
       "Composer\\Config::disableProcessTimeout",
       "./vendor/bin/pest --compact"
-    ]
+    ],
+    "post-autoload-dump": [
+      "@clear",
+      "@prepare"
+    ],
+    "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
+    "prepare": "@php vendor/bin/testbench package:discover --ansi"
   },
   "config": {
     "sort-packages": true,

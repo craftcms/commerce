@@ -3,7 +3,6 @@
 namespace craft\commerce\services;
 
 use craft\commerce\elements\Product;
-use craft\events\SiteEvent;
 use yii\base\Component;
 
 /**
@@ -17,10 +16,5 @@ class Products extends Component
     public function getProductById(int $id, array|int|string|null $siteId = null, array $criteria = []): ?Product
     {
         return app(\CraftCms\Commerce\Catalog\Products::class)->getProductById($id, $siteId, $criteria);
-    }
-
-    public function afterSaveSiteHandler(SiteEvent $event): void
-    {
-        app(\CraftCms\Commerce\Catalog\Products::class)->afterSaveSiteHandler($event);
     }
 }

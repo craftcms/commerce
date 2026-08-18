@@ -6,7 +6,7 @@ namespace CraftCms\Commerce\Http\Controllers;
 
 use craft\commerce\elements\Transfer;
 use craft\commerce\fieldlayoutelements\TransferManagementField;
-use craft\commerce\models\TransferDetail;
+use CraftCms\Commerce\Transfer\Models\TransferDetail;
 use craft\commerce\services\Transfers;
 use CraftCms\Cms\Element\Validation\ElementRules;
 use CraftCms\Cms\Http\RespondsWithFlash;

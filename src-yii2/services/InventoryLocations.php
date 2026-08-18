@@ -2,7 +2,6 @@
 
 namespace craft\commerce\services;
 
-use craft\events\AuthorizationCheckEvent;
 use CraftCms\Commerce\Inventory\Models\DeactivateInventoryLocation;
 use CraftCms\Commerce\Inventory\Models\InventoryLocation;
 use CraftCms\Commerce\Store\Models\Store;
@@ -58,15 +57,5 @@ class InventoryLocations extends Component
     public function saveInventoryLocation(InventoryLocation $inventoryLocation, bool $runValidation = true): bool
     {
         return app(\CraftCms\Commerce\Inventory\InventoryLocations::class)->saveInventoryLocation($inventoryLocation, $runValidation);
-    }
-
-    public function authorizeInventoryLocationAddressView(AuthorizationCheckEvent $event): void
-    {
-        app(\CraftCms\Commerce\Inventory\InventoryLocations::class)->authorizeInventoryLocationAddressView($event);
-    }
-
-    public function authorizeInventoryLocationAddressEdit(AuthorizationCheckEvent $event): void
-    {
-        app(\CraftCms\Commerce\Inventory\InventoryLocations::class)->authorizeInventoryLocationAddressEdit($event);
     }
 }

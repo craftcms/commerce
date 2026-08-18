@@ -3,7 +3,6 @@
 namespace craft\commerce\services;
 
 use craft\commerce\elements\Order;
-use craft\events\ModelEvent;
 use yii\base\Component;
 
 /**
@@ -87,10 +86,5 @@ class Carts extends Component
     public function purgeIncompleteCarts(): int
     {
         return app(\CraftCms\Commerce\Order\Carts::class)->purgeIncompleteCarts();
-    }
-
-    public function afterSaveUserHandler(ModelEvent $event): void
-    {
-        app(\CraftCms\Commerce\Order\Carts::class)->afterSaveUserHandler($event);
     }
 }

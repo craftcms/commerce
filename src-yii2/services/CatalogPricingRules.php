@@ -3,8 +3,6 @@
 namespace craft\commerce\services;
 
 use CraftCms\Commerce\Catalog\Models\CatalogPricingRule;
-use craft\events\ModelEvent;
-use craft\events\UserGroupsAssignEvent;
 use Illuminate\Support\Collection;
 use yii\base\Component;
 
@@ -71,11 +69,6 @@ class CatalogPricingRules extends Component
     public function generateRulePriceFromPrice(?float $basePrice, ?float $basePromotionalPrice, CatalogPricingRule $catalogPricingRule): ?float
     {
         return app(\CraftCms\Commerce\CatalogPricing\CatalogPricingRules::class)->generateRulePriceFromPrice($basePrice, $basePromotionalPrice, $catalogPricingRule);
-    }
-
-    public function afterSaveUserHandler(ModelEvent|UserGroupsAssignEvent $event): void
-    {
-        app(\CraftCms\Commerce\CatalogPricing\CatalogPricingRules::class)->afterSaveUserHandler($event);
     }
 
     public function saveCatalogPricingRule(CatalogPricingRule $catalogPricingRule, bool $runValidation = true): bool

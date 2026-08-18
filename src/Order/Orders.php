@@ -6,10 +6,10 @@ namespace CraftCms\Commerce\Order;
 
 use craft\commerce\elements\deletionblockers\OrderCustomersDeletionBlocker;
 use craft\events\ConfigEvent;
-use craft\events\DefineElementDeletionBlockersEvent;
-use craft\events\ModelEvent;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Database\Table as CraftTable;
+use CraftCms\Cms\Element\Events\DefineDeletionBlockers;
+use CraftCms\Cms\Element\Events\ElementSaved;
 use CraftCms\Cms\FieldLayout\FieldLayout;
 use CraftCms\Cms\ProjectConfig\ProjectConfigHelper;
 use CraftCms\Cms\Support\Facades\ElementCaches;
@@ -158,8 +158,12 @@ class Orders
     /**
      * Prevent deleting a user if they have any orders.
      */
-    public function beforeDeleteUserHandler(DefineElementDeletionBlockersEvent $event): void
+    public function beforeDeleteUserHandler(DefineDeletionBlockers $event): void
     {
+        if ($event->elementType !== User::class) {
+            return;
+        }
+
         $event->blockers[] = new OrderCustomersDeletionBlocker($event->elements, $event->hardDelete);
     }
 
@@ -228,10 +232,13 @@ class Orders
         return $count;
     }
 
-    public function afterSaveAddressHandler(ModelEvent $event): void
+    public function afterSaveAddressHandler(ElementSaved $event): void
     {
-        /** @var Address $address */
-        $address = $event->sender;
+        if (!$event->element instanceof Address) {
+            return;
+        }
+
+        $address = $event->element;
         if ($address->getIsDraft()) {
             return;
         }

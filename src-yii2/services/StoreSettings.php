@@ -2,7 +2,6 @@
 
 namespace craft\commerce\services;
 
-use craft\events\AuthorizationCheckEvent;
 use CraftCms\Commerce\Store\Models\StoreSettings as StoreSettingsModel;
 use Illuminate\Support\Collection;
 use yii\base\Component;
@@ -32,15 +31,5 @@ class StoreSettings extends Component
     public function saveStoreSettings(StoreSettingsModel $storeSettings): bool
     {
         return app(\CraftCms\Commerce\Store\StoreSettings::class)->saveStoreSettings($storeSettings);
-    }
-
-    public function authorizeStoreLocationView(AuthorizationCheckEvent $event): void
-    {
-        app(\CraftCms\Commerce\Store\StoreSettings::class)->authorizeStoreLocationView($event);
-    }
-
-    public function authorizeStoreLocationEdit(AuthorizationCheckEvent $event): void
-    {
-        app(\CraftCms\Commerce\Store\StoreSettings::class)->authorizeStoreLocationEdit($event);
     }
 }

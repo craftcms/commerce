@@ -1,23 +1,14 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
-namespace craft\commerce\gql\types\input\criteria;
+declare(strict_types=1);
+
+namespace CraftCms\Commerce\Gql\Types\Input\Criteria;
 
 use craft\commerce\gql\arguments\elements\Variant as VariantArguments;
 use craft\gql\arguments\RelationCriteria;
 use craft\gql\GqlEntityRegistry;
 use GraphQL\Type\Definition\InputObjectType;
 
-/**
- * Class VariantRelation
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 5.6.0
- */
 class VariantRelation extends InputObjectType
 {
     /**

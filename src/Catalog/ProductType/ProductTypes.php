@@ -7,13 +7,13 @@ namespace CraftCms\Commerce\Catalog\ProductType;
 use craft\commerce\Plugin;
 use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;
-use craft\events\SiteEvent;
 use craft\helpers\Cp;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Element\Enums\PropagationMethod;
 use CraftCms\Cms\Element\Jobs\ResaveElements;
 use CraftCms\Cms\FieldLayout\FieldLayout;
 use CraftCms\Cms\ProjectConfig\ProjectConfigHelper;
+use CraftCms\Cms\Site\Events\SiteSaved;
 use CraftCms\Cms\Structure\Data\Structure;
 use CraftCms\Cms\Structure\Enums\Mode;
 use CraftCms\Cms\Support\Facades\Elements;
@@ -638,7 +638,7 @@ class ProductTypes
     /**
      * Adds a new product type setting row when a Site is added to Craft.
      */
-    public function afterSaveSiteHandler(SiteEvent $event): void
+    public function afterSaveSiteHandler(SiteSaved $event): void
     {
         if ($event->isNew && isset($event->oldPrimarySiteId)) {
             $oldPrimarySiteUid = CraftDb::uidById('{{%sites}}', $event->oldPrimarySiteId);

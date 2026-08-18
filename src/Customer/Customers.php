@@ -8,6 +8,8 @@ use craft\base\Element;
 use craft\commerce\Plugin;
 use craft\mail\Mailer;
 use craft\mail\Message;
+use CraftCms\Cms\Address\Elements\Address;
+use CraftCms\Cms\Element\Events\ElementSaved;
 use CraftCms\Cms\Element\Exceptions\InvalidElementException;
 use CraftCms\Cms\Element\Exceptions\UnsupportedSiteException;
 use CraftCms\Cms\Element\Queries\Exceptions\ElementNotFoundException;
@@ -36,8 +38,7 @@ class Customers
     {
         $customerRecord = $this->ensureCustomer($user);
         $customerRecord->primaryShippingAddressId = $addressId;
-        /** @var User|\craft\commerce\behaviors\CustomerBehavior $user */
-        $user->primaryShippingAddressId = $addressId;
+        $user->setPrimaryShippingAddressId($addressId);
         return $customerRecord->save();
     }
 
@@ -45,8 +46,7 @@ class Customers
     {
         $customerRecord = $this->ensureCustomer($user);
         $customerRecord->primaryBillingAddressId = $addressId;
-        /** @var User|\craft\commerce\behaviors\CustomerBehavior $user */
-        $user->primaryBillingAddressId = $addressId;
+        $user->setPrimaryBillingAddressId($addressId);
         return $customerRecord->save();
     }
 
@@ -67,8 +67,7 @@ class Customers
             return false;
         }
 
-        /** @var User|\craft\commerce\behaviors\CustomerBehavior $user */
-        $user->primaryPaymentSourceId = $paymentSourceId;
+        $user->setPrimaryPaymentSourceId($paymentSourceId);
 
         if ($originalPaymentSourceId != $paymentSourceId) {
             $event = new UpdatePrimaryPaymentSourceEvent(
@@ -97,6 +96,72 @@ class Customers
         }
 
         app(Carts::class)->restorePreviousCartForCurrentUser();
+    }
+
+    /**
+     * Persists any primary billing/shipping address or payment source that was set on the user
+     * this request, and keeps orders' `email` column in sync with the user's email address.
+     *
+     * Replaces `craft\commerce\behaviors\CustomerBehavior::afterSaveUserHandler()`.
+     */
+    public function afterSaveUserHandler(ElementSaved $event): void
+    {
+        /** @var User $user */
+        $user = $event->element;
+
+        if ($user->getPrimaryBillingAddressId()) {
+            $this->savePrimaryBillingAddressId($user, $user->getPrimaryBillingAddressId());
+        }
+
+        if ($user->getPrimaryShippingAddressId()) {
+            $this->savePrimaryShippingAddressId($user, $user->getPrimaryShippingAddressId());
+        }
+
+        if ($user->getPrimaryPaymentSourceId()) {
+            $this->savePrimaryPaymentSourceId($user, $user->getPrimaryPaymentSourceId());
+        }
+
+        if ($user->email && $user->id) {
+            DB::table(Table::ORDERS)
+                ->where('customerId', $user->id)
+                ->update(['email' => $user->email]);
+        }
+    }
+
+    /**
+     * Syncs an address's primary billing/shipping flags onto its owning user's customer record,
+     * if the flags were set on the address this request.
+     *
+     * Replaces `craft\commerce\behaviors\CustomerAddressBehavior::afterPropagate()`.
+     */
+    public function afterSaveAddressHandler(ElementSaved $event): void
+    {
+        /** @var Address $address */
+        $address = $event->element;
+
+        if ($address->getIsDraft()) {
+            return;
+        }
+
+        $owner = $address->getPrimaryOwner();
+
+        if (!$owner instanceof User) {
+            return;
+        }
+
+        if ($address->getIsDerivative()) {
+            return;
+        }
+
+        $customer = $this->ensureCustomer($owner);
+
+        if ($address->hasIsPrimaryBillingBeenSet() && ($address->getIsPrimaryBilling() || $customer->primaryBillingAddressId === $address->id)) {
+            $this->savePrimaryBillingAddressId($owner, $address->getIsPrimaryBilling() ? $address->id : null);
+        }
+
+        if ($address->hasIsPrimaryShippingBeenSet() && ($address->getIsPrimaryShipping() || $customer->primaryShippingAddressId === $address->id)) {
+            $this->savePrimaryShippingAddressId($owner, $address->getIsPrimaryShipping() ? $address->id : null);
+        }
     }
 
     /**
