@@ -29,7 +29,6 @@ use CraftCms\Commerce\Tax\Models\TaxCategory;
 use CraftCms\Commerce\Tax\TaxCategories;
 use CraftCms\RulesetValidation\Attributes\Ruleset;
 use Illuminate\Validation\Validator;
-use yii\base\InvalidConfigException;
 use function CraftCms\Cms\t;
 
 /**
@@ -353,7 +352,7 @@ class ProductType extends Component implements FieldLayoutProviderInterface
         if ($id) {
             $fieldLayout = Fields::getLayoutById($id, true);
             if (!$fieldLayout) {
-                throw new InvalidConfigException('Invalid field layout ID: ' . $id);
+                throw new \RuntimeException('Invalid field layout ID: ' . $id);
             }
         } else {
             $fieldLayout = new FieldLayout([

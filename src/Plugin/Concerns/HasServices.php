@@ -47,7 +47,6 @@ use craft\commerce\services\Transfers;
 use craft\commerce\services\Variants;
 use craft\commerce\services\Vat;
 use craft\commerce\services\Webhooks;
-use yii\base\InvalidConfigException;
 
 /**
  * Replaces the Yii2 `yii\di\ServiceLocator` component locator that `Plugin::getInstance()->getFoo()`
@@ -113,12 +112,12 @@ trait HasServices
      * Returns a legacy service component by ID, matching the `yii\di\ServiceLocator::get()` API
      * that third-party code may still call directly.
      *
-     * @throws InvalidConfigException if no service is registered under that ID
+     * @throws \RuntimeException if no service is registered under that ID
      */
     public function get(string $id): object
     {
         if (!isset(self::$serviceMap[$id])) {
-            throw new InvalidConfigException("Unknown component ID: $id");
+            throw new \RuntimeException("Unknown component ID: $id");
         }
 
         $class = self::$serviceMap[$id];

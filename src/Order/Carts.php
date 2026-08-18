@@ -533,7 +533,7 @@ class Carts
                 $paymentCurrencies = app(PaymentCurrencies::class)->getAllPaymentCurrencies($this->cart->storeId);
                 // if not in array
                 if (!$paymentCurrencies->contains('iso', '==', COMMERCE_PAYMENT_CURRENCY)) {
-                    throw new \yii\base\InvalidConfigException('The COMMERCE_PAYMENT_CURRENCY constant is not set to a valid payment currency.');
+                    throw new \RuntimeException('The COMMERCE_PAYMENT_CURRENCY constant is not set to a valid payment currency.');
                 }
 
                 $this->cart->paymentCurrency = COMMERCE_PAYMENT_CURRENCY;

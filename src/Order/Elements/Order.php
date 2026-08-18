@@ -111,10 +111,6 @@ use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
 use Throwable;
-use yii\base\Exception;
-use yii\base\InvalidArgumentException;
-use yii\base\InvalidCallException;
-use yii\base\InvalidConfigException;
 
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\renderObjectTemplate;
@@ -1130,7 +1126,7 @@ class Order extends Element implements HasStoreInterface
      * Marks the order as complete and sets the default order status, then saves the order.
      *
      * @throws OrderStatusException
-     * @throws Exception
+     * @throws \Exception
      * @throws Throwable
      */
     public function markAsComplete(): bool
@@ -1141,7 +1137,7 @@ class Order extends Element implements HasStoreInterface
         try {
             $lock->block(5);
         } catch (LockTimeoutException) {
-            throw new Exception('Unable to acquire a lock for completion of Order: ' . $this->id);
+            throw new \Exception('Unable to acquire a lock for completion of Order: ' . $this->id);
         }
 
         // Now that we have a lock, make sure this order is not already completed.
@@ -1349,7 +1345,7 @@ class Order extends Element implements HasStoreInterface
     public function recalculate(): void
     {
         if (!$this->id) {
-            throw new InvalidCallException('Do not recalculate an order that has not been saved');
+            throw new \BadMethodCallException('Do not recalculate an order that has not been saved');
         }
 
         if ($this->errors()->isNotEmpty()) {
@@ -1573,7 +1569,7 @@ class Order extends Element implements HasStoreInterface
                 $orderRecord = OrderRecord::query()->find($this->id);
 
                 if (!$orderRecord) {
-                    throw new Exception('Invalid order ID: ' . $this->id);
+                    throw new \Exception('Invalid order ID: ' . $this->id);
                 }
             } else {
                 $orderRecord = new OrderRecord();
@@ -1718,7 +1714,7 @@ class Order extends Element implements HasStoreInterface
             $this->_saveLineItems();
             $this->_saveNotices();
             $this->_deleteOrphanedOrderAddresses();
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
             $lock->release();
             throw $exception;
         }
@@ -2491,7 +2487,7 @@ class Order extends Element implements HasStoreInterface
 
         // Ensure that address can only belong to this order
         if ($address->getPrimaryOwnerId() != $this->id) {
-            throw new InvalidArgumentException('Can not set a shipping address on the order that is not owned by the order.');
+            throw new \InvalidArgumentException('Can not set a shipping address on the order that is not owned by the order.');
         }
 
         $this->shippingAddressId = $address->id;
@@ -2574,7 +2570,7 @@ class Order extends Element implements HasStoreInterface
 
         // Ensure that address can only belong to this order
         if ($address->getPrimaryOwnerId() !== $this->id) {
-            throw new InvalidArgumentException('Can not set a billing address on the order that is not owned by the order.');
+            throw new \InvalidArgumentException('Can not set a billing address on the order that is not owned by the order.');
         }
 
         $address->ownerId = $this->id;
@@ -2726,8 +2722,8 @@ class Order extends Element implements HasStoreInterface
     /**
      * Returns the order's selected payment source if any.
      *
-     * @throws InvalidConfigException if the payment source is being set by a guest customer.
-     * @throws InvalidArgumentException if the order is set to an invalid payment source.
+     * @throws \RuntimeException if the payment source is being set by a guest customer.
+     * @throws \InvalidArgumentException if the order is set to an invalid payment source.
      */
     public function getPaymentSource(): ?PaymentSource
     {
@@ -2736,11 +2732,11 @@ class Order extends Element implements HasStoreInterface
         }
 
         if (($user = $this->getCustomer()) === null) {
-            throw new InvalidConfigException('Guest customers can not set a payment source.');
+            throw new \RuntimeException('Guest customers can not set a payment source.');
         }
 
         if (($paymentSource = app(PaymentSources::class)->getPaymentSourceByIdAndUserId($this->paymentSourceId, $user->id)) === null) {
-            throw new InvalidArgumentException("Invalid payment source ID: $this->paymentSourceId");
+            throw new \InvalidArgumentException("Invalid payment source ID: $this->paymentSourceId");
         }
 
         return $paymentSource;
@@ -2757,7 +2753,7 @@ class Order extends Element implements HasStoreInterface
         // We are now dealing with a PaymentSource
         $customer = $this->getCustomer();
         if ($customer?->id && $paymentSource->getCustomer()?->id !== $customer->id) {
-            throw new InvalidArgumentException('PaymentSource is not owned by the user of the order.');
+            throw new \InvalidArgumentException('PaymentSource is not owned by the user of the order.');
         }
 
         $this->paymentSourceId = $paymentSource->id;
@@ -3070,7 +3066,7 @@ class Order extends Element implements HasStoreInterface
         try {
             // this will confirm the payment source is valid and belongs to the orders customer
             $this->getPaymentSource();
-        } catch (InvalidConfigException $e) {
+        } catch (\RuntimeException $e) {
             Log::error($e);
             $this->errors()->add($attribute, t('Invalid payment source ID: {value}', category: 'commerce'));
         }
@@ -3081,7 +3077,7 @@ class Order extends Element implements HasStoreInterface
         try {
             // this will confirm the payment source is valid and belongs to the orders customer
             $this->getPaymentCurrency();
-        } catch (InvalidConfigException) {
+        } catch (\RuntimeException) {
             $this->errors()->add($attribute, t('Invalid payment source ID: {value}', category: 'commerce'));
         }
     }

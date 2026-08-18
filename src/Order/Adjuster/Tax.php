@@ -20,7 +20,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Money\Teller;
-use yii\base\InvalidConfigException;
 
 use function CraftCms\Cms\t;
 use function in_array;
@@ -329,7 +328,7 @@ class Tax implements AdjusterInterface
 
     /**
      * @throws StoreNotFoundException
-     * @throws InvalidConfigException
+     * @throws \RuntimeException
      */
     protected function getTaxRates(?int $storeId = null): Collection
     {
@@ -470,7 +469,7 @@ class Tax implements AdjusterInterface
     }
 
     /**
-     * @throws InvalidConfigException
+     * @throws \RuntimeException
      */
     private function _getTeller(): Teller
     {

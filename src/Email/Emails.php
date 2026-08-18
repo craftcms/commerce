@@ -33,7 +33,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Throwable;
-use yii\base\Exception;
 use function CraftCms\Cms\t;
 
 #[Singleton]
@@ -266,7 +265,7 @@ class Emails
      *
      * @param array|null $orderData Since the order may have changed by the time the email sends.
      * @param string $error The reason this method failed.
-     * @throws Exception
+     * @throws \Exception
      * @throws Throwable
      */
     public function sendEmail(Email $email, Order $order, ?OrderHistory $orderHistory = null, ?array $orderData = null, string &$error = ''): bool

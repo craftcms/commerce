@@ -154,7 +154,7 @@ class Stores
         $user = Users::getUserById($userId);
 
         if (!$user) {
-            throw new \yii\base\InvalidConfigException('Invalid user ID: ' . $userId);
+            throw new \RuntimeException('Invalid user ID: ' . $userId);
         }
 
         $allStores = $this->getAllStores();
@@ -596,7 +596,7 @@ class Stores
         // This also makes it easier to see what site a store is mapped to in the project config.
         $craftSite = Sites::getSiteById($siteStore->siteId);
         if (!$craftSite) {
-            throw new \yii\base\InvalidConfigException('Invalid site ID: ' . $siteStore->siteId);
+            throw new \RuntimeException('Invalid site ID: ' . $siteStore->siteId);
         }
 
         if (!$siteStore->uid) {

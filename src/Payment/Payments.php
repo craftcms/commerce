@@ -30,7 +30,6 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use yii\base\ExitException;
-use yii\base\InvalidConfigException;
 use function CraftCms\Cms\t;
 
 #[Singleton]
@@ -85,7 +84,7 @@ class Payments
 
         $gateway = $order->getGateway();
         if (!$gateway) {
-            throw new InvalidConfigException(t('Missing Gateway', category: 'commerce'));
+            throw new \RuntimeException(t('Missing Gateway', category: 'commerce'));
         }
 
         //choosing default action
@@ -310,7 +309,7 @@ class Payments
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
-     * @throws \yii\base\Exception
+     * @throws \Exception
      */
     private function handleRedirect(RequestResponseInterface $response, ?string &$redirect, ?array &$redirectData): void
     {

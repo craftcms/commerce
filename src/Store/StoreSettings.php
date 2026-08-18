@@ -13,7 +13,6 @@ use CraftCms\Commerce\Store\Records\StoreSettings as StoreSettingsRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use yii\base\InvalidConfigException;
 
 #[Singleton]
 class StoreSettings
@@ -31,7 +30,7 @@ class StoreSettings
         $store = Plugin::getInstance()->getStores()->getStoreById($id);
 
         if (!$store) {
-            throw new InvalidConfigException('Store not found');
+            throw new \RuntimeException('Store not found');
         }
 
         $storeSettings = $this->getAllStoreSettings()->firstWhere('id', $id);
@@ -80,7 +79,7 @@ class StoreSettings
         $storeSettingsRecord = StoreSettingsRecord::find($storeSettings->id);
 
         if (!$storeSettingsRecord) {
-            throw new InvalidConfigException('Invalid store ID');
+            throw new \RuntimeException('Invalid store ID');
         }
 
         $storeSettingsRecord->countries = $storeSettings->getCountries();

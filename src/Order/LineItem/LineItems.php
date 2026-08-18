@@ -14,7 +14,6 @@ use CraftCms\Commerce\Order\LineItem\Models\LineItem as LineItemRecord;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;
-use yii\base\InvalidArgumentException;
 
 /**
  * Line item service.
@@ -207,7 +206,7 @@ class LineItems
         $params['type'] = $type;
 
         if ($type === LineItemType::Purchasable && empty($params['purchasableId']) && empty($params['purchasable'])) {
-            throw new InvalidArgumentException('Purchasable ID or Purchasable must be set');
+            throw new \InvalidArgumentException('Purchasable ID or Purchasable must be set');
         }
 
         $explicitPurchasable = $params['purchasable'] ?? null;
@@ -227,7 +226,7 @@ class LineItems
                 $lineItem->setPurchasable($purchasable);
                 $lineItem->populate($purchasable);
             } else {
-                throw new InvalidArgumentException('Invalid purchasable ID');
+                throw new \InvalidArgumentException('Invalid purchasable ID');
             }
         } else {
             $lineItem->populate();

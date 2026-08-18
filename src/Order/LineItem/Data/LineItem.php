@@ -6,6 +6,7 @@ namespace CraftCms\Commerce\Order\LineItem\Data;
 
 use Closure;
 use craft\commerce\Plugin;
+use RuntimeException;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
@@ -34,8 +35,6 @@ use CraftCms\Commerce\Tax\TaxCategories;
 use DateTime;
 use LitEmoji\LitEmoji;
 use Money\Teller;
-use yii\base\Exception;
-use yii\base\InvalidConfigException;
 
 /**
  * Line item business object — the rich domain object the rest of the codebase interacts with.
@@ -484,7 +483,7 @@ class LineItem extends Component implements HasStoreInterface
     private function _refreshFromPurchasable(): bool
     {
         if ($this->type === LineItemType::Custom) {
-            throw new Exception('Cannot refresh a custom line item from a purchasable');
+            throw new \Exception('Cannot refresh a custom line item from a purchasable');
         }
 
         if ($this->qty <= 0 && $this->id) {
@@ -519,7 +518,7 @@ class LineItem extends Component implements HasStoreInterface
     public function getPurchasable(): ?PurchasableInterface
     {
         if ($this->type === LineItemType::Custom) {
-            throw new InvalidConfigException('Cannot get a purchasable for a custom line item');
+            throw new RuntimeException('Cannot get a purchasable for a custom line item');
         }
 
         if (!isset($this->_purchasable) && isset($this->purchasableId)) {
@@ -560,7 +559,7 @@ class LineItem extends Component implements HasStoreInterface
     private function _populateFromPurchasable(PurchasableInterface $purchasable): void
     {
         if ($this->type === LineItemType::Custom) {
-            throw new Exception('Cannot populate a custom line item from a purchasable');
+            throw new \Exception('Cannot populate a custom line item from a purchasable');
         }
 
         // Set all things from the purchasable interface that are applicable to the line item.
@@ -658,7 +657,7 @@ class LineItem extends Component implements HasStoreInterface
     public function getShippingCategory(): ShippingCategory
     {
         if (!isset($this->shippingCategoryId)) {
-            throw new InvalidConfigException('Line Item is missing its shipping category ID');
+            throw new RuntimeException('Line Item is missing its shipping category ID');
         }
 
         // Category may have been archived
@@ -770,7 +769,7 @@ class LineItem extends Component implements HasStoreInterface
     private function _getTeller(): Teller
     {
         if (!$order = $this->getOrder()) {
-            throw new InvalidConfigException('Line Item requires an order to calculate costs.');
+            throw new RuntimeException('Line Item requires an order to calculate costs.');
         }
 
         return $order->getTeller();

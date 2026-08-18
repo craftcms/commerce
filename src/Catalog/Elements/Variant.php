@@ -46,9 +46,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Validator;
 use Override;
 use Throwable;
-use yii\base\Exception;
-use yii\base\InvalidArgumentException;
-use yii\base\InvalidConfigException;
 
 use function CraftCms\Cms\renderSandboxedObjectTemplate;
 use function CraftCms\Cms\t;
@@ -268,7 +265,7 @@ class Variant extends Purchasable implements NestedElementInterface
     }
 
     /**
-     * @throws InvalidConfigException
+     * @throws \RuntimeException
      */
     #[Override]
     public function getIsAvailable(): bool
@@ -378,7 +375,7 @@ class Variant extends Purchasable implements NestedElementInterface
             return $owner === null
                 ? $fieldLayout
                 : $owner->getType()->getVariantFieldLayout();
-        } catch (InvalidConfigException) {
+        } catch (\RuntimeException) {
             // Product type was likely deleted
             return null;
         }
@@ -405,7 +402,7 @@ class Variant extends Purchasable implements NestedElementInterface
     }
 
     /**
-     * @throws InvalidConfigException
+     * @throws \RuntimeException
      */
     #[\Deprecated(message: 'in 5.0.0. Use [[getOwnerId()]] instead.')]
     public function getProductId(): ?int
@@ -416,7 +413,7 @@ class Variant extends Purchasable implements NestedElementInterface
     public function setPrimaryOwner(?ElementInterface $owner): void
     {
         if (!$owner instanceof Product) {
-            throw new InvalidArgumentException('Product variants can only be assigned to products.');
+            throw new \InvalidArgumentException('Product variants can only be assigned to products.');
         }
 
         if ($owner->siteId) {
@@ -431,7 +428,7 @@ class Variant extends Purchasable implements NestedElementInterface
     public function setOwner(?ElementInterface $owner): void
     {
         if (!$owner instanceof Product) {
-            throw new InvalidArgumentException('Product variants can only be assigned to products.');
+            throw new \InvalidArgumentException('Product variants can only be assigned to products.');
         }
 
         if ($owner->siteId) {
@@ -468,7 +465,7 @@ class Variant extends Purchasable implements NestedElementInterface
     }
 
     /**
-     * @throws InvalidConfigException
+     * @throws \RuntimeException
      */
     public function getProductSlug(): ?string
     {
@@ -487,7 +484,7 @@ class Variant extends Purchasable implements NestedElementInterface
     }
 
     /**
-     * @throws InvalidConfigException
+     * @throws \RuntimeException
      */
     public function getProductTypeHandle(): ?string
     {
@@ -503,8 +500,8 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * Returns the product title and variants title together for variable products.
      *
-     * @throws Exception
-     * @throws InvalidConfigException
+     * @throws \Exception
+     * @throws \RuntimeException
      * @throws Throwable
      */
     #[Override]
@@ -525,8 +522,8 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * Updates the title based on titleFormat, or sets it to the same title as the product.
      *
-     * @throws Exception
-     * @throws InvalidConfigException
+     * @throws \Exception
+     * @throws \RuntimeException
      * @throws Throwable
      */
     public function updateTitle(Product $product): void
@@ -630,7 +627,7 @@ class Variant extends Purchasable implements NestedElementInterface
     }
 
     /**
-     * @throws InvalidConfigException
+     * @throws \RuntimeException
      */
     #[Override]
     public function getSnapshot(): array
@@ -734,7 +731,7 @@ class Variant extends Purchasable implements NestedElementInterface
     }
 
     /**
-     * @throws InvalidConfigException
+     * @throws \RuntimeException
      */
     #[Override]
     public function hasFreeShipping(): bool
@@ -793,7 +790,7 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * Returns a promotion category related to this element if the category is related to the product OR the variant.
      *
-     * @throws InvalidConfigException
+     * @throws \RuntimeException
      */
     #[Override]
     public function getPromotionRelationSource(): array
@@ -802,7 +799,7 @@ class Variant extends Purchasable implements NestedElementInterface
     }
 
     /**
-     * @throws InvalidConfigException
+     * @throws \RuntimeException
      */
     #[Override]
     public function getGqlTypeName(): string
@@ -815,7 +812,7 @@ class Variant extends Purchasable implements NestedElementInterface
 
         try {
             $productType = $product->getType();
-        } catch (Exception) {
+        } catch (\Exception) {
             return 'Variant';
         }
 
@@ -847,7 +844,7 @@ class Variant extends Purchasable implements NestedElementInterface
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     #[Override]
     public function afterSave(bool $isNew): void
@@ -859,7 +856,7 @@ class Variant extends Purchasable implements NestedElementInterface
                 $record = VariantRecord::query()->find($this->id);
 
                 if (!$record) {
-                    throw new Exception('Invalid variant ID: ' . $this->id);
+                    throw new \Exception('Invalid variant ID: ' . $this->id);
                 }
             } else {
                 $record = new VariantRecord();
@@ -995,7 +992,7 @@ class Variant extends Purchasable implements NestedElementInterface
      * pre-validation mutation point is `prepareForValidation()`.
      *
      * @throws Throwable
-     * @throws InvalidConfigException
+     * @throws \RuntimeException
      */
     #[Override]
     public function prepareForValidation(): void
@@ -1014,7 +1011,7 @@ class Variant extends Purchasable implements NestedElementInterface
     }
 
     /**
-     * @throws InvalidConfigException
+     * @throws \RuntimeException
      */
     #[Override]
     public function beforeSave(bool $isNew): bool
@@ -1086,7 +1083,7 @@ class Variant extends Purchasable implements NestedElementInterface
     }
 
     /**
-     * @throws InvalidConfigException
+     * @throws \RuntimeException
      */
     #[Override]
     public function getSearchKeywords(string $attribute): string

@@ -17,7 +17,6 @@ use CraftCms\Commerce\Promotion\Models\Discount as DiscountModel;
 use CraftCms\Commerce\Promotion\Records\Discount as DiscountRecord;
 use Money\Teller;
 use yii\base\Event;
-use yii\base\InvalidConfigException;
 
 /**
  * Discount Adjuster
@@ -288,7 +287,7 @@ class Discount implements AdjusterInterface
     }
 
     /**
-     * @throws InvalidConfigException
+     * @throws \RuntimeException
      */
     private function _getTeller(): Teller
     {

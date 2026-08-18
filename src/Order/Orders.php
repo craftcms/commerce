@@ -20,7 +20,6 @@ use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Database\Table;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;
-use yii\base\InvalidArgumentException;
 use function CraftCms\Cms\t;
 
 #[Singleton]
@@ -177,7 +176,7 @@ class Orders
             ->value('email');
 
         if (!$newUserEmail) {
-            throw new InvalidArgumentException('Unable to reassign user id: ' . $newUserId);
+            throw new \InvalidArgumentException('Unable to reassign user id: ' . $newUserId);
         }
 
         $count = DB::table(Table::ORDERS)

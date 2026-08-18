@@ -46,7 +46,6 @@ use CraftCms\RulesetValidation\Attributes\Ruleset;
 use Illuminate\Support\Collection;
 use Money\Money;
 use Money\Teller;
-use yii\base\InvalidConfigException;
 use yii\validators\Validator;
 use function CraftCms\Cms\t;
 
@@ -309,12 +308,12 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     {
         if ($this->_store === null || !in_array($this->siteId, $this->_store->getSites()->pluck('id')->all())) {
             if ($this->siteId === null) {
-                throw new InvalidConfigException('Purchasable::siteId cannot be null');
+                throw new \RuntimeException('Purchasable::siteId cannot be null');
             }
 
             $this->_store = app(Stores::class)->getStoreBySiteId($this->siteId);
             if ($this->_store === null) {
-                throw new InvalidConfigException('Unable to retrieve store.');
+                throw new \RuntimeException('Unable to retrieve store.');
             }
         }
 

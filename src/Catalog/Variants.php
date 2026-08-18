@@ -12,7 +12,6 @@ use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Helpers\Gql as GqlCommerceHelper;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Container\Attributes\Singleton;
-use yii\base\InvalidConfigException;
 
 #[Singleton]
 class Variants
@@ -50,7 +49,7 @@ class Variants
     }
 
     /**
-     * @throws InvalidConfigException
+     * @throws \RuntimeException
      */
     public function getVariantGqlContentArguments(): array
     {

@@ -20,7 +20,6 @@ use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Throwable;
-use yii\base\InvalidArgumentException;
 
 use function CraftCms\Cms\currentUserElement;
 
@@ -176,7 +175,7 @@ class Purchasables
 
         $purchasable = $query->one();
         if ($purchasable && !$purchasable instanceof PurchasableInterface) {
-            throw new InvalidArgumentException(sprintf('Element %s does not implement %s', $purchasableId, PurchasableInterface::class));
+            throw new \InvalidArgumentException(sprintf('Element %s does not implement %s', $purchasableId, PurchasableInterface::class));
         }
 
         $this->purchasableById ??= collect();

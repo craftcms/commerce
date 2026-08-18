@@ -74,8 +74,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Validator;
 use Override;
-use yii\base\Exception;
-use yii\base\InvalidConfigException;
 
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\renderSandboxedObjectTemplate;
@@ -337,7 +335,7 @@ class Product extends Element implements HasStoreInterface
         try {
             /** @var ProductCondition $condition */
             $condition = Conditions::createCondition($config['condition']);
-        } catch (InvalidConfigException) {
+        } catch (\RuntimeException) {
             return $config;
         }
 
@@ -1001,12 +999,12 @@ JS, [
     /**
      * Returns the product's product type.
      *
-     * @throws InvalidConfigException
+     * @throws \RuntimeException
      */
     public function getType(): ProductType
     {
         if ($this->typeId === null) {
-            throw new InvalidConfigException('Product is missing its product type ID');
+            throw new \RuntimeException('Product is missing its product type ID');
         }
 
         // TODO: migrate to app(ProductTypes::class)->getProductTypeById() once service migrated to src/
@@ -1014,7 +1012,7 @@ JS, [
         $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($this->typeId);
 
         if ($productType === null) {
-            throw new InvalidConfigException('Invalid product type ID: ' . $this->typeId);
+            throw new \RuntimeException('Invalid product type ID: ' . $this->typeId);
         }
 
         return $productType;
@@ -1039,7 +1037,7 @@ JS, [
         $productTypeSiteSettings = $this->getType()->getSiteSettings();
 
         if (!isset($productTypeSiteSettings[$this->siteId])) {
-            throw new InvalidConfigException('The "' . $this->getType()->name . '" product type is not enabled for the "' . $this->getSite()->name . '" site.');
+            throw new \RuntimeException('The "' . $this->getType()->name . '" product type is not enabled for the "' . $this->getSite()->name . '" site.');
         }
 
         return $productTypeSiteSettings[$this->siteId]->uriFormat;
@@ -1063,7 +1061,7 @@ JS, [
     /**
      * Returns the default variant.
      *
-     * @throws InvalidConfigException
+     * @throws \RuntimeException
      */
     public function getDefaultVariant(bool $includeDisabled = false): ?Variant
     {
@@ -1075,7 +1073,7 @@ JS, [
     /**
      * Return the cheapest variant.
      *
-     * @throws InvalidConfigException
+     * @throws \RuntimeException
      */
     public function getCheapestVariant(bool $includeDisabled = false): ?Variant
     {
@@ -1085,7 +1083,7 @@ JS, [
     /**
      * Returns a collection of the product's variants.
      *
-     * @throws InvalidConfigException
+     * @throws \RuntimeException
      */
     public function getVariants(?bool $includeDisabled = null): VariantCollection
     {
@@ -1138,7 +1136,7 @@ JS, [
     public function getSupportedSites(): array
     {
         if (!isset($this->typeId)) {
-            throw new InvalidConfigException('Require `typeId` must be set on the product.');
+            throw new \RuntimeException('Require `typeId` must be set on the product.');
         }
 
         $productType = $this->getType();
@@ -1299,7 +1297,7 @@ JS, [
     }
 
     /**
-     * @throws InvalidConfigException
+     * @throws \RuntimeException
      */
     public function getTotalStock(bool $includeDisabled = false): int
     {
@@ -1507,7 +1505,7 @@ JS, [
                 $record = ProductRecord::query()->find($this->id);
 
                 if (!$record) {
-                    throw new Exception('Invalid product ID: ' . $this->id);
+                    throw new \Exception('Invalid product ID: ' . $this->id);
                 }
             } else {
                 $record = new ProductRecord();
@@ -1787,7 +1785,7 @@ JS, [
     {
         try {
             return $this->getType()->getProductFieldLayout();
-        } catch (InvalidConfigException) {
+        } catch (\RuntimeException) {
             // The product type was probably deleted
             return null;
         }
@@ -1834,7 +1832,7 @@ JS, [
                     ]);
 
                     if (!$parentProduct) {
-                        throw new InvalidConfigException("Invalid parent ID: $parentId");
+                        throw new \RuntimeException("Invalid parent ID: $parentId");
                     }
                 } else {
                     $parentProduct = null;

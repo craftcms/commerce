@@ -17,7 +17,6 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use yii\base\InvalidConfigException;
 use function CraftCms\Cms\t;
 
 #[Singleton]
@@ -155,7 +154,7 @@ class PaymentSources
     /**
      * Saves a payment source.
      *
-     * @throws InvalidConfigException if the payment source couldn't be found
+     * @throws \RuntimeException if the payment source couldn't be found
      */
     public function savePaymentSource(PaymentSource $paymentSource, bool $runValidation = true): bool
     {
@@ -163,7 +162,7 @@ class PaymentSources
             $record = PaymentSourceRecord::find($paymentSource->id);
 
             if (!$record) {
-                throw new InvalidConfigException(t('No payment source exists with the ID "{id}"', ['id' => $paymentSource->id], category: 'commerce'));
+                throw new \RuntimeException(t('No payment source exists with the ID "{id}"', ['id' => $paymentSource->id], category: 'commerce'));
             }
         } else {
             $record = new PaymentSourceRecord();

@@ -12,9 +12,9 @@ use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
-use yii\web\BadRequestHttpException;
-use yii\web\HttpException;
 
 #[Singleton]
 class Webhooks
@@ -64,7 +64,7 @@ class Webhooks
 
             Log::error($message);
 
-            $statusCode = $exception instanceof HttpException ? $exception->statusCode : 500;
+            $statusCode = $exception instanceof HttpException ? $exception->getStatusCode() : 500;
             $response = new Response('', $statusCode);
         }
 
