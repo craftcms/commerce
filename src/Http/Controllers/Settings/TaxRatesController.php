@@ -10,7 +10,7 @@ use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\helpers\Cp;
 use craft\helpers\Html;
-use craft\helpers\Json;
+use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Translation\Locale;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;

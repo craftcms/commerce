@@ -7,7 +7,7 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 use craft\commerce\models\LineItemStatus;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
-use craft\helpers\Json;
+use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;

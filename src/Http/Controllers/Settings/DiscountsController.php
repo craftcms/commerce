@@ -20,7 +20,7 @@ use craft\helpers\AdminTable;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\DateTimeHelper;
 use craft\helpers\Html;
-use craft\helpers\Json;
+use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Money;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\Edition;

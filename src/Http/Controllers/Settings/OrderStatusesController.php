@@ -8,7 +8,7 @@ use craft\commerce\models\OrderStatus;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\db\Query;
-use craft\helpers\Json;
+use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;

@@ -7,7 +7,7 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\Plugin;
 use craft\helpers\Html;
-use craft\helpers\Json;
+use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\HtmlStack;

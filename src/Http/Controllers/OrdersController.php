@@ -96,7 +96,7 @@ class OrdersController
             'commerce-deleteOrders' => (bool)currentUser()?->can('commerce-deleteOrders'),
         ];
 
-        HtmlStack::js('window.orderEdit.currentUserPermissions = ' . \craft\helpers\Json::encode($permissions) . ';', Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.currentUserPermissions = ' . \CraftCms\Cms\Support\Json::encode($permissions) . ';', Position::BodyBegin);
 
         return pageTemplate('commerce/orders/_index', compact('orderStatusHandle', 'store'), TemplateMode::Cp);
     }
@@ -233,7 +233,7 @@ JS, []);
     public function save(Request $request): ?Response
     {
         $data = $request->input('orderData');
-        $orderRequestData = \craft\helpers\Json::decodeIfJson($data);
+        $orderRequestData = \CraftCms\Cms\Support\Json::decodeIfJson($data);
 
         $order = Plugin::getInstance()->getOrders()->getOrderById((int)$orderRequestData['order']['id']);
         abort_if(!$order, 400, t('Invalid Order ID', category: 'commerce'));
@@ -294,7 +294,7 @@ JS, []);
     public function refresh(Request $request): Response
     {
         $data = $request->getContent();
-        $orderRequestData = \craft\helpers\Json::decodeIfJson($data);
+        $orderRequestData = \CraftCms\Cms\Support\Json::decodeIfJson($data);
 
         $order = Plugin::getInstance()->getOrders()->getOrderById((int)$orderRequestData['order']['id']);
 
@@ -337,7 +337,7 @@ JS, []);
         abort_unless($request->expectsJson(), 400);
 
         $data = $request->getContent();
-        $orderRequestData = \craft\helpers\Json::decodeIfJson($data);
+        $orderRequestData = \CraftCms\Cms\Support\Json::decodeIfJson($data);
 
         $order = Plugin::getInstance()->getOrders()->getOrderById((int)$orderRequestData['order']['id']);
 
@@ -1332,39 +1332,39 @@ JS, []);
 
         HtmlStack::js('window.orderEdit = {};', Position::BodyBegin);
 
-        HtmlStack::js('window.orderEdit.autoSetNewCartAddresses = ' . \craft\helpers\Json::encode($order->getStore()->getAutoSetNewCartAddresses()) . ';', Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.autoSetNewCartAddresses = ' . \CraftCms\Cms\Support\Json::encode($order->getStore()->getAutoSetNewCartAddresses()) . ';', Position::BodyBegin);
 
         HtmlStack::js('window.orderEdit.orderId = ' . $order->id . ';', Position::BodyBegin);
 
         $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($order->storeId)
             ->map(fn(OrderStatus $orderStatus) => $orderStatus->toArray(expand: ['uiLabel']))
             ->all();
-        HtmlStack::js('window.orderEdit.orderStatuses = ' . \craft\helpers\Json::encode($orderStatuses) . ';', Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.orderStatuses = ' . \CraftCms\Cms\Support\Json::encode($orderStatuses) . ';', Position::BodyBegin);
 
         $orderSites = $order->getStore()->getSites()->all();
-        HtmlStack::js('window.orderEdit.orderSites = ' . \craft\helpers\Json::encode(array_values($orderSites)) . ';', Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.orderSites = ' . \CraftCms\Cms\Support\Json::encode(array_values($orderSites)) . ';', Position::BodyBegin);
 
         $lineItemStatuses = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses($order->storeId)
             ->map(fn(LineItemStatus $lineItemStatus) => $lineItemStatus->toArray(expand: ['uiLabel']))
             ->all();
 
-        HtmlStack::js('window.orderEdit.lineItemStatuses = ' . \craft\helpers\Json::encode($lineItemStatuses) . ';', Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.lineItemStatuses = ' . \CraftCms\Cms\Support\Json::encode($lineItemStatuses) . ';', Position::BodyBegin);
 
         $lineItemTypes = LineItemType::types();
 
-        HtmlStack::js('window.orderEdit.lineItemTypes = ' . \craft\helpers\Json::encode($lineItemTypes) . ';', Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.lineItemTypes = ' . \CraftCms\Cms\Support\Json::encode($lineItemTypes) . ';', Position::BodyBegin);
 
         $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategoriesAsList();
-        HtmlStack::js('window.orderEdit.taxCategories = ' . \craft\helpers\Json::encode(Arr::toArray($taxCategories)) . ';', Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.taxCategories = ' . \CraftCms\Cms\Support\Json::encode(Arr::toArray($taxCategories)) . ';', Position::BodyBegin);
 
         $defaultTaxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
-        HtmlStack::js('window.orderEdit.defaultTaxCategoryId = ' . \craft\helpers\Json::encode($defaultTaxCategoryId) . ';', Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.defaultTaxCategoryId = ' . \CraftCms\Cms\Support\Json::encode($defaultTaxCategoryId) . ';', Position::BodyBegin);
 
         $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList($order->storeId);
-        HtmlStack::js('window.orderEdit.shippingCategories = ' . \craft\helpers\Json::encode(Arr::toArray($shippingCategories)) . ';', Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.shippingCategories = ' . \CraftCms\Cms\Support\Json::encode(Arr::toArray($shippingCategories)) . ';', Position::BodyBegin);
 
         $defaultShippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($order->storeId)->id;
-        HtmlStack::js('window.orderEdit.defaultShippingCategoryId = ' . \craft\helpers\Json::encode($defaultShippingCategoryId) . ';', Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.defaultShippingCategoryId = ' . \CraftCms\Cms\Support\Json::encode($defaultShippingCategoryId) . ';', Position::BodyBegin);
 
         $currentUser = currentUserElement();
 
@@ -1375,8 +1375,8 @@ JS, []);
             'commerce-deleteOrders',
         ], fn($permission) => [$permission => (bool)$currentUser?->can($permission)]);
 
-        HtmlStack::js('window.orderEdit.currentUserPermissions = ' . \craft\helpers\Json::encode($permissions) . ';', Position::BodyBegin);
-        HtmlStack::js('window.orderEdit.currentUserId = ' . \craft\helpers\Json::encode($currentUser?->id) . ';', Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.currentUserPermissions = ' . \CraftCms\Cms\Support\Json::encode($permissions) . ';', Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.currentUserId = ' . \CraftCms\Cms\Support\Json::encode($currentUser?->id) . ';', Position::BodyBegin);
 
         HtmlStack::js('window.orderEdit.ordersIndexUrl = "' . Url::cpUrl('commerce/orders') . '"', Position::BodyBegin);
         HtmlStack::js('window.orderEdit.ordersIndexUrlHashed = "' . Crypt::encrypt('commerce/orders') . '"', Position::BodyBegin);
@@ -1394,26 +1394,26 @@ JS, []);
             'groupSeparator' => $formattingLocale->getNumberSymbol($formattingLocale::SYMBOL_GROUPING_SEPARATOR),
         ];
 
-        HtmlStack::js('window.orderEdit.currencyConfig = ' . \craft\helpers\Json::encode($currencyConfig), Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.currencyConfig = ' . \CraftCms\Cms\Support\Json::encode($currencyConfig), Position::BodyBegin);
 
         $customer = $order->customerId ? $order->getCustomer() : null;
         if ($customer) {
             $customer = $this->customerToArray($customer);
         }
 
-        HtmlStack::js('window.orderEdit.originalCustomer = ' . \craft\helpers\Json::encode($customer, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.originalCustomer = ' . \CraftCms\Cms\Support\Json::encode($customer, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), Position::BodyBegin);
 
         $pdfUrls = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs($order->storeId)->map(fn(Pdf $pdf) => [
             'name' => $pdf->name,
             'url' => $order->getPdfUrl(null, $pdf->handle),
         ])->all();
 
-        HtmlStack::js('window.orderEdit.pdfUrls = ' . \craft\helpers\Json::encode($pdfUrls) . ';', Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.pdfUrls = ' . \CraftCms\Cms\Support\Json::encode($pdfUrls) . ';', Position::BodyBegin);
 
         $emails = Plugin::getInstance()->getEmails()->getAllEnabledEmails($order->storeId);
         // Reset keys in case any have been removed, so the JS doesn't think it is an object
         $emails = array_values($emails->all());
-        HtmlStack::js('window.orderEdit.emailTemplates = ' . \craft\helpers\Json::encode(Arr::toArray($emails)) . ';', Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.emailTemplates = ' . \CraftCms\Cms\Support\Json::encode(Arr::toArray($emails)) . ';', Position::BodyBegin);
 
         $response = [];
         $response['order'] = $this->orderToArray($order);
@@ -1424,14 +1424,14 @@ JS, []);
             $response['error'] = t('The order is not valid.', category: 'commerce');
         }
 
-        HtmlStack::js('window.orderEdit.data = ' . \craft\helpers\Json::encode($response, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT) . ';', Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.data = ' . \CraftCms\Cms\Support\Json::encode($response, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT) . ';', Position::BodyBegin);
 
         $forceEdit = ($order->hasErrors() || !$order->isCompleted);
 
-        HtmlStack::js('window.orderEdit.forceEdit = ' . \craft\helpers\Json::encode($forceEdit) . ';', Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.forceEdit = ' . \CraftCms\Cms\Support\Json::encode($forceEdit) . ';', Position::BodyBegin);
 
         $store = $order->getStore();
-        HtmlStack::js('window.orderEdit.store = ' . \craft\helpers\Json::encode($store->toArray([], ['settings.locationAddress'])) . ';', Position::BodyBegin);
+        HtmlStack::js('window.orderEdit.store = ' . \CraftCms\Cms\Support\Json::encode($store->toArray([], ['settings.locationAddress'])) . ';', Position::BodyBegin);
     }
 
     private function updateOrder(Order $order, $orderRequestData, bool $tryAutoSet = true): void
@@ -1761,13 +1761,13 @@ JS, []);
                     );
                 }
 
-                $transactionResponse = \craft\helpers\Json::decodeIfJson($transaction->response);
+                $transactionResponse = \CraftCms\Cms\Support\Json::decodeIfJson($transaction->response);
                 if (is_array($transactionResponse)) {
-                    $transactionResponse = \craft\helpers\Json::htmlEncode($transactionResponse);
+                    $transactionResponse = \CraftCms\Cms\Support\Json::encode($transactionResponse, JSON_UNESCAPED_UNICODE | JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS);
                 }
 
-                $transactionMessage = \craft\helpers\Json::decodeIfJson($transaction->message);
-                $transactionMessage = \craft\helpers\Json::htmlEncode($transactionMessage);
+                $transactionMessage = \CraftCms\Cms\Support\Json::decodeIfJson($transaction->message);
+                $transactionMessage = \CraftCms\Cms\Support\Json::encode($transactionMessage, JSON_UNESCAPED_UNICODE | JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS);
 
                 $return[] = [
                     'id' => $transaction->id,

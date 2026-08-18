@@ -14,7 +14,7 @@ use craft\commerce\Plugin;
 use craft\helpers\Cp;
 use CraftCms\Cms\Support\DateTimeHelper;
 use craft\helpers\Html;
-use craft\helpers\Json;
+use CraftCms\Cms\Support\Json;
 use craft\helpers\Localization;
 use CraftCms\Cms\Support\Money;
 use CraftCms\Cms\Support\Facades\I18N;

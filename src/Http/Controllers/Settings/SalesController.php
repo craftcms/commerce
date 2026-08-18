@@ -11,7 +11,7 @@ use craft\commerce\Plugin;
 use craft\elements\Category;
 use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Support\DateTimeHelper;
-use craft\helpers\Json;
+use CraftCms\Cms\Support\Json;
 use craft\helpers\Localization;
 use CraftCms\Cms\Translation\Locale;
 use CraftCms\Cms\Http\RespondsWithFlash;
