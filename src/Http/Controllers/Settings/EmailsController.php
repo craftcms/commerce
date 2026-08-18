@@ -8,19 +8,21 @@ use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Email;
 use craft\commerce\models\Pdf;
 use craft\commerce\models\Store;
-use craft\commerce\Plugin;
 use craft\helpers\App;
-use CraftCms\Cms\Site\Data\Site;
-use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Site\Data\Site;
+use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Email\Records\Email as EmailRecord;
+use CraftCms\Commerce\Pdf\Pdfs;
+
+use CraftCms\Commerce\Store\Stores;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
@@ -38,10 +40,10 @@ readonly class EmailsController
     public function index(): string
     {
         $emails = [];
-        $stores = Plugin::getInstance()->getStores()->getAllStores();
+        $stores = app(Stores::class)->getAllStores();
 
         $stores->each(function(Store $store) use (&$emails) {
-            $emails[$store->handle] = Plugin::getInstance()->getEmails()->getAllEmails($store->id);
+            $emails[$store->handle] = app(Emails::class)->getAllEmails($store->id);
         });
 
         return pageTemplate('commerce/settings/emails/index', [
@@ -53,12 +55,12 @@ readonly class EmailsController
 
     public function edit(?string $storeHandle = null, ?int $id = null): CpScreenResponse
     {
-        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
-            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        if ($storeHandle === null || !$store = app(Stores::class)->getStoreByHandle($storeHandle)) {
+            $store = app(Stores::class)->getPrimaryStore();
         }
 
         if ($id) {
-            $email = Plugin::getInstance()->getEmails()->getEmailById($id, $store->id);
+            $email = app(Emails::class)->getEmailById($id, $store->id);
             abort_if($email === null, 404);
         } else {
             $email = \Craft::createObject([
@@ -69,7 +71,7 @@ readonly class EmailsController
 
         $title = $email->id ? $email->name : t('Create a new email', category: 'commerce');
 
-        $pdfs = Plugin::getInstance()->getPdfs()->getAllPdfs($email->storeId);
+        $pdfs = app(Pdfs::class)->getAllPdfs($email->storeId);
         $pdfList = [null => t('Do not attach a PDF to this email', category: 'commerce')];
         $pdfList = Arr::merge($pdfList, $pdfs->mapWithKeys(fn(Pdf $pdf) => [$pdf->id => $pdf->name])->all());
         $senderAddressPlaceholder = App::mailSettings()->fromEmail;
@@ -109,7 +111,7 @@ readonly class EmailsController
 
     public function save(Request $request): Response
     {
-        $emailsService = Plugin::getInstance()->getEmails();
+        $emailsService = app(Emails::class);
         $emailId = $request->input('emailId');
         $storeId = $request->input('storeId');
         abort_if(!$storeId, 400, "Invalid store ID: $storeId");
@@ -155,7 +157,7 @@ readonly class EmailsController
         $id = $request->input('id');
         abort_if(!$id, 400, 'Missing email id');
 
-        if (!Plugin::getInstance()->getEmails()->deleteEmailById($id)) {
+        if (!app(Emails::class)->deleteEmailById($id)) {
             return $this->asFailure(t('Couldn\'t delete email.', category: 'commerce'));
         }
 

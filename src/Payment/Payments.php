@@ -6,6 +6,8 @@ namespace CraftCms\Commerce\Payment;
 
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use CraftCms\Cms\Support\Facades\Template;
+use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Payment\Events\ProcessPaymentEvent;
 use CraftCms\Commerce\Payment\Events\RefundTransactionEvent;
@@ -18,8 +20,6 @@ use CraftCms\Commerce\Payment\Gateway\Contracts\RequestResponseInterface;
 use CraftCms\Commerce\Payment\Models\Transaction;
 use CraftCms\Commerce\Payment\Records\Transaction as TransactionRecord;
 use CraftCms\Commerce\Store\Models\Store;
-use CraftCms\Cms\Support\Facades\Template;
-use CraftCms\Cms\View\TemplateMode;
 use Exception;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Contracts\Cache\LockTimeoutException;

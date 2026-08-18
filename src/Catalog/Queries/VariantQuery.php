@@ -6,7 +6,6 @@ namespace CraftCms\Commerce\Catalog\Queries;
 
 use Closure;
 use craft\commerce\elements\VariantCollection;
-use craft\commerce\Plugin;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Element;
@@ -19,6 +18,7 @@ use CraftCms\Cms\Support\Facades\Deprecator;
 use CraftCms\Cms\Support\Query;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Catalog\Elements\Variant;
+use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\ProductQuery as ProductQueryHelper;
 use CraftCms\Commerce\Promotion\Records\Sale as SaleRecord;
@@ -30,8 +30,8 @@ use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Override;
-use Tpetry\QueryExpressions\Language\Alias;
 
+use Tpetry\QueryExpressions\Language\Alias;
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\currentUserElement;
 
@@ -748,7 +748,7 @@ class VariantQuery extends PurchasableQuery implements NestedElementQueryInterfa
 
         // TODO: migrate to app(ProductTypes::class)->getAllProductTypes() once service migrated to src/
         /** @phpstan-ignore-next-line */
-        $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+        $productTypes = app(ProductTypes::class)->getAllProductTypes();
 
         if (empty($productTypes)) {
             return;

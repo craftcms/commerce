@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\CatalogPricing;
 
-use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\CatalogPricing as CatalogPricingJob;
 use craft\helpers\Console;
 use craft\helpers\Db as CraftDb;
@@ -14,6 +13,7 @@ use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCustomerConditionRule;
 use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingQueue as CatalogPricingQueueRecord;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Store\Stores;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Contracts\Cache\LockTimeoutException;
@@ -31,7 +31,7 @@ class CatalogPricing
      * @param CatalogPricingRule[]|null $catalogPricingRules
      * @throws \Exception
      * TODO: Migrate queue jobs and Console helpers to Laravel equivalents
-     * TODO: Migrate Plugin::getInstance()->getStores() and getCatalogPricingRules() once services migrated
+     * TODO: Migrate app(Stores::class) and getCatalogPricingRules() once services migrated
      */
     public function generateCatalogPrices(?array $purchasableIds = null, ?array $catalogPricingRules = null, bool $showConsoleOutput = false, mixed $queue = null): void
     {
@@ -82,7 +82,7 @@ class CatalogPricing
 
         // TODO: Migrate to app(Stores::class)->getAllStores() once Stores service migrated
         /** @phpstan-ignore-next-line */
-        foreach (Plugin::getInstance()->getStores()->getAllStores() as $store) {
+        foreach (app(Stores::class)->getAllStores() as $store) {
             $priceByPurchasableId = DB::table(Table::PURCHASABLES_STORES)
                 ->select(['purchasableId', 'basePrice', 'basePromotionalPrice'])
                 ->where('storeId', $store->id)
@@ -92,7 +92,7 @@ class CatalogPricing
 
             // TODO: Migrate to app(CatalogPricingRules::class)->getAllActiveCatalogPricingRules() once registered
             /** @phpstan-ignore-next-line */
-            $runCatalogPricingRules = $catalogPricingRules ?? Plugin::getInstance()->getCatalogPricingRules()->getAllActiveCatalogPricingRules($store->id)->all();
+            $runCatalogPricingRules = $catalogPricingRules ?? app(CatalogPricingRules::class)->getAllActiveCatalogPricingRules($store->id)->all();
 
             foreach ($runCatalogPricingRules as $catalogPricingRule) {
                 if ($catalogPricingRule->storeId !== $store->id || !$catalogPricingRule->enabled) {
@@ -124,7 +124,7 @@ class CatalogPricing
 
                     // TODO: migrate to app(CatalogPricingRules::class)->generateRulePriceFromPrice() once registered
                     /** @phpstan-ignore-next-line */
-                    $catalogPrice = Plugin::getInstance()->getCatalogPricingRules()->generateRulePriceFromPrice(
+                    $catalogPrice = app(CatalogPricingRules::class)->generateRulePriceFromPrice(
                         $row->basePrice,
                         $row->basePromotionalPrice,
                         $catalogPricingRule
@@ -271,7 +271,7 @@ class CatalogPricing
     {
         // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
         /** @phpstan-ignore-next-line */
-        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         $userKey = $userId ?? 'all';
         $promoKey = $isPromotionalPrice ? 'promo' : 'standard';
@@ -299,7 +299,7 @@ class CatalogPricing
     {
         // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
         /** @phpstan-ignore-next-line */
-        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         $rows = $this->createCatalogPricesQuery(storeId: $storeId, allPrices: true)
             ->select(['id', 'price', 'purchasableId', 'storeId', 'isPromotionalPrice', 'catalogPricingRuleId', 'dateFrom', 'dateTo', 'uid'])

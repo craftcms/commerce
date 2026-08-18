@@ -5,18 +5,19 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\commerce\models\ShippingAddressZone;
-use craft\commerce\Plugin;
-use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html as NewHtml;
+use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\View\Enums\Position;
+use CraftCms\Commerce\Formula\Formulas;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
+use CraftCms\Commerce\Shipping\ShippingZones;
+
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 use function CraftCms\Cms\t;
 
 readonly class ShippingZonesController
@@ -28,7 +29,7 @@ readonly class ShippingZonesController
     {
         $store = $this->resolveStore($storeHandle);
 
-        $shippingZones = Plugin::getInstance()->getShippingZones()->getAllShippingZones($store->id);
+        $shippingZones = app(ShippingZones::class)->getAllShippingZones($store->id);
 
         $tableData = [];
         foreach ($shippingZones as $shippingZone) {
@@ -70,7 +71,7 @@ JS;
         $storeHandle = $store->handle;
 
         if ($id) {
-            $shippingZone = Plugin::getInstance()->getShippingZones()->getShippingZoneById($id, $store->id);
+            $shippingZone = app(ShippingZones::class)->getShippingZoneById($id, $store->id);
             abort_if($shippingZone === null, 404);
         } else {
             $shippingZone = \Craft::createObject([
@@ -117,7 +118,7 @@ JS;
         $shippingZone->description = $request->input('description');
         $shippingZone->setCondition($request->input('condition'));
 
-        if ($shippingZone->validate() && Plugin::getInstance()->getShippingZones()->saveShippingZone($shippingZone)) {
+        if ($shippingZone->validate() && app(ShippingZones::class)->saveShippingZone($shippingZone)) {
             return $this->asModelSuccess(
                 $shippingZone,
                 t('Shipping zone saved.', category: 'commerce'),
@@ -143,7 +144,7 @@ JS;
         $id = $request->input('id');
         abort_if(!$id, 400, 'Missing shipping zone id');
 
-        if (!Plugin::getInstance()->getShippingZones()->deleteShippingZoneById((int)$id)) {
+        if (!app(ShippingZones::class)->deleteShippingZoneById((int)$id)) {
             return $this->asFailure(t('Could not delete shipping zone', category: 'commerce'));
         }
 
@@ -159,7 +160,7 @@ JS;
 
         $params = ['zipCode' => $testZipCode];
 
-        if (!Plugin::getInstance()->getFormulas()->evaluateCondition($zipCodeFormula, $params)) {
+        if (!app(Formulas::class)->evaluateCondition($zipCodeFormula, $params)) {
             return $this->asFailure('failed');
         }
 

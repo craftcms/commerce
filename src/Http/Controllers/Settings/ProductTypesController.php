@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\commerce\Plugin;
-use CraftCms\Cms\Element\Enums\PropagationMethod;
 use craft\web\assets\editsection\EditSectionAsset;
+use CraftCms\Cms\Element\Enums\PropagationMethod;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Fields;
@@ -15,9 +14,10 @@ use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Catalog\Models\ProductTypeSite;
 use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
+use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 
+use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
 
@@ -27,7 +27,7 @@ readonly class ProductTypesController
 
     public function productTypeIndex(): CpScreenResponse
     {
-        $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+        $productTypes = app(ProductTypes::class)->getAllProductTypes();
 
         return new CpScreenResponse()
             ->contentTemplate('commerce/settings/producttypes/index', [
@@ -40,7 +40,7 @@ readonly class ProductTypesController
         $brandNewProductType = false;
 
         if ($productTypeId) {
-            $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($productTypeId);
+            $productType = app(ProductTypes::class)->getProductTypeById($productTypeId);
             abort_if(!$productType, 404);
         } else {
             $productType = new ProductType();
@@ -96,7 +96,7 @@ readonly class ProductTypesController
         $productTypeId = $request->input('productTypeId');
 
         if ($productTypeId) {
-            $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById((int)$productTypeId);
+            $productType = app(ProductTypes::class)->getProductTypeById((int)$productTypeId);
             abort_unless($productType, 400, "Invalid section ID: $productTypeId");
         } else {
             $productType = new ProductType();
@@ -172,7 +172,7 @@ readonly class ProductTypesController
         $productType->setVariantFieldLayout($variantFieldLayout);
 
         // Save it
-        if (Plugin::getInstance()->getProductTypes()->saveProductType($productType)) {
+        if (app(ProductTypes::class)->saveProductType($productType)) {
             return $this->asSuccess(t('Product type saved.', category: 'commerce'));
         }
 
@@ -186,7 +186,7 @@ readonly class ProductTypesController
         $productTypeId = $request->input('id');
         abort_if(!$productTypeId, 400, 'Missing product type id');
 
-        Plugin::getInstance()->getProductTypes()->deleteProductTypeById((int)$productTypeId);
+        app(ProductTypes::class)->deleteProductTypeById((int)$productTypeId);
 
         return $this->asSuccess();
     }

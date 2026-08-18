@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Stats;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Database\Table as CmsTable;
 use CraftCms\Cms\Support\Facades\Sites;
+use CraftCms\Commerce\Catalog\Products;
 use CraftCms\Commerce\Database\Table;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -134,7 +134,7 @@ class TopProducts extends Stat
         if (!empty($data)) {
             foreach ($data as &$row) {
                 if ($row['id']) {
-                    $row['product'] = Plugin::getInstance()->getProducts()->getProductById($row['id']);
+                    $row['product'] = app(Products::class)->getProductById($row['id']);
                 }
             }
         }

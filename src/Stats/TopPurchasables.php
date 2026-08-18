@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Stats;
 
-use craft\commerce\Plugin;
+use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\Database\Table;
 
 /**
@@ -34,7 +34,7 @@ class TopPurchasables extends Stat
     #[\Override]
     public function getData(): array
     {
-        $viewableProductTypeIds = Plugin::getInstance()->getProductTypes()->getViewableProductTypeIds();
+        $viewableProductTypeIds = app(ProductTypes::class)->getViewableProductTypeIds();
 
         $topPurchasables = $this->createStatQuery()
             ->select(['li.purchasableId', 'p.description', 'p.sku'])

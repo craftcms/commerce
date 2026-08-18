@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers;
 
 use craft\commerce\helpers\PaymentForm;
-use craft\commerce\Plugin;
 use CraftCms\Cms\Http\RespondsWithFlash;
+use CraftCms\Commerce\Customer\Customers;
+use CraftCms\Commerce\Payment\Gateway\Gateways;
+use CraftCms\Commerce\Payment\PaymentSources;
 use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
-
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\t;
 
@@ -21,7 +23,6 @@ readonly class PaymentSourcesController
 
     public function add(Request $request): ?Response
     {
-        $plugin = Plugin::getInstance();
 
         // Are we paying anonymously?
         $customer = currentUserElement();
@@ -33,7 +34,7 @@ readonly class PaymentSourcesController
 
         $isPrimaryPaymentSource = $request->input('isPrimaryPaymentSource', false);
 
-        $gateway = $plugin->getGateways()->getGatewayById($gatewayId);
+        $gateway = app(Gateways::class)->getGatewayById($gatewayId);
 
         if (!$gateway || !$gateway->supportsPaymentSources()) {
             return $this->asFailure(t('There is no gateway selected that supports payment sources.', category: 'commerce'));
@@ -46,7 +47,7 @@ readonly class PaymentSourcesController
         $description = (string)$request->input('description');
 
         try {
-            $paymentSource = $plugin->getPaymentSources()->createPaymentSource($customer->id, $gateway, $paymentForm, $description, $isPrimaryPaymentSource);
+            $paymentSource = app(PaymentSources::class)->createPaymentSource($customer->id, $gateway, $paymentForm, $description, $isPrimaryPaymentSource);
         } catch (Throwable $exception) {
             Log::error($exception->getMessage(), ['exception' => $exception]);
             return $this->asModelFailure(
@@ -58,7 +59,7 @@ readonly class PaymentSourcesController
         }
 
         if ($isPrimaryPaymentSource) {
-            $plugin->getCustomers()->savePrimaryPaymentSourceId($customer, $paymentSource->id);
+            app(Customers::class)->savePrimaryPaymentSourceId($customer, $paymentSource->id);
         }
 
         return $this->asModelSuccess(
@@ -77,7 +78,7 @@ readonly class PaymentSourcesController
         abort_if(!$paymentSourceId, 400, 'Missing id');
 
         // Check payment source exists and belongs to the user
-        $paymentSource = Plugin::getInstance()->getPaymentSources()->getPaymentSourceByIdAndUserId((int)$paymentSourceId, $user->id);
+        $paymentSource = app(PaymentSources::class)->getPaymentSourceByIdAndUserId((int)$paymentSourceId, $user->id);
         if (!$paymentSource) {
             return $this->asFailure(
                 t('Unable to retrieve payment source.', category: 'commerce'),
@@ -85,7 +86,7 @@ readonly class PaymentSourcesController
             );
         }
 
-        if (!Plugin::getInstance()->getCustomers()->savePrimaryPaymentSourceId($user, $paymentSource->id)) {
+        if (!app(Customers::class)->savePrimaryPaymentSourceId($user, $paymentSource->id)) {
             return $this->asFailure(
                 t('Unable to set primary payment source.', category: 'commerce'),
                 ['paymentSourceId' => $paymentSourceId],
@@ -103,7 +104,7 @@ readonly class PaymentSourcesController
         $id = $request->input('id');
         abort_if(!$id, 400, 'Missing id');
 
-        $paymentSources = Plugin::getInstance()->getPaymentSources();
+        $paymentSources = app(PaymentSources::class);
         $paymentSource = $paymentSources->getPaymentSourceById((int)$id);
 
         if (!$paymentSource) {

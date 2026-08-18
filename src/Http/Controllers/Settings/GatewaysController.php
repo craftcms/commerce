@@ -6,16 +6,16 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\commerce\gateways\Dummy;
 use craft\commerce\gateways\MissingGateway;
-use craft\commerce\Plugin;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Payment\Gateway\Gateways;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Symfony\Component\HttpFoundation\Response;
 
+use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
@@ -32,8 +32,8 @@ readonly class GatewaysController
 
     public function index(): string
     {
-        $gateways = Plugin::getInstance()->getGateways()->getAllGateways();
-        $archivedGateways = Plugin::getInstance()->getGateways()->getAllArchivedGateways();
+        $gateways = app(Gateways::class)->getAllGateways();
+        $archivedGateways = app(Gateways::class)->getAllArchivedGateways();
 
         if (!empty($archivedGateways)) {
             $gatewayIdsWithTransactions = DB::table(Table::TRANSACTIONS)
@@ -66,7 +66,7 @@ readonly class GatewaysController
 
     public function edit(?int $id = null): string
     {
-        $gatewayService = Plugin::getInstance()->getGateways();
+        $gatewayService = app(Gateways::class);
 
         if ($id) {
             $gateway = $gatewayService->getGatewayById($id);
@@ -110,7 +110,7 @@ readonly class GatewaysController
 
     public function save(Request $request): Response
     {
-        $gatewayService = Plugin::getInstance()->getGateways();
+        $gatewayService = app(Gateways::class);
 
         $type = $request->input('type');
         abort_if($type === null, 400, 'Missing gateway type');
@@ -172,7 +172,7 @@ readonly class GatewaysController
         $id = $request->input('id');
         abort_if(!$id, 400, 'Missing gateway id');
 
-        if (!Plugin::getInstance()->getGateways()->archiveGatewayById((int)$id)) {
+        if (!app(Gateways::class)->archiveGatewayById((int)$id)) {
             return $this->asFailure(t('Could not archive gateway.', category: 'commerce'));
         }
 
@@ -185,7 +185,7 @@ readonly class GatewaysController
 
         $ids = json_decode($request->input('ids'), true);
 
-        if (!Plugin::getInstance()->getGateways()->reorderGateways($ids)) {
+        if (!app(Gateways::class)->reorderGateways($ids)) {
             return $this->asFailure(t('Couldn\'t reorder gateways.', category: 'commerce'));
         }
 

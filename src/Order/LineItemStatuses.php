@@ -14,6 +14,7 @@ use CraftCms\Commerce\Order\Events\DefaultLineItemStatusEvent;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\Models\LineItemStatus;
 use CraftCms\Commerce\Order\Records\LineItemStatus as LineItemStatusRecord;
+use CraftCms\Commerce\Store\Stores;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
@@ -139,7 +140,7 @@ class LineItemStatuses
         DB::beginTransaction();
         try {
             $statusRecord = $this->getLineItemStatusRecord($statusUid);
-            $store = Plugin::getInstance()->getStores()->getStoreByUid($data['store']);
+            $store = app(Stores::class)->getStoreByUid($data['store']);
 
             $statusRecord->storeId = $store->id;
             $statusRecord->name = $data['name'];
@@ -215,7 +216,7 @@ class LineItemStatuses
      */
     public function getAllLineItemStatuses(?int $storeId = null): Collection
     {
-        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         if ($this->allLineItemStatuses === null || !isset($this->allLineItemStatuses[$storeId])) {
             $results = $this->query()->where('storeId', $storeId)->get();

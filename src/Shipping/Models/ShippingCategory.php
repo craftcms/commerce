@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Shipping\Models;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Component\Contracts\Chippable;
 use CraftCms\Cms\Component\Contracts\Colorable;
 use CraftCms\Cms\Component\Contracts\Iconic;
 use CraftCms\Cms\Cp\RequestedSite;
 use CraftCms\Cms\Shared\Enums\Color;
-use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
-use DateTime;
+use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
+use CraftCms\Commerce\Shipping\ShippingCategories;
 
+use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
+use CraftCms\Commerce\Store\Stores;
+use DateTime;
 use function CraftCms\Cms\t;
 
 class ShippingCategory extends Component implements HasStoreInterface, Chippable, Colorable, Iconic
@@ -51,11 +53,11 @@ class ShippingCategory extends Component implements HasStoreInterface, Chippable
     public static function get(int|string $id): ?static
     {
         $site = app(RequestedSite::class)->get();
-        $storeId = $site ? Plugin::getInstance()->getStores()->getStoreBySiteId($site->id)?->id : null;
+        $storeId = $site ? app(Stores::class)->getStoreBySiteId($site->id)?->id : null;
 
         // TODO: migrate to app(ShippingCategories::class)->getShippingCategoryById() once service migrated to src/
         /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($id, $storeId);
+        return app(ShippingCategories::class)->getShippingCategoryById($id, $storeId);
     }
 
     #[\Override]
@@ -85,7 +87,7 @@ class ShippingCategory extends Component implements HasStoreInterface, Chippable
     #[\Override]
     public function getStore(): \craft\commerce\models\Store
     {
-        if (!$store = Plugin::getInstance()->getStores()->getStoreById($this->storeId)) {
+        if (!$store = app(Stores::class)->getStoreById($this->storeId)) {
             throw new \InvalidArgumentException('Invalid store ID: ' . $this->storeId);
         }
 
@@ -105,7 +107,7 @@ class ShippingCategory extends Component implements HasStoreInterface, Chippable
     public function getProductTypes(): array
     {
         if (!isset($this->_productTypes) && $this->id) {
-            $this->_productTypes = Plugin::getInstance()->getProductTypes()->getProductTypesByShippingCategoryId($this->id);
+            $this->_productTypes = app(ProductTypes::class)->getProductTypesByShippingCategoryId($this->id);
         }
 
         return $this->_productTypes ?? [];

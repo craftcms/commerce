@@ -8,8 +8,8 @@ use Craft;
 use craft\commerce\elements\Order as OrderElement;
 use craft\commerce\enums\LineItemType;
 use craft\commerce\models\OrderNotice;
-use craft\commerce\Plugin;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
+use CraftCms\Commerce\Purchasable\Purchasables;
 
 class Order
 {
@@ -52,7 +52,7 @@ class Order
 
             /** @var PurchasableInterface $purchasable */
             $purchasable = $lineItem->getPurchasable();
-            if (!$purchasable || !Plugin::getInstance()->getPurchasables()->isPurchasableAvailable($purchasable, $order)) {
+            if (!$purchasable || !app(Purchasables::class)->isPurchasableAvailable($purchasable, $order)) {
                 $message = t('{description} is no longer available.', ['description' => $lineItem->getDescription()], category: 'commerce');
                 /** @var OrderNotice $notice */
                 $notice = Craft::createObject([

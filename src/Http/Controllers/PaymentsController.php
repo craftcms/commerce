@@ -11,17 +11,23 @@ use craft\commerce\Plugin;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasCartArray;
+use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\Orders;
 use CraftCms\Commerce\Payment\Exceptions\PaymentException;
 use CraftCms\Commerce\Payment\Exceptions\PaymentSourceCreatedLaterException;
 use CraftCms\Commerce\Payment\Exceptions\PaymentSourceException;
+use CraftCms\Commerce\Payment\Gateway\Gateways;
 use CraftCms\Commerce\Payment\Models\PaymentSource;
+use CraftCms\Commerce\Payment\Payments;
+use CraftCms\Commerce\Payment\PaymentSources;
+
+use CraftCms\Commerce\Payment\Transactions;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
-
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\renderSandboxedObjectTemplate;
@@ -41,12 +47,12 @@ readonly class PaymentsController
 
         $number = $request->input('number');
 
-        $useMutex = $number || (!$isCpRequest && $plugin->getCarts()->getHasSessionCartNumber());
+        $useMutex = $number || (!$isCpRequest && app(Carts::class)->getHasSessionCartNumber());
 
         $mutex = null;
 
         if ($useMutex) {
-            $lockOrderNumber = $number ?: (!$isCpRequest ? $request->cookie($plugin->getCarts()->cartCookie['name']) : null);
+            $lockOrderNumber = $number ?: (!$isCpRequest ? $request->cookie(app(Carts::class)->cartCookie['name']) : null);
 
             if ($lockOrderNumber) {
                 $mutex = Cache::lock("order:$lockOrderNumber", 5);
@@ -62,7 +68,7 @@ readonly class PaymentsController
         $cartVariableName = $plugin->getSettings()->cartVariable;
 
         if ($number !== null) {
-            $order = $plugin->getOrders()->getOrderByNumber($number);
+            $order = app(Orders::class)->getOrderByNumber($number);
 
             if (!$order) {
                 $error = t('Can not find an order to pay.', category: 'commerce');
@@ -79,7 +85,7 @@ readonly class PaymentsController
             // @TODO Fix the response variable name in Commerce 6.0: use `order` when completed and `cartVariableName` when not completed #COM-36
             $cartVariableName = 'order'; // can not override the name of the order cart in json responses for orders
         } else {
-            $order = $plugin->getCarts()->getCart();
+            $order = app(Carts::class)->getCart();
         }
 
         /**
@@ -171,7 +177,7 @@ readonly class PaymentsController
         // Set Payment Gateway on cart
         // Same as CartController::updateCart()
         if ($gatewayId = $request->input('gatewayId')) {
-            if ($plugin->getGateways()->getGatewayById($gatewayId)) {
+            if (app(Gateways::class)->getGatewayById($gatewayId)) {
                 $order->setGatewayId($gatewayId);
             }
         }
@@ -179,7 +185,7 @@ readonly class PaymentsController
         // Submit payment source on cart
         // See CartController::updateCart()
         if ($paymentSourceId = $request->input('paymentSourceId')) {
-            if ($paymentSource = $plugin->getPaymentSources()->getPaymentSourceById($paymentSourceId)) {
+            if ($paymentSource = app(PaymentSources::class)->getPaymentSourceById($paymentSourceId)) {
                 // The payment source can only be used by the same user as the cart's user.
                 $cartUserId = $order->getCustomer()?->id;
                 $paymentSourceUserId = $paymentSource->getCustomer()?->id;
@@ -244,7 +250,7 @@ readonly class PaymentsController
             if ($currentUser && $request->input('savePaymentSource') && $gateway->supportsPaymentSources()) {
                 $sourceCreated = false;
                 try {
-                    $paymentSource = $plugin->getPaymentSources()->createPaymentSource($currentUser->id, $gateway, $paymentForm);
+                    $paymentSource = app(PaymentSources::class)->createPaymentSource($currentUser->id, $gateway, $paymentForm);
 
                     // Last line of try block we have a successful payment source creation
                     $sourceCreated = true;
@@ -407,7 +413,7 @@ readonly class PaymentsController
 
         if (!$paymentForm->hasErrors() && !$order->hasErrors()) {
             try {
-                $plugin->getPayments()->processPayment($order, $paymentForm, $redirect, $transaction, $redirectData);
+                app(Payments::class)->processPayment($order, $paymentForm, $redirect, $transaction, $redirectData);
                 $success = true;
             } catch (PaymentException $exception) {
                 $error = $exception->getMessage();
@@ -469,16 +475,14 @@ readonly class PaymentsController
 
     public function completePayment(Request $request): Response
     {
-        $plugin = Plugin::getInstance();
-
         $hash = $request->input('commerceTransactionHash');
         abort_if(!$hash, 400, 'Missing commerceTransactionHash');
 
-        $transaction = $plugin->getTransactions()->getTransactionByHash($hash);
+        $transaction = app(Transactions::class)->getTransactionByHash($hash);
         abort_unless($transaction, 400, t('Can not complete payment for missing transaction.', category: 'commerce'));
 
         $error = '';
-        $success = $plugin->getPayments()->completePayment($transaction, $error);
+        $success = app(Payments::class)->completePayment($transaction, $error);
 
         if (!$success) {
             $errorMessage = t('Payment error: {message}', ['message' => $error], category: 'commerce');

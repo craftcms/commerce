@@ -11,6 +11,7 @@ use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Events\PurchasableAvailableEvent;
 use CraftCms\Commerce\Purchasable\Events\PurchasableOutOfStockPurchasesAllowedEvent;
@@ -19,8 +20,8 @@ use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Throwable;
 
+use Throwable;
 use function CraftCms\Cms\currentUserElement;
 
 #[Singleton]
@@ -120,7 +121,7 @@ class Purchasables
 
         /** @var PurchasableInterface $purchasable */
         foreach ($purchasables as $purchasable) {
-            $stock = Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($purchasable)->sum('availableTotal');
+            $stock = app(Inventory::class)->getInventoryLevelsForPurchasable($purchasable)->sum('availableTotal');
 
             DB::table(Table::PURCHASABLES_STORES)
                 ->where('purchasableId', $purchasable->id)

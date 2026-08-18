@@ -6,17 +6,18 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\commerce\models\LineItemStatus;
 use craft\commerce\models\Store;
-use craft\commerce\Plugin;
-use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Order\LineItemStatuses;
+use CraftCms\Commerce\Store\Stores;
 use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
-
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
@@ -34,10 +35,10 @@ readonly class LineItemStatusesController
     public function index(): string
     {
         $lineItemStatuses = [];
-        $stores = Plugin::getInstance()->getStores()->getAllStores();
+        $stores = app(Stores::class)->getAllStores();
 
         $stores->each(function(Store $store) use (&$lineItemStatuses) {
-            $lineItemStatuses[$store->handle] = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses($store->id);
+            $lineItemStatuses[$store->handle] = app(LineItemStatuses::class)->getAllLineItemStatuses($store->id);
         });
 
         return pageTemplate('commerce/settings/lineitemstatuses/index', [
@@ -49,12 +50,12 @@ readonly class LineItemStatusesController
 
     public function edit(?string $storeHandle = null, ?int $id = null): CpScreenResponse
     {
-        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
-            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        if ($storeHandle === null || !$store = app(Stores::class)->getStoreByHandle($storeHandle)) {
+            $store = app(Stores::class)->getPrimaryStore();
         }
 
         if ($id) {
-            $lineItemStatus = Plugin::getInstance()->getLineItemStatuses()->getLineItemStatusById($id, $store->id);
+            $lineItemStatus = app(LineItemStatuses::class)->getLineItemStatusById($id, $store->id);
             abort_if($lineItemStatus === null, 404);
         } else {
             $lineItemStatus = \Craft::createObject([
@@ -72,7 +73,7 @@ readonly class LineItemStatusesController
             $title = t('Create a new line item status', category: 'commerce');
 
             $availableColors = $statusColors;
-            Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses($store->id)->each(function(LineItemStatus $status) use (&$availableColors) {
+            app(LineItemStatuses::class)->getAllLineItemStatuses($store->id)->each(function(LineItemStatus $status) use (&$availableColors) {
                 $key = array_search($status->color, $availableColors, true);
                 if ($key !== false) {
                     unset($availableColors[$key]);
@@ -103,7 +104,7 @@ readonly class LineItemStatusesController
     public function save(Request $request): Response
     {
         $id = $request->input('id');
-        $lineItemStatus = $id ? Plugin::getInstance()->getLineItemStatuses()->getLineItemStatusById($id, $request->input('storeId')) : null;
+        $lineItemStatus = $id ? app(LineItemStatuses::class)->getLineItemStatusById($id, $request->input('storeId')) : null;
         $lineItemStatus ??= new LineItemStatus();
 
         $lineItemStatus->storeId = $request->input('storeId');
@@ -112,7 +113,7 @@ readonly class LineItemStatusesController
         $lineItemStatus->color = $request->input('color');
         $lineItemStatus->default = (bool)$request->input('default');
 
-        if (!Plugin::getInstance()->getLineItemStatuses()->saveLineItemStatus($lineItemStatus)) {
+        if (!app(LineItemStatuses::class)->saveLineItemStatus($lineItemStatus)) {
             return $this->asModelFailure($lineItemStatus, t('Couldn\'t save line item status.', category: 'commerce'), 'lineItemStatus');
         }
 
@@ -126,7 +127,7 @@ readonly class LineItemStatusesController
 
         $ids = Json::decode($request->input('ids'));
 
-        if (!Plugin::getInstance()->getLineItemStatuses()->reorderLineItemStatuses($ids)) {
+        if (!app(LineItemStatuses::class)->reorderLineItemStatuses($ids)) {
             return $this->asFailure(t('Couldn\'t reorder Line Item Statuses.', category: 'commerce'));
         }
 
@@ -142,7 +143,7 @@ readonly class LineItemStatusesController
 
         $storeId = DB::table(Table::LINEITEMSTATUSES)->where('id', $lineItemStatusId)->value('storeId');
 
-        if (!$storeId || !Plugin::getInstance()->getLineItemStatuses()->archiveLineItemStatusById((int)$lineItemStatusId, $storeId)) {
+        if (!$storeId || !app(LineItemStatuses::class)->archiveLineItemStatusById((int)$lineItemStatusId, $storeId)) {
             return $this->asFailure(t('Couldn\'t archive Line Item Status.', category: 'commerce'));
         }
 

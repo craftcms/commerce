@@ -6,7 +6,6 @@ namespace CraftCms\Commerce\Order\LineItem\Data;
 
 use Closure;
 use craft\commerce\Plugin;
-use RuntimeException;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
@@ -35,6 +34,7 @@ use CraftCms\Commerce\Tax\TaxCategories;
 use DateTime;
 use LitEmoji\LitEmoji;
 use Money\Teller;
+use RuntimeException;
 
 /**
  * Line item business object — the rich domain object the rest of the codebase interacts with.

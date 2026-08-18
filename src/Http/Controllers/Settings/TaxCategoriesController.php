@@ -6,20 +6,24 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\commerce\models\Store;
 use craft\commerce\models\TaxCategory;
-use craft\commerce\Plugin;
-use CraftCms\Cms\Support\Arr;
 use craft\helpers\Cp;
-use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html as NewHtml;
+use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\View\Enums\Position;
+use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
+use CraftCms\Commerce\Store\Stores;
+
+use CraftCms\Commerce\Tax\TaxCategories;
+use CraftCms\Commerce\Tax\Taxes;
+use CraftCms\Commerce\Tax\TaxRates;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 use function CraftCms\Cms\t;
 
 readonly class TaxCategoriesController
@@ -31,7 +35,7 @@ readonly class TaxCategoriesController
     {
         $store = $this->resolveStore($storeHandle);
 
-        $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategories();
+        $taxCategories = app(TaxCategories::class)->getAllTaxCategories();
 
         $tableData = [];
         foreach ($taxCategories as $taxCategory) {
@@ -53,15 +57,15 @@ readonly class TaxCategoriesController
             ];
         }
 
-        $buttons = Plugin::getInstance()->getTaxes()->taxCategoryActionHtml();
-        if (Plugin::getInstance()->getTaxes()->createTaxCategories()) {
+        $buttons = app(Taxes::class)->taxCategoryActionHtml();
+        if (app(Taxes::class)->createTaxCategories()) {
             $buttons .= NewHtml::a(t('New tax category', category: 'commerce'), $store->getStoreSettingsUrl('taxcategories/new'), [
                 'class' => ['btn', 'submit', 'add', 'icon'],
             ]);
         }
 
         $tableData = Json::encode($tableData);
-        $deleteAction = Plugin::getInstance()->getTaxes()->deleteTaxCategories() ? "'commerce/tax-categories/delete'" : 'null';
+        $deleteAction = app(Taxes::class)->deleteTaxCategories() ? "'commerce/tax-categories/delete'" : 'null';
 
         $js = <<<JS
     var columns = [
@@ -118,10 +122,10 @@ JS;
         $store = $this->resolveStore($storeHandle);
         $storeHandle = $store->handle;
 
-        $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+        $productTypes = app(ProductTypes::class)->getAllProductTypes();
 
         if ($id) {
-            $taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($id);
+            $taxCategory = app(TaxCategories::class)->getTaxCategoryById($id);
             abort_if($taxCategory === null, 404);
         } else {
             $taxCategory = new TaxCategory();
@@ -134,11 +138,11 @@ JS;
             $productTypesOptions = Arr::mapWithKeys($productTypes, fn($row) => [$row->id => ['label' => $row->name, 'value' => $row->id]]);
         }
 
-        $allTaxCategoryIds = array_keys(Plugin::getInstance()->getTaxCategories()->getAllTaxCategories());
+        $allTaxCategoryIds = array_keys(app(TaxCategories::class)->getAllTaxCategories());
         $isDefaultAndOnlyCategory = $id && count($allTaxCategoryIds) === 1 && in_array($id, $allTaxCategoryIds);
 
         $taxRates = collect();
-        Plugin::getInstance()->getStores()->getAllStores()->each(fn(Store $s) => $taxRates->push(...Plugin::getInstance()->getTaxRates()->getAllTaxRates($s->id)->all()));
+        app(Stores::class)->getAllStores()->each(fn(Store $s) => $taxRates->push(...app(TaxRates::class)->getAllTaxRates($s->id)->all()));
 
         $metaSidebar = '';
         if ($taxCategory->id) {
@@ -179,13 +183,13 @@ JS;
         $postedProductTypes = $request->input('productTypes', []) ?: [];
         $productTypes = [];
         foreach ($postedProductTypes as $productTypeId) {
-            if ($productTypeId && $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($productTypeId)) {
+            if ($productTypeId && $productType = app(ProductTypes::class)->getProductTypeById($productTypeId)) {
                 $productTypes[] = $productType;
             }
         }
         $taxCategory->setProductTypes($productTypes);
 
-        if (!Plugin::getInstance()->getTaxCategories()->saveTaxCategory($taxCategory)) {
+        if (!app(TaxCategories::class)->saveTaxCategory($taxCategory)) {
             return $this->asModelFailure(
                 $taxCategory,
                 t('Couldn\'t save tax category.', category: 'commerce'),
@@ -214,7 +218,7 @@ JS;
 
         $failedIds = [];
         foreach ($ids as $deleteId) {
-            if (!Plugin::getInstance()->getTaxCategories()->deleteTaxCategoryById($deleteId)) {
+            if (!app(TaxCategories::class)->deleteTaxCategoryById($deleteId)) {
                 $failedIds[] = $deleteId;
             }
         }
@@ -235,10 +239,10 @@ JS;
 
         $id = Arr::first($ids);
 
-        $taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($id);
+        $taxCategory = app(TaxCategories::class)->getTaxCategoryById($id);
         if ($taxCategory) {
             $taxCategory->default = true;
-            if (Plugin::getInstance()->getTaxCategories()->saveTaxCategory($taxCategory)) {
+            if (app(TaxCategories::class)->saveTaxCategory($taxCategory)) {
                 return $this->asSuccess(t('Tax category updated.', category: 'commerce'));
             }
         }

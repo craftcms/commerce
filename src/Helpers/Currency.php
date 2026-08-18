@@ -6,10 +6,12 @@ namespace CraftCms\Commerce\Helpers;
 
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\models\PaymentCurrency;
-use craft\commerce\Plugin;
 use CraftCms\Cms\Cp\Cp;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Twig\Exceptions\TemplateLoaderException;
+use CraftCms\Commerce\Payment\Currencies;
+use CraftCms\Commerce\Payment\PaymentCurrencies;
+use CraftCms\Commerce\Store\Stores;
 use Money\Currencies\ISOCurrencies;
 use Money\Currency as MoneyCurrency;
 use Money\Formatter\DecimalMoneyFormatter;
@@ -20,7 +22,7 @@ class Currency
     public static function round(float $amount, PaymentCurrency|string|MoneyCurrency|null $currency = null): float
     {
         if (!$currency) {
-            $currency = Plugin::getInstance()->getStores()->getCurrentStore()->getCurrency();
+            $currency = app(Stores::class)->getCurrentStore()->getCurrency();
         }
 
         if ($currency instanceof PaymentCurrency) {
@@ -32,7 +34,7 @@ class Currency
         }
 
         $moneyFormatter = new DecimalMoneyFormatter(new ISOCurrencies());
-        return (float)$moneyFormatter->format(Plugin::getInstance()->getCurrencies()->getTeller($currency)->convertToMoney($amount));
+        return (float)$moneyFormatter->format(app(Currencies::class)->getTeller($currency)->convertToMoney($amount));
     }
 
     /**
@@ -41,7 +43,7 @@ class Currency
      */
     public static function defaultDecimals(): int
     {
-        return Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency()->getSubUnit();
+        return app(PaymentCurrencies::class)->getPrimaryPaymentCurrency()->getSubUnit();
     }
 
     /**
@@ -54,7 +56,7 @@ class Currency
             return $amount;
         }
 
-        $currencyIso = Plugin::getInstance()->getStores()->getCurrentStore()->getCurrency();
+        $currencyIso = app(Stores::class)->getCurrentStore()->getCurrency();
 
         if (is_string($currency)) {
             $currencyIso = $currency;
@@ -65,14 +67,14 @@ class Currency
         }
 
         if ($convert) {
-            $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($currencyIso);
+            $currency = app(PaymentCurrencies::class)->getPaymentCurrencyByIso($currencyIso);
             if (!$currency) {
                 throw new \BadMethodCallException('Trying to convert to a currency that is not configured');
             }
         }
 
-        if ($convert && $currencyIso !== Plugin::getInstance()->getStores()->getCurrentStore()->getCurrency()) {
-            $amount = Plugin::getInstance()->getPaymentCurrencies()->convert((float)$amount, $currencyIso);
+        if ($convert && $currencyIso !== app(Stores::class)->getCurrentStore()->getCurrency()) {
+            $amount = app(PaymentCurrencies::class)->convert((float)$amount, $currencyIso);
         }
 
         if ($format) {
@@ -84,7 +86,7 @@ class Currency
             }
 
             $moneyFormatter = new IntlMoneyFormatter($numberFormatter, new ISOCurrencies());
-            $money = Plugin::getInstance()->getCurrencies()->getTeller($currencyIso)->convertToMoney($amount);
+            $money = app(Currencies::class)->getTeller($currencyIso)->convertToMoney($amount);
 
             return $moneyFormatter->format($money);
         }
@@ -106,7 +108,7 @@ class Currency
         ];
 
         if (isset($config['currency'])) {
-            $config['decimals'] = Plugin::getInstance()->getCurrencies()->getSubunitFor($config['currency']);
+            $config['decimals'] = app(Currencies::class)->getSubunitFor($config['currency']);
         }
 
         return Cp::moneyInputHtml($config);

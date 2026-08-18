@@ -22,6 +22,9 @@ use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
+use CraftCms\Commerce\Order\OrderStatuses;
+use CraftCms\Commerce\Payment\PaymentCurrencies;
+use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Store\Events\DeleteStoreEvent;
 use CraftCms\Commerce\Store\Events\StoreEvent;
 use CraftCms\Commerce\Store\Records\SiteStore as SiteStoreRecord;
@@ -224,7 +227,7 @@ class Stores
                 'default' => true,
                 'storeId' => $store->id,
             ]);
-            Plugin::getInstance()->getOrderStatuses()->saveOrderStatus($orderStatus);
+            app(OrderStatuses::class)->saveOrderStatus($orderStatus);
         }
 
         // Update the other primary store.
@@ -339,7 +342,7 @@ class Stores
             DB::table(Table::STORES)->where('id', $storeRecord->id)->update(['primary' => true]);
         }
 
-        $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($data['currency'] ?? '', $storeRecord->id);
+        $paymentCurrency = app(PaymentCurrencies::class)->getPaymentCurrencyByIso($data['currency'] ?? '', $storeRecord->id);
         if (!$paymentCurrency) {
             DB::table(Table::PAYMENTCURRENCIES)->insert([
                 'iso' => $data['currency'] ?? 'USD',
@@ -348,7 +351,7 @@ class Stores
             ]);
         }
 
-        if (Plugin::getInstance()->getShippingCategories()->getAllShippingCategories($storeRecord->id)->isEmpty()) {
+        if (app(ShippingCategories::class)->getAllShippingCategories($storeRecord->id)->isEmpty()) {
             DB::table(Table::SHIPPINGCATEGORIES)->insert([
                 'name' => 'General',
                 'handle' => 'general',

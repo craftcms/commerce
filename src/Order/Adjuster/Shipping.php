@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Adjuster;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Order\Adjuster\Contracts\AdjusterInterface;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Models\OrderAdjustment;
+use CraftCms\Commerce\Promotion\Discounts;
 use CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface;
 use CraftCms\Commerce\Shipping\Models\ShippingRule;
+use CraftCms\Commerce\Shipping\ShippingMethods;
 
 /**
  * Shipping Adjustments
@@ -39,7 +40,7 @@ class Shipping implements AdjusterInterface
             return [];
         }
 
-        $matchingMethods = Plugin::getInstance()->getShippingMethods()->getMatchingShippingMethods($order);
+        $matchingMethods = app(ShippingMethods::class)->getMatchingShippingMethods($order);
         $shippingMethod = $matchingMethods[$order->shippingMethodHandle] ?? null;
         $lineItems = $order->getLineItems();
 
@@ -62,7 +63,7 @@ class Shipping implements AdjusterInterface
 
         $adjustments = [];
 
-        $discounts = Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($order);
+        $discounts = app(Discounts::class)->getAllActiveDiscounts($order);
 
         // Check to see if we have shipping related discounts
         $hasOrderLevelShippingRelatedDiscounts = Arr::contains($discounts, 'hasFreeShippingForOrder', true, false);
@@ -77,7 +78,7 @@ class Shipping implements AdjusterInterface
             $hasDiscountRemoveShippingCosts = false;
             if ($hasOrderLevelShippingRelatedDiscounts) {
                 foreach ($discounts as $discount) {
-                    $matchedOrder = Plugin::getInstance()->getDiscounts()->matchOrder($this->_order, $discount);
+                    $matchedOrder = app(Discounts::class)->matchOrder($this->_order, $discount);
 
                     if ($discount->hasFreeShippingForOrder && $matchedOrder) {
                         $hasDiscountRemoveShippingCosts = true;
@@ -97,7 +98,7 @@ class Shipping implements AdjusterInterface
                     $hasFreeShippingFromDiscount = false;
                     if ($hasLineItemLevelShippingRelatedDiscounts) {
                         foreach ($discounts as $discount) {
-                            $matchedLineItem = Plugin::getInstance()->getDiscounts()->matchLineItem($item, $discount, true);
+                            $matchedLineItem = app(Discounts::class)->matchLineItem($item, $discount, true);
 
                             if ($discount->hasFreeShippingForMatchingItems && $matchedLineItem) {
                                 $hasFreeShippingFromDiscount = true;

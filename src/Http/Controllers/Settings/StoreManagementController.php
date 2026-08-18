@@ -9,16 +9,19 @@ use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
 use craft\commerce\helpers\Cp as CommerceCp;
 use craft\commerce\Plugin;
 use craft\helpers\Cp;
-use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Address\Elements\Address;
-use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Support\Facades\Addresses;
+use CraftCms\Cms\Support\Html;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
+use CraftCms\Commerce\Inventory\InventoryLocations;
+use CraftCms\Commerce\Store\Stores;
+
+use CraftCms\Commerce\Store\StoreSettings;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\t;
@@ -65,7 +68,7 @@ readonly class StoreManagementController
         abort_unless(currentUser()?->can('commerce-manageGeneralStoreSettings'), 403);
 
         if ($storeHandle) {
-            $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
+            $store = app(Stores::class)->getStoreByHandle($storeHandle);
             abort_if($store === null, 404);
             $storeSettings = $store->getSettings();
         } else {
@@ -103,8 +106,8 @@ readonly class StoreManagementController
             'allowEmptyOption' => true,
         ]);
 
-        $inventoryLocations = Plugin::getInstance()->getInventoryLocations()->getInventoryLocations($store->id);
-        $allInventoryLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
+        $inventoryLocations = app(InventoryLocations::class)->getInventoryLocations($store->id);
+        $allInventoryLocations = app(InventoryLocations::class)->getAllInventoryLocations();
         $currentUser = currentUserElement();
 
         $locationsCount = count($allInventoryLocations);
@@ -160,8 +163,8 @@ readonly class StoreManagementController
         abort_unless(currentUser()?->can('commerce-manageGeneralStoreSettings'), 403);
 
         $storeId = $request->input('id');
-        $store = Plugin::getInstance()->getStores()->getStoreById($storeId);
-        $storeSettings = Plugin::getInstance()->getStoreSettings()->getStoreSettingsById($storeId);
+        $store = app(Stores::class)->getStoreById($storeId);
+        $storeSettings = app(StoreSettings::class)->getStoreSettingsById($storeId);
         $currentUser = currentUserElement();
 
         if ($locationAddressId = $request->input('locationAddressId')) {
@@ -182,12 +185,12 @@ readonly class StoreManagementController
                 return $this->asFailure(t('Missing a default inventory location.', category: 'commerce'));
             }
 
-            if (!Plugin::getInstance()->getInventoryLocations()->saveStoreInventoryLocations($store, $inventoryLocations)) {
+            if (!app(InventoryLocations::class)->saveStoreInventoryLocations($store, $inventoryLocations)) {
                 return $this->asFailure(t('Inventory locations not saved.', category: 'commerce'));
             }
         }
 
-        if (!$storeSettings->validate() || !Plugin::getInstance()->getStoreSettings()->saveStoreSettings($storeSettings)) {
+        if (!$storeSettings->validate() || !app(StoreSettings::class)->saveStoreSettings($storeSettings)) {
             return $this->asModelFailure(
                 model: $storeSettings,
                 message: t('Couldn\'t save store.', category: 'commerce'),

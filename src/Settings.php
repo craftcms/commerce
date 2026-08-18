@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace CraftCms\Commerce;
 
 use craft\base\Model;
-use craft\commerce\Plugin;
 use CraftCms\Cms\Site\Exceptions\SiteNotFoundException;
 use CraftCms\Cms\Support\Config;
 use CraftCms\Cms\Support\Facades\Sites;
+use CraftCms\Commerce\Payment\PaymentCurrencies;
+use CraftCms\Commerce\Store\Stores;
 use function CraftCms\Cms\t;
 
 class Settings extends Model
@@ -107,9 +108,9 @@ class Settings extends Model
 
         $paymentCurrency = Config::localizedValue($this->paymentCurrency, $siteHandle);
         /** @phpstan-ignore-next-line */
-        $store = Plugin::getInstance()->getStores()->getStoreBySiteId($site->id);
+        $store = app(Stores::class)->getStoreBySiteId($site->id);
         /** @phpstan-ignore-next-line */
-        $allPaymentCurrencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies($store?->id);
+        $allPaymentCurrencies = app(PaymentCurrencies::class)->getAllPaymentCurrencies($store?->id);
 
         if ($paymentCurrency && !$allPaymentCurrencies->contains('iso', '==', $paymentCurrency)) {
             throw new \InvalidArgumentException("Invalid payment currency: $paymentCurrency");

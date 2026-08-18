@@ -6,7 +6,6 @@ namespace CraftCms\Commerce\Catalog\Elements;
 
 use craft\commerce\elements\actions\SetDefaultVariant;
 use craft\commerce\elements\conditions\variants\VariantCondition;
-use craft\commerce\Plugin;
 use CraftCms\Cms\Cp\Html\ElementHtml;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Element\Actions\Copy;
@@ -32,6 +31,7 @@ use CraftCms\Commerce\Catalog\Events\CustomizeVariantSnapshotDataEvent;
 use CraftCms\Commerce\Catalog\Events\CustomizeVariantSnapshotFieldsEvent;
 use CraftCms\Commerce\Catalog\Models\Variant as VariantRecord;
 use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
+use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\Catalog\Queries\VariantQuery;
 use CraftCms\Commerce\Catalog\Validation\VariantRules;
 use CraftCms\Commerce\Database\Table;
@@ -45,8 +45,8 @@ use CraftCms\RulesetValidation\Attributes\Ruleset;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Validator;
 use Override;
-use Throwable;
 
+use Throwable;
 use function CraftCms\Cms\renderSandboxedObjectTemplate;
 use function CraftCms\Cms\t;
 
@@ -359,7 +359,7 @@ class Variant extends Purchasable implements NestedElementInterface
         if ($fieldLayout) {
             // TODO: migrate to app(ProductTypes::class)->getAllProductTypes() once service migrated to src/
             /** @phpstan-ignore-next-line */
-            $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+            $productTypes = app(ProductTypes::class)->getAllProductTypes();
             $productType = collect($productTypes)->firstWhere('variantFieldLayoutId', $fieldLayout->id);
 
             if ($productType) {

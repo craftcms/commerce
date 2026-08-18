@@ -25,6 +25,7 @@ use CraftCms\Commerce\Email\Models\Email;
 use CraftCms\Commerce\Email\Records\Email as EmailRecord;
 use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
+use CraftCms\Commerce\Store\Stores;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;
@@ -72,7 +73,7 @@ class Emails
      */
     public function getAllEmails(?int $storeId = null): Collection
     {
-        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         if ($this->allEmails === null || !isset($this->allEmails[$storeId])) {
             $results = $this->query()->where('emails.storeId', $storeId)->get();
@@ -160,7 +161,7 @@ class Emails
         try {
             $emailRecord = $this->getEmailRecord($emailUid);
             $isNewEmail = !$emailRecord->exists;
-            $store = Plugin::getInstance()->getStores()->getStoreByUid($data['store']);
+            $store = app(Stores::class)->getStoreByUid($data['store']);
             $renderSite = array_key_exists('renderSite', $data) && $data['renderSite'] !== null ? Sites::getSiteByUid($data['renderSite']) : null;
 
             $emailRecord->storeId = $store->id;

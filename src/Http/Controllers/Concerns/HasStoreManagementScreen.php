@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Concerns;
 
-use craft\commerce\Plugin;
 use craft\web\assets\admintable\AdminTableAsset;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
-use CraftCms\Commerce\Store\Models\Store;
+use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 
+use CraftCms\Commerce\Store\Models\Store;
+use CraftCms\Commerce\Store\Stores;
+use CraftCms\Commerce\Tax\Taxes;
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
 
@@ -23,8 +25,8 @@ trait HasStoreManagementScreen
 {
     protected function resolveStore(?string $storeHandle): Store
     {
-        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
-            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        if ($storeHandle === null || !$store = app(Stores::class)->getStoreByHandle($storeHandle)) {
+            $store = app(Stores::class)->getPrimaryStore();
         }
 
         return $store;
@@ -64,9 +66,9 @@ trait HasStoreManagementScreen
 
     protected function getStoreSwitcher(?string $storeHandle = null): array
     {
-        $stores = Plugin::getInstance()->getStores()->getAllStores();
+        $stores = app(Stores::class)->getAllStores();
 
-        $store = $storeHandle ? Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle) : null;
+        $store = $storeHandle ? app(Stores::class)->getStoreByHandle($storeHandle) : null;
 
         $storeItems = $stores->filter(function(Store $s) {
             foreach ($s->getSites() as $site) {
@@ -132,7 +134,7 @@ trait HasStoreManagementScreen
             'disabled' => !$managePromotions,
         ];
 
-        if (Plugin::getInstance()->getCatalogPricingRules()->canUseCatalogPricingRules()) {
+        if (app(CatalogPricingRules::class)->canUseCatalogPricingRules()) {
             $storeSettingsNav['pricing-rules'] = [
                 'label' => t('Pricing Rules', category: 'commerce'),
                 'path' => 'pricing-rules',
@@ -174,7 +176,7 @@ trait HasStoreManagementScreen
         ];
 
         $manageTaxes = (bool)currentUser()?->can('commerce-manageTaxes');
-        if (Plugin::getInstance()->getTaxes()->viewTaxRates()) {
+        if (app(Taxes::class)->viewTaxRates()) {
             $storeSettingsNav['taxrates'] = [
                 'label' => t('Tax Rates', category: 'commerce'),
                 'path' => 'taxrates',
@@ -182,7 +184,7 @@ trait HasStoreManagementScreen
             ];
         }
 
-        if (Plugin::getInstance()->getTaxes()->viewTaxZones()) {
+        if (app(Taxes::class)->viewTaxZones()) {
             $storeSettingsNav['taxzones'] = [
                 'label' => t('Tax Zones', category: 'commerce'),
                 'path' => 'taxzones',
@@ -190,7 +192,7 @@ trait HasStoreManagementScreen
             ];
         }
 
-        if (Plugin::getInstance()->getTaxes()->viewTaxCategories()) {
+        if (app(Taxes::class)->viewTaxCategories()) {
             $storeSettingsNav['taxcategories'] = [
                 'label' => t('Tax Categories', category: 'commerce'),
                 'path' => 'taxcategories',

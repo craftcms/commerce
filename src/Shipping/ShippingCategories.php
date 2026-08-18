@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Shipping;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Element\Jobs\ResaveElements;
 use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Shipping\Models\ShippingCategory;
 use CraftCms\Commerce\Shipping\Records\ShippingCategory as ShippingCategoryRecord;
+use CraftCms\Commerce\Store\Stores;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -269,6 +269,6 @@ class ShippingCategories
     private function currentStoreId(): int
     {
         /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        return app(Stores::class)->getCurrentStore()->id;
     }
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Queries;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Element\Queries\ElementQuery;
 use CraftCms\Cms\Element\Queries\Exceptions\QueryAbortedException;
@@ -14,6 +13,7 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Inventory\Enums\ContainsPurchasablesMatch;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
+use CraftCms\Commerce\Order\LineItem\LineItems;
 use CraftCms\Commerce\Order\Models\OrderStatus;
 use CraftCms\Commerce\Order\OrderAdjustments;
 use CraftCms\Commerce\Order\OrderNotices;
@@ -720,7 +720,7 @@ class OrderQuery extends ElementQuery
             // service and LineItem model are migrated to src/ (blocked on the Order/Purchasable-tied
             // LineItem migration - see laravel-migration-private.md)
             /** @phpstan-ignore-next-line */
-            $orders = Plugin::getInstance()->getLineItems()->eagerLoadLineItemsForOrders($orders);
+            $orders = app(LineItems::class)->eagerLoadLineItemsForOrders($orders);
         }
 
         if ($this->withTransactions || $this->withAll) {

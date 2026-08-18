@@ -5,21 +5,22 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\commerce\models\ShippingMethod;
-use craft\commerce\Plugin;
 use craft\helpers\Cp;
-use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html as NewHtml;
+use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Shipping\Records\ShippingMethod as ShippingMethodRecord;
+use CraftCms\Commerce\Shipping\ShippingMethods;
+use CraftCms\Commerce\Shipping\ShippingRules;
 use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
-
 use function CraftCms\Cms\t;
 
 readonly class ShippingMethodsController
@@ -31,7 +32,7 @@ readonly class ShippingMethodsController
     {
         $store = $this->resolveStore($storeHandle);
 
-        $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods($store->id);
+        $shippingMethods = app(ShippingMethods::class)->getAllShippingMethods($store->id);
 
         $tableData = [];
         foreach ($shippingMethods as $shippingMethod) {
@@ -108,7 +109,7 @@ JS;
         $storeHandle = $store->handle;
 
         if ($id) {
-            $shippingMethod = Plugin::getInstance()->getShippingMethods()->getShippingMethodById($id, $store->id);
+            $shippingMethod = app(ShippingMethods::class)->getShippingMethodById($id, $store->id);
             abort_if($shippingMethod === null, 404);
         } else {
             $shippingMethod = \Craft::createObject([
@@ -120,7 +121,7 @@ JS;
         $title = $shippingMethod->id ? $shippingMethod->name : t('Create a new shipping method', category: 'commerce');
 
         $shippingRules = $shippingMethod->id !== null
-            ? Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($shippingMethod->id)
+            ? app(ShippingRules::class)->getAllShippingRulesByShippingMethodId($shippingMethod->id)
             : [];
 
         $metaDataHtml = NewHtml::beginTag('div', ['class' => 'meta']) .
@@ -169,7 +170,7 @@ JS;
         $shippingMethod->setCustomerCondition($request->input('customerCondition'));
         $shippingMethod->enabled = (bool)$request->input('enabled');
 
-        if (!Plugin::getInstance()->getShippingMethods()->saveShippingMethod($shippingMethod)) {
+        if (!app(ShippingMethods::class)->saveShippingMethod($shippingMethod)) {
             return $this->asModelFailure($shippingMethod, t('Couldn\'t save shipping method.', category: 'commerce'), 'shippingMethod');
         }
 
@@ -190,7 +191,7 @@ JS;
 
         $failedIds = [];
         foreach ($ids as $deleteId) {
-            if (!Plugin::getInstance()->getShippingMethods()->deleteShippingMethodById($deleteId)) {
+            if (!app(ShippingMethods::class)->deleteShippingMethodById($deleteId)) {
                 $failedIds[] = $deleteId;
             }
         }

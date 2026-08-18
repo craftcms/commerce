@@ -6,13 +6,13 @@ namespace CraftCms\Commerce\Promotion;
 
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
-use craft\commerce\Plugin;
 use craft\elements\Category;
 use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Formula\Formulas;
 use CraftCms\Commerce\Order\Adjuster\Discount as DiscountAdjuster;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 use CraftCms\Commerce\Order\Models\OrderNotice;
@@ -27,6 +27,7 @@ use CraftCms\Commerce\Promotion\Records\Discount as DiscountRecord;
 use CraftCms\Commerce\Promotion\Records\DiscountCategory as DiscountCategoryRecord;
 use CraftCms\Commerce\Promotion\Records\DiscountPurchasable as DiscountPurchasableRecord;
 use CraftCms\Commerce\Promotion\Records\EmailDiscountUse as EmailDiscountUseRecord;
+use CraftCms\Commerce\Store\Stores;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
@@ -51,7 +52,7 @@ class Discounts
     {
         // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
         /** @phpstan-ignore-next-line */
-        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         $rows = $this->query()
             ->where('discounts.id', $id)
@@ -74,7 +75,7 @@ class Discounts
     {
         // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
         /** @phpstan-ignore-next-line */
-        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         if ($this->allDiscounts === null || !isset($this->allDiscounts[$storeId])) {
             $rows = $this->query()->where('storeId', $storeId)->get()->all();
@@ -109,7 +110,7 @@ class Discounts
 
         // TODO: migrate to app(Stores::class)->getCurrentStore() once Stores service migrated
         /** @phpstan-ignore-next-line */
-        $store = $order ? $order->getStore() : Plugin::getInstance()->getStores()->getCurrentStore();
+        $store = $order ? $order->getStore() : app(Stores::class)->getCurrentStore();
 
         $couponKey = ($order && $order->couponCode) ? $order->couponCode : '*';
         $dateKey = $date->format('c');
@@ -311,7 +312,7 @@ class Discounts
 
         // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
         /** @phpstan-ignore-next-line */
-        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         $isPgsql = DB::connection()->getDriverName() === 'pgsql';
 
@@ -724,7 +725,7 @@ class Discounts
     {
         // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
         /** @phpstan-ignore-next-line */
-        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         $table = Table::DISCOUNTS;
         $isPgsql = DB::connection()->getDriverName() === 'pgsql';
@@ -991,7 +992,7 @@ class Discounts
 
             // TODO: migrate to app(Formulas::class)->evaluateCondition() once Formulas service migrated
             /** @phpstan-ignore-next-line */
-            return Plugin::getInstance()->getFormulas()->evaluateCondition($discount->orderConditionFormula, $orderConditionParams, 'Evaluate Order Discount Condition Formula');
+            return app(Formulas::class)->evaluateCondition($discount->orderConditionFormula, $orderConditionParams, 'Evaluate Order Discount Condition Formula');
         }
 
         return true;

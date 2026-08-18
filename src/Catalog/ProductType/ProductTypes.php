@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Catalog\ProductType;
 
-use CraftCms\Cms\Element\Enums\PropagationMethod;
+use craft\commerce\Plugin;
 use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;
 use craft\events\SiteEvent;
 use craft\helpers\Cp;
 use craft\helpers\Db as CraftDb;
-use CraftCms\Cms\Support\Str;
+use CraftCms\Cms\Element\Enums\PropagationMethod;
 use CraftCms\Cms\Element\Jobs\ResaveElements;
 use CraftCms\Cms\FieldLayout\FieldLayout;
 use CraftCms\Cms\ProjectConfig\ProjectConfigHelper;
@@ -20,6 +20,7 @@ use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\Support\Facades\Structures;
+use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Cms\View\TemplateResolver;
 use CraftCms\Commerce\Catalog\Elements\Product;
@@ -239,7 +240,7 @@ class ProductTypes
 
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
-        $legacyService = \craft\commerce\Plugin::getInstance()->getProductTypes();
+        $legacyService = Plugin::getInstance()->getProductTypes();
 
         if ($legacyService->hasEventHandlers(self::EVENT_BEFORE_SAVE_PRODUCTTYPE)) {
             $event = new ProductTypeEvent(
@@ -547,7 +548,7 @@ class ProductTypes
 
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
-        $legacyService = \craft\commerce\Plugin::getInstance()->getProductTypes();
+        $legacyService = Plugin::getInstance()->getProductTypes();
         if ($legacyService->hasEventHandlers(self::EVENT_AFTER_SAVE_PRODUCTTYPE)) {
             $event = new ProductTypeEvent(
                 productType: $this->getProductTypeById($record->id),

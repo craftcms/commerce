@@ -10,6 +10,7 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Payment\Events\PaymentCurrencyRateEvent;
 use CraftCms\Commerce\Payment\Models\PaymentCurrency;
 use CraftCms\Commerce\Payment\Records\PaymentCurrency as PaymentCurrencyRecord;
+use CraftCms\Commerce\Store\Stores;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -109,7 +110,7 @@ class PaymentCurrencies
         $storeId ??= $this->currentStoreId();
 
         /** @phpstan-ignore-next-line */
-        $storeCurrency = Plugin::getInstance()->getStores()->getStoreById($storeId)->getCurrency();
+        $storeCurrency = app(Stores::class)->getStoreById($storeId)->getCurrency();
 
         return $this->getAllPaymentCurrencies($storeId)->firstWhere(
             fn(PaymentCurrency $currency) => $currency->getCode() === $storeCurrency->getCode(),
@@ -122,7 +123,7 @@ class PaymentCurrencies
     public function getNonPrimaryPaymentCurrencies(?int $storeId = null): Collection
     {
         /** @phpstan-ignore-next-line */
-        $storeCurrency = Plugin::getInstance()->getStores()->getStoreById($storeId)->getCurrency();
+        $storeCurrency = app(Stores::class)->getStoreById($storeId)->getCurrency();
 
         return $this->getAllPaymentCurrencies($storeId)->where(
             fn(PaymentCurrency $currency) => $currency->getCode() !== $storeCurrency->getCode(),
@@ -223,7 +224,7 @@ class PaymentCurrencies
         $storeId ??= $this->currentStoreId();
 
         /** @phpstan-ignore-next-line */
-        $storeCurrency = Plugin::getInstance()->getStores()->getStoreById($storeId)->getCurrency();
+        $storeCurrency = app(Stores::class)->getStoreById($storeId)->getCurrency();
         $nonPrimaryCurrencies = $this->getNonPrimaryPaymentCurrencies($storeId)
             ->mapWithKeys(fn(PaymentCurrency $c) => [$c->iso => (string) $this->getRateFor($c)]);
 
@@ -239,6 +240,6 @@ class PaymentCurrencies
     private function currentStoreId(): int
     {
         /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        return app(Stores::class)->getCurrentStore()->id;
     }
 }

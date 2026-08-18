@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Tax\Models;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Contracts\Chippable;
 use CraftCms\Commerce\Base\Zone;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Store\Stores;
 use Illuminate\Validation\Rule;
 use function CraftCms\Cms\t;
 
@@ -18,7 +18,7 @@ class TaxAddressZone extends Zone implements Chippable
     #[\Override]
     public static function get(int|string $id): ?static
     {
-        foreach (Plugin::getInstance()->getStores()->getAllStores() as $store) {
+        foreach (app(Stores::class)->getAllStores() as $store) {
             /** @phpstan-ignore-next-line */
             $zone = app(\CraftCms\Commerce\Tax\TaxZones::class)->getTaxZoneById((int)$id, $store->id);
             if ($zone !== null) {

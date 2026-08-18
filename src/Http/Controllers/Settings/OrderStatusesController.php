@@ -6,19 +6,21 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\commerce\models\OrderStatus;
 use craft\commerce\models\Store;
-use craft\commerce\Plugin;
 use craft\db\Query;
-use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Email\Models\Email;
+use CraftCms\Commerce\Order\OrderStatuses;
+use CraftCms\Commerce\Store\Stores;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
-
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
@@ -37,10 +39,10 @@ readonly class OrderStatusesController
     public function index(): string
     {
         $orderStatuses = [];
-        $stores = Plugin::getInstance()->getStores()->getAllStores();
+        $stores = app(Stores::class)->getAllStores();
 
         $stores->each(function(Store $store) use (&$orderStatuses) {
-            $orderStatuses[$store->handle] = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($store->id);
+            $orderStatuses[$store->handle] = app(OrderStatuses::class)->getAllOrderStatuses($store->id);
         });
 
         return pageTemplate('commerce/settings/orderstatuses/index', [
@@ -52,12 +54,12 @@ readonly class OrderStatusesController
 
     public function edit(?string $storeHandle = null, ?int $id = null): CpScreenResponse
     {
-        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
-            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        if ($storeHandle === null || !$store = app(Stores::class)->getStoreByHandle($storeHandle)) {
+            $store = app(Stores::class)->getPrimaryStore();
         }
 
         if ($id) {
-            $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($id, $store->id);
+            $orderStatus = app(OrderStatuses::class)->getOrderStatusById($id, $store->id);
             abort_if($orderStatus === null, 404);
         } else {
             $orderStatus = \Craft::createObject([
@@ -75,7 +77,7 @@ readonly class OrderStatusesController
             $title = t('Create a new order status', category: 'commerce');
 
             $availableColors = $statusColors;
-            Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($store->id)->each(function(OrderStatus $status) use (&$availableColors) {
+            app(OrderStatuses::class)->getAllOrderStatuses($store->id)->each(function(OrderStatus $status) use (&$availableColors) {
                 $key = array_search($status->color, $availableColors, true);
                 if ($key !== false) {
                     unset($availableColors[$key]);
@@ -85,7 +87,7 @@ readonly class OrderStatusesController
             $nextAvailableColor = !empty($availableColors) ? array_shift($availableColors) : 'green';
         }
 
-        $emails = Plugin::getInstance()->getEmails()->getAllEmails($store->id)->mapWithKeys(fn(Email $email) => [$email->id => $email->name])->all();
+        $emails = app(Emails::class)->getAllEmails($store->id)->mapWithKeys(fn(Email $email) => [$email->id => $email->name])->all();
 
         return new CpScreenResponse()
             ->title($title)
@@ -110,7 +112,7 @@ readonly class OrderStatusesController
     {
         $id = $request->input('id');
         $storeId = $request->input('storeId');
-        $orderStatus = $id ? Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($id, $storeId) : null;
+        $orderStatus = $id ? app(OrderStatuses::class)->getOrderStatusById($id, $storeId) : null;
         $orderStatus ??= new OrderStatus();
 
         $orderStatus->storeId = $storeId;
@@ -128,7 +130,7 @@ readonly class OrderStatusesController
                     ->max('[[sortOrder]]') + 1;
         }
 
-        if (!Plugin::getInstance()->getOrderStatuses()->saveOrderStatus($orderStatus, $emailIds)) {
+        if (!app(OrderStatuses::class)->saveOrderStatus($orderStatus, $emailIds)) {
             return $this->asModelFailure($orderStatus, t('Couldn\'t save order status.', category: 'commerce'), 'orderStatus');
         }
 
@@ -142,14 +144,14 @@ readonly class OrderStatusesController
         $storeId = $request->input('storeId');
         abort_if(!$storeId, 400, 'Missing store id');
 
-        $store = Plugin::getInstance()->getStores()->getStoreById($storeId);
-        $allowableStoreIds = Plugin::getInstance()->getStores()->getStoresByUserId(currentUser()?->id)->map(fn(Store $s) => $s->id)->all();
+        $store = app(Stores::class)->getStoreById($storeId);
+        $allowableStoreIds = app(Stores::class)->getStoresByUserId(currentUser()?->id)->map(fn(Store $s) => $s->id)->all();
 
         if (!$store || !in_array($store->id, $allowableStoreIds)) {
             return $this->asFailure(t('Invalid store.', category: 'commerce'));
         }
 
-        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($storeId)->all();
+        $orderStatuses = app(OrderStatuses::class)->getAllOrderStatuses($storeId)->all();
 
         return $this->asSuccess(data: ['orderStatuses' => $orderStatuses]);
     }
@@ -161,7 +163,7 @@ readonly class OrderStatusesController
 
         $ids = Json::decode($request->input('ids'));
 
-        if (!Plugin::getInstance()->getOrderStatuses()->reorderOrderStatuses($ids)) {
+        if (!app(OrderStatuses::class)->reorderOrderStatuses($ids)) {
             return $this->asFailure(t('Couldn\'t reorder Order Statuses.', category: 'commerce'));
         }
 
@@ -177,7 +179,7 @@ readonly class OrderStatusesController
 
         $storeId = DB::table(Table::ORDERSTATUSES)->where('id', $orderStatusId)->value('storeId');
 
-        if (!$storeId || !Plugin::getInstance()->getOrderStatuses()->deleteOrderStatusById((int)$orderStatusId, $storeId)) {
+        if (!$storeId || !app(OrderStatuses::class)->deleteOrderStatusById((int)$orderStatusId, $storeId)) {
             return $this->asFailure(t('Couldn\'t archive Order Status.', category: 'commerce'));
         }
 

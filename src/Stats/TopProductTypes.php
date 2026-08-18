@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Stats;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Database\Table as CmsTable;
 use CraftCms\Cms\Support\Facades\Sites;
+use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\Database\Table;
 
 /**
@@ -37,7 +37,7 @@ class TopProductTypes extends Stat
     public function getData(): array
     {
         $primarySite = Sites::getPrimarySite();
-        $viewableProductTypeIds = Plugin::getInstance()->getProductTypes()->getViewableProductTypeIds();
+        $viewableProductTypeIds = app(ProductTypes::class)->getViewableProductTypeIds();
 
         $results = $this->createStatQuery()
             ->select(['pt.id as id', 'pt.name'])
@@ -72,7 +72,7 @@ class TopProductTypes extends Stat
     {
         if (!empty($data)) {
             foreach ($data as &$row) {
-                $row['productType'] = $row['id'] ? Plugin::getInstance()->getProductTypes()->getProductTypeById((int)$row['id']) : null;
+                $row['productType'] = $row['id'] ? app(ProductTypes::class)->getProductTypeById((int)$row['id']) : null;
             }
         }
 

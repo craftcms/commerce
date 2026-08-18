@@ -4,23 +4,24 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Adjuster;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Commerce\Order\Adjuster\Contracts\AdjusterInterface;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Models\OrderAdjustment;
+use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Store\Exceptions\StoreNotFoundException;
 use CraftCms\Commerce\Tax\Contracts\TaxIdValidatorInterface;
 use CraftCms\Commerce\Tax\Models\EuVatIdValidator;
 use CraftCms\Commerce\Tax\Models\TaxAddressZone;
 use CraftCms\Commerce\Tax\Models\TaxRate;
 use CraftCms\Commerce\Tax\Records\TaxRate as TaxRateRecord;
+use CraftCms\Commerce\Tax\TaxRates;
 use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+
 use Illuminate\Support\Facades\Log;
 use Money\Teller;
-
 use function CraftCms\Cms\t;
 use function in_array;
 
@@ -332,7 +333,7 @@ class Tax implements AdjusterInterface
      */
     protected function getTaxRates(?int $storeId = null): Collection
     {
-        return Plugin::getInstance()->getTaxRates()->getAllEnabledTaxRates($storeId);
+        return app(TaxRates::class)->getAllEnabledTaxRates($storeId);
     }
 
     private function _getTaxAmount($taxableAmount, $rate, $included): float
@@ -473,6 +474,6 @@ class Tax implements AdjusterInterface
      */
     private function _getTeller(): Teller
     {
-        return Plugin::getInstance()->getCurrencies()->getTeller($this->_order->currency);
+        return app(Currencies::class)->getTeller($this->_order->currency);
     }
 }

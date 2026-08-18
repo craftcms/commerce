@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Catalog\Queries;
 
 use Closure;
-use craft\commerce\Plugin;
 use CraftCms\Cms\Element\Queries\ElementQuery;
 use CraftCms\Cms\Element\Queries\Exceptions\QueryAbortedException;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
+use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\Database\Table;
@@ -20,8 +20,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
 use Override;
-use Tpetry\QueryExpressions\Language\Alias;
 
+use Tpetry\QueryExpressions\Language\Alias;
 use function CraftCms\Cms\currentUser;
 
 /**
@@ -261,7 +261,7 @@ class ProductQuery extends ElementQuery
     {
         // TODO: migrate to app(ProductTypes::class)->getProductTypeByHandle() once service migrated to src/
         /** @phpstan-ignore-next-line */
-        if (is_string($value) && ($productType = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle($value))) {
+        if (is_string($value) && ($productType = app(ProductTypes::class)->getProductTypeByHandle($value))) {
             $value = $productType;
         }
 
@@ -434,7 +434,7 @@ class ProductQuery extends ElementQuery
         ) {
             // TODO: migrate to app(ProductTypes::class)->getProductTypeById() once service migrated to src/
             /** @phpstan-ignore-next-line */
-            $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById((int)reset($this->typeId));
+            $productType = app(ProductTypes::class)->getProductTypeById((int)reset($this->typeId));
 
             if ($productType && $productType->isStructure) {
                 $this->structureId = $productType->structureId;
@@ -493,7 +493,7 @@ class ProductQuery extends ElementQuery
 
         // TODO: migrate to app(ProductTypes::class)->getAllProductTypes() once service migrated to src/
         /** @phpstan-ignore-next-line */
-        $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+        $productTypes = app(ProductTypes::class)->getAllProductTypes();
 
         if (empty($productTypes)) {
             return;

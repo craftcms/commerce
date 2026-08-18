@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Order\Adjuster;
 
 use craft\commerce\adjusters\Discount as LegacyDiscount;
-use craft\commerce\Plugin;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Order\Adjuster\Contracts\AdjusterInterface;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\Models\OrderAdjustment;
+use CraftCms\Commerce\Payment\Currencies;
+use CraftCms\Commerce\Promotion\Discounts;
 use CraftCms\Commerce\Promotion\Events\DiscountAdjustmentsEvent;
 use CraftCms\Commerce\Promotion\Models\Discount as DiscountModel;
 use CraftCms\Commerce\Promotion\Records\Discount as DiscountRecord;
@@ -59,10 +60,10 @@ class Discount implements AdjusterInterface
 
         $adjustments = [];
         $availableDiscounts = [];
-        $discounts = Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($order);
+        $discounts = app(Discounts::class)->getAllActiveDiscounts($order);
 
         foreach ($discounts as $discount) {
-            if (Plugin::getInstance()->getDiscounts()->matchOrder($order, $discount)) {
+            if (app(Discounts::class)->matchOrder($order, $discount)) {
                 $availableDiscounts[] = $discount;
             }
         }
@@ -207,7 +208,7 @@ class Discount implements AdjusterInterface
         foreach ($this->_order->getLineItems() as $item) {
             $lineItemHashId = spl_object_hash($item);
             // Order is already a match to this discount, or we wouldn't get here.
-            if (Plugin::getInstance()->getDiscounts()->matchLineItem($item, $discount, false)) {
+            if (app(Discounts::class)->matchLineItem($item, $discount, false)) {
                 $matchingLineIds[] = $lineItemHashId;
             }
         }
@@ -291,6 +292,6 @@ class Discount implements AdjusterInterface
      */
     private function _getTeller(): Teller
     {
-        return Plugin::getInstance()->getCurrencies()->getTeller($this->_order->currency);
+        return app(Currencies::class)->getTeller($this->_order->currency);
     }
 }

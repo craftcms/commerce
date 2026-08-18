@@ -6,18 +6,19 @@ namespace CraftCms\Commerce\Http\Controllers;
 
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Locale;
-use craft\commerce\Plugin;
-use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\RouteToken\RouteTokens;
+use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\SystemMessage\Mailables\SystemMessageMailable;
 use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Order\Orders;
+use CraftCms\Commerce\Pdf\Pdfs;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Mail;
+
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
-
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\renderSandboxedObjectTemplate;
@@ -35,7 +36,7 @@ readonly class DownloadsController
 
         abort_unless($number, 400, 'Order number required');
 
-        $order = Plugin::getInstance()->getOrders()->getOrderByNumber($number);
+        $order = app(Orders::class)->getOrderByNumber($number);
         abort_if(!$order || !$order->getEmail(), 404, 'Order not found');
 
         $currentUser = currentUserElement();
@@ -78,10 +79,10 @@ readonly class DownloadsController
         }
 
         if ($pdfHandle) {
-            $pdf = Plugin::getInstance()->getPdfs()->getPdfByHandle($pdfHandle, $order->storeId);
+            $pdf = app(Pdfs::class)->getPdfByHandle($pdfHandle, $order->storeId);
             abort_if(!$pdf, 500, 'Can not find the PDF to render based on the handle supplied.');
         } else {
-            $pdf = Plugin::getInstance()->getPdfs()->getDefaultPdf($order->storeId);
+            $pdf = app(Pdfs::class)->getDefaultPdf($order->storeId);
         }
 
         abort_if(!$pdf, 500, 'Can not find a PDF to render.');
@@ -92,7 +93,7 @@ readonly class DownloadsController
         $language = $pdf->getRenderLanguage($order);
         Locale::switchAppLanguage($language);
 
-        $renderedPdf = Plugin::getInstance()->getPdfs()->renderPdfForOrder($order, $option, null, [], $pdf);
+        $renderedPdf = app(Pdfs::class)->renderPdfForOrder($order, $option, null, [], $pdf);
 
         Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale->id);
 
@@ -111,7 +112,7 @@ readonly class DownloadsController
         $number = $request->query('number');
         abort_unless($number, 400, 'Order number required');
 
-        $order = Plugin::getInstance()->getOrders()->getOrderByNumber($number);
+        $order = app(Orders::class)->getOrderByNumber($number);
         abort_if(!$order || !$order->getEmail(), 404, 'Order not found');
 
         return $this->renderEmailChallenge(
@@ -139,10 +140,10 @@ readonly class DownloadsController
         }
         abort_if($orderNumber === false, 400, 'Invalid order number hash');
 
-        $order = Plugin::getInstance()->getOrders()->getOrderByNumber($orderNumber);
+        $order = app(Orders::class)->getOrderByNumber($orderNumber);
         abort_if(!$order, 404, 'Order not found');
 
-        $downloadUrl = Plugin::getInstance()->getPdfs()->getPdfUrl($order, $option, $pdfHandle, $inline);
+        $downloadUrl = app(Pdfs::class)->getPdfUrl($order, $option, $pdfHandle, $inline);
 
         try {
             $sent = Mail::to($order->email)->send(new SystemMessageMailable(
@@ -178,7 +179,7 @@ readonly class DownloadsController
         }
         abort_if($orderNumber === false, 400, 'Invalid hash parameter');
 
-        $order = Plugin::getInstance()->getOrders()->getOrderByNumber($orderNumber);
+        $order = app(Orders::class)->getOrderByNumber($orderNumber);
         abort_if(!$order, 404, 'Order not found');
 
         return pageTemplate('commerce/_downloads/email-sent', [

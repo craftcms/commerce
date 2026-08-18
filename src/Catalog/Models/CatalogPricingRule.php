@@ -9,12 +9,11 @@ use craft\commerce\elements\conditions\customers\CatalogPricingRuleCustomerCondi
 use craft\commerce\elements\conditions\products\CatalogPricingRuleProductCondition;
 use craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasableCondition;
 use craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantCondition;
-use craft\commerce\Plugin;
-use CraftCms\Cms\Element\Queries\ElementQuery;
 use craft\events\CancelableEvent;
 use craft\helpers\Db;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionInterface;
+use CraftCms\Cms\Element\Queries\ElementQuery;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Json;
@@ -23,6 +22,7 @@ use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule as PricingCatalogRuleRecord;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
 use DateTime;
@@ -350,7 +350,7 @@ class CatalogPricingRule extends Component implements HasStoreInterface
 
         // TODO: migrate to app(Currencies::class) once service migrated to src/
         /** @phpstan-ignore-next-line */
-        $price = (float)Plugin::getInstance()->getCurrencies()->getTeller($this->getStore()->getCurrency())->convertToString($price);
+        $price = (float)app(Currencies::class)->getTeller($this->getStore()->getCurrency())->convertToString($price);
 
         return max($price, 0);
     }

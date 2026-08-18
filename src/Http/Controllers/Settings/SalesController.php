@@ -7,27 +7,30 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\models\Sale;
-use craft\commerce\Plugin;
 use craft\elements\Category;
-use CraftCms\Cms\Entry\Elements\Entry;
-use CraftCms\Cms\Support\DateTimeHelper;
-use CraftCms\Cms\Support\Json;
 use craft\helpers\Localization;
-use CraftCms\Cms\Translation\Locale;
+use CraftCms\Cms\Edition;
+use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Arr;
+use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\Elements;
-use CraftCms\Cms\Edition;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Facades\UserGroups;
+use CraftCms\Cms\Support\Json;
+use CraftCms\Cms\Translation\Locale;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Catalog\Elements\Product;
+use CraftCms\Commerce\Catalog\Products;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
+use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Promotion\Records\Sale as SaleRecord;
+use CraftCms\Commerce\Promotion\Sales;
+
+use CraftCms\Commerce\Purchasable\Purchasables;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
-
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
@@ -39,7 +42,7 @@ readonly class SalesController
 
     private function guard(): void
     {
-        abort_unless(Plugin::getInstance()->getSales()->canUseSales(), 403, 'Unable to use sales while using multi store or pricing rules.');
+        abort_unless(app(Sales::class)->canUseSales(), 403, 'Unable to use sales while using multi store or pricing rules.');
     }
 
     public function index(?string $storeHandle = null): Response|string
@@ -47,7 +50,7 @@ readonly class SalesController
         $this->guard();
 
         $store = $this->resolveStore($storeHandle);
-        $sales = Plugin::getInstance()->getSales()->getAllSales();
+        $sales = app(Sales::class)->getAllSales();
         if (empty($sales)) {
             return redirect('commerce/store-management/' . $store->handle . '/pricing-rules');
         }
@@ -70,7 +73,7 @@ readonly class SalesController
 
         $isNewSale = false;
         if ($id) {
-            $sale = Plugin::getInstance()->getSales()->getSaleById($id);
+            $sale = app(Sales::class)->getSaleById($id);
             abort_if($sale === null, 404);
         } else {
             $sale = new Sale();
@@ -154,7 +157,7 @@ readonly class SalesController
             $sale->setUserGroupIds($request->input('groups', []) ?: []);
         }
 
-        if (Plugin::getInstance()->getSales()->saveSale($sale)) {
+        if (app(Sales::class)->saveSale($sale)) {
             return $this->asModelSuccess($sale, t('Sale saved.', category: 'commerce'), 'sale');
         }
 
@@ -167,7 +170,7 @@ readonly class SalesController
         abort_unless($request->input('ids'), 400, 'Missing ids');
 
         $ids = Json::decode($request->input('ids'));
-        if (!Plugin::getInstance()->getSales()->reorderSales($ids)) {
+        if (!app(Sales::class)->reorderSales($ids)) {
             return $this->asFailure(t('Couldn\'t reorder sales.', category: 'commerce'));
         }
 
@@ -189,7 +192,7 @@ readonly class SalesController
         }
 
         foreach ($ids as $deleteId) {
-            Plugin::getInstance()->getSales()->deleteSaleById($deleteId);
+            app(Sales::class)->deleteSaleById($deleteId);
         }
 
         if ($request->expectsJson()) {
@@ -202,7 +205,7 @@ readonly class SalesController
     public function getAllSales(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
-        $sales = Plugin::getInstance()->getSales()->getAllSales();
+        $sales = app(Sales::class)->getAllSales();
 
         return response()->json(array_values($sales));
     }
@@ -216,7 +219,7 @@ readonly class SalesController
             return $this->asFailure(t('Product ID is required.', category: 'commerce'));
         }
 
-        $product = Plugin::getInstance()->getProducts()->getProductById($id);
+        $product = app(Products::class)->getProductById($id);
 
         if (!$product) {
             return $this->asFailure(t('No product available.', category: 'commerce'));
@@ -224,7 +227,7 @@ readonly class SalesController
 
         $sales = [];
         foreach ($product->getVariants(true) as $variant) {
-            $variantSales = Plugin::getInstance()->getSales()->getSalesRelatedToPurchasable($variant);
+            $variantSales = app(Sales::class)->getSalesRelatedToPurchasable($variant);
             foreach ($variantSales as $sale) {
                 if (!Arr::contains($sales, 'id', $sale->id)) {
                     $saleArray = $sale->toArray();
@@ -246,14 +249,14 @@ readonly class SalesController
             return $this->asFailure(t('Purchasable ID is required.', category: 'commerce'));
         }
 
-        $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($id);
+        $purchasable = app(Purchasables::class)->getPurchasableById($id);
 
         if (!$purchasable) {
             return $this->asFailure(t('No purchasable available.', category: 'commerce'));
         }
 
         $sales = [];
-        $purchasableSales = Plugin::getInstance()->getSales()->getSalesRelatedToPurchasable($purchasable);
+        $purchasableSales = app(Sales::class)->getSalesRelatedToPurchasable($purchasable);
         foreach ($purchasableSales as $sale) {
             if (!Arr::contains($sales, 'id', $sale->id)) {
                 $saleArray = $sale->toArray();
@@ -277,10 +280,10 @@ readonly class SalesController
 
         $purchasables = [];
         foreach ($ids as $id) {
-            $purchasables[] = Plugin::getInstance()->getPurchasables()->getPurchasableById($id);
+            $purchasables[] = app(Purchasables::class)->getPurchasableById($id);
         }
 
-        $sale = Plugin::getInstance()->getSales()->getSaleById($saleId);
+        $sale = app(Sales::class)->getSaleById($saleId);
 
         if (empty($purchasables) || count($purchasables) != count($ids) || !$sale) {
             return $this->asFailure(t('Unable to retrieve Sale and Purchasable.', category: 'commerce'));
@@ -294,7 +297,7 @@ readonly class SalesController
         }
         $sale->setPurchasableIds(array_unique($salePurchasableIds));
 
-        if (!Plugin::getInstance()->getSales()->saveSale($sale)) {
+        if (!app(Sales::class)->saveSale($sale)) {
             return $this->asFailure(t('Couldn\'t save sale.', category: 'commerce'));
         }
 
@@ -341,7 +344,7 @@ readonly class SalesController
         }
 
         $variables['percentSymbol'] = I18N::getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
-        $primaryCurrencyIso = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        $primaryCurrencyIso = app(PaymentCurrencies::class)->getPrimaryPaymentCurrencyIso();
         $variables['currencySymbol'] = I18N::getLocale()->getCurrencySymbol($primaryCurrencyIso);
 
         $variables['saleApplyAmount'] = '';
@@ -418,7 +421,7 @@ readonly class SalesController
         $variables['purchasables'] = $purchasables;
 
         $variables['purchasableTypes'] = [];
-        $purchasableTypes = Plugin::getInstance()->getPurchasables()->getAllPurchasableElementTypes();
+        $purchasableTypes = app(Purchasables::class)->getAllPurchasableElementTypes();
 
         /** @var Purchasable $purchasableType */
         foreach ($purchasableTypes as $purchasableType) {

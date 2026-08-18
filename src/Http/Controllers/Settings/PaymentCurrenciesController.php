@@ -6,17 +6,18 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\commerce\elements\Order;
 use craft\commerce\models\PaymentCurrency;
-use craft\commerce\Plugin;
 use craft\helpers\Cp;
-use CraftCms\Cms\Support\Html;
 use craft\i18n\Formatter;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\I18N;
+use CraftCms\Cms\Support\Html;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
+use CraftCms\Commerce\Payment\Currencies;
+use CraftCms\Commerce\Payment\PaymentCurrencies;
+
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 use function CraftCms\Cms\t;
 
 readonly class PaymentCurrenciesController
@@ -29,7 +30,7 @@ readonly class PaymentCurrenciesController
         $store = $this->resolveStore($storeHandle);
         $storeHandle = $store->handle;
 
-        $currencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies($store->id);
+        $currencies = app(PaymentCurrencies::class)->getAllPaymentCurrencies($store->id);
 
         return $this->storeManagementCpScreen($storeHandle)
             ->additionalButtonsHtml(Html::a(
@@ -45,7 +46,7 @@ readonly class PaymentCurrenciesController
         $storeHandle = $store->handle;
 
         if ($id) {
-            $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyById($id, $store->id);
+            $currency = app(PaymentCurrencies::class)->getPaymentCurrencyById($id, $store->id);
             abort_if($currency === null || $currency->storeId !== $store->id, 404);
         } else {
             $currency = \Craft::createObject([
@@ -57,8 +58,8 @@ readonly class PaymentCurrenciesController
         // @TODO Use the full currency name instead of the ISO code for the page title
         $title = $currency->id ? $currency->iso : t('Create a new currency', category: 'commerce');
 
-        $storeCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-        $currencyOptions = Plugin::getInstance()->getCurrencies()->getAllCurrenciesList();
+        $storeCurrency = app(PaymentCurrencies::class)->getPrimaryPaymentCurrencyIso();
+        $currencyOptions = app(Currencies::class)->getAllCurrenciesList();
         $hasCompletedOrders = Order::find()->isCompleted(true)->exists();
 
         $formatter = I18N::getFormatter();
@@ -94,7 +95,7 @@ readonly class PaymentCurrenciesController
         $currency->iso = $request->input('iso');
         $currency->rate = $request->input('rate', 1);
 
-        if (Plugin::getInstance()->getPaymentCurrencies()->savePaymentCurrency($currency)) {
+        if (app(PaymentCurrencies::class)->savePaymentCurrency($currency)) {
             return $this->asModelSuccess($currency, t('Currency saved.', category: 'commerce'), 'currency');
         }
 
@@ -108,7 +109,7 @@ readonly class PaymentCurrenciesController
         $id = $request->input('id');
         abort_if(!$id, 400, 'Missing currency id');
 
-        if (!Plugin::getInstance()->getPaymentCurrencies()->deletePaymentCurrencyById($id)) {
+        if (!app(PaymentCurrencies::class)->deletePaymentCurrencyById($id)) {
             return $this->asFailure();
         }
 

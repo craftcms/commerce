@@ -7,16 +7,17 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Pdf;
 use craft\commerce\models\Store;
-use craft\commerce\Plugin;
-use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Pdf\Pdfs;
 use CraftCms\Commerce\Pdf\Records\Pdf as PdfRecord;
+use CraftCms\Commerce\Store\Stores;
+
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
@@ -34,10 +35,10 @@ readonly class PdfsController
     public function index(): string
     {
         $pdfs = [];
-        $stores = Plugin::getInstance()->getStores()->getAllStores();
+        $stores = app(Stores::class)->getAllStores();
 
         $stores->each(function(Store $store) use (&$pdfs) {
-            $pdfs[$store->handle] = Plugin::getInstance()->getPdfs()->getAllPdfs($store->id);
+            $pdfs[$store->handle] = app(Pdfs::class)->getAllPdfs($store->id);
         });
 
         return pageTemplate('commerce/settings/pdfs/index', [
@@ -49,8 +50,8 @@ readonly class PdfsController
 
     public function edit(?string $storeHandle = null, ?int $id = null): CpScreenResponse
     {
-        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
-            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        if ($storeHandle === null || !$store = app(Stores::class)->getStoreByHandle($storeHandle)) {
+            $store = app(Stores::class)->getPrimaryStore();
         }
 
         $pdfLanguageOptions = [
@@ -60,7 +61,7 @@ readonly class PdfsController
         $pdfLanguageOptions = array_merge($pdfLanguageOptions, LocaleHelper::getSiteAndOtherLanguages());
 
         if ($id) {
-            $pdf = Plugin::getInstance()->getPdfs()->getPdfById($id, $store->id);
+            $pdf = app(Pdfs::class)->getPdfById($id, $store->id);
             abort_if($pdf === null, 404);
         } else {
             $pdf = \Craft::createObject([
@@ -71,7 +72,7 @@ readonly class PdfsController
 
         $title = $pdf->id ? $pdf->name : t('Create a new PDF', category: 'commerce');
 
-        $isDefault = Plugin::getInstance()->getPdfs()->getAllPdfs($pdf->storeId)->count() === 0 || $pdf->isDefault;
+        $isDefault = app(Pdfs::class)->getAllPdfs($pdf->storeId)->count() === 0 || $pdf->isDefault;
         $paperOrientationOptions = Pdf::getPaperOrientationOptions();
         $paperSizeOptions = Pdf::getPaperSizeOptions();
 
@@ -97,7 +98,7 @@ readonly class PdfsController
 
     public function save(Request $request): Response
     {
-        $pdfsService = Plugin::getInstance()->getPdfs();
+        $pdfsService = app(Pdfs::class);
         $pdfId = $request->input('id');
         $storeId = $request->input('storeId');
 
@@ -135,7 +136,7 @@ readonly class PdfsController
         $id = $request->input('id');
         abort_if(!$id, 400, 'Missing PDF id');
 
-        Plugin::getInstance()->getPdfs()->deletePdfById($id);
+        app(Pdfs::class)->deletePdfById($id);
 
         return $this->asSuccess();
     }
@@ -147,7 +148,7 @@ readonly class PdfsController
 
         $ids = Json::decode($request->input('ids'));
 
-        if (!Plugin::getInstance()->getPdfs()->reorderPdfs($ids)) {
+        if (!app(Pdfs::class)->reorderPdfs($ids)) {
             return $this->asFailure(t('Couldn\'t reorder PDFs.', category: 'commerce'));
         }
 

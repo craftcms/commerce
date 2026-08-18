@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Payment\Models;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Url;
+use CraftCms\Commerce\Payment\Currencies;
+use CraftCms\Commerce\Store\Stores;
 use DateTime;
 use Money\Currency;
 
@@ -40,7 +41,7 @@ class PaymentCurrency extends Component
             return '';
         }
 
-        $store = Plugin::getInstance()->getStores()->getStoreById($this->storeId);
+        $store = app(Stores::class)->getStoreById($this->storeId);
         if ($store === null) {
             throw new \InvalidArgumentException('Invalid store ID: ' . $this->storeId);
         }
@@ -55,7 +56,7 @@ class PaymentCurrency extends Component
 
     public function getNumericCode(): ?int
     {
-        return Plugin::getInstance()->getCurrencies()->numericCodeFor($this->iso);
+        return app(Currencies::class)->numericCodeFor($this->iso);
     }
 
     public function getEntity(): ?string
@@ -71,7 +72,7 @@ class PaymentCurrency extends Component
 
     public function getSubUnit(): ?int
     {
-        return Plugin::getInstance()->getCurrencies()->getSubunitFor($this->iso);
+        return app(Currencies::class)->getSubunitFor($this->iso);
     }
 
     public function getName(): ?string
@@ -81,7 +82,7 @@ class PaymentCurrency extends Component
 
     public function getStore(): \craft\commerce\models\Store
     {
-        $store = Plugin::getInstance()->getStores()->getStoreById($this->storeId);
+        $store = app(Stores::class)->getStoreById($this->storeId);
         if ($store === null) {
             throw new \InvalidArgumentException('Invalid store ID: ' . $this->storeId);
         }

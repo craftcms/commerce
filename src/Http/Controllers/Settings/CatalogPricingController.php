@@ -6,20 +6,20 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\commerce\helpers\Purchasable;
 use craft\commerce\models\CatalogPricing;
-use craft\commerce\Plugin;
 use craft\commerce\web\assets\catalogpricing\CatalogPricingAsset;
 use craft\helpers\Cp;
-use CraftCms\Cms\Support\Html;
 use craft\web\assets\htmx\HtmxAsset;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Sites;
+use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingPurchasableConditionRule;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response as JsonResponseAlias;
 
+use Illuminate\Http\Response as JsonResponseAlias;
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 use function CraftCms\Cms\template;
@@ -28,7 +28,7 @@ readonly class CatalogPricingController
 {
     private function guard(): void
     {
-        abort_unless(Plugin::getInstance()->getCatalogPricingRules()->canUseCatalogPricingRules(), 403, 'Unable to use catalog pricing rules while sales exist.');
+        abort_unless(app(CatalogPricingRules::class)->canUseCatalogPricingRules(), 403, 'Unable to use catalog pricing rules while sales exist.');
     }
 
     public function index(Request $request): string
@@ -56,8 +56,8 @@ readonly class CatalogPricingController
             $conditionBuilder->addConditionRule($purchasableConditionRule);
         }
 
-        $catalogPrices = Plugin::getInstance()->getCatalogPricing()->getCatalogPrices($store->id, $conditionBuilder, limit: 100, offset: 0);
-        $pageInfo = Plugin::getInstance()->getCatalogPricing()->getCatalogPricesPageInfo($store->id, $conditionBuilder);
+        $catalogPrices = app(\CraftCms\Commerce\CatalogPricing\CatalogPricing::class)->getCatalogPrices($store->id, $conditionBuilder, limit: 100, offset: 0);
+        $pageInfo = app(\CraftCms\Commerce\CatalogPricing\CatalogPricing::class)->getCatalogPricesPageInfo($store->id, $conditionBuilder);
 
         \Craft::$app->getView()->registerAssetBundle(HtmxAsset::class);
         \Craft::$app->getView()->registerAssetBundle(CatalogPricingAsset::class);
@@ -66,7 +66,7 @@ readonly class CatalogPricingController
             'catalogPrices' => $catalogPrices->all(),
             'pageInfo' => $pageInfo,
             'condition' => $conditionBuilder,
-            'areCatalogPricingJobsRunning' => Plugin::getInstance()->getCatalogPricing()->areCatalogPricingJobsRunning(),
+            'areCatalogPricingJobsRunning' => app(\CraftCms\Commerce\CatalogPricing\CatalogPricing::class)->areCatalogPricingJobsRunning(),
         ], TemplateMode::Cp);
     }
 
@@ -110,10 +110,10 @@ readonly class CatalogPricingController
         $site = Sites::getSiteById($siteId);
         abort_if($site === null, 400, 'Invalid site ID: ' . $siteId);
 
-        $catalogPrices = Plugin::getInstance()->getCatalogPricing()->getCatalogPrices($site->getStore()->id, $conditionBuilder, $includeBasePrices, $searchText, $limit, $offset);
+        $catalogPrices = app(\CraftCms\Commerce\CatalogPricing\CatalogPricing::class)->getCatalogPrices($site->getStore()->id, $conditionBuilder, $includeBasePrices, $searchText, $limit, $offset);
         $catalogPricesPageInfo = null;
         if ($limit !== null && $offset !== null) {
-            $catalogPricesPageInfo = Plugin::getInstance()->getCatalogPricing()->getCatalogPricesPageInfo($site->getStore()->id, $conditionBuilder, $includeBasePrices, $searchText, $limit, $offset);
+            $catalogPricesPageInfo = app(\CraftCms\Commerce\CatalogPricing\CatalogPricing::class)->getCatalogPricesPageInfo($site->getStore()->id, $conditionBuilder, $includeBasePrices, $searchText, $limit, $offset);
         }
 
         $view = \Craft::$app->getView();
@@ -140,7 +140,7 @@ readonly class CatalogPricingController
         $storeHandle = $site?->getStore()->handle ?? null;
 
         return template('commerce/prices/_polling', [
-            'areCatalogPricingJobsRunning' => Plugin::getInstance()->getCatalogPricing()->areCatalogPricingJobsRunning(),
+            'areCatalogPricingJobsRunning' => app(\CraftCms\Commerce\CatalogPricing\CatalogPricing::class)->areCatalogPricingJobsRunning(),
             'storeHandle' => $storeHandle,
         ]);
     }
@@ -169,8 +169,8 @@ readonly class CatalogPricingController
         $basePrice = $basePrice ? (float)$basePrice : null;
         $basePromotionalPrice = $basePromotionalPrice ? (float)$basePromotionalPrice : null;
 
-        $allPurchasableRules = Plugin::getInstance()->getCatalogPricingRules()->getAllCatalogPricingRulesByPurchasableId($purchasableId, $storeId);
-        $catalogPricing = Plugin::getInstance()->getCatalogPricing()->getCatalogPricesByPurchasableId($purchasableId);
+        $allPurchasableRules = app(CatalogPricingRules::class)->getAllCatalogPricingRulesByPurchasableId($purchasableId, $storeId);
+        $catalogPricing = app(\CraftCms\Commerce\CatalogPricing\CatalogPricing::class)->getCatalogPricesByPurchasableId($purchasableId);
 
         $catalogPricing->each(function(CatalogPricing $cp) use ($basePrice, $basePromotionalPrice, $allPurchasableRules) {
             $rule = $allPurchasableRules->firstWhere('id', $cp->catalogPricingRuleId);
@@ -178,7 +178,7 @@ readonly class CatalogPricingController
                 return;
             }
 
-            $cp->price = Plugin::getInstance()->getCatalogPricingRules()->generateRulePriceFromPrice($basePrice, $basePromotionalPrice, $rule);
+            $cp->price = app(CatalogPricingRules::class)->generateRulePriceFromPrice($basePrice, $basePromotionalPrice, $rule);
         });
 
         return Purchasable::catalogPricingRulesTableByPurchasableId($purchasableId, $storeId, $catalogPricing);

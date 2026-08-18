@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Dashboard\Widgets\Concerns;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Form\Controls\Choice;
 use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Stats\Contracts\StatInterface;
-use CraftCms\Commerce\Store\Concerns\StoreTrait;
 
+use CraftCms\Commerce\Store\Concerns\StoreTrait;
+use CraftCms\Commerce\Store\Stores;
 use function CraftCms\Cms\t;
 
 trait StatWidgetTrait
@@ -31,7 +32,7 @@ trait StatWidgetTrait
     {
         $orderStatuses = [];
 
-        foreach (Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($this->storeId) as $orderStatus) {
+        foreach (app(OrderStatuses::class)->getAllOrderStatuses($this->storeId) as $orderStatus) {
             $orderStatuses[] = [
                 'label' => $orderStatus->name,
                 'value' => $orderStatus->uid,
@@ -46,7 +47,7 @@ trait StatWidgetTrait
      */
     public function getStoreOptions(): array
     {
-        return Plugin::getInstance()->getStores()->getAllStores()->map(fn($store) => [
+        return app(Stores::class)->getAllStores()->map(fn($store) => [
             'label' => $store->getName(),
             'value' => $store->id,
         ])->all();

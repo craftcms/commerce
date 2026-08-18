@@ -8,13 +8,13 @@ use craft\commerce\elements\conditions\addresses\DiscountAddressCondition;
 use craft\commerce\elements\conditions\customers\DiscountCustomerCondition;
 use craft\commerce\elements\conditions\orders\DiscountOrderCondition;
 use craft\commerce\elements\Order;
-use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionInterface;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Formula\Formulas;
 use CraftCms\Commerce\Promotion\Coupons;
 use CraftCms\Commerce\Promotion\Records\Discount as DiscountRecord;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
@@ -320,7 +320,7 @@ class Discount extends Component implements HasStoreInterface
     {
         if ($this->_coupons === null && $this->id) {
             /** @phpstan-ignore-next-line */
-            $this->_coupons = Plugin::getInstance()->getCoupons()->getCouponsByDiscountId($this->id);
+            $this->_coupons = app(Coupons::class)->getCouponsByDiscountId($this->id);
         }
 
         return $this->_coupons ?? [];
@@ -388,7 +388,7 @@ class Discount extends Component implements HasStoreInterface
                     ];
 
                     /** @phpstan-ignore-next-line */
-                    if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($value, $orderConditionParams)) {
+                    if (!app(Formulas::class)->validateConditionSyntax($value, $orderConditionParams)) {
                         $fail(t('Invalid order condition syntax.', category: 'commerce'));
                     }
                 },

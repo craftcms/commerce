@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Store\Models;
 
 use craft\commerce\elements\Order;
-use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Support\Env;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Inventory\InventoryLocations;
+use CraftCms\Commerce\Store\Stores;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Money\Currency as MoneyCurrency;
@@ -111,14 +111,13 @@ class Store extends Component
 
     public function getSettings(): StoreSettings
     {
-        /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getStoreSettings()->getStoreSettingsById($this->id);
+        return app(\CraftCms\Commerce\Store\StoreSettings::class)->getStoreSettingsById($this->id);
     }
 
     public function getSites(): Collection
     {
         /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getStores()->getAllSitesForStore($this);
+        return app(Stores::class)->getAllSitesForStore($this);
     }
 
     /**

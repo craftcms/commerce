@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Http\RespondsWithFlash;
+use CraftCms\Commerce\Formula\Formulas;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 
+use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\t;
 
 readonly class FormulasController
@@ -26,7 +26,7 @@ readonly class FormulasController
             return $this->asSuccess();
         }
 
-        if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($condition, $params)) {
+        if (!app(Formulas::class)->validateConditionSyntax($condition, $params)) {
             return $this->asFailure(t('Invalid condition syntax', category: 'commerce'));
         }
 
@@ -44,7 +44,7 @@ readonly class FormulasController
             return $this->asSuccess();
         }
 
-        if (!Plugin::getInstance()->getFormulas()->validateFormulaSyntax($formula, $params)) {
+        if (!app(Formulas::class)->validateFormulaSyntax($formula, $params)) {
             return $this->asFailure(t('Invalid formula syntax', category: 'commerce'));
         }
 

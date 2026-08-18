@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Helpers;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Cp\Cp;
 use CraftCms\Cms\Site\Exceptions\SiteNotFoundException;
 use CraftCms\Cms\Support\Str;
+use CraftCms\Commerce\CatalogPricing\CatalogPricing;
+use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use Illuminate\Support\Collection;
 
 class Purchasable
@@ -30,8 +31,8 @@ class Purchasable
      */
     public static function catalogPricingRulesTableByPurchasableId(int $purchasableId, int $storeId, ?Collection $catalogPricing = null): string
     {
-        $catalogPricing ??= Plugin::getInstance()->getCatalogPricing()->getCatalogPricesByPurchasableId($purchasableId, $storeId);
-        $catalogPricingRules = Plugin::getInstance()->getCatalogPricingRules()->getAllCatalogPricingRulesByPurchasableId($purchasableId, $storeId);
+        $catalogPricing ??= app(CatalogPricing::class)->getCatalogPricesByPurchasableId($purchasableId, $storeId);
+        $catalogPricingRules = app(CatalogPricingRules::class)->getAllCatalogPricingRulesByPurchasableId($purchasableId, $storeId);
 
         if ($catalogPricingRules->isEmpty()) {
             return '';

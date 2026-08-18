@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Promotion;
 
-use craft\commerce\Plugin;
 use craft\elements\Category;
 use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Support\Facades\ElementCaches;
@@ -18,6 +17,7 @@ use CraftCms\Commerce\Promotion\Records\SaleCategory as SaleCategoryRecord;
 use CraftCms\Commerce\Promotion\Records\SalePurchasable as SalePurchasableRecord;
 use CraftCms\Commerce\Promotion\Records\SaleUserGroup as SaleUserGroupRecord;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
+use CraftCms\Commerce\Store\Stores;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;
@@ -41,7 +41,7 @@ class Sales
     {
         // TODO: migrate to app(Stores::class)->getAllStores() once Stores service migrated
         /** @phpstan-ignore-next-line */
-        $singleStore = Plugin::getInstance()->getStores()->getAllStores()->count() === 1;
+        $singleStore = app(Stores::class)->getAllStores()->count() === 1;
         $noCatalogPricingRules = app(\CraftCms\Commerce\CatalogPricing\CatalogPricingRules::class)->getAllCatalogPricingRules()->isEmpty();
 
         return $singleStore && $noCatalogPricingRules;

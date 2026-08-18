@@ -4,21 +4,22 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use craft\commerce\Plugin;
 use craft\commerce\web\assets\productindex\ProductIndexAsset;
 use CraftCms\Cms\Element\ElementHelper;
 use CraftCms\Cms\Element\Validation\ElementRules;
 use CraftCms\Cms\Http\RespondsWithFlash;
-use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Structure\Structures;
+use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\Drafts;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Catalog\Elements\Product;
+use CraftCms\Commerce\Catalog\Products;
+use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
+
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
@@ -29,7 +30,7 @@ readonly class ProductsController
 
     public function __construct()
     {
-        abort_if(empty(Plugin::getInstance()->getProductTypes()->getViewableProductTypeIds(true)), 403, 'User is not permitted to view any product types.');
+        abort_if(empty(app(ProductTypes::class)->getViewableProductTypeIds(true)), 403, 'User is not permitted to view any product types.');
     }
 
     public function productIndex(?string $productTypeHandle = null): string
@@ -46,7 +47,7 @@ readonly class ProductsController
         $productTypeHandle = $productType ?? $request->input('productType');
         abort_if(!$productTypeHandle, 400, 'Missing productType');
 
-        $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle($productTypeHandle);
+        $productType = app(ProductTypes::class)->getProductTypeByHandle($productTypeHandle);
         abort_unless($productType, 400, "Invalid product type handle: $productTypeHandle");
 
         $siteId = $request->input('siteId');
@@ -133,12 +134,12 @@ readonly class ProductsController
         // Set its position in the structure if a before/after param was passed
         if ($productType->isStructure) {
             if ($nextId = $request->input('before')) {
-                $nextEntry = Plugin::getInstance()->getProducts()->getProductById((int)$nextId, $site->id, [
+                $nextEntry = app(Products::class)->getProductById((int)$nextId, $site->id, [
                     'structureId' => $productType->structureId,
                 ]);
                 app(Structures::class)->moveBefore($productType->structureId, $product, $nextEntry);
             } elseif ($prevId = $request->input('after')) {
-                $prevEntry = Plugin::getInstance()->getProducts()->getProductById((int)$prevId, $site->id, [
+                $prevEntry = app(Products::class)->getProductById((int)$prevId, $site->id, [
                     'structureId' => $productType->structureId,
                 ]);
                 app(Structures::class)->moveAfter($productType->structureId, $product, $prevEntry);

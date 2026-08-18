@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Shipping\Models;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Contracts\Chippable;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Base\Zone;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Shipping\ShippingZones;
+use CraftCms\Commerce\Store\Stores;
 use Illuminate\Validation\Rule;
 use function CraftCms\Cms\t;
 
@@ -33,8 +34,8 @@ class ShippingAddressZone extends Zone implements Chippable
     public static function get(int|string $id): ?static
     {
         // TODO: migrate to app(ShippingZones::class)->getShippingZoneById() once service migrated to src/
-        foreach (Plugin::getInstance()->getStores()->getAllStores() as $store) {
-            $zone = Plugin::getInstance()->getShippingZones()->getShippingZoneById((int)$id, $store->id);
+        foreach (app(Stores::class)->getAllStores() as $store) {
+            $zone = app(ShippingZones::class)->getShippingZoneById((int)$id, $store->id);
             if ($zone !== null) {
                 /** @phpstan-ignore-next-line */
                 return $zone;

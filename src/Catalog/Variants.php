@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Catalog;
 
-use craft\commerce\Plugin;
 use craft\gql\types\QueryArgument;
 use CraftCms\Cms\Gql\Contracts\GqlInlineFragmentFieldInterface;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Commerce\Catalog\Elements\Variant;
+use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\Helpers\Gql as GqlCommerceHelper;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Container\Attributes\Singleton;
@@ -56,7 +56,7 @@ class Variants
         if (empty($this->contentFieldCache)) {
             $contentArguments = [];
 
-            foreach (Plugin::getInstance()->getProductTypes()->getAllProductTypes() as $productType) {
+            foreach (app(ProductTypes::class)->getAllProductTypes() as $productType) {
                 if (!GqlCommerceHelper::isSchemaAwareOf(Variant::gqlScopesByContext($productType))) {
                     continue;
                 }

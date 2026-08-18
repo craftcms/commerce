@@ -22,6 +22,7 @@ use CraftCms\Commerce\Order\Events\OrderStatusEmailsEvent;
 use CraftCms\Commerce\Order\Models\OrderHistory;
 use CraftCms\Commerce\Order\Models\OrderStatus;
 use CraftCms\Commerce\Order\Records\OrderStatus as OrderStatusRecord;
+use CraftCms\Commerce\Store\Stores;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
@@ -51,7 +52,7 @@ class OrderStatuses
      */
     public function getAllOrderStatuses(?int $storeId = null, bool $withTrashed = false): Collection
     {
-        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         if ($this->allOrderStatuses === null || !isset($this->allOrderStatuses[$storeId])) {
             $results = $this->query(true)->where('storeId', $storeId)->get();
@@ -137,7 +138,7 @@ class OrderStatuses
 
     public function getOrderCountByStatus(?int $storeId = null): array
     {
-        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         $countGroupedByStatusId = DB::table(Table::ORDERS . ' as o')
             ->select(['o.orderStatusId', DB::raw('count(o.id) as orderCount')])
@@ -233,7 +234,7 @@ class OrderStatuses
             $statusRecord = $this->getOrderStatusRecord($statusUid);
 
             // Get store by uid and convert `$data['store']` to `storeId`
-            $store = Plugin::getInstance()->getStores()->getStoreByUid($data['store']);
+            $store = app(Stores::class)->getStoreByUid($data['store']);
 
             $statusRecord->name = $data['name'];
             $statusRecord->storeId = $store->id;

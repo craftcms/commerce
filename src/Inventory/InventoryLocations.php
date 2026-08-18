@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Inventory;
 
 use craft\commerce\models\inventory\InventoryLocationDeactivatedMovement;
-use craft\commerce\Plugin;
 use craft\events\AuthorizationCheckEvent;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Commerce\Database\Table;
@@ -16,6 +15,7 @@ use CraftCms\Commerce\Inventory\Models\InventoryLevel;
 use CraftCms\Commerce\Inventory\Models\InventoryLocation;
 use CraftCms\Commerce\Inventory\Records\InventoryLocation as InventoryLocationRecord;
 use CraftCms\Commerce\Store\Models\Store;
+use CraftCms\Commerce\Store\Stores;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -58,7 +58,7 @@ class InventoryLocations
      */
     public function getInventoryLocations(?int $storeId = null, bool $withTrashed = false): Collection
     {
-        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         $locationIds = DB::table(Table::INVENTORYLOCATIONS_STORES)
             ->select('inventoryLocationId')

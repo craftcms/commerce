@@ -7,12 +7,12 @@ namespace CraftCms\Commerce\Http\Controllers;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Locale;
 use craft\commerce\models\OrderHistory;
-use craft\commerce\Plugin;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Email\Emails;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
+use Illuminate\Support\Facades\DB;
 use function CraftCms\Cms\t;
 use function CraftCms\Cms\template;
 
@@ -23,7 +23,7 @@ readonly class EmailPreviewController
         $email = $request->input('email');
         $emailId = (int)preg_split('/\s*:\s*/', $email, -1, PREG_SPLIT_NO_EMPTY)[0];
         $storeId = (int)preg_split('/\s*:\s*/', $email, -1, PREG_SPLIT_NO_EMPTY)[1];
-        $email = Plugin::getInstance()->getEmails()->getEmailById($emailId, $storeId);
+        $email = app(Emails::class)->getEmailById($emailId, $storeId);
 
         $orderNumber = $request->input('number');
 

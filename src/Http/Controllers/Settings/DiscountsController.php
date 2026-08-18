@@ -10,35 +10,38 @@ use craft\commerce\db\Table;
 use craft\commerce\helpers\Localization;
 use craft\commerce\models\Coupon;
 use craft\commerce\models\Discount;
-use craft\commerce\Plugin;
 use craft\commerce\services\Coupons;
 use craft\commerce\web\assets\coupons\CouponsAsset;
 use craft\db\Query;
 use craft\elements\Category;
-use CraftCms\Cms\Entry\Elements\Entry;
 use craft\helpers\AdminTable;
+use CraftCms\Cms\Edition;
+use CraftCms\Cms\Entry\Elements\Entry;
+use CraftCms\Cms\Http\RespondsWithFlash;
+use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\DateTimeHelper;
+use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Cms\Support\Facades\HtmlStack;
+use CraftCms\Cms\Support\Facades\I18N;
+use CraftCms\Cms\Support\Facades\UserGroups;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Money;
 use CraftCms\Cms\Support\Url;
-use CraftCms\Cms\Edition;
-use CraftCms\Cms\Support\Facades\I18N;
-use CraftCms\Cms\Support\Facades\UserGroups;
 use CraftCms\Cms\Translation\Locale;
-use CraftCms\Cms\Http\RespondsWithFlash;
-use CraftCms\Cms\Http\Responses\CpScreenResponse;
-use CraftCms\Cms\Support\Facades\Elements;
-use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
+use CraftCms\Commerce\Payment\Currencies;
+use CraftCms\Commerce\Promotion\Discounts;
 use CraftCms\Commerce\Promotion\Records\Discount as DiscountRecord;
+use CraftCms\Commerce\Purchasable\Purchasables;
+
+use CraftCms\Commerce\Store\Stores;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
-
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\t;
 
@@ -164,7 +167,7 @@ JS;
         abort_unless($request->expectsJson(), 400);
 
         $storeId = $request->input('storeId');
-        $store = Plugin::getInstance()->getStores()->getStoreById($storeId);
+        $store = app(Stores::class)->getStoreById($storeId);
         abort_if($store === null, 400, 'Invalid store.');
 
         $page = (int)$request->input('page', 1);
@@ -250,10 +253,10 @@ JS;
         $variables['siteIds'] = $store->getSites()->pluck('id')->all();
         $variables['storeHandle'] = $store->handle;
         $variables['currency'] = $store->getCurrency();
-        $variables['decimals'] = Plugin::getInstance()->getCurrencies()->getSubunitFor($store->getCurrency());
+        $variables['decimals'] = app(Currencies::class)->getSubunitFor($store->getCurrency());
 
         if ($id) {
-            $discount = Plugin::getInstance()->getDiscounts()->getDiscountById($id, $store->id);
+            $discount = app(Discounts::class)->getDiscountById($id, $store->id);
             abort_if($discount === null, 404);
         } else {
             $discount = \Craft::createObject([
@@ -408,7 +411,7 @@ JS;
         $coupons = $request->input('coupons') ?: [];
         $this->setCouponsOnDiscount(coupons: $coupons, discount: $discount);
 
-        if (Plugin::getInstance()->getDiscounts()->saveDiscount($discount)) {
+        if (app(Discounts::class)->saveDiscount($discount)) {
             return $this->asModelSuccess($discount, t('Discount saved.', category: 'commerce'), 'discount');
         }
 
@@ -456,7 +459,7 @@ JS;
             $key++;
         }
 
-        if (!Plugin::getInstance()->getDiscounts()->reorderDiscounts($idsOrdered)) {
+        if (!app(Discounts::class)->reorderDiscounts($idsOrdered)) {
             return $this->asFailure(t('Couldn\'t reorder discounts.', category: 'commerce'));
         }
 
@@ -493,7 +496,7 @@ JS;
         }
 
         foreach ($ids as $deleteId) {
-            Plugin::getInstance()->getDiscounts()->deleteDiscountById($deleteId);
+            app(Discounts::class)->deleteDiscountById($deleteId);
         }
 
         if ($request->expectsJson()) {
@@ -516,9 +519,9 @@ JS;
         }
 
         match ($type) {
-            self::DISCOUNT_COUNTER_TYPE_EMAIL => Plugin::getInstance()->getDiscounts()->clearEmailUsageHistoryById($id),
-            self::DISCOUNT_COUNTER_TYPE_CUSTOMER => Plugin::getInstance()->getDiscounts()->clearCustomerUsageHistoryById($id),
-            self::DISCOUNT_COUNTER_TYPE_TOTAL => Plugin::getInstance()->getDiscounts()->clearDiscountUsesById($id),
+            self::DISCOUNT_COUNTER_TYPE_EMAIL => app(Discounts::class)->clearEmailUsageHistoryById($id),
+            self::DISCOUNT_COUNTER_TYPE_CUSTOMER => app(Discounts::class)->clearCustomerUsageHistoryById($id),
+            self::DISCOUNT_COUNTER_TYPE_TOTAL => app(Discounts::class)->clearDiscountUsesById($id),
         };
 
         return $this->asSuccess();
@@ -554,14 +557,14 @@ JS;
             return $this->asFailure(t('Purchasable ID is required.', category: 'commerce'));
         }
 
-        $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($id);
+        $purchasable = app(Purchasables::class)->getPurchasableById($id);
 
         if (!$purchasable) {
             return $this->asFailure(t('No purchasable available.', category: 'commerce'));
         }
 
         $discounts = [];
-        $purchasableDiscounts = Plugin::getInstance()->getDiscounts()->getDiscountsRelatedToPurchasable($purchasable);
+        $purchasableDiscounts = app(Discounts::class)->getDiscountsRelatedToPurchasable($purchasable);
         foreach ($purchasableDiscounts as $discount) {
             if (!Arr::contains($discounts, 'id', $discount->id)) {
                 $discountArray = $discount->toArray();
@@ -604,8 +607,8 @@ JS;
         $variables['counterTypeUser'] = self::DISCOUNT_COUNTER_TYPE_CUSTOMER;
 
         if ($discount->id) {
-            $variables['emailUsage'] = Plugin::getInstance()->getDiscounts()->getEmailUsageStatsById($discount->id);
-            $variables['customerUsage'] = Plugin::getInstance()->getDiscounts()->getCustomerUsageStatsById($discount->id);
+            $variables['emailUsage'] = app(Discounts::class)->getEmailUsageStatsById($discount->id);
+            $variables['customerUsage'] = app(Discounts::class)->getCustomerUsageStatsById($discount->id);
         } else {
             $variables['emailUsage'] = 0;
             $variables['customerUsage'] = 0;
@@ -679,7 +682,7 @@ JS;
         $variables['purchasables'] = $purchasables;
 
         $variables['purchasableTypes'] = [];
-        $purchasableTypes = Plugin::getInstance()->getPurchasables()->getAllPurchasableElementTypes();
+        $purchasableTypes = app(Purchasables::class)->getAllPurchasableElementTypes();
 
         /** @var Purchasable $purchasableType */
         foreach ($purchasableTypes as $purchasableType) {
@@ -699,7 +702,7 @@ JS;
         $existingCodes = $request->input('existingCodes', []);
 
         try {
-            $coupons = Plugin::getInstance()->getCoupons()->generateCouponCodes(count: $count, format: $format, existingCodes: $existingCodes);
+            $coupons = app(\CraftCms\Commerce\Promotion\Coupons::class)->generateCouponCodes(count: $count, format: $format, existingCodes: $existingCodes);
         } catch (\Exception $e) {
             return $this->asFailure(message: t('Unable to generate coupon codes: {message}', ['message' => $e->getMessage()], category: 'commerce'));
         }

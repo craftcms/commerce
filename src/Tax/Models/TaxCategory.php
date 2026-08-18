@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Tax\Models;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Component\Contracts\Chippable;
 use CraftCms\Cms\Component\Contracts\Colorable;
 use CraftCms\Cms\Component\Contracts\Iconic;
 use CraftCms\Cms\Shared\Enums\Color;
+use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
+use CraftCms\Commerce\Store\Stores;
+
 use DateTime;
 use Illuminate\Support\Collection;
-
 use function CraftCms\Cms\t;
 
 class TaxCategory extends Component implements Chippable, Colorable, Iconic
@@ -82,8 +83,8 @@ class TaxCategory extends Component implements Chippable, Colorable, Iconic
 
     public function getCpEditUrl(?int $storeId = null): string
     {
-        if ($storeId === null || !$store = Plugin::getInstance()->getStores()->getStoreById($storeId)) {
-            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        if ($storeId === null || !$store = app(Stores::class)->getStoreById($storeId)) {
+            $store = app(Stores::class)->getPrimaryStore();
         }
 
         return $store->getStoreSettingsUrl('taxcategories/' . $this->id);
@@ -97,7 +98,7 @@ class TaxCategory extends Component implements Chippable, Colorable, Iconic
     public function getProductTypes(): array
     {
         if ($this->_productTypes === null && $this->id) {
-            $this->_productTypes = Plugin::getInstance()->getProductTypes()->getProductTypesByTaxCategoryId($this->id);
+            $this->_productTypes = app(ProductTypes::class)->getProductTypesByTaxCategoryId($this->id);
         }
 
         return $this->_productTypes ?? [];

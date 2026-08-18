@@ -17,12 +17,13 @@ use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Events\CartPurgeEvent;
+use CraftCms\Commerce\Store\Stores;
 use DateInterval;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Facades\DB;
 
+use Illuminate\Support\Facades\DB;
 use function CraftCms\Cms\currentUserElement;
 
 #[Singleton]
@@ -51,7 +52,7 @@ class Carts
 
     public function __construct()
     {
-        $currentStore = Plugin::getInstance()->getStores()->getCurrentStore();
+        $currentStore = app(Stores::class)->getCurrentStore();
 
         // Complete the cart cookie config
         if (!isset($this->cartCookie['name'])) {
@@ -85,7 +86,7 @@ class Carts
             $cartAttributes = [
                 'number' => $this->getSessionCartNumber(),
                 'orderSiteId' => Sites::getCurrentSite()->id,
-                'storeId' => Plugin::getInstance()->getStores()->getCurrentStore()->id,
+                'storeId' => app(Stores::class)->getCurrentStore()->id,
             ];
 
             if ($currentUser) {
@@ -181,7 +182,7 @@ class Carts
         /** @var Order|null $cart */
         $cart = Order::find()
             ->number($this->cartNumber)
-            ->storeId(Plugin::getInstance()->getStores()->getCurrentStore()->id)
+            ->storeId(app(Stores::class)->getCurrentStore()->id)
             ->isCompleted(false)
             ->trashed(false)
             ->one();
@@ -220,7 +221,7 @@ class Carts
             ->withLineItems()
             ->withAdjustments()
             ->number($number)
-            ->storeId(Plugin::getInstance()->getStores()->getCurrentStore()->id)
+            ->storeId(app(Stores::class)->getCurrentStore()->id)
             ->trashed(null)
             ->status(null)
             ->one();
@@ -388,7 +389,7 @@ class Carts
     public function restorePreviousCartForCurrentUser(): void
     {
         $currentUser = currentUserElement();
-        $currentStoreId = Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $currentStoreId = app(Stores::class)->getCurrentStore()->id;
 
         if (!$currentUser) {
             return;
@@ -499,7 +500,7 @@ class Carts
 
     protected function loadCookie(): void
     {
-        $currentStore = Plugin::getInstance()->getStores()->getCurrentStore();
+        $currentStore = app(Stores::class)->getCurrentStore();
 
         // Complete the cart cookie config
         if (!isset($this->cartCookie['name'])) {

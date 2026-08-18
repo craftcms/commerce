@@ -7,22 +7,25 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 use craft\commerce\helpers\Cp as CommerceCp;
 use craft\commerce\helpers\Localization;
 use craft\commerce\models\TaxRate;
-use craft\commerce\Plugin;
 use craft\helpers\Cp;
-use CraftCms\Cms\Support\Json;
-use CraftCms\Cms\Translation\Locale;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html as NewHtml;
+use CraftCms\Cms\Support\Json;
+use CraftCms\Cms\Translation\Locale;
 use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Tax\Records\TaxRate as TaxRateRecord;
+use CraftCms\Commerce\Tax\TaxCategories;
+use CraftCms\Commerce\Tax\Taxes;
+use CraftCms\Commerce\Tax\TaxRates;
+
+use CraftCms\Commerce\Tax\TaxZones;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
-
 use function CraftCms\Cms\t;
 
 readonly class TaxRatesController
@@ -35,12 +38,11 @@ readonly class TaxRatesController
         $store = $this->resolveStore($storeHandle);
         $storeHandle = $store->handle;
 
-        $plugin = Plugin::getInstance();
-        $taxRates = $plugin->getTaxRates()->getAllTaxRates($store->id);
+        $taxRates = app(TaxRates::class)->getAllTaxRates($store->id);
 
         // Preload all zone and category data for listing.
-        $plugin->getTaxZones()->getAllTaxZones($store->id);
-        $plugin->getTaxCategories()->getAllTaxCategories();
+        app(TaxZones::class)->getAllTaxZones($store->id);
+        app(TaxCategories::class)->getAllTaxCategories();
 
         $tableData = [];
         foreach ($taxRates as $taxRate) {
@@ -59,16 +61,16 @@ readonly class TaxRatesController
             ];
         }
 
-        $buttonsHtml = Plugin::getInstance()->getTaxes()->taxRateActionHtml();
+        $buttonsHtml = app(Taxes::class)->taxRateActionHtml();
 
-        if (Plugin::getInstance()->getTaxes()->createTaxRates()) {
+        if (app(Taxes::class)->createTaxRates()) {
             $buttonsHtml .= NewHtml::a(t('New tax rate', category: 'commerce'), "commerce/store-management/$storeHandle/taxrates/new", [
                 'class' => 'btn submit add icon',
             ]);
         }
 
         $tableData = Json::encode($tableData, JSON_UNESCAPED_UNICODE);
-        $deleteAction = Plugin::getInstance()->getTaxes()->deleteTaxRates() ? 'commerce/tax-rates/delete' : null;
+        $deleteAction = app(Taxes::class)->deleteTaxRates() ? 'commerce/tax-rates/delete' : null;
 
         $js = <<<JS
 var columns = [
@@ -129,16 +131,15 @@ JS;
 
     public function edit(?string $storeHandle = null, ?int $id = null): CpScreenResponse
     {
-        abort_unless(Plugin::getInstance()->getTaxes()->viewTaxRates(), 403, 'Tax engine does not permit you to perform this action');
+        abort_unless(app(Taxes::class)->viewTaxRates(), 403, 'Tax engine does not permit you to perform this action');
 
         $store = $this->resolveStore($storeHandle);
         $storeHandle = $store->handle;
         $percentSymbol = I18N::getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
-        $plugin = Plugin::getInstance();
 
         if ($id) {
-            $taxRate = $plugin->getTaxRates()->getTaxRateById($id, $store->id);
+            $taxRate = app(TaxRates::class)->getTaxRateById($id, $store->id);
             abort_if($taxRate === null, 404);
         } else {
             $taxRate = \Craft::createObject([
@@ -153,12 +154,12 @@ JS;
 
         $taxZone = null;
         if ($taxRate->taxZoneId) {
-            $taxZone = $plugin->getTaxZones()->getTaxZoneById($taxRate->taxZoneId, $store->id);
+            $taxZone = app(TaxZones::class)->getTaxZoneById($taxRate->taxZoneId, $store->id);
         }
 
         $taxCategory = null;
         if ($taxRate->taxCategoryId) {
-            $taxCategory = $plugin->getTaxCategories()->getTaxCategoryById($taxRate->taxCategoryId);
+            $taxCategory = app(TaxCategories::class)->getTaxCategoryById($taxRate->taxCategoryId);
         }
 
         $variables['taxZoneField'] = CommerceCp::taxZoneFieldHtml([
@@ -202,7 +203,7 @@ JS;
         }
 
         $variables['taxIdValidators'] = [];
-        $taxIdValidators = Plugin::getInstance()->getTaxes()->getEnabledTaxIdValidators();
+        $taxIdValidators = app(Taxes::class)->getEnabledTaxIdValidators();
         foreach ($taxIdValidators as $validator) {
             $variables['taxIdValidators'][] = $validator;
         }
@@ -219,7 +220,7 @@ JS;
 
     public function save(Request $request): Response
     {
-        abort_unless(Plugin::getInstance()->getTaxes()->editTaxRates(), 403, 'Tax engine does not permit you to perform this action');
+        abort_unless(app(Taxes::class)->editTaxRates(), 403, 'Tax engine does not permit you to perform this action');
 
         $taxRate = new TaxRate();
 
@@ -239,7 +240,7 @@ JS;
         $validators = collect($request->input('taxIdValidators'))->filter(fn($enabled) => (bool)$enabled)->keys();
         $taxRate->taxIdValidators = $validators->toArray();
 
-        if (!Plugin::getInstance()->getTaxRates()->saveTaxRate($taxRate)) {
+        if (!app(TaxRates::class)->saveTaxRate($taxRate)) {
             return $this->asModelFailure($taxRate, t('Couldn\'t save tax rate.', category: 'commerce'), 'taxRate');
         }
 
@@ -248,13 +249,13 @@ JS;
 
     public function delete(Request $request): Response
     {
-        abort_unless(Plugin::getInstance()->getTaxes()->deleteTaxRates(), 403, 'Tax engine does not permit you to perform this action');
+        abort_unless(app(Taxes::class)->deleteTaxRates(), 403, 'Tax engine does not permit you to perform this action');
         abort_unless($request->expectsJson(), 400);
 
         $id = $request->input('id');
         abort_if(!$id, 400, 'Missing tax rate id');
 
-        Plugin::getInstance()->getTaxRates()->deleteTaxRateById($id);
+        app(TaxRates::class)->deleteTaxRateById($id);
         return $this->asSuccess();
     }
 

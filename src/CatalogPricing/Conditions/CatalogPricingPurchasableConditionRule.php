@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\CatalogPricing\Conditions;
 
-use craft\commerce\Plugin;
 use craft\helpers\Cp;
-use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Condition\BaseConditionRule;
+use CraftCms\Cms\Support\Html;
 use CraftCms\Commerce\CatalogPricing\Contracts\CatalogPricingConditionRuleInterface;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
+use CraftCms\Commerce\Purchasable\Purchasables;
 use Illuminate\Database\Query\Builder;
-use Override;
 
+use Override;
 use function CraftCms\Cms\t;
 
 class CatalogPricingPurchasableConditionRule extends BaseConditionRule implements CatalogPricingConditionRuleInterface
@@ -71,7 +71,7 @@ class CatalogPricingPurchasableConditionRule extends BaseConditionRule implement
         $id = 'purchasable';
 
         $html = '';
-        foreach (Plugin::getInstance()->getPurchasables()->getAllPurchasableElementTypes() as $purchasableType) {
+        foreach (app(Purchasables::class)->getAllPurchasableElementTypes() as $purchasableType) {
             /** @var PurchasableInterface|string $purchasableType */
             $elements = null;
             if (!empty($this->_elementIds) && isset($this->_elementIds[$purchasableType]) && !empty($this->_elementIds[$purchasableType])) {

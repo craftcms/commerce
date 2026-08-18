@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\CatalogPricing;
 
-use craft\commerce\Plugin;
 use craft\events\ModelEvent;
 use craft\events\UserGroupsAssignEvent;
 use CraftCms\Cms\Support\Facades\Users;
@@ -12,6 +11,8 @@ use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Catalog\Models\CatalogPricingRule;
 use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule as CatalogPricingRuleRecord;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Promotion\Sales;
+use CraftCms\Commerce\Store\Stores;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -43,7 +44,7 @@ class CatalogPricingRules
     {
         // TODO: migrate to app(Sales::class)->getAllSales() once Sales service migrated
         /** @phpstan-ignore-next-line */
-        if (!empty(Plugin::getInstance()->getSales()->getAllSales())) {
+        if (!empty(app(Sales::class)->getAllSales())) {
             return false;
         }
 
@@ -62,7 +63,7 @@ class CatalogPricingRules
     {
         // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
         /** @phpstan-ignore-next-line */
-        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         if ($this->allCatalogPricingRules === null || !isset($this->allCatalogPricingRules[$storeId])) {
             $rows = $this->query()->where('storeId', $storeId)->get()->all();
@@ -81,7 +82,7 @@ class CatalogPricingRules
     {
         // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
         /** @phpstan-ignore-next-line */
-        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         $rows = $this->query()
             ->whereIn('id', function($sub) use ($purchasableId) {
@@ -153,7 +154,7 @@ class CatalogPricingRules
     {
         // TODO: migrate to app(Stores::class)->getAllStores() once Stores service migrated
         /** @phpstan-ignore-next-line */
-        $stores = Plugin::getInstance()->getStores()->getAllStores();
+        $stores = app(Stores::class)->getAllStores();
 
         foreach ($stores as $store) {
             $rules = $this->getAllCatalogPricingRulesWithUserConditions($store->id);
@@ -261,7 +262,7 @@ class CatalogPricingRules
 
             // TODO: migrate to app(CatalogPricing::class)->createCatalogPricingJob() once CatalogPricing service is registered
             /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+            app(CatalogPricing::class)->createCatalogPricingJob([
                 'catalogPricingRuleIds' => [$catalogPricingRule->id],
                 'storeId' => $catalogPricingRule->storeId,
             ]);

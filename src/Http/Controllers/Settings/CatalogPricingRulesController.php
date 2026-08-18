@@ -10,28 +10,30 @@ use craft\commerce\elements\conditions\purchasables\PurchasableConditionRule;
 use craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantCondition;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\CatalogPricingRule;
-use craft\commerce\Plugin;
 use craft\helpers\Cp;
-use CraftCms\Cms\Support\DateTimeHelper;
-use CraftCms\Cms\Support\Html;
-use CraftCms\Cms\Support\Json;
 use craft\helpers\Localization;
-use CraftCms\Cms\Support\Money;
-use CraftCms\Cms\Support\Facades\I18N;
-use CraftCms\Cms\Support\Facades\UserGroups;
-use CraftCms\Cms\Translation\Locale;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\HtmlStack;
+use CraftCms\Cms\Support\Facades\I18N;
+use CraftCms\Cms\Support\Facades\UserGroups;
+use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\Support\Json;
+use CraftCms\Cms\Support\Money;
+use CraftCms\Cms\Translation\Locale;
 use CraftCms\Cms\View\Enums\Position;
+use CraftCms\Commerce\CatalogPricing\CatalogPricing;
+use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule as CatalogPricingRuleRecord;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
+use CraftCms\Commerce\Payment\PaymentCurrencies;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
-
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\t;
 
@@ -44,7 +46,7 @@ readonly class CatalogPricingRulesController
     {
         $store = $this->resolveStore($storeHandle);
 
-        $catalogPricingRules = Plugin::getInstance()->getCatalogPricingRules()->getAllCatalogPricingRules($store->id);
+        $catalogPricingRules = app(CatalogPricingRules::class)->getAllCatalogPricingRules($store->id);
 
         $actionButtonHtml = currentUserElement()?->can('commerce-createCatalogPricingRules') ?
             Html::a(t('New catalog pricing rule', category: 'commerce'),
@@ -58,7 +60,7 @@ readonly class CatalogPricingRulesController
                 ? $pcr->applyAmountAsPercent . ' ' . ($pcr->apply === CatalogPricingRuleRecord::APPLY_BY_PERCENT
                     ? t('(off original price)', category: 'commerce')
                     : t('(of original price)', category: 'commerce'))
-                : Currency::formatAsCurrency($pcr->applyAmountAsFlat, Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency($store->id)->iso, true) . ' ' . ($pcr->apply === CatalogPricingRuleRecord::APPLY_BY_FLAT
+                : Currency::formatAsCurrency($pcr->applyAmountAsFlat, app(PaymentCurrencies::class)->getPrimaryPaymentCurrency($store->id)->iso, true) . ' ' . ($pcr->apply === CatalogPricingRuleRecord::APPLY_BY_FLAT
                     ? t('(off original price)', category: 'commerce')
                     : t('(new price)', category: 'commerce'));
 
@@ -157,7 +159,7 @@ JS;
         $storeHandle = $store->handle;
 
         if ($id) {
-            $catalogPricingRule = Plugin::getInstance()->getCatalogPricingRules()->getCatalogPricingRuleById($id, $store->id);
+            $catalogPricingRule = app(CatalogPricingRules::class)->getCatalogPricingRuleById($id, $store->id);
             abort_if($catalogPricingRule === null || $catalogPricingRule->storeId !== $store->id, 404);
         } else {
             $catalogPricingRule = \Craft::createObject([
@@ -218,7 +220,7 @@ JS;
         $storeId = $request->input('storeId');
 
         if ($id) {
-            $catalogPricingRule = Plugin::getInstance()->getCatalogPricingRules()->getCatalogPricingRuleById($id, $storeId);
+            $catalogPricingRule = app(CatalogPricingRules::class)->getCatalogPricingRuleById($id, $storeId);
             abort_if($catalogPricingRule === null, 404, 'Catalog Pricing Rule not found');
         } else {
             $catalogPricingRule = \Craft::createObject(CatalogPricingRule::class);
@@ -271,7 +273,7 @@ JS;
 
         $catalogPricingRule->setCustomerCondition($request->input('customerCondition'));
 
-        if (Plugin::getInstance()->getCatalogPricingRules()->saveCatalogPricingRule($catalogPricingRule)) {
+        if (app(CatalogPricingRules::class)->saveCatalogPricingRule($catalogPricingRule)) {
             return $this->asSuccess(t('Catalog pricing rule saved.', category: 'commerce'));
         }
 
@@ -295,7 +297,7 @@ JS;
         }
 
         foreach ($ids as $deleteId) {
-            Plugin::getInstance()->getCatalogPricingRules()->deleteCatalogPricingRuleById($deleteId);
+            app(CatalogPricingRules::class)->deleteCatalogPricingRuleById($deleteId);
         }
 
         if ($request->expectsJson()) {
@@ -326,7 +328,7 @@ JS;
             }
         });
 
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+        app(CatalogPricing::class)->createCatalogPricingJob([
             'catalogPricingRuleIds' => $ids,
             'storeId' => $storeId,
         ]);
@@ -345,7 +347,7 @@ JS;
         $variables['groups'] = $groups->mapWithKeys(fn($group) => [$group->id => $group->name])->all();
 
         $variables['percentSymbol'] = I18N::getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
-        $primaryCurrencyIso = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        $primaryCurrencyIso = app(PaymentCurrencies::class)->getPrimaryPaymentCurrencyIso();
         $variables['currencySymbol'] = I18N::getLocale()->getCurrencySymbol($primaryCurrencyIso);
 
         $variables['applyAmount'] = '';

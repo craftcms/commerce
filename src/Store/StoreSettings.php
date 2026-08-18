@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Store;
 
-use craft\commerce\Plugin;
 use craft\events\AuthorizationCheckEvent;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Commerce\Database\Table;
@@ -27,7 +26,7 @@ class StoreSettings
      */
     public function getStoreSettingsById(int $id): StoreSettingsModel
     {
-        $store = Plugin::getInstance()->getStores()->getStoreById($id);
+        $store = app(Stores::class)->getStoreById($id);
 
         if (!$store) {
             throw new \RuntimeException('Store not found');

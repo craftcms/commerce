@@ -6,20 +6,21 @@ namespace CraftCms\Commerce\Stats;
 
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\DateTimeHelper;
-use CraftCms\Commerce\Database\Table;
-use CraftCms\Commerce\Order\Models\OrderStatus;
-use CraftCms\Commerce\Stats\Contracts\StatInterface;
-use CraftCms\Commerce\Store\Concerns\StoreTrait;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Translation\Locale;
+use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Order\Models\OrderStatus;
+use CraftCms\Commerce\Order\OrderStatuses;
+use CraftCms\Commerce\Stats\Contracts\StatInterface;
+use CraftCms\Commerce\Store\Concerns\StoreTrait;
 use DateInterval;
 use DateTime;
 use DateTimeZone;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use InvalidArgumentException;
 
+use InvalidArgumentException;
 use function CraftCms\Cms\t;
 
 abstract class Stat implements StatInterface
@@ -352,7 +353,7 @@ abstract class Stat implements StatInterface
             return $this->_orderStatuses;
         }
 
-        $allOrderStatuses = \craft\commerce\Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
+        $allOrderStatuses = app(OrderStatuses::class)->getAllOrderStatuses();
         foreach ($this->_orderStatuses as $key => $orderStatus) {
             if ($orderStatus instanceof OrderStatus) {
                 continue;

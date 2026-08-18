@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Tax;
 
-use craft\commerce\Plugin;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Tax\Models\TaxAddressZone;
 use CraftCms\Commerce\Tax\Records\TaxZone as TaxZoneRecord;
 use Illuminate\Container\Attributes\Singleton;
@@ -124,6 +124,6 @@ class TaxZones
     private function currentStoreId(): int
     {
         /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        return app(Stores::class)->getCurrentStore()->id;
     }
 }

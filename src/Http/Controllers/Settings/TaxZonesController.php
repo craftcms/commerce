@@ -5,19 +5,20 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\commerce\models\TaxAddressZone;
-use craft\commerce\Plugin;
 use craft\helpers\Cp;
-use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html as NewHtml;
+use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\View\Enums\Position;
+use CraftCms\Commerce\Formula\Formulas;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
+use CraftCms\Commerce\Tax\TaxZones;
+
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 use function CraftCms\Cms\t;
 
 readonly class TaxZonesController
@@ -29,7 +30,7 @@ readonly class TaxZonesController
     {
         $store = $this->resolveStore($storeHandle);
 
-        $taxZones = Plugin::getInstance()->getTaxZones()->getAllTaxZones($store->id);
+        $taxZones = app(TaxZones::class)->getAllTaxZones($store->id);
 
         $tableData = [];
         foreach ($taxZones as $taxZone) {
@@ -80,7 +81,7 @@ JS;
         $storeHandle = $store->handle;
 
         if ($id) {
-            $taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($id, $store->id);
+            $taxZone = app(TaxZones::class)->getTaxZoneById($id, $store->id);
             abort_if($taxZone === null, 404);
         } else {
             $taxZone = \Craft::createObject([
@@ -129,7 +130,7 @@ JS;
         $taxZone->default = (bool)$request->input('default');
         $taxZone->setCondition($request->input('condition'));
 
-        if ($taxZone->validate() && Plugin::getInstance()->getTaxZones()->saveTaxZone($taxZone)) {
+        if ($taxZone->validate() && app(TaxZones::class)->saveTaxZone($taxZone)) {
             return $this->asModelSuccess(
                 $taxZone,
                 t('Tax zone saved.', category: 'commerce'),
@@ -155,7 +156,7 @@ JS;
         $id = $request->input('id');
         abort_if(!$id, 400, 'Missing tax zone id');
 
-        Plugin::getInstance()->getTaxZones()->deleteTaxZoneById((int)$id);
+        app(TaxZones::class)->deleteTaxZoneById((int)$id);
         return $this->asSuccess();
     }
 
@@ -167,7 +168,7 @@ JS;
         $testZipCode = (string)$request->input('testZipCode');
 
         $params = ['zipCode' => $testZipCode];
-        if (!Plugin::getInstance()->getFormulas()->evaluateCondition($zipCodeFormula, $params)) {
+        if (!app(Formulas::class)->evaluateCondition($zipCodeFormula, $params)) {
             return $this->asFailure('failed');
         }
 

@@ -12,8 +12,8 @@ use craft\commerce\db\Table;
 use craft\commerce\Plugin;
 use craft\commerce\services\ShippingCategories;
 use craft\helpers\Db;
-use craftcommercetests\fixtures\ProductFixture;
 use CraftCms\Commerce\Shipping\Records\ShippingCategory;
+use craftcommercetests\fixtures\ProductFixture;
 use UnitTester;
 
 class ShippingCategoryTest extends Unit

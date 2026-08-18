@@ -13,6 +13,7 @@ use CraftCms\Commerce\Shipping\Events\RegisterAvailableShippingMethodsEvent;
 use CraftCms\Commerce\Shipping\Models\BaseShippingMethod;
 use CraftCms\Commerce\Shipping\Models\ShippingMethod;
 use CraftCms\Commerce\Shipping\Records\ShippingMethod as ShippingMethodRecord;
+use CraftCms\Commerce\Store\Stores;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -224,6 +225,6 @@ class ShippingMethods
     {
         // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
         /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        return app(Stores::class)->getCurrentStore()->id;
     }
 }

@@ -7,17 +7,19 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Store;
-use craft\commerce\Plugin;
 use craft\db\Query;
-use CraftCms\Cms\Support\Json;
-use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Facades\Sites;
+use CraftCms\Cms\Support\Json;
+use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
+use CraftCms\Commerce\Payment\Currencies;
+
+use CraftCms\Commerce\Store\Stores;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
@@ -34,7 +36,7 @@ readonly class StoresController
 
     public function editStore(?int $storeId = null): string
     {
-        $storesService = Plugin::getInstance()->getStores();
+        $storesService = app(Stores::class);
 
         $brandNewStore = false;
         $allowCurrencyChange = false;
@@ -68,7 +70,7 @@ readonly class StoresController
         }
 
         $availableSiteOptions = collect(Sites::getAllSites())->map(function($site) {
-            $availableForAssignmentToNewStores = Plugin::getInstance()->getStores()->getSiteIdsAvailableForAssignmentToNewStores();
+            $availableForAssignmentToNewStores = app(Stores::class)->getSiteIdsAvailableForAssignmentToNewStores();
             return [
                 'label' => $site->name,
                 'value' => $site->id,
@@ -76,7 +78,7 @@ readonly class StoresController
             ];
         })->all();
 
-        $currencyOptions = Plugin::getInstance()->getCurrencies()->getAllCurrenciesList();
+        $currencyOptions = app(Currencies::class)->getAllCurrenciesList();
 
         return pageTemplate('commerce/settings/stores/_edit', [
             'brandNewStore' => $brandNewStore,
@@ -94,7 +96,7 @@ readonly class StoresController
 
     public function saveStore(Request $request): Response
     {
-        $storesService = Plugin::getInstance()->getStores();
+        $storesService = app(Stores::class);
         $storeId = $request->input('storeId');
 
         if ($storeId) {
@@ -148,7 +150,7 @@ readonly class StoresController
 
     public function storesIndex(): string
     {
-        $stores = Plugin::getInstance()->getStores()->getAllStores();
+        $stores = app(Stores::class)->getAllStores();
 
         $crumbs = [
             ['label' => t('Commerce', category: 'commerce'), 'url' => Url::url('commerce')],
@@ -160,7 +162,7 @@ readonly class StoresController
             $m[] = ['label' => t('Payment Currencies', category: 'commerce'), 'url' => Url::cpUrl('commerce/store-management/' . $s->handle . '/payment-currencies')];
             $m[] = ['label' => t('Discounts', category: 'commerce'), 'url' => Url::cpUrl('commerce/store-management/' . $s->handle . '/discounts')];
 
-            if (Plugin::getInstance()->getCatalogPricingRules()->canUseCatalogPricingRules()) {
+            if (app(CatalogPricingRules::class)->canUseCatalogPricingRules()) {
                 $m[] = ['label' => t('Pricing Rules', category: 'commerce'), 'url' => Url::cpUrl('commerce/store-management/' . $s->handle . '/pricing-rules')];
             } else {
                 $m[] = ['label' => t('Sales', category: 'commerce'), 'url' => Url::cpUrl('commerce/store-management/' . $s->handle . '/sales')];
@@ -179,8 +181,8 @@ readonly class StoresController
         return pageTemplate('commerce/settings/stores/index', [
             'stores' => $stores,
             'crumbs' => $crumbs,
-            'sitesStores' => Plugin::getInstance()->getStores()->getAllSiteStores(),
-            'primaryStoreId' => Plugin::getInstance()->getStores()->getPrimaryStore()->id,
+            'sitesStores' => app(Stores::class)->getAllSiteStores(),
+            'primaryStoreId' => app(Stores::class)->getPrimaryStore()->id,
             'menuItems' => $menuItems,
             'readOnly' => $this->readOnly,
         ], TemplateMode::Cp);
@@ -193,7 +195,7 @@ readonly class StoresController
         $siteId = $request->input('id');
         abort_if(!$siteId, 400, 'Missing store id');
 
-        Plugin::getInstance()->getStores()->deleteStoreById($siteId);
+        app(Stores::class)->deleteStoreById($siteId);
 
         return $this->asSuccess();
     }
@@ -205,7 +207,7 @@ readonly class StoresController
 
         $ids = Json::decode($request->input('ids'));
 
-        if (!Plugin::getInstance()->getStores()->reorderStores($ids)) {
+        if (!app(Stores::class)->reorderStores($ids)) {
             return $this->asFailure(t('Couldn\'t reorder stores.', category: 'commerce'));
         }
 
@@ -220,10 +222,10 @@ readonly class StoresController
 
         return pageTemplate('commerce/settings/stores/_siteStore', [
             'crumbs' => $crumbs,
-            'stores' => Plugin::getInstance()->getStores()->getAllStores(),
+            'stores' => app(Stores::class)->getAllStores(),
             'sites' => Sites::getAllSites(),
-            'sitesStores' => Plugin::getInstance()->getStores()->getAllSiteStores(),
-            'primaryStoreId' => Plugin::getInstance()->getStores()->getPrimaryStore()->id,
+            'sitesStores' => app(Stores::class)->getAllSiteStores(),
+            'primaryStoreId' => app(Stores::class)->getPrimaryStore()->id,
             'readOnly' => $this->readOnly,
         ], TemplateMode::Cp);
     }
@@ -231,8 +233,8 @@ readonly class StoresController
     public function saveSiteStores(Request $request): Response
     {
         $siteStoresData = $request->input('siteStores', []);
-        $sitesStores = Plugin::getInstance()->getStores()->getAllSiteStores();
-        $stores = Plugin::getInstance()->getStores()->getAllStores();
+        $sitesStores = app(Stores::class)->getAllSiteStores();
+        $stores = app(Stores::class)->getAllStores();
 
         foreach ($sitesStores as $siteStore) {
             if (isset($siteStoresData[$siteStore->siteId])) {
@@ -263,7 +265,7 @@ readonly class StoresController
         }
 
         foreach ($sitesStores as $siteStore) {
-            Plugin::getInstance()->getStores()->saveSiteStore($siteStore);
+            app(Stores::class)->saveSiteStore($siteStore);
         }
 
         return $this->asSuccess(t('Site store mapping saved.', category: 'commerce'));

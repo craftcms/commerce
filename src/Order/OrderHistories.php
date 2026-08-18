@@ -86,7 +86,7 @@ class OrderHistories
             return false;
         }
 
-        Plugin::getInstance()->getOrderStatuses()->statusChangeHandler($order, $orderHistoryModel);
+        app(OrderStatuses::class)->statusChangeHandler($order, $orderHistoryModel);
 
         // Raising 'orderStatusChange' event
         // TODO: migrate event firing to Laravel once event system is bridged

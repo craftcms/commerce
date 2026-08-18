@@ -7,20 +7,22 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\models\ShippingRule;
 use craft\commerce\models\ShippingRuleCategory;
-use craft\commerce\Plugin;
-use CraftCms\Cms\Support\Json;
 use craft\helpers\Localization;
-use CraftCms\Cms\Support\Money;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\InputNamespace;
 use CraftCms\Cms\Support\Facades\Template;
+use CraftCms\Cms\Support\Json;
+use CraftCms\Cms\Support\Money;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Shipping\Records\ShippingRuleCategory as ShippingRuleCategoryRecord;
+use CraftCms\Commerce\Shipping\ShippingMethods;
+use CraftCms\Commerce\Shipping\ShippingRules;
+
+use CraftCms\Commerce\Shipping\ShippingZones;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
@@ -33,12 +35,11 @@ readonly class ShippingRulesController
     {
         $store = $this->resolveStore($storeHandle);
 
-        $plugin = Plugin::getInstance();
-        $shippingMethod = $plugin->getShippingMethods()->getShippingMethodById($methodId, $store->id);
+        $shippingMethod = app(ShippingMethods::class)->getShippingMethodById($methodId, $store->id);
         abort_if($shippingMethod === null, 404);
 
         if ($ruleId) {
-            $shippingRule = $plugin->getShippingRules()->getShippingRuleById($ruleId);
+            $shippingRule = app(ShippingRules::class)->getShippingRuleById($ruleId);
             abort_if($shippingRule === null, 404);
         } else {
             $shippingRule = new ShippingRule();
@@ -63,7 +64,7 @@ readonly class ShippingRulesController
 
         $title = $ruleId ? $shippingRule->name : t('Create a new shipping rule', category: 'commerce');
 
-        $shippingZones = $plugin->getShippingZones()->getAllShippingZones($store->id)->all();
+        $shippingZones = app(ShippingZones::class)->getAllShippingZones($store->id)->all();
         $shippingZoneOptions = [];
         $shippingZoneOptions[] = t('Anywhere', category: 'commerce');
         foreach ($shippingZones as $model) {
@@ -155,7 +156,7 @@ readonly class ShippingRulesController
 
         $shippingRule->setShippingRuleCategories($ruleCategories);
 
-        if (!Plugin::getInstance()->getShippingRules()->saveShippingRule($shippingRule)) {
+        if (!app(ShippingRules::class)->saveShippingRule($shippingRule)) {
             return $this->asModelFailure($shippingRule, t('Couldn\'t save shipping rule.', category: 'commerce'), 'shippingRule');
         }
 
@@ -168,7 +169,7 @@ readonly class ShippingRulesController
         abort_unless($request->input('ids'), 400, 'Missing ids');
 
         $ids = Json::decode($request->input('ids'));
-        Plugin::getInstance()->getShippingRules()->reorderShippingRules($ids);
+        app(ShippingRules::class)->reorderShippingRules($ids);
 
         return $this->asSuccess();
     }
@@ -182,10 +183,10 @@ readonly class ShippingRulesController
         $id = $request->input('id');
         abort_if(!$id, 400, 'Shipping rule ID not submitted');
 
-        $rule = Plugin::getInstance()->getShippingRules()->getShippingRuleById($id);
+        $rule = app(ShippingRules::class)->getShippingRuleById($id);
         abort_if($rule === null, 400, 'Cannot find shipping rule to delete');
 
-        if (!Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id)) {
+        if (!app(ShippingRules::class)->deleteShippingRuleById($id)) {
             return $this->asFailure(t('Could not delete shipping rule', category: 'commerce'));
         }
 

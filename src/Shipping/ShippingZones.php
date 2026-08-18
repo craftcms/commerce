@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Shipping;
 
-use craft\commerce\Plugin;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Shipping\Models\ShippingAddressZone;
 use CraftCms\Commerce\Shipping\Records\ShippingZone as ShippingZoneRecord;
+use CraftCms\Commerce\Store\Stores;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -113,6 +113,6 @@ class ShippingZones
     private function currentStoreId(): int
     {
         /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        return app(Stores::class)->getCurrentStore()->id;
     }
 }

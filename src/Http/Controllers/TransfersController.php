@@ -12,23 +12,24 @@ use craft\commerce\fieldlayoutelements\TransferManagementField;
 use craft\commerce\models\inventory\InventoryTransferMovement;
 use craft\commerce\models\inventory\UpdateInventoryLevel;
 use craft\commerce\models\TransferDetail;
-use craft\commerce\Plugin;
 use craft\commerce\services\Transfers;
 use CraftCms\Cms\Element\Validation\ElementRules;
 use CraftCms\Cms\Http\RespondsWithFlash;
-use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Drafts;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
-use Illuminate\Support\Facades\Log;
+use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
+use CraftCms\Commerce\Inventory\Inventory;
+use CraftCms\Commerce\Inventory\InventoryLocations;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
@@ -176,9 +177,9 @@ readonly class TransfersController
 
         try {
             // Accepted movement
-            Plugin::getInstance()->getInventory()->executeInventoryMovements($inventoryMovementCollection);
+            app(Inventory::class)->executeInventoryMovements($inventoryMovementCollection);
             // Rejected updates
-            Plugin::getInstance()->getInventory()->executeUpdateInventoryLevels($inventoryUpdateCollection);
+            app(Inventory::class)->executeUpdateInventoryLevels($inventoryUpdateCollection);
             Elements::saveElement($transfer, false);
         } catch (\Throwable $e) {
             Log::error('Failed to save transfer details: ' . $e->getMessage(), ['exception' => $e]);
@@ -272,7 +273,7 @@ readonly class TransfersController
 
         // We will only change the transfer if it is a draft.
         if ($transfer && $transfer->isTransferDraft()) {
-            $allLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
+            $allLocations = app(InventoryLocations::class)->getAllInventoryLocations();
             $defaultFirstLocationId = $allLocations->first()->id;
             $defaultSecondLocationId = $allLocations->skip(1)->first()->id;
 

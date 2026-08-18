@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\commerce\services\Orders;
-use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
+use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Order\Elements\Order;
 use Symfony\Component\HttpFoundation\Response;

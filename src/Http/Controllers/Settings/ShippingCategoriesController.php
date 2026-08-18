@@ -5,20 +5,22 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\commerce\models\ShippingCategory;
-use craft\commerce\Plugin;
-use CraftCms\Cms\Support\Arr;
 use craft\helpers\Cp;
-use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html as NewHtml;
+use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\View\Enums\Position;
+use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
+use CraftCms\Commerce\Shipping\ShippingCategories;
+
+use CraftCms\Commerce\Store\Stores;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 use function CraftCms\Cms\t;
 
 readonly class ShippingCategoriesController
@@ -31,7 +33,7 @@ readonly class ShippingCategoriesController
         $store = $this->resolveStore($storeHandle);
         $storeHandle = $store->handle;
 
-        $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories($store->id);
+        $shippingCategories = app(ShippingCategories::class)->getAllShippingCategories($store->id);
 
         $tableData = [];
         foreach ($shippingCategories as $shippingCategory) {
@@ -112,7 +114,7 @@ JS;
         $storeHandle = $store->handle;
 
         if ($id) {
-            $shippingCategory = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($id, $store->id);
+            $shippingCategory = app(ShippingCategories::class)->getShippingCategoryById($id, $store->id);
             abort_if($shippingCategory === null, 404);
         } else {
             $shippingCategory = \Craft::createObject([
@@ -123,13 +125,13 @@ JS;
 
         $title = $shippingCategory->id ? $shippingCategory->name : t('Create a new shipping category', category: 'commerce');
 
-        $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+        $productTypes = app(ProductTypes::class)->getAllProductTypes();
         $productTypesOptions = [];
         if (!empty($productTypes)) {
             $productTypesOptions = Arr::mapWithKeys($productTypes, fn($row) => [$row->id => ['label' => $row->name, 'value' => $row->id]]);
         }
 
-        $allShippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories($store->id);
+        $allShippingCategories = app(ShippingCategories::class)->getAllShippingCategories($store->id);
         $isDefaultAndOnlyCategory = $id && $allShippingCategories->count() === 1 && $allShippingCategories->firstWhere('id', $id);
 
         $metaSidebar = '';
@@ -171,19 +173,19 @@ JS;
         $shippingCategory->default = (bool)$request->input('default');
 
         if ($shippingCategory->default) {
-            $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+            $productTypes = app(ProductTypes::class)->getAllProductTypes();
         } else {
             $postedProductTypes = $request->input('productTypes', []) ?: [];
             $productTypes = [];
             foreach ($postedProductTypes as $productTypeId) {
-                if ($productTypeId && $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($productTypeId)) {
+                if ($productTypeId && $productType = app(ProductTypes::class)->getProductTypeById($productTypeId)) {
                     $productTypes[] = $productType;
                 }
             }
         }
         $shippingCategory->setProductTypes($productTypes);
 
-        if (!Plugin::getInstance()->getShippingCategories()->saveShippingCategory($shippingCategory)) {
+        if (!app(ShippingCategories::class)->saveShippingCategory($shippingCategory)) {
             return $this->asModelFailure(
                 $shippingCategory,
                 t('Couldn\'t save shipping category.', category: 'commerce'),
@@ -216,7 +218,7 @@ JS;
 
         $failedIds = [];
         foreach ($ids as $deleteId) {
-            if (!Plugin::getInstance()->getShippingCategories()->deleteShippingCategoryById($deleteId)) {
+            if (!app(ShippingCategories::class)->deleteShippingCategoryById($deleteId)) {
                 $failedIds[] = $deleteId;
             }
         }
@@ -234,16 +236,16 @@ JS;
     {
         $ids = $request->input('ids');
         $storeHandle = $request->input('storeHandle');
-        $store = $storeHandle ? Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle) : null;
+        $store = $storeHandle ? app(Stores::class)->getStoreByHandle($storeHandle) : null;
         abort_if(!$storeHandle || $store === null, 400, 'Invalid store.');
 
         if (!empty($ids)) {
             $id = Arr::first($ids);
 
-            $shippingCategory = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($id, $store->id);
+            $shippingCategory = app(ShippingCategories::class)->getShippingCategoryById($id, $store->id);
             if ($shippingCategory) {
                 $shippingCategory->default = true;
-                if (Plugin::getInstance()->getShippingCategories()->saveShippingCategory($shippingCategory)) {
+                if (app(ShippingCategories::class)->saveShippingCategory($shippingCategory)) {
                     return $this->asSuccess(t('Shipping category updated.', category: 'commerce'));
                 }
             }

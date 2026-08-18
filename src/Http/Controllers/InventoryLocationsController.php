@@ -9,21 +9,22 @@ use craft\commerce\models\InventoryLocation;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\FieldLayout\FieldLayoutCompiler;
-use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\FieldLayout\LayoutElements\Addresses\AddressField;
 use CraftCms\Cms\Form\Enums\ControlMode;
 use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Support\Facades\Addresses;
-use CraftCms\Cms\Support\Facades\InputNamespace;
 use CraftCms\Cms\Form\FormHtmlRenderer;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpModalResponse;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Facades\Addresses;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\HtmlStack;
+use CraftCms\Cms\Support\Facades\InputNamespace;
+use CraftCms\Cms\Support\Html;
+use CraftCms\Commerce\Inventory\InventoryLocations;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 
+use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
 
@@ -33,7 +34,7 @@ readonly class InventoryLocationsController
 
     public function index(): CpScreenResponse
     {
-        $inventoryLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
+        $inventoryLocations = app(InventoryLocations::class)->getAllInventoryLocations();
         $currentUser = currentUser();
 
         $screen = new CpScreenResponse()
@@ -61,7 +62,7 @@ readonly class InventoryLocationsController
     public function edit(?int $inventoryLocationId = null): CpScreenResponse
     {
         if ($inventoryLocationId !== null) {
-            $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($inventoryLocationId);
+            $inventoryLocation = app(InventoryLocations::class)->getInventoryLocationById($inventoryLocationId);
             abort_if(!$inventoryLocation, 404, 'Inventory location not found');
 
             $title = trim((string)$inventoryLocation->getUiLabel()) ?: t('Edit Inventory Location');
@@ -151,7 +152,7 @@ readonly class InventoryLocationsController
         $inventoryLocation = null;
 
         if ($inventoryLocationId) {
-            $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById((int)$inventoryLocationId);
+            $inventoryLocation = app(InventoryLocations::class)->getInventoryLocationById((int)$inventoryLocationId);
         }
 
         $inventoryLocation ??= new InventoryLocation();
@@ -203,7 +204,7 @@ readonly class InventoryLocationsController
 
         $inventoryLocation->addressId = $inventoryLocation->getAddress()->id;
 
-        if ($inventoryLocation->hasErrors() || !Plugin::getInstance()->getInventoryLocations()->saveInventoryLocation($inventoryLocation)) {
+        if ($inventoryLocation->hasErrors() || !app(InventoryLocations::class)->saveInventoryLocation($inventoryLocation)) {
             return $this->asModelFailure(
                 model: $inventoryLocation,
                 message: t('Couldn\'t save inventory location.', category: 'commerce'),
@@ -222,7 +223,7 @@ readonly class InventoryLocationsController
     {
         abort_unless($request->expectsJson(), 400);
 
-        $inventoryLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
+        $inventoryLocations = app(InventoryLocations::class)->getAllInventoryLocations();
 
         $data = [];
         foreach ($inventoryLocations as $inventoryLocation) {
@@ -274,8 +275,8 @@ JS, [
         $inventoryLocationId = $request->input('inventoryLocationId');
         abort_if(!$inventoryLocationId, 400, 'Missing inventoryLocationId');
 
-        $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById((int)$inventoryLocationId);
-        $allInventoryLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
+        $inventoryLocation = app(InventoryLocations::class)->getInventoryLocationById((int)$inventoryLocationId);
+        $allInventoryLocations = app(InventoryLocations::class)->getAllInventoryLocations();
 
         $destinationInventoryLocations = $allInventoryLocations
             ->filter(fn($location) => $location->id != $inventoryLocation->id);
@@ -308,15 +309,15 @@ JS, [
         $destinationInventoryLocationId = $request->input('destinationInventoryLocation');
         abort_if(!$inventoryLocationId || !$destinationInventoryLocationId, 400, 'Missing inventoryLocation or destinationInventoryLocation');
 
-        $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById((int)$inventoryLocationId);
-        $destinationInventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById((int)$destinationInventoryLocationId);
+        $inventoryLocation = app(InventoryLocations::class)->getInventoryLocationById((int)$inventoryLocationId);
+        $destinationInventoryLocation = app(InventoryLocations::class)->getInventoryLocationById((int)$destinationInventoryLocationId);
 
         $deactivateInventoryLocation = new DeactivateInventoryLocation([
             'inventoryLocation' => $inventoryLocation,
             'destinationInventoryLocation' => $destinationInventoryLocation,
         ]);
 
-        if (!Plugin::getInstance()->getInventoryLocations()->executeDeactivateInventoryLocation($deactivateInventoryLocation)) {
+        if (!app(InventoryLocations::class)->executeDeactivateInventoryLocation($deactivateInventoryLocation)) {
             return $this->asFailure(t('Inventory was not updated.', category: 'commerce'), [
                 'errors' => $deactivateInventoryLocation->getErrors(),
             ]);

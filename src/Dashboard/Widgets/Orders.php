@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Dashboard\Widgets;
 
 use craft\commerce\elements\Order;
-use craft\commerce\Plugin;
 use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\orderswidget\OrdersWidgetAsset;
 use craft\helpers\Cp;
-use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Form\Controls\Choice;
 use CraftCms\Cms\Form\Controls\Number;
@@ -18,9 +16,11 @@ use CraftCms\Cms\Form\FormContext;
 use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\Facades\InputNamespace;
+use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
 
+use CraftCms\Commerce\Order\OrderStatuses;
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
 use function CraftCms\Cms\template;
@@ -63,7 +63,7 @@ class Orders extends Widget
     public function getTitle(): ?string
     {
         if (!empty($this->orderStatuses) && count($this->orderStatuses) === 1) {
-            $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusByUid(Arr::first($this->orderStatuses), $this->storeId);
+            $orderStatus = app(OrderStatuses::class)->getOrderStatusByUid(Arr::first($this->orderStatuses), $this->storeId);
 
             if ($orderStatus) {
                 return t('Recent Orders', category: 'commerce') . ' – ' . t($orderStatus->name, category: 'commerce');
@@ -121,7 +121,7 @@ class Orders extends Widget
         $query->orderBy('dateOrdered DESC');
 
         if (!empty($this->orderStatuses)) {
-            $orderStatusIds = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($this->storeId)
+            $orderStatusIds = app(OrderStatuses::class)->getAllOrderStatuses($this->storeId)
                 ->filter(fn($orderStatus) => in_array($orderStatus->uid, $this->orderStatuses))->map(fn($os) => $os->id)->all();
             $query->orderStatusId($orderStatusIds);
         }

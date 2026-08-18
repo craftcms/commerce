@@ -5,29 +5,33 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers;
 
 use craft\commerce\Plugin;
-use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\RouteToken\RouteTokens;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Users;
+use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\SystemMessage\Mailables\SystemMessageMailable;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Helpers\LineItem as LineItemHelper;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasCartArray;
+use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
+use CraftCms\Commerce\Order\LineItem\LineItems;
+use CraftCms\Commerce\Payment\Gateway\Gateways;
+use CraftCms\Commerce\Payment\PaymentSources;
 use Illuminate\Contracts\Cache\Lock;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
-
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
@@ -55,7 +59,7 @@ class CartController
         abort_unless($request->expectsJson(), 400);
 
         if ($request->input('peek')) {
-            $cart = Plugin::getInstance()->getCarts()->peekCart();
+            $cart = app(Carts::class)->peekCart();
             return $this->asSuccess(data: [
                 $this->cartVariable => $cart ? $this->cartArray($cart) : null,
             ]);
@@ -71,12 +75,11 @@ class CartController
     public function updateCart(Request $request): ?Response
     {
         $currentUser = currentUserElement();
-        $plugin = Plugin::getInstance();
 
-        $useMutex = $request->input('number') || $plugin->getCarts()->getHasSessionCartNumber();
+        $useMutex = $request->input('number') || app(Carts::class)->getHasSessionCartNumber();
 
         if ($useMutex) {
-            $lockOrderNumber = $request->input('number') ?: $request->cookie($plugin->getCarts()->cartCookie['name']);
+            $lockOrderNumber = $request->input('number') ?: $request->cookie(app(Carts::class)->cartCookie['name']);
 
             if ($lockOrderNumber) {
                 $this->mutexLockName = "order:$lockOrderNumber";
@@ -124,10 +127,10 @@ class CartController
             if ($qty > 0) {
                 // We only want a new line item if they cleared the cart
                 if ($clearLineItems) {
-                    $lineItem = Plugin::getInstance()->getLineItems()->create($this->cart, params: $params);
+                    $lineItem = app(LineItems::class)->create($this->cart, params: $params);
                 } else {
                     // we are passing everything into params but need to pass purchasableId and options for now until we refactor
-                    $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->cart, $params['purchasableId'], $params['options'], params: $params);
+                    $lineItem = app(LineItems::class)->resolveLineItem($this->cart, $params['purchasableId'], $params['options'], params: $params);
                 }
 
                 // New line items already have a qty of one.
@@ -183,9 +186,9 @@ class CartController
 
                     // We only want a new line item if they cleared the cart
                     if ($clearLineItems) {
-                        $lineItem = Plugin::getInstance()->getLineItems()->create($this->cart, params: $params);
+                        $lineItem = app(LineItems::class)->create($this->cart, params: $params);
                     } else {
-                        $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->cart, $params['purchasableId'], $params['options'], $params);
+                        $lineItem = app(LineItems::class)->resolveLineItem($this->cart, $params['purchasableId'], $params['options'], $params);
                     }
 
                     // New line items already have a qty of one.
@@ -275,14 +278,14 @@ class CartController
 
         // Set Payment Gateway on cart
         if ($gatewayId = $request->input('gatewayId')) {
-            if ($plugin->getGateways()->getGatewayById($gatewayId)) {
+            if (app(Gateways::class)->getGatewayById($gatewayId)) {
                 $this->cart->setGatewayId($gatewayId);
             }
         }
 
         // Submit payment source on cart
         if (($paymentSourceId = $request->input('paymentSourceId')) !== null) {
-            if ($paymentSourceId && $paymentSource = $plugin->getPaymentSources()->getPaymentSourceById($paymentSourceId)) {
+            if ($paymentSourceId && $paymentSource = app(PaymentSources::class)->getPaymentSourceById($paymentSourceId)) {
                 // The payment source can only be used by the same user as the cart's user.
                 $cartCustomerId = $this->cart->getCustomer()?->id;
                 $paymentSourceCustomerId = $paymentSource->getCustomer()?->id;
@@ -305,14 +308,14 @@ class CartController
 
     public function forgetCart(): Response
     {
-        Plugin::getInstance()->getCarts()->forgetCart();
+        app(Carts::class)->forgetCart();
 
         return $this->asSuccess(t('Cart forgotten.', category: 'commerce'));
     }
 
     public function loadCart(Request $request): ?Response
     {
-        $carts = Plugin::getInstance()->getCarts();
+        $carts = app(Carts::class);
         $number = $request->input('number');
         $token = $request->input('code');
         $loadCartRedirectUrl = Plugin::getInstance()->getSettings()->loadCartRedirectUrl ?? '';
@@ -496,7 +499,7 @@ class CartController
         $cart = Order::find()->number($cartNumber)->isCompleted(false)->one();
         abort_if(!$cart, 404, 'Cart not found');
 
-        $loadCartUrl = Plugin::getInstance()->getCarts()->getLoadCartUrl($cart);
+        $loadCartUrl = app(Carts::class)->getLoadCartUrl($cart);
 
         try {
             $sent = Mail::to($cart->email)->send(new SystemMessageMailable(
@@ -606,7 +609,7 @@ class CartController
 
         $doForceSave = $forceSave || (bool)$request->input('forceSave');
 
-        return $this->cart = Plugin::getInstance()->getCarts()->getCart($doForceSave);
+        return $this->cart = app(Carts::class)->getCart($doForceSave);
     }
 
     private function setAddresses(Request $request, ?User $currentUser): void

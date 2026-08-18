@@ -25,6 +25,7 @@ use CraftCms\Commerce\Pdf\Events\PdfRenderEvent;
 use CraftCms\Commerce\Pdf\Events\PdfRenderOptionsEvent;
 use CraftCms\Commerce\Pdf\Models\Pdf;
 use CraftCms\Commerce\Pdf\Records\Pdf as PdfRecord;
+use CraftCms\Commerce\Store\Stores;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Illuminate\Container\Attributes\Singleton;
@@ -64,7 +65,7 @@ class Pdfs
      */
     public function getAllPdfs(?int $storeId = null): Collection
     {
-        $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         if ($this->allPdfs === null || !isset($this->allPdfs[$storeId])) {
             $results = $this->query()->where('storeId', $storeId)->get();
@@ -166,7 +167,7 @@ class Pdfs
         try {
             $pdfRecord = $this->getPdfRecord($pdfUid);
             $isNewPdf = !$pdfRecord->exists;
-            $store = Plugin::getInstance()->getStores()->getStoreByUid($data['store']);
+            $store = app(Stores::class)->getStoreByUid($data['store']);
 
             $pdfRecord->storeId = $store->id;
             $pdfRecord->name = $data['name'];
@@ -335,7 +336,7 @@ class Pdfs
         }
 
         if (!$templatePath) {
-            $templatePath = Plugin::getInstance()->getPdfs()->getDefaultPdf()->templatePath;
+            $templatePath = app(Pdfs::class)->getDefaultPdf()->templatePath;
         }
 
         // Raise 'beforeRenderPdf' event

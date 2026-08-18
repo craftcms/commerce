@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Users;
 
-use craft\commerce\Plugin;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
-use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Cp\Html\ElementIndexHtml;
-use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Http\Controllers\Users\EditUserTrait;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
-use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Cms\Support\Arr;
+use CraftCms\Cms\Support\Html;
+use CraftCms\Commerce\Order\Carts;
 
+use CraftCms\Commerce\Order\Elements\Order;
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
 
@@ -44,7 +44,7 @@ readonly class UsersController
             ],
         ];
 
-        $edge = Plugin::getInstance()->getCarts()->getActiveCartEdgeDuration();
+        $edge = app(Carts::class)->getActiveCartEdgeDuration();
 
         $content = '';
         $key = 'Commerce-Users-element-indexes-%s';

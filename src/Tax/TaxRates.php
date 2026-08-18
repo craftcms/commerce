@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Tax;
 
-use craft\commerce\Plugin;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Tax\Models\TaxRate;
 use CraftCms\Commerce\Tax\Records\TaxRate as TaxRateRecord;
 use Illuminate\Container\Attributes\Singleton;
@@ -165,6 +165,6 @@ class TaxRates
     private function currentStoreId(): int
     {
         /** @phpstan-ignore-next-line */
-        return Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        return app(Stores::class)->getCurrentStore()->id;
     }
 }

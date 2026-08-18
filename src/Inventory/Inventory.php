@@ -31,6 +31,7 @@ use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Order\Models\OrderNotice;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable as NewPurchasable;
+use CraftCms\Commerce\Purchasable\Purchasables;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
@@ -335,7 +336,7 @@ class Inventory
         // Update all purchasables stock
         foreach ($updateInventoryLevels->getPurchasables() as $purchasable) {
             /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
+            app(Purchasables::class)->updateStoreStockCache($purchasable, true);
         }
 
         // TODO: migrate event firing to Laravel once the event system is bridged
@@ -529,7 +530,7 @@ class Inventory
             $purchasable = $inventoryMovement->getInventoryItem()->getPurchasable();
             if ($purchasable) {
                 /** @phpstan-ignore-next-line */
-                Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
+                app(Purchasables::class)->updateStoreStockCache($purchasable, true);
             }
         }
 
@@ -785,7 +786,7 @@ class Inventory
             if ($purchasable = Elements::getElementById($key)) {
                 if ($purchasable instanceof Purchasable || $purchasable instanceof NewPurchasable) {
                     /** @phpstan-ignore-next-line */
-                    Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
+                    app(Purchasables::class)->updateStoreStockCache($purchasable, true);
 
                     // If the purchasable doesn't allow out of stock purchases, check whether the movement
                     // pushed available stock below zero (e.g. due to concurrent orders).

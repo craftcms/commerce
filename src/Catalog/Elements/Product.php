@@ -58,12 +58,14 @@ use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Catalog\Models\Product as ProductRecord;
 use CraftCms\Commerce\Catalog\Products;
 use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
+use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\Catalog\Queries\ProductQuery;
 use CraftCms\Commerce\Catalog\Queries\VariantQuery;
 use CraftCms\Commerce\Catalog\Validation\ProductRules;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
+use CraftCms\Commerce\Promotion\Sales;
 use CraftCms\Commerce\Shipping\Models\ShippingCategory;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
 use CraftCms\Commerce\Tax\Models\TaxCategory;
@@ -72,9 +74,9 @@ use DateTime;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+
 use Illuminate\Validation\Validator;
 use Override;
-
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\renderSandboxedObjectTemplate;
 use function CraftCms\Cms\t;
@@ -266,7 +268,7 @@ class Product extends Element implements HasStoreInterface
     {
         // TODO: migrate to app(ProductTypes::class) once service migrated to src/
         /** @phpstan-ignore-next-line */
-        $productTypesService = Plugin::getInstance()->getProductTypes();
+        $productTypesService = app(ProductTypes::class);
 
         if ($context == 'index') {
             $productTypes = $productTypesService->getViewableProductTypes();
@@ -349,7 +351,7 @@ class Product extends Element implements HasStoreInterface
         if ($productTypeOptions && count($productTypeOptions) === 1) {
             // TODO: migrate to app(ProductTypes::class)->getProductTypeByUid() once service migrated to src/
             /** @phpstan-ignore-next-line */
-            $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByUid(reset($productTypeOptions));
+            $productType = app(ProductTypes::class)->getProductTypeByUid(reset($productTypeOptions));
             if ($productType) {
                 $config['data']['handle'] = $productType->handle;
             }
@@ -363,7 +365,7 @@ class Product extends Element implements HasStoreInterface
     {
         // TODO: migrate to app(ProductTypes::class) once service migrated to src/
         /** @phpstan-ignore-next-line */
-        $productTypesService = Plugin::getInstance()->getProductTypes();
+        $productTypesService = app(ProductTypes::class);
 
         if ($source === null || $source === '*') {
             $productTypes = $productTypesService->getAllProductTypes();
@@ -393,7 +395,7 @@ class Product extends Element implements HasStoreInterface
 
         // TODO: migrate to app(ProductTypes::class) once service migrated to src/
         /** @phpstan-ignore-next-line */
-        $productTypesService = Plugin::getInstance()->getProductTypes();
+        $productTypesService = app(ProductTypes::class);
 
         // Get the product type(s) we need to check permissions on
         $productTypes = [];
@@ -499,7 +501,7 @@ class Product extends Element implements HasStoreInterface
             if ($currentUser?->can('commerce-managePromotions')) {
                 // TODO: migrate to app(Sales::class)->canUseSales() once the Sales element actions are migrated to src/
                 /** @phpstan-ignore-next-line */
-                if (Plugin::getInstance()->getSales()->canUseSales()) {
+                if (app(Sales::class)->canUseSales()) {
                     $actions[] = CreateSale::class;
                 }
 
@@ -949,7 +951,7 @@ JS, [
 
         // TODO: migrate to app(ProductTypes::class)->getViewableProductTypes() once service migrated to src/
         /** @phpstan-ignore-next-line */
-        $productTypes = Collection::make(Plugin::getInstance()->getProductTypes()->getViewableProductTypes());
+        $productTypes = Collection::make(app(ProductTypes::class)->getViewableProductTypes());
 
         $productTypeOptions = $productTypes
             ->map(fn(ProductType $t) => [
@@ -1009,7 +1011,7 @@ JS, [
 
         // TODO: migrate to app(ProductTypes::class)->getProductTypeById() once service migrated to src/
         /** @phpstan-ignore-next-line */
-        $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($this->typeId);
+        $productType = app(ProductTypes::class)->getProductTypeById($this->typeId);
 
         if ($productType === null) {
             throw new \RuntimeException('Invalid product type ID: ' . $this->typeId);

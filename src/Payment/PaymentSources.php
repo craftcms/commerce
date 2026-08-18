@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Payment;
 
 use craft\commerce\Plugin;
+use CraftCms\Commerce\Customer\Customers;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Payment\Events\PaymentSourceEvent;
 use CraftCms\Commerce\Payment\Exceptions\PaymentSourceException;
 use CraftCms\Commerce\Payment\Forms\BasePaymentForm;
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
+use CraftCms\Commerce\Payment\Gateway\Gateways;
 use CraftCms\Commerce\Payment\Models\PaymentSource;
 use CraftCms\Commerce\Payment\Records\PaymentSource as PaymentSourceRecord;
 use Illuminate\Container\Attributes\Singleton;
@@ -145,7 +147,7 @@ class PaymentSources
         }
 
         if ($makePrimarySource) {
-            Plugin::getInstance()->getCustomers()->savePrimaryPaymentSourceId($source->getCustomer(), $source->id);
+            app(Customers::class)->savePrimaryPaymentSourceId($source->getCustomer(), $source->id);
         }
 
         return $source;
@@ -213,7 +215,7 @@ class PaymentSources
         $record = PaymentSourceRecord::find($id);
 
         if ($record) {
-            $gateway = Plugin::getInstance()->getGateways()->getGatewayById($record->gatewayId);
+            $gateway = app(Gateways::class)->getGatewayById($record->gatewayId);
 
             $gateway?->deletePaymentSource($record->token);
 

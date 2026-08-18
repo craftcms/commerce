@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\CatalogPricing\Conditions;
 
 use craft\helpers\Cp;
-use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Condition\BaseConditionRule;
+use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\CatalogPricing\Contracts\CatalogPricingConditionRuleInterface;
 use Illuminate\Database\Query\Builder;

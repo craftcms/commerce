@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Models;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Component\Contracts\Chippable;
 use CraftCms\Cms\Cp\Html\StatusHtml;
@@ -12,6 +11,7 @@ use CraftCms\Cms\Cp\RequestedSite;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Order\LineItemStatuses;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
+use CraftCms\Commerce\Store\Stores;
 use DateTime;
 use function CraftCms\Cms\t;
 
@@ -52,7 +52,7 @@ class LineItemStatus extends Component implements HasStoreInterface, Chippable
     public static function get(int|string $id): ?static
     {
         $site = app(RequestedSite::class)->get();
-        $storeId = $site ? Plugin::getInstance()->getStores()->getStoreBySiteId($site->id)?->id : null;
+        $storeId = $site ? app(Stores::class)->getStoreBySiteId($site->id)?->id : null;
 
         return app(LineItemStatuses::class)->getLineItemStatusById($id, $storeId);
     }
@@ -66,7 +66,7 @@ class LineItemStatus extends Component implements HasStoreInterface, Chippable
     #[\Override]
     public function getStore(): \craft\commerce\models\Store
     {
-        if (!$store = Plugin::getInstance()->getStores()->getStoreById($this->storeId)) {
+        if (!$store = app(Stores::class)->getStoreById($this->storeId)) {
             throw new \InvalidArgumentException('Invalid store ID: ' . $this->storeId);
         }
 

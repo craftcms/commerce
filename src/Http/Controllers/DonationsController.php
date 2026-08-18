@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Commerce\Purchasable\Elements\Donation;
+use CraftCms\Commerce\Shipping\ShippingCategories;
+use CraftCms\Commerce\Store\Stores;
+
+use CraftCms\Commerce\Tax\TaxCategories;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 use function CraftCms\Cms\t;
 
 readonly class DonationsController
@@ -24,13 +26,13 @@ readonly class DonationsController
         $donation = Donation::find()->status(null)->one();
 
         if ($donation === null) {
-            $primaryStore = Plugin::getInstance()->getStores()->getPrimaryStore();
+            $primaryStore = app(Stores::class)->getPrimaryStore();
             $donation = new Donation();
             $donation->siteId = Sites::getPrimarySite()->id;
             $donation->sku = 'DONATION-CC5';
             $donation->availableForPurchase = false;
-            $donation->taxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
-            $donation->shippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($primaryStore->id)->id;
+            $donation->taxCategoryId = app(TaxCategories::class)->getDefaultTaxCategory()->id;
+            $donation->shippingCategoryId = app(ShippingCategories::class)->getDefaultShippingCategory($primaryStore->id)->id;
             Elements::saveElement($donation);
         }
 

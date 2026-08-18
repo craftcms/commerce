@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use craft\commerce\Plugin;
+use CraftCms\Commerce\Payment\Gateway\Gateways;
+use CraftCms\Commerce\Payment\Webhooks;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -16,9 +17,9 @@ readonly class WebhooksController
 
         abort_if(!$gatewayId, 400, 'Invalid gateway ID: ' . $gatewayId);
 
-        $gateway = Plugin::getInstance()->getGateways()->getGatewayById((int)$gatewayId);
+        $gateway = app(Gateways::class)->getGatewayById((int)$gatewayId);
         abort_if($gateway === null, 404, 'Gateway not found');
 
-        return Plugin::getInstance()->getWebhooks()->processWebhook($gateway);
+        return app(Webhooks::class)->processWebhook($gateway);
     }
 }
