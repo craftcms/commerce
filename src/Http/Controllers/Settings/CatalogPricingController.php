@@ -17,9 +17,9 @@ use CraftCms\Commerce\Catalog\Models\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingPurchasableConditionRule;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
-use Illuminate\Http\Response as JsonResponseAlias;
+use Illuminate\Http\Request;
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 use function CraftCms\Cms\template;
@@ -39,9 +39,11 @@ readonly class CatalogPricingController
         $site = $siteHandle === null ? Sites::getPrimarySite() : Sites::getSiteByHandle($siteHandle);
         abort_if($site === null, 404, 'Site not found');
 
+        /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
         $store = $site->getStore();
 
         $purchasableId = $request->query('purchasableId') ? (int)$request->query('purchasableId') : null;
+        /** @var CatalogPricingCondition $conditionBuilder */
         $conditionBuilder = Conditions::createCondition([
             'class' => CatalogPricingCondition::class,
             'allPrices' => true,
@@ -70,7 +72,7 @@ readonly class CatalogPricingController
         ], TemplateMode::Cp);
     }
 
-    public function filter(Request $request): JsonResponseAlias
+    public function filter(Request $request): JsonResponse
     {
         $this->guard();
 
@@ -88,7 +90,7 @@ readonly class CatalogPricingController
         ]);
     }
 
-    public function prices(Request $request): JsonResponseAlias
+    public function prices(Request $request): JsonResponse
     {
         $this->guard();
 
@@ -113,9 +115,11 @@ readonly class CatalogPricingController
         $site = Sites::getSiteById($siteId);
         abort_if($site === null, 400, 'Invalid site ID: ' . $siteId);
 
+        /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
         $catalogPrices = app(\CraftCms\Commerce\CatalogPricing\CatalogPricing::class)->getCatalogPrices($site->getStore()->id, $conditionBuilder, $includeBasePrices, $searchText, $limit, $offset);
         $catalogPricesPageInfo = null;
         if ($limit !== null && $offset !== null) {
+            /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
             $catalogPricesPageInfo = app(\CraftCms\Commerce\CatalogPricing\CatalogPricing::class)->getCatalogPricesPageInfo($site->getStore()->id, $conditionBuilder, $includeBasePrices, $searchText, $limit, $offset);
         }
 
@@ -140,6 +144,7 @@ readonly class CatalogPricingController
         $this->guard();
 
         $site = Cp::requestedSite();
+        /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
         $storeHandle = $site?->getStore()->handle ?? null;
 
         return template('commerce/prices/_polling', [
