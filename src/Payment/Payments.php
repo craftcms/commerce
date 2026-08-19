@@ -65,6 +65,7 @@ class Payments
         // TODO: migrate event firing to Laravel once event system is bridged
         $legacyService = Plugin::getInstance()->getPayments();
         if ($legacyService->hasEventHandlers(self::EVENT_BEFORE_PROCESS_PAYMENT)) {
+            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
             $legacyService->trigger(self::EVENT_BEFORE_PROCESS_PAYMENT, $event);
         }
 
@@ -90,6 +91,7 @@ class Payments
         }
 
         //choosing default action
+        /** @phpstan-ignore-next-line property.notFound (paymentType is declared on legacy craft\commerce\base\Gateway, which implements GatewayInterface via the class_alias chain, which PHPStan can't trace) */
         $defaultAction = $gateway->paymentType;
         $defaultAction = ($defaultAction === TransactionRecord::TYPE_PURCHASE) ? $defaultAction : TransactionRecord::TYPE_AUTHORIZE;
 
@@ -245,9 +247,11 @@ class Payments
 
         switch ($transaction->type) {
             case TransactionRecord::TYPE_PURCHASE:
+                /** @phpstan-ignore-next-line method.notFound (completePurchase() is declared on GatewayInterface, which legacy craft\commerce\base\Gateway implements via the class_alias chain, which PHPStan can't trace) */
                 $response = $gateway->completePurchase($transaction);
                 break;
             case TransactionRecord::TYPE_AUTHORIZE:
+                /** @phpstan-ignore-next-line method.notFound (completeAuthorize() is declared on GatewayInterface, which legacy craft\commerce\base\Gateway implements via the class_alias chain, which PHPStan can't trace) */
                 $response = $gateway->completeAuthorize($transaction);
                 break;
             default:
@@ -355,6 +359,7 @@ class Payments
         $gateway = $parent->getGateway();
 
         try {
+            /** @phpstan-ignore-next-line method.notFound (capture() is declared on GatewayInterface, which legacy craft\commerce\base\Gateway implements via the class_alias chain, which PHPStan can't trace) */
             $response = $gateway->capture($child, (string)$parent->reference);
             $this->updateTransaction($child, $response);
         } catch (Exception $e) {
@@ -379,10 +384,12 @@ class Payments
         try {
             $gateway = $parent->getGateway();
 
+            /** @phpstan-ignore-next-line method.notFound (supportsRefund() is declared on GatewayInterface, which legacy craft\commerce\base\Gateway implements via the class_alias chain, which PHPStan can't trace) */
             if (!$gateway->supportsRefund()) {
                 throw new RefundException(t('Gateway doesn\'t support refunds.', category: 'commerce'));
             }
 
+            /** @phpstan-ignore-next-line method.notFound (supportsPartialRefund() is declared on GatewayInterface, which legacy craft\commerce\base\Gateway implements via the class_alias chain, which PHPStan can't trace) */
             if ($amount < $parent->paymentAmount && !$gateway->supportsPartialRefund()) {
                 throw new RefundException(t('Gateway doesn\'t support partial refunds.', category: 'commerce'));
             }
@@ -399,6 +406,7 @@ class Payments
             $gateway = $parent->getGateway();
 
             try {
+                /** @phpstan-ignore-next-line method.notFound (refund() is declared on GatewayInterface, which legacy craft\commerce\base\Gateway implements via the class_alias chain, which PHPStan can't trace) */
                 $response = $gateway->refund($child);
                 $this->updateTransaction($child, $response);
             } catch (Throwable $exception) {

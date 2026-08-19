@@ -43,6 +43,7 @@ class Transactions
             return false;
         }
 
+        /** @phpstan-ignore-next-line method.notFound (supportsCapture() is declared on GatewayInterface, which legacy craft\commerce\base\Gateway implements via the class_alias chain, which PHPStan can't trace) */
         if (!$gateway->supportsCapture()) {
             return false;
         }
@@ -78,11 +79,13 @@ class Transactions
             return false;
         }
 
+        /** @phpstan-ignore-next-line method.notFound (supportsRefund() is declared on GatewayInterface, which legacy craft\commerce\base\Gateway implements via the class_alias chain, which PHPStan can't trace) */
         if (!$gateway->supportsRefund()) {
             return false;
         }
 
         // Allow gateways to help determine if a transaction can be refunded
+        /** @phpstan-ignore-next-line argument.type (craft\commerce\models\Transaction is a class_alias to the new Transaction model, which PHPStan can't trace) */
         if (!$gateway->transactionSupportsRefund($transaction)) {
             return false;
         }
@@ -144,6 +147,7 @@ class Transactions
             $currency = app(PaymentCurrencies::class)->getPaymentCurrencyByIso($order->currency, $order->getStore()->id);
 
             /** @var Gateway $gateway */
+            /** @phpstan-ignore-next-line varTag.nativeType (legacy craft\commerce\base\Gateway implements GatewayInterface via the class_alias chain, which PHPStan can't trace) */
             $gateway = $order->getGateway();
             $transaction->gatewayId = $gateway->id;
 
@@ -156,9 +160,9 @@ class Transactions
             $amount = $transaction->paymentAmount;
 
             if ($currency->iso !== $paymentCurrency->iso) {
-                $tellerTo = app(Currencies::class)->getTeller($paymentCurrency);
+                $tellerTo = app(Currencies::class)->getTeller($paymentCurrency->iso);
                 $paymentAmount = $tellerTo->convertToMoney($transaction->paymentAmount);
-                $amount = app(PaymentCurrencies::class)->convertAmount($paymentAmount, $currency, $order->getStore()->id);
+                $amount = app(PaymentCurrencies::class)->convertAmount($paymentAmount, $currency->iso, $order->getStore()->id);
                 $amount = (float)$tellerTo->convertToString($amount);
             }
 
