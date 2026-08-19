@@ -17,8 +17,7 @@ class RepeatCustomers extends Stat
         $total = $this->createStatQuery()
             ->select('customerId')
             ->groupBy('customerId')
-            ->get()
-            ->count();
+            ->getCountForPagination();
 
         $repeatRows = $this->createStatQuery()
             ->selectRaw('COUNT(orders.id) as cnt')

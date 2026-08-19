@@ -61,6 +61,7 @@ class PaymentSource extends Component
     public function getGateway(): ?GatewayInterface
     {
         if ($this->_gateway === null && $this->gatewayId) {
+            /** @phpstan-ignore-next-line assign.propertyType (legacy craft\commerce\base\Gateway implements GatewayInterface via the class_alias chain, which PHPStan can't trace) */
             $this->_gateway = app(Gateways::class)->getGatewayById($this->gatewayId);
         }
 

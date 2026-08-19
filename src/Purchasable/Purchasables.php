@@ -13,6 +13,7 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
+use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use CraftCms\Commerce\Purchasable\Events\PurchasableAvailableEvent;
 use CraftCms\Commerce\Purchasable\Events\PurchasableOutOfStockPurchasesAllowedEvent;
 use CraftCms\Commerce\Purchasable\Events\PurchasableShippableEvent;
@@ -117,6 +118,10 @@ class Purchasables
 
         /** @var PurchasableInterface $purchasable */
         foreach ($purchasables as $purchasable) {
+            if (!$purchasable instanceof Purchasable) {
+                continue;
+            }
+
             $stock = app(Inventory::class)->getInventoryLevelsForPurchasable($purchasable)->sum('availableTotal');
 
             DB::table(Table::PURCHASABLES_STORES)

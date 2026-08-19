@@ -49,7 +49,7 @@ class LineItemStatus extends Component implements HasStoreInterface, Chippable
     }
 
     #[\Override]
-    public static function get(int|string $id): ?static
+    public static function get(int|string $id): ?self
     {
         $site = app(RequestedSite::class)->get();
         $storeId = $site ? app(Stores::class)->getStoreBySiteId($site->id)?->id : null;

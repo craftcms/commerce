@@ -58,7 +58,10 @@ class Currencies
      */
     public function getAllCurrencies(): Collection
     {
-        return collect($this->isoCurrencies);
+        /** @var Collection<int, Currency> $currencies */
+        $currencies = collect($this->isoCurrencies);
+
+        return $currencies;
     }
 
     /**

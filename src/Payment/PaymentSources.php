@@ -215,6 +215,7 @@ class PaymentSources
         if ($record) {
             $gateway = app(Gateways::class)->getGatewayById($record->gatewayId);
 
+            /** @phpstan-ignore-next-line method.notFound (deletePaymentSource() is declared on GatewayInterface, which legacy craft\commerce\base\Gateway implements via the class_alias chain, which PHPStan can't trace) */
             $gateway?->deletePaymentSource($record->token);
 
             $paymentSource = $this->getPaymentSourceById($id);
