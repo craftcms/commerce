@@ -20,6 +20,10 @@ use craft\helpers\Json;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 
+// Force-resolve the legacy Order class_alias before PHP checks this class's LSP compatibility against
+// GatewayInterface below - resolving it reentrantly, mid-compatibility-check, fails (class "not available").
+class_exists(Order::class);
+
 /**
  * Class Gateway
  *
