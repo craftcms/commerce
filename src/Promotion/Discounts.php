@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Promotion;
 
+use Carbon\Carbon;
 use craft\elements\Category;
 use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Support\Facades\Elements;
@@ -204,7 +205,7 @@ class Discounts
                         });
                 })->orWhere('requireCouponCode', false);
             });
-        } elseif ($order && !$order->couponCode) {
+        } elseif ($order) {
             $discountQuery->where('requireCouponCode', false);
         }
 
@@ -559,8 +560,8 @@ class Discounts
         $record->storeId = $model->storeId;
         $record->name = $model->name;
         $record->description = $model->description;
-        $record->dateFrom = $model->dateFrom;
-        $record->dateTo = $model->dateTo;
+        $record->dateFrom = $model->dateFrom ? Carbon::instance($model->dateFrom) : null;
+        $record->dateTo = $model->dateTo ? Carbon::instance($model->dateTo) : null;
         $record->enabled = $model->enabled;
         $record->stopProcessing = $model->stopProcessing;
         $record->orderCondition = $model->hasOrderCondition() ? $model->getOrderCondition()->getConfig() : null;

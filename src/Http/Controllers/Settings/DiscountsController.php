@@ -37,8 +37,9 @@ use CraftCms\Commerce\Promotion\Records\Discount as DiscountRecord;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use CraftCms\Commerce\Purchasable\Purchasables;
-
 use CraftCms\Commerce\Store\Stores;
+
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
@@ -367,13 +368,13 @@ JS;
         }
 
         $date = $request->input('dateFrom');
-        if ($date) {
-            $discount->dateFrom = DateTimeHelper::toDateTime($date) ?: null;
+        if ($date && $dateFrom = DateTimeHelper::toDateTime($date)) {
+            $discount->dateFrom = $dateFrom instanceof DateTime ? $dateFrom : DateTime::createFromInterface($dateFrom);
         }
 
         $date = $request->input('dateTo');
-        if ($date) {
-            $discount->dateTo = DateTimeHelper::toDateTime($date) ?: null;
+        if ($date && $dateTo = DateTimeHelper::toDateTime($date)) {
+            $discount->dateTo = $dateTo instanceof DateTime ? $dateTo : DateTime::createFromInterface($dateTo);
         }
 
         $percentDiscount = $request->input('percentDiscount', 0);

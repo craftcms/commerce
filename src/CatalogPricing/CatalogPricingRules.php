@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\CatalogPricing;
 
+use Carbon\Carbon;
 use CraftCms\Cms\Element\Events\ElementSaved;
 use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Cms\User\Elements\User;
@@ -210,8 +211,8 @@ class CatalogPricingRules
         $record->apply = $catalogPricingRule->apply;
         $record->applyAmount = $catalogPricingRule->applyAmount;
         $record->applyPriceType = $catalogPricingRule->applyPriceType;
-        $record->dateFrom = $catalogPricingRule->dateFrom;
-        $record->dateTo = $catalogPricingRule->dateTo;
+        $record->dateFrom = $catalogPricingRule->dateFrom ? Carbon::instance($catalogPricingRule->dateFrom) : null;
+        $record->dateTo = $catalogPricingRule->dateTo ? Carbon::instance($catalogPricingRule->dateTo) : null;
         $record->description = $catalogPricingRule->description;
         $record->enabled = $catalogPricingRule->enabled;
         $record->isPromotionalPrice = $catalogPricingRule->isPromotionalPrice;

@@ -26,8 +26,9 @@ use CraftCms\Commerce\Promotion\Records\Sale as SaleRecord;
 use CraftCms\Commerce\Promotion\Sales;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
-
 use CraftCms\Commerce\Purchasable\Purchasables;
+
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
@@ -102,8 +103,8 @@ readonly class SalesController
         $sale->enabled = (bool)$request->input('enabled');
 
         foreach (['dateFrom', 'dateTo'] as $field) {
-            if (($date = $request->input($field)) !== null) {
-                $sale->$field = DateTimeHelper::toDateTime($date) ?: null;
+            if (($date = $request->input($field)) !== null && $dateValue = DateTimeHelper::toDateTime($date)) {
+                $sale->$field = $dateValue instanceof DateTime ? $dateValue : DateTime::createFromInterface($dateValue);
             }
         }
 

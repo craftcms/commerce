@@ -28,6 +28,10 @@ use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
 use DateTime;
 use Illuminate\Validation\Rule;
 
+/**
+ * @property-read string $applyAmountAsPercent
+ * @property-read string $applyAmountAsFlat
+ */
 class CatalogPricingRule extends Component implements HasStoreInterface
 {
     use StoreTrait;

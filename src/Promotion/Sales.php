@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Promotion;
 
+use Carbon\Carbon;
 use craft\elements\Category;
 use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Support\Facades\ElementCaches;
@@ -362,8 +363,8 @@ class Sales
 
         $record->name = $model->name;
         $record->description = $model->description;
-        $record->dateFrom = $model->dateFrom;
-        $record->dateTo = $model->dateTo;
+        $record->dateFrom = $model->dateFrom ? Carbon::instance($model->dateFrom) : null;
+        $record->dateTo = $model->dateTo ? Carbon::instance($model->dateTo) : null;
         $record->apply = $model->apply;
         $record->applyAmount = $model->applyAmount;
         $record->stopProcessing = $model->stopProcessing;

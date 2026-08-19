@@ -30,6 +30,7 @@ use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule as CatalogPricingRuleRecord;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
+use DateTime;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -196,16 +197,16 @@ JS;
             ->redirectUrl('commerce/store-management/' . $store->handle . '/pricing-rules')
             ->metaSidebarTemplate('commerce/store-management/pricing-rules/_sidebar', $variables)
             ->tabs([
-                [
+                'rule' => [
                     'label' => t('Rule', category: 'commerce'),
                     'url' => '#rule',
                     'class' => array_filter([$variables['catalogPricingRule']->getErrors() ? 'error' : null]),
                 ],
-                [
+                'conditions' => [
                     'label' => t('Conditions', category: 'commerce'),
                     'url' => '#conditions',
                 ],
-                [
+                'actions' => [
                     'label' => t('Actions', category: 'commerce'),
                     'url' => '#actions',
                     'class' => array_filter([($variables['catalogPricingRule']->getErrors('applyAmount') || $variables['catalogPricingRule']->getErrors('apply')) ? 'error' : null]),
@@ -236,11 +237,11 @@ JS;
         $catalogPricingRule->isPromotionalPrice = (bool)$request->input('isPromotionalPrice');
         $catalogPricingRule->applyPriceType = $request->input('applyPriceType');
 
-        if (($date = $request->input('dateFrom')) !== null) {
-            $catalogPricingRule->dateFrom = DateTimeHelper::toDateTime($date) ?: null;
+        if (($date = $request->input('dateFrom')) !== null && $dateFrom = DateTimeHelper::toDateTime($date)) {
+            $catalogPricingRule->dateFrom = $dateFrom instanceof DateTime ? $dateFrom : DateTime::createFromInterface($dateFrom);
         }
-        if (($date = $request->input('dateTo')) !== null) {
-            $catalogPricingRule->dateTo = DateTimeHelper::toDateTime($date) ?: null;
+        if (($date = $request->input('dateTo')) !== null && $dateTo = DateTimeHelper::toDateTime($date)) {
+            $catalogPricingRule->dateTo = $dateTo instanceof DateTime ? $dateTo : DateTime::createFromInterface($dateTo);
         }
 
         $applyAmount = $request->input('applyAmount');
