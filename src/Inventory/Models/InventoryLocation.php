@@ -134,7 +134,6 @@ class InventoryLocation extends Component implements Chippable, CpEditable, Acti
     #[\Override]
     public function getActionMenuItems(): array
     {
-        /** @phpstan-ignore-next-line */
         $canManage = request()->craftUser()?->can('commerce-manageInventoryLocations') ?? false;
         if (!$canManage) {
             return [];

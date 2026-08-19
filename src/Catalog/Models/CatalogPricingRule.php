@@ -185,12 +185,10 @@ class CatalogPricingRule extends Component implements HasStoreInterface
                 $purchasableCondition->modifyQuery($purchasableQuery);
 
                 if ($variantIds !== null) {
-                    /** @phpstan-ignore-next-line */
                     $purchasableQuery->andWhere(['id' => $variantIds]);
                 }
 
                 if ($this->isPromotionalPrice) {
-                    /** @phpstan-ignore-next-line */
                     $purchasableQuery->andWhere(Db::parseBooleanParam('purchasables_stores.promotable', true));
                 }
 

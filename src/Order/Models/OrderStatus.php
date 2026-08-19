@@ -122,7 +122,6 @@ class OrderStatus extends Component implements HasStoreInterface, Chippable
             $emailIds = $this->getEmailIds();
         }
 
-        /** @phpstan-ignore-next-line */
         $emails = !empty($emailIds) ? DB::table(Table::EMAILS)->uidsByIds($emailIds) : [];
         return [
             'name' => $this->name,

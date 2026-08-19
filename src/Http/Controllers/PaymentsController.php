@@ -275,9 +275,7 @@ readonly class PaymentsController
                 }
 
                 if ($sourceCreated) {
-                    /** @phpstan-ignore-next-line */
                     $order->setPaymentSource($paymentSource);
-                    /** @phpstan-ignore-next-line */
                     $paymentForm->populateFromPaymentSource($paymentSource);
                 }
             }

@@ -31,7 +31,6 @@ class SiteStore extends Component implements HasStoreInterface
             return null;
         }
 
-        /** @phpstan-ignore-next-line */
         return DB::table(Table::STORES)->uidById($this->storeId) ?: null;
     }
 
