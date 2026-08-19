@@ -26,7 +26,7 @@ readonly class PaymentSourcesController
 
         // Are we paying anonymously?
         $customer = currentUserElement();
-        abort_unless($customer, 401, t('You must be signed in to create a payment source.', category: 'commerce'));
+        abort_unless($customer !== null, 401, t('You must be signed in to create a payment source.', category: 'commerce'));
 
         // Allow setting the payment method at time of submitting payment.
         $gatewayId = $request->input('gatewayId');
@@ -37,17 +37,20 @@ readonly class PaymentSourcesController
 
         $gateway = app(Gateways::class)->getGatewayById($gatewayId);
 
+        /** @phpstan-ignore-next-line method.notFound (supportsPaymentSources() is declared on GatewayInterface, which legacy craft\commerce\base\Gateway implements via the class_alias chain, which PHPStan can't trace) */
         if (!$gateway || !$gateway->supportsPaymentSources()) {
             return $this->asFailure(t('There is no gateway selected that supports payment sources.', category: 'commerce'));
         }
 
         // Get the payment method' gateway adapter's expected form model
+        /** @phpstan-ignore-next-line method.notFound (getPaymentFormModel() is declared on GatewayInterface, which legacy craft\commerce\base\Gateway implements via the class_alias chain, which PHPStan can't trace) */
         $paymentForm = $gateway->getPaymentFormModel();
         $paymentFormParams = $request->input(PaymentForm::getPaymentFormParamName($gateway->handle), []);
         $paymentForm->setAttributes($paymentFormParams, false);
         $description = (string)$request->input('description');
 
         try {
+            /** @phpstan-ignore-next-line argument.type (legacy craft\commerce\base\Gateway implements GatewayInterface via the class_alias chain, which PHPStan can't trace) */
             $paymentSource = app(PaymentSources::class)->createPaymentSource($customer->id, $gateway, $paymentForm, $description, $isPrimaryPaymentSource);
         } catch (Throwable $exception) {
             Log::error($exception->getMessage(), ['exception' => $exception]);
@@ -73,7 +76,7 @@ readonly class PaymentSourcesController
     public function setPrimaryPaymentSource(Request $request): ?Response
     {
         $user = currentUserElement();
-        abort_unless($user, 401, t('You must be signed in to set a primary payment source.', category: 'commerce'));
+        abort_unless($user !== null, 401, t('You must be signed in to set a primary payment source.', category: 'commerce'));
 
         $paymentSourceId = $request->input('id');
         abort_if(!$paymentSourceId, 400, 'Missing id');
@@ -100,7 +103,7 @@ readonly class PaymentSourcesController
     public function delete(Request $request): ?Response
     {
         $currentUser = currentUserElement();
-        abort_unless($currentUser, 401);
+        abort_unless($currentUser !== null, 401);
 
         $id = $request->input('id');
         abort_if(!$id, 400, 'Missing id');

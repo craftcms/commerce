@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Purchasable\Elements;
 
+use Carbon\Carbon;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Purchasable\Models\Donation as DonationRecord;
@@ -143,13 +144,13 @@ class Donation extends Purchasable
                 function($attribute, $params, Validator $validator) use ($lineItem) {
                     $options = $lineItem->getOptions();
                     if (!isset($options['donationAmount'])) {
-                        $validator->addError($lineItem, $attribute, t('No donation amount supplied.', category: 'commerce'));
+                        $lineItem->errors()->add($attribute, t('No donation amount supplied.', category: 'commerce'));
                     }
                     if (isset($options['donationAmount']) && !is_numeric($options['donationAmount'])) {
-                        $validator->addError($lineItem, $attribute, t('Donation needs to be an amount.', category: 'commerce'));
+                        $lineItem->errors()->add($attribute, t('Donation needs to be an amount.', category: 'commerce'));
                     }
                     if (isset($options['donationAmount']) && $options['donationAmount'] == 0) {
-                        $validator->addError($lineItem, $attribute, t('Donation can not be zero.', category: 'commerce'));
+                        $lineItem->errors()->add($attribute, t('Donation can not be zero.', category: 'commerce'));
                     }
                 },
             ],
@@ -175,8 +176,8 @@ class Donation extends Purchasable
         $record->sku = $this->sku;
 
         // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
-        $record->dateUpdated = $this->dateUpdated;
-        $record->dateCreated = $this->dateCreated;
+        $record->dateUpdated = $this->dateUpdated ? Carbon::instance($this->dateUpdated) : Carbon::now();
+        $record->dateCreated = $this->dateCreated ? Carbon::instance($this->dateCreated) : Carbon::now();
 
         $record->save();
 

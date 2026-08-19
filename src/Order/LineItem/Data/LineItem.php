@@ -49,6 +49,7 @@ use RuntimeException;
  * the separate, thin {@see \CraftCms\Commerce\Order\LineItem\Models\LineItem} Eloquent model instead,
  * mirroring the `Entry\Data\EntryType` / `Entry\Models\EntryType` split in cms-6.
  *
+ * @property float $price
  * @property-read float $salePrice
  * @property-read string $salePriceAsCurrency
  */

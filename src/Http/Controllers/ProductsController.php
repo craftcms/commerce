@@ -17,6 +17,7 @@ use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Catalog\Products;
 use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
+use DateTime;
 
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -48,16 +49,16 @@ readonly class ProductsController
         abort_if(!$productTypeHandle, 400, 'Missing productType');
 
         $productType = app(ProductTypes::class)->getProductTypeByHandle($productTypeHandle);
-        abort_unless($productType, 400, "Invalid product type handle: $productTypeHandle");
+        abort_unless($productType !== null, 400, "Invalid product type handle: $productTypeHandle");
 
         $siteId = $request->input('siteId');
 
         if ($siteId) {
             $site = Sites::getSiteById((int)$siteId);
-            abort_unless($site, 400, "Invalid site ID: $siteId");
+            abort_unless($site !== null, 400, "Invalid site ID: $siteId");
         } else {
             $site = \craft\helpers\Cp::requestedSite();
-            abort_unless($site, 403, 'User not authorized to edit content in any sites.');
+            abort_unless($site !== null, 403, 'User not authorized to edit content in any sites.');
         }
 
         $editableSiteIds = Sites::getEditableSiteIds();
@@ -67,7 +68,7 @@ readonly class ProductsController
         }
 
         $user = currentUserElement();
-        abort_unless($user, 401);
+        abort_unless($user !== null, 401);
 
         // Create & populate the draft
         $product = \Craft::createObject(Product::class);
@@ -101,14 +102,14 @@ readonly class ProductsController
         DateTimeHelper::pause();
 
         // Post & expiry dates
-        if (($postDate = $request->input('postDate')) !== null) {
-            $product->postDate = DateTimeHelper::toDateTime($postDate);
+        if (($postDate = $request->input('postDate')) !== null && $postDateTime = DateTimeHelper::toDateTime($postDate)) {
+            $product->postDate = $postDateTime instanceof DateTime ? $postDateTime : DateTime::createFromInterface($postDateTime);
         } else {
             $product->postDate = now();
         }
 
-        if (($expiryDate = $request->input('expiryDate')) !== null) {
-            $product->expiryDate = DateTimeHelper::toDateTime($expiryDate);
+        if (($expiryDate = $request->input('expiryDate')) !== null && $expiryDateTime = DateTimeHelper::toDateTime($expiryDate)) {
+            $product->expiryDate = $expiryDateTime instanceof DateTime ? $expiryDateTime : DateTime::createFromInterface($expiryDateTime);
         }
 
         // Custom fields
