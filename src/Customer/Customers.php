@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Customer;
 
-use craft\base\Element;
 use craft\commerce\Plugin;
 use craft\mail\Mailer;
 use craft\mail\Message;
 use CraftCms\Cms\Address\Elements\Address;
+use CraftCms\Cms\Auth\Impersonation;
 use CraftCms\Cms\Element\Events\ElementSaved;
 use CraftCms\Cms\Element\Exceptions\InvalidElementException;
 use CraftCms\Cms\Element\Exceptions\UnsupportedSiteException;
 use CraftCms\Cms\Element\Queries\Exceptions\ElementNotFoundException;
+use CraftCms\Cms\Element\Validation\ElementRules;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Cms\User\Elements\User;
@@ -39,6 +40,7 @@ class Customers
     {
         $customerRecord = $this->ensureCustomer($user);
         $customerRecord->primaryShippingAddressId = $addressId;
+        /** @phpstan-ignore-next-line method.notFound (setPrimaryShippingAddressId() is added to User via the legacy CustomerBehavior, attached at runtime) */
         $user->setPrimaryShippingAddressId($addressId);
         return $customerRecord->save();
     }
@@ -47,6 +49,7 @@ class Customers
     {
         $customerRecord = $this->ensureCustomer($user);
         $customerRecord->primaryBillingAddressId = $addressId;
+        /** @phpstan-ignore-next-line method.notFound (setPrimaryBillingAddressId() is added to User via the legacy CustomerBehavior, attached at runtime) */
         $user->setPrimaryBillingAddressId($addressId);
         return $customerRecord->save();
     }
@@ -68,6 +71,7 @@ class Customers
             return false;
         }
 
+        /** @phpstan-ignore-next-line method.notFound (setPrimaryPaymentSourceId() is added to User via the legacy CustomerBehavior, attached at runtime) */
         $user->setPrimaryPaymentSourceId($paymentSourceId);
 
         if ($originalPaymentSourceId != $paymentSourceId) {
@@ -80,6 +84,7 @@ class Customers
             // TODO: migrate event firing to Laravel once event system is bridged
             $legacyService = Plugin::getInstance()->getCustomers();
             if ($legacyService->hasEventHandlers(self::EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE)) {
+                /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
                 $legacyService->trigger(self::EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE, $event);
             }
         }
@@ -92,7 +97,7 @@ class Customers
      */
     public function loginHandler(): void
     {
-        $impersonating = session()->get(User::IMPERSONATE_KEY) !== null;
+        $impersonating = app(Impersonation::class)->isImpersonating();
         // Don't allow transition of current cart to a user that is being impersonated.
         if ($impersonating) {
             app(Carts::class)->forgetCart();
@@ -112,15 +117,21 @@ class Customers
         /** @var User $user */
         $user = $event->element;
 
+        /** @phpstan-ignore-next-line method.notFound (getPrimaryBillingAddressId() is added to User via the legacy CustomerBehavior, attached at runtime) */
         if ($user->getPrimaryBillingAddressId()) {
+            /** @phpstan-ignore-next-line method.notFound (getPrimaryBillingAddressId() is added to User via the legacy CustomerBehavior, attached at runtime) */
             $this->savePrimaryBillingAddressId($user, $user->getPrimaryBillingAddressId());
         }
 
+        /** @phpstan-ignore-next-line method.notFound (getPrimaryShippingAddressId() is added to User via the legacy CustomerBehavior, attached at runtime) */
         if ($user->getPrimaryShippingAddressId()) {
+            /** @phpstan-ignore-next-line method.notFound (getPrimaryShippingAddressId() is added to User via the legacy CustomerBehavior, attached at runtime) */
             $this->savePrimaryShippingAddressId($user, $user->getPrimaryShippingAddressId());
         }
 
+        /** @phpstan-ignore-next-line method.notFound (getPrimaryPaymentSourceId() is added to User via the legacy CustomerBehavior, attached at runtime) */
         if ($user->getPrimaryPaymentSourceId()) {
+            /** @phpstan-ignore-next-line method.notFound (getPrimaryPaymentSourceId() is added to User via the legacy CustomerBehavior, attached at runtime) */
             $this->savePrimaryPaymentSourceId($user, $user->getPrimaryPaymentSourceId());
         }
 
@@ -158,11 +169,15 @@ class Customers
 
         $customer = $this->ensureCustomer($owner);
 
+        /** @phpstan-ignore-next-line method.notFound (hasIsPrimaryBillingBeenSet()/getIsPrimaryBilling() are added to Address via the legacy CustomerAddressBehavior, attached at runtime) */
         if ($address->hasIsPrimaryBillingBeenSet() && ($address->getIsPrimaryBilling() || $customer->primaryBillingAddressId === $address->id)) {
+            /** @phpstan-ignore-next-line method.notFound (getIsPrimaryBilling() is added to Address via the legacy CustomerAddressBehavior, attached at runtime) */
             $this->savePrimaryBillingAddressId($owner, $address->getIsPrimaryBilling() ? $address->id : null);
         }
 
+        /** @phpstan-ignore-next-line method.notFound (hasIsPrimaryShippingBeenSet()/getIsPrimaryShipping() are added to Address via the legacy CustomerAddressBehavior, attached at runtime) */
         if ($address->hasIsPrimaryShippingBeenSet() && ($address->getIsPrimaryShipping() || $customer->primaryShippingAddressId === $address->id)) {
+            /** @phpstan-ignore-next-line method.notFound (getIsPrimaryShipping() is added to Address via the legacy CustomerAddressBehavior, attached at runtime) */
             $this->savePrimaryShippingAddressId($owner, $address->getIsPrimaryShipping() ? $address->id : null);
         }
     }
@@ -396,21 +411,22 @@ class Customers
         $shippingAddress = $order->getShippingAddress();
 
         if (!$user->fullName) {
+            /** @phpstan-ignore-next-line nullsafe.neverNull (getBillingAddress()/getShippingAddress() genuinely return ?AddressElement) */
             $user->fullName = $billingAddress?->fullName ?? $shippingAddress?->fullName ?? '';
         }
 
         $user->username = $order->getEmail();
         $user->pending = true;
-        $user->setScenario(Element::SCENARIO_ESSENTIALS);
+        $user->ruleset->useScenario(ElementRules::SCENARIO_ESSENTIALS);
 
-        if (property_exists($user, 'affiliatedSiteId')) {
-            $user->affiliatedSiteId = $order->orderSiteId;
-        }
+        $user->affiliatedSiteId = $order->orderSiteId;
 
         if (Elements::saveElement($user)) {
             Users::assignUserToDefaultGroup($user);
 
-            Event::once(Mailer::class, Mailer::EVENT_BEFORE_PREP, function(MailEvent $event) use ($user) {
+            $setActivationEmailSiteId = function(MailEvent $event) use ($user, &$setActivationEmailSiteId) {
+                Event::off(Mailer::class, Mailer::EVENT_BEFORE_PREP, $setActivationEmailSiteId);
+
                 if (!$event->message instanceof Message) {
                     return;
                 }
@@ -419,10 +435,11 @@ class Customers
                     return;
                 }
 
-                if ($event->message->siteId === null && property_exists($user, 'affiliatedSiteId') && $user->affiliatedSiteId) {
+                if ($event->message->siteId === null && $user->affiliatedSiteId) {
                     $event->message->siteId = $user->affiliatedSiteId;
                 }
-            });
+            };
+            Event::on(Mailer::class, Mailer::EVENT_BEFORE_PREP, $setActivationEmailSiteId);
 
             $emailSent = Users::sendActivationEmail($user);
 
