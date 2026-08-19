@@ -9,7 +9,10 @@ use CraftCms\Commerce\Order\Elements\Order as OrderElement;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Order\Models\OrderNotice;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
+use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use CraftCms\Commerce\Purchasable\Purchasables;
+
+use function CraftCms\Cms\t;
 
 class Order
 {
@@ -50,7 +53,7 @@ class Order
                 continue;
             }
 
-            /** @var PurchasableInterface $purchasable */
+            /** @var PurchasableInterface|null $purchasable */
             $purchasable = $lineItem->getPurchasable();
             if (!$purchasable || !app(Purchasables::class)->isPurchasableAvailable($purchasable, $order)) {
                 $message = t('{description} is no longer available.', ['description' => $lineItem->getDescription()], category: 'commerce');
@@ -65,7 +68,8 @@ class Order
                 ]);
                 $order->addNotice($notice);
                 $order->removeLineItem($lineItem);
-            } elseif ($purchasable::hasInventory() &&
+            } elseif ($purchasable instanceof Purchasable &&
+                $purchasable::hasInventory() &&
                 !$purchasable->getIsOutOfStockPurchasingAllowed() &&
                 $purchasable->inventoryTracked &&
                 ($lineItem->qty > $purchasable->getStock()) &&
