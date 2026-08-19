@@ -256,6 +256,7 @@ class Plugin extends BasePlugin
 
         User::macro('getPrimaryBillingAddress', function(): ?Address {
             /** @var User $this */
+            /** @phpstan-ignore-next-line method.notFound (getPrimaryBillingAddressId() is another macro registered above, not visible to static analysis) */
             return $this->getAddresses()->firstWhere('id', $this->getPrimaryBillingAddressId());
         });
 
@@ -275,6 +276,7 @@ class Plugin extends BasePlugin
 
         User::macro('getPrimaryShippingAddress', function(): ?Address {
             /** @var User $this */
+            /** @phpstan-ignore-next-line method.notFound (getPrimaryShippingAddressId() is another macro registered above, not visible to static analysis) */
             return $this->getAddresses()->firstWhere('id', $this->getPrimaryShippingAddressId());
         });
 
@@ -294,6 +296,7 @@ class Plugin extends BasePlugin
                 if ($customer->primaryPaymentSourceId) {
                     ObjectState::set($this, 'primaryPaymentSourceId', $customer->primaryPaymentSourceId);
                 } else {
+                    /** @phpstan-ignore-next-line method.notFound (getPrimaryPaymentSource() is another macro registered below, not visible to static analysis) */
                     $paymentSource = $this->getPrimaryPaymentSource();
                     ObjectState::set($this, 'primaryPaymentSourceId', $paymentSource?->id);
                 }
@@ -327,6 +330,7 @@ class Plugin extends BasePlugin
                 ->customer($this)
                 ->isCompleted(false)
                 ->where('elements.dateUpdated', '>=', $edge)
+                /** @phpstan-ignore-next-line arguments.count (ElementQuery's @method static orderBy($column) docblock tag conflicts with its own real 2-param method signature) */
                 ->orderBy('elements.dateUpdated', 'desc')
                 ->all();
         });
@@ -339,6 +343,7 @@ class Plugin extends BasePlugin
                 ->customer($this)
                 ->isCompleted(false)
                 ->where('elements.dateUpdated', '<', $edge)
+                /** @phpstan-ignore-next-line arguments.count (ElementQuery's @method static orderBy($column) docblock tag conflicts with its own real 2-param method signature) */
                 ->orderBy('elements.dateUpdated', 'asc')
                 ->all();
         });
@@ -349,6 +354,7 @@ class Plugin extends BasePlugin
                 ->customer($this)
                 ->isCompleted()
                 ->withAll()
+                /** @phpstan-ignore-next-line arguments.count (ElementQuery's @method static orderBy($column) docblock tag conflicts with its own real 2-param method signature) */
                 ->orderBy('dateOrdered', 'desc')
                 ->all();
         });
@@ -363,6 +369,7 @@ class Plugin extends BasePlugin
             /** @var Address $this */
             if (!ObjectState::has($this, 'isPrimaryBilling')) {
                 $owner = $this->getPrimaryOwner();
+                /** @phpstan-ignore-next-line method.notFound (getPrimaryBillingAddressId() is a macro registered in registerCustomerMacros(), not visible to static analysis) */
                 $value = $this->id && $owner instanceof User && $this->id === $owner->getPrimaryBillingAddressId();
                 ObjectState::set($this, 'isPrimaryBilling', $value);
             }
@@ -383,6 +390,7 @@ class Plugin extends BasePlugin
             /** @var Address $this */
             if (!ObjectState::has($this, 'isPrimaryShipping')) {
                 $owner = $this->getPrimaryOwner();
+                /** @phpstan-ignore-next-line method.notFound (getPrimaryShippingAddressId() is a macro registered in registerCustomerMacros(), not visible to static analysis) */
                 $value = $this->id && $owner instanceof User && $this->id === $owner->getPrimaryShippingAddressId();
                 ObjectState::set($this, 'isPrimaryShipping', $value);
             }
