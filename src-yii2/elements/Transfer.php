@@ -379,7 +379,7 @@ class Transfer extends Element
     /**
      * @inheritdoc
      */
-    protected function defineRules(): array
+    public function defineRules(): array
     {
         $rules = parent::defineRules();
 

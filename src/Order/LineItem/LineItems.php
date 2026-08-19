@@ -11,6 +11,7 @@ use CraftCms\Commerce\Order\Events\LineItemEvent;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Order\LineItem\Models\LineItem as LineItemRecord;
+use CraftCms\Commerce\Order\LineItemStatuses;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;

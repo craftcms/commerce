@@ -9,18 +9,21 @@ use CraftCms\Cms\Console\PromptTask;
 use CraftCms\Cms\Database\Migration;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Element\Enums\PropagationMethod;
+use CraftCms\Cms\Support\Facades\ProjectConfig;
+use CraftCms\Commerce\Catalog\Elements\Product;
+use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
 use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingQueue;
 use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Promotion\Coupons;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Laravel\Prompts\Support\Logger;
-
-use function Laravel\Prompts\warning;
+use ReflectionClass;
 
 class Install extends Migration
 {
@@ -1209,7 +1212,7 @@ class Install extends Migration
         Schema::table(Table::PRODUCTTYPES, fn (Blueprint $table) => $table->foreign('variantFieldLayoutId')->references('id')->on(CraftTable::FIELDLAYOUTS)->nullOnDelete());
         Schema::table(Table::PRODUCTTYPES, fn (Blueprint $table) => $table->foreign('structureId')->references('id')->on(CraftTable::STRUCTURES)->nullOnDelete());
         Schema::table(Table::PRODUCTTYPES_SHIPPINGCATEGORIES, fn (Blueprint $table) => $table->foreign('productTypeId')->references('id')->on(Table::PRODUCTTYPES)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::PRODUCTTYPES_SHIPPINGCATEGORIES, fn (Blueprint $table) => $table->foreign('shippingCategoryId')->references('id')->on(Table::SHIPPINGCATEGORIES)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::PRODUCTTYPES_SHIPPINGCATEGORIES, fn (Blueprint $table) => $table->foreign('shippingCategoryId', 'commerce_pts_shippingcategoryid_foreign')->references('id')->on(Table::SHIPPINGCATEGORIES)->cascadeOnDelete()->cascadeOnUpdate());
         Schema::table(Table::PRODUCTTYPES_SITES, fn (Blueprint $table) => $table->foreign('productTypeId')->references('id')->on(Table::PRODUCTTYPES)->cascadeOnDelete());
         Schema::table(Table::PRODUCTTYPES_SITES, fn (Blueprint $table) => $table->foreign('siteId')->references('id')->on(CraftTable::SITES)->cascadeOnDelete()->cascadeOnUpdate());
         Schema::table(Table::PRODUCTTYPES_TAXCATEGORIES, fn (Blueprint $table) => $table->foreign('productTypeId')->references('id')->on(Table::PRODUCTTYPES)->cascadeOnDelete());
@@ -1364,6 +1367,59 @@ class Install extends Migration
 
     public function down(): void
     {
-        warning('Install migration cannot be reverted.');
+        $this->task('Uninstall Craft Commerce', function (?Logger $logger = null) {
+            $logger?->subLabel('Dropping tables...');
+            $this->dropTables();
+            $logger?->success('Tables dropped.');
+
+            $logger?->subLabel('Removing field layouts...');
+            $this->dropFieldLayouts();
+            $logger?->success('Field layouts removed.');
+
+            $logger?->subLabel('Removing project config...');
+            ProjectConfig::remove('commerce');
+            $logger?->success('Project config removed.');
+        });
+    }
+
+    /**
+     * Drops all of Commerce's tables.
+     */
+    public function dropTables(): void
+    {
+        Schema::disableForeignKeyConstraints();
+
+        foreach ($this->allTableNames() as $table) {
+            Schema::dropIfExists($table);
+        }
+
+        Schema::enableForeignKeyConstraints();
+    }
+
+    /**
+     * Deletes the field layouts belonging to Commerce's element types, including legacy
+     * `craft\commerce\*` type strings left behind by installs that predate the Laravel port.
+     */
+    public function dropFieldLayouts(): void
+    {
+        DB::table(CraftTable::FIELDLAYOUTS)->whereIn('type', [
+            Order::class,
+            Product::class,
+            Variant::class,
+            'craft\\commerce\\elements\\Order',
+            'craft\\commerce\\elements\\Product',
+            'craft\\commerce\\elements\\Variant',
+            // Subscription and Transfer field layouts predate/are pending the Laravel port —
+            // these strings mirror the FQCNs `craft\commerce\elements\Subscription` (element
+            // removed in 6.0) and `craft\commerce\elements\Transfer` (not yet ported to src/).
+            'craft\\commerce\\elements\\Subscription',
+            'craft\\commerce\\elements\\Transfer',
+        ])->delete();
+    }
+
+    /** @return string[] */
+    private function allTableNames(): array
+    {
+        return array_values((new ReflectionClass(Table::class))->getConstants());
     }
 }

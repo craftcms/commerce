@@ -13,6 +13,7 @@ use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCustomerConditionRule;
 use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingQueue as CatalogPricingQueueRecord;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Helpers\Sql;
 use CraftCms\Commerce\Store\Stores;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;
@@ -181,8 +182,8 @@ class CatalogPricing
             $baseStateTime = microtime(true);
             $count = 1;
 
-            $isPgsql = DB::connection()->getDriverName() === 'pgsql';
-            $uuidFunction = $isPgsql ? 'gen_random_uuid()' : 'UUID()';
+            $uuidFunction = Sql::uuidSql();
+            $nowFunction = Sql::nowSql();
 
             $cpTable = Table::CATALOG_PRICING;
             $psTable = Table::PURCHASABLES_STORES;
@@ -199,14 +200,14 @@ class CatalogPricing
 
                 DB::statement("
                     INSERT INTO {$cpTable} (price, purchasableId, storeId, uid, dateCreated, dateUpdated)
-                    SELECT basePrice, purchasableId, storeId, {$uuidFunction}, NOW(), NOW()
+                    SELECT basePrice, purchasableId, storeId, {$uuidFunction}, {$nowFunction}, {$nowFunction}
                     FROM {$psTable}
                     WHERE purchasableId IN ({$idList})
                 ");
 
                 DB::statement("
                     INSERT INTO {$cpTable} (price, purchasableId, storeId, isPromotionalPrice, uid, dateCreated, dateUpdated)
-                    SELECT basePromotionalPrice, purchasableId, storeId, true, {$uuidFunction}, NOW(), NOW()
+                    SELECT basePromotionalPrice, purchasableId, storeId, true, {$uuidFunction}, {$nowFunction}, {$nowFunction}
                     FROM {$psTable}
                     WHERE basePromotionalPrice IS NOT NULL AND purchasableId IN ({$idList})
                 ");

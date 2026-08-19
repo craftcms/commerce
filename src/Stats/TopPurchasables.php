@@ -48,7 +48,7 @@ class TopPurchasables extends Stat
             ->whereIn('pt.id', $viewableProductTypeIds)
             ->groupBy(['li.purchasableId', 'p.sku', 'p.description'])
             ->orderByRaw($this->type == 'revenue' ? 'SUM(li.total) DESC' : 'SUM(li.qty) DESC')
-            ->orderBy('sku')
+            ->orderBy('p.sku')
             ->limit($this->limit);
 
         return $topPurchasables->get()->map(fn($row) => (array)$row)->all();

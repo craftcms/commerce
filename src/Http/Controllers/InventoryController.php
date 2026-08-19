@@ -92,7 +92,7 @@ readonly class InventoryController
         return $this->asModelSuccess($inventoryItem, t('Inventory Item saved.'), 'inventoryItem');
     }
 
-    public function editLocationLevels(Request $request, ?string $inventoryLocationHandle = null): Response
+    public function editLocationLevels(Request $request, ?string $inventoryLocationHandle = null): Response|CpScreenResponse
     {
         \Craft::$app->getView()->registerAssetBundle(InventoryAsset::class);
 
@@ -103,7 +103,7 @@ readonly class InventoryController
             $inventoryLocationHandle = $request->input('inventoryLocationHandle');
 
             if (!$inventoryLocationHandle) {
-                return redirect('commerce/inventory/levels/' . $inventoryLocations[0]->handle);
+                return redirect($inventoryLocations[0]->getCpManageInventoryUrl());
             }
         }
 
@@ -147,7 +147,7 @@ readonly class InventoryController
         return new CpScreenResponse()
             ->title($title)
             ->site(Cp::requestedSite())
-            ->selectableSites(Sites::getEditableSites())
+            ->selectableSites(Sites::getEditableSites()->all())
             ->action(null)
             ->crumbs($crumbs)
             ->contentTemplate('commerce/inventory/levels/_index', compact(

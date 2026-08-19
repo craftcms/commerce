@@ -641,7 +641,10 @@ class Emails
 
             // TODO: migrate event firing to Laravel once event system is bridged
             /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getEmails()->trigger(self::EVENT_BEFORE_SEND_MAIL, $event);
+            $legacyService = Plugin::getInstance()->getEmails();
+            if ($legacyService->hasEventHandlers(self::EVENT_BEFORE_SEND_MAIL)) {
+                $legacyService->trigger(self::EVENT_BEFORE_SEND_MAIL, $event);
+            }
 
             if (!$event->isValid) {
                 $notice = t('Email "{email}" for order {order} was cancelled.', [

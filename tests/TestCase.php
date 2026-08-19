@@ -51,6 +51,12 @@ class TestCase extends Orchestra
             symlink(package_path('vendor'), $skeletonVendorPath);
         }
 
+        // Craft defaults to the Solo edition (max 1 user) when CRAFT_EDITION/`system.edition`
+        // aren't set, which silently blocks `Elements::saveElement()` for any second user —
+        // needed by tests that create their own customer/author fixtures. Must be set before
+        // `Edition::get()`'s first call, since it caches its result for the rest of the request.
+        putenv('CRAFT_EDITION=pro');
+
         parent::setUp();
 
         config()->set('app.debug', true);
@@ -143,6 +149,7 @@ class TestCase extends Orchestra
 
         tap($app->make(ConfigRepository::class), function(ConfigRepository $config) {
             $config->set('auth.defaults.guard', 'craft');
+            $config->set('auth.guards.craft', ['driver' => 'session', 'provider' => 'users']);
 
             $connection = env('DB_CONNECTION', 'testing');
             $driver = $config->get("database.connections.{$connection}.driver");

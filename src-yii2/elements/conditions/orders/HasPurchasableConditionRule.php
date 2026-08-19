@@ -92,7 +92,7 @@ class HasPurchasableConditionRule extends BaseElementSelectConditionRule impleme
         ]);
     }
 
-    protected function defineRules(): array
+    public function defineRules(): array
     {
         $rules = parent::defineRules();
         $rules[] = [['purchasableType'], 'safe'];

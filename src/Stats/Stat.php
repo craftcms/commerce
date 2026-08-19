@@ -299,7 +299,9 @@ abstract class Stat implements StatInterface
 
     public function getChartQueryOptionsByInterval(string $interval): ?array
     {
-        if (DB::connection()->getDriverName() === 'mysql') {
+        $driver = DB::connection()->getDriverName();
+
+        if ($driver === 'mysql') {
             // The fallback if timezone can't happen in sql is simply just extract the information from the UTC date stored in `dateOrdered`.
             $timezoneConversionSql = 'dateOrdered';
 
@@ -308,13 +310,24 @@ abstract class Stat implements StatInterface
             } else {
                 \Craft::getLogger()->log('For accurate Commerce statistics it is recommend to make sure you have the timezones table populated. https://craftcms.com/knowledge-base/populating-mysql-mariadb-timezone-tables', \Craft::getLogger()::LEVEL_WARNING, 'commerce');
             }
+        } elseif ($driver === 'sqlite') {
+            // SQLite has no named-timezone support (used only by the test suite, which always
+            // runs in UTC); operate on the UTC `dateOrdered` value directly, same as the MySQL
+            // no-timezone-table fallback above.
+            $timezoneConversionSql = 'dateOrdered';
         } else {
             $timezoneConversionSql = "((dateOrdered AT TIME ZONE 'UTC') AT TIME ZONE '" . date_default_timezone_get() . "')";
         }
 
         switch ($interval) {
             case 'month':
-                $sqlExpression = 'CONCAT(EXTRACT(YEAR FROM ' . $timezoneConversionSql . "), '-', EXTRACT(MONTH FROM " . $timezoneConversionSql . '))';
+                if ($driver === 'sqlite') {
+                    // strftime('%m', ...) is zero-padded; cast to int so the SQL-generated key
+                    // matches PHP's `Y-n` dateKeyFormat (unpadded month) used to merge results.
+                    $sqlExpression = "(strftime('%Y', " . $timezoneConversionSql . ") || '-' || CAST(strftime('%m', " . $timezoneConversionSql . ') AS INTEGER))';
+                } else {
+                    $sqlExpression = 'CONCAT(EXTRACT(YEAR FROM ' . $timezoneConversionSql . "), '-', EXTRACT(MONTH FROM " . $timezoneConversionSql . '))';
+                }
                 return [
                     'interval' => 'P1M',
                     'dateKeyFormat' => 'Y-n',
@@ -323,7 +336,7 @@ abstract class Stat implements StatInterface
                     'orderBy' => $sqlExpression . ' ASC',
                 ];
             case 'day':
-                $sqlExpression = 'DATE(' . $timezoneConversionSql . ')';
+                $sqlExpression = ($driver === 'sqlite' ? 'date(' : 'DATE(') . $timezoneConversionSql . ')';
                 return [
                     'interval' => 'P1D',
                     'dateKeyFormat' => 'Y-m-d',

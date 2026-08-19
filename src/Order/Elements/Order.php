@@ -1590,9 +1590,12 @@ class Order extends Element implements HasStoreInterface
 
             $dateOrdered = $this->dateOrdered;
             if (!$dateOrdered && $orderRecord->isCompleted) {
-                $dateOrdered = Query::prepareDateForDb(new DateTime());
+                $dateOrdered = new DateTime();
             }
-            $orderRecord->dateOrdered = $dateOrdered;
+            // Always convert to UTC before storing, whether `dateOrdered` was just defaulted
+            // above or was already set (e.g. by `markAsComplete()`, which sets it to a raw
+            // `new DateTime()` in the server's local timezone).
+            $orderRecord->dateOrdered = Query::prepareDateForDb($dateOrdered);
 
             $orderRecord->datePaid = $this->datePaid ?: null;
             $orderRecord->dateFirstPaid = $this->dateFirstPaid ?: null;

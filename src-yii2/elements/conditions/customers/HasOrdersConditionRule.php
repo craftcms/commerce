@@ -47,7 +47,7 @@ class HasOrdersConditionRule extends BaseNumberConditionRule implements ElementC
         ]);
     }
 
-    protected function defineRules(): array
+    public function defineRules(): array
     {
         $rules = parent::defineRules();
         $rules[] = [['orderCondition'], 'safe'];

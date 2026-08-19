@@ -350,7 +350,10 @@ class Pdfs
 
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
-        Plugin::getInstance()->getPdfs()->trigger(self::EVENT_BEFORE_RENDER_PDF, $event);
+        $legacyService = Plugin::getInstance()->getPdfs();
+        if ($legacyService->hasEventHandlers(self::EVENT_BEFORE_RENDER_PDF)) {
+            $legacyService->trigger(self::EVENT_BEFORE_RENDER_PDF, $event);
+        }
 
         if ($event->pdf !== null) {
             return $event->pdf;
@@ -446,7 +449,10 @@ class Pdfs
 
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
-        Plugin::getInstance()->getPdfs()->trigger(self::EVENT_AFTER_RENDER_PDF, $afterEvent);
+        $legacyService = Plugin::getInstance()->getPdfs();
+        if ($legacyService->hasEventHandlers(self::EVENT_AFTER_RENDER_PDF)) {
+            $legacyService->trigger(self::EVENT_AFTER_RENDER_PDF, $afterEvent);
+        }
 
         return $afterEvent->pdf;
     }

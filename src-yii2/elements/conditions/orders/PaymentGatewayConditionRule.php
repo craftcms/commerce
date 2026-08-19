@@ -52,7 +52,7 @@ class PaymentGatewayConditionRule extends BaseMultiSelectConditionRule implement
     /**
      * @inheritdoc
      */
-    protected function defineRules(): array
+    public function defineRules(): array
     {
         $rules = parent::defineRules();
 

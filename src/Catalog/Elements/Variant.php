@@ -649,7 +649,10 @@ class Variant extends Purchasable implements NestedElementInterface
 
         // Product Attributes
         if ($product = $this->getOwner()) {
-            $productAttributes = $product->attributes();
+            // `ruleset` (the #[Ruleset]-attribute validation object) holds a back-reference to
+            // its subject, so including it here would make the product a circular reference and
+            // crash the snapshot's JSON encoding.
+            $productAttributes = array_values(array_diff($product->attributes(), ['ruleset', 'eagerLoadInfo']));
 
             // Remove custom fields
             if (($fieldLayout = $product->getFieldLayout()) !== null) {
@@ -698,7 +701,9 @@ class Variant extends Purchasable implements NestedElementInterface
             $this->trigger(self::EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT, $variantFieldsEvent);
         }
 
-        $variantAttributes = $this->attributes();
+        // See the matching `ruleset` exclusion above for product attributes: it holds a
+        // back-reference to its subject (this variant), which would crash JSON encoding.
+        $variantAttributes = array_values(array_diff($this->attributes(), ['ruleset', 'eagerLoadInfo']));
 
         // Remove custom fields
         if (($fieldLayout = $this->getFieldLayout()) !== null) {

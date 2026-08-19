@@ -31,7 +31,7 @@ class ShippingRuleOrderCondition extends OrderCondition implements HasStoreInter
     /**
      * @inheritdoc
      */
-    protected function defineRules(): array
+    public function defineRules(): array
     {
         $rules = parent::defineRules();
         $rules[] = [['storeId'], 'safe'];

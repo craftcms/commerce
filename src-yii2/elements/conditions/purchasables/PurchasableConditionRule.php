@@ -83,7 +83,7 @@ class PurchasableConditionRule extends BaseConditionRule implements ElementCondi
     /**
      * @inheritdoc
      */
-    protected function defineRules(): array
+    public function defineRules(): array
     {
         $rules = parent::defineRules();
         $rules[] = [['elementIds'], 'safe'];

@@ -64,7 +64,10 @@ class Payments
 
         // TODO: migrate event firing to Laravel once event system is bridged
         /** @phpstan-ignore-next-line */
-        Plugin::getInstance()->getPayments()->trigger(self::EVENT_BEFORE_PROCESS_PAYMENT, $event);
+        $legacyService = Plugin::getInstance()->getPayments();
+        if ($legacyService->hasEventHandlers(self::EVENT_BEFORE_PROCESS_PAYMENT)) {
+            $legacyService->trigger(self::EVENT_BEFORE_PROCESS_PAYMENT, $event);
+        }
 
         if (!$event->isValid) {
             // This error potentially is going to be displayed in the frontend, so we have to be vague about it.

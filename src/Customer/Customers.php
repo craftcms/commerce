@@ -78,7 +78,10 @@ class Customers
 
             // TODO: migrate event firing to Laravel once event system is bridged
             /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getCustomers()->trigger(self::EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE, $event);
+            $legacyService = Plugin::getInstance()->getCustomers();
+            if ($legacyService->hasEventHandlers(self::EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE)) {
+                $legacyService->trigger(self::EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE, $event);
+            }
         }
 
         return true;
