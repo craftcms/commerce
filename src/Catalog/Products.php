@@ -36,7 +36,10 @@ class Products
                 ->value('productTypes.structureId');
         }
 
-        return Elements::getElementById($id, Product::class, $siteId, $criteria);
+        /** @var Product|null $product */
+        $product = Elements::getElementById($id, Product::class, $siteId, $criteria);
+
+        return $product;
     }
 
     /**

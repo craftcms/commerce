@@ -173,7 +173,7 @@ class Carts
         }
 
         if (!$this->cartNumber) {
-            $cookieNumber = request()->cookie($this->cartCookie['name'], false);
+            $cookieNumber = request()->cookie($this->cartCookie['name']);
             if (!$cookieNumber) {
                 return null;
             }
@@ -303,7 +303,7 @@ class Carts
         }
 
         if ($this->cartNumber === null) {
-            return request()->cookie($this->cartCookie['name'], false) !== false;
+            return request()->cookie($this->cartCookie['name']) !== null;
         }
 
         return true;

@@ -205,6 +205,7 @@ class VariantQuery extends PurchasableQuery implements NestedElementQueryInterfa
      */
     public function owner(mixed $value): static
     {
+        /** @phpstan-ignore-next-line instanceof.alwaysTrue (widened to also accept owner IDs - PHPStan appears to be using NestedElementQueryInterface::owner()'s stricter ElementInterface param type here, not this override's mixed) */
         if ($value instanceof ElementInterface) {
             $this->ownerId = [$value->id];
         } else {
@@ -222,6 +223,7 @@ class VariantQuery extends PurchasableQuery implements NestedElementQueryInterfa
      */
     public function primaryOwner(mixed $value): static
     {
+        /** @phpstan-ignore-next-line instanceof.alwaysTrue (widened to also accept owner IDs - PHPStan appears to be using NestedElementQueryInterface::primaryOwner()'s stricter ElementInterface param type here, not this override's mixed) */
         if ($value instanceof ElementInterface) {
             $this->primaryOwnerId = [$value->id];
         } else {

@@ -20,6 +20,7 @@ readonly class WebhooksController
         $gateway = app(Gateways::class)->getGatewayById((int)$gatewayId);
         abort_if($gateway === null, 404, 'Gateway not found');
 
+        /** @phpstan-ignore-next-line argument.type (legacy craft\commerce\base\Gateway implements GatewayInterface via the class_alias chain, which PHPStan can't trace) */
         return app(Webhooks::class)->processWebhook($gateway);
     }
 }

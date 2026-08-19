@@ -35,7 +35,7 @@ class CatalogPricing extends Component implements HasStoreInterface
 
     public ?string $uid = null;
 
-    private ?\craft\commerce\models\CatalogPricingRule $_catalogPricingRule = null;
+    private ?CatalogPricingRule $_catalogPricingRule = null;
 
     private ?PurchasableInterface $_purchasable = null;
 
@@ -60,7 +60,7 @@ class CatalogPricing extends Component implements HasStoreInterface
         return $this->_purchasable;
     }
 
-    public function getCatalogPricingRule(): ?\craft\commerce\models\CatalogPricingRule
+    public function getCatalogPricingRule(): ?CatalogPricingRule
     {
         if ($this->_catalogPricingRule !== null) {
             return $this->_catalogPricingRule;

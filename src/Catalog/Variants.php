@@ -45,7 +45,10 @@ class Variants
      */
     public function getVariantById(int $variantId, ?int $siteId = null): ?Variant
     {
-        return Elements::getElementById($variantId, Variant::class, $siteId);
+        /** @var Variant|null $variant */
+        $variant = Elements::getElementById($variantId, Variant::class, $siteId);
+
+        return $variant;
     }
 
     /**

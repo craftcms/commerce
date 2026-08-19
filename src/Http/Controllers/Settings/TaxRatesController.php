@@ -55,9 +55,9 @@ readonly class TaxRatesController
                 'rate' => $taxRate->getRateAsPercent(),
                 'included' => $taxRate->include,
                 'removeIncluded' => $taxRate->removeIncluded,
-                'vat' => $taxRate->isVat,
-                'zone' => $taxRate->isEverywhere ? t('Everywhere', category: 'commerce') : ($taxRate->taxZone ? NewHtml::encode($taxRate->taxZone->name) : ''),
-                'category' => $taxRate->taxCategory ? Cp::chipHtml($taxRate->taxCategory) : '',
+                'vat' => $taxRate->hasTaxIdValidators(),
+                'zone' => $taxRate->getIsEverywhere() ? t('Everywhere', category: 'commerce') : ($taxRate->getTaxZone() ? NewHtml::encode($taxRate->getTaxZone()->name) : ''),
+                'category' => $taxRate->getTaxCategory() ? Cp::chipHtml($taxRate->getTaxCategory()) : '',
             ];
         }
 

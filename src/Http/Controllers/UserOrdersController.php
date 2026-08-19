@@ -25,6 +25,7 @@ readonly class UserOrdersController
             return $this->asFailure(t('No user authenticated.', category: 'commerce'));
         }
 
+        /** @phpstan-ignore-next-line method.notFound (getOrders() is added to User via a Macroable macro registered in Plugin::registerCustomerMacros(), not visible to static analysis) */
         return $this->asSuccess(data: ['orders' => $user->getOrders()]);
     }
 }

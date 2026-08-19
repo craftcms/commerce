@@ -327,8 +327,7 @@ class CatalogPricing
     {
         $total = $this->buildCatalogPricesQuery($storeId, $conditionBuilder, $includeBasePrices, $searchText)
             ->groupBy('purchasableId')
-            ->get(['purchasableId'])
-            ->count();
+            ->getCountForPagination(['purchasableId']);
 
         return [
             'first' => $offset + 1,
@@ -545,6 +544,7 @@ class CatalogPricing
             ]));
         }
 
+        /** @var CatalogPricingCondition $condition */
         $condition->modifyQuery($query);
 
         $query->where(function($q) {
@@ -584,6 +584,7 @@ class CatalogPricing
             ]));
         }
 
+        /** @var CatalogPricingCondition $condition */
         $condition->modifyQuery($query);
 
         $query->where(function($q) {

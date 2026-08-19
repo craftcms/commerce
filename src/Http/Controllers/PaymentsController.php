@@ -201,6 +201,7 @@ readonly class PaymentsController
         // This will return the gateway to be used. The orders gateway ID could be null, but it will know the gateway from the paymentSource ID
         $gateway = $order->getGateway();
 
+        /** @phpstan-ignore-next-line method.notFound (getIsFrontendEnabled() is declared on legacy craft\commerce\base\GatewayTrait, which legacy craft\commerce\base\Gateway implements via the class_alias chain, which PHPStan can't trace) */
         if (!$gateway || !$gateway->availableForUseWithOrder($order) || (!$gateway->getIsFrontendEnabled() && !$isCpRequest)) {
             $error = t('There is no gateway or payment source available for use with this order.', category: 'commerce');
 
@@ -242,10 +243,11 @@ readonly class PaymentsController
         // 2) Paying with the current order gatewayId and a payment form populated from the request
         if ($order->gatewayId && !$order->paymentSourceId) {
             // Populate the payment form from the params
+            /** @phpstan-ignore-next-line property.notFound ($handle is declared on legacy craft\commerce\base\GatewayTrait, which legacy craft\commerce\base\Gateway implements via the class_alias chain, which PHPStan can't trace) */
             $paymentFormParams = $request->input(PaymentForm::getPaymentFormParamName($gateway->handle));
 
             if ($paymentFormParams) {
-                $paymentForm->setAttributes($paymentFormParams, false);
+                $paymentForm->setAttributes($paymentFormParams);
             }
 
             // Does the user want to save this card as a payment source?
@@ -411,6 +413,8 @@ readonly class PaymentsController
             );
         }
 
+        $error = '';
+
         if (!$paymentForm->hasErrors() && !$order->hasErrors()) {
             try {
                 app(Payments::class)->processPayment($order, $paymentForm, $redirect, $transaction, $redirectData);
@@ -479,7 +483,7 @@ readonly class PaymentsController
         abort_if(!$hash, 400, 'Missing commerceTransactionHash');
 
         $transaction = app(Transactions::class)->getTransactionByHash($hash);
-        abort_unless($transaction, 400, t('Can not complete payment for missing transaction.', category: 'commerce'));
+        abort_unless($transaction !== null, 400, t('Can not complete payment for missing transaction.', category: 'commerce'));
 
         $error = '';
         $success = app(Payments::class)->completePayment($transaction, $error);

@@ -11,12 +11,10 @@ use craft\helpers\Cp;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
-use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Support\Facades\Addresses;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Inventory\InventoryLocations;
-use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
 use CraftCms\Commerce\Store\Stores;
 
 use CraftCms\Commerce\Store\StoreSettings;
@@ -33,30 +31,31 @@ readonly class StoreManagementController
 
     public function index(): Response|CpScreenResponse
     {
-        /** @var Site|HasStoreInterface $site */
         $site = Cp::requestedSite();
+        /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
+        $store = $site->getStore();
 
         if (currentUser()?->can('commerce-manageGeneralStoreSettings')) {
-            return redirect($site->getStore()->getStoreSettingsUrl());
+            return redirect($store->getStoreSettingsUrl());
         }
 
         if (currentUser()?->can('commerce-managePaymentCurrencies')) {
-            return redirect($site->getStore()->getStoreSettingsUrl('payment-currencies'));
+            return redirect($store->getStoreSettingsUrl('payment-currencies'));
         }
 
         if (currentUser()?->can('commerce-managePromotions')) {
-            return redirect($site->getStore()->getStoreSettingsUrl('discounts'));
+            return redirect($store->getStoreSettingsUrl('discounts'));
         }
 
         if (currentUser()?->can('commerce-manageShipping')) {
-            return redirect($site->getStore()->getStoreSettingsUrl('shipping'));
+            return redirect($store->getStoreSettingsUrl('shipping'));
         }
 
         if (currentUser()?->can('commerce-manageTaxes')) {
-            return redirect($site->getStore()->getStoreSettingsUrl('taxrates'));
+            return redirect($store->getStoreSettingsUrl('taxrates'));
         }
 
-        return $this->storeManagementCpScreen($site->getStore()->handle)
+        return $this->storeManagementCpScreen($store->handle)
             ->contentHtml(Html::tag(
                 'p',
                 t('No access given to any specific store management features.', category: 'commerce')
@@ -72,8 +71,8 @@ readonly class StoreManagementController
             abort_if($store === null, 404);
             $storeSettings = $store->getSettings();
         } else {
-            /** @var Site $site */
             $site = Cp::requestedSite();
+            /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
             return redirect($site->getStore()->getStoreSettingsUrl());
         }
 

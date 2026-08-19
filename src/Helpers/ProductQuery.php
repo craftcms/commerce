@@ -67,7 +67,7 @@ class ProductQuery
 
     public static function cleanseQueryCriteria(array $criteria): array
     {
-        $controllerClass = request()?->route()?->getControllerClass();
+        $controllerClass = request()->route()?->getControllerClass();
         if ($controllerClass === ElementIndexController::class || $controllerClass === SearchController::class) {
             $criteria = ElementHelper::cleanseQueryCriteria($criteria);
         }

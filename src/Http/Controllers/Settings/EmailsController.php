@@ -72,7 +72,7 @@ readonly class EmailsController
         $title = $email->id ? $email->name : t('Create a new email', category: 'commerce');
 
         $pdfs = app(Pdfs::class)->getAllPdfs($email->storeId);
-        $pdfList = [null => t('Do not attach a PDF to this email', category: 'commerce')];
+        $pdfList = ['' => t('Do not attach a PDF to this email', category: 'commerce')];
         $pdfList = Arr::merge($pdfList, $pdfs->mapWithKeys(fn(Pdf $pdf) => [$pdf->id => $pdf->name])->all());
         $senderAddressPlaceholder = App::mailSettings()->fromEmail;
         $senderNamePlaceholder = App::mailSettings()->fromName;
@@ -84,7 +84,7 @@ readonly class EmailsController
         $emailLanguageOptions = array_merge($emailLanguageOptions, LocaleHelper::getSiteAndOtherLanguages());
 
         $emailRenderSiteOptions = [
-            null => t('The site the order was made in.', category: 'commerce'),
+            '' => t('The site the order was made in.', category: 'commerce'),
             ['optgroup' => t('Sites', category: 'commerce')],
         ] + collect(Sites::getAllSites())->mapWithKeys(fn(Site $site) => [$site->id => $site->name])->all();
 
@@ -130,9 +130,9 @@ readonly class EmailsController
         $email->name = $request->input('name');
         $email->subject = $request->input('subject');
         $email->recipientType = $request->input('recipientType');
-        $email->to = $request->input('to');
-        $email->bcc = $request->input('bcc');
-        $email->cc = $request->input('cc');
+        $email->setTo($request->input('to'));
+        $email->setBcc($request->input('bcc'));
+        $email->setCc($request->input('cc'));
         $email->replyTo = $request->input('replyTo');
         $email->enabled = (bool)$request->input('enabled');
         $email->templatePath = $request->input('templatePath');
