@@ -204,6 +204,7 @@ class Variant extends Purchasable implements NestedElementInterface
     #[Override]
     public function getTitleTranslationDescription(): ?string
     {
+        /** @phpstan-ignore-next-line nullsafe.neverNull (variantTitleTranslationMethod is an uncast, free-form DB string column - tryFrom() genuinely can return null) */
         return TranslationMethod::tryFrom($this->getOwner()->getType()->variantTitleTranslationMethod)?->description();
     }
 
@@ -212,8 +213,10 @@ class Variant extends Purchasable implements NestedElementInterface
     {
         $type = $this->getOwner()->getType();
 
+        // variantTitleTranslationMethod is an uncast, free-form DB string column - tryFrom() genuinely can return null
+        /** @phpstan-ignore-next-line nullCoalesce.expr */
         return TranslationMethod::tryFrom($type->variantTitleTranslationMethod)
-            ?->elementKey($this, $type->variantTitleTranslationKeyFormat)
+            ?->elementKey($this, $type->variantTitleTranslationKeyFormat) /** @phpstan-ignore-line */
             ?? (string)$this->siteId;
     }
 
@@ -470,6 +473,7 @@ class Variant extends Purchasable implements NestedElementInterface
         if ($this->_productSlug === null) {
             $product = $this->getOwner();
 
+            /** @phpstan-ignore-next-line nullsafe.neverNull (getOwner() genuinely returns ?ElementInterface) */
             $this->_productSlug = $product?->slug ?? null;
         }
 
@@ -489,7 +493,7 @@ class Variant extends Purchasable implements NestedElementInterface
         if ($this->_productTypeHandle === null) {
             $product = $this->getOwner();
 
-            $this->_productTypeHandle = $product ? ($product->getType()?->handle ?? null) : null;
+            $this->_productTypeHandle = $product?->getType()->handle;
         }
 
         return $this->_productTypeHandle;
@@ -642,6 +646,7 @@ class Variant extends Purchasable implements NestedElementInterface
 
         // Allow plugins to modify Product fields to be fetched
         if ($this->hasEventHandlers(self::EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT)) {
+            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
             $this->trigger(self::EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT, $productFieldsEvent);
         }
 
@@ -682,6 +687,7 @@ class Variant extends Purchasable implements NestedElementInterface
 
         // Allow plugins to modify captured Product data
         if ($this->hasEventHandlers(self::EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT)) {
+            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
             $this->trigger(self::EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT, $productDataEvent);
         }
 
@@ -696,6 +702,7 @@ class Variant extends Purchasable implements NestedElementInterface
 
         // Allow plugins to modify fields to be fetched
         if ($this->hasEventHandlers(self::EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT)) {
+            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
             $this->trigger(self::EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT, $variantFieldsEvent);
         }
 
@@ -727,6 +734,7 @@ class Variant extends Purchasable implements NestedElementInterface
 
         // Allow plugins to modify captured Variant data
         if ($this->hasEventHandlers(self::EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT)) {
+            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
             $this->trigger(self::EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT, $variantDataEvent);
         }
 
@@ -1192,9 +1200,9 @@ class Variant extends Purchasable implements NestedElementInterface
     protected static function defineTableAttributes(): array
     {
         return array_merge(parent::defineTableAttributes(), [
-            'product' => t('Product', category: 'commerce'),
-            'isDefault' => t('Default', category: 'commerce'),
-            'promotable' => t('Promotable', category: 'commerce'),
+            'product' => ['label' => t('Product', category: 'commerce')],
+            'isDefault' => ['label' => t('Default', category: 'commerce')],
+            'promotable' => ['label' => t('Promotable', category: 'commerce')],
         ]);
     }
 
