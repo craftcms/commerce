@@ -806,6 +806,7 @@ JS, [
     #[Override]
     public function getTitleTranslationDescription(): ?string
     {
+        /** @phpstan-ignore-next-line nullsafe.neverNull (productTitleTranslationMethod is an uncast, free-form DB string column - tryFrom() genuinely can return null) */
         return TranslationMethod::tryFrom($this->getType()->productTitleTranslationMethod)?->description();
     }
 
@@ -814,8 +815,10 @@ JS, [
     {
         $type = $this->getType();
 
+        // productTitleTranslationMethod is an uncast, free-form DB string column - tryFrom() genuinely can return null
+        /** @phpstan-ignore-next-line nullCoalesce.expr */
         return TranslationMethod::tryFrom($type->productTitleTranslationMethod)
-            ?->elementKey($this, $type->productTitleTranslationKeyFormat)
+            ?->elementKey($this, $type->productTitleTranslationKeyFormat) /** @phpstan-ignore-line */
             ?? (string)$this->siteId;
     }
 
@@ -828,6 +831,7 @@ JS, [
     #[Override]
     public function getSlugTranslationDescription(): ?string
     {
+        /** @phpstan-ignore-next-line nullsafe.neverNull (slugTranslationMethod is an uncast, free-form DB string column - tryFrom() genuinely can return null) */
         return TranslationMethod::tryFrom($this->getType()->slugTranslationMethod)?->description();
     }
 
@@ -836,8 +840,10 @@ JS, [
     {
         $type = $this->getType();
 
+        // slugTranslationMethod is an uncast, free-form DB string column - tryFrom() genuinely can return null
+        /** @phpstan-ignore-next-line nullCoalesce.expr */
         return TranslationMethod::tryFrom($type->slugTranslationMethod)
-            ?->elementKey($this, $type->slugTranslationKeyFormat)
+            ?->elementKey($this, $type->slugTranslationKeyFormat) /** @phpstan-ignore-line */
             ?? (string)$this->siteId;
     }
 
@@ -1615,8 +1621,7 @@ JS, [
     {
         $productType = $this->getType();
 
-        // check for null just in case the value comes back as 1, 0, true or false
-        if (!$productType->hasProductTitleField && $productType->hasProductTitleField !== null) {
+        if (!$productType->hasProductTitleField) {
             // Set Craft to the product's site's language, in case the title format has any static translations
             $language = $this->getSite()->getLanguage();
             $title = I18N::withLocale(

@@ -52,6 +52,9 @@ use function CraftCms\Cms\t;
 /**
  * @property-read string $basePriceAsCurrency
  * @property-read string $basePromotionalPriceAsCurrency
+ * @property-read float|null $price
+ * @property-read float|null $promotionalPrice
+ * @property-read float|null $salePrice
  * @property int $storeId
  * @property float|null $basePrice
  * @property float|null $basePromotionalPrice
