@@ -32,6 +32,9 @@ class InventoryLocations
     /** @var Collection<int, InventoryLocation>|null */
     private ?Collection $allLocationsWithTrashed = null;
 
+    /** @var array<int, array<int>> Inventory location IDs for a store, indexed by store ID. */
+    private array $inventoryLocationIdsByStore = [];
+
     /**
      * @return Collection<int, InventoryLocation>
      */
@@ -60,12 +63,16 @@ class InventoryLocations
     {
         $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
-        $locationIds = DB::table(Table::INVENTORYLOCATIONS_STORES)
-            ->select('inventoryLocationId')
-            ->where('storeId', $storeId)
-            ->orderBy('sortOrder')
-            ->pluck('inventoryLocationId')
-            ->all();
+        if (!isset($this->inventoryLocationIdsByStore[$storeId])) {
+            $this->inventoryLocationIdsByStore[$storeId] = DB::table(Table::INVENTORYLOCATIONS_STORES)
+                ->select('inventoryLocationId')
+                ->where('storeId', $storeId)
+                ->orderBy('sortOrder')
+                ->pluck('inventoryLocationId')
+                ->all();
+        }
+
+        $locationIds = $this->inventoryLocationIdsByStore[$storeId];
 
         // Keep the order of the locationIds
         return $this->fetchAllInventoryLocations($withTrashed)->whereIn('id', $locationIds)->sortBy(fn($inventoryLocation) => array_search($inventoryLocation->id, $locationIds));
@@ -96,6 +103,9 @@ class InventoryLocations
             }
 
             DB::commit();
+
+            // Clear memoization cache
+            $this->inventoryLocationIdsByStore = [];
         } catch (\Throwable $e) {
             DB::rollBack();
             throw $e;

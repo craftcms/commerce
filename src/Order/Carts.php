@@ -372,14 +372,21 @@ class Carts
 
         $request = request();
         $isCpRequest = $request->isCpRequest();
-        $request->attributes->set('isCpRequest', false);
-        $url = Url::actionUrl('commerce/cart/load-cart', [
-            'number' => $cart->number,
-            'code' => $token,
-        ]);
-        $request->attributes->set('isCpRequest', $isCpRequest);
 
-        return $url;
+        if ($isCpRequest) {
+            $request->attributes->set('isCpRequest', false);
+        }
+
+        try {
+            return Url::actionUrl('commerce/cart/load-cart', [
+                'number' => $cart->number,
+                'code' => $token,
+            ]);
+        } finally {
+            if ($isCpRequest) {
+                $request->attributes->set('isCpRequest', $isCpRequest);
+            }
+        }
     }
 
     /**
@@ -487,13 +494,13 @@ class Carts
             return 0;
         }
 
+        // The searchindex table is probably MyISAM, though
+        DB::table(CraftTable::SEARCHINDEX)->whereIn('elementId', $cartIds)->delete();
+
         // Taken from craft\services\Elements::deleteElement(); Using the method directly
         // takes too many resources since it retrieves the order before deleting it.
         // Delete the elements table rows, which will cascade across all other InnoDB tables
         DB::table(CraftTable::ELEMENTS)->whereIn('id', $cartIds)->delete();
-
-        // The searchindex table is probably MyISAM, though
-        DB::table(CraftTable::SEARCHINDEX)->whereIn('elementId', $cartIds)->delete();
 
         return count($cartIds);
     }

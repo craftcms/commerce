@@ -319,11 +319,18 @@ class Pdfs
 
         $request = request();
         $isCpRequest = $request->isCpRequest();
-        $request->attributes->set('isCpRequest', false);
-        $url = Url::actionUrl('commerce/downloads/pdf', $params);
-        $request->attributes->set('isCpRequest', $isCpRequest);
 
-        return $url;
+        if ($isCpRequest) {
+            $request->attributes->set('isCpRequest', false);
+        }
+
+        try {
+            return Url::actionUrl('commerce/downloads/pdf', $params);
+        } finally {
+            if ($isCpRequest) {
+                $request->attributes->set('isCpRequest', $isCpRequest);
+            }
+        }
     }
 
     /**
