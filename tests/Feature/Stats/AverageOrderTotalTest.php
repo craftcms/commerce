@@ -5,11 +5,11 @@ declare(strict_types=1);
 use CraftCms\Commerce\Stats\AverageOrderTotal;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
 
-beforeEach(function () {
+beforeEach(function() {
     $this->fixture = OrdersFixture::seed();
 });
 
-test('getData', function (string $dateRange, DateTime $startDate, DateTime $endDate, ?float $average) {
+test('getData', function(string $dateRange, DateTime $startDate, DateTime $endDate, ?float $average) {
     $stat = new AverageOrderTotal($dateRange, $startDate, $endDate, $this->fixture->storeId);
     $data = $stat->get();
 
@@ -18,7 +18,7 @@ test('getData', function (string $dateRange, DateTime $startDate, DateTime $endD
     } else {
         expect((float) $data)->toBe($average);
     }
-})->with(function () {
+})->with(function() {
     return [
         [
             AverageOrderTotal::DATE_RANGE_TODAY,

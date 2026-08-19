@@ -16,8 +16,8 @@ class ResaveVariantsCommand extends ResaveCommand
 {
     #[Override]
     protected $signature = 'craft:resave:variants'
-        .self::DEFAULT_OPTIONS
-        .'
+        . self::DEFAULT_OPTIONS
+        . '
         {--type= : The product type handle(s) of the variants to resave, comma-separated.}
     ';
 

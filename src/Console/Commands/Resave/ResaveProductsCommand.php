@@ -14,8 +14,8 @@ class ResaveProductsCommand extends ResaveCommand
 {
     #[Override]
     protected $signature = 'craft:resave:products'
-        .self::DEFAULT_OPTIONS
-        .'
+        . self::DEFAULT_OPTIONS
+        . '
         {--type= : The product type handle(s) of the products to resave, comma-separated.}
     ';
 

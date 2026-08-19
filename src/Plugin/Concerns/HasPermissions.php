@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Plugin\Concerns;
 
+use CraftCms\Cms\User\Data\Permission;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
-use CraftCms\Cms\User\Data\Permission;
 use Illuminate\Support\Collection;
 use Override;
 

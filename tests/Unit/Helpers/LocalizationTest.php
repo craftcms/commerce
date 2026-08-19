@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use CraftCms\Commerce\Helpers\Localization;
 
-test('normalizePercentage', function (mixed $number, ?float $expected) {
+test('normalizePercentage', function(mixed $number, ?float $expected) {
     expect(Localization::normalizePercentage($number))->toBe($expected);
 })->with([
     'null' => [null, 0.0],

@@ -8,7 +8,7 @@ use CraftCms\Commerce\Stats\TopProducts;
 use CraftCms\Commerce\Stats\TopProductTypes;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
 
-beforeEach(function () {
+beforeEach(function() {
     $this->fixture = OrdersFixture::seed();
 
     $admin = User::find()->admin(true)->one();
@@ -16,10 +16,10 @@ beforeEach(function () {
     // `actingAs()` doesn't retroactively update the already-bound `request()` singleton's user
     // resolver in this Testbench setup, and `getViewableProductTypeIds()` reads the current user
     // via `request()->craftUser()` rather than the `Auth` facade.
-    request()->setUserResolver(fn () => $admin);
+    request()->setUserResolver(fn() => $admin);
 });
 
-test('getData', function (string $dateRange, string $type, DateTime $startDate, DateTime $endDate, int $count, ?array $productTypeData) {
+test('getData', function(string $dateRange, string $type, DateTime $startDate, DateTime $endDate, int $count, ?array $productTypeData) {
     $stat = new TopProductTypes($dateRange, $type, $startDate, $endDate, $this->fixture->storeId);
     $data = $stat->get();
 
@@ -38,7 +38,7 @@ test('getData', function (string $dateRange, string $type, DateTime $startDate, 
 
         expect($topProductType['productType'])->toBeInstanceOf(ProductType::class);
     }
-})->with(function () {
+})->with(function() {
     return [
         [
             TopProducts::DATE_RANGE_TODAY,

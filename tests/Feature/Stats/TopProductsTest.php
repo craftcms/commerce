@@ -6,11 +6,11 @@ use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Stats\TopProducts;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
 
-beforeEach(function () {
+beforeEach(function() {
     $this->fixture = OrdersFixture::seed();
 });
 
-test('getData', function (string $dateRange, string $type, DateTime $startDate, DateTime $endDate, int $count, ?Closure $productData) {
+test('getData', function(string $dateRange, string $type, DateTime $startDate, DateTime $endDate, int $count, ?Closure $productData) {
     $stat = new TopProducts($dateRange, $type, $startDate, $endDate, storeId: $this->fixture->storeId);
     $data = $stat->get();
 
@@ -35,7 +35,7 @@ test('getData', function (string $dateRange, string $type, DateTime $startDate, 
         new DateTime('now')->setTime(0, 0),
         new DateTime('now')->setTime(0, 0),
         1,
-        fn (OrdersFixture $fixture) => [
+        fn(OrdersFixture $fixture) => [
             'id' => $fixture->product->id,
             'title' => 'Hypercolor T-Shirt',
             'qty' => 6,

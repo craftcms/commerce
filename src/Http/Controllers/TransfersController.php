@@ -6,7 +6,6 @@ namespace CraftCms\Commerce\Http\Controllers;
 
 use craft\commerce\elements\Transfer;
 use craft\commerce\fieldlayoutelements\TransferManagementField;
-use CraftCms\Commerce\Transfer\Models\TransferDetail;
 use craft\commerce\services\Transfers;
 use CraftCms\Cms\Element\Validation\ElementRules;
 use CraftCms\Cms\Http\RespondsWithFlash;
@@ -26,6 +25,7 @@ use CraftCms\Commerce\Inventory\InventoryLocations;
 use CraftCms\Commerce\Inventory\Models\InventoryTransferMovement;
 use CraftCms\Commerce\Inventory\Models\UpdateInventoryLevel;
 use CraftCms\Commerce\Transfer\Enums\TransferStatusType;
+use CraftCms\Commerce\Transfer\Models\TransferDetail;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Log;

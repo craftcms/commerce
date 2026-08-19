@@ -18,7 +18,7 @@ function createStatClass(?string $dateRange, ?DateTime $start, ?DateTime $end, ?
     };
 }
 
-test('instantiating with a date range populates the chart with both endpoints', function (string $dateRange, DateTime $startDate, DateTime $endDate) {
+test('instantiating with a date range populates the chart with both endpoints', function(string $dateRange, DateTime $startDate, DateTime $endDate) {
     $storeId = app(Stores::class)->getPrimaryStore()->id;
     $stat = createStatClass($dateRange, $startDate, $endDate, $storeId);
 
@@ -29,7 +29,7 @@ test('instantiating with a date range populates the chart with both endpoints', 
     expect($data)->toHaveCount(2);
 })->with('instantiateDatesDataProvider');
 
-test('predefined date ranges produce a chart bucket for every day/month in range', function (string $dateRange, DateTime $startDate, DateTime $endDate, int $keysCount, bool $keyedByDays = true) {
+test('predefined date ranges produce a chart bucket for every day/month in range', function(string $dateRange, DateTime $startDate, DateTime $endDate, int $keysCount, bool $keyedByDays = true) {
     $format = $keyedByDays ? 'Y-m-d' : 'Y-n';
     $storeId = app(Stores::class)->getPrimaryStore()->id;
     $stat = createStatClass($dateRange, $startDate, $endDate, $storeId);
@@ -49,7 +49,7 @@ test('predefined date ranges produce a chart bucket for every day/month in range
     expect($data)->toHaveCount($keysCount);
 })->with('predefinedDateRangesDataProvider');
 
-dataset('instantiateDatesDataProvider', function () {
+dataset('instantiateDatesDataProvider', function() {
     $tz = new DateTimeZone('America/Los_Angeles');
 
     return [
@@ -61,7 +61,7 @@ dataset('instantiateDatesDataProvider', function () {
     ];
 });
 
-dataset('predefinedDateRangesDataProvider', function () {
+dataset('predefinedDateRangesDataProvider', function() {
     $tz = new DateTimeZone('America/Los_Angeles');
     $today = new DateTime('now', $tz)->setTime(0, 0);
 

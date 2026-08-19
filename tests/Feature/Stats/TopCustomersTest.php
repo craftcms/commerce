@@ -6,11 +6,11 @@ use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Stats\TopCustomers;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
 
-beforeEach(function () {
+beforeEach(function() {
     $this->fixture = OrdersFixture::seed();
 });
 
-test('getData', function (string $dateRange, string $type, DateTime $startDate, DateTime $endDate, int $count, ?Closure $customerData) {
+test('getData', function(string $dateRange, string $type, DateTime $startDate, DateTime $endDate, int $count, ?Closure $customerData) {
     $stat = new TopCustomers($dateRange, $type, $startDate, $endDate, $this->fixture->storeId);
     $data = $stat->get();
 
@@ -35,7 +35,7 @@ test('getData', function (string $dateRange, string $type, DateTime $startDate, 
         new DateTime('now')->setTime(0, 0),
         new DateTime('now')->setTime(0, 0),
         1,
-        fn (OrdersFixture $fixture) => [
+        fn(OrdersFixture $fixture) => [
             'total' => 127.94,
             'average' => 63.97,
             'customerId' => $fixture->customer->id,

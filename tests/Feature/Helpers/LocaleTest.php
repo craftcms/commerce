@@ -8,7 +8,7 @@ use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Pdf\Models\Pdf;
 use CraftCms\Commerce\Pdf\Records\Pdf as PdfRecord;
 
-test('Pdf::getRenderLanguage() resolves order-language from the given order', function () {
+test('Pdf::getRenderLanguage() resolves order-language from the given order', function() {
     $order = new Order();
     $order->orderLanguage = 'nl';
 
@@ -18,7 +18,7 @@ test('Pdf::getRenderLanguage() resolves order-language from the given order', fu
     expect($pdf->getRenderLanguage($order))->toBe('nl');
 });
 
-test('Pdf::getRenderLanguage() returns its own language when not order-language', function () {
+test('Pdf::getRenderLanguage() returns its own language when not order-language', function() {
     $order = new Order();
     $order->orderLanguage = 'nl';
 
@@ -28,7 +28,7 @@ test('Pdf::getRenderLanguage() returns its own language when not order-language'
     expect($pdf->getRenderLanguage($order))->toBe('ph');
 });
 
-test('Email::getRenderLanguage() resolves order-language from the given order', function () {
+test('Email::getRenderLanguage() resolves order-language from the given order', function() {
     $order = new Order();
     $order->orderLanguage = 'nl';
 
@@ -38,7 +38,7 @@ test('Email::getRenderLanguage() resolves order-language from the given order', 
     expect($email->getRenderLanguage($order))->toBe('nl');
 });
 
-test('Email::getRenderLanguage() returns its own language when not order-language', function () {
+test('Email::getRenderLanguage() returns its own language when not order-language', function() {
     $order = new Order();
     $order->orderLanguage = 'nl';
 

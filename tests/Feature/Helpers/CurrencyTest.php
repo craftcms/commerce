@@ -5,11 +5,11 @@ declare(strict_types=1);
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Helpers\Locale;
 
-afterEach(function () {
+afterEach(function() {
     Locale::switchAppLanguage('en-US');
 });
 
-test('formatAsCurrency', function (string $currency, string $language, string $expected) {
+test('formatAsCurrency', function(string $currency, string $language, string $expected) {
     Locale::switchAppLanguage($language);
 
     expect(Currency::formatAsCurrency(1234.56, $currency))->toBe($expected);
@@ -22,7 +22,7 @@ test('formatAsCurrency', function (string $currency, string $language, string $e
     'EUR-FR' => ['EUR', 'fr-FR', "1\u{202F}234,56\u{A0}€"],
 ]);
 
-test('formatAsCurrency strips trailing zeros when requested', function (string $currency, string $language, float $amount, bool $stripZeros, string $expected) {
+test('formatAsCurrency strips trailing zeros when requested', function(string $currency, string $language, float $amount, bool $stripZeros, string $expected) {
     Locale::switchAppLanguage($language);
 
     expect(Currency::formatAsCurrency($amount, $currency, stripZeros: $stripZeros))->toBe($expected);
@@ -44,7 +44,7 @@ test('formatAsCurrency strips trailing zeros when requested', function (string $
     'EUR-FR-no-strip' => ['EUR', 'fr-FR', 1234.00, false, "1\u{202F}234,00\u{A0}€"],
 ]);
 
-test('formatAsCurrency formats negative amounts', function (string $currency, string $language, string $expected) {
+test('formatAsCurrency formats negative amounts', function(string $currency, string $language, string $expected) {
     Locale::switchAppLanguage($language);
 
     expect(Currency::formatAsCurrency(-1234.56, $currency))->toBe($expected);

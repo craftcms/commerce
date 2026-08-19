@@ -12,7 +12,7 @@ use Override;
 class ResaveCartsCommand extends ResaveCommand
 {
     #[Override]
-    protected $signature = 'craft:resave:carts'.self::DEFAULT_OPTIONS;
+    protected $signature = 'craft:resave:carts' . self::DEFAULT_OPTIONS;
 
     #[Override]
     protected $description = 'Re-saves Commerce carts.';

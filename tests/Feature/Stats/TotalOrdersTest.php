@@ -5,11 +5,11 @@ declare(strict_types=1);
 use CraftCms\Commerce\Stats\TotalOrders;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
 
-beforeEach(function () {
+beforeEach(function() {
     $this->fixture = OrdersFixture::seed();
 });
 
-test('getData', function (string $dateRange, DateTime $startDate, DateTime $endDate, int $total, int $daysDiff) {
+test('getData', function(string $dateRange, DateTime $startDate, DateTime $endDate, int $total, int $daysDiff) {
     $stat = new TotalOrders($dateRange, $startDate, $endDate, $this->fixture->storeId);
     $data = $stat->get();
 
