@@ -48,6 +48,9 @@ use RuntimeException;
  * unlike {@see Order} this is deliberately NOT a unified Eloquent class — persistence is handled by
  * the separate, thin {@see \CraftCms\Commerce\Order\LineItem\Models\LineItem} Eloquent model instead,
  * mirroring the `Entry\Data\EntryType` / `Entry\Models\EntryType` split in cms-6.
+ *
+ * @property-read float $salePrice
+ * @property-read string $salePriceAsCurrency
  */
 class LineItem extends Component implements HasStoreInterface
 {
@@ -619,6 +622,7 @@ class LineItem extends Component implements HasStoreInterface
                 lineItem: $this,
                 isNew: !$this->id,
             );
+            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
             $lineItemsService->trigger($lineItemsService::EVENT_POPULATE_LINE_ITEM, $event);
         }
     }

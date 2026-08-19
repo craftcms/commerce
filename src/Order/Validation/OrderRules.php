@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Order\Validation;
 
 use CraftCms\Cms\Element\Validation\ElementRules;
+use CraftCms\Commerce\Order\Elements\Order;
 
 /**
  * Order's legacy `defineRules()` was dominated by imperative, side-effecting custom validators
@@ -15,6 +16,8 @@ use CraftCms\Cms\Element\Validation\ElementRules;
  * calls `$order->afterValidate($validator)` when it exists. This ruleset is therefore
  * intentionally minimal, covering only the handful of attributes that were plain type/format
  * rules in the legacy `defineRules()`.
+ *
+ * @property Order $subject
  */
 class OrderRules extends ElementRules
 {

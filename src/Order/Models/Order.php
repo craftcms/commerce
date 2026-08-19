@@ -19,4 +19,13 @@ class Order extends BaseModel
      * Eloquent overwrites it with `lastInsertId()` (0, for a non-auto-increment PK) after insert.
      */
     public $incrementing = false;
+
+    #[\Override]
+    protected $casts = [
+        'datePaid' => 'datetime',
+        'dateFirstPaid' => 'datetime',
+        'dateAuthorized' => 'datetime',
+        'dateCreated' => 'datetime',
+        'dateUpdated' => 'datetime',
+    ];
 }

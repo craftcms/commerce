@@ -9,6 +9,9 @@ use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 use CraftCms\Commerce\Order\Orders;
 
+/**
+ * @property OrderNoticeType|string $noticeType
+ */
 class OrderNotice extends Component
 {
     public ?int $id = null;

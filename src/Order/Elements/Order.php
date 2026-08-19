@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Elements;
 
+use Carbon\Carbon;
 use CommerceGuys\Addressing\AddressInterface;
 use craft\commerce\elements\actions\CopyLoadCartUrl;
 use craft\commerce\elements\actions\DownloadOrderPdfAction;
@@ -175,7 +176,20 @@ use function CraftCms\Cms\t;
  * @property-read int $totalCommittedStock
  * @property-read Teller $teller
  * @property-read Transaction[] $transactions
+ * @property-read string $totalPriceAsCurrency
+ * @property-read string $totalPaidAsCurrency
+ * @property-read string $totalAsCurrency
+ * @property-read string $itemSubtotalAsCurrency
+ * @property-read string $storedTotalPriceAsCurrency
+ * @property-read string $storedTotalPaidAsCurrency
+ * @property-read string $storedItemTotalAsCurrency
+ * @property-read string $storedItemSubtotalAsCurrency
+ * @property-read string $storedTotalShippingCostAsCurrency
+ * @property-read string $storedTotalDiscountAsCurrency
+ * @property-read string $storedTotalTaxAsCurrency
+ * @property-read string $storedTotalTaxIncludedAsCurrency
  */
+// @phpstan-ignore-next-line argument.type (CraftCms\RulesetValidation\Ruleset's template T is not covariant, so PHPStan can't verify any subclass satisfies it here)
 #[Ruleset(OrderRules::class)]
 class Order extends Element implements HasStoreInterface
 {
@@ -556,6 +570,7 @@ class Order extends Element implements HasStoreInterface
             $storeSites = $this->getStore()->getSites();
             $primarySite = Sites::getPrimarySite();
             // Prefer the Craft primary site if it belongs to this store, otherwise use the first available site
+            /** @phpstan-ignore-next-line nullsafe.neverNull (firstWhere() genuinely can return null if no site matches) */
             $this->orderSiteId = $storeSites->firstWhere('id', $primarySite->id)?->id ?? $storeSites->first()->id;
         }
 
@@ -646,6 +661,7 @@ class Order extends Element implements HasStoreInterface
         if (!$this->gatewayId && !$this->paymentSourceId) {
             $gateways = app(Gateways::class)->getAllCustomerEnabledGateways();
             if ($gateways->isNotEmpty()) {
+                /** @phpstan-ignore-next-line argument.type (legacy craft\commerce\base\Gateway implements GatewayInterface via the class_alias chain, which PHPStan can't trace) */
                 $gateway = $gateways->filter(fn(GatewayInterface $g) => $g->availableForUseWithOrder($this))->first();
 
                 if ($gateway) {
@@ -984,8 +1000,11 @@ class Order extends Element implements HasStoreInterface
 
         $autoSetOccurred = false;
 
+        /** @phpstan-ignore-next-line method.notFound (getPrimaryShippingAddress() is added to User via the legacy CustomerBehavior, attached at runtime) */
         if (!$this->_shippingAddress && !$this->shippingAddressId && $primaryShippingAddress = $user->getPrimaryShippingAddress()) {
+            /** @var AddressElement $primaryShippingAddress */
             $this->sourceShippingAddressId = $primaryShippingAddress->id;
+            /** @var AddressElement $shippingAddress */
             $shippingAddress = Elements::duplicateElement($primaryShippingAddress, [
                 'owner' => $this,
                 'primaryOwner' => $this,
@@ -994,8 +1013,11 @@ class Order extends Element implements HasStoreInterface
             $autoSetOccurred = true;
         }
 
+        /** @phpstan-ignore-next-line method.notFound (getPrimaryBillingAddress() is added to User via the legacy CustomerBehavior, attached at runtime) */
         if (!$this->_billingAddress && !$this->billingAddressId && $primaryBillingAddress = $user->getPrimaryBillingAddress()) {
+            /** @var AddressElement $primaryBillingAddress */
             $this->sourceBillingAddressId = $primaryBillingAddress->id;
+            /** @var AddressElement $billingAddress */
             $billingAddress = Elements::duplicateElement($primaryBillingAddress, [
                 'owner' => $this,
                 'primaryOwner' => $this,
@@ -1020,6 +1042,7 @@ class Order extends Element implements HasStoreInterface
             return false;
         }
 
+        /** @phpstan-ignore-next-line method.notFound (getPrimaryPaymentSource() is added to User via the legacy CustomerBehavior, attached at runtime) */
         $paymentSource = $customer->getPrimaryPaymentSource();
         if (!$paymentSource) {
             return false;
@@ -1272,6 +1295,7 @@ class Order extends Element implements HasStoreInterface
         }
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_REMOVE_LINE_ITEM)) {
+            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
             $this->trigger(self::EVENT_AFTER_REMOVE_LINE_ITEM, new LineItemEvent(
                 lineItem: $lineItem,
             ));
@@ -1288,6 +1312,7 @@ class Order extends Element implements HasStoreInterface
 
         if ($isNew && $this->hasEventHandlers(self::EVENT_BEFORE_ADD_LINE_ITEM)) {
             $lineItemEvent = new AddLineItemEvent(lineItem: $lineItem, isNew: $isNew);
+            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
             $this->trigger(self::EVENT_BEFORE_ADD_LINE_ITEM, $lineItemEvent);
 
             if (!$lineItemEvent->isValid) {
@@ -1311,6 +1336,7 @@ class Order extends Element implements HasStoreInterface
 
         // Raising the 'afterAddLineItemToOrder' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_ADD_LINE_ITEM)) {
+            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
             $this->trigger(self::EVENT_AFTER_ADD_LINE_ITEM, new LineItemEvent(
                 lineItem: $lineItem,
                 isNew: !$replaced,
@@ -1385,6 +1411,7 @@ class Order extends Element implements HasStoreInterface
                     lineItems: $this->getLineItems(),
                     recalculate: $recalculateOrder,
                 );
+                /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
                 $this->trigger(self::EVENT_BEFORE_LINE_ITEMS_REFRESHED, $event);
 
                 $this->setLineItems($event->lineItems);
@@ -1439,6 +1466,7 @@ class Order extends Element implements HasStoreInterface
                     lineItems: $this->getLineItems(),
                     recalculate: $recalculateOrder,
                 );
+                /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
                 $this->trigger(self::EVENT_AFTER_LINE_ITEMS_REFRESHED, $event);
 
                 $this->setLineItems($event->lineItems);
@@ -1600,9 +1628,9 @@ class Order extends Element implements HasStoreInterface
             // `new DateTime()` in the server's local timezone).
             $orderRecord->dateOrdered = Query::prepareDateForDb($dateOrdered);
 
-            $orderRecord->datePaid = $this->datePaid ?: null;
-            $orderRecord->dateFirstPaid = $this->dateFirstPaid ?: null;
-            $orderRecord->dateAuthorized = $this->dateAuthorized ?: null;
+            $orderRecord->datePaid = $this->datePaid ? Carbon::instance($this->datePaid) : null;
+            $orderRecord->dateFirstPaid = $this->dateFirstPaid ? Carbon::instance($this->dateFirstPaid) : null;
+            $orderRecord->dateAuthorized = $this->dateAuthorized ? Carbon::instance($this->dateAuthorized) : null;
             $orderRecord->shippingMethodHandle = $this->shippingMethodHandle ?? '';
             $orderRecord->shippingMethodName = $this->shippingMethodName ?? '';
             $orderRecord->paymentSourceId = $this->getPaymentSource() ? $this->getPaymentSource()->id : null;
@@ -1640,8 +1668,8 @@ class Order extends Element implements HasStoreInterface
             $orderRecord->makePrimaryBillingAddress = $this->makePrimaryBillingAddress;
 
             // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
-            $orderRecord->dateUpdated = $this->dateUpdated;
-            $orderRecord->dateCreated = $this->dateCreated;
+            $orderRecord->dateUpdated = $this->dateUpdated ? Carbon::instance($this->dateUpdated) : Carbon::now();
+            $orderRecord->dateCreated = $this->dateCreated ? Carbon::instance($this->dateCreated) : Carbon::now();
 
             $currentUser = currentUser();
             $currentUserIsCustomer = ($currentUser && $this->getCustomer() && $currentUser->getCraftUserId() == $this->getCustomer()->id);
@@ -1667,6 +1695,7 @@ class Order extends Element implements HasStoreInterface
             if ($billingAddress = $this->getBillingAddress()) {
                 // If these were set to the same address element, we don't want the same address IDs
                 if ($shippingAddress && $billingAddress->id == $shippingAddress->id) {
+                    /** @var AddressElement $billingAddress */
                     $billingAddress = Elements::duplicateElement($billingAddress,
                         ['owner' => $this, 'title' => t('Billing Address', category: 'commerce')]);
                 } else {
@@ -1877,6 +1906,7 @@ class Order extends Element implements HasStoreInterface
      */
     public function getEmail(): ?string
     {
+        /** @phpstan-ignore-next-line nullsafe.neverNull (getCustomer() genuinely returns ?User) */
         return $this->getCustomer()?->email ?? $this->email ?? null;
     }
 
@@ -2248,7 +2278,7 @@ class Order extends Element implements HasStoreInterface
             $this->_lineItems = $lineItems;
         }
 
-        return array_filter($this->_lineItems);
+        return $this->_lineItems;
     }
 
     /**
@@ -2706,6 +2736,7 @@ class Order extends Element implements HasStoreInterface
             }
         }
 
+        /** @phpstan-ignore-next-line return.type (legacy craft\commerce\base\Gateway implements GatewayInterface via the class_alias chain, which PHPStan can't trace) */
         return $gateway;
     }
 
@@ -3011,9 +3042,9 @@ class Order extends Element implements HasStoreInterface
 
         if ($type === null && $attribute === null) {
             $remaining = [];
-        } elseif ($type !== null && $attribute === null) {
+        } elseif ($attribute === null) {
             $remaining = array_values(array_filter($targetNotices, fn(OrderNotice $n) => $n->type !== $type));
-        } elseif ($type === null && $attribute !== null) {
+        } elseif ($type === null) {
             $remaining = array_values(array_filter($targetNotices, fn(OrderNotice $n) => $n->attribute !== $attribute));
         } else {
             $remaining = array_values(array_filter($targetNotices, fn(OrderNotice $n) => !($n->type === $type && $n->attribute === $attribute)));
@@ -3050,11 +3081,11 @@ class Order extends Element implements HasStoreInterface
             return $notices;
         }
 
-        if ($type !== null && $attribute === null) {
+        if ($attribute === null) {
             return Arr::where($notices, fn(OrderNotice $n) => $n->type == $type);
         }
 
-        if ($type === null && $attribute !== null) {
+        if ($type === null) {
             return Arr::where($notices, fn(OrderNotice $n) => $n->attribute == $attribute);
         }
 
@@ -3074,7 +3105,7 @@ class Order extends Element implements HasStoreInterface
             // this will confirm the payment source is valid and belongs to the orders customer
             $this->getPaymentSource();
         } catch (\RuntimeException $e) {
-            Log::error($e);
+            Log::error($e->getMessage(), ['exception' => $e]);
             $this->errors()->add($attribute, t('Invalid payment source ID: {value}', category: 'commerce'));
         }
     }
@@ -3794,6 +3825,7 @@ class Order extends Element implements HasStoreInterface
     {
         try {
             $condition = Conditions::createCondition($config['condition']);
+            /** @phpstan-ignore-next-line catch.neverThrown (Conditions::createCondition() genuinely throws InvalidArgumentException for an invalid condition class - PHPStan can't trace exceptions through the facade's __callStatic dispatch) */
         } catch (\InvalidArgumentException) {
             return $config;
         }
@@ -4027,6 +4059,7 @@ class Order extends Element implements HasStoreInterface
 
                 // Raising the 'beforeAddNoticeToOrder' event
                 if ($this->hasEventHandlers(self::EVENT_BEFORE_APPLY_ADD_NOTICE)) {
+                    /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
                     $this->trigger(self::EVENT_BEFORE_APPLY_ADD_NOTICE, $orderNoticeEvent);
 
                     if ($orderNoticeEvent->isValid === false) {
@@ -4075,6 +4108,7 @@ class Order extends Element implements HasStoreInterface
                 DB::table(Table::LINEITEMS)->where('id', $previousLineItem->id)->delete();
 
                 if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM)) {
+                    /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
                     $this->trigger(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM, new LineItemEvent(
                         lineItem: $previousLineItem,
                     ));
@@ -4101,6 +4135,7 @@ class Order extends Element implements HasStoreInterface
             if ($originalId === null) {
                 // Raising the 'afterAddLineItemToOrder' event
                 if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_ADD_LINE_ITEM)) {
+                    /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
                     $this->trigger(self::EVENT_AFTER_APPLY_ADD_LINE_ITEM, new LineItemEvent(
                         lineItem: $lineItem,
                         isNew: true,
