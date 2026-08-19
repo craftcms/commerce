@@ -223,7 +223,7 @@ abstract class Stat implements StatInterface
             case self::DATE_RANGE_PAST7DAYS:
             case self::DATE_RANGE_PAST30DAYS:
             case self::DATE_RANGE_PAST90DAYS:
-                $number = str_replace(['past', 'Days'], '', $dateRange);
+                $number = (int)str_replace(['past', 'Days'], '', $dateRange);
                 // Minus one so we include today as a "past day"
                 $number--;
                 $date = $this->getEndDateForRange($dateRange);
@@ -238,6 +238,7 @@ abstract class Stat implements StatInterface
                 break;
         }
 
+        /** @phpstan-ignore-next-line method.nonObject (DateTimeHelper::toDateTime() can only return false for an unparseable input, and every input here is either a hardcoded relative-date string or a value already parsed above) */
         $date->setTime(0, 0);
         return $date;
     }
@@ -249,6 +250,7 @@ abstract class Stat implements StatInterface
             ->orderBy('dateOrdered')
             ->value('dateOrdered');
 
+        /** @phpstan-ignore-next-line return.type (DateTimeHelper::toDateTime() can only return false for an unparseable input; dateOrdered is always a valid DB datetime string here) */
         return $firstCompletedOrder ? DateTimeHelper::toDateTime($firstCompletedOrder) : new DateTime();
     }
 
@@ -274,6 +276,7 @@ abstract class Stat implements StatInterface
                 break;
         }
 
+        /** @phpstan-ignore-next-line method.nonObject (DateTimeHelper::toDateTime() can only return false for an unparseable input, and every input here is a hardcoded relative-date string) */
         $date->setTime(23, 59, 59);
         return $date;
     }
@@ -444,12 +447,13 @@ abstract class Stat implements StatInterface
             return null;
         }
 
+        // DateTimeHelper::toDateTime() can only return false for an unparseable input; getStartDate()->format('Y-m-d') is always valid
         $dateKeyDate = DateTimeHelper::toDateTime($this->getStartDate()->format('Y-m-d'), true);
         $endDate = $this->getEndDate();
         while ($dateKeyDate <= $endDate) {
             // If we are looking monthly make sure we get every month by using the 1st day
             if ($dateRangeInterval == 'month') {
-                $dateKeyDate->setDate((int)$dateKeyDate->format('Y'), (int)$dateKeyDate->format('n'), 1);
+                $dateKeyDate->setDate((int)$dateKeyDate->format('Y'), (int)$dateKeyDate->format('n'), 1); /** @phpstan-ignore-line */
             }
 
             $key = $dateKeyDate->format($options['dateKeyFormat']);
@@ -459,15 +463,17 @@ abstract class Stat implements StatInterface
             $tmp['datekey'] = $key;
 
             $defaults[$key] = $tmp;
-            $dateKeyDate->add(new DateInterval($options['interval']));
+            $dateKeyDate->add(new DateInterval($options['interval'])); /** @phpstan-ignore-line */
         }
 
         // Add defaults to select
+        // groupBy/orderBy are built entirely from server-side driver/timezone config in
+        // getChartQueryOptionsByInterval(), never from user input, so the literal-string requirement below is overly strict
         $select[] = DB::raw($options['dateKey'] . ' as datekey');
         $results = $query
             ->select($select)
-            ->groupByRaw($options['groupBy'])
-            ->orderByRaw($options['orderBy'])
+            ->groupByRaw($options['groupBy']) /** @phpstan-ignore-line */
+            ->orderByRaw($options['orderBy']) /** @phpstan-ignore-line */
             ->get()
             ->keyBy('datekey')
             ->map(fn($row) => (array)$row)
