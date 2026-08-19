@@ -102,6 +102,7 @@ class OrdersController
         \Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
 
         $site = \craft\helpers\Cp::requestedSite();
+        /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
         $store = $site->getStore();
 
         HtmlStack::js('window.orderEdit = {};', Position::BodyBegin);
@@ -119,7 +120,7 @@ class OrdersController
     public function create(Request $request, string $storeHandle): Response
     {
         $store = app(Stores::class)->getStoreByHandle($storeHandle);
-        abort_unless($store, 400, "Invalid store handle: $storeHandle");
+        abort_unless($store !== null, 400, "Invalid store handle: $storeHandle");
 
         $userId = $request->input('customerId');
         $user = $userId ? Users::getUserById((int)$userId) : null;
@@ -189,7 +190,7 @@ class OrdersController
                 $movement->toInventoryTransactionType = InventoryTransactionType::FULFILLED;
                 $movement->lineItemId = (int)$fulfillment['lineItemId'];
                 $movement->quantity = $qty;
-                $movement->userId = currentUser()?->id;
+                $movement->userId = currentUser()?->getCraftUserId();
                 $movements[] = $movement;
             }
         }
@@ -467,11 +468,11 @@ JS, []);
         $customerId = $request->query('customerId', false);
         $customerId = $customerId !== false ? (int)$customerId : false;
 
-        abort_unless($siteId, 400, 'siteId is required');
+        abort_unless($siteId !== null, 400, 'siteId is required');
         $siteId = (int)$siteId;
 
         $store = app(Stores::class)->getStoreBySiteId($siteId);
-        abort_unless($store, 400, 'Store not found');
+        abort_unless($store !== null, 400, 'Store not found');
 
         $offset = ($page - 1) * $limit;
 
@@ -822,7 +823,8 @@ JS, []);
         abort_unless($request->expectsJson(), 400);
 
         $site = \craft\helpers\Cp::requestedSite();
-        $storeId = $site?->getStore()->id ?? null;
+        /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
+        $storeId = $site?->getStore()?->id;
 
         $counts = app(OrderStatuses::class)->getOrderCountByStatus($storeId);
 
@@ -839,6 +841,7 @@ JS, []);
         $paymentFormData = $request->input('paymentForm');
 
         $order = app(Orders::class)->getOrderById((int)$orderId);
+        abort_unless($order !== null, 404, 'Order not found');
         $gateways = app(Gateways::class)->getAllGateways();
 
         if ($paymentAmount = $request->input('paymentAmount')) {
@@ -852,6 +855,7 @@ JS, []);
         /** @var Gateway $gateway */
         foreach ($gateways as $key => $gateway) {
             // If gateway adapter does no support backend cp payments.
+            /** @phpstan-ignore-next-line argument.type (legacy craft\commerce\base\Gateway implements GatewayInterface via the class_alias chain, which PHPStan can't trace) */
             if ($gateway->availableForUseWithOrder($order) === false || !$gateway->cpPaymentsEnabled() || $gateway instanceof MissingGateway) {
                 unset($gateways[$key]);
                 continue;
@@ -859,6 +863,7 @@ JS, []);
 
             // Add the errors and data back to the current form model.
             if ($gateway->id == $order->gatewayId) {
+                /** @phpstan-ignore-next-line method.notFound (getPaymentFormModel() is declared on GatewayInterface, which legacy craft\commerce\base\Gateway subclasses implement via the class_alias chain, which PHPStan can't trace) */
                 $paymentFormModel = $gateway->getPaymentFormModel();
 
                 if ($paymentFormData) {
@@ -873,6 +878,7 @@ JS, []);
                     }
                 }
             } else {
+                /** @phpstan-ignore-next-line method.notFound (getPaymentFormModel() is declared on GatewayInterface, which legacy craft\commerce\base\Gateway subclasses implement via the class_alias chain, which PHPStan can't trace) */
                 $paymentFormModel = $gateway->getPaymentFormModel();
             }
 
@@ -920,7 +926,7 @@ JS, []);
             $message = $child->message ? ' (' . $child->message . ')' : '';
 
             if ($child->status == TransactionRecord::STATUS_SUCCESS) {
-                $child->order->updateOrderPaidInformation();
+                $child->order?->updateOrderPaidInformation();
                 return $this->asSuccess(t('Transaction captured successfully: {message}', ['message' => $message], category: 'commerce'));
             }
 
@@ -964,7 +970,7 @@ JS, []);
                 $message = $child->message ? ' (' . $child->message . ')' : '';
 
                 if ($child->status == TransactionRecord::STATUS_SUCCESS || $child->status == TransactionRecord::STATUS_PROCESSING) {
-                    $child->order->updateOrderPaidInformation();
+                    $child->order?->updateOrderPaidInformation();
                     return $this->asSuccess(t('Transaction refunded successfully: {message}', ['message' => $message], category: 'commerce'));
                 }
 
@@ -1144,11 +1150,9 @@ JS, []);
             $orderFields = array_filter($orderFields, fn($value) => $value !== $removeProp);
         }
 
-        if (($fieldLayout = $order->getFieldLayout()) !== null) {
-            foreach ($fieldLayout->getCustomFields() as $field) {
-                /** @var Field $field */
-                $orderFields = array_filter($orderFields, fn($value) => $value !== $field->handle);
-            }
+        foreach ($order->getFieldLayout()->getCustomFields() as $field) {
+            /** @var Field $field */
+            $orderFields = array_filter($orderFields, fn($value) => $value !== $field->handle);
         }
 
         $extraFields = [
@@ -1317,6 +1321,7 @@ JS, []);
                 $gateway = app(Gateways::class)->getAllGateways()->first();
 
                 if ($gateway && !$gateway instanceof MissingGateway) {
+                    /** @phpstan-ignore-next-line method.notFound (getPaymentFormModel() is declared on GatewayInterface, which legacy craft\commerce\base\Gateway subclasses implement via the class_alias chain, which PHPStan can't trace) */
                     $variables['paymentForm'] = $gateway->getPaymentFormModel();
                 }
             }
@@ -1556,7 +1561,11 @@ JS, []);
             if ($orderRequestData['order']['dateOrdered']['date'] == '' && $orderRequestData['order']['dateOrdered']['time'] == '') {
                 $order->dateOrdered = null;
             } else {
-                $order->dateOrdered = DateTimeHelper::toDateTime($dateOrdered) ?: null;
+                $newDateOrdered = DateTimeHelper::toDateTime($dateOrdered) ?: null;
+                $order->dateOrdered = match (true) {
+                    $newDateOrdered === null, $newDateOrdered instanceof DateTime => $newDateOrdered,
+                    default => DateTime::createFromInterface($newDateOrdered),
+                };
             }
         }
 
@@ -1678,7 +1687,7 @@ JS, []);
                 $lineItem->setPrice($price);
             }
 
-            if ($qty !== null && $qty > 0) {
+            if ($qty > 0) {
                 $lineItems[] = $lineItem;
             }
 

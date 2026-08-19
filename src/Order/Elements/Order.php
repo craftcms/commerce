@@ -188,6 +188,7 @@ use function CraftCms\Cms\t;
  * @property-read string $storedTotalDiscountAsCurrency
  * @property-read string $storedTotalTaxAsCurrency
  * @property-read string $storedTotalTaxIncludedAsCurrency
+ * @property-read string $outstandingBalanceAsCurrency
  */
 #[Ruleset(OrderRules::class)]
 class Order extends Element implements HasStoreInterface
@@ -999,7 +1000,7 @@ class Order extends Element implements HasStoreInterface
 
         $autoSetOccurred = false;
 
-        /** @phpstan-ignore-next-line method.notFound (getPrimaryShippingAddress() is added to User via the legacy CustomerBehavior, attached at runtime) */
+        /** @phpstan-ignore-next-line method.notFound (getPrimaryShippingAddress() is added to User via a Macroable macro registered in Plugin::registerCustomerMacros(), not visible to static analysis) */
         if (!$this->_shippingAddress && !$this->shippingAddressId && $primaryShippingAddress = $user->getPrimaryShippingAddress()) {
             /** @var AddressElement $primaryShippingAddress */
             $this->sourceShippingAddressId = $primaryShippingAddress->id;
@@ -1012,7 +1013,7 @@ class Order extends Element implements HasStoreInterface
             $autoSetOccurred = true;
         }
 
-        /** @phpstan-ignore-next-line method.notFound (getPrimaryBillingAddress() is added to User via the legacy CustomerBehavior, attached at runtime) */
+        /** @phpstan-ignore-next-line method.notFound (getPrimaryBillingAddress() is added to User via a Macroable macro registered in Plugin::registerCustomerMacros(), not visible to static analysis) */
         if (!$this->_billingAddress && !$this->billingAddressId && $primaryBillingAddress = $user->getPrimaryBillingAddress()) {
             /** @var AddressElement $primaryBillingAddress */
             $this->sourceBillingAddressId = $primaryBillingAddress->id;
@@ -1041,7 +1042,7 @@ class Order extends Element implements HasStoreInterface
             return false;
         }
 
-        /** @phpstan-ignore-next-line method.notFound (getPrimaryPaymentSource() is added to User via the legacy CustomerBehavior, attached at runtime) */
+        /** @phpstan-ignore-next-line method.notFound (getPrimaryPaymentSource() is added to User via a Macroable macro registered in Plugin::registerCustomerMacros(), not visible to static analysis) */
         $paymentSource = $customer->getPrimaryPaymentSource();
         if (!$paymentSource) {
             return false;

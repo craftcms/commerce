@@ -13,6 +13,9 @@ use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Payment\Transactions;
 use DateTime;
 
+/**
+ * @property-read Order|null $order
+ */
 class Transaction extends Component
 {
     public ?int $id = null;
