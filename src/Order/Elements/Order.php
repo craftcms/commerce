@@ -189,7 +189,6 @@ use function CraftCms\Cms\t;
  * @property-read string $storedTotalTaxAsCurrency
  * @property-read string $storedTotalTaxIncludedAsCurrency
  */
-// @phpstan-ignore-next-line argument.type (CraftCms\RulesetValidation\Ruleset's template T is not covariant, so PHPStan can't verify any subclass satisfies it here)
 #[Ruleset(OrderRules::class)]
 class Order extends Element implements HasStoreInterface
 {

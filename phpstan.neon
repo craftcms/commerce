@@ -15,3 +15,20 @@ parameters:
         - vendor/craftcms/cms/src/helpers.php
     databaseMigrationsPath:
         - database/migrations
+    stubFiles:
+        - ../cms-6/yii2-adapter/stubs/laravel-ruleset-validation.stub
+        - ../cms-6/yii2-adapter/stubs/_generated.stub
+        - ../cms-6/yii2-adapter/stubs/GraphQL/Type/Definition/FieldDefinition.stub
+        - ../cms-6/yii2-adapter/stubs/GraphQL/Type/Definition/ResolveInfo.stub
+        - ../cms-6/yii2-adapter/stubs/samdark/log/PsrTarget.stub
+        - ../cms-6/yii2-adapter/stubs/yii/base/Component.stub
+        - ../cms-6/yii2-adapter/stubs/yii/base/Event.stub
+        - ../cms-6/yii2-adapter/stubs/yii/base/Module.stub
+        - ../cms-6/yii2-adapter/stubs/yii/BaseYii.stub
+        - ../cms-6/yii2-adapter/stubs/yii/db/BaseActiveRecord.stub
+        - ../cms-6/yii2-adapter/stubs/yii/db/Query.stub
+        - ../cms-6/yii2-adapter/stubs/yii/db/Migration.stub
+        - ../cms-6/yii2-adapter/stubs/yii/di/ServiceLocator.stub
+        - ../cms-6/yii2-adapter/stubs/yii/helpers/BaseArrayHelper.stub
+        - ../cms-6/yii2-adapter/stubs/yii/validators/UniqueValidator.stub
+        - ../cms-6/yii2-adapter/stubs/yii/validators/Validator.stub

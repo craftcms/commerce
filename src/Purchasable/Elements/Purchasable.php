@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Purchasable\Elements;
 
 use craft\commerce\Plugin;
+use craft\helpers\Localization;
 use CraftCms\Cms\Element\Contracts\NestedElementInterface;
 use CraftCms\Cms\Element\Element;
 use CraftCms\Cms\Support\Facades\I18N;
@@ -17,7 +18,6 @@ use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Cp as CommerceCp;
 use CraftCms\Commerce\Helpers\Currency;
-use CraftCms\Commerce\Helpers\Localization;
 use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Inventory\Models\InventoryItem;
@@ -49,6 +49,16 @@ use Money\Teller;
 use yii\validators\Validator;
 use function CraftCms\Cms\t;
 
+/**
+ * @property-read string $basePriceAsCurrency
+ * @property-read string $basePromotionalPriceAsCurrency
+ * @property int $storeId
+ * @property float|null $basePrice
+ * @property float|null $basePromotionalPrice
+ * @property string $sku
+ * @property int $taxCategoryId
+ * @property int $shippingCategoryId
+ */
 #[Ruleset(PurchasableRules::class)]
 abstract class Purchasable extends Element implements PurchasableInterface, HasStoreInterface
 {
@@ -475,7 +485,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
     public function getSku(): string
     {
-        return $this->_sku ?? '';
+        return $this->_sku;
     }
 
     /**
@@ -614,11 +624,11 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                 function($attribute, $params, Validator $validator) use ($lineItem) {
                     $purchasable = $lineItem->getPurchasable();
                     if ($purchasable === null) {
-                        $validator->addError($lineItem, $attribute, t('No purchasable available.', category: 'commerce'));
+                        $lineItem->errors()->add($attribute, t('No purchasable available.', category: 'commerce'));
                     }
 
                     if (!app(Purchasables::class)->isPurchasableAvailable($lineItem->getPurchasable(), $lineItem->getOrder())) {
-                        $validator->addError($lineItem, $attribute, t('The item is not enabled for sale.', category: 'commerce'));
+                        $lineItem->errors()->add($attribute, t('The item is not enabled for sale.', category: 'commerce'));
                     }
                 },
             ],
@@ -637,7 +647,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                     if (!$this->hasStock()) {
                         if (!app(Purchasables::class)->isPurchasableOutOfStockPurchasingAllowed($lineItemPurchasable, $lineItem->getOrder())) {
                             $error = t('"{description}" is currently out of stock.', ['description' => $lineItemPurchasable->getDescription()], category: 'commerce');
-                            $validator->addError($lineItem, $attribute, $error);
+                            $lineItem->errors()->add($attribute, $error);
                         }
                     }
 
@@ -646,18 +656,18 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                     if ($this->hasStock() && $this->inventoryTracked && $lineItemQty > $this->getStock()) {
                         if (!app(Purchasables::class)->isPurchasableOutOfStockPurchasingAllowed($lineItemPurchasable, $lineItem->getOrder())) {
                             $error = t('There are only {num} "{description}" items left in stock.', ['num' => $this->getStock(), 'description' => $lineItemPurchasable->getDescription()], category: 'commerce');
-                            $validator->addError($lineItem, $attribute, $error);
+                            $lineItem->errors()->add($attribute, $error);
                         }
                     }
 
                     if ($this->minQty > 1 && $lineItemQty < $this->minQty) {
                         $error = t('Minimum order quantity for this item is {num}.', ['num' => $this->minQty], category: 'commerce');
-                        $validator->addError($lineItem, $attribute, $error);
+                        $lineItem->errors()->add($attribute, $error);
                     }
 
                     if ($this->maxQty != 0 && $lineItemQty > $this->maxQty) {
                         $error = t('Maximum order quantity for this item is {num}.', ['num' => $this->maxQty], category: 'commerce');
-                        $validator->addError($lineItem, $attribute, $error);
+                        $lineItem->errors()->add($attribute, $error);
                     }
                 },
             ],
