@@ -10,7 +10,6 @@ use craft\helpers\Db as CraftDb;
 use craft\mail\Message;
 use CraftCms\Cms\Asset\AssetsHelper as Assets;
 use CraftCms\Cms\Cms;
-use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Facades\Template;
@@ -27,7 +26,6 @@ use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Models\OrderHistory;
 use CraftCms\Commerce\Pdf\Pdfs;
 use CraftCms\Commerce\Store\Stores;
-use DateTime;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
@@ -180,6 +178,7 @@ class Emails
             $emailRecord->uid = $emailUid;
             $emailRecord->pdfId = $pdfUid ? CraftDb::idByUid(Table::PDFS, $pdfUid) : null;
             $emailRecord->language = $data['language'] ?? EmailRecord::LOCALE_ORDER_LANGUAGE;
+            /** @phpstan-ignore-next-line nullsafe.neverNull ($renderSite is genuinely nullable - it's null whenever 'renderSite' isn't present in $data) */
             $emailRecord->renderSiteId = $renderSite?->id ?? null;
 
             $emailRecord->save();
@@ -283,14 +282,6 @@ class Emails
         // Temporarily disable lazy transform generation
         $generateTransformsBeforePageLoad = $generalConfig->generateTransformsBeforePageLoad;
         $generalConfig->generateTransformsBeforePageLoad = true;
-
-        // Make sure date vars are in the correct format
-        $dateFields = ['dateOrdered', 'datePaid', 'dateFirstPaid'];
-        foreach ($dateFields as $dateField) {
-            if (isset($order->{$dateField}) && !($order->{$dateField} instanceof DateTime) && $order->{$dateField}) {
-                $order->{$dateField} = DateTimeHelper::toDateTime($order->{$dateField});
-            }
-        }
 
         //sending emails
         $renderVariables = compact('order', 'orderHistory', 'option', 'orderData');
@@ -639,6 +630,7 @@ class Emails
             // TODO: migrate event firing to Laravel once event system is bridged
             $legacyService = Plugin::getInstance()->getEmails();
             if ($legacyService->hasEventHandlers(self::EVENT_BEFORE_SEND_MAIL)) {
+                /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
                 $legacyService->trigger(self::EVENT_BEFORE_SEND_MAIL, $event);
             }
 
