@@ -83,7 +83,6 @@ class CatalogPricing
         $catalogPricing = [];
 
         // TODO: Migrate to app(Stores::class)->getAllStores() once Stores service migrated
-        /** @phpstan-ignore-next-line */
         foreach (app(Stores::class)->getAllStores() as $store) {
             $priceByPurchasableId = DB::table(Table::PURCHASABLES_STORES)
                 ->select(['purchasableId', 'basePrice', 'basePromotionalPrice'])
@@ -93,7 +92,6 @@ class CatalogPricing
                 ->all();
 
             // TODO: Migrate to app(CatalogPricingRules::class)->getAllActiveCatalogPricingRules() once registered
-            /** @phpstan-ignore-next-line */
             $runCatalogPricingRules = $catalogPricingRules ?? app(CatalogPricingRules::class)->getAllActiveCatalogPricingRules($store->id)->all();
 
             foreach ($runCatalogPricingRules as $catalogPricingRule) {
@@ -125,7 +123,6 @@ class CatalogPricing
                     $row = $priceByPurchasableId[$purchasableId];
 
                     // TODO: migrate to app(CatalogPricingRules::class)->generateRulePriceFromPrice() once registered
-                    /** @phpstan-ignore-next-line */
                     $catalogPrice = app(CatalogPricingRules::class)->generateRulePriceFromPrice(
                         $row->basePrice,
                         $row->basePromotionalPrice,
@@ -272,7 +269,6 @@ class CatalogPricing
     public function getCatalogPrice(int $purchasableId, ?int $storeId = null, ?int $userId = null, bool $isPromotionalPrice = false): ?float
     {
         // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
-        /** @phpstan-ignore-next-line */
         $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         $userKey = $userId ?? 'all';
@@ -300,7 +296,6 @@ class CatalogPricing
     public function getCatalogPricesByPurchasableId(int $purchasableId, ?int $storeId = null): Collection
     {
         // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
-        /** @phpstan-ignore-next-line */
         $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         $rows = $this->createCatalogPricesQuery(storeId: $storeId, allPrices: true)
@@ -368,14 +363,11 @@ class CatalogPricing
     public function afterSavePurchasableHandler(mixed $event): void
     {
         // TODO: update to new Purchasable element API once migrated
-        /** @phpstan-ignore-next-line */
         $purchasable = $event->sender;
-        /** @phpstan-ignore-next-line */
         if ($purchasable->propagating || $purchasable->getIsDraft() || $purchasable->getIsRevision()) {
             return;
         }
 
-        /** @phpstan-ignore-next-line */
         $this->createCatalogPricingJob(['purchasableIds' => [$purchasable->id], 'storeId' => $purchasable->storeId]);
     }
 
@@ -407,7 +399,6 @@ class CatalogPricing
         }
 
         // TODO: Migrate to Laravel queue dispatch once CatalogPricingJob is migrated
-        /** @phpstan-ignore-next-line */
         \craft\helpers\Queue::push(\Craft::createObject(CatalogPricingJob::class), $priority);
     }
 
@@ -650,7 +641,6 @@ class CatalogPricing
     private function setQueueProgress(mixed $queue, float $progress, ?string $label = null): void
     {
         // TODO: migrate to Laravel queue progress interface once queue system migrated
-        /** @phpstan-ignore-next-line */
         if (method_exists($queue, 'setProgress')) {
             $queue->setProgress((int) $progress, $label);
         }

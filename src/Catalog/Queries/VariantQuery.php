@@ -322,7 +322,6 @@ class VariantQuery extends PurchasableQuery implements NestedElementQueryInterfa
     #[Override]
     public function collect(): VariantCollection
     {
-        /** @phpstan-ignore-next-line */
         return VariantCollection::make(parent::collect()->all());
     }
 
@@ -747,7 +746,6 @@ class VariantQuery extends PurchasableQuery implements NestedElementQueryInterfa
         }
 
         // TODO: migrate to app(ProductTypes::class)->getAllProductTypes() once service migrated to src/
-        /** @phpstan-ignore-next-line */
         $productTypes = app(ProductTypes::class)->getAllProductTypes();
 
         if (empty($productTypes)) {

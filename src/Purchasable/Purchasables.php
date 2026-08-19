@@ -49,12 +49,10 @@ class Purchasables
             purchasable: $purchasable,
             order: $order,
             currentUser: $currentUser,
-            /** @phpstan-ignore-next-line */
             outOfStockPurchasesAllowed: $purchasable->allowOutOfStockPurchases,
         );
 
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getPurchasables()->hasEventHandlers(self::EVENT_PURCHASABLE_OUT_OF_STOCK_PURCHASES_ALLOWED)) {
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getPurchasables()->trigger(self::EVENT_PURCHASABLE_OUT_OF_STOCK_PURCHASES_ALLOWED, $event);
@@ -75,7 +73,6 @@ class Purchasables
         );
 
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getPurchasables()->hasEventHandlers(self::EVENT_PURCHASABLE_AVAILABLE)) {
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getPurchasables()->trigger(self::EVENT_PURCHASABLE_AVAILABLE, $event);
@@ -96,7 +93,6 @@ class Purchasables
         );
 
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getPurchasables()->hasEventHandlers(self::EVENT_PURCHASABLE_SHIPPABLE)) {
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getPurchasables()->trigger(self::EVENT_PURCHASABLE_SHIPPABLE, $event);

@@ -131,7 +131,6 @@ class CatalogPricingRule extends Component implements HasStoreInterface
                 $productQuery = Product::find();
                 $productQuery->siteId($siteIds);
                 $productCondition = $this->getProductCondition();
-                /** @phpstan-ignore-next-line */
                 $productCondition->modifyQuery($productQuery);
 
                 $productVariantIds = [];
@@ -160,7 +159,6 @@ class CatalogPricingRule extends Component implements HasStoreInterface
                 $variantQuery = Variant::find();
                 $variantQuery->siteId($siteIds);
                 $variantCondition = $this->getVariantCondition();
-                /** @phpstan-ignore-next-line */
                 $variantCondition->modifyQuery($variantQuery);
 
                 if ($this->isPromotionalPrice) {
@@ -182,10 +180,8 @@ class CatalogPricingRule extends Component implements HasStoreInterface
             $this->_purchasableIds = $variantIds;
 
             if (!empty($this->getPurchasableCondition()->getConditionRules())) {
-                /** @phpstan-ignore-next-line */
                 $purchasableQuery = Purchasable::find();
                 $purchasableCondition = $this->getPurchasableCondition();
-                /** @phpstan-ignore-next-line */
                 $purchasableCondition->modifyQuery($purchasableQuery);
 
                 if ($variantIds !== null) {
@@ -200,7 +196,6 @@ class CatalogPricingRule extends Component implements HasStoreInterface
 
                 /** @phpstan-ignore-next-line */
                 $purchasableQuery->on(ElementQuery::EVENT_AFTER_PREPARE, $this->afterPreparePurchasableQuery(...), ['siteIds' => $siteIds]);
-                /** @phpstan-ignore-next-line */
                 $this->_purchasableIds = $purchasableQuery->ids();
                 /** @phpstan-ignore-next-line */
                 $purchasableQuery->off(ElementQuery::EVENT_AFTER_PREPARE, $this->afterPreparePurchasableQuery(...));
@@ -214,17 +209,13 @@ class CatalogPricingRule extends Component implements HasStoreInterface
 
     public function afterPreparePurchasableQuery(CancelableEvent $event): void
     {
-        /** @phpstan-ignore-next-line */
         foreach ($event->sender->subQuery->where as &$value) {
             if (is_array($value) && isset($value['elements_sites.siteId'])) {
-                /** @phpstan-ignore-next-line */
                 $value['elements_sites.siteId'] = $event->data['siteIds'];
             }
         }
 
-        /** @phpstan-ignore-next-line */
         $event->sender->subQuery->join[] = ['LEFT JOIN', ['sitestores' => Table::SITESTORES], '[[elements_sites.siteId]] = [[sitestores.siteId]]'];
-        /** @phpstan-ignore-next-line */
         $event->sender->subQuery->join[] = ['LEFT JOIN', ['purchasables_stores' => Table::PURCHASABLES_STORES], '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[elements.id]]'];
     }
 
@@ -330,7 +321,6 @@ class CatalogPricingRule extends Component implements HasStoreInterface
     {
         if ($this->_userIds === null && !empty($this->getCustomerCondition()->getConditionRules())) {
             $userQuery = User::find();
-            /** @phpstan-ignore-next-line */
             $this->getCustomerCondition()->modifyQuery($userQuery);
             $this->_userIds = $userQuery->ids();
         }
@@ -349,7 +339,6 @@ class CatalogPricingRule extends Component implements HasStoreInterface
         };
 
         // TODO: migrate to app(Currencies::class) once service migrated to src/
-        /** @phpstan-ignore-next-line */
         $price = (float)app(Currencies::class)->getTeller($this->getStore()->getCurrency())->convertToString($price);
 
         return max($price, 0);

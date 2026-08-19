@@ -127,7 +127,6 @@ class OrderStatuses
         );
 
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getOrderStatuses()->hasEventHandlers(self::EVENT_DEFAULT_ORDER_STATUS)) {
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getOrderStatuses()->trigger(self::EVENT_DEFAULT_ORDER_STATUS, $event);
@@ -367,7 +366,6 @@ class OrderStatuses
         $event->isValid = !$order->suppressEmails;
 
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getOrderStatuses()->hasEventHandlers(self::EVENT_ORDER_STATUS_CHANGE_EMAILS)) {
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getOrderStatuses()->trigger(self::EVENT_ORDER_STATUS_CHANGE_EMAILS, $event);

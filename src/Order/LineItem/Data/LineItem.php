@@ -612,7 +612,6 @@ class LineItem extends Component implements HasStoreInterface
         $purchasable->populateLineItem($this);
 
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         $lineItemsService = Plugin::getInstance()->getLineItems();
 
         if ($lineItemsService->hasEventHandlers($lineItemsService::EVENT_POPULATE_LINE_ITEM)) {

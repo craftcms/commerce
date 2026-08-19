@@ -239,7 +239,6 @@ class ProductTypes
         $isNewProductType = !$productType->id;
 
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         $legacyService = Plugin::getInstance()->getProductTypes();
 
         if ($legacyService->hasEventHandlers(self::EVENT_BEFORE_SAVE_PRODUCTTYPE)) {
@@ -547,7 +546,6 @@ class ProductTypes
         unset($this->_siteSettingsByProductId[$record->id]);
 
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         $legacyService = Plugin::getInstance()->getProductTypes();
         if ($legacyService->hasEventHandlers(self::EVENT_AFTER_SAVE_PRODUCTTYPE)) {
             $event = new ProductTypeEvent(

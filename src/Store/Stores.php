@@ -188,7 +188,6 @@ class Stores
 
         // Raise 'beforeSaveStore' event
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getStores()->hasEventHandlers(self::EVENT_BEFORE_SAVE_STORE)) {
             $beforeEvent = new StoreEvent(
                 store: $store,
@@ -277,7 +276,6 @@ class Stores
 
         // Raise 'beforeDeleteStore' event
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getStores()->hasEventHandlers(self::EVENT_BEFORE_DELETE_STORE)) {
             $event = new DeleteStoreEvent(
                 store: $store,
@@ -371,7 +369,6 @@ class Stores
 
         // Raise 'afterSaveStore' event
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getStores()->hasEventHandlers(self::EVENT_AFTER_SAVE_STORE)) {
             $afterEvent = new StoreEvent(
                 store: $this->getStoreById($storeRecord->id),
@@ -401,7 +398,6 @@ class Stores
 
         // Raise 'beforeApplyStoreDelete' event
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getStores()->hasEventHandlers(self::EVENT_BEFORE_APPLY_STORE_DELETE)) {
             $blockerEvent = new DeleteStoreEvent(
                 store: $store,
@@ -440,7 +436,6 @@ class Stores
 
         // Raise 'afterDeleteStore' event
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getStores()->hasEventHandlers(self::EVENT_AFTER_DELETE_STORE)) {
             $afterEvent = new DeleteStoreEvent(
                 store: $store,

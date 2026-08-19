@@ -334,13 +334,11 @@ class Inventory
         // TODO: Potentially move this to a job in the queue
         // Update all purchasables stock
         foreach ($updateInventoryLevels->getPurchasables() as $purchasable) {
-            /** @phpstan-ignore-next-line */
             app(Purchasables::class)->updateStoreStockCache($purchasable, true);
         }
 
         // TODO: migrate event firing to Laravel once the event system is bridged
         foreach ($updateInventoryLevels as $updateInventoryLevel) {
-            /** @phpstan-ignore-next-line */
             if (Plugin::getInstance()->getInventory()->hasEventHandlers(self::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL)) {
                 /** @phpstan-ignore-next-line */
                 Plugin::getInstance()->getInventory()->trigger(self::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL, new UpdateInventoryLevelEvent(
@@ -528,14 +526,12 @@ class Inventory
             // Update all purchasables stock
             $purchasable = $inventoryMovement->getInventoryItem()->getPurchasable();
             if ($purchasable) {
-                /** @phpstan-ignore-next-line */
                 app(Purchasables::class)->updateStoreStockCache($purchasable, true);
             }
         }
 
         // TODO: migrate event firing to Laravel once the event system is bridged
         foreach ($inventoryMovements as $inventoryMovement) {
-            /** @phpstan-ignore-next-line */
             if (Plugin::getInstance()->getInventory()->hasEventHandlers(self::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT)) {
                 /** @phpstan-ignore-next-line */
                 Plugin::getInstance()->getInventory()->trigger(self::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT, new InventoryMovementEvent(
@@ -781,10 +777,8 @@ class Inventory
         $this->executeInventoryMovements($movements);
 
         foreach ($selectedInventoryLevelForItem as $key => $inventoryLevel) {
-            /** @phpstan-ignore-next-line */
             if ($purchasable = Elements::getElementById($key)) {
                 if ($purchasable instanceof NewPurchasable) {
-                    /** @phpstan-ignore-next-line */
                     app(Purchasables::class)->updateStoreStockCache($purchasable, true);
 
                     // If the purchasable doesn't allow out of stock purchases, check whether the movement

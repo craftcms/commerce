@@ -36,7 +36,6 @@ class Taxes implements TaxEngineInterface
         );
 
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getTaxes()->hasEventHandlers(self::EVENT_REGISTER_TAX_ID_VALIDATORS)) {
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getTaxes()->trigger(self::EVENT_REGISTER_TAX_ID_VALIDATORS, $event);
@@ -68,7 +67,6 @@ class Taxes implements TaxEngineInterface
         $event = new TaxEngineEvent(engine: new Tax());
 
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getTaxes()->hasEventHandlers(self::EVENT_REGISTER_TAX_ENGINE)) {
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getTaxes()->trigger(self::EVENT_REGISTER_TAX_ENGINE, $event);

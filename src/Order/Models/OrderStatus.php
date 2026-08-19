@@ -112,7 +112,6 @@ class OrderStatus extends Component implements HasStoreInterface, Chippable
     public function canDelete(): bool
     {
         // TODO: migrate to app(Orders::class) query once element migrated to src/
-        /** @phpstan-ignore-next-line */
         $orderQuery = \craft\commerce\elements\Order::find()->trashed(null);
         return !$orderQuery->orderStatus($this)->one() && !$this->default;
     }

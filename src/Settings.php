@@ -107,9 +107,7 @@ class Settings extends Model
         }
 
         $paymentCurrency = Config::localizedValue($this->paymentCurrency, $siteHandle);
-        /** @phpstan-ignore-next-line */
         $store = app(Stores::class)->getStoreBySiteId($site->id);
-        /** @phpstan-ignore-next-line */
         $allPaymentCurrencies = app(PaymentCurrencies::class)->getAllPaymentCurrencies($store?->id);
 
         if ($paymentCurrency && !$allPaymentCurrencies->contains('iso', '==', $paymentCurrency)) {

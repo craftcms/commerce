@@ -19,7 +19,6 @@ class TaxAddressZone extends Zone implements Chippable
     public static function get(int|string $id): ?static
     {
         foreach (app(Stores::class)->getAllStores() as $store) {
-            /** @phpstan-ignore-next-line */
             $zone = app(\CraftCms\Commerce\Tax\TaxZones::class)->getTaxZoneById((int)$id, $store->id);
             if ($zone !== null) {
                 /** @phpstan-ignore-next-line */

@@ -295,7 +295,6 @@ class Variant extends Purchasable implements NestedElementInterface
     #[Override]
     public static function createCondition(): ElementConditionInterface
     {
-        /** @phpstan-ignore-next-line VariantCondition is still a legacy (Yii2) condition class */
         return new VariantCondition(static::class);
     }
 
@@ -358,7 +357,6 @@ class Variant extends Purchasable implements NestedElementInterface
         // If we have a field layout, try to set its provider from product type
         if ($fieldLayout) {
             // TODO: migrate to app(ProductTypes::class)->getAllProductTypes() once service migrated to src/
-            /** @phpstan-ignore-next-line */
             $productTypes = app(ProductTypes::class)->getAllProductTypes();
             $productType = collect($productTypes)->firstWhere('variantFieldLayoutId', $fieldLayout->id);
 

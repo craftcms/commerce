@@ -65,7 +65,6 @@ class TaxZones
         $record->name = $model->name;
         $record->description = $model->description;
         $record->default = $model->default;
-        /** @phpstan-ignore-next-line */
         $record->condition = $model->getCondition()->getConfig();
 
         $record->save();
@@ -123,7 +122,6 @@ class TaxZones
 
     private function currentStoreId(): int
     {
-        /** @phpstan-ignore-next-line */
         return app(Stores::class)->getCurrentStore()->id;
     }
 }

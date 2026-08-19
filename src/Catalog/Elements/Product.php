@@ -259,7 +259,6 @@ class Product extends Element implements HasStoreInterface
     #[Override]
     public static function createCondition(): ElementConditionInterface
     {
-        /** @phpstan-ignore-next-line ProductCondition is still a legacy (Yii2) condition class */
         return new ProductCondition(static::class);
     }
 
@@ -267,7 +266,6 @@ class Product extends Element implements HasStoreInterface
     protected static function defineSources(string $context): array
     {
         // TODO: migrate to app(ProductTypes::class) once service migrated to src/
-        /** @phpstan-ignore-next-line */
         $productTypesService = app(ProductTypes::class);
 
         if ($context == 'index') {
@@ -350,7 +348,6 @@ class Product extends Element implements HasStoreInterface
 
         if ($productTypeOptions && count($productTypeOptions) === 1) {
             // TODO: migrate to app(ProductTypes::class)->getProductTypeByUid() once service migrated to src/
-            /** @phpstan-ignore-next-line */
             $productType = app(ProductTypes::class)->getProductTypeByUid(reset($productTypeOptions));
             if ($productType) {
                 $config['data']['handle'] = $productType->handle;
@@ -364,7 +361,6 @@ class Product extends Element implements HasStoreInterface
     protected static function defineFieldLayouts(?string $source): array
     {
         // TODO: migrate to app(ProductTypes::class) once service migrated to src/
-        /** @phpstan-ignore-next-line */
         $productTypesService = app(ProductTypes::class);
 
         if ($source === null || $source === '*') {
@@ -394,7 +390,6 @@ class Product extends Element implements HasStoreInterface
             : Sites::getCurrentSite();
 
         // TODO: migrate to app(ProductTypes::class) once service migrated to src/
-        /** @phpstan-ignore-next-line */
         $productTypesService = app(ProductTypes::class);
 
         // Get the product type(s) we need to check permissions on
@@ -500,7 +495,6 @@ class Product extends Element implements HasStoreInterface
 
             if ($currentUser?->can('commerce-managePromotions')) {
                 // TODO: migrate to app(Sales::class)->canUseSales() once the Sales element actions are migrated to src/
-                /** @phpstan-ignore-next-line */
                 if (app(Sales::class)->canUseSales()) {
                     $actions[] = CreateSale::class;
                 }
@@ -950,7 +944,6 @@ JS, [
         $productType = $this->getType();
 
         // TODO: migrate to app(ProductTypes::class)->getViewableProductTypes() once service migrated to src/
-        /** @phpstan-ignore-next-line */
         $productTypes = Collection::make(app(ProductTypes::class)->getViewableProductTypes());
 
         $productTypeOptions = $productTypes
@@ -1010,7 +1003,6 @@ JS, [
         }
 
         // TODO: migrate to app(ProductTypes::class)->getProductTypeById() once service migrated to src/
-        /** @phpstan-ignore-next-line */
         $productType = app(ProductTypes::class)->getProductTypeById($this->typeId);
 
         if ($productType === null) {
@@ -1571,7 +1563,6 @@ JS, [
                 str($productType->variantTitleFormat)->contains(['product.', 'owner.', 'primaryOwner.'])
             ) {
                 // TODO: migrate to a Laravel job once the ResaveProductVariants job is migrated to src/
-                /** @phpstan-ignore-next-line */
                 Queue::push(new ResaveProductVariants([
                     'productId' => $this->id,
                 ]));

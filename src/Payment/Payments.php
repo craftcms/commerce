@@ -63,7 +63,6 @@ class Payments
         $event = new ProcessPaymentEvent(order: $order, form: $form);
 
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         $legacyService = Plugin::getInstance()->getPayments();
         if ($legacyService->hasEventHandlers(self::EVENT_BEFORE_PROCESS_PAYMENT)) {
             $legacyService->trigger(self::EVENT_BEFORE_PROCESS_PAYMENT, $event);
@@ -114,7 +113,6 @@ class Payments
             $this->updateTransaction($transaction, $response);
 
             // TODO: migrate event firing to Laravel once event system is bridged
-            /** @phpstan-ignore-next-line */
             if (Plugin::getInstance()->getPayments()->hasEventHandlers(self::EVENT_AFTER_PROCESS_PAYMENT)) {
                 $afterEvent = new ProcessPaymentEvent(order: $order, form: $form);
                 $afterEvent->transaction = $transaction;
@@ -158,7 +156,6 @@ class Payments
     {
         // Raise 'beforeCaptureTransaction' event
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getPayments()->hasEventHandlers(self::EVENT_BEFORE_CAPTURE_TRANSACTION)) {
             $beforeEvent = new TransactionEvent(transaction: $transaction);
             /** @phpstan-ignore-next-line */
@@ -169,7 +166,6 @@ class Payments
 
         // Raise 'afterCaptureTransaction' event
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getPayments()->hasEventHandlers(self::EVENT_AFTER_CAPTURE_TRANSACTION)) {
             $afterEvent = new TransactionEvent(transaction: $transaction);
             /** @phpstan-ignore-next-line */
@@ -190,7 +186,6 @@ class Payments
     {
         // Raise 'beforeRefundTransaction' event
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getPayments()->hasEventHandlers(self::EVENT_BEFORE_REFUND_TRANSACTION)) {
             $beforeEvent = new RefundTransactionEvent(transaction: $transaction, amount: $amount);
             /** @phpstan-ignore-next-line */
@@ -201,7 +196,6 @@ class Payments
 
         // Raise 'afterRefundTransaction' event
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getPayments()->hasEventHandlers(self::EVENT_AFTER_REFUND_TRANSACTION)) {
             $afterEvent = new RefundTransactionEvent(transaction: $transaction, amount: $amount);
             $afterEvent->refundTransaction = $refundTransaction;
@@ -281,7 +275,6 @@ class Payments
         }
 
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getPayments()->hasEventHandlers(self::EVENT_AFTER_COMPLETE_PAYMENT)) {
             $completeEvent = new TransactionEvent(transaction: $transaction);
             /** @phpstan-ignore-next-line */

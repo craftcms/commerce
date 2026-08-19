@@ -81,7 +81,6 @@ class OrderAdjustment extends Component
     public function setOrder(Order $order): void
     {
         $this->_order = $order;
-        /** @phpstan-ignore-next-line */
         $this->orderId = $order->id;
     }
 

@@ -51,7 +51,6 @@ class Discounts
     public function getDiscountById(int $id, ?int $storeId = null): ?Discount
     {
         // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
-        /** @phpstan-ignore-next-line */
         $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         $rows = $this->query()
@@ -74,7 +73,6 @@ class Discounts
     public function getAllDiscounts(?int $storeId = null): Collection
     {
         // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
-        /** @phpstan-ignore-next-line */
         $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         if ($this->allDiscounts === null || !isset($this->allDiscounts[$storeId])) {
@@ -109,7 +107,6 @@ class Discounts
         }
 
         // TODO: migrate to app(Stores::class)->getCurrentStore() once Stores service migrated
-        /** @phpstan-ignore-next-line */
         $store = $order ? $order->getStore() : app(Stores::class)->getCurrentStore();
 
         $couponKey = ($order && $order->couponCode) ? $order->couponCode : '*';
@@ -311,7 +308,6 @@ class Discounts
         }
 
         // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
-        /** @phpstan-ignore-next-line */
         $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         $isPgsql = DB::connection()->getDriverName() === 'pgsql';
@@ -365,9 +361,7 @@ class Discounts
                 // TODO: update Category/Entry element calls when migrated
                 $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
                 $categoryIds = $discount->getCategoryIds();
-                /** @phpstan-ignore-next-line */
                 $relatedCategories = Category::find()->id($categoryIds)->relatedTo($relatedTo)->ids();
-                /** @phpstan-ignore-next-line */
                 $relatedEntries = Entry::find()->id($categoryIds)->relatedTo($relatedTo)->ids();
                 $relatedCategoriesOrEntries = array_merge($relatedCategories, $relatedEntries);
 
@@ -402,7 +396,6 @@ class Discounts
         // TODO: update LineItemType enum reference once migrated
         /** @phpstan-ignore-next-line */
         if ($lineItem->type === \craft\commerce\enums\LineItemType::Purchasable) {
-            /** @phpstan-ignore-next-line */
             $purchasable = $lineItem->getPurchasable();
 
             if (!$discount->allPurchasables && !in_array($purchasable->id, $discount->getPurchasableIds(), false)) {
@@ -416,9 +409,7 @@ class Discounts
                     $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
 
                     // TODO: update Category/Entry element calls when migrated
-                    /** @phpstan-ignore-next-line */
                     $relatedEntries = Entry::find()->siteId($siteId)->relatedTo($relatedTo)->ids();
-                    /** @phpstan-ignore-next-line */
                     $relatedCategories = Category::find()->siteId($siteId)->relatedTo($relatedTo)->ids();
 
                     $relatedCategoriesOrEntries = array_merge($relatedEntries, $relatedCategories);
@@ -565,81 +556,46 @@ class Discounts
             return false;
         }
 
-        /** @phpstan-ignore-next-line */
         $record->storeId = $model->storeId;
-        /** @phpstan-ignore-next-line */
         $record->name = $model->name;
-        /** @phpstan-ignore-next-line */
         $record->description = $model->description;
-        /** @phpstan-ignore-next-line */
         $record->dateFrom = $model->dateFrom;
-        /** @phpstan-ignore-next-line */
         $record->dateTo = $model->dateTo;
-        /** @phpstan-ignore-next-line */
         $record->enabled = $model->enabled;
-        /** @phpstan-ignore-next-line */
         $record->stopProcessing = $model->stopProcessing;
-        /** @phpstan-ignore-next-line */
         $record->orderCondition = $model->hasOrderCondition() ? $model->getOrderCondition()->getConfig() : null;
-        /** @phpstan-ignore-next-line */
         $record->customerCondition = $model->hasCustomerCondition() ? $model->getCustomerCondition()->getConfig() : null;
-        /** @phpstan-ignore-next-line */
         $record->shippingAddressCondition = $model->hasShippingAddressCondition() ? $model->getShippingAddressCondition()->getConfig() : null;
-        /** @phpstan-ignore-next-line */
         $record->billingAddressCondition = $model->hasBillingAddressCondition() ? $model->getBillingAddressCondition()->getConfig() : null;
-        /** @phpstan-ignore-next-line */
         $record->requireCouponCode = $model->requireCouponCode;
-        /** @phpstan-ignore-next-line */
         $record->orderConditionFormula = $model->orderConditionFormula;
-        /** @phpstan-ignore-next-line */
         $record->purchaseQty = $model->purchaseQty;
-        /** @phpstan-ignore-next-line */
         $record->maxPurchaseQty = $model->maxPurchaseQty;
-        /** @phpstan-ignore-next-line */
         $record->baseDiscount = $model->baseDiscount;
-        /** @phpstan-ignore-next-line */
         $record->purchaseTotal = $model->purchaseTotal;
-        /** @phpstan-ignore-next-line */
         $record->perItemDiscount = $model->perItemDiscount;
-        /** @phpstan-ignore-next-line */
         $record->percentDiscount = $model->percentDiscount;
-        /** @phpstan-ignore-next-line */
         $record->percentageOffSubject = $model->percentageOffSubject;
-        /** @phpstan-ignore-next-line */
         $record->hasFreeShippingForMatchingItems = $model->hasFreeShippingForMatchingItems;
-        /** @phpstan-ignore-next-line */
         $record->hasFreeShippingForOrder = $model->hasFreeShippingForOrder;
-        /** @phpstan-ignore-next-line */
         $record->excludeOnPromotion = $model->excludeOnPromotion;
-        /** @phpstan-ignore-next-line */
         $record->perUserLimit = $model->perUserLimit;
-        /** @phpstan-ignore-next-line */
         $record->perEmailLimit = $model->perEmailLimit;
-        /** @phpstan-ignore-next-line */
         $record->totalDiscountUseLimit = $model->totalDiscountUseLimit;
-        /** @phpstan-ignore-next-line */
         $record->ignorePromotions = $model->ignorePromotions;
-        /** @phpstan-ignore-next-line */
         $record->appliedTo = $model->appliedTo;
-        /** @phpstan-ignore-next-line */
         $record->purchasableIds = $model->getPurchasableIds();
-        /** @phpstan-ignore-next-line */
         $record->categoryIds = $model->getCategoryIds();
-        /** @phpstan-ignore-next-line */
         $record->sortOrder = $record->sortOrder ?: 0;
-        /** @phpstan-ignore-next-line */
         $record->couponFormat = $model->couponFormat;
-        /** @phpstan-ignore-next-line */
         $record->categoryRelationshipType = $model->categoryRelationshipType;
 
         if ($record->allCategories = $model->allCategories) {
             $model->setCategoryIds([]);
-            /** @phpstan-ignore-next-line */
             $record->categoryIds = null;
         }
         if ($record->allPurchasables = $model->allPurchasables) {
             $model->setPurchasableIds([]);
-            /** @phpstan-ignore-next-line */
             $record->purchasableIds = null;
         }
 
@@ -659,7 +615,6 @@ class Discounts
             DiscountCategoryRecord::where('discountId', $model->id)->delete();
 
             // TODO: update getStore()->getSites() when Store/Sites migrated
-            /** @phpstan-ignore-next-line */
             $siteIds = $model->getStore()->getSites()->pluck('id')->all();
 
             foreach ($model->getCategoryIds() as $categoryId) {
@@ -724,7 +679,6 @@ class Discounts
     public function ensureSortOrder(?int $storeId = null): void
     {
         // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
-        /** @phpstan-ignore-next-line */
         $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         $table = Table::DISCOUNTS;
@@ -991,7 +945,6 @@ class Discounts
             $orderConditionParams = ['order' => array_merge($orderAsArray, $fieldsAsArray)];
 
             // TODO: migrate to app(Formulas::class)->evaluateCondition() once Formulas service migrated
-            /** @phpstan-ignore-next-line */
             return app(Formulas::class)->evaluateCondition($discount->orderConditionFormula, $orderConditionParams, 'Evaluate Order Discount Condition Formula');
         }
 

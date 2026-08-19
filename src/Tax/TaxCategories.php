@@ -197,7 +197,7 @@ class TaxCategories
     private function resaveProductsByProductTypeId(int $productTypeId): void
     {
         dispatch(new ResaveElements(
-            elementType: Product::class, /** @phpstan-ignore-line */
+            elementType: Product::class,
             criteria: [
                 'typeId' => $productTypeId,
                 'siteId' => '*',

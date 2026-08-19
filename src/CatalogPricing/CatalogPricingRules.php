@@ -43,7 +43,6 @@ class CatalogPricingRules
     public function canUseCatalogPricingRules(): bool
     {
         // TODO: migrate to app(Sales::class)->getAllSales() once Sales service migrated
-        /** @phpstan-ignore-next-line */
         if (!empty(app(Sales::class)->getAllSales())) {
             return false;
         }
@@ -62,7 +61,6 @@ class CatalogPricingRules
     public function getAllCatalogPricingRules(?int $storeId = null): Collection
     {
         // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
-        /** @phpstan-ignore-next-line */
         $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         if ($this->allCatalogPricingRules === null || !isset($this->allCatalogPricingRules[$storeId])) {
@@ -81,7 +79,6 @@ class CatalogPricingRules
     public function getAllCatalogPricingRulesByPurchasableId(int $purchasableId, ?int $storeId = null): Collection
     {
         // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
-        /** @phpstan-ignore-next-line */
         $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         $rows = $this->query()
@@ -153,7 +150,6 @@ class CatalogPricingRules
         }
 
         // TODO: migrate to app(Stores::class)->getAllStores() once Stores service migrated
-        /** @phpstan-ignore-next-line */
         $stores = app(Stores::class)->getAllStores();
 
         foreach ($stores as $store) {
@@ -211,35 +207,20 @@ class CatalogPricingRules
             return false;
         }
 
-        /** @phpstan-ignore-next-line */
         $record->apply = $catalogPricingRule->apply;
-        /** @phpstan-ignore-next-line */
         $record->applyAmount = $catalogPricingRule->applyAmount;
-        /** @phpstan-ignore-next-line */
         $record->applyPriceType = $catalogPricingRule->applyPriceType;
-        /** @phpstan-ignore-next-line */
         $record->dateFrom = $catalogPricingRule->dateFrom;
-        /** @phpstan-ignore-next-line */
         $record->dateTo = $catalogPricingRule->dateTo;
-        /** @phpstan-ignore-next-line */
         $record->description = $catalogPricingRule->description;
-        /** @phpstan-ignore-next-line */
         $record->enabled = $catalogPricingRule->enabled;
-        /** @phpstan-ignore-next-line */
         $record->isPromotionalPrice = $catalogPricingRule->isPromotionalPrice;
-        /** @phpstan-ignore-next-line */
         $record->name = $catalogPricingRule->name;
-        /** @phpstan-ignore-next-line */
         $record->storeId = $catalogPricingRule->storeId;
-        /** @phpstan-ignore-next-line */
         $record->metadata = $catalogPricingRule->getMetadata();
-        /** @phpstan-ignore-next-line */
         $record->customerCondition = $catalogPricingRule->getCustomerCondition()->getConfig();
-        /** @phpstan-ignore-next-line */
         $record->productCondition = $catalogPricingRule->getProductCondition()->getConfig();
-        /** @phpstan-ignore-next-line */
         $record->variantCondition = $catalogPricingRule->getVariantCondition()->getConfig();
-        /** @phpstan-ignore-next-line */
         $record->purchasableCondition = $catalogPricingRule->getPurchasableCondition()->getConfig();
 
         DB::beginTransaction();
@@ -264,7 +245,6 @@ class CatalogPricingRules
             DB::commit();
 
             // TODO: migrate to app(CatalogPricing::class)->createCatalogPricingJob() once CatalogPricing service is registered
-            /** @phpstan-ignore-next-line */
             app(CatalogPricing::class)->createCatalogPricingJob([
                 'catalogPricingRuleIds' => [$catalogPricingRule->id],
                 'storeId' => $catalogPricingRule->storeId,

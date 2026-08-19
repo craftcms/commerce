@@ -40,7 +40,6 @@ class Sales
     public function canUseSales(): bool
     {
         // TODO: migrate to app(Stores::class)->getAllStores() once Stores service migrated
-        /** @phpstan-ignore-next-line */
         $singleStore = app(Stores::class)->getAllStores()->count() === 1;
         $noCatalogPricingRules = app(\CraftCms\Commerce\CatalogPricing\CatalogPricingRules::class)->getAllCatalogPricingRules()->isEmpty();
 
@@ -176,9 +175,7 @@ class Sales
                 $saleCategories = $sale->getCategoryIds();
 
                 // TODO: update Category/Entry element calls when migrated
-                /** @phpstan-ignore-next-line */
                 $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->siteId($purchasable->siteId)->ids();
-                /** @phpstan-ignore-next-line */
                 $relatedEntries = Entry::find()->id($saleCategories)->relatedTo($relatedTo)->siteId($purchasable->siteId)->ids();
                 $relatedCategoriesOrEntries = array_merge($relatedCategories, $relatedEntries);
 
@@ -242,7 +239,6 @@ class Sales
         }
 
         // TODO: migrate to app(Currency::class)->round() once Currency service migrated
-        /** @phpstan-ignore-next-line */
         return \craft\commerce\helpers\Currency::round($salePrice);
     }
 
@@ -277,7 +273,6 @@ class Sales
 
         if ($order) {
             // TODO: update isCompleted/dateOrdered when Order is migrated
-            /** @phpstan-ignore-next-line */
             $date = $order->isCompleted ? $order->dateOrdered : $date;
         }
 
@@ -291,7 +286,6 @@ class Sales
 
         if ($order) {
             // TODO: update getCustomer() when Order/User is migrated
-            /** @phpstan-ignore-next-line */
             $user = $order->getCustomer();
 
             if (!$sale->allGroups) {
@@ -299,7 +293,6 @@ class Sales
                     return false;
                 }
                 // TODO: update getGroups() when User element is migrated
-                /** @phpstan-ignore-next-line */
                 $userGroups = array_column($user->getGroups(), 'id');
                 if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
                     return false;
@@ -323,9 +316,7 @@ class Sales
             $saleCategories = $sale->getCategoryIds();
 
             // TODO: update Category/Entry element calls when migrated
-            /** @phpstan-ignore-next-line */
             $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->siteId($purchasable->siteId)->ids();
-            /** @phpstan-ignore-next-line */
             $relatedEntries = Entry::find()->id($saleCategories)->relatedTo($relatedTo)->siteId($purchasable->siteId)->ids();
             $relatedCategoriesOrEntries = array_merge($relatedCategories, $relatedEntries);
 
@@ -369,25 +360,15 @@ class Sales
         $beforeEv = new SaleEvent(sale: $model, isNew: $isNew);
         event($beforeEv);
 
-        /** @phpstan-ignore-next-line */
         $record->name = $model->name;
-        /** @phpstan-ignore-next-line */
         $record->description = $model->description;
-        /** @phpstan-ignore-next-line */
         $record->dateFrom = $model->dateFrom;
-        /** @phpstan-ignore-next-line */
         $record->dateTo = $model->dateTo;
-        /** @phpstan-ignore-next-line */
         $record->apply = $model->apply;
-        /** @phpstan-ignore-next-line */
         $record->applyAmount = $model->applyAmount;
-        /** @phpstan-ignore-next-line */
         $record->stopProcessing = $model->stopProcessing;
-        /** @phpstan-ignore-next-line */
         $record->ignorePrevious = $model->ignorePrevious;
-        /** @phpstan-ignore-next-line */
         $record->categoryRelationshipType = $model->categoryRelationshipType;
-        /** @phpstan-ignore-next-line */
         $record->enabled = $model->enabled;
 
         if ($record->allGroups = $model->allGroups) {

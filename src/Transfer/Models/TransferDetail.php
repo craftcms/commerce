@@ -60,7 +60,6 @@ class TransferDetail extends Component
 
     public function setTransfer(Transfer $transfer): void
     {
-        /** @phpstan-ignore-next-line */
         $this->transferId = $transfer->id;
         $this->_transfer = $transfer;
     }

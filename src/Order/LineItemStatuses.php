@@ -78,7 +78,6 @@ class LineItemStatuses
         );
 
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         $legacyService = Plugin::getInstance()->getLineItemStatuses();
         if ($legacyService->hasEventHandlers(self::EVENT_DEFAULT_LINE_ITEM_STATUS)) {
             $legacyService->trigger(self::EVENT_DEFAULT_LINE_ITEM_STATUS, $event);

@@ -33,14 +33,12 @@ abstract class Zone extends Component implements HasStoreInterface
 
     public function getCondition(): ZoneAddressCondition
     {
-        /** @phpstan-ignore-next-line */
         return $this->_condition ?? new ZoneAddressCondition(Address::class);
     }
 
     public function setCondition(ZoneAddressCondition|string|array|null $condition): void
     {
         if ($condition === null) {
-            /** @phpstan-ignore-next-line */
             $condition = new ZoneAddressCondition(Address::class);
         }
 
@@ -56,7 +54,6 @@ abstract class Zone extends Component implements HasStoreInterface
             $condition = Conditions::createCondition($condition);
         }
 
-        /** @phpstan-ignore-next-line */
         $condition->forProjectConfig = false;
 
         $this->_condition = $condition;

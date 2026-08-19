@@ -319,7 +319,6 @@ class Discount extends Component implements HasStoreInterface
     public function getCoupons(): array
     {
         if ($this->_coupons === null && $this->id) {
-            /** @phpstan-ignore-next-line */
             $this->_coupons = app(Coupons::class)->getCouponsByDiscountId($this->id);
         }
 
@@ -387,7 +386,6 @@ class Discount extends Component implements HasStoreInterface
                         'order' => array_merge($orderAsArray, $fieldsAsArray),
                     ];
 
-                    /** @phpstan-ignore-next-line */
                     if (!app(Formulas::class)->validateConditionSyntax($value, $orderConditionParams)) {
                         $fail(t('Invalid order condition syntax.', category: 'commerce'));
                     }

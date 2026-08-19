@@ -183,7 +183,6 @@ class Transactions
 
         // Raise 'afterCreateTransaction' event
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getTransactions()->hasEventHandlers(self::EVENT_AFTER_CREATE_TRANSACTION)) {
             $event = new TransactionEvent(transaction: $transaction);
             /** @phpstan-ignore-next-line */
@@ -368,7 +367,6 @@ class Transactions
 
         // Raise 'afterSaveTransaction' event
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getTransactions()->hasEventHandlers(self::EVENT_AFTER_SAVE_TRANSACTION)) {
             $event = new TransactionEvent(transaction: $model);
             /** @phpstan-ignore-next-line */

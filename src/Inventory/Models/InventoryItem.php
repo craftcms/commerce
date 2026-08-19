@@ -45,7 +45,6 @@ class InventoryItem extends Component
 
     public function getSku(): string
     {
-        /** @phpstan-ignore-next-line */
         return $this->getPurchasable('*')->sku;
     }
 

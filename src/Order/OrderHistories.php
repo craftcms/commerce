@@ -90,7 +90,6 @@ class OrderHistories
 
         // Raising 'orderStatusChange' event
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getOrderHistories()->hasEventHandlers(self::EVENT_ORDER_STATUS_CHANGE)) {
             $event = new OrderStatusEvent(
                 orderHistory: $orderHistoryModel,

@@ -49,7 +49,6 @@ class PaymentCurrencies
         );
 
         // TODO: migrate event firing to Laravel once the event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getPaymentCurrencies()->hasEventHandlers(self::EVENT_DEFINE_PAYMENT_CURRENCY_RATE)) {
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getPaymentCurrencies()->trigger(self::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $event);
@@ -109,7 +108,6 @@ class PaymentCurrencies
     {
         $storeId ??= $this->currentStoreId();
 
-        /** @phpstan-ignore-next-line */
         $storeCurrency = app(Stores::class)->getStoreById($storeId)->getCurrency();
 
         return $this->getAllPaymentCurrencies($storeId)->firstWhere(
@@ -122,7 +120,6 @@ class PaymentCurrencies
      */
     public function getNonPrimaryPaymentCurrencies(?int $storeId = null): Collection
     {
-        /** @phpstan-ignore-next-line */
         $storeCurrency = app(Stores::class)->getStoreById($storeId)->getCurrency();
 
         return $this->getAllPaymentCurrencies($storeId)->where(
@@ -223,7 +220,6 @@ class PaymentCurrencies
     {
         $storeId ??= $this->currentStoreId();
 
-        /** @phpstan-ignore-next-line */
         $storeCurrency = app(Stores::class)->getStoreById($storeId)->getCurrency();
         $nonPrimaryCurrencies = $this->getNonPrimaryPaymentCurrencies($storeId)
             ->mapWithKeys(fn(PaymentCurrency $c) => [$c->iso => (string) $this->getRateFor($c)]);
@@ -239,7 +235,6 @@ class PaymentCurrencies
 
     private function currentStoreId(): int
     {
-        /** @phpstan-ignore-next-line */
         return app(Stores::class)->getCurrentStore()->id;
     }
 }

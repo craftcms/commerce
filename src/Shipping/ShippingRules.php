@@ -90,9 +90,7 @@ class ShippingRules
             $record->$field = $model->$field;
         }
 
-        /** @phpstan-ignore-next-line */
         $record->orderCondition = $model->getOrderCondition()->getConfig();
-        /** @phpstan-ignore-next-line */
         $record->customerCondition = $model->getCustomerCondition()->getConfig();
 
         if (empty($record->priority) && empty($model->priority)) {

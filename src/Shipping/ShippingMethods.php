@@ -78,7 +78,6 @@ class ShippingMethods
         $event->setShippingMethods($methods);
 
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getShippingMethods()->hasEventHandlers(self::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS)) {
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getShippingMethods()->trigger(self::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS, $event);
@@ -121,9 +120,7 @@ class ShippingMethods
             return $this->serializedOrdersByNumber[$order->number];
         }
 
-        /** @phpstan-ignore-next-line */
         $fieldsAsArray = $order->getSerializedFieldValues();
-        /** @phpstan-ignore-next-line */
         $orderAsArray = $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']);
         $this->serializedOrdersByNumber[$order->number] = array_merge($orderAsArray, $fieldsAsArray);
 
@@ -155,9 +152,7 @@ class ShippingMethods
         $record->handle = $model->handle;
         $record->icon = $model->icon;
         $record->color = $model->color;
-        /** @phpstan-ignore-next-line */
         $record->orderCondition = $model->getOrderCondition()->getConfig();
-        /** @phpstan-ignore-next-line */
         $record->customerCondition = $model->getCustomerCondition()->getConfig();
         $record->enabled = $model->enabled;
 
@@ -224,7 +219,6 @@ class ShippingMethods
     private function currentStoreId(): int
     {
         // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
-        /** @phpstan-ignore-next-line */
         return app(Stores::class)->getCurrentStore()->id;
     }
 }

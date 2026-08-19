@@ -172,7 +172,6 @@ class PaymentSources
 
         // Raise 'beforeSavePaymentSource' event
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getPaymentSources()->hasEventHandlers(self::EVENT_BEFORE_SAVE_PAYMENT_SOURCE)) {
             $event = new PaymentSourceEvent(paymentSource: $paymentSource);
             /** @phpstan-ignore-next-line */
@@ -197,7 +196,6 @@ class PaymentSources
 
         // Raise 'afterSavePaymentSource' event
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getPaymentSources()->hasEventHandlers(self::EVENT_AFTER_SAVE_PAYMENT_SOURCE)) {
             $event = new PaymentSourceEvent(paymentSource: $paymentSource);
             /** @phpstan-ignore-next-line */
@@ -223,7 +221,6 @@ class PaymentSources
 
             // Raise 'deletePaymentSource' event
             // TODO: migrate event firing to Laravel once event system is bridged
-            /** @phpstan-ignore-next-line */
             if (Plugin::getInstance()->getPaymentSources()->hasEventHandlers(self::EVENT_DELETE_PAYMENT_SOURCE)) {
                 $event = new PaymentSourceEvent(paymentSource: $paymentSource);
                 /** @phpstan-ignore-next-line */

@@ -123,7 +123,6 @@ class Pdfs
 
         // Raise 'beforeSavePdf' event
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getPdfs()->hasEventHandlers(self::EVENT_BEFORE_SAVE_PDF)) {
             $beforeEvent = new PdfEvent(
                 pdf: $pdf,
@@ -201,7 +200,6 @@ class Pdfs
 
         // Raise 'afterSavePdf' event
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getPdfs()->hasEventHandlers(self::EVENT_AFTER_SAVE_PDF)) {
             $afterEvent = new PdfEvent(
                 pdf: $this->getPdfById($pdfRecord->id, $pdfRecord->storeId),
@@ -224,7 +222,6 @@ class Pdfs
         if ($pdf) {
             // Raise 'beforeDeletePdf' event
             // TODO: migrate event firing to Laravel once event system is bridged
-            /** @phpstan-ignore-next-line */
             if (Plugin::getInstance()->getPdfs()->hasEventHandlers(self::EVENT_BEFORE_DELETE_PDF)) {
                 $event = new PdfEvent(
                     pdf: $this->getPdfById($pdf->id, $pdf->storeId),
@@ -356,7 +353,6 @@ class Pdfs
         );
 
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         $legacyService = Plugin::getInstance()->getPdfs();
         if ($legacyService->hasEventHandlers(self::EVENT_BEFORE_RENDER_PDF)) {
             $legacyService->trigger(self::EVENT_BEFORE_RENDER_PDF, $event);
@@ -433,7 +429,6 @@ class Pdfs
 
         // Set additional render options
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getPdfs()->hasEventHandlers(self::EVENT_MODIFY_RENDER_OPTIONS)) {
             /** @phpstan-ignore-next-line */
             Plugin::getInstance()->getPdfs()->trigger(self::EVENT_MODIFY_RENDER_OPTIONS, $renderOptionsEvent);
@@ -455,7 +450,6 @@ class Pdfs
         );
 
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         $legacyService = Plugin::getInstance()->getPdfs();
         if ($legacyService->hasEventHandlers(self::EVENT_AFTER_RENDER_PDF)) {
             $legacyService->trigger(self::EVENT_AFTER_RENDER_PDF, $afterEvent);

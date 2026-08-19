@@ -231,7 +231,7 @@ class ShippingCategories
     private function resaveVariantsByProductTypeId(int $productTypeId): void
     {
         dispatch(new ResaveElements(
-            elementType: Variant::class, /** @phpstan-ignore-line */
+            elementType: Variant::class,
             criteria: [
                 'typeId' => $productTypeId,
                 'siteId' => '*',
@@ -271,7 +271,6 @@ class ShippingCategories
 
     private function currentStoreId(): int
     {
-        /** @phpstan-ignore-next-line */
         return app(Stores::class)->getCurrentStore()->id;
     }
 }

@@ -164,7 +164,6 @@ class TaxRates
 
     private function currentStoreId(): int
     {
-        /** @phpstan-ignore-next-line */
         return app(Stores::class)->getCurrentStore()->id;
     }
 }

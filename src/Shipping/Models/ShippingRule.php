@@ -136,9 +136,7 @@ class ShippingRule extends Component implements ShippingRuleInterface, HasStoreI
         $condition = Conditions::createCondition($condition);
         /** @var ShippingRuleOrderCondition $condition */
         $condition->forProjectConfig = false;
-        /** @phpstan-ignore-next-line */
         $condition->mainTag = 'div';
-        /** @phpstan-ignore-next-line */
         $condition->name = 'orderCondition';
         $condition->storeId = $this->storeId;
 
@@ -172,9 +170,7 @@ class ShippingRule extends Component implements ShippingRuleInterface, HasStoreI
         $condition = Conditions::createCondition($condition);
         /** @var ShippingRuleCustomerCondition $condition */
         $condition->forProjectConfig = false;
-        /** @phpstan-ignore-next-line */
         $condition->mainTag = 'div';
-        /** @phpstan-ignore-next-line */
         $condition->name = 'customerCondition';
 
         $this->_customerCondition = $condition;
@@ -215,18 +211,15 @@ class ShippingRule extends Component implements ShippingRuleInterface, HasStoreI
             return false;
         }
 
-        /** @phpstan-ignore-next-line */
         if (!$this->getOrderCondition()->matchElement($order)) {
             return false;
         }
 
         $customer = $order->getCustomer();
-        /** @phpstan-ignore-next-line */
         if (!$customer && !empty($this->getCustomerCondition()->getConditionRules())) {
             return false;
         }
 
-        /** @phpstan-ignore-next-line */
         if ($customer && !$this->getCustomerCondition()->matchElement($customer)) {
             return false;
         }

@@ -109,9 +109,7 @@ abstract class BaseShippingMethod extends Component implements ShippingMethodInt
     public function getOrderCondition(): ShippingMethodOrderCondition
     {
         $condition = $this->_orderCondition ?? new ShippingMethodOrderCondition();
-        /** @phpstan-ignore-next-line */
         $condition->mainTag = 'div';
-        /** @phpstan-ignore-next-line */
         $condition->name = 'orderCondition';
         $condition->storeId = $this->storeId;
 
@@ -142,9 +140,7 @@ abstract class BaseShippingMethod extends Component implements ShippingMethodInt
     public function getCustomerCondition(): ShippingMethodCustomerCondition
     {
         $condition = $this->_customerCondition ?? new ShippingMethodCustomerCondition();
-        /** @phpstan-ignore-next-line */
         $condition->mainTag = 'div';
-        /** @phpstan-ignore-next-line */
         $condition->name = 'customerCondition';
 
         return $condition;
@@ -152,18 +148,15 @@ abstract class BaseShippingMethod extends Component implements ShippingMethodInt
 
     public function matchOrder(Order $order): bool
     {
-        /** @phpstan-ignore-next-line */
         if (!$this->getOrderCondition()->matchElement($order)) {
             return false;
         }
 
         $customer = $order->getCustomer();
-        /** @phpstan-ignore-next-line */
         if (!$customer && !empty($this->getCustomerCondition()->getConditionRules())) {
             return false;
         }
 
-        /** @phpstan-ignore-next-line */
         if ($customer && !$this->getCustomerCondition()->matchElement($customer)) {
             return false;
         }

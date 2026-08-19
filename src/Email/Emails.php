@@ -111,7 +111,6 @@ class Emails
 
         // Raise 'beforeSaveEmail' event
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getEmails()->hasEventHandlers(self::EVENT_BEFORE_SAVE_EMAIL)) {
             $beforeEvent = new EmailEvent(
                 email: $email,
@@ -193,7 +192,6 @@ class Emails
 
         // Raise 'afterSaveEmail' event
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getEmails()->hasEventHandlers(self::EVENT_AFTER_SAVE_EMAIL)) {
             $afterEvent = new EmailEvent(
                 email: $this->getEmailById($emailRecord->id, $emailRecord->storeId),
@@ -216,7 +214,6 @@ class Emails
         if ($email) {
             // Raise 'beforeDeleteEmail' event
             // TODO: migrate event firing to Laravel once event system is bridged
-            /** @phpstan-ignore-next-line */
             if (Plugin::getInstance()->getEmails()->hasEventHandlers(self::EVENT_BEFORE_DELETE_EMAIL)) {
                 $event = new EmailEvent(
                     email: $this->getEmailById($id, $email->storeId),
@@ -250,7 +247,6 @@ class Emails
 
         // Raise 'afterDeleteEmail' event
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getEmails()->hasEventHandlers(self::EVENT_AFTER_DELETE_EMAIL)) {
             $afterEvent = new EmailEvent(
                 email: $email,
@@ -641,7 +637,6 @@ class Emails
             );
 
             // TODO: migrate event firing to Laravel once event system is bridged
-            /** @phpstan-ignore-next-line */
             $legacyService = Plugin::getInstance()->getEmails();
             if ($legacyService->hasEventHandlers(self::EVENT_BEFORE_SEND_MAIL)) {
                 $legacyService->trigger(self::EVENT_BEFORE_SEND_MAIL, $event);
@@ -687,7 +682,6 @@ class Emails
 
         // Raise 'afterSendEmail' event
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         if (Plugin::getInstance()->getEmails()->hasEventHandlers(self::EVENT_AFTER_SEND_MAIL)) {
             $afterEvent = new MailEvent(
                 craftEmail: $newEmail,

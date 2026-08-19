@@ -90,7 +90,6 @@ class Store extends Component
                         return;
                     }
                     $hasOrders = Order::find()
-                        /** @phpstan-ignore-next-line */
                         ->trashed(null)
                         ->storeId($this->id)
                         ->exists();
@@ -125,7 +124,6 @@ class Store extends Component
 
     public function getSites(): Collection
     {
-        /** @phpstan-ignore-next-line */
         return app(Stores::class)->getAllSitesForStore($this);
     }
 

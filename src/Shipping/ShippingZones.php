@@ -64,7 +64,6 @@ class ShippingZones
         $record->name = $model->name;
         $record->storeId = $model->storeId;
         $record->description = $model->description;
-        /** @phpstan-ignore-next-line */
         $record->condition = $model->getCondition()->getConfig();
         $this->clearCaches();
 
@@ -112,7 +111,6 @@ class ShippingZones
 
     private function currentStoreId(): int
     {
-        /** @phpstan-ignore-next-line */
         return app(Stores::class)->getCurrentStore()->id;
     }
 }

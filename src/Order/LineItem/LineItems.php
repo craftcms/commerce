@@ -135,7 +135,6 @@ class LineItems
         $isNewLineItem = !$lineItem->id;
 
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         $legacyService = Plugin::getInstance()->getLineItems();
 
         if ($legacyService->hasEventHandlers(self::EVENT_BEFORE_SAVE_LINE_ITEM)) {
@@ -234,7 +233,6 @@ class LineItems
         }
 
         // TODO: migrate event firing to Laravel once event system is bridged
-        /** @phpstan-ignore-next-line */
         $legacyService = Plugin::getInstance()->getLineItems();
         if ($legacyService->hasEventHandlers(self::EVENT_CREATE_LINE_ITEM)) {
             $event = new LineItemEvent(
