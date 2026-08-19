@@ -3,24 +3,191 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - '5.x'
+      - 6.x
   pull_request:
-permissions:
-  contents: read
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
-  ci:
-    name: ci
-    uses: craftcms/.github/.github/workflows/ci.yml@v3
-    with:
-      php_version: '["8.2", "8.3"]'
-      craft_version: '5'
-      node_version: '20'
-      jobs: '["ecs", "phpstan", "prettier", "tests", "rector"]'
-      notify_slack: true
-      slack_subteam: <!subteam^S01CWPYH9D5>
-    secrets:
-      token: ${{ secrets.GITHUB_TOKEN }}
-      slack_webhook_url: ${{ secrets.SLACK_COMMERCE_WEBHOOK_URL }}
+  check-cs:
+    name: 'Code Quality / ECS'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, fileinfo
+          tools: composer:v2
+          coverage: none
+        env:
+          COMPOSER_AUTH_JSON: |
+            {
+              "http-basic": {
+                "repo.packagist.com": {
+                  "username": "${{ secrets.packagist_username }}",
+                  "password": "${{ secrets.packagist_token }}"
+                }
+              }
+            }
+
+      - name: Set version
+        run: composer config version "6.x-dev"
+
+      - name: Install dependencies
+        uses: ramsey/composer-install@v3
+
+      - name: Run ECS
+        run: composer run check-cs
+
+  rector:
+    name: 'Code Quality / Rector'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, fileinfo
+          coverage: none
+        env:
+          COMPOSER_AUTH_JSON: |
+            {
+              "http-basic": {
+                "repo.packagist.com": {
+                  "username": "${{ secrets.packagist_username }}",
+                  "password": "${{ secrets.packagist_token }}"
+                }
+              }
+            }
+
+      - name: Set version
+        run: composer config version "6.x-dev"
+
+      - name: Install dependencies
+        uses: ramsey/composer-install@v3
+
+      - name: Rector Cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/rector
+          key: ${{ runner.os }}-rector-${{ github.run_id }}
+          restore-keys: ${{ runner.os }}-rector-
+
+      - run: mkdir -p /tmp/rector
+
+      - name: Run Rector
+        run: vendor/bin/rector process --dry-run --ansi
+
+  phpstan:
+    name: 'Code Quality / Phpstan'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, fileinfo
+          tools: composer:v2
+          coverage: none
+        env:
+          COMPOSER_AUTH_JSON: |
+            {
+              "http-basic": {
+                "repo.packagist.com": {
+                  "username": "${{ secrets.packagist_username }}",
+                  "password": "${{ secrets.packagist_token }}"
+                }
+              }
+            }
+
+      - name: Set version
+        run: composer config version "6.x-dev"
+
+      - name: Install composer dependencies
+        uses: ramsey/composer-install@v3
+
+      - name: PHPStan Cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/phpstan
+          key: ${{ runner.os }}-phpstan-${{ github.run_id }}
+          restore-keys: ${{ runner.os }}-phpstan-
+
+      - name: Run PHPStan
+        run: ./vendor/bin/phpstan --error-format=github
+
+  unit-tests:
+    needs: [check-cs, phpstan, rector]
+    name: 'Tests / Unit'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run tests
+        uses: ./.github/actions/run-tests
+        with:
+          test-command: ./vendor/bin/pest --ci --compact --testsuite=Unit
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          packagist-username: ${{ secrets.packagist_username }}
+          packagist-token: ${{ secrets.packagist_token }}
+
+  arch-tests:
+    needs: [check-cs, phpstan, rector]
+    name: 'Tests / Arch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run tests
+        uses: ./.github/actions/run-tests
+        with:
+          test-command: ./vendor/bin/pest --ci --testsuite=Arch
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          packagist-username: ${{ secrets.packagist_username }}
+          packagist-token: ${{ secrets.packagist_token }}
+
+  feature-tests:
+    needs: [check-cs, phpstan, rector]
+    # SQLite only for now — Commerce's stat/catalog-pricing queries have only been verified
+    # against SQLite so far. Add a mysql/pgsql matrix (see cms-6's laravel-ci.yml for the
+    # pattern) once those paths have been checked locally.
+    name: 'Tests / Feature'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run tests
+        uses: ./.github/actions/run-tests
+        with:
+          test-command: ./vendor/bin/pest --ci --compact --testsuite=Feature
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          packagist-username: ${{ secrets.packagist_username }}
+          packagist-token: ${{ secrets.packagist_token }}
