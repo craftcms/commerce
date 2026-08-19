@@ -34,7 +34,7 @@ readonly class DownloadsController
         $inline = (bool)$request->query('inline', false);
         $token = $request->query('code') ?? $request->query('token');
 
-        abort_unless($number, 400, 'Order number required');
+        abort_unless($number !== null, 400, 'Order number required');
 
         $order = app(Orders::class)->getOrderByNumber($number);
         abort_if(!$order || !$order->getEmail(), 404, 'Order not found');
@@ -110,7 +110,7 @@ readonly class DownloadsController
     public function emailChallenge(Request $request): string
     {
         $number = $request->query('number');
-        abort_unless($number, 400, 'Order number required');
+        abort_unless($number !== null, 400, 'Order number required');
 
         $order = app(Orders::class)->getOrderByNumber($number);
         abort_if(!$order || !$order->getEmail(), 404, 'Order not found');
@@ -170,7 +170,7 @@ readonly class DownloadsController
     public function pdfSent(Request $request): string
     {
         $orderNumberHash = $request->query('hash');
-        abort_unless($orderNumberHash, 400, 'Hash parameter required');
+        abort_unless($orderNumberHash !== null, 400, 'Hash parameter required');
 
         try {
             $orderNumber = Crypt::decrypt($orderNumberHash);

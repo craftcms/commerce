@@ -214,7 +214,7 @@ class CartController
                     $lineItem->setOptions($request->input("lineItems.$key.options", $lineItem->getOptions()));
 
                     $removeLine = $request->input("lineItems.$key.remove", false);
-                    if (($lineItem->qty !== null && $lineItem->qty == 0) || $removeLine) {
+                    if ($lineItem->qty == 0 || $removeLine) {
                         $this->cart->removeLineItem($lineItem);
                     } else {
                         $this->cart->addLineItem($lineItem);
@@ -477,7 +477,7 @@ class CartController
     public function emailChallenge(Request $request): string
     {
         $number = $request->query('number');
-        abort_unless($number, 400, 'Cart number required');
+        abort_unless($number !== null, 400, 'Cart number required');
 
         $cart = Order::find()->number($number)->isCompleted(false)->one();
         abort_if(!$cart || !$cart->getEmail(), 404, 'Cart not found');
@@ -525,7 +525,7 @@ class CartController
     public function cartSent(Request $request): string
     {
         $cartNumberHash = $request->query('hash');
-        abort_unless($cartNumberHash, 400, 'Hash parameter required');
+        abort_unless($cartNumberHash !== null, 400, 'Hash parameter required');
 
         try {
             $cartNumber = Crypt::decrypt($cartNumberHash);
@@ -553,7 +553,7 @@ class CartController
         return null;
     }
 
-    private function returnCart(Request $request): ?Response
+    private function returnCart(Request $request): Response
     {
         $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
 

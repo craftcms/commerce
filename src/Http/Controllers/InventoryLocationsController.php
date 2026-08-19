@@ -171,14 +171,16 @@ readonly class InventoryLocationsController
             $inventoryLocationAddress['title'] = $inventoryLocation->name;
             if ($isValid) {
                 $addressId = $inventoryLocationAddress['id'] ?: null;
-                $address = $addressId ? Elements::getElementById((int)$addressId, Address::class) : new Address();
+                /** @var Address|null $address */
+                $address = $addressId ? Elements::getElementById((int)$addressId, Address::class) : null;
+                $address ??= new Address();
 
                 $address->id = $addressId;
             } else {
                 $address = new Address();
             }
 
-            $address->setAttributes($inventoryLocationAddress, false);
+            $address->setAttributes($inventoryLocationAddress);
 
             if (isset($inventoryLocationAddress['fields'])) {
                 $address->setFieldValues($inventoryLocationAddress['fields']);

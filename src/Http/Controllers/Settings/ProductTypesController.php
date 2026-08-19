@@ -97,7 +97,7 @@ readonly class ProductTypesController
 
         if ($productTypeId) {
             $productType = app(ProductTypes::class)->getProductTypeById($productTypeId);
-            abort_unless($productType, 400, "Invalid section ID: $productTypeId");
+            abort_unless($productType !== null, 400, "Invalid section ID: $productTypeId");
         } else {
             $productType = new ProductType();
         }

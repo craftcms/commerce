@@ -41,7 +41,7 @@ readonly class TransfersController
     public function create(): Response
     {
         $user = currentUserElement();
-        abort_unless($user, 401);
+        abort_unless($user !== null, 401);
 
         $transfer = \Craft::createObject(Transfer::class);
 

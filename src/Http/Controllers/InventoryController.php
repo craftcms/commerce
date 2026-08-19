@@ -29,8 +29,9 @@ use CraftCms\Commerce\Inventory\InventoryLocations;
 use CraftCms\Commerce\Inventory\Models\InventoryManualMovement;
 use CraftCms\Commerce\Inventory\Models\UpdateInventoryLevel;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\currentUserElement;
@@ -77,7 +78,6 @@ readonly class InventoryController
         abort_if(!$inventoryItemId, 404);
 
         $inventoryItem = app(Inventory::class)->getInventoryItemById((int)$inventoryItemId);
-        abort_if(!$inventoryItem, 404);
 
         $inventoryItem->countryCodeOfOrigin = $request->input('countryCodeOfOrigin', $inventoryItem->countryCodeOfOrigin);
         $inventoryItem->administrativeAreaCodeOfOrigin = $request->input('administrativeAreaCodeOfOrigin', $inventoryItem->administrativeAreaCodeOfOrigin);
@@ -174,21 +174,24 @@ readonly class InventoryController
         $search = $request->input('search');
 
         $inventoryQuery = app(Inventory::class)->getInventoryLevelQuery(limit: $limit, offset: $offset, inventoryLocationId: $inventoryLocationId)
-            ->andWhere(['inventoryLocationId' => $inventoryLocationId]);
+            ->where('inventoryLocationId', $inventoryLocationId);
 
         if ($inventoryItemId) {
-            $inventoryQuery->andWhere(['inventoryItemId' => $inventoryItemId]);
+            $inventoryQuery->where('inventoryItemId', $inventoryItemId);
         }
 
-        $inventoryQuery->addSelect(['[[purchasables.description]]', '[[purchasables.sku]]']);
-        $inventoryQuery->leftJoin(['purchasables' => Table::PURCHASABLES], '[[ii.purchasableId]] = [[purchasables.id]]');
-        $inventoryQuery->addGroupBy(['[[purchasables.description]]', '[[purchasables.sku]]']);
+        $inventoryQuery->addSelect(['purchasables.description', 'purchasables.sku']);
+        $inventoryQuery->leftJoin(Table::PURCHASABLES . ' as purchasables', 'ii.purchasableId', '=', 'purchasables.id');
+        $inventoryQuery->groupBy('purchasables.description', 'purchasables.sku');
 
-        $inventoryQuery->andWhere(['not', ['elements.id' => null]]);
+        $inventoryQuery->whereNotNull('elements.id');
 
         if ($search) {
             $likeOperator = DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
-            $inventoryQuery->andWhere(['or', [$likeOperator, 'purchasables.description', $search], [$likeOperator, 'purchasables.sku', $search]]);
+            $inventoryQuery->where(function($q) use ($likeOperator, $search) {
+                $q->where('purchasables.description', $likeOperator, "%$search%")
+                    ->orWhere('purchasables.sku', $likeOperator, "%$search%");
+            });
         }
 
         $sort = $request->input('sort');
@@ -224,21 +227,18 @@ readonly class InventoryController
                 if ($field == 'item') {
                     $field = 'purchasables.description';
                 }
-                $inventoryQuery->addOrderBy($field . ' ' . $direction);
+                $inventoryQuery->orderBy($field, $direction);
             }
         }
 
-        $inventoryTableData = $inventoryQuery->all();
+        $inventoryTableData = $inventoryQuery->get();
 
-        $total = $inventoryQuery
-            ->limit(null)
-            ->offset(null)
-            ->count();
+        $total = $inventoryQuery->getCountForPagination();
 
         // Batch-load all purchasables for this page in one query per element type,
         // rather than one getElementById call per row.
         $requestedSite = Cp::requestedSite();
-        $purchasableIds = array_unique(array_filter(array_column($inventoryTableData, 'purchasableId')));
+        $purchasableIds = $inventoryTableData->pluck('purchasableId')->filter()->unique()->all();
         $purchasablesMap = [];
         if ($purchasableIds) {
             $elementTypes = new Query()
@@ -524,7 +524,7 @@ JS, [
         ]);
     }
 
-    public function editUpdateLevelsModal(Request $request): Response
+    public function editUpdateLevelsModal(Request $request): CpModalResponse|JsonResponse
     {
         $inventoryLocationId = (int)$request->input('inventoryLocationId');
         $note = $request->input('note', '');
@@ -597,7 +597,7 @@ JS, [
         return $this->asSuccess(t('Inventory movement saved.', category: 'commerce'));
     }
 
-    public function editMovementModal(Request $request): Response
+    public function editMovementModal(Request $request): CpModalResponse|JsonResponse
     {
         $fromInventoryLocationId = (int)$request->input('inventoryMovement.fromInventoryLocationId');
         $toInventoryLocationId = (int)$request->input('inventoryMovement.toInventoryLocationId', $fromInventoryLocationId);
