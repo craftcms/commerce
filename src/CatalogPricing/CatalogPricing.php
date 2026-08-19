@@ -9,6 +9,7 @@ use craft\helpers\Console;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Commerce\Catalog\Models\CatalogPricing as CatalogPricingModel;
+use CraftCms\Commerce\Catalog\Models\CatalogPricingRule;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCustomerConditionRule;
 use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingQueue as CatalogPricingQueueRecord;

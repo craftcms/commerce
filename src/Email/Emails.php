@@ -25,6 +25,7 @@ use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Models\OrderHistory;
+use CraftCms\Commerce\Pdf\Pdfs;
 use CraftCms\Commerce\Store\Stores;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;

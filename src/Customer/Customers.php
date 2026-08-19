@@ -18,6 +18,7 @@ use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Customer\Records\Customer as CustomerRecord;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Models\Order as OrderRecord;
 use CraftCms\Commerce\Payment\Events\UpdatePrimaryPaymentSourceEvent;

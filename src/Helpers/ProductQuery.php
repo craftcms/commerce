@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Helpers;
 
-use Craft;
-use craft\controllers\ElementIndexesController;
-use craft\controllers\ElementSearchController;
 use CraftCms\Cms\Element\Element;
 use CraftCms\Cms\Element\ElementHelper;
+use CraftCms\Cms\Http\Controllers\Elements\ElementIndex\ElementIndexController;
+use CraftCms\Cms\Http\Controllers\Elements\SearchController;
 use CraftCms\Cms\Support\Query;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use DateTime;
@@ -68,8 +67,8 @@ class ProductQuery
 
     public static function cleanseQueryCriteria(array $criteria): array
     {
-        $controller = Craft::$app->controller;
-        if ($controller instanceof ElementIndexesController || $controller instanceof ElementSearchController) {
+        $controllerClass = request()?->route()?->getControllerClass();
+        if ($controllerClass === ElementIndexController::class || $controllerClass === SearchController::class) {
             $criteria = ElementHelper::cleanseQueryCriteria($criteria);
         }
 

@@ -17,6 +17,7 @@ use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Events\CartPurgeEvent;
+use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Store\Stores;
 use DateInterval;
 use DateTime;
