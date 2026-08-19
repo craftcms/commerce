@@ -141,7 +141,7 @@ class InventoryLocations
                         $inventoryMovement->quantity = $inventoryLevel->getTotal($type);
                         $inventoryMovement->fromInventoryTransactionType = $type;
                         $inventoryMovement->toInventoryTransactionType = $type;
-                        $inventoryMovement->userId = request()->craftUser()?->id;
+                        $inventoryMovement->userId = request()->craftUser()?->getCraftUserId();
                         $inventoryMovement->note = t('Movement from deactivated inventory location', category: 'commerce');
                         $movements->add($inventoryMovement);
                     }

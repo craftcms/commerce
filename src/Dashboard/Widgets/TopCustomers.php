@@ -47,6 +47,7 @@ class TopCustomers extends Widget
         parent::__construct($config);
 
         if (!$this->storeId) {
+            /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
             $this->storeId = Cp::requestedSite()->getStore()->id;
         }
 
@@ -79,6 +80,7 @@ class TopCustomers extends Widget
     #[\Override]
     public static function isSelectable(): bool
     {
+        /** @phpstan-ignore-next-line nullsafe.neverNull, nullCoalesce.expr (currentUser() genuinely returns ?CraftUser) */
         return (currentUser()?->can('commerce-manageOrders') ?? false) && (currentUser()?->can('commerce-manageCustomers') ?? false);
     }
 

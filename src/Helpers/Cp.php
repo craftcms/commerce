@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Helpers;
 
-use CraftCms\Cms\Cp\Cp as CraftCp;
+use craft\helpers\Cp as CraftCp;
 
 class Cp
 {

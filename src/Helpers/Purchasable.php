@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Helpers;
 
-use CraftCms\Cms\Cp\Cp;
+use craft\helpers\Cp;
 use CraftCms\Cms\Site\Exceptions\SiteNotFoundException;
 use CraftCms\Cms\Support\Str;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use Illuminate\Support\Collection;
+
+use function CraftCms\Cms\t;
 
 class Purchasable
 {

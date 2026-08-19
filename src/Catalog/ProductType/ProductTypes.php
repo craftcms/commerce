@@ -246,6 +246,7 @@ class ProductTypes
                 productType: $productType,
                 isNew: $isNewProductType,
             );
+            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
             $legacyService->trigger(self::EVENT_BEFORE_SAVE_PRODUCTTYPE, $event);
         }
 
@@ -552,6 +553,7 @@ class ProductTypes
                 productType: $this->getProductTypeById($record->id),
                 isNew: empty($this->_savingProductTypes[$productTypeUid]),
             );
+            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
             $legacyService->trigger(self::EVENT_AFTER_SAVE_PRODUCTTYPE, $event);
         }
     }

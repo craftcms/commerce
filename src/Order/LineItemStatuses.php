@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order;
 
+use Carbon\Carbon;
 use craft\commerce\Plugin;
 use craft\events\ConfigEvent;
 use craft\helpers\Db as CraftDb;
@@ -80,6 +81,7 @@ class LineItemStatuses
         // TODO: migrate event firing to Laravel once event system is bridged
         $legacyService = Plugin::getInstance()->getLineItemStatuses();
         if ($legacyService->hasEventHandlers(self::EVENT_DEFAULT_LINE_ITEM_STATUS)) {
+            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
             $legacyService->trigger(self::EVENT_DEFAULT_LINE_ITEM_STATUS, $event);
         }
 
@@ -198,7 +200,7 @@ class LineItemStatuses
             $lineItemStatusRecord = $this->getLineItemStatusRecord($lineItemStatusUid);
 
             $lineItemStatusRecord->isArchived = true;
-            $lineItemStatusRecord->dateArchived = CraftDb::prepareDateForDb(new \DateTime());
+            $lineItemStatusRecord->dateArchived = Carbon::now();
 
             $lineItemStatusRecord->save();
 

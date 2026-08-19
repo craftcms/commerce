@@ -10,7 +10,6 @@ use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
-use CraftCms\Commerce\Inventory\Contracts\InventoryMovementInterface;
 use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
 use CraftCms\Commerce\Inventory\Enums\InventoryUpdateQuantityType;
 use CraftCms\Commerce\Inventory\Events\InventoryMovementEvent;
@@ -428,7 +427,7 @@ class Inventory
             'note' => $updateInventoryLevel->note,
             'movementHash' => $this->getMovementHash(),
             'dateCreated' => now()->toDateTimeString(),
-            'userId' => request()->craftUser()?->id,
+            'userId' => request()->craftUser()?->getCraftUserId(),
         ];
 
         if ($updateInventoryLevel instanceof UpdateInventoryLevelInTransfer) {
@@ -469,7 +468,6 @@ class Inventory
         DB::beginTransaction();
 
         try {
-            /** @var InventoryMovementInterface $inventoryMovement */
             foreach ($inventoryMovements as $inventoryMovement) {
                 if (!$inventoryMovement->isValid()) {
                     DB::rollBack();
@@ -662,7 +660,7 @@ class Inventory
             $purchasable = $lineItem->getPurchasable();
             // Don't reduce stock of unlimited items.
 
-            if (!$purchasable::hasInventory()) {
+            if (!$purchasable instanceof NewPurchasable || !$purchasable::hasInventory()) {
                 continue;
             }
 

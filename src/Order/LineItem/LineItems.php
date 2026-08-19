@@ -142,6 +142,7 @@ class LineItems
                 lineItem: $lineItem,
                 isNew: $isNewLineItem,
             );
+            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
             $legacyService->trigger(self::EVENT_BEFORE_SAVE_LINE_ITEM, $event);
         }
 
@@ -176,6 +177,7 @@ class LineItems
                 lineItem: $lineItem,
                 isNew: $isNewLineItem,
             );
+            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
             $legacyService->trigger(self::EVENT_AFTER_SAVE_LINE_ITEM, $event);
         }
 
@@ -239,6 +241,7 @@ class LineItems
                 lineItem: $lineItem,
                 isNew: true,
             );
+            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
             $legacyService->trigger(self::EVENT_CREATE_LINE_ITEM, $event);
         }
 

@@ -47,6 +47,7 @@ class TopProductTypes extends Widget
         parent::__construct($config);
 
         if (!$this->storeId) {
+            /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
             $this->storeId = Cp::requestedSite()->getStore()->id;
         }
 

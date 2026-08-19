@@ -146,7 +146,7 @@ readonly class OrderStatusesController
         $storeId = (int)$storeId;
 
         $store = app(Stores::class)->getStoreById($storeId);
-        $allowableStoreIds = app(Stores::class)->getStoresByUserId(currentUser()?->id)->map(fn(Store $s) => $s->id)->all();
+        $allowableStoreIds = app(Stores::class)->getStoresByUserId(currentUser()?->getCraftUserId())->map(fn(Store $s) => $s->id)->all();
 
         if (!$store || !in_array($store->id, $allowableStoreIds)) {
             return $this->asFailure(t('Invalid store.', category: 'commerce'));

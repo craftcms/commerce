@@ -257,7 +257,7 @@ class Discount implements AdjusterInterface
             }
         }
 
-        if ($discount->baseDiscount !== null && $discount->baseDiscount != 0) {
+        if ($discount->baseDiscount != 0) {
             $baseDiscountAdjustment = $this->_createOrderAdjustment($discount);
             $baseDiscountAdjustment->amount = $discount->baseDiscount;
             $adjustments[] = $baseDiscountAdjustment;
@@ -277,6 +277,7 @@ class Discount implements AdjusterInterface
 
         // TODO: migrate event firing to Laravel once event system is bridged
         if (Event::hasHandlers(LegacyDiscount::class, self::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED)) {
+            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
             Event::trigger(LegacyDiscount::class, self::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED, $event);
         }
 

@@ -7,6 +7,8 @@ namespace CraftCms\Commerce\Payment\Gateway\Responses;
 use CraftCms\Commerce\Payment\Forms\CreditCardPaymentForm;
 use CraftCms\Commerce\Payment\Gateway\Contracts\RequestResponseInterface;
 
+use function CraftCms\Cms\t;
+
 class Dummy implements RequestResponseInterface
 {
     private bool $_success = true;

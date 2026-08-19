@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Helpers;
 
-use CraftCms\Cms\Cp\Cp;
+use craft\helpers\Cp;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Twig\Exceptions\TemplateLoaderException;
 use CraftCms\Commerce\Order\Exceptions\CurrencyException;

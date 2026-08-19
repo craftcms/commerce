@@ -11,6 +11,9 @@ use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\LineItem\LineItems;
 use CraftCms\Commerce\Order\Orders;
 
+/**
+ * @property array|string $sourceSnapshot
+ */
 class OrderAdjustment extends Component
 {
     public ?int $id = null;

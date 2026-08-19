@@ -8,6 +8,8 @@ use Craft;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Facades\Sites;
 
+use function CraftCms\Cms\t;
+
 class Locale
 {
     public static function switchAppLanguage(string $toLanguage, ?string $formattingLocale = null): void
