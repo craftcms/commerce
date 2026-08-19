@@ -114,6 +114,18 @@ class TestCase extends Orchestra
             // Install Commerce via its Yii2 plugin system
             Craft::$app->plugins->installPlugin('commerce');
 
+            // `Craft::$app->plugins->installPlugin()` is a thin proxy to `CraftCms\Cms\Plugin\Plugins`
+            // (the actual, shared plugin manager — there's only one). Its own `installPlugin()` calls
+            // `loadPlugins()` as its first line, which runs *before* Commerce has a row in the `plugins`
+            // table yet, so it finds nothing to register and sets its internal `pluginsLoaded` flag to
+            // `true`. Since `Plugins` is a container singleton, that flag then permanently short-circuits
+            // every later `loadPlugins()` call for the rest of the test run, so Commerce's Laravel
+            // `register()`/`boot()` (GQL argument handlers, widgets, permissions, CP nav, macros, event
+            // listeners, etc.) never fire. Forgetting the singleton forces the next resolution to
+            // re-scan the `plugins` table, which now has Commerce's row, and register it correctly.
+            app()->forgetInstance(\CraftCms\Cms\Plugin\Plugins::class);
+            app(\CraftCms\Cms\Plugin\Plugins::class)->loadPlugins();
+
             RefreshDatabaseState::$migrated = true;
         }
 
