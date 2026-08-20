@@ -1,9 +1,6 @@
 name: ci
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - 6.x
   pull_request:
 
 concurrency:
