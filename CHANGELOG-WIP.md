@@ -46,6 +46,12 @@
 - Deprecated `craft\commerce\events\PurchaseVariantEvent`. `CraftCms\Commerce\Catalog\Events\PurchaseVariantEvent` should be used instead.
 - Removed `craft\commerce\records\ProductTypeShippingCategory` as it was unused; `CraftCms\Commerce\Shipping\ShippingCategories` manages the `commerce_producttypes_shippingcategories` pivot table directly through the query builder.
 - Removed `craft\commerce\records\ProductTypeTaxCategory` as it was unused; `CraftCms\Commerce\Tax\TaxCategories` manages the `commerce_producttypes_taxcategories` pivot table directly through the query builder.
+- Added `CraftCms\Commerce\Catalog\Conditions\ProductCondition`, `ProductTypeConditionRule`, `ProductVariantSearchConditionRule`, `ProductVariantSkuConditionRule`, `ProductVariantStockConditionRule`, `ProductVariantPriceConditionRule`, and `ProductVariantInventoryTrackedConditionRule`.
+- Added `CraftCms\Commerce\Catalog\Conditions\VariantCondition`, `VariantProductConditionRule`, and `VariantConditionRule`.
+- Added `CraftCms\Commerce\Catalog\Conditions\CatalogPricingRuleProductCondition`, `CatalogPricingRuleVariantCondition`, and `CatalogPricingRuleVariantConditionRule`.
+- Deprecated `craft\commerce\elements\conditions\products\ProductCondition`, `ProductTypeConditionRule`, `ProductVariantSearchConditionRule`, `ProductVariantSkuConditionRule`, `ProductVariantStockConditionRule`, `ProductVariantPriceConditionRule`, `ProductVariantInventoryTrackedConditionRule`, and `CatalogPricingRuleProductCondition`. The `CraftCms\Commerce\Catalog\Conditions` equivalents should be used instead.
+- Deprecated `craft\commerce\elements\conditions\variants\VariantCondition`, `ProductConditionRule`, `VariantConditionRule`, `CatalogPricingRuleVariantCondition`, and `CatalogPricingRuleVariantConditionRule`. The `CraftCms\Commerce\Catalog\Conditions` equivalents should be used instead.
+- Removed `craft\commerce\elements\conditions\products\ProductVariantHasUnlimitedStockConditionRule`, deprecated since 5.0.0 and already unregistered from `ProductCondition::selectableConditionRules()`.
 
 #### Controllers
 
@@ -78,6 +84,7 @@
 - Removed `craft\commerce\records\CatalogPricingRuleUser` as it was unused; the `commerce_catalog_pricing_rules_users` pivot table is managed directly through the query builder.
 - Removed `craft\commerce\records\CatalogPricingRule`. `CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule` should be used instead.
 - Removed `craft\commerce\records\CatalogPricingQueue`. `CraftCms\Commerce\CatalogPricing\Records\CatalogPricingQueue` should be used instead.
+- `CraftCms\Commerce\Catalog\Models\CatalogPricingRule` now uses `CraftCms\Commerce\Customer\Conditions\CatalogPricingRuleCustomerCondition`, `CraftCms\Commerce\Catalog\Conditions\CatalogPricingRuleProductCondition`, `CatalogPricingRuleVariantCondition`, and `CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableCondition`.
 
 #### Controllers
 
@@ -102,6 +109,9 @@
 - Deprecated `craft\commerce\behaviors\CustomerBehavior`. `User::getPrimaryBillingAddressId()`, `getPrimaryShippingAddressId()`, `getPrimaryPaymentSourceId()`, `getActiveCarts()`, `getInactiveCarts()`, and `getOrders()` are now provided via a `Illuminate\Support\Traits\Macroable` macro instead.
 - Deprecated `craft\commerce\behaviors\CustomerAddressBehavior`. `Address::getIsPrimaryBilling()` and `getIsPrimaryShipping()` are now provided via a `Illuminate\Support\Traits\Macroable` macro instead.
 - Removed `craft\commerce\records\Customer`. `CraftCms\Commerce\Customer\Records\Customer` should be used instead.
+- Added `CraftCms\Commerce\Customer\Conditions\DiscountCustomerCondition`, `HasOrdersConditionRule`, `SignedInConditionRule`, `DiscountGroupConditionRule`, `ShippingMethodCustomerCondition`, `ShippingRuleCustomerCondition`, `CatalogPricingRuleCustomerCondition`, and `CatalogPricingRuleCustomerConditionRule`.
+- Deprecated `craft\commerce\elements\conditions\customers\DiscountCustomerCondition`, `HasOrdersConditionRule`, `SignedInConditionRule`, `ShippingMethodCustomerCondition`, `ShippingRuleCustomerCondition`, `CatalogPricingRuleCustomerCondition`, and `CatalogPricingRuleCustomerConditionRule`. The `CraftCms\Commerce\Customer\Conditions` equivalents should be used instead.
+- Deprecated `craft\commerce\elements\conditions\users\DiscountGroupConditionRule`. `CraftCms\Commerce\Customer\Conditions\DiscountGroupConditionRule` should be used instead.
 
 ### Dashboard & Widgets
 
@@ -373,6 +383,10 @@
 - Removed `LineItem::getSaleAmount()`, `refreshFromPurchasable()`, and `populateFromPurchasable()` as they had no remaining call sites.
 - Removed `LineItems::createLineItem()` as it had no remaining call sites.
 - Removed `Carts::getCartName()`. The `cartCookie['name']` config setting should be used instead.
+- Added `CraftCms\Commerce\Order\Conditions\OrderCondition`, `CompletedConditionRule`, `CouponCodeConditionRule`, `CustomerConditionRule`, `DateOrderedConditionRule`, `HasAdminNoticesConditionRule`, `PaidConditionRule`, `HasPurchasableConditionRule`, `ContainsPurchasablesConditionRule`, `OrderStatusConditionRule`, `OrderSiteConditionRule`, `PaymentGatewayConditionRule`, `ReferenceConditionRule`, `ShippingMethodConditionRule`, `ShippingAddressZoneConditionRule`, `DiscountedItemSubtotalConditionRule`, `ItemSubtotalConditionRule`, `ItemTotalConditionRule`, `TotalConditionRule`, `TotalDiscountConditionRule`, `TotalPaidConditionRule`, `TotalPriceConditionRule`, `TotalQtyConditionRule`, `TotalTaxConditionRule`, and `TotalWeightConditionRule`.
+- Added `CraftCms\Commerce\Order\Conditions\OrderTextValuesAttributeConditionRule`, `OrderValuesAttributeConditionRule`, and `OrderCurrencyValuesAttributeConditionRule`.
+- Added `CraftCms\Commerce\Order\Conditions\DiscountOrderCondition`, `GatewayOrderCondition`, `ShippingMethodOrderCondition`, and `ShippingRuleOrderCondition`.
+- Deprecated `craft\commerce\elements\conditions\orders\*`. The `CraftCms\Commerce\Order\Conditions` equivalents should be used instead.
 
 #### Controllers
 
@@ -462,6 +476,7 @@
 - Removed `PaymentCurrencies::convertCurrency()`. `convert()` or `convertAmount()` should be used instead.
 - Widened `RefundTransactionEvent::$amount` to `?float` to allow `null` for a full refund.
 - Widened `WebhookEvent::$response` to accept both `Illuminate\Http\Response` and `yii\web\Response`.
+- `craft\commerce\base\Gateway` now uses `CraftCms\Commerce\Order\Conditions\GatewayOrderCondition` and `CraftCms\Commerce\Address\Conditions\GatewayAddressCondition`.
 
 #### Controllers
 
@@ -518,6 +533,9 @@
 - Removed `craft\commerce\records\Discount`. `CraftCms\Commerce\Promotion\Records\Discount` should be used instead.
 - Removed `craft\commerce\records\Coupon`. `CraftCms\Commerce\Promotion\Records\Coupon` should be used instead.
 - Removed `craft\commerce\models\Discount::setExcludeOnSale()`/`getExcludeOnSale()` and the `excludeOnSale` shim. `Discount::$excludeOnPromotion` should be used instead.
+- `CraftCms\Commerce\Promotion\Models\Discount` now uses `CraftCms\Commerce\Order\Conditions\DiscountOrderCondition`, `CraftCms\Commerce\Customer\Conditions\DiscountCustomerCondition`, and `CraftCms\Commerce\Address\Conditions\DiscountAddressCondition`.
+- Added `CraftCms\Commerce\Address\Conditions\DiscountAddressCondition`, `ZoneAddressCondition`, `GatewayAddressCondition`, and `PostalCodeFormulaConditionRule`.
+- Deprecated `craft\commerce\elements\conditions\addresses\DiscountAddressCondition`, `ZoneAddressCondition`, `GatewayAddressCondition`, and `PostalCodeFormulaConditionRule`. The `CraftCms\Commerce\Address\Conditions` equivalents should be used instead.
 
 #### Controllers
 
@@ -557,6 +575,8 @@
 - Removed `craft\commerce\records\PurchasableStore`. `CraftCms\Commerce\Purchasable\Records\PurchasableStore` should be used instead.
 - Removed `craft\commerce\elements\db\PurchasableQuery`. `CraftCms\Commerce\Purchasable\Queries\PurchasableQuery` should be used instead.
 - Removed `craft\commerce\records\OrderStatusEmail` as it was unused.
+- Added `CraftCms\Commerce\Purchasable\Conditions\PurchasableConditionRule`, `PurchasableTypeConditionRule`, `SkuConditionRule`, `CatalogPricingRulePurchasableCategoryConditionRule`, and `CatalogPricingRulePurchasableCondition`.
+- Deprecated `craft\commerce\elements\conditions\purchasables\PurchasableConditionRule`, `PurchasableTypeConditionRule`, `SkuConditionRule`, `CatalogPricingRulePurchasableCategoryConditionRule`, and `CatalogPricingRulePurchasableCondition`. The `CraftCms\Commerce\Purchasable\Conditions` equivalents should be used instead.
 
 #### Controllers
 
@@ -606,6 +626,8 @@
 - Removed `craft\commerce\records\ShippingRule`. `CraftCms\Commerce\Shipping\Records\ShippingRule` should be used instead.
 - Removed `craft\commerce\records\ShippingRuleCategory`. `CraftCms\Commerce\Shipping\Records\ShippingRuleCategory` should be used instead.
 - Removed `craft\commerce\records\ShippingCategory`. `CraftCms\Commerce\Shipping\Records\ShippingCategory` should be used instead.
+- `CraftCms\Commerce\Shipping\Models\ShippingRule` and `BaseShippingMethod` now use `CraftCms\Commerce\Order\Conditions\ShippingRuleOrderCondition`, `ShippingMethodOrderCondition`, `CraftCms\Commerce\Customer\Conditions\ShippingRuleCustomerCondition`, and `ShippingMethodCustomerCondition`.
+- `CraftCms\Commerce\Base\Zone` and `ZoneInterface` now use `CraftCms\Commerce\Address\Conditions\ZoneAddressCondition`.
 
 #### Controllers
 
