@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\commerce\elements\Transfer;
 use craft\commerce\Plugin;
-use craft\commerce\services\Transfers;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Facades\Fields;
@@ -14,6 +12,8 @@ use CraftCms\Cms\Support\Facades\Plugins;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Transfer\Elements\Transfer;
+use CraftCms\Commerce\Transfer\Transfers;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -87,7 +87,7 @@ readonly class SettingsController
 
     public function editTransferSettings(): string
     {
-        $fieldLayout = Plugin::getInstance()->getTransfers()->getFieldLayout();
+        $fieldLayout = app(Transfers::class)->getFieldLayout();
 
         return pageTemplate('commerce/settings/transfers/_edit', [
             'fieldLayout' => $fieldLayout,

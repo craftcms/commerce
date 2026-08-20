@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use craft\commerce\elements\Transfer;
-use craft\commerce\fieldlayoutelements\TransferManagementField;
-use craft\commerce\services\Transfers;
+use CraftCms\Cms\Cp\Html\ElementHtml;
 use CraftCms\Cms\Element\Validation\ElementRules;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
@@ -14,6 +12,7 @@ use CraftCms\Cms\Support\Facades\Drafts;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
+use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
@@ -24,8 +23,11 @@ use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Inventory\InventoryLocations;
 use CraftCms\Commerce\Inventory\Models\InventoryTransferMovement;
 use CraftCms\Commerce\Inventory\Models\UpdateInventoryLevel;
+use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Transfer\Enums\TransferStatusType;
+use CraftCms\Commerce\Transfer\FieldLayoutElements\TransferManagementField;
 use CraftCms\Commerce\Transfer\Models\TransferDetail;
+use CraftCms\Commerce\Transfer\Transfers;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Log;
@@ -43,7 +45,7 @@ readonly class TransfersController
         $user = currentUserElement();
         abort_unless($user !== null, 401);
 
-        $transfer = \Craft::createObject(Transfer::class);
+        $transfer = new Transfer();
 
         abort_unless($transfer->canSave($user), 403, 'User not authorized to save this transfer.');
 
@@ -220,13 +222,16 @@ readonly class TransfersController
         foreach ($transfer->getDetails() as $detail) {
             $deleted = $detail->inventoryItemId == null;
             $key = $detail->uid;
-            $purchasable = $detail->getInventoryItem()?->getPurchasable(\craft\helpers\Cp::requestedSite()->id);
-            $label = $purchasable ? \craft\helpers\Cp::elementChipHtml($purchasable) : $detail->inventoryItemDescription;
+            $purchasable = $detail->getInventoryItem()?->getPurchasable(Sites::getCurrentSite()->id);
+            $label = $purchasable ? app(ElementHtml::class)->elementChipHtml($purchasable) : $detail->inventoryItemDescription;
             $tableRows .= Html::beginTag('tr');
             $tableRows .= Html::tag('td', $label);
             $tableRows .= Html::tag('td', (string)$detail->quantityAccepted, ['class' => 'rightalign']);
             $tableRows .= Html::tag('td',
-                Html::input('number', 'details[' . $key . '][accept]', '', [
+                Html::tag('input', '', [
+                    'type' => 'number',
+                    'name' => 'details[' . $key . '][accept]',
+                    'value' => '',
                     'class' => 'text fullwidth',
                     'disabled' => $deleted,
                     'placeholder' => $deleted ? t('"{name}" deleted.', ['name' => $detail->inventoryItemDescription]) : '',
@@ -234,7 +239,10 @@ readonly class TransfersController
             );
             $tableRows .= Html::tag('td', (string)$detail->quantityRejected, ['class' => 'rightalign']);
             $tableRows .= Html::tag('td',
-                Html::input('number', 'details[' . $key . '][reject]', '', [
+                Html::tag('input', '', [
+                    'type' => 'number',
+                    'name' => 'details[' . $key . '][reject]',
+                    'value' => '',
                     'class' => 'text fullwidth',
                     'disabled' => $deleted,
                     'placeholder' => $deleted ? t('"{name}" deleted.', ['name' => $detail->inventoryItemDescription]) : '',

@@ -14,7 +14,6 @@ use craft\ckeditor\Field as CKEditorField;
 use craft\commerce\base\Purchasable;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
-use craft\commerce\elements\Transfer;
 use craft\commerce\elements\Variant;
 use craft\commerce\events\EmailEvent;
 use craft\commerce\fields\Products as ProductsField;
@@ -142,7 +141,6 @@ class Plugin extends BasePlugin
         $this->_registerVariables();
         $this->_registerForeignKeysRestore();
         $this->_registerPoweredByHeader();
-        $this->_registerElementTypes();
         $this->_registerGqlInterfaces();
         $this->_registerGqlQueries();
         $this->_registerRelatedToArguments();
@@ -456,17 +454,6 @@ class Plugin extends BasePlugin
                 header_remove('X-Powered-By');
             }
         }
-    }
-
-    /**
-     * Register the element types supplied by Craft Commerce that haven't been ported to
-     * CraftCms\Commerce\Plugin's $elementTypes yet.
-     */
-    private function _registerElementTypes(): void
-    {
-        Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, static function(RegisterComponentTypesEvent $e) {
-            $e->types[] = Transfer::class;
-        });
     }
 
     /**

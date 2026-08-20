@@ -739,10 +739,20 @@
 
 ### Transfers
 
+- Added `CraftCms\Commerce\Transfer\Elements\Transfer`.
+- Added `CraftCms\Commerce\Transfer\Queries\TransferQuery`.
+- Added `CraftCms\Commerce\Transfer\Conditions\TransferCondition`.
+- Added `CraftCms\Commerce\Transfer\FieldLayoutElements\TransferManagementField`.
+- Added `CraftCms\Commerce\Transfer\Transfers`.
 - Added `CraftCms\Commerce\Transfer\Models\TransferDetail`.
 - Added `CraftCms\Commerce\Transfer\Records\Transfer`.
 - Added `CraftCms\Commerce\Transfer\Records\TransferDetail`.
 - Added `CraftCms\Commerce\Transfer\Enums\TransferStatusType` enum.
+- Deprecated `craft\commerce\elements\Transfer`. `CraftCms\Commerce\Transfer\Elements\Transfer` should be used instead.
+- Deprecated `craft\commerce\elements\db\TransferQuery`. `CraftCms\Commerce\Transfer\Queries\TransferQuery` should be used instead.
+- Deprecated `craft\commerce\elements\conditions\transfers\TransferCondition`. `CraftCms\Commerce\Transfer\Conditions\TransferCondition` should be used instead.
+- Deprecated `craft\commerce\fieldlayoutelements\TransferManagementField`. `CraftCms\Commerce\Transfer\FieldLayoutElements\TransferManagementField` should be used instead.
+- Deprecated `craft\commerce\services\Transfers`. `CraftCms\Commerce\Transfer\Transfers` should be used instead.
 - Deprecated `craft\commerce\models\TransferDetail`. `CraftCms\Commerce\Transfer\Models\TransferDetail` should be used instead.
 - Deprecated `craft\commerce\enums\TransferStatusType`. `CraftCms\Commerce\Transfer\Enums\TransferStatusType` should be used instead.
 - Removed `craft\commerce\records\Transfer`. `CraftCms\Commerce\Transfer\Records\Transfer` should be used instead.

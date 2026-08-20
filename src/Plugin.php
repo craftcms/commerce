@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce;
 
 use Closure;
-use craft\commerce\elements\Transfer;
 use craft\commerce\fieldlayoutelements\ProductTitleField;
 use craft\commerce\fieldlayoutelements\PurchasableAllowedQtyField;
 use craft\commerce\fieldlayoutelements\PurchasableAvailableForPurchaseField;
@@ -16,7 +15,6 @@ use craft\commerce\fieldlayoutelements\PurchasablePromotableField;
 use craft\commerce\fieldlayoutelements\PurchasableSkuField;
 use craft\commerce\fieldlayoutelements\PurchasableStockField;
 use craft\commerce\fieldlayoutelements\PurchasableWeightField;
-use craft\commerce\fieldlayoutelements\TransferManagementField;
 use craft\commerce\fieldlayoutelements\UserAddressSettings;
 use craft\commerce\fieldlayoutelements\VariantsField as VariantsLayoutElement;
 use craft\commerce\fieldlayoutelements\VariantTitleField;
@@ -97,6 +95,8 @@ use CraftCms\Commerce\Store\Models\Store;
 use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Store\StoreSettings;
 use CraftCms\Commerce\Support\ObjectState;
+use CraftCms\Commerce\Transfer\Elements\Transfer;
+use CraftCms\Commerce\Transfer\FieldLayoutElements\TransferManagementField;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -113,17 +113,12 @@ class Plugin extends BasePlugin
     use HasPermissions;
     use HasServices;
 
-    /**
-     * `Transfer` isn't ported to `src/` yet, so it's still registered via the legacy
-     * `Elements::EVENT_REGISTER_ELEMENT_TYPES` event in `src-yii2/Plugin.php` — the
-     * yii2-adapter reconciles both sides into the same registry, so this is safe to
-     * split across the two classes.
-     */
     protected array $elementTypes = [
         Product::class,
         Variant::class,
         Order::class,
         Donation::class,
+        Transfer::class,
     ];
 
     protected array $widgets = [

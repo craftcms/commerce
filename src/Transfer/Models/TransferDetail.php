@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Transfer\Models;
 
-use craft\commerce\elements\Transfer;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Inventory\Models\InventoryItem;
+use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Transfer\Enums\TransferStatusType;
 
 class TransferDetail extends Component
@@ -51,7 +51,6 @@ class TransferDetail extends Component
         }
 
         if ($this->transferId) {
-            /** @phpstan-ignore-next-line */
             $this->_transfer = Transfer::find()->id($this->transferId)->one();
         }
 

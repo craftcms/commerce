@@ -43,10 +43,10 @@ use craft\commerce\services\Taxes;
 use craft\commerce\services\TaxRates;
 use craft\commerce\services\TaxZones;
 use craft\commerce\services\Transactions;
-use craft\commerce\services\Transfers;
 use craft\commerce\services\Variants;
 use craft\commerce\services\Vat;
 use craft\commerce\services\Webhooks;
+use CraftCms\Commerce\Transfer\Transfers;
 
 /**
  * Replaces the Yii2 `yii\di\ServiceLocator` component locator that `Plugin::getInstance()->getFoo()`

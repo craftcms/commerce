@@ -11,7 +11,7 @@ use CraftCms\Commerce\Database\Table;
  * Thin Eloquent persistence model for the `commerce_transfers` table.
  *
  * This holds no business logic — it's used internally by
- * {@see \craft\commerce\elements\Transfer} to read/write rows.
+ * {@see \CraftCms\Commerce\Transfer\Elements\Transfer} to read/write rows.
  */
 class Transfer extends BaseModel
 {
