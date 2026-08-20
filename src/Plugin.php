@@ -5,21 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce;
 
 use Closure;
-use craft\commerce\fieldlayoutelements\ProductTitleField;
-use craft\commerce\fieldlayoutelements\PurchasableAllowedQtyField;
-use craft\commerce\fieldlayoutelements\PurchasableAvailableForPurchaseField;
-use craft\commerce\fieldlayoutelements\PurchasableDimensionsField;
-use craft\commerce\fieldlayoutelements\PurchasableFreeShippingField;
-use craft\commerce\fieldlayoutelements\PurchasablePriceField;
-use craft\commerce\fieldlayoutelements\PurchasablePromotableField;
-use craft\commerce\fieldlayoutelements\PurchasableSkuField;
-use craft\commerce\fieldlayoutelements\PurchasableStockField;
-use craft\commerce\fieldlayoutelements\PurchasableWeightField;
-use craft\commerce\fieldlayoutelements\UserAddressSettings;
-use craft\commerce\fieldlayoutelements\VariantsField as VariantsLayoutElement;
-use craft\commerce\fieldlayoutelements\VariantTitleField;
-use craft\commerce\fields\Products as ProductsField;
-use craft\commerce\fields\Variants as VariantsField;
 use craft\commerce\services\Gateways as LegacyGateways;
 use craft\commerce\services\OrderAdjustments as LegacyOrderAdjustments;
 use craft\commerce\services\Purchasables as LegacyPurchasables;
@@ -52,6 +37,11 @@ use CraftCms\Cms\User\Events\EditUserScreensResolving;
 use CraftCms\Cms\User\Events\UserAssignedToGroups;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Catalog\Elements\Variant;
+use CraftCms\Commerce\Catalog\FieldLayoutElements\ProductTitleField;
+use CraftCms\Commerce\Catalog\FieldLayoutElements\VariantsField as VariantsLayoutElement;
+use CraftCms\Commerce\Catalog\FieldLayoutElements\VariantTitleField;
+use CraftCms\Commerce\Catalog\Fields\Products as ProductsField;
+use CraftCms\Commerce\Catalog\Fields\Variants as VariantsField;
 use CraftCms\Commerce\Catalog\LinkTypes\ProductLinkType;
 use CraftCms\Commerce\Catalog\Products;
 use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
@@ -61,6 +51,7 @@ use CraftCms\Commerce\Console\Commands\Resave\ResaveOrdersCommand;
 use CraftCms\Commerce\Console\Commands\Resave\ResaveProductsCommand;
 use CraftCms\Commerce\Console\Commands\Resave\ResaveVariantsCommand;
 use CraftCms\Commerce\Customer\Customers;
+use CraftCms\Commerce\Customer\FieldLayoutElements\UserAddressSettings;
 use CraftCms\Commerce\Customer\Records\Customer as CustomerRecord;
 use CraftCms\Commerce\Dashboard\Widgets\AverageOrderTotal;
 use CraftCms\Commerce\Dashboard\Widgets\NewCustomers;
@@ -91,6 +82,15 @@ use CraftCms\Commerce\Payment\PaymentSources;
 use CraftCms\Commerce\Plugin\Concerns\HasPermissions;
 use CraftCms\Commerce\Plugin\Concerns\HasServices;
 use CraftCms\Commerce\Purchasable\Elements\Donation;
+use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableAllowedQtyField;
+use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableAvailableForPurchaseField;
+use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableDimensionsField;
+use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableFreeShippingField;
+use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasablePriceField;
+use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasablePromotableField;
+use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableSkuField;
+use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableStockField;
+use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableWeightField;
 use CraftCms\Commerce\Store\Models\Store;
 use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Store\StoreSettings;
@@ -119,6 +119,11 @@ class Plugin extends BasePlugin
         Order::class,
         Donation::class,
         Transfer::class,
+    ];
+
+    protected array $fieldTypes = [
+        ProductsField::class,
+        VariantsField::class,
     ];
 
     protected array $widgets = [

@@ -16,8 +16,6 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\events\EmailEvent;
-use craft\commerce\fields\Products as ProductsField;
-use craft\commerce\fields\Variants as VariantsField;
 use craft\commerce\gql\interfaces\elements\Product as GqlProductInterface;
 use craft\commerce\gql\interfaces\elements\Variant as GqlVariantInterface;
 use craft\commerce\gql\queries\Product as GqlProductQueries;
@@ -54,7 +52,6 @@ use craft\helpers\UrlHelper;
 use craft\redactor\events\RegisterLinkOptionsEvent;
 use craft\redactor\Field as RedactorField;
 use craft\services\Elements;
-use craft\services\Fields;
 use craft\services\Gql;
 use craft\services\ProjectConfig;
 use craft\services\Sites;
@@ -135,7 +132,6 @@ class Plugin extends BasePlugin
 
         $request = Craft::$app->getRequest();
 
-        $this->_registerFieldTypes();
         $this->_registerCraftEventListeners();
         $this->_registerProjectConfigEventListeners();
         $this->_registerVariables();
@@ -395,17 +391,6 @@ class Plugin extends BasePlugin
         // Commerce screen on the Edit User screen is now registered in src/Plugin.php
 
         Event::on(Purchasable::class, Elements::EVENT_BEFORE_RESTORE_ELEMENT, [$this->getPurchasables(), 'beforeRestorePurchasableHandler']);
-    }
-
-    /**
-     * Register Commerce’s fields
-     */
-    private function _registerFieldTypes(): void
-    {
-        Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, static function(RegisterComponentTypesEvent $event) {
-            $event->types[] = ProductsField::class;
-            $event->types[] = VariantsField::class;
-        });
     }
 
     /**

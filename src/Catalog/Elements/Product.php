@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Catalog\Elements;
 
 use craft\commerce\base\StoreTrait;
-use craft\commerce\elements\actions\CreateDiscount;
-use craft\commerce\elements\actions\CreateSale;
 use craft\commerce\elements\VariantCollection;
 use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\ResaveProductVariants;
@@ -65,6 +63,8 @@ use CraftCms\Commerce\Catalog\Validation\ProductRules;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
+use CraftCms\Commerce\Promotion\Actions\CreateDiscount;
+use CraftCms\Commerce\Promotion\Actions\CreateSale;
 use CraftCms\Commerce\Promotion\Sales;
 use CraftCms\Commerce\Shipping\Models\ShippingCategory;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;

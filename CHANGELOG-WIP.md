@@ -52,6 +52,13 @@
 - Deprecated `craft\commerce\elements\conditions\products\ProductCondition`, `ProductTypeConditionRule`, `ProductVariantSearchConditionRule`, `ProductVariantSkuConditionRule`, `ProductVariantStockConditionRule`, `ProductVariantPriceConditionRule`, `ProductVariantInventoryTrackedConditionRule`, and `CatalogPricingRuleProductCondition`. The `CraftCms\Commerce\Catalog\Conditions` equivalents should be used instead.
 - Deprecated `craft\commerce\elements\conditions\variants\VariantCondition`, `ProductConditionRule`, `VariantConditionRule`, `CatalogPricingRuleVariantCondition`, and `CatalogPricingRuleVariantConditionRule`. The `CraftCms\Commerce\Catalog\Conditions` equivalents should be used instead.
 - Removed `craft\commerce\elements\conditions\products\ProductVariantHasUnlimitedStockConditionRule`, deprecated since 5.0.0 and already unregistered from `ProductCondition::selectableConditionRules()`.
+- Added `CraftCms\Commerce\Catalog\Actions\SetDefaultVariant`.
+- Added `CraftCms\Commerce\Catalog\FieldLayoutElements\ProductTitleField`, `VariantTitleField`, and `VariantsField`.
+- Added `CraftCms\Commerce\Catalog\Fields\Products` and `Variants`.
+- Deprecated `craft\commerce\elements\actions\SetDefaultVariant`. `CraftCms\Commerce\Catalog\Actions\SetDefaultVariant` should be used instead.
+- Deprecated `craft\commerce\fieldlayoutelements\ProductTitleField`, `VariantTitleField`, and `VariantsField`. The `CraftCms\Commerce\Catalog\FieldLayoutElements` equivalents should be used instead.
+- Deprecated `craft\commerce\fields\Products` and `Variants`. The `CraftCms\Commerce\Catalog\Fields` equivalents should be used instead.
+- Removed `craft\commerce\linktypes\Product`, superseded by `CraftCms\Commerce\Catalog\LinkTypes\ProductLinkType`.
 
 #### Controllers
 
@@ -112,6 +119,8 @@
 - Added `CraftCms\Commerce\Customer\Conditions\DiscountCustomerCondition`, `HasOrdersConditionRule`, `SignedInConditionRule`, `DiscountGroupConditionRule`, `ShippingMethodCustomerCondition`, `ShippingRuleCustomerCondition`, `CatalogPricingRuleCustomerCondition`, and `CatalogPricingRuleCustomerConditionRule`.
 - Deprecated `craft\commerce\elements\conditions\customers\DiscountCustomerCondition`, `HasOrdersConditionRule`, `SignedInConditionRule`, `ShippingMethodCustomerCondition`, `ShippingRuleCustomerCondition`, `CatalogPricingRuleCustomerCondition`, and `CatalogPricingRuleCustomerConditionRule`. The `CraftCms\Commerce\Customer\Conditions` equivalents should be used instead.
 - Deprecated `craft\commerce\elements\conditions\users\DiscountGroupConditionRule`. `CraftCms\Commerce\Customer\Conditions\DiscountGroupConditionRule` should be used instead.
+- Added `CraftCms\Commerce\Customer\FieldLayoutElements\UserAddressSettings`.
+- Deprecated `craft\commerce\fieldlayoutelements\UserAddressSettings`. `CraftCms\Commerce\Customer\FieldLayoutElements\UserAddressSettings` should be used instead.
 
 ### Dashboard & Widgets
 
@@ -387,6 +396,8 @@
 - Added `CraftCms\Commerce\Order\Conditions\OrderTextValuesAttributeConditionRule`, `OrderValuesAttributeConditionRule`, and `OrderCurrencyValuesAttributeConditionRule`.
 - Added `CraftCms\Commerce\Order\Conditions\DiscountOrderCondition`, `GatewayOrderCondition`, `ShippingMethodOrderCondition`, and `ShippingRuleOrderCondition`.
 - Deprecated `craft\commerce\elements\conditions\orders\*`. The `CraftCms\Commerce\Order\Conditions` equivalents should be used instead.
+- Added `CraftCms\Commerce\Order\Actions\CopyLoadCartUrl`, `DownloadOrderPdfAction`, and `UpdateOrderStatus`.
+- Deprecated `craft\commerce\elements\actions\CopyLoadCartUrl`, `DownloadOrderPdfAction`, and `UpdateOrderStatus`. The `CraftCms\Commerce\Order\Actions` equivalents should be used instead.
 
 #### Controllers
 
@@ -536,6 +547,8 @@
 - `CraftCms\Commerce\Promotion\Models\Discount` now uses `CraftCms\Commerce\Order\Conditions\DiscountOrderCondition`, `CraftCms\Commerce\Customer\Conditions\DiscountCustomerCondition`, and `CraftCms\Commerce\Address\Conditions\DiscountAddressCondition`.
 - Added `CraftCms\Commerce\Address\Conditions\DiscountAddressCondition`, `ZoneAddressCondition`, `GatewayAddressCondition`, and `PostalCodeFormulaConditionRule`.
 - Deprecated `craft\commerce\elements\conditions\addresses\DiscountAddressCondition`, `ZoneAddressCondition`, `GatewayAddressCondition`, and `PostalCodeFormulaConditionRule`. The `CraftCms\Commerce\Address\Conditions` equivalents should be used instead.
+- Added `CraftCms\Commerce\Promotion\Actions\CreateDiscount` and `CreateSale`.
+- Deprecated `craft\commerce\elements\actions\CreateDiscount` and `CreateSale`. The `CraftCms\Commerce\Promotion\Actions` equivalents should be used instead.
 
 #### Controllers
 
@@ -577,6 +590,8 @@
 - Removed `craft\commerce\records\OrderStatusEmail` as it was unused.
 - Added `CraftCms\Commerce\Purchasable\Conditions\PurchasableConditionRule`, `PurchasableTypeConditionRule`, `SkuConditionRule`, `CatalogPricingRulePurchasableCategoryConditionRule`, and `CatalogPricingRulePurchasableCondition`.
 - Deprecated `craft\commerce\elements\conditions\purchasables\PurchasableConditionRule`, `PurchasableTypeConditionRule`, `SkuConditionRule`, `CatalogPricingRulePurchasableCategoryConditionRule`, and `CatalogPricingRulePurchasableCondition`. The `CraftCms\Commerce\Purchasable\Conditions` equivalents should be used instead.
+- Added `CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableSkuField`, `PurchasablePriceField`, `PurchasableStockField`, `PurchasableWeightField`, `PurchasableDimensionsField`, `PurchasableAllowedQtyField`, `PurchasableAvailableForPurchaseField`, `PurchasableFreeShippingField`, and `PurchasablePromotableField`.
+- Deprecated `craft\commerce\fieldlayoutelements\PurchasableSkuField`, `PurchasablePriceField`, `PurchasableStockField`, `PurchasableWeightField`, `PurchasableDimensionsField`, `PurchasableAllowedQtyField`, `PurchasableAvailableForPurchaseField`, `PurchasableFreeShippingField`, and `PurchasablePromotableField`. The `CraftCms\Commerce\Purchasable\FieldLayoutElements` equivalents should be used instead.
 
 #### Controllers
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Catalog\ProductType\Data;
 
-use craft\commerce\fieldlayoutelements\VariantsField;
 use craft\helpers\Db;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Database\Table as CraftTable;
@@ -20,6 +19,7 @@ use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Catalog\Elements\Variant;
+use CraftCms\Commerce\Catalog\FieldLayoutElements\VariantsField;
 use CraftCms\Commerce\Catalog\Models\ProductTypeSite;
 use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\Catalog\ProductType\Validation\ProductTypeRules;

@@ -1,74 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\fieldlayoutelements;
 
-use Craft;
-use craft\base\ElementInterface;
-use CraftCms\Commerce\Catalog\Elements\Product;
-use craft\enums\ElementIndexViewMode;
-use craft\fieldlayoutelements\BaseNativeField;
-use yii\base\InvalidArgumentException;
+/** @deprecated use {@see \CraftCms\Commerce\Catalog\FieldLayoutElements\VariantsField} */
+class_alias(\CraftCms\Commerce\Catalog\FieldLayoutElements\VariantsField::class, 'craft\commerce\fieldlayoutelements\VariantsField');
 
-/**
- * VariantsField represents a Variants field that can be included within a product type’s product field layout designer.
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.2.0
- */
-class VariantsField extends BaseNativeField
-{
-    /**
-     * @inheritdoc
-     */
-    public bool $mandatory = true;
-
-    /**
-     * @inheritdoc
-     */
-    public string $attribute = 'variants';
-
-    /**
-     * @inheritdoc
-     */
-    public function hasCustomWidth(): bool
-    {
-        return false;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function defaultLabel(?ElementInterface $element = null, bool $static = false): ?string
-    {
-        return Craft::t('commerce', 'Variants');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function inputHtml(?ElementInterface $element = null, bool $static = false): ?string
-    {
-        if (!$element instanceof Product) {
-            throw new InvalidArgumentException('ProductTitleField can only be used in product field layouts.');
-        }
-
-        Craft::$app->getView()->registerDeltaName($this->attribute());
-
-        $maxVariants = $element->getType()->maxVariants;
-
-        return $element->getVariantManager()->getIndexHtml($element, [
-            'canCreate' => !$static,
-            'canPaste' => !$static,
-            'minElements' => 0,
-            'maxElements' => $maxVariants ?? null,
-            'allowedViewModes' => [ElementIndexViewMode::Cards, ElementIndexViewMode::Table],
-            'sortable' => !$static,
-            'fieldLayouts' => [$element->getType()->getVariantFieldLayout()],
-        ]);
-    }
+/** @phpstan-ignore-next-line */
+if (false) {
+    class VariantsField extends \CraftCms\Commerce\Catalog\FieldLayoutElements\VariantsField {}
 }

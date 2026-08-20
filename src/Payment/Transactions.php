@@ -85,7 +85,6 @@ class Transactions
         }
 
         // Allow gateways to help determine if a transaction can be refunded
-        /** @phpstan-ignore-next-line argument.type (craft\commerce\models\Transaction is a class_alias to the new Transaction model, which PHPStan can't trace) */
         if (!$gateway->transactionSupportsRefund($transaction)) {
             return false;
         }
