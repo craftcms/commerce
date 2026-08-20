@@ -96,10 +96,19 @@ class ProductTypes
      */
     public function getViewableProductTypeIds(bool $anySite = false): array
     {
-        $viewableIds = [];
-        $user = request()->craftUser();
         $allProductTypes = $this->getAllProductTypes();
 
+        if (app()->runningInConsole()) {
+            return collect($allProductTypes)->pluck('id')->all();
+        }
+
+        $user = request()->craftUser();
+
+        if (!$user) {
+            return [];
+        }
+
+        $viewableIds = [];
         $cpSite = Cp::requestedSite();
 
         foreach ($allProductTypes as $productType) {
@@ -122,10 +131,21 @@ class ProductTypes
      */
     public function getCreatableProductTypeIds(): array
     {
-        $creatableIds = [];
+        $allProductTypes = $this->getAllProductTypes();
+
+        if (app()->runningInConsole()) {
+            return collect($allProductTypes)->pluck('id')->all();
+        }
+
         $user = request()->craftUser();
 
-        foreach ($this->getAllProductTypes() as $productType) {
+        if (!$user) {
+            return [];
+        }
+
+        $creatableIds = [];
+
+        foreach ($allProductTypes as $productType) {
             if ($user->can('commerce-createProductType:' . $productType->uid)) {
                 $creatableIds[] = $productType->id;
             }

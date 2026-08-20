@@ -728,12 +728,13 @@ class Stores
             }
         }
 
-        // If this was the primary store, make another the primary
+        // If this was the primary store, make another the primary (if one exists)
         if ($store->primary && $isStoreOrphaned) {
-            // make another store primary
-            $store = $this->getAllStores()->firstWhere('primary', false);
-            $store->primary = true;
-            $this->saveStore($store);
+            $newPrimaryStore = $this->getAllStores()->firstWhere('primary', false);
+            if ($newPrimaryStore) {
+                $newPrimaryStore->primary = true;
+                $this->saveStore($newPrimaryStore);
+            }
         }
 
         // Delete the old siteStore record
