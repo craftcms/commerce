@@ -63,7 +63,6 @@ class Gateways
      */
     public function getAllCustomerEnabledGatewaysAndAvailableForUseWithOrder(Order $order): Collection
     {
-        /** @phpstan-ignore-next-line argument.type (availableForUseWithOrder() is declared on legacy craft\commerce\base\Gateway expecting craft\commerce\elements\Order, which is a class_alias to the new Order, which PHPStan can't trace) */
         return $this->getAllCustomerEnabledGateways()->filter(fn(Gateway $gateway) => $gateway->availableForUseWithOrder($order));
     }
 

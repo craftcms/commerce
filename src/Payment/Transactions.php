@@ -43,7 +43,6 @@ class Transactions
             return false;
         }
 
-        /** @phpstan-ignore-next-line method.notFound (supportsCapture() is declared on GatewayInterface, which legacy craft\commerce\base\Gateway implements via the class_alias chain, which PHPStan can't trace) */
         if (!$gateway->supportsCapture()) {
             return false;
         }
@@ -79,7 +78,6 @@ class Transactions
             return false;
         }
 
-        /** @phpstan-ignore-next-line method.notFound (supportsRefund() is declared on GatewayInterface, which legacy craft\commerce\base\Gateway implements via the class_alias chain, which PHPStan can't trace) */
         if (!$gateway->supportsRefund()) {
             return false;
         }
@@ -146,7 +144,6 @@ class Transactions
             $currency = app(PaymentCurrencies::class)->getPaymentCurrencyByIso($order->currency, $order->getStore()->id);
 
             /** @var Gateway $gateway */
-            /** @phpstan-ignore-next-line varTag.nativeType (legacy craft\commerce\base\Gateway implements GatewayInterface via the class_alias chain, which PHPStan can't trace) */
             $gateway = $order->getGateway();
             $transaction->gatewayId = $gateway->id;
 
