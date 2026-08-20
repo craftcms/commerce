@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\commerce\elements\conditions\products\CatalogPricingRuleProductCondition;
-use craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasableCondition;
-use craft\commerce\elements\conditions\purchasables\PurchasableConditionRule;
-use craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantCondition;
 use craft\commerce\helpers\Currency;
 use craft\helpers\Cp;
 use craft\helpers\Localization;
@@ -24,12 +20,16 @@ use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Money;
 use CraftCms\Cms\Translation\Locale;
 use CraftCms\Cms\View\Enums\Position;
+use CraftCms\Commerce\Catalog\Conditions\CatalogPricingRuleProductCondition;
+use CraftCms\Commerce\Catalog\Conditions\CatalogPricingRuleVariantCondition;
 use CraftCms\Commerce\Catalog\Models\CatalogPricingRule;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule as CatalogPricingRuleRecord;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
+use CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableCondition;
+use CraftCms\Commerce\Purchasable\Conditions\PurchasableConditionRule;
 use DateTime;
 
 use Illuminate\Http\Request;

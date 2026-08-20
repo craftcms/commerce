@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Store\Models;
 
-use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Facades\Addresses;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Json;
+use CraftCms\Commerce\Address\Conditions\ZoneAddressCondition;
 use CraftCms\Commerce\Store\Records\StoreSettings as StoreSettingsRecord;
 use Illuminate\Support\Arr;
 

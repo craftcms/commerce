@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Catalog\Models;
 
-use craft\commerce\elements\conditions\customers\CatalogPricingRuleCustomerCondition;
-use craft\commerce\elements\conditions\products\CatalogPricingRuleProductCondition;
-use craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasableCondition;
-use craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantCondition;
 use craft\events\CancelableEvent;
 use craft\helpers\Db;
 use CraftCms\Cms\Component\Component;
@@ -17,11 +13,15 @@ use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\User\Elements\User;
+use CraftCms\Commerce\Catalog\Conditions\CatalogPricingRuleProductCondition;
+use CraftCms\Commerce\Catalog\Conditions\CatalogPricingRuleVariantCondition;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule as PricingCatalogRuleRecord;
+use CraftCms\Commerce\Customer\Conditions\CatalogPricingRuleCustomerCondition;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Payment\Currencies;
+use CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableCondition;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
@@ -130,7 +130,6 @@ class CatalogPricingRule extends Component implements HasStoreInterface
             $siteIds = $this->getStore()->getSites()->map(fn($site) => $site->id)->all();
             $productVariantIds = null;
 
-            // TODO: migrate condition classes once in src/
             if (!empty($this->getProductCondition()->getConditionRules())) {
                 $productQuery = Product::find();
                 $productQuery->siteId($siteIds);

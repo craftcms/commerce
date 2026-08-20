@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Catalog\Elements;
 
 use craft\commerce\elements\actions\SetDefaultVariant;
-use craft\commerce\elements\conditions\variants\VariantCondition;
 use CraftCms\Cms\Cp\Html\ElementHtml;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Element\Actions\Copy;
@@ -25,6 +24,7 @@ use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Query;
 use CraftCms\Cms\Support\Sequence;
 use CraftCms\Cms\Support\Url;
+use CraftCms\Commerce\Catalog\Conditions\VariantCondition;
 use CraftCms\Commerce\Catalog\Events\CustomizeProductSnapshotDataEvent;
 use CraftCms\Commerce\Catalog\Events\CustomizeProductSnapshotFieldsEvent;
 use CraftCms\Commerce\Catalog\Events\CustomizeVariantSnapshotDataEvent;

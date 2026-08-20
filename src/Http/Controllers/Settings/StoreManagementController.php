@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
 use craft\commerce\helpers\Cp as CommerceCp;
 use craft\commerce\Plugin;
 use craft\helpers\Cp;
@@ -13,6 +12,7 @@ use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Addresses;
 use CraftCms\Cms\Support\Html;
+use CraftCms\Commerce\Address\Conditions\ZoneAddressCondition;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Inventory\InventoryLocations;
 use CraftCms\Commerce\Store\Stores;

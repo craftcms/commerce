@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Base;
 
-use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Json;
+use CraftCms\Commerce\Address\Conditions\ZoneAddressCondition;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
 use DateTime;

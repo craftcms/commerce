@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Shipping\Models;
 
-use craft\commerce\elements\conditions\customers\ShippingRuleCustomerCondition;
-use craft\commerce\elements\conditions\orders\ShippingRuleOrderCondition;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Json;
+use CraftCms\Commerce\Customer\Conditions\ShippingRuleCustomerCondition;
 use CraftCms\Commerce\Formula\Formulas;
+use CraftCms\Commerce\Order\Conditions\ShippingRuleOrderCondition;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Shipping\Contracts\ShippingRuleInterface;
 use CraftCms\Commerce\Shipping\Records\ShippingRuleCategory as ShippingRuleCategoryRecord;

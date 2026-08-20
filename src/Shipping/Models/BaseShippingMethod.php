@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Shipping\Models;
 
-use craft\commerce\elements\conditions\customers\ShippingMethodCustomerCondition;
-use craft\commerce\elements\conditions\orders\ShippingMethodOrderCondition;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Json;
+use CraftCms\Commerce\Customer\Conditions\ShippingMethodCustomerCondition;
+use CraftCms\Commerce\Order\Conditions\ShippingMethodOrderCondition;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface;
 use CraftCms\Commerce\Shipping\Contracts\ShippingRuleInterface;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Base;
 
-use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
+use CraftCms\Commerce\Address\Conditions\ZoneAddressCondition;
 
 interface ZoneInterface
 {

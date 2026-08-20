@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Promotion\Models;
 
-use craft\commerce\elements\conditions\addresses\DiscountAddressCondition;
-use craft\commerce\elements\conditions\customers\DiscountCustomerCondition;
-use craft\commerce\elements\conditions\orders\DiscountOrderCondition;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionInterface;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Json;
+use CraftCms\Commerce\Address\Conditions\DiscountAddressCondition;
+use CraftCms\Commerce\Customer\Conditions\DiscountCustomerCondition;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Formula\Formulas;
+use CraftCms\Commerce\Order\Conditions\DiscountOrderCondition;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Promotion\Coupons;
 use CraftCms\Commerce\Promotion\Records\Discount as DiscountRecord;

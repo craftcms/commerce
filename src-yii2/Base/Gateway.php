@@ -9,9 +9,6 @@ namespace craft\commerce\base;
 
 use Craft;
 use craft\base\SavableComponent;
-use craft\commerce\elements\conditions\addresses\GatewayAddressCondition;
-use craft\commerce\elements\conditions\orders\DiscountOrderCondition;
-use craft\commerce\elements\conditions\orders\GatewayOrderCondition;
 use craft\commerce\elements\Order;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
@@ -19,6 +16,8 @@ use craft\elements\conditions\ElementConditionInterface;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
+use CraftCms\Commerce\Address\Conditions\GatewayAddressCondition;
+use CraftCms\Commerce\Order\Conditions\GatewayOrderCondition;
 
 // Force-resolve the legacy Order class_alias before PHP checks this class's LSP compatibility against
 // GatewayInterface below - resolving it reentrantly, mid-compatibility-check, fails (class "not available").
@@ -212,7 +211,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      */
     public function getOrderCondition(): ElementConditionInterface
     {
-        /** @var DiscountOrderCondition $condition */
+        /** @var GatewayOrderCondition $condition */
         $condition = $this->_orderCondition ?? new GatewayOrderCondition();
         $condition->mainTag = 'div';
         $condition->name = 'orderCondition';
