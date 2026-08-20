@@ -443,6 +443,11 @@
 - Added `CraftCms\Commerce\Payment\Gateway\Contracts\RequestResponseInterface`.
 - Added `CraftCms\Commerce\Payment\Gateway\GatewayTypes`, a `CraftCms\Cms\Component\TypeRegistry` for registering gateway types.
 - Deprecated `craft\commerce\services\Gateways::EVENT_REGISTER_GATEWAY_TYPES`. `CraftCms\Commerce\Payment\Gateway\GatewayTypes::register()` should be used instead.
+- Added `CraftCms\Commerce\Payment\Gateway\Gateway`.
+- Added `CraftCms\Commerce\Payment\Gateway\Types\Dummy`.
+- Added `CraftCms\Commerce\Payment\Gateway\Types\Manual`.
+- Added `CraftCms\Commerce\Payment\Gateway\Types\MissingGateway`.
+- Added `CraftCms\Commerce\Helpers\PaymentForm`.
 - Added `CraftCms\Commerce\Payment\Events\PaymentCurrencyRateEvent`.
 - Added `CraftCms\Commerce\Payment\Events\PaymentSourceEvent`.
 - Added `CraftCms\Commerce\Payment\Events\ProcessPaymentEvent`.
@@ -453,6 +458,12 @@
 - Deprecated `craft\commerce\services\Transactions`. `CraftCms\Commerce\Payment\Transactions` should be used instead.
 - Deprecated `craft\commerce\services\PaymentSources`. `CraftCms\Commerce\Payment\PaymentSources` should be used instead.
 - Deprecated `craft\commerce\services\Gateways`. `CraftCms\Commerce\Payment\Gateway\Gateways` should be used instead.
+- Deprecated `craft\commerce\base\Gateway`. `CraftCms\Commerce\Payment\Gateway\Gateway` should be used instead.
+- Deprecated `craft\commerce\base\GatewayTrait`. Its properties and methods are now part of `CraftCms\Commerce\Payment\Gateway\Gateway`.
+- Deprecated `craft\commerce\gateways\Dummy`. `CraftCms\Commerce\Payment\Gateway\Types\Dummy` should be used instead.
+- Deprecated `craft\commerce\gateways\Manual`. `CraftCms\Commerce\Payment\Gateway\Types\Manual` should be used instead.
+- Deprecated `craft\commerce\gateways\MissingGateway`. `CraftCms\Commerce\Payment\Gateway\Types\MissingGateway` should be used instead.
+- Deprecated `craft\commerce\helpers\PaymentForm`. `CraftCms\Commerce\Helpers\PaymentForm` should be used instead.
 - Deprecated `craft\commerce\services\Payments`. `CraftCms\Commerce\Payment\Payments` should be used instead.
 - Deprecated `craft\commerce\services\Webhooks`. `CraftCms\Commerce\Payment\Webhooks` should be used instead.
 - Deprecated `craft\commerce\services\Currencies`. `CraftCms\Commerce\Payment\Currencies` should be used instead.

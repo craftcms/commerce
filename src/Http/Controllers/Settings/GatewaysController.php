@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\commerce\gateways\Dummy;
-use craft\commerce\gateways\MissingGateway;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Payment\Gateway\Gateways;
+use CraftCms\Commerce\Payment\Gateway\Types\Dummy;
+use CraftCms\Commerce\Payment\Gateway\Types\MissingGateway;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 

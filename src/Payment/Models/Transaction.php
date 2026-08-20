@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Payment\Models;
 
-use craft\commerce\base\Gateway;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Orders;
+use CraftCms\Commerce\Payment\Gateway\Gateway;
 use CraftCms\Commerce\Payment\Gateway\Gateways;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Payment\Transactions;

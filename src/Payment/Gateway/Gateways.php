@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Payment\Gateway;
 
 use Carbon\Carbon;
-use craft\commerce\base\Gateway;
-use craft\commerce\gateways\MissingGateway;
 use craft\events\ConfigEvent;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Component\ComponentHelper;
@@ -16,6 +14,7 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
 use CraftCms\Commerce\Payment\Gateway\Records\Gateway as GatewayRecord;
+use CraftCms\Commerce\Payment\Gateway\Types\MissingGateway;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;

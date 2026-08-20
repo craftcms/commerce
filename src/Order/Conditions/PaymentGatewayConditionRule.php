@@ -96,7 +96,6 @@ class PaymentGatewayConditionRule extends BaseMultiSelectConditionRule implement
 
     protected function options(): array
     {
-        /** @phpstan-ignore-next-line argument.type (getAllGateways() is typed to return Collection<int, GatewayInterface>, but PHPStan infers the concrete legacy craft\commerce\base\Gateway via the class_alias chain, which it can't trace) */
         return app(Gateways::class)->getAllGateways()->mapWithKeys(fn(GatewayInterface $gateway) => [$gateway->uid => $gateway->name])->all();
     }
 

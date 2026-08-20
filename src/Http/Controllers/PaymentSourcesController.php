@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use craft\commerce\helpers\PaymentForm;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Commerce\Customer\Customers;
+use CraftCms\Commerce\Helpers\PaymentForm;
 use CraftCms\Commerce\Payment\Gateway\Gateways;
 use CraftCms\Commerce\Payment\PaymentSources;
 use Illuminate\Http\Request;
@@ -37,20 +37,17 @@ readonly class PaymentSourcesController
 
         $gateway = app(Gateways::class)->getGatewayById($gatewayId);
 
-        /** @phpstan-ignore-next-line method.notFound (supportsPaymentSources() is declared on GatewayInterface, which legacy craft\commerce\base\Gateway implements via the class_alias chain, which PHPStan can't trace) */
         if (!$gateway || !$gateway->supportsPaymentSources()) {
             return $this->asFailure(t('There is no gateway selected that supports payment sources.', category: 'commerce'));
         }
 
         // Get the payment method' gateway adapter's expected form model
-        /** @phpstan-ignore-next-line method.notFound (getPaymentFormModel() is declared on GatewayInterface, which legacy craft\commerce\base\Gateway implements via the class_alias chain, which PHPStan can't trace) */
         $paymentForm = $gateway->getPaymentFormModel();
         $paymentFormParams = $request->input(PaymentForm::getPaymentFormParamName($gateway->handle), []);
-        $paymentForm->setAttributes($paymentFormParams, false);
+        $paymentForm->setAttributes($paymentFormParams);
         $description = (string)$request->input('description');
 
         try {
-            /** @phpstan-ignore-next-line argument.type (legacy craft\commerce\base\Gateway implements GatewayInterface via the class_alias chain, which PHPStan can't trace) */
             $paymentSource = app(PaymentSources::class)->createPaymentSource($customer->id, $gateway, $paymentForm, $description, $isPrimaryPaymentSource);
         } catch (Throwable $exception) {
             Log::error($exception->getMessage(), ['exception' => $exception]);

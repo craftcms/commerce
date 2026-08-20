@@ -10,7 +10,7 @@ namespace craft\commerce\web\twig;
 use Craft;
 use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\helpers\Currency;
-use craft\commerce\helpers\PaymentForm;
+use CraftCms\Commerce\Helpers\PaymentForm;
 use craft\errors\SiteNotFoundException;
 use craft\models\Site;
 use Twig\Extension\AbstractExtension;

@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use craft\commerce\base\Gateway;
-use craft\commerce\gateways\MissingGateway;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Locale;
-use craft\commerce\helpers\PaymentForm;
 use craft\commerce\helpers\Purchasable;
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
@@ -47,6 +44,7 @@ use CraftCms\Commerce\Catalog\Events\ModifyPurchasablesTableQueryEvent;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Helpers\LineItem as LineItemHelper;
+use CraftCms\Commerce\Helpers\PaymentForm;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
 use CraftCms\Commerce\Inventory\Inventory;
@@ -68,7 +66,9 @@ use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Payment\Exceptions\RefundException;
 
+use CraftCms\Commerce\Payment\Gateway\Gateway;
 use CraftCms\Commerce\Payment\Gateway\Gateways;
+use CraftCms\Commerce\Payment\Gateway\Types\MissingGateway;
 use CraftCms\Commerce\Payment\Payments;
 use CraftCms\Commerce\Payment\Records\Transaction as TransactionRecord;
 use CraftCms\Commerce\Payment\Transactions;
@@ -855,7 +855,6 @@ JS, []);
         /** @var Gateway $gateway */
         foreach ($gateways as $key => $gateway) {
             // If gateway adapter does no support backend cp payments.
-            /** @phpstan-ignore-next-line argument.type (legacy craft\commerce\base\Gateway implements GatewayInterface via the class_alias chain, which PHPStan can't trace) */
             if ($gateway->availableForUseWithOrder($order) === false || !$gateway->cpPaymentsEnabled() || $gateway instanceof MissingGateway) {
                 unset($gateways[$key]);
                 continue;
@@ -863,13 +862,12 @@ JS, []);
 
             // Add the errors and data back to the current form model.
             if ($gateway->id == $order->gatewayId) {
-                /** @phpstan-ignore-next-line method.notFound (getPaymentFormModel() is declared on GatewayInterface, which legacy craft\commerce\base\Gateway subclasses implement via the class_alias chain, which PHPStan can't trace) */
                 $paymentFormModel = $gateway->getPaymentFormModel();
 
                 if ($paymentFormData) {
                     // Re-add submitted data to payment form model
                     if (isset($paymentFormData['attributes'])) {
-                        $paymentFormModel->attributes = $paymentFormData['attributes'];
+                        $paymentFormModel->setAttributes($paymentFormData['attributes']);
                     }
 
                     // Re-add errors to payment form model
@@ -878,7 +876,6 @@ JS, []);
                     }
                 }
             } else {
-                /** @phpstan-ignore-next-line method.notFound (getPaymentFormModel() is declared on GatewayInterface, which legacy craft\commerce\base\Gateway subclasses implement via the class_alias chain, which PHPStan can't trace) */
                 $paymentFormModel = $gateway->getPaymentFormModel();
             }
 
@@ -1321,7 +1318,6 @@ JS, []);
                 $gateway = app(Gateways::class)->getAllGateways()->first();
 
                 if ($gateway && !$gateway instanceof MissingGateway) {
-                    /** @phpstan-ignore-next-line method.notFound (getPaymentFormModel() is declared on GatewayInterface, which legacy craft\commerce\base\Gateway subclasses implement via the class_alias chain, which PHPStan can't trace) */
                     $variables['paymentForm'] = $gateway->getPaymentFormModel();
                 }
             }

@@ -661,7 +661,6 @@ class Order extends Element implements HasStoreInterface
         if (!$this->gatewayId && !$this->paymentSourceId) {
             $gateways = app(Gateways::class)->getAllCustomerEnabledGateways();
             if ($gateways->isNotEmpty()) {
-                /** @phpstan-ignore-next-line argument.type (legacy craft\commerce\base\Gateway implements GatewayInterface via the class_alias chain, which PHPStan can't trace) */
                 $gateway = $gateways->filter(fn(GatewayInterface $g) => $g->availableForUseWithOrder($this))->first();
 
                 if ($gateway) {
@@ -2736,7 +2735,6 @@ class Order extends Element implements HasStoreInterface
             }
         }
 
-        /** @phpstan-ignore-next-line return.type (legacy craft\commerce\base\Gateway implements GatewayInterface via the class_alias chain, which PHPStan can't trace) */
         return $gateway;
     }
 

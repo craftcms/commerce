@@ -2,9 +2,9 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
 use craft\events\ConfigEvent;
+use CraftCms\Commerce\Payment\Gateway\Gateway;
 use CraftCms\Commerce\Payment\Gateway\GatewayTypes;
 use CraftCms\Yii2Adapter\Event\TypeRegistryCompatibility;
 use Illuminate\Support\Collection;
