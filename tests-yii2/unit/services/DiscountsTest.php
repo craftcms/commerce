@@ -19,7 +19,7 @@ use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
 use craft\commerce\services\Discounts;
-use craft\commerce\test\mockclasses\Purchasable;
+use craftcommercetests\mockclasses\Purchasable;
 use craft\db\Query;
 use craft\elements\Category;
 use craft\elements\User;

@@ -8,7 +8,7 @@
 namespace craftcommercetests\fixtures;
 
 use craft\commerce\elements\Product;
-use craft\commerce\test\fixtures\elements\ProductFixture as BaseProductFixture;
+use craftcommercetests\fixtures\elements\ProductFixture as BaseProductFixture;
 
 /**
  * Class ProductFixture.

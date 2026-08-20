@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\commerce\test\mockclasses;
+namespace craftcommercetests\mockclasses;
 
 use craft\commerce\base\Purchasable as BasePurchasable;
 use craft\commerce\models\Store;

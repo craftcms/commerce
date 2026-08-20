@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\commerce\test\fixtures\elements;
+namespace craftcommercetests\fixtures\elements;
 
 use Craft;
 use craft\base\ElementInterface;

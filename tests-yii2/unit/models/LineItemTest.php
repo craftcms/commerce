@@ -14,7 +14,7 @@ use craft\commerce\elements\Variant;
 use craft\commerce\enums\LineItemType;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
-use craft\commerce\test\mockclasses\Purchasable;
+use craftcommercetests\mockclasses\Purchasable;
 use craft\errors\SiteNotFoundException;
 use craft\helpers\Json;
 use craftcommercetests\fixtures\ProductFixture;
