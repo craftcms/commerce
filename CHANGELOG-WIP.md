@@ -159,6 +159,8 @@
 - Deprecated `craft\commerce\stats\TotalOrdersByCountry`. `CraftCms\Commerce\Stats\TotalOrdersByCountry` should be used instead.
 - Deprecated `craft\commerce\stats\TotalRevenue`. `CraftCms\Commerce\Stats\TotalRevenue` should be used instead.
 - Deprecated `craft\commerce\base\StatInterface`. `CraftCms\Commerce\Stats\Contracts\StatInterface` should be used instead.
+- `CraftCms\Commerce\Stats\Stat` and its subclasses now build their queries entirely through the Laravel query builder, using `tpetry/laravel-query-expressions` for cross-database SQL differences instead of manual driver checks.
+- Added `CraftCms\Commerce\Support\Expressions\LocalTimestamp`, `DateOnly`, `MonthKey`, and `Round` query expressions.
 - Deprecated `craft\commerce\widgets\AverageOrderTotal`. `CraftCms\Commerce\Dashboard\Widgets\AverageOrderTotal` should be used instead.
 - Deprecated `craft\commerce\widgets\NewCustomers`. `CraftCms\Commerce\Dashboard\Widgets\NewCustomers` should be used instead.
 - Deprecated `craft\commerce\widgets\RepeatCustomers`. `CraftCms\Commerce\Dashboard\Widgets\RepeatCustomers` should be used instead.

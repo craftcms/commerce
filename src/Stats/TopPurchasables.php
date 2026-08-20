@@ -6,6 +6,8 @@ namespace CraftCms\Commerce\Stats;
 
 use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\Database\Table;
+use Tpetry\QueryExpressions\Function\Aggregate\Sum;
+use Tpetry\QueryExpressions\Language\Alias;
 
 /**
  * Top Purchasables Stat
@@ -38,8 +40,8 @@ class TopPurchasables extends Stat
 
         $topPurchasables = $this->createStatQuery()
             ->select(['li.purchasableId', 'p.description', 'p.sku'])
-            ->selectRaw('SUM(li.qty) as qty')
-            ->selectRaw('SUM(li.total) as revenue')
+            ->addSelect(new Alias(new Sum('li.qty'), 'qty'))
+            ->addSelect(new Alias(new Sum('li.total'), 'revenue'))
             ->leftJoin(Table::LINEITEMS . ' as li', 'li.orderId', '=', 'orders.id')
             ->leftJoin(Table::PURCHASABLES . ' as p', 'p.id', '=', 'li.purchasableId')
             ->leftJoin(Table::VARIANTS . ' as v', 'v.id', '=', 'p.id')
@@ -47,7 +49,7 @@ class TopPurchasables extends Stat
             ->leftJoin(Table::PRODUCTTYPES . ' as pt', 'pt.id', '=', 'pr.typeId')
             ->whereIn('pt.id', $viewableProductTypeIds)
             ->groupBy(['li.purchasableId', 'p.sku', 'p.description'])
-            ->orderByRaw($this->type == 'revenue' ? 'SUM(li.total) DESC' : 'SUM(li.qty) DESC')
+            ->orderBy($this->type == 'revenue' ? new Sum('li.total') : new Sum('li.qty'), 'desc')
             ->orderBy('p.sku')
             ->limit($this->limit);
 

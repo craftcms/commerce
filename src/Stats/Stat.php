@@ -13,14 +13,19 @@ use CraftCms\Commerce\Order\Models\OrderStatus;
 use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Stats\Contracts\StatInterface;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
+use CraftCms\Commerce\Support\Expressions\DateOnly;
+use CraftCms\Commerce\Support\Expressions\LocalTimestamp;
+use CraftCms\Commerce\Support\Expressions\MonthKey;
 use DateInterval;
 use DateTime;
 use DateTimeZone;
+use Illuminate\Contracts\Database\Query\Expression;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-
 use InvalidArgumentException;
+
+use Tpetry\QueryExpressions\Language\Alias;
 use function CraftCms\Cms\t;
 
 abstract class Stat implements StatInterface
@@ -300,56 +305,30 @@ abstract class Stat implements StatInterface
         return implode('-', [$this->getHandle(), $this->dateRange, $this->_startDate->format('U'), $this->_endDate->format('U'), $orderLastUpdatedString]);
     }
 
+    /**
+     * @return array{interval: string, dateKeyFormat: string, dateKey: Expression, groupBy: Expression, orderBy: Expression}|null
+     */
     public function getChartQueryOptionsByInterval(string $interval): ?array
     {
-        $driver = DB::connection()->getDriverName();
+        $localTimestamp = new LocalTimestamp('dateOrdered', date_default_timezone_get());
 
-        if ($driver === 'mysql') {
-            // The fallback if timezone can't happen in sql is simply just extract the information from the UTC date stored in `dateOrdered`.
-            $timezoneConversionSql = 'dateOrdered';
-
-            if (\craft\helpers\Db::supportsTimeZones()) {
-                $timezoneConversionSql = "CONVERT_TZ(dateOrdered, 'UTC', '" . date_default_timezone_get() . "')";
-            } else {
-                \Craft::getLogger()->log('For accurate Commerce statistics it is recommend to make sure you have the timezones table populated. https://craftcms.com/knowledge-base/populating-mysql-mariadb-timezone-tables', \Craft::getLogger()::LEVEL_WARNING, 'commerce');
-            }
-        } elseif ($driver === 'sqlite') {
-            // SQLite has no named-timezone support (used only by the test suite, which always
-            // runs in UTC); operate on the UTC `dateOrdered` value directly, same as the MySQL
-            // no-timezone-table fallback above.
-            $timezoneConversionSql = 'dateOrdered';
-        } else {
-            $timezoneConversionSql = "((dateOrdered AT TIME ZONE 'UTC') AT TIME ZONE '" . date_default_timezone_get() . "')";
-        }
-
-        switch ($interval) {
-            case 'month':
-                if ($driver === 'sqlite') {
-                    // strftime('%m', ...) is zero-padded; cast to int so the SQL-generated key
-                    // matches PHP's `Y-n` dateKeyFormat (unpadded month) used to merge results.
-                    $sqlExpression = "(strftime('%Y', " . $timezoneConversionSql . ") || '-' || CAST(strftime('%m', " . $timezoneConversionSql . ') AS INTEGER))';
-                } else {
-                    $sqlExpression = 'CONCAT(EXTRACT(YEAR FROM ' . $timezoneConversionSql . "), '-', EXTRACT(MONTH FROM " . $timezoneConversionSql . '))';
-                }
-                return [
-                    'interval' => 'P1M',
-                    'dateKeyFormat' => 'Y-n',
-                    'dateKey' => $sqlExpression,
-                    'groupBy' => $sqlExpression,
-                    'orderBy' => $sqlExpression . ' ASC',
-                ];
-            case 'day':
-                $sqlExpression = ($driver === 'sqlite' ? 'date(' : 'DATE(') . $timezoneConversionSql . ')';
-                return [
-                    'interval' => 'P1D',
-                    'dateKeyFormat' => 'Y-m-d',
-                    'dateKey' => $sqlExpression,
-                    'groupBy' => $sqlExpression,
-                    'orderBy' => $sqlExpression,
-                ];
-        }
-
-        return null;
+        return match ($interval) {
+            'month' => [
+                'interval' => 'P1M',
+                'dateKeyFormat' => 'Y-n',
+                'dateKey' => new Alias(new MonthKey($localTimestamp), 'datekey'),
+                'groupBy' => new MonthKey($localTimestamp),
+                'orderBy' => new MonthKey($localTimestamp),
+            ],
+            'day' => [
+                'interval' => 'P1D',
+                'dateKeyFormat' => 'Y-m-d',
+                'dateKey' => new Alias(new DateOnly($localTimestamp), 'datekey'),
+                'groupBy' => new DateOnly($localTimestamp),
+                'orderBy' => new DateOnly($localTimestamp),
+            ],
+            default => null,
+        };
     }
 
     public function getDateRangeInterval(): string
@@ -467,13 +446,11 @@ abstract class Stat implements StatInterface
         }
 
         // Add defaults to select
-        // groupBy/orderBy are built entirely from server-side driver/timezone config in
-        // getChartQueryOptionsByInterval(), never from user input, so the literal-string requirement below is overly strict
-        $select[] = DB::raw($options['dateKey'] . ' as datekey');
+        $select[] = $options['dateKey'];
         $results = $query
             ->select($select)
-            ->groupByRaw($options['groupBy']) /** @phpstan-ignore-line */
-            ->orderByRaw($options['orderBy']) /** @phpstan-ignore-line */
+            ->groupBy($options['groupBy'])
+            ->orderBy($options['orderBy'])
             ->get()
             ->keyBy('datekey')
             ->map(fn($row) => (array)$row)

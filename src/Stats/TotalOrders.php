@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Stats;
 
-use Illuminate\Support\Facades\DB;
+use Tpetry\QueryExpressions\Function\Aggregate\Count;
+use Tpetry\QueryExpressions\Language\Alias;
 
 /**
  * Total Orders Stat
@@ -19,7 +20,7 @@ class TotalOrders extends Stat
         $total = $this->createStatQuery()->count();
 
         $chartData = $this->createChartQuery([
-            DB::raw('COUNT(orders.id) as total'),
+            new Alias(new Count('orders.id'), 'total'),
         ], [
             'total' => 0,
         ]);

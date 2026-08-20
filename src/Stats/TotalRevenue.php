@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Stats;
 
-use Illuminate\Support\Facades\DB;
+use Tpetry\QueryExpressions\Function\Aggregate\Count;
+use Tpetry\QueryExpressions\Function\Aggregate\Sum;
+use Tpetry\QueryExpressions\Language\Alias;
 
 /**
  * Total Revenue Stat
@@ -29,8 +31,8 @@ class TotalRevenue extends Stat
 
         return $this->createChartQuery(
             [
-                DB::raw(sprintf('SUM(%s) as revenue', $this->type)),
-                DB::raw('COUNT(orders.id) as count'),
+                new Alias(new Sum($this->type), 'revenue'),
+                new Alias(new Count('orders.id'), 'count'),
             ],
             [
                 'revenue' => 0,

@@ -6,6 +6,8 @@ namespace CraftCms\Commerce\Stats;
 
 use CraftCms\Commerce\Database\Table;
 use Illuminate\Support\Facades\DB;
+use Tpetry\QueryExpressions\Function\Aggregate\Count;
+use Tpetry\QueryExpressions\Language\Alias;
 
 /**
  * New Customers Stat
@@ -26,7 +28,7 @@ class NewCustomers extends Stat
             ->whereNotNull('customerId')
             ->where('dateOrdered', '<', $this->formatDateForDb($this->getStartDate()));
 
-        return $query->selectRaw('COUNT(DISTINCT customerId) as newCustomers')
+        return $query->select(new Alias(new Count('customerId', distinct: true), 'newCustomers'))
             ->whereNotNull('customerId')
             ->whereNotIn('customerId', $existingCustomersQuery)
             ->value('newCustomers');

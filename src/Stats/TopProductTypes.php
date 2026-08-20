@@ -8,6 +8,8 @@ use CraftCms\Cms\Database\Table as CmsTable;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\Database\Table;
+use Tpetry\QueryExpressions\Function\Aggregate\Sum;
+use Tpetry\QueryExpressions\Language\Alias;
 
 /**
  * Top Product Types Stat
@@ -41,8 +43,8 @@ class TopProductTypes extends Stat
 
         $results = $this->createStatQuery()
             ->select(['pt.id as id', 'pt.name'])
-            ->selectRaw('SUM(li.qty) as qty')
-            ->selectRaw('SUM(li.total) as revenue')
+            ->addSelect(new Alias(new Sum('li.qty'), 'qty'))
+            ->addSelect(new Alias(new Sum('li.total'), 'revenue'))
             ->leftJoin(Table::LINEITEMS . ' as li', 'li.orderId', '=', 'orders.id')
             ->leftJoin(Table::PURCHASABLES . ' as p', 'p.id', '=', 'li.purchasableId')
             ->leftJoin(Table::VARIANTS . ' as v', 'v.id', '=', 'p.id')
@@ -55,7 +57,7 @@ class TopProductTypes extends Stat
             ->whereNotNull('pt.name')
             ->whereIn('pt.id', $viewableProductTypeIds)
             ->groupBy('pt.id')
-            ->orderByRaw($this->type == 'revenue' ? 'SUM(li.total) DESC' : 'SUM(li.qty) DESC')
+            ->orderBy($this->type == 'revenue' ? new Sum('li.total') : new Sum('li.qty'), 'desc')
             ->limit($this->limit);
 
         return $results->get()->map(fn($row) => (array)$row)->all();
