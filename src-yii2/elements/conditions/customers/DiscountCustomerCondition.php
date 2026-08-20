@@ -2,32 +2,10 @@
 
 namespace craft\commerce\elements\conditions\customers;
 
-use craft\commerce\elements\conditions\users\DiscountGroupConditionRule;
-use craft\elements\conditions\users\UserCondition as UserElementCondition;
-use craft\elements\User;
+/** @deprecated use {@see \CraftCms\Commerce\Customer\Conditions\DiscountCustomerCondition} */
+class_alias(\CraftCms\Commerce\Customer\Conditions\DiscountCustomerCondition::class, 'craft\commerce\elements\conditions\customers\DiscountCustomerCondition');
 
-/**
- * Discount Order condition.
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.0.0
- */
-class DiscountCustomerCondition extends UserElementCondition
-{
-    /**
-     * @inheritdoc
-     */
-    public ?string $elementType = User::class;
-
-    /**
-     * @inheritdoc
-     */
-    protected function selectableConditionRules(): array
-    {
-        return array_merge(parent::selectableConditionRules(), [
-            HasOrdersConditionRule::class,
-            SignedInConditionRule::class,
-            DiscountGroupConditionRule::class,
-        ]);
-    }
+/** @phpstan-ignore-next-line */
+if (false) {
+    class DiscountCustomerCondition extends \CraftCms\Commerce\Customer\Conditions\DiscountCustomerCondition {}
 }

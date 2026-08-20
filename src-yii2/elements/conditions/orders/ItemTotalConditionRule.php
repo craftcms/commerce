@@ -1,26 +1,11 @@
 <?php
 
-namespace  craft\commerce\elements\conditions\orders;
+namespace craft\commerce\elements\conditions\orders;
 
-use Craft;
+/** @deprecated use {@see \CraftCms\Commerce\Order\Conditions\ItemTotalConditionRule} */
+class_alias(\CraftCms\Commerce\Order\Conditions\ItemTotalConditionRule::class, 'craft\commerce\elements\conditions\orders\ItemTotalConditionRule');
 
-/**
- * Item Total Condition Rule
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.2.0
- *
- * @property-read float|int $orderAttributeValue
- */
-class ItemTotalConditionRule extends OrderCurrencyValuesAttributeConditionRule
-{
-    public string $orderAttribute = 'itemTotal';
-
-    /**
-     * @inheritdoc
-     */
-    public function getLabel(): string
-    {
-        return Craft::t('commerce', 'Item Total');
-    }
+/** @phpstan-ignore-next-line */
+if (false) {
+    class ItemTotalConditionRule extends \CraftCms\Commerce\Order\Conditions\ItemTotalConditionRule {}
 }

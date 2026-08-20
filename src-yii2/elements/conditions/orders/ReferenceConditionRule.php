@@ -1,29 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
-namespace  craft\commerce\elements\conditions\orders;
+namespace craft\commerce\elements\conditions\orders;
 
-use Craft;
+/** @deprecated use {@see \CraftCms\Commerce\Order\Conditions\ReferenceConditionRule} */
+class_alias(\CraftCms\Commerce\Order\Conditions\ReferenceConditionRule::class, 'craft\commerce\elements\conditions\orders\ReferenceConditionRule');
 
-/**
- * Order Reference condition rule.
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.2.0
- */
-class ReferenceConditionRule extends OrderTextValuesAttributeConditionRule
-{
-    public string $orderAttribute = 'reference';
-
-    /**
-     * @inheritdoc
-     */
-    public function getLabel(): string
-    {
-        return Craft::t('commerce', 'Reference');
-    }
+/** @phpstan-ignore-next-line */
+if (false) {
+    class ReferenceConditionRule extends \CraftCms\Commerce\Order\Conditions\ReferenceConditionRule {}
 }

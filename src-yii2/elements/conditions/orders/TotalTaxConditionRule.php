@@ -1,31 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
-namespace  craft\commerce\elements\conditions\orders;
+namespace craft\commerce\elements\conditions\orders;
 
-use Craft;
+/** @deprecated use {@see \CraftCms\Commerce\Order\Conditions\TotalTaxConditionRule} */
+class_alias(\CraftCms\Commerce\Order\Conditions\TotalTaxConditionRule::class, 'craft\commerce\elements\conditions\orders\TotalTaxConditionRule');
 
-/**
- * Total Tax Condition Rule
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.2.0
- *
- * @property-read float|int $orderAttributeValue
- */
-class TotalTaxConditionRule extends OrderCurrencyValuesAttributeConditionRule
-{
-    public string $orderAttribute = 'totalTax';
-
-    /**
-     * @inheritdoc
-     */
-    public function getLabel(): string
-    {
-        return Craft::t('commerce', 'Total Tax');
-    }
+/** @phpstan-ignore-next-line */
+if (false) {
+    class TotalTaxConditionRule extends \CraftCms\Commerce\Order\Conditions\TotalTaxConditionRule {}
 }

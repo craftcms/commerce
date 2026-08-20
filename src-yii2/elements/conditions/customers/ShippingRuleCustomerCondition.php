@@ -1,20 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\elements\conditions\customers;
 
-use craft\elements\conditions\users\UserCondition;
+/** @deprecated use {@see \CraftCms\Commerce\Customer\Conditions\ShippingRuleCustomerCondition} */
+class_alias(\CraftCms\Commerce\Customer\Conditions\ShippingRuleCustomerCondition::class, 'craft\commerce\elements\conditions\customers\ShippingRuleCustomerCondition');
 
-/**
- * Shipping Rule Customer condition.
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 5.4.0
- */
-class ShippingRuleCustomerCondition extends UserCondition
-{
+/** @phpstan-ignore-next-line */
+if (false) {
+    class ShippingRuleCustomerCondition extends \CraftCms\Commerce\Customer\Conditions\ShippingRuleCustomerCondition {}
 }

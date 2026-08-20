@@ -1,40 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\elements\conditions\products;
 
-use craft\commerce\elements\Product;
-use craft\elements\conditions\ElementCondition;
+/** @deprecated use {@see \CraftCms\Commerce\Catalog\Conditions\ProductCondition} */
+class_alias(\CraftCms\Commerce\Catalog\Conditions\ProductCondition::class, 'craft\commerce\elements\conditions\products\ProductCondition');
 
-/**
- * Product query condition.
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.0.0
- */
-class ProductCondition extends ElementCondition
-{
-    /**
-     * @inheritdoc
-     */
-    public ?string $elementType = Product::class;
-
-    /**
-     * @inheritdoc
-     */
-    protected function selectableConditionRules(): array
-    {
-        return array_merge(parent::selectableConditionRules(), [
-            ProductTypeConditionRule::class,
-            ProductVariantSearchConditionRule::class,
-            ProductVariantSkuConditionRule::class,
-            ProductVariantStockConditionRule::class,
-            ProductVariantHasUnlimitedStockConditionRule::class,
-            ProductVariantPriceConditionRule::class,
-        ]);
-    }
+/** @phpstan-ignore-next-line */
+if (false) {
+    class ProductCondition extends \CraftCms\Commerce\Catalog\Conditions\ProductCondition {}
 }

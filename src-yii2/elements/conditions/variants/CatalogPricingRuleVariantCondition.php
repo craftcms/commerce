@@ -1,27 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\elements\conditions\variants;
 
-/**
- * Catalog Pricing Rule Variant query condition.
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 5.1.0
- */
-class CatalogPricingRuleVariantCondition extends VariantCondition
-{
-    /**
-     * @inheritdoc
-     */
-    protected function selectableConditionRules(): array
-    {
-        return array_merge(parent::selectableConditionRules(), [
-            CatalogPricingRuleVariantConditionRule::class,
-        ]);
-    }
+/** @deprecated use {@see \CraftCms\Commerce\Catalog\Conditions\CatalogPricingRuleVariantCondition} */
+class_alias(\CraftCms\Commerce\Catalog\Conditions\CatalogPricingRuleVariantCondition::class, 'craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantCondition');
+
+/** @phpstan-ignore-next-line */
+if (false) {
+    class CatalogPricingRuleVariantCondition extends \CraftCms\Commerce\Catalog\Conditions\CatalogPricingRuleVariantCondition {}
 }

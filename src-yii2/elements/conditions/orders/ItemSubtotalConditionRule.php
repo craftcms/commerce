@@ -1,26 +1,11 @@
 <?php
 
-namespace  craft\commerce\elements\conditions\orders;
+namespace craft\commerce\elements\conditions\orders;
 
-use Craft;
+/** @deprecated use {@see \CraftCms\Commerce\Order\Conditions\ItemSubtotalConditionRule} */
+class_alias(\CraftCms\Commerce\Order\Conditions\ItemSubtotalConditionRule::class, 'craft\commerce\elements\conditions\orders\ItemSubtotalConditionRule');
 
-/**
- * Item Subtotal Condition Rule
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.2.0
- *
- * @property-read float|int $orderAttributeValue
- */
-class ItemSubtotalConditionRule extends OrderCurrencyValuesAttributeConditionRule
-{
-    public string $orderAttribute = 'itemSubtotal';
-
-    /**
-     * @inheritdoc
-     */
-    public function getLabel(): string
-    {
-        return Craft::t('commerce', 'Item Subtotal');
-    }
+/** @phpstan-ignore-next-line */
+if (false) {
+    class ItemSubtotalConditionRule extends \CraftCms\Commerce\Order\Conditions\ItemSubtotalConditionRule {}
 }

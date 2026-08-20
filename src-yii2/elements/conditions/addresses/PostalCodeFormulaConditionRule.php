@@ -2,87 +2,10 @@
 
 namespace craft\commerce\elements\conditions\addresses;
 
-use Craft;
-use craft\base\conditions\BaseTextConditionRule;
-use craft\base\ElementInterface;
-use craft\commerce\Plugin;
-use craft\elements\Address;
-use craft\elements\conditions\ElementConditionRuleInterface;
-use craft\elements\db\ElementQueryInterface;
-use craft\helpers\Cp;
-use craft\helpers\Html;
-use yii\base\NotSupportedException;
+/** @deprecated use {@see \CraftCms\Commerce\Address\Conditions\PostalCodeFormulaConditionRule} */
+class_alias(\CraftCms\Commerce\Address\Conditions\PostalCodeFormulaConditionRule::class, 'craft\commerce\elements\conditions\addresses\PostalCodeFormulaConditionRule');
 
-/**
- * Total Price Condition Rule
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.0.0
- *
- */
-class PostalCodeFormulaConditionRule extends BaseTextConditionRule implements ElementConditionRuleInterface
-{
-    /**
-     * @inheritdoc
-     */
-    public function getLabel(): string
-    {
-        return Craft::t('commerce', 'Postal Code Formula');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getExclusiveQueryParams(): array
-    {
-        return [];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function modifyQuery(ElementQueryInterface $query): void
-    {
-        throw new NotSupportedException('Discount Address Condition does not support element queries.');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function matchElement(ElementInterface $element): bool
-    {
-        /** @var Address $address */
-        $address = $element;
-        $formulasService = Plugin::getInstance()->getFormulas();
-        $formula = $this->value;
-        $postalCode = $address->postalCode;
-
-        try {
-            return (bool)$formulasService->evaluateCondition($formula, ['postalCode' => $postalCode], 'Postal code formula matching address');
-        } catch (\Throwable) {
-            Craft::error('Error evaluating postal code formula: ' . $formula,'commerce');
-            return false;
-        }
-    }
-
-    public function operators(): array
-    {
-        return [
-            self::OPERATOR_EQ,
-        ];
-    }
-
-    public function inputHtml(): string
-    {
-        return Html::hiddenLabel($this->getLabel(), 'value') .
-            Cp::textareaHtml([
-                'type' => $this->inputType(),
-                'id' => 'value',
-                'name' => 'value',
-                'code' => 'value',
-                'value' => $this->value,
-                'autocomplete' => false,
-                'class' => 'fullwidth code',
-            ]);
-    }
+/** @phpstan-ignore-next-line */
+if (false) {
+    class PostalCodeFormulaConditionRule extends \CraftCms\Commerce\Address\Conditions\PostalCodeFormulaConditionRule {}
 }

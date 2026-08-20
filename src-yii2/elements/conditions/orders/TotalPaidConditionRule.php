@@ -1,31 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
-namespace  craft\commerce\elements\conditions\orders;
+namespace craft\commerce\elements\conditions\orders;
 
-use Craft;
+/** @deprecated use {@see \CraftCms\Commerce\Order\Conditions\TotalPaidConditionRule} */
+class_alias(\CraftCms\Commerce\Order\Conditions\TotalPaidConditionRule::class, 'craft\commerce\elements\conditions\orders\TotalPaidConditionRule');
 
-/**
- * Total Paid Condition Rule
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.2.0
- *
- * @property-read float|int $orderAttributeValue
- */
-class TotalPaidConditionRule extends OrderCurrencyValuesAttributeConditionRule
-{
-    public string $orderAttribute = 'totalPaid';
-
-    /**
-     * @inheritdoc
-     */
-    public function getLabel(): string
-    {
-        return Craft::t('commerce', 'Total Paid');
-    }
+/** @phpstan-ignore-next-line */
+if (false) {
+    class TotalPaidConditionRule extends \CraftCms\Commerce\Order\Conditions\TotalPaidConditionRule {}
 }
