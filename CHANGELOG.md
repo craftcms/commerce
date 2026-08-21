@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where the deprecated `craft\commerce\services\ProductTypes::getEditableProductTypes()` method could still be called. ([#4349](https://github.com/craftcms/commerce/issues/4349)) 
+
 ## 5.7.2 - 2026-08-12
 
 - Fixed a bug where inactive carts’ search index rows weren’t being purged. ([#4344](https://github.com/craftcms/commerce/issues/4344))
