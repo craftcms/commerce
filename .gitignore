@@ -8,9 +8,9 @@
 *aspnet_client/*
 node_modules/
 /vendor
-/tests/_craft/config/project
 .env
+.phpunit.cache
 *-private.md
 *-private.html
-/claude.md
 /.claude
+/CLAUDE.md

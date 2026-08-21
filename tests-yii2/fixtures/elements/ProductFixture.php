@@ -1,0 +1,141 @@
+<?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
+
+namespace craftcommercetests\fixtures\elements;
+
+use Craft;
+use craft\base\ElementInterface;
+use craft\commerce\db\Table;
+use craft\commerce\elements\Product;
+use craft\commerce\elements\Variant;
+use craft\commerce\elements\VariantCollection;
+use craft\commerce\Plugin;
+use craft\db\Query;
+use craft\test\fixtures\elements\BaseElementFixture;
+use yii\base\InvalidArgumentException;
+
+/**
+ * Class ProductFixture.
+ *
+ * Credit to: https://github.com/robuust/craft-fixtures
+ *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @author Robuust digital | Bob Olde Hampsink <bob@robuust.digital>
+ * @author Global Network Group | Giel Tettelaar <giel@yellowflash.net>
+ * @since  2.1
+ */
+class ProductFixture extends BaseElementFixture
+{
+    /**
+     * @var array
+     */
+    protected array $productTypeIds = [];
+
+    private ?VariantCollection $_variants = null;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function init(): void
+    {
+        parent::init();
+
+        // Ensure loaded
+        $commerce = Plugin::getInstance();
+        if (!$commerce) {
+            throw new InvalidArgumentException('Commerce plugin needs to be loaded before using the ProductFixture');
+        }
+
+        // Get all product type id's
+        $this->productTypeIds = $this->_getProductTypeIds();
+    }
+
+    public function afterLoad(): void
+    {
+        $this->productTypeIds = $this->_getProductTypeIds();
+
+        // Generate catalog pricing
+        Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices();
+    }
+
+    protected function createElement(): ElementInterface
+    {
+        return new Product();
+    }
+
+    /**
+     * Get array of product type IDs indexed by handle.
+     * This uses a raw query to avoid service level caching/memoization.
+     *
+     * @todo Review whether this raw-query workaround for service-level memoization is still needed in Commerce 6.0 #COM-54
+     */
+    private function _getProductTypeIds(): array
+    {
+        return new Query()
+            ->select([
+                'productTypes.id',
+                'productTypes.handle',
+            ])
+            ->from([Table::PRODUCTTYPES . ' productTypes'])
+            ->indexBy('handle')
+            ->column();
+    }
+
+    /**
+     * @inheritdoc
+     * @param Product $element
+     */
+    protected function populateElement(ElementInterface $element, array $attributes): void
+    {
+        foreach ($attributes as $name => $value) {
+            if ($name !== '_variants') {
+                $element->$name = $value;
+            } else {
+                $this->_variants = VariantCollection::make($value);
+                $element->setVariants($value);
+            }
+        }
+    }
+
+    protected function saveElement(ElementInterface $element): bool
+    {
+        $return = parent::saveElement($element);
+
+        // Save the variants
+        $this->_variants->each(function(Variant $v) use ($element) {
+            if (new Query()
+                ->from(Table::VARIANTS . ' v')
+                ->leftJoin(Table::PURCHASABLES . ' p', '[[p.id]] = [[v.id]]')
+                ->where(['primaryOwnerId' => $element->id])
+                ->andWhere(['p.sku' => $v->getSku()])
+                ->exists()
+            ) {
+                return;
+            }
+
+            $v->setPrimaryOwnerId($element->id);
+            $v->setOwnerId($element->id);
+            \Craft::$app->getElements()->saveElement($v,false);
+        });
+
+        $this->_variants = null;
+
+        return $return;
+    }
+
+    protected function deleteElement(ElementInterface $element): bool
+    {
+        /** @var Product $element */
+        $variants = $element->getVariants(true);
+
+        foreach ($variants as $variant) {
+            Craft::$app->getElements()->deleteElement($variant, true);
+        }
+
+        return parent::deleteElement($element);
+    }
+}

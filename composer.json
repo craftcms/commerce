@@ -21,34 +21,38 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "php": "^8.2",
-    "craftcms/cms": "^5.10.0",
-    "dompdf/dompdf": "^2.0.2 || ^3.0",
+    "php": "^8.5",
+    "craftcms/cms": "6.x-dev",
+    "dompdf/dompdf": "^3.1.6",
     "ibericode/vat": "^2.0",
     "iio/libmergepdf": "^4.0",
     "moneyphp/money": "^4.2.0"
   },
   "require-dev": {
-    "codeception/codeception": "^5.0.11",
-    "codeception/module-asserts": "^3.0.0",
-    "codeception/module-datafactory": "^3.0.0",
-    "codeception/module-phpbrowser": "^3.0.0",
-    "codeception/module-rest": "^3.3.2",
-    "codeception/module-yii2": "^1.1.9",
-    "craftcms/ckeditor": "^4.0.0",
-    "craftcms/redactor": "*",
     "craftcms/ecs": "dev-main",
-    "craftcms/phpstan": "dev-main",
+    "craftcms/yii2-adapter": "6.x-dev",
+    "dg/bypass-finals": "^1.9",
     "fakerphp/faker": "^1.19.0",
+    "larastan/larastan": "^3.4",
     "league/factory-muffin": "^3.3.0",
-    "phpstan/phpstan": "^1.10.56",
-    "vlucas/phpdotenv": "^5.4.1",
-    "craftcms/rector": "dev-main"
+    "orchestra/testbench": "^11.0",
+    "pestphp/pest": "^4.0",
+    "pestphp/pest-plugin-arch": "^4.0",
+    "pestphp/pest-plugin-laravel": "^4.0",
+    "phpstan/phpstan": "^2.1",
+    "rector/rector": "^2.0",
+    "vlucas/phpdotenv": "^5.4.1"
   },
   "autoload": {
     "psr-4": {
-      "craft\\commerce\\": "src/",
-      "craftcommercetests\\fixtures\\": "tests/fixtures/"
+      "craft\\commerce\\": "src-yii2/",
+      "CraftCms\\Commerce\\": "src/",
+      "craftcommercetests\\fixtures\\": "tests-yii2/fixtures/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "CraftCms\\Commerce\\Tests\\": "tests/"
     }
   },
   "extra": {
@@ -62,16 +66,23 @@
     "check-cs": "ecs check --ansi",
     "fix-cs": "ecs check --ansi --fix",
     "phpstan": "phpstan --memory-limit=1G",
-    "testunit": [
+    "tests": [
       "Composer\\Config::disableProcessTimeout",
-      "codecept run unit"
-    ]
+      "./vendor/bin/pest --compact"
+    ],
+    "post-autoload-dump": [
+      "@clear",
+      "@prepare"
+    ],
+    "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
+    "prepare": "@php vendor/bin/testbench package:discover --ansi"
   },
   "config": {
     "sort-packages": true,
     "allow-plugins": {
       "yiisoft/yii2-composer": true,
-      "craftcms/plugin-installer": true
+      "craftcms/plugin-installer": true,
+      "pestphp/pest-plugin": true
     }
   }
 }

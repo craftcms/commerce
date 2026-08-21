@@ -1,0 +1,166 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CraftCms\Commerce\Http\Controllers;
+
+use craft\commerce\web\assets\productindex\ProductIndexAsset;
+use CraftCms\Cms\Element\ElementHelper;
+use CraftCms\Cms\Element\Validation\ElementRules;
+use CraftCms\Cms\Http\RespondsWithFlash;
+use CraftCms\Cms\Structure\Structures;
+use CraftCms\Cms\Support\DateTimeHelper;
+use CraftCms\Cms\Support\Facades\Drafts;
+use CraftCms\Cms\Support\Facades\Sites;
+use CraftCms\Cms\Support\Url;
+use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Catalog\Elements\Product;
+use CraftCms\Commerce\Catalog\Products;
+use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
+use DateTime;
+
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+use function CraftCms\Cms\currentUserElement;
+use function CraftCms\Cms\pageTemplate;
+use function CraftCms\Cms\t;
+
+readonly class ProductsController
+{
+    use RespondsWithFlash;
+
+    public function __construct()
+    {
+        abort_if(empty(app(ProductTypes::class)->getViewableProductTypeIds(true)), 403, 'User is not permitted to view any product types.');
+    }
+
+    public function productIndex(?string $productTypeHandle = null): string
+    {
+        \Craft::$app->getView()->registerAssetBundle(ProductIndexAsset::class);
+
+        return pageTemplate('commerce/products/_index', [
+            'productTypeHandle' => $productTypeHandle,
+        ], TemplateMode::Cp);
+    }
+
+    public function create(Request $request, ?string $productType = null): Response
+    {
+        $productTypeHandle = $productType ?? $request->input('productType');
+        abort_if(!$productTypeHandle, 400, 'Missing productType');
+
+        $productType = app(ProductTypes::class)->getProductTypeByHandle($productTypeHandle);
+        abort_unless($productType !== null, 400, "Invalid product type handle: $productTypeHandle");
+
+        $siteId = $request->input('siteId');
+
+        if ($siteId) {
+            $site = Sites::getSiteById((int)$siteId);
+            abort_unless($site !== null, 400, "Invalid site ID: $siteId");
+        } else {
+            $site = \craft\helpers\Cp::requestedSite();
+            abort_unless($site !== null, 403, 'User not authorized to edit content in any sites.');
+        }
+
+        $editableSiteIds = Sites::getEditableSiteIds();
+        if (!$editableSiteIds->contains($site->id)) {
+            // Go with the first one
+            $site = Sites::getSiteById($editableSiteIds->first());
+        }
+
+        $user = currentUserElement();
+        abort_unless($user !== null, 401);
+
+        // Create & populate the draft
+        $product = \Craft::createObject(Product::class);
+        $product->siteId = $site->id;
+        $product->typeId = $productType->id;
+        $product->enabled = true;
+
+        // Structure parent
+        if (
+            $productType->isStructure &&
+            (int)$productType->maxLevels !== 1
+        ) {
+            // Set the initially selected parent
+            $product->setParentId($request->input('parentId'));
+        }
+
+        // Make sure the user is allowed to create this entry
+        abort_unless($product->canSave($user), 403, 'User not authorized to create this product.');
+
+        // Title & slug
+        $product->title = $request->input('title');
+        $product->slug = $request->input('slug');
+        if ($product->title && !$product->slug) {
+            $product->slug = ElementHelper::generateSlug($product->title, null, $site->language);
+        }
+        if (!$product->slug) {
+            $product->slug = ElementHelper::tempSlug();
+        }
+
+        // Pause time so postDate will definitely be equal to dateCreated, if not explicitly defined
+        DateTimeHelper::pause();
+
+        // Post & expiry dates
+        if (($postDate = $request->input('postDate')) !== null && $postDateTime = DateTimeHelper::toDateTime($postDate)) {
+            $product->postDate = $postDateTime instanceof DateTime ? $postDateTime : DateTime::createFromInterface($postDateTime);
+        } else {
+            $product->postDate = now();
+        }
+
+        if (($expiryDate = $request->input('expiryDate')) !== null && $expiryDateTime = DateTimeHelper::toDateTime($expiryDate)) {
+            $product->expiryDate = $expiryDateTime instanceof DateTime ? $expiryDateTime : DateTime::createFromInterface($expiryDateTime);
+        }
+
+        // Custom fields
+        foreach ($product->getFieldLayout()->getCustomFields() as $field) {
+            if (($value = $request->input($field->handle)) !== null) {
+                $product->setFieldValue($field->handle, $value);
+            }
+        }
+
+        // Save it
+        $product->ruleset->useScenario(ElementRules::SCENARIO_ESSENTIALS);
+        $success = Drafts::saveElementAsDraft($product, $user->id, markAsSaved: false);
+
+        // Resume time
+        DateTimeHelper::resume();
+
+        if (!$success) {
+            return $this->asModelFailure($product, t('Couldn\'t create {type}.', [
+                'type' => Product::lowerDisplayName(),
+            ]), 'product');
+        }
+
+        // Set its position in the structure if a before/after param was passed
+        if ($productType->isStructure) {
+            if ($nextId = $request->input('before')) {
+                $nextEntry = app(Products::class)->getProductById((int)$nextId, $site->id, [
+                    'structureId' => $productType->structureId,
+                ]);
+                app(Structures::class)->moveBefore($productType->structureId, $product, $nextEntry);
+            } elseif ($prevId = $request->input('after')) {
+                $prevEntry = app(Products::class)->getProductById((int)$prevId, $site->id, [
+                    'structureId' => $productType->structureId,
+                ]);
+                app(Structures::class)->moveAfter($productType->structureId, $product, $prevEntry);
+            }
+        }
+
+        $editUrl = $product->getCpEditUrl();
+
+        $response = $this->asModelSuccess($product, t('{type} created.', [
+            'type' => Product::displayName(),
+        ]), 'product', array_filter([
+            'cpEditUrl' => $request->isCpRequest() ? $editUrl : null,
+        ]));
+
+        if (!$request->expectsJson()) {
+            return redirect(Url::urlWithParams($editUrl, [
+                'fresh' => 1,
+            ]));
+        }
+
+        return $response;
+    }
+}

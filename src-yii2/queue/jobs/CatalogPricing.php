@@ -1,0 +1,90 @@
+<?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
+
+namespace craft\commerce\queue\jobs;
+
+use craft\commerce\Plugin;
+use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingQueue as CatalogPricingQueueRecord;
+use craft\queue\BaseJob;
+
+class CatalogPricing extends BaseJob
+{
+    /**
+     * @var array|null
+     */
+    public ?array $purchasableIds = null;
+
+    /**
+     * @var array|null
+     */
+    public ?array $catalogPricingRuleIds = null;
+
+    /**
+     * @var int|null
+     */
+    public ?int $storeId = null;
+
+    public function execute($queue): void
+    {
+        $catalogPricingService = Plugin::getInstance()->getCatalogPricing();
+        $isConsolidatedJob = $this->storeId === null && $this->purchasableIds === null && $this->catalogPricingRuleIds === null;
+        $catalogPricingRules = null;
+        $reservedRowId = null;
+
+        // @TODO: remove these properties and behaviour at next breaking change
+        $storeId = $this->storeId;
+        $purchasableIds = $this->purchasableIds;
+        $catalogPricingRuleIds = $this->catalogPricingRuleIds;
+
+        if ($isConsolidatedJob) {
+            // New method of processing catalog pricing via queue table: reserve a row and process based on its type and IDs
+            $reservedRecord = $catalogPricingService->reserveCatalogPricingQueueRow();
+
+            if (!$reservedRecord) {
+                return;
+            }
+
+            $reservedRowId = $reservedRecord->id;
+            $storeId = $reservedRecord->storeId;
+
+            if ($reservedRecord->type === CatalogPricingQueueRecord::TYPE_PURCHASABLE) {
+                // Specific purchasable IDs: regenerate against all applicable rules
+                $purchasableIds = $reservedRecord->ids;
+            } elseif ($reservedRecord->type === CatalogPricingQueueRecord::TYPE_RULE) {
+                $catalogPricingRuleIds = $reservedRecord->ids;
+            } else {
+                throw new \UnexpectedValueException("Unrecognized catalog pricing queue row type: {$reservedRecord->type}");
+            }
+        }
+
+        if (!empty($catalogPricingRuleIds)) {
+            $catalogPricingRules = Plugin::getInstance()->getCatalogPricingRules()
+                ->getAllCatalogPricingRules($storeId)
+                ->whereIn('id', $catalogPricingRuleIds)
+                ->all();
+        }
+
+        try {
+            $catalogPricingService->generateCatalogPrices($purchasableIds, $catalogPricingRules, queue: $queue);
+
+            if ($reservedRowId) {
+                $catalogPricingService->deleteCatalogPricingQueueRowById($reservedRowId);
+            }
+        } catch (\Throwable $e) {
+            if ($reservedRowId) {
+                $catalogPricingService->releaseCatalogPricingQueueRowById($reservedRowId);
+            }
+
+            throw $e;
+        }
+    }
+
+    protected function defaultDescription(): ?string
+    {
+        return 'Generating catalog pricing.';
+    }
+}

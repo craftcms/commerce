@@ -1,7 +1,42 @@
 includes:
-    - vendor/craftcms/phpstan/phpstan.neon
+    - vendor/larastan/larastan/extension.neon
+    - vendor/nesbot/carbon/extension.neon
 
 parameters:
     level: 5
+    parallel:
+        # Parallel workers each independently reflect on classes reached through class_alias()
+        # chains (the legacy src-yii2/ -> src/ stubs); depending on which worker resolves a given
+        # alias target first, PHPStan sometimes can/can't trace the chain, making `argument.type`/
+        # `method.notFound` errors (and their `@phpstan-ignore-next-line` suppressions) on those
+        # call sites non-deterministic between otherwise-identical runs. Single-process analysis
+        # is slower but avoids that race entirely.
+        maximumNumberOfProcesses: 1
     paths:
         - src
+    scanDirectories:
+        - src-yii2
+    scanFiles:
+        - vendor/craftcms/yii2-adapter/legacy/Craft.php
+        - vendor/craftcms/yii2-adapter/lib/yii2/Yii.php
+        - vendor/twig/twig/src/Extension/CoreExtension.php
+        - vendor/craftcms/cms/src/helpers.php
+    databaseMigrationsPath:
+        - database/migrations
+    stubFiles:
+        - vendor/craftcms/yii2-adapter/stubs/laravel-ruleset-validation.stub
+        - vendor/craftcms/yii2-adapter/stubs/_generated.stub
+        - vendor/craftcms/yii2-adapter/stubs/GraphQL/Type/Definition/FieldDefinition.stub
+        - vendor/craftcms/yii2-adapter/stubs/GraphQL/Type/Definition/ResolveInfo.stub
+        - vendor/craftcms/yii2-adapter/stubs/samdark/log/PsrTarget.stub
+        - vendor/craftcms/yii2-adapter/stubs/yii/base/Component.stub
+        - vendor/craftcms/yii2-adapter/stubs/yii/base/Event.stub
+        - vendor/craftcms/yii2-adapter/stubs/yii/base/Module.stub
+        - vendor/craftcms/yii2-adapter/stubs/yii/BaseYii.stub
+        - vendor/craftcms/yii2-adapter/stubs/yii/db/BaseActiveRecord.stub
+        - vendor/craftcms/yii2-adapter/stubs/yii/db/Query.stub
+        - vendor/craftcms/yii2-adapter/stubs/yii/db/Migration.stub
+        - vendor/craftcms/yii2-adapter/stubs/yii/di/ServiceLocator.stub
+        - vendor/craftcms/yii2-adapter/stubs/yii/helpers/BaseArrayHelper.stub
+        - vendor/craftcms/yii2-adapter/stubs/yii/validators/UniqueValidator.stub
+        - vendor/craftcms/yii2-adapter/stubs/yii/validators/Validator.stub
