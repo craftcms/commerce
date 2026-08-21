@@ -69,6 +69,10 @@ use CraftCms\Commerce\Gql\Handlers\HasProduct;
 use CraftCms\Commerce\Gql\Handlers\HasVariant;
 use CraftCms\Commerce\Gql\Handlers\RelatedProducts;
 use CraftCms\Commerce\Gql\Handlers\RelatedVariants;
+use CraftCms\Commerce\Gql\Interfaces\Elements\Product as ProductInterface;
+use CraftCms\Commerce\Gql\Interfaces\Elements\Variant as VariantInterface;
+use CraftCms\Commerce\Gql\Queries\Product as ProductQuery;
+use CraftCms\Commerce\Gql\Queries\Variant as VariantQuery;
 use CraftCms\Commerce\Http\Controllers\Users\UsersController;
 use CraftCms\Commerce\Http\RateLimiters\CartChallengeRateLimiter;
 use CraftCms\Commerce\Http\RateLimiters\CartRateLimiter;
@@ -142,6 +146,16 @@ class Plugin extends BasePlugin
 
     protected array $linkTypes = [
         ProductLinkType::class,
+    ];
+
+    protected array $gqlTypes = [
+        ProductInterface::class,
+        VariantInterface::class,
+    ];
+
+    protected array $gqlQueries = [
+        ProductQuery::class,
+        VariantQuery::class,
     ];
 
     protected array $commands = [

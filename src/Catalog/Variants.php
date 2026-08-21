@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Catalog;
 
-use craft\gql\types\QueryArgument;
 use CraftCms\Cms\Gql\Contracts\GqlInlineFragmentFieldInterface;
+use CraftCms\Cms\Gql\Types\QueryArgument;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Catalog\ProductType\ProductTypes;

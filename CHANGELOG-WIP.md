@@ -223,6 +223,42 @@
 
 - Removed `craft\commerce\controllers\FormulasController`. `CraftCms\Commerce\Http\Controllers\FormulasController` should be used instead.
 
+### GraphQL
+
+- Added `CraftCms\Commerce\Gql\Arguments\Elements\Product`.
+- Added `CraftCms\Commerce\Gql\Arguments\Elements\Variant`.
+- Added `CraftCms\Commerce\Gql\Interfaces\Elements\Product`.
+- Added `CraftCms\Commerce\Gql\Interfaces\Elements\Variant`.
+- Added `CraftCms\Commerce\Gql\Queries\Product`.
+- Added `CraftCms\Commerce\Gql\Queries\Variant`.
+- Added `CraftCms\Commerce\Gql\Resolvers\Elements\Product`.
+- Added `CraftCms\Commerce\Gql\Resolvers\Elements\Variant`.
+- Added `CraftCms\Commerce\Gql\Types\Elements\Product`.
+- Added `CraftCms\Commerce\Gql\Types\Elements\Variant`.
+- Added `CraftCms\Commerce\Gql\Types\Generators\ProductType`.
+- Added `CraftCms\Commerce\Gql\Types\Generators\VariantType`.
+- Added `CraftCms\Commerce\Gql\Types\Input\IntFalse`.
+- Added `CraftCms\Commerce\Gql\Types\Input\Product`.
+- Added `CraftCms\Commerce\Gql\Types\Input\Variant`.
+- Added `CraftCms\Commerce\Gql\Types\SaleType`.
+- Deprecated `craft\commerce\gql\arguments\elements\Product`. `CraftCms\Commerce\Gql\Arguments\Elements\Product` should be used instead.
+- Deprecated `craft\commerce\gql\arguments\elements\Variant`. `CraftCms\Commerce\Gql\Arguments\Elements\Variant` should be used instead.
+- Deprecated `craft\commerce\gql\interfaces\elements\Product`. `CraftCms\Commerce\Gql\Interfaces\Elements\Product` should be used instead.
+- Deprecated `craft\commerce\gql\interfaces\elements\Variant`. `CraftCms\Commerce\Gql\Interfaces\Elements\Variant` should be used instead.
+- Deprecated `craft\commerce\gql\queries\Product`. `CraftCms\Commerce\Gql\Queries\Product` should be used instead.
+- Deprecated `craft\commerce\gql\queries\Variant`. `CraftCms\Commerce\Gql\Queries\Variant` should be used instead.
+- Deprecated `craft\commerce\gql\resolvers\elements\Product`. `CraftCms\Commerce\Gql\Resolvers\Elements\Product` should be used instead.
+- Deprecated `craft\commerce\gql\resolvers\elements\Variant`. `CraftCms\Commerce\Gql\Resolvers\Elements\Variant` should be used instead.
+- Deprecated `craft\commerce\gql\types\elements\Product`. `CraftCms\Commerce\Gql\Types\Elements\Product` should be used instead.
+- Deprecated `craft\commerce\gql\types\elements\Variant`. `CraftCms\Commerce\Gql\Types\Elements\Variant` should be used instead.
+- Deprecated `craft\commerce\gql\types\generators\ProductType`. `CraftCms\Commerce\Gql\Types\Generators\ProductType` should be used instead.
+- Deprecated `craft\commerce\gql\types\generators\VariantType`. `CraftCms\Commerce\Gql\Types\Generators\VariantType` should be used instead.
+- Deprecated `craft\commerce\gql\types\input\IntFalse`. `CraftCms\Commerce\Gql\Types\Input\IntFalse` should be used instead.
+- Deprecated `craft\commerce\gql\types\input\Product`. `CraftCms\Commerce\Gql\Types\Input\Product` should be used instead.
+- Deprecated `craft\commerce\gql\types\input\Variant`. `CraftCms\Commerce\Gql\Types\Input\Variant` should be used instead.
+- Deprecated `craft\commerce\gql\types\SaleType`. `CraftCms\Commerce\Gql\Types\SaleType` should be used instead.
+- Deprecated `craft\commerce\helpers\Gql`. `CraftCms\Commerce\Helpers\Gql` should be used instead.
+
 ### Inventory
 
 - Added `CraftCms\Commerce\Inventory\Inventory`.

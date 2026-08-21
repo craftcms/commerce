@@ -1,70 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\gql\resolvers\elements;
 
-use craft\commerce\db\Table;
-use craft\commerce\elements\db\VariantQuery;
-use craft\commerce\elements\Product as ProductElement;
-use craft\commerce\elements\Variant as VariantElement;
-use craft\commerce\helpers\Gql as GqlHelper;
-use craft\elements\db\ElementQuery;
-use craft\gql\base\ElementResolver;
-use craft\helpers\Db;
+/** @deprecated use {@see \CraftCms\Commerce\Gql\Resolvers\Elements\Variant} */
+class_alias(\CraftCms\Commerce\Gql\Resolvers\Elements\Variant::class, 'craft\commerce\gql\resolvers\elements\Variant');
 
-/**
- * Class Variant
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.1
- */
-class Variant extends ElementResolver
-{
-    public static function prepareQuery(mixed $source, array $arguments, $fieldName = null): mixed
-    {
-        // If this is the beginning of a resolver chain, start fresh
-        if ($source === null) {
-            $query = VariantElement::find();
-        // If not, get the prepared element query
-        } else {
-            $query = $source->$fieldName;
-        }
-
-        // If it's preloaded, it's preloaded.
-        if (!$query instanceof ElementQuery) {
-            return $query;
-        }
-
-        foreach ($arguments as $key => $value) {
-            if (method_exists($query, $key)) {
-                $query->$key($value);
-            } elseif (property_exists($query, $key)) {
-                $query->$key = $value;
-            } else {
-                // Catch custom field queries
-                $query->$key($value);
-            }
-        }
-
-        $pairs = GqlHelper::extractAllowedEntitiesFromSchema();
-
-        if (!GqlHelper::canQueryProducts()) {
-            return [];
-        }
-
-        // For variant queries make sure we are only return those that have live products
-        // unless the schema allows querying inactive elements
-        if (!GqlHelper::canQueryInactiveElements() && $query instanceof VariantQuery) {
-            $query->productStatus(ProductElement::STATUS_LIVE);
-        }
-
-        $query->innerJoin(Table::PRODUCTS . ' p', '[[p.id]] = [[commerce_variants.primaryOwnerId]]');
-        $query->andWhere(['in', '[[p.typeId]]', array_values(Db::idsByUids(Table::PRODUCTTYPES, $pairs['productTypes']))]);
-
-        return $query;
-    }
+/** @phpstan-ignore-next-line */
+if (false) {
+    class Variant extends \CraftCms\Commerce\Gql\Resolvers\Elements\Variant {}
 }

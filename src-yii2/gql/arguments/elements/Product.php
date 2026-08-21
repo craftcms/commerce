@@ -1,92 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\gql\arguments\elements;
 
-use Craft;
-use craft\commerce\elements\Product as ProductElement;
-use craft\commerce\gql\types\input\Variant;
-use craft\commerce\Plugin;
-use craft\gql\base\ElementArguments;
-use craft\gql\types\QueryArgument;
-use GraphQL\Type\Definition\Type;
+/** @deprecated use {@see \CraftCms\Commerce\Gql\Arguments\Elements\Product} */
+class_alias(\CraftCms\Commerce\Gql\Arguments\Elements\Product::class, 'craft\commerce\gql\arguments\elements\Product');
 
-/**
- * Class Product
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.0
- */
-class Product extends ElementArguments
-{
-    public static function getArguments(): array
-    {
-        return array_merge(parent::getArguments(), self::getContentArguments(), [
-            'defaultSku' => [
-                'name' => 'defaultSku',
-                'type' => Type::listOf(QueryArgument::getType()),
-                'description' => 'Narrows the query results based on the default SKU on the product.',
-            ],
-            'defaultPrice' => [
-                'name' => 'defaultPrice',
-                'type' => Type::listOf(QueryArgument::getType()),
-                'description' => 'Narrows the query results based on the default price on the product.',
-            ],
-            'defaultHeight' => [
-                'name' => 'defaultHeight',
-                'type' => Type::listOf(QueryArgument::getType()),
-                'description' => 'Narrows the query results based on the default height on the product.',
-            ],
-            'defaultLength' => [
-                'name' => 'defaultLength',
-                'type' => Type::listOf(QueryArgument::getType()),
-                'description' => 'Narrows the query results based on the default length on the product.',
-            ],
-            'defaultWidth' => [
-                'name' => 'defaultWidth',
-                'type' => Type::listOf(QueryArgument::getType()),
-                'description' => 'Narrows the query results based on the default width on the product.',
-            ],
-            'defaultWeight' => [
-                'name' => 'defaultWeight',
-                'type' => Type::listOf(QueryArgument::getType()),
-                'description' => 'Narrows the query results based on the default weight on the product.',
-            ],
-            'editable' => [
-                'name' => 'editable',
-                'type' => Type::boolean(),
-                'description' => 'Whether to only return products that the user has permission to edit.',
-            ],
-            'type' => [
-                'name' => 'type',
-                'type' => Type::listOf(Type::string()),
-                'description' => 'Narrows the query results based on the product type the products belong to per the product type’s handles.',
-            ],
-            'typeId' => [
-                'name' => 'typeId',
-                'type' => Type::listOf(QueryArgument::getType()),
-                'description' => 'Narrows the query results based on the product types the products belong to, per the product type IDs.',
-            ],
-            'hasVariant' => [
-                'name' => 'hasVariant',
-                'type' => Variant::getType(),
-                'description' => 'Narrows the query results to only products that have certain variants.',
-            ],
-        ]);
-    }
-
-    /**
-     * @inheritdoc
-     * @since 3.1.2
-     */
-    public static function getContentArguments(): array
-    {
-        $productTypeFieldArguments = Craft::$app->getGql()->getContentArguments(Plugin::getInstance()->getProductTypes()->getAllProductTypes(), ProductElement::class);
-
-        return array_merge(parent::getContentArguments(), $productTypeFieldArguments);
-    }
+/** @phpstan-ignore-next-line */
+if (false) {
+    class Product extends \CraftCms\Commerce\Gql\Arguments\Elements\Product {}
 }
