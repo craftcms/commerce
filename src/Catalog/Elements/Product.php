@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Catalog\Elements;
 
-use craft\commerce\base\StoreTrait;
 use craft\commerce\elements\VariantCollection;
 use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\ResaveProductVariants;
@@ -67,6 +66,7 @@ use CraftCms\Commerce\Promotion\Actions\CreateDiscount;
 use CraftCms\Commerce\Promotion\Actions\CreateSale;
 use CraftCms\Commerce\Promotion\Sales;
 use CraftCms\Commerce\Shipping\Models\ShippingCategory;
+use CraftCms\Commerce\Store\Concerns\StoreTrait;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
 use CraftCms\Commerce\Tax\Models\TaxCategory;
 use CraftCms\RulesetValidation\Attributes\Ruleset;

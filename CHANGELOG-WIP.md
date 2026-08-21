@@ -171,6 +171,7 @@
 - Deprecated `craft\commerce\stats\TotalRevenue`. `CraftCms\Commerce\Stats\TotalRevenue` should be used instead.
 - Deprecated `craft\commerce\base\StatInterface`. `CraftCms\Commerce\Stats\Contracts\StatInterface` should be used instead.
 - `CraftCms\Commerce\Stats\Stat` and its subclasses now build their queries entirely through the Laravel query builder, using `tpetry/laravel-query-expressions` for cross-database SQL differences instead of manual driver checks.
+- `CraftCms\Commerce\Stats\Stat` now implements `CraftCms\Commerce\Store\Contracts\HasStoreInterface`, matching its legacy counterpart (`StoreTrait` already satisfied the interface's contract; the `implements` clause itself had been dropped).
 - Added `CraftCms\Commerce\Support\Expressions\LocalTimestamp`, `DateOnly`, `MonthKey`, and `Round` query expressions.
 - Deprecated `craft\commerce\widgets\AverageOrderTotal`. `CraftCms\Commerce\Dashboard\Widgets\AverageOrderTotal` should be used instead.
 - Deprecated `craft\commerce\widgets\NewCustomers`. `CraftCms\Commerce\Dashboard\Widgets\NewCustomers` should be used instead.
@@ -183,6 +184,9 @@
 - Deprecated `craft\commerce\widgets\TotalOrdersByCountry`. `CraftCms\Commerce\Dashboard\Widgets\TotalOrdersByCountry` should be used instead.
 - Deprecated `craft\commerce\widgets\TotalRevenue`. `CraftCms\Commerce\Dashboard\Widgets\TotalRevenue` should be used instead.
 - Deprecated `craft\commerce\widgets\Orders`. `CraftCms\Commerce\Dashboard\Widgets\Orders` should be used instead.
+- Deprecated `craft\commerce\base\Stat`. `CraftCms\Commerce\Stats\Stat` should be used instead.
+- Deprecated `craft\commerce\base\StatWidgetTrait`. `CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait` should be used instead.
+- Deprecated `craft\commerce\base\StatTrait`. Its properties are now declared directly on `CraftCms\Commerce\Stats\Stat`.
 
 ### Email
 
@@ -894,6 +898,7 @@
 - Removed the Commerce Yii2 debug panel and all related classes (`CommercePanel`, `DebugPanel` helper, `CommerceDebugPanelDataEvent`, and its Twig views) — the Yii2 debug module they relied on no longer exists in Craft CMS 6.
 - Removed `src-yii2/etc/commands.php`, an unused "A&M quick commands" registration file with no references anywhere in the codebase.
 - Removed `src-yii2/etc/currencies.php`, a static copy of moneyphp/money's currency data that was superseded by `CraftCms\Commerce\Payment\Currencies`, which now reads currency data directly from the `moneyphp/money` package.
+- Deprecated `craft\commerce\base\Model`, an empty pass-through subclass of `craft\base\Model` with no consumers. `CraftCms\Cms\Component\Component` should be used instead, matching every other already-migrated Commerce model.
 
 ### Testing
 

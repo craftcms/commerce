@@ -1,20 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\base;
 
-use craft\base\Model as BaseModel;
+/** @deprecated use {@see \CraftCms\Cms\Component\Component} */
+class_alias(\CraftCms\Cms\Component\Component::class, 'craft\commerce\base\Model');
 
-/**
- * Class Model
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
- */
-class Model extends BaseModel
-{
+/** @phpstan-ignore-next-line */
+if (false) {
+    class Model extends \CraftCms\Cms\Component\Component {}
 }

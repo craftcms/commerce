@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Store\Models;
 
-use craft\commerce\base\StoreTrait;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Store\Concerns\StoreTrait;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
 use Illuminate\Support\Facades\DB;
 

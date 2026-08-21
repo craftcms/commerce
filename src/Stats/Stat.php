@@ -13,6 +13,7 @@ use CraftCms\Commerce\Order\Models\OrderStatus;
 use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Stats\Contracts\StatInterface;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
+use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
 use CraftCms\Commerce\Support\Expressions\DateOnly;
 use CraftCms\Commerce\Support\Expressions\LocalTimestamp;
 use CraftCms\Commerce\Support\Expressions\MonthKey;
@@ -28,7 +29,7 @@ use InvalidArgumentException;
 use Tpetry\QueryExpressions\Language\Alias;
 use function CraftCms\Cms\t;
 
-abstract class Stat implements StatInterface
+abstract class Stat implements StatInterface, HasStoreInterface
 {
     use StoreTrait;
 
