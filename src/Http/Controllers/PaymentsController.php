@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use craft\commerce\helpers\Localization;
 use craft\commerce\Plugin;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Commerce\Helpers\PaymentForm;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasCartArray;
 use CraftCms\Commerce\Order\Carts;
@@ -388,7 +388,7 @@ readonly class PaymentsController
                 if (is_array($cpPaymentAmount)) {
                     $cpPaymentAmount = $cpPaymentAmount['value'];
                 }
-                $cpPaymentAmount = (float)Localization::normalizeNumber($cpPaymentAmount);
+                $cpPaymentAmount = (float)I18N::normalizeNumber($cpPaymentAmount);
 
                 $order->setPaymentAmount($cpPaymentAmount);
             } elseif ($request->input('paymentAmount')) {

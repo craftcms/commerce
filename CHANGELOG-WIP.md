@@ -270,6 +270,25 @@
 - Deprecated `craft\commerce\gql\types\SaleType`. `CraftCms\Commerce\Gql\Types\SaleType` should be used instead.
 - Deprecated `craft\commerce\helpers\Gql`. `CraftCms\Commerce\Helpers\Gql` should be used instead.
 
+### Helpers
+
+- Added `CraftCms\Commerce\Helpers\Cp`.
+- Added `CraftCms\Commerce\Helpers\Currency`.
+- Added `CraftCms\Commerce\Helpers\Locale`.
+- Added `CraftCms\Commerce\Helpers\Localization`.
+- Added `CraftCms\Commerce\Helpers\Order`.
+- Added `CraftCms\Commerce\Helpers\ProductQuery`.
+- Added `CraftCms\Commerce\Helpers\ProjectConfigData`.
+- Added `CraftCms\Commerce\Helpers\Purchasable`.
+- Deprecated `craft\commerce\helpers\Cp`. `CraftCms\Commerce\Helpers\Cp` should be used instead.
+- Deprecated `craft\commerce\helpers\Currency`. `CraftCms\Commerce\Helpers\Currency` should be used instead.
+- Deprecated `craft\commerce\helpers\Locale`. `CraftCms\Commerce\Helpers\Locale` should be used instead.
+- Deprecated `craft\commerce\helpers\Localization`. `CraftCms\Commerce\Helpers\Localization` should be used instead.
+- Deprecated `craft\commerce\helpers\Order`. `CraftCms\Commerce\Helpers\Order` should be used instead.
+- Deprecated `craft\commerce\helpers\ProductQuery`. `CraftCms\Commerce\Helpers\ProductQuery` should be used instead.
+- Deprecated `craft\commerce\helpers\ProjectConfigData`. `CraftCms\Commerce\Helpers\ProjectConfigData` should be used instead.
+- Deprecated `craft\commerce\helpers\Purchasable`. `CraftCms\Commerce\Helpers\Purchasable` should be used instead.
+
 ### Inventory
 
 - Added `CraftCms\Commerce\Inventory\Inventory`.

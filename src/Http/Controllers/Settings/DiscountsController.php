@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\commerce\helpers\Localization;
 use craft\commerce\web\assets\coupons\CouponsAsset;
 use craft\db\Query;
 use craft\elements\Category;
@@ -27,6 +26,7 @@ use CraftCms\Cms\Translation\Locale;
 use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Helpers\Localization;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Promotion\Coupons;

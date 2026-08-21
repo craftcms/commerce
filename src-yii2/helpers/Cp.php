@@ -1,71 +1,11 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
 namespace craft\commerce\helpers;
 
-use craft\helpers\Cp as CraftCp;
+/** @deprecated use {@see \CraftCms\Commerce\Helpers\Cp} */
+class_alias(\CraftCms\Commerce\Helpers\Cp::class, 'craft\commerce\helpers\Cp');
 
-/**
- * Class Commerce Cp
- *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 5.0
- */
-class Cp
-{
-    /**
-     * Renders an inventory locations select field's HTML.
-     *
-     * @param array $config
-     * @return string
-     * @since 5.0.0
-     */
-    public static function inventoryLocationFieldHtml(array $config): string
-    {
-        $config['id'] ??= 'inventorylocationselect' . mt_rand();
-        return CraftCp::fieldHtml('template:commerce/_includes/forms/inventoryLocationSelect.twig', $config);
-    }
-
-    /**
-     * Renders a tax zone select field's HTML.
-     *
-     * @param array $config
-     * @return string
-     * @since 5.0.0
-     */
-    public static function taxZoneFieldHtml(array $config): string
-    {
-        $config['id'] ??= 'taxzoneselect' . mt_rand();
-        return CraftCp::fieldHtml('template:commerce/_includes/forms/taxZoneSelect.twig', $config);
-    }
-
-    /**
-     * Renders a tax category select field's HTML.
-     *
-     * @param array $config
-     * @return string
-     * @since 5.5.0
-     */
-    public static function taxCategoryFieldHtml(array $config): string
-    {
-        $config['id'] ??= 'taxcategoryselect' . mt_rand();
-        return CraftCp::fieldHtml('template:commerce/_includes/forms/taxCategorySelect.twig', $config);
-    }
-
-    /**
-     * Renders a shipping category select field's HTML.
-     *
-     * @param array $config
-     * @return string
-     * @since 5.5.0
-     */
-    public static function shippingCategoryFieldHtml(array $config): string
-    {
-        $config['id'] ??= 'shippingcategoryselect' . mt_rand();
-        return CraftCp::fieldHtml('template:commerce/_includes/forms/shippingCategorySelect.twig', $config);
-    }
+/** @phpstan-ignore-next-line */
+if (false) {
+    class Cp extends \CraftCms\Commerce\Helpers\Cp {}
 }

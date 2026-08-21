@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Purchasable\FieldLayoutElements;
 
-use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
+use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use InvalidArgumentException;
 use Override;

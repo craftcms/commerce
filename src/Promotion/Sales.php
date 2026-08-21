@@ -10,6 +10,7 @@ use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Support\Facades\ElementCaches;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Promotion\Events\SaleEvent;
 use CraftCms\Commerce\Promotion\Events\SaleMatchEvent;
 use CraftCms\Commerce\Promotion\Models\Sale;
@@ -240,7 +241,7 @@ class Sales
         }
 
         // TODO: migrate to app(Currency::class)->round() once Currency service migrated
-        return \craft\commerce\helpers\Currency::round($salePrice);
+        return Currency::round($salePrice);
     }
 
     /**

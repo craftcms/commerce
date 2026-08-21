@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use craft\commerce\helpers\Locale;
 use CraftCms\Cms\RouteToken\RouteTokens;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\SystemMessage\Mailables\SystemMessageMailable;
 use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Orders;
 use CraftCms\Commerce\Pdf\Pdfs;

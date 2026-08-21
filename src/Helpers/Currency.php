@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Helpers;
 
-use craft\helpers\Cp;
+use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Twig\Exceptions\TemplateLoaderException;
 use CraftCms\Commerce\Order\Exceptions\CurrencyException;
@@ -111,6 +111,6 @@ class Currency
             $config['decimals'] = app(Currencies::class)->getSubunitFor($config['currency']);
         }
 
-        return Cp::moneyInputHtml($config);
+        return FormFields::moneyInputHtml($config);
     }
 }

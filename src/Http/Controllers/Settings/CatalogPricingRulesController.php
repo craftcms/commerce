@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\commerce\helpers\Currency;
 use craft\helpers\Cp;
 use craft\helpers\Localization;
 use CraftCms\Cms\Http\RespondsWithFlash;
@@ -26,6 +25,7 @@ use CraftCms\Commerce\Catalog\Models\CatalogPricingRule;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule as CatalogPricingRuleRecord;
+use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableCondition;

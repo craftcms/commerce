@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use craft\commerce\helpers\Currency;
-use craft\commerce\helpers\Locale;
-use craft\commerce\helpers\Purchasable;
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
@@ -43,8 +40,11 @@ use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Catalog\Events\ModifyPurchasablesTableQueryEvent;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Email\Emails;
+use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Helpers\LineItem as LineItemHelper;
+use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Helpers\PaymentForm;
+use CraftCms\Commerce\Helpers\Purchasable;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
 use CraftCms\Commerce\Inventory\Inventory;

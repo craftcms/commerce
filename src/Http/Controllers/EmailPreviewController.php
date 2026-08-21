@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use craft\commerce\helpers\Locale;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Email\Emails;
+use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Models\OrderHistory;
 use Illuminate\Http\Request;

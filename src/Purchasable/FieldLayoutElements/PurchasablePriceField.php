@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Purchasable\FieldLayoutElements;
 
-use craft\commerce\helpers\Currency;
-use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\Sale;
 use craft\commerce\web\assets\purchasablepricefield\PurchasablePriceFieldAsset;
 use craft\web\assets\htmx\HtmxAsset;
@@ -24,6 +22,8 @@ use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingPurchasableConditionRule;
+use CraftCms\Commerce\Helpers\Currency;
+use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
 use CraftCms\Commerce\Promotion\Sales;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use InvalidArgumentException;

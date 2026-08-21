@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Helpers;
 
-use craft\helpers\Cp;
+use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Site\Exceptions\SiteNotFoundException;
 use CraftCms\Cms\Support\Str;
+use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use Illuminate\Support\Collection;
 
 use function CraftCms\Cms\t;
+use function CraftCms\Cms\template;
 
 class Purchasable
 {
@@ -40,11 +42,11 @@ class Purchasable
             return '';
         }
 
-        return Cp::renderTemplate('commerce/prices/_table', [
+        return template('commerce/prices/_table', [
             'catalogPrices' => $catalogPricing,
             'showPurchasable' => false,
             'removeMargin' => true,
-        ]);
+        ], templateMode: TemplateMode::Cp);
     }
 
     public static function skuInputHtml(?string $value = null, array $config = []): string
@@ -57,7 +59,7 @@ class Purchasable
             'class' => 'code',
         ];
 
-        return Cp::textHtml($config);
+        return FormFields::textHtml($config);
     }
 
     public static function availableForPurchaseInputHtml(bool $value, array $config = []): string
@@ -69,6 +71,6 @@ class Purchasable
             'on' => $value,
         ];
 
-        return Cp::lightswitchHtml($config);
+        return FormFields::lightswitchFromConfig($config)->toHtml();
     }
 }
