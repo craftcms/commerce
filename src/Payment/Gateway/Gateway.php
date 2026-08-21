@@ -243,7 +243,7 @@ abstract class Gateway extends Component implements GatewayInterface, Configurab
     /**
      * Sets the billing address condition for this gateway
      */
-    public function setBillingAddressCondition(ElementConditionInterface|string|array $condition): void
+    public function setBillingAddressCondition(ElementConditionInterface|string|array|null $condition): void
     {
         if (empty($condition)) {
             $this->_billingAddressCondition = null;
@@ -288,7 +288,7 @@ abstract class Gateway extends Component implements GatewayInterface, Configurab
     /**
      * Sets the shipping address condition for this gateway
      */
-    public function setShippingAddressCondition(ElementConditionInterface|string|array $condition): void
+    public function setShippingAddressCondition(ElementConditionInterface|string|array|null $condition): void
     {
         if (empty($condition)) {
             $this->_shippingAddressCondition = null;

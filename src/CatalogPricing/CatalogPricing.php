@@ -642,7 +642,7 @@ class CatalogPricing
     private function setQueueProgress(mixed $queue, float $progress, ?string $label = null): void
     {
         // TODO: migrate to Laravel queue progress interface once queue system migrated
-        if (method_exists($queue, 'setProgress')) {
+        if (is_object($queue) && method_exists($queue, 'setProgress')) {
             $queue->setProgress((int) $progress, $label);
         }
     }

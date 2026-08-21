@@ -98,6 +98,17 @@
 - Removed `craft\commerce\controllers\CatalogPricingRulesController`. `CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingRulesController` should be used instead.
 - Removed `craft\commerce\controllers\CatalogPricingController`. `CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingController` should be used instead.
 
+### Console
+
+- Added `CraftCms\Commerce\Console\Commands\ExampleTemplates\ExampleTemplatesCommand` (`commerce:example-templates`).
+- Added `CraftCms\Commerce\Console\Commands\Gateways\GatewaysListCommand` (`commerce:gateways:list`).
+- Added `CraftCms\Commerce\Console\Commands\Gateways\GatewaysWebhookUrlCommand` (`commerce:gateways:webhook-url`).
+- Added `CraftCms\Commerce\Console\Commands\PricingCatalog\PricingCatalogGenerateCommand` (`commerce:pricing-catalog:generate`).
+- Added `CraftCms\Commerce\Console\Commands\ResetData\ResetDataCommand` (`commerce:reset-data`).
+- Added `CraftCms\Commerce\Console\Commands\TransferCustomerData\TransferCustomerDataCommand` (`commerce:transfer-customer-data`).
+- Removed `craft\commerce\console\controllers\ExampleTemplatesController`, `craft\commerce\console\controllers\GatewaysController`, `craft\commerce\console\controllers\PricingCatalogController`, `craft\commerce\console\controllers\ResetDataController`, and `craft\commerce\console\controllers\TransferCustomerDataController`. Their legacy `commerce/*` CLI routes still work as command aliases (e.g. `craft commerce/gateways/list`).
+- Removed `craft\commerce\console\Controller`.
+
 ### Controllers
 
 - Removed `craft\commerce\controllers\BaseController`, `craft\commerce\controllers\BaseCpController`, `craft\commerce\controllers\BaseAdminController`, and `craft\commerce\controllers\BaseFrontEndController`.

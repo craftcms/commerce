@@ -46,10 +46,16 @@ use CraftCms\Commerce\Catalog\LinkTypes\ProductLinkType;
 use CraftCms\Commerce\Catalog\Products;
 use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
+use CraftCms\Commerce\Console\Commands\ExampleTemplates\ExampleTemplatesCommand;
+use CraftCms\Commerce\Console\Commands\Gateways\GatewaysListCommand;
+use CraftCms\Commerce\Console\Commands\Gateways\GatewaysWebhookUrlCommand;
+use CraftCms\Commerce\Console\Commands\PricingCatalog\PricingCatalogGenerateCommand;
 use CraftCms\Commerce\Console\Commands\Resave\ResaveCartsCommand;
 use CraftCms\Commerce\Console\Commands\Resave\ResaveOrdersCommand;
 use CraftCms\Commerce\Console\Commands\Resave\ResaveProductsCommand;
 use CraftCms\Commerce\Console\Commands\Resave\ResaveVariantsCommand;
+use CraftCms\Commerce\Console\Commands\ResetData\ResetDataCommand;
+use CraftCms\Commerce\Console\Commands\TransferCustomerData\TransferCustomerDataCommand;
 use CraftCms\Commerce\Customer\Customers;
 use CraftCms\Commerce\Customer\FieldLayoutElements\UserAddressSettings;
 use CraftCms\Commerce\Customer\Records\Customer as CustomerRecord;
@@ -163,6 +169,12 @@ class Plugin extends BasePlugin
         ResaveVariantsCommand::class,
         ResaveOrdersCommand::class,
         ResaveCartsCommand::class,
+        ExampleTemplatesCommand::class,
+        GatewaysListCommand::class,
+        GatewaysWebhookUrlCommand::class,
+        PricingCatalogGenerateCommand::class,
+        ResetDataCommand::class,
+        TransferCustomerDataCommand::class,
     ];
 
     public bool $hasCpSection = true;
