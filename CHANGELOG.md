@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Craft Commerce now supports `dompdf/dompdf` 3.x, in addition to 2.x.
+
 ## 4.12.2 - 2026-08-13
 
 - Fixed a bug where inactive carts’ search index rows weren’t being purged. ([#4344](https://github.com/craftcms/commerce/issues/4344))
