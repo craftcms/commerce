@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.12.3 - 2026-08-22
 
 - Craft Commerce now supports `dompdf/dompdf` 3.x, in addition to 2.x.
 
