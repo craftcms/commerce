@@ -13,6 +13,7 @@ use CraftCms\Commerce\Http\Controllers\Settings\DiscountsController;
 use CraftCms\Commerce\Http\Controllers\Settings\EmailsController;
 use CraftCms\Commerce\Http\Controllers\FormulasController;
 use CraftCms\Commerce\Http\Controllers\Settings\GatewaysController;
+use CraftCms\Commerce\Http\Controllers\Settings\GeneralSettingsController;
 use CraftCms\Commerce\Http\Controllers\InventoryController;
 use CraftCms\Commerce\Http\Controllers\InventoryLocationsController;
 use CraftCms\Commerce\Http\Controllers\Settings\LineItemStatusesController;
@@ -24,7 +25,6 @@ use CraftCms\Commerce\Http\Controllers\PaymentsController;
 use CraftCms\Commerce\Http\Controllers\Settings\PdfsController;
 use CraftCms\Commerce\Http\Controllers\Settings\ProductTypesController;
 use CraftCms\Commerce\Http\Controllers\Settings\SalesController;
-use CraftCms\Commerce\Http\Controllers\Settings\SettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\ShippingCategoriesController;
 use CraftCms\Commerce\Http\Controllers\Settings\ShippingMethodsController;
 use CraftCms\Commerce\Http\Controllers\Settings\ShippingRulesController;
@@ -34,6 +34,7 @@ use CraftCms\Commerce\Http\Controllers\Settings\StoresController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxCategoriesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxRatesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxZonesController;
+use CraftCms\Commerce\Http\Controllers\Settings\TransferSettingsController;
 use CraftCms\Commerce\Http\Controllers\TransfersController;
 use CraftCms\Commerce\Http\Controllers\UserOrdersController;
 use CraftCms\Commerce\Http\Controllers\WebhooksController;
@@ -81,8 +82,8 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->g
     Route::post('gateways/archive', [GatewaysController::class, 'archive']);
     Route::post('gateways/reorder', [GatewaysController::class, 'reorder']);
 
-    Route::post('settings/save-settings', [SettingsController::class, 'saveSettings']);
-    Route::post('settings/save-transfer-settings', [SettingsController::class, 'saveTransferSettings']);
+    Route::post('settings/save-settings', [GeneralSettingsController::class, 'saveSettings']);
+    Route::post('settings/save-transfer-settings', [TransferSettingsController::class, 'saveTransferSettings']);
     Route::post('order-settings/save', [OrderSettingsController::class, 'save']);
 
     Route::post('stores/save-store', [StoresController::class, 'saveStore']);

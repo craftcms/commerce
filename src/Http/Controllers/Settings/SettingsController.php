@@ -4,166 +4,132 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Config\GeneralConfig;
-use CraftCms\Cms\Form\Controls\Combobox;
-use CraftCms\Cms\Form\Enums\ControlMode;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
+use CraftCms\Cms\Cp\Data\NavItem;
 use CraftCms\Cms\Form\FormResolver;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\Heading;
-use CraftCms\Cms\Form\Nodes\Separator;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
-use CraftCms\Cms\Support\Facades\Fields;
-use CraftCms\Cms\Support\Facades\Plugins;
-use CraftCms\Cms\Support\Facades\ProjectConfig;
-use CraftCms\Cms\Support\Str;
-use CraftCms\Cms\Support\Url;
-use CraftCms\Cms\View\TemplateMode;
-use CraftCms\Commerce\Transfer\Elements\Transfer;
-use CraftCms\Commerce\Transfer\Transfers;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Config;
-use Symfony\Component\HttpFoundation\Response;
 
-use function CraftCms\Cms\pageTemplate;
+use function CraftCms\Cms\cp_url;
 use function CraftCms\Cms\t;
 
-readonly class SettingsController
+abstract class SettingsController
 {
     use RespondsWithFlash;
 
-    private bool $readOnly;
+    protected bool $readOnly;
 
     public function __construct(
-        private GeneralConfig $generalConfig,
-        private FormResolver $formResolver,
+        protected GeneralConfig $generalConfig,
+        protected FormResolver $formResolver,
     )
     {
         $this->readOnly = !$generalConfig->allowAdminChanges;
     }
 
-    public function edit($settings = null): CpScreenResponse
+    /**
+     * @return NavItem[]
+     */
+    protected function subnav(): array
     {
-        $settings = Plugin::getInstance()->getSettings();
-        $config = Config::get('craft.commerce', null);
+        $path = request()->craftPath();
 
-        $overrideWarning = function($key) use ($config) {
-            if ($config && isset($config[$key])) {
-                return t("This is being overridden by the {setting} config setting in `config/{file}.php`.", [
-                    'setting' => $key,
-                    'file' => 'commerce',
-                ], category: 'commerce');
-            }
+        return [
+            new NavItem()
+                ->label(t('General Settings', category: 'commerce'))
+                ->url(cp_url('commerce/settings/general'))
+                ->selected($path === 'commerce/settings/general'),
 
-            return null;
-        };
+            new NavItem()
+                ->label(t('Stores & Sites', category: 'commerce'))
+                ->group(true)
+                ->subnav([
+                    new NavItem()
+                        ->label(t('Stores', category: 'commerce'))
+                        ->url(cp_url('commerce/settings/stores'))
+                        ->selected($path === 'commerce/settings/stores'),
+                    new NavItem()
+                        ->label(t('Sites'))
+                        ->url(cp_url('commerce/settings/sites'))
+                        ->selected($path === 'commerce/settings/sites'),
+                ]),
 
-        $form = Form::make([
-            Heading::make('units-heading', t('Units', category: 'commerce'))->level(3),
-            Field::make(t('Weight Unit'), Combobox::make('weightUnits')
-                ->options(array_map(fn($unit, $label) => ['value' => $unit, 'label' => $label], array_keys($settings->getWeightUnitsOptions()), $settings->getWeightUnitsOptions()))
-                ->showAllOnEmpty())
-                ->required()
-                ->instructions(t('The unit of measurement that should be used when specifying product weights.', category: 'commerce')),
-            Field::make(t('Dimension Unit'), Combobox::make('dimensionUnits')
-                ->options(array_map(fn($unit, $label) => ['value' => $unit, 'label' => $label], array_keys($settings->getDimensionUnits()), $settings->getDimensionUnits()))
-                ->showAllOnEmpty())
-                ->required()
-                ->instructions(t('The unit of measurement that should be used when specifying product dimensions.', category: 'commerce')),
-            Separator::make('default-view-separator'),
-            Heading::make('default-view-heading', t('Control Panel Settings', category: 'commerce'))->level(3),
-            Field::make(t('Default View'), Combobox::make('defaultView')
-                ->options(array_map(fn($unit, $label) => ['value' => $unit, 'label' => $label], array_keys($settings->getDefaultViewOptions()), $settings->getDefaultViewOptions()))
-                ->showAllOnEmpty())
-                ->required()
-                ->warning($overrideWarning('defaultView'))
-                ->instructions(t('Default Commerce control panel view. If the user does not have permission it will fall back to a location they can access.', category: 'commerce')),
-        ]);
+            new NavItem()
+                ->label(t('Products', category: 'commerce'))
+                ->group(true)
+                ->subnav([
+                    new NavItem()
+                        ->label(t('Product Types', category: 'commerce'))
+                        ->url(cp_url('commerce/settings/producttypes'))
+                        ->selected($path === 'commerce/settings/producttypes'),
+                ]),
 
-        $form = $this->formResolver->resolve($form, new FormContext(
-            namespace: 'settings',
-            values: [
-                'settings' => [
-                    'weightUnits' => $settings->weightUnits,
-                    'dimensionUnits' => $settings->dimensionUnits,
-                    'defaultView' => $settings->defaultView,
-                ],
-            ],
-            mode: $this->generalConfig->allowAdminChanges ? ControlMode::Editable : ControlMode::ReadOnly,
-        ));
+            new NavItem()
+                ->label(t('Orders', category: 'commerce'))
+                ->group(true)
+                ->subnav([
+                    new NavItem()
+                        ->label(t('Order Fields', category: 'commerce'))
+                        ->url(cp_url('commerce/settings/ordersettings'))
+                        ->selected($path === 'commerce/settings/ordersettings'),
+                    new NavItem()
+                        ->label(t('Order Statuses', category: 'commerce'))
+                        ->url(cp_url('commerce/settings/orderstatuses'))
+                        ->selected($path === 'commerce/settings/orderstatuses'),
+                    new NavItem()
+                        ->label(t('Line Item Statuses', category: 'commerce'))
+                        ->url(cp_url('commerce/settings/lineitemstatuses'))
+                        ->selected($path === 'commerce/settings/lineitemstatuses'),
+                ]),
 
-        return new CpScreenResponse()
-            ->title(t('General Settings', category: 'commerce'))
-            ->crumbs([
-                ['label' => t('Commerce', category: 'commerce'), 'href' => Url::cpUrl('commerce')],
-            ])
-            ->redirectUrl('commerce/settings/general')
-            ->inertiaPage('Form', [
-                'form' => $form,
-                'submit' => [
-                    'method' => 'post',
-                    'url' => action([self::class, 'saveSettings']),
-                ],
-            ]);
-    }
+            new NavItem()
+                ->label(t('PDFs & Emails', category: 'commerce'))
+                ->group(true)
+                ->subnav([
+                    new NavItem()
+                        ->label(t('PDFs', category: 'commerce'))
+                        ->url(cp_url('commerce/settings/pdfs'))
+                        ->selected($path === 'commerce/settings/pdfs'),
+                    new NavItem()
+                        ->label(t('Emails', category: 'commerce'))
+                        ->url(cp_url('commerce/settings/emails'))
+                        ->selected($path === 'commerce/settings/emails'),
+                ]),
 
-    public function saveSettings(Request $request): Response|string
-    {
-        $plugin = Plugin::getInstance();
-        $settings = $request->input('settings');
-        $pluginSettingsSaved = Plugins::savePluginSettings($plugin, $settings);
+            new NavItem()
+                ->label(t('Payments', category: 'commerce'))
+                ->group(true)
+                ->subnav([
+                    new NavItem()
+                        ->label(t('Gateways', category: 'commerce'))
+                        ->url(cp_url('commerce/settings/gateways'))
+                        ->selected($path === 'commerce/settings/gateways'),
+                ]),
 
-        if (!$pluginSettingsSaved) {
-            return $this->asFailure(t('Couldn’t save settings.', category: 'commerce'));
-        }
-
-        return $this->asSuccess(t('Settings saved.', category: 'commerce'));
-    }
-
-    public function saveTransferSettings(): Response
-    {
-        $fieldLayout = Fields::assembleLayoutFromPost();
-
-        $fieldLayout->reservedFieldHandles = [
-            'originLocationId',
-            'originLocation',
-            'destinationLocationId',
-            'destinationLocation',
+            new NavItem()
+                ->label(t('Transfers', category: 'commerce'))
+                ->group(true)
+                ->subnav([
+                    new NavItem()
+                        ->label(t('Transfer Fields', category: 'commerce'))
+                        ->url(cp_url('commerce/settings/transfers'))
+                        ->selected($path === 'commerce/settings/transfers'),
+                ]),
         ];
-
-        $fieldLayout->type = Transfer::class;
-
-        if (!$fieldLayout->validate()) {
-            return $this->asFailure(t('Couldn’t save transfer fields.', category: 'commerce'));
-        }
-
-        if ($currentTransfersFieldLayout = ProjectConfig::get(Transfers::CONFIG_FIELDLAYOUT_KEY)) {
-            $uid = array_key_first($currentTransfersFieldLayout);
-        } else {
-            $uid = (string)Str::uuid();
-        }
-
-        $configData = [$uid => $fieldLayout->getConfig()];
-        $result = ProjectConfig::set(Transfers::CONFIG_FIELDLAYOUT_KEY, $configData, force: true);
-
-        if (!$result) {
-            return $this->asFailure(t('Couldn’t save transfer fields.', category: 'commerce'));
-        }
-
-        return $this->asSuccess(t('Transfer fields saved.', category: 'commerce'));
     }
 
-    public function editTransferSettings(): string
+    /** @return list<array<string, string>> */
+    protected function crumbs(string $title, ?string $url = null): array
     {
-        $fieldLayout = app(Transfers::class)->getFieldLayout();
+        return [
+            ['label' => t('Settings'), 'href' => cp_url('settings')],
+            array_filter(['label' => $title, 'href' => $url]),
+        ];
+    }
 
-        return pageTemplate('commerce/settings/transfers/_edit', [
-            'fieldLayout' => $fieldLayout,
-            'title' => t('Transfer Settings', category: 'commerce'),
-            'readOnly' => $this->readOnly,
-        ], TemplateMode::Cp);
+    protected function cpScreenResponse(): CpScreenResponse
+    {
+        return new CpScreenResponse()
+            ->subnav($this->subnav());
     }
 }

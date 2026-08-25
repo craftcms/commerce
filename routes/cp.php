@@ -11,6 +11,7 @@ use CraftCms\Commerce\Http\Controllers\Settings\GatewaysController;
 use CraftCms\Commerce\Http\Controllers\InventoryController;
 use CraftCms\Commerce\Http\Controllers\InventoryLocationsController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
+use CraftCms\Commerce\Http\Controllers\Settings\GeneralSettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\LineItemStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderSettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController;
@@ -29,6 +30,7 @@ use CraftCms\Commerce\Http\Controllers\Settings\StoresController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxCategoriesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxRatesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TaxZonesController;
+use CraftCms\Commerce\Http\Controllers\Settings\TransferSettingsController;
 use CraftCms\Commerce\Http\Controllers\TransfersController;
 use CraftCms\Commerce\Http\Controllers\Users\UsersController;
 use CraftCms\Commerce\Http\Controllers\VariantsController;
@@ -43,9 +45,9 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
         Route::get('commerce/settings/gateways/new', [GatewaysController::class, 'edit']);
         Route::get('commerce/settings/gateways/{id}', [GatewaysController::class, 'edit'])->whereNumber('id');
 
-        Route::get('commerce/settings/general', [SettingsController::class, 'edit']);
+        Route::get('commerce/settings/general', [GeneralSettingsController::class, 'edit']);
         Route::get('commerce/settings/ordersettings', [OrderSettingsController::class, 'edit']);
-        Route::get('commerce/settings/transfers', [SettingsController::class, 'editTransferSettings']);
+        Route::get('commerce/settings/transfers', [TransferSettingsController::class, 'editTransferSettings']);
 
         Route::get('commerce/settings/stores', [StoresController::class, 'storesIndex']);
         Route::get('commerce/settings/stores/new', [StoresController::class, 'editStore']);
