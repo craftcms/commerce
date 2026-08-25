@@ -6,7 +6,6 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\web\assets\editsection\EditSectionAsset;
 use CraftCms\Cms\Element\Enums\PropagationMethod;
-use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\Sites;
@@ -21,10 +20,8 @@ use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
 
-readonly class ProductTypesController
+class ProductTypesController extends SettingsController
 {
-    use RespondsWithFlash;
-
     public function productTypeIndex(): CpScreenResponse
     {
         $productTypes = app(ProductTypes::class)->getAllProductTypes();
