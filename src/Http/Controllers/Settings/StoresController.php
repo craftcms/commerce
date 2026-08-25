@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
-class StoresController extends SettingsController
+class StoresController extends BaseSettingsController
 {
 
     public function editStore(?int $storeId = null): string

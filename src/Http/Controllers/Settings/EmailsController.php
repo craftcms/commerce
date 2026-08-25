@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
-class EmailsController extends SettingsController
+class EmailsController extends BaseSettingsController
 {
 
     public function index(): string

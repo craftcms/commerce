@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 use function CraftCms\Cms\t;
 
-class GeneralSettingsController extends SettingsController
+class GeneralSettingsController extends BaseSettingsController
 {
     use RespondsWithFlash;
 

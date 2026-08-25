@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
 
-class ProductTypesController extends SettingsController
+class ProductTypesController extends BaseSettingsController
 {
     public function productTypeIndex(): CpScreenResponse
     {

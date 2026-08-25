@@ -20,7 +20,6 @@ use CraftCms\Commerce\Http\Controllers\Settings\PdfsController;
 use CraftCms\Commerce\Http\Controllers\ProductsController;
 use CraftCms\Commerce\Http\Controllers\Settings\ProductTypesController;
 use CraftCms\Commerce\Http\Controllers\Settings\SalesController;
-use CraftCms\Commerce\Http\Controllers\Settings\SettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\ShippingCategoriesController;
 use CraftCms\Commerce\Http\Controllers\Settings\ShippingMethodsController;
 use CraftCms\Commerce\Http\Controllers\Settings\ShippingRulesController;

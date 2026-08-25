@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
-class GatewaysController extends SettingsController
+class GatewaysController extends BaseSettingsController
 {
 
     public function index(): string

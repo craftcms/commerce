@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
-class TransferSettingsController extends SettingsController
+class TransferSettingsController extends BaseSettingsController
 {
     use RespondsWithFlash;
 

@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
-class OrderSettingsController extends SettingsController
+class OrderSettingsController extends BaseSettingsController
 {
 
     public function edit(): string

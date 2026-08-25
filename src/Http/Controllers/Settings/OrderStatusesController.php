@@ -23,7 +23,7 @@ use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
-class OrderStatusesController extends SettingsController
+class OrderStatusesController extends BaseSettingsController
 {
 
     public function index(): string

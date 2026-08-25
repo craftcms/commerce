@@ -13,7 +13,7 @@ use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use function CraftCms\Cms\cp_url;
 use function CraftCms\Cms\t;
 
-abstract class SettingsController
+abstract class BaseSettingsController
 {
     use RespondsWithFlash;
 
