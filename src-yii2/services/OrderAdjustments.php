@@ -2,7 +2,7 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\elements\Order;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Adjuster\AdjusterTypes;
 use CraftCms\Commerce\Order\Adjuster\Contracts\AdjusterInterface;
 use CraftCms\Commerce\Order\Adjuster\DiscountAdjusterTypes;

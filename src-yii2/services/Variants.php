@@ -2,7 +2,7 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\elements\Variant;
+use CraftCms\Commerce\Catalog\Elements\Variant;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 

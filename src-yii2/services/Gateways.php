@@ -2,7 +2,7 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\elements\Order;
+use CraftCms\Commerce\Order\Elements\Order;
 use craft\events\ConfigEvent;
 use CraftCms\Commerce\Payment\Gateway\Gateway;
 use CraftCms\Commerce\Payment\Gateway\GatewayTypes;

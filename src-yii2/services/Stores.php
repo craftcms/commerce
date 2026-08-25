@@ -2,15 +2,22 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\models\SiteStore;
-use craft\commerce\models\Store;
 use craft\events\ConfigEvent;
+use CraftCms\Commerce\Store\Models\SiteStore;
+use CraftCms\Commerce\Store\Models\Store;
 use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 
 /**
  * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Store\Stores::class)` instead.
+ *
+ * The `Store`/`SiteStore` type-hints below intentionally use the new `CraftCms\Commerce\Store\Models\*`
+ * classes directly rather than the `craft\commerce\models\*` aliases: PHP's return-type check can
+ * lose a race against `class_alias()`'s own autoload on the very first call to an aliased type in a
+ * process (the alias file autoloads *during* the check, but the check doesn't see it as satisfied
+ * until the next call) — using the real class sidesteps it. Both names refer to the identical class,
+ * so this is a no-op for callers still type-hinting against the legacy alias.
  */
 class Stores extends Component
 {

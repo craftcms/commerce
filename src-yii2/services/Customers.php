@@ -2,7 +2,7 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\elements\Order;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Customer\Records\Customer as CustomerRecord;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;

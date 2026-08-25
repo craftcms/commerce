@@ -2,8 +2,8 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\elements\Order;
-use craft\commerce\models\OrderHistory;
+use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\Models\OrderHistory;
 use craft\events\ConfigEvent;
 use CraftCms\Commerce\Email\Models\Email;
 use Illuminate\Support\Collection;

@@ -2,11 +2,11 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\elements\Order;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Exceptions\PaymentException;
 use CraftCms\Commerce\Payment\Exceptions\RefundException;
 use CraftCms\Commerce\Payment\Exceptions\TransactionException;
-use craft\commerce\models\payments\BasePaymentForm;
+use CraftCms\Commerce\Payment\Forms\BasePaymentForm;
 use CraftCms\Commerce\Payment\Models\Transaction;
 use yii\base\Component;
 use yii\base\InvalidConfigException;

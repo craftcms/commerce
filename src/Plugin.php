@@ -242,6 +242,17 @@ class Plugin extends BasePlugin
     }
 
     /**
+     * Reachable in Twig as `craft.commerce.getDonation()` (`craft.commerce` resolves to this
+     * plugin instance via the `commerce` macro above), matching the legacy
+     * `craft\commerce\plugin\Variables::getDonation()` trait method that used to live directly
+     * on the legacy Plugin class for the same reason.
+     */
+    public function getDonation(): ?Donation
+    {
+        return Donation::find()->status(null)->one();
+    }
+
+    /**
      * Replaces the legacy Yii2 `StoreBehavior`/`CustomerBehavior`/`CustomerAddressBehavior` classes,
      * which no longer attach to anything — `Site`/`User`/`Address` extend the new
      * `CraftCms\Cms\Component\Component`, not `yii\base\Component`, so `attachBehavior()` doesn't exist

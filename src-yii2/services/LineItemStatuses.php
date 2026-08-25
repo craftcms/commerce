@@ -2,7 +2,7 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\models\LineItem;
+use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use craft\events\ConfigEvent;
 use CraftCms\Commerce\Order\Models\LineItemStatus;
 use Illuminate\Support\Collection;

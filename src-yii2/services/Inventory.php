@@ -5,7 +5,7 @@ namespace craft\commerce\services;
 use craft\commerce\base\Purchasable;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
-use craft\commerce\elements\Order;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Inventory\Models\InventoryFulfillmentLevel;
 use CraftCms\Commerce\Inventory\Models\InventoryItem;
 use CraftCms\Commerce\Inventory\Models\InventoryLevel;

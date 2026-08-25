@@ -2,7 +2,7 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\elements\Order;
+use CraftCms\Commerce\Order\Elements\Order;
 use craft\elements\User;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\PurchasableTypes;

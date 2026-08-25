@@ -3,8 +3,8 @@
 namespace craft\commerce\services;
 
 use craft\commerce\base\PurchasableInterface;
-use craft\commerce\elements\Order;
-use craft\commerce\models\LineItem;
+use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Promotion\Models\Coupon;
 use CraftCms\Commerce\Promotion\Models\Discount;
 use Illuminate\Support\Collection;

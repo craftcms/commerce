@@ -2,7 +2,7 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\models\payments\BasePaymentForm;
+use CraftCms\Commerce\Payment\Forms\BasePaymentForm;
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
 use CraftCms\Commerce\Payment\Models\PaymentSource;
 use Illuminate\Support\Collection;

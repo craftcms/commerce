@@ -1,5 +1,6 @@
 <?php
 
+use CraftCms\Cms\Http\Controllers\Elements\EditElementController;
 use CraftCms\Cms\Http\Middleware\RequireAdmin;
 use CraftCms\Commerce\Http\Controllers\DonationsController;
 use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingController;
@@ -76,6 +77,23 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
     // permission beyond accessPlugin-commerce) — each additionally guards its own methods with
     // an inline "does the user have access to any product type" check.
     Route::get('commerce/products/{productType}/new', [ProductsController::class, 'create']);
+
+    // Product/variant/transfer edit screens just resolve the element by {id} — the
+    // productTypeHandle segment is cosmetic (matches legacy: the old `elements/edit` route
+    // never checked it against the element either). No extra permission middleware here,
+    // matching the legacy UrlManager rules — access is enforced by the element's own
+    // canView()/canSave() (see Product::canView()/Transfer::canView()).
+    // The product/variant routes must be registered before the {productTypeHandle?} index
+    // routes below, since a bare numeric segment (`commerce/variants/123`) would otherwise
+    // match the index route first.
+    $idSlugParams = [
+        'id' => '\d+',
+        'slug' => '(?:-[^\/]*)',
+    ];
+    Route::get('commerce/products/{productTypeHandle}/{id}{slug?}', EditElementController::class)->where($idSlugParams);
+    Route::get('commerce/variants/{id}{slug?}', EditElementController::class)->where($idSlugParams);
+    Route::get('commerce/inventory/transfers/{id}{slug?}', EditElementController::class)->where($idSlugParams);
+
     Route::get('commerce/products/{productTypeHandle?}', [ProductsController::class, 'productIndex']);
     Route::get('commerce/variants/{productTypeHandle?}', [VariantsController::class, 'index']);
 

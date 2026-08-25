@@ -33,16 +33,16 @@ trait Routes
     private function _registerCpRoutes(): void
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
+            // Bare "commerce" index still targets a src-yii2/templates/ Twig template that
+            // hasn't moved to src/ yet — stays here until the CP template migration lands.
             $event->rules['commerce'] = ['template' => 'commerce/index'];
 
             // User edit screen ("myaccount/commerce" / "users/<id>/commerce") is now registered
             // in routes/cp.php
 
-            // Products / Variants — index and create are now registered in routes/cp.php; the
-            // element-edit rules below are Craft core's own generic element-editing route, not a
-            // Commerce controller, so they stay here.
-            $event->rules['commerce/variants/<elementId:\d+><slug:(?:-[^\/]*)?>'] = 'elements/edit';
-            $event->rules['commerce/products/<productTypeHandle:{handle}>/<elementId:\d+><slug:(?:-[^\/]*)?>'] = 'elements/edit';
+            // Products / Variants — index, create, and the element-edit routes (previously
+            // Craft core's generic `elements/edit` action) are now all registered in
+            // routes/cp.php via EditElementController.
 
             // Product Types are now registered in routes/cp.php
 
@@ -68,10 +68,9 @@ trait Routes
 
             // Sales, Discounts, and Pricing Rules are now registered in routes/cp.php
 
-            // Inventory, Inventory Locations, and Transfers index/edit are now registered in
-            // routes/cp.php — the element-edit rule below is Craft core's own generic
-            // element-editing route, not a Commerce controller, so it stays here.
-            $event->rules['commerce/inventory/transfers/<elementId:\\d+>'] = 'elements/edit';
+            // Inventory, Inventory Locations, and Transfers index/edit (including the
+            // element-edit route, previously Craft core's generic `elements/edit` action) are
+            // now all registered in routes/cp.php.
 
             // commerce/donations is now registered in routes/cp.php
         });

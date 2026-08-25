@@ -875,6 +875,8 @@
 - Added GraphQL schema component and eager-loadable field registration via `CraftCms\Cms\Gql\Events\GqlSchemaComponentsResolving` and `GqlEagerLoadableFieldsResolving`.
 - Added garbage collection registration via `CraftCms\Cms\GarbageCollection\Events\RunningGarbageCollection`, purging incomplete carts, orphaned variants, and partial Donation/Order/Product/Variant/Transfer elements.
 - Added `craft.commerce`, `craft.orders`, `craft.products`, and `craft.variants` Twig variables via `CraftCms\Cms\Twig\Variables\CraftVariable::macro()`.
+- Added `Plugin::getDonation()`, reachable in Twig as `craft.commerce.getDonation()`, matching the legacy `craft\commerce\plugin\Variables::getDonation()` trait method.
+- The `commerce/products/<productTypeHandle>/<id>`, `commerce/variants/<id>`, and `commerce/inventory/transfers/<id>` element-edit screens, previously Craft core's generic `elements/edit` action registered via a legacy `UrlManager` rule, are now registered directly in `routes/cp.php` against `CraftCms\Cms\Http\Controllers\Elements\EditElementController`.
 - Registered Commerce's Twig extension via the `CraftCms\Cms\Support\Facades\Twig` facade.
 - Added `CraftCms\Commerce\Order\Elements\Order::defineExporters()`, registering `CraftCms\Commerce\Order\Exporters\OrderExport` and `LineItemExport`.
 - Added `CraftCms\Commerce\Base\Zone`.
@@ -899,6 +901,10 @@
 - Removed `src-yii2/etc/commands.php`, an unused "A&M quick commands" registration file with no references anywhere in the codebase.
 - Removed `src-yii2/etc/currencies.php`, a static copy of moneyphp/money's currency data that was superseded by `CraftCms\Commerce\Payment\Currencies`, which now reads currency data directly from the `moneyphp/money` package.
 - Deprecated `craft\commerce\base\Model`, an empty pass-through subclass of `craft\base\Model` with no consumers. `CraftCms\Cms\Component\Component` should be used instead, matching every other already-migrated Commerce model.
+- Removed `craft\commerce\plugin\LegacyRoutingModule`. It existed purely so Yii2's `Module::createController()` could still find `craft\commerce\controllers\*`; that namespace has been empty since the console-controller and controller migrations, making the module dead code.
+- Removed `craft\commerce\plugin\Variables`. Its one method, `getDonation()`, moved to `Plugin::getDonation()`.
+- Fixed `CraftCms\Commerce\Transfer\Elements\Transfer::canView()`/`canSave()`/`canDelete()` — they checked a `commerce-manageTransfers` permission that was never registered (only `commerce-manageInventoryTransfers` is), so the permission-based access path was silently dead; they now check the correct permission key.
+- Fixed a `TypeError` that could be thrown from any legacy `craft\commerce\services\*` delegation method whose return/param type is a `craft\commerce\{models,elements}\*` class alias (e.g. `Stores::getPrimaryStore()`, `Orders::getOrderById()`) — on the *first* call to such a method in a process, PHP's return-type check can lose a race against the alias's own `class_alias()` autoload (the alias file loads during the check, but the check doesn't see it as satisfied until the next call), throwing `Return value must be of type ?craft\commerce\models\X, CraftCms\Commerce\...\X returned` even though both names refer to the identical class. All 22 affected `src-yii2/services/*` wrappers now type-hint against the `CraftCms\Commerce\*` class directly instead of the legacy alias, which sidesteps the race entirely (both names being the same class, this is a no-op for callers still type-hinting against the legacy alias).
 
 ### Testing
 

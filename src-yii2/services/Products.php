@@ -2,7 +2,7 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\elements\Product;
+use CraftCms\Commerce\Catalog\Elements\Product;
 use yii\base\Component;
 
 /**

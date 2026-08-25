@@ -2,7 +2,7 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\models\Transaction;
+use CraftCms\Commerce\Payment\Models\Transaction;
 use CraftCms\Commerce\Payment\Models\PaymentCurrency;
 use Illuminate\Support\Collection;
 use Money\Currency;
