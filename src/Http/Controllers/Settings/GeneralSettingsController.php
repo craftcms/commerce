@@ -78,9 +78,11 @@ class GeneralSettingsController extends BaseSettingsController
             mode: $this->generalConfig->allowAdminChanges ? ControlMode::Editable : ControlMode::ReadOnly,
         ));
 
+        $title = t('General Settings', category: 'commerce');
+
         return $this->cpScreenResponse()
-            ->title(t('General Settings', category: 'commerce'))
-            ->crumbs([$this->crumbs(t('General Settings', category: 'commerce'))])
+            ->title($title)
+            ->crumbs($this->crumbs($title))
             ->redirectUrl('commerce/settings/general')
             ->inertiaPage('Form', [
                 'form' => $form,
