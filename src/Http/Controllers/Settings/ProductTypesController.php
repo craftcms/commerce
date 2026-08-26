@@ -9,6 +9,7 @@ use CraftCms\Cms\Element\Enums\PropagationMethod;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\Sites;
+use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Catalog\Models\ProductTypeSite;
@@ -18,18 +19,19 @@ use Illuminate\Http\Request;
 
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\currentUser;
+use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
 class ProductTypesController extends BaseSettingsController
 {
-    public function productTypeIndex(): CpScreenResponse
+    public function productTypeIndex(): string
     {
         $productTypes = app(ProductTypes::class)->getAllProductTypes();
 
-        return new CpScreenResponse()
-            ->contentTemplate('commerce/settings/producttypes/index', [
-                'productTypes' => $productTypes,
-            ]);
+        return pageTemplate('commerce/settings/producttypes/index', [
+            'productTypes' => $productTypes,
+            'readOnly' => $this->readOnly,
+        ], TemplateMode::Cp);
     }
 
     public function editProductType(?int $productTypeId = null): CpScreenResponse
@@ -83,6 +85,7 @@ class ProductTypesController extends BaseSettingsController
                 'brandNewProductType' => $brandNewProductType,
                 'title' => $title,
                 'selectedTab' => 'productTypeSettings',
+                'readOnly' => $this->readOnly,
             ]);
     }
 

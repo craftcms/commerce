@@ -1,41 +1,31 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license https://craftcms.github.io/license/
- */
 
-namespace craft\commerce\queue\jobs;
+declare(strict_types=1);
 
-use craft\commerce\Plugin;
+namespace CraftCms\Commerce\CatalogPricing\Jobs;
+
+use CraftCms\Cms\Queue\Job;
+use CraftCms\Commerce\CatalogPricing\CatalogPricing;
+use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingQueue as CatalogPricingQueueRecord;
-use craft\queue\BaseJob;
 
-class CatalogPricing extends BaseJob
+class CatalogPricingJob extends Job
 {
-    /**
-     * @var array|null
-     */
-    public ?array $purchasableIds = null;
+    public function __construct(
+        public readonly ?array $purchasableIds = null,
+        public readonly ?array $catalogPricingRuleIds = null,
+        public readonly ?int $storeId = null,
+    ) {
+        parent::__construct();
+    }
 
-    /**
-     * @var array|null
-     */
-    public ?array $catalogPricingRuleIds = null;
-
-    /**
-     * @var int|null
-     */
-    public ?int $storeId = null;
-
-    public function execute($queue): void
+    public function handle(): void
     {
-        $catalogPricingService = Plugin::getInstance()->getCatalogPricing();
+        $catalogPricingService = app(CatalogPricing::class);
         $isConsolidatedJob = $this->storeId === null && $this->purchasableIds === null && $this->catalogPricingRuleIds === null;
         $catalogPricingRules = null;
         $reservedRowId = null;
 
-        // @TODO: remove these properties and behaviour at next breaking change
         $storeId = $this->storeId;
         $purchasableIds = $this->purchasableIds;
         $catalogPricingRuleIds = $this->catalogPricingRuleIds;
@@ -62,14 +52,14 @@ class CatalogPricing extends BaseJob
         }
 
         if (!empty($catalogPricingRuleIds)) {
-            $catalogPricingRules = Plugin::getInstance()->getCatalogPricingRules()
+            $catalogPricingRules = app(CatalogPricingRules::class)
                 ->getAllCatalogPricingRules($storeId)
                 ->whereIn('id', $catalogPricingRuleIds)
                 ->all();
         }
 
         try {
-            $catalogPricingService->generateCatalogPrices($purchasableIds, $catalogPricingRules, queue: $queue);
+            $catalogPricingService->generateCatalogPrices($purchasableIds, $catalogPricingRules, queue: $this);
 
             if ($reservedRowId) {
                 $catalogPricingService->deleteCatalogPricingQueueRowById($reservedRowId);
@@ -83,7 +73,18 @@ class CatalogPricing extends BaseJob
         }
     }
 
-    protected function defaultDescription(): ?string
+    /**
+     * Widened to public so {@see CatalogPricing::generateCatalogPrices()} can report progress
+     * on this job via its duck-typed `$queue` parameter.
+     */
+    #[\Override]
+    public function setProgress(int $progress, ?string $label = null): void
+    {
+        parent::setProgress($progress, $label);
+    }
+
+    #[\Override]
+    protected function defaultDescription(): string
     {
         return 'Generating catalog pricing.';
     }

@@ -59,6 +59,8 @@
 - Deprecated `craft\commerce\fieldlayoutelements\ProductTitleField`, `VariantTitleField`, and `VariantsField`. The `CraftCms\Commerce\Catalog\FieldLayoutElements` equivalents should be used instead.
 - Deprecated `craft\commerce\fields\Products` and `Variants`. The `CraftCms\Commerce\Catalog\Fields` equivalents should be used instead.
 - Removed `craft\commerce\linktypes\Product`, superseded by `CraftCms\Commerce\Catalog\LinkTypes\ProductLinkType`.
+- Added `CraftCms\Commerce\Catalog\Jobs\ResaveProductVariantsJob`, a native Laravel `ShouldQueue` job.
+- Removed `craft\commerce\queue\jobs\ResaveProductVariants`. `CraftCms\Commerce\Catalog\Jobs\ResaveProductVariantsJob` should be used instead.
 
 #### Controllers
 
@@ -92,6 +94,8 @@
 - Removed `craft\commerce\records\CatalogPricingRule`. `CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule` should be used instead.
 - Removed `craft\commerce\records\CatalogPricingQueue`. `CraftCms\Commerce\CatalogPricing\Records\CatalogPricingQueue` should be used instead.
 - `CraftCms\Commerce\Catalog\Models\CatalogPricingRule` now uses `CraftCms\Commerce\Customer\Conditions\CatalogPricingRuleCustomerCondition`, `CraftCms\Commerce\Catalog\Conditions\CatalogPricingRuleProductCondition`, `CatalogPricingRuleVariantCondition`, and `CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableCondition`.
+- Added `CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob`, a native Laravel `ShouldQueue` job.
+- Removed `craft\commerce\queue\jobs\CatalogPricing`. `CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob` should be used instead.
 
 #### Controllers
 
@@ -196,6 +200,8 @@
 - Added `CraftCms\Commerce\Email\Exceptions\EmailException`.
 - Added `CraftCms\Commerce\Email\Events\EmailEvent`.
 - Added `CraftCms\Commerce\Email\Events\MailEvent`.
+- Added `CraftCms\Commerce\Email\Jobs\SendEmailJob`, a native Laravel `ShouldQueue` job.
+- Removed `craft\commerce\queue\jobs\SendEmail`. `CraftCms\Commerce\Email\Jobs\SendEmailJob` should be used instead.
 - Deprecated `craft\commerce\services\Emails`. `CraftCms\Commerce\Email\Emails` should be used instead.
 - Deprecated `craft\commerce\models\Email`. `CraftCms\Commerce\Email\Models\Email` should be used instead.
 - Deprecated `craft\commerce\errors\EmailException`. `CraftCms\Commerce\Email\Exceptions\EmailException` should be used instead.
@@ -632,6 +638,8 @@
 - Deprecated `craft\commerce\elements\conditions\addresses\DiscountAddressCondition`, `ZoneAddressCondition`, `GatewayAddressCondition`, and `PostalCodeFormulaConditionRule`. The `CraftCms\Commerce\Address\Conditions` equivalents should be used instead.
 - Added `CraftCms\Commerce\Promotion\Actions\CreateDiscount` and `CreateSale`.
 - Deprecated `craft\commerce\elements\actions\CreateDiscount` and `CreateSale`. The `CraftCms\Commerce\Promotion\Actions` equivalents should be used instead.
+- `CraftCms\Commerce\Promotion\Models\Coupon::getRules()` now validates that `code` is unique (case-insensitively, against every coupon regardless of discount), replacing `craft\commerce\validators\CouponsValidator`.
+- Removed `craft\commerce\validators\CouponsValidator`, which had no remaining references anywhere in the codebase.
 
 #### Controllers
 
@@ -903,6 +911,7 @@
 - Deprecated `craft\commerce\base\Model`, an empty pass-through subclass of `craft\base\Model` with no consumers. `CraftCms\Cms\Component\Component` should be used instead, matching every other already-migrated Commerce model.
 - Removed `craft\commerce\plugin\LegacyRoutingModule`. It existed purely so Yii2's `Module::createController()` could still find `craft\commerce\controllers\*`; that namespace has been empty since the console-controller and controller migrations, making the module dead code.
 - Removed `craft\commerce\plugin\Variables`. Its one method, `getDonation()`, moved to `Plugin::getDonation()`.
+- Removed the 6 loose point-release migrations previously ported to `database/migrations/` (product type permission renaming, the catalog pricing queue table, the orders `customerDeleted` column, the subscriptions `userId` foreign key cascade, order notices' `noticeType` column, and the `allVariants`→`variants` changedattributes repair). Commerce 6.0 only ships `database/migrations/Install.php` for fresh installs — schema changes among those six are already part of `Install.php`'s table definitions, and the other two were one-time data repairs for bugs that no longer exist in a fresh 6.0 schema.
 - Fixed `CraftCms\Commerce\Transfer\Elements\Transfer::canView()`/`canSave()`/`canDelete()` — they checked a `commerce-manageTransfers` permission that was never registered (only `commerce-manageInventoryTransfers` is), so the permission-based access path was silently dead; they now check the correct permission key.
 - Fixed a `TypeError` that could be thrown from any legacy `craft\commerce\services\*` delegation method whose return/param type is a `craft\commerce\{models,elements}\*` class alias (e.g. `Stores::getPrimaryStore()`, `Orders::getOrderById()`) — on the *first* call to such a method in a process, PHP's return-type check can lose a race against the alias's own `class_alias()` autoload (the alias file loads during the check, but the check doesn't see it as satisfied until the next call), throwing `Return value must be of type ?craft\commerce\models\X, CraftCms\Commerce\...\X returned` even though both names refer to the identical class. All 22 affected `src-yii2/services/*` wrappers now type-hint against the `CraftCms\Commerce\*` class directly instead of the legacy alias, which sidesteps the race entirely (both names being the same class, this is a no-op for callers still type-hinting against the legacy alias).
 
