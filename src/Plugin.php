@@ -127,6 +127,8 @@ class Plugin extends BasePlugin
     use HasPermissions;
     use HasServices;
 
+    public const string HANDLE = 'commerce';
+
     protected array $elementTypes = [
         Product::class,
         Variant::class,
