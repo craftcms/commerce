@@ -30,7 +30,7 @@ use CraftCms\Cms\Support\File;
 use CraftCms\Cms\Support\Path;
 use CraftCms\Cms\Support\Typecast;
 use CraftCms\Cms\SystemMessage\Models\SystemMessage;
-use CraftCms\Cms\Twig\Variables\CraftVariable as NewCraftVariable;
+use CraftCms\Cms\Twig\Variables\CraftVariable;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\User\Events\EditUserScreensResolving;
 use CraftCms\Cms\User\Events\UserAssignedToGroups;
@@ -211,29 +211,30 @@ class Plugin extends BasePlugin
 
     /**
      * Registers `craft.commerce`/`craft.orders`/`craft.products`/`craft.variants` Twig variable
-     * macros, replacing the legacy `NewCraftVariable::macro(...)` calls in `src-yii2/Plugin.php`
-     * (which already used this same mechanism — this is a straight move, not a rewrite).
+     * macros, replacing the legacy `craft\commerce\web\twig\CraftVariableBehavior` attached to
+     * `craft\web\twig\variables\CraftVariable` in `src-yii2/Plugin.php` (now deleted — that
+     * behavior never reached the live `craft` Twig global under Craft 6 anyway).
      */
     private function registerVariableMacros(): void
     {
         $plugin = $this;
-        NewCraftVariable::macro('commerce', fn() => $plugin);
+        CraftVariable::macro('commerce', fn() => $plugin);
 
-        NewCraftVariable::macro('orders', function(array $criteria = []) {
+        CraftVariable::macro('orders', function(array $criteria = []) {
             $query = Order::find();
             Typecast::configure($query, $criteria);
 
             return $query;
         });
 
-        NewCraftVariable::macro('products', function(array $criteria = []) {
+        CraftVariable::macro('products', function(array $criteria = []) {
             $query = Product::find();
             Typecast::configure($query, $criteria);
 
             return $query;
         });
 
-        NewCraftVariable::macro('variants', function(array $criteria = []) {
+        CraftVariable::macro('variants', function(array $criteria = []) {
             $query = Variant::find();
             Typecast::configure($query, $criteria);
 
