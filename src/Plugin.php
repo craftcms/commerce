@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace CraftCms\Commerce;
 
 use Closure;
+use craft\base\Event as YiiEvent;
+use craft\ckeditor\events\DefineLinkOptionsEvent;
+use craft\ckeditor\Field as CKEditorField;
 use craft\commerce\services\Gateways as LegacyGateways;
 use craft\commerce\services\OrderAdjustments as LegacyOrderAdjustments;
 use craft\commerce\services\Purchasables as LegacyPurchasables;
@@ -25,6 +28,8 @@ use CraftCms\Cms\Route\Routes;
 use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Site\Events\SiteDeleted;
 use CraftCms\Cms\Site\Events\SiteSaved;
+use CraftCms\Cms\Support\Facades\Plugins;
+use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Facades\Twig;
 use CraftCms\Cms\Support\File;
 use CraftCms\Cms\Support\Path;
@@ -216,6 +221,10 @@ class Plugin extends BasePlugin
 
         if ($this->isInstalled) {
             $this->registerCraftEventListeners();
+
+            if (request()->isCpRequest()) {
+                $this->registerCKEditorLinkOptions();
+            }
         }
     }
 
@@ -502,6 +511,63 @@ class Plugin extends BasePlugin
                 'save', 'createDrafts' => app(InventoryLocations::class)->authorizeInventoryLocationAddressEdit($event),
                 default => null,
             };
+        });
+    }
+
+    /**
+     * Registers a product/variant link option for the CKEditor field's rich text link chooser.
+     *
+     * CKEditor itself is still Yii2-based (not yet ported to Laravel), so it only exposes this via
+     * the legacy `EVENT_DEFINE_LINK_OPTIONS` Yii event — there's no Laravel event to listen to here.
+     * Replaces the Redactor equivalent that was dropped entirely (Redactor is not supported under
+     * Craft 6).
+     */
+    private function registerCKEditorLinkOptions(): void
+    {
+        if (!class_exists(CKEditorField::class)) {
+            return;
+        }
+
+        $ckEditorPlugin = Plugins::getPlugin('ckeditor');
+        if (!$ckEditorPlugin || version_compare($ckEditorPlugin->version, '3.0', '<')) {
+            return;
+        }
+
+        /** @phpstan-ignore-next-line argument.type, class.notFound (craft\ckeditor\Field/DefineLinkOptionsEvent belong to the optional, third-party craftcms/ckeditor plugin, not a commerce dependency — unresolvable to static analysis when it isn't installed) */
+        YiiEvent::on(CKEditorField::class, CKEditorField::EVENT_DEFINE_LINK_OPTIONS, static function(DefineLinkOptionsEvent $event) {
+            // Include a Product link option if there are any product types that have URLs
+            $productSources = [];
+
+            $sites = Sites::getAllSites();
+
+            foreach (app(ProductTypes::class)->getAllProductTypes() as $productType) {
+                foreach ($sites as $site) {
+                    $productTypeSettings = $productType->getSiteSettings();
+                    if (isset($productTypeSettings[$site->id]) && $productTypeSettings[$site->id]->hasUrls) {
+                        $productSources[] = 'productType:' . $productType->uid;
+                    }
+                }
+            }
+
+            $productSources = array_unique($productSources);
+
+            if ($productSources) {
+                /** @phpstan-ignore-next-line class.notFound (see note on the Event::on() registration above) */
+                $event->linkOptions[] = [
+                    'label' => t('Link to a product', category: 'commerce'),
+                    'elementType' => Product::class,
+                    'refHandle' => Product::refHandle(),
+                    'sources' => $productSources,
+                ];
+
+                /** @phpstan-ignore-next-line class.notFound (see note on the Event::on() registration above) */
+                $event->linkOptions[] = [
+                    'label' => t('Link to a variant', category: 'commerce'),
+                    'elementType' => Variant::class,
+                    'refHandle' => Variant::refHandle(),
+                    'sources' => $productSources,
+                ];
+            }
         });
     }
 
