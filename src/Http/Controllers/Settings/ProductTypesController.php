@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\web\assets\editsection\EditSectionAsset;
+use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Element\Enums\PropagationMethod;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\Sites;
+use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Catalog\Models\ProductTypeSite;
@@ -19,20 +21,28 @@ use Illuminate\Http\Request;
 
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\currentUser;
+use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
 readonly class ProductTypesController
 {
     use RespondsWithFlash;
 
-    public function productTypeIndex(): CpScreenResponse
+    private bool $readOnly;
+
+    public function __construct(GeneralConfig $generalConfig)
+    {
+        $this->readOnly = !$generalConfig->allowAdminChanges;
+    }
+
+    public function productTypeIndex(): string
     {
         $productTypes = app(ProductTypes::class)->getAllProductTypes();
 
-        return new CpScreenResponse()
-            ->contentTemplate('commerce/settings/producttypes/index', [
-                'productTypes' => $productTypes,
-            ]);
+        return pageTemplate('commerce/settings/producttypes/index', [
+            'productTypes' => $productTypes,
+            'readOnly' => $this->readOnly,
+        ], TemplateMode::Cp);
     }
 
     public function editProductType(?int $productTypeId = null): CpScreenResponse
@@ -86,6 +96,7 @@ readonly class ProductTypesController
                 'brandNewProductType' => $brandNewProductType,
                 'title' => $title,
                 'selectedTab' => 'productTypeSettings',
+                'readOnly' => $this->readOnly,
             ]);
     }
 
