@@ -5,15 +5,14 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Order;
 
 use craft\commerce\Plugin;
-use craft\commerce\queue\jobs\SendEmail;
 use craft\events\ConfigEvent;
 use craft\helpers\Db as CraftDb;
-use craft\helpers\Queue;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Email\Events\EmailEvent;
+use CraftCms\Commerce\Email\Jobs\SendEmailJob;
 use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
 use CraftCms\Commerce\Order\Elements\Order;
@@ -389,12 +388,12 @@ class OrderStatuses
             $language = $email->getRenderLanguage($event->order);
             Locale::switchAppLanguage($language);
 
-            Queue::push(new SendEmail([
-                'orderId' => $event->order->id,
-                'commerceEmailId' => $email->id,
-                'orderHistoryId' => $event->orderHistory->id,
-                'orderData' => $event->order->toArray(),
-            ]), 100);
+            SendEmailJob::dispatch(
+                orderId: $event->order->id,
+                orderData: $event->order->toArray(),
+                commerceEmailId: $email->id,
+                orderHistoryId: $event->orderHistory->id,
+            );
         }
 
         // Set previous language back

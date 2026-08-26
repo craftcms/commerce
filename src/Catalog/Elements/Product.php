@@ -6,9 +6,7 @@ namespace CraftCms\Commerce\Catalog\Elements;
 
 use craft\commerce\elements\VariantCollection;
 use craft\commerce\Plugin;
-use craft\commerce\queue\jobs\ResaveProductVariants;
 use craft\events\ElementCriteriaEvent;
-use craft\helpers\Queue;
 use CraftCms\Cms\Asset\Actions\CopyReferenceTag;
 use CraftCms\Cms\Cms;
 use CraftCms\Cms\Cp\FormFields;
@@ -52,6 +50,7 @@ use CraftCms\Cms\Support\Sequence;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Catalog\Conditions\ProductCondition;
 use CraftCms\Commerce\Catalog\Conditions\ProductTypeConditionRule;
+use CraftCms\Commerce\Catalog\Jobs\ResaveProductVariantsJob;
 use CraftCms\Commerce\Catalog\Models\Product as ProductRecord;
 use CraftCms\Commerce\Catalog\Products;
 use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
@@ -1568,10 +1567,7 @@ JS, [
                 $productType->variantTitleFormat &&
                 str($productType->variantTitleFormat)->contains(['product.', 'owner.', 'primaryOwner.'])
             ) {
-                // TODO: migrate to a Laravel job once the ResaveProductVariants job is migrated to src/
-                Queue::push(new ResaveProductVariants([
-                    'productId' => $this->id,
-                ]));
+                ResaveProductVariantsJob::dispatch(productId: $this->id);
             }
         }
 

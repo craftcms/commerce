@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\CatalogPricing;
 
-use craft\commerce\queue\jobs\CatalogPricing as CatalogPricingJob;
 use craft\helpers\Console;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Support\Facades\Conditions;
@@ -12,6 +11,7 @@ use CraftCms\Commerce\Catalog\Models\CatalogPricing as CatalogPricingModel;
 use CraftCms\Commerce\Catalog\Models\CatalogPricingRule;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCustomerConditionRule;
+use CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob;
 use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingQueue as CatalogPricingQueueRecord;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Sql;
@@ -371,7 +371,8 @@ class CatalogPricing
     }
 
     /**
-     * TODO: Migrate to Laravel queue once queue job class is migrated
+     * @param int $priority Ignored — Laravel's queue has no per-dispatch priority concept. Kept for
+     * backwards compatibility with callers still passing it.
      */
     public function createCatalogPricingJob(array $config = [], int $priority = 100): void
     {
@@ -397,8 +398,7 @@ class CatalogPricing
             $this->_queueCatalogPricingIds($storeId, CatalogPricingQueueRecord::TYPE_RULE, $catalogPricingRuleIds);
         }
 
-        // TODO: Migrate to Laravel queue dispatch once CatalogPricingJob is migrated
-        \craft\helpers\Queue::push(\Craft::createObject(CatalogPricingJob::class), $priority);
+        CatalogPricingJob::dispatch();
     }
 
     public function areCatalogPricingJobsRunning(): bool
