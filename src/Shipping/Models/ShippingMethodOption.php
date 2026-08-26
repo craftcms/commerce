@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Shipping\Models;
 
+use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface;
 
@@ -21,6 +22,11 @@ class ShippingMethodOption extends ShippingMethod
     public function getPrice(): float
     {
         return $this->price;
+    }
+
+    public function getPriceAsCurrency(): string
+    {
+        return Currency::formatAsCurrency($this->price, $this->getStore()->getCurrency());
     }
 
     public function setOrder(Order $order): void

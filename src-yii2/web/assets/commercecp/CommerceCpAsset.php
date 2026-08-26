@@ -8,7 +8,6 @@
 namespace craft\commerce\web\assets\commercecp;
 
 use Craft;
-use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\Plugin;
 use craft\helpers\Json;
 use craft\models\Site;
@@ -105,7 +104,7 @@ JS;
     {
         $sitesStores = [];
         foreach (Sites::getAllSites() as $site) {
-            /** @var Site|StoreBehavior $site */
+            /** @var Site $site */
             $sitesStores[$site->id] = $site->getStore()->id;
         }
 

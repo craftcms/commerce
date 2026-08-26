@@ -57,6 +57,10 @@ use CraftCms\Commerce\Console\Commands\ResetData\ResetDataCommand;
 use CraftCms\Commerce\Console\Commands\TransferCustomerData\TransferCustomerDataCommand;
 use CraftCms\Commerce\Customer\Customers;
 use CraftCms\Commerce\Customer\FieldLayoutElements\UserAddressSettings;
+use CraftCms\Commerce\Customer\Fields\IsPrimaryBillingField;
+use CraftCms\Commerce\Customer\Fields\IsPrimaryShippingField;
+use CraftCms\Commerce\Customer\Fields\PrimaryBillingAddressIdField;
+use CraftCms\Commerce\Customer\Fields\PrimaryShippingAddressIdField;
 use CraftCms\Commerce\Customer\Records\Customer as CustomerRecord;
 use CraftCms\Commerce\Dashboard\Widgets\AverageOrderTotal;
 use CraftCms\Commerce\Dashboard\Widgets\NewCustomers;
@@ -134,6 +138,10 @@ class Plugin extends BasePlugin
     protected array $fieldTypes = [
         ProductsField::class,
         VariantsField::class,
+        IsPrimaryBillingField::class,
+        IsPrimaryShippingField::class,
+        PrimaryBillingAddressIdField::class,
+        PrimaryShippingAddressIdField::class,
     ];
 
     protected array $widgets = [

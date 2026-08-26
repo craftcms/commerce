@@ -6,6 +6,7 @@ namespace CraftCms\Commerce\Catalog\Models;
 
 use CraftCms\Cms\Component\Component;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
+use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Purchasables;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
@@ -73,5 +74,10 @@ class CatalogPricing extends Component implements HasStoreInterface
         $this->_catalogPricingRule = app(CatalogPricingRules::class)->getCatalogPricingRuleById($this->catalogPricingRuleId, $this->storeId);
 
         return $this->_catalogPricingRule;
+    }
+
+    public function getPriceAsCurrency(): string
+    {
+        return Currency::formatAsCurrency($this->price, $this->getStore()->getCurrency());
     }
 }

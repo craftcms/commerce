@@ -10,7 +10,6 @@ namespace craftcommercetests\unit\controllers;
 use Codeception\Test\Unit;
 use Craft;
 use craft\base\Event;
-use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\controllers\CartController;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
@@ -343,7 +342,7 @@ class CartTest extends Unit
         Plugin::getInstance()->set('stores', $storesService);
 
         $customerFixture = $this->tester->grabFixture('customer');
-        /** @var User|CustomerBehavior $customer */
+        /** @var User $customer */
         $customer = $customerFixture->getElement($customerHandle);
         Craft::$app->getUser()->setIdentity(
             Craft::$app->getUsers()->getUserById($customer->id)
@@ -491,7 +490,7 @@ class CartTest extends Unit
         $this->request->headers->set('X-Http-Method-Override', 'POST');
 
         $customerFixture = $this->tester->grabFixture('customer');
-        /** @var User|CustomerBehavior $customer */
+        /** @var User $customer */
         $customer = $customerFixture->getElement('credentialed-user');
         Craft::$app->getUser()->setIdentity(
             Craft::$app->getUsers()->getUserById($customer->id)

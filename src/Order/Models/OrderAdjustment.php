@@ -6,6 +6,7 @@ namespace CraftCms\Commerce\Order\Models;
 
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Json;
+use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\LineItem\LineItems;
@@ -85,6 +86,11 @@ class OrderAdjustment extends Component
     {
         $this->_order = $order;
         $this->orderId = $order->id;
+    }
+
+    public function getAmountAsCurrency(): string
+    {
+        return Currency::formatAsCurrency($this->amount, $this->getOrder()?->currency);
     }
 
     #[\Override]

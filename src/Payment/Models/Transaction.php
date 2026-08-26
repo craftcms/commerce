@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Payment\Models;
 
 use CraftCms\Cms\Component\Component;
+use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Orders;
 use CraftCms\Commerce\Payment\Gateway\Gateway;
@@ -15,6 +16,9 @@ use DateTime;
 
 /**
  * @property-read Order|null $order
+ * @property-read string $amountAsCurrency
+ * @property-read string $paymentAmountAsCurrency
+ * @property-read string $refundableAmountAsCurrency
  */
 class Transaction extends Component
 {
@@ -100,6 +104,21 @@ class Transaction extends Component
     public function getRefundableAmount(): float
     {
         return app(Transactions::class)->refundableAmountForTransaction($this);
+    }
+
+    public function getAmountAsCurrency(): string
+    {
+        return Currency::formatAsCurrency($this->amount, $this->currency);
+    }
+
+    public function getPaymentAmountAsCurrency(): string
+    {
+        return Currency::formatAsCurrency($this->paymentAmount, $this->paymentCurrency);
+    }
+
+    public function getRefundableAmountAsCurrency(): string
+    {
+        return Currency::formatAsCurrency($this->getRefundableAmount(), $this->currency);
     }
 
     public function getParent(): ?Transaction
