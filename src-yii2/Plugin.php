@@ -35,7 +35,6 @@ use craft\commerce\services\Pdfs;
 use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Stores;
 use craft\commerce\services\Transfers as TransfersService;
-use craft\commerce\web\twig\CraftVariableBehavior;
 use craft\elements\db\UserQuery;
 use CraftCms\Cms\Edition as CmsEdition;
 use craft\events\DeleteSiteEvent;
@@ -54,7 +53,6 @@ use craft\services\Gql;
 use craft\services\ProjectConfig;
 use craft\services\Sites;
 use craft\web\Application;
-use craft\web\twig\variables\CraftVariable;
 use CraftCms\Commerce\Plugin as BasePlugin;
 use Exception;
 use yii\base\Event;
@@ -122,7 +120,6 @@ class Plugin extends BasePlugin
 
         $this->_registerCraftEventListeners();
         $this->_registerProjectConfigEventListeners();
-        $this->_registerVariables();
         $this->_registerForeignKeysRestore();
         $this->_registerPoweredByHeader();
         $this->_registerGqlInterfaces();
@@ -379,21 +376,6 @@ class Plugin extends BasePlugin
         // Commerce screen on the Edit User screen is now registered in src/Plugin.php
 
         Event::on(Purchasable::class, Elements::EVENT_BEFORE_RESTORE_ELEMENT, [$this->getPurchasables(), 'beforeRestorePurchasableHandler']);
-    }
-
-    /**
-     * Register Commerce’s template variable.
-     */
-    private function _registerVariables(): void
-    {
-        // Legacy Yii2 CraftVariable (backward compat) — `craft.commerce`/`craft.orders`/etc. for
-        // the new Twig variable system are registered via `NewCraftVariable::macro(...)` in
-        // src/Plugin.php now.
-        Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, static function(Event $event) {
-            /** @var CraftVariable $variable */
-            $variable = $event->sender;
-            $variable->attachBehavior('commerce', CraftVariableBehavior::class);
-        });
     }
 
     /**
