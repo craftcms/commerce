@@ -893,6 +893,7 @@
 - Added `CraftCms\Commerce\Settings`.
 - Added `CraftCms\Commerce\Exceptions\NotImplementedException`.
 - Added `CraftCms\Commerce\Events\UpgradeEvent`.
+- Added `CraftCms\Commerce\Twig\Extension`, replacing `craft\commerce\web\twig\Extension`. Registers the same `commerceCurrency`/`commercePaymentFormNamespace` filters and a `currentStore` global, now sourced from `CraftCms\Cms\Support\Facades\Sites::getCurrentSite()->getStore()` (the `Site::macro('getStore', ...)` registered in `Plugin::registerBehaviorMacros()`) instead of the removed `StoreBehavior`.
 - Deprecated `craft\commerce\base\Zone`. `CraftCms\Commerce\Base\Zone` should be used instead.
 - Deprecated `craft\commerce\base\ZoneInterface`. `CraftCms\Commerce\Base\ZoneInterface` should be used instead.
 - Deprecated `craft\commerce\db\Table`. `CraftCms\Commerce\Database\Table` should be used instead.
@@ -900,6 +901,7 @@
 - Deprecated `craft\commerce\errors\NotImplementedException`. `CraftCms\Commerce\Exceptions\NotImplementedException` should be used instead.
 - Deprecated `craft\commerce\events\UpgradeEvent`. `CraftCms\Commerce\Events\UpgradeEvent` should be used instead.
 - Deprecated `craft\commerce\events\*`. Cancelable Commerce events (previously extending `craft\events\CancelableEvent`) now use the `CraftCms\Cms\Shared\Concerns\ValidatableEvent` trait instead.
+- Removed `craft\commerce\web\twig\Extension`. `CraftCms\Commerce\Twig\Extension` should be used instead.
 - Removed `craft\commerce\models\Settings::VIEW_URI_CUSTOMERS`, `VIEW_URI_PROMOTIONS`, `VIEW_URI_SHIPPING`, and `VIEW_URI_TAX` constants.
 - Improved `craft\commerce\Plugin`'s `Plugin::getInstance()->getX()` service getters to be backed by a lazy-instantiate-and-cache trait rather than Yii2's component locator.
 
