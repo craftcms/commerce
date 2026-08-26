@@ -915,6 +915,11 @@
 - Fixed `CraftCms\Commerce\Transfer\Elements\Transfer::canView()`/`canSave()`/`canDelete()` — they checked a `commerce-manageTransfers` permission that was never registered (only `commerce-manageInventoryTransfers` is), so the permission-based access path was silently dead; they now check the correct permission key.
 - Fixed a `TypeError` that could be thrown from any legacy `craft\commerce\services\*` delegation method whose return/param type is a `craft\commerce\{models,elements}\*` class alias (e.g. `Stores::getPrimaryStore()`, `Orders::getOrderById()`) — on the *first* call to such a method in a process, PHP's return-type check can lose a race against the alias's own `class_alias()` autoload (the alias file loads during the check, but the check doesn't see it as satisfied until the next call), throwing `Return value must be of type ?craft\commerce\models\X, CraftCms\Commerce\...\X returned` even though both names refer to the identical class. All 22 affected `src-yii2/services/*` wrappers now type-hint against the `CraftCms\Commerce\*` class directly instead of the legacy alias, which sidesteps the race entirely (both names being the same class, this is a no-op for callers still type-hinting against the legacy alias).
 
+### Translations
+
+- Moved `src-yii2/translations/` to a top-level `lang/` directory (e.g. `lang/en/commerce.php`, `lang/de/commerce.php`), matching the Laravel convention `CraftCms\Cms\Plugin\Concerns\HasTranslations` looks for (`dirname($plugin->getBasePath()).'/lang'`) ahead of the legacy `src/translations` fallback. Message file structure and content are unchanged.
+- Updated `crowdin.yml`'s `base_path` from `/src/translations` to `/lang` to match.
+
 ### Testing
 
 - Renamed `tests/` to `tests-yii2/`, mirroring the `src`/`src-yii2` split, so `tests/` is reserved for Pest tests covering the new `src/` codebase.
