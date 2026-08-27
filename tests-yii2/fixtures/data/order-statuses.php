@@ -11,7 +11,7 @@ return [
         'sortOrder' => 1,
         'default' => 1,
         // Because this is already in the DB, retrieve the `uid`
-        'uid' => \CraftCms\Commerce\Order\Records\OrderStatus::where('id', '1')->first()->uid,
+        'uid' => \CraftCms\Commerce\Order\Models\OrderStatus::where('id', '1')->first()->uid,
     ],
     [
         'storeId' => 1, // Primary

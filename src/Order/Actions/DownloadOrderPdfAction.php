@@ -12,7 +12,7 @@ use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Pdf\Models\Pdf;
+use CraftCms\Commerce\Pdf\Data\Pdf;
 use CraftCms\Commerce\Pdf\Pdfs;
 use iio\libmergepdf\Merger;
 use RuntimeException;

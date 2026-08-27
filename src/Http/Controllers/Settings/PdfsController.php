@@ -10,10 +10,10 @@ use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Helpers\Locale as LocaleHelper;
-use CraftCms\Commerce\Pdf\Models\Pdf;
+use CraftCms\Commerce\Pdf\Data\Pdf;
+use CraftCms\Commerce\Pdf\Models\Pdf as PdfRecord;
 use CraftCms\Commerce\Pdf\Pdfs;
-use CraftCms\Commerce\Pdf\Records\Pdf as PdfRecord;
-use CraftCms\Commerce\Store\Models\Store;
+use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
 
 use Illuminate\Http\Request;

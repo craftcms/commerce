@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Payment\Events;
 
 use CraftCms\Cms\Shared\Concerns\ValidatableEvent;
-use CraftCms\Commerce\Payment\Models\PaymentSource;
+use CraftCms\Commerce\Payment\Data\PaymentSource;
 
 class PaymentSourceEvent
 {

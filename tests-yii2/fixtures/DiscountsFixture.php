@@ -10,7 +10,7 @@ namespace craftcommercetests\fixtures;
 use craft\commerce\models\Coupon;
 use craft\commerce\models\Discount;
 use craft\commerce\Plugin;
-use CraftCms\Commerce\Promotion\Records\Coupon as CouponRecord;
+use CraftCms\Commerce\Promotion\Models\Coupon as CouponRecord;
 
 /**
  * Class DiscountsFixture.

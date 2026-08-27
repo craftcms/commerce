@@ -4,7 +4,7 @@ namespace craft\commerce\services;
 
 use CraftCms\Commerce\Order\Elements\Order;
 use craft\events\ConfigEvent;
-use CraftCms\Commerce\Pdf\Models\Pdf;
+use CraftCms\Commerce\Pdf\Data\Pdf;
 use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;

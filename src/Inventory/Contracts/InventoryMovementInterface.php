@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Inventory\Contracts;
 
+use CraftCms\Commerce\Inventory\Data\InventoryItem;
+use CraftCms\Commerce\Inventory\Data\InventoryLocation;
 use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
-use CraftCms\Commerce\Inventory\Models\InventoryItem;
-use CraftCms\Commerce\Inventory\Models\InventoryLocation;
 
 interface InventoryMovementInterface
 {

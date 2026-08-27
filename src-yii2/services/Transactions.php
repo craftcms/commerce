@@ -3,7 +3,7 @@
 namespace craft\commerce\services;
 
 use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Payment\Models\Transaction;
+use CraftCms\Commerce\Payment\Data\Transaction;
 use yii\base\Component;
 
 /**

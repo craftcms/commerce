@@ -3,7 +3,7 @@
 namespace craft\commerce\services;
 
 use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Order\Models\OrderHistory;
+use CraftCms\Commerce\Order\Data\OrderHistory;
 use yii\base\Component;
 
 /**

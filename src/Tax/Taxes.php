@@ -10,7 +10,7 @@ use CraftCms\Commerce\Tax\Contracts\TaxIdValidatorInterface;
 use CraftCms\Commerce\Tax\Engines\Tax;
 use CraftCms\Commerce\Tax\Events\TaxEngineEvent;
 use CraftCms\Commerce\Tax\Events\TaxIdValidatorsEvent;
-use CraftCms\Commerce\Tax\Models\EuVatIdValidator;
+use CraftCms\Commerce\Tax\VatValidator\Eu;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use RuntimeException;
@@ -29,7 +29,7 @@ class Taxes implements TaxEngineInterface
      */
     public function getTaxIdValidators(): Collection
     {
-        $validators = [new EuVatIdValidator()];
+        $validators = [new Eu()];
 
         $event = new TaxIdValidatorsEvent(
             validators: $validators,

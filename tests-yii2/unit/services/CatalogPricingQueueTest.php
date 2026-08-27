@@ -10,7 +10,7 @@ namespace unit\services;
 use Codeception\Test\Unit;
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
-use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingQueue as CatalogPricingQueueRecord;
+use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingQueue as CatalogPricingQueueRecord;
 use craftcommercetests\fixtures\StoreFixture;
 use UnitTester;
 

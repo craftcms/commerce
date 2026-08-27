@@ -13,7 +13,7 @@ use craft\commerce\elements\Product;
 use craft\commerce\Plugin;
 use craft\commerce\services\TaxCategories;
 use craft\helpers\Db;
-use CraftCms\Commerce\Tax\Records\TaxCategory;
+use CraftCms\Commerce\Tax\Models\TaxCategory;
 use craftcommercetests\fixtures\ProductFixture;
 use UnitTester;
 

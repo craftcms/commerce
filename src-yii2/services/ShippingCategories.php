@@ -2,7 +2,7 @@
 
 namespace craft\commerce\services;
 
-use CraftCms\Commerce\Shipping\Models\ShippingCategory;
+use CraftCms\Commerce\Shipping\Data\ShippingCategory;
 use Illuminate\Support\Collection;
 use yii\base\Component;
 

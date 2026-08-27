@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use CraftCms\Commerce\Email\Models\Email;
-use CraftCms\Commerce\Email\Records\Email as EmailRecord;
+use CraftCms\Commerce\Email\Data\Email;
+use CraftCms\Commerce\Email\Models\Email as EmailRecord;
 use CraftCms\Commerce\Helpers\Locale;
-use CraftCms\Commerce\Pdf\Models\Pdf;
-use CraftCms\Commerce\Pdf\Records\Pdf as PdfRecord;
+use CraftCms\Commerce\Pdf\Data\Pdf;
+use CraftCms\Commerce\Pdf\Models\Pdf as PdfRecord;
 
 test('switchAppLanguage switches the app language', function() {
     Locale::switchAppLanguage('nl');

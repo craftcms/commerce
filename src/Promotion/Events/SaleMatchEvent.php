@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Promotion\Events;
 
 use CraftCms\Cms\Shared\Concerns\ValidatableEvent;
-use CraftCms\Commerce\Promotion\Models\Sale;
+use CraftCms\Commerce\Promotion\Data\Sale;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 
 class SaleMatchEvent

@@ -11,11 +11,11 @@ use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Email\Data\Email;
 use CraftCms\Commerce\Email\Emails;
-use CraftCms\Commerce\Email\Models\Email;
-use CraftCms\Commerce\Order\Models\OrderStatus;
+use CraftCms\Commerce\Order\Data\OrderStatus;
 use CraftCms\Commerce\Order\OrderStatuses;
-use CraftCms\Commerce\Store\Models\Store;
+use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
 
 use Illuminate\Http\Request;

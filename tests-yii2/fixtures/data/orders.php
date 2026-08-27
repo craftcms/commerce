@@ -7,7 +7,7 @@
 
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
-use CraftCms\Commerce\Order\Records\OrderStatus;
+use CraftCms\Commerce\Order\Models\OrderStatus;
 
 $variants = Variant::find()->indexBy('sku')->all();
 

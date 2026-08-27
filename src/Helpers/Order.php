@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Helpers;
 
 use Craft;
+use CraftCms\Commerce\Order\Data\OrderNotice;
 use CraftCms\Commerce\Order\Elements\Order as OrderElement;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
-use CraftCms\Commerce\Order\Models\OrderNotice;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use CraftCms\Commerce\Purchasable\Purchasables;

@@ -13,10 +13,10 @@ use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Money;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
-use CraftCms\Commerce\Shipping\Models\ShippingAddressZone;
-use CraftCms\Commerce\Shipping\Models\ShippingRule;
-use CraftCms\Commerce\Shipping\Models\ShippingRuleCategory;
-use CraftCms\Commerce\Shipping\Records\ShippingRuleCategory as ShippingRuleCategoryRecord;
+use CraftCms\Commerce\Shipping\Data\ShippingAddressZone;
+use CraftCms\Commerce\Shipping\Data\ShippingRule;
+use CraftCms\Commerce\Shipping\Data\ShippingRuleCategory;
+use CraftCms\Commerce\Shipping\Models\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use CraftCms\Commerce\Shipping\ShippingMethods;
 use CraftCms\Commerce\Shipping\ShippingRules;
 

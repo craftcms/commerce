@@ -6,8 +6,8 @@ namespace CraftCms\Commerce\Tax;
 
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Store\Stores;
-use CraftCms\Commerce\Tax\Models\TaxRate;
-use CraftCms\Commerce\Tax\Records\TaxRate as TaxRateRecord;
+use CraftCms\Commerce\Tax\Data\TaxRate;
+use CraftCms\Commerce\Tax\Models\TaxRate as TaxRateRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;

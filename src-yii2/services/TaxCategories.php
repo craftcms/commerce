@@ -2,7 +2,7 @@
 
 namespace craft\commerce\services;
 
-use CraftCms\Commerce\Tax\Models\TaxCategory;
+use CraftCms\Commerce\Tax\Data\TaxCategory;
 use yii\base\Component;
 
 /**

@@ -12,9 +12,9 @@ use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Str;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Transfer\Data\TransferDetail;
 use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Transfer\FieldLayoutElements\TransferManagementField;
-use CraftCms\Commerce\Transfer\Models\TransferDetail;
 use Illuminate\Support\Facades\DB;
 
 use function CraftCms\Cms\t;

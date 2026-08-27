@@ -17,7 +17,7 @@ use CraftCms\Cms\Element\Validation\ElementRules;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Cms\User\Elements\User;
-use CraftCms\Commerce\Customer\Records\Customer as CustomerRecord;
+use CraftCms\Commerce\Customer\Models\Customer as CustomerRecord;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;

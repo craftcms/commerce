@@ -8,14 +8,14 @@ use craft\commerce\adjusters\Discount as LegacyDiscount;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Order\Adjuster\Contracts\AdjusterInterface;
+use CraftCms\Commerce\Order\Data\OrderAdjustment;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
-use CraftCms\Commerce\Order\Models\OrderAdjustment;
 use CraftCms\Commerce\Payment\Currencies;
+use CraftCms\Commerce\Promotion\Data\Discount as DiscountModel;
 use CraftCms\Commerce\Promotion\Discounts;
 use CraftCms\Commerce\Promotion\Events\DiscountAdjustmentsEvent;
-use CraftCms\Commerce\Promotion\Models\Discount as DiscountModel;
-use CraftCms\Commerce\Promotion\Records\Discount as DiscountRecord;
+use CraftCms\Commerce\Promotion\Models\Discount as DiscountRecord;
 use Money\Teller;
 use yii\base\Event;
 

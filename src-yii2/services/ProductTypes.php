@@ -4,7 +4,7 @@ namespace craft\commerce\services;
 
 use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;
-use CraftCms\Commerce\Catalog\Models\ProductTypeSite;
+use CraftCms\Commerce\Catalog\Data\ProductTypeSite;
 use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
 use yii\base\Component;
 

@@ -3,8 +3,8 @@
 namespace craft\commerce\services;
 
 use craft\events\ConfigEvent;
-use CraftCms\Commerce\Store\Models\SiteStore;
-use CraftCms\Commerce\Store\Models\Store;
+use CraftCms\Commerce\Store\Data\SiteStore;
+use CraftCms\Commerce\Store\Data\Store;
 use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;

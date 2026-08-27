@@ -2,7 +2,7 @@
 
 namespace craft\commerce\services;
 
-use CraftCms\Commerce\Store\Models\StoreSettings as StoreSettingsModel;
+use CraftCms\Commerce\Store\Data\StoreSettings as StoreSettingsModel;
 use Illuminate\Support\Collection;
 use yii\base\Component;
 use yii\base\InvalidConfigException;

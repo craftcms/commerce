@@ -13,7 +13,7 @@ use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
-use CraftCms\Commerce\Payment\Gateway\Records\Gateway as GatewayRecord;
+use CraftCms\Commerce\Payment\Gateway\Models\Gateway as GatewayRecord;
 use CraftCms\Commerce\Payment\Gateway\Types\MissingGateway;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;

@@ -7,11 +7,11 @@ namespace CraftCms\Commerce\Payment\Gateway\Types;
 use CraftCms\Cms\Component\Concerns\MissingComponentTrait;
 use CraftCms\Cms\Component\Contracts\MissingComponentInterface;
 use CraftCms\Commerce\Exceptions\NotImplementedException;
+use CraftCms\Commerce\Payment\Data\PaymentSource;
+use CraftCms\Commerce\Payment\Data\Transaction;
 use CraftCms\Commerce\Payment\Forms\BasePaymentForm;
 use CraftCms\Commerce\Payment\Gateway\Contracts\RequestResponseInterface;
 use CraftCms\Commerce\Payment\Gateway\Gateway;
-use CraftCms\Commerce\Payment\Models\PaymentSource;
-use CraftCms\Commerce\Payment\Models\Transaction;
 use Illuminate\Http\Response;
 use Override;
 

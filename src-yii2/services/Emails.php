@@ -3,9 +3,9 @@
 namespace craft\commerce\services;
 
 use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Order\Models\OrderHistory;
+use CraftCms\Commerce\Order\Data\OrderHistory;
 use craft\events\ConfigEvent;
-use CraftCms\Commerce\Email\Models\Email;
+use CraftCms\Commerce\Email\Data\Email;
 use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;

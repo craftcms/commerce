@@ -4,48 +4,26 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Promotion\Models;
 
-use CraftCms\Cms\Component\Component;
+use CraftCms\Cms\Shared\BaseModel;
 use CraftCms\Commerce\Database\Table;
-use Illuminate\Support\Facades\DB;
 
-use function CraftCms\Cms\t;
-
-class Coupon extends Component
+/**
+ * Thin Eloquent persistence model for the `commerce_coupons` table.
+ *
+ * This holds no business logic — it's used internally by
+ * {@see \CraftCms\Commerce\Promotion\Coupons} to read/write rows, which are then hydrated into
+ * (or persisted from) the business {@see \CraftCms\Commerce\Promotion\Data\Coupon} object that
+ * the rest of the codebase actually works with.
+ */
+class Coupon extends BaseModel
 {
-    public ?int $id = null;
-
-    public ?int $discountId = null;
-
-    public ?string $code = null;
-
-    public int $uses = 0;
-
-    public ?int $maxUses = null;
+    #[\Override]
+    protected $table = Table::COUPONS;
 
     #[\Override]
-    public function getRules(): array
-    {
-        return [
-            'code' => [
-                'required',
-                'string',
-                function($attribute, $value, \Closure $fail) {
-                    $isPgsql = DB::connection()->getDriverName() === 'pgsql';
-
-                    $exists = DB::table(Table::COUPONS)
-                        ->when($this->id, fn($q) => $q->where('id', '!=', $this->id))
-                        ->when(
-                            $isPgsql,
-                            fn($q) => $q->whereRaw('LOWER(code) = LOWER(?)', [$value]),
-                            fn($q) => $q->where('code', $value),
-                        )
-                        ->exists();
-
-                    if ($exists) {
-                        $fail(t('Coupon code "{code}" is already in use.', ['code' => $value], category: 'commerce'));
-                    }
-                },
-            ],
-        ];
-    }
+    protected $casts = [
+        'discountId' => 'integer',
+        'uses' => 'integer',
+        'maxUses' => 'integer',
+    ];
 }

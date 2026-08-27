@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Payment\Forms;
 
-use CraftCms\Commerce\Payment\Models\PaymentSource;
+use CraftCms\Commerce\Payment\Data\PaymentSource;
 
 class DummyPaymentForm extends CreditCardPaymentForm
 {

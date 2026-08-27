@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Stats\Contracts;
 
-use CraftCms\Commerce\Order\Models\OrderStatus;
+use CraftCms\Commerce\Order\Data\OrderStatus;
 use DateTime;
 
 interface StatInterface

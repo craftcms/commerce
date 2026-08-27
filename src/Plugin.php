@@ -66,7 +66,7 @@ use CraftCms\Commerce\Customer\Fields\IsPrimaryBillingField;
 use CraftCms\Commerce\Customer\Fields\IsPrimaryShippingField;
 use CraftCms\Commerce\Customer\Fields\PrimaryBillingAddressIdField;
 use CraftCms\Commerce\Customer\Fields\PrimaryShippingAddressIdField;
-use CraftCms\Commerce\Customer\Records\Customer as CustomerRecord;
+use CraftCms\Commerce\Customer\Models\Customer as CustomerRecord;
 use CraftCms\Commerce\Dashboard\Widgets\AverageOrderTotal;
 use CraftCms\Commerce\Dashboard\Widgets\NewCustomers;
 use CraftCms\Commerce\Dashboard\Widgets\Orders as OrdersWidget;
@@ -95,7 +95,7 @@ use CraftCms\Commerce\Inventory\InventoryLocations;
 use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Orders;
-use CraftCms\Commerce\Payment\Models\PaymentSource;
+use CraftCms\Commerce\Payment\Data\PaymentSource;
 use CraftCms\Commerce\Payment\PaymentSources;
 use CraftCms\Commerce\Plugin\Concerns\HasPermissions;
 use CraftCms\Commerce\Plugin\Concerns\HasServices;
@@ -109,7 +109,7 @@ use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasablePromotableField
 use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableSkuField;
 use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableStockField;
 use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableWeightField;
-use CraftCms\Commerce\Store\Models\Store;
+use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Store\StoreSettings;
 use CraftCms\Commerce\Support\ObjectState;
@@ -520,7 +520,7 @@ class Plugin extends BasePlugin
      * CKEditor itself is still Yii2-based (not yet ported to Laravel), so it only exposes this via
      * the legacy `EVENT_DEFINE_LINK_OPTIONS` Yii event — there's no Laravel event to listen to here.
      * Replaces the Redactor equivalent that was dropped entirely (Redactor is not supported under
-     * Craft 6).
+     * Craft 6). TODO: After CKeditor is on 6.x port this
      */
     private function registerCKEditorLinkOptions(): void
     {

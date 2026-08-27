@@ -13,7 +13,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
-use CraftCms\Commerce\Payment\Records\Transaction as TransactionRecord;
+use CraftCms\Commerce\Payment\Models\Transaction as TransactionRecord;
 use craftcommercetests\fixtures\PaymentCurrenciesFixture;
 use UnitTester;
 

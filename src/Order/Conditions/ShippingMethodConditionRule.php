@@ -10,7 +10,7 @@ use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Queries\OrderQuery;
-use CraftCms\Commerce\Shipping\Models\BaseShippingMethod;
+use CraftCms\Commerce\Shipping\Data\BaseShippingMethod;
 use CraftCms\Commerce\Shipping\ShippingMethods;
 
 use function CraftCms\Cms\t;

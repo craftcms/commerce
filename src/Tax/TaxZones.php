@@ -6,8 +6,8 @@ namespace CraftCms\Commerce\Tax;
 
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Store\Stores;
-use CraftCms\Commerce\Tax\Models\TaxAddressZone;
-use CraftCms\Commerce\Tax\Records\TaxZone as TaxZoneRecord;
+use CraftCms\Commerce\Tax\Data\TaxAddressZone;
+use CraftCms\Commerce\Tax\Models\TaxZone as TaxZoneRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;

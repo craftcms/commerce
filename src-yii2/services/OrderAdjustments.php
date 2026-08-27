@@ -6,7 +6,7 @@ use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Adjuster\AdjusterTypes;
 use CraftCms\Commerce\Order\Adjuster\Contracts\AdjusterInterface;
 use CraftCms\Commerce\Order\Adjuster\DiscountAdjusterTypes;
-use CraftCms\Commerce\Order\Models\OrderAdjustment;
+use CraftCms\Commerce\Order\Data\OrderAdjustment;
 use CraftCms\Yii2Adapter\Event\TypeRegistryCompatibility;
 use yii\base\Component;
 

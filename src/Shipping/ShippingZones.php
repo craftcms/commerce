@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Shipping;
 
 use CraftCms\Commerce\Database\Table;
-use CraftCms\Commerce\Shipping\Models\ShippingAddressZone;
-use CraftCms\Commerce\Shipping\Records\ShippingZone as ShippingZoneRecord;
+use CraftCms\Commerce\Shipping\Data\ShippingAddressZone;
+use CraftCms\Commerce\Shipping\Models\ShippingZone as ShippingZoneRecord;
 use CraftCms\Commerce\Store\Stores;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;

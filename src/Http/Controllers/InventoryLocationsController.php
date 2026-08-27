@@ -19,9 +19,9 @@ use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\InputNamespace;
 use CraftCms\Cms\Support\Html;
+use CraftCms\Commerce\Inventory\Data\DeactivateInventoryLocation;
+use CraftCms\Commerce\Inventory\Data\InventoryLocation;
 use CraftCms\Commerce\Inventory\InventoryLocations;
-use CraftCms\Commerce\Inventory\Models\DeactivateInventoryLocation;
-use CraftCms\Commerce\Inventory\Models\InventoryLocation;
 use Illuminate\Http\Request;
 
 use Symfony\Component\HttpFoundation\Response;

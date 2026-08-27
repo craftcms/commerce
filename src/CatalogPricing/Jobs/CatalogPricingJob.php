@@ -7,7 +7,7 @@ namespace CraftCms\Commerce\CatalogPricing\Jobs;
 use CraftCms\Cms\Queue\Job;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
-use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingQueue as CatalogPricingQueueRecord;
+use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingQueue as CatalogPricingQueueRecord;
 
 class CatalogPricingJob extends Job
 {

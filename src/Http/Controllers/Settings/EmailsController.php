@@ -12,13 +12,13 @@ use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Email\Data\Email;
 use CraftCms\Commerce\Email\Emails;
-use CraftCms\Commerce\Email\Models\Email;
-use CraftCms\Commerce\Email\Records\Email as EmailRecord;
+use CraftCms\Commerce\Email\Models\Email as EmailRecord;
 use CraftCms\Commerce\Helpers\Locale as LocaleHelper;
-use CraftCms\Commerce\Pdf\Models\Pdf;
+use CraftCms\Commerce\Pdf\Data\Pdf;
 use CraftCms\Commerce\Pdf\Pdfs;
-use CraftCms\Commerce\Store\Models\Store;
+use CraftCms\Commerce\Store\Data\Store;
 
 use CraftCms\Commerce\Store\Stores;
 use Illuminate\Http\Request;

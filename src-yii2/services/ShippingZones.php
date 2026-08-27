@@ -2,7 +2,7 @@
 
 namespace craft\commerce\services;
 
-use CraftCms\Commerce\Shipping\Models\ShippingAddressZone;
+use CraftCms\Commerce\Shipping\Data\ShippingAddressZone;
 use Illuminate\Support\Collection;
 use yii\base\Component;
 

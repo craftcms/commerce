@@ -4,7 +4,7 @@ namespace craft\commerce\services;
 
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use craft\events\ConfigEvent;
-use CraftCms\Commerce\Order\Models\LineItemStatus;
+use CraftCms\Commerce\Order\Data\LineItemStatus;
 use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;

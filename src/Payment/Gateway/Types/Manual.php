@@ -11,13 +11,13 @@ use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\Support\Env;
 use CraftCms\Commerce\Exceptions\NotImplementedException;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Payment\Data\PaymentSource;
+use CraftCms\Commerce\Payment\Data\Transaction;
 use CraftCms\Commerce\Payment\Forms\BasePaymentForm;
 use CraftCms\Commerce\Payment\Forms\OffsitePaymentForm;
 use CraftCms\Commerce\Payment\Gateway\Contracts\RequestResponseInterface;
 use CraftCms\Commerce\Payment\Gateway\Gateway;
 use CraftCms\Commerce\Payment\Gateway\Responses\Manual as ManualRequestResponse;
-use CraftCms\Commerce\Payment\Models\PaymentSource;
-use CraftCms\Commerce\Payment\Models\Transaction;
 use Illuminate\Http\Response;
 use Override;
 

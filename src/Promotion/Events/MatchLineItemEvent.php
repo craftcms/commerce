@@ -6,7 +6,7 @@ namespace CraftCms\Commerce\Promotion\Events;
 
 use CraftCms\Cms\Shared\Concerns\ValidatableEvent;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
-use CraftCms\Commerce\Promotion\Models\Discount;
+use CraftCms\Commerce\Promotion\Data\Discount;
 
 class MatchLineItemEvent
 {

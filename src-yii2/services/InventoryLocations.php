@@ -2,9 +2,9 @@
 
 namespace craft\commerce\services;
 
-use CraftCms\Commerce\Inventory\Models\DeactivateInventoryLocation;
-use CraftCms\Commerce\Inventory\Models\InventoryLocation;
-use CraftCms\Commerce\Store\Models\Store;
+use CraftCms\Commerce\Inventory\Data\DeactivateInventoryLocation;
+use CraftCms\Commerce\Inventory\Data\InventoryLocation;
+use CraftCms\Commerce\Store\Data\Store;
 use Illuminate\Support\Collection;
 use yii\base\Component;
 
