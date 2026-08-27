@@ -10,7 +10,6 @@ namespace craft\commerce;
 use Craft;
 use craft\base\Model;
 use craft\commerce\base\Purchasable;
-use craft\commerce\db\Table;
 use craft\commerce\gql\interfaces\elements\Product as GqlProductInterface;
 use craft\commerce\gql\interfaces\elements\Variant as GqlVariantInterface;
 use craft\commerce\gql\queries\Product as GqlProductQueries;
@@ -20,14 +19,11 @@ use CraftCms\Commerce\Gql\Types\Input\Criteria\VariantRelation;
 use craft\commerce\migrations\Install;
 use craft\commerce\models\Settings;
 use craft\commerce\plugin\Routes;
-use craft\elements\db\UserQuery;
 use CraftCms\Cms\Edition as CmsEdition;
-use craft\events\PopulateElementsEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterGqlQueriesEvent;
 use craft\events\RegisterGqlTypesEvent;
 use craft\fixfks\controllers\RestoreController;
-use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
 use craft\services\Elements;
 use craft\services\Gql;
@@ -152,40 +148,9 @@ class Plugin extends BasePlugin
             return;
         }
 
-        // TODO: UserQuery::EVENT_AFTER_POPULATE_ELEMENTS was removed in Craft 6.
-        // Re-wire customer attachment (primaryBillingAddressId / primaryShippingAddressId)
-        // to the new element-loading lifecycle when its equivalent lands.
-        // Original logic preserved below in a no-op closure so the customer-attach
-        // code is easy to port once the new hook exists.
-        // Event::on(UserQuery::class, UserQuery::EVENT_AFTER_POPULATE_ELEMENTS, function(PopulateElementsEvent $event) {
-        //     $users = $event->elements;
-        //     $customerIds = ArrayHelper::getColumn($users, 'id');
-        //
-        //     if (empty($customerIds)) {
-        //         return;
-        //     }
-        //
-        //     $customers = new Query()
-        //         ->select(['customerId', 'primaryBillingAddressId', 'primaryShippingAddressId'])
-        //         ->from([Table::CUSTOMERS])
-        //         ->where(['customerId' => $customerIds])
-        //         ->all();
-        //
-        //     if (empty($customers)) {
-        //         return;
-        //     }
-        //
-        //     foreach ($customers as $customer) {
-        //         /** @var User|CustomerBehavior|null $user */
-        //         $user = ArrayHelper::firstWhere($users, 'id', $customer['customerId']);
-        //         if (!$user) {
-        //             continue;
-        //         }
-        //
-        //         $user->setPrimaryBillingAddressId($customer['primaryBillingAddressId']);
-        //         $user->setPrimaryShippingAddressId($customer['primaryShippingAddressId']);
-        //     }
-        // });
+        // Bulk customer attachment (primaryBillingAddressId / primaryShippingAddressId) is now
+        // registered in src/Plugin.php, against CraftCms\Cms\Element\Queries\Events\ElementsHydrated
+        // (the replacement for UserQuery::EVENT_AFTER_POPULATE_ELEMENTS).
 
         // Commerce screen on the Edit User screen is now registered in src/Plugin.php
 

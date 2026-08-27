@@ -18,6 +18,7 @@ use CraftCms\Cms\Cms;
 use CraftCms\Cms\Cp\Data\NavItem;
 use CraftCms\Cms\Element\Events\DefineDeletionBlockers;
 use CraftCms\Cms\Element\Events\ElementSaved;
+use CraftCms\Cms\Element\Queries\Events\ElementsHydrated;
 use CraftCms\Cms\FieldLayout\FieldLayout;
 use CraftCms\Cms\GarbageCollection\Actions\DeletePartialElements;
 use CraftCms\Cms\GarbageCollection\Events\RunningGarbageCollection;
@@ -523,6 +524,31 @@ class Plugin extends BasePlugin
                 'save', 'createDrafts' => app(InventoryLocations::class)->authorizeInventoryLocationAddressEdit($event),
                 default => null,
             };
+        });
+
+        // Bulk-populates primaryBillingAddressId/primaryShippingAddressId for a batch of hydrated
+        // Users, so the getPrimaryBillingAddressId()/getPrimaryShippingAddressId() macros (see
+        // registerCustomerMacros()) don't each run their own per-user query when iterating a list.
+        // Replaces the legacy craft\elements\db\UserQuery::EVENT_AFTER_POPULATE_ELEMENTS listener.
+        Event::listen(ElementsHydrated::class, static function(ElementsHydrated $event) {
+            $users = collect($event->elements)->filter(static fn($element) => $element instanceof User);
+
+            if ($users->isEmpty()) {
+                return;
+            }
+
+            $customers = CustomerRecord::whereIn('customerId', $users->pluck('id'))->get();
+
+            foreach ($customers as $customer) {
+                $user = $users->firstWhere('id', $customer->customerId);
+
+                if (!$user) {
+                    continue;
+                }
+
+                ObjectState::set($user, 'primaryBillingAddressId', $customer->primaryBillingAddressId);
+                ObjectState::set($user, 'primaryShippingAddressId', $customer->primaryShippingAddressId);
+            }
         });
     }
 
