@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Store;
 
 use craft\commerce\Plugin;
-use craft\events\ConfigEvent;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Database\Table as CraftTable;
+use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
 use CraftCms\Cms\ProjectConfig\ProjectConfigHelper;
 use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Site\Events\SiteDeleted;

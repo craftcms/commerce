@@ -96,7 +96,7 @@ class Stores extends Component
      */
     public function handleChangedStore(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Store\Stores::class)->handleChangedStore($event);
+        app(\CraftCms\Commerce\Store\Stores::class)->handleChangedStore(new \CraftCms\Cms\ProjectConfig\Events\ItemUpdated($event->path, $event->oldValue, $event->newValue, $event->tokenMatches));
     }
 
     /**
@@ -104,7 +104,7 @@ class Stores extends Component
      */
     public function handleDeletedStore(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Store\Stores::class)->handleDeletedStore($event);
+        app(\CraftCms\Commerce\Store\Stores::class)->handleDeletedStore(new \CraftCms\Cms\ProjectConfig\Events\ItemRemoved($event->path, $event->oldValue, $event->newValue, $event->tokenMatches));
     }
 
     public function refreshStores(): void
@@ -159,7 +159,7 @@ class Stores extends Component
      */
     public function handleChangedSiteStore(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Store\Stores::class)->handleChangedSiteStore($event);
+        app(\CraftCms\Commerce\Store\Stores::class)->handleChangedSiteStore(new \CraftCms\Cms\ProjectConfig\Events\ItemUpdated($event->path, $event->oldValue, $event->newValue, $event->tokenMatches));
     }
 
     /**
@@ -167,7 +167,7 @@ class Stores extends Component
      */
     public function handleDeletedSiteStore(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Store\Stores::class)->handleDeletedSiteStore($event);
+        app(\CraftCms\Commerce\Store\Stores::class)->handleDeletedSiteStore(new \CraftCms\Cms\ProjectConfig\Events\ItemRemoved($event->path, $event->oldValue, $event->newValue, $event->tokenMatches));
     }
 
 }

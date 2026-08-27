@@ -6,8 +6,8 @@ namespace CraftCms\Commerce\Order;
 
 use Carbon\Carbon;
 use craft\commerce\Plugin;
-use craft\events\ConfigEvent;
 use craft\helpers\Db as CraftDb;
+use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\ProjectConfigData;

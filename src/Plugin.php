@@ -8,6 +8,7 @@ use Closure;
 use craft\base\Event as YiiEvent;
 use craft\ckeditor\events\DefineLinkOptionsEvent;
 use craft\ckeditor\Field as CKEditorField;
+use craft\commerce\services\Emails as LegacyEmails;
 use craft\commerce\services\Gateways as LegacyGateways;
 use craft\commerce\services\OrderAdjustments as LegacyOrderAdjustments;
 use craft\commerce\services\Purchasables as LegacyPurchasables;
@@ -24,6 +25,8 @@ use CraftCms\Cms\Gql\Events\GqlEagerLoadableFieldsResolving;
 use CraftCms\Cms\Gql\Events\GqlSchemaComponentsResolving;
 use CraftCms\Cms\Gql\GqlArguments;
 use CraftCms\Cms\Plugin\Plugin as BasePlugin;
+use CraftCms\Cms\ProjectConfig\Events\ProjectConfigRebuilt;
+use CraftCms\Cms\ProjectConfig\ProjectConfig;
 use CraftCms\Cms\Route\Routes;
 use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Site\Events\SiteDeleted;
@@ -79,6 +82,8 @@ use CraftCms\Commerce\Dashboard\Widgets\TotalOrders;
 use CraftCms\Commerce\Dashboard\Widgets\TotalOrdersByCountry;
 use CraftCms\Commerce\Dashboard\Widgets\TotalRevenue;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Email\Emails;
+use CraftCms\Commerce\Email\Events\EmailEvent;
 use CraftCms\Commerce\Gql\Handlers\HasProduct;
 use CraftCms\Commerce\Gql\Handlers\HasVariant;
 use CraftCms\Commerce\Gql\Handlers\RelatedProducts;
@@ -87,6 +92,7 @@ use CraftCms\Commerce\Gql\Interfaces\Elements\Product as ProductInterface;
 use CraftCms\Commerce\Gql\Interfaces\Elements\Variant as VariantInterface;
 use CraftCms\Commerce\Gql\Queries\Product as ProductQuery;
 use CraftCms\Commerce\Gql\Queries\Variant as VariantQuery;
+use CraftCms\Commerce\Helpers\ProjectConfigData;
 use CraftCms\Commerce\Http\Controllers\Users\UsersController;
 use CraftCms\Commerce\Http\RateLimiters\CartChallengeRateLimiter;
 use CraftCms\Commerce\Http\RateLimiters\CartRateLimiter;
@@ -94,9 +100,13 @@ use CraftCms\Commerce\Http\RateLimiters\PdfChallengeRateLimiter;
 use CraftCms\Commerce\Inventory\InventoryLocations;
 use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\LineItemStatuses;
 use CraftCms\Commerce\Order\Orders;
+use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Payment\Data\PaymentSource;
+use CraftCms\Commerce\Payment\Gateway\Gateways;
 use CraftCms\Commerce\Payment\PaymentSources;
+use CraftCms\Commerce\Pdf\Pdfs;
 use CraftCms\Commerce\Plugin\Concerns\HasPermissions;
 use CraftCms\Commerce\Plugin\Concerns\HasServices;
 use CraftCms\Commerce\Purchasable\Elements\Donation;
@@ -115,6 +125,7 @@ use CraftCms\Commerce\Store\StoreSettings;
 use CraftCms\Commerce\Support\ObjectState;
 use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Transfer\FieldLayoutElements\TransferManagementField;
+use CraftCms\Commerce\Transfer\Transfers;
 use CraftCms\Commerce\Twig\Extension as CommerceTwigExtension;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
@@ -221,6 +232,7 @@ class Plugin extends BasePlugin
 
         if ($this->isInstalled) {
             $this->registerCraftEventListeners();
+            $this->registerProjectConfigEventListeners();
 
             if (request()->isCpRequest()) {
                 $this->registerCKEditorLinkOptions();
@@ -511,6 +523,73 @@ class Plugin extends BasePlugin
                 'save', 'createDrafts' => app(InventoryLocations::class)->authorizeInventoryLocationAddressEdit($event),
                 default => null,
             };
+        });
+    }
+
+    /**
+     * Registers Commerce's project config event listeners.
+     */
+    private function registerProjectConfigEventListeners(): void
+    {
+        $projectConfig = app(ProjectConfig::class);
+
+        $projectConfig->onAdd(Gateways::CONFIG_GATEWAY_KEY . '.{uid}', app(Gateways::class)->handleChangedGateway(...))
+            ->onUpdate(Gateways::CONFIG_GATEWAY_KEY . '.{uid}', app(Gateways::class)->handleChangedGateway(...))
+            ->onRemove(Gateways::CONFIG_GATEWAY_KEY . '.{uid}', app(Gateways::class)->handleArchivedGateway(...));
+
+        $projectConfig->onAdd(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', app(ProductTypes::class)->handleChangedProductType(...))
+            ->onUpdate(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', app(ProductTypes::class)->handleChangedProductType(...))
+            ->onRemove(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', app(ProductTypes::class)->handleDeletedProductType(...));
+
+        Event::listen(SiteDeleted::class, static function(SiteDeleted $event) {
+            if (!app(ProjectConfig::class)->isApplyingExternalChanges) {
+                app(ProductTypes::class)->pruneDeletedSite($event);
+            }
+        });
+
+        $projectConfig->onAdd(Orders::CONFIG_FIELDLAYOUT_KEY, app(Orders::class)->handleChangedFieldLayout(...))
+            ->onUpdate(Orders::CONFIG_FIELDLAYOUT_KEY, app(Orders::class)->handleChangedFieldLayout(...))
+            ->onRemove(Orders::CONFIG_FIELDLAYOUT_KEY, app(Orders::class)->handleDeletedFieldLayout(...));
+
+        $projectConfig->onAdd(Transfers::CONFIG_FIELDLAYOUT_KEY, app(Transfers::class)->handleChangedFieldLayout(...))
+            ->onUpdate(Transfers::CONFIG_FIELDLAYOUT_KEY, app(Transfers::class)->handleChangedFieldLayout(...))
+            ->onRemove(Transfers::CONFIG_FIELDLAYOUT_KEY, app(Transfers::class)->handleDeletedFieldLayout(...));
+
+        $projectConfig->onAdd(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', app(OrderStatuses::class)->handleChangedOrderStatus(...))
+            ->onUpdate(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', app(OrderStatuses::class)->handleChangedOrderStatus(...))
+            ->onRemove(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', app(OrderStatuses::class)->handleDeletedOrderStatus(...));
+
+        // Emails still fires this via the legacy craft\commerce\services\Emails shim's
+        // hasEventHandlers()/trigger() (see the TODO in Emails::handleDeletedEmail()) — there's no
+        // Laravel event to listen to yet, so this stays a legacy Event::on() registration.
+        YiiEvent::on(LegacyEmails::class, LegacyEmails::EVENT_AFTER_DELETE_EMAIL, static function(EmailEvent $event) {
+            if (!app(ProjectConfig::class)->isApplyingExternalChanges) {
+                app(OrderStatuses::class)->pruneDeletedEmail($event);
+            }
+        });
+
+        $projectConfig->onAdd(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', app(LineItemStatuses::class)->handleChangedLineItemStatus(...))
+            ->onUpdate(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', app(LineItemStatuses::class)->handleChangedLineItemStatus(...))
+            ->onRemove(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', app(LineItemStatuses::class)->handleArchivedLineItemStatus(...));
+
+        $projectConfig->onAdd(Emails::CONFIG_EMAILS_KEY . '.{uid}', app(Emails::class)->handleChangedEmail(...))
+            ->onUpdate(Emails::CONFIG_EMAILS_KEY . '.{uid}', app(Emails::class)->handleChangedEmail(...))
+            ->onRemove(Emails::CONFIG_EMAILS_KEY . '.{uid}', app(Emails::class)->handleDeletedEmail(...));
+
+        $projectConfig->onAdd(Stores::CONFIG_STORES_KEY . '.{uid}', app(Stores::class)->handleChangedStore(...))
+            ->onUpdate(Stores::CONFIG_STORES_KEY . '.{uid}', app(Stores::class)->handleChangedStore(...))
+            ->onRemove(Stores::CONFIG_STORES_KEY . '.{uid}', app(Stores::class)->handleDeletedStore(...));
+
+        $projectConfig->onAdd(Stores::CONFIG_SITESTORES_KEY . '.{uid}', app(Stores::class)->handleChangedSiteStore(...))
+            ->onUpdate(Stores::CONFIG_SITESTORES_KEY . '.{uid}', app(Stores::class)->handleChangedSiteStore(...))
+            ->onRemove(Stores::CONFIG_SITESTORES_KEY . '.{uid}', app(Stores::class)->handleDeletedSiteStore(...));
+
+        $projectConfig->onAdd(Pdfs::CONFIG_PDFS_KEY . '.{uid}', app(Pdfs::class)->handleChangedPdf(...))
+            ->onUpdate(Pdfs::CONFIG_PDFS_KEY . '.{uid}', app(Pdfs::class)->handleChangedPdf(...))
+            ->onRemove(Pdfs::CONFIG_PDFS_KEY . '.{uid}', app(Pdfs::class)->handleDeletedPdf(...));
+
+        Event::listen(ProjectConfigRebuilt::class, static function(ProjectConfigRebuilt $event) {
+            $event->config['commerce'] = ProjectConfigData::rebuildProjectConfig();
         });
     }
 

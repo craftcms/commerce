@@ -48,7 +48,7 @@ class LineItemStatuses extends Component
      */
     public function handleChangedLineItemStatus(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Order\LineItemStatuses::class)->handleChangedLineItemStatus($event);
+        app(\CraftCms\Commerce\Order\LineItemStatuses::class)->handleChangedLineItemStatus(new \CraftCms\Cms\ProjectConfig\Events\ItemUpdated($event->path, $event->oldValue, $event->newValue, $event->tokenMatches));
     }
 
     /**
@@ -64,7 +64,7 @@ class LineItemStatuses extends Component
      */
     public function handleArchivedLineItemStatus(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Order\LineItemStatuses::class)->handleArchivedLineItemStatus($event);
+        app(\CraftCms\Commerce\Order\LineItemStatuses::class)->handleArchivedLineItemStatus(new \CraftCms\Cms\ProjectConfig\Events\ItemRemoved($event->path, $event->oldValue, $event->newValue, $event->tokenMatches));
     }
 
     /**

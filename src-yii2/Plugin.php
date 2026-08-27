@@ -11,31 +11,18 @@ use Craft;
 use craft\base\Model;
 use craft\commerce\base\Purchasable;
 use craft\commerce\db\Table;
-use craft\commerce\events\EmailEvent;
 use craft\commerce\gql\interfaces\elements\Product as GqlProductInterface;
 use craft\commerce\gql\interfaces\elements\Variant as GqlVariantInterface;
 use craft\commerce\gql\queries\Product as GqlProductQueries;
 use craft\commerce\gql\queries\Variant as GqlVariantQueries;
 use CraftCms\Commerce\Gql\Types\Input\Criteria\ProductRelation;
 use CraftCms\Commerce\Gql\Types\Input\Criteria\VariantRelation;
-use craft\commerce\helpers\ProjectConfigData;
 use craft\commerce\migrations\Install;
 use craft\commerce\models\Settings;
 use craft\commerce\plugin\Routes;
-use craft\commerce\services\Emails;
-use craft\commerce\services\Gateways;
-use craft\commerce\services\LineItemStatuses;
-use craft\commerce\services\OrderStatuses;
-use craft\commerce\services\Orders as OrdersService;
-use craft\commerce\services\Pdfs;
-use craft\commerce\services\ProductTypes;
-use craft\commerce\services\Stores;
-use craft\commerce\services\Transfers as TransfersService;
 use craft\elements\db\UserQuery;
 use CraftCms\Cms\Edition as CmsEdition;
-use craft\events\DeleteSiteEvent;
 use craft\events\PopulateElementsEvent;
-use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterGqlQueriesEvent;
 use craft\events\RegisterGqlTypesEvent;
@@ -44,8 +31,6 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
 use craft\services\Elements;
 use craft\services\Gql;
-use craft\services\ProjectConfig;
-use craft\services\Sites;
 use craft\web\Application;
 use CraftCms\Commerce\Plugin as BasePlugin;
 use Exception;
@@ -113,7 +98,6 @@ class Plugin extends BasePlugin
         $request = Craft::$app->getRequest();
 
         $this->_registerCraftEventListeners();
-        $this->_registerProjectConfigEventListeners();
         $this->_registerForeignKeysRestore();
         $this->_registerPoweredByHeader();
         $this->_registerGqlInterfaces();
@@ -156,79 +140,6 @@ class Plugin extends BasePlugin
         return new Settings();
     }
 
-
-    /**
-     * Register Commerce’s project config event listeners
-     */
-    private function _registerProjectConfigEventListeners(): void
-    {
-        $projectConfigService = Craft::$app->getProjectConfig();
-
-        $gatewayService = $this->getGateways();
-        $projectConfigService->onAdd(Gateways::CONFIG_GATEWAY_KEY . '.{uid}', $gatewayService->handleChangedGateway(...))
-            ->onUpdate(Gateways::CONFIG_GATEWAY_KEY . '.{uid}', $gatewayService->handleChangedGateway(...))
-            ->onRemove(Gateways::CONFIG_GATEWAY_KEY . '.{uid}', $gatewayService->handleArchivedGateway(...));
-
-        $productTypeService = $this->getProductTypes();
-        $projectConfigService->onAdd(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', $productTypeService->handleChangedProductType(...))
-            ->onUpdate(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', $productTypeService->handleChangedProductType(...))
-            ->onRemove(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', $productTypeService->handleDeletedProductType(...));
-
-        Event::on(Sites::class, Sites::EVENT_AFTER_DELETE_SITE, function(DeleteSiteEvent $event) use ($productTypeService) {
-            if (!Craft::$app->getProjectConfig()->getIsApplyingExternalChanges()) {
-                $productTypeService->pruneDeletedSite($event);
-            }
-        });
-
-        $ordersService = $this->getOrders();
-        $projectConfigService->onAdd(OrdersService::CONFIG_FIELDLAYOUT_KEY, $ordersService->handleChangedFieldLayout(...))
-            ->onUpdate(OrdersService::CONFIG_FIELDLAYOUT_KEY, $ordersService->handleChangedFieldLayout(...))
-            ->onRemove(OrdersService::CONFIG_FIELDLAYOUT_KEY, $ordersService->handleDeletedFieldLayout(...));
-
-        $transfersService = $this->getTransfers();
-        $projectConfigService->onAdd(TransfersService::CONFIG_FIELDLAYOUT_KEY, $transfersService->handleChangedFieldLayout(...))
-            ->onUpdate(TransfersService::CONFIG_FIELDLAYOUT_KEY, $transfersService->handleChangedFieldLayout(...))
-            ->onRemove(TransfersService::CONFIG_FIELDLAYOUT_KEY, $transfersService->handleDeletedFieldLayout(...));
-
-        $orderStatusService = $this->getOrderStatuses();
-        $projectConfigService->onAdd(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', $orderStatusService->handleChangedOrderStatus(...))
-            ->onUpdate(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', $orderStatusService->handleChangedOrderStatus(...))
-            ->onRemove(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', $orderStatusService->handleDeletedOrderStatus(...));
-
-        Event::on(Emails::class, Emails::EVENT_AFTER_DELETE_EMAIL, function(EmailEvent $event) use ($orderStatusService) {
-            if (!Craft::$app->getProjectConfig()->getIsApplyingExternalChanges()) {
-                $orderStatusService->pruneDeletedEmail($event);
-            }
-        });
-
-        $lineItemStatusService = $this->getLineItemStatuses();
-        $projectConfigService->onAdd(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', $lineItemStatusService->handleChangedLineItemStatus(...))
-            ->onUpdate(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', $lineItemStatusService->handleChangedLineItemStatus(...))
-            ->onRemove(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', $lineItemStatusService->handleArchivedLineItemStatus(...));
-
-        $emailService = $this->getEmails();
-        $projectConfigService->onAdd(Emails::CONFIG_EMAILS_KEY . '.{uid}', $emailService->handleChangedEmail(...))
-            ->onUpdate(Emails::CONFIG_EMAILS_KEY . '.{uid}', $emailService->handleChangedEmail(...))
-            ->onRemove(Emails::CONFIG_EMAILS_KEY . '.{uid}', $emailService->handleDeletedEmail(...));
-
-        $storesService = $this->getStores();
-        $projectConfigService->onAdd(Stores::CONFIG_STORES_KEY . '.{uid}', $storesService->handleChangedStore(...))
-            ->onUpdate(Stores::CONFIG_STORES_KEY . '.{uid}', $storesService->handleChangedStore(...))
-            ->onRemove(Stores::CONFIG_STORES_KEY . '.{uid}', $storesService->handleDeletedStore(...));
-
-        $projectConfigService->onAdd(Stores::CONFIG_SITESTORES_KEY . '.{uid}', $storesService->handleChangedSiteStore(...))
-            ->onUpdate(Stores::CONFIG_SITESTORES_KEY . '.{uid}', $storesService->handleChangedSiteStore(...))
-            ->onRemove(Stores::CONFIG_SITESTORES_KEY . '.{uid}', $storesService->handleDeletedSiteStore(...));
-
-        $pdfService = $this->getPdfs();
-        $projectConfigService->onAdd(Pdfs::CONFIG_PDFS_KEY . '.{uid}', $pdfService->handleChangedPdf(...))
-            ->onUpdate(Pdfs::CONFIG_PDFS_KEY . '.{uid}', $pdfService->handleChangedPdf(...))
-            ->onRemove(Pdfs::CONFIG_PDFS_KEY . '.{uid}', $pdfService->handleDeletedPdf(...));
-
-        Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, static function(RebuildConfigEvent $event) {
-            $event->config['commerce'] = ProjectConfigData::rebuildProjectConfig();
-        });
-    }
 
     /**
      * Register general event listeners

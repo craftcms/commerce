@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Order;
 
 use craft\commerce\Plugin;
-use craft\events\ConfigEvent;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Database\Table as CraftTable;
+use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Email\Emails;

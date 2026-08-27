@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Email;
 
 use craft\commerce\Plugin;
-use craft\events\ConfigEvent;
 use craft\helpers\Db as CraftDb;
 use craft\mail\Message;
 use CraftCms\Cms\Asset\AssetsHelper as Assets;
 use CraftCms\Cms\Cms;
+use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Facades\Template;

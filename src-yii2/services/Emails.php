@@ -61,7 +61,7 @@ class Emails extends Component
      */
     public function handleChangedEmail(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Email\Emails::class)->handleChangedEmail($event);
+        app(\CraftCms\Commerce\Email\Emails::class)->handleChangedEmail(new \CraftCms\Cms\ProjectConfig\Events\ItemUpdated($event->path, $event->oldValue, $event->newValue, $event->tokenMatches));
     }
 
     public function deleteEmailById(int $id): bool
@@ -74,7 +74,7 @@ class Emails extends Component
      */
     public function handleDeletedEmail(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Email\Emails::class)->handleDeletedEmail($event);
+        app(\CraftCms\Commerce\Email\Emails::class)->handleDeletedEmail(new \CraftCms\Cms\ProjectConfig\Events\ItemRemoved($event->path, $event->oldValue, $event->newValue, $event->tokenMatches));
     }
 
     /**

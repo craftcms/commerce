@@ -75,7 +75,7 @@ class OrderStatuses extends Component
      */
     public function handleChangedOrderStatus(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Order\OrderStatuses::class)->handleChangedOrderStatus($event);
+        app(\CraftCms\Commerce\Order\OrderStatuses::class)->handleChangedOrderStatus(new \CraftCms\Cms\ProjectConfig\Events\ItemUpdated($event->path, $event->oldValue, $event->newValue, $event->tokenMatches));
     }
 
     /**
@@ -91,7 +91,7 @@ class OrderStatuses extends Component
      */
     public function handleDeletedOrderStatus(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Order\OrderStatuses::class)->handleDeletedOrderStatus($event);
+        app(\CraftCms\Commerce\Order\OrderStatuses::class)->handleDeletedOrderStatus(new \CraftCms\Cms\ProjectConfig\Events\ItemRemoved($event->path, $event->oldValue, $event->newValue, $event->tokenMatches));
     }
 
     public function pruneDeletedEmail(EmailEvent $event): void

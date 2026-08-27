@@ -104,7 +104,7 @@ class ProductTypes extends Component
 
     public function handleChangedProductType(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Catalog\ProductType\ProductTypes::class)->handleChangedProductType($event);
+        app(\CraftCms\Commerce\Catalog\ProductType\ProductTypes::class)->handleChangedProductType(new \CraftCms\Cms\ProjectConfig\Events\ItemUpdated($event->path, $event->oldValue, $event->newValue, $event->tokenMatches));
     }
 
     public function deleteProductTypeById(int $id): bool
@@ -114,12 +114,12 @@ class ProductTypes extends Component
 
     public function handleDeletedProductType(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Catalog\ProductType\ProductTypes::class)->handleDeletedProductType($event);
+        app(\CraftCms\Commerce\Catalog\ProductType\ProductTypes::class)->handleDeletedProductType(new \CraftCms\Cms\ProjectConfig\Events\ItemRemoved($event->path, $event->oldValue, $event->newValue, $event->tokenMatches));
     }
 
     public function pruneDeletedSite(DeleteSiteEvent $event): void
     {
-        app(\CraftCms\Commerce\Catalog\ProductType\ProductTypes::class)->pruneDeletedSite($event);
+        app(\CraftCms\Commerce\Catalog\ProductType\ProductTypes::class)->pruneDeletedSite(new \CraftCms\Cms\Site\Events\SiteDeleted(site: $event->site));
     }
 
     public function isProductTypeTemplateValid(ProductType $productType, int $siteId): bool

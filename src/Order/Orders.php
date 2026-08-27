@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Order;
 
 use craft\commerce\elements\deletionblockers\OrderCustomersDeletionBlocker;
-use craft\events\ConfigEvent;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Element\Events\DefineDeletionBlockers;
 use CraftCms\Cms\Element\Events\ElementSaved;
 use CraftCms\Cms\FieldLayout\FieldLayout;
+use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
 use CraftCms\Cms\ProjectConfig\ProjectConfigHelper;
 use CraftCms\Cms\Support\Facades\ElementCaches;
 use CraftCms\Cms\Support\Facades\Elements;
