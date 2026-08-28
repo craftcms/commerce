@@ -70,6 +70,7 @@ use CraftCms\Commerce\Customer\Fields\IsPrimaryBillingField;
 use CraftCms\Commerce\Customer\Fields\IsPrimaryShippingField;
 use CraftCms\Commerce\Customer\Fields\PrimaryBillingAddressIdField;
 use CraftCms\Commerce\Customer\Fields\PrimaryShippingAddressIdField;
+use CraftCms\Commerce\Customer\Listeners\ElementsHydratedListener;
 use CraftCms\Commerce\Customer\Models\Customer as CustomerRecord;
 use CraftCms\Commerce\Dashboard\Widgets\AverageOrderTotal;
 use CraftCms\Commerce\Dashboard\Widgets\NewCustomers;
@@ -177,9 +178,8 @@ class Plugin extends BasePlugin
         TotalRevenue::class,
     ];
 
-    /** @phpstan-ignore-next-line property.defaultValue ('Class@method' is valid Laravel listener syntax — Illuminate\Events\Dispatcher::makeListener() splits on '@', defaulting to 'handle' — but HasListeners' array<class-string, class-string|class-string[]> docblock doesn't allow for it) */
     protected array $events = [
-        ElementsHydrated::class => Customers::class . '@elementsHydratedHandler',
+        ElementsHydrated::class => ElementsHydratedListener::class,
     ];
 
     protected array $linkTypes = [

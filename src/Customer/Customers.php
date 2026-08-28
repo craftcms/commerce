@@ -12,7 +12,6 @@ use CraftCms\Cms\Auth\Impersonation;
 use CraftCms\Cms\Element\Events\ElementSaved;
 use CraftCms\Cms\Element\Exceptions\InvalidElementException;
 use CraftCms\Cms\Element\Exceptions\UnsupportedSiteException;
-use CraftCms\Cms\Element\Queries\Events\ElementsHydrated;
 use CraftCms\Cms\Element\Queries\Exceptions\ElementNotFoundException;
 use CraftCms\Cms\Element\Validation\ElementRules;
 use CraftCms\Cms\Support\Facades\Elements;
@@ -24,7 +23,6 @@ use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Models\Order as OrderRecord;
 use CraftCms\Commerce\Payment\Events\UpdatePrimaryPaymentSourceEvent;
-use CraftCms\Commerce\Support\ObjectState;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -181,36 +179,6 @@ class Customers
         if ($address->hasIsPrimaryShippingBeenSet() && ($address->getIsPrimaryShipping() || $customer->primaryShippingAddressId === $address->id)) {
             /** @phpstan-ignore-next-line method.notFound (getIsPrimaryShipping() is added to Address via a Macroable macro registered in Plugin::registerCustomerAddressMacros(), not visible to static analysis) */
             $this->savePrimaryShippingAddressId($owner, $address->getIsPrimaryShipping() ? $address->id : null);
-        }
-    }
-
-    /**
-     * Bulk-populates primaryBillingAddressId/primaryShippingAddressId for a batch of hydrated
-     * Users, so the getPrimaryBillingAddressId()/getPrimaryShippingAddressId() macros (see
-     * Plugin::registerCustomerMacros()) don't each run their own per-user query when iterating
-     * a list.
-     *
-     * Replaces the legacy `craft\elements\db\UserQuery::EVENT_AFTER_POPULATE_ELEMENTS` listener.
-     */
-    public function elementsHydratedHandler(ElementsHydrated $event): void
-    {
-        $users = collect($event->elements)->filter(static fn($element) => $element instanceof User);
-
-        if ($users->isEmpty()) {
-            return;
-        }
-
-        $customers = CustomerRecord::whereIn('customerId', $users->pluck('id'))->get();
-
-        foreach ($customers as $customer) {
-            $user = $users->firstWhere('id', $customer->customerId);
-
-            if (!$user) {
-                continue;
-            }
-
-            ObjectState::set($user, 'primaryBillingAddressId', $customer->primaryBillingAddressId);
-            ObjectState::set($user, 'primaryShippingAddressId', $customer->primaryShippingAddressId);
         }
     }
 
