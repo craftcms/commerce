@@ -177,6 +177,11 @@ class Plugin extends BasePlugin
         TotalRevenue::class,
     ];
 
+    /** @phpstan-ignore-next-line property.defaultValue ('Class@method' is valid Laravel listener syntax — Illuminate\Events\Dispatcher::makeListener() splits on '@', defaulting to 'handle' — but HasListeners' array<class-string, class-string|class-string[]> docblock doesn't allow for it) */
+    protected array $events = [
+        ElementsHydrated::class => Customers::class . '@elementsHydratedHandler',
+    ];
+
     protected array $linkTypes = [
         ProductLinkType::class,
     ];
@@ -524,31 +529,6 @@ class Plugin extends BasePlugin
                 'save', 'createDrafts' => app(InventoryLocations::class)->authorizeInventoryLocationAddressEdit($event),
                 default => null,
             };
-        });
-
-        // Bulk-populates primaryBillingAddressId/primaryShippingAddressId for a batch of hydrated
-        // Users, so the getPrimaryBillingAddressId()/getPrimaryShippingAddressId() macros (see
-        // registerCustomerMacros()) don't each run their own per-user query when iterating a list.
-        // Replaces the legacy craft\elements\db\UserQuery::EVENT_AFTER_POPULATE_ELEMENTS listener.
-        Event::listen(ElementsHydrated::class, static function(ElementsHydrated $event) {
-            $users = collect($event->elements)->filter(static fn($element) => $element instanceof User);
-
-            if ($users->isEmpty()) {
-                return;
-            }
-
-            $customers = CustomerRecord::whereIn('customerId', $users->pluck('id'))->get();
-
-            foreach ($customers as $customer) {
-                $user = $users->firstWhere('id', $customer->customerId);
-
-                if (!$user) {
-                    continue;
-                }
-
-                ObjectState::set($user, 'primaryBillingAddressId', $customer->primaryBillingAddressId);
-                ObjectState::set($user, 'primaryShippingAddressId', $customer->primaryShippingAddressId);
-            }
         });
     }
 
