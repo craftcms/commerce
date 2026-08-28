@@ -9,8 +9,11 @@ use craft\commerce\services\Gateways as LegacyGateways;
 use craft\commerce\services\OrderAdjustments as LegacyOrderAdjustments;
 use craft\commerce\services\Purchasables as LegacyPurchasables;
 use CraftCms\Cms\Address\Elements\Address;
+use CraftCms\Cms\Auth\Events\ElementAuthorizing;
 use CraftCms\Cms\Cms;
 use CraftCms\Cms\Cp\Data\NavItem;
+use CraftCms\Cms\Element\Events\DefineDeletionBlockers;
+use CraftCms\Cms\Element\Events\ElementSaved;
 use CraftCms\Cms\Element\Queries\Events\ElementsHydrated;
 use CraftCms\Cms\FieldLayout\FieldLayout;
 use CraftCms\Cms\GarbageCollection\Actions\DeletePartialElements;
@@ -21,12 +24,15 @@ use CraftCms\Cms\Gql\GqlArguments;
 use CraftCms\Cms\Plugin\Plugin as BasePlugin;
 use CraftCms\Cms\Route\Routes;
 use CraftCms\Cms\Site\Data\Site;
+use CraftCms\Cms\Site\Events\SiteDeleted;
+use CraftCms\Cms\Site\Events\SiteSaved;
 use CraftCms\Cms\Support\Facades\Twig;
 use CraftCms\Cms\Support\File;
 use CraftCms\Cms\Support\Path;
 use CraftCms\Cms\SystemMessage\Models\SystemMessage;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\User\Events\EditUserScreensResolving;
+use CraftCms\Cms\User\Events\UserAssignedToGroups;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Catalog\FieldLayoutElements\ProductTitleField;
@@ -85,6 +91,14 @@ use CraftCms\Commerce\Plugin\Concerns\HasCommerceEventListeners;
 use CraftCms\Commerce\Plugin\Concerns\HasCommerceMacros;
 use CraftCms\Commerce\Plugin\Concerns\HasPermissions;
 use CraftCms\Commerce\Plugin\Concerns\HasServices;
+use CraftCms\Commerce\Plugin\Listeners\DefineDeletionBlockersListener;
+use CraftCms\Commerce\Plugin\Listeners\ElementAuthorizingListener;
+use CraftCms\Commerce\Plugin\Listeners\ElementSavedListener;
+use CraftCms\Commerce\Plugin\Listeners\LoginListener;
+use CraftCms\Commerce\Plugin\Listeners\LogoutListener;
+use CraftCms\Commerce\Plugin\Listeners\SiteDeletedListener;
+use CraftCms\Commerce\Plugin\Listeners\SiteSavedListener;
+use CraftCms\Commerce\Plugin\Listeners\UserAssignedToGroupsListener;
 use CraftCms\Commerce\Purchasable\Elements\Donation;
 use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableAllowedQtyField;
 use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableAvailableForPurchaseField;
@@ -99,6 +113,8 @@ use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Transfer\FieldLayoutElements\TransferManagementField;
 use CraftCms\Commerce\Twig\Extension as CommerceTwigExtension;
 use GraphQL\Type\Definition\Type;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -159,6 +175,14 @@ class Plugin extends BasePlugin
 
     protected array $events = [
         ElementsHydrated::class => ElementsHydratedListener::class,
+        Login::class => LoginListener::class,
+        Logout::class => LogoutListener::class,
+        ElementSaved::class => ElementSavedListener::class,
+        UserAssignedToGroups::class => UserAssignedToGroupsListener::class,
+        SiteSaved::class => SiteSavedListener::class,
+        SiteDeleted::class => SiteDeletedListener::class,
+        DefineDeletionBlockers::class => DefineDeletionBlockersListener::class,
+        ElementAuthorizing::class => ElementAuthorizingListener::class,
     ];
 
     protected array $linkTypes = [
@@ -220,7 +244,6 @@ class Plugin extends BasePlugin
         $this->app['router']->pushMiddlewareToGroup('craft', PoweredByHeader::class);
 
         if ($this->isInstalled) {
-            $this->registerCraftEventListeners();
             $this->registerProjectConfigEventListeners();
 
             if (request()->isCpRequest()) {

@@ -11,32 +11,20 @@ use craft\commerce\services\Emails as LegacyEmails;
 use craft\events\RegisterUrlRulesEvent;
 use craft\fixfks\controllers\RestoreController;
 use craft\web\UrlManager;
-use CraftCms\Cms\Address\Elements\Address;
-use CraftCms\Cms\Auth\Events\ElementAuthorizing;
-use CraftCms\Cms\Element\Events\DefineDeletionBlockers;
-use CraftCms\Cms\Element\Events\ElementSaved;
 use CraftCms\Cms\Gql\Events\GqlArgumentsResolving;
 use CraftCms\Cms\ProjectConfig\Events\ProjectConfigRebuilt;
 use CraftCms\Cms\ProjectConfig\ProjectConfig;
 use CraftCms\Cms\Site\Events\SiteDeleted;
-use CraftCms\Cms\Site\Events\SiteSaved;
 use CraftCms\Cms\Support\Facades\Plugins;
 use CraftCms\Cms\Support\Facades\Sites;
-use CraftCms\Cms\User\Elements\User;
-use CraftCms\Cms\User\Events\UserAssignedToGroups;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Catalog\Elements\Variant;
-use CraftCms\Commerce\Catalog\Products;
 use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
-use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
-use CraftCms\Commerce\Customer\Customers;
 use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Email\Events\EmailEvent;
 use CraftCms\Commerce\Gql\Types\Input\Criteria\ProductRelation;
 use CraftCms\Commerce\Gql\Types\Input\Criteria\VariantRelation;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
-use CraftCms\Commerce\Inventory\InventoryLocations;
-use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\LineItemStatuses;
 use CraftCms\Commerce\Order\Orders;
 use CraftCms\Commerce\Order\OrderStatuses;
@@ -44,11 +32,8 @@ use CraftCms\Commerce\Payment\Gateway\Gateways;
 use CraftCms\Commerce\Pdf\Pdfs;
 use CraftCms\Commerce\Plugin\Plugin;
 use CraftCms\Commerce\Store\Stores;
-use CraftCms\Commerce\Store\StoreSettings;
 use CraftCms\Commerce\Transfer\Transfers;
 use GraphQL\Type\Definition\Type;
-use Illuminate\Auth\Events\Login;
-use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Facades\Event;
 
 use function CraftCms\Cms\t;
@@ -58,55 +43,6 @@ use function CraftCms\Cms\t;
  */
 trait HasCommerceEventListeners
 {
-    private function registerCraftEventListeners(): void
-    {
-        Event::listen(Login::class, static fn() => app(Customers::class)->loginHandler());
-        Event::listen(Logout::class, static fn() => app(Carts::class)->forgetCart());
-
-        Event::listen(ElementSaved::class, static function(ElementSaved $event) {
-            if ($event->element instanceof User) {
-                app(Carts::class)->afterSaveUserHandler($event);
-                app(CatalogPricingRules::class)->afterSaveUserHandler($event);
-                app(Customers::class)->afterSaveUserHandler($event);
-            }
-
-            if ($event->element instanceof Address) {
-                app(Orders::class)->afterSaveAddressHandler($event);
-                app(Customers::class)->afterSaveAddressHandler($event);
-            }
-        });
-
-        Event::listen(UserAssignedToGroups::class, static fn(UserAssignedToGroups $event) => app(CatalogPricingRules::class)->afterSaveUserHandler($event));
-
-        Event::listen(SiteSaved::class, static function(SiteSaved $event) {
-            app(ProductTypes::class)->afterSaveSiteHandler($event);
-            app(Products::class)->afterSaveSiteHandler($event);
-            app(Stores::class)->afterSaveCraftSiteHandler($event);
-        });
-
-        Event::listen(SiteDeleted::class, static fn(SiteDeleted $event) => app(Stores::class)->afterDeleteCraftSiteHandler($event));
-
-        Event::listen(DefineDeletionBlockers::class, static function(DefineDeletionBlockers $event) {
-            if ($event->elementType === User::class) {
-                app(Orders::class)->beforeDeleteUserHandler($event);
-            }
-        });
-
-        Event::listen(ElementAuthorizing::class, static function(ElementAuthorizing $event) {
-            match ($event->ability) {
-                'view' => app(StoreSettings::class)->authorizeStoreLocationView($event),
-                'save', 'createDrafts' => app(StoreSettings::class)->authorizeStoreLocationEdit($event),
-                default => null,
-            };
-
-            match ($event->ability) {
-                'view' => app(InventoryLocations::class)->authorizeInventoryLocationAddressView($event),
-                'save', 'createDrafts' => app(InventoryLocations::class)->authorizeInventoryLocationAddressEdit($event),
-                default => null,
-            };
-        });
-    }
-
     /**
      * Registers Commerce's project config event listeners.
      */
