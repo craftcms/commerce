@@ -110,6 +110,7 @@ use CraftCms\Commerce\Payment\Data\PaymentSource;
 use CraftCms\Commerce\Payment\Gateway\Gateways;
 use CraftCms\Commerce\Payment\PaymentSources;
 use CraftCms\Commerce\Pdf\Pdfs;
+use CraftCms\Commerce\Plugin\Concerns\HasCommerceEditions;
 use CraftCms\Commerce\Plugin\Concerns\HasPermissions;
 use CraftCms\Commerce\Plugin\Concerns\HasServices;
 use CraftCms\Commerce\Purchasable\Elements\Donation;
@@ -145,12 +146,17 @@ class Plugin extends BasePlugin
 {
     use HasPermissions;
     use HasServices;
+    use HasCommerceEditions;
 
     public const string HANDLE = 'commerce';
-    public const EDITION_PRO_STORE_LIMIT = 5;
-    public const EDITION_PRO = 'pro';
-    public const EDITION_ENTERPRISE = 'enterprise';
 
+    public string $schemaVersion = '5.7.0.0';
+
+    public string $minVersionRequired = '3.4.11';
+
+    public bool $hasCpSettings = true;
+
+    public bool $hasReadOnlyCpSettings = true;
 
     protected array $elementTypes = [
         Product::class,
@@ -882,13 +888,5 @@ class Plugin extends BasePlugin
             "[Recover My Cart]({{ link }})\n\n" .
             "**Please note:** This link will expire for security purposes.\n\n" .
             "Thank you!";
-    }
-
-    public static function editions(): array
-    {
-        return [
-            self::EDITION_PRO,
-            self::EDITION_ENTERPRISE,
-        ];
     }
 }

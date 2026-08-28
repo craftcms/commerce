@@ -19,7 +19,6 @@ use CraftCms\Commerce\Gql\Types\Input\Criteria\VariantRelation;
 use craft\commerce\migrations\Install;
 use craft\commerce\models\Settings;
 use craft\commerce\plugin\Routes;
-use CraftCms\Cms\Edition as CmsEdition;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterGqlQueriesEvent;
 use craft\events\RegisterGqlTypesEvent;
@@ -42,38 +41,6 @@ use yii\base\Event;
  */
 class Plugin extends BasePlugin
 {
-    /**
-     * Returns the editions for Craft Commerce
-     *
-     * @inheritDoc
-     */
-
-
-    /**
-     * @inheritDoc
-     */
-    public string $schemaVersion = '5.7.0.0';
-
-    /**
-     * @inheritdoc
-     */
-    public bool $hasCpSettings = true;
-
-    /**
-     * @inheritdoc
-     */
-    public string $minVersionRequired = '3.4.11';
-
-    /**
-     * @inheritdoc
-     */
-    public CmsEdition $minCmsEdition = CmsEdition::Pro;
-
-    /**
-     * @inheritdoc
-     */
-    public bool $hasReadOnlyCpSettings = true;
-
     use Routes;
 
     public function boot(): void
