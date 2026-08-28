@@ -96,6 +96,7 @@ use CraftCms\Commerce\Gql\Queries\Product as ProductQuery;
 use CraftCms\Commerce\Gql\Queries\Variant as VariantQuery;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
 use CraftCms\Commerce\Http\Controllers\Users\UsersController;
+use CraftCms\Commerce\Http\Middleware\PoweredByHeader;
 use CraftCms\Commerce\Http\RateLimiters\CartChallengeRateLimiter;
 use CraftCms\Commerce\Http\RateLimiters\CartRateLimiter;
 use CraftCms\Commerce\Http\RateLimiters\PdfChallengeRateLimiter;
@@ -146,6 +147,10 @@ class Plugin extends BasePlugin
     use HasServices;
 
     public const string HANDLE = 'commerce';
+    public const EDITION_PRO_STORE_LIMIT = 5;
+    public const EDITION_PRO = 'pro';
+    public const EDITION_ENTERPRISE = 'enterprise';
+
 
     protected array $elementTypes = [
         Product::class,
@@ -235,6 +240,8 @@ class Plugin extends BasePlugin
         $this->registerVariableMacros();
 
         Twig::registerExtension(new CommerceTwigExtension());
+
+        $this->app['router']->pushMiddlewareToGroup('craft', PoweredByHeader::class);
 
         if ($this->isInstalled) {
             $this->registerCraftEventListeners();
@@ -875,5 +882,13 @@ class Plugin extends BasePlugin
             "[Recover My Cart]({{ link }})\n\n" .
             "**Please note:** This link will expire for security purposes.\n\n" .
             "Thank you!";
+    }
+
+    public static function editions(): array
+    {
+        return [
+            self::EDITION_PRO,
+            self::EDITION_ENTERPRISE,
+        ];
     }
 }

@@ -42,23 +42,12 @@ use yii\base\Event;
  */
 class Plugin extends BasePlugin
 {
-    public const EDITION_PRO = 'pro';
-    public const EDITION_ENTERPRISE = 'enterprise';
-
-    public const EDITION_PRO_STORE_LIMIT = 5;
-
     /**
      * Returns the editions for Craft Commerce
      *
      * @inheritDoc
      */
-    public static function editions(): array
-    {
-        return [
-            self::EDITION_PRO,
-            self::EDITION_ENTERPRISE,
-        ];
-    }
+
 
     /**
      * @inheritDoc
@@ -95,7 +84,6 @@ class Plugin extends BasePlugin
 
         $this->_registerCraftEventListeners();
         $this->_registerForeignKeysRestore();
-        $this->_registerPoweredByHeader();
         $this->_registerGqlInterfaces();
         $this->_registerGqlQueries();
         $this->_registerRelatedToArguments();
@@ -170,24 +158,6 @@ class Plugin extends BasePlugin
             // Add default FKs
             new Install()->addForeignKeys();
         });
-    }
-
-    /**
-     * Register the powered-by header
-     */
-    private function _registerPoweredByHeader(): void
-    {
-        if (!Craft::$app->request->isConsoleRequest) {
-            $headers = Craft::$app->getResponse()->getHeaders();
-            // Send the X-Powered-By header?
-            if (Craft::$app->getConfig()->getGeneral()->sendPoweredByHeader) {
-                $original = $headers->get('X-Powered-By');
-                $headers->set('X-Powered-By', $original . ($original ? ',' : '') . 'Craft Commerce');
-            } else {
-                // In case PHP is already setting one
-                header_remove('X-Powered-By');
-            }
-        }
     }
 
     /**
