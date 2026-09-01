@@ -63,6 +63,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
 
         Route::get('commerce/settings/producttypes', [ProductTypesController::class, 'productTypeIndex']);
         Route::get('commerce/settings/producttypes/new', [ProductTypesController::class, 'editProductType']);
+        Route::post('commerce/settings/producttypes/render-form', [ProductTypesController::class, 'renderForm']);
         Route::get('commerce/settings/producttypes/{productTypeId}', [ProductTypesController::class, 'editProductType'])->whereNumber('productTypeId');
 
         Route::get('commerce/settings/emails', [EmailsController::class, 'index']);

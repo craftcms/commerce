@@ -48,7 +48,6 @@ class PurchasablePromotableField extends BaseNativeField
         ])->toHtml();
     }
 
-    #[Override]
     protected function settingsHtml(): ?string
     {
         return parent::settingsHtml() . FormFields::lightswitchFromConfig([

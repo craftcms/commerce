@@ -119,12 +119,12 @@ abstract class BaseSettingsController
     }
 
     /** @return list<array<string, string>> */
-    protected function crumbs(string $title, ?string $url = null): array
+    protected function crumbs(?string $title = null, ?string $url = null): array
     {
-        return [
-            ['label' => t('Settings'), 'href' => cp_url('settings')],
-            array_filter(['label' => $title, 'href' => $url]),
-        ];
+        return array_filter([
+            ['label' => t('Settings'), 'href' => cp_url('commerce/settings')],
+            $title && $url ? array_filter(['label' => $title, 'href' => $url]) : null,
+        ]);
     }
 
     protected function cpScreenResponse(): CpScreenResponse
