@@ -3302,6 +3302,9 @@ class Order extends Element implements HasStoreInterface
             unset($address['id']);
             $addressElement = $this->_shippingAddress ?: new AddressElement();
             $addressElement->setAttributes($address);
+            if (!empty($address['fields']) && is_array($address['fields'])) {
+                $addressElement->setFieldValues($address['fields']);
+            }
             $this->_populateAddressNameAttributes($addressElement, $address);
             $addressElement->setPrimaryOwner($this);
             $address = $addressElement;
@@ -3400,6 +3403,9 @@ class Order extends Element implements HasStoreInterface
             unset($address['id']); // only ever allow setting of the address data
             $addressElement = $this->_billingAddress ?: new AddressElement();
             $addressElement->setAttributes($address);
+            if (!empty($address['fields']) && is_array($address['fields'])) {
+                $addressElement->setFieldValues($address['fields']);
+            }
             $this->_populateAddressNameAttributes($addressElement, $address);
             $addressElement->setPrimaryOwner($this);
             $address = $addressElement;

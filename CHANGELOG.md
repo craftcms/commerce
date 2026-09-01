@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where the deprecated `craft\commerce\services\ProductTypes::getEditableProductTypes()` method could still be called. ([#4349](https://github.com/craftcms/commerce/issues/4349)) 
+- Fixed a bug where `craft\commerce\elements\Order::setShippingAddress()` and `setBillingAddress()` weren’t setting custom field values passed in via a `fields` array key. ([#4353](https://github.com/craftcms/commerce/issues/4353))
 
 ## 5.7.2 - 2026-08-12
 
