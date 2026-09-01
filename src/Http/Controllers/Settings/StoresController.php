@@ -5,14 +5,19 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\db\Query;
+use CraftCms\Cms\Form\Form;
+use CraftCms\Cms\Form\FormContext;
+use CraftCms\Cms\Form\Nodes\Table;
+use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
-use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Database\Table as DbTable;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Currencies;
+use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Store\Data\Store;
 
 use CraftCms\Commerce\Store\Stores;
@@ -122,7 +127,7 @@ class StoresController extends BaseSettingsController
             $store->uid = $savedStore->uid;
             $store->sortOrder = $savedStore->sortOrder;
         } elseif (!$storeId) {
-            $store->sortOrder = new Query()->from(Table::STORES)->max('[[sortOrder]]') + 1;
+            $store->sortOrder = new Query()->from(DbTable::STORES)->max('[[sortOrder]]') + 1;
         }
 
         if (!$store->validate() || !$storesService->saveStore($store)) {
@@ -138,13 +143,9 @@ class StoresController extends BaseSettingsController
         return $this->asModelSuccess($store, t('Store saved.'), 'store');
     }
 
-    public function storesIndex(): string
+    public function storesIndex(): CpScreenResponse
     {
         $stores = app(Stores::class)->getAllStores();
-
-        $crumbs = [
-            ['label' => t('Commerce', category: 'commerce'), 'url' => Url::url('commerce')],
-        ];
 
         $menuItems = [];
         $stores->each(function(Store $s) use (&$menuItems) {
@@ -168,14 +169,65 @@ class StoresController extends BaseSettingsController
             $menuItems[$s->handle] = $m;
         });
 
-        return pageTemplate('commerce/settings/stores/index', [
-            'stores' => $stores,
-            'crumbs' => $crumbs,
-            'sitesStores' => app(Stores::class)->getAllSiteStores(),
-            'primaryStoreId' => app(Stores::class)->getPrimaryStore()->id,
-            'menuItems' => $menuItems,
-            'readOnly' => $this->readOnly,
-        ], TemplateMode::Cp);
+        $rows = $stores->map(fn(Store $s) => [
+            'id' => $s->id,
+            'name' => [
+                'label' => t($s->getName(), category: 'site'),
+                'url' => Url::cpUrl('commerce/settings/stores/' . $s->id),
+            ],
+            'handle' => $s->handle,
+            'sites' => $s->getSiteNames()->join(', '),
+            'currency' => $s->getCurrency()?->getCode() ?? '',
+            'primary' => $s->primary ? t('Yes') : '',
+            'management' => [
+                'label' => t('Store Management', category: 'commerce'),
+                'items' => $menuItems[$s->handle],
+            ],
+            '_deletable' => !$s->primary,
+        ])->all();
+
+        $title = t('Stores');
+
+        $showNewStoreButton = !$this->readOnly && $stores->count() < count(Sites::getAllSites());
+
+        if ($showNewStoreButton) {
+            $showNewStoreButton = (Plugin::getInstance()->is(Plugin::EDITION_PRO, '=')
+                    && $stores->count() < Plugin::EDITION_PRO_STORE_LIMIT
+                    && app(CatalogPricingRules::class)->canUseCatalogPricingRules())
+                || (Plugin::getInstance()->is(Plugin::EDITION_ENTERPRISE, '=')
+                    && app(CatalogPricingRules::class)->canUseCatalogPricingRules());
+        }
+
+        $form = Form::make([
+            Table::make('stores')
+                ->columns([
+                    ['key' => 'name', 'label' => t('Name')],
+                    ['key' => 'handle', 'label' => t('Handle')],
+                    ['key' => 'sites', 'label' => t('Sites', category: 'commerce')],
+                    ['key' => 'currency', 'label' => t('Currency', category: 'commerce')],
+                    ['key' => 'primary', 'label' => t('Primary', category: 'commerce')],
+                    ['key' => 'management', 'label' => t('Store Management', category: 'commerce')],
+                ])
+                ->rows($rows)
+                ->emptyMessage(t('No stores exist yet.', category: 'commerce'))
+                ->createAction(
+                    $showNewStoreButton ? t('New store') : null,
+                    $showNewStoreButton ? Url::cpUrl('commerce/settings/stores/new') : null,
+                )
+                ->when(!$this->readOnly, fn(Table $table) => $table
+                    ->reorderable(action([self::class, 'reorderStores']))
+                    ->deletable(
+                        action([self::class, 'deleteStore']),
+                        t('Are you sure you want to permanently delete this store and everything in it?', category: 'commerce'),
+                    )),
+        ]);
+
+        return $this->cpScreenResponse()
+            ->title($title)
+            ->crumbs($this->crumbs($title))
+            ->inertiaPage('Form', [
+                'form' => $this->formResolver->resolve($form, new FormContext()),
+            ]);
     }
 
     public function deleteStore(Request $request): Response
