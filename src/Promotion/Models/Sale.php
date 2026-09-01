@@ -4,159 +4,47 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Promotion\Models;
 
-use CraftCms\Cms\Component\Component;
-use CraftCms\Cms\Support\Facades\I18N;
+use CraftCms\Cms\Shared\BaseModel;
 use CraftCms\Commerce\Database\Table;
-use CraftCms\Commerce\Promotion\Records\Sale as SaleRecord;
-use CraftCms\Commerce\Store\Stores;
-use DateTime;
-use Illuminate\Support\Facades\DB;
 
-class Sale extends Component
+/**
+ * Thin Eloquent persistence model for the `commerce_sales` table.
+ *
+ * This holds no business logic — it's used internally by
+ * {@see \CraftCms\Commerce\Promotion\Sales} to read/write rows, which are then hydrated into
+ * (or persisted from) the business {@see \CraftCms\Commerce\Promotion\Data\Sale} object that
+ * the rest of the codebase actually works with.
+ */
+class Sale extends BaseModel
 {
-    public ?int $id = null;
+    public const string APPLY_BY_PERCENT = 'byPercent';
 
-    public ?string $name = null;
+    public const string APPLY_BY_FLAT = 'byFlat';
 
-    public ?string $description = null;
+    public const string APPLY_TO_PERCENT = 'toPercent';
 
-    public ?DateTime $dateFrom = null;
+    public const string APPLY_TO_FLAT = 'toFlat';
 
-    public ?DateTime $dateTo = null;
+    public const string CATEGORY_RELATIONSHIP_TYPE_SOURCE = 'sourceElement';
 
-    public string $apply = SaleRecord::APPLY_BY_PERCENT;
+    public const string CATEGORY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
 
-    public ?float $applyAmount = null;
-
-    public bool $ignorePrevious = false;
-
-    public bool $stopProcessing = false;
-
-    public bool $allGroups = false;
-
-    public bool $allPurchasables = false;
-
-    public bool $allCategories = false;
-
-    public string $categoryRelationshipType = SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH;
-
-    public bool $enabled = true;
-
-    public ?int $sortOrder = null;
-
-    public ?DateTime $dateCreated = null;
-
-    public ?DateTime $dateUpdated = null;
-
-    private ?array $_purchasableIds = null;
-
-    private ?array $_categoryIds = null;
-
-    private ?array $_userGroupIds = null;
+    public const string CATEGORY_RELATIONSHIP_TYPE_BOTH = 'element';
 
     #[\Override]
-    public function getRules(): array
-    {
-        return [
-            'apply' => ['required', 'in:toPercent,toFlat,byPercent,byFlat'],
-            'categoryRelationshipType' => ['required', 'in:' . implode(',', [
-                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
-                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
-                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH,
-            ])],
-            'enabled' => ['boolean'],
-            'name' => ['required', 'string'],
-            'allGroups' => ['required', 'boolean'],
-            'allPurchasables' => ['required', 'boolean'],
-            'allCategories' => ['required', 'boolean'],
-        ];
-    }
+    protected $table = Table::SALES;
 
-    public function getCpEditUrl(): string
-    {
-        $store = app(Stores::class)->getPrimaryStore();
-        return $store->getStoreSettingsUrl('sales/' . $this->id);
-    }
-
-    public function getApplyAmountAsPercent(): string
-    {
-        return I18N::getFormatter()->asPercent(-($this->applyAmount ?? 0.0));
-    }
-
-    public function getApplyAmountAsFlat(): string
-    {
-        return $this->applyAmount !== null ? (string)($this->applyAmount * -1) : '0';
-    }
-
-    public function getCategoryIds(): array
-    {
-        if (!isset($this->_categoryIds)) {
-            $categoryIds = [];
-            if ($this->id) {
-                $categoryIds = array_filter(
-                    DB::table(Table::SALES . ' sales')
-                        ->leftJoin(Table::SALE_CATEGORIES . ' spt', 'spt.saleId', '=', 'sales.id')
-                        ->where('sales.id', $this->id)
-                        ->pluck('spt.categoryId')
-                        ->all()
-                );
-            }
-            $this->_categoryIds = $categoryIds;
-        }
-
-        return $this->_categoryIds;
-    }
-
-    public function getPurchasableIds(): array
-    {
-        if (!isset($this->_purchasableIds)) {
-            $purchasableIds = [];
-            if ($this->id) {
-                $purchasableIds = array_filter(
-                    DB::table(Table::SALES . ' sales')
-                        ->leftJoin(Table::SALE_PURCHASABLES . ' sp', 'sp.saleId', '=', 'sales.id')
-                        ->where('sales.id', $this->id)
-                        ->pluck('sp.purchasableId')
-                        ->all()
-                );
-            }
-            $this->_purchasableIds = $purchasableIds;
-        }
-
-        return $this->_purchasableIds;
-    }
-
-    public function getUserGroupIds(): array
-    {
-        if (!isset($this->_userGroupIds)) {
-            $userGroupIds = [];
-            if ($this->id) {
-                $userGroupIds = array_filter(
-                    DB::table(Table::SALES . ' sales')
-                        ->leftJoin(Table::SALE_USERGROUPS . ' sug', 'sug.saleId', '=', 'sales.id')
-                        ->where('sales.id', $this->id)
-                        ->pluck('sug.userGroupId')
-                        ->all()
-                );
-            }
-            $this->_userGroupIds = $userGroupIds;
-        }
-
-        return $this->_userGroupIds;
-    }
-
-    public function setCategoryIds(array $ids): void
-    {
-        $this->_categoryIds = array_unique($ids);
-    }
-
-    public function setPurchasableIds(array $purchasableIds): void
-    {
-        $this->_purchasableIds = array_unique($purchasableIds);
-    }
-
-    public function setUserGroupIds(array $userGroupIds): void
-    {
-        $this->_userGroupIds = array_unique($userGroupIds);
-    }
+    #[\Override]
+    protected $casts = [
+        'allCategories' => 'boolean',
+        'allGroups' => 'boolean',
+        'allPurchasables' => 'boolean',
+        'dateFrom' => 'datetime',
+        'dateTo' => 'datetime',
+        'applyAmount' => 'float',
+        'ignorePrevious' => 'boolean',
+        'stopProcessing' => 'boolean',
+        'enabled' => 'boolean',
+        'sortOrder' => 'integer',
+    ];
 }

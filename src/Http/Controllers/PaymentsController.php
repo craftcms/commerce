@@ -14,11 +14,11 @@ use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Exceptions\CurrencyException;
 use CraftCms\Commerce\Order\Orders;
+use CraftCms\Commerce\Payment\Data\PaymentSource;
 use CraftCms\Commerce\Payment\Exceptions\PaymentException;
 use CraftCms\Commerce\Payment\Exceptions\PaymentSourceCreatedLaterException;
 use CraftCms\Commerce\Payment\Exceptions\PaymentSourceException;
 use CraftCms\Commerce\Payment\Gateway\Gateways;
-use CraftCms\Commerce\Payment\Models\PaymentSource;
 use CraftCms\Commerce\Payment\Payments;
 use CraftCms\Commerce\Payment\PaymentSources;
 

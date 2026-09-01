@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Inventory\Concerns;
 
+use CraftCms\Commerce\Inventory\Data\InventoryLocation;
 use CraftCms\Commerce\Inventory\InventoryLocations;
-use CraftCms\Commerce\Inventory\Models\InventoryLocation;
 
 trait InventoryLocationTrait
 {

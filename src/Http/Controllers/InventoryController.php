@@ -22,12 +22,12 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
+use CraftCms\Commerce\Inventory\Data\InventoryManualMovement;
+use CraftCms\Commerce\Inventory\Data\UpdateInventoryLevel;
 use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
 use CraftCms\Commerce\Inventory\Enums\InventoryUpdateQuantityType;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Inventory\InventoryLocations;
-use CraftCms\Commerce\Inventory\Models\InventoryManualMovement;
-use CraftCms\Commerce\Inventory\Models\UpdateInventoryLevel;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use Illuminate\Http\JsonResponse;
 

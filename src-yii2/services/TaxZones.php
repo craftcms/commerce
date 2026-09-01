@@ -2,7 +2,7 @@
 
 namespace craft\commerce\services;
 
-use CraftCms\Commerce\Tax\Models\TaxAddressZone;
+use CraftCms\Commerce\Tax\Data\TaxAddressZone;
 use Illuminate\Support\Collection;
 use yii\base\Component;
 

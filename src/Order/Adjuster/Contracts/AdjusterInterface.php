@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Adjuster\Contracts;
 
+use CraftCms\Commerce\Order\Data\OrderAdjustment;
 use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Order\Models\OrderAdjustment;
 
 interface AdjusterInterface
 {

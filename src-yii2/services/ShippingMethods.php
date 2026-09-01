@@ -5,7 +5,7 @@ namespace craft\commerce\services;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface;
 use CraftCms\Commerce\Shipping\Contracts\ShippingRuleInterface;
-use CraftCms\Commerce\Shipping\Models\ShippingMethod;
+use CraftCms\Commerce\Shipping\Data\ShippingMethod;
 use Illuminate\Support\Collection;
 use yii\base\Component;
 

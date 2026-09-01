@@ -17,8 +17,8 @@ use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Address\Conditions\GatewayAddressCondition;
 use CraftCms\Commerce\Order\Conditions\GatewayOrderCondition;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Payment\Data\Transaction;
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
-use CraftCms\Commerce\Payment\Models\Transaction;
 use DateTime;
 use Override;
 

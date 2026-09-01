@@ -13,7 +13,7 @@ use CraftCms\Cms\Support\Html;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Currencies;
-use CraftCms\Commerce\Payment\Models\PaymentCurrency;
+use CraftCms\Commerce\Payment\Data\PaymentCurrency;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
 
 use Illuminate\Http\Request;

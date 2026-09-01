@@ -9,8 +9,8 @@ use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Cms\Support\Arr;
+use CraftCms\Commerce\Order\Data\OrderStatus;
 use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Order\Models\OrderStatus;
 use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Order\Queries\OrderQuery;
 

@@ -7,7 +7,7 @@ namespace CraftCms\Commerce\Transfer\Queries;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\ElementQuery;
 use CraftCms\Commerce\Database\Table;
-use CraftCms\Commerce\Inventory\Models\InventoryLocation;
+use CraftCms\Commerce\Inventory\Data\InventoryLocation;
 use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Transfer\Enums\TransferStatusType;
 use Override;

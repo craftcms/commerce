@@ -9,7 +9,7 @@ use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Twig\Exceptions\TemplateLoaderException;
 use CraftCms\Commerce\Order\Exceptions\CurrencyException;
 use CraftCms\Commerce\Payment\Currencies;
-use CraftCms\Commerce\Payment\Models\PaymentCurrency;
+use CraftCms\Commerce\Payment\Data\PaymentCurrency;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Store\Stores;
 use Money\Currencies\ISOCurrencies;

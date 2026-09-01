@@ -12,7 +12,7 @@ use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\View\TemplateMode;
-use CraftCms\Commerce\Catalog\Models\CatalogPricing;
+use CraftCms\Commerce\Catalog\Data\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingPurchasableConditionRule;

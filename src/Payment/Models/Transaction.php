@@ -4,162 +4,48 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Payment\Models;
 
-use CraftCms\Cms\Component\Component;
-use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Order\Orders;
-use CraftCms\Commerce\Payment\Gateway\Gateway;
-use CraftCms\Commerce\Payment\Gateway\Gateways;
-use CraftCms\Commerce\Payment\PaymentCurrencies;
-use CraftCms\Commerce\Payment\Transactions;
-use DateTime;
+use CraftCms\Cms\Shared\BaseModel;
+use CraftCms\Commerce\Database\Table;
 
 /**
- * @property-read Order|null $order
+ * Thin Eloquent persistence model for the `commerce_transactions` table.
+ *
+ * This holds no business logic — it's used internally by
+ * {@see \CraftCms\Commerce\Payment\Transactions} to read/write rows, which are then hydrated
+ * into (or persisted from) the business {@see \CraftCms\Commerce\Payment\Data\Transaction}
+ * object that the rest of the codebase actually works with.
  */
-class Transaction extends Component
+class Transaction extends BaseModel
 {
-    public ?int $id = null;
+    public const string TYPE_AUTHORIZE = 'authorize';
 
-    public ?int $orderId = null;
+    public const string TYPE_CAPTURE = 'capture';
 
-    public ?int $parentId = null;
+    public const string TYPE_PURCHASE = 'purchase';
 
-    public ?int $userId = null;
+    public const string TYPE_REFUND = 'refund';
 
-    public ?string $hash = null;
+    public const string STATUS_PENDING = 'pending';
 
-    public ?int $gatewayId = null;
+    public const string STATUS_REDIRECT = 'redirect';
 
-    public ?string $currency = null;
+    public const string STATUS_PROCESSING = 'processing';
 
-    public float $paymentAmount;
+    public const string STATUS_SUCCESS = 'success';
 
-    public ?string $paymentCurrency = null;
-
-    public float $paymentRate;
-
-    public ?string $type = null;
-
-    public float $amount;
-
-    public ?string $status = null;
-
-    public ?string $reference = null;
-
-    public ?string $code = null;
-
-    public ?string $message = null;
-
-    public string $note = '';
-
-    public mixed $response = null;
-
-    public ?DateTime $dateCreated = null;
-
-    public ?DateTime $dateUpdated = null;
-
-    private ?Gateway $_gateway = null;
-
-    private ?Transaction $_parentTransaction = null;
-
-    private ?Order $_order = null;
-
-    private ?array $_children = null;
-
-    public function __construct(array|object $config = [])
-    {
-        $this->hash = md5(uniqid((string)mt_rand(), true));
-
-        $primaryCurrency = app(PaymentCurrencies::class)->getPrimaryPaymentCurrencyIso();
-        $this->currency ??= $primaryCurrency;
-        $this->paymentCurrency ??= $primaryCurrency;
-
-        parent::__construct($config);
-    }
+    public const string STATUS_FAILED = 'failed';
 
     #[\Override]
-    public function getRules(): array
-    {
-        return [
-            'type' => ['required', 'string'],
-            'status' => ['required', 'string'],
-            'orderId' => ['required', 'integer'],
-        ];
-    }
+    protected $table = Table::TRANSACTIONS;
 
-    public function canCapture(): bool
-    {
-        return app(Transactions::class)->canCaptureTransaction($this);
-    }
-
-    public function canRefund(): bool
-    {
-        return app(Transactions::class)->canRefundTransaction($this);
-    }
-
-    public function getRefundableAmount(): float
-    {
-        return app(Transactions::class)->refundableAmountForTransaction($this);
-    }
-
-    public function getParent(): ?Transaction
-    {
-        if ($this->_parentTransaction === null && $this->parentId) {
-            $this->_parentTransaction = app(Transactions::class)->getTransactionById($this->parentId);
-        }
-
-        return $this->_parentTransaction;
-    }
-
-    public function getOrder(): ?Order
-    {
-        if (!isset($this->_order) && $this->orderId) {
-            $this->_order = app(Orders::class)->getOrderById($this->orderId);
-        }
-
-        return $this->_order;
-    }
-
-    public function setOrder(Order $order): void
-    {
-        $this->_order = $order;
-        $this->orderId = $order->id;
-    }
-
-    public function getGateway(): ?Gateway
-    {
-        if (!isset($this->_gateway) && $this->gatewayId) {
-            $this->_gateway = app(Gateways::class)->getGatewayById($this->gatewayId);
-        }
-
-        return $this->_gateway;
-    }
-
-    public function setGateway(Gateway $gateway): void
-    {
-        $this->_gateway = $gateway;
-    }
-
-    public function getChildTransactions(): array
-    {
-        if (!isset($this->_children) && $this->id) {
-            $this->_children = app(Transactions::class)->getChildrenByTransactionId($this->id);
-        }
-
-        return $this->_children ?? [];
-    }
-
-    public function addChildTransaction(Transaction $transaction): void
-    {
-        if ($this->_children === null) {
-            $this->_children = [];
-        }
-
-        $this->_children[] = $transaction;
-    }
-
-    public function setChildTransactions(array $transactions): void
-    {
-        $this->_children = $transactions;
-    }
+    #[\Override]
+    protected $casts = [
+        'orderId' => 'integer',
+        'gatewayId' => 'integer',
+        'userId' => 'integer',
+        'parentId' => 'integer',
+        'amount' => 'float',
+        'paymentAmount' => 'float',
+        'paymentRate' => 'float',
+    ];
 }

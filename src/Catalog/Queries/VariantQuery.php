@@ -21,7 +21,7 @@ use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\ProductQuery as ProductQueryHelper;
-use CraftCms\Commerce\Promotion\Records\Sale as SaleRecord;
+use CraftCms\Commerce\Promotion\Models\Sale as SaleRecord;
 use CraftCms\Commerce\Promotion\Sales;
 use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery;
 use DateTime;

@@ -4,74 +4,30 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Transfer\Models;
 
-use CraftCms\Cms\Component\Component;
-use CraftCms\Commerce\Inventory\Inventory;
-use CraftCms\Commerce\Inventory\Models\InventoryItem;
-use CraftCms\Commerce\Transfer\Elements\Transfer;
-use CraftCms\Commerce\Transfer\Enums\TransferStatusType;
+use CraftCms\Cms\Shared\BaseModel;
+use CraftCms\Commerce\Database\Table;
 
-class TransferDetail extends Component
+/**
+ * Thin Eloquent persistence model for the `commerce_transferdetails` table.
+ *
+ * This holds no business logic — it's used internally by
+ * {@see \CraftCms\Commerce\Transfer\Elements\Transfer} to read/write rows, which are then hydrated into
+ * (or persisted from) the business {@see \CraftCms\Commerce\Transfer\Data\TransferDetail}
+ * object that the rest of the codebase actually works with.
+ */
+class TransferDetail extends BaseModel
 {
-    public ?int $id = null;
+    #[\Override]
+    protected $table = Table::TRANSFERDETAILS;
 
-    public ?int $transferId = null;
-
-    public ?int $inventoryItemId = null;
-
-    public string $inventoryItemDescription = '';
-
-    public int $quantity = 0;
-
-    public int $quantityAccepted = 0;
-
-    public int $quantityRejected = 0;
-
-    public string $uid;
-
-    private ?Transfer $_transfer = null;
-
-    public function getReceived(): int
-    {
-        return $this->quantityAccepted + $this->quantityRejected;
-    }
-
-    public function getInventoryItem(): ?InventoryItem
-    {
-        if ($this->inventoryItemId === null) {
-            return null;
-        }
-
-        return app(Inventory::class)->getInventoryItemById($this->inventoryItemId);
-    }
-
-    public function getTransfer(): ?Transfer
-    {
-        if ($this->_transfer !== null) {
-            return $this->_transfer;
-        }
-
-        if ($this->transferId) {
-            $this->_transfer = Transfer::find()->id($this->transferId)->one();
-        }
-
-        return $this->_transfer;
-    }
-
-    public function setTransfer(Transfer $transfer): void
-    {
-        $this->transferId = $transfer->id;
-        $this->_transfer = $transfer;
-    }
+    public $timestamps = false;
 
     #[\Override]
-    public function getRules(): array
-    {
-        $transfer = $this->_transfer;
-
-        if ($transfer && $transfer->transferStatus === TransferStatusType::DRAFT) {
-            return ['quantity' => ['integer', 'min:1', 'max:99999']];
-        }
-
-        return [];
-    }
+    protected $casts = [
+        'transferId' => 'integer',
+        'inventoryItemId' => 'integer',
+        'quantity' => 'integer',
+        'quantityAccepted' => 'integer',
+        'quantityRejected' => 'integer',
+    ];
 }

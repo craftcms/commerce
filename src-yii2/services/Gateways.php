@@ -86,7 +86,7 @@ class Gateways extends Component
      */
     public function handleChangedGateway(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)->handleChangedGateway($event);
+        app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)->handleChangedGateway(new \CraftCms\Cms\ProjectConfig\Events\ItemUpdated($event->path, $event->oldValue, $event->newValue, $event->tokenMatches));
     }
 
     /**
@@ -94,7 +94,7 @@ class Gateways extends Component
      */
     public function handleArchivedGateway(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)->handleArchivedGateway($event);
+        app(\CraftCms\Commerce\Payment\Gateway\Gateways::class)->handleArchivedGateway(new \CraftCms\Cms\ProjectConfig\Events\ItemRemoved($event->path, $event->oldValue, $event->newValue, $event->tokenMatches));
     }
 
     /**

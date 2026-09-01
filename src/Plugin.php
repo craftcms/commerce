@@ -8,13 +8,13 @@ use Closure;
 use craft\commerce\services\Gateways as LegacyGateways;
 use craft\commerce\services\OrderAdjustments as LegacyOrderAdjustments;
 use craft\commerce\services\Purchasables as LegacyPurchasables;
-use craft\commerce\web\twig\Extension as CommerceTwigExtension;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Auth\Events\ElementAuthorizing;
 use CraftCms\Cms\Cms;
 use CraftCms\Cms\Cp\Data\NavItem;
 use CraftCms\Cms\Element\Events\DefineDeletionBlockers;
 use CraftCms\Cms\Element\Events\ElementSaved;
+use CraftCms\Cms\Element\Queries\Events\ElementsHydrated;
 use CraftCms\Cms\FieldLayout\FieldLayout;
 use CraftCms\Cms\GarbageCollection\Actions\DeletePartialElements;
 use CraftCms\Cms\GarbageCollection\Events\RunningGarbageCollection;
@@ -29,9 +29,7 @@ use CraftCms\Cms\Site\Events\SiteSaved;
 use CraftCms\Cms\Support\Facades\Twig;
 use CraftCms\Cms\Support\File;
 use CraftCms\Cms\Support\Path;
-use CraftCms\Cms\Support\Typecast;
 use CraftCms\Cms\SystemMessage\Models\SystemMessage;
-use CraftCms\Cms\Twig\Variables\CraftVariable as NewCraftVariable;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\User\Events\EditUserScreensResolving;
 use CraftCms\Cms\User\Events\UserAssignedToGroups;
@@ -43,9 +41,7 @@ use CraftCms\Commerce\Catalog\FieldLayoutElements\VariantTitleField;
 use CraftCms\Commerce\Catalog\Fields\Products as ProductsField;
 use CraftCms\Commerce\Catalog\Fields\Variants as VariantsField;
 use CraftCms\Commerce\Catalog\LinkTypes\ProductLinkType;
-use CraftCms\Commerce\Catalog\Products;
 use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
-use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\Console\Commands\ExampleTemplates\ExampleTemplatesCommand;
 use CraftCms\Commerce\Console\Commands\Gateways\GatewaysListCommand;
 use CraftCms\Commerce\Console\Commands\Gateways\GatewaysWebhookUrlCommand;
@@ -56,9 +52,12 @@ use CraftCms\Commerce\Console\Commands\Resave\ResaveProductsCommand;
 use CraftCms\Commerce\Console\Commands\Resave\ResaveVariantsCommand;
 use CraftCms\Commerce\Console\Commands\ResetData\ResetDataCommand;
 use CraftCms\Commerce\Console\Commands\TransferCustomerData\TransferCustomerDataCommand;
-use CraftCms\Commerce\Customer\Customers;
 use CraftCms\Commerce\Customer\FieldLayoutElements\UserAddressSettings;
-use CraftCms\Commerce\Customer\Records\Customer as CustomerRecord;
+use CraftCms\Commerce\Customer\Fields\IsPrimaryBillingField;
+use CraftCms\Commerce\Customer\Fields\IsPrimaryShippingField;
+use CraftCms\Commerce\Customer\Fields\PrimaryBillingAddressIdField;
+use CraftCms\Commerce\Customer\Fields\PrimaryShippingAddressIdField;
+use CraftCms\Commerce\Customer\Listeners\ElementsHydratedListener;
 use CraftCms\Commerce\Dashboard\Widgets\AverageOrderTotal;
 use CraftCms\Commerce\Dashboard\Widgets\NewCustomers;
 use CraftCms\Commerce\Dashboard\Widgets\Orders as OrdersWidget;
@@ -80,17 +79,26 @@ use CraftCms\Commerce\Gql\Interfaces\Elements\Variant as VariantInterface;
 use CraftCms\Commerce\Gql\Queries\Product as ProductQuery;
 use CraftCms\Commerce\Gql\Queries\Variant as VariantQuery;
 use CraftCms\Commerce\Http\Controllers\Users\UsersController;
+use CraftCms\Commerce\Http\Middleware\PoweredByHeader;
 use CraftCms\Commerce\Http\RateLimiters\CartChallengeRateLimiter;
 use CraftCms\Commerce\Http\RateLimiters\CartRateLimiter;
 use CraftCms\Commerce\Http\RateLimiters\PdfChallengeRateLimiter;
 use CraftCms\Commerce\Inventory\InventoryLocations;
 use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Order\Orders;
-use CraftCms\Commerce\Payment\Models\PaymentSource;
-use CraftCms\Commerce\Payment\PaymentSources;
+use CraftCms\Commerce\Plugin\Concerns\HasCommerceEditions;
+use CraftCms\Commerce\Plugin\Concerns\HasCommerceEventListeners;
+use CraftCms\Commerce\Plugin\Concerns\HasCommerceMacros;
 use CraftCms\Commerce\Plugin\Concerns\HasPermissions;
 use CraftCms\Commerce\Plugin\Concerns\HasServices;
+use CraftCms\Commerce\Plugin\Listeners\DefineDeletionBlockersListener;
+use CraftCms\Commerce\Plugin\Listeners\ElementAuthorizingListener;
+use CraftCms\Commerce\Plugin\Listeners\ElementSavedListener;
+use CraftCms\Commerce\Plugin\Listeners\LoginListener;
+use CraftCms\Commerce\Plugin\Listeners\LogoutListener;
+use CraftCms\Commerce\Plugin\Listeners\SiteDeletedListener;
+use CraftCms\Commerce\Plugin\Listeners\SiteSavedListener;
+use CraftCms\Commerce\Plugin\Listeners\UserAssignedToGroupsListener;
 use CraftCms\Commerce\Purchasable\Elements\Donation;
 use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableAllowedQtyField;
 use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableAvailableForPurchaseField;
@@ -101,12 +109,10 @@ use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasablePromotableField
 use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableSkuField;
 use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableStockField;
 use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableWeightField;
-use CraftCms\Commerce\Store\Models\Store;
-use CraftCms\Commerce\Store\Stores;
-use CraftCms\Commerce\Store\StoreSettings;
-use CraftCms\Commerce\Support\ObjectState;
 use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Transfer\FieldLayoutElements\TransferManagementField;
+use CraftCms\Commerce\Twig\Extension as CommerceTwigExtension;
+use GraphQL\Type\Definition\Type;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -122,6 +128,19 @@ class Plugin extends BasePlugin
 {
     use HasPermissions;
     use HasServices;
+    use HasCommerceEditions;
+    use HasCommerceMacros;
+    use HasCommerceEventListeners;
+
+    public const string HANDLE = 'commerce';
+
+    public string $schemaVersion = '5.7.0.0';
+
+    public string $minVersionRequired = '3.4.11';
+
+    public bool $hasCpSettings = true;
+
+    public bool $hasReadOnlyCpSettings = true;
 
     protected array $elementTypes = [
         Product::class,
@@ -134,6 +153,10 @@ class Plugin extends BasePlugin
     protected array $fieldTypes = [
         ProductsField::class,
         VariantsField::class,
+        IsPrimaryBillingField::class,
+        IsPrimaryShippingField::class,
+        PrimaryBillingAddressIdField::class,
+        PrimaryShippingAddressIdField::class,
     ];
 
     protected array $widgets = [
@@ -148,6 +171,18 @@ class Plugin extends BasePlugin
         TopProductTypes::class,
         TopPurchasables::class,
         TotalRevenue::class,
+    ];
+
+    protected array $events = [
+        ElementsHydrated::class => ElementsHydratedListener::class,
+        Login::class => LoginListener::class,
+        Logout::class => LogoutListener::class,
+        ElementSaved::class => ElementSavedListener::class,
+        UserAssignedToGroups::class => UserAssignedToGroupsListener::class,
+        SiteSaved::class => SiteSavedListener::class,
+        SiteDeleted::class => SiteDeletedListener::class,
+        DefineDeletionBlockers::class => DefineDeletionBlockersListener::class,
+        ElementAuthorizing::class => ElementAuthorizingListener::class,
     ];
 
     protected array $linkTypes = [
@@ -201,297 +236,50 @@ class Plugin extends BasePlugin
 
         $this->registerBehaviorMacros();
         $this->registerVariableMacros();
+        $this->registerGqlRelatedToArguments();
+        $this->registerForeignKeysRestore();
 
         Twig::registerExtension(new CommerceTwigExtension());
 
+        $this->app['router']->pushMiddlewareToGroup('craft', PoweredByHeader::class);
+
         if ($this->isInstalled) {
-            $this->registerCraftEventListeners();
+            $this->registerProjectConfigEventListeners();
+
+            if (request()->isCpRequest()) {
+                $this->registerCKEditorLinkOptions();
+                $this->registerLegacyCpRoutes();
+            }
         }
     }
 
-    /**
-     * Registers `craft.commerce`/`craft.orders`/`craft.products`/`craft.variants` Twig variable
-     * macros, replacing the legacy `NewCraftVariable::macro(...)` calls in `src-yii2/Plugin.php`
-     * (which already used this same mechanism — this is a straight move, not a rewrite).
-     */
-    private function registerVariableMacros(): void
+    #[\Override]
+    public function getSettingsResponse(): mixed
     {
-        $plugin = $this;
-        NewCraftVariable::macro('commerce', fn() => $plugin);
+        return redirect('commerce/settings/general');
+    }
 
-        NewCraftVariable::macro('orders', function(array $criteria = []) {
-            $query = Order::find();
-            Typecast::configure($query, $criteria);
+    #[\Override]
+    public function getReadOnlySettingsResponse(): mixed
+    {
+        return redirect('commerce/settings/general');
+    }
 
-            return $query;
-        });
-
-        NewCraftVariable::macro('products', function(array $criteria = []) {
-            $query = Product::find();
-            Typecast::configure($query, $criteria);
-
-            return $query;
-        });
-
-        NewCraftVariable::macro('variants', function(array $criteria = []) {
-            $query = Variant::find();
-            Typecast::configure($query, $criteria);
-
-            return $query;
-        });
+    #[\Override]
+    protected function createSettingsModel(): ?Settings
+    {
+        return new Settings();
     }
 
     /**
-     * Reachable in Twig as `craft.commerce.getDonation()` (`craft.commerce` resolves to this
-     * plugin instance via the `commerce` macro above), matching the legacy
-     * `craft\commerce\plugin\Variables::getDonation()` trait method that used to live directly
-     * on the legacy Plugin class for the same reason.
+     * Narrows the return type from the base `?Validatable` to `?Settings`, since Commerce's
+     * settings model is always a `Settings` instance (see `createSettingsModel()`).
      */
-    public function getDonation(): ?Donation
+    #[\Override]
+    public function getSettings(): ?Settings
     {
-        return Donation::find()->status(null)->one();
-    }
-
-    /**
-     * Replaces the legacy Yii2 `StoreBehavior`/`CustomerBehavior`/`CustomerAddressBehavior` classes,
-     * which no longer attach to anything — `Site`/`User`/`Address` extend the new
-     * `CraftCms\Cms\Component\Component`, not `yii\base\Component`, so `attachBehavior()` doesn't exist
-     * on them at all. `Macroable` (already `use`d by `Component`) is the replacement mechanism; its
-     * `MacroableMagicMethods` concern makes registered macros transparently reachable via method-call
-     * syntax (`$site->getStore()`), PHP magic-property syntax (`$site->store`), and Twig dot-notation
-     * (`{{ site.store }}`) alike — verified empirically via `php artisan tinker` this session.
-     */
-    private function registerBehaviorMacros(): void
-    {
-        Site::macro('getStore', function(): ?Store {
-            /** @var Site $this */
-            return app(Stores::class)->getStoreBySiteId($this->id);
-        });
-
-        $this->registerCustomerMacros();
-        $this->registerCustomerAddressMacros();
-    }
-
-    /**
-     * Replaces `craft\commerce\behaviors\CustomerBehavior`, attached to `User` in Commerce 5.
-     */
-    private function registerCustomerMacros(): void
-    {
-        User::macro('getPrimaryBillingAddressId', function(): ?int {
-            /** @var User $this */
-            if (!ObjectState::has($this, 'primaryBillingAddressId')) {
-                $customer = CustomerRecord::where('customerId', $this->id)->first();
-                ObjectState::set($this, 'primaryBillingAddressId', $customer?->primaryBillingAddressId);
-            }
-
-            return ObjectState::get($this, 'primaryBillingAddressId');
-        });
-
-        User::macro('setPrimaryBillingAddressId', function(?int $primaryBillingAddressId): void {
-            ObjectState::set($this, 'primaryBillingAddressId', $primaryBillingAddressId);
-        });
-
-        User::macro('getPrimaryBillingAddress', function(): ?Address {
-            /** @var User $this */
-            /** @phpstan-ignore-next-line method.notFound (getPrimaryBillingAddressId() is another macro registered above, not visible to static analysis) */
-            return $this->getAddresses()->firstWhere('id', $this->getPrimaryBillingAddressId());
-        });
-
-        User::macro('getPrimaryShippingAddressId', function(): ?int {
-            /** @var User $this */
-            if (!ObjectState::has($this, 'primaryShippingAddressId')) {
-                $customer = CustomerRecord::where('customerId', $this->id)->first();
-                ObjectState::set($this, 'primaryShippingAddressId', $customer?->primaryShippingAddressId);
-            }
-
-            return ObjectState::get($this, 'primaryShippingAddressId');
-        });
-
-        User::macro('setPrimaryShippingAddressId', function(?int $primaryShippingAddressId): void {
-            ObjectState::set($this, 'primaryShippingAddressId', $primaryShippingAddressId);
-        });
-
-        User::macro('getPrimaryShippingAddress', function(): ?Address {
-            /** @var User $this */
-            /** @phpstan-ignore-next-line method.notFound (getPrimaryShippingAddressId() is another macro registered above, not visible to static analysis) */
-            return $this->getAddresses()->firstWhere('id', $this->getPrimaryShippingAddressId());
-        });
-
-        User::macro('setPrimaryPaymentSourceId', function(?int $paymentSourceId): void {
-            ObjectState::set($this, 'primaryPaymentSourceId', $paymentSourceId);
-        });
-
-        User::macro('getPrimaryPaymentSourceId', function(): ?int {
-            /** @var User $this */
-            if (!ObjectState::has($this, 'primaryPaymentSourceId')) {
-                $customer = CustomerRecord::where('customerId', $this->id)->first();
-
-                if (!$customer) {
-                    return null;
-                }
-
-                if ($customer->primaryPaymentSourceId) {
-                    ObjectState::set($this, 'primaryPaymentSourceId', $customer->primaryPaymentSourceId);
-                } else {
-                    /** @phpstan-ignore-next-line method.notFound (getPrimaryPaymentSource() is another macro registered below, not visible to static analysis) */
-                    $paymentSource = $this->getPrimaryPaymentSource();
-                    ObjectState::set($this, 'primaryPaymentSourceId', $paymentSource?->id);
-                }
-            }
-
-            return ObjectState::get($this, 'primaryPaymentSourceId');
-        });
-
-        User::macro('getPrimaryPaymentSource', function(): ?PaymentSource {
-            /** @var User $this */
-            $paymentSources = app(PaymentSources::class)->getAllPaymentSourcesByCustomerId(customerId: $this->id);
-
-            if ($paymentSources->isEmpty()) {
-                return null;
-            }
-
-            $primaryId = ObjectState::get($this, 'primaryPaymentSourceId');
-
-            if (!$primaryId) {
-                return $paymentSources->first();
-            }
-
-            return $paymentSources->firstWhere('id', $primaryId);
-        });
-
-        User::macro('getActiveCarts', function(): array {
-            /** @var User $this */
-            $edge = app(Carts::class)->getActiveCartEdgeDuration();
-
-            return Order::find()
-                ->customer($this)
-                ->isCompleted(false)
-                ->where('elements.dateUpdated', '>=', $edge)
-                /** @phpstan-ignore-next-line arguments.count (ElementQuery's @method static orderBy($column) docblock tag conflicts with its own real 2-param method signature) */
-                ->orderBy('elements.dateUpdated', 'desc')
-                ->all();
-        });
-
-        User::macro('getInactiveCarts', function(): array {
-            /** @var User $this */
-            $edge = app(Carts::class)->getActiveCartEdgeDuration();
-
-            return Order::find()
-                ->customer($this)
-                ->isCompleted(false)
-                ->where('elements.dateUpdated', '<', $edge)
-                /** @phpstan-ignore-next-line arguments.count (ElementQuery's @method static orderBy($column) docblock tag conflicts with its own real 2-param method signature) */
-                ->orderBy('elements.dateUpdated', 'asc')
-                ->all();
-        });
-
-        User::macro('getOrders', function(): array {
-            /** @var User $this */
-            return Order::find()
-                ->customer($this)
-                ->isCompleted()
-                ->withAll()
-                /** @phpstan-ignore-next-line arguments.count (ElementQuery's @method static orderBy($column) docblock tag conflicts with its own real 2-param method signature) */
-                ->orderBy('dateOrdered', 'desc')
-                ->all();
-        });
-    }
-
-    /**
-     * Replaces `craft\commerce\behaviors\CustomerAddressBehavior`, attached to `Address` in Commerce 5.
-     */
-    private function registerCustomerAddressMacros(): void
-    {
-        Address::macro('getIsPrimaryBilling', function(): bool {
-            /** @var Address $this */
-            if (!ObjectState::has($this, 'isPrimaryBilling')) {
-                $owner = $this->getPrimaryOwner();
-                /** @phpstan-ignore-next-line method.notFound (getPrimaryBillingAddressId() is a macro registered in registerCustomerMacros(), not visible to static analysis) */
-                $value = $this->id && $owner instanceof User && $this->id === $owner->getPrimaryBillingAddressId();
-                ObjectState::set($this, 'isPrimaryBilling', $value);
-            }
-
-            return ObjectState::get($this, 'isPrimaryBilling');
-        });
-
-        Address::macro('setIsPrimaryBilling', function(bool|string $value): void {
-            ObjectState::set($this, 'isPrimaryBilling', (bool) $value);
-        });
-
-        Address::macro('hasIsPrimaryBillingBeenSet', function(): bool {
-            /** @var Address $this */
-            return ObjectState::has($this, 'isPrimaryBilling');
-        });
-
-        Address::macro('getIsPrimaryShipping', function(): bool {
-            /** @var Address $this */
-            if (!ObjectState::has($this, 'isPrimaryShipping')) {
-                $owner = $this->getPrimaryOwner();
-                /** @phpstan-ignore-next-line method.notFound (getPrimaryShippingAddressId() is a macro registered in registerCustomerMacros(), not visible to static analysis) */
-                $value = $this->id && $owner instanceof User && $this->id === $owner->getPrimaryShippingAddressId();
-                ObjectState::set($this, 'isPrimaryShipping', $value);
-            }
-
-            return ObjectState::get($this, 'isPrimaryShipping');
-        });
-
-        Address::macro('setIsPrimaryShipping', function(bool|string $value): void {
-            ObjectState::set($this, 'isPrimaryShipping', (bool) $value);
-        });
-
-        Address::macro('hasIsPrimaryShippingBeenSet', function(): bool {
-            /** @var Address $this */
-            return ObjectState::has($this, 'isPrimaryShipping');
-        });
-    }
-
-    private function registerCraftEventListeners(): void
-    {
-        Event::listen(Login::class, static fn() => app(Customers::class)->loginHandler());
-        Event::listen(Logout::class, static fn() => app(Carts::class)->forgetCart());
-
-        Event::listen(ElementSaved::class, static function(ElementSaved $event) {
-            if ($event->element instanceof User) {
-                app(Carts::class)->afterSaveUserHandler($event);
-                app(CatalogPricingRules::class)->afterSaveUserHandler($event);
-                app(Customers::class)->afterSaveUserHandler($event);
-            }
-
-            if ($event->element instanceof Address) {
-                app(Orders::class)->afterSaveAddressHandler($event);
-                app(Customers::class)->afterSaveAddressHandler($event);
-            }
-        });
-
-        Event::listen(UserAssignedToGroups::class, static fn(UserAssignedToGroups $event) => app(CatalogPricingRules::class)->afterSaveUserHandler($event));
-
-        Event::listen(SiteSaved::class, static function(SiteSaved $event) {
-            app(ProductTypes::class)->afterSaveSiteHandler($event);
-            app(Products::class)->afterSaveSiteHandler($event);
-            app(Stores::class)->afterSaveCraftSiteHandler($event);
-        });
-
-        Event::listen(SiteDeleted::class, static fn(SiteDeleted $event) => app(Stores::class)->afterDeleteCraftSiteHandler($event));
-
-        Event::listen(DefineDeletionBlockers::class, static function(DefineDeletionBlockers $event) {
-            if ($event->elementType === User::class) {
-                app(Orders::class)->beforeDeleteUserHandler($event);
-            }
-        });
-
-        Event::listen(ElementAuthorizing::class, static function(ElementAuthorizing $event) {
-            match ($event->ability) {
-                'view' => app(StoreSettings::class)->authorizeStoreLocationView($event),
-                'save', 'createDrafts' => app(StoreSettings::class)->authorizeStoreLocationEdit($event),
-                default => null,
-            };
-
-            match ($event->ability) {
-                'view' => app(InventoryLocations::class)->authorizeInventoryLocationAddressView($event),
-                'save', 'createDrafts' => app(InventoryLocations::class)->authorizeInventoryLocationAddressEdit($event),
-                default => null,
-            };
-        });
+        /** @var ?Settings */
+        return parent::getSettings();
     }
 
     public function register(): void

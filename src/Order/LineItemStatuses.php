@@ -6,15 +6,15 @@ namespace CraftCms\Commerce\Order;
 
 use Carbon\Carbon;
 use craft\commerce\Plugin;
-use craft\events\ConfigEvent;
 use craft\helpers\Db as CraftDb;
+use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
+use CraftCms\Commerce\Order\Data\LineItemStatus;
 use CraftCms\Commerce\Order\Events\DefaultLineItemStatusEvent;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
-use CraftCms\Commerce\Order\Models\LineItemStatus;
-use CraftCms\Commerce\Order\Records\LineItemStatus as LineItemStatusRecord;
+use CraftCms\Commerce\Order\Models\LineItemStatus as LineItemStatusRecord;
 use CraftCms\Commerce\Store\Stores;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;

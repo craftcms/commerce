@@ -5,8 +5,8 @@ namespace craft\commerce\services;
 use CraftCms\Commerce\Order\Elements\Order;
 use craft\events\ConfigEvent;
 use CraftCms\Commerce\Email\Events\EmailEvent;
-use CraftCms\Commerce\Order\Models\OrderHistory;
-use CraftCms\Commerce\Order\Models\OrderStatus;
+use CraftCms\Commerce\Order\Data\OrderHistory;
+use CraftCms\Commerce\Order\Data\OrderStatus;
 use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
@@ -75,7 +75,7 @@ class OrderStatuses extends Component
      */
     public function handleChangedOrderStatus(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Order\OrderStatuses::class)->handleChangedOrderStatus($event);
+        app(\CraftCms\Commerce\Order\OrderStatuses::class)->handleChangedOrderStatus(new \CraftCms\Cms\ProjectConfig\Events\ItemUpdated($event->path, $event->oldValue, $event->newValue, $event->tokenMatches));
     }
 
     /**
@@ -91,7 +91,7 @@ class OrderStatuses extends Component
      */
     public function handleDeletedOrderStatus(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Order\OrderStatuses::class)->handleDeletedOrderStatus($event);
+        app(\CraftCms\Commerce\Order\OrderStatuses::class)->handleDeletedOrderStatus(new \CraftCms\Cms\ProjectConfig\Events\ItemRemoved($event->path, $event->oldValue, $event->newValue, $event->tokenMatches));
     }
 
     public function pruneDeletedEmail(EmailEvent $event): void

@@ -21,7 +21,7 @@ use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\elements\User;
-use CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule as CatalogPricingRuleRecord;
+use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingRule as CatalogPricingRuleRecord;
 use craftcommercetests\fixtures\ProductFixture;
 use craftcommercetests\fixtures\ShippingCategoryFixture;
 use UnitTester;

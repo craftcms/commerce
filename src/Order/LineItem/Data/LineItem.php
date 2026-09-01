@@ -12,24 +12,24 @@ use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Helpers\LineItem as LineItemHelper;
 use CraftCms\Commerce\Inventory\Inventory;
+use CraftCms\Commerce\Order\Data\LineItemStatus;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Events\LineItemEvent;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Order\LineItemStatuses;
-use CraftCms\Commerce\Order\Models\LineItemStatus;
 use CraftCms\Commerce\Order\Orders;
 use CraftCms\Commerce\Promotion\Discounts;
 use CraftCms\Commerce\Promotion\Sales;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use CraftCms\Commerce\Purchasable\Purchasables;
-use CraftCms\Commerce\Shipping\Models\ShippingCategory;
+use CraftCms\Commerce\Shipping\Data\ShippingCategory;
 use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
+use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Exceptions\StoreNotFoundException;
-use CraftCms\Commerce\Store\Models\Store;
-use CraftCms\Commerce\Tax\Models\TaxCategory;
-use CraftCms\Commerce\Tax\Records\TaxRate as TaxRateRecord;
+use CraftCms\Commerce\Tax\Data\TaxCategory;
+use CraftCms\Commerce\Tax\Models\TaxRate as TaxRateRecord;
 use CraftCms\Commerce\Tax\TaxCategories;
 use DateTime;
 use LitEmoji\LitEmoji;
@@ -670,7 +670,7 @@ class LineItem extends Component implements HasStoreInterface
     }
 
     /**
-     * @return \CraftCms\Commerce\Order\Models\OrderAdjustment[]
+     * @return \CraftCms\Commerce\Order\Data\OrderAdjustment[]
      */
     public function getAdjustments(): array
     {

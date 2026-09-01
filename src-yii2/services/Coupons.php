@@ -2,8 +2,8 @@
 
 namespace craft\commerce\services;
 
-use CraftCms\Commerce\Promotion\Models\Coupon;
-use CraftCms\Commerce\Promotion\Models\Discount;
+use CraftCms\Commerce\Promotion\Data\Coupon;
+use CraftCms\Commerce\Promotion\Data\Discount;
 use yii\base\Component;
 
 /**

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Inventory\Collections;
 
-use CraftCms\Commerce\Inventory\Models\UpdateInventoryLevel;
-use CraftCms\Commerce\Inventory\Models\UpdateInventoryLevelInTransfer;
+use CraftCms\Commerce\Inventory\Data\UpdateInventoryLevel;
+use CraftCms\Commerce\Inventory\Data\UpdateInventoryLevelInTransfer;
 use Illuminate\Support\Collection;
 
 /**

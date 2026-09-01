@@ -14,7 +14,7 @@ use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Formula\Formulas;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
-use CraftCms\Commerce\Tax\Models\TaxAddressZone;
+use CraftCms\Commerce\Tax\Data\TaxAddressZone;
 use CraftCms\Commerce\Tax\TaxZones;
 
 use Illuminate\Http\Request;

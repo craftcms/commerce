@@ -2,10 +2,10 @@
 
 namespace craft\commerce\models\inventory;
 
-/** @deprecated use {@see \CraftCms\Commerce\Inventory\Models\UpdateInventoryLevel} */
-class_alias(\CraftCms\Commerce\Inventory\Models\UpdateInventoryLevel::class, 'craft\commerce\models\inventory\UpdateInventoryLevel');
+/** @deprecated use {@see \CraftCms\Commerce\Inventory\Data\UpdateInventoryLevel} */
+class_alias(\CraftCms\Commerce\Inventory\Data\UpdateInventoryLevel::class, 'craft\commerce\models\inventory\UpdateInventoryLevel');
 
 /** @phpstan-ignore-next-line */
 if (false) {
-    class UpdateInventoryLevel extends \CraftCms\Commerce\Inventory\Models\UpdateInventoryLevel {}
+    class UpdateInventoryLevel extends \CraftCms\Commerce\Inventory\Data\UpdateInventoryLevel {}
 }

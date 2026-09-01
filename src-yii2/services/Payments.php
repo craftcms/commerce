@@ -7,7 +7,7 @@ use CraftCms\Commerce\Payment\Exceptions\PaymentException;
 use CraftCms\Commerce\Payment\Exceptions\RefundException;
 use CraftCms\Commerce\Payment\Exceptions\TransactionException;
 use CraftCms\Commerce\Payment\Forms\BasePaymentForm;
-use CraftCms\Commerce\Payment\Models\Transaction;
+use CraftCms\Commerce\Payment\Data\Transaction;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 

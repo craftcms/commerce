@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Catalog;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Element\Jobs\PropagateElements;
 use CraftCms\Cms\Site\Events\SiteSaved;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Plugins;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Plugin;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;
 
@@ -50,7 +50,7 @@ class Products
         if (
             $event->isNew &&
             isset($event->oldPrimarySiteId) &&
-            Plugins::isPluginInstalled(Plugin::getInstance()->handle)
+            Plugins::isPluginInstalled(Plugin::HANDLE)
         ) {
             dispatch(new PropagateElements(
                 elementType: Product::class,

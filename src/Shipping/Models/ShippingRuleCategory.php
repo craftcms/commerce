@@ -4,44 +4,35 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Shipping\Models;
 
-use CraftCms\Cms\Component\Component;
-use CraftCms\Commerce\Shipping\ShippingCategories;
-use CraftCms\Commerce\Shipping\ShippingRules;
+use CraftCms\Cms\Shared\BaseModel;
+use CraftCms\Commerce\Database\Table;
 
-class ShippingRuleCategory extends Component
+/**
+ * Thin Eloquent persistence model for the `commerce_shippingrule_categories` table.
+ *
+ * This holds no business logic — it's used internally by
+ * {@see \CraftCms\Commerce\Shipping\ShippingRuleCategories} to read/write rows, which are then
+ * hydrated into (or persisted from) the business
+ * {@see \CraftCms\Commerce\Shipping\Data\ShippingRuleCategory} object that the rest of the
+ * codebase actually works with.
+ */
+class ShippingRuleCategory extends BaseModel
 {
-    public ?int $id = null;
+    public const string CONDITION_ALLOW = 'allow';
 
-    public int $shippingRuleId;
+    public const string CONDITION_DISALLOW = 'disallow';
 
-    public int $shippingCategoryId;
-
-    public ?float $perItemRate = null;
-
-    public ?float $weightRate = null;
-
-    public ?float $percentageRate = null;
-
-    public string $condition;
+    public const string CONDITION_REQUIRE = 'require';
 
     #[\Override]
-    public function getRules(): array
-    {
-        return [
-            'condition' => ['required', 'in:allow,disallow,require'],
-            'perItemRate' => ['nullable', 'numeric'],
-            'weightRate' => ['nullable', 'numeric'],
-            'percentageRate' => ['nullable', 'numeric'],
-        ];
-    }
+    protected $table = Table::SHIPPINGRULE_CATEGORIES;
 
-    public function getRule(): ShippingRule
-    {
-        return app(ShippingRules::class)->getShippingRuleById($this->shippingRuleId);
-    }
-
-    public function getCategory(): ShippingCategory
-    {
-        return app(ShippingCategories::class)->getShippingCategoryById($this->shippingCategoryId);
-    }
+    #[\Override]
+    protected $casts = [
+        'shippingRuleId' => 'integer',
+        'shippingCategoryId' => 'integer',
+        'perItemRate' => 'float',
+        'weightRate' => 'float',
+        'percentageRate' => 'float',
+    ];
 }

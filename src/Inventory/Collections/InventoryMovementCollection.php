@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Inventory\Collections;
 
 use CraftCms\Commerce\Inventory\Contracts\InventoryMovementInterface;
-use CraftCms\Commerce\Inventory\Models\InventoryMovement;
+use CraftCms\Commerce\Inventory\Data\InventoryMovement;
 use Illuminate\Support\Collection;
 
 /**

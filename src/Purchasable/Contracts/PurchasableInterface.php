@@ -7,9 +7,9 @@ namespace CraftCms\Commerce\Purchasable\Contracts;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
-use CraftCms\Commerce\Shipping\Models\ShippingCategory;
-use CraftCms\Commerce\Store\Models\Store;
-use CraftCms\Commerce\Tax\Models\TaxCategory;
+use CraftCms\Commerce\Shipping\Data\ShippingCategory;
+use CraftCms\Commerce\Store\Data\Store;
+use CraftCms\Commerce\Tax\Data\TaxCategory;
 
 interface PurchasableInterface extends ElementInterface
 {

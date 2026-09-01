@@ -4,144 +4,72 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Tax\Models;
 
-use CraftCms\Cms\Component\Component;
-use CraftCms\Cms\Component\Contracts\Chippable;
-use CraftCms\Cms\Support\Facades\I18N;
-use CraftCms\Commerce\Store\Concerns\StoreTrait;
-use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
-use CraftCms\Commerce\Tax\Records\TaxRate as TaxRateRecord;
-use DateTime;
-use function CraftCms\Cms\t;
+use CraftCms\Cms\Shared\BaseModel;
+use CraftCms\Commerce\Database\Table;
 
-class TaxRate extends Component implements HasStoreInterface, Chippable
+/**
+ * Thin Eloquent persistence model for the `commerce_taxrates` table.
+ *
+ * This holds no business logic — it's used internally by {@see \CraftCms\Commerce\Tax\TaxRates}
+ * to read/write rows, which are then hydrated into (or persisted from) the business
+ * {@see \CraftCms\Commerce\Tax\Data\TaxRate} object that the rest of the codebase actually
+ * works with.
+ */
+class TaxRate extends BaseModel
 {
-    use StoreTrait;
+    /**
+     * Tax subject is line item price.
+     */
+    public const string TAXABLE_PURCHASABLE = 'purchasable';
 
-    public ?int $id = null;
+    /**
+     * Tax subject is line item price.
+     */
+    public const string TAXABLE_PRICE = 'price';
 
-    public ?string $name = null;
+    /**
+     * Tax subject is line item shipping cost.
+     */
+    public const string TAXABLE_SHIPPING = 'shipping';
 
-    public ?string $code = null;
+    /**
+     * Tax subject is line item price and shipping cost.
+     */
+    public const string TAXABLE_PRICE_SHIPPING = 'price_shipping';
 
-    public float $rate = 0.00;
+    /**
+     * Tax subject is order total shipping cost.
+     */
+    public const string TAXABLE_ORDER_TOTAL_SHIPPING = 'order_total_shipping';
 
-    public bool $include = false;
+    /**
+     * Tax subject is order total price.
+     */
+    public const string TAXABLE_ORDER_TOTAL_PRICE = 'order_total_price';
 
-    public bool $removeIncluded = false;
-
-    public bool $removeVatIncluded = false;
-
-    public string $taxable = 'price';
-
-    public ?int $taxCategoryId = null;
-
-    public ?int $taxZoneId = null;
-
-    public array $taxIdValidators = [];
-
-    public ?DateTime $dateCreated = null;
-
-    public ?DateTime $dateUpdated = null;
-
-    public bool $enabled = true;
-
-    private ?TaxCategory $_taxCategory = null;
-
-    private ?TaxAddressZone $_taxZone = null;
-
-    #[\Override]
-    public static function get(int|string $id): ?static
-    {
-        /** @phpstan-ignore-next-line */
-        return app(\CraftCms\Commerce\Tax\TaxRates::class)->getTaxRateById($id);
-    }
+    /**
+     * Order-specific tax subject options.
+     */
+    public const array ORDER_TAXABALES = [
+        self::TAXABLE_ORDER_TOTAL_PRICE,
+        self::TAXABLE_ORDER_TOTAL_SHIPPING,
+    ];
 
     #[\Override]
-    public function getUiLabel(): string
-    {
-        return t($this->name ?? '', category: 'site');
-    }
+    protected $table = Table::TAXRATES;
 
     #[\Override]
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function getCpEditUrl(): string
-    {
-        return $this->getStore()->getStoreSettingsUrl('taxrates/' . $this->id);
-    }
-
-    public function getRateAsPercent(): string
-    {
-        return I18N::getFormatter()->asPercent($this->rate);
-    }
-
-    public function getTaxZone(): ?TaxAddressZone
-    {
-        if ($this->_taxZone === null && $this->taxZoneId) {
-            $this->_taxZone = app(\CraftCms\Commerce\Tax\TaxZones::class)->getTaxZoneById($this->taxZoneId, $this->storeId);
-        }
-
-        return $this->_taxZone;
-    }
-
-    public function getTaxCategory(): ?TaxCategory
-    {
-        if (!isset($this->_taxCategory) && $this->taxCategoryId) {
-            $this->_taxCategory = app(\CraftCms\Commerce\Tax\TaxCategories::class)->getTaxCategoryById($this->taxCategoryId);
-        }
-
-        return $this->_taxCategory;
-    }
-
-    public function getIsEverywhere(): bool
-    {
-        return !$this->getTaxZone();
-    }
-
-    public function hasTaxIdValidators(): bool
-    {
-        return count($this->taxIdValidators) > 0;
-    }
-
-    public function hasTaxIdValidator(string $className): bool
-    {
-        return in_array($className, $this->taxIdValidators, true);
-    }
-
-    public function getSelectedEnabledTaxIdValidators(): array
-    {
-        $selectedValidators = $this->taxIdValidators;
-        $validators = app(\CraftCms\Commerce\Tax\Taxes::class)->getEnabledTaxIdValidators();
-        $activeValidators = [];
-        foreach ($validators as $validator) {
-            if (in_array($validator::class, $selectedValidators)) {
-                $activeValidators[] = $validator;
-            }
-        }
-
-        return $activeValidators;
-    }
-
-    #[\Override]
-    public function extraFields(): array
-    {
-        return array_merge(parent::extraFields(), ['taxCategory', 'taxZone', 'rateAsPercent', 'isEverywhere']);
-    }
-
-    #[\Override]
-    public function getRules(): array
-    {
-        $rules = [
-            'name' => ['required', 'string'],
-        ];
-
-        if (!in_array($this->taxable, TaxRateRecord::ORDER_TAXABALES, true)) {
-            $rules['taxCategoryId'] = ['required', 'integer'];
-        }
-
-        return $rules;
-    }
+    protected $casts = [
+        'storeId' => 'integer',
+        'taxCategoryId' => 'integer',
+        'taxZoneId' => 'integer',
+        'rate' => 'float',
+        'include' => 'boolean',
+        'isVat' => 'boolean',
+        'removeIncluded' => 'boolean',
+        'removeVatIncluded' => 'boolean',
+        'isEverywhere' => 'boolean',
+        'enabled' => 'boolean',
+        'taxIdValidators' => 'array',
+    ];
 }

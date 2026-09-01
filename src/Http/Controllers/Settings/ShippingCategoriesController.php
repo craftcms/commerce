@@ -15,7 +15,7 @@ use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
-use CraftCms\Commerce\Shipping\Models\ShippingCategory;
+use CraftCms\Commerce\Shipping\Data\ShippingCategory;
 use CraftCms\Commerce\Shipping\ShippingCategories;
 
 use CraftCms\Commerce\Store\Stores;

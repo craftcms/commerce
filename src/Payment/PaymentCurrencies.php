@@ -6,10 +6,10 @@ namespace CraftCms\Commerce\Payment;
 
 use craft\commerce\Plugin;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Payment\Data\PaymentCurrency;
+use CraftCms\Commerce\Payment\Data\Transaction;
 use CraftCms\Commerce\Payment\Events\PaymentCurrencyRateEvent;
-use CraftCms\Commerce\Payment\Models\PaymentCurrency;
-use CraftCms\Commerce\Payment\Models\Transaction;
-use CraftCms\Commerce\Payment\Records\PaymentCurrency as PaymentCurrencyRecord;
+use CraftCms\Commerce\Payment\Models\PaymentCurrency as PaymentCurrencyRecord;
 use CraftCms\Commerce\Store\Stores;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;

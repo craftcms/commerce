@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Payment\Events;
 
-use CraftCms\Commerce\Payment\Models\PaymentCurrency;
-use CraftCms\Commerce\Payment\Models\Transaction;
+use CraftCms\Commerce\Payment\Data\PaymentCurrency;
+use CraftCms\Commerce\Payment\Data\Transaction;
 
 class PaymentCurrencyRateEvent
 {

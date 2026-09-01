@@ -13,7 +13,7 @@ use CraftCms\Commerce\Order\LineItemStatuses;
 use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Payment\Gateway\Gateways;
 use CraftCms\Commerce\Pdf\Pdfs;
-use CraftCms\Commerce\Store\Models\Store;
+use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
 
 class ProjectConfigData

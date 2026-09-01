@@ -4,49 +4,33 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Store\Models;
 
-use CraftCms\Cms\Component\Component;
-use CraftCms\Cms\Site\Data\Site;
-use CraftCms\Cms\Support\Facades\Sites;
+use CraftCms\Cms\Shared\BaseModel;
 use CraftCms\Commerce\Database\Table;
-use CraftCms\Commerce\Store\Concerns\StoreTrait;
-use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
-use Illuminate\Support\Facades\DB;
 
-class SiteStore extends Component implements HasStoreInterface
+/**
+ * Thin Eloquent persistence model for the `commerce_site_stores` table.
+ *
+ * This holds no business logic — it's used internally by
+ * {@see \CraftCms\Commerce\Store\Stores} to read/write rows, which are then hydrated into (or
+ * persisted from) the business {@see \CraftCms\Commerce\Store\Data\SiteStore} object that the
+ * rest of the codebase actually works with.
+ *
+ * Keyed by `siteId` (one row per site) rather than an auto-incrementing `id`.
+ */
+class SiteStore extends BaseModel
 {
-    use StoreTrait;
-
-    public int $siteId;
-
-    public ?string $uid = null;
-
-    public function getSite(): ?Site
-    {
-        return Sites::getSiteById($this->siteId);
-    }
-
-    public function getStoreUid(): ?string
-    {
-        if (!$this->storeId) {
-            return null;
-        }
-
-        return DB::table(Table::STORES)->uidById($this->storeId) ?: null;
-    }
-
-    public function getConfig(): array
-    {
-        return [
-            'store' => $this->getStoreUid(),
-        ];
-    }
+    #[\Override]
+    protected $table = Table::SITESTORES;
 
     #[\Override]
-    public function getRules(): array
-    {
-        return [
-            'storeId' => ['required', 'integer'],
-            'siteId' => ['required', 'integer'],
-        ];
-    }
+    protected $primaryKey = 'siteId';
+
+    #[\Override]
+    public $incrementing = false;
+
+    #[\Override]
+    protected $casts = [
+        'siteId' => 'integer',
+        'storeId' => 'integer',
+    ];
 }

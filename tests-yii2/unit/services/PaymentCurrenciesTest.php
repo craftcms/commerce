@@ -12,7 +12,7 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\events\PaymentCurrencyRateEvent;
 use craft\commerce\Plugin;
 use craft\commerce\services\PaymentCurrencies;
-use CraftCms\Commerce\Payment\Records\PaymentCurrency as PaymentCurrencyRecord;
+use CraftCms\Commerce\Payment\Models\PaymentCurrency as PaymentCurrencyRecord;
 use craftcommercetests\fixtures\PaymentCurrenciesFixture;
 use Money\Currency;
 use Money\Money;

@@ -9,7 +9,7 @@ use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Translation\Locale;
 use CraftCms\Commerce\Database\Table;
-use CraftCms\Commerce\Order\Models\OrderStatus;
+use CraftCms\Commerce\Order\Data\OrderStatus;
 use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Stats\Contracts\StatInterface;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;

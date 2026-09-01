@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Shipping;
 
 use CraftCms\Commerce\Database\Table;
-use CraftCms\Commerce\Shipping\Models\ShippingRuleCategory;
-use CraftCms\Commerce\Shipping\Records\ShippingRuleCategory as ShippingRuleCategoryRecord;
+use CraftCms\Commerce\Shipping\Data\ShippingRuleCategory;
+use CraftCms\Commerce\Shipping\Models\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;
 

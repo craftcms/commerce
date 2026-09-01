@@ -4,77 +4,25 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Payment\Models;
 
-use CraftCms\Cms\Component\Component;
-use CraftCms\Cms\Support\Facades\Deprecator;
-use CraftCms\Cms\Support\Facades\Users;
-use CraftCms\Cms\User\Elements\User;
+use CraftCms\Cms\Shared\BaseModel;
 use CraftCms\Commerce\Database\Table;
-use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
-use CraftCms\Commerce\Payment\Gateway\Gateways;
-use Illuminate\Validation\Rule;
 
-class PaymentSource extends Component
+/**
+ * Thin Eloquent persistence model for the `commerce_paymentsources` table.
+ *
+ * This holds no business logic — it's used internally by
+ * {@see \CraftCms\Commerce\Payment\PaymentSources} to read/write rows, which are then hydrated
+ * into (or persisted from) the business {@see \CraftCms\Commerce\Payment\Data\PaymentSource}
+ * object that the rest of the codebase actually works with.
+ */
+class PaymentSource extends BaseModel
 {
-    public ?int $id = null;
-
-    public int $customerId;
-
-    public int $gatewayId;
-
-    public string $token;
-
-    public string $description;
-
-    public string $response;
-
-    private ?User $_customer = null;
-
-    private ?GatewayInterface $_gateway = null;
-
-    public function __toString(): string
-    {
-        return $this->token;
-    }
-
-    public function getCustomer(): ?User
-    {
-        if (!isset($this->_customer)) {
-            $this->_customer = Users::getUserById($this->customerId);
-        }
-
-        return $this->_customer;
-    }
-
-    public function getIsPrimary(): bool
-    {
-        $customer = $this->getCustomer();
-        return $customer && $customer->primaryPaymentSourceId === $this->id;
-    }
-
-    #[\Deprecated(message: 'in 4.0.0. Use [[getCustomer()]] instead.')]
-    public function getUser(): ?User
-    {
-        Deprecator::log('PaymentSource::getUser()', 'The `PaymentSource::getUser()` is deprecated, use the `PaymentSource::getCustomer()` instead.');
-        return $this->getCustomer();
-    }
-
-    public function getGateway(): ?GatewayInterface
-    {
-        if ($this->_gateway === null && $this->gatewayId) {
-            $this->_gateway = app(Gateways::class)->getGatewayById($this->gatewayId);
-        }
-
-        return $this->_gateway;
-    }
+    #[\Override]
+    protected $table = Table::PAYMENTSOURCES;
 
     #[\Override]
-    public function getRules(): array
-    {
-        return [
-            'token' => ['required', 'string', Rule::unique(Table::PAYMENTSOURCES)->where(fn($q) => $q->where('gatewayId', $this->gatewayId))],
-            'gatewayId' => ['required', 'integer'],
-            'customerId' => ['required', 'integer'],
-            'description' => ['required', 'string'],
-        ];
-    }
+    protected $casts = [
+        'gatewayId' => 'integer',
+        'customerId' => 'integer',
+    ];
 }

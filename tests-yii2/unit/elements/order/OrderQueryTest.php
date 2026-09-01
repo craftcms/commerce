@@ -16,7 +16,7 @@ use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\DateTimeHelper;
 use CraftCms\Commerce\Payment\Exceptions\TransactionException;
-use CraftCms\Commerce\Payment\Records\Transaction as TransactionRecord;
+use CraftCms\Commerce\Payment\Models\Transaction as TransactionRecord;
 use craftcommercetests\fixtures\OrdersFixture;
 use UnitTester;
 use yii\base\Exception;

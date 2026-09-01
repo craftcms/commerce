@@ -8,8 +8,8 @@ use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Helpers\Locale;
+use CraftCms\Commerce\Order\Data\OrderHistory;
 use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Order\Models\OrderHistory;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\DB;

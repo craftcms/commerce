@@ -7,11 +7,11 @@ namespace CraftCms\Commerce\Order\Adjuster;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Order\Adjuster\Contracts\AdjusterInterface;
+use CraftCms\Commerce\Order\Data\OrderAdjustment;
 use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Order\Models\OrderAdjustment;
 use CraftCms\Commerce\Promotion\Discounts;
 use CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface;
-use CraftCms\Commerce\Shipping\Models\ShippingRule;
+use CraftCms\Commerce\Shipping\Data\ShippingRule;
 use CraftCms\Commerce\Shipping\ShippingMethods;
 
 /**

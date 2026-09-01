@@ -11,8 +11,8 @@ use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Json;
+use CraftCms\Commerce\Order\Data\OrderStatus;
 use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Order\Models\OrderStatus;
 use CraftCms\Commerce\Store\Stores;
 
 use function CraftCms\Cms\t;

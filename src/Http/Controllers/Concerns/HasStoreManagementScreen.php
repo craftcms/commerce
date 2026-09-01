@@ -8,7 +8,7 @@ use craft\web\assets\admintable\AdminTableAsset;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 
-use CraftCms\Commerce\Store\Models\Store;
+use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Tax\Taxes;
 use function CraftCms\Cms\currentUser;

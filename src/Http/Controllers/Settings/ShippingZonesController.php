@@ -13,7 +13,7 @@ use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Formula\Formulas;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
-use CraftCms\Commerce\Shipping\Models\ShippingAddressZone;
+use CraftCms\Commerce\Shipping\Data\ShippingAddressZone;
 use CraftCms\Commerce\Shipping\ShippingZones;
 
 use Illuminate\Http\Request;

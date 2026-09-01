@@ -13,7 +13,7 @@ use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Currencies;
-use CraftCms\Commerce\Store\Models\Store;
+use CraftCms\Commerce\Store\Data\Store;
 
 use CraftCms\Commerce\Store\Stores;
 use Illuminate\Http\Request;

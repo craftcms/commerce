@@ -2,7 +2,7 @@
 
 namespace craft\commerce\services;
 
-use CraftCms\Commerce\Tax\Models\TaxRate;
+use CraftCms\Commerce\Tax\Data\TaxRate;
 use Illuminate\Support\Collection;
 use yii\base\Component;
 

@@ -11,7 +11,7 @@ use CraftCms\Commerce\Database\Table;
  * Thin Eloquent persistence model for the `commerce_producttypes_sites` table.
  *
  * This holds no business logic — it's read/written by {@see \CraftCms\Commerce\Catalog\ProductType\ProductTypes}
- * and hydrated into (or persisted from) the rich {@see \CraftCms\Commerce\Catalog\Models\ProductTypeSite}
+ * and hydrated into (or persisted from) the rich {@see \CraftCms\Commerce\Catalog\Data\ProductTypeSite}
  * data object that the rest of the codebase actually works with.
  */
 class ProductTypeSite extends BaseModel

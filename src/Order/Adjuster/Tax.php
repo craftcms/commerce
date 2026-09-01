@@ -6,16 +6,16 @@ namespace CraftCms\Commerce\Order\Adjuster;
 
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Commerce\Order\Adjuster\Contracts\AdjusterInterface;
+use CraftCms\Commerce\Order\Data\OrderAdjustment;
 use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Order\Models\OrderAdjustment;
 use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Store\Exceptions\StoreNotFoundException;
 use CraftCms\Commerce\Tax\Contracts\TaxIdValidatorInterface;
-use CraftCms\Commerce\Tax\Models\EuVatIdValidator;
-use CraftCms\Commerce\Tax\Models\TaxAddressZone;
-use CraftCms\Commerce\Tax\Models\TaxRate;
-use CraftCms\Commerce\Tax\Records\TaxRate as TaxRateRecord;
+use CraftCms\Commerce\Tax\Data\TaxAddressZone;
+use CraftCms\Commerce\Tax\Data\TaxRate;
+use CraftCms\Commerce\Tax\Models\TaxRate as TaxRateRecord;
 use CraftCms\Commerce\Tax\TaxRates;
+use CraftCms\Commerce\Tax\VatValidator\Eu;
 use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -392,7 +392,7 @@ class Tax implements AdjusterInterface
     #[\Deprecated(message: 'in 5.3.0. Use `validateTaxIdNumber()` instead, passing the validators you want to check the ID with.')]
     protected function validateVatNumber(string $businessVatId): bool
     {
-        $oldValidator = [new EuVatIdValidator()];
+        $oldValidator = [new Eu()];
         return $this->validateTaxIdNumber($businessVatId, $oldValidator);
     }
 

@@ -16,7 +16,7 @@ class Orders extends Component
 
     public function handleChangedFieldLayout(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Order\Orders::class)->handleChangedFieldLayout($event);
+        app(\CraftCms\Commerce\Order\Orders::class)->handleChangedFieldLayout(new \CraftCms\Cms\ProjectConfig\Events\ItemUpdated($event->path, $event->oldValue, $event->newValue, $event->tokenMatches));
     }
 
     public function handleDeletedFieldLayout(): void

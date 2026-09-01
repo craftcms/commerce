@@ -4,7 +4,7 @@ namespace craft\commerce\services;
 
 use CraftCms\Commerce\Order\Elements\Order;
 use craft\events\ConfigEvent;
-use CraftCms\Commerce\Pdf\Models\Pdf;
+use CraftCms\Commerce\Pdf\Data\Pdf;
 use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
@@ -71,7 +71,7 @@ class Pdfs extends Component
 
     public function handleChangedPdf(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Pdf\Pdfs::class)->handleChangedPdf($event);
+        app(\CraftCms\Commerce\Pdf\Pdfs::class)->handleChangedPdf(new \CraftCms\Cms\ProjectConfig\Events\ItemUpdated($event->path, $event->oldValue, $event->newValue, $event->tokenMatches));
     }
 
     public function deletePdfById(int $id): bool
@@ -84,7 +84,7 @@ class Pdfs extends Component
      */
     public function handleDeletedPdf(ConfigEvent $event): void
     {
-        app(\CraftCms\Commerce\Pdf\Pdfs::class)->handleDeletedPdf($event);
+        app(\CraftCms\Commerce\Pdf\Pdfs::class)->handleDeletedPdf(new \CraftCms\Cms\ProjectConfig\Events\ItemRemoved($event->path, $event->oldValue, $event->newValue, $event->tokenMatches));
     }
 
     /**

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Promotion;
 
 use CraftCms\Commerce\Database\Table;
-use CraftCms\Commerce\Promotion\Models\Coupon;
-use CraftCms\Commerce\Promotion\Models\Discount;
-use CraftCms\Commerce\Promotion\Records\Coupon as CouponRecord;
+use CraftCms\Commerce\Promotion\Data\Coupon;
+use CraftCms\Commerce\Promotion\Data\Discount;
+use CraftCms\Commerce\Promotion\Models\Coupon as CouponRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

@@ -6,9 +6,9 @@ namespace CraftCms\Commerce\Payment\Gateway\Contracts;
 
 use CraftCms\Cms\Component\Contracts\SavableComponentInterface;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Payment\Data\PaymentSource;
+use CraftCms\Commerce\Payment\Data\Transaction;
 use CraftCms\Commerce\Payment\Forms\BasePaymentForm;
-use CraftCms\Commerce\Payment\Models\PaymentSource;
-use CraftCms\Commerce\Payment\Models\Transaction;
 use Illuminate\Http\Response;
 use Throwable;
 

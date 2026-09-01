@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Catalog\ProductType;
 
 use craft\commerce\Plugin;
-use craft\events\ConfigEvent;
-use craft\events\DeleteSiteEvent;
 use craft\helpers\Cp;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Element\Enums\PropagationMethod;
 use CraftCms\Cms\Element\Jobs\ResaveElements;
 use CraftCms\Cms\FieldLayout\FieldLayout;
+use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
 use CraftCms\Cms\ProjectConfig\ProjectConfigHelper;
+use CraftCms\Cms\Site\Events\SiteDeleted;
 use CraftCms\Cms\Site\Events\SiteSaved;
 use CraftCms\Cms\Structure\Data\Structure;
 use CraftCms\Cms\Structure\Enums\Mode;
@@ -23,10 +23,10 @@ use CraftCms\Cms\Support\Facades\Structures;
 use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Cms\View\TemplateResolver;
+use CraftCms\Commerce\Catalog\Data\ProductTypeSite;
 use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Catalog\Events\ProductTypeEvent;
-use CraftCms\Commerce\Catalog\Models\ProductTypeSite;
 use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
 use CraftCms\Commerce\Catalog\ProductType\Exceptions\ProductTypeNotFoundException;
 use CraftCms\Commerce\Catalog\ProductType\Models\ProductType as ProductTypeRecord;
@@ -632,7 +632,7 @@ class ProductTypes
     /**
      * Prune a deleted site from product type site settings.
      */
-    public function pruneDeletedSite(DeleteSiteEvent $event): void
+    public function pruneDeletedSite(SiteDeleted $event): void
     {
         $siteUid = $event->site->uid;
         $productTypes = ProjectConfig::get(self::CONFIG_PRODUCTTYPES_KEY);

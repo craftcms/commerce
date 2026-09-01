@@ -9,7 +9,7 @@ use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Shipping\Models\ShippingAddressZone;
+use CraftCms\Commerce\Shipping\Data\ShippingAddressZone;
 use CraftCms\Commerce\Shipping\ShippingZones;
 use LogicException;
 use Override;

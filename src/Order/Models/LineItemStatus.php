@@ -4,112 +4,28 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Models;
 
-use CraftCms\Cms\Component\Component;
-use CraftCms\Cms\Component\Contracts\Chippable;
-use CraftCms\Cms\Cp\Html\StatusHtml;
-use CraftCms\Cms\Cp\RequestedSite;
-use CraftCms\Cms\Support\Url;
-use CraftCms\Commerce\Order\LineItemStatuses;
-use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
-use CraftCms\Commerce\Store\Stores;
-use DateTime;
-use function CraftCms\Cms\t;
+use CraftCms\Cms\Shared\BaseModel;
+use CraftCms\Commerce\Database\Table;
 
-class LineItemStatus extends Component implements HasStoreInterface, Chippable
+/**
+ * Thin Eloquent persistence model for the `commerce_lineitemstatuses` table.
+ *
+ * This holds no business logic — it's used internally by
+ * {@see \CraftCms\Commerce\Order\LineItemStatuses} to read/write rows, which are then hydrated
+ * into (or persisted from) the business {@see \CraftCms\Commerce\Order\Data\LineItemStatus}
+ * object that the rest of the codebase actually works with.
+ */
+class LineItemStatus extends BaseModel
 {
-    public ?int $id = null;
-
-    public ?int $storeId = null;
-
-    public ?string $name = null;
-
-    public ?string $handle = null;
-
-    public string $color = 'green';
-
-    public ?int $sortOrder = null;
-
-    public bool $default = false;
-
-    public bool $isArchived = false;
-
-    public ?DateTime $dateArchived = null;
-
-    public ?string $uid = null;
-
-    public function __toString(): string
-    {
-        return $this->getUiLabel();
-    }
+    #[\Override]
+    protected $table = Table::LINEITEMSTATUSES;
 
     #[\Override]
-    public function getUiLabel(): string
-    {
-        return t($this->name ?? '', category: 'site');
-    }
-
-    #[\Override]
-    public static function get(int|string $id): ?self
-    {
-        $site = app(RequestedSite::class)->get();
-        $storeId = $site ? app(Stores::class)->getStoreBySiteId($site->id)?->id : null;
-
-        return app(LineItemStatuses::class)->getLineItemStatusById($id, $storeId);
-    }
-
-    #[\Override]
-    public function getId(): string|int|null
-    {
-        return $this->id;
-    }
-
-    #[\Override]
-    public function getStore(): \CraftCms\Commerce\Store\Models\Store
-    {
-        if (!$store = app(Stores::class)->getStoreById($this->storeId)) {
-            throw new \InvalidArgumentException('Invalid store ID: ' . $this->storeId);
-        }
-
-        return $store;
-    }
-
-    public function getCpEditUrl(): string
-    {
-        return Url::cpUrl('commerce/settings/lineitemstatuses/' . $this->getStore()->handle . '/' . $this->id);
-    }
-
-    public function getLabelHtml(): string
-    {
-        return app(StatusHtml::class)->statusLabelHtml([
-            'label' => e($this->getUiLabel()),
-            'color' => e($this->color),
-        ]) ?? '';
-    }
-
-    public function getConfig(): array
-    {
-        return [
-            'store' => $this->getStore()->uid,
-            'name' => $this->name,
-            'handle' => $this->handle,
-            'color' => $this->color,
-            'sortOrder' => $this->sortOrder ?: 9999,
-            'default' => $this->default,
-        ];
-    }
-
-    #[\Override]
-    public function getRules(): array
-    {
-        return [
-            'name' => ['required', 'string'],
-            'handle' => ['required', 'string', 'regex:/^[a-zA-Z_][a-zA-Z0-9_]*$/'],
-        ];
-    }
-
-    #[\Override]
-    public function extraFields(): array
-    {
-        return array_merge(parent::extraFields(), ['labelHtml', 'uiLabel']);
-    }
+    protected $casts = [
+        'storeId' => 'integer',
+        'default' => 'boolean',
+        'isArchived' => 'boolean',
+        'sortOrder' => 'integer',
+        'dateArchived' => 'datetime',
+    ];
 }

@@ -15,9 +15,9 @@ use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
-use CraftCms\Commerce\Store\Models\Store;
+use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
-use CraftCms\Commerce\Tax\Models\TaxCategory;
+use CraftCms\Commerce\Tax\Data\TaxCategory;
 
 use CraftCms\Commerce\Tax\TaxCategories;
 use CraftCms\Commerce\Tax\Taxes;

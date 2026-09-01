@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Transfer;
 
-use craft\events\ConfigEvent;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use CraftCms\Cms\FieldLayout\FieldLayout;
 use CraftCms\Cms\FieldLayout\FieldLayoutTab;
+use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Str;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Transfer\Data\TransferDetail;
 use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Transfer\FieldLayoutElements\TransferManagementField;
-use CraftCms\Commerce\Transfer\Models\TransferDetail;
 use Illuminate\Support\Facades\DB;
 
 use function CraftCms\Cms\t;

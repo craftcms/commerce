@@ -23,7 +23,7 @@ use craftcommercetests\mockclasses\Purchasable;
 use craft\db\Query;
 use craft\elements\Category;
 use craft\elements\User;
-use CraftCms\Commerce\Promotion\Records\Discount as DiscountRecord;
+use CraftCms\Commerce\Promotion\Models\Discount as DiscountRecord;
 use craftcommercetests\fixtures\CategoriesFixture;
 use craftcommercetests\fixtures\CustomerFixture;
 use craftcommercetests\fixtures\DiscountsFixture;

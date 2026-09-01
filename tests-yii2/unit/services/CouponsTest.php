@@ -13,7 +13,7 @@ use craft\commerce\models\Discount;
 use craft\commerce\Plugin;
 use craft\commerce\services\Coupons;
 use craft\helpers\ArrayHelper;
-use CraftCms\Commerce\Promotion\Records\Coupon as CouponRecord;
+use CraftCms\Commerce\Promotion\Models\Coupon as CouponRecord;
 use craftcommercetests\fixtures\DiscountsFixture;
 use UnitTester;
 
