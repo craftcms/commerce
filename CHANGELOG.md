@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where the deprecated `craft\commerce\services\ProductTypes::getEditableProductTypes()` method could still be called. ([#4349](https://github.com/craftcms/commerce/issues/4349)) 
+- Fixed a migration error that could occur for line items with a negative sale price. ([#4352](https://github.com/craftcms/commerce/issues/4352))
 
 ## 5.7.2 - 2026-08-12
 
