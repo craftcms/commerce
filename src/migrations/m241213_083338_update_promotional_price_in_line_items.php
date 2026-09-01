@@ -28,6 +28,9 @@ class m241213_083338_update_promotional_price_in_line_items extends Migration
             ->where(['orderId' => $ordersQuery])
             ->andWhere(['promotionalPrice' => null])
             ->andWhere(new Expression('[[salePrice]] < [[price]]'))
+            // `promotionalPrice` is unsigned, but legacy `salePrice` values can be negative
+            // (e.g. when a discount adjustment exceeded the line item price), so skip those.
+            ->andWhere(['>=', 'salePrice', 0])
             ->column();
 
         foreach (array_chunk($lineItemsQuery, 1000) as $chunk) {
