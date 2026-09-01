@@ -3361,6 +3361,9 @@ class Order extends Element implements HasStoreInterface
         if (!$address instanceof AddressElement) {
             $addressElement = new AddressElement();
             $addressElement->setAttributes($address);
+            if (!empty($address['fields']) && is_array($address['fields'])) {
+                $addressElement->setFieldValues($address['fields']);
+            }
             $address = $addressElement;
         }
 
@@ -3522,6 +3525,9 @@ class Order extends Element implements HasStoreInterface
         if (!$address instanceof AddressElement) {
             $addressElement = new AddressElement();
             $addressElement->setAttributes($address);
+            if (!empty($address['fields']) && is_array($address['fields'])) {
+                $addressElement->setFieldValues($address['fields']);
+            }
             $address = $addressElement;
         }
 
