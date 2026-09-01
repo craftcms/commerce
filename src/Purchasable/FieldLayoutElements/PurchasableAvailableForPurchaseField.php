@@ -45,7 +45,6 @@ class PurchasableAvailableForPurchaseField extends BaseNativeField
         ]);
     }
 
-    #[Override]
     protected function settingsHtml(): ?string
     {
         return parent::settingsHtml() . FormFields::lightswitchFromConfig([

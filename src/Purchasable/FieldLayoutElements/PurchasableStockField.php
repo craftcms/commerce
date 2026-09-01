@@ -217,7 +217,6 @@ JS, [
             Html::endTag('div');
     }
 
-    #[Override]
     protected function settingsHtml(): ?string
     {
         $lightSwitches = FormFields::lightswitchFromConfig([

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use CraftCms\Cms\Config\GeneralConfig;
-use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\View\TemplateMode;
@@ -21,16 +19,8 @@ use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
-readonly class PdfsController
+class PdfsController extends BaseSettingsController
 {
-    use RespondsWithFlash;
-
-    private bool $readOnly;
-
-    public function __construct(GeneralConfig $generalConfig)
-    {
-        $this->readOnly = !$generalConfig->allowAdminChanges;
-    }
 
     public function index(): string
     {

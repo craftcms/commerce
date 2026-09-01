@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\db\Query;
-use CraftCms\Cms\Config\GeneralConfig;
-use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\View\TemplateMode;
@@ -25,16 +23,8 @@ use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
-readonly class OrderStatusesController
+class OrderStatusesController extends BaseSettingsController
 {
-    use RespondsWithFlash;
-
-    private bool $readOnly;
-
-    public function __construct(GeneralConfig $generalConfig)
-    {
-        $this->readOnly = !$generalConfig->allowAdminChanges;
-    }
 
     public function index(): string
     {

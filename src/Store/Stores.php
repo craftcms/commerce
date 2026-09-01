@@ -576,10 +576,12 @@ class Stores
     public function getSiteIdsAvailableForAssignmentToNewStores(): array
     {
         // Sites that are assigned to more than one store
+        // Note: COUNT(*) here, not COUNT(storeId) — the latter is an unquoted identifier inside
+        // raw SQL, which Postgres folds to lowercase (`storeid`), a column that doesn't exist.
         $storeIds = DB::table(Table::SITESTORES)
             ->select('storeId')
             ->groupBy('storeId')
-            ->havingRaw('COUNT(storeId) > 1')
+            ->havingRaw('COUNT(*) > 1')
             ->pluck('storeId');
 
         return DB::table(Table::SITESTORES)

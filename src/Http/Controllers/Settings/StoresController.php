@@ -5,36 +5,49 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\db\Query;
-use CraftCms\Cms\Config\GeneralConfig;
-use CraftCms\Cms\Http\RespondsWithFlash;
+use CraftCms\Cms\Form\Controls\Choice;
+use CraftCms\Cms\Form\Controls\Handle;
+use CraftCms\Cms\Form\Controls\Lightswitch;
+use CraftCms\Cms\Form\Controls\Text;
+use CraftCms\Cms\Form\Enums\ControlMode;
+use CraftCms\Cms\Form\Form;
+use CraftCms\Cms\Form\FormContext;
+use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Form\Nodes\HiddenField;
+use CraftCms\Cms\Form\Nodes\Table;
+use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
-use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Database\Table as DbTable;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Currencies;
+use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Store\Data\Store;
 
 use CraftCms\Commerce\Store\Stores;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use function CraftCms\Cms\cp_url;
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
-readonly class StoresController
+class StoresController extends BaseSettingsController
 {
-    use RespondsWithFlash;
-
-    private bool $readOnly;
-
-    public function __construct(GeneralConfig $generalConfig)
+    protected function crumbs(?string $title = null, ?string $url = null): array
     {
-        $this->readOnly = !$generalConfig->allowAdminChanges;
+        $crumbs = parent::crumbs(t('Stores'), cp_url('commerce/settings/stores'));
+
+        if ($title || $url) {
+            $crumbs[] = ['label' => $title, 'href' => $url];
+        }
+
+        return $crumbs;
     }
 
-    public function editStore(?int $storeId = null): string
+    public function editStore(?int $storeId = null): CpScreenResponse
     {
         $storesService = app(Stores::class);
 
@@ -53,12 +66,6 @@ readonly class StoresController
 
             $title = t('Create a new Store');
         }
-
-        $crumbs = [
-            ['label' => t('Commerce', category: 'commerce'), 'url' => Url::url('commerce')],
-            ['label' => t('Settings', category: 'commerce'), 'url' => Url::url('commerce/settings')],
-            ['label' => t('Stores'), 'url' => Url::url('commerce/settings/stores')],
-        ];
 
         $hasOrders = $storeModel->id && Order::find()
                 ->trashed(null)
@@ -80,18 +87,145 @@ readonly class StoresController
 
         $currencyOptions = app(Currencies::class)->getAllCurrenciesList();
 
-        return pageTemplate('commerce/settings/stores/_edit', [
-            'brandNewStore' => $brandNewStore,
-            'allowCurrencyChange' => $allowCurrencyChange,
-            'title' => $title,
-            'crumbs' => $crumbs,
-            'store' => $storeModel,
-            'currencyOptions' => $currencyOptions,
-            'availableSiteOptions' => $availableSiteOptions,
-            'freeOrderPaymentStrategyOptions' => $storeModel->getFreeOrderPaymentStrategyOptions(),
-            'minimumTotalPriceStrategyOptions' => $storeModel->getMinimumTotalPriceStrategyOptions(),
-            'readOnly' => $this->readOnly,
-        ], TemplateMode::Cp);
+        $form = $this->buildStoreForm($storeModel, $brandNewStore, $allowCurrencyChange, $availableSiteOptions, $currencyOptions);
+        $values = $this->storeInitialValues($storeModel);
+
+        return $this->cpScreenResponse()
+            ->title($title)
+            ->crumbs($this->crumbs($brandNewStore ? null : $title))
+            ->redirectUrl('commerce/settings/stores')
+            ->inertiaPage('Form', [
+                'form' => $this->formResolver->resolve($form, new FormContext(
+                    values: $values,
+                    mode: $this->readOnly ? ControlMode::ReadOnly : ControlMode::Editable,
+                )),
+                'submit' => [
+                    'method' => 'post',
+                    'url' => action([self::class, 'saveStore']),
+                ],
+            ]);
+    }
+
+    /**
+     * @param  list<array{label: string, value: mixed, disabled?: bool}>  $availableSiteOptions
+     * @param  list<array{label: string, value: mixed}>  $currencyOptions
+     */
+    private function buildStoreForm(
+        Store $storeModel,
+        bool $brandNewStore,
+        bool $allowCurrencyChange,
+        array $availableSiteOptions,
+        array $currencyOptions,
+    ): Form {
+        $currencyControl = Choice::make('currency')->options($currencyOptions);
+
+        if (!$allowCurrencyChange) {
+            $currencyControl->mode(ControlMode::Disabled);
+        }
+
+        $currencyField = Field::make(t('Currency', category: 'commerce'), $currencyControl)->required();
+
+        if (!$allowCurrencyChange) {
+            $currencyField->tip(t('The primary currency cannot be changed after orders are placed.', category: 'commerce'));
+        }
+
+        $handle = Handle::make('handle');
+
+        if ($brandNewStore) {
+            $handle->source('name');
+        }
+
+        $storeFields = [
+            $brandNewStore ? null : HiddenField::make('storeId'),
+            Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
+                ->required(),
+            Field::make(t('Handle', category: 'app'), $handle)
+                ->instructions(t('How you’ll refer to this store in the templates.', category: 'app'))
+                ->required(),
+            $brandNewStore
+                ? Field::make(t('Sites', category: 'commerce'), Choice::make('siteId')->options($availableSiteOptions))
+                    ->instructions(t('Every new store must be assigned to at least one site.', category: 'commerce'))
+                : null,
+            $currencyField,
+            $storeModel->primary
+                ? null
+                : Field::make(t('Make this the primary store', category: 'commerce'), Lightswitch::make('primary')),
+        ];
+
+        $settingsFields = [
+            Field::make(t('Auto Set New Cart Addresses', category: 'commerce'), Lightswitch::make('autoSetNewCartAddresses'))
+                ->instructions(t('Whether the user’s primary shipping and billing addresses should be set automatically on new carts.', category: 'commerce')),
+            Field::make(t('Auto Set Cart Shipping Method Option', category: 'commerce'), Lightswitch::make('autoSetCartShippingMethodOption'))
+                ->instructions(t('Whether the first available shipping method option should be set automatically on carts.', category: 'commerce')),
+            Field::make(t('Auto Set Payment Source', category: 'commerce'), Lightswitch::make('autoSetPaymentSource'))
+                ->instructions(t('Whether the user’s primary payment source should be set automatically on new carts.', category: 'commerce')),
+            Field::make(t('Allow Empty Cart On Checkout', category: 'commerce'), Lightswitch::make('allowEmptyCartOnCheckout')),
+            Field::make(t('Allow Checkout Without Payment', category: 'commerce'), Lightswitch::make('allowCheckoutWithoutPayment')),
+            Field::make(t('Allow Partial Payment On Checkout', category: 'commerce'), Lightswitch::make('allowPartialPaymentOnCheckout')),
+            Field::make(t('Free Order Payment Strategy', category: 'commerce'), Choice::make('freeOrderPaymentStrategy')
+                ->options(self::choiceOptions($storeModel->getFreeOrderPaymentStrategyOptions())))
+                ->instructions(t('Strategy to apply when an order is free or has a zero balance.', category: 'commerce'))
+                ->required(),
+            Field::make(t('Minimum Total Price Strategy', category: 'commerce'), Choice::make('minimumTotalPriceStrategy')
+                ->options(self::choiceOptions($storeModel->getMinimumTotalPriceStrategyOptions())))
+                ->instructions(t('Strategy to apply when calculating the minimum order price.', category: 'commerce'))
+                ->required(),
+            Field::make(t('Require Shipping Address At Checkout', category: 'commerce'), Lightswitch::make('requireShippingAddressAtCheckout')),
+            Field::make(t('Require Billing Address At Checkout', category: 'commerce'), Lightswitch::make('requireBillingAddressAtCheckout')),
+            Field::make(t('Require Shipping Method Selection At Checkout', category: 'commerce'), Lightswitch::make('requireShippingMethodSelectionAtCheckout')),
+            Field::make(t('Use Billing Address For Tax', category: 'commerce'), Lightswitch::make('useBillingAddressForTax')),
+            Field::make(t('Validate Business Tax ID as Vat ID', category: 'commerce'), Lightswitch::make('validateOrganizationTaxIdAsVatId')),
+            Field::make(t('Order Reference Number Format', category: 'commerce'), Text::make('orderReferenceFormat')->monospace())
+                ->instructions(t('A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or {ex2}. The result of this format must be unique.', [
+                    'ex1' => '2018-{number[:7]}',
+                    'ex2' => "{{object.dateCompleted|date('y')}}-{{ seq(object.dateCompleted|date('y'), 8) }}",
+                ], category: 'commerce')),
+        ];
+
+        return Form::make()
+            ->addTab(t('Store', category: 'commerce'), array_values(array_filter($storeFields)))
+            ->addTab(t('Settings', category: 'commerce'), $settingsFields);
+    }
+
+    /** @return array<string, mixed> */
+    private function storeInitialValues(Store $storeModel): array
+    {
+        return [
+            'storeId' => $storeModel->id,
+            'name' => $storeModel->getName(false),
+            'handle' => $storeModel->handle,
+            'siteId' => null,
+            'currency' => $storeModel->getCurrency()?->getCode(),
+            'primary' => $storeModel->primary,
+            'autoSetNewCartAddresses' => $storeModel->getAutoSetNewCartAddresses(),
+            'autoSetCartShippingMethodOption' => $storeModel->getAutoSetCartShippingMethodOption(),
+            'autoSetPaymentSource' => $storeModel->getAutoSetPaymentSource(),
+            'allowEmptyCartOnCheckout' => $storeModel->getAllowEmptyCartOnCheckout(),
+            'allowCheckoutWithoutPayment' => $storeModel->getAllowCheckoutWithoutPayment(),
+            'allowPartialPaymentOnCheckout' => $storeModel->getAllowPartialPaymentOnCheckout(),
+            'freeOrderPaymentStrategy' => $storeModel->getFreeOrderPaymentStrategy(),
+            'minimumTotalPriceStrategy' => $storeModel->getMinimumTotalPriceStrategy(),
+            'requireShippingAddressAtCheckout' => $storeModel->getRequireShippingAddressAtCheckout(),
+            'requireBillingAddressAtCheckout' => $storeModel->getRequireBillingAddressAtCheckout(),
+            'requireShippingMethodSelectionAtCheckout' => $storeModel->getRequireShippingMethodSelectionAtCheckout(),
+            'useBillingAddressForTax' => $storeModel->getUseBillingAddressForTax(),
+            'validateOrganizationTaxIdAsVatId' => $storeModel->getValidateOrganizationTaxIdAsVatId(),
+            'orderReferenceFormat' => $storeModel->getOrderReferenceFormat(),
+        ];
+    }
+
+    /**
+     * @param  array<string, string>  $options  Value-keyed label map, as returned by e.g.
+     *   {@see Store::getFreeOrderPaymentStrategyOptions()}.
+     * @return list<array{value: string, label: string}>
+     */
+    private static function choiceOptions(array $options): array
+    {
+        return array_map(
+            fn(string $value, string $label) => ['value' => $value, 'label' => $label],
+            array_keys($options),
+            $options,
+        );
     }
 
     public function saveStore(Request $request): Response
@@ -132,7 +266,7 @@ readonly class StoresController
             $store->uid = $savedStore->uid;
             $store->sortOrder = $savedStore->sortOrder;
         } elseif (!$storeId) {
-            $store->sortOrder = new Query()->from(Table::STORES)->max('[[sortOrder]]') + 1;
+            $store->sortOrder = new Query()->from(DbTable::STORES)->max('[[sortOrder]]') + 1;
         }
 
         if (!$store->validate() || !$storesService->saveStore($store)) {
@@ -148,13 +282,9 @@ readonly class StoresController
         return $this->asModelSuccess($store, t('Store saved.'), 'store');
     }
 
-    public function storesIndex(): string
+    public function storesIndex(): CpScreenResponse
     {
         $stores = app(Stores::class)->getAllStores();
-
-        $crumbs = [
-            ['label' => t('Commerce', category: 'commerce'), 'url' => Url::url('commerce')],
-        ];
 
         $menuItems = [];
         $stores->each(function(Store $s) use (&$menuItems) {
@@ -178,14 +308,65 @@ readonly class StoresController
             $menuItems[$s->handle] = $m;
         });
 
-        return pageTemplate('commerce/settings/stores/index', [
-            'stores' => $stores,
-            'crumbs' => $crumbs,
-            'sitesStores' => app(Stores::class)->getAllSiteStores(),
-            'primaryStoreId' => app(Stores::class)->getPrimaryStore()->id,
-            'menuItems' => $menuItems,
-            'readOnly' => $this->readOnly,
-        ], TemplateMode::Cp);
+        $rows = $stores->map(fn(Store $s) => [
+            'id' => $s->id,
+            'name' => [
+                'label' => t($s->getName(), category: 'site'),
+                'url' => Url::cpUrl('commerce/settings/stores/' . $s->id),
+            ],
+            'handle' => $s->handle,
+            'sites' => $s->getSiteNames()->join(', '),
+            'currency' => $s->getCurrency()?->getCode() ?? '',
+            'primary' => $s->primary ? t('Yes') : '',
+            'management' => [
+                'label' => t('Store Management', category: 'commerce'),
+                'items' => $menuItems[$s->handle],
+            ],
+            '_deletable' => !$s->primary,
+        ])->all();
+
+        $title = t('Stores');
+
+        $showNewStoreButton = !$this->readOnly && $stores->count() < count(Sites::getAllSites());
+
+        if ($showNewStoreButton) {
+            $showNewStoreButton = (Plugin::getInstance()->is(Plugin::EDITION_PRO, '=')
+                    && $stores->count() < Plugin::EDITION_PRO_STORE_LIMIT
+                    && app(CatalogPricingRules::class)->canUseCatalogPricingRules())
+                || (Plugin::getInstance()->is(Plugin::EDITION_ENTERPRISE, '=')
+                    && app(CatalogPricingRules::class)->canUseCatalogPricingRules());
+        }
+
+        $form = Form::make([
+            Table::make('stores')
+                ->columns([
+                    ['key' => 'name', 'label' => t('Name')],
+                    ['key' => 'handle', 'label' => t('Handle')],
+                    ['key' => 'sites', 'label' => t('Sites', category: 'commerce')],
+                    ['key' => 'currency', 'label' => t('Currency', category: 'commerce')],
+                    ['key' => 'primary', 'label' => t('Primary', category: 'commerce')],
+                    ['key' => 'management', 'label' => t('Store Management', category: 'commerce')],
+                ])
+                ->rows($rows)
+                ->emptyMessage(t('No stores exist yet.', category: 'commerce'))
+                ->createAction(
+                    $showNewStoreButton ? t('New store') : null,
+                    $showNewStoreButton ? Url::cpUrl('commerce/settings/stores/new') : null,
+                )
+                ->when(!$this->readOnly, fn(Table $table) => $table
+                    ->reorderable(action([self::class, 'reorderStores']))
+                    ->deletable(
+                        action([self::class, 'deleteStore']),
+                        t('Are you sure you want to permanently delete this store and everything in it?', category: 'commerce'),
+                    )),
+        ]);
+
+        return $this->cpScreenResponse()
+            ->title($title)
+            ->crumbs($this->crumbs())
+            ->inertiaPage('Form', [
+                'form' => $this->formResolver->resolve($form, new FormContext()),
+            ]);
     }
 
     public function deleteStore(Request $request): Response
