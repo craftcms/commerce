@@ -442,6 +442,32 @@ class ProductTest extends Unit
         $this->setProductTypeSkuFormat(2001, null);
     }
 
+    /**
+     * @group Product
+     */
+    public function testSkuFormatWithIdIsRegeneratedAfterIdAssigned(): void
+    {
+        $this->setProductTypeSkuFormat(2001, 'SKU-{id}');
+
+        $product = new Product();
+        $product->title = 'SKU Format Id Test Product';
+        $product->typeId = 2001;
+        $product->enabled = false;
+
+        $variant = new Variant();
+        $variant->title = 'Test Variant';
+        // No SKU — format references {id}, which isn't available until after the element is saved
+
+        $product->setVariants([$variant]);
+        \Craft::$app->getElements()->saveElement($product, false);
+
+        $savedVariant = $product->getDefaultVariant();
+        self::assertEquals('SKU-' . $savedVariant->id, $savedVariant->sku);
+
+        \Craft::$app->getElements()->deleteElementById($product->id, Product::class, null, true);
+        $this->setProductTypeSkuFormat(2001, null);
+    }
+
     private function resetSkuSequence(string $baseSku): void
     {
         \Craft::$app->getDb()->createCommand()
