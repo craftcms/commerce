@@ -2,7 +2,10 @@
 
 ## Unreleased
 
-- Fixed a bug where the Commerce dashboard widgets could cause a PHP error for users without edit permissions on any site. ([#4347](https://github.com/craftcms/commerce/issues/4347))
+- Fixed a PHP error on the dashboard that could occur for users without edit permissions on any site. ([#4347](https://github.com/craftcms/commerce/issues/4347))
+- Fixed a bug where the deprecated `craft\commerce\services\ProductTypes::getEditableProductTypes()` method could still be called. ([#4349](https://github.com/craftcms/commerce/issues/4349))
+- Fixed a bug where a variant's `skuFormat` containing `{id}` would generate a SKU missing that value for new variants.
+- Fixed a bug where adding a site during a project config apply could rewrite `project.yaml`. ([#4348](https://github.com/craftcms/commerce/issues/4348))
 
 ## 5.7.2 - 2026-08-12
 
