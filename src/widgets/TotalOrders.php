@@ -11,6 +11,7 @@ use Craft;
 use craft\base\Widget;
 use craft\commerce\base\StatWidgetTrait;
 use craft\commerce\behaviors\StoreBehavior;
+use craft\commerce\Plugin;
 use craft\commerce\stats\TotalOrders as TotalOrdersStat;
 use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
@@ -49,9 +50,9 @@ class TotalOrders extends Widget
         parent::init();
 
         if (!(isset($this->storeId)) || !$this->storeId) {
-            /** @var Site|StoreBehavior $site */
+            /** @var Site|StoreBehavior|null $site */
             $site = Cp::requestedSite();
-            $this->storeId = $site->getStore()->id;
+            $this->storeId = $site?->getStore()->id ?? Plugin::getInstance()->getStores()->getPrimaryStore()->id;
         }
 
         $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TotalOrdersStat::DATE_RANGE_TODAY : $this->dateRange;
