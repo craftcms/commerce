@@ -32,8 +32,8 @@ use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
 use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
-use CraftCms\Commerce\Shipping\Models\ShippingCategory;
-use CraftCms\Commerce\Tax\Models\TaxCategory;
+use CraftCms\Commerce\Shipping\Data\ShippingCategory;
+use CraftCms\Commerce\Tax\Data\TaxCategory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
