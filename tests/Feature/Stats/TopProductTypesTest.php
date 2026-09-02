@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use CraftCms\Cms\User\Elements\User;
-use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
+use CraftCms\Commerce\Product\ProductType\Data\ProductType;
 use CraftCms\Commerce\Stats\TopProducts;
 use CraftCms\Commerce\Stats\TopProductTypes;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;

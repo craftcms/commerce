@@ -15,7 +15,7 @@ use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
 use craft\web\View;
 use CraftCms\Cms\Support\Facades\Sites;
-use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
+use CraftCms\Commerce\Product\ProductType\Data\ProductType;
 use yii\web\JqueryAsset;
 
 /**

@@ -6,10 +6,10 @@ namespace CraftCms\Commerce\Gql\Arguments\Elements;
 
 use CraftCms\Cms\Gql\Arguments\ElementArguments;
 use CraftCms\Cms\Gql\Types\QueryArgument;
-use CraftCms\Commerce\Catalog\Variants;
 use CraftCms\Commerce\Gql\Types\Input\IntFalse;
 use CraftCms\Commerce\Gql\Types\Input\Product;
 use CraftCms\Commerce\Helpers\Gql;
+use CraftCms\Commerce\Product\Variant\Variants;
 use GraphQL\Type\Definition\Type;
 use Override;
 

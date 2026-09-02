@@ -9,9 +9,9 @@ use CraftCms\Cms\Element\ElementCollection;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Cms\Gql\GqlHelper;
 use CraftCms\Cms\Gql\Resolvers\ElementResolver;
-use CraftCms\Commerce\Catalog\Elements\Product as ProductElement;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Gql as GqlCommerceHelper;
+use CraftCms\Commerce\Product\Elements\Product as ProductElement;
 
 class Product extends ElementResolver
 {

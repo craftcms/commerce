@@ -36,8 +36,6 @@ use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Cms\View\TemplateMode;
-use CraftCms\Commerce\Catalog\Elements\Variant;
-use CraftCms\Commerce\Catalog\Events\ModifyPurchasablesTableQueryEvent;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Helpers\Currency;
@@ -65,16 +63,18 @@ use CraftCms\Commerce\Order\Orders;
 use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Payment\Exceptions\RefundException;
-
 use CraftCms\Commerce\Payment\Gateway\Gateway;
 use CraftCms\Commerce\Payment\Gateway\Gateways;
+
 use CraftCms\Commerce\Payment\Gateway\Types\MissingGateway;
 use CraftCms\Commerce\Payment\Models\Transaction as TransactionRecord;
 use CraftCms\Commerce\Payment\Payments;
 use CraftCms\Commerce\Payment\Transactions;
 use CraftCms\Commerce\Pdf\Data\Pdf;
 use CraftCms\Commerce\Pdf\Pdfs;
+use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
+use CraftCms\Commerce\Purchasable\Events\ModifyPurchasablesTableQueryEvent;
 use CraftCms\Commerce\Purchasable\Purchasables;
 use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery;
 use CraftCms\Commerce\Shipping\ShippingCategories;

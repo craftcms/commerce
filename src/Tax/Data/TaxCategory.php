@@ -9,7 +9,7 @@ use CraftCms\Cms\Component\Contracts\Chippable;
 use CraftCms\Cms\Component\Contracts\Colorable;
 use CraftCms\Cms\Component\Contracts\Iconic;
 use CraftCms\Cms\Shared\Enums\Color;
-use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
+use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use CraftCms\Commerce\Store\Stores;
 
 use DateTime;

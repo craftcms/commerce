@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use CraftCms\Commerce\Catalog\Elements\Product;
+use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Stats\TopProducts;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
 

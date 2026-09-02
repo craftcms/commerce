@@ -9,11 +9,11 @@ use CraftCms\Cms\Element\ElementCollection;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Cms\Gql\GqlHelper;
 use CraftCms\Cms\Gql\Resolvers\ElementResolver;
-use CraftCms\Commerce\Catalog\Elements\Product as ProductElement;
-use CraftCms\Commerce\Catalog\Elements\Variant as VariantElement;
-use CraftCms\Commerce\Catalog\Queries\VariantQuery;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Gql as GqlCommerceHelper;
+use CraftCms\Commerce\Product\Elements\Product as ProductElement;
+use CraftCms\Commerce\Product\Variant\Elements\Variant as VariantElement;
+use CraftCms\Commerce\Product\Variant\Queries\VariantQuery;
 
 class Variant extends ElementResolver
 {

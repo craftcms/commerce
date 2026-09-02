@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Plugin\Listeners;
 
 use CraftCms\Cms\Site\Events\SiteSaved;
-use CraftCms\Commerce\Catalog\Products;
-use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\Plugin;
+use CraftCms\Commerce\Product\Products;
+use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use CraftCms\Commerce\Store\Stores;
 
 class SiteSavedListener

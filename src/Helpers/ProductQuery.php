@@ -9,7 +9,7 @@ use CraftCms\Cms\Element\ElementHelper;
 use CraftCms\Cms\Http\Controllers\Elements\ElementIndex\ElementIndexController;
 use CraftCms\Cms\Http\Controllers\Elements\SearchController;
 use CraftCms\Cms\Support\Query;
-use CraftCms\Commerce\Catalog\Elements\Product;
+use CraftCms\Commerce\Product\Elements\Product;
 use DateTime;
 
 class ProductQuery

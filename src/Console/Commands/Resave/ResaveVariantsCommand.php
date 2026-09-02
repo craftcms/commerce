@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Console\Commands\Resave;
 
 use CraftCms\Cms\Element\Commands\Resave\ResaveCommand;
-use CraftCms\Commerce\Catalog\Elements\Variant;
-use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
-use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Product\ProductType\Data\ProductType;
+use CraftCms\Commerce\Product\ProductType\ProductTypes;
+use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use Illuminate\Support\Facades\DB;
 use Override;
 

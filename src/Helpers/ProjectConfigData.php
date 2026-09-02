@@ -6,13 +6,13 @@ namespace CraftCms\Commerce\Helpers;
 
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
-use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Order\Elements\Order as OrderElement;
 use CraftCms\Commerce\Order\LineItemStatuses;
 use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Payment\Gateway\Gateways;
 use CraftCms\Commerce\Pdf\Pdfs;
+use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
 

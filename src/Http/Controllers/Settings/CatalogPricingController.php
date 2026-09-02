@@ -12,10 +12,10 @@ use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\View\TemplateMode;
-use CraftCms\Commerce\Catalog\Data\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingPurchasableConditionRule;
+use CraftCms\Commerce\CatalogPricing\Data\CatalogPricing;
 use CraftCms\Commerce\Helpers\Purchasable;
 use Illuminate\Http\JsonResponse;
 

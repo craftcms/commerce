@@ -6,8 +6,8 @@ namespace CraftCms\Commerce\Stats;
 
 use CraftCms\Cms\Database\Table as CmsTable;
 use CraftCms\Cms\Support\Facades\Sites;
-use CraftCms\Commerce\Catalog\Products;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Product\Products;
 use Illuminate\Contracts\Database\Query\Expression;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;

@@ -2,10 +2,10 @@
 
 namespace craft\commerce\models;
 
-/** @deprecated use {@see \CraftCms\Commerce\Catalog\Data\ProductTypeSite} */
-class_alias(\CraftCms\Commerce\Catalog\Data\ProductTypeSite::class, 'craft\commerce\models\ProductTypeSite');
+/** @deprecated use {@see \CraftCms\Commerce\Product\ProductType\Data\ProductTypeSite} */
+class_alias(\CraftCms\Commerce\Product\ProductType\Data\ProductTypeSite::class, 'craft\commerce\models\ProductTypeSite');
 
 /** @phpstan-ignore-next-line */
 if (false) {
-    class ProductTypeSite extends \CraftCms\Commerce\Catalog\Data\ProductTypeSite {}
+    class ProductTypeSite extends \CraftCms\Commerce\Product\ProductType\Data\ProductTypeSite {}
 }

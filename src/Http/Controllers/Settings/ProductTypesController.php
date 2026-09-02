@@ -12,11 +12,11 @@ use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\View\TemplateMode;
-use CraftCms\Commerce\Catalog\Data\ProductTypeSite;
-use CraftCms\Commerce\Catalog\Elements\Product;
-use CraftCms\Commerce\Catalog\Elements\Variant;
-use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
-use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
+use CraftCms\Commerce\Product\Elements\Product;
+use CraftCms\Commerce\Product\ProductType\Data\ProductType;
+use CraftCms\Commerce\Product\ProductType\Data\ProductTypeSite;
+use CraftCms\Commerce\Product\ProductType\ProductTypes;
+use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use Illuminate\Http\Request;
 
 use Symfony\Component\HttpFoundation\Response;
