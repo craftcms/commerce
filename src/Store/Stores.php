@@ -306,9 +306,9 @@ class Stores
             $isNewStore = !$storeRecord->exists;
 
             $storeRecord->uid = $storeUid;
-            $storeRecord->name = $data['name'];
-            $storeRecord->handle = $data['handle'];
-            $storeRecord->primary = $data['primary'];
+            $storeRecord->name = $data['name'] ?? $storeRecord->name;
+            $storeRecord->handle = $data['handle'] ?? $storeRecord->handle;
+            $storeRecord->primary = $data['primary'] ?? $storeRecord->primary;
 
             $storeRecord->autoSetNewCartAddresses = ($data['autoSetNewCartAddresses'] ?? false);
             $storeRecord->autoSetCartShippingMethodOption = ($data['autoSetCartShippingMethodOption'] ?? false);
