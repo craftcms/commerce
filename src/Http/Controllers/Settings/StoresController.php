@@ -17,6 +17,7 @@ use CraftCms\Cms\Form\Nodes\HiddenField;
 use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Sites;
+use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\View\TemplateMode;
@@ -316,8 +317,8 @@ class StoresController extends BaseSettingsController
             ],
             'handle' => $s->handle,
             'sites' => $s->getSiteNames()->join(', '),
-            'currency' => $s->getCurrency()?->getCode() ?? '',
-            'primary' => $s->primary ? t('Yes') : '',
+            'currency' => ['html' => Html::tag('code', Html::encode($s->getCurrency()?->getCode() ?? ''))],
+            'primary' => $s->primary ? ['icon' => 'check', 'label' => t('Yes')] : '',
             'management' => [
                 'label' => t('Store Management', category: 'commerce'),
                 'items' => $menuItems[$s->handle],
