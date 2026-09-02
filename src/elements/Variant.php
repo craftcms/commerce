@@ -226,6 +226,12 @@ class Variant extends Purchasable implements NestedElementInterface
     private ?string $_productTypeHandle = null;
 
     /**
+     * @var bool Whether the SKU was auto-generated from a `skuFormat` containing `{id}` before this element had an ID,
+     * meaning it needs to be regenerated in [[afterAssignedId()]] once the ID is available.
+     */
+    private bool $_regenerateSkuAfterIdAssigned = false;
+
+    /**
      * @throws InvalidConfigException
      */
     public function behaviors(): array
@@ -726,6 +732,12 @@ class Variant extends Purchasable implements NestedElementInterface
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
             $this->sku = Craft::$app->getView()->renderSandboxedObjectTemplate($type->skuFormat, $this);
+
+            // If the format references the element's own ID but it doesn't have one yet, the rendered SKU will be
+            // missing that value — flag it for regeneration once afterAssignedId() runs.
+            if (!$this->id && str_contains($type->skuFormat, '{id}')) {
+                $this->_regenerateSkuAfterIdAssigned = true;
+            }
 
             $skuExistsQuery = function(string $sku, ?int $id) {
                 $query = (new Query())
@@ -1257,6 +1269,12 @@ class Variant extends Purchasable implements NestedElementInterface
 
         $product = $this->getOwner();
         $this->updateTitle($product);
+
+        if ($this->_regenerateSkuAfterIdAssigned) {
+            $this->_regenerateSkuAfterIdAssigned = false;
+            $this->sku = '';
+            $this->updateSku($product);
+        }
     }
 
     /**
