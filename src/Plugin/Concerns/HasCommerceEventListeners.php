@@ -9,7 +9,7 @@ use craft\ckeditor\events\DefineLinkOptionsEvent;
 use craft\ckeditor\Field as CKEditorField;
 use craft\commerce\services\Emails as LegacyEmails;
 use craft\events\RegisterUrlRulesEvent;
-use craft\fixfks\controllers\RestoreController;
+use craft\fixfks\controllers\RestoreController as RestoreFksController;
 use craft\web\UrlManager;
 use CraftCms\Cms\Gql\Events\GqlArgumentsResolving;
 use CraftCms\Cms\ProjectConfig\Events\ProjectConfigRebuilt;
@@ -76,9 +76,6 @@ trait HasCommerceEventListeners
             ->onUpdate(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', app(OrderStatuses::class)->handleChangedOrderStatus(...))
             ->onRemove(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', app(OrderStatuses::class)->handleDeletedOrderStatus(...));
 
-        // Emails still fires this via the legacy craft\commerce\services\Emails shim's
-        // hasEventHandlers()/trigger() (see the TODO in Emails::handleDeletedEmail()) — there's no
-        // Laravel event to listen to yet, so this stays a legacy Event::on() registration.
         YiiEvent::on(LegacyEmails::class, LegacyEmails::EVENT_AFTER_DELETE_EMAIL, static function(EmailEvent $event) {
             if (!app(ProjectConfig::class)->isApplyingExternalChanges) {
                 app(OrderStatuses::class)->pruneDeletedEmail($event);
@@ -110,14 +107,6 @@ trait HasCommerceEventListeners
         });
     }
 
-    /**
-     * Registers a product/variant link option for the CKEditor field's rich text link chooser.
-     *
-     * CKEditor itself is still Yii2-based (not yet ported to Laravel), so it only exposes this via
-     * the legacy `EVENT_DEFINE_LINK_OPTIONS` Yii event — there's no Laravel event to listen to here.
-     * Replaces the Redactor equivalent that was dropped entirely (Redactor is not supported under
-     * Craft 6). TODO: After CKeditor is on 6.x port this
-     */
     private function registerCKEditorLinkOptions(): void
     {
         if (!class_exists(CKEditorField::class)) {
@@ -167,13 +156,6 @@ trait HasCommerceEventListeners
         });
     }
 
-    /**
-     * Adds `relatedToProducts`/`relatedToVariants` argument definitions to every element query.
-     *
-     * The handlers for these arguments themselves are registered via the `GqlArguments` registry
-     * above — this is just the schema-level argument definition, added to every query the same
-     * way core does it for `relatedToEntries`/`relatedToAssets`/etc via `ElementArguments`.
-     */
     private function registerGqlRelatedToArguments(): void
     {
         Event::listen(GqlArgumentsResolving::class, static function(GqlArgumentsResolving $event) {
@@ -190,34 +172,17 @@ trait HasCommerceEventListeners
         });
     }
 
-    /**
-     * Registers Commerce's default foreign keys with Craft's "Restore FKs" DB-repair utility.
-     *
-     * TODO: `craft\fixfks\controllers\RestoreController` has no Laravel-native equivalent yet —
-     * stays a legacy `Event::on()` registration until one exists.
-     */
     private function registerForeignKeysRestore(): void
     {
-        if (!class_exists(RestoreController::class)) {
+        if (!class_exists(RestoreFksController::class)) {
             return;
         }
 
-        // The install migration (database/migrations/Install.php) isn't PSR-4 autoloadable —
-        // it's only ever loaded via require() by the migrator — so it's resolved the same way
-        // Installable::install() resolves it, rather than referenced by class name directly.
-        /** @phpstan-ignore-next-line argument.type (RestoreController is an optional legacy Craft utility, guarded above by class_exists()) */
-        YiiEvent::on(RestoreController::class, RestoreController::EVENT_AFTER_RESTORE_FKS, function() {
+        YiiEvent::on(RestoreFksController::class, RestoreFksController::EVENT_AFTER_RESTORE_FKS, function() {
             $this->createInstallMigration()?->addForeignKeys();
         });
     }
 
-    /**
-     * Registers the bare `commerce` CP index route.
-     *
-     * TODO: still targets a `src-yii2/templates/commerce/index.twig` template that hasn't moved
-     * to `src/` yet — port this to a real controller/route in `routes/cp.php` once it has, and
-     * drop this legacy `Event::on()` registration.
-     */
     private function registerLegacyCpRoutes(): void
     {
         YiiEvent::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, static function(RegisterUrlRulesEvent $event) {
