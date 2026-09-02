@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.7.3 - 2026-09-02
 
 - Fixed a bug where `craft\commerce\elements\Order::setShippingAddress()` and `setBillingAddress()` weren’t setting custom field values. ([#4353](https://github.com/craftcms/commerce/issues/4353))
 - Fixed a bug where variants’ auto-generated SKUs would be incorrect if the SKU Format contained `{id}`.
