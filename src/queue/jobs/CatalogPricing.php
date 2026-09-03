@@ -7,8 +7,10 @@
 
 namespace craft\commerce\queue\jobs;
 
+use Craft;
 use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingQueue as CatalogPricingQueueRecord;
+use craft\helpers\Queue as QueueHelper;
 use craft\queue\BaseJob;
 
 class CatalogPricing extends BaseJob
@@ -32,24 +34,18 @@ class CatalogPricing extends BaseJob
     {
         $catalogPricingService = Plugin::getInstance()->getCatalogPricing();
         $isConsolidatedJob = $this->storeId === null && $this->purchasableIds === null && $this->catalogPricingRuleIds === null;
-        $catalogPricingRules = null;
-        $reservedRowId = null;
 
         // @TODO: remove these properties and behaviour at next breaking change
-        $storeId = $this->storeId;
-        $purchasableIds = $this->purchasableIds;
-        $catalogPricingRuleIds = $this->catalogPricingRuleIds;
+        if (!$isConsolidatedJob) {
+            $this->_generate($queue, $this->storeId, $this->purchasableIds, $this->catalogPricingRuleIds);
+            return;
+        }
 
-        if ($isConsolidatedJob) {
-            // New method of processing catalog pricing via queue table: reserve a row and process based on its type and IDs
-            $reservedRecord = $catalogPricingService->reserveCatalogPricingQueueRow();
-
-            if (!$reservedRecord) {
-                return;
-            }
-
-            $reservedRowId = $reservedRecord->id;
-            $storeId = $reservedRecord->storeId;
+        // Work through every pending row. One row per job would leave the rest waiting on a further
+        // push, and claiming them all up front would strand the lot if this worker died.
+        while ($reservedRecord = $catalogPricingService->reserveCatalogPricingQueueRow()) {
+            $purchasableIds = null;
+            $catalogPricingRuleIds = null;
 
             if ($reservedRecord->type === CatalogPricingQueueRecord::TYPE_PURCHASABLE) {
                 // Specific purchasable IDs: regenerate against all applicable rules
@@ -59,7 +55,30 @@ class CatalogPricing extends BaseJob
             } else {
                 throw new \UnexpectedValueException("Unrecognized catalog pricing queue row type: {$reservedRecord->type}");
             }
+
+            try {
+                $this->_generate($queue, $reservedRecord->storeId, $purchasableIds, $catalogPricingRuleIds);
+                $catalogPricingService->deleteCatalogPricingQueueRowById($reservedRecord->id);
+            } catch (\Throwable $e) {
+                $catalogPricingService->releaseCatalogPricingQueueRowById($reservedRecord->id);
+
+                throw $e;
+            }
         }
+
+        // A row added between the last check and here would otherwise wait for the next save.
+        if ($catalogPricingService->hasPendingCatalogPricingQueueRows()) {
+            QueueHelper::push(Craft::createObject(self::class));
+        }
+    }
+
+    /**
+     * @param array<int>|null $purchasableIds
+     * @param array<int>|null $catalogPricingRuleIds
+     */
+    private function _generate($queue, ?int $storeId, ?array $purchasableIds, ?array $catalogPricingRuleIds): void
+    {
+        $catalogPricingRules = null;
 
         if (!empty($catalogPricingRuleIds)) {
             $catalogPricingRules = Plugin::getInstance()->getCatalogPricingRules()
@@ -68,19 +87,8 @@ class CatalogPricing extends BaseJob
                 ->all();
         }
 
-        try {
-            $catalogPricingService->generateCatalogPrices($purchasableIds, $catalogPricingRules, queue: $queue);
-
-            if ($reservedRowId) {
-                $catalogPricingService->deleteCatalogPricingQueueRowById($reservedRowId);
-            }
-        } catch (\Throwable $e) {
-            if ($reservedRowId) {
-                $catalogPricingService->releaseCatalogPricingQueueRowById($reservedRowId);
-            }
-
-            throw $e;
-        }
+        Plugin::getInstance()->getCatalogPricing()
+            ->generateCatalogPrices($purchasableIds, $catalogPricingRules, queue: $queue);
     }
 
     protected function defaultDescription(): ?string
