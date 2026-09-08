@@ -94,10 +94,8 @@ class Carts
                 $cartAttributes['customer'] = $currentUser; // Will ensure the email is also set
             }
 
-            $this->cart = \Craft::createObject([
-                'class' => Order::class,
-                'attributes' => $cartAttributes,
-            ]);
+            $this->cart = new Order();
+            $this->cart->setAttributes($cartAttributes);
         } elseif ($this->cart->orderSiteId != Sites::getCurrentSite()->id) {
             $this->cart->orderSiteId = Sites::getCurrentSite()->id;
             $forceSave = true;

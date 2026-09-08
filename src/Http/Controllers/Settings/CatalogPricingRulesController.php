@@ -163,10 +163,7 @@ JS;
             $catalogPricingRule = app(CatalogPricingRules::class)->getCatalogPricingRuleById($id, $store->id);
             abort_if($catalogPricingRule === null || $catalogPricingRule->storeId !== $store->id, 404);
         } else {
-            $catalogPricingRule = \Craft::createObject([
-                'class' => CatalogPricingRule::class,
-                'storeId' => $store->id,
-            ]);
+            $catalogPricingRule = new CatalogPricingRule(['storeId' => $store->id]);
 
             $purchasableId = request()->input('purchasableId') ? (int)request()->input('purchasableId') : null;
             if ($purchasableId && $purchasableType = Elements::getElementTypeById($purchasableId)) {
@@ -224,7 +221,7 @@ JS;
             $catalogPricingRule = app(CatalogPricingRules::class)->getCatalogPricingRuleById($id, $storeId);
             abort_if($catalogPricingRule === null, 404, 'Catalog Pricing Rule not found');
         } else {
-            $catalogPricingRule = \Craft::createObject(CatalogPricingRule::class);
+            $catalogPricingRule = new CatalogPricingRule();
         }
 
         abort_unless(currentUserElement()?->can($catalogPricingRule->id === null ? 'commerce-createCatalogPricingRules' : 'commerce-editCatalogPricingRules'), 403);

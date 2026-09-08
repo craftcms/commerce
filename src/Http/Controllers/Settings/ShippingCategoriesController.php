@@ -117,10 +117,7 @@ JS;
             $shippingCategory = app(ShippingCategories::class)->getShippingCategoryById($id, $store->id);
             abort_if($shippingCategory === null, 404);
         } else {
-            $shippingCategory = \Craft::createObject([
-                'class' => ShippingCategory::class,
-                'attributes' => ['storeId' => $store->id],
-            ]);
+            $shippingCategory = new ShippingCategory(['storeId' => $store->id]);
         }
 
         $title = $shippingCategory->id ? $shippingCategory->name : t('Create a new shipping category', category: 'commerce');

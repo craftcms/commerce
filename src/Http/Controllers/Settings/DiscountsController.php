@@ -260,13 +260,10 @@ JS;
             $discount = app(Discounts::class)->getDiscountById($id, $store->id);
             abort_if($discount === null, 404);
         } else {
-            $discount = \Craft::createObject([
-                'class' => Discount::class,
-                'attributes' => [
-                    'allCategories' => true,
-                    'allPurchasables' => true,
-                    'storeId' => $store->id,
-                ],
+            $discount = new Discount([
+                'allCategories' => true,
+                'allPurchasables' => true,
+                'storeId' => $store->id,
             ]);
             $variables['isNewDiscount'] = true;
         }
@@ -429,16 +426,12 @@ JS;
         $discountCoupons = [];
 
         foreach ($coupons as $c) {
-            $discountCoupons[] = \Craft::createObject(Coupon::class, [
-                'config' => [
-                    'attributes' => [
-                        'id' => $c['id'] ?: null,
-                        'discountId' => null,
-                        'code' => $c['code'],
-                        'uses' => $c['uses'] ?: 0,
-                        'maxUses' => is_numeric($c['maxUses']) ? (int)$c['maxUses'] : null,
-                    ],
-                ],
+            $discountCoupons[] = new Coupon([
+                'id' => $c['id'] ?: null,
+                'discountId' => null,
+                'code' => $c['code'],
+                'uses' => $c['uses'] ?: 0,
+                'maxUses' => is_numeric($c['maxUses']) ? (int)$c['maxUses'] : null,
             ]);
         }
 

@@ -135,10 +135,8 @@ class OrdersController
             $attributes['customer'] = $user;
         }
 
-        $order = \Craft::createObject([
-            'class' => Order::class,
-            'attributes' => $attributes,
-        ]);
+        $order = new Order();
+        $order->setAttributes($attributes);
 
         if ($user) {
             // Try to set defaults
@@ -647,9 +645,8 @@ JS, []);
         $attributes = $request->input('address');
         abort_if(!$attributes, 400, 'Missing address');
 
-        $attributes += ['class' => Address::class];
-
-        $address = \Craft::createObject($attributes);
+        $address = new Address();
+        $address->setAttributes($attributes);
 
         if (!$address->validate()) {
             return $this->asModelFailure(model: $address, message: t('Unable to validate address.', category: 'commerce'), modelName: 'address');
@@ -1534,16 +1531,14 @@ JS, []);
         // Create Notices on Order
         $notices = [];
         foreach ($orderRequestData['order']['notices'] ?? [] as $notice) {
-            $notices[] = \Craft::createObject([
-                'class' => OrderNotice::class,
-                'attributes' => array_merge($notice, ['noticeType' => OrderNoticeType::Customer]),
-            ]);
+            $orderNotice = new OrderNotice();
+            $orderNotice->setAttributes(array_merge($notice, ['noticeType' => OrderNoticeType::Customer]));
+            $notices[] = $orderNotice;
         }
         foreach ($orderRequestData['order']['adminNotices'] ?? [] as $notice) {
-            $notices[] = \Craft::createObject([
-                'class' => OrderNotice::class,
-                'attributes' => array_merge($notice, ['noticeType' => OrderNoticeType::Admin]),
-            ]);
+            $orderNotice = new OrderNotice();
+            $orderNotice->setAttributes(array_merge($notice, ['noticeType' => OrderNoticeType::Admin]));
+            $notices[] = $orderNotice;
         }
         $order->addNotices($notices);
 

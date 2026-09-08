@@ -71,7 +71,7 @@ readonly class ProductsController
         abort_unless($user !== null, 401);
 
         // Create & populate the draft
-        $product = \Craft::createObject(Product::class);
+        $product = new Product();
         $product->siteId = $site->id;
         $product->typeId = $productType->id;
         $product->enabled = true;

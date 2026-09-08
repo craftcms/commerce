@@ -58,10 +58,7 @@ readonly class LineItemStatusesController
             $lineItemStatus = app(LineItemStatuses::class)->getLineItemStatusById($id, $store->id);
             abort_if($lineItemStatus === null, 404);
         } else {
-            $lineItemStatus = \Craft::createObject([
-                'class' => LineItemStatus::class,
-                'storeId' => $store->id,
-            ]);
+            $lineItemStatus = new LineItemStatus(['storeId' => $store->id]);
         }
 
         $statusColors = ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'];

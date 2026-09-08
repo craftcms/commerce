@@ -49,10 +49,7 @@ readonly class PaymentCurrenciesController
             $currency = app(PaymentCurrencies::class)->getPaymentCurrencyById($id, $store->id);
             abort_if($currency === null || $currency->storeId !== $store->id, 404);
         } else {
-            $currency = \Craft::createObject([
-                'class' => PaymentCurrency::class,
-                'storeId' => $store->id,
-            ]);
+            $currency = new PaymentCurrency(['storeId' => $store->id]);
         }
 
         // @TODO Use the full currency name instead of the ISO code for the page title

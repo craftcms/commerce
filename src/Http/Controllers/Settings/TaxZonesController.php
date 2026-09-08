@@ -84,10 +84,7 @@ JS;
             $taxZone = app(TaxZones::class)->getTaxZoneById($id, $store->id);
             abort_if($taxZone === null, 404);
         } else {
-            $taxZone = \Craft::createObject([
-                'class' => TaxAddressZone::class,
-                'storeId' => $store->id,
-            ]);
+            $taxZone = new TaxAddressZone(['storeId' => $store->id]);
         }
 
         $title = $taxZone->id ? $taxZone->name : t('Create a tax zone', category: 'commerce');
