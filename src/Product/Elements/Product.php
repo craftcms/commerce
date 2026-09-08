@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Product\Elements;
 
-use craft\commerce\elements\VariantCollection;
 use craft\commerce\Plugin;
 use craft\events\ElementCriteriaEvent;
 use CraftCms\Cms\Asset\Actions\CopyReferenceTag;
@@ -61,6 +60,7 @@ use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use CraftCms\Commerce\Product\Queries\ProductQuery;
 use CraftCms\Commerce\Product\Validation\ProductRules;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
+use CraftCms\Commerce\Product\Variant\Elements\VariantCollection;
 use CraftCms\Commerce\Product\Variant\Queries\VariantQuery;
 use CraftCms\Commerce\Promotion\Actions\CreateDiscount;
 use CraftCms\Commerce\Promotion\Actions\CreateSale;

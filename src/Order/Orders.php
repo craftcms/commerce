@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order;
 
-use craft\commerce\elements\deletionblockers\OrderCustomersDeletionBlocker;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Element\Events\DefineDeletionBlockers;
@@ -17,6 +16,7 @@ use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Order\DeletionBlockers\OrderCustomersDeletionBlocker;
 use CraftCms\Commerce\Order\Elements\Order;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;

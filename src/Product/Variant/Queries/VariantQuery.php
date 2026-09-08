@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Product\Variant\Queries;
 
 use Closure;
-use craft\commerce\elements\VariantCollection;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Element;
@@ -22,6 +21,7 @@ use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use CraftCms\Commerce\Product\Queries\ProductQuery;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
+use CraftCms\Commerce\Product\Variant\Elements\VariantCollection;
 use CraftCms\Commerce\Promotion\Models\Sale as SaleRecord;
 use CraftCms\Commerce\Promotion\Sales;
 use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery;
