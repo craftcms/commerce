@@ -108,12 +108,6 @@ trait HasServices
         'webhooks' => Webhooks::class,
     ];
 
-    /**
-     * Returns a legacy service component by ID, matching the `yii\di\ServiceLocator::get()` API
-     * that third-party code may still call directly.
-     *
-     * @throws \RuntimeException if no service is registered under that ID
-     */
     public function get(string $id): object
     {
         if (!isset(self::$serviceMap[$id])) {
