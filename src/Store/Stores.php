@@ -674,6 +674,11 @@ class Stores
      */
     public function afterSaveCraftSiteHandler(SiteSaved $event): void
     {
+        // Let handleChangedSiteStore() create the mapping from the incoming config instead.
+        if (ProjectConfig::isApplyingExternalChanges()) {
+            return;
+        }
+
         $siteStore = SiteStoreRecord::find($event->site->id);
 
         // Only create it if it doesn't exist.

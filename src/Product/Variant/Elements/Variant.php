@@ -139,6 +139,12 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     private ?string $_productTypeHandle = null;
 
+    /**
+     * Whether the SKU was auto-generated from a `skuFormat` containing `{id}` before this element had an ID,
+     * meaning it needs to be regenerated in {@see afterAssignedId()} once the ID is available.
+     */
+    private bool $_regenerateSkuAfterIdAssigned = false;
+
     #[Override]
     public function safeAttributes(): array
     {
@@ -561,6 +567,12 @@ class Variant extends Purchasable implements NestedElementInterface
                 $language,
                 fn() => renderSandboxedObjectTemplate($type->skuFormat, $this),
             );
+
+            // If the format references the element's own ID but it doesn't have one yet, the rendered SKU will be
+            // missing that value — flag it for regeneration once afterAssignedId() runs.
+            if (!$this->id && str_contains($type->skuFormat, '{id}')) {
+                $this->_regenerateSkuAfterIdAssigned = true;
+            }
 
             // Ensure there isn't a clash with an existing SKU when using auto formats
             if ($this->skuExists($this->getSku(), $this->id)) {
@@ -1067,6 +1079,12 @@ class Variant extends Purchasable implements NestedElementInterface
 
         if ($product) {
             $this->updateTitle($product);
+
+            if ($this->_regenerateSkuAfterIdAssigned) {
+                $this->_regenerateSkuAfterIdAssigned = false;
+                $this->sku = '';
+                $this->updateSku($product);
+            }
         }
     }
 

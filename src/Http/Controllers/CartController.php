@@ -686,10 +686,6 @@ class CartController
                 $this->cart->sourceShippingAddressId = null;
                 $this->cart->setShippingAddress($shippingAddress);
 
-                if (!empty($shippingAddress['fields']) && $this->cart->getShippingAddress()) {
-                    $this->cart->getShippingAddress()->setFieldValues($shippingAddress['fields']);
-                }
-
                 if ($billingIsShipping) {
                     $this->cart->sourceBillingAddressId = null;
                     $this->cart->setBillingAddress($this->cart->getShippingAddress());
@@ -730,10 +726,6 @@ class CartController
             } elseif ($billingAddress && !$billingIsShipping) {
                 $this->cart->sourceBillingAddressId = null;
                 $this->cart->setBillingAddress($billingAddress);
-
-                if (!empty($billingAddress['fields']) && $this->cart->getBillingAddress()) {
-                    $this->cart->getBillingAddress()->setFieldValues($billingAddress['fields']);
-                }
 
                 if ($shippingIsBilling) {
                     $this->cart->sourceShippingAddressId = null;
