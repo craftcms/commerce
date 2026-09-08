@@ -201,7 +201,7 @@ readonly class PaymentsController
         // This will return the gateway to be used. The orders gateway ID could be null, but it will know the gateway from the paymentSource ID
         $gateway = $order->getGateway();
 
-        /** @phpstan-ignore-next-line method.notFound (getIsFrontendEnabled() is declared on legacy craft\commerce\base\GatewayTrait, which legacy craft\commerce\base\Gateway implements via the class_alias chain, which PHPStan can't trace) */
+        /** @phpstan-ignore-next-line method.notFound (getIsFrontendEnabled() is declared on CraftCms\Commerce\Payment\Gateway\Gateway, reached here via the legacy craft\commerce\base\Gateway class_alias chain, which PHPStan can't trace) */
         if (!$gateway || !$gateway->availableForUseWithOrder($order) || (!$gateway->getIsFrontendEnabled() && !$isCpRequest)) {
             $error = t('There is no gateway or payment source available for use with this order.', category: 'commerce');
 
@@ -243,7 +243,7 @@ readonly class PaymentsController
         // 2) Paying with the current order gatewayId and a payment form populated from the request
         if ($order->gatewayId && !$order->paymentSourceId) {
             // Populate the payment form from the params
-            /** @phpstan-ignore-next-line property.notFound ($handle is declared on legacy craft\commerce\base\GatewayTrait, which legacy craft\commerce\base\Gateway implements via the class_alias chain, which PHPStan can't trace) */
+            /** @phpstan-ignore-next-line property.notFound ($handle is declared on CraftCms\Commerce\Payment\Gateway\Gateway, reached here via the legacy craft\commerce\base\Gateway class_alias chain, which PHPStan can't trace) */
             $paymentFormParams = $request->input(PaymentForm::getPaymentFormParamName($gateway->handle));
 
             if ($paymentFormParams) {
