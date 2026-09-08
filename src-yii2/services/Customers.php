@@ -2,10 +2,13 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\Plugin;
+use CraftCms\Commerce\Payment\Events\UpdatePrimaryPaymentSourceEvent;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Customer\Models\Customer as CustomerRecord;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
+use Illuminate\Support\Facades\Event;
 use yii\base\Component;
 
 /**
@@ -60,5 +63,15 @@ class Customers extends Component
     public function transferCustomerData(User $fromCustomer, User $toCustomer): bool
     {
         return app(\CraftCms\Commerce\Customer\Customers::class)->transferCustomerData($fromCustomer, $toCustomer);
+    }
+
+    public static function registerEvents(): void
+    {
+        Event::listen(UpdatePrimaryPaymentSourceEvent::class, static function(UpdatePrimaryPaymentSourceEvent $event) {
+            $legacy = Plugin::getInstance()->getCustomers();
+            if ($legacy->hasEventHandlers(self::EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE)) {
+                $legacy->trigger(self::EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE, $event);
+            }
+        });
     }
 }

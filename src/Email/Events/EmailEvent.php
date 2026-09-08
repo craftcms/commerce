@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Email\Events;
 
 use CraftCms\Commerce\Email\Data\Email;
+use yii\base\Event;
 
-class EmailEvent
+class EmailEvent extends Event
 {
     public function __construct(
         public Email $email,

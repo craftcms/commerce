@@ -7,7 +7,25 @@ namespace CraftCms\Commerce\Plugin\Concerns;
 use craft\base\Event as YiiEvent;
 use craft\ckeditor\events\DefineLinkOptionsEvent;
 use craft\ckeditor\Field as CKEditorField;
+use craft\commerce\services\Carts as LegacyCarts;
+use craft\commerce\services\Customers as LegacyCustomers;
 use craft\commerce\services\Emails as LegacyEmails;
+use craft\commerce\services\Inventory as LegacyInventory;
+use craft\commerce\services\LineItems as LegacyLineItems;
+use craft\commerce\services\LineItemStatuses as LegacyLineItemStatuses;
+use craft\commerce\services\OrderHistories as LegacyOrderHistories;
+use craft\commerce\services\OrderStatuses as LegacyOrderStatuses;
+use craft\commerce\services\PaymentCurrencies as LegacyPaymentCurrencies;
+use craft\commerce\services\Payments as LegacyPayments;
+use craft\commerce\services\PaymentSources as LegacyPaymentSources;
+use craft\commerce\services\Pdfs as LegacyPdfs;
+use craft\commerce\services\ProductTypes as LegacyProductTypes;
+use craft\commerce\services\Purchasables as LegacyPurchasables;
+use craft\commerce\services\ShippingMethods as LegacyShippingMethods;
+use craft\commerce\services\Stores as LegacyStores;
+use craft\commerce\services\Taxes as LegacyTaxes;
+use craft\commerce\services\Transactions as LegacyTransactions;
+use craft\commerce\services\Webhooks as LegacyWebhooks;
 use craft\events\RegisterUrlRulesEvent;
 use craft\fixfks\controllers\RestoreController as RestoreFksController;
 use craft\web\UrlManager;
@@ -18,7 +36,7 @@ use CraftCms\Cms\Site\Events\SiteDeleted;
 use CraftCms\Cms\Support\Facades\Plugins;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Commerce\Email\Emails;
-use CraftCms\Commerce\Email\Events\EmailEvent;
+use CraftCms\Commerce\Email\Events\EmailDeleted;
 use CraftCms\Commerce\Gql\Types\Input\Criteria\ProductRelation;
 use CraftCms\Commerce\Gql\Types\Input\Criteria\VariantRelation;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
@@ -76,7 +94,7 @@ trait HasCommerceEventListeners
             ->onUpdate(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', app(OrderStatuses::class)->handleChangedOrderStatus(...))
             ->onRemove(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', app(OrderStatuses::class)->handleDeletedOrderStatus(...));
 
-        YiiEvent::on(LegacyEmails::class, LegacyEmails::EVENT_AFTER_DELETE_EMAIL, static function(EmailEvent $event) {
+        Event::listen(EmailDeleted::class, static function(EmailDeleted $event) {
             if (!app(ProjectConfig::class)->isApplyingExternalChanges) {
                 app(OrderStatuses::class)->pruneDeletedEmail($event);
             }
@@ -178,6 +196,7 @@ trait HasCommerceEventListeners
             return;
         }
 
+        /** @phpstan-ignore-next-line argument.type (class_exists() above guarantees this is a yii\base\Component subclass) */
         YiiEvent::on(RestoreFksController::class, RestoreFksController::EVENT_AFTER_RESTORE_FKS, function() {
             $this->createInstallMigration()?->addForeignKeys();
         });
@@ -188,5 +207,32 @@ trait HasCommerceEventListeners
         YiiEvent::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, static function(RegisterUrlRulesEvent $event) {
             $event->rules['commerce'] = ['template' => 'commerce/index'];
         });
+    }
+
+    /**
+     * Bridges new Laravel events to their legacy `craft\commerce\services\*` Yii2 counterparts,
+     * matching the pattern used by the CMS yii2-adapter (e.g. `craft\services\Volumes::registerEvents()`).
+     */
+    private function registerLegacyEventBridges(): void
+    {
+        LegacyCarts::registerEvents();
+        LegacyCustomers::registerEvents();
+        LegacyEmails::registerEvents();
+        LegacyInventory::registerEvents();
+        LegacyLineItems::registerEvents();
+        LegacyLineItemStatuses::registerEvents();
+        LegacyOrderHistories::registerEvents();
+        LegacyOrderStatuses::registerEvents();
+        LegacyPaymentCurrencies::registerEvents();
+        LegacyPayments::registerEvents();
+        LegacyPaymentSources::registerEvents();
+        LegacyPdfs::registerEvents();
+        LegacyProductTypes::registerEvents();
+        LegacyPurchasables::registerEvents();
+        LegacyShippingMethods::registerEvents();
+        LegacyStores::registerEvents();
+        LegacyTaxes::registerEvents();
+        LegacyTransactions::registerEvents();
+        LegacyWebhooks::registerEvents();
     }
 }

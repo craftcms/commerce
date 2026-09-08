@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Product\Events;
 
 use CraftCms\Commerce\Product\Elements\Product;
+use yii\base\Event;
 
-class CustomizeProductSnapshotDataEvent
+class CustomizeProductSnapshotDataEvent extends Event
 {
     public function __construct(
         public Product $product,

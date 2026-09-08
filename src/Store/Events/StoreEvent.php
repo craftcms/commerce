@@ -6,8 +6,9 @@ namespace CraftCms\Commerce\Store\Events;
 
 use CraftCms\Cms\Shared\Concerns\ValidatableEvent;
 use CraftCms\Commerce\Store\Data\Store;
+use yii\base\Event;
 
-class StoreEvent
+class StoreEvent extends Event
 {
     use ValidatableEvent;
 

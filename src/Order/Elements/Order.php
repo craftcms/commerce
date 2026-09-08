@@ -58,6 +58,7 @@ use CraftCms\Commerce\Order\Data\OrderStatus;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 use CraftCms\Commerce\Order\Events\AddLineItemEvent;
 use CraftCms\Commerce\Order\Events\LineItemEvent;
+use CraftCms\Commerce\Order\Events\OrderEvent;
 use CraftCms\Commerce\Order\Events\OrderLineItemsRefreshEvent;
 use CraftCms\Commerce\Order\Events\OrderNoticeEvent;
 use CraftCms\Commerce\Order\Exceptions\LineItemNotFoundException;
@@ -1133,12 +1134,22 @@ class Order extends Element implements HasStoreInterface
             }
         }
 
-        if ($justPaid && $this->hasEventHandlers(self::EVENT_AFTER_ORDER_PAID)) {
-            $this->trigger(self::EVENT_AFTER_ORDER_PAID);
+        if ($justPaid) {
+            $event = new OrderEvent(order: $this);
+            event($event);
+
+            if ($this->hasEventHandlers(self::EVENT_AFTER_ORDER_PAID)) {
+                $this->trigger(self::EVENT_AFTER_ORDER_PAID);
+            }
         }
 
-        if ($justAuthorized && $this->hasEventHandlers(self::EVENT_AFTER_ORDER_AUTHORIZED)) {
-            $this->trigger(self::EVENT_AFTER_ORDER_AUTHORIZED);
+        if ($justAuthorized) {
+            $event = new OrderEvent(order: $this);
+            event($event);
+
+            if ($this->hasEventHandlers(self::EVENT_AFTER_ORDER_AUTHORIZED)) {
+                $this->trigger(self::EVENT_AFTER_ORDER_AUTHORIZED);
+            }
         }
 
         // Restore the original recalculation mode, unless this call completed the order
@@ -1293,11 +1304,13 @@ class Order extends Element implements HasStoreInterface
             }
         }
 
+        $event = new LineItemEvent(
+            lineItem: $lineItem,
+        );
+        event($event);
+
         if ($this->hasEventHandlers(self::EVENT_AFTER_REMOVE_LINE_ITEM)) {
-            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
-            $this->trigger(self::EVENT_AFTER_REMOVE_LINE_ITEM, new LineItemEvent(
-                lineItem: $lineItem,
-            ));
+            $this->trigger(self::EVENT_AFTER_REMOVE_LINE_ITEM, $event);
         }
     }
 
@@ -1309,10 +1322,13 @@ class Order extends Element implements HasStoreInterface
         $lineItems = $this->getLineItems();
         $isNew = ($lineItem->id === null);
 
-        if ($isNew && $this->hasEventHandlers(self::EVENT_BEFORE_ADD_LINE_ITEM)) {
+        if ($isNew) {
             $lineItemEvent = new AddLineItemEvent(lineItem: $lineItem, isNew: $isNew);
-            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
-            $this->trigger(self::EVENT_BEFORE_ADD_LINE_ITEM, $lineItemEvent);
+            event($lineItemEvent);
+
+            if ($this->hasEventHandlers(self::EVENT_BEFORE_ADD_LINE_ITEM)) {
+                $this->trigger(self::EVENT_BEFORE_ADD_LINE_ITEM, $lineItemEvent);
+            }
 
             if (!$lineItemEvent->isValid) {
                 return;
@@ -1334,12 +1350,14 @@ class Order extends Element implements HasStoreInterface
         $this->setLineItems($lineItems);
 
         // Raising the 'afterAddLineItemToOrder' event
+        $event = new LineItemEvent(
+            lineItem: $lineItem,
+            isNew: !$replaced,
+        );
+        event($event);
+
         if ($this->hasEventHandlers(self::EVENT_AFTER_ADD_LINE_ITEM)) {
-            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
-            $this->trigger(self::EVENT_AFTER_ADD_LINE_ITEM, new LineItemEvent(
-                lineItem: $lineItem,
-                isNew: !$replaced,
-            ));
+            $this->trigger(self::EVENT_AFTER_ADD_LINE_ITEM, $event);
         }
     }
 
@@ -1405,17 +1423,18 @@ class Order extends Element implements HasStoreInterface
             }
 
             $recalculateOrder = false;
-            if ($this->hasEventHandlers(self::EVENT_BEFORE_LINE_ITEMS_REFRESHED)) {
-                $event = new OrderLineItemsRefreshEvent(
-                    lineItems: $this->getLineItems(),
-                    recalculate: $recalculateOrder,
-                );
-                /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
-                $this->trigger(self::EVENT_BEFORE_LINE_ITEMS_REFRESHED, $event);
+            $event = new OrderLineItemsRefreshEvent(
+                lineItems: $this->getLineItems(),
+                recalculate: $recalculateOrder,
+            );
+            event($event);
 
-                $this->setLineItems($event->lineItems);
-                $recalculateOrder = $event->recalculate;
+            if ($this->hasEventHandlers(self::EVENT_BEFORE_LINE_ITEMS_REFRESHED)) {
+                $this->trigger(self::EVENT_BEFORE_LINE_ITEMS_REFRESHED, $event);
             }
+
+            $this->setLineItems($event->lineItems);
+            $recalculateOrder = $event->recalculate;
 
             foreach ($this->getLineItems() as $item) {
                 $originalSalePrice = $item->getSalePrice();
@@ -1460,17 +1479,18 @@ class Order extends Element implements HasStoreInterface
                 $recalculateOrder = true;
             }
 
-            if ($this->hasEventHandlers(self::EVENT_AFTER_LINE_ITEMS_REFRESHED)) {
-                $event = new OrderLineItemsRefreshEvent(
-                    lineItems: $this->getLineItems(),
-                    recalculate: $recalculateOrder,
-                );
-                /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
-                $this->trigger(self::EVENT_AFTER_LINE_ITEMS_REFRESHED, $event);
+            $event = new OrderLineItemsRefreshEvent(
+                lineItems: $this->getLineItems(),
+                recalculate: $recalculateOrder,
+            );
+            event($event);
 
-                $this->setLineItems($event->lineItems);
-                $recalculateOrder = $event->recalculate;
+            if ($this->hasEventHandlers(self::EVENT_AFTER_LINE_ITEMS_REFRESHED)) {
+                $this->trigger(self::EVENT_AFTER_LINE_ITEMS_REFRESHED, $event);
             }
+
+            $this->setLineItems($event->lineItems);
+            $recalculateOrder = $event->recalculate;
 
             if ($recalculateOrder) {
                 $this->recalculate();
@@ -4056,13 +4076,14 @@ class Order extends Element implements HasStoreInterface
                 );
 
                 // Raising the 'beforeAddNoticeToOrder' event
-                if ($this->hasEventHandlers(self::EVENT_BEFORE_APPLY_ADD_NOTICE)) {
-                    /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
-                    $this->trigger(self::EVENT_BEFORE_APPLY_ADD_NOTICE, $orderNoticeEvent);
+                event($orderNoticeEvent);
 
-                    if ($orderNoticeEvent->isValid === false) {
-                        continue;
-                    }
+                if ($this->hasEventHandlers(self::EVENT_BEFORE_APPLY_ADD_NOTICE)) {
+                    $this->trigger(self::EVENT_BEFORE_APPLY_ADD_NOTICE, $orderNoticeEvent);
+                }
+
+                if ($orderNoticeEvent->isValid === false) {
+                    continue;
                 }
                 $noticeRecord = new OrderNoticeRecord();
                 $noticeRecord->orderId = $notice->orderId;
@@ -4105,11 +4126,13 @@ class Order extends Element implements HasStoreInterface
             if (!in_array($previousLineItem->id, $currentLineItemIds, false)) {
                 DB::table(Table::LINEITEMS)->where('id', $previousLineItem->id)->delete();
 
+                $event = new LineItemEvent(
+                    lineItem: $previousLineItem,
+                );
+                event($event);
+
                 if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM)) {
-                    /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
-                    $this->trigger(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM, new LineItemEvent(
-                        lineItem: $previousLineItem,
-                    ));
+                    $this->trigger(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM, $event);
                 }
             }
         }
@@ -4132,12 +4155,14 @@ class Order extends Element implements HasStoreInterface
             // Is this a new line item?
             if ($originalId === null) {
                 // Raising the 'afterAddLineItemToOrder' event
+                $event = new LineItemEvent(
+                    lineItem: $lineItem,
+                    isNew: true,
+                );
+                event($event);
+
                 if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_ADD_LINE_ITEM)) {
-                    /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
-                    $this->trigger(self::EVENT_AFTER_APPLY_ADD_LINE_ITEM, new LineItemEvent(
-                        lineItem: $lineItem,
-                        isNew: true,
-                    ));
+                    $this->trigger(self::EVENT_AFTER_APPLY_ADD_LINE_ITEM, $event);
                 }
             }
 

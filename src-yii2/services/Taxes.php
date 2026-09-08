@@ -2,6 +2,11 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\Plugin;
+use CraftCms\Commerce\Tax\Events\TaxEngineEvent;
+use CraftCms\Commerce\Tax\Events\TaxIdValidatorsEvent;
+use Illuminate\Support\Facades\Event;
+
 use craft\base\Component;
 use craft\commerce\base\TaxEngineInterface;
 use craft\commerce\base\TaxIdValidatorInterface;
@@ -127,5 +132,22 @@ class Taxes extends Component implements TaxEngineInterface
     public function taxRateActionHtml(): string
     {
         return app(\CraftCms\Commerce\Tax\Taxes::class)->taxRateActionHtml();
+    }
+
+    public static function registerEvents(): void
+    {
+        Event::listen(TaxIdValidatorsEvent::class, static function(TaxIdValidatorsEvent $event) {
+            $legacy = Plugin::getInstance()->getTaxes();
+            if ($legacy->hasEventHandlers(self::EVENT_REGISTER_TAX_ID_VALIDATORS)) {
+                $legacy->trigger(self::EVENT_REGISTER_TAX_ID_VALIDATORS, $event);
+            }
+        });
+
+        Event::listen(TaxEngineEvent::class, static function(TaxEngineEvent $event) {
+            $legacy = Plugin::getInstance()->getTaxes();
+            if ($legacy->hasEventHandlers(self::EVENT_REGISTER_TAX_ENGINE)) {
+                $legacy->trigger(self::EVENT_REGISTER_TAX_ENGINE, $event);
+            }
+        });
     }
 }

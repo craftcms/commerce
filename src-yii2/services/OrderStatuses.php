@@ -2,6 +2,11 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\Plugin;
+use CraftCms\Commerce\Order\Events\DefaultOrderStatusEvent;
+use CraftCms\Commerce\Order\Events\OrderStatusEmailsEvent;
+use Illuminate\Support\Facades\Event;
+
 use CraftCms\Commerce\Order\Elements\Order;
 use craft\events\ConfigEvent;
 use CraftCms\Commerce\Email\Events\EmailEvent;
@@ -110,5 +115,22 @@ class OrderStatuses extends Component
     public function reorderOrderStatuses(array $ids): bool
     {
         return app(\CraftCms\Commerce\Order\OrderStatuses::class)->reorderOrderStatuses($ids);
+    }
+
+    public static function registerEvents(): void
+    {
+        Event::listen(DefaultOrderStatusEvent::class, static function(DefaultOrderStatusEvent $event) {
+            $legacy = Plugin::getInstance()->getOrderStatuses();
+            if ($legacy->hasEventHandlers(self::EVENT_DEFAULT_ORDER_STATUS)) {
+                $legacy->trigger(self::EVENT_DEFAULT_ORDER_STATUS, $event);
+            }
+        });
+
+        Event::listen(OrderStatusEmailsEvent::class, static function(OrderStatusEmailsEvent $event) {
+            $legacy = Plugin::getInstance()->getOrderStatuses();
+            if ($legacy->hasEventHandlers(self::EVENT_ORDER_STATUS_CHANGE_EMAILS)) {
+                $legacy->trigger(self::EVENT_ORDER_STATUS_CHANGE_EMAILS, $event);
+            }
+        });
     }
 }

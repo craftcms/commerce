@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Product\ProductType;
 
-use craft\commerce\Plugin;
 use craft\helpers\Cp;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Element\Enums\PropagationMethod;
@@ -27,7 +26,8 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\ProductType\Data\ProductType;
 use CraftCms\Commerce\Product\ProductType\Data\ProductTypeSite;
-use CraftCms\Commerce\Product\ProductType\Events\ProductTypeEvent;
+use CraftCms\Commerce\Product\ProductType\Events\ProductTypeSaved;
+use CraftCms\Commerce\Product\ProductType\Events\ProductTypeSaving;
 use CraftCms\Commerce\Product\ProductType\Exceptions\ProductTypeNotFoundException;
 use CraftCms\Commerce\Product\ProductType\Models\ProductType as ProductTypeRecord;
 use CraftCms\Commerce\Product\ProductType\Models\ProductTypeSite as ProductTypeSiteRecord;
@@ -258,17 +258,11 @@ class ProductTypes
     {
         $isNewProductType = !$productType->id;
 
-        // TODO: migrate event firing to Laravel once event system is bridged
-        $legacyService = Plugin::getInstance()->getProductTypes();
-
-        if ($legacyService->hasEventHandlers(self::EVENT_BEFORE_SAVE_PRODUCTTYPE)) {
-            $event = new ProductTypeEvent(
-                productType: $productType,
-                isNew: $isNewProductType,
-            );
-            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
-            $legacyService->trigger(self::EVENT_BEFORE_SAVE_PRODUCTTYPE, $event);
-        }
+        $event = new ProductTypeSaving(
+            productType: $productType,
+            isNew: $isNewProductType,
+        );
+        event($event);
 
         if ($runValidation && !$productType->validate()) {
             Log::info('Product type not saved due to validation error.');
@@ -566,16 +560,11 @@ class ProductTypes
         $this->_allProductTypes = null;
         unset($this->_siteSettingsByProductId[$record->id]);
 
-        // TODO: migrate event firing to Laravel once event system is bridged
-        $legacyService = Plugin::getInstance()->getProductTypes();
-        if ($legacyService->hasEventHandlers(self::EVENT_AFTER_SAVE_PRODUCTTYPE)) {
-            $event = new ProductTypeEvent(
-                productType: $this->getProductTypeById($record->id),
-                isNew: empty($this->_savingProductTypes[$productTypeUid]),
-            );
-            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
-            $legacyService->trigger(self::EVENT_AFTER_SAVE_PRODUCTTYPE, $event);
-        }
+        $event = new ProductTypeSaved(
+            productType: $this->getProductTypeById($record->id),
+            isNew: empty($this->_savingProductTypes[$productTypeUid]),
+        );
+        event($event);
     }
 
     public function deleteProductTypeById(int $id): bool

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Payment;
 
-use craft\commerce\Plugin;
-use CraftCms\Commerce\Payment\Events\WebhookEvent;
+use CraftCms\Commerce\Payment\Events\WebhookProcessed;
+use CraftCms\Commerce\Payment\Events\WebhookProcessing;
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Contracts\Cache\LockTimeoutException;
@@ -29,12 +29,8 @@ class Webhooks
     public function processWebhook(GatewayInterface $gateway): Response
     {
         // Fire a 'beforeProcessWebhook' event
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getWebhooks()->hasEventHandlers(self::EVENT_BEFORE_PROCESS_WEBHOOK)) {
-            $beforeEvent = new WebhookEvent(gateway: $gateway);
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getWebhooks()->trigger(self::EVENT_BEFORE_PROCESS_WEBHOOK, $beforeEvent);
-        }
+        $beforeEvent = new WebhookProcessing(gateway: $gateway);
+        event($beforeEvent);
 
         $transactionHash = $gateway->getTransactionHashFromWebhook();
         $useMutex = (bool)$transactionHash;
@@ -72,13 +68,9 @@ class Webhooks
         }
 
         // Fire a 'afterProcessWebhook' event
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getWebhooks()->hasEventHandlers(self::EVENT_AFTER_PROCESS_WEBHOOK)) {
-            $afterEvent = new WebhookEvent(gateway: $gateway);
-            $afterEvent->response = $response;
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getWebhooks()->trigger(self::EVENT_AFTER_PROCESS_WEBHOOK, $afterEvent);
-        }
+        $afterEvent = new WebhookProcessed(gateway: $gateway);
+        $afterEvent->response = $response;
+        event($afterEvent);
 
         return $response;
     }

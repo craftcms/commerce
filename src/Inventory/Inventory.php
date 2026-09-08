@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Inventory;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Commerce\Database\Table;
@@ -336,14 +335,11 @@ class Inventory
             app(Purchasables::class)->updateStoreStockCache($purchasable, true);
         }
 
-        // TODO: migrate event firing to Laravel once the event system is bridged
         foreach ($updateInventoryLevels as $updateInventoryLevel) {
-            if (Plugin::getInstance()->getInventory()->hasEventHandlers(self::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL)) {
-                /** @phpstan-ignore-next-line */
-                Plugin::getInstance()->getInventory()->trigger(self::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL, new UpdateInventoryLevelEvent(
-                    updateInventoryLevel: $updateInventoryLevel,
-                ));
-            }
+            $event = new UpdateInventoryLevelEvent(
+                updateInventoryLevel: $updateInventoryLevel,
+            );
+            event($event);
         }
 
         return true;
@@ -528,14 +524,11 @@ class Inventory
             }
         }
 
-        // TODO: migrate event firing to Laravel once the event system is bridged
         foreach ($inventoryMovements as $inventoryMovement) {
-            if (Plugin::getInstance()->getInventory()->hasEventHandlers(self::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT)) {
-                /** @phpstan-ignore-next-line */
-                Plugin::getInstance()->getInventory()->trigger(self::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT, new InventoryMovementEvent(
-                    inventoryMovement: $inventoryMovement,
-                ));
-            }
+            $event = new InventoryMovementEvent(
+                inventoryMovement: $inventoryMovement,
+            );
+            event($event);
         }
 
         return true;

@@ -1448,13 +1448,14 @@ JS, [
         }
 
         // Fire a 'defineParentSelectionCriteria' event
+        $event = new ElementCriteriaEvent(['criteria' => $parentOptionCriteria]);
+        event($event);
+
         if ($this->hasEventHandlers(self::EVENT_DEFINE_PARENT_SELECTION_CRITERIA)) {
-            $event = new ElementCriteriaEvent(['criteria' => $parentOptionCriteria]);
             $this->trigger(self::EVENT_DEFINE_PARENT_SELECTION_CRITERIA, $event);
-            return $event->criteria;
         }
 
-        return $parentOptionCriteria;
+        return $event->criteria;
     }
 
     /**

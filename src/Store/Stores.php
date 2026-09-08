@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Store;
 
-use craft\commerce\Plugin;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Database\Table as CraftTable;
@@ -26,8 +25,11 @@ use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Store\Data\SiteStore;
 use CraftCms\Commerce\Store\Data\Store;
-use CraftCms\Commerce\Store\Events\DeleteStoreEvent;
-use CraftCms\Commerce\Store\Events\StoreEvent;
+use CraftCms\Commerce\Store\Events\StoreDeleteApplying;
+use CraftCms\Commerce\Store\Events\StoreDeleted;
+use CraftCms\Commerce\Store\Events\StoreDeleting;
+use CraftCms\Commerce\Store\Events\StoreSaved;
+use CraftCms\Commerce\Store\Events\StoreSaving;
 use CraftCms\Commerce\Store\Models\SiteStore as SiteStoreRecord;
 use CraftCms\Commerce\Store\Models\Store as StoreRecord;
 use Exception;
@@ -187,15 +189,11 @@ class Stores
         $isNewStore = !$store->id;
 
         // Raise 'beforeSaveStore' event
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getStores()->hasEventHandlers(self::EVENT_BEFORE_SAVE_STORE)) {
-            $beforeEvent = new StoreEvent(
-                store: $store,
-                isNew: $isNewStore,
-            );
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getStores()->trigger(self::EVENT_BEFORE_SAVE_STORE, $beforeEvent);
-        }
+        $beforeEvent = new StoreSaving(
+            store: $store,
+            isNew: $isNewStore,
+        );
+        event($beforeEvent);
 
         if ($runValidation && !$store->validate()) {
             Log::info('Store not saved due to validation error.');
@@ -275,14 +273,10 @@ class Stores
         }
 
         // Raise 'beforeDeleteStore' event
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getStores()->hasEventHandlers(self::EVENT_BEFORE_DELETE_STORE)) {
-            $event = new DeleteStoreEvent(
-                store: $store,
-            );
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getStores()->trigger(self::EVENT_BEFORE_DELETE_STORE, $event);
-        }
+        $event = new StoreDeleting(
+            store: $store,
+        );
+        event($event);
 
         $path = self::CONFIG_STORES_KEY . '.' . $store->uid;
         ProjectConfig::remove($path, "Delete the \"{$store->handle}\" store");
@@ -368,15 +362,11 @@ class Stores
         $this->refreshStores();
 
         // Raise 'afterSaveStore' event
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getStores()->hasEventHandlers(self::EVENT_AFTER_SAVE_STORE)) {
-            $afterEvent = new StoreEvent(
-                store: $this->getStoreById($storeRecord->id),
-                isNew: $isNewStore,
-            );
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getStores()->trigger(self::EVENT_AFTER_SAVE_STORE, $afterEvent);
-        }
+        $afterEvent = new StoreSaved(
+            store: $this->getStoreById($storeRecord->id),
+            isNew: $isNewStore,
+        );
+        event($afterEvent);
     }
 
     /**
@@ -397,14 +387,10 @@ class Stores
         $store = $this->getStoreById($storeRecord->id);
 
         // Raise 'beforeApplyStoreDelete' event
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getStores()->hasEventHandlers(self::EVENT_BEFORE_APPLY_STORE_DELETE)) {
-            $blockerEvent = new DeleteStoreEvent(
-                store: $store,
-            );
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getStores()->trigger(self::EVENT_BEFORE_APPLY_STORE_DELETE, $blockerEvent);
-        }
+        $blockerEvent = new StoreDeleteApplying(
+            store: $store,
+        );
+        event($blockerEvent);
 
         DB::beginTransaction();
 
@@ -435,14 +421,10 @@ class Stores
         }
 
         // Raise 'afterDeleteStore' event
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getStores()->hasEventHandlers(self::EVENT_AFTER_DELETE_STORE)) {
-            $afterEvent = new DeleteStoreEvent(
-                store: $store,
-            );
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getStores()->trigger(self::EVENT_AFTER_DELETE_STORE, $afterEvent);
-        }
+        $afterEvent = new StoreDeleted(
+            store: $store,
+        );
+        event($afterEvent);
     }
 
     /**

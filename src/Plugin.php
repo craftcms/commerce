@@ -235,6 +235,7 @@ class Plugin extends BasePlugin
         $this->registerVariableMacros();
         $this->registerGqlRelatedToArguments();
         $this->registerForeignKeysRestore();
+        $this->registerLegacyEventBridges();
 
         Twig::registerExtension(new CommerceTwigExtension());
 

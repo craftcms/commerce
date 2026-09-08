@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Purchasable;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Support\Facades\ElementCaches;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Sites;
@@ -53,11 +52,7 @@ class Purchasables
             outOfStockPurchasesAllowed: $purchasable->allowOutOfStockPurchases,
         );
 
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getPurchasables()->hasEventHandlers(self::EVENT_PURCHASABLE_OUT_OF_STOCK_PURCHASES_ALLOWED)) {
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getPurchasables()->trigger(self::EVENT_PURCHASABLE_OUT_OF_STOCK_PURCHASES_ALLOWED, $event);
-        }
+        event($event);
 
         return $event->outOfStockPurchasesAllowed;
     }
@@ -73,11 +68,7 @@ class Purchasables
             currentUser: $currentUser,
         );
 
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getPurchasables()->hasEventHandlers(self::EVENT_PURCHASABLE_AVAILABLE)) {
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getPurchasables()->trigger(self::EVENT_PURCHASABLE_AVAILABLE, $event);
-        }
+        event($event);
 
         return $event->isAvailable;
     }
@@ -93,11 +84,7 @@ class Purchasables
             currentUser: $currentUser,
         );
 
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getPurchasables()->hasEventHandlers(self::EVENT_PURCHASABLE_SHIPPABLE)) {
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getPurchasables()->trigger(self::EVENT_PURCHASABLE_SHIPPABLE, $event);
-        }
+        event($event);
 
         return $event->isShippable;
     }

@@ -2,6 +2,11 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\Plugin;
+use CraftCms\Commerce\Product\ProductType\Events\ProductTypeSaved;
+use CraftCms\Commerce\Product\ProductType\Events\ProductTypeSaving;
+use Illuminate\Support\Facades\Event;
+
 use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;
 use CraftCms\Commerce\Product\ProductType\Data\ProductTypeSite;
@@ -125,5 +130,22 @@ class ProductTypes extends Component
     public function isProductTypeTemplateValid(ProductType $productType, int $siteId): bool
     {
         return app(\CraftCms\Commerce\Product\ProductType\ProductTypes::class)->isProductTypeTemplateValid($productType, $siteId);
+    }
+
+    public static function registerEvents(): void
+    {
+        Event::listen(ProductTypeSaving::class, static function(ProductTypeSaving $event) {
+            $legacy = Plugin::getInstance()->getProductTypes();
+            if ($legacy->hasEventHandlers(self::EVENT_BEFORE_SAVE_PRODUCTTYPE)) {
+                $legacy->trigger(self::EVENT_BEFORE_SAVE_PRODUCTTYPE, $event);
+            }
+        });
+
+        Event::listen(ProductTypeSaved::class, static function(ProductTypeSaved $event) {
+            $legacy = Plugin::getInstance()->getProductTypes();
+            if ($legacy->hasEventHandlers(self::EVENT_AFTER_SAVE_PRODUCTTYPE)) {
+                $legacy->trigger(self::EVENT_AFTER_SAVE_PRODUCTTYPE, $event);
+            }
+        });
     }
 }

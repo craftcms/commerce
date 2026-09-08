@@ -646,8 +646,9 @@ class Variant extends Purchasable implements NestedElementInterface
         );
 
         // Allow plugins to modify Product fields to be fetched
+        event($productFieldsEvent);
+
         if ($this->hasEventHandlers(self::EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT)) {
-            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
             $this->trigger(self::EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT, $productFieldsEvent);
         }
 
@@ -687,8 +688,9 @@ class Variant extends Purchasable implements NestedElementInterface
         }
 
         // Allow plugins to modify captured Product data
+        event($productDataEvent);
+
         if ($this->hasEventHandlers(self::EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT)) {
-            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
             $this->trigger(self::EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT, $productDataEvent);
         }
 
@@ -702,8 +704,9 @@ class Variant extends Purchasable implements NestedElementInterface
         );
 
         // Allow plugins to modify fields to be fetched
+        event($variantFieldsEvent);
+
         if ($this->hasEventHandlers(self::EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT)) {
-            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
             $this->trigger(self::EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT, $variantFieldsEvent);
         }
 
@@ -734,8 +737,9 @@ class Variant extends Purchasable implements NestedElementInterface
         );
 
         // Allow plugins to modify captured Variant data
+        event($variantDataEvent);
+
         if ($this->hasEventHandlers(self::EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT)) {
-            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
             $this->trigger(self::EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT, $variantDataEvent);
         }
 

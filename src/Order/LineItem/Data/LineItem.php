@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Order\LineItem\Data;
 
 use Closure;
-use craft\commerce\Plugin;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
@@ -14,7 +13,7 @@ use CraftCms\Commerce\Helpers\LineItem as LineItemHelper;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Order\Data\LineItemStatus;
 use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Order\Events\LineItemEvent;
+use CraftCms\Commerce\Order\Events\LineItemPopulated;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Order\LineItemStatuses;
 use CraftCms\Commerce\Order\Orders;
@@ -615,17 +614,10 @@ class LineItem extends Component implements HasStoreInterface
 
         $purchasable->populateLineItem($this);
 
-        // TODO: migrate event firing to Laravel once event system is bridged
-        $lineItemsService = Plugin::getInstance()->getLineItems();
-
-        if ($lineItemsService->hasEventHandlers($lineItemsService::EVENT_POPULATE_LINE_ITEM)) {
-            $event = new LineItemEvent(
-                lineItem: $this,
-                isNew: !$this->id,
-            );
-            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
-            $lineItemsService->trigger($lineItemsService::EVENT_POPULATE_LINE_ITEM, $event);
-        }
+        event(new LineItemPopulated(
+            lineItem: $this,
+            isNew: !$this->id,
+        ));
     }
 
     public function setIsPromotable(?bool $isPromotable): void

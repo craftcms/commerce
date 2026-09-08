@@ -2,6 +2,14 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\Plugin;
+use CraftCms\Commerce\Store\Events\StoreDeleteApplying;
+use CraftCms\Commerce\Store\Events\StoreDeleted;
+use CraftCms\Commerce\Store\Events\StoreDeleting;
+use CraftCms\Commerce\Store\Events\StoreSaved;
+use CraftCms\Commerce\Store\Events\StoreSaving;
+use Illuminate\Support\Facades\Event;
+
 use craft\events\ConfigEvent;
 use CraftCms\Commerce\Store\Data\SiteStore;
 use CraftCms\Commerce\Store\Data\Store;
@@ -170,4 +178,42 @@ class Stores extends Component
         app(\CraftCms\Commerce\Store\Stores::class)->handleDeletedSiteStore(new \CraftCms\Cms\ProjectConfig\Events\ItemRemoved($event->path, $event->oldValue, $event->newValue, $event->tokenMatches));
     }
 
+
+    public static function registerEvents(): void
+    {
+        Event::listen(StoreSaving::class, static function(StoreSaving $event) {
+            $legacy = Plugin::getInstance()->getStores();
+            if ($legacy->hasEventHandlers(self::EVENT_BEFORE_SAVE_STORE)) {
+                $legacy->trigger(self::EVENT_BEFORE_SAVE_STORE, $event);
+            }
+        });
+
+        Event::listen(StoreSaved::class, static function(StoreSaved $event) {
+            $legacy = Plugin::getInstance()->getStores();
+            if ($legacy->hasEventHandlers(self::EVENT_AFTER_SAVE_STORE)) {
+                $legacy->trigger(self::EVENT_AFTER_SAVE_STORE, $event);
+            }
+        });
+
+        Event::listen(StoreDeleting::class, static function(StoreDeleting $event) {
+            $legacy = Plugin::getInstance()->getStores();
+            if ($legacy->hasEventHandlers(self::EVENT_BEFORE_DELETE_STORE)) {
+                $legacy->trigger(self::EVENT_BEFORE_DELETE_STORE, $event);
+            }
+        });
+
+        Event::listen(StoreDeleteApplying::class, static function(StoreDeleteApplying $event) {
+            $legacy = Plugin::getInstance()->getStores();
+            if ($legacy->hasEventHandlers(self::EVENT_BEFORE_APPLY_STORE_DELETE)) {
+                $legacy->trigger(self::EVENT_BEFORE_APPLY_STORE_DELETE, $event);
+            }
+        });
+
+        Event::listen(StoreDeleted::class, static function(StoreDeleted $event) {
+            $legacy = Plugin::getInstance()->getStores();
+            if ($legacy->hasEventHandlers(self::EVENT_AFTER_DELETE_STORE)) {
+                $legacy->trigger(self::EVENT_AFTER_DELETE_STORE, $event);
+            }
+        });
+    }
 }

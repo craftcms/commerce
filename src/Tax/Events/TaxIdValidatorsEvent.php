@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Tax\Events;
 
-class TaxIdValidatorsEvent
+use yii\base\Event;
+
+class TaxIdValidatorsEvent extends Event
 {
     public function __construct(
         public array $validators = [],

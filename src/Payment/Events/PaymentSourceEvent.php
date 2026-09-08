@@ -6,8 +6,9 @@ namespace CraftCms\Commerce\Payment\Events;
 
 use CraftCms\Cms\Shared\Concerns\ValidatableEvent;
 use CraftCms\Commerce\Payment\Data\PaymentSource;
+use yii\base\Event;
 
-class PaymentSourceEvent
+class PaymentSourceEvent extends Event
 {
     use ValidatableEvent;
 

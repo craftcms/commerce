@@ -7,8 +7,9 @@ namespace CraftCms\Commerce\Purchasable\Events;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
+use yii\base\Event;
 
-class PurchasableShippableEvent
+class PurchasableShippableEvent extends Event
 {
     public function __construct(
         public PurchasableInterface $purchasable,

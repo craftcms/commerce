@@ -2,6 +2,12 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\Plugin;
+use CraftCms\Commerce\Purchasable\Events\PurchasableAvailableEvent;
+use CraftCms\Commerce\Purchasable\Events\PurchasableOutOfStockPurchasesAllowedEvent;
+use CraftCms\Commerce\Purchasable\Events\PurchasableShippableEvent;
+use Illuminate\Support\Facades\Event;
+
 use CraftCms\Commerce\Order\Elements\Order;
 use craft\elements\User;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
@@ -72,5 +78,29 @@ class Purchasables extends Component
     public static function finalizeRegistrationEvents(): void
     {
         TypeRegistryCompatibility::reconcile(app(PurchasableTypes::class), \craft\commerce\Plugin::getInstance()->getPurchasables(), self::EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES);
+    }
+
+    public static function registerEvents(): void
+    {
+        Event::listen(PurchasableOutOfStockPurchasesAllowedEvent::class, static function(PurchasableOutOfStockPurchasesAllowedEvent $event) {
+            $legacy = Plugin::getInstance()->getPurchasables();
+            if ($legacy->hasEventHandlers(self::EVENT_PURCHASABLE_OUT_OF_STOCK_PURCHASES_ALLOWED)) {
+                $legacy->trigger(self::EVENT_PURCHASABLE_OUT_OF_STOCK_PURCHASES_ALLOWED, $event);
+            }
+        });
+
+        Event::listen(PurchasableAvailableEvent::class, static function(PurchasableAvailableEvent $event) {
+            $legacy = Plugin::getInstance()->getPurchasables();
+            if ($legacy->hasEventHandlers(self::EVENT_PURCHASABLE_AVAILABLE)) {
+                $legacy->trigger(self::EVENT_PURCHASABLE_AVAILABLE, $event);
+            }
+        });
+
+        Event::listen(PurchasableShippableEvent::class, static function(PurchasableShippableEvent $event) {
+            $legacy = Plugin::getInstance()->getPurchasables();
+            if ($legacy->hasEventHandlers(self::EVENT_PURCHASABLE_SHIPPABLE)) {
+                $legacy->trigger(self::EVENT_PURCHASABLE_SHIPPABLE, $event);
+            }
+        });
     }
 }

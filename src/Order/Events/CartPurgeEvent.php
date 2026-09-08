@@ -6,8 +6,9 @@ namespace CraftCms\Commerce\Order\Events;
 
 use craft\db\Query;
 use CraftCms\Cms\Shared\Concerns\ValidatableEvent;
+use yii\base\Event;
 
-class CartPurgeEvent
+class CartPurgeEvent extends Event
 {
     use ValidatableEvent;
 
