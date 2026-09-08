@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Product\Fields;
 
-use craft\commerce\gql\arguments\elements\Product as ProductArguments;
-use craft\commerce\gql\interfaces\elements\Product as ProductInterface;
-use craft\commerce\gql\resolvers\elements\Product as ProductResolver;
 use CraftCms\Cms\Field\BaseRelationField;
 use CraftCms\Cms\Gql\Gql as GqlService;
 use CraftCms\Cms\Gql\GqlHelper;
+use CraftCms\Commerce\Gql\Arguments\Elements\Product as ProductArguments;
+use CraftCms\Commerce\Gql\Interfaces\Elements\Product as ProductInterface;
+use CraftCms\Commerce\Gql\Resolvers\Elements\Product as ProductResolver;
 use CraftCms\Commerce\Product\Elements\Product;
 use GraphQL\Type\Definition\Type;
 use Override;

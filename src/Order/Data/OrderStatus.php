@@ -9,6 +9,7 @@ use CraftCms\Cms\Component\Contracts\Chippable;
 use CraftCms\Cms\Cp\Html\StatusHtml;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Email\Emails;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
@@ -111,8 +112,7 @@ class OrderStatus extends Component implements HasStoreInterface, Chippable
 
     public function canDelete(): bool
     {
-        // TODO: migrate to app(Orders::class) query once element migrated to src/
-        $orderQuery = \craft\commerce\elements\Order::find()->trashed(null);
+        $orderQuery = Order::find()->trashed(null);
         return !$orderQuery->orderStatus($this)->one() && !$this->default;
     }
 
