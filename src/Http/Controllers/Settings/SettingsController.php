@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Facades\Fields;
@@ -12,6 +11,7 @@ use CraftCms\Cms\Support\Facades\Plugins;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Transfer\Transfers;
 use Illuminate\Http\Request;
@@ -26,24 +26,22 @@ readonly class SettingsController
 
     private bool $readOnly;
 
-    public function __construct(GeneralConfig $generalConfig)
+    public function __construct(GeneralConfig $generalConfig, private readonly Plugin $plugin)
     {
         $this->readOnly = !$generalConfig->allowAdminChanges;
     }
 
     public function edit(): string
     {
-        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class)
         return pageTemplate('commerce/settings/general', [
-            'settings' => Plugin::getInstance()->getSettings(),
+            'settings' => $this->plugin->getSettings(),
             'readOnly' => $this->readOnly,
         ], TemplateMode::Cp);
     }
 
     public function saveSettings(Request $request): Response|string
     {
-        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Plugin::class)
-        $plugin = Plugin::getInstance();
+        $plugin = $this->plugin;
         $settings = $request->input('settings');
         $pluginSettingsSaved = Plugins::savePluginSettings($plugin, $settings);
 

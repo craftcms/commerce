@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Pdf;
 
-use craft\commerce\Plugin;
 use craft\helpers\Db as CraftDb;
 use craft\helpers\FileHelper;
 use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
@@ -28,6 +27,7 @@ use CraftCms\Commerce\Pdf\Events\PdfRenderOptionsEvent;
 use CraftCms\Commerce\Pdf\Events\PdfSaved;
 use CraftCms\Commerce\Pdf\Events\PdfSaving;
 use CraftCms\Commerce\Pdf\Models\Pdf as PdfRecord;
+use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Store\Stores;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -62,6 +62,10 @@ class Pdfs
      * @var array<int, Collection<int, Pdf>>|null
      */
     private ?array $allPdfs = null;
+
+    public function __construct(private readonly Plugin $plugin)
+    {
+    }
 
     /**
      * @return Collection<int, Pdf>
@@ -397,8 +401,7 @@ class Pdfs
             throw new \ErrorException("Unable to write to folder: $dompdfTempDir");
         }
 
-        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class)
-        $isRemoteEnabled = Plugin::getInstance()->getSettings()->pdfAllowRemoteImages;
+        $isRemoteEnabled = $this->plugin->getSettings()->pdfAllowRemoteImages;
 
         $options = new Options();
         $options->setTempDir($dompdfTempDir);

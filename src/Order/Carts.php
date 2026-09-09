@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order;
 
-use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Database\Table as CraftTable;
@@ -18,6 +17,7 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Events\CartPurgeEvent;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
+use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Store\Stores;
 use DateInterval;
 use DateTime;
@@ -51,7 +51,7 @@ class Carts
      */
     private string|false|null $cartNumber = null;
 
-    public function __construct()
+    public function __construct(private readonly Plugin $plugin)
     {
         $currentStore = app(Stores::class)->getCurrentStore();
 
@@ -285,8 +285,7 @@ class Carts
     public function getActiveCartEdgeDuration(): string
     {
         $edge = new DateTime();
-        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class)
-        $activeCartDuration = Config::durationInSeconds(Plugin::getInstance()->getSettings()->activeCartDuration);
+        $activeCartDuration = Config::durationInSeconds($this->plugin->getSettings()->activeCartDuration);
         $interval = new DateInterval("PT{$activeCartDuration}S");
         $edge->sub($interval);
         return $edge->format(DateTime::ATOM);
@@ -362,8 +361,7 @@ class Carts
      */
     public function getLoadCartUrl(Order $cart): string
     {
-        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class)
-        $linkExpiry = Plugin::getInstance()->getSettings()->loadCartUrlExpiry;
+        $linkExpiry = $this->plugin->getSettings()->loadCartUrlExpiry;
         $expiryDate = now('UTC')->add(new DateInterval("PT{$linkExpiry}S"));
 
         $token = app(RouteTokens::class)->createToken([
@@ -459,12 +457,11 @@ class Carts
      */
     public function purgeIncompleteCarts(): int
     {
-        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class); applies to both calls in this method
-        if (!Plugin::getInstance()->getSettings()->purgeInactiveCarts) {
+        if (!$this->plugin->getSettings()->purgeInactiveCarts) {
             return 0;
         }
 
-        $configInterval = Config::durationInSeconds(Plugin::getInstance()->getSettings()->purgeInactiveCartsDuration);
+        $configInterval = Config::durationInSeconds($this->plugin->getSettings()->purgeInactiveCartsDuration);
         $edge = new DateTime();
         $interval = new DateInterval("PT{$configInterval}S");
         $edge->sub($interval);

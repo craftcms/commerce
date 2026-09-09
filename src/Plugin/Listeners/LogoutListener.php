@@ -10,10 +10,13 @@ use Illuminate\Auth\Events\Logout;
 
 class LogoutListener
 {
+    public function __construct(private readonly Plugin $plugin)
+    {
+    }
+
     public function handle(Logout $event): void
     {
-        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Plugin::class)
-        if (!Plugin::getInstance()->isInstalled) {
+        if (!$this->plugin->isInstalled) {
             return;
         }
 

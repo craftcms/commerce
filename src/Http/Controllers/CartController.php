@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\RouteToken\RouteTokens;
@@ -22,6 +21,7 @@ use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\LineItem\LineItems;
 use CraftCms\Commerce\Payment\Gateway\Gateways;
 use CraftCms\Commerce\Payment\PaymentSources;
+use CraftCms\Commerce\Plugin;
 use Illuminate\Contracts\Cache\Lock;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Contracts\Encryption\DecryptException;
@@ -49,10 +49,9 @@ class CartController
 
     private ?string $mutexLockName = null;
 
-    public function __construct()
+    public function __construct(private readonly Plugin $plugin)
     {
-        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class)
-        $this->cartVariable = Plugin::getInstance()->getSettings()->cartVariable;
+        $this->cartVariable = $this->plugin->getSettings()->cartVariable;
     }
 
     public function getCart(Request $request): Response
@@ -320,8 +319,7 @@ class CartController
         $carts = app(Carts::class);
         $number = $request->input('number');
         $token = $request->input('code');
-        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class)
-        $loadCartRedirectUrl = Plugin::getInstance()->getSettings()->loadCartRedirectUrl ?? '';
+        $loadCartRedirectUrl = $this->plugin->getSettings()->loadCartRedirectUrl ?? '';
         $redirect = Url::siteUrl($loadCartRedirectUrl);
 
         if (!$number) {
@@ -557,8 +555,7 @@ class CartController
 
     private function returnCart(Request $request): Response
     {
-        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class)
-        $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
+        $updateCartSearchIndexes = $this->plugin->getSettings()->updateCartSearchIndexes;
 
         // Do not clear errors, as errors could be added to the cart before returnCart is called.
         if (!$this->cart->validate(null, false) || !Elements::saveElement($this->cart, false, false, $updateCartSearchIndexes)) {

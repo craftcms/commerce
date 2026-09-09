@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Product\Elements;
 
-use craft\commerce\Plugin;
 use craft\events\ElementCriteriaEvent;
 use CraftCms\Cms\Asset\Actions\CopyReferenceTag;
 use CraftCms\Cms\Cms;
@@ -50,6 +49,7 @@ use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
+use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Product\Conditions\ProductCondition;
 use CraftCms\Commerce\Product\Conditions\ProductTypeConditionRule;
 use CraftCms\Commerce\Product\Jobs\ResaveProductVariantsJob;
@@ -1945,8 +1945,7 @@ JS, [
             case 'defaultWeight':
             {
                 if ($productType->hasDimensions) {
-                    // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class)
-                    return I18N::getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits;
+                    return I18N::getFormatter()->asDecimal($this->$attribute) . ' ' . app(Plugin::class)->getSettings()->weightUnits;
                 }
 
                 return '';
@@ -1956,8 +1955,7 @@ JS, [
             case 'defaultHeight':
             {
                 if ($productType->hasDimensions) {
-                    // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class)
-                    return I18N::getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits;
+                    return I18N::getFormatter()->asDecimal($this->$attribute) . ' ' . app(Plugin::class)->getSettings()->dimensionUnits;
                 }
 
                 return '';
