@@ -153,14 +153,14 @@ class VariantQuery extends PurchasableQuery implements NestedElementQueryInterfa
         });
     }
 
-    public function getFieldIdColumn(): string
+    public static function getFieldIdColumn(): string
     {
         // Variants aren't stored in a custom field, so there is no `fieldId` column. The primary
         // owner column is returned here for parity with the legacy query.
         return 'commerce_variants.primaryOwnerId';
     }
 
-    public function getPrimaryOwnerIdColumn(): string
+    public static function getPrimaryOwnerIdColumn(): string
     {
         return 'commerce_variants.primaryOwnerId';
     }
