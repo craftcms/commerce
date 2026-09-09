@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Payment;
 
-use craft\commerce\Plugin;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Payment\Data\PaymentCurrency;
 use CraftCms\Commerce\Payment\Data\Transaction;
@@ -48,11 +47,7 @@ class PaymentCurrencies
             transaction: $transaction,
         );
 
-        // TODO: migrate event firing to Laravel once the event system is bridged
-        if (Plugin::getInstance()->getPaymentCurrencies()->hasEventHandlers(self::EVENT_DEFINE_PAYMENT_CURRENCY_RATE)) {
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getPaymentCurrencies()->trigger(self::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $event);
-        }
+        event($event);
 
         return $event->rate;
     }

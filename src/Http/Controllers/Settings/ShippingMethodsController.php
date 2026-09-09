@@ -112,10 +112,7 @@ JS;
             $shippingMethod = app(ShippingMethods::class)->getShippingMethodById($id, $store->id);
             abort_if($shippingMethod === null, 404);
         } else {
-            $shippingMethod = \Craft::createObject([
-                'class' => ShippingMethod::class,
-                'attributes' => ['storeId' => $store->id],
-            ]);
+            $shippingMethod = new ShippingMethod(['storeId' => $store->id]);
         }
 
         $title = $shippingMethod->id ? $shippingMethod->name : t('Create a new shipping method', category: 'commerce');

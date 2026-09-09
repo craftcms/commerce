@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Customer\Conditions;
 
-use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
+use CraftCms\Cms\Element\Queries\ElementQuery;
 use CraftCms\Cms\User\Conditions\GroupConditionRule;
+use Illuminate\Contracts\Database\Query\Builder;
 use Override;
 use RuntimeException;
 
@@ -38,15 +39,9 @@ class DiscountGroupConditionRule extends GroupConditionRule
     }
 
     #[Override]
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQuery $elementQuery): void
     {
         throw new RuntimeException('Discount user group rule does not support element queries.');
-    }
-
-    #[Override]
-    public function getExclusiveQueryParams(): array
-    {
-        return [];
     }
 
     #[Override]

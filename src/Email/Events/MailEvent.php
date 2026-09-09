@@ -9,8 +9,9 @@ use CraftCms\Cms\Shared\Concerns\ValidatableEvent;
 use CraftCms\Commerce\Email\Data\Email;
 use CraftCms\Commerce\Order\Data\OrderHistory;
 use CraftCms\Commerce\Order\Elements\Order;
+use yii\base\Event;
 
-class MailEvent
+class MailEvent extends Event
 {
     use ValidatableEvent;
 

@@ -6,8 +6,8 @@ namespace CraftCms\Commerce\Stats;
 
 use CraftCms\Cms\Database\Table as CmsTable;
 use CraftCms\Cms\Support\Facades\Sites;
-use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use Tpetry\QueryExpressions\Function\Aggregate\Sum;
 use Tpetry\QueryExpressions\Language\Alias;
 

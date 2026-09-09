@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Email;
 
-use craft\commerce\Plugin;
 use craft\helpers\Db as CraftDb;
 use craft\mail\Message;
 use CraftCms\Cms\Asset\AssetsHelper as Assets;
-use CraftCms\Cms\Cms;
+use CraftCms\Cms\Image\CraftAssetTransformDriver;
 use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\Support\Facades\Sites;
@@ -17,8 +16,12 @@ use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Cms\View\TemplateResolver;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Email\Data\Email;
-use CraftCms\Commerce\Email\Events\EmailEvent;
-use CraftCms\Commerce\Email\Events\MailEvent;
+use CraftCms\Commerce\Email\Events\EmailDeleted;
+use CraftCms\Commerce\Email\Events\EmailDeleting;
+use CraftCms\Commerce\Email\Events\EmailSaved;
+use CraftCms\Commerce\Email\Events\EmailSaving;
+use CraftCms\Commerce\Email\Events\MailSending;
+use CraftCms\Commerce\Email\Events\MailSent;
 use CraftCms\Commerce\Email\Models\Email as EmailRecord;
 use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
@@ -108,15 +111,11 @@ class Emails
         $isNewEmail = !(bool)$email->id;
 
         // Raise 'beforeSaveEmail' event
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getEmails()->hasEventHandlers(self::EVENT_BEFORE_SAVE_EMAIL)) {
-            $beforeEvent = new EmailEvent(
-                email: $email,
-                isNew: $isNewEmail,
-            );
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getEmails()->trigger(self::EVENT_BEFORE_SAVE_EMAIL, $beforeEvent);
-        }
+        $beforeEvent = new EmailSaving(
+            email: $email,
+            isNew: $isNewEmail,
+        );
+        event($beforeEvent);
 
         if ($runValidation && !$email->validate()) {
             Log::info('Email not saved due to validation error(s).');
@@ -190,15 +189,11 @@ class Emails
         }
 
         // Raise 'afterSaveEmail' event
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getEmails()->hasEventHandlers(self::EVENT_AFTER_SAVE_EMAIL)) {
-            $afterEvent = new EmailEvent(
-                email: $this->getEmailById($emailRecord->id, $emailRecord->storeId),
-                isNew: $isNewEmail,
-            );
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getEmails()->trigger(self::EVENT_AFTER_SAVE_EMAIL, $afterEvent);
-        }
+        $afterEvent = new EmailSaved(
+            email: $this->getEmailById($emailRecord->id, $emailRecord->storeId),
+            isNew: $isNewEmail,
+        );
+        event($afterEvent);
 
         $this->clearCache();
     }
@@ -212,14 +207,10 @@ class Emails
 
         if ($email) {
             // Raise 'beforeDeleteEmail' event
-            // TODO: migrate event firing to Laravel once event system is bridged
-            if (Plugin::getInstance()->getEmails()->hasEventHandlers(self::EVENT_BEFORE_DELETE_EMAIL)) {
-                $event = new EmailEvent(
-                    email: $this->getEmailById($id, $email->storeId),
-                );
-                /** @phpstan-ignore-next-line */
-                Plugin::getInstance()->getEmails()->trigger(self::EVENT_BEFORE_DELETE_EMAIL, $event);
-            }
+            $event = new EmailDeleting(
+                email: $this->getEmailById($id, $email->storeId),
+            );
+            event($event);
 
             ProjectConfig::remove(self::CONFIG_EMAILS_KEY . '.' . $email->uid);
         }
@@ -245,14 +236,10 @@ class Emails
         $emailRecord->delete();
 
         // Raise 'afterDeleteEmail' event
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getEmails()->hasEventHandlers(self::EVENT_AFTER_DELETE_EMAIL)) {
-            $afterEvent = new EmailEvent(
-                email: $email,
-            );
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getEmails()->trigger(self::EVENT_AFTER_DELETE_EMAIL, $afterEvent);
-        }
+        $afterEvent = new EmailDeleted(
+            email: $email,
+        );
+        event($afterEvent);
 
         $this->clearCache();
     }
@@ -277,11 +264,20 @@ class Emails
             return false;
         }
 
+        return app(CraftAssetTransformDriver::class)->withImmediateTransforms(
+            function() use ($email, $order, $orderHistory, $orderData, &$error) {
+                return $this->sendEmailInternal($email, $order, $orderHistory, $orderData, $error);
+            }
+        );
+    }
+
+    /**
+     * @throws \Exception
+     * @throws Throwable
+     */
+    private function sendEmailInternal(Email $email, Order $order, ?OrderHistory $orderHistory, ?array $orderData, string &$error): bool
+    {
         $option = 'email';
-        $generalConfig = Cms::config();
-        // Temporarily disable lazy transform generation
-        $generateTransformsBeforePageLoad = $generalConfig->generateTransformsBeforePageLoad;
-        $generalConfig->generateTransformsBeforePageLoad = true;
 
         //sending emails
         $renderVariables = compact('order', 'orderHistory', 'option', 'orderData');
@@ -330,7 +326,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -341,7 +336,6 @@ class Emails
             Log::error($error);
 
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-            $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
         }
@@ -367,7 +361,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -394,7 +387,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -415,7 +407,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -435,7 +426,6 @@ class Emails
             Log::error($error);
 
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-            $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
         }
@@ -454,7 +444,6 @@ class Emails
             Log::error($error);
 
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-            $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
         }
@@ -470,7 +459,6 @@ class Emails
             Log::error($error);
 
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-            $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
         }
@@ -491,7 +479,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -507,7 +494,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -524,7 +510,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -564,7 +549,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -589,7 +573,6 @@ class Emails
 
             Sites::setCurrentSite($originalSiteId);
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-            $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
         }
@@ -611,7 +594,6 @@ class Emails
 
                 Sites::setCurrentSite($originalSiteId);
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -619,20 +601,14 @@ class Emails
 
         try {
             // Raise 'beforeSendEmail' event
-            $event = new MailEvent(
+            $event = new MailSending(
                 craftEmail: $newEmail,
                 commerceEmail: $email,
                 order: $order,
                 orderHistory: $orderHistory,
                 orderData: $orderData,
             );
-
-            // TODO: migrate event firing to Laravel once event system is bridged
-            $legacyService = Plugin::getInstance()->getEmails();
-            if ($legacyService->hasEventHandlers(self::EVENT_BEFORE_SEND_MAIL)) {
-                /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
-                $legacyService->trigger(self::EVENT_BEFORE_SEND_MAIL, $event);
-            }
+            event($event);
 
             if (!$event->isValid) {
                 $notice = t('Email "{email}" for order {order} was cancelled.', [
@@ -644,7 +620,6 @@ class Emails
 
                 Sites::setCurrentSite($originalSiteId);
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 // Plugins that stop a email being sent should not declare that the sending failed, just that it would blocking of the send.
                 // The blocking of the send will still be logged as an error though for now.
@@ -667,28 +642,22 @@ class Emails
 
             Sites::setCurrentSite($originalSiteId);
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-            $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
         }
 
         // Raise 'afterSendEmail' event
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getEmails()->hasEventHandlers(self::EVENT_AFTER_SEND_MAIL)) {
-            $afterEvent = new MailEvent(
-                craftEmail: $newEmail,
-                commerceEmail: $email,
-                order: $order,
-                orderHistory: $orderHistory,
-                orderData: $orderData,
-            );
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getEmails()->trigger(self::EVENT_AFTER_SEND_MAIL, $afterEvent);
-        }
+        $afterEvent = new MailSent(
+            craftEmail: $newEmail,
+            commerceEmail: $email,
+            order: $order,
+            orderHistory: $orderHistory,
+            orderData: $orderData,
+        );
+        event($afterEvent);
 
         Sites::setCurrentSite($originalSiteId);
         Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-        $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
         // Clear out the temp PDF file if it was created.
         if (!empty($tempPath)) {

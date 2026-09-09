@@ -142,10 +142,7 @@ JS;
             $taxRate = app(TaxRates::class)->getTaxRateById($id, $store->id);
             abort_if($taxRate === null, 404);
         } else {
-            $taxRate = \Craft::createObject([
-                'class' => TaxRate::class,
-                'storeId' => $store->id,
-            ]);
+            $taxRate = new TaxRate(['storeId' => $store->id]);
         }
 
         $title = $taxRate->id ? $taxRate->name : t('Create a new tax rate', category: 'commerce');

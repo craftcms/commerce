@@ -9,7 +9,7 @@ use CraftCms\Cms\Element\Events\ElementSaved;
 use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\User\Events\UserAssignedToGroups;
-use CraftCms\Commerce\Catalog\Data\CatalogPricingRule;
+use CraftCms\Commerce\CatalogPricing\Data\CatalogPricingRule;
 use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingRule as CatalogPricingRuleRecord;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Promotion\Sales;

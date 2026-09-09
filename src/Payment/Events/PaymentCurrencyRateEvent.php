@@ -6,8 +6,9 @@ namespace CraftCms\Commerce\Payment\Events;
 
 use CraftCms\Commerce\Payment\Data\PaymentCurrency;
 use CraftCms\Commerce\Payment\Data\Transaction;
+use yii\base\Event;
 
-class PaymentCurrencyRateEvent
+class PaymentCurrencyRateEvent extends Event
 {
     public function __construct(
         public float $rate,

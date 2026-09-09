@@ -15,7 +15,6 @@ use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpModalResponse;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\HtmlStack;
-use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Database\Table;
@@ -146,8 +145,6 @@ readonly class InventoryController
 
         return new CpScreenResponse()
             ->title($title)
-            ->site(Cp::requestedSite())
-            ->selectableSites(Sites::getEditableSites()->all())
             ->action(null)
             ->crumbs($crumbs)
             ->contentTemplate('commerce/inventory/levels/_index', compact(

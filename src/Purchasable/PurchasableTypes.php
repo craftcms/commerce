@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Purchasable;
 
 use CraftCms\Cms\Component\TypeRegistry;
-use CraftCms\Commerce\Catalog\Elements\Variant;
+use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use Illuminate\Container\Attributes\Singleton;
 

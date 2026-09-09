@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Console\Commands\Resave;
 
 use CraftCms\Cms\Element\Commands\Resave\ResaveCommand;
-use CraftCms\Commerce\Catalog\Elements\Product;
-use CraftCms\Commerce\Catalog\ProductType\Data\ProductType;
-use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
+use CraftCms\Commerce\Product\Elements\Product;
+use CraftCms\Commerce\Product\ProductType\Data\ProductType;
+use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use Override;
 
 class ResaveProductsCommand extends ResaveCommand

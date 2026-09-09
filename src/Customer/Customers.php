@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Customer;
 
-use craft\commerce\Plugin;
 use craft\mail\Mailer;
 use craft\mail\Message;
 use CraftCms\Cms\Address\Elements\Address;
@@ -81,12 +80,7 @@ class Customers
                 newPrimaryPaymentSourceId: $paymentSourceId,
             );
 
-            // TODO: migrate event firing to Laravel once event system is bridged
-            $legacyService = Plugin::getInstance()->getCustomers();
-            if ($legacyService->hasEventHandlers(self::EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE)) {
-                /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
-                $legacyService->trigger(self::EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE, $event);
-            }
+            event($event);
         }
 
         return true;

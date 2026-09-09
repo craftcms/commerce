@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Helpers;
 
-use Craft;
 use CraftCms\Commerce\Order\Data\OrderNotice;
 use CraftCms\Commerce\Order\Elements\Order as OrderElement;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
@@ -57,14 +56,10 @@ class Order
             $purchasable = $lineItem->getPurchasable();
             if (!$purchasable || !app(Purchasables::class)->isPurchasableAvailable($purchasable, $order)) {
                 $message = t('{description} is no longer available.', ['description' => $lineItem->getDescription()], category: 'commerce');
-                /** @var OrderNotice $notice */
-                $notice = Craft::createObject([
-                    'class' => OrderNotice::class,
-                    'attributes' => [
-                        'message' => $message,
-                        'type' => 'lineItemRemoved',
-                        'attribute' => 'lineItems',
-                    ],
+                $notice = new OrderNotice([
+                    'message' => $message,
+                    'type' => 'lineItemRemoved',
+                    'attribute' => 'lineItems',
                 ]);
                 $order->addNotice($notice);
                 $order->removeLineItem($lineItem);
@@ -76,14 +71,10 @@ class Order
                 $purchasable->getStock() > 0
             ) {
                 $message = t('{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $purchasable->getStock()], category: 'commerce');
-                /** @var OrderNotice $notice */
-                $notice = Craft::createObject([
-                    'class' => OrderNotice::class,
-                    'attributes' => [
-                        'type' => 'lineItemSalePriceChanged',
-                        'attribute' => "lineItems.$lineItem->id.qty",
-                        'message' => $message,
-                    ],
+                $notice = new OrderNotice([
+                    'type' => 'lineItemSalePriceChanged',
+                    'attribute' => "lineItems.$lineItem->id.qty",
+                    'message' => $message,
                 ]);
                 $order->addNotice($notice);
                 $lineItem->qty = $purchasable->getStock();

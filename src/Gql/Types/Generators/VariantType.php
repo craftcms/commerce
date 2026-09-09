@@ -10,11 +10,11 @@ use CraftCms\Cms\Gql\GqlEntityRegistry;
 use CraftCms\Cms\Gql\Types\Generators\Generator;
 use CraftCms\Cms\Gql\Types\ObjectType;
 use CraftCms\Cms\Support\Facades\Gql;
-use CraftCms\Commerce\Catalog\Elements\Variant as VariantElement;
-use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\Gql\Interfaces\Elements\Variant as VariantInterface;
 use CraftCms\Commerce\Gql\Types\Elements\Variant;
 use CraftCms\Commerce\Helpers\Gql as CommerceGqlHelper;
+use CraftCms\Commerce\Product\ProductType\ProductTypes;
+use CraftCms\Commerce\Product\Variant\Elements\Variant as VariantElement;
 
 class VariantType extends Generator implements GeneratorInterface, SingleGeneratorInterface
 {

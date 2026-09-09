@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Plugin\Concerns;
 
 use CraftCms\Cms\User\Data\Permission;
-use CraftCms\Commerce\Catalog\Elements\Product;
-use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
+use CraftCms\Commerce\Product\Elements\Product;
+use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use Illuminate\Support\Collection;
 use Override;
 

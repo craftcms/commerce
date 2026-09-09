@@ -14,9 +14,9 @@ use CraftCms\Cms\Support\Facades\Drafts;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\View\TemplateMode;
-use CraftCms\Commerce\Catalog\Elements\Product;
-use CraftCms\Commerce\Catalog\Products;
-use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
+use CraftCms\Commerce\Product\Elements\Product;
+use CraftCms\Commerce\Product\Products;
+use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use DateTime;
 
 use Illuminate\Http\Request;
@@ -71,7 +71,7 @@ readonly class ProductsController
         abort_unless($user !== null, 401);
 
         // Create & populate the draft
-        $product = \Craft::createObject(Product::class);
+        $product = new Product();
         $product->siteId = $site->id;
         $product->typeId = $productType->id;
         $product->enabled = true;

@@ -2,6 +2,11 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\Plugin;
+use CraftCms\Commerce\Payment\Events\TransactionCreated;
+use CraftCms\Commerce\Payment\Events\TransactionSaved;
+use Illuminate\Support\Facades\Event;
+
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Data\Transaction;
 use yii\base\Component;
@@ -101,5 +106,22 @@ class Transactions extends Component
     public function eagerLoadTransactionsForOrders(array $orders): array
     {
         return app(\CraftCms\Commerce\Payment\Transactions::class)->eagerLoadTransactionsForOrders($orders);
+    }
+
+    public static function registerEvents(): void
+    {
+        Event::listen(TransactionCreated::class, static function(TransactionCreated $event) {
+            $legacy = Plugin::getInstance()->getTransactions();
+            if ($legacy->hasEventHandlers(self::EVENT_AFTER_CREATE_TRANSACTION)) {
+                $legacy->trigger(self::EVENT_AFTER_CREATE_TRANSACTION, $event);
+            }
+        });
+
+        Event::listen(TransactionSaved::class, static function(TransactionSaved $event) {
+            $legacy = Plugin::getInstance()->getTransactions();
+            if ($legacy->hasEventHandlers(self::EVENT_AFTER_SAVE_TRANSACTION)) {
+                $legacy->trigger(self::EVENT_AFTER_SAVE_TRANSACTION, $event);
+            }
+        });
     }
 }

@@ -75,19 +75,19 @@ class Orders extends Widget
     }
 
     #[\Override]
-    public function getBodyHtml(): ?string
+    public function props(): array
     {
         $orders = $this->getOrders();
 
         $id = 'recent-orders-settings-' . Str::random();
         $namespaceId = InputNamespace::namespaceId($id);
 
-        return template('commerce/_components/widgets/orders/recent/body', [
+        return ['html' => template('commerce/_components/widgets/orders/recent/body', [
             'orders' => $orders,
             'showStatuses' => !empty($this->orderStatuses) && count($this->orderStatuses) > 1,
             'id' => $id,
             'namespaceId' => $namespaceId,
-        ], TemplateMode::Cp);
+        ], TemplateMode::Cp)];
     }
 
     #[\Override]

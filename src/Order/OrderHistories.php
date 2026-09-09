@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Data\OrderHistory;
@@ -89,15 +88,11 @@ class OrderHistories
         app(OrderStatuses::class)->statusChangeHandler($order, $orderHistoryModel);
 
         // Raising 'orderStatusChange' event
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getOrderHistories()->hasEventHandlers(self::EVENT_ORDER_STATUS_CHANGE)) {
-            $event = new OrderStatusEvent(
-                orderHistory: $orderHistoryModel,
-                order: $order,
-            );
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getOrderHistories()->trigger(self::EVENT_ORDER_STATUS_CHANGE, $event);
-        }
+        $event = new OrderStatusEvent(
+            orderHistory: $orderHistoryModel,
+            order: $order,
+        );
+        event($event);
 
         return true;
     }

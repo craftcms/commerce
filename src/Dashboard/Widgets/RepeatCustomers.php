@@ -81,14 +81,14 @@ class RepeatCustomers extends Widget
     }
 
     #[\Override]
-    public function getBodyHtml(): ?string
+    public function props(): array
     {
         $numbers = $this->stat->get();
         $timeFrame = $this->stat->getDateRangeWording();
 
         \Craft::$app->getView()->registerAssetBundle(StatWidgetsAsset::class);
 
-        return template('commerce/_components/widgets/customers/repeat/body', compact('numbers', 'timeFrame'), TemplateMode::Cp);
+        return ['html' => template('commerce/_components/widgets/customers/repeat/body', compact('numbers', 'timeFrame'), TemplateMode::Cp)];
     }
 
     #[\Override]

@@ -52,10 +52,7 @@ class OrderStatusesController extends BaseSettingsController
             $orderStatus = app(OrderStatuses::class)->getOrderStatusById($id, $store->id);
             abort_if($orderStatus === null, 404);
         } else {
-            $orderStatus = \Craft::createObject([
-                'class' => OrderStatus::class,
-                'attributes' => ['storeId' => $store->id],
-            ]);
+            $orderStatus = new OrderStatus(['storeId' => $store->id]);
         }
 
         $statusColors = ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'];

@@ -2,6 +2,10 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\Plugin;
+use CraftCms\Commerce\Order\Events\CartPurgeEvent;
+use Illuminate\Support\Facades\Event;
+
 use CraftCms\Commerce\Order\Elements\Order;
 use yii\base\Component;
 
@@ -86,5 +90,15 @@ class Carts extends Component
     public function purgeIncompleteCarts(): int
     {
         return app(\CraftCms\Commerce\Order\Carts::class)->purgeIncompleteCarts();
+    }
+
+    public static function registerEvents(): void
+    {
+        Event::listen(CartPurgeEvent::class, static function(CartPurgeEvent $event) {
+            $legacy = Plugin::getInstance()->getCarts();
+            if ($legacy->hasEventHandlers(self::EVENT_BEFORE_PURGE_INACTIVE_CARTS)) {
+                $legacy->trigger(self::EVENT_BEFORE_PURGE_INACTIVE_CARTS, $event);
+            }
+        });
     }
 }

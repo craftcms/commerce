@@ -2,7 +2,7 @@
 
 namespace craft\commerce\services;
 
-use CraftCms\Commerce\Catalog\Data\CatalogPricingRule;
+use CraftCms\Commerce\CatalogPricing\Data\CatalogPricingRule;
 use Illuminate\Support\Collection;
 use yii\base\Component;
 

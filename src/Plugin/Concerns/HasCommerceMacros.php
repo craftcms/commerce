@@ -9,14 +9,14 @@ use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Support\Typecast;
 use CraftCms\Cms\Twig\Variables\CraftVariable;
 use CraftCms\Cms\User\Elements\User;
-use CraftCms\Commerce\Catalog\Elements\Product;
-use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Customer\Models\Customer as CustomerRecord;
 use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Data\PaymentSource;
 use CraftCms\Commerce\Payment\PaymentSources;
 use CraftCms\Commerce\Plugin\Plugin;
+use CraftCms\Commerce\Product\Elements\Product;
+use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Purchasable\Elements\Donation;
 use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
@@ -27,12 +27,6 @@ use CraftCms\Commerce\Support\ObjectState;
  */
 trait HasCommerceMacros
 {
-    /**
-     * Registers `craft.commerce`/`craft.orders`/`craft.products`/`craft.variants` Twig variable
-     * macros, replacing the legacy `craft\commerce\web\twig\CraftVariableBehavior` attached to
-     * `craft\web\twig\variables\CraftVariable` in `src-yii2/Plugin.php` (now deleted — that
-     * behavior never reached the live `craft` Twig global under Craft 6 anyway).
-     */
     private function registerVariableMacros(): void
     {
         $plugin = $this;
@@ -60,26 +54,11 @@ trait HasCommerceMacros
         });
     }
 
-    /**
-     * Reachable in Twig as `craft.commerce.getDonation()` (`craft.commerce` resolves to this
-     * plugin instance via the `commerce` macro above), matching the legacy
-     * `craft\commerce\plugin\Variables::getDonation()` trait method that used to live directly
-     * on the legacy Plugin class for the same reason.
-     */
     public function getDonation(): ?Donation
     {
         return Donation::find()->status(null)->one();
     }
 
-    /**
-     * Replaces the legacy Yii2 `StoreBehavior`/`CustomerBehavior`/`CustomerAddressBehavior` classes,
-     * which no longer attach to anything — `Site`/`User`/`Address` extend the new
-     * `CraftCms\Cms\Component\Component`, not `yii\base\Component`, so `attachBehavior()` doesn't exist
-     * on them at all. `Macroable` (already `use`d by `Component`) is the replacement mechanism; its
-     * `MacroableMagicMethods` concern makes registered macros transparently reachable via method-call
-     * syntax (`$site->getStore()`), PHP magic-property syntax (`$site->store`), and Twig dot-notation
-     * (`{{ site.store }}`) alike — verified empirically via `php artisan tinker` this session.
-     */
     private function registerBehaviorMacros(): void
     {
         Site::macro('getStore', function(): ?Store {

@@ -54,10 +54,7 @@ class PdfsController extends BaseSettingsController
             $pdf = app(Pdfs::class)->getPdfById($id, $store->id);
             abort_if($pdf === null, 404);
         } else {
-            $pdf = \Craft::createObject([
-                'class' => Pdf::class,
-                'attributes' => ['storeId' => $store->id],
-            ]);
+            $pdf = new Pdf(['storeId' => $store->id]);
         }
 
         $title = $pdf->id ? $pdf->name : t('Create a new PDF', category: 'commerce');

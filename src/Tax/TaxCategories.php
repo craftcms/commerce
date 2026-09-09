@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Tax;
 
 use CraftCms\Cms\Element\Jobs\ResaveElements;
-use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Tax\Data\TaxCategory;
 use CraftCms\Commerce\Tax\Models\TaxCategory as TaxCategoryRecord;
 use Illuminate\Container\Attributes\Singleton;

@@ -24,11 +24,11 @@ use CraftCms\Cms\Support\Money;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\Translation\Locale;
 use CraftCms\Cms\View\Enums\Position;
-use CraftCms\Commerce\Catalog\Elements\Product;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Localization;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Payment\Currencies;
+use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Promotion\Coupons;
 use CraftCms\Commerce\Promotion\Data\Coupon;
 use CraftCms\Commerce\Promotion\Data\Discount;
@@ -260,13 +260,10 @@ JS;
             $discount = app(Discounts::class)->getDiscountById($id, $store->id);
             abort_if($discount === null, 404);
         } else {
-            $discount = \Craft::createObject([
-                'class' => Discount::class,
-                'attributes' => [
-                    'allCategories' => true,
-                    'allPurchasables' => true,
-                    'storeId' => $store->id,
-                ],
+            $discount = new Discount([
+                'allCategories' => true,
+                'allPurchasables' => true,
+                'storeId' => $store->id,
             ]);
             $variables['isNewDiscount'] = true;
         }
@@ -429,16 +426,12 @@ JS;
         $discountCoupons = [];
 
         foreach ($coupons as $c) {
-            $discountCoupons[] = \Craft::createObject(Coupon::class, [
-                'config' => [
-                    'attributes' => [
-                        'id' => $c['id'] ?: null,
-                        'discountId' => null,
-                        'code' => $c['code'],
-                        'uses' => $c['uses'] ?: 0,
-                        'maxUses' => is_numeric($c['maxUses']) ? (int)$c['maxUses'] : null,
-                    ],
-                ],
+            $discountCoupons[] = new Coupon([
+                'id' => $c['id'] ?: null,
+                'discountId' => null,
+                'code' => $c['code'],
+                'uses' => $c['uses'] ?: 0,
+                'maxUses' => is_numeric($c['maxUses']) ? (int)$c['maxUses'] : null,
             ]);
         }
 

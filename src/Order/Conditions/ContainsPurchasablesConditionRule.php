@@ -13,10 +13,10 @@ use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Url;
-use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Inventory\Enums\ContainsPurchasablesMatch;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Queries\OrderQuery;
+use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Purchasable\Purchasables;
 use Override;
 

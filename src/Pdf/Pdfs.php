@@ -21,9 +21,12 @@ use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Pdf\Data\Pdf;
-use CraftCms\Commerce\Pdf\Events\PdfEvent;
-use CraftCms\Commerce\Pdf\Events\PdfRenderEvent;
+use CraftCms\Commerce\Pdf\Events\PdfDeleting;
+use CraftCms\Commerce\Pdf\Events\PdfRendered;
+use CraftCms\Commerce\Pdf\Events\PdfRendering;
 use CraftCms\Commerce\Pdf\Events\PdfRenderOptionsEvent;
+use CraftCms\Commerce\Pdf\Events\PdfSaved;
+use CraftCms\Commerce\Pdf\Events\PdfSaving;
 use CraftCms\Commerce\Pdf\Models\Pdf as PdfRecord;
 use CraftCms\Commerce\Store\Stores;
 use Dompdf\Dompdf;
@@ -122,15 +125,11 @@ class Pdfs
         $isNewPdf = !(bool)$pdf->id;
 
         // Raise 'beforeSavePdf' event
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getPdfs()->hasEventHandlers(self::EVENT_BEFORE_SAVE_PDF)) {
-            $beforeEvent = new PdfEvent(
-                pdf: $pdf,
-                isNew: $isNewPdf,
-            );
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getPdfs()->trigger(self::EVENT_BEFORE_SAVE_PDF, $beforeEvent);
-        }
+        $beforeEvent = new PdfSaving(
+            pdf: $pdf,
+            isNew: $isNewPdf,
+        );
+        event($beforeEvent);
 
         if ($runValidation && !$pdf->validate()) {
             Log::info('Pdf not saved due to validation error(s).');
@@ -199,15 +198,11 @@ class Pdfs
         }
 
         // Raise 'afterSavePdf' event
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getPdfs()->hasEventHandlers(self::EVENT_AFTER_SAVE_PDF)) {
-            $afterEvent = new PdfEvent(
-                pdf: $this->getPdfById($pdfRecord->id, $pdfRecord->storeId),
-                isNew: $isNewPdf,
-            );
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getPdfs()->trigger(self::EVENT_AFTER_SAVE_PDF, $afterEvent);
-        }
+        $afterEvent = new PdfSaved(
+            pdf: $this->getPdfById($pdfRecord->id, $pdfRecord->storeId),
+            isNew: $isNewPdf,
+        );
+        event($afterEvent);
 
         $this->allPdfs = null; // clear cache
     }
@@ -221,14 +216,10 @@ class Pdfs
 
         if ($pdf) {
             // Raise 'beforeDeletePdf' event
-            // TODO: migrate event firing to Laravel once event system is bridged
-            if (Plugin::getInstance()->getPdfs()->hasEventHandlers(self::EVENT_BEFORE_DELETE_PDF)) {
-                $event = new PdfEvent(
-                    pdf: $this->getPdfById($pdf->id, $pdf->storeId),
-                );
-                /** @phpstan-ignore-next-line */
-                Plugin::getInstance()->getPdfs()->trigger(self::EVENT_BEFORE_DELETE_PDF, $event);
-            }
+            $event = new PdfDeleting(
+                pdf: $this->getPdfById($pdf->id, $pdf->storeId),
+            );
+            event($event);
             ProjectConfig::remove(self::CONFIG_PDFS_KEY . '.' . $pdf->uid);
         }
 
@@ -344,7 +335,7 @@ class Pdfs
         }
 
         // Raise 'beforeRenderPdf' event
-        $event = new PdfRenderEvent(
+        $event = new PdfRendering(
             order: $order,
             option: $option,
             template: $templatePath,
@@ -352,12 +343,7 @@ class Pdfs
             sourcePdf: $pdf,
         );
 
-        // TODO: migrate event firing to Laravel once event system is bridged
-        $legacyService = Plugin::getInstance()->getPdfs();
-        if ($legacyService->hasEventHandlers(self::EVENT_BEFORE_RENDER_PDF)) {
-            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
-            $legacyService->trigger(self::EVENT_BEFORE_RENDER_PDF, $event);
-        }
+        event($event);
 
         if ($event->pdf !== null) {
             return $event->pdf;
@@ -429,11 +415,7 @@ class Pdfs
         );
 
         // Set additional render options
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getPdfs()->hasEventHandlers(self::EVENT_MODIFY_RENDER_OPTIONS)) {
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getPdfs()->trigger(self::EVENT_MODIFY_RENDER_OPTIONS, $renderOptionsEvent);
-        }
+        event($renderOptionsEvent);
 
         // Create and render the PDF
         $dompdf = new Dompdf($renderOptionsEvent->options);
@@ -441,7 +423,7 @@ class Pdfs
         $dompdf->render();
 
         // Raise 'afterRenderPdf' event
-        $afterEvent = new PdfRenderEvent(
+        $afterEvent = new PdfRendered(
             order: $event->order,
             option: $event->option,
             template: $event->template,
@@ -450,12 +432,7 @@ class Pdfs
             sourcePdf: $pdf,
         );
 
-        // TODO: migrate event firing to Laravel once event system is bridged
-        $legacyService = Plugin::getInstance()->getPdfs();
-        if ($legacyService->hasEventHandlers(self::EVENT_AFTER_RENDER_PDF)) {
-            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
-            $legacyService->trigger(self::EVENT_AFTER_RENDER_PDF, $afterEvent);
-        }
+        event($afterEvent);
 
         return $afterEvent->pdf;
     }

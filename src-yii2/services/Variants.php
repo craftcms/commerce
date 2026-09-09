@@ -2,12 +2,12 @@
 
 namespace craft\commerce\services;
 
-use CraftCms\Commerce\Catalog\Elements\Variant;
+use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 
 /**
- * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Catalog\Variants::class)` instead.
+ * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Product\Variant\Variants::class)` instead.
  */
 class Variants extends Component
 {
@@ -16,12 +16,12 @@ class Variants extends Component
      */
     public function getAllVariantsByProductId(int $productId, ?int $siteId = null, bool $includeDisabled = true): array
     {
-        return app(\CraftCms\Commerce\Catalog\Variants::class)->getAllVariantsByProductId($productId, $siteId, $includeDisabled);
+        return app(\CraftCms\Commerce\Product\Variant\Variants::class)->getAllVariantsByProductId($productId, $siteId, $includeDisabled);
     }
 
     public function getVariantById(int $variantId, ?int $siteId = null): ?Variant
     {
-        return app(\CraftCms\Commerce\Catalog\Variants::class)->getVariantById($variantId, $siteId);
+        return app(\CraftCms\Commerce\Product\Variant\Variants::class)->getVariantById($variantId, $siteId);
     }
 
     /**
@@ -29,6 +29,6 @@ class Variants extends Component
      */
     public function getVariantGqlContentArguments(): array
     {
-        return app(\CraftCms\Commerce\Catalog\Variants::class)->getVariantGqlContentArguments();
+        return app(\CraftCms\Commerce\Product\Variant\Variants::class)->getVariantGqlContentArguments();
     }
 }

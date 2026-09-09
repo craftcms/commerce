@@ -1,0 +1,60 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CraftCms\Commerce\Product\Variant\Conditions;
+
+use CraftCms\Cms\Condition\BaseElementSelectConditionRule;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Contracts\ElementInterface;
+use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
+use CraftCms\Commerce\Product\Elements\Product;
+use CraftCms\Commerce\Product\Variant\Elements\Variant;
+use CraftCms\Commerce\Product\Variant\Queries\VariantQuery;
+use Override;
+
+use function CraftCms\Cms\t;
+
+class VariantProductConditionRule extends BaseElementSelectConditionRule implements ElementConditionRuleInterface
+{
+    protected function elementType(): string
+    {
+        return Product::class;
+    }
+
+    public function getLabel(): string
+    {
+        return t('Product', category: 'commerce');
+    }
+
+    public function getExclusiveQueryParams(): array
+    {
+        return ['product', 'productId', 'primaryOwnerId', 'primaryOwner', 'owner', 'ownerId'];
+    }
+
+    public function modifyQuery(ElementQueryInterface $query): void
+    {
+        /** @var VariantQuery $query */
+        $query->ownerId($this->getElementIds());
+    }
+
+    public function matchElement(ElementInterface $element): bool
+    {
+        /** @var Variant $element */
+        return $this->matchValue($element->getOwnerId());
+    }
+
+    #[Override]
+    protected function allowMultiple(): bool
+    {
+        return true;
+    }
+
+    #[Override]
+    protected function elementSelectConfig(): array
+    {
+        return array_merge(parent::elementSelectConfig(), [
+            'showSiteMenu' => true,
+        ]);
+    }
+}

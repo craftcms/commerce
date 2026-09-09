@@ -2,6 +2,13 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\Plugin;
+use CraftCms\Commerce\Order\Events\LineItemCreated;
+use CraftCms\Commerce\Order\Events\LineItemPopulated;
+use CraftCms\Commerce\Order\Events\LineItemSaved;
+use CraftCms\Commerce\Order\Events\LineItemSaving;
+use Illuminate\Support\Facades\Event;
+
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
@@ -70,5 +77,36 @@ class LineItems extends Component
     public function orderCompleteHandler(LineItem $lineItem, Order $order): void
     {
         app(\CraftCms\Commerce\Order\LineItem\LineItems::class)->orderCompleteHandler($lineItem, $order);
+    }
+
+    public static function registerEvents(): void
+    {
+        Event::listen(LineItemSaving::class, static function(LineItemSaving $event) {
+            $legacy = Plugin::getInstance()->getLineItems();
+            if ($legacy->hasEventHandlers(self::EVENT_BEFORE_SAVE_LINE_ITEM)) {
+                $legacy->trigger(self::EVENT_BEFORE_SAVE_LINE_ITEM, $event);
+            }
+        });
+
+        Event::listen(LineItemSaved::class, static function(LineItemSaved $event) {
+            $legacy = Plugin::getInstance()->getLineItems();
+            if ($legacy->hasEventHandlers(self::EVENT_AFTER_SAVE_LINE_ITEM)) {
+                $legacy->trigger(self::EVENT_AFTER_SAVE_LINE_ITEM, $event);
+            }
+        });
+
+        Event::listen(LineItemCreated::class, static function(LineItemCreated $event) {
+            $legacy = Plugin::getInstance()->getLineItems();
+            if ($legacy->hasEventHandlers(self::EVENT_CREATE_LINE_ITEM)) {
+                $legacy->trigger(self::EVENT_CREATE_LINE_ITEM, $event);
+            }
+        });
+
+        Event::listen(LineItemPopulated::class, static function(LineItemPopulated $event) {
+            $legacy = Plugin::getInstance()->getLineItems();
+            if ($legacy->hasEventHandlers(self::EVENT_POPULATE_LINE_ITEM)) {
+                $legacy->trigger(self::EVENT_POPULATE_LINE_ITEM, $event);
+            }
+        });
     }
 }

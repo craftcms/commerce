@@ -6,8 +6,9 @@ namespace CraftCms\Commerce\Order\Events;
 
 use CraftCms\Cms\Shared\Concerns\ValidatableEvent;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
+use yii\base\Event;
 
-class AddLineItemEvent
+class AddLineItemEvent extends Event
 {
     use ValidatableEvent;
 

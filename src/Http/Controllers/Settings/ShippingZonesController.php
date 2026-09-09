@@ -74,10 +74,7 @@ JS;
             $shippingZone = app(ShippingZones::class)->getShippingZoneById($id, $store->id);
             abort_if($shippingZone === null, 404);
         } else {
-            $shippingZone = \Craft::createObject([
-                'class' => ShippingAddressZone::class,
-                'attributes' => ['storeId' => $store->id],
-            ]);
+            $shippingZone = new ShippingAddressZone(['storeId' => $store->id]);
         }
 
         $title = $shippingZone->id ? $shippingZone->name : t('Create a shipping zone', category: 'commerce');

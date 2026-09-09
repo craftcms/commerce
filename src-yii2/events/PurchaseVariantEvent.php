@@ -1,4 +1,4 @@
 <?php
 
-/** @deprecated use {@see \CraftCms\Commerce\Catalog\Events\PurchaseVariantEvent} */
-class_alias(\CraftCms\Commerce\Catalog\Events\PurchaseVariantEvent::class, 'craft\commerce\events\PurchaseVariantEvent');
+/** @deprecated use {@see \CraftCms\Commerce\Product\Variant\Events\PurchaseVariantEvent} */
+class_alias(\CraftCms\Commerce\Product\Variant\Events\PurchaseVariantEvent::class, 'craft\commerce\events\PurchaseVariantEvent');

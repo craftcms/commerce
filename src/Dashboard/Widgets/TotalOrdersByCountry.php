@@ -110,12 +110,12 @@ class TotalOrdersByCountry extends Widget
     }
 
     #[\Override]
-    public function getBodyHtml(): ?string
+    public function props(): array
     {
         $stats = $this->stat->get();
 
         if (empty($stats)) {
-            return Html::tag('p', t('No stats available.', category: 'commerce'), ['class' => 'zilch']);
+            return ['html' => Html::tag('p', t('No stats available.', category: 'commerce'), ['class' => 'zilch'])];
         }
 
         \Craft::$app->getView()->registerAssetBundle(StatWidgetsAsset::class);
@@ -126,12 +126,12 @@ class TotalOrdersByCountry extends Widget
         $labels = Arr::pluck($stats, 'name');
         $totalOrders = Arr::pluck($stats, 'total');
 
-        return template('commerce/_components/widgets/orders/country/body', compact(
+        return ['html' => template('commerce/_components/widgets/orders/country/body', compact(
             'stats',
             'namespaceId',
             'labels',
             'totalOrders',
-        ), TemplateMode::Cp);
+        ), TemplateMode::Cp)];
     }
 
     #[\Override]

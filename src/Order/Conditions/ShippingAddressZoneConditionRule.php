@@ -7,12 +7,9 @@ namespace CraftCms\Commerce\Order\Conditions;
 use CraftCms\Cms\Condition\BaseMultiSelectConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
-use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Shipping\Data\ShippingAddressZone;
 use CraftCms\Commerce\Shipping\ShippingZones;
-use LogicException;
-use Override;
 
 use function CraftCms\Cms\t;
 
@@ -23,23 +20,12 @@ class ShippingAddressZoneConditionRule extends BaseMultiSelectConditionRule impl
         return t('Shipping Address Zone', category: 'commerce');
     }
 
-    public function getExclusiveQueryParams(): array
-    {
-        return ['shippingZone'];
-    }
-
     protected function options(): array
     {
         /** @var ShippingRuleOrderCondition $condition */
         $condition = $this->getCondition();
 
         return app(ShippingZones::class)->getAllShippingZones($condition->storeId)->mapWithKeys(fn(ShippingAddressZone $zone) => [$zone->id => $zone->name])->all();
-    }
-
-    #[Override]
-    public function modifyQuery(ElementQueryInterface $query): void
-    {
-        throw new LogicException('Shipping Address Zone condition rule does not support queries');
     }
 
     public function matchElement(ElementInterface $element): bool

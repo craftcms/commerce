@@ -2,6 +2,11 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\Plugin;
+use CraftCms\Commerce\Inventory\Events\InventoryMovementEvent;
+use CraftCms\Commerce\Inventory\Events\UpdateInventoryLevelEvent;
+use Illuminate\Support\Facades\Event;
+
 use craft\commerce\base\Purchasable;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
@@ -150,5 +155,22 @@ class Inventory extends Component
     public function orderCompleteHandler(Order $order): void
     {
         app(\CraftCms\Commerce\Inventory\Inventory::class)->orderCompleteHandler($order);
+    }
+
+    public static function registerEvents(): void
+    {
+        Event::listen(UpdateInventoryLevelEvent::class, static function(UpdateInventoryLevelEvent $event) {
+            $legacy = Plugin::getInstance()->getInventory();
+            if ($legacy->hasEventHandlers(self::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL)) {
+                $legacy->trigger(self::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL, $event);
+            }
+        });
+
+        Event::listen(InventoryMovementEvent::class, static function(InventoryMovementEvent $event) {
+            $legacy = Plugin::getInstance()->getInventory();
+            if ($legacy->hasEventHandlers(self::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT)) {
+                $legacy->trigger(self::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT, $event);
+            }
+        });
     }
 }

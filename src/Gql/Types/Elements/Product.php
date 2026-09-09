@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Gql\Types\Elements;
 
 use CraftCms\Cms\Gql\Types\Elements\Element;
-use CraftCms\Commerce\Catalog\Elements\Product as ProductElement;
 use CraftCms\Commerce\Gql\Interfaces\Elements\Product as ProductInterface;
+use CraftCms\Commerce\Product\Elements\Product as ProductElement;
 use GraphQL\Type\Definition\ResolveInfo;
 use Override;
 

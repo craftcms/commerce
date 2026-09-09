@@ -16,6 +16,7 @@ use CraftCms\Commerce\Order\Adjuster\Discount as DiscountAdjuster;
 use CraftCms\Commerce\Order\Data\OrderNotice;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
+use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Promotion\Data\Coupon;
 use CraftCms\Commerce\Promotion\Data\Discount;
 use CraftCms\Commerce\Promotion\Events\DiscountEvent;
@@ -394,9 +395,7 @@ class Discounts
             return false;
         }
 
-        // TODO: update LineItemType enum reference once migrated
-        /** @phpstan-ignore-next-line */
-        if ($lineItem->type === \craft\commerce\enums\LineItemType::Purchasable) {
+        if ($lineItem->type === LineItemType::Purchasable) {
             $purchasable = $lineItem->getPurchasable();
 
             if (!$discount->allPurchasables && !in_array($purchasable->id, $discount->getPurchasableIds(), false)) {

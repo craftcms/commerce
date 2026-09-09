@@ -94,10 +94,8 @@ class Carts
                 $cartAttributes['customer'] = $currentUser; // Will ensure the email is also set
             }
 
-            $this->cart = \Craft::createObject([
-                'class' => Order::class,
-                'attributes' => $cartAttributes,
-            ]);
+            $this->cart = new Order();
+            $this->cart->setAttributes($cartAttributes);
         } elseif ($this->cart->orderSiteId != Sites::getCurrentSite()->id) {
             $this->cart->orderSiteId = Sites::getCurrentSite()->id;
             $forceSave = true;
@@ -477,12 +475,7 @@ class Carts
             ->from(['orders' => Table::ORDERS]);
 
         $event = new CartPurgeEvent(inactiveCartsQuery: $cartIdsQuery);
-
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getCarts()->hasEventHandlers(self::EVENT_BEFORE_PURGE_INACTIVE_CARTS)) {
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getCarts()->trigger(self::EVENT_BEFORE_PURGE_INACTIVE_CARTS, $event);
-        }
+        event($event);
 
         if (!$event->isValid) {
             return 0;

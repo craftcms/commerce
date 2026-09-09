@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Tax;
 
-use craft\commerce\Plugin;
 use CraftCms\Commerce\Tax\Contracts\TaxEngineInterface;
 use CraftCms\Commerce\Tax\Contracts\TaxIdValidatorInterface;
 use CraftCms\Commerce\Tax\Engines\Tax;
@@ -34,12 +33,7 @@ class Taxes implements TaxEngineInterface
         $event = new TaxIdValidatorsEvent(
             validators: $validators,
         );
-
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getTaxes()->hasEventHandlers(self::EVENT_REGISTER_TAX_ID_VALIDATORS)) {
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getTaxes()->trigger(self::EVENT_REGISTER_TAX_ID_VALIDATORS, $event);
-        }
+        event($event);
 
         foreach ($event->validators as $validator) {
             if (!$validator instanceof TaxIdValidatorInterface) {
@@ -65,12 +59,7 @@ class Taxes implements TaxEngineInterface
         }
 
         $event = new TaxEngineEvent(engine: new Tax());
-
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getTaxes()->hasEventHandlers(self::EVENT_REGISTER_TAX_ENGINE)) {
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getTaxes()->trigger(self::EVENT_REGISTER_TAX_ENGINE, $event);
-        }
+        event($event);
 
         $this->taxEngine = $event->engine;
 

@@ -127,12 +127,12 @@ class TopProducts extends Widget
     }
 
     #[\Override]
-    public function getBodyHtml(): ?string
+    public function props(): array
     {
         $stats = $this->stat->get();
 
         if (empty($stats)) {
-            return Html::tag('p', t('No stats available.', category: 'commerce'), ['class' => 'zilch']);
+            return ['html' => Html::tag('p', t('No stats available.', category: 'commerce'), ['class' => 'zilch'])];
         }
 
         \Craft::$app->getView()->registerAssetBundle(StatWidgetsAsset::class);
@@ -149,13 +149,13 @@ class TopProducts extends Widget
             $revenueColumnHandle = 'revenue_custom';
         }
 
-        return template('commerce/_components/widgets/products/top/body', [
+        return ['html' => template('commerce/_components/widgets/products/top/body', [
             'stats' => $stats,
             'revenueColumnHandle' => $revenueColumnHandle,
             'type' => $this->type,
             'typeLabel' => $this->typeOptions[$this->type] ?? '',
             'id' => 'top-products' . Str::random(),
-        ], TemplateMode::Cp);
+        ], TemplateMode::Cp)];
     }
 
     #[\Override]

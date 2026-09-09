@@ -2,6 +2,10 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\Plugin;
+use CraftCms\Commerce\Order\Events\OrderStatusEvent;
+use Illuminate\Support\Facades\Event;
+
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Data\OrderHistory;
 use yii\base\Component;
@@ -39,5 +43,15 @@ class OrderHistories extends Component
     public function deleteOrderHistoryById(int $id): bool
     {
         return app(\CraftCms\Commerce\Order\OrderHistories::class)->deleteOrderHistoryById($id);
+    }
+
+    public static function registerEvents(): void
+    {
+        Event::listen(OrderStatusEvent::class, static function(OrderStatusEvent $event) {
+            $legacy = Plugin::getInstance()->getOrderHistories();
+            if ($legacy->hasEventHandlers(self::EVENT_ORDER_STATUS_CHANGE)) {
+                $legacy->trigger(self::EVENT_ORDER_STATUS_CHANGE, $event);
+            }
+        });
     }
 }

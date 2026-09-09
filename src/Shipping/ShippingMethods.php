@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Shipping;
 
-use craft\commerce\Plugin;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface;
@@ -76,12 +75,7 @@ class ShippingMethods
             order: $order,
         );
         $event->setShippingMethods($methods);
-
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getShippingMethods()->hasEventHandlers(self::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS)) {
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getShippingMethods()->trigger(self::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS, $event);
-        }
+        event($event);
 
         $matchingMethods = [];
         foreach ($event->getShippingMethods() as $method) {

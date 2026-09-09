@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order;
 
-use craft\commerce\Plugin;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
@@ -124,12 +123,7 @@ class OrderStatuses
             orderStatus: $orderStatus,
             order: $order,
         );
-
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getOrderStatuses()->hasEventHandlers(self::EVENT_DEFAULT_ORDER_STATUS)) {
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getOrderStatuses()->trigger(self::EVENT_DEFAULT_ORDER_STATUS, $event);
-        }
+        event($event);
 
         return $event->orderStatus;
     }
@@ -363,12 +357,7 @@ class OrderStatuses
             emails: $status->getEmails(),
         );
         $event->isValid = !$order->suppressEmails;
-
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getOrderStatuses()->hasEventHandlers(self::EVENT_ORDER_STATUS_CHANGE_EMAILS)) {
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getOrderStatuses()->trigger(self::EVENT_ORDER_STATUS_CHANGE_EMAILS, $event);
-        }
+        event($event);
 
         if (!$event->isValid || empty($event->emails)) {
             // Don't send emails

@@ -6,8 +6,8 @@ namespace CraftCms\Commerce\Purchasable\FieldLayoutElements;
 
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
-use CraftCms\Commerce\Catalog\Elements\Variant;
 use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
+use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use InvalidArgumentException;
 use Override;

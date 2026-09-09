@@ -6,8 +6,9 @@ namespace CraftCms\Commerce\Pdf\Events;
 
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Pdf\Data\Pdf;
+use yii\base\Event;
 
-class PdfRenderEvent
+class PdfRenderEvent extends Event
 {
     public function __construct(
         public Order $order,

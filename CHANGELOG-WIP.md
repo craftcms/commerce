@@ -1,66 +1,67 @@
 # Release Notes for Craft Commerce 6.0 (WIP)
 
-### Catalog
+### Product
 
-- Added `CraftCms\Commerce\Catalog\Elements\Product`.
-- Added `CraftCms\Commerce\Catalog\Elements\Variant`.
-- Added `CraftCms\Commerce\Catalog\Queries\ProductQuery`.
-- Added `CraftCms\Commerce\Catalog\Queries\VariantQuery`.
-- Added `CraftCms\Commerce\Catalog\Models\Product`.
-- Added `CraftCms\Commerce\Catalog\Models\Variant`.
-- Added `CraftCms\Commerce\Catalog\Models\ProductTypeSite`.
-- Added `CraftCms\Commerce\Catalog\Products`.
-- Added `CraftCms\Commerce\Catalog\Variants`.
-- Added `CraftCms\Commerce\Catalog\ProductType\Data\ProductType`.
-- Added `CraftCms\Commerce\Catalog\ProductType\Models\ProductType`.
-- Added `CraftCms\Commerce\Catalog\ProductType\Models\ProductTypeSite`.
-- Added `CraftCms\Commerce\Catalog\ProductType\ProductTypes`.
-- Added `CraftCms\Commerce\Catalog\Events\CustomizeProductSnapshotDataEvent`.
-- Added `CraftCms\Commerce\Catalog\Events\CustomizeProductSnapshotFieldsEvent`.
-- Added `CraftCms\Commerce\Catalog\Events\CustomizeVariantSnapshotDataEvent`.
-- Added `CraftCms\Commerce\Catalog\Events\CustomizeVariantSnapshotFieldsEvent`.
-- Added `CraftCms\Commerce\Catalog\Events\ModifyPurchasablesTableQueryEvent`.
-- Added `CraftCms\Commerce\Catalog\Events\ProductEvent`.
-- Added `CraftCms\Commerce\Catalog\Events\ProductTypeEvent`.
-- Added `CraftCms\Commerce\Catalog\Events\PurchaseVariantEvent`.
-- Deprecated `craft\commerce\elements\Product`. `CraftCms\Commerce\Catalog\Elements\Product` should be used instead.
-- Deprecated `craft\commerce\elements\Variant`. `CraftCms\Commerce\Catalog\Elements\Variant` should be used instead.
-- Deprecated `craft\commerce\elements\db\ProductQuery`. `CraftCms\Commerce\Catalog\Queries\ProductQuery` should be used instead.
-- Deprecated `craft\commerce\elements\db\VariantQuery`. `CraftCms\Commerce\Catalog\Queries\VariantQuery` should be used instead.
-- Deprecated `craft\commerce\records\Product`. `CraftCms\Commerce\Catalog\Models\Product` should be used instead.
-- Deprecated `craft\commerce\records\Variant`. `CraftCms\Commerce\Catalog\Models\Variant` should be used instead.
-- Deprecated `craft\commerce\models\ProductType`. `CraftCms\Commerce\Catalog\ProductType\Data\ProductType` should be used instead.
-- Deprecated `craft\commerce\models\ProductTypeSite`. `CraftCms\Commerce\Catalog\Models\ProductTypeSite` should be used instead.
-- Deprecated `craft\commerce\records\ProductType`. `CraftCms\Commerce\Catalog\ProductType\Models\ProductType` should be used instead.
-- Deprecated `craft\commerce\records\ProductTypeSite`. `CraftCms\Commerce\Catalog\ProductType\Models\ProductTypeSite` should be used instead.
-- Deprecated `craft\commerce\services\Products`. `CraftCms\Commerce\Catalog\Products` should be used instead.
-- Deprecated `craft\commerce\services\Variants`. `CraftCms\Commerce\Catalog\Variants` should be used instead.
-- Deprecated `craft\commerce\services\ProductTypes`. `CraftCms\Commerce\Catalog\ProductType\ProductTypes` should be used instead.
-- Deprecated `craft\commerce\events\CustomizeProductSnapshotDataEvent`. `CraftCms\Commerce\Catalog\Events\CustomizeProductSnapshotDataEvent` should be used instead.
-- Deprecated `craft\commerce\events\CustomizeProductSnapshotFieldsEvent`. `CraftCms\Commerce\Catalog\Events\CustomizeProductSnapshotFieldsEvent` should be used instead.
-- Deprecated `craft\commerce\events\CustomizeVariantSnapshotDataEvent`. `CraftCms\Commerce\Catalog\Events\CustomizeVariantSnapshotDataEvent` should be used instead.
-- Deprecated `craft\commerce\events\CustomizeVariantSnapshotFieldsEvent`. `CraftCms\Commerce\Catalog\Events\CustomizeVariantSnapshotFieldsEvent` should be used instead.
-- Deprecated `craft\commerce\events\ModifyPurchasablesTableQueryEvent`. `CraftCms\Commerce\Catalog\Events\ModifyPurchasablesTableQueryEvent` should be used instead.
-- Deprecated `craft\commerce\events\ProductEvent`. `CraftCms\Commerce\Catalog\Events\ProductEvent` should be used instead.
-- Deprecated `craft\commerce\events\ProductTypeEvent`. `CraftCms\Commerce\Catalog\Events\ProductTypeEvent` should be used instead.
-- Deprecated `craft\commerce\events\PurchaseVariantEvent`. `CraftCms\Commerce\Catalog\Events\PurchaseVariantEvent` should be used instead.
-- Removed `craft\commerce\records\ProductTypeShippingCategory` as it was unused; `CraftCms\Commerce\Shipping\ShippingCategories` manages the `commerce_producttypes_shippingcategories` pivot table directly through the query builder.
-- Removed `craft\commerce\records\ProductTypeTaxCategory` as it was unused; `CraftCms\Commerce\Tax\TaxCategories` manages the `commerce_producttypes_taxcategories` pivot table directly through the query builder.
-- Added `CraftCms\Commerce\Catalog\Conditions\ProductCondition`, `ProductTypeConditionRule`, `ProductVariantSearchConditionRule`, `ProductVariantSkuConditionRule`, `ProductVariantStockConditionRule`, `ProductVariantPriceConditionRule`, and `ProductVariantInventoryTrackedConditionRule`.
-- Added `CraftCms\Commerce\Catalog\Conditions\VariantCondition`, `VariantProductConditionRule`, and `VariantConditionRule`.
-- Added `CraftCms\Commerce\Catalog\Conditions\CatalogPricingRuleProductCondition`, `CatalogPricingRuleVariantCondition`, and `CatalogPricingRuleVariantConditionRule`.
-- Deprecated `craft\commerce\elements\conditions\products\ProductCondition`, `ProductTypeConditionRule`, `ProductVariantSearchConditionRule`, `ProductVariantSkuConditionRule`, `ProductVariantStockConditionRule`, `ProductVariantPriceConditionRule`, `ProductVariantInventoryTrackedConditionRule`, and `CatalogPricingRuleProductCondition`. The `CraftCms\Commerce\Catalog\Conditions` equivalents should be used instead.
-- Deprecated `craft\commerce\elements\conditions\variants\VariantCondition`, `ProductConditionRule`, `VariantConditionRule`, `CatalogPricingRuleVariantCondition`, and `CatalogPricingRuleVariantConditionRule`. The `CraftCms\Commerce\Catalog\Conditions` equivalents should be used instead.
+- Added `CraftCms\Commerce\Product\Elements\Product`.
+- Added `CraftCms\Commerce\Product\Variant\Elements\Variant`.
+- Added `CraftCms\Commerce\Product\Queries\ProductQuery`.
+- Added `CraftCms\Commerce\Product\Variant\Queries\VariantQuery`.
+- Added `CraftCms\Commerce\Product\Models\Product`.
+- Added `CraftCms\Commerce\Product\Variant\Models\Variant`.
+- Added `CraftCms\Commerce\Product\ProductType\Data\ProductTypeSite`.
+- Added `CraftCms\Commerce\Product\Products`.
+- Added `CraftCms\Commerce\Product\Variant\Variants`.
+- Added `CraftCms\Commerce\Product\ProductType\Data\ProductType`.
+- Added `CraftCms\Commerce\Product\ProductType\Models\ProductType`.
+- Added `CraftCms\Commerce\Product\ProductType\Models\ProductTypeSite`.
+- Added `CraftCms\Commerce\Product\ProductType\ProductTypes`.
+- Added `CraftCms\Commerce\Product\Events\CustomizeProductSnapshotDataEvent`.
+- Added `CraftCms\Commerce\Product\Events\CustomizeProductSnapshotFieldsEvent`.
+- Added `CraftCms\Commerce\Product\Variant\Events\CustomizeVariantSnapshotDataEvent`.
+- Added `CraftCms\Commerce\Product\Variant\Events\CustomizeVariantSnapshotFieldsEvent`.
+- Added `CraftCms\Commerce\Purchasable\Events\ModifyPurchasablesTableQueryEvent`.
+- Added `CraftCms\Commerce\Product\Events\ProductEvent`.
+- Added `CraftCms\Commerce\Product\ProductType\Events\ProductTypeEvent`.
+- Added `CraftCms\Commerce\Product\Variant\Events\PurchaseVariantEvent`.
+- Deprecated `craft\commerce\elements\Product`. `CraftCms\Commerce\Product\Elements\Product` should be used instead.
+- Deprecated `craft\commerce\elements\Variant`. `CraftCms\Commerce\Product\Variant\Elements\Variant` should be used instead.
+- Deprecated `craft\commerce\elements\db\ProductQuery`. `CraftCms\Commerce\Product\Queries\ProductQuery` should be used instead.
+- Deprecated `craft\commerce\elements\db\VariantQuery`. `CraftCms\Commerce\Product\Variant\Queries\VariantQuery` should be used instead.
+- Deprecated `craft\commerce\records\Product`. `CraftCms\Commerce\Product\Models\Product` should be used instead.
+- Deprecated `craft\commerce\records\Variant`. `CraftCms\Commerce\Product\Variant\Models\Variant` should be used instead.
+- Deprecated `craft\commerce\models\ProductType`. `CraftCms\Commerce\Product\ProductType\Data\ProductType` should be used instead.
+- Deprecated `craft\commerce\models\ProductTypeSite`. `CraftCms\Commerce\Product\ProductType\Data\ProductTypeSite` should be used instead.
+- Deprecated `craft\commerce\records\ProductType`. `CraftCms\Commerce\Product\ProductType\Models\ProductType` should be used instead.
+- Deprecated `craft\commerce\records\ProductTypeSite`. `CraftCms\Commerce\Product\ProductType\Models\ProductTypeSite` should be used instead.
+- Deprecated `craft\commerce\services\Products`. `CraftCms\Commerce\Product\Products` should be used instead.
+- Deprecated `craft\commerce\services\Variants`. `CraftCms\Commerce\Product\Variant\Variants` should be used instead.
+- Deprecated `craft\commerce\services\ProductTypes`. `CraftCms\Commerce\Product\ProductType\ProductTypes` should be used instead.
+- Deprecated `craft\commerce\events\CustomizeProductSnapshotDataEvent`. `CraftCms\Commerce\Product\Events\CustomizeProductSnapshotDataEvent` should be used instead.
+- Deprecated `craft\commerce\events\CustomizeProductSnapshotFieldsEvent`. `CraftCms\Commerce\Product\Events\CustomizeProductSnapshotFieldsEvent` should be used instead.
+- Deprecated `craft\commerce\events\CustomizeVariantSnapshotDataEvent`. `CraftCms\Commerce\Product\Variant\Events\CustomizeVariantSnapshotDataEvent` should be used instead.
+- Deprecated `craft\commerce\events\CustomizeVariantSnapshotFieldsEvent`. `CraftCms\Commerce\Product\Variant\Events\CustomizeVariantSnapshotFieldsEvent` should be used instead.
+- Deprecated `craft\commerce\events\ModifyPurchasablesTableQueryEvent`. `CraftCms\Commerce\Purchasable\Events\ModifyPurchasablesTableQueryEvent` should be used instead.
+- Deprecated `craft\commerce\events\ProductEvent`. `CraftCms\Commerce\Product\Events\ProductEvent` should be used instead.
+- Deprecated `craft\commerce\events\ProductTypeEvent`. `CraftCms\Commerce\Product\ProductType\Events\ProductTypeEvent` should be used instead.
+- Deprecated `craft\commerce\events\PurchaseVariantEvent`. `CraftCms\Commerce\Product\Variant\Events\PurchaseVariantEvent` should be used instead.
+- Removed `craft\commerce\records\ProductTypeShippingCategory` as it was unused.
+- Removed `craft\commerce\records\ProductTypeTaxCategory` as it was unused.
+- Added `CraftCms\Commerce\Product\Conditions\ProductCondition`, `ProductTypeConditionRule`, `ProductVariantSearchConditionRule`, `ProductVariantSkuConditionRule`, `ProductVariantStockConditionRule`, `ProductVariantPriceConditionRule`, and `ProductVariantInventoryTrackedConditionRule`.
+- Added `CraftCms\Commerce\Product\Variant\Conditions\VariantCondition`, `VariantProductConditionRule`, and `VariantConditionRule`.
+- Added `CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingRuleProductCondition`, `CatalogPricingRuleVariantCondition`, and `CatalogPricingRuleVariantConditionRule`.
+- Deprecated `craft\commerce\elements\conditions\products\ProductCondition`, `ProductTypeConditionRule`, `ProductVariantSearchConditionRule`, `ProductVariantSkuConditionRule`, `ProductVariantStockConditionRule`, `ProductVariantPriceConditionRule`, `ProductVariantInventoryTrackedConditionRule`, and `CatalogPricingRuleProductCondition`. The `CraftCms\Commerce\Product\Conditions` and `CraftCms\Commerce\CatalogPricing\Conditions` equivalents should be used instead.
+- Deprecated `craft\commerce\elements\conditions\variants\VariantCondition`, `ProductConditionRule`, `VariantConditionRule`, `CatalogPricingRuleVariantCondition`, and `CatalogPricingRuleVariantConditionRule`. The `CraftCms\Commerce\Product\Variant\Conditions` and `CraftCms\Commerce\CatalogPricing\Conditions` equivalents should be used instead.
 - Removed `craft\commerce\elements\conditions\products\ProductVariantHasUnlimitedStockConditionRule`, deprecated since 5.0.0 and already unregistered from `ProductCondition::selectableConditionRules()`.
-- Added `CraftCms\Commerce\Catalog\Actions\SetDefaultVariant`.
-- Added `CraftCms\Commerce\Catalog\FieldLayoutElements\ProductTitleField`, `VariantTitleField`, and `VariantsField`.
-- Added `CraftCms\Commerce\Catalog\Fields\Products` and `Variants`.
-- Deprecated `craft\commerce\elements\actions\SetDefaultVariant`. `CraftCms\Commerce\Catalog\Actions\SetDefaultVariant` should be used instead.
-- Deprecated `craft\commerce\fieldlayoutelements\ProductTitleField`, `VariantTitleField`, and `VariantsField`. The `CraftCms\Commerce\Catalog\FieldLayoutElements` equivalents should be used instead.
-- Deprecated `craft\commerce\fields\Products` and `Variants`. The `CraftCms\Commerce\Catalog\Fields` equivalents should be used instead.
-- Removed `craft\commerce\linktypes\Product`, superseded by `CraftCms\Commerce\Catalog\LinkTypes\ProductLinkType`.
-- Added `CraftCms\Commerce\Catalog\Jobs\ResaveProductVariantsJob`, a native Laravel `ShouldQueue` job.
-- Removed `craft\commerce\queue\jobs\ResaveProductVariants`. `CraftCms\Commerce\Catalog\Jobs\ResaveProductVariantsJob` should be used instead.
+- Added `CraftCms\Commerce\Product\Variant\Actions\SetDefaultVariant`.
+- Added `CraftCms\Commerce\Product\FieldLayoutElements\ProductTitleField`.
+- Added `CraftCms\Commerce\Product\Variant\FieldLayoutElements\VariantTitleField` and `VariantsField`.
+- Added `CraftCms\Commerce\Product\Fields\Products` and `Variants`.
+- Deprecated `craft\commerce\elements\actions\SetDefaultVariant`. `CraftCms\Commerce\Product\Variant\Actions\SetDefaultVariant` should be used instead.
+- Deprecated `craft\commerce\fieldlayoutelements\ProductTitleField`, `VariantTitleField`, and `VariantsField`. `CraftCms\Commerce\Product\FieldLayoutElements\ProductTitleField` and the `CraftCms\Commerce\Product\Variant\FieldLayoutElements` equivalents should be used instead.
+- Deprecated `craft\commerce\fields\Products` and `Variants`. The `CraftCms\Commerce\Product\Fields` equivalents should be used instead.
+- Removed `craft\commerce\linktypes\Product`, superseded by `CraftCms\Commerce\Product\LinkTypes\ProductLinkType`.
+- Added `CraftCms\Commerce\Product\Jobs\ResaveProductVariantsJob`, a native Laravel `ShouldQueue` job.
+- Removed `craft\commerce\queue\jobs\ResaveProductVariants`. `CraftCms\Commerce\Product\Jobs\ResaveProductVariantsJob` should be used instead.
 
 #### Controllers
 
@@ -74,26 +75,26 @@
 - Added `CraftCms\Commerce\CatalogPricing\CatalogPricingRules`.
 - Added `CraftCms\Commerce\CatalogPricing\Records\CatalogPricingQueue`.
 - Added `CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule`.
-- Added `CraftCms\Commerce\Catalog\Models\CatalogPricing`.
-- Added `CraftCms\Commerce\Catalog\Models\CatalogPricingRule`.
+- Added `CraftCms\Commerce\CatalogPricing\Data\CatalogPricing`.
+- Added `CraftCms\Commerce\CatalogPricing\Data\CatalogPricingRule`.
 - Added `CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition`.
 - Added `CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingPurchasableConditionRule`.
 - Added `CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCustomerConditionRule`.
 - Added `CraftCms\Commerce\CatalogPricing\Contracts\CatalogPricingConditionRuleInterface`.
 - Deprecated `craft\commerce\services\CatalogPricing`. `CraftCms\Commerce\CatalogPricing\CatalogPricing` should be used instead.
 - Deprecated `craft\commerce\services\CatalogPricingRules`. `CraftCms\Commerce\CatalogPricing\CatalogPricingRules` should be used instead.
-- Deprecated `craft\commerce\models\CatalogPricing`. `CraftCms\Commerce\Catalog\Models\CatalogPricing` should be used instead.
-- Deprecated `craft\commerce\models\CatalogPricingRule`. `CraftCms\Commerce\Catalog\Models\CatalogPricingRule` should be used instead.
+- Deprecated `craft\commerce\models\CatalogPricing`. `CraftCms\Commerce\CatalogPricing\Data\CatalogPricing` should be used instead.
+- Deprecated `craft\commerce\models\CatalogPricingRule`. `CraftCms\Commerce\CatalogPricing\Data\CatalogPricingRule` should be used instead.
 - Deprecated `craft\commerce\records\CatalogPricingRule`. `CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule` should be used instead.
 - Deprecated `craft\commerce\elements\conditions\purchasables\CatalogPricingCondition`. `CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition` should be used instead.
 - Deprecated `craft\commerce\elements\conditions\purchasables\CatalogPricingPurchasableConditionRule`. `CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingPurchasableConditionRule` should be used instead.
 - Deprecated `craft\commerce\elements\conditions\purchasables\CatalogPricingCustomerConditionRule`. `CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCustomerConditionRule` should be used instead.
 - Deprecated `craft\commerce\base\CatalogPricingConditionRuleInterface`. `CraftCms\Commerce\CatalogPricing\Contracts\CatalogPricingConditionRuleInterface` should be used instead.
 - Removed `craft\commerce\records\CatalogPricing` as it was unused.
-- Removed `craft\commerce\records\CatalogPricingRuleUser` as it was unused; the `commerce_catalog_pricing_rules_users` pivot table is managed directly through the query builder.
+- Removed `craft\commerce\records\CatalogPricingRuleUser` as it was unused.
 - Removed `craft\commerce\records\CatalogPricingRule`. `CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule` should be used instead.
 - Removed `craft\commerce\records\CatalogPricingQueue`. `CraftCms\Commerce\CatalogPricing\Records\CatalogPricingQueue` should be used instead.
-- `CraftCms\Commerce\Catalog\Models\CatalogPricingRule` now uses `CraftCms\Commerce\Customer\Conditions\CatalogPricingRuleCustomerCondition`, `CraftCms\Commerce\Catalog\Conditions\CatalogPricingRuleProductCondition`, `CatalogPricingRuleVariantCondition`, and `CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableCondition`.
+- `CraftCms\Commerce\CatalogPricing\Data\CatalogPricingRule` now uses `CraftCms\Commerce\Customer\Conditions\CatalogPricingRuleCustomerCondition`, `CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingRuleProductCondition`, `CatalogPricingRuleVariantCondition`, and `CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableCondition`.
 - Added `CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob`, a native Laravel `ShouldQueue` job.
 - Removed `craft\commerce\queue\jobs\CatalogPricing`. `CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob` should be used instead.
 
@@ -191,7 +192,7 @@
 - Deprecated `craft\commerce\widgets\Orders`. `CraftCms\Commerce\Dashboard\Widgets\Orders` should be used instead.
 - Deprecated `craft\commerce\base\Stat`. `CraftCms\Commerce\Stats\Stat` should be used instead.
 - Deprecated `craft\commerce\base\StatWidgetTrait`. `CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait` should be used instead.
-- Deprecated `craft\commerce\base\StatTrait`. Its properties are now declared directly on `CraftCms\Commerce\Stats\Stat`.
+- Removed `craft\commerce\base\StatTrait`. Its properties are now declared directly on `CraftCms\Commerce\Stats\Stat`.
 
 ### Email
 
@@ -468,8 +469,8 @@
 - Removed `craft\commerce\records\LineItemStatus`. `CraftCms\Commerce\Order\Records\LineItemStatus` should be used instead.
 - Removed `craft\commerce\records\OrderStatus`. `CraftCms\Commerce\Order\Records\OrderStatus` should be used instead.
 - Removed `craft\commerce\records\OrderNotice`. `CraftCms\Commerce\Order\Records\OrderNotice` should be used instead.
-- Removed `LineItem::getSaleAmount()`, `refreshFromPurchasable()`, and `populateFromPurchasable()` as they had no remaining call sites.
-- Removed `LineItems::createLineItem()` as it had no remaining call sites.
+- Removed `LineItem::getSaleAmount()`, `refreshFromPurchasable()`, and `populateFromPurchasable()`.
+- Removed `LineItems::createLineItem()`.
 - Removed `Carts::getCartName()`. The `cartCookie['name']` config setting should be used instead.
 - Added `CraftCms\Commerce\Order\Conditions\OrderCondition`, `CompletedConditionRule`, `CouponCodeConditionRule`, `CustomerConditionRule`, `DateOrderedConditionRule`, `HasAdminNoticesConditionRule`, `PaidConditionRule`, `HasPurchasableConditionRule`, `ContainsPurchasablesConditionRule`, `OrderStatusConditionRule`, `OrderSiteConditionRule`, `PaymentGatewayConditionRule`, `ReferenceConditionRule`, `ShippingMethodConditionRule`, `ShippingAddressZoneConditionRule`, `DiscountedItemSubtotalConditionRule`, `ItemSubtotalConditionRule`, `ItemTotalConditionRule`, `TotalConditionRule`, `TotalDiscountConditionRule`, `TotalPaidConditionRule`, `TotalPriceConditionRule`, `TotalQtyConditionRule`, `TotalTaxConditionRule`, and `TotalWeightConditionRule`.
 - Added `CraftCms\Commerce\Order\Conditions\OrderTextValuesAttributeConditionRule`, `OrderValuesAttributeConditionRule`, and `OrderCurrencyValuesAttributeConditionRule`.
@@ -536,7 +537,7 @@
 - Deprecated `craft\commerce\services\PaymentSources`. `CraftCms\Commerce\Payment\PaymentSources` should be used instead.
 - Deprecated `craft\commerce\services\Gateways`. `CraftCms\Commerce\Payment\Gateway\Gateways` should be used instead.
 - Deprecated `craft\commerce\base\Gateway`. `CraftCms\Commerce\Payment\Gateway\Gateway` should be used instead.
-- Deprecated `craft\commerce\base\GatewayTrait`. Its properties and methods are now part of `CraftCms\Commerce\Payment\Gateway\Gateway`.
+- Removed `craft\commerce\base\GatewayTrait`. Its properties and methods are now part of `CraftCms\Commerce\Payment\Gateway\Gateway`.
 - Deprecated `craft\commerce\gateways\Dummy`. `CraftCms\Commerce\Payment\Gateway\Types\Dummy` should be used instead.
 - Deprecated `craft\commerce\gateways\Manual`. `CraftCms\Commerce\Payment\Gateway\Types\Manual` should be used instead.
 - Deprecated `craft\commerce\gateways\MissingGateway`. `CraftCms\Commerce\Payment\Gateway\Types\MissingGateway` should be used instead.
@@ -572,7 +573,7 @@
 - Removed `craft\commerce\records\PaymentSource`. `CraftCms\Commerce\Payment\Records\PaymentSource` should be used instead.
 - Removed `craft\commerce\records\Gateway`. `CraftCms\Commerce\Payment\Gateway\Records\Gateway` should be used instead.
 - Removed `craft\commerce\records\PaymentCurrency`. `CraftCms\Commerce\Payment\Records\PaymentCurrency` should be used instead.
-- Removed `Gateways::getGatewayOverrides()`. It depended on the `commerce-gateways.php` config-file override mechanism.
+- Removed `Gateways::getGatewayOverrides()`.
 - Removed `Transactions::deleteTransaction()`. `deleteTransactionById()` should be used instead.
 - Removed `PaymentCurrencies::convertCurrency()`. `convert()` or `convertAmount()` should be used instead.
 - Widened `RefundTransactionEvent::$amount` to `?float` to allow `null` for a full refund.
@@ -640,7 +641,7 @@
 - Added `CraftCms\Commerce\Promotion\Actions\CreateDiscount` and `CreateSale`.
 - Deprecated `craft\commerce\elements\actions\CreateDiscount` and `CreateSale`. The `CraftCms\Commerce\Promotion\Actions` equivalents should be used instead.
 - `CraftCms\Commerce\Promotion\Models\Coupon::getRules()` now validates that `code` is unique (case-insensitively, against every coupon regardless of discount), replacing `craft\commerce\validators\CouponsValidator`.
-- Removed `craft\commerce\validators\CouponsValidator`, which had no remaining references anywhere in the codebase.
+- Removed `craft\commerce\validators\CouponsValidator`.
 
 #### Controllers
 
@@ -922,7 +923,7 @@
 - Removed `craft\commerce\behaviors\ValidateOrganizationTaxIdBehavior`, superseded by the Commerce 5.0 redesign that moved VAT validation from a generic `Address` rule to `Order::afterValidate()` (gated per-store by `getValidateOrganizationTaxIdAsVatId()`), already fully ported.
 - Removed `craft\commerce\behaviors\CurrencyAttributeBehavior`. Its consuming classes now provide explicit `get*AsCurrency()` getters directly (`Order`, `LineItem`, `Purchasable` — covers `Variant`/`Donation` via inheritance — `Product`, `Transaction`, `CatalogPricing`, `ShippingMethodOption`, `OrderAdjustment`), matching the pattern already established for `Order`/`LineItem`/`Purchasable`/`Product` during earlier migration stages.
 - Fixed `CraftCms\Commerce\Payment\Models\Transaction`: added back `getAmountAsCurrency()`, `getPaymentAmountAsCurrency()`, and `getRefundableAmountAsCurrency()`, dropped from the legacy `CurrencyAttributeBehavior` in an earlier migration stage without updating `OrdersController::getTransactionsWithLevelsTableArray()` or the example templates, both of which call them — this was throwing `UnknownPropertyException` whenever the order-edit CP screen loaded an order with a payment transaction.
-- Fixed `CraftCms\Commerce\Catalog\Models\CatalogPricing`: added back `getPriceAsCurrency()`, dropped from the legacy `CurrencyAttributeBehavior` without updating `src-yii2/templates/prices/_table.twig` (Settings → Product Pricing), which calls it — this was throwing `UnknownPropertyException` on that screen.
+- Fixed `CraftCms\Commerce\CatalogPricing\Data\CatalogPricing`: added back `getPriceAsCurrency()`, dropped from the legacy `CurrencyAttributeBehavior` without updating `src-yii2/templates/prices/_table.twig` (Settings → Product Pricing), which calls it — this was throwing `UnknownPropertyException` on that screen.
 - Added `getPriceAsCurrency()` to `CraftCms\Commerce\Shipping\Models\ShippingMethodOption` and `getAmountAsCurrency()` to `CraftCms\Commerce\Order\Models\OrderAdjustment` (the latter used repeatedly in the shipped `example-templates/`), closing out the rest of the `CurrencyAttributeBehavior` removal — third-party templates/plugins could still call these via the legacy behavior's magic `__call`, independent of whether Commerce's own code used them.
 - Added `CraftCms\Commerce\Plugin::HANDLE`, replacing the `Plugin::getInstance()->handle` runtime lookup at its one call site (`Catalog\Products::afterSaveSiteHandler()`), which was also fixed to reference the new `CraftCms\Commerce\Plugin` instead of the legacy `craft\commerce\Plugin`.
 - Moved CKEditor's product/variant rich-text link options registration (`_registerCKEditorLinkOptions()`) from `craft\commerce\Plugin::boot()` to `CraftCms\Commerce\Plugin::registerCKEditorLinkOptions()`, using the new `Product`/`Variant`/`ProductTypes`/`Sites` APIs. CKEditor's own field class is still Yii2-based (not yet ported to Craft 6), so the listener itself still registers via the legacy `yii\base\Event::on()` mechanism — there's no Laravel event to listen to yet. Dropped Redactor support entirely (`_registerRedactorLinkOptions()`), since the Redactor plugin isn't supported under Craft 6.
@@ -959,3 +960,10 @@
 - Fixed `CraftCms\Commerce\Helpers\Locale::switchAppLanguage()` — it only mutated the legacy Yii2 `Craft::$app` locale state, which `CraftCms\Cms\Translation\I18N::getFormattingLocale()` (used by `Currency::formatAsCurrency()` and friends) doesn't read outside of CP requests; it now also calls `app()->setLocale()` so switching language actually affects number/currency formatting.
 - Fixed `CraftCms\Commerce\Store\Stores.php`'s schema-version guard (added for pre-5.0.72 upgrade compatibility) — right after a fresh plugin install, `Plugins::getStoredPluginInfo()` only has `['id', 'enabled']` cached (no `schemaVersion` yet), which threw an "undefined array key" error instead of the intended "assume old schema" fallback. A missing key now correctly means "just installed, definitely has the settings columns," not "pre-5.0.72."
 - Fixed `tests/TestCase.php` — `CraftCms\Cms\Plugin\Plugins::loadPlugins()`'s internal singleton guard was set before Commerce had a row in the `plugins` table, permanently preventing it from ever registering `craft\commerce\Plugin` as a Laravel service provider, so `Plugin::register()`/`boot()` (GQL argument handlers, widgets, permissions, CP nav, console commands, event listeners, `Macroable` macros, etc.) silently never ran under `composer run tests`. Forgetting the `Plugins` singleton and reloading it right after install fixes this.
+- Migrated every remaining "TODO: migrate event firing to Laravel once event system is bridged" site (~60 across `Carts`, `Customers`, `Emails`, `Inventory`, `LineItems`/`LineItem`, `LineItemStatuses`, `OrderHistories`, `OrderStatuses`, `PaymentCurrencies`, `Payments`, `PaymentSources`, `Pdfs`, `ProductTypes`, `Purchasables`, `ShippingMethods`, `Stores`, `Taxes`, `Transactions`, `Webhooks`, plus the `Order`/`Product`/`Variant` elements' own instance-level events) to dispatch through the new Laravel event system via `event()`, following the pattern Craft core's own yii2-adapter uses (e.g. `craft\services\Volumes::registerEvents()`): the `src/` code now only calls `event($event)`, and each legacy `craft\commerce\services\*` shim gets a new `public static function registerEvents(): void` that listens for the new event class and forwards it to the legacy `EVENT_*` trigger on the legacy component instance — all 19 of these are registered once from `Plugin::boot()` via a new `HasCommerceEventListeners::registerLegacyEventBridges()`. `Order`/`Product`/`Variant`, whose events fire via `$this->trigger()` directly on the element (bridged per-instance by the yii2-adapter's `LegacyBehaviorMixin`, not a separate legacy service object), keep the inline dual-fire pattern instead, since there's no separate legacy instance to centralize a bridge onto.
+- Split several event classes that were previously reused across multiple distinct named events (`EmailEvent` for all 4 email lifecycle events, `PdfEvent`/`PdfRenderEvent`, `StoreEvent`/`DeleteStoreEvent`, `PaymentSourceEvent`, `TransactionEvent`/`RefundTransactionEvent`, `ProcessPaymentEvent`, `WebhookEvent`, `ProductTypeEvent`, `LineItemEvent`) into dedicated subclasses (e.g. `EmailSaving`/`EmailSaved`/`EmailDeleting`/`EmailDeleted`) — required for the new centralized bridge, which listens by class, so a shared class firing for one named event would otherwise also incorrectly re-fire every other legacy event name sharing that class. Matches the one-class-per-event convention `craft\services\Volumes`'s own bridged events (`VolumeSaving`/`VolumeSaved`/etc.) already use.
+- Fixed a real, pre-existing bug surfaced by actually exercising these event-firing code paths for the first time (previously `hasEventHandlers()` almost always returned `false` since nothing registered a legacy listener, so the `trigger()` calls were never reached): every Commerce event class constructed at a `trigger()` call site needed to `extend yii\base\Event`, since `yii\base\Component::trigger(string $name, ?yii\base\Event $event = null)` has a hard type check and throws a `TypeError` for any other object — Commerce's event classes had been plain PHP classes since being ported to `src/`, so any real legacy `Event::on(...)` listener would have crashed the save/delete/etc. call that fired it. Verified live: a legacy `Event::on()` listener on `craft\commerce\services\Emails`/`PaymentCurrencies`/`Product\Variant\Elements\Variant` now fires correctly with no error.
+- Added `CraftCms\Commerce\Product\Variant\Elements\VariantCollection`. Deprecated `craft\commerce\elements\VariantCollection`.
+- Added `CraftCms\Commerce\Order\DeletionBlockers\OrderCustomersDeletionBlocker`, extending the new `CraftCms\Cms\Element\DeletionBlockers\BaseDeletionBlocker` instead of the legacy Yii2 one; also swaps `Craft::t()` for `t()`, `craft\helpers\Html::jsWithVars()` for `CraftCms\Cms\Support\Html::jsWithVars()`, and `craft\helpers\Cp::elementIndexHtml()` for the injectable `CraftCms\Cms\Cp\Html\ElementIndexHtml` service. Deprecated `craft\commerce\elements\deletionblockers\OrderCustomersDeletionBlocker`.
+- Removed the remaining `Craft::createObject()` calls from `src/` (23 sites across 17 files) — none of them needed Yii2's DI container (interface binding, named singletons); they were all just instantiating a plain `Order`/`Address`/`OrderNotice` element or a `CraftCms\Cms\Component\Component`-based model (`Coupon`, `Discount`, `Email`, `LineItemStatus`, `OrderStatus`, `PaymentCurrency`, `Pdf`, `ShippingCategory`, `ShippingMethod`, `ShippingAddressZone`, `TaxAddressZone`, `TaxRate`, `CatalogPricingRule`) with a set of attributes. Replaced with direct `new X()` (elements, via the already-established `setAttributes()` call) or `new X([...])` (`Component`-based models, whose constructor already accepts a property config array). Along the way, fixed a latent bug in `DiscountsController::setCouponsOnDiscount()`: it called `Craft::createObject(Coupon::class, ['config' => ['attributes' => [...]]])`, a double-wrapped shape left over from the old Yii2 `craft\base\Model` convention that doesn't match `Component`'s actual `__construct(array $config)` contract — the coupon's `id`/`code`/`uses`/`maxUses` were never actually being set on the created `Coupon` instance.
+- Merged `5.x` up to `5.7.3`, porting the four real fixes forward to their `src/` locations: `Order::setShippingAddress()`/`setBillingAddress()`/`setEstimatedShippingAddress()`/`setEstimatedBillingAddress()` now apply `$address['fields']` via `setFieldValues()` (previously only `CartController` did this, and only for the shipping/billing case, not estimated addresses — moving it into `Order` itself fixed the gap and let the now-redundant calls in `CartController` be removed); `Variant` regenerates its auto-generated SKU in `afterAssignedId()` when the product type's `skuFormat` references `{id}`, since that placeholder can't resolve correctly the first time SKU generation runs during `beforeSave()`, before the element has an ID; and `Store::afterSaveCraftSiteHandler()` now skips creating a site-store mapping while a project config apply is in progress, deferring to `handleChangedSiteStore()` so a site added via `craft up` doesn't trigger an unwanted follow-up config write. The CP's `index.twig` redirect logic already matched 5.7.3's `editableProductTypes` → `getViewableProductTypes()` rename (via equivalent property-style Twig access), so no change was needed there.

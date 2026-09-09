@@ -23,25 +23,16 @@ use CraftCms\Cms\Gql\Events\GqlSchemaComponentsResolving;
 use CraftCms\Cms\Gql\GqlArguments;
 use CraftCms\Cms\Plugin\Plugin as BasePlugin;
 use CraftCms\Cms\Route\Routes;
-use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Site\Events\SiteDeleted;
 use CraftCms\Cms\Site\Events\SiteSaved;
 use CraftCms\Cms\Support\Facades\Twig;
 use CraftCms\Cms\Support\File;
 use CraftCms\Cms\Support\Path;
 use CraftCms\Cms\SystemMessage\Models\SystemMessage;
-use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\User\Events\EditUserScreensResolving;
 use CraftCms\Cms\User\Events\UserAssignedToGroups;
-use CraftCms\Commerce\Catalog\Elements\Product;
-use CraftCms\Commerce\Catalog\Elements\Variant;
-use CraftCms\Commerce\Catalog\FieldLayoutElements\ProductTitleField;
-use CraftCms\Commerce\Catalog\FieldLayoutElements\VariantsField as VariantsLayoutElement;
-use CraftCms\Commerce\Catalog\FieldLayoutElements\VariantTitleField;
-use CraftCms\Commerce\Catalog\Fields\Products as ProductsField;
-use CraftCms\Commerce\Catalog\Fields\Variants as VariantsField;
-use CraftCms\Commerce\Catalog\LinkTypes\ProductLinkType;
-use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
+use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Cms\View\TemplateRoots;
 use CraftCms\Commerce\Console\Commands\ExampleTemplates\ExampleTemplatesCommand;
 use CraftCms\Commerce\Console\Commands\Gateways\GatewaysListCommand;
 use CraftCms\Commerce\Console\Commands\Gateways\GatewaysWebhookUrlCommand;
@@ -99,6 +90,15 @@ use CraftCms\Commerce\Plugin\Listeners\LogoutListener;
 use CraftCms\Commerce\Plugin\Listeners\SiteDeletedListener;
 use CraftCms\Commerce\Plugin\Listeners\SiteSavedListener;
 use CraftCms\Commerce\Plugin\Listeners\UserAssignedToGroupsListener;
+use CraftCms\Commerce\Product\Elements\Product;
+use CraftCms\Commerce\Product\FieldLayoutElements\ProductTitleField;
+use CraftCms\Commerce\Product\Fields\Products as ProductsField;
+use CraftCms\Commerce\Product\Fields\Variants as VariantsField;
+use CraftCms\Commerce\Product\LinkTypes\ProductLinkType;
+use CraftCms\Commerce\Product\ProductType\ProductTypes;
+use CraftCms\Commerce\Product\Variant\Elements\Variant;
+use CraftCms\Commerce\Product\Variant\FieldLayoutElements\VariantsField as VariantsLayoutElement;
+use CraftCms\Commerce\Product\Variant\FieldLayoutElements\VariantTitleField;
 use CraftCms\Commerce\Purchasable\Elements\Donation;
 use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableAllowedQtyField;
 use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableAvailableForPurchaseField;
@@ -112,7 +112,6 @@ use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableWeightField;
 use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Transfer\FieldLayoutElements\TransferManagementField;
 use CraftCms\Commerce\Twig\Extension as CommerceTwigExtension;
-use GraphQL\Type\Definition\Type;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -238,8 +237,13 @@ class Plugin extends BasePlugin
         $this->registerVariableMacros();
         $this->registerGqlRelatedToArguments();
         $this->registerForeignKeysRestore();
+        $this->registerLegacyEventBridges();
 
         Twig::registerExtension(new CommerceTwigExtension());
+
+        // TODO: remove once the remaining CP templates are ported to src/ (the conventional
+        // {basePath}/templates root only covers what's already been moved there).
+        app(TemplateRoots::class)->register(TemplateMode::Cp, $this->handle, dirname($this->getBasePath()) . '/src-yii2/templates');
 
         $this->app['router']->pushMiddlewareToGroup('craft', PoweredByHeader::class);
 
@@ -265,16 +269,11 @@ class Plugin extends BasePlugin
         return redirect('commerce/settings/general');
     }
 
-    #[\Override]
-    protected function createSettingsModel(): ?Settings
+    protected static function createSettings(): ?Settings
     {
         return new Settings();
     }
 
-    /**
-     * Narrows the return type from the base `?Validatable` to `?Settings`, since Commerce's
-     * settings model is always a `Settings` instance (see `createSettingsModel()`).
-     */
     #[\Override]
     public function getSettings(): ?Settings
     {

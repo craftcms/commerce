@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use CraftCms\Cms\Element\ElementTypes;
 use CraftCms\Cms\Support\Facades\Sites;
-use CraftCms\Commerce\Catalog\Elements\Product;
+use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Store\Data\Store;
 
 test('Plugin::boot() registrations actually take effect in tests', function() {

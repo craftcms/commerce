@@ -53,10 +53,7 @@ class EmailsController extends BaseSettingsController
             $email = app(Emails::class)->getEmailById($id, $store->id);
             abort_if($email === null, 404);
         } else {
-            $email = \Craft::createObject([
-                'class' => Email::class,
-                'attributes' => ['storeId' => $store->id],
-            ]);
+            $email = new Email(['storeId' => $store->id]);
         }
 
         $title = $email->id ? $email->name : t('Create a new email', category: 'commerce');

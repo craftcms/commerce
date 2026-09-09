@@ -13,7 +13,7 @@ use CraftCms\Commerce\Database\Table;
  * This holds no business logic — it's used internally by
  * {@see \CraftCms\Commerce\CatalogPricing\CatalogPricingRules} to read/write rows, which are
  * then hydrated into (or persisted from) the business
- * {@see \CraftCms\Commerce\Catalog\Data\CatalogPricingRule} object that the rest of the
+ * {@see \CraftCms\Commerce\CatalogPricing\Data\CatalogPricingRule} object that the rest of the
  * codebase actually works with.
  */
 class CatalogPricingRule extends BaseModel

@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Payment;
 
-use craft\commerce\Plugin;
 use CraftCms\Commerce\Customer\Customers;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Payment\Data\PaymentSource;
-use CraftCms\Commerce\Payment\Events\PaymentSourceEvent;
+use CraftCms\Commerce\Payment\Events\PaymentSourceDeleting;
+use CraftCms\Commerce\Payment\Events\PaymentSourceSaved;
+use CraftCms\Commerce\Payment\Events\PaymentSourceSaving;
 use CraftCms\Commerce\Payment\Exceptions\PaymentSourceException;
 use CraftCms\Commerce\Payment\Forms\BasePaymentForm;
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
@@ -171,12 +172,8 @@ class PaymentSources
         }
 
         // Raise 'beforeSavePaymentSource' event
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getPaymentSources()->hasEventHandlers(self::EVENT_BEFORE_SAVE_PAYMENT_SOURCE)) {
-            $event = new PaymentSourceEvent(paymentSource: $paymentSource);
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getPaymentSources()->trigger(self::EVENT_BEFORE_SAVE_PAYMENT_SOURCE, $event);
-        }
+        $event = new PaymentSourceSaving(paymentSource: $paymentSource);
+        event($event);
 
         if ($runValidation && !$paymentSource->validate()) {
             Log::info('Payment source not saved due to validation error.');
@@ -195,12 +192,8 @@ class PaymentSources
         $paymentSource->id = $record->id;
 
         // Raise 'afterSavePaymentSource' event
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getPaymentSources()->hasEventHandlers(self::EVENT_AFTER_SAVE_PAYMENT_SOURCE)) {
-            $event = new PaymentSourceEvent(paymentSource: $paymentSource);
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getPaymentSources()->trigger(self::EVENT_AFTER_SAVE_PAYMENT_SOURCE, $event);
-        }
+        $event = new PaymentSourceSaved(paymentSource: $paymentSource);
+        event($event);
 
         return true;
     }
@@ -220,12 +213,8 @@ class PaymentSources
             $paymentSource = $this->getPaymentSourceById($id);
 
             // Raise 'deletePaymentSource' event
-            // TODO: migrate event firing to Laravel once event system is bridged
-            if (Plugin::getInstance()->getPaymentSources()->hasEventHandlers(self::EVENT_DELETE_PAYMENT_SOURCE)) {
-                $event = new PaymentSourceEvent(paymentSource: $paymentSource);
-                /** @phpstan-ignore-next-line */
-                Plugin::getInstance()->getPaymentSources()->trigger(self::EVENT_DELETE_PAYMENT_SOURCE, $event);
-            }
+            $event = new PaymentSourceDeleting(paymentSource: $paymentSource);
+            event($event);
 
             return (bool)$record->delete();
         }

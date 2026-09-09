@@ -13,6 +13,7 @@ use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Commerce\Order\Data\OrderStatus;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Store\Stores;
 
 use function CraftCms\Cms\t;
@@ -38,8 +39,7 @@ class UpdateOrderStatus extends ElementAction
         $site = app(RequestedSite::class)->get() ?? Sites::getCurrentSite();
         $store = app(Stores::class)->getStoreBySiteId($site->id);
 
-        // TODO: migrate to app(OrderStatuses::class)->getAllOrderStatuses() once the service migrated to src/
-        $orderStatuses = app(\craft\commerce\services\OrderStatuses::class)->getAllOrderStatuses($store?->id)
+        $orderStatuses = app(OrderStatuses::class)->getAllOrderStatuses($store?->id)
             ->map(function(OrderStatus $orderStatus) {
                 // Encode for output in JS
                 $orderStatus->name = htmlspecialchars($orderStatus->name ?? '', ENT_QUOTES);

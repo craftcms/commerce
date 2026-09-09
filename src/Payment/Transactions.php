@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Payment;
 
-use craft\commerce\Plugin;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Data\Transaction;
-use CraftCms\Commerce\Payment\Events\TransactionEvent;
+use CraftCms\Commerce\Payment\Events\TransactionCreated;
+use CraftCms\Commerce\Payment\Events\TransactionSaved;
 use CraftCms\Commerce\Payment\Exceptions\TransactionException;
 use CraftCms\Commerce\Payment\Gateway\Gateway;
 use CraftCms\Commerce\Payment\Models\Transaction as TransactionRecord;
@@ -182,12 +182,8 @@ class Transactions
         }
 
         // Raise 'afterCreateTransaction' event
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getTransactions()->hasEventHandlers(self::EVENT_AFTER_CREATE_TRANSACTION)) {
-            $event = new TransactionEvent(transaction: $transaction);
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getTransactions()->trigger(self::EVENT_AFTER_CREATE_TRANSACTION, $event);
-        }
+        $event = new TransactionCreated(transaction: $transaction);
+        event($event);
 
         return $transaction;
     }
@@ -366,12 +362,8 @@ class Transactions
         $model->getOrder()->setTransactions(null); // clear the local cache of transactions from the order.
 
         // Raise 'afterSaveTransaction' event
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getTransactions()->hasEventHandlers(self::EVENT_AFTER_SAVE_TRANSACTION)) {
-            $event = new TransactionEvent(transaction: $model);
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getTransactions()->trigger(self::EVENT_AFTER_SAVE_TRANSACTION, $event);
-        }
+        $event = new TransactionSaved(transaction: $model);
+        event($event);
 
         return true;
     }

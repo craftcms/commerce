@@ -2,6 +2,10 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\Plugin;
+use CraftCms\Commerce\Shipping\Events\RegisterAvailableShippingMethodsEvent;
+use Illuminate\Support\Facades\Event;
+
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface;
 use CraftCms\Commerce\Shipping\Contracts\ShippingRuleInterface;
@@ -65,5 +69,15 @@ class ShippingMethods extends Component
     public function clearCache(): void
     {
         app(\CraftCms\Commerce\Shipping\ShippingMethods::class)->clearCache();
+    }
+
+    public static function registerEvents(): void
+    {
+        Event::listen(RegisterAvailableShippingMethodsEvent::class, static function(RegisterAvailableShippingMethodsEvent $event) {
+            $legacy = Plugin::getInstance()->getShippingMethods();
+            if ($legacy->hasEventHandlers(self::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS)) {
+                $legacy->trigger(self::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS, $event);
+            }
+        });
     }
 }

@@ -7,9 +7,9 @@ namespace CraftCms\Commerce\Gql\Arguments\Elements;
 use CraftCms\Cms\Gql\Arguments\ElementArguments;
 use CraftCms\Cms\Gql\Types\QueryArgument;
 use CraftCms\Cms\Support\Facades\Gql;
-use CraftCms\Commerce\Catalog\Elements\Product as ProductElement;
-use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
 use CraftCms\Commerce\Gql\Types\Input\Variant;
+use CraftCms\Commerce\Product\Elements\Product as ProductElement;
+use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use GraphQL\Type\Definition\Type;
 use Override;
 

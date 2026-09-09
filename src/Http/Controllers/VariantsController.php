@@ -6,7 +6,7 @@ namespace CraftCms\Commerce\Http\Controllers;
 
 use CraftCms\Cms\View\TemplateMode;
 
-use CraftCms\Commerce\Catalog\ProductType\ProductTypes;
+use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use function CraftCms\Cms\pageTemplate;
 
 readonly class VariantsController

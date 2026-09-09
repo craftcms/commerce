@@ -7,8 +7,9 @@ namespace CraftCms\Commerce\Order\Events;
 use CraftCms\Cms\Shared\Concerns\ValidatableEvent;
 use CraftCms\Commerce\Order\Data\OrderHistory;
 use CraftCms\Commerce\Order\Elements\Order;
+use yii\base\Event;
 
-class OrderStatusEmailsEvent
+class OrderStatusEmailsEvent extends Event
 {
     use ValidatableEvent;
 

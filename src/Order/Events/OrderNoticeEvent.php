@@ -6,8 +6,9 @@ namespace CraftCms\Commerce\Order\Events;
 
 use CraftCms\Cms\Shared\Concerns\ValidatableEvent;
 use CraftCms\Commerce\Order\Data\OrderNotice;
+use yii\base\Event;
 
-class OrderNoticeEvent
+class OrderNoticeEvent extends Event
 {
     use ValidatableEvent;
 

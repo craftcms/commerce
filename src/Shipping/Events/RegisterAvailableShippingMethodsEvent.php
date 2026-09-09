@@ -6,8 +6,9 @@ namespace CraftCms\Commerce\Shipping\Events;
 
 use CraftCms\Commerce\Order\Elements\Order;
 use Illuminate\Support\Collection;
+use yii\base\Event;
 
-class RegisterAvailableShippingMethodsEvent
+class RegisterAvailableShippingMethodsEvent extends Event
 {
     private ?Collection $_shippingMethods = null;
 

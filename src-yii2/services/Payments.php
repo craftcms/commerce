@@ -2,6 +2,16 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\Plugin;
+use CraftCms\Commerce\Payment\Events\PaymentCompleted;
+use CraftCms\Commerce\Payment\Events\PaymentProcessed;
+use CraftCms\Commerce\Payment\Events\PaymentProcessing;
+use CraftCms\Commerce\Payment\Events\TransactionCaptured;
+use CraftCms\Commerce\Payment\Events\TransactionCapturing;
+use CraftCms\Commerce\Payment\Events\TransactionRefunded;
+use CraftCms\Commerce\Payment\Events\TransactionRefunding;
+use Illuminate\Support\Facades\Event;
+
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Exceptions\PaymentException;
 use CraftCms\Commerce\Payment\Exceptions\RefundException;
@@ -59,5 +69,57 @@ class Payments extends Component
     public function completePayment(Transaction $transaction, ?string &$customError): bool
     {
         return app(\CraftCms\Commerce\Payment\Payments::class)->completePayment($transaction, $customError);
+    }
+
+    public static function registerEvents(): void
+    {
+        Event::listen(PaymentProcessing::class, static function(PaymentProcessing $event) {
+            $legacy = Plugin::getInstance()->getPayments();
+            if ($legacy->hasEventHandlers(self::EVENT_BEFORE_PROCESS_PAYMENT)) {
+                $legacy->trigger(self::EVENT_BEFORE_PROCESS_PAYMENT, $event);
+            }
+        });
+
+        Event::listen(PaymentProcessed::class, static function(PaymentProcessed $event) {
+            $legacy = Plugin::getInstance()->getPayments();
+            if ($legacy->hasEventHandlers(self::EVENT_AFTER_PROCESS_PAYMENT)) {
+                $legacy->trigger(self::EVENT_AFTER_PROCESS_PAYMENT, $event);
+            }
+        });
+
+        Event::listen(TransactionCapturing::class, static function(TransactionCapturing $event) {
+            $legacy = Plugin::getInstance()->getPayments();
+            if ($legacy->hasEventHandlers(self::EVENT_BEFORE_CAPTURE_TRANSACTION)) {
+                $legacy->trigger(self::EVENT_BEFORE_CAPTURE_TRANSACTION, $event);
+            }
+        });
+
+        Event::listen(TransactionCaptured::class, static function(TransactionCaptured $event) {
+            $legacy = Plugin::getInstance()->getPayments();
+            if ($legacy->hasEventHandlers(self::EVENT_AFTER_CAPTURE_TRANSACTION)) {
+                $legacy->trigger(self::EVENT_AFTER_CAPTURE_TRANSACTION, $event);
+            }
+        });
+
+        Event::listen(TransactionRefunding::class, static function(TransactionRefunding $event) {
+            $legacy = Plugin::getInstance()->getPayments();
+            if ($legacy->hasEventHandlers(self::EVENT_BEFORE_REFUND_TRANSACTION)) {
+                $legacy->trigger(self::EVENT_BEFORE_REFUND_TRANSACTION, $event);
+            }
+        });
+
+        Event::listen(TransactionRefunded::class, static function(TransactionRefunded $event) {
+            $legacy = Plugin::getInstance()->getPayments();
+            if ($legacy->hasEventHandlers(self::EVENT_AFTER_REFUND_TRANSACTION)) {
+                $legacy->trigger(self::EVENT_AFTER_REFUND_TRANSACTION, $event);
+            }
+        });
+
+        Event::listen(PaymentCompleted::class, static function(PaymentCompleted $event) {
+            $legacy = Plugin::getInstance()->getPayments();
+            if ($legacy->hasEventHandlers(self::EVENT_AFTER_COMPLETE_PAYMENT)) {
+                $legacy->trigger(self::EVENT_AFTER_COMPLETE_PAYMENT, $event);
+            }
+        });
     }
 }

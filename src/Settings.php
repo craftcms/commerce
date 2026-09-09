@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce;
 
-use craft\base\Model;
+use CraftCms\Cms\Plugin\PluginSettings;
 use CraftCms\Cms\Site\Exceptions\SiteNotFoundException;
 use CraftCms\Cms\Support\Config;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Store\Stores;
+use Override;
+
 use function CraftCms\Cms\t;
 
-class Settings extends Model
+class Settings extends PluginSettings
 {
     public const VIEW_URI_ORDERS = 'commerce/orders';
     public const VIEW_URI_PRODUCTS = 'commerce/products';
@@ -47,8 +49,8 @@ class Settings extends Model
 
     public bool $validateCartCustomFieldsOnSubmission = false;
 
-    #[\Override]
-    public function setAttributes($values, $safeOnly = false): void
+    #[Override]
+    public function setAttributes($values): void
     {
         unset(
             $values['orderPdfFilenameFormat'],
@@ -72,7 +74,7 @@ class Settings extends Model
             $values['minimumTotalPriceStrategy'],
             $values['showEditUserCommerceTab'],
         );
-        parent::setAttributes($values, $safeOnly);
+        parent::setAttributes($values);
     }
 
     public function getWeightUnitsOptions(): array
@@ -127,12 +129,12 @@ class Settings extends Model
         ];
     }
 
-    #[\Override]
-    protected function defineRules(): array
+    #[Override]
+    public function getRules(): array
     {
         return [
-            [['weightUnits', 'dimensionUnits'], 'required'],
-            [['weightUnits', 'dimensionUnits'], 'string'],
+            'weightUnits' => ['required', 'string'],
+            'dimensionUnits' => ['required', 'string'],
         ];
     }
 }

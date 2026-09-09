@@ -10,9 +10,13 @@ use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Data\Transaction;
-use CraftCms\Commerce\Payment\Events\ProcessPaymentEvent;
-use CraftCms\Commerce\Payment\Events\RefundTransactionEvent;
-use CraftCms\Commerce\Payment\Events\TransactionEvent;
+use CraftCms\Commerce\Payment\Events\PaymentCompleted;
+use CraftCms\Commerce\Payment\Events\PaymentProcessed;
+use CraftCms\Commerce\Payment\Events\PaymentProcessing;
+use CraftCms\Commerce\Payment\Events\TransactionCaptured;
+use CraftCms\Commerce\Payment\Events\TransactionCapturing;
+use CraftCms\Commerce\Payment\Events\TransactionRefunded;
+use CraftCms\Commerce\Payment\Events\TransactionRefunding;
 use CraftCms\Commerce\Payment\Exceptions\PaymentException;
 use CraftCms\Commerce\Payment\Exceptions\RefundException;
 use CraftCms\Commerce\Payment\Exceptions\TransactionException;
@@ -60,14 +64,8 @@ class Payments
     public function processPayment(Order $order, BasePaymentForm $form, ?string &$redirect, ?Transaction &$transaction, ?array &$redirectData = []): void
     {
         // Raise the 'beforeProcessPaymentEvent' event
-        $event = new ProcessPaymentEvent(order: $order, form: $form);
-
-        // TODO: migrate event firing to Laravel once event system is bridged
-        $legacyService = Plugin::getInstance()->getPayments();
-        if ($legacyService->hasEventHandlers(self::EVENT_BEFORE_PROCESS_PAYMENT)) {
-            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
-            $legacyService->trigger(self::EVENT_BEFORE_PROCESS_PAYMENT, $event);
-        }
+        $event = new PaymentProcessing(order: $order, form: $form);
+        event($event);
 
         if (!$event->isValid) {
             // This error potentially is going to be displayed in the frontend, so we have to be vague about it.
@@ -114,14 +112,10 @@ class Payments
 
             $this->updateTransaction($transaction, $response);
 
-            // TODO: migrate event firing to Laravel once event system is bridged
-            if (Plugin::getInstance()->getPayments()->hasEventHandlers(self::EVENT_AFTER_PROCESS_PAYMENT)) {
-                $afterEvent = new ProcessPaymentEvent(order: $order, form: $form);
-                $afterEvent->transaction = $transaction;
-                $afterEvent->response = $response;
-                /** @phpstan-ignore-next-line */
-                Plugin::getInstance()->getPayments()->trigger(self::EVENT_AFTER_PROCESS_PAYMENT, $afterEvent);
-            }
+            $afterEvent = new PaymentProcessed(order: $order, form: $form);
+            $afterEvent->transaction = $transaction;
+            $afterEvent->response = $response;
+            event($afterEvent);
 
             // For redirects or unsuccessful transactions, save the transaction before bailing
             if ($response->isRedirect()) {
@@ -157,22 +151,14 @@ class Payments
     public function captureTransaction(Transaction $transaction): Transaction
     {
         // Raise 'beforeCaptureTransaction' event
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getPayments()->hasEventHandlers(self::EVENT_BEFORE_CAPTURE_TRANSACTION)) {
-            $beforeEvent = new TransactionEvent(transaction: $transaction);
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getPayments()->trigger(self::EVENT_BEFORE_CAPTURE_TRANSACTION, $beforeEvent);
-        }
+        $beforeEvent = new TransactionCapturing(transaction: $transaction);
+        event($beforeEvent);
 
         $transaction = $this->capture($transaction);
 
         // Raise 'afterCaptureTransaction' event
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getPayments()->hasEventHandlers(self::EVENT_AFTER_CAPTURE_TRANSACTION)) {
-            $afterEvent = new TransactionEvent(transaction: $transaction);
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getPayments()->trigger(self::EVENT_AFTER_CAPTURE_TRANSACTION, $afterEvent);
-        }
+        $afterEvent = new TransactionCaptured(transaction: $transaction);
+        event($afterEvent);
 
         return $transaction;
     }
@@ -187,23 +173,15 @@ class Payments
     public function refundTransaction(Transaction $transaction, ?float $amount = null, string $note = ''): Transaction
     {
         // Raise 'beforeRefundTransaction' event
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getPayments()->hasEventHandlers(self::EVENT_BEFORE_REFUND_TRANSACTION)) {
-            $beforeEvent = new RefundTransactionEvent(transaction: $transaction, amount: $amount);
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getPayments()->trigger(self::EVENT_BEFORE_REFUND_TRANSACTION, $beforeEvent);
-        }
+        $beforeEvent = new TransactionRefunding(transaction: $transaction, amount: $amount);
+        event($beforeEvent);
 
         $refundTransaction = $this->refund($transaction, $amount, $note);
 
         // Raise 'afterRefundTransaction' event
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getPayments()->hasEventHandlers(self::EVENT_AFTER_REFUND_TRANSACTION)) {
-            $afterEvent = new RefundTransactionEvent(transaction: $transaction, amount: $amount);
-            $afterEvent->refundTransaction = $refundTransaction;
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getPayments()->trigger(self::EVENT_AFTER_REFUND_TRANSACTION, $afterEvent);
-        }
+        $afterEvent = new TransactionRefunded(transaction: $transaction, amount: $amount);
+        $afterEvent->refundTransaction = $refundTransaction;
+        event($afterEvent);
 
         return $refundTransaction;
     }
@@ -276,12 +254,8 @@ class Payments
             }
         }
 
-        // TODO: migrate event firing to Laravel once event system is bridged
-        if (Plugin::getInstance()->getPayments()->hasEventHandlers(self::EVENT_AFTER_COMPLETE_PAYMENT)) {
-            $completeEvent = new TransactionEvent(transaction: $transaction);
-            /** @phpstan-ignore-next-line */
-            Plugin::getInstance()->getPayments()->trigger(self::EVENT_AFTER_COMPLETE_PAYMENT, $completeEvent);
-        }
+        $completeEvent = new PaymentCompleted(transaction: $transaction);
+        event($completeEvent);
 
         $redirectData = [];
         if ($response->isRedirect() && $transaction->status === TransactionRecord::STATUS_REDIRECT) {

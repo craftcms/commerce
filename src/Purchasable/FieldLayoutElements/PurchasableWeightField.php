@@ -9,7 +9,7 @@ use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
 use CraftCms\Cms\Support\Facades\I18N;
-use CraftCms\Commerce\Catalog\Elements\Variant;
+use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use InvalidArgumentException;
 use Override;

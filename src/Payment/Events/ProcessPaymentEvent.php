@@ -9,8 +9,9 @@ use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Data\Transaction;
 use CraftCms\Commerce\Payment\Forms\BasePaymentForm;
 use CraftCms\Commerce\Payment\Gateway\Contracts\RequestResponseInterface;
+use yii\base\Event;
 
-class ProcessPaymentEvent
+class ProcessPaymentEvent extends Event
 {
     use ValidatableEvent;
 

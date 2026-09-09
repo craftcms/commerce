@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\LineItem;
 
-use craft\commerce\Plugin;
 use CraftCms\Commerce\Helpers\LineItem as LineItemHelper;
 use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Order\Events\LineItemEvent;
+use CraftCms\Commerce\Order\Events\LineItemCreated;
+use CraftCms\Commerce\Order\Events\LineItemSaved;
+use CraftCms\Commerce\Order\Events\LineItemSaving;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Order\LineItem\Models\LineItem as LineItemRecord;
@@ -134,17 +135,11 @@ class LineItems
     {
         $isNewLineItem = !$lineItem->id;
 
-        // TODO: migrate event firing to Laravel once event system is bridged
-        $legacyService = Plugin::getInstance()->getLineItems();
-
-        if ($legacyService->hasEventHandlers(self::EVENT_BEFORE_SAVE_LINE_ITEM)) {
-            $event = new LineItemEvent(
-                lineItem: $lineItem,
-                isNew: $isNewLineItem,
-            );
-            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
-            $legacyService->trigger(self::EVENT_BEFORE_SAVE_LINE_ITEM, $event);
-        }
+        $beforeEvent = new LineItemSaving(
+            lineItem: $lineItem,
+            isNew: $isNewLineItem,
+        );
+        event($beforeEvent);
 
         $record = $this->_toRecord($lineItem);
 
@@ -172,13 +167,12 @@ class LineItems
             $lineItem->dateUpdated = $record->dateUpdated;
         }
 
-        if ($success && $legacyService->hasEventHandlers(self::EVENT_AFTER_SAVE_LINE_ITEM)) {
-            $event = new LineItemEvent(
+        if ($success) {
+            $afterEvent = new LineItemSaved(
                 lineItem: $lineItem,
                 isNew: $isNewLineItem,
             );
-            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
-            $legacyService->trigger(self::EVENT_AFTER_SAVE_LINE_ITEM, $event);
+            event($afterEvent);
         }
 
         return $success;
@@ -234,16 +228,11 @@ class LineItems
             $lineItem->populate();
         }
 
-        // TODO: migrate event firing to Laravel once event system is bridged
-        $legacyService = Plugin::getInstance()->getLineItems();
-        if ($legacyService->hasEventHandlers(self::EVENT_CREATE_LINE_ITEM)) {
-            $event = new LineItemEvent(
-                lineItem: $lineItem,
-                isNew: true,
-            );
-            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
-            $legacyService->trigger(self::EVENT_CREATE_LINE_ITEM, $event);
-        }
+        $event = new LineItemCreated(
+            lineItem: $lineItem,
+            isNew: true,
+        );
+        event($event);
 
         $lineItem->refresh();
 
