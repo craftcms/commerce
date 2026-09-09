@@ -8,6 +8,9 @@ use craft\commerce\web\assets\inventory\InventoryAsset;
 use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
+use CraftCms\Cms\Form\Controls\Lightswitch;
+use CraftCms\Cms\Form\FormContext;
+use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\InputNamespace;
 use CraftCms\Cms\Support\Html;
@@ -218,22 +221,15 @@ JS, [
     }
 
     #[Override]
-    protected function settingsHtml(): ?string
+    protected function settingsNodes(FormContext $context): array
     {
-        $lightSwitches = FormFields::lightswitchFromConfig([
-            'id' => 'defaultInventoryTracked',
-            'name' => 'defaultInventoryTracked',
-            'label' => t('Track Inventory', category: 'commerce'),
-            'on' => $this->defaultInventoryTracked,
-        ])->toHtml() .
-            FormFields::lightswitchFromConfig([
-                'id' => 'defaultAllowOutOfStockPurchases',
-                'name' => 'defaultAllowOutOfStockPurchases',
-                'label' => t('Allow out of stock purchases', category: 'commerce'),
-                'on' => $this->defaultAllowOutOfStockPurchases,
-            ])->toHtml();
-
-        return parent::settingsHtml() . FormFields::fieldHtml($lightSwitches, ['label' => t('Default Value')]);
+        return [
+            ...parent::settingsNodes($context),
+            Field::make(t('Track Inventory', category: 'commerce'), Lightswitch::make('defaultInventoryTracked')
+                ->value($this->defaultInventoryTracked)),
+            Field::make(t('Allow out of stock purchases', category: 'commerce'), Lightswitch::make('defaultAllowOutOfStockPurchases')
+                ->value($this->defaultAllowOutOfStockPurchases)),
+        ];
     }
 
     protected function defaultLabel(?ElementInterface $element = null, bool $static = false): ?string

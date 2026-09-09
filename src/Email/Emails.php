@@ -7,7 +7,7 @@ namespace CraftCms\Commerce\Email;
 use craft\helpers\Db as CraftDb;
 use craft\mail\Message;
 use CraftCms\Cms\Asset\AssetsHelper as Assets;
-use CraftCms\Cms\Cms;
+use CraftCms\Cms\Image\CraftAssetTransformDriver;
 use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\Support\Facades\Sites;
@@ -264,11 +264,20 @@ class Emails
             return false;
         }
 
+        return app(CraftAssetTransformDriver::class)->withImmediateTransforms(
+            function() use ($email, $order, $orderHistory, $orderData, &$error) {
+                return $this->sendEmailInternal($email, $order, $orderHistory, $orderData, $error);
+            }
+        );
+    }
+
+    /**
+     * @throws \Exception
+     * @throws Throwable
+     */
+    private function sendEmailInternal(Email $email, Order $order, ?OrderHistory $orderHistory, ?array $orderData, string &$error): bool
+    {
         $option = 'email';
-        $generalConfig = Cms::config();
-        // Temporarily disable lazy transform generation
-        $generateTransformsBeforePageLoad = $generalConfig->generateTransformsBeforePageLoad;
-        $generalConfig->generateTransformsBeforePageLoad = true;
 
         //sending emails
         $renderVariables = compact('order', 'orderHistory', 'option', 'orderData');
@@ -317,7 +326,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -328,7 +336,6 @@ class Emails
             Log::error($error);
 
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-            $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
         }
@@ -354,7 +361,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -381,7 +387,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -402,7 +407,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -422,7 +426,6 @@ class Emails
             Log::error($error);
 
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-            $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
         }
@@ -441,7 +444,6 @@ class Emails
             Log::error($error);
 
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-            $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
         }
@@ -457,7 +459,6 @@ class Emails
             Log::error($error);
 
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-            $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
         }
@@ -478,7 +479,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -494,7 +494,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -511,7 +510,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -551,7 +549,6 @@ class Emails
                 Log::error($error);
 
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -576,7 +573,6 @@ class Emails
 
             Sites::setCurrentSite($originalSiteId);
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-            $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
         }
@@ -598,7 +594,6 @@ class Emails
 
                 Sites::setCurrentSite($originalSiteId);
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -625,7 +620,6 @@ class Emails
 
                 Sites::setCurrentSite($originalSiteId);
                 Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 // Plugins that stop a email being sent should not declare that the sending failed, just that it would blocking of the send.
                 // The blocking of the send will still be logged as an error though for now.
@@ -648,7 +642,6 @@ class Emails
 
             Sites::setCurrentSite($originalSiteId);
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-            $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
         }
@@ -665,7 +658,6 @@ class Emails
 
         Sites::setCurrentSite($originalSiteId);
         Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-        $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
         // Clear out the temp PDF file if it was created.
         if (!empty($tempPath)) {

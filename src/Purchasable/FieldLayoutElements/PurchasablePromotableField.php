@@ -7,6 +7,9 @@ namespace CraftCms\Commerce\Purchasable\FieldLayoutElements;
 use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
+use CraftCms\Cms\Form\Controls\Lightswitch;
+use CraftCms\Cms\Form\FormContext;
+use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use InvalidArgumentException;
 use Override;
@@ -49,14 +52,13 @@ class PurchasablePromotableField extends BaseNativeField
     }
 
     #[Override]
-    protected function settingsHtml(): ?string
+    protected function settingsNodes(FormContext $context): array
     {
-        return parent::settingsHtml() . FormFields::lightswitchFromConfig([
-            'id' => 'defaultPromotable',
-            'name' => 'defaultPromotable',
-            'label' => t('Default Value'),
-            'on' => $this->defaultPromotable,
-        ])->toHtml();
+        return [
+            ...parent::settingsNodes($context),
+            Field::make(t('Default Value'), Lightswitch::make('defaultPromotable')
+                ->value($this->defaultPromotable)),
+        ];
     }
 
     protected function defaultLabel(?ElementInterface $element = null, bool $static = false): ?string
