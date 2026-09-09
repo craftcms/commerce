@@ -8,6 +8,7 @@ use craft\db\Query;
 use CraftCms\Cms\Form\Controls\Choice;
 use CraftCms\Cms\Form\Controls\Handle;
 use CraftCms\Cms\Form\Controls\Lightswitch;
+use CraftCms\Cms\Form\Controls\Table as TableControl;
 use CraftCms\Cms\Form\Controls\Text;
 use CraftCms\Cms\Form\Enums\ControlMode;
 use CraftCms\Cms\Form\Form;
@@ -20,7 +21,6 @@ use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Url;
-use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\Database\Table as DbTable;
 use CraftCms\Commerce\Order\Elements\Order;
@@ -32,7 +32,6 @@ use CraftCms\Commerce\Store\Stores;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\cp_url;
-use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
 class StoresController extends BaseSettingsController
@@ -396,20 +395,54 @@ class StoresController extends BaseSettingsController
         return $this->asSuccess();
     }
 
-    public function editSiteStores(): string
+    public function editSiteStores(): CpScreenResponse
     {
-        $crumbs = [
-            ['label' => t('Commerce', category: 'commerce'), 'url' => Url::url('commerce')],
-        ];
+        $storesService = app(Stores::class);
+        $sitesStores = $storesService->getAllSiteStores();
+        $primaryStoreId = $storesService->getPrimaryStore()->id;
 
-        return pageTemplate('commerce/settings/stores/_siteStore', [
-            'crumbs' => $crumbs,
-            'stores' => app(Stores::class)->getAllStores(),
-            'sites' => Sites::getAllSites(),
-            'sitesStores' => app(Stores::class)->getAllSiteStores(),
-            'primaryStoreId' => app(Stores::class)->getPrimaryStore()->id,
-            'readOnly' => $this->readOnly,
-        ], TemplateMode::Cp);
+        $storeOptions = $storesService->getAllStores()->map(fn(Store $store) => [
+            'label' => $store->getName(),
+            'value' => $store->id,
+        ])->all();
+
+        $rows = [];
+
+        foreach (Sites::getAllSites() as $site) {
+            $siteStore = $sitesStores->count() > 0 ? $sitesStores->firstWhere('siteId', $site->id) : null;
+
+            $rows[$site->id] = [
+                'site' => t($site->name, category: 'site'),
+                'storeId' => $siteStore->storeId ?? $primaryStoreId,
+            ];
+        }
+
+        $form = Form::make([
+            Field::make(null, TableControl::make('siteStores')
+                ->columns([
+                    'site' => ['type' => 'heading', 'heading' => t('Site')],
+                    'storeId' => ['type' => 'select', 'heading' => t('Store', category: 'commerce'), 'options' => $storeOptions],
+                ])
+                ->keyed()),
+        ]);
+
+        $values = ['siteStores' => $rows];
+        $title = t('Sites');
+
+        return $this->cpScreenResponse()
+            ->title($title)
+            ->crumbs($this->crumbs($title))
+            ->redirectUrl('commerce/settings/sites')
+            ->inertiaPage('Form', [
+                'form' => $this->formResolver->resolve($form, new FormContext(
+                    values: $values,
+                    mode: $this->readOnly ? ControlMode::ReadOnly : ControlMode::Editable,
+                )),
+                'submit' => [
+                    'method' => 'post',
+                    'url' => action([self::class, 'saveSiteStores']),
+                ],
+            ]);
     }
 
     public function saveSiteStores(Request $request): Response
@@ -420,7 +453,8 @@ class StoresController extends BaseSettingsController
 
         foreach ($sitesStores as $siteStore) {
             if (isset($siteStoresData[$siteStore->siteId])) {
-                $siteStore->storeId = $siteStoresData[$siteStore->siteId]['storeId'];
+                $storeId = $siteStoresData[$siteStore->siteId]['storeId'];
+                $siteStore->storeId = $storeId !== null && $storeId !== '' ? (int) $storeId : null;
             }
         }
 
