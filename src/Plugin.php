@@ -263,20 +263,11 @@ class Plugin extends BasePlugin
         return redirect('commerce/settings/general');
     }
 
-    /**
-     * Overrides `HasSettings::createSettings()` — no `#[\Override]` attribute here since
-     * PHPStan's `method.override` check doesn't resolve trait-provided `protected static`
-     * methods (confirmed via Reflection that PHP itself accepts this override cleanly).
-     */
     protected static function createSettings(): ?Settings
     {
         return new Settings();
     }
-
-    /**
-     * Narrows the return type from the base `?PluginSettings` to `?Settings`, since Commerce's
-     * settings model is always a `Settings` instance (see `createSettings()`).
-     */
+    
     #[\Override]
     public function getSettings(): ?Settings
     {
