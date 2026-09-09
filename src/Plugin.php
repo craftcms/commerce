@@ -267,7 +267,7 @@ class Plugin extends BasePlugin
     {
         return new Settings();
     }
-    
+
     #[\Override]
     public function getSettings(): ?Settings
     {
