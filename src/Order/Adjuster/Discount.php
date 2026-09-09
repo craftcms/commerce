@@ -36,8 +36,6 @@ class Discount implements AdjusterInterface
      * with existing `Event::on(craft\commerce\adjusters\Discount::class, ...)` listeners, since
      * `yii\base\Event::trigger()`/`hasHandlers()` match by class-name string and don't require an
      * instance of that class.
-     *
-     * TODO: migrate event firing to Laravel once event system is bridged
      */
     public const EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED = 'afterDiscountAdjustmentsCreated';
 
@@ -275,9 +273,9 @@ class Discount implements AdjusterInterface
             adjustments: $adjustments,
         );
 
-        // TODO: migrate event firing to Laravel once event system is bridged
+        event($event);
+
         if (Event::hasHandlers(LegacyDiscount::class, self::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED)) {
-            /** @phpstan-ignore-next-line argument.type (TODO: migrate event firing to Laravel once event system is bridged) */
             Event::trigger(LegacyDiscount::class, self::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED, $event);
         }
 

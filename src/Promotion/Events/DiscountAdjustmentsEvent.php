@@ -7,8 +7,9 @@ namespace CraftCms\Commerce\Promotion\Events;
 use CraftCms\Cms\Shared\Concerns\ValidatableEvent;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Promotion\Data\Discount;
+use yii\base\Event;
 
-class DiscountAdjustmentsEvent
+class DiscountAdjustmentsEvent extends Event
 {
     use ValidatableEvent;
 
