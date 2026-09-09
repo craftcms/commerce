@@ -25,6 +25,11 @@ trait StatWidgetTrait
 
     public ?array $orderStatuses = null;
 
+    public function component(): ?string
+    {
+        return 'craft:html-widget';
+    }
+
     /**
      * @return array<int, array{label: string, value: string}>
      */

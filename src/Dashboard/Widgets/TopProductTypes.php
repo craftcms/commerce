@@ -108,23 +108,23 @@ class TopProductTypes extends Widget
     }
 
     #[\Override]
-    public function getBodyHtml(): ?string
+    public function props(): array
     {
         $stats = $this->stat->get();
 
         if (empty($stats)) {
-            return Html::tag('p', t('No stats available.', category: 'commerce'), ['class' => 'zilch']);
+            return ['html' => Html::tag('p', t('No stats available.', category: 'commerce'), ['class' => 'zilch'])];
         }
 
         \Craft::$app->getView()->registerAssetBundle(StatWidgetsAsset::class);
         \Craft::$app->getView()->registerAssetBundle(AdminTableAsset::class);
 
-        return template('commerce/_components/widgets/producttypes/top/body', [
+        return ['html' => template('commerce/_components/widgets/producttypes/top/body', [
             'stats' => $stats,
             'type' => $this->type,
             'typeLabel' => $this->typeOptions[$this->type] ?? '',
             'id' => 'top-product-types' . Str::random(),
-        ], TemplateMode::Cp);
+        ], TemplateMode::Cp)];
     }
 
     #[\Override]

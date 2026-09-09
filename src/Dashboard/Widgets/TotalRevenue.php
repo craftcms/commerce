@@ -110,7 +110,7 @@ class TotalRevenue extends Widget
     }
 
     #[\Override]
-    public function getBodyHtml(): ?string
+    public function props(): array
     {
         $stats = $this->stat->get();
         $timeFrame = $this->stat->getDateRangeWording();
@@ -122,7 +122,7 @@ class TotalRevenue extends Widget
         $namespaceId = InputNamespace::namespaceId($id);
 
         if (empty($stats)) {
-            return Html::tag('p', t('No stats available.', category: 'commerce'), ['class' => 'zilch']);
+            return ['html' => Html::tag('p', t('No stats available.', category: 'commerce'), ['class' => 'zilch'])];
         }
 
         $labels = Arr::pluck($stats, 'datekey');
@@ -144,7 +144,7 @@ class TotalRevenue extends Widget
         $orderCount = Arr::pluck($stats, 'count');
         $widget = $this;
 
-        return template('commerce/_components/widgets/orders/revenue/body', compact(
+        return ['html' => template('commerce/_components/widgets/orders/revenue/body', compact(
             'widget',
             'stats',
             'timeFrame',
@@ -153,7 +153,7 @@ class TotalRevenue extends Widget
             'revenue',
             'orderCount',
             'chartInterval',
-        ), TemplateMode::Cp);
+        ), TemplateMode::Cp)];
     }
 
     #[\Override]

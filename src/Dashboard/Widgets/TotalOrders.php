@@ -108,13 +108,13 @@ class TotalOrders extends Widget
     }
 
     #[\Override]
-    public function getBodyHtml(): ?string
+    public function props(): array
     {
         $showChart = $this->showChart;
         $stats = $this->stat->get();
 
         if (empty($stats)) {
-            return Html::tag('p', t('No stats available.', category: 'commerce'), ['class' => 'zilch']);
+            return ['html' => Html::tag('p', t('No stats available.', category: 'commerce'), ['class' => 'zilch'])];
         }
 
         $number = $stats['total'] ?? 0;
@@ -131,14 +131,14 @@ class TotalOrders extends Widget
 
         \Craft::$app->getView()->registerAssetBundle(StatWidgetsAsset::class);
 
-        return template('commerce/_components/widgets/orders/total/body', compact(
+        return ['html' => template('commerce/_components/widgets/orders/total/body', compact(
             'namespaceId',
             'number',
             'timeFrame',
             'labels',
             'data',
             'showChart',
-        ), TemplateMode::Cp);
+        ), TemplateMode::Cp)];
     }
 
     #[\Override]
