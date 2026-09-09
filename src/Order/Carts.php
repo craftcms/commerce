@@ -285,6 +285,7 @@ class Carts
     public function getActiveCartEdgeDuration(): string
     {
         $edge = new DateTime();
+        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class)
         $activeCartDuration = Config::durationInSeconds(Plugin::getInstance()->getSettings()->activeCartDuration);
         $interval = new DateInterval("PT{$activeCartDuration}S");
         $edge->sub($interval);
@@ -361,6 +362,7 @@ class Carts
      */
     public function getLoadCartUrl(Order $cart): string
     {
+        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class)
         $linkExpiry = Plugin::getInstance()->getSettings()->loadCartUrlExpiry;
         $expiryDate = now('UTC')->add(new DateInterval("PT{$linkExpiry}S"));
 
@@ -457,6 +459,7 @@ class Carts
      */
     public function purgeIncompleteCarts(): int
     {
+        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class); applies to both calls in this method
         if (!Plugin::getInstance()->getSettings()->purgeInactiveCarts) {
             return 0;
         }

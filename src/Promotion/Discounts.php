@@ -7,6 +7,7 @@ namespace CraftCms\Commerce\Promotion;
 use Carbon\Carbon;
 use craft\elements\Category;
 use CraftCms\Cms\Entry\Elements\Entry;
+use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\User\Elements\User;
@@ -16,6 +17,7 @@ use CraftCms\Commerce\Order\Adjuster\Discount as DiscountAdjuster;
 use CraftCms\Commerce\Order\Data\OrderNotice;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
+use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Promotion\Data\Coupon;
 use CraftCms\Commerce\Promotion\Data\Discount;
@@ -87,7 +89,6 @@ class Discounts
 
     /**
      * Get all currently active discounts, pre-filtered for the given order.
-     * TODO: update Order type hint when Order element is migrated to src/
      *
      * @return Discount[]
      */
@@ -95,7 +96,6 @@ class Discounts
     {
         $purchasableIds = [];
         if ($order) {
-            // TODO: update when LineItem is migrated
             $purchasableIds = collect($order->getLineItems())->pluck('purchasableId')->unique()->all();
         }
 
@@ -225,9 +225,6 @@ class Discounts
         return $discounts;
     }
 
-    /**
-     * TODO: update Order type hint when Order element migrated to src/
-     */
     public function orderCouponAvailable(Order $order, ?string &$explanation = null): bool
     {
         $discount = $this->getDiscountByCode($order->couponCode, $order->storeId);
@@ -343,8 +340,6 @@ class Discounts
     }
 
     /**
-     * TODO: update PurchasableInterface type hint when migrated to src/
-     *
      * @return Discount[]
      */
     public function getDiscountsRelatedToPurchasable(PurchasableInterface $purchasable): array
@@ -356,7 +351,7 @@ class Discounts
                 $purchasableIds = $discount->getPurchasableIds();
                 $id = $purchasable->getId();
 
-                // TODO: update Category/Entry element calls when migrated
+                // TODO: update Category element calls when migrated (Entry already uses the new element)
                 $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
                 $categoryIds = $discount->getCategoryIds();
                 $relatedCategories = Category::find()->id($categoryIds)->relatedTo($relatedTo)->ids();
@@ -372,16 +367,13 @@ class Discounts
         return $discounts;
     }
 
-    /**
-     * TODO: update Order/LineItem type hints when elements migrated to src/
-     */
-    public function matchLineItem(mixed $lineItem, Discount $discount, bool $matchOrder = false): bool
+    public function matchLineItem(LineItem $lineItem, Discount $discount, bool $matchOrder = false): bool
     {
-        if ($matchOrder && !$this->matchOrder($lineItem->order, $discount)) {
+        if ($matchOrder && !$this->matchOrder($lineItem->getOrder(), $discount)) {
             return false;
         }
 
-        $siteId = $lineItem->order->orderSiteId ?? Sites::getCurrentSite()->id;
+        $siteId = $lineItem->getOrder()->orderSiteId ?? Sites::getCurrentSite()->id;
 
         if ($lineItem->getOnPromotion() && $discount->excludeOnPromotion) {
             return false;
@@ -404,7 +396,7 @@ class Discounts
                 if (!isset($this->matchingLineItemCategoryCondition[$key])) {
                     $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
 
-                    // TODO: update Category/Entry element calls when migrated
+                    // TODO: update Category element calls when migrated (Entry already uses the new element)
                     $relatedEntries = Entry::find()->siteId($siteId)->relatedTo($relatedTo)->ids();
                     $relatedCategories = Category::find()->siteId($siteId)->relatedTo($relatedTo)->ids();
 
@@ -427,9 +419,6 @@ class Discounts
         return $event->isValid;
     }
 
-    /**
-     * TODO: update Order type hint when Order element migrated to src/
-     */
     public function matchOrder(Order $order, Discount $discount): bool
     {
         if (!$discount->enabled) {
@@ -537,11 +526,10 @@ class Discounts
         }
 
         if (!$isNew) {
-            // TODO: update to new date helper once migrated
             /** @phpstan-ignore-next-line */
-            $model->dateCreated = \CraftCms\Cms\Support\DateTimeHelper::toDateTime($record->dateCreated);
+            $model->dateCreated = DateTimeHelper::toDateTime($record->dateCreated);
             /** @phpstan-ignore-next-line */
-            $model->dateUpdated = \CraftCms\Cms\Support\DateTimeHelper::toDateTime($record->dateUpdated);
+            $model->dateUpdated = DateTimeHelper::toDateTime($record->dateUpdated);
         }
 
         $ev = new DiscountEvent(discount: $model, isNew: $isNew);
@@ -601,16 +589,14 @@ class Discounts
             $record->save();
             $model->id = $record->id;
 
-            // TODO: update to new date helper once migrated
             /** @phpstan-ignore-next-line */
-            $model->dateCreated = \CraftCms\Cms\Support\DateTimeHelper::toDateTime($record->dateCreated);
+            $model->dateCreated = DateTimeHelper::toDateTime($record->dateCreated);
             /** @phpstan-ignore-next-line */
-            $model->dateUpdated = \CraftCms\Cms\Support\DateTimeHelper::toDateTime($record->dateUpdated);
+            $model->dateUpdated = DateTimeHelper::toDateTime($record->dateUpdated);
 
             DiscountPurchasableRecord::where('discountId', $model->id)->delete();
             DiscountCategoryRecord::where('discountId', $model->id)->delete();
 
-            // TODO: update getStore()->getSites() when Store/Sites migrated
             $siteIds = $model->getStore()->getSites()->pluck('id')->all();
 
             foreach ($model->getCategoryIds() as $categoryId) {
@@ -785,10 +771,6 @@ class Discounts
             ->first();
     }
 
-    /**
-     * TODO: update Order type hint when Order element migrated to src/
-     * TODO: update LineItem/OrderAdjustment references when migrated
-     */
     public function orderCompleteHandler(Order $order): void
     {
         $discountAdjustments = $order->getAdjustmentsByType(DiscountAdjuster::ADJUSTMENT_TYPE);
@@ -810,7 +792,6 @@ class Discounts
             return;
         }
 
-        // TODO: update User/customer references when elements migrated
         $user = $order->getCustomer();
 
         foreach ($discounts as $discount) {

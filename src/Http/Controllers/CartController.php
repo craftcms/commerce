@@ -51,6 +51,7 @@ class CartController
 
     public function __construct()
     {
+        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class)
         $this->cartVariable = Plugin::getInstance()->getSettings()->cartVariable;
     }
 
@@ -319,6 +320,7 @@ class CartController
         $carts = app(Carts::class);
         $number = $request->input('number');
         $token = $request->input('code');
+        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class)
         $loadCartRedirectUrl = Plugin::getInstance()->getSettings()->loadCartRedirectUrl ?? '';
         $redirect = Url::siteUrl($loadCartRedirectUrl);
 
@@ -555,6 +557,7 @@ class CartController
 
     private function returnCart(Request $request): Response
     {
+        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class)
         $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
 
         // Do not clear errors, as errors could be added to the cart before returnCart is called.

@@ -1945,6 +1945,7 @@ JS, [
             case 'defaultWeight':
             {
                 if ($productType->hasDimensions) {
+                    // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class)
                     return I18N::getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits;
                 }
 
@@ -1955,6 +1956,7 @@ JS, [
             case 'defaultHeight':
             {
                 if ($productType->hasDimensions) {
+                    // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class)
                     return I18N::getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits;
                 }
 

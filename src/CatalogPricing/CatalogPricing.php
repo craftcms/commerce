@@ -14,6 +14,7 @@ use CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob;
 use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingQueue as CatalogPricingQueueRecord;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Sql;
+use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use CraftCms\Commerce\Store\Stores;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;
@@ -347,7 +348,7 @@ class CatalogPricing
      */
     public function afterSavePurchasableHandler(mixed $event): void
     {
-        // TODO: update to new Purchasable element API once migrated
+        /** @var Purchasable $purchasable */
         $purchasable = $event->sender;
         if ($purchasable->propagating || $purchasable->getIsDraft() || $purchasable->getIsRevision()) {
             return;

@@ -2013,6 +2013,7 @@ class Order extends Element implements HasStoreInterface
         // `src/Services/PaymentCurrencies.php` (only `convert()`/`convertAmount()` were), so the
         // legacy `Plugin::getInstance()->getPaymentCurrencies()` facade is used deliberately here —
         // it still implements `convertCurrency()` in terms of the new service's primitives.
+        // TODO: fix in Commerce 6.0 - port `convertCurrency()` to the migrated PaymentCurrencies service and drop this Plugin::getInstance() call
         $paymentAmountInPrimaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($this->getPaymentAmount(), $this->getPaymentCurrency(), $this->currency, true);
 
         return $paymentAmountInPrimaryCurrency < $this->getOutstandingBalance();

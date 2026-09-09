@@ -290,6 +290,7 @@ class Payments
             $redirect = $response->getRedirectUrl();
             $redirectData = $response->getRedirectData();
         } else {
+            // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class)
             $gatewayPostRedirectTemplate = Plugin::getInstance()->getSettings()->gatewayPostRedirectTemplate;
 
             if (!empty($gatewayPostRedirectTemplate)) {

@@ -1124,6 +1124,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             }
         }
 
+        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class); applies to every Plugin::getInstance() call in this match expression
         return match ($attribute) {
             'sku' => (string)Html::encode($this->getSkuAsText()),
             'price' => $this->basePriceAsCurrency,
@@ -1142,6 +1143,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
     protected static function defineTableAttributes(): array
     {
+        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class); applies to every Plugin::getInstance() call below
         return array_merge(parent::defineTableAttributes(), [
             'title' => ['label' => t('Title', category: 'commerce')],
             'sku' => ['label' => t('SKU', category: 'commerce')],
@@ -1201,6 +1203,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
     protected static function defineCardAttributes(): array
     {
+        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class); applies to every Plugin::getInstance() call below
         return array_merge(parent::defineCardAttributes(), [
             'availableForPurchase' => [
                 'label' => t('Available for purchase', category: 'commerce'),

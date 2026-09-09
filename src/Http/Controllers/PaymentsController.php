@@ -40,6 +40,7 @@ readonly class PaymentsController
 
     public function pay(Request $request): ?Response
     {
+        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Plugin::class)
         $plugin = Plugin::getInstance();
         $currentUser = currentUserElement();
         $isSiteRequest = !$request->isCpRequest();
@@ -333,6 +334,7 @@ readonly class PaymentsController
         $totalQtyChanged = $originalTotalQty != $order->getTotalQty();
         $totalAdjustmentsChanged = $originalTotalAdjustments != count($order->getAdjustments());
 
+        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class)
         $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
         $updateSearchIndex = ($order->isCompleted || $updateCartSearchIndexes);
 

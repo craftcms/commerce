@@ -121,6 +121,7 @@ readonly class StoreManagementController
                 $canCreate = true;
             }
 
+            // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Plugin::class)
             if (Plugin::getInstance()->is(Plugin::EDITION_ENTERPRISE, '=')) {
                 $limit = null;
                 $canCreate = true;

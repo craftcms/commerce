@@ -33,6 +33,7 @@ readonly class SettingsController
 
     public function edit(): string
     {
+        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class)
         return pageTemplate('commerce/settings/general', [
             'settings' => Plugin::getInstance()->getSettings(),
             'readOnly' => $this->readOnly,
@@ -41,6 +42,7 @@ readonly class SettingsController
 
     public function saveSettings(Request $request): Response|string
     {
+        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Plugin::class)
         $plugin = Plugin::getInstance();
         $settings = $request->input('settings');
         $pluginSettingsSaved = Plugins::savePluginSettings($plugin, $settings);

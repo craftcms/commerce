@@ -397,6 +397,7 @@ class Pdfs
             throw new \ErrorException("Unable to write to folder: $dompdfTempDir");
         }
 
+        // TODO: fix in Commerce 6.0 - replace Plugin::getInstance() with proper DI (e.g. inject Settings/Plugin::class)
         $isRemoteEnabled = Plugin::getInstance()->getSettings()->pdfAllowRemoteImages;
 
         $options = new Options();

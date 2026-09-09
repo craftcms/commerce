@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Purchasable\FieldLayoutElements;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
 use CraftCms\Cms\Support\Facades\I18N;
+use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use InvalidArgumentException;
@@ -52,8 +52,7 @@ class PurchasableWeightField extends BaseNativeField
             'value' => $element->weight !== null ? I18N::getFormatter()->asDecimal($element->weight) : '',
             'class' => 'text',
             'size' => 10,
-            // TODO: migrate to app(Plugin::class)->getSettings()->weightUnits once Settings service migrated to src/
-            'unit' => Plugin::getInstance()->getSettings()->weightUnits,
+            'unit' => app(Plugin::class)->getSettings()->weightUnits,
             'placeholder' => t('Weight', category: 'commerce'),
             'disabled' => $static,
         ]);

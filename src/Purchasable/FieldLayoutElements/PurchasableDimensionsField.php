@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Purchasable\FieldLayoutElements;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html;
+use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use InvalidArgumentException;
@@ -47,8 +47,7 @@ class PurchasableDimensionsField extends BaseNativeField
             throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
         }
 
-        // TODO: migrate to app(Plugin::class)->getSettings()->dimensionUnits once Settings service migrated to src/
-        $dimensionUnits = Plugin::getInstance()->getSettings()->dimensionUnits;
+        $dimensionUnits = app(Plugin::class)->getSettings()->dimensionUnits;
 
         return Html::beginTag('div', ['class' => 'flex']) .
             FormFields::fieldHtml(FormFields::textHtml([
