@@ -31,6 +31,8 @@ use CraftCms\Cms\Support\Path;
 use CraftCms\Cms\SystemMessage\Models\SystemMessage;
 use CraftCms\Cms\User\Events\EditUserScreensResolving;
 use CraftCms\Cms\User\Events\UserAssignedToGroups;
+use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Cms\View\TemplateRoots;
 use CraftCms\Commerce\Console\Commands\ExampleTemplates\ExampleTemplatesCommand;
 use CraftCms\Commerce\Console\Commands\Gateways\GatewaysListCommand;
 use CraftCms\Commerce\Console\Commands\Gateways\GatewaysWebhookUrlCommand;
@@ -238,6 +240,10 @@ class Plugin extends BasePlugin
         $this->registerLegacyEventBridges();
 
         Twig::registerExtension(new CommerceTwigExtension());
+
+        // TODO: remove once the remaining CP templates are ported to src/ (the conventional
+        // {basePath}/templates root only covers what's already been moved there).
+        app(TemplateRoots::class)->register(TemplateMode::Cp, $this->handle, dirname($this->getBasePath()) . '/src-yii2/templates');
 
         $this->app['router']->pushMiddlewareToGroup('craft', PoweredByHeader::class);
 
