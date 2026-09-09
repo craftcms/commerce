@@ -748,7 +748,6 @@ class VariantQuery extends PurchasableQuery implements NestedElementQueryInterfa
             throw new QueryAbortedException();
         }
 
-        // TODO: migrate to app(ProductTypes::class)->getAllProductTypes() once service migrated to src/
         $productTypes = app(ProductTypes::class)->getAllProductTypes();
 
         if (empty($productTypes)) {

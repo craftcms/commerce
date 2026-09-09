@@ -52,7 +52,6 @@ class Discounts
 
     public function getDiscountById(int $id, ?int $storeId = null): ?Discount
     {
-        // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
         $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         $rows = $this->query()
@@ -74,7 +73,6 @@ class Discounts
      */
     public function getAllDiscounts(?int $storeId = null): Collection
     {
-        // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
         $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         if ($this->allDiscounts === null || !isset($this->allDiscounts[$storeId])) {
@@ -108,7 +106,6 @@ class Discounts
             $date->setTime((int) $date->format('H'), (int) (round($date->format('i') / 1) * 1));
         }
 
-        // TODO: migrate to app(Stores::class)->getCurrentStore() once Stores service migrated
         $store = $order ? $order->getStore() : app(Stores::class)->getCurrentStore();
 
         $couponKey = ($order && $order->couponCode) ? $order->couponCode : '*';
@@ -309,7 +306,6 @@ class Discounts
             return null;
         }
 
-        // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
         $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         $isPgsql = DB::connection()->getDriverName() === 'pgsql';
@@ -678,7 +674,6 @@ class Discounts
 
     public function ensureSortOrder(?int $storeId = null): void
     {
-        // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
         $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         $table = Table::DISCOUNTS;
@@ -944,7 +939,6 @@ class Discounts
             $orderAsArray = $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']);
             $orderConditionParams = ['order' => array_merge($orderAsArray, $fieldsAsArray)];
 
-            // TODO: migrate to app(Formulas::class)->evaluateCondition() once Formulas service migrated
             return app(Formulas::class)->evaluateCondition($discount->orderConditionFormula, $orderConditionParams, 'Evaluate Order Discount Condition Formula');
         }
 

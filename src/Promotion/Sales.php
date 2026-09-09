@@ -41,7 +41,6 @@ class Sales
 
     public function canUseSales(): bool
     {
-        // TODO: migrate to app(Stores::class)->getAllStores() once Stores service migrated
         $singleStore = app(Stores::class)->getAllStores()->count() === 1;
         $noCatalogPricingRules = app(\CraftCms\Commerce\CatalogPricing\CatalogPricingRules::class)->getAllCatalogPricingRules()->isEmpty();
 
