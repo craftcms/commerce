@@ -98,7 +98,10 @@ class StoreSettings
             return;
         }
 
-        // @TODO Authorize the current user against the store from $storeSettingsRecord (e.g. "commerce-manageStore:<storeUid>" permission) rather than always granting view access
+        if (!$event->user->can('commerce-manageGeneralStoreSettings')) {
+            return;
+        }
+
         $event->authorized = true;
     }
 
@@ -108,7 +111,10 @@ class StoreSettings
             return;
         }
 
-        // @TODO Authorize the current user against the store from $storeSettingsRecord (e.g. "commerce-manageStore:<storeUid>" permission) rather than always granting edit access
+        if (!$event->user->can('commerce-manageGeneralStoreSettings')) {
+            return;
+        }
+
         $event->authorized = true;
     }
 
