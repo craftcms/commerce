@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\CatalogPricing;
 
-use craft\helpers\Console;
 use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
@@ -14,7 +13,6 @@ use CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob;
 use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingQueue as CatalogPricingQueueRecord;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Sql;
-use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use CraftCms\Commerce\Store\Stores;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;
@@ -22,13 +20,14 @@ use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\Console\Output\OutputInterface;
 
 #[Singleton]
 class CatalogPricing
 {
     private ?array $allCatalogPrices = null;
 
-    public function generateCatalogPrices(?array $purchasableIds = null, ?array $catalogPricingRules = null, bool $showConsoleOutput = false, mixed $queue = null): void
+    public function generateCatalogPrices(?array $purchasableIds = null, ?array $catalogPricingRules = null, ?OutputInterface $output = null, mixed $queue = null): void
     {
         $chunkSize = 1000;
         $this->setQueueProgress($queue, 10, 'Retrieving purchasables');
@@ -67,10 +66,7 @@ class CatalogPricing
             ->all();
 
         $cprStartTime = microtime(true);
-        if ($showConsoleOutput) {
-            // TODO: Migrate to Laravel console output
-            Console::stdout(PHP_EOL . 'Generating price data from catalog pricing rules... ');
-        }
+        $output?->write(PHP_EOL . 'Generating price data from catalog pricing rules... ');
 
         $this->setQueueProgress($queue, 20, 'Generating catalog pricing data');
         $catalogPricing = [];
@@ -138,14 +134,10 @@ class CatalogPricing
         }
 
         $cprExecutionLength = microtime(true) - $cprStartTime;
-        if ($showConsoleOutput) {
-            Console::stdout('done!');
-            Console::stdout(PHP_EOL . 'Created ' . count($catalogPricing) . ' rule price data in ' . round($cprExecutionLength, 2) . ' seconds' . PHP_EOL);
-        }
+        $output?->write('done!');
+        $output?->write(PHP_EOL . 'Created ' . count($catalogPricing) . ' rule price data in ' . round($cprExecutionLength, 2) . ' seconds' . PHP_EOL);
 
         $this->setQueueProgress($queue, 40, 'Clearing existing catalog prices');
-
-        DB::beginTransaction();
 
         if (!$isAllPurchasables || !empty($catalogPricingRules)) {
             foreach (array_chunk($purchasableIds, 1000) as $chunk) {
@@ -160,8 +152,13 @@ class CatalogPricing
                 $query->delete();
             }
         } else {
+            // TRUNCATE is DDL and causes an implicit commit on MySQL/MariaDB, so it must run
+            // before the transaction below is opened - doing it inside would silently end the
+            // transaction, leaving the later DB::commit() with nothing to commit.
             DB::table(Table::CATALOG_PRICING)->truncate();
         }
+
+        DB::beginTransaction();
 
         if (empty($catalogPricingRules)) {
             $this->setQueueProgress($queue, 60, 'Copying base prices to catalog pricing');
@@ -179,9 +176,7 @@ class CatalogPricing
                 $fromCount = number_format($count, 0);
                 $toCount = ($count + ($chunkSize - 1)) > $total ? $total : number_format($count + count($chunk) - 1, 0);
 
-                if ($showConsoleOutput) {
-                    Console::stdout(PHP_EOL . sprintf('Generating base prices rows for purchasables %s to %s of %s... ', $fromCount, $toCount, $total));
-                }
+                $output?->write(PHP_EOL . sprintf('Generating base prices rows for purchasables %s to %s of %s... ', $fromCount, $toCount, $total));
 
                 $idList = implode(',', array_map('intval', $chunk));
 
@@ -199,16 +194,12 @@ class CatalogPricing
                     WHERE basePromotionalPrice IS NOT NULL AND purchasableId IN ({$idList})
                 ");
 
-                if ($showConsoleOutput) {
-                    Console::stdout('done!');
-                }
+                $output?->write('done!');
                 $count += $chunkSize;
             }
 
             $baseExecutionLength = microtime(true) - $baseStateTime;
-            if ($showConsoleOutput) {
-                Console::stdout(PHP_EOL . 'Generated ' . $total . ' base prices in ' . round($baseExecutionLength, 2) . ' seconds' . PHP_EOL);
-            }
+            $output?->write(PHP_EOL . 'Generated ' . $total . ' base prices in ' . round($baseExecutionLength, 2) . ' seconds' . PHP_EOL);
         }
 
         $this->setQueueProgress($queue, 80, 'Inserting catalog pricing');
@@ -222,9 +213,7 @@ class CatalogPricing
                 $fromCount = number_format($count, 0);
                 $toCount = ($count + ($chunkSize - 1)) > $total ? number_format($total, 0) : number_format($count + count($chunk) - 1, 0);
 
-                if ($showConsoleOutput) {
-                    Console::stdout(PHP_EOL . sprintf('Inserting catalog pricing rule prices rows %s to %s of %s... ', $fromCount, $toCount, number_format($total, 0)));
-                }
+                $output?->write(PHP_EOL . sprintf('Inserting catalog pricing rule prices rows %s to %s of %s... ', $fromCount, $toCount, number_format($total, 0)));
 
                 DB::table(Table::CATALOG_PRICING)->insert(array_map(fn($row) => [
                     'purchasableId' => $row[0],
@@ -239,15 +228,11 @@ class CatalogPricing
 
                 $count += $chunkSize;
 
-                if ($showConsoleOutput) {
-                    Console::stdout('done!');
-                }
+                $output?->write('done!');
             }
 
             $executionLength = microtime(true) - $startTime;
-            if ($showConsoleOutput) {
-                Console::stdout(PHP_EOL . 'Generated ' . number_format($total, 0) . ' prices in ' . round($executionLength, 2) . ' seconds' . PHP_EOL);
-            }
+            $output?->write(PHP_EOL . 'Generated ' . number_format($total, 0) . ' prices in ' . round($executionLength, 2) . ' seconds' . PHP_EOL);
         }
 
         DB::commit();
@@ -340,21 +325,6 @@ class CatalogPricing
         }
 
         $query->update(['hasUpdatePending' => true]);
-    }
-
-    /**
-     * @deprecated in 5.5.0
-     * TODO: remove when callers have been migrated
-     */
-    public function afterSavePurchasableHandler(mixed $event): void
-    {
-        /** @var Purchasable $purchasable */
-        $purchasable = $event->sender;
-        if ($purchasable->propagating || $purchasable->getIsDraft() || $purchasable->getIsRevision()) {
-            return;
-        }
-
-        $this->createCatalogPricingJob(['purchasableIds' => [$purchasable->id], 'storeId' => $purchasable->storeId]);
     }
 
     /**
@@ -626,9 +596,20 @@ class CatalogPricing
         return $query;
     }
 
+    /**
+     * $queue is deliberately untyped: it's either a `CraftCms\Cms\Queue\Job` instance (this
+     * class's own createCatalogPricingJob()/CatalogPricingJob::handle() pass `$this`, which
+     * widens the base class's normally-protected setProgress() to public), or a legacy
+     * `yii\queue\Queue`/`craft\queue\QueueInterface` instance forwarded by the deprecated
+     * `craft\commerce\services\CatalogPricing::generateCatalogPrices()` wrapper for
+     * backwards-compatible callers. Both happen to expose a compatible setProgress(int, ?string)
+     * method, but share no common interface to type-hint against, and the new Job base class's
+     * own setProgress() isn't public - only CatalogPricingJob's override is - so this can't be
+     * tightened without either breaking that legacy call path or making Job::setProgress()
+     * public for every job.
+     */
     private function setQueueProgress(mixed $queue, float $progress, ?string $label = null): void
     {
-        // TODO: migrate to Laravel queue progress interface once queue system migrated
         if (is_object($queue) && method_exists($queue, 'setProgress')) {
             $queue->setProgress((int) $progress, $label);
         }

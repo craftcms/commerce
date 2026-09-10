@@ -26,7 +26,7 @@ class PricingCatalogGenerateCommand extends Command
     {
         $this->line('Generating catalog pricing... ');
 
-        $catalogPricing->generateCatalogPrices(showConsoleOutput: true);
+        $catalogPricing->generateCatalogPrices(output: $this->output);
 
         $this->line('<fg=green>Done!</>');
 

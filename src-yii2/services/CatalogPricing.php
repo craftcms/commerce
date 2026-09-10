@@ -4,9 +4,9 @@ namespace craft\commerce\services;
 
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
 use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingQueue as CatalogPricingQueueRecord;
-use craft\events\ModelEvent;
 use craft\queue\QueueInterface;
 use Illuminate\Support\Collection;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use yii\base\Component;
 use yii\queue\Queue;
 
@@ -17,7 +17,7 @@ class CatalogPricing extends Component
 {
     public function generateCatalogPrices(?array $purchasableIds = null, ?array $catalogPricingRules = null, bool $showConsoleOutput = false, Queue|QueueInterface|null $queue = null): void
     {
-        app(\CraftCms\Commerce\CatalogPricing\CatalogPricing::class)->generateCatalogPrices($purchasableIds, $catalogPricingRules, $showConsoleOutput, $queue);
+        app(\CraftCms\Commerce\CatalogPricing\CatalogPricing::class)->generateCatalogPrices($purchasableIds, $catalogPricingRules, $showConsoleOutput ? new ConsoleOutput() : null, $queue);
     }
 
     public function getCatalogPrice(int $purchasableId, ?int $storeId = null, ?int $userId = null, bool $isPromotionalPrice = false): ?float
@@ -43,11 +43,6 @@ class CatalogPricing extends Component
     public function markPricesAsUpdatePending(int|array|null $catalogPricingRuleId = null, int|array|null $purchasableId = null, int|array|null $storeId = null): void
     {
         app(\CraftCms\Commerce\CatalogPricing\CatalogPricing::class)->markPricesAsUpdatePending($catalogPricingRuleId, $purchasableId, $storeId);
-    }
-
-    public function afterSavePurchasableHandler(ModelEvent $event): void
-    {
-        app(\CraftCms\Commerce\CatalogPricing\CatalogPricing::class)->afterSavePurchasableHandler($event);
     }
 
     public function createCatalogPricingJob(array $config = [], int $priority = 100): void
