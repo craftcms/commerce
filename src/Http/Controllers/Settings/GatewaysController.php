@@ -19,7 +19,6 @@ use function CraftCms\Cms\t;
 
 class GatewaysController extends BaseSettingsController
 {
-
     public function index(): string
     {
         $gateways = app(Gateways::class)->getAllGateways();

@@ -21,7 +21,6 @@ use function CraftCms\Cms\t;
 
 class OrderSettingsController extends BaseSettingsController
 {
-
     public function edit(): CpScreenResponse
     {
         $fieldLayout = Fields::getLayoutByType(Order::class);

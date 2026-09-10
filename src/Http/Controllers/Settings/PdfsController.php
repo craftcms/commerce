@@ -21,7 +21,6 @@ use function CraftCms\Cms\t;
 
 class PdfsController extends BaseSettingsController
 {
-
     public function index(): string
     {
         $pdfs = [];

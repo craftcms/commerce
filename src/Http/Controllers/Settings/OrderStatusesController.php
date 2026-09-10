@@ -25,7 +25,6 @@ use function CraftCms\Cms\t;
 
 class OrderStatusesController extends BaseSettingsController
 {
-
     public function index(): string
     {
         $orderStatuses = [];

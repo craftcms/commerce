@@ -26,7 +26,6 @@ use function CraftCms\Cms\t;
 
 class EmailsController extends BaseSettingsController
 {
-
     public function index(): string
     {
         $emails = [];

@@ -22,8 +22,7 @@ abstract class BaseSettingsController
     public function __construct(
         protected GeneralConfig $generalConfig,
         protected FormResolver $formResolver,
-    )
-    {
+    ) {
         $this->readOnly = !$generalConfig->allowAdminChanges;
     }
 
