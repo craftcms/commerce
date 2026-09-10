@@ -486,10 +486,14 @@ class Stores
             'uid',
         ];
 
-        // TODO: Remove this schemaVersion guard in Commerce 6.0 once all installs are past schema 5.0.72 and the store settings columns are guaranteed to exist
-        // Note: right after a fresh install (same request), Plugins::installPlugin() only caches
-        // ['id', 'enabled'] — no 'schemaVersion' yet — so a missing key means "freshly installed",
-        // which always has the settings columns, not "pre-5.0.72".
+        // This guard can't be removed once every install is "past" schema 5.0.72: the settings columns
+        // were added by m221122_055724_move_general_settings_to_per_store_settings, which shipped as
+        // part of Commerce 5.0.0's original multi-store rollout, so every real 5.x install already has
+        // them. The only time this branch is actually reached is the narrow in-request window while an
+        // install/upgrade is actively running - e.g. right after a fresh install (same request),
+        // Plugins::installPlugin() only caches ['id', 'enabled'], no 'schemaVersion' yet, which a missing
+        // key here treats as "freshly installed" (always has the columns), not "pre-5.0.72". That window
+        // exists for any future upgrade too, so this guard is permanent, not a stepping stone to removal.
         $commerce = Plugins::getStoredPluginInfo('commerce');
         $hasSettingsColumns = !isset($commerce['schemaVersion']) || version_compare((string)$commerce['schemaVersion'], '5.0.72', '>=');
 
