@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Form\Controls\Combobox;
 use CraftCms\Cms\Form\Enums\ControlMode;
 use CraftCms\Cms\Form\Form;
@@ -27,7 +26,7 @@ class GeneralSettingsController extends BaseSettingsController
 
     public function edit(): CpScreenResponse
     {
-        $settings = Plugin::getInstance()->getSettings();
+        $settings = $this->plugin->getSettings();
         $config = Config::get('craft.commerce', null);
 
         $overrideWarning = function($key) use ($config) {
@@ -92,9 +91,8 @@ class GeneralSettingsController extends BaseSettingsController
 
     public function saveSettings(Request $request): Response|string
     {
-        $plugin = Plugin::getInstance();
         $settings = $request->input('settings');
-        $pluginSettingsSaved = Plugins::savePluginSettings($plugin, $settings);
+        $pluginSettingsSaved = Plugins::savePluginSettings($this->plugin, $settings);
 
         if (!$pluginSettingsSaved) {
             return $this->asFailure(t('Couldn’t save settings.', category: 'commerce'));

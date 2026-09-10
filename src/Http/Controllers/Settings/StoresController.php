@@ -330,10 +330,10 @@ class StoresController extends BaseSettingsController
         $showNewStoreButton = !$this->readOnly && $stores->count() < count(Sites::getAllSites());
 
         if ($showNewStoreButton) {
-            $showNewStoreButton = (Plugin::getInstance()->is(Plugin::EDITION_PRO, '=')
+            $showNewStoreButton = ($this->plugin->is(Plugin::EDITION_PRO, '=')
                     && $stores->count() < Plugin::EDITION_PRO_STORE_LIMIT
                     && app(CatalogPricingRules::class)->canUseCatalogPricingRules())
-                || (Plugin::getInstance()->is(Plugin::EDITION_ENTERPRISE, '=')
+                || ($this->plugin->is(Plugin::EDITION_ENTERPRISE, '=')
                     && app(CatalogPricingRules::class)->canUseCatalogPricingRules());
         }
 
