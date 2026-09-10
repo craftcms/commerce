@@ -55,7 +55,6 @@ class ShippingCategory extends Component implements HasStoreInterface, Chippable
         $site = app(RequestedSite::class)->get();
         $storeId = $site ? app(Stores::class)->getStoreBySiteId($site->id)?->id : null;
 
-        // TODO: migrate to app(ShippingCategories::class)->getShippingCategoryById() once service migrated to src/
         /** @phpstan-ignore-next-line */
         return app(ShippingCategories::class)->getShippingCategoryById($id, $storeId);
     }

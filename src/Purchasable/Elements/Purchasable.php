@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Purchasable\Elements;
 
-use craft\commerce\Plugin;
 use craft\helpers\Localization;
 use CraftCms\Cms\Element\Contracts\NestedElementInterface;
 use CraftCms\Cms\Element\Element;
@@ -28,6 +27,7 @@ use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Payment\Currencies;
+use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Promotion\Data\Sale;
 use CraftCms\Commerce\Promotion\Sales;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
@@ -1128,14 +1128,14 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             'sku' => (string)Html::encode($this->getSkuAsText()),
             'price' => $this->basePriceAsCurrency,
             'promotionalPrice' => $this->basePromotionalPrice !== null ? $this->basePromotionalPriceAsCurrency : '',
-            'weight' => $this->weight !== null ? I18N::getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits : '',
-            'length' => $this->length !== null ? I18N::getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
-            'width' => $this->width !== null ? I18N::getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
-            'height' => $this->height !== null ? I18N::getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
+            'weight' => $this->weight !== null ? I18N::getFormatter()->asDecimal($this->$attribute) . ' ' . app(Plugin::class)->getSettings()->weightUnits : '',
+            'length' => $this->length !== null ? I18N::getFormatter()->asDecimal($this->$attribute) . ' ' . app(Plugin::class)->getSettings()->dimensionUnits : '',
+            'width' => $this->width !== null ? I18N::getFormatter()->asDecimal($this->$attribute) . ' ' . app(Plugin::class)->getSettings()->dimensionUnits : '',
+            'height' => $this->height !== null ? I18N::getFormatter()->asDecimal($this->$attribute) . ' ' . app(Plugin::class)->getSettings()->dimensionUnits : '',
             'minQty' => (string)$this->minQty,
             'maxQty' => (string)$this->maxQty,
             'stock' => $this::hasInventory() ? $stock : '',
-            'dimensions' => !empty($dimensions) ? implode(' x ', $dimensions) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
+            'dimensions' => !empty($dimensions) ? implode(' x ', $dimensions) . ' ' . app(Plugin::class)->getSettings()->dimensionUnits : '',
             default => parent::attributeHtml($attribute),
         };
     }
@@ -1147,10 +1147,10 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             'sku' => ['label' => t('SKU', category: 'commerce')],
             'price' => ['label' => t('Price', category: 'commerce')],
             'promotionalPrice' => ['label' => t('Promotional Price', category: 'commerce')],
-            'width' => ['label' => t('Width ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits], category: 'commerce')],
-            'height' => ['label' => t('Height ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits], category: 'commerce')],
-            'length' => ['label' => t('Length ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits], category: 'commerce')],
-            'weight' => ['label' => t('Weight ({unit})', ['unit' => Plugin::getInstance()->getSettings()->weightUnits], category: 'commerce')],
+            'width' => ['label' => t('Width ({unit})', ['unit' => app(Plugin::class)->getSettings()->dimensionUnits], category: 'commerce')],
+            'height' => ['label' => t('Height ({unit})', ['unit' => app(Plugin::class)->getSettings()->dimensionUnits], category: 'commerce')],
+            'length' => ['label' => t('Length ({unit})', ['unit' => app(Plugin::class)->getSettings()->dimensionUnits], category: 'commerce')],
+            'weight' => ['label' => t('Weight ({unit})', ['unit' => app(Plugin::class)->getSettings()->weightUnits], category: 'commerce')],
             'stock' => ['label' => t('Stock', category: 'commerce')],
             'minQty' => ['label' => t('Min Qty', category: 'commerce')],
             'maxQty' => ['label' => t('Max Qty', category: 'commerce')],
@@ -1215,7 +1215,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             ],
             'dimensions' => [
                 'label' => t('Dimensions', category: 'commerce'),
-                'placeholder' => '1 x 2 x 3 ' . Plugin::getInstance()->getSettings()->dimensionUnits,
+                'placeholder' => '1 x 2 x 3 ' . app(Plugin::class)->getSettings()->dimensionUnits,
             ],
             'priceView' => [
                 'label' => t('Price', category: 'commerce'),
@@ -1234,7 +1234,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             ],
             'weight' => [
                 'label' => t('Weight', category: 'commerce'),
-                'placeholder' => 123 . Plugin::getInstance()->getSettings()->weightUnits,
+                'placeholder' => 123 . app(Plugin::class)->getSettings()->weightUnits,
             ],
         ]);
     }

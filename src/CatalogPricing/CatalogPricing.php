@@ -10,11 +10,11 @@ use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCustomerConditionRule;
 use CraftCms\Commerce\CatalogPricing\Data\CatalogPricing as CatalogPricingModel;
-use CraftCms\Commerce\CatalogPricing\Data\CatalogPricingRule;
 use CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob;
 use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingQueue as CatalogPricingQueueRecord;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Sql;
+use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use CraftCms\Commerce\Store\Stores;
 use DateTime;
 use Illuminate\Container\Attributes\Singleton;
@@ -28,13 +28,6 @@ class CatalogPricing
 {
     private ?array $allCatalogPrices = null;
 
-    /**
-     * @param array|null $purchasableIds
-     * @param CatalogPricingRule[]|null $catalogPricingRules
-     * @throws \Exception
-     * TODO: Migrate queue jobs and Console helpers to Laravel equivalents
-     * TODO: Migrate app(Stores::class) and getCatalogPricingRules() once services migrated
-     */
     public function generateCatalogPrices(?array $purchasableIds = null, ?array $catalogPricingRules = null, bool $showConsoleOutput = false, mixed $queue = null): void
     {
         $chunkSize = 1000;
@@ -82,7 +75,6 @@ class CatalogPricing
         $this->setQueueProgress($queue, 20, 'Generating catalog pricing data');
         $catalogPricing = [];
 
-        // TODO: Migrate to app(Stores::class)->getAllStores() once Stores service migrated
         foreach (app(Stores::class)->getAllStores() as $store) {
             $priceByPurchasableId = DB::table(Table::PURCHASABLES_STORES)
                 ->select(['purchasableId', 'basePrice', 'basePromotionalPrice'])
@@ -91,7 +83,6 @@ class CatalogPricing
                 ->keyBy('purchasableId')
                 ->all();
 
-            // TODO: Migrate to app(CatalogPricingRules::class)->getAllActiveCatalogPricingRules() once registered
             $runCatalogPricingRules = $catalogPricingRules ?? app(CatalogPricingRules::class)->getAllActiveCatalogPricingRules($store->id)->all();
 
             foreach ($runCatalogPricingRules as $catalogPricingRule) {
@@ -122,7 +113,6 @@ class CatalogPricing
 
                     $row = $priceByPurchasableId[$purchasableId];
 
-                    // TODO: migrate to app(CatalogPricingRules::class)->generateRulePriceFromPrice() once registered
                     $catalogPrice = app(CatalogPricingRules::class)->generateRulePriceFromPrice(
                         $row->basePrice,
                         $row->basePromotionalPrice,
@@ -139,9 +129,8 @@ class CatalogPricing
                         $store->id,
                         $catalogPricingRule->isPromotionalPrice,
                         $catalogPricingRule->id,
-                        // TODO: migrate to Laravel date helper once CraftDb::prepareDateForDb is replaced
-                        $catalogPricingRule->dateFrom ? CraftDb::prepareDateForDb($catalogPricingRule->dateFrom) : null,
-                        $catalogPricingRule->dateTo ? CraftDb::prepareDateForDb($catalogPricingRule->dateTo) : null,
+                        $catalogPricingRule->dateFrom ? \CraftCms\Cms\Support\Query::prepareDateForDb($catalogPricingRule->dateFrom) : null,
+                        $catalogPricingRule->dateTo ? \CraftCms\Cms\Support\Query::prepareDateForDb($catalogPricingRule->dateTo) : null,
                         false,
                     ];
                 }
@@ -268,7 +257,6 @@ class CatalogPricing
 
     public function getCatalogPrice(int $purchasableId, ?int $storeId = null, ?int $userId = null, bool $isPromotionalPrice = false): ?float
     {
-        // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
         $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         $userKey = $userId ?? 'all';
@@ -295,7 +283,6 @@ class CatalogPricing
      */
     public function getCatalogPricesByPurchasableId(int $purchasableId, ?int $storeId = null): Collection
     {
-        // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
         $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         $rows = $this->createCatalogPricesQuery(storeId: $storeId, allPrices: true)
@@ -361,7 +348,7 @@ class CatalogPricing
      */
     public function afterSavePurchasableHandler(mixed $event): void
     {
-        // TODO: update to new Purchasable element API once migrated
+        /** @var Purchasable $purchasable */
         $purchasable = $event->sender;
         if ($purchasable->propagating || $purchasable->getIsDraft() || $purchasable->getIsRevision()) {
             return;

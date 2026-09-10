@@ -713,9 +713,6 @@ class OrderQuery extends ElementQuery
         $orders = $elements->all();
 
         if ($this->withLineItems || $this->withAll) {
-            // TODO: migrate to app(LineItems::class)->eagerLoadLineItemsForOrders() once the LineItems
-            // service and LineItem model are migrated to src/ (blocked on the Order/Purchasable-tied
-            // LineItem migration - see laravel-migration-private.md)
             $orders = app(LineItems::class)->eagerLoadLineItemsForOrders($orders);
         }
 

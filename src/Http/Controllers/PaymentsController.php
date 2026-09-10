@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\I18N;
@@ -21,8 +20,9 @@ use CraftCms\Commerce\Payment\Exceptions\PaymentSourceException;
 use CraftCms\Commerce\Payment\Gateway\Gateways;
 use CraftCms\Commerce\Payment\Payments;
 use CraftCms\Commerce\Payment\PaymentSources;
-
 use CraftCms\Commerce\Payment\Transactions;
+
+use CraftCms\Commerce\Plugin;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -38,9 +38,13 @@ readonly class PaymentsController
     use HasCartArray;
     use RespondsWithFlash;
 
+    public function __construct(private Plugin $plugin)
+    {
+    }
+
     public function pay(Request $request): ?Response
     {
-        $plugin = Plugin::getInstance();
+        $plugin = $this->plugin;
         $currentUser = currentUserElement();
         $isSiteRequest = !$request->isCpRequest();
         $isCpRequest = $request->isCpRequest();
@@ -333,7 +337,7 @@ readonly class PaymentsController
         $totalQtyChanged = $originalTotalQty != $order->getTotalQty();
         $totalAdjustmentsChanged = $originalTotalAdjustments != count($order->getAdjustments());
 
-        $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
+        $updateCartSearchIndexes = $this->plugin->getSettings()->updateCartSearchIndexes;
         $updateSearchIndex = ($order->isCompleted || $updateCartSearchIndexes);
 
         if (Elements::saveElement($order, true, false, $updateSearchIndex)) {

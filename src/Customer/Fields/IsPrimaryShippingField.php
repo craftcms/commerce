@@ -12,12 +12,6 @@ use GraphQL\Type\Definition\Type;
 
 use function CraftCms\Cms\t;
 
-/**
- * Read-only field exposing {@see Address::getIsPrimaryShipping()} through the normal field-layout
- * serialization pipeline (`toArray()`/GraphQL), which macro-based attributes don't flow through on
- * their own. Not stored — {@see self::dbType()} returns `null`, so {@see self::normalizeValue()}
- * recomputes from the owning element on every access rather than reading persisted content.
- */
 class IsPrimaryShippingField extends Field
 {
     #[\Override]

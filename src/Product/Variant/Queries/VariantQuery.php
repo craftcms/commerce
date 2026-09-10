@@ -592,7 +592,6 @@ class VariantQuery extends PurchasableQuery implements NestedElementQueryInterfa
         if (!request()->isCpRequest()) {
             $userGroupIds = [];
 
-            // TODO: migrate to the new user API once the User element's groups are available on CraftUser
             if ($user = currentUserElement()) {
                 $userGroupIds = array_column($user->getGroups(), 'id');
             }
@@ -748,7 +747,6 @@ class VariantQuery extends PurchasableQuery implements NestedElementQueryInterfa
             throw new QueryAbortedException();
         }
 
-        // TODO: migrate to app(ProductTypes::class)->getAllProductTypes() once service migrated to src/
         $productTypes = app(ProductTypes::class)->getAllProductTypes();
 
         if (empty($productTypes)) {

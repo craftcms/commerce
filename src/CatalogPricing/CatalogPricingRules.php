@@ -43,7 +43,6 @@ class CatalogPricingRules
 
     public function canUseCatalogPricingRules(): bool
     {
-        // TODO: migrate to app(Sales::class)->getAllSales() once Sales service migrated
         if (!empty(app(Sales::class)->getAllSales())) {
             return false;
         }
@@ -61,7 +60,6 @@ class CatalogPricingRules
      */
     public function getAllCatalogPricingRules(?int $storeId = null): Collection
     {
-        // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
         $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         if ($this->allCatalogPricingRules === null || !isset($this->allCatalogPricingRules[$storeId])) {
@@ -79,7 +77,6 @@ class CatalogPricingRules
      */
     public function getAllCatalogPricingRulesByPurchasableId(int $purchasableId, ?int $storeId = null): Collection
     {
-        // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
         $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         $rows = $this->query()
@@ -150,7 +147,6 @@ class CatalogPricingRules
             return;
         }
 
-        // TODO: migrate to app(Stores::class)->getAllStores() once Stores service migrated
         $stores = app(Stores::class)->getAllStores();
 
         foreach ($stores as $store) {
@@ -245,7 +241,6 @@ class CatalogPricingRules
 
             DB::commit();
 
-            // TODO: migrate to app(CatalogPricing::class)->createCatalogPricingJob() once CatalogPricing service is registered
             app(CatalogPricing::class)->createCatalogPricingJob([
                 'catalogPricingRuleIds' => [$catalogPricingRule->id],
                 'storeId' => $catalogPricingRule->storeId,

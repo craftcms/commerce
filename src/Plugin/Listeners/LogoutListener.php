@@ -10,9 +10,13 @@ use Illuminate\Auth\Events\Logout;
 
 class LogoutListener
 {
+    public function __construct(private readonly Plugin $plugin)
+    {
+    }
+
     public function handle(Logout $event): void
     {
-        if (!Plugin::getInstance()->isInstalled) {
+        if (!$this->plugin->isInstalled) {
             return;
         }
 

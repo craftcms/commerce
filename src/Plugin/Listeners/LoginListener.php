@@ -10,9 +10,13 @@ use Illuminate\Auth\Events\Login;
 
 class LoginListener
 {
+    public function __construct(private readonly Plugin $plugin)
+    {
+    }
+
     public function handle(Login $event): void
     {
-        if (!Plugin::getInstance()->isInstalled) {
+        if (!$this->plugin->isInstalled) {
             return;
         }
 

@@ -33,7 +33,6 @@ class ShippingAddressZone extends Zone implements Chippable
     #[\Override]
     public static function get(int|string $id): ?static
     {
-        // TODO: migrate to app(ShippingZones::class)->getShippingZoneById() once service migrated to src/
         foreach (app(Stores::class)->getAllStores() as $store) {
             $zone = app(ShippingZones::class)->getShippingZoneById((int)$id, $store->id);
             if ($zone !== null) {

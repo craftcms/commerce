@@ -260,7 +260,6 @@ class ProductQuery extends ElementQuery
      */
     public function type(mixed $value): static
     {
-        // TODO: migrate to app(ProductTypes::class)->getProductTypeByHandle() once service migrated to src/
         if (is_string($value) && ($productType = app(ProductTypes::class)->getProductTypeByHandle($value))) {
             $value = $productType;
         }
@@ -432,7 +431,6 @@ class ProductQuery extends ElementQuery
             !isset($this->structureId) &&
             count($this->typeId) === 1
         ) {
-            // TODO: migrate to app(ProductTypes::class)->getProductTypeById() once service migrated to src/
             $productType = app(ProductTypes::class)->getProductTypeById((int)reset($this->typeId));
 
             if ($productType && $productType->isStructure) {
@@ -490,7 +488,6 @@ class ProductQuery extends ElementQuery
             throw new QueryAbortedException();
         }
 
-        // TODO: migrate to app(ProductTypes::class)->getAllProductTypes() once service migrated to src/
         $productTypes = app(ProductTypes::class)->getAllProductTypes();
 
         if (empty($productTypes)) {

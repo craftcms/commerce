@@ -12,9 +12,13 @@ use CraftCms\Commerce\Store\Stores;
 
 class SiteSavedListener
 {
+    public function __construct(private readonly Plugin $plugin)
+    {
+    }
+
     public function handle(SiteSaved $event): void
     {
-        if (!Plugin::getInstance()->isInstalled) {
+        if (!$this->plugin->isInstalled) {
             return;
         }
 

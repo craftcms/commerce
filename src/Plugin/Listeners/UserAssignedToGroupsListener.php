@@ -10,9 +10,13 @@ use CraftCms\Commerce\Plugin;
 
 class UserAssignedToGroupsListener
 {
+    public function __construct(private readonly Plugin $plugin)
+    {
+    }
+
     public function handle(UserAssignedToGroups $event): void
     {
-        if (!Plugin::getInstance()->isInstalled) {
+        if (!$this->plugin->isInstalled) {
             return;
         }
 

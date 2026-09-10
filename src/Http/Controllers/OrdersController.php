@@ -984,6 +984,7 @@ JS, []);
         // NOTE: `PaymentCurrencies::convertCurrency()` was not carried over to the migrated
         // service (only `convert()`/`convertAmount()` were), so the legacy
         // `Plugin::getInstance()->getPaymentCurrencies()` facade is used deliberately here.
+        // TODO: fix in Commerce 6.0 - port `convertCurrency()` to the migrated PaymentCurrencies service and drop this Plugin::getInstance() call
         $paymentCurrencies = Plugin::getInstance()->getPaymentCurrencies();
         $paymentCurrency = $request->input('paymentCurrency');
         $paymentAmount = $request->input('paymentAmount');

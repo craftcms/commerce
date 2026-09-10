@@ -366,7 +366,6 @@ class Variant extends Purchasable implements NestedElementInterface
 
         // If we have a field layout, try to set its provider from product type
         if ($fieldLayout) {
-            // TODO: migrate to app(ProductTypes::class)->getAllProductTypes() once service migrated to src/
             $productTypes = app(ProductTypes::class)->getAllProductTypes();
             $productType = collect($productTypes)->firstWhere('variantFieldLayoutId', $fieldLayout->id);
 

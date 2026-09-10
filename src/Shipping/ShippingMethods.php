@@ -212,7 +212,6 @@ class ShippingMethods
 
     private function currentStoreId(): int
     {
-        // TODO: migrate to app(Stores::class)->getCurrentStore()->id once Stores service migrated
         return app(Stores::class)->getCurrentStore()->id;
     }
 }

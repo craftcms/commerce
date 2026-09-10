@@ -339,7 +339,6 @@ class CatalogPricingRule extends Component implements HasStoreInterface
             default => $price,
         };
 
-        // TODO: migrate to app(Currencies::class) once service migrated to src/
         $price = (float)app(Currencies::class)->getTeller($this->getStore()->getCurrency())->convertToString($price);
 
         return max($price, 0);

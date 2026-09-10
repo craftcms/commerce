@@ -11,9 +11,13 @@ use CraftCms\Commerce\Store\StoreSettings;
 
 class ElementAuthorizingListener
 {
+    public function __construct(private readonly Plugin $plugin)
+    {
+    }
+
     public function handle(ElementAuthorizing $event): void
     {
-        if (!Plugin::getInstance()->isInstalled) {
+        if (!$this->plugin->isInstalled) {
             return;
         }
 

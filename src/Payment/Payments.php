@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Payment;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Support\Facades\Template;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Helpers\Currency;
@@ -23,6 +22,7 @@ use CraftCms\Commerce\Payment\Exceptions\TransactionException;
 use CraftCms\Commerce\Payment\Forms\BasePaymentForm;
 use CraftCms\Commerce\Payment\Gateway\Contracts\RequestResponseInterface;
 use CraftCms\Commerce\Payment\Models\Transaction as TransactionRecord;
+use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Store\Data\Store;
 use Exception;
 use Illuminate\Container\Attributes\Singleton;
@@ -52,6 +52,10 @@ class Payments
     public const string EVENT_BEFORE_PROCESS_PAYMENT = 'beforeProcessPaymentEvent';
 
     public const string EVENT_AFTER_PROCESS_PAYMENT = 'afterProcessPaymentEvent';
+
+    public function __construct(private readonly Plugin $plugin)
+    {
+    }
 
     /**
      * Process a payment.
@@ -290,7 +294,7 @@ class Payments
             $redirect = $response->getRedirectUrl();
             $redirectData = $response->getRedirectData();
         } else {
-            $gatewayPostRedirectTemplate = Plugin::getInstance()->getSettings()->gatewayPostRedirectTemplate;
+            $gatewayPostRedirectTemplate = $this->plugin->getSettings()->gatewayPostRedirectTemplate;
 
             if (!empty($gatewayPostRedirectTemplate)) {
                 $variables = [];

@@ -11,9 +11,13 @@ use CraftCms\Commerce\Plugin;
 
 class DefineDeletionBlockersListener
 {
+    public function __construct(private readonly Plugin $plugin)
+    {
+    }
+
     public function handle(DefineDeletionBlockers $event): void
     {
-        if (!Plugin::getInstance()->isInstalled) {
+        if (!$this->plugin->isInstalled) {
             return;
         }
 

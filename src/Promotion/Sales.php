@@ -7,10 +7,12 @@ namespace CraftCms\Commerce\Promotion;
 use Carbon\Carbon;
 use craft\elements\Category;
 use CraftCms\Cms\Entry\Elements\Entry;
+use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\ElementCaches;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Currency;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Promotion\Data\Sale;
 use CraftCms\Commerce\Promotion\Events\SaleEvent;
 use CraftCms\Commerce\Promotion\Events\SaleMatchEvent;
@@ -41,7 +43,6 @@ class Sales
 
     public function canUseSales(): bool
     {
-        // TODO: migrate to app(Stores::class)->getAllStores() once Stores service migrated
         $singleStore = app(Stores::class)->getAllStores()->count() === 1;
         $noCatalogPricingRules = app(\CraftCms\Commerce\CatalogPricing\CatalogPricingRules::class)->getAllCatalogPricingRules()->isEmpty();
 
@@ -138,11 +139,9 @@ class Sales
     /**
      * Returns sales that match the purchasable.
      *
-     * TODO: update Order type hint when Order element migrated to src/
-     *
      * @return Sale[]
      */
-    public function getSalesForPurchasable(PurchasableInterface $purchasable, mixed $order = null): array
+    public function getSalesForPurchasable(PurchasableInterface $purchasable, ?Order $order = null): array
     {
         $matchedSales = [];
 
@@ -160,8 +159,6 @@ class Sales
     }
 
     /**
-     * TODO: update PurchasableInterface type hint when fully migrated
-     *
      * @return Sale[]
      */
     public function getSalesRelatedToPurchasable(PurchasableInterface $purchasable): array
@@ -176,7 +173,7 @@ class Sales
                 $relatedTo = [$sale->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
                 $saleCategories = $sale->getCategoryIds();
 
-                // TODO: update Category/Entry element calls when migrated
+                // TODO: update Category element calls when migrated (Entry already uses the new element)
                 $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->siteId($purchasable->siteId)->ids();
                 $relatedEntries = Entry::find()->id($saleCategories)->relatedTo($relatedTo)->siteId($purchasable->siteId)->ids();
                 $relatedCategoriesOrEntries = array_merge($relatedCategories, $relatedEntries);
@@ -192,10 +189,8 @@ class Sales
 
     /**
      * Returns the sale price of the purchasable based on all matched sales.
-     *
-     * TODO: update Order type hint when Order element migrated to src/
      */
-    public function getSalePriceForPurchasable(PurchasableInterface $purchasable, mixed $order = null): float
+    public function getSalePriceForPurchasable(PurchasableInterface $purchasable, ?Order $order = null): float
     {
         $sales = $this->getSalesForPurchasable($purchasable, $order);
         $originalPrice = $purchasable->getPrice();
@@ -240,16 +235,13 @@ class Sales
             $salePrice = 0;
         }
 
-        // TODO: migrate to app(Currency::class)->round() once Currency service migrated
         return Currency::round($salePrice);
     }
 
     /**
      * Match a purchasable and sale and return the result.
-     *
-     * TODO: update Order type hint when Order element migrated to src/
      */
-    public function matchPurchasableAndSale(PurchasableInterface $purchasable, Sale $sale, mixed $order = null): bool
+    public function matchPurchasableAndSale(PurchasableInterface $purchasable, Sale $sale, ?Order $order = null): bool
     {
         $purchasableId = $purchasable->getId();
         $saleId = $sale->id;
@@ -274,7 +266,6 @@ class Sales
         $date = new DateTime();
 
         if ($order) {
-            // TODO: update isCompleted/dateOrdered when Order is migrated
             $date = $order->isCompleted ? $order->dateOrdered : $date;
         }
 
@@ -287,14 +278,12 @@ class Sales
         }
 
         if ($order) {
-            // TODO: update getCustomer() when Order/User is migrated
             $user = $order->getCustomer();
 
             if (!$sale->allGroups) {
                 if (null === $user) {
                     return false;
                 }
-                // TODO: update getGroups() when User element is migrated
                 $userGroups = array_column($user->getGroups(), 'id');
                 if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
                     return false;
@@ -317,7 +306,7 @@ class Sales
             $relatedTo = [$sale->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
             $saleCategories = $sale->getCategoryIds();
 
-            // TODO: update Category/Entry element calls when migrated
+            // TODO: update Category element calls when migrated (Entry already uses the new element)
             $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->siteId($purchasable->siteId)->ids();
             $relatedEntries = Entry::find()->id($saleCategories)->relatedTo($relatedTo)->siteId($purchasable->siteId)->ids();
             $relatedCategoriesOrEntries = array_merge($relatedCategories, $relatedEntries);
@@ -384,11 +373,10 @@ class Sales
         }
 
         if (!$isNew) {
-            // TODO: update to new date helper once migrated
             /** @phpstan-ignore-next-line */
-            $model->dateCreated = \CraftCms\Cms\Support\DateTimeHelper::toDateTime($record->dateCreated);
+            $model->dateCreated = DateTimeHelper::toDateTime($record->dateCreated);
             /** @phpstan-ignore-next-line */
-            $model->dateUpdated = \CraftCms\Cms\Support\DateTimeHelper::toDateTime($record->dateUpdated);
+            $model->dateUpdated = DateTimeHelper::toDateTime($record->dateUpdated);
         }
 
         DB::beginTransaction();
@@ -397,11 +385,10 @@ class Sales
             $record->save();
             $model->id = $record->id;
 
-            // TODO: update to new date helper once migrated
             /** @phpstan-ignore-next-line */
-            $model->dateCreated = \CraftCms\Cms\Support\DateTimeHelper::toDateTime($record->dateCreated);
+            $model->dateCreated = DateTimeHelper::toDateTime($record->dateCreated);
             /** @phpstan-ignore-next-line */
-            $model->dateUpdated = \CraftCms\Cms\Support\DateTimeHelper::toDateTime($record->dateUpdated);
+            $model->dateUpdated = DateTimeHelper::toDateTime($record->dateUpdated);
 
             SaleUserGroupRecord::where('saleId', $model->id)->delete();
             SalePurchasableRecord::where('saleId', $model->id)->delete();

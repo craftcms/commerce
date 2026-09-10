@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Product\Elements;
 
-use craft\commerce\Plugin;
 use craft\events\ElementCriteriaEvent;
 use CraftCms\Cms\Asset\Actions\CopyReferenceTag;
 use CraftCms\Cms\Cms;
@@ -50,6 +49,7 @@ use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
+use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Product\Conditions\ProductCondition;
 use CraftCms\Commerce\Product\Conditions\ProductTypeConditionRule;
 use CraftCms\Commerce\Product\Jobs\ResaveProductVariantsJob;
@@ -265,7 +265,6 @@ class Product extends Element implements HasStoreInterface
     #[Override]
     protected static function defineSources(string $context): array
     {
-        // TODO: migrate to app(ProductTypes::class) once service migrated to src/
         $productTypesService = app(ProductTypes::class);
 
         if ($context == 'index') {
@@ -347,7 +346,6 @@ class Product extends Element implements HasStoreInterface
         $productTypeOptions = $productTypeRule?->getValues();
 
         if ($productTypeOptions && count($productTypeOptions) === 1) {
-            // TODO: migrate to app(ProductTypes::class)->getProductTypeByUid() once service migrated to src/
             $productType = app(ProductTypes::class)->getProductTypeByUid(reset($productTypeOptions));
             if ($productType) {
                 $config['data']['handle'] = $productType->handle;
@@ -360,7 +358,6 @@ class Product extends Element implements HasStoreInterface
     #[Override]
     protected static function defineFieldLayouts(?string $source): array
     {
-        // TODO: migrate to app(ProductTypes::class) once service migrated to src/
         $productTypesService = app(ProductTypes::class);
 
         if ($source === null || $source === '*') {
@@ -389,7 +386,6 @@ class Product extends Element implements HasStoreInterface
             ? Sites::getSiteById($elementQuery->siteId)
             : Sites::getCurrentSite();
 
-        // TODO: migrate to app(ProductTypes::class) once service migrated to src/
         $productTypesService = app(ProductTypes::class);
 
         // Get the product type(s) we need to check permissions on
@@ -494,7 +490,6 @@ class Product extends Element implements HasStoreInterface
             }
 
             if ($currentUser?->can('commerce-managePromotions')) {
-                // TODO: migrate to app(Sales::class)->canUseSales() once the Sales element actions are migrated to src/
                 if (app(Sales::class)->canUseSales()) {
                     $actions[] = CreateSale::class;
                 }
@@ -949,7 +944,6 @@ JS, [
     {
         $productType = $this->getType();
 
-        // TODO: migrate to app(ProductTypes::class)->getViewableProductTypes() once service migrated to src/
         $productTypes = Collection::make(app(ProductTypes::class)->getViewableProductTypes());
 
         $productTypeOptions = $productTypes
@@ -1008,7 +1002,6 @@ JS, [
             throw new \RuntimeException('Product is missing its product type ID');
         }
 
-        // TODO: migrate to app(ProductTypes::class)->getProductTypeById() once service migrated to src/
         $productType = app(ProductTypes::class)->getProductTypeById($this->typeId);
 
         if ($productType === null) {
@@ -1340,7 +1333,6 @@ JS, [
         if ($productType->isStructure && $productType->maxLevels !== 1) {
             $fields[] = (function() use ($static, $productType) {
                 if ($parentId = $this->getParentId()) {
-                    // TODO: migrate to app(Products::class)->getProductById() signature once it accepts criteria
                     $parent = app(Products::class)->getProductById($parentId, $this->siteId, [
                         'drafts' => null,
                         'draftOf' => false,
@@ -1953,7 +1945,7 @@ JS, [
             case 'defaultWeight':
             {
                 if ($productType->hasDimensions) {
-                    return I18N::getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits;
+                    return I18N::getFormatter()->asDecimal($this->$attribute) . ' ' . app(Plugin::class)->getSettings()->weightUnits;
                 }
 
                 return '';
@@ -1963,7 +1955,7 @@ JS, [
             case 'defaultHeight':
             {
                 if ($productType->hasDimensions) {
-                    return I18N::getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits;
+                    return I18N::getFormatter()->asDecimal($this->$attribute) . ' ' . app(Plugin::class)->getSettings()->dimensionUnits;
                 }
 
                 return '';
