@@ -34,7 +34,7 @@ class Purchasables
     public const string EVENT_PURCHASABLE_SHIPPABLE = 'purchasableShippable';
 
     /**
-     * Memoization of purchasables by ID to avoid duplicate queries.
+     * Memoization of purchasables by a composite "id-siteId-forCustomer" key, to avoid duplicate queries.
      */
     private ?Collection $purchasableById = null;
 
@@ -128,7 +128,9 @@ class Purchasables
      */
     public function deletePurchasableById(int $purchasableId): bool
     {
-        $this->purchasableById?->pull($purchasableId);
+        $this->purchasableById?->forget(
+            $this->purchasableById->keys()->filter(fn($key) => str_starts_with((string)$key, "$purchasableId-"))->all()
+        );
 
         return Elements::deleteElementById($purchasableId);
     }
@@ -138,12 +140,17 @@ class Purchasables
      */
     public function getPurchasableById(int $purchasableId, ?int $siteId = null, int|false|null $forCustomer = null): ?PurchasableInterface
     {
-        // @TODO Verify that returning the memoized purchasable regardless of the requested $siteId / $forCustomer is safe, or scope the cache key by those args
-        if ($this->purchasableById !== null && $this->purchasableById->has($purchasableId)) {
-            return $this->purchasableById->get($purchasableId);
+        $siteId ??= Sites::getCurrentSite()->id;
+        $cacheKey = sprintf('%d-%d-%s', $purchasableId, $siteId, match (true) {
+            $forCustomer === false => 'false',
+            $forCustomer === null => 'null',
+            default => (string)$forCustomer,
+        });
+
+        if ($this->purchasableById !== null && $this->purchasableById->has($cacheKey)) {
+            return $this->purchasableById->get($cacheKey);
         }
 
-        $siteId ??= Sites::getCurrentSite()->id;
         $elementType = Elements::getElementTypeById($purchasableId);
 
         if ($elementType === null || !class_exists($elementType)) {
@@ -168,7 +175,7 @@ class Purchasables
         }
 
         $this->purchasableById ??= collect();
-        $this->purchasableById->put($purchasableId, $purchasable);
+        $this->purchasableById->put($cacheKey, $purchasable);
 
         return $purchasable;
     }
