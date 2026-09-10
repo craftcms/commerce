@@ -122,7 +122,7 @@ abstract class BaseSettingsController
     {
         return array_filter([
             ['label' => t('Settings'), 'href' => cp_url('commerce/settings')],
-            $title && $url ? array_filter(['label' => $title, 'href' => $url]) : null,
+            $title && $url ? ['label' => $title, 'href' => $url] : null,
         ]);
     }
 
