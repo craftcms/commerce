@@ -4,39 +4,54 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use CraftCms\Cms\Config\GeneralConfig;
-use CraftCms\Cms\Http\RespondsWithFlash;
+use CraftCms\Cms\Form\Controls\FieldLayoutDesigner;
+use CraftCms\Cms\Form\Enums\ControlMode;
+use CraftCms\Cms\Form\Form;
+use CraftCms\Cms\Form\FormContext;
+use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\Support\Str;
-use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Orders;
 use Symfony\Component\HttpFoundation\Response;
 
-use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
-readonly class OrderSettingsController
+class OrderSettingsController extends BaseSettingsController
 {
-    use RespondsWithFlash;
-
-    private bool $readOnly;
-
-    public function __construct(GeneralConfig $generalConfig)
-    {
-        $this->readOnly = !$generalConfig->allowAdminChanges;
-    }
-
-    public function edit(): string
+    public function edit(): CpScreenResponse
     {
         $fieldLayout = Fields::getLayoutByType(Order::class);
+        $title = t('Order Settings', category: 'commerce');
 
-        return pageTemplate('commerce/settings/ordersettings/_edit', [
-            'fieldLayout' => $fieldLayout,
-            'title' => t('Order Settings', category: 'commerce'),
-            'readOnly' => $this->readOnly,
-        ], TemplateMode::Cp);
+        $form = Form::make([
+            Field::make(null, FieldLayoutDesigner::make('fieldLayout')
+                ->elementType(Order::class)
+                ->withCardViewDesigner()),
+        ]);
+
+        return $this->cpScreenResponse()
+            ->title($title)
+            ->crumbs($this->crumbs($title))
+            ->redirectUrl('commerce/settings/ordersettings')
+            ->inertiaPage('Form', [
+                'form' => $this->formResolver->resolve($form, new FormContext(
+                    values: [
+                        'fieldLayout' => [
+                            'id' => $fieldLayout->id,
+                            'uid' => $fieldLayout->uid,
+                            ...($fieldLayout->getConfig() ?? []),
+                        ],
+                    ],
+                    mode: $this->readOnly ? ControlMode::ReadOnly : ControlMode::Editable,
+                )),
+                'submit' => [
+                    'method' => 'post',
+                    'url' => action([self::class, 'save']),
+                ],
+            ]);
     }
 
     public function save(): Response

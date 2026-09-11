@@ -27,7 +27,6 @@ class CustomerConditionRule extends BaseMultiSelectConditionRule implements Elem
         return t('Customer', category: 'commerce');
     }
 
-    #[Override]
     protected function inputHtml(): string
     {
         $users = User::find()->status(null)->limit(null)->id($this->values)->all();

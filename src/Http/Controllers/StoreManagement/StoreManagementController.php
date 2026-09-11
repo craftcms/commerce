@@ -2,17 +2,16 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Http\Controllers\Settings;
+namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use craft\helpers\Cp;
 use CraftCms\Cms\Address\Elements\Address;
-use CraftCms\Cms\Http\RespondsWithFlash;
+use CraftCms\Cms\Condition\ConditionBuilderRenderer;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Addresses;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Commerce\Address\Conditions\ZoneAddressCondition;
 use CraftCms\Commerce\Helpers\Cp as CommerceCp;
-use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Inventory\InventoryLocations;
 use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Store\Stores;
@@ -24,11 +23,8 @@ use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\t;
 
-readonly class StoreManagementController
+readonly class StoreManagementController extends BaseStoreManagementController
 {
-    use HasStoreManagementScreen;
-    use RespondsWithFlash;
-
     public function __construct(private Plugin $plugin)
     {
     }
@@ -92,7 +88,8 @@ readonly class StoreManagementController
         $condition->mainTag = 'div';
         $condition->name = 'marketAddressCondition';
         $condition->id = 'marketAddressCondition';
-        $marketAddressConditionFieldHtml = Cp::fieldHtml($condition->getBuilderHtml(), [
+        // Condition classes no longer self-render; ConditionBuilderRenderer replaces the old getBuilderHtml()/builderHtml().
+        $marketAddressConditionFieldHtml = Cp::fieldHtml(new ConditionBuilderRenderer($condition)->render(), [
             'label' => t('Order Address Condition'),
             'instructions' => t('Only allow orders with addresses that match the following rules:'),
         ]);

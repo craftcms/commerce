@@ -40,7 +40,6 @@ class CatalogPricingCustomerConditionRule extends BaseConditionRule implements C
         ]);
     }
 
-    #[Override]
     protected function inputHtml(): string
     {
         return Html::hiddenLabel($this->getLabel(), 'customer') .

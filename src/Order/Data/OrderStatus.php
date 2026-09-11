@@ -7,6 +7,7 @@ namespace CraftCms\Commerce\Order\Data;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Component\Contracts\Chippable;
 use CraftCms\Cms\Cp\Html\StatusHtml;
+use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Order\Elements\Order;
@@ -89,7 +90,10 @@ class OrderStatus extends Component implements HasStoreInterface, Chippable
 
     public function getCpEditUrl(): string
     {
-        return $this->getStore()->getStoreSettingsUrl('orderstatuses/' . $this->id);
+        // getStoreSettingsUrl() points at commerce/store-management/..., but order statuses
+        // live under commerce/settings/orderstatuses/... — build that URL directly, matching
+        // the sibling LineItemStatus::getCpEditUrl().
+        return Url::cpUrl('commerce/settings/orderstatuses/' . $this->getStore()->handle . '/' . $this->id);
     }
 
     public function getEmailIds(): array

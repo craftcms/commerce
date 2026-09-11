@@ -49,7 +49,6 @@ class VariantConditionRule extends BaseElementSelectConditionRule implements Ele
         return true;
     }
 
-    #[Override]
     protected function elementSelectConfig(): array
     {
         return array_merge(parent::elementSelectConfig(), [

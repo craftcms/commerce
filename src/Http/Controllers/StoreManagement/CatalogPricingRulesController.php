@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Http\Controllers\Settings;
+namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use craft\helpers\Cp;
 use craft\helpers\Localization;
-use CraftCms\Cms\Http\RespondsWithFlash;
+use CraftCms\Cms\Condition\ConditionBuilderRenderer;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\Conditions;
@@ -26,7 +26,6 @@ use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingRuleVariantConditi
 use CraftCms\Commerce\CatalogPricing\Data\CatalogPricingRule;
 use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingRule as CatalogPricingRuleRecord;
 use CraftCms\Commerce\Helpers\Currency;
-use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableCondition;
 use CraftCms\Commerce\Purchasable\Conditions\PurchasableConditionRule;
@@ -38,11 +37,8 @@ use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\t;
 
-readonly class CatalogPricingRulesController
+readonly class CatalogPricingRulesController extends BaseStoreManagementController
 {
-    use HasStoreManagementScreen;
-    use RespondsWithFlash;
-
     public function index(?string $storeHandle = null): CpScreenResponse
     {
         $store = $this->resolveStore($storeHandle);
@@ -371,6 +367,12 @@ JS;
             ['label' => t('Original price', category: 'commerce'), 'value' => 'price'],
             ['label' => t('Original promotional price', category: 'commerce'), 'value' => 'promotionalPrice'],
         ];
+
+        // Condition classes no longer self-render; ConditionBuilderRenderer replaces the old getBuilderHtml()/builderHtml().
+        $variables['productConditionHtml'] = new ConditionBuilderRenderer($catalogPricingRule->getProductCondition())->render();
+        $variables['variantConditionHtml'] = new ConditionBuilderRenderer($catalogPricingRule->getVariantCondition())->render();
+        $variables['purchasableConditionHtml'] = new ConditionBuilderRenderer($catalogPricingRule->getPurchasableCondition())->render();
+        $variables['customerConditionHtml'] = new ConditionBuilderRenderer($catalogPricingRule->getCustomerCondition())->render();
 
         return $variables;
     }

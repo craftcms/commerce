@@ -300,9 +300,9 @@ class Stores
             $isNewStore = !$storeRecord->exists;
 
             $storeRecord->uid = $storeUid;
-            $storeRecord->name = $data['name'];
-            $storeRecord->handle = $data['handle'];
-            $storeRecord->primary = $data['primary'];
+            $storeRecord->name = $data['name'] ?? $storeRecord->name;
+            $storeRecord->handle = $data['handle'] ?? $storeRecord->handle;
+            $storeRecord->primary = $data['primary'] ?? $storeRecord->primary;
 
             $storeRecord->autoSetNewCartAddresses = ($data['autoSetNewCartAddresses'] ?? false);
             $storeRecord->autoSetCartShippingMethodOption = ($data['autoSetCartShippingMethodOption'] ?? false);
@@ -562,10 +562,12 @@ class Stores
     public function getSiteIdsAvailableForAssignmentToNewStores(): array
     {
         // Sites that are assigned to more than one store
+        // Note: COUNT(*) here, not COUNT(storeId) — the latter is an unquoted identifier inside
+        // raw SQL, which Postgres folds to lowercase (`storeid`), a column that doesn't exist.
         $storeIds = DB::table(Table::SITESTORES)
             ->select('storeId')
             ->groupBy('storeId')
-            ->havingRaw('COUNT(storeId) > 1')
+            ->havingRaw('COUNT(*) > 1')
             ->pluck('storeId');
 
         return DB::table(Table::SITESTORES)

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Customer\Conditions;
 
 use CraftCms\Cms\Condition\BaseNumberConditionRule;
+use CraftCms\Cms\Condition\ConditionBuilderRenderer;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
@@ -58,7 +59,6 @@ class HasOrdersConditionRule extends BaseNumberConditionRule implements ElementC
         throw new RuntimeException('Has orders condition rule does not support queries');
     }
 
-    #[Override]
     public function getHtml(): string
     {
         $html = Html::tag('label', t('Total Orders', category: 'commerce'), [
@@ -78,7 +78,8 @@ class HasOrdersConditionRule extends BaseNumberConditionRule implements ElementC
                 'color' => '#596673',
             ],
         ]);
-        $html .= Html::tag('div', $this->getOrderCondition()->getBuilderHtml(), ['style' => ['margin-top' => '0.5rem']]);
+        // Condition classes no longer self-render; ConditionBuilderRenderer replaces the old getBuilderHtml()/builderHtml().
+        $html .= Html::tag('div', new ConditionBuilderRenderer($this->getOrderCondition())->render(), ['style' => ['margin-top' => '0.5rem']]);
 
         return $html;
     }

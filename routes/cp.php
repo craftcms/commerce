@@ -4,31 +4,32 @@ use CraftCms\Cms\Http\Controllers\Elements\EditElementController;
 use CraftCms\Cms\Http\Middleware\RequireAdmin;
 use CraftCms\Commerce\Http\Controllers\DonationsController;
 use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingController;
-use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingRulesController;
-use CraftCms\Commerce\Http\Controllers\Settings\DiscountsController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingRulesController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\DiscountsController;
 use CraftCms\Commerce\Http\Controllers\Settings\EmailsController;
 use CraftCms\Commerce\Http\Controllers\Settings\GatewaysController;
 use CraftCms\Commerce\Http\Controllers\InventoryController;
 use CraftCms\Commerce\Http\Controllers\InventoryLocationsController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
+use CraftCms\Commerce\Http\Controllers\Settings\GeneralSettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\LineItemStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderSettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController;
-use CraftCms\Commerce\Http\Controllers\Settings\PaymentCurrenciesController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\PaymentCurrenciesController;
 use CraftCms\Commerce\Http\Controllers\Settings\PdfsController;
 use CraftCms\Commerce\Http\Controllers\ProductsController;
 use CraftCms\Commerce\Http\Controllers\Settings\ProductTypesController;
-use CraftCms\Commerce\Http\Controllers\Settings\SalesController;
-use CraftCms\Commerce\Http\Controllers\Settings\SettingsController;
-use CraftCms\Commerce\Http\Controllers\Settings\ShippingCategoriesController;
-use CraftCms\Commerce\Http\Controllers\Settings\ShippingMethodsController;
-use CraftCms\Commerce\Http\Controllers\Settings\ShippingRulesController;
-use CraftCms\Commerce\Http\Controllers\Settings\ShippingZonesController;
-use CraftCms\Commerce\Http\Controllers\Settings\StoreManagementController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\SalesController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\ShippingCategoriesController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\ShippingMethodsController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\ShippingRulesController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\ShippingZonesController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\StoreManagementController;
 use CraftCms\Commerce\Http\Controllers\Settings\StoresController;
-use CraftCms\Commerce\Http\Controllers\Settings\TaxCategoriesController;
-use CraftCms\Commerce\Http\Controllers\Settings\TaxRatesController;
-use CraftCms\Commerce\Http\Controllers\Settings\TaxZonesController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\TaxCategoriesController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\TaxRatesController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\TaxZonesController;
+use CraftCms\Commerce\Http\Controllers\Settings\TransferSettingsController;
 use CraftCms\Commerce\Http\Controllers\TransfersController;
 use CraftCms\Commerce\Http\Controllers\Users\UsersController;
 use CraftCms\Commerce\Http\Controllers\VariantsController;
@@ -43,9 +44,9 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
         Route::get('commerce/settings/gateways/new', [GatewaysController::class, 'edit']);
         Route::get('commerce/settings/gateways/{id}', [GatewaysController::class, 'edit'])->whereNumber('id');
 
-        Route::get('commerce/settings/general', [SettingsController::class, 'edit']);
+        Route::get('commerce/settings/general', [GeneralSettingsController::class, 'edit']);
         Route::get('commerce/settings/ordersettings', [OrderSettingsController::class, 'edit']);
-        Route::get('commerce/settings/transfers', [SettingsController::class, 'editTransferSettings']);
+        Route::get('commerce/settings/transfers', [TransferSettingsController::class, 'editTransferSettings']);
 
         Route::get('commerce/settings/stores', [StoresController::class, 'storesIndex']);
         Route::get('commerce/settings/stores/new', [StoresController::class, 'editStore']);
@@ -62,6 +63,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
 
         Route::get('commerce/settings/producttypes', [ProductTypesController::class, 'productTypeIndex']);
         Route::get('commerce/settings/producttypes/new', [ProductTypesController::class, 'editProductType']);
+        Route::post('commerce/settings/producttypes/render-form', [ProductTypesController::class, 'renderForm']);
         Route::get('commerce/settings/producttypes/{productTypeId}', [ProductTypesController::class, 'editProductType'])->whereNumber('productTypeId');
 
         Route::get('commerce/settings/emails', [EmailsController::class, 'index']);
