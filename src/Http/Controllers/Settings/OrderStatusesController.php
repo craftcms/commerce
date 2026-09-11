@@ -56,8 +56,17 @@ class OrderStatusesController extends BaseSettingsController
         $stores = app(Stores::class)->getAllStores();
         $isMultiStore = $stores->count() > 1;
 
+        // Every store's table can plant its own create action in the page's shared actions
+        // slot, so with more than one store, only the first store's table gets one — a single
+        // combined "New order status" menu covering every store, rather than one button apiece.
+        $createMenuItems = $this->readOnly ? [] : $stores->map(fn(Store $store) => [
+            'label' => $store->name,
+            'url' => cp_url("commerce/settings/orderstatuses/{$store->handle}/new"),
+        ])->all();
+        $createMenuAssigned = false;
+
         $nodes = [];
-        $stores->each(function(Store $store) use (&$nodes, $isMultiStore) {
+        $stores->each(function(Store $store) use (&$nodes, $isMultiStore, $createMenuItems, &$createMenuAssigned) {
             if ($isMultiStore) {
                 $nodes[] = Heading::make("{$store->handle}-heading", $store->name);
             }
@@ -92,15 +101,10 @@ class OrderStatusesController extends BaseSettingsController
                 ])
                 ->rows($rows)
                 ->emptyMessage(t('No order statuses exist yet.', category: 'commerce'))
-                ->createAction(
-                    // Each store's table plants its own create button in the shared page-actions
-                    // slot, so with more than one store the label needs the store name to tell
-                    // the resulting buttons apart.
-                    $this->readOnly ? null : ($isMultiStore
-                        ? t('New {store} order status', ['store' => $store->name], category: 'commerce')
-                        : t('New order status', category: 'commerce')),
-                    $this->readOnly ? null : cp_url("commerce/settings/orderstatuses/{$store->handle}/new"),
-                )
+                ->when(!$createMenuAssigned && $createMenuItems, function(Table $table) use ($createMenuItems, &$createMenuAssigned) {
+                    $table->createActionMenu(t('New order status', category: 'commerce'), $createMenuItems);
+                    $createMenuAssigned = true;
+                })
                 ->when(!$this->readOnly, fn(Table $table) => $table
                     ->reorderable(action([self::class, 'reorder']))
                     ->deletable(action([self::class, 'delete'])));
