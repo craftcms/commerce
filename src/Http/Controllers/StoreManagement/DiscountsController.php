@@ -47,7 +47,6 @@ use function CraftCms\Cms\t;
 
 readonly class DiscountsController extends BaseStoreManagementController
 {
-
     public const string DISCOUNT_COUNTER_TYPE_TOTAL = 'total';
     public const string DISCOUNT_COUNTER_TYPE_EMAIL = 'email';
     public const string DISCOUNT_COUNTER_TYPE_CUSTOMER = 'customer';

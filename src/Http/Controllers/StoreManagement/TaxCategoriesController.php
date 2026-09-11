@@ -26,7 +26,6 @@ use function CraftCms\Cms\t;
 
 readonly class TaxCategoriesController extends BaseStoreManagementController
 {
-
     public function index(?string $storeHandle = null): CpScreenResponse
     {
         $store = $this->resolveStore($storeHandle);

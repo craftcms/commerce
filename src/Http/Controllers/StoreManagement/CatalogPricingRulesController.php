@@ -39,7 +39,6 @@ use function CraftCms\Cms\t;
 
 readonly class CatalogPricingRulesController extends BaseStoreManagementController
 {
-
     public function index(?string $storeHandle = null): CpScreenResponse
     {
         $store = $this->resolveStore($storeHandle);

@@ -27,7 +27,6 @@ use function CraftCms\Cms\t;
 
 readonly class ShippingRulesController extends BaseStoreManagementController
 {
-
     public function edit(?string $storeHandle = null, ?int $methodId = null, ?int $ruleId = null): string
     {
         $store = $this->resolveStore($storeHandle);

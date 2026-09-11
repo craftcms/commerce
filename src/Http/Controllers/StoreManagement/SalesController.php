@@ -36,7 +36,6 @@ use function CraftCms\Cms\t;
 
 readonly class SalesController extends BaseStoreManagementController
 {
-
     private function guard(): void
     {
         abort_unless(app(Sales::class)->canUseSales(), 403, 'Unable to use sales while using multi store or pricing rules.');
