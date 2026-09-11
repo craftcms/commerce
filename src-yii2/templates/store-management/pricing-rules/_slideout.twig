@@ -36,15 +36,11 @@
     errors: catalogPricingRule.getErrors('dateTo'),
   }) }}
 
-  {% set customerConditionInput %}
-    {{ catalogPricingRule.customerCondition.getBuilderHtml()|raw }}
-  {% endset %}
-
   {{ forms.field({
     id: 'customerCondition',
     label: 'Match Customer'|t('commerce'),
     errors: catalogPricingRule.getErrors('customerCondition')
-  }, customerConditionInput) }}
+  }, customerConditionHtml) }}
 </div>
 
 <div id="actions" class="hidden">

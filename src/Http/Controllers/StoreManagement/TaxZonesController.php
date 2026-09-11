@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use craft\helpers\Cp;
+use CraftCms\Cms\Condition\ConditionBuilderRenderer;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
@@ -90,6 +91,9 @@ JS;
         $condition->name = 'condition';
         $condition->id = 'condition';
 
+        // Condition classes no longer self-render; ConditionBuilderRenderer replaces the old getBuilderHtml()/builderHtml().
+        $conditionHtml = new ConditionBuilderRenderer($condition)->render();
+
         $metaSidebar = '';
         if ($taxZone->id) {
             $metaSidebar = Cp::metadataHtml([
@@ -108,7 +112,7 @@ JS;
             ->contentTemplate('commerce/store-management/tax/taxzones/_edit', [
                 'taxZone' => $taxZone,
                 'store' => $store,
-                'condition' => $condition,
+                'conditionHtml' => $conditionHtml,
             ]);
     }
 

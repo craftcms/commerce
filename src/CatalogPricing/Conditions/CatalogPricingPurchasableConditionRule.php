@@ -65,7 +65,6 @@ class CatalogPricingPurchasableConditionRule extends BaseConditionRule implement
         ]);
     }
 
-    #[Override]
     protected function inputHtml(): string
     {
         $id = 'purchasable';

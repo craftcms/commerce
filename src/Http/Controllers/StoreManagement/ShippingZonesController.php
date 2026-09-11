@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
+use CraftCms\Cms\Condition\ConditionBuilderRenderer;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
@@ -80,6 +81,9 @@ JS;
         $condition->name = 'condition';
         $condition->id = 'condition';
 
+        // Condition classes no longer self-render; ConditionBuilderRenderer replaces the old getBuilderHtml()/builderHtml().
+        $conditionHtml = new ConditionBuilderRenderer($condition)->render();
+
         $metadata = [];
         if ($shippingZone->id) {
             $metadata = [
@@ -96,7 +100,7 @@ JS;
             ->metaSidebarHtml(\craft\helpers\Cp::metadataHtml($metadata))
             ->contentTemplate('commerce/store-management/shipping/shippingzones/_edit', [
                 'shippingZone' => $shippingZone,
-                'condition' => $condition,
+                'conditionHtml' => $conditionHtml,
                 'store' => $store,
             ]);
     }

@@ -50,7 +50,6 @@ class VariantProductConditionRule extends BaseElementSelectConditionRule impleme
         return true;
     }
 
-    #[Override]
     protected function elementSelectConfig(): array
     {
         return array_merge(parent::elementSelectConfig(), [

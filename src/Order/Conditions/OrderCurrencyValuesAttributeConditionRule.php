@@ -69,7 +69,6 @@ abstract class OrderCurrencyValuesAttributeConditionRule extends BaseNumberCondi
         $query->{$this->orderAttribute}($this->paramValue());
     }
 
-    #[Override]
     protected function inputHtml(): string
     {
         // don't show the value input if the condition checks for empty/notempty
@@ -98,7 +97,6 @@ abstract class OrderCurrencyValuesAttributeConditionRule extends BaseNumberCondi
     }
 
     /** @return array<string, mixed> */
-    #[Override]
     protected function inputOptions(): array
     {
         $value = is_numeric($this->value) ? MoneyHelper::toNumber(MoneyHelper::toMoney(['value' => $this->value, 'currency' => $this->currencyCode()])) : $this->value;

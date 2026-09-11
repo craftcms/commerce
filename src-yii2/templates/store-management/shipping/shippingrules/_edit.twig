@@ -114,15 +114,11 @@
     <div id="conditions-tab" class="hidden">
         <p>{{ "Filtering conditions which describe to which orders this rule is applicable to. Write 0 to skip a condition."|t('commerce') }}</p>
 
-        {% set orderConditionInput %}
-          {{ shippingRule.orderCondition.getBuilderHtml()|raw }}
-        {% endset %}
-
         {{ forms.field({
           id: 'orderCondition',
           label: 'Match Order'|t('commerce'),
           errors: shippingRule.getErrors('orderCondition')
-        }, orderConditionInput) }}
+        }, orderConditionHtml) }}
 
         <a class="fieldtoggle {% if shippingRule.orderConditionFormula %}expanded{% endif %}"
            data-target="orderConditionFormula-advanced">{{ 'Advanced'|t('commerce') }}</a>
@@ -157,15 +153,11 @@
 
         <hr>
 
-        {% set customerConditionInput %}
-          {{ shippingRule.customerCondition.getBuilderHtml()|raw }}
-        {% endset %}
-
         {{ forms.field({
           id: 'customerCondition',
           label: 'Match Customer'|t('commerce'),
           errors: shippingRule.getErrors('customerCondition')
-        }, customerConditionInput) }}
+        }, customerConditionHtml) }}
 
       <hr>
 

@@ -101,7 +101,6 @@ class ContainsPurchasablesConditionRule extends BaseElementSelectConditionRule i
         ]);
     }
 
-    #[Override]
     protected function inputHtml(): string
     {
         $matchId = 'match';
@@ -175,7 +174,6 @@ class ContainsPurchasablesConditionRule extends BaseElementSelectConditionRule i
         );
     }
 
-    #[Override]
     protected function elementSelectConfig(): array
     {
         return array_merge(parent::elementSelectConfig(), [

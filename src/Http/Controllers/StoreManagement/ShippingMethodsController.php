@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use craft\helpers\Cp;
+use CraftCms\Cms\Condition\ConditionBuilderRenderer;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
@@ -134,6 +135,10 @@ JS;
             ]);
         }
 
+        // Condition classes no longer self-render; ConditionBuilderRenderer replaces the old getBuilderHtml()/builderHtml().
+        $orderConditionHtml = new ConditionBuilderRenderer($shippingMethod->getOrderCondition())->render();
+        $customerConditionHtml = new ConditionBuilderRenderer($shippingMethod->getCustomerCondition())->render();
+
         return $this->storeManagementCpScreen($storeHandle, false)
             ->title($title)
             ->action('commerce/shipping-methods/save')
@@ -146,6 +151,8 @@ JS;
                 'shippingRules' => $shippingRules,
                 'store' => $store,
                 'storeHandle' => $storeHandle,
+                'orderConditionHtml' => $orderConditionHtml,
+                'customerConditionHtml' => $customerConditionHtml,
             ]);
     }
 

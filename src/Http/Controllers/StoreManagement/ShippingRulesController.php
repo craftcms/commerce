@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use craft\helpers\Localization;
+use CraftCms\Cms\Condition\ConditionBuilderRenderer;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\InputNamespace;
 use CraftCms\Cms\Support\Facades\Template;
@@ -60,6 +61,10 @@ readonly class ShippingRulesController extends BaseStoreManagementController
 
         $title = $ruleId ? $shippingRule->name : t('Create a new shipping rule', category: 'commerce');
 
+        // Condition classes no longer self-render; ConditionBuilderRenderer replaces the old getBuilderHtml()/builderHtml().
+        $orderConditionHtml = new ConditionBuilderRenderer($shippingRule->getOrderCondition())->render();
+        $customerConditionHtml = new ConditionBuilderRenderer($shippingRule->getCustomerCondition())->render();
+
         $shippingZones = app(ShippingZones::class)->getAllShippingZones($store->id)->all();
         $shippingZoneOptions = [];
         $shippingZoneOptions[] = t('Anywhere', category: 'commerce');
@@ -78,6 +83,8 @@ readonly class ShippingRulesController extends BaseStoreManagementController
             'ruleId' => $ruleId,
             'shippingRule' => $shippingRule,
             'shippingMethod' => $shippingMethod,
+            'orderConditionHtml' => $orderConditionHtml,
+            'customerConditionHtml' => $customerConditionHtml,
             'newShippingZoneFields' => $newShippingZoneFields,
             'newShippingZoneJs' => $newShippingZoneJs,
             'title' => $title,

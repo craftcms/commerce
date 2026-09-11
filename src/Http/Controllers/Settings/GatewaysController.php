@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
+use CraftCms\Cms\Condition\ConditionBuilderRenderer;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Database\Table;
@@ -86,6 +87,11 @@ class GatewaysController extends BaseSettingsController
             }
         }
 
+        // Condition classes no longer self-render; ConditionBuilderRenderer replaces the old getBuilderHtml()/builderHtml().
+        $renderCondition = fn($condition) => $this->readOnly
+            ? Html::disableInputs(fn() => new ConditionBuilderRenderer($condition)->render())
+            : new ConditionBuilderRenderer($condition)->render();
+
         return pageTemplate('commerce/settings/gateways/_edit', [
             'id' => $id,
             'gateway' => $gateway,
@@ -94,6 +100,9 @@ class GatewaysController extends BaseSettingsController
             'gatewayOptions' => $gatewayOptions,
             'title' => $gateway->id ? $gateway->name : t('Create a new gateway', category: 'commerce'),
             'readOnly' => $this->readOnly,
+            'orderConditionHtml' => $renderCondition($gateway->getOrderCondition()),
+            'billingAddressConditionHtml' => $renderCondition($gateway->getBillingAddressCondition()),
+            'shippingAddressConditionHtml' => $renderCondition($gateway->getShippingAddressCondition()),
         ], TemplateMode::Cp);
     }
 

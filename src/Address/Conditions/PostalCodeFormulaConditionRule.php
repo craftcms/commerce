@@ -58,7 +58,6 @@ class PostalCodeFormulaConditionRule extends BaseTextConditionRule implements El
         ];
     }
 
-    #[\Override]
     protected function inputHtml(): string
     {
         return Html::hiddenLabel($this->getLabel(), 'value') .

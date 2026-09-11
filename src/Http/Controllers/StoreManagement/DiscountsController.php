@@ -8,6 +8,7 @@ use craft\commerce\web\assets\coupons\CouponsAsset;
 use craft\db\Query;
 use craft\elements\Category;
 use craft\helpers\AdminTable;
+use CraftCms\Cms\Condition\ConditionBuilderRenderer;
 use CraftCms\Cms\Edition;
 use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
@@ -603,6 +604,12 @@ JS;
             $variables['emailUsage'] = 0;
             $variables['customerUsage'] = 0;
         }
+
+        // Condition classes no longer self-render; ConditionBuilderRenderer replaces the old getBuilderHtml()/builderHtml().
+        $variables['orderConditionHtml'] = new ConditionBuilderRenderer($discount->getOrderCondition())->render();
+        $variables['customerConditionHtml'] = new ConditionBuilderRenderer($discount->getCustomerCondition())->render();
+        $variables['shippingAddressConditionHtml'] = new ConditionBuilderRenderer($discount->getShippingAddressCondition())->render();
+        $variables['billingAddressConditionHtml'] = new ConditionBuilderRenderer($discount->getBillingAddressCondition())->render();
 
         $variables['categoryElementType'] = Category::class;
         $variables['entryElementType'] = Entry::class;

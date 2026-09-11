@@ -77,7 +77,6 @@ class HasPurchasableConditionRule extends BaseElementSelectConditionRule impleme
         ]);
     }
 
-    #[Override]
     protected function inputHtml(): string
     {
         $id = 'purchasable-type';
@@ -126,7 +125,6 @@ class HasPurchasableConditionRule extends BaseElementSelectConditionRule impleme
         return $options;
     }
 
-    #[Override]
     protected function elementSelectConfig(): array
     {
         return array_merge(parent::elementSelectConfig(), [
