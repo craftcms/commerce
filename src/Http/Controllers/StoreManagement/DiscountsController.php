@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Http\Controllers\Settings;
+namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use craft\commerce\web\assets\coupons\CouponsAsset;
 use craft\db\Query;
@@ -10,7 +10,6 @@ use craft\elements\Category;
 use craft\helpers\AdminTable;
 use CraftCms\Cms\Edition;
 use CraftCms\Cms\Entry\Elements\Entry;
-use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\DateTimeHelper;
@@ -26,7 +25,6 @@ use CraftCms\Cms\Translation\Locale;
 use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Localization;
-use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Promotion\Coupons;
@@ -46,10 +44,8 @@ use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\t;
 
-readonly class DiscountsController
+readonly class DiscountsController extends BaseStoreManagementController
 {
-    use HasStoreManagementScreen;
-    use RespondsWithFlash;
 
     public const string DISCOUNT_COUNTER_TYPE_TOTAL = 'total';
     public const string DISCOUNT_COUNTER_TYPE_EMAIL = 'email';

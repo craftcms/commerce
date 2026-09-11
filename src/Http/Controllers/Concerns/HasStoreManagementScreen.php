@@ -19,7 +19,12 @@ use function CraftCms\Cms\t;
  * (shipping, tax, promotions, payment currencies, etc). Every controller that needs it resolves
  * its own `Store` from a `storeHandle` route segment — there's no framework-level route binding
  * for handle-scoped resources in cms-6 (confirmed: every handle-scoped core controller does the
- * same manual resolve-and-404), so this stays a plain trait rather than a shared base class.
+ * same manual resolve-and-404) — so `resolveStore()` stays a plain method taking `$storeHandle`
+ * as a parameter, not something a shared base class could inject via its constructor.
+ *
+ * This still lives as a trait, mixed into {@see \CraftCms\Commerce\Http\Controllers\StoreManagement\BaseStoreManagementController}
+ * rather than inlined there directly, so the per-call resolution above isn't mistaken for
+ * something the base class's constructor could have done instead.
  */
 trait HasStoreManagementScreen
 {

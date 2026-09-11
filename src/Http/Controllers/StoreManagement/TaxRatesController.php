@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Http\Controllers\Settings;
+namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use craft\helpers\Cp;
-use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
@@ -15,7 +14,6 @@ use CraftCms\Cms\Translation\Locale;
 use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Helpers\Cp as CommerceCp;
 use CraftCms\Commerce\Helpers\Localization;
-use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Tax\Data\TaxRate;
 use CraftCms\Commerce\Tax\Models\TaxRate as TaxRateRecord;
 use CraftCms\Commerce\Tax\TaxCategories;
@@ -28,10 +26,8 @@ use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\t;
 
-readonly class TaxRatesController
+readonly class TaxRatesController extends BaseStoreManagementController
 {
-    use HasStoreManagementScreen;
-    use RespondsWithFlash;
 
     public function index(?string $storeHandle = null): CpScreenResponse
     {

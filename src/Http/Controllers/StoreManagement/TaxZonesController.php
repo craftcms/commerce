@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Http\Controllers\Settings;
+namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use craft\helpers\Cp;
-use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
@@ -13,7 +12,6 @@ use CraftCms\Cms\Support\Html as NewHtml;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Formula\Formulas;
-use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Tax\Data\TaxAddressZone;
 use CraftCms\Commerce\Tax\TaxZones;
 
@@ -21,10 +19,8 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\t;
 
-readonly class TaxZonesController
+readonly class TaxZonesController extends BaseStoreManagementController
 {
-    use HasStoreManagementScreen;
-    use RespondsWithFlash;
 
     public function index(?string $storeHandle = null): CpScreenResponse
     {

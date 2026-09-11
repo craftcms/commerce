@@ -2,17 +2,15 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Http\Controllers\Settings;
+namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use craft\helpers\Localization;
-use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\InputNamespace;
 use CraftCms\Cms\Support\Facades\Template;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Money;
 use CraftCms\Cms\View\TemplateMode;
-use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Shipping\Data\ShippingAddressZone;
 use CraftCms\Commerce\Shipping\Data\ShippingRule;
 use CraftCms\Commerce\Shipping\Data\ShippingRuleCategory;
@@ -26,10 +24,8 @@ use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
-readonly class ShippingRulesController
+readonly class ShippingRulesController extends BaseStoreManagementController
 {
-    use HasStoreManagementScreen;
-    use RespondsWithFlash;
 
     public function edit(?string $storeHandle = null, ?int $methodId = null, ?int $ruleId = null): string
     {
