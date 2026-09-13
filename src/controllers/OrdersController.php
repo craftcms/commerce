@@ -938,7 +938,9 @@ JS, []);
 
         $attributes = $this->request->getRequiredParam('address');
 
-        $attributes += ['class' => Address::class];
+        // Never let a caller override the class to instantiate; only `Address` is supported here.
+        unset($attributes['class']);
+        $attributes = ['class' => Address::class] + $attributes;
 
         $address = Craft::createObject($attributes);
 
