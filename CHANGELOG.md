@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) RCE vulnerability. 
+
 ## 5.7.3 - 2026-09-02
 
 - Fixed a bug where `craft\commerce\elements\Order::setShippingAddress()` and `setBillingAddress()` weren’t setting custom field values. ([#4353](https://github.com/craftcms/commerce/issues/4353))
