@@ -938,7 +938,7 @@ JS, []);
 
         $attributes = $this->request->getRequiredParam('address');
 
-        // Never let a caller override the class to instantiate; only `Address` is supported here.
+        // Never let a caller override the class to instantiate
         unset($attributes['class']);
         $attributes = ['class' => Address::class] + $attributes;
 
