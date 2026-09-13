@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) RCE vulnerability. 
+- Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerability.
 
 ## 5.7.3 - 2026-09-02
 
