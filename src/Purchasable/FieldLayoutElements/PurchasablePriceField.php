@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Purchasable\FieldLayoutElements;
 
-use craft\commerce\web\assets\purchasablepricefield\PurchasablePriceFieldAsset;
-use craft\web\assets\htmx\HtmxAsset;
 use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
@@ -16,6 +14,7 @@ use CraftCms\Cms\Support\Facades\InputNamespace;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\View\Enums\Position;
+use CraftCms\Cms\View\LegacyAssets\InternalAssetRegistry;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
@@ -25,6 +24,7 @@ use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
 use CraftCms\Commerce\Promotion\Data\Sale;
 use CraftCms\Commerce\Promotion\Sales;
+use CraftCms\Commerce\Purchasable\Assets\PurchasablePriceFieldAsset;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use InvalidArgumentException;
 use Override;
@@ -53,11 +53,7 @@ class PurchasablePriceField extends BaseNativeField
 
     protected function inputHtml(?ElementInterface $element = null, bool $static = false): ?string
     {
-        // TODO: these still register legacy yii2 AssetBundles (`craft\web\assets\htmx\HtmxAsset`,
-        // `craft\commerce\web\assets\purchasablepricefield\PurchasablePriceFieldAsset`) via the
-        // yii2-adapter bridge, since Commerce's own webpack-built CP assets haven't been ported to
-        // a native `HtmlStack`-based registration mechanism yet.
-        \Craft::$app->getView()->registerAssetBundle(HtmxAsset::class);
+        app(InternalAssetRegistry::class)->register(PurchasablePriceFieldAsset::class);
 
         if (!$element instanceof Purchasable) {
             throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
@@ -93,8 +89,6 @@ class PurchasablePriceField extends BaseNativeField
         ]);
         $catalogPricingCondition->addConditionRule($purchasableConditionRule);
         $conditionBuilderConfig = Json::encode($catalogPricingCondition->getConfig());
-
-        \Craft::$app->getView()->registerAssetBundle(PurchasablePriceFieldAsset::class);
 
         $js = <<<JS
 (() => {

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use craft\commerce\web\assets\inventory\InventoryAsset;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\enums\MenuItemType;
@@ -16,9 +15,11 @@ use CraftCms\Cms\Http\Responses\CpModalResponse;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\View\LegacyAssets\InternalAssetRegistry;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
+use CraftCms\Commerce\Inventory\Assets\InventoryAsset;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
 use CraftCms\Commerce\Inventory\Data\InventoryManualMovement;
@@ -93,7 +94,7 @@ readonly class InventoryController
 
     public function editLocationLevels(Request $request, ?string $inventoryLocationHandle = null): Response|CpScreenResponse
     {
-        \Craft::$app->getView()->registerAssetBundle(InventoryAsset::class);
+        app(InternalAssetRegistry::class)->register(InventoryAsset::class);
 
         $inventoryItemId = $request->query('inventoryItemId'); // Used for quick link to manage stock
         $inventoryLocations = app(InventoryLocations::class)->getAllInventoryLocations();
