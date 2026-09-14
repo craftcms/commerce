@@ -11,6 +11,7 @@ use Craft;
 use craft\base\Widget;
 use craft\commerce\base\StatWidgetTrait;
 use craft\commerce\behaviors\StoreBehavior;
+use craft\commerce\Plugin;
 use craft\commerce\stats\TopPurchasables as TopPurchasablesStat;
 use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
@@ -70,9 +71,9 @@ class TopPurchasables extends Widget
     public function init(): void
     {
         if (!(isset($this->storeId)) || !$this->storeId) {
-            /** @var Site|StoreBehavior $site */
+            /** @var Site|StoreBehavior|null $site */
             $site = Cp::requestedSite();
-            $this->storeId = $site->getStore()->id;
+            $this->storeId = $site?->getStore()->id ?? Plugin::getInstance()->getStores()->getPrimaryStore()->id;
         }
 
         $this->nameField = isset($this->nameField) ?: 'description';
