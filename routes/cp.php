@@ -42,6 +42,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
     Route::middleware(RequireAdmin::class)->group(function () {
         Route::get('commerce/settings/gateways', [GatewaysController::class, 'index']);
         Route::get('commerce/settings/gateways/new', [GatewaysController::class, 'edit']);
+        Route::post('commerce/settings/gateways/render-form', [GatewaysController::class, 'renderForm']);
         Route::get('commerce/settings/gateways/{id}', [GatewaysController::class, 'edit'])->whereNumber('id');
 
         Route::get('commerce/settings/general', [GeneralSettingsController::class, 'edit']);
