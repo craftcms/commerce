@@ -40,6 +40,8 @@ class PlansController extends BaseCpController
      */
     public function actionPlanIndex(): Response
     {
+        $this->requirePermission('commerce-manageSubscriptionPlans');
+
         $plans = Plugin::getInstance()->getPlans()->getAllPlans();
 
         return $this->asCpScreen()
@@ -68,7 +70,7 @@ class PlansController extends BaseCpController
      */
     public function actionEditPlan(int $planId = null, Plan $plan = null): Response
     {
-        $this->requirePermission('commerce-manageSubscriptions');
+        $this->requirePermission('commerce-manageSubscriptionPlans');
 
         $variables = compact('planId', 'plan');
 
@@ -159,7 +161,7 @@ class PlansController extends BaseCpController
      */
     public function actionSavePlan(): void
     {
-        $this->requirePermission('commerce-manageSubscriptions');
+        $this->requirePermission('commerce-manageSubscriptionPlans');
 
         $this->requirePostRequest();
 
@@ -221,7 +223,7 @@ class PlansController extends BaseCpController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $this->requirePermission('commerce-manageSubscriptions');
+        $this->requirePermission('commerce-manageSubscriptionPlans');
 
         $planId = $this->request->getRequiredBodyParam('id');
 
@@ -241,6 +243,8 @@ class PlansController extends BaseCpController
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
+        $this->requirePermission('commerce-manageSubscriptionPlans');
+
         $ids = Json::decode($this->request->getRequiredBodyParam('ids'));
 
         $success = Plugin::getInstance()->getPlans()->reorderPlans($ids);
