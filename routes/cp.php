@@ -68,6 +68,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
 
         Route::get('commerce/settings/emails', [EmailsController::class, 'index']);
         Route::get('commerce/settings/emails/{storeHandle}/new', [EmailsController::class, 'edit']);
+        Route::post('commerce/settings/emails/render-form', [EmailsController::class, 'renderForm']);
         Route::get('commerce/settings/emails/{storeHandle}/{id}', [EmailsController::class, 'edit'])->whereNumber('id');
 
         Route::get('commerce/settings/pdfs', [PdfsController::class, 'index']);
