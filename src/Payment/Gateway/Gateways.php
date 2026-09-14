@@ -20,7 +20,6 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Throwable;
 use function CraftCms\Cms\t;
@@ -290,35 +289,22 @@ class Gateways
     {
         $query = DB::table(Table::GATEWAYS)
             ->select([
+                'billingAddressCondition',
                 'dateArchived',
                 'handle',
                 'id',
                 'isArchived',
                 'isFrontendEnabled',
                 'name',
+                'orderCondition',
                 'paymentType',
                 'settings',
+                'shippingAddressCondition',
                 'sortOrder',
                 'type',
                 'uid',
             ])
             ->orderBy('sortOrder');
-
-        // These hasColumn() checks can't be dropped on a schedule: Commerce declares support for
-        // upgrading from versions as old as 3.4.11 ($minVersionRequired on Plugin), but these columns
-        // were only added late in the 5.x lifecycle (orderCondition in 5.4.0, the address condition
-        // columns in 5.5.0). Commerce 6.0 ships no incremental migration to backfill them during such
-        // an upgrade - only database/migrations/Install.php, for fresh installs - so an old install
-        // upgrading straight to 6.0 can reach this code before the columns exist.
-        if (Schema::hasColumn(Table::GATEWAYS, 'orderCondition')) {
-            $query->addSelect('orderCondition');
-        }
-        if (Schema::hasColumn(Table::GATEWAYS, 'billingAddressCondition')) {
-            $query->addSelect('billingAddressCondition');
-        }
-        if (Schema::hasColumn(Table::GATEWAYS, 'shippingAddressCondition')) {
-            $query->addSelect('shippingAddressCondition');
-        }
 
         return $query;
     }

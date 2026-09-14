@@ -36,7 +36,6 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Throwable;
 use function CraftCms\Cms\t;
@@ -464,6 +463,7 @@ class Pdfs
                 'id',
                 'isDefault',
                 'language',
+                'linkExpiry',
                 'name',
                 'paperOrientation',
                 'paperSize',
@@ -474,16 +474,6 @@ class Pdfs
             ])
             ->orderBy('name')
             ->orderBy('sortOrder');
-
-        // This hasColumn() check can't be dropped on a schedule: Commerce declares support for
-        // upgrading from versions as old as 3.4.11 ($minVersionRequired on Plugin), but linkExpiry
-        // was only added late in the 5.x lifecycle. Commerce 6.0 ships no incremental migration to
-        // backfill it during such an upgrade - only database/migrations/Install.php, for fresh
-        // installs - so an old install upgrading straight to 6.0 can reach this code before the
-        // column exists.
-        if (Schema::hasColumn(Table::PDFS, 'linkExpiry')) {
-            $query->addSelect('linkExpiry');
-        }
 
         return $query;
     }

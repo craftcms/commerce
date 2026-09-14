@@ -16,7 +16,6 @@ use CraftCms\Commerce\Store\Stores;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use function CraftCms\Cms\t;
 
 #[Singleton]
@@ -201,11 +200,9 @@ class ShippingMethods
                 'customerCondition',
                 'dateCreated',
                 'dateUpdated',
+                'icon',
+                'color',
             ]);
-
-        if (Schema::hasColumn(Table::SHIPPINGMETHODS, 'icon')) {
-            $query->addSelect(['icon', 'color']);
-        }
 
         return $query;
     }
