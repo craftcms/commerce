@@ -304,7 +304,12 @@ class Gateways
             ])
             ->orderBy('sortOrder');
 
-        // TODO: Remove these hasColumn checks in Commerce 6.0 once the schema guarantees orderCondition / billingAddressCondition / shippingAddressCondition columns on the gateways table
+        // These hasColumn() checks can't be dropped on a schedule: Commerce declares support for
+        // upgrading from versions as old as 3.4.11 ($minVersionRequired on Plugin), but these columns
+        // were only added late in the 5.x lifecycle (orderCondition in 5.4.0, the address condition
+        // columns in 5.5.0). Commerce 6.0 ships no incremental migration to backfill them during such
+        // an upgrade - only database/migrations/Install.php, for fresh installs - so an old install
+        // upgrading straight to 6.0 can reach this code before the columns exist.
         if (Schema::hasColumn(Table::GATEWAYS, 'orderCondition')) {
             $query->addSelect('orderCondition');
         }
