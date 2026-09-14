@@ -1167,9 +1167,27 @@ JS, [
      */
     public function getDefaultVariant(bool $includeDisabled = false): ?Variant
     {
-        $defaultVariant = $this->getVariants($includeDisabled)->firstWhere('id', $this->defaultVariantId);
+        $variants = $this->getVariants($includeDisabled);
+        $defaultVariant = $variants->firstWhere('id', $this->defaultVariantId);
 
-        return $defaultVariant ?: $this->getVariants($includeDisabled)->first();
+        if (!$defaultVariant && $this->defaultVariantId) {
+            // `defaultVariantId` may be referencing a draft/derivative variant ID that hasn't been
+            // resolved to its canonical variant yet, e.g. while a provisional draft is being applied
+            // and the default variant was changed via the "Set default variant" action while the draft
+            // was open. `getVariants()` can still reflect the pre-merge canonical variant set at this
+            // point, so fall back to resolving the stored ID via its canonical ID. See #4361.
+            $canonicalVariantId = (new Query())
+                ->select(['canonicalId', 'id'])
+                ->from(['{{%elements}}'])
+                ->where(['id' => $this->defaultVariantId])
+                ->one();
+
+            if ($canonicalVariantId) {
+                $defaultVariant = $variants->firstWhere('id', $canonicalVariantId['canonicalId'] ?? $canonicalVariantId['id']);
+            }
+        }
+
+        return $defaultVariant ?: $variants->first();
     }
 
     /**
@@ -1690,6 +1708,29 @@ JS, [
             $this->id = $record->id;
 
             $this->setDirtyAttributes($dirtyAttributes);
+
+            if ($this->getIsCanonical() && $defaultVariant?->id) {
+                // Make sure exactly one canonical variant is flagged as the default. This is normally kept in
+                // sync by `SetDefaultVariant`/`Variant::afterSave()`, but that update is deferred while a
+                // variant's default status is changed from within a provisional draft (so as to not affect the
+                // canonical product before the draft is applied), and can otherwise be missed when the draft
+                // is applied. Re-asserting it here, whenever the canonical product is saved, is a self-healing
+                // safety net. See #4361.
+                // @TODO Remove this denormalized `isDefault` write in Commerce 6.0; `VariantQuery` now derives
+                // both the displayed and queried `isDefault` value from `commerce_products.defaultVariantId`
+                // directly, so this column is kept only for backward compatibility with code that queries it
+                // via raw SQL.
+                Craft::$app->getDb()->createCommand()->update(
+                    Table::VARIANTS,
+                    ['isDefault' => false],
+                    ['and', ['primaryOwnerId' => $this->id], ['not', ['id' => $defaultVariant->id]], ['isDefault' => true]]
+                )->execute();
+                Craft::$app->getDb()->createCommand()->update(
+                    Table::VARIANTS,
+                    ['isDefault' => true],
+                    ['and', ['id' => $defaultVariant->id], ['isDefault' => false]]
+                )->execute();
+            }
 
             if ($this->getIsCanonical() &&
                 isset($this->typeId) &&
