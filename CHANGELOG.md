@@ -4,7 +4,8 @@
 
 - Fixed a PHP error on the dashboard that could occur for users without edit permissions on any site. ([#4347](https://github.com/craftcms/commerce/issues/4347))
 - Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) RCE vulnerability. (hackrate#1883)
-- Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerability. (hackrate#1884)
+- Fixed a [medium-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerability. (hackrate#1884)
+- Fixed a [medium-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerability.
 
 ## 5.7.3 - 2026-09-02
 
