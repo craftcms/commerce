@@ -910,6 +910,7 @@
 
 ### System
 
+- Raised `Plugin::$minVersionRequired` from `3.4.11` to `5.7.3` (the latest 5.x patch release, kept in sync as new patches ship until 6.0 stable). Installs must be on at least that version before updating to Commerce 6.0.
 - Removed the Commerce Yii2 debug panel and all related classes (`CommercePanel`, `DebugPanel` helper, `CommerceDebugPanelDataEvent`, and its Twig views) — the Yii2 debug module they relied on no longer exists in Craft CMS 6.
 - Added `getPriceAsCurrency()` to `CraftCms\Commerce\Shipping\Models\ShippingMethodOption` and `getAmountAsCurrency()` to `CraftCms\Commerce\Order\Models\OrderAdjustment` (the latter used repeatedly in the shipped `example-templates/`), closing out the rest of the `CurrencyAttributeBehavior` removal — third-party templates/plugins could still call these via the legacy behavior's magic `__call`, independent of whether Commerce's own code used them.
 - Added `CraftCms\Commerce\Plugin::HANDLE`, replacing the `Plugin::getInstance()->handle` runtime lookup at its one call site (`Catalog\Products::afterSaveSiteHandler()`), which was also fixed to reference the new `CraftCms\Commerce\Plugin` instead of the legacy `craft\commerce\Plugin`.
