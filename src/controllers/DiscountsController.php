@@ -449,6 +449,7 @@ class DiscountsController extends BaseCpController
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
+        $this->requirePermission('commerce-editDiscounts');
 
         $id = $this->request->getRequiredBodyParam('id');
         $type = $this->request->getBodyParam('type', 'total');
