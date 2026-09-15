@@ -753,7 +753,7 @@ class Emails extends Component
                 $defaultFileName = $pdf->handle . '-' . $order->number;
                 if ($pdf->fileNameFormat) {
                     try {
-                        $fileName = $view->renderSandboxedObjectTemplate($pdf->fileNameFormat, $order);
+                        $fileName = $view->renderSandboxedObjectTemplate($pdf->fileNameFormat, $order, $order->getObjectTemplateVariables());
                     } catch (\Throwable) {
                         $fileName = $defaultFileName;
                     }
