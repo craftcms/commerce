@@ -283,6 +283,7 @@ JS;
         // Shared attributes
         $taxRate->id = $this->request->getBodyParam('taxRateId');
         $taxRate->storeId = $this->request->getBodyParam('storeId');
+        $this->requireStoreAccess($taxRate->storeId);
         $taxRate->name = $this->request->getBodyParam('name');
         $taxRate->code = $this->request->getBodyParam('code');
         $taxRate->include = (bool)$this->request->getBodyParam('include');
@@ -327,6 +328,11 @@ JS;
 
         $id = $this->request->getRequiredBodyParam('id');
 
+        $taxRate = Plugin::getInstance()->getTaxRates()->getTaxRateById($id);
+        if ($taxRate) {
+            $this->requireStoreAccess($taxRate->storeId);
+        }
+
         Plugin::getInstance()->getTaxRates()->deleteTaxRateById($id);
         return $this->asSuccess();
     }
@@ -353,6 +359,7 @@ JS;
 
         /** @var TaxRateRecord $taxRate */
         foreach ($taxRates as $taxRate) {
+            $this->requireStoreAccess($taxRate->storeId);
             $taxRate->enabled = ($status == 'enabled');
             $taxRate->save();
         }

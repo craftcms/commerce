@@ -286,6 +286,7 @@ JS;
         $this->requirePostRequest();
         $id = $this->request->getBodyParam('id');
         $storeId = $this->request->getBodyParam('storeId');
+        $this->requireStoreAccess($storeId);
 
         if ($id) {
             $catalogPricingRule = Plugin::getInstance()->getcatalogPricingRules()->getcatalogPricingRuleById($id, $storeId);
@@ -403,6 +404,11 @@ JS;
         }
 
         foreach ($ids as $id) {
+            $catalogPricingRule = Plugin::getInstance()->getcatalogPricingRules()->getcatalogPricingRuleById($id);
+            if ($catalogPricingRule) {
+                $this->requireStoreAccess($catalogPricingRule->storeId);
+            }
+
             Plugin::getInstance()->getcatalogPricingRules()->deletecatalogPricingRuleById($id);
         }
 
@@ -441,6 +447,7 @@ JS;
 
         /** @var CatalogPricingRuleRecord $rule */
         foreach ($rules as $rule) {
+            $this->requireStoreAccess($rule->storeId);
             $storeId ??= $rule->storeId;
             $rule->enabled = ($status == 'enabled');
             $rule->save();

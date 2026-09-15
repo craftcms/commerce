@@ -43,9 +43,9 @@ class Orders extends Widget
         parent::init();
 
         if (!(isset($this->storeId)) || !$this->storeId) {
-            /** @var Site|StoreBehavior $site */
+            /** @var Site|StoreBehavior|null $site */
             $site = Cp::requestedSite();
-            $this->storeId = $site->getStore()->id;
+            $this->storeId = $site?->getStore()->id ?? Plugin::getInstance()->getStores()->getPrimaryStore()->id;
         }
     }
 

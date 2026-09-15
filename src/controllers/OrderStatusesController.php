@@ -21,6 +21,7 @@ use yii\base\ErrorException;
 use yii\base\Exception;
 use yii\base\NotSupportedException;
 use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 use yii\web\ServerErrorHttpException;
@@ -128,6 +129,7 @@ class OrderStatusesController extends BaseAdminController
 
         $id = $this->request->getBodyParam('id');
         $storeId = $this->request->getBodyParam('storeId');
+        $this->_requireStoreAccess($storeId);
         $orderStatus = $id ? Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($id, $storeId) : false;
 
         if (!$orderStatus) {
@@ -224,10 +226,33 @@ class OrderStatusesController extends BaseAdminController
 
         $storeId = (new Query())->from(Table::ORDERSTATUSES)->select(['storeId'])->where(['id' => $orderStatusId])->scalar();
 
+        if ($storeId) {
+            $this->_requireStoreAccess((int)$storeId);
+        }
+
         if (!$storeId || !Plugin::getInstance()->getOrderStatuses()->deleteOrderStatusById((int)$orderStatusId, $storeId)) {
             return $this->asFailure(Craft::t('commerce', 'Couldn’t archive Order Status.'));
         }
 
         return $this->asSuccess();
+    }
+
+    /**
+     * Ensures the current user is permitted to manage the given store, based on the sites they
+     * have edit access to (the same set of stores exposed by the store switcher).
+     *
+     * @throws ForbiddenHttpException
+     * @throws \yii\base\InvalidConfigException
+     */
+    private function _requireStoreAccess(mixed $storeId): void
+    {
+        $storeId = $storeId !== null ? (int)$storeId : null;
+        $allowableStoreIds = $storeId !== null
+            ? Plugin::getInstance()->getStores()->getStoresByUserId((int)Craft::$app->getUser()->getId())->map(fn(Store $s) => $s->id)->all()
+            : [];
+
+        if ($storeId === null || !in_array($storeId, $allowableStoreIds, true)) {
+            throw new ForbiddenHttpException('You are not permitted to perform this action for this store.');
+        }
     }
 }

@@ -192,6 +192,7 @@ class StoreManagementController extends BaseStoreManagementController
         $this->requirePermission('commerce-manageGeneralStoreSettings');
 
         $storeId = Craft::$app->getRequest()->getBodyParam('id');
+        $this->requireStoreAccess($storeId);
         $store = Plugin::getInstance()->getStores()->getStoreById($storeId);
         $storeSettings = Plugin::getInstance()->getStoreSettings()->getStoreSettingsById($storeId);
         $currentUser = Craft::$app->getUser()->getIdentity();

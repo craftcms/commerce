@@ -32,6 +32,17 @@ use yii\web\Response;
 class PaymentCurrenciesController extends BaseStoreManagementController
 {
     /**
+     * @inheritdoc
+     */
+    public function init(): void
+    {
+        parent::init();
+
+        // All payment currency actions require access to manage payment currencies
+        $this->requirePermission('commerce-managePaymentCurrencies');
+    }
+
+    /**
      * @throws CurrencyException
      */
     public function actionIndex(?string $storeHandle = null): Response
@@ -141,6 +152,7 @@ class PaymentCurrenciesController extends BaseStoreManagementController
         // Shared attributes
         $currency->id = $this->request->getBodyParam('currencyId');
         $currency->storeId = $this->request->getBodyParam('storeId');
+        $this->requireStoreAccess($currency->storeId);
         $currency->iso = $this->request->getBodyParam('iso');
         $currency->rate = $this->request->getBodyParam('rate', 1);
 
@@ -166,6 +178,11 @@ class PaymentCurrenciesController extends BaseStoreManagementController
         $this->requireAcceptsJson();
 
         $id = $this->request->getRequiredBodyParam('id');
+
+        $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyById($id);
+        if ($currency) {
+            $this->requireStoreAccess($currency->storeId);
+        }
 
         if (!Plugin::getInstance()->getPaymentCurrencies()->deletePaymentCurrencyById($id)) {
             return $this->asFailure();

@@ -212,6 +212,7 @@ JS;
         // Shared attributes
         $shippingCategory->id = $this->request->getBodyParam('shippingCategoryId');
         $shippingCategory->storeId = $this->request->getBodyParam('storeId');
+        $this->requireStoreAccess($shippingCategory->storeId);
         $shippingCategory->name = $this->request->getBodyParam('name');
         $shippingCategory->handle = $this->request->getBodyParam('handle');
         $shippingCategory->icon = $this->request->getBodyParam('icon');
@@ -277,7 +278,12 @@ JS;
 
         $failedIds = [];
         foreach ($ids as $id) {
-            if (!Plugin::getInstance()->getShippingCategories()->deleteShippingCategoryById($id)) {
+            $shippingCategory = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($id);
+            if ($shippingCategory) {
+                $this->requireStoreAccess($shippingCategory->storeId);
+            }
+
+            if (!$shippingCategory || !Plugin::getInstance()->getShippingCategories()->deleteShippingCategoryById($id)) {
                 $failedIds[] = $id;
             }
         }
@@ -305,6 +311,8 @@ JS;
         if (!$storeHandle || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
             throw new InvalidConfigException('Invalid store.');
         }
+
+        $this->requireStoreAccess($store->id);
 
         if (!empty($ids)) {
             $id = ArrayHelper::firstValue($ids);
