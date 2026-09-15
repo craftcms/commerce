@@ -7,6 +7,7 @@
 - Fixed some [medium-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerabilities. (hackrate#1884, hackrate#1885, hackrate#1895)
 - Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) cross-store authorization vulnerability. (hackrate#1893)
 - Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerability. (hackrate#1894)
+- Fixed a bug where saving a provisional product draft could result in two variants being flagged as the default. ([#4361](https://github.com/craftcms/commerce/issues/4361))
 
 ## 5.7.3 - 2026-09-02
 
