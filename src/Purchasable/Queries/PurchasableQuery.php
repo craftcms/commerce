@@ -92,7 +92,9 @@ abstract class PurchasableQuery extends ElementQuery
         });
         $this->query->leftJoin(new Alias(Table::INVENTORYITEMS, 'inventoryitems'), 'inventoryitems.purchasableId', '=', 'commerce_purchasables.id');
 
-        if (app(CatalogPricingRules::class)->hasCatalogPricingRules()) {
+        $hasCatalogPricingRules = app(CatalogPricingRules::class)->hasCatalogPricingRules();
+
+        if ($hasCatalogPricingRules) {
             $customerId = $this->forCustomer;
             if ($customerId === null) {
                 $customerId = currentUser()?->getCraftUserId();
@@ -135,26 +137,6 @@ abstract class PurchasableQuery extends ElementQuery
             );
 
             $this->query->addSelect(['catalogpricingruleids.catalogPricingRuleId']);
-
-            if (isset($this->price)) {
-                $this->query->whereParam('catalogprices.price', $this->price);
-            }
-
-            if (isset($this->promotionalPrice)) {
-                $this->query->whereParam('catalogprices.promotionalPrice', $this->promotionalPrice);
-            }
-
-            if (isset($this->onPromotion)) {
-                if ($this->onPromotion) {
-                    $this->query->whereColumn('catalogprices.promotionalPrice', '<', 'catalogprices.price');
-                } else {
-                    $this->query->whereColumn('catalogprices.price', '=', 'catalogprices.promotionalPrice');
-                }
-            }
-
-            if (isset($this->salePrice)) {
-                $this->query->whereParam('catalogprices.salePrice', $this->salePrice);
-            }
         } else {
             // `salePrice` and `catalogPricingRuleId` are deliberately not selected here: `salePrice` is a
             // getter-only virtual attribute (Purchasable::getSalePrice()) with no setter, so populating it
@@ -165,29 +147,56 @@ abstract class PurchasableQuery extends ElementQuery
                 'purchasables_stores.basePrice as price',
                 'purchasables_stores.basePromotionalPrice as promotionalPrice',
             ]);
+        }
 
-            if (isset($this->price)) {
-                $this->query->whereParam('purchasables_stores.basePrice', $this->price);
-            }
+        $this->beforeQuery(function(self $query) use ($hasCatalogPricingRules) {
+            // isset($query->price)/promotionalPrice/onPromotion/salePrice must be checked here
+            // (deferred), not in the constructor above: price()/promotionalPrice()/onPromotion()/
+            // salePrice() are ordinary fluent scope setters, called *after* find() has already
+            // returned a constructed query — checking them synchronously in the constructor would
+            // always see them unset.
+            if ($hasCatalogPricingRules) {
+                if (isset($query->price)) {
+                    $query->whereParam('catalogprices.price', $query->price);
+                }
 
-            if (isset($this->promotionalPrice)) {
-                $this->query->whereParam('purchasables_stores.basePromotionalPrice', $this->promotionalPrice);
-            }
+                if (isset($query->promotionalPrice)) {
+                    $query->whereParam('catalogprices.promotionalPrice', $query->promotionalPrice);
+                }
 
-            if (isset($this->onPromotion)) {
-                if ($this->onPromotion) {
-                    $this->query->whereColumn('purchasables_stores.basePromotionalPrice', '<', 'purchasables_stores.basePrice');
-                } else {
-                    $this->query->whereColumn('purchasables_stores.basePrice', '<', 'purchasables_stores.basePromotionalPrice');
+                if (isset($query->onPromotion)) {
+                    if ($query->onPromotion) {
+                        $query->whereColumn('catalogprices.promotionalPrice', '<', 'catalogprices.price');
+                    } else {
+                        $query->whereColumn('catalogprices.price', '=', 'catalogprices.promotionalPrice');
+                    }
+                }
+
+                if (isset($query->salePrice)) {
+                    $query->whereParam('catalogprices.salePrice', $query->salePrice);
+                }
+            } else {
+                if (isset($query->price)) {
+                    $query->whereParam('purchasables_stores.basePrice', $query->price);
+                }
+
+                if (isset($query->promotionalPrice)) {
+                    $query->whereParam('purchasables_stores.basePromotionalPrice', $query->promotionalPrice);
+                }
+
+                if (isset($query->onPromotion)) {
+                    if ($query->onPromotion) {
+                        $query->whereColumn('purchasables_stores.basePromotionalPrice', '<', 'purchasables_stores.basePrice');
+                    } else {
+                        $query->whereColumn('purchasables_stores.basePrice', '<', 'purchasables_stores.basePromotionalPrice');
+                    }
+                }
+
+                if (isset($query->salePrice)) {
+                    $query->whereParam(DB::raw('CASE WHEN purchasables_stores.basePromotionalPrice < purchasables_stores.basePrice THEN purchasables_stores.basePromotionalPrice ELSE purchasables_stores.basePrice END'), $query->salePrice);
                 }
             }
 
-            if (isset($this->salePrice)) {
-                $this->query->whereParam(DB::raw('CASE WHEN purchasables_stores.basePromotionalPrice < purchasables_stores.basePrice THEN purchasables_stores.basePromotionalPrice ELSE purchasables_stores.basePrice END'), $this->salePrice);
-            }
-        }
-
-        $this->beforeQuery(function(self $query) {
             if (isset($query->sku)) {
                 $query->whereParam('commerce_purchasables.sku', $query->sku);
             }

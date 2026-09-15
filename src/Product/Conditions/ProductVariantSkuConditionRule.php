@@ -29,10 +29,14 @@ class ProductVariantSkuConditionRule extends BaseTextConditionRule implements El
 
     public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        $variantQuery = Variant::find()
-            ->select(['commerce_variants.primaryOwnerId as id'])
-            ->sku($this->paramValue());
+        $variantQuery = Variant::find()->sku($this->paramValue());
 
+        // getQuery() returns the raw, un-prepared builder — the sku() scope set just above is
+        // only translated into a where clause by a beforeQuery callback, which hasn't run yet
+        // at this point. applyBeforeQueryCallbacks() also re-applies the query's default select
+        // columns, so restrict back down to the single column this subquery needs afterward.
+        $variantQuery->applyBeforeQueryCallbacks();
+        $variantQuery->select(['commerce_variants.primaryOwnerId as id']);
         $query->whereIn('elements.id', $variantQuery->getQuery());
     }
 

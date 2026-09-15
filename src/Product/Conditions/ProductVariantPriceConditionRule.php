@@ -30,9 +30,14 @@ class ProductVariantPriceConditionRule extends BaseNumberConditionRule implement
     public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
         $variantQuery = Variant::find();
-        $variantQuery->select(['commerce_variants.primaryOwnerId as id']);
         $variantQuery->price($this->paramValue());
 
+        // getQuery() returns the raw, un-prepared builder — the price() scope set just above is
+        // only translated into a where clause by a beforeQuery callback, which hasn't run yet
+        // at this point. applyBeforeQueryCallbacks() also re-applies the query's default select
+        // columns, so restrict back down to the single column this subquery needs afterward.
+        $variantQuery->applyBeforeQueryCallbacks();
+        $variantQuery->select(['commerce_variants.primaryOwnerId as id']);
         $query->whereIn('elements.id', $variantQuery->getQuery());
     }
 

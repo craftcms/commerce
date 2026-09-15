@@ -30,10 +30,15 @@ class ProductVariantStockConditionRule extends BaseNumberConditionRule implement
     public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
         $variantQuery = Variant::find();
-        $variantQuery->select(['commerce_variants.primaryOwnerId as id']);
         $variantQuery->inventoryTracked(true);
         $variantQuery->stock($this->paramValue());
 
+        // getQuery() returns the raw, un-prepared builder — its own scope properties (set just
+        // above) are only translated into where clauses by beforeQuery callbacks, which haven't
+        // run yet at this point. applyBeforeQueryCallbacks() also re-applies the query's default
+        // select columns, so restrict back down to the single column this subquery needs after.
+        $variantQuery->applyBeforeQueryCallbacks();
+        $variantQuery->select(['commerce_variants.primaryOwnerId as id']);
         $query->whereIn('elements.id', $variantQuery->getQuery());
     }
 
