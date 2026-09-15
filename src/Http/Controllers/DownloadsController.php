@@ -97,7 +97,7 @@ readonly class DownloadsController
 
         Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale->id);
 
-        $fileName = renderSandboxedObjectTemplate((string)$pdf->fileNameFormat, $order) ?: ($pdf->handle . '-' . $order->number);
+        $fileName = renderSandboxedObjectTemplate((string)$pdf->fileNameFormat, $order, $order->getObjectTemplateVariables()) ?: ($pdf->handle . '-' . $order->number);
 
         $disposition = ($inline ? 'inline' : 'attachment') . '; filename="' . str_replace('"', '', $fileName . '.pdf') . '"';
 

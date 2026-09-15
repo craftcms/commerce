@@ -525,7 +525,7 @@ class Emails
                 $defaultFileName = $pdf->handle . '-' . $order->number;
                 if ($pdf->fileNameFormat) {
                     try {
-                        $fileName = Template::renderSandboxedObjectTemplate($pdf->fileNameFormat, $order, [], TemplateMode::Site);
+                        $fileName = Template::renderSandboxedObjectTemplate($pdf->fileNameFormat, $order, $order->getObjectTemplateVariables(), TemplateMode::Site);
                     } catch (\Throwable) {
                         $fileName = $defaultFileName;
                     }

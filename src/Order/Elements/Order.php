@@ -950,6 +950,21 @@ class Order extends Element implements HasStoreInterface
         return $fields;
     }
 
+    /**
+     * @see fields()
+     * @see https://github.com/craftcms/commerce/issues/4255
+     */
+    public function getObjectTemplateVariables(): array
+    {
+        $variables = [];
+
+        foreach (ComponentHelper::datetimeAttributes($this) as $attribute) {
+            $variables[$attribute] = $this->$attribute;
+        }
+
+        return $variables;
+    }
+
     #[Override]
     public function extraFields(): array
     {
@@ -1214,7 +1229,7 @@ class Order extends Element implements HasStoreInterface
 
             try {
                 // Replaces the legacy `renderSandboxedObjectTemplate()`; object-template rendering is sandboxed by default.
-                $baseReference = renderObjectTemplate($referenceTemplate, $this);
+                $baseReference = renderObjectTemplate($referenceTemplate, $this, $this->getObjectTemplateVariables());
 
                 // Check if this reference already exists and append suffix if needed
                 $suffix = 0;
