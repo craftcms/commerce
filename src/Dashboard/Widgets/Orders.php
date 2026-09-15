@@ -21,6 +21,7 @@ use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
 use CraftCms\Commerce\Order\Elements\Order;
 
 use CraftCms\Commerce\Order\OrderStatuses;
+use CraftCms\Commerce\Store\Stores;
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
 use function CraftCms\Cms\template;
@@ -38,7 +39,7 @@ class Orders extends Widget
 
         if (!$this->storeId) {
             /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
-            $this->storeId = Cp::requestedSite()->getStore()->id;
+            $this->storeId = Cp::requestedSite()?->getStore()->id ?? app(Stores::class)->getPrimaryStore()->id;
         }
     }
 
