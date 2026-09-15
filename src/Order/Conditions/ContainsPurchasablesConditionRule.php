@@ -70,8 +70,7 @@ class ContainsPurchasablesConditionRule extends BaseElementSelectConditionRule i
             return;
         }
 
-        /** @var OrderQuery $elementQuery */
-        $elementQuery->containsPurchasables(['purchasables' => $ids, 'match' => $this->getMatch()]);
+        OrderQuery::applyContainsPurchasables($query, ['purchasables' => $ids, 'match' => $this->getMatch()]);
     }
 
     public function matchElement(ElementInterface $element): bool

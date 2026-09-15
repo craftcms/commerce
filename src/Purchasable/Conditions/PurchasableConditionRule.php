@@ -11,6 +11,7 @@ use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
+use CraftCms\Cms\Element\Queries\ElementQuery;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Purchasables;
@@ -127,7 +128,7 @@ class PurchasableConditionRule extends BaseConditionRule implements ElementCondi
             return;
         }
 
-        $elementQuery->id($ids);
+        ElementQuery::applyId($query, $ids);
     }
 
     public function matchElement(ElementInterface $element): bool

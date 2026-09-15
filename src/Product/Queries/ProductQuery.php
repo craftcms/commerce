@@ -12,14 +12,13 @@ use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Product\Elements\Product;
-use CraftCms\Commerce\Product\ProductType\Data\ProductType;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
+use CraftCms\Commerce\Product\Queries\Concerns\QueriesProductType;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Product\Variant\Queries\VariantQuery;
 use DateTime;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
-use Illuminate\Support\Facades\DB;
 use Override;
 
 use Tpetry\QueryExpressions\Language\Alias;
@@ -30,6 +29,8 @@ use function CraftCms\Cms\currentUser;
  */
 class ProductQuery extends ElementQuery
 {
+    use QueriesProductType;
+
     #[Override]
     protected string $table = Table::PRODUCTS;
 
@@ -85,8 +86,6 @@ class ProductQuery extends ElementQuery
     public mixed $hasVariant = null;
 
     public mixed $postDate = null;
-
-    public mixed $typeId = null;
 
     /**
      * The reference code(s) used to identify the product(s), e.g. `{product:productTypeHandle/slug}`.
@@ -147,13 +146,6 @@ class ProductQuery extends ElementQuery
         }
 
         $this->beforeQuery(function(self $query) use ($hasCatalogPricingRules) {
-            $query->normalizeTypeId();
-
-            // See if 'type' was set to an invalid handle
-            if ($query->typeId === []) {
-                throw new QueryAbortedException();
-            }
-
             if (isset($query->defaultPrice)) {
                 $query->whereParam(
                     $hasCatalogPricingRules ? 'catalogprices.price' : 'purchasablesstores.basePrice',
@@ -189,7 +181,6 @@ class ProductQuery extends ElementQuery
                 $query->whereParam('purchasables.sku', $query->defaultSku);
             }
 
-            $query->applyProductTypeIdParam();
             $query->applyHasVariantParam();
             // Mirrors EntryQuery: "editable" means accessible in the editing UI (view permission),
             // not necessarily savable. Use ->savable() to filter by save permission.
@@ -254,31 +245,6 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Narrows the query results based on the products’ types.
-     *
-     * @param ProductType|string|string[]|null $value
-     */
-    public function type(mixed $value): static
-    {
-        if (is_string($value) && ($productType = app(ProductTypes::class)->getProductTypeByHandle($value))) {
-            $value = $productType;
-        }
-
-        if ($value instanceof ProductType) {
-            $this->typeId = [$value->id];
-        } elseif ($value !== null) {
-            $this->typeId = DB::table(Table::PRODUCTTYPES)
-                ->whereParam('handle', $value)
-                ->pluck('id')
-                ->all();
-        } else {
-            $this->typeId = null;
-        }
-
-        return $this;
-    }
-
-    /**
      * Narrows the query results to only products that were posted before a certain date.
      */
     public function before(DateTime|string $value): static
@@ -317,15 +283,6 @@ class ProductQuery extends ElementQuery
     public function savable(?bool $value = true): static
     {
         $this->savable = $value;
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the products’ types, per the types’ IDs.
-     */
-    public function typeId(mixed $value): static
-    {
-        $this->typeId = $value;
         return $this;
     }
 
@@ -395,50 +352,6 @@ class ProductQuery extends ElementQuery
                 ->where('commerce_products.expiryDate', '<=', $currentTime),
             default => parent::statusCondition($status),
         };
-    }
-
-    /**
-     * Normalizes the typeId param to an array of IDs or null.
-     */
-    private function normalizeTypeId(): void
-    {
-        if (empty($this->typeId)) {
-            $this->typeId = is_array($this->typeId) ? [] : null;
-        } elseif (is_numeric($this->typeId)) {
-            $this->typeId = [$this->typeId];
-        } elseif (!is_array($this->typeId) || !Arr::isNumeric($this->typeId)) {
-            $this->typeId = DB::table(Table::PRODUCTTYPES)
-                ->whereParam('id', $this->typeId)
-                ->pluck('id')
-                ->all();
-        }
-    }
-
-    /**
-     * Applies the 'typeId' param to the query being prepared.
-     */
-    private function applyProductTypeIdParam(): void
-    {
-        if (!$this->typeId) {
-            return;
-        }
-
-        $this->whereIn('commerce_products.typeId', $this->typeId);
-
-        // Should we set the structureId param?
-        if (
-            $this->withStructure !== false &&
-            !isset($this->structureId) &&
-            count($this->typeId) === 1
-        ) {
-            $productType = app(ProductTypes::class)->getProductTypeById((int)reset($this->typeId));
-
-            if ($productType && $productType->isStructure) {
-                $this->structureId = $productType->structureId;
-            } else {
-                $this->withStructure = false;
-            }
-        }
     }
 
     /**

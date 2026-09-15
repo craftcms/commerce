@@ -29,8 +29,7 @@ class CompletedConditionRule extends BaseLightswitchConditionRule implements Ele
 
     public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        /** @var OrderQuery $elementQuery */
-        $elementQuery->isCompleted($this->value);
+        OrderQuery::applyIsCompleted($query, $this->value);
     }
 
     public function matchElement(ElementInterface $element): bool

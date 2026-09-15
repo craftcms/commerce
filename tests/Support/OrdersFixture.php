@@ -242,6 +242,15 @@ class OrdersFixture
             throw new RuntimeException('Could not complete order: ' . json_encode($order->errors()->all()));
         }
 
+        // markAsComplete() resets the order status to the store's default, so re-apply the
+        // requested one (if any) after completion, same as dateOrdered below.
+        if ($orderStatusId && $order->orderStatusId !== $orderStatusId) {
+            $order->orderStatusId = $orderStatusId;
+            if (!Elements::saveElement($order, false)) {
+                throw new RuntimeException('Could not update orderStatusId: ' . json_encode($order->errors()->all()));
+            }
+        }
+
         if ($dateOrdered) {
             $order->dateOrdered = $dateOrdered;
             if (!Elements::saveElement($order, false)) {

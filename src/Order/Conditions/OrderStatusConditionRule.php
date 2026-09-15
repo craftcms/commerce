@@ -37,8 +37,7 @@ class OrderStatusConditionRule extends BaseMultiSelectConditionRule implements E
     {
         $orderStatuses = app(OrderStatuses::class)->getAllOrderStatuses();
 
-        /** @var OrderQuery $elementQuery */
-        $elementQuery->orderStatus($this->paramValue(fn(string $value) => Arr::first($orderStatuses, fn(OrderStatus $status) => $status->uid === $value)?->handle));
+        OrderQuery::applyOrderStatus($query, $this->paramValue(fn(string $value) => Arr::first($orderStatuses, fn(OrderStatus $status) => $status->uid === $value)?->handle));
     }
 
     public function matchElement(ElementInterface $element): bool

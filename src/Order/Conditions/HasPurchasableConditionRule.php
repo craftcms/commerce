@@ -52,8 +52,7 @@ class HasPurchasableConditionRule extends BaseElementSelectConditionRule impleme
             return;
         }
 
-        /** @var OrderQuery $elementQuery */
-        $elementQuery->hasPurchasables([$this->getElementId()]);
+        OrderQuery::applyHasPurchasables($query, [$this->getElementId()]);
     }
 
     public function matchElement(ElementInterface $element): bool

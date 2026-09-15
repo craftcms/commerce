@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Product\Variant\Conditions;
 
 use CraftCms\Cms\Condition\BaseElementSelectConditionRule;
+use CraftCms\Cms\Database\Table;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
@@ -12,8 +13,8 @@ use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Cms\Form\Controls\ElementSelect;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
-use CraftCms\Commerce\Product\Variant\Queries\VariantQuery;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 use Override;
 
 use function CraftCms\Cms\t;
@@ -37,8 +38,17 @@ class VariantProductConditionRule extends BaseElementSelectConditionRule impleme
 
     public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        /** @var VariantQuery $elementQuery */
-        $elementQuery->ownerId($this->getElementIds());
+        $ownerIds = $this->getElementIds();
+        if (empty($ownerIds)) {
+            return;
+        }
+
+        // Mirrors the ownerId-only branch of core's QueriesNestedElements::initQueriesNestedElements()
+        // — the fieldId/primaryOwnerId/draft-and-revision-owner handling in the rest of that method
+        // doesn't apply here, since this rule only ever narrows by ownerId.
+        $query->whereIn('elements.id', DB::table(Table::ELEMENTS_OWNERS)
+            ->select('elementId')
+            ->whereIn('ownerId', $ownerIds));
     }
 
     public function matchElement(ElementInterface $element): bool

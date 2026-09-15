@@ -105,8 +105,7 @@ class PaymentGatewayConditionRule extends BaseMultiSelectConditionRule implement
     {
         $gateways = app(Gateways::class)->getAllGateways();
 
-        /** @var OrderQuery $elementQuery */
-        $elementQuery->gatewayId($this->paramValue(fn($uid) => $gateways->firstWhere('uid', $uid)?->id));
+        OrderQuery::applyGatewayId($query, $this->paramValue(fn($uid) => $gateways->firstWhere('uid', $uid)?->id));
     }
 
     public function matchElement(ElementInterface $element): bool

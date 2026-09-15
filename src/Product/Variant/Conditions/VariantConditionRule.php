@@ -9,9 +9,9 @@ use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
+use CraftCms\Cms\Element\Queries\ElementQuery;
 use CraftCms\Cms\Form\Controls\ElementSelect;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
-use CraftCms\Commerce\Product\Variant\Queries\VariantQuery;
 use Illuminate\Database\Query\Builder;
 use Override;
 
@@ -36,8 +36,7 @@ class VariantConditionRule extends BaseElementSelectConditionRule implements Ele
 
     public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        /** @var VariantQuery $elementQuery */
-        $elementQuery->id($this->getElementIds());
+        ElementQuery::applyId($query, $this->getElementIds());
     }
 
     public function matchElement(ElementInterface $element): bool

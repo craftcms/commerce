@@ -9,7 +9,7 @@ use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
-use CraftCms\Cms\Element\Queries\UserQuery;
+use CraftCms\Cms\Element\Queries\ElementQuery;
 use CraftCms\Cms\User\Elements\User;
 use Illuminate\Database\Query\Builder;
 use Override;
@@ -36,8 +36,7 @@ class CatalogPricingRuleCustomerConditionRule extends BaseElementSelectCondition
 
     public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        /** @var UserQuery $elementQuery */
-        $elementQuery->id($this->getElementIds());
+        ElementQuery::applyId($query, $this->getElementIds());
     }
 
     public function matchElement(ElementInterface $element): bool

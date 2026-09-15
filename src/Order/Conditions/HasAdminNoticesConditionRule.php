@@ -29,8 +29,7 @@ class HasAdminNoticesConditionRule extends BaseLightswitchConditionRule implemen
 
     public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        /** @var OrderQuery $elementQuery */
-        $elementQuery->hasAdminNotices($this->value);
+        OrderQuery::applyHasAdminNotices($query, $this->value);
     }
 
     public function matchElement(ElementInterface $element): bool

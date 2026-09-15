@@ -29,11 +29,10 @@ class PaidConditionRule extends BaseLightswitchConditionRule implements ElementC
 
     public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        /** @var OrderQuery $elementQuery */
         if ($this->value) {
-            $elementQuery->isPaid();
+            OrderQuery::applyIsPaid($query, true);
         } else {
-            $elementQuery->isUnpaid();
+            OrderQuery::applyIsUnpaid($query, true);
         }
     }
 

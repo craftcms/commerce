@@ -29,8 +29,7 @@ class DateOrderedConditionRule extends BaseDateRangeConditionRule implements Ele
 
     public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        /** @var OrderQuery $elementQuery */
-        $elementQuery->dateOrdered($this->queryParamValue());
+        OrderQuery::applyDateOrdered($query, $this->queryParamValue());
     }
 
     public function matchElement(ElementInterface $element): bool

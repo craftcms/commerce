@@ -29,8 +29,7 @@ class SkuConditionRule extends BaseTextConditionRule implements ElementCondition
 
     public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        /** @var PurchasableQuery $elementQuery */
-        $elementQuery->sku($this->paramValue());
+        PurchasableQuery::applySku($query, $this->paramValue());
     }
 
     public function matchElement(ElementInterface $element): bool

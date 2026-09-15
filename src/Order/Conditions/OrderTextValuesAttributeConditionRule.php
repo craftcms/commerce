@@ -9,6 +9,7 @@ use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
+use CraftCms\Commerce\Order\Queries\OrderQuery;
 use Illuminate\Database\Query\Builder;
 
 /**
@@ -35,6 +36,6 @@ abstract class OrderTextValuesAttributeConditionRule extends BaseTextConditionRu
 
     public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        $elementQuery->{$this->orderAttribute}($this->paramValue());
+        OrderQuery::{'apply' . ucfirst($this->orderAttribute)}($query, $this->paramValue());
     }
 }

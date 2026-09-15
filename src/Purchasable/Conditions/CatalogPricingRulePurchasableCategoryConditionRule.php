@@ -10,6 +10,7 @@ use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
+use CraftCms\Cms\Element\Queries\ElementQuery;
 use CraftCms\Cms\Form\Contracts\Node;
 use CraftCms\Cms\Form\Controls\Choice;
 use CraftCms\Cms\Form\Controls\ElementSelect;
@@ -84,7 +85,7 @@ class CatalogPricingRulePurchasableCategoryConditionRule extends BaseConditionRu
             return;
         }
 
-        $elementQuery->andRelatedTo([$this->categoryRelationshipType => $this->elementIds]);
+        ElementQuery::applyRelatedTo($query, [$this->categoryRelationshipType => $this->elementIds], $elementQuery);
     }
 
     public function matchElement(ElementInterface $element): bool

@@ -14,6 +14,7 @@ use CraftCms\Cms\Form\Contracts\Node;
 use CraftCms\Cms\Form\Controls\Money;
 use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\Support\Facades\Sites;
+use CraftCms\Commerce\Order\Queries\OrderQuery;
 use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
 use Illuminate\Database\Query\Builder;
@@ -67,7 +68,7 @@ abstract class OrderCurrencyValuesAttributeConditionRule extends BaseNumberCondi
 
     public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        $elementQuery->{$this->orderAttribute}($this->paramValue());
+        OrderQuery::{'apply' . ucfirst($this->orderAttribute)}($query, $this->paramValue());
     }
 
     /** @return list<Node> */

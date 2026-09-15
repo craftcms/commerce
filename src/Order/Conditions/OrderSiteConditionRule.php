@@ -35,8 +35,7 @@ class OrderSiteConditionRule extends BaseMultiSelectConditionRule implements Ele
 
     public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        /** @var OrderQuery $elementQuery */
-        $elementQuery->orderSiteId($this->paramValue());
+        OrderQuery::applyOrderSiteId($query, $this->paramValue());
     }
 
     public function matchElement(ElementInterface $element): bool

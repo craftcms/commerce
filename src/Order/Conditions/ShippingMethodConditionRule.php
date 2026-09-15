@@ -36,8 +36,7 @@ class ShippingMethodConditionRule extends BaseMultiSelectConditionRule implement
 
     public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        /** @var OrderQuery $elementQuery */
-        $elementQuery->shippingMethodHandle($this->paramValue());
+        OrderQuery::applyShippingMethodHandle($query, $this->paramValue());
     }
 
     public function matchElement(ElementInterface $element): bool
