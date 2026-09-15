@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed some [medium-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerabilities. (hackrate#1884, hackrate#1885)
+
 ## 4.12.3 - 2026-08-22
 
 - Craft Commerce now supports `dompdf/dompdf` 3.x, in addition to 2.x.
