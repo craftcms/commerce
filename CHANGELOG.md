@@ -2,12 +2,12 @@
 
 ## Unreleased
 
-- Fixed a bug where custom order/cart fields with a visibility condition based on order attributes (e.g. shipping method) couldn’t be saved. ([#4198](https://github.com/craftcms/commerce/issues/4198))
+- Fixed a bug where custom order/cart fields with a visibility condition based on order attributes (e.g., shipping method) couldn’t be saved. ([#4198](https://github.com/craftcms/commerce/issues/4198))
 - Fixed a bug where the payment amount field on Edit Order pages could get reformatted incorrectly per the user’s formatting locale, after being cleared out. ([#4109](https://github.com/craftcms/commerce/issues/4109))
-- Fixed a PHP error could occur when using a datetime attribute in an order-related object template. ([#4255](https://github.com/craftcms/commerce/issues/4255))
+- Fixed a PHP error that could occur when using a datetime attribute in an order-related object template. ([#4255](https://github.com/craftcms/commerce/issues/4255))
 - Fixed a PHP error on the dashboard that could occur for users without edit permissions for any site. ([#4347](https://github.com/craftcms/commerce/issues/4347))
-- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) RCE vulnerability. (hackrate#1883)
-- Fixed some [medium-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerabilities. (hackrate#1884, hackrate#1885, hackrate#1895)
+- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) RCE vulnerability. (GHSA-w9pv-3qgc-2pq2)
+- Fixed some [medium-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerabilities. (GHSA-wr49-2q4p-354w, hackrate#1885, hackrate#1895)
 - Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) cross-store authorization vulnerability. (hackrate#1893)
 - Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerability. (hackrate#1894)
 
