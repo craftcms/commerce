@@ -2,13 +2,12 @@
 
 ## Unreleased
 
-- Fixed a bug where custom order/cart fields with a visibility condition based on order attributes (e.g., shipping method) couldn’t be saved. ([#4198](https://github.com/craftcms/commerce/issues/4198))
-- Fixed a bug where the payment amount field on Edit Order pages could get reformatted incorrectly per the user’s formatting locale, after being cleared out. ([#4109](https://github.com/craftcms/commerce/issues/4109))
-- Fixed a PHP error that could occur when using a datetime attribute in an order-related object template. ([#4255](https://github.com/craftcms/commerce/issues/4255))
-- Fixed a PHP error on the dashboard that could occur for users without edit permissions for any site. ([#4347](https://github.com/craftcms/commerce/issues/4347))
+- Fixed a bug where custom order fields with a visibility condition based on order attributes couldn’t be saved. ([#4198](https://github.com/craftcms/commerce/issues/4198))
+- Fixed a bug where the Payment Amount field on order edit pages could get reformatted incorrectly per the user’s formatting locale. ([#4109](https://github.com/craftcms/commerce/issues/4109))
+- Fixed a PHP error that could occur when using a date/time attribute in an order-related object template. ([#4255](https://github.com/craftcms/commerce/issues/4255))
+- Fixed a PHP error on the Dashboard that could occur for users without edit permissions for any site. ([#4347](https://github.com/craftcms/commerce/issues/4347))
 - Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) RCE vulnerability. (GHSA-w9pv-3qgc-2pq2)
-- Fixed some [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerabilities. (GHSA-wr49-2q4p-354w, GHSA-jx83-gwwg-84gf, GHSA-w2cw-phpj-gcgw, GHSA-fw8v-h534-cqw2)
-- Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) cross-store authorization vulnerability. (GHSA-wfxq-r2hv-px5r)
+- Fixed [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerabilities. (GHSA-wr49-2q4p-354w, GHSA-jx83-gwwg-84gf, GHSA-w2cw-phpj-gcgw, GHSA-fw8v-h534-cqw2, GHSA-wfxq-r2hv-px5r)
 
 ## 5.7.3 - 2026-09-02
 
