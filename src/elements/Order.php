@@ -2306,6 +2306,8 @@ class Order extends Element implements HasStoreInterface
             }
 
             $oldStatusId = $orderRecord->orderStatusId;
+            $oldStoreId = $orderRecord->storeId;
+            $wasCompleted = (bool)$orderRecord->isCompleted;
 
             $orderRecord->storeId = $this->storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
             $orderRecord->number = $this->number;
@@ -2438,6 +2440,19 @@ class Order extends Element implements HasStoreInterface
             }
 
             $orderRecord->save(false);
+
+            if (
+                $wasCompleted !== (bool)$orderRecord->isCompleted ||
+                ($orderRecord->isCompleted && ($isNew || $oldStatusId != $orderRecord->orderStatusId || $oldStoreId != $orderRecord->storeId))
+            ) {
+                $orderStatuses = Plugin::getInstance()->getOrderStatuses();
+                if ($wasCompleted) {
+                    $orderStatuses->invalidateOrderCountByStatus($oldStoreId);
+                }
+                if ($orderRecord->isCompleted && (!$wasCompleted || $oldStoreId != $orderRecord->storeId)) {
+                    $orderStatuses->invalidateOrderCountByStatus($orderRecord->storeId);
+                }
+            }
 
             $this->_saveAdjustments();
             $this->_saveLineItems();
@@ -3836,12 +3851,25 @@ class Order extends Element implements HasStoreInterface
         parent::afterDelete();
 
         if ($this->isCompleted) {
+            Plugin::getInstance()->getOrderStatuses()->invalidateOrderCountByStatus($this->storeId);
             foreach ($this->_deletingLineItems as $lineItem) {
                 $purchasable = $lineItem->getPurchasable();
                 if ($purchasable instanceof Purchasable && $purchasable::hasInventory() && $purchasable->inventoryTracked) {
                     Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
                 }
             }
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function afterRestore(): void
+    {
+        parent::afterRestore();
+
+        if ($this->isCompleted) {
+            Plugin::getInstance()->getOrderStatuses()->invalidateOrderCountByStatus($this->storeId);
         }
     }
 
