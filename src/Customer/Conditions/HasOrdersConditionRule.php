@@ -123,11 +123,8 @@ class HasOrdersConditionRule extends BaseNumberConditionRule implements ElementC
         $this->_orderCondition->id = 'hasOrdersOrderCondition';
         $this->_orderCondition->mainTag = 'div';
         $this->_orderCondition->name = 'orderCondition';
-        // TODO: cms-6's condition system no longer supports restricting a condition instance's
-        // selectable rule types via a `$queryParams` allow-list (that filtering is now entirely
-        // delegated to each rule's own static isSelectableForCondition()) — no direct per-instance
-        // equivalent exists yet, so the nested order condition builder here is no longer restricted
-        // to customerId-related rules.
+        // Exclude unwanted condition rules
+        $this->_orderCondition->queryParams = ['customerId'];
 
         return $this->_orderCondition;
     }
