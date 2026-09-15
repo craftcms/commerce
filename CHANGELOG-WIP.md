@@ -577,7 +577,6 @@
 - Removed `craft\commerce\records\PaymentCurrency`. `CraftCms\Commerce\Payment\Records\PaymentCurrency` should be used instead.
 - Removed `Gateways::getGatewayOverrides()`.
 - Removed `Transactions::deleteTransaction()`. `deleteTransactionById()` should be used instead.
-- Removed `PaymentCurrencies::convertCurrency()`. `convert()` or `convertAmount()` should be used instead.
 - Widened `RefundTransactionEvent::$amount` to `?float` to allow `null` for a full refund.
 - Widened `WebhookEvent::$response` to accept both `Illuminate\Http\Response` and `yii\web\Response`.
 - `craft\commerce\base\Gateway` now uses `CraftCms\Commerce\Order\Conditions\GatewayOrderCondition` and `CraftCms\Commerce\Address\Conditions\GatewayAddressCondition`.

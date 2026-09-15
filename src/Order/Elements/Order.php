@@ -6,7 +6,6 @@ namespace CraftCms\Commerce\Order\Elements;
 
 use Carbon\Carbon;
 use CommerceGuys\Addressing\AddressInterface;
-use craft\commerce\Plugin;
 use craft\errors\MutexException;
 use CraftCms\Cms\Address\Elements\Address as AddressElement;
 use CraftCms\Cms\Component\ComponentHelper;
@@ -2024,12 +2023,7 @@ class Order extends Element implements HasStoreInterface
      */
     public function isPaymentAmountPartial(): bool
     {
-        // NOTE: `PaymentCurrencies::convertCurrency()` was not carried over to the migrated
-        // `src/Services/PaymentCurrencies.php` (only `convert()`/`convertAmount()` were), so the
-        // legacy `Plugin::getInstance()->getPaymentCurrencies()` facade is used deliberately here —
-        // it still implements `convertCurrency()` in terms of the new service's primitives.
-        // TODO: fix in Commerce 6.0 - port `convertCurrency()` to the migrated PaymentCurrencies service and drop this Plugin::getInstance() call
-        $paymentAmountInPrimaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($this->getPaymentAmount(), $this->getPaymentCurrency(), $this->currency, true);
+        $paymentAmountInPrimaryCurrency = app(PaymentCurrencies::class)->convertCurrency($this->getPaymentAmount(), $this->getPaymentCurrency(), $this->currency, true);
 
         return $paymentAmountInPrimaryCurrency < $this->getOutstandingBalance();
     }

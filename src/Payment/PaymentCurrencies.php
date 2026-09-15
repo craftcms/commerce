@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Payment;
 
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Helpers\Currency as CurrencyHelper;
 use CraftCms\Commerce\Payment\Data\PaymentCurrency;
 use CraftCms\Commerce\Payment\Data\Transaction;
 use CraftCms\Commerce\Payment\Events\PaymentCurrencyRateEvent;
@@ -142,6 +143,35 @@ class PaymentCurrencies
 
         // Amount is already in the primary currency; convert to destination.
         return $amount * $this->getRateFor($destination);
+    }
+
+    /**
+     * Converts an amount from one payment currency to another, by ISO code.
+     *
+     * @throws \RuntimeException
+     */
+    public function convertCurrency(float $amount, string $fromCurrency, string $toCurrency, bool $round = false): float
+    {
+        $from = $this->getPaymentCurrencyByIso($fromCurrency);
+        $to = $this->getPaymentCurrencyByIso($toCurrency);
+
+        if (!$from || !$to) {
+            throw new \RuntimeException('Currency not found: ' . ($from ? $toCurrency : $fromCurrency));
+        }
+
+        $primary = $this->getPrimaryPaymentCurrency();
+        if ($primary && $primary->iso !== $fromCurrency) {
+            // Amount is not in the primary currency; normalize back to primary first.
+            $amount /= $this->getRateFor($from);
+        }
+
+        $result = $amount * $this->getRateFor($to);
+
+        if ($round) {
+            return CurrencyHelper::round($result, $to);
+        }
+
+        return $result;
     }
 
     public function savePaymentCurrency(PaymentCurrency $model, bool $runValidation = true): bool

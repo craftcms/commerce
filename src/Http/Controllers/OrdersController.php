@@ -68,6 +68,7 @@ use CraftCms\Commerce\Payment\Gateway\Gateways;
 
 use CraftCms\Commerce\Payment\Gateway\Types\MissingGateway;
 use CraftCms\Commerce\Payment\Models\Transaction as TransactionRecord;
+use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Payment\Payments;
 use CraftCms\Commerce\Payment\Transactions;
 use CraftCms\Commerce\Pdf\Data\Pdf;
@@ -982,11 +983,7 @@ JS, []);
     {
         abort_unless($request->expectsJson(), 400);
 
-        // NOTE: `PaymentCurrencies::convertCurrency()` was not carried over to the migrated
-        // service (only `convert()`/`convertAmount()` were), so the legacy
-        // `Plugin::getInstance()->getPaymentCurrencies()` facade is used deliberately here.
-        // TODO: fix in Commerce 6.0 - port `convertCurrency()` to the migrated PaymentCurrencies service and drop this Plugin::getInstance() call
-        $paymentCurrencies = Plugin::getInstance()->getPaymentCurrencies();
+        $paymentCurrencies = app(PaymentCurrencies::class);
         $paymentCurrency = $request->input('paymentCurrency');
         $paymentAmount = $request->input('paymentAmount');
         $locale = $request->input('locale');

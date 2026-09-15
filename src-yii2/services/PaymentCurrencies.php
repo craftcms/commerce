@@ -3,12 +3,12 @@
 namespace craft\commerce\services;
 
 use craft\commerce\Plugin;
-use CraftCms\Commerce\Payment\Events\PaymentCurrencyRateEvent;
-use Illuminate\Support\Facades\Event;
-
-use CraftCms\Commerce\Payment\Data\Transaction;
 use CraftCms\Commerce\Payment\Data\PaymentCurrency;
+use CraftCms\Commerce\Payment\Data\Transaction;
+
+use CraftCms\Commerce\Payment\Events\PaymentCurrencyRateEvent;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Event;
 use Money\Currency;
 use Money\Money;
 use yii\base\Component;
@@ -70,35 +70,11 @@ class PaymentCurrencies extends Component
     }
 
     /**
-     * Legacy convertCurrency for src-yii2 callers (Order element, OrdersController).
-     * The new service drops this; these callers will be updated when their
-     * classes migrate to src/. Logic ported verbatim from Commerce 5.x.
-     *
      * @deprecated 6.0.0 use convertAmount() or convert() instead.
      */
     public function convertCurrency(float $amount, string $fromCurrency, string $toCurrency, bool $round = false): float
     {
-        $svc = app(\CraftCms\Commerce\Payment\PaymentCurrencies::class);
-        $from = $svc->getPaymentCurrencyByIso($fromCurrency);
-        $to = $svc->getPaymentCurrencyByIso($toCurrency);
-
-        if (!$from || !$to) {
-            throw new \RuntimeException('Currency not found: ' . ($from ? $toCurrency : $fromCurrency));
-        }
-
-        $primary = $svc->getPrimaryPaymentCurrency();
-        if ($primary && $primary->iso !== $fromCurrency) {
-            // amount is not in primary currency; normalize back to primary first
-            $amount /= $svc->getRateFor($from);
-        }
-
-        $result = $amount * $svc->getRateFor($to);
-
-        if ($round) {
-            return \craft\commerce\helpers\Currency::round($result, $to);
-        }
-
-        return $result;
+        return app(\CraftCms\Commerce\Payment\PaymentCurrencies::class)->convertCurrency($amount, $fromCurrency, $toCurrency, $round);
     }
 
     public function savePaymentCurrency(PaymentCurrency $model, bool $runValidation = true): bool
