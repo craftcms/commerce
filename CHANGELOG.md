@@ -3,7 +3,6 @@
 ## Unreleased
 
 - Fixed some [medium-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerabilities. (hackrate#1884, hackrate#1885)
-- Fixed a [medium-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerability.
 - Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerability. (hackrate#1894)
 
 ## 4.12.3 - 2026-08-22
