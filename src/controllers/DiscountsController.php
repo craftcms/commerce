@@ -215,6 +215,7 @@ JS;
             throw new InvalidConfigException('Invalid store.');
         }
 
+        $this->requireStoreAccess($store->id);
 
         $page = $this->request->getParam('page', 1);
         $limit = $this->request->getParam('per_page', 100);
@@ -407,6 +408,7 @@ JS;
         }
 
         $discount->storeId = $this->request->getBodyParam('storeId');
+        $this->requireStoreAccess($discount->storeId);
         $discount->name = $this->request->getBodyParam('name');
         $discount->description = $this->request->getBodyParam('description');
         $discount->enabled = (bool)$this->request->getBodyParam('enabled');
@@ -631,6 +633,11 @@ JS;
         }
 
         foreach ($ids as $id) {
+            $discount = Plugin::getInstance()->getDiscounts()->getDiscountById($id);
+            if ($discount) {
+                $this->requireStoreAccess($discount->storeId);
+            }
+
             Plugin::getInstance()->getDiscounts()->deleteDiscountById($id);
         }
 
@@ -652,6 +659,7 @@ JS;
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
+        $this->requirePermission('commerce-editDiscounts');
 
         $id = $this->request->getRequiredBodyParam('id');
         $type = $this->request->getBodyParam('type', 'total');
@@ -659,6 +667,11 @@ JS;
 
         if (!in_array($type, $types, true)) {
             return $this->asFailure(Craft::t('commerce', 'Type not in allowed options.'));
+        }
+
+        $discount = Plugin::getInstance()->getDiscounts()->getDiscountById($id);
+        if ($discount) {
+            $this->requireStoreAccess($discount->storeId);
         }
 
         match ($type) {
@@ -696,6 +709,7 @@ JS;
 
         /** @var DiscountRecord $discount */
         foreach ($discounts as $discount) {
+            $this->requireStoreAccess($discount->storeId);
             $discount->enabled = ($status == 'enabled');
             $discount->save();
         }

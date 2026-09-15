@@ -217,6 +217,7 @@ JS;
         $shippingMethod->icon = $this->request->getBodyParam('icon');
         $shippingMethod->color = $this->request->getBodyParam('color');
         $shippingMethod->storeId = $this->request->getBodyParam('storeId');
+        $this->requireStoreAccess($shippingMethod->storeId);
         $shippingMethod->setOrderCondition($this->request->getBodyParam('orderCondition'));
         $shippingMethod->setCustomerCondition($this->request->getBodyParam('customerCondition'));
         $shippingMethod->enabled = (bool)$this->request->getBodyParam('enabled');
@@ -251,7 +252,12 @@ JS;
 
         $failedIds = [];
         foreach ($ids as $id) {
-            if (!Plugin::getInstance()->getShippingMethods()->deleteShippingMethodById($id)) {
+            $shippingMethod = Plugin::getInstance()->getShippingMethods()->getShippingMethodById($id);
+            if ($shippingMethod) {
+                $this->requireStoreAccess($shippingMethod->storeId);
+            }
+
+            if (!$shippingMethod || !Plugin::getInstance()->getShippingMethods()->deleteShippingMethodById($id)) {
                 $failedIds[] = $id;
             }
         }
@@ -287,6 +293,7 @@ JS;
 
         /** @var ShippingMethodRecord $shippingMethod */
         foreach ($shippingMethods as $shippingMethod) {
+            $this->requireStoreAccess($shippingMethod->storeId);
             $shippingMethod->enabled = ($status == 'enabled');
             $shippingMethod->save();
         }

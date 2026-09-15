@@ -153,6 +153,7 @@ JS;
         // Shared attributes
         $shippingZone->id = $this->request->getBodyParam('shippingZoneId');
         $shippingZone->storeId = $this->request->getBodyParam('storeId');
+        $this->requireStoreAccess($shippingZone->storeId);
         $shippingZone->name = $this->request->getBodyParam('name');
         $shippingZone->description = $this->request->getBodyParam('description');
         $shippingZone->setCondition($this->request->getBodyParam('condition'));
@@ -186,7 +187,12 @@ JS;
 
         $id = $this->request->getRequiredBodyParam('id');
 
-        if (!Plugin::getInstance()->getShippingZones()->deleteShippingZoneById($id)) {
+        $shippingZone = Plugin::getInstance()->getShippingZones()->getShippingZoneById($id);
+        if ($shippingZone) {
+            $this->requireStoreAccess($shippingZone->storeId);
+        }
+
+        if (!$shippingZone || !Plugin::getInstance()->getShippingZones()->deleteShippingZoneById($id)) {
             return $this->asFailure(Craft::t('commerce', 'Could not delete shipping zone'));
         }
 

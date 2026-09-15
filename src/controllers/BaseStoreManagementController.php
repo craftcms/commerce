@@ -14,6 +14,7 @@ use craft\web\assets\admintable\AdminTableAsset;
 use craft\web\Response;
 use craft\web\UrlManager;
 use yii\base\InvalidConfigException;
+use yii\web\ForbiddenHttpException;
 use yii\web\Response as YiiResponse;
 
 /**
@@ -36,6 +37,27 @@ class BaseStoreManagementController extends BaseCpController
         parent::init();
 
         $this->requirePermission('commerce-manageStoreSettings');
+    }
+
+    /**
+     * Ensures the current user is permitted to manage the given store, based on the sites they
+     * have edit access to (the same set of stores exposed by the store switcher).
+     *
+     * @param int|null $storeId
+     * @return void
+     * @throws ForbiddenHttpException
+     * @throws InvalidConfigException
+     * @since 5.5.6
+     */
+    protected function requireStoreAccess(?int $storeId): void
+    {
+        $allowableStoreIds = $storeId !== null
+            ? Plugin::getInstance()->getStores()->getStoresByUserId((int)Craft::$app->getUser()->getId())->map(fn(Store $s) => $s->id)->all()
+            : [];
+
+        if ($storeId === null || !in_array($storeId, $allowableStoreIds, true)) {
+            throw new ForbiddenHttpException('You are not permitted to perform this action for this store.');
+        }
     }
 
     /**

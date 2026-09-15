@@ -171,6 +171,7 @@ JS;
 
         $taxZone->id = $this->request->getBodyParam('taxZoneId');
         $taxZone->storeId = $this->request->getBodyParam('storeId');
+        $this->requireStoreAccess($taxZone->storeId);
         $taxZone->name = $this->request->getBodyParam('name');
         $taxZone->description = $this->request->getBodyParam('description');
         $taxZone->default = (bool)$this->request->getBodyParam('default');
@@ -204,6 +205,11 @@ JS;
         $this->requireAcceptsJson();
 
         $id = $this->request->getRequiredBodyParam('id');
+
+        $taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($id);
+        if ($taxZone) {
+            $this->requireStoreAccess($taxZone->storeId);
+        }
 
         Plugin::getInstance()->getTaxZones()->deleteTaxZoneById($id);
         return $this->asSuccess();
