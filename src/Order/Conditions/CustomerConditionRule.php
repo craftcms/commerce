@@ -14,9 +14,7 @@ use CraftCms\Cms\Form\Controls\ElementSelect;
 use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Order\Queries\OrderQuery;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Facades\DB;
 use Override;
 
 use function CraftCms\Cms\t;
@@ -54,11 +52,14 @@ class CustomerConditionRule extends BaseMultiSelectConditionRule implements Elem
     {
         $paramValue = $this->paramValue();
         if ($this->operator === self::OPERATOR_NOT_IN) {
-            // Account for the fact that querying using a combination of `not` and `in` doesn't match `null` in the column
-            $query->whereParam(DB::raw('coalesce(commerce_orders.customerId, -1)'), $paramValue);
+            // A plain "not in" doesn't match a null customerId column value, so explicitly
+            // include those rows too.
+            $query->where(function(Builder $query) use ($paramValue) {
+                $query->whereNull('commerce_orders.customerId');
+                $query->whereParam('commerce_orders.customerId', $paramValue, boolean: 'or');
+            });
         } else {
-            /** @var OrderQuery $elementQuery */
-            $elementQuery->customerId($paramValue);
+            $query->whereParam('commerce_orders.customerId', $paramValue);
         }
     }
 
