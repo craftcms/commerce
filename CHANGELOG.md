@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed some [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerabilities. (GHSA-wr49-2q4p-354w, GHSA-jx83-gwwg-84gf, GHSA-w2cw-phpj-gcgw)
+- Fixed [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerabilities. (GHSA-wr49-2q4p-354w, GHSA-jx83-gwwg-84gf, GHSA-w2cw-phpj-gcgw)
 
 ## 4.12.3 - 2026-08-22
 
