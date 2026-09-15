@@ -210,9 +210,6 @@ class CartController extends BaseFrontEndController
             $this->_cart->clearNotices();
         }
 
-        // Set the custom fields submitted
-        $this->_cart->setFieldValuesFromRequest('fields');
-
         // Backwards compatible way of adding to the cart
         if ($purchasableId = $this->request->getParam('purchasableId')) {
             $note = $this->request->getParam('note', '');
@@ -399,6 +396,10 @@ class CartController extends BaseFrontEndController
         if ($shippingMethodHandle = $this->request->getParam('shippingMethodHandle')) {
             $this->_cart->shippingMethodHandle = $shippingMethodHandle;
         }
+
+        // Set the custom fields submitted, after the cart's attributes have been updated so that
+        // any field layout visibility conditions based on those attributes are evaluated correctly
+        $this->_cart->setFieldValuesFromRequest('fields');
 
         return $this->_returnCart();
     }

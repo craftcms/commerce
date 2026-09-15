@@ -367,13 +367,14 @@ JS, []);
 
         $this->enforceManageOrderPermissions($order);
 
-        // Set custom field values
-        $order->setFieldValuesFromRequest('fields');
-
         $alreadyCompleted = $order->isCompleted;
         // Set data from request to the order
         $this->_updateOrder($order, $orderRequestData, false);
         $markAsComplete = !$alreadyCompleted && $order->isCompleted;
+
+        // Set custom field values, after the order's attributes have been updated so that
+        // any field layout visibility conditions based on those attributes are evaluated correctly
+        $order->setFieldValuesFromRequest('fields');
 
         // We don't want to save it as completed yet since we will markAsComplete() after saving the cart
         if ($markAsComplete) {
