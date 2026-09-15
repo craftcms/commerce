@@ -85,49 +85,49 @@ class PaymentSourcesControllerTest extends Unit
     }
 
     /**
-     * A user with only the broad `commerce-manageOrders` permission (no `commerce-editOrders`)
-     * must not be able to delete another customer's payment source.
+     * A user with `commerce-editOrders` but not Craft's `editUsers` permission must not be
+     * able to delete another customer's payment source.
      */
-    public function testDeleteDeniedForNonOwnerWithoutEditOrdersPermission(): void
+    public function testDeleteDeniedForNonOwnerWithoutEditUsersPermission(): void
     {
-        /** @var User $owner */
-        $owner = $this->tester->grabFixture('customer')->getElement('customer1');
-        /** @var User $operator */
-        $operator = $this->tester->grabFixture('customer')->getElement('customer2');
-
-        Craft::$app->getUserPermissions()->saveUserPermissions($operator->id, ['commerce-manageOrders']);
-
-        $paymentSource = $this->_makePaymentSource($owner->id);
-
-        $paymentSourcesService = $this->make(PaymentSources::class, [
-            'getPaymentSourceById' => fn() => $paymentSource,
-            'deletePaymentSourceById' => function() {
-                self::fail('deletePaymentSourceById() should not be called when the operator lacks commerce-editOrders.');
-            },
-        ]);
-        Plugin::getInstance()->set('paymentSources', $paymentSourcesService);
-
-        Craft::$app->getUser()->setIdentity($operator);
-
-        $this->request->headers->set('X-Http-Method-Override', 'POST');
-        $this->request->setBodyParams(['id' => $paymentSource->id]);
-
-        $response = $this->controller->runAction('delete');
-
-        self::assertNull($response);
+        $this->_assertDeleteDenied(['commerce-manageOrders', 'commerce-editOrders']);
     }
 
     /**
-     * A user with `commerce-editOrders` is allowed to delete another customer's payment source.
+     * A user with Craft's `editUsers`/`viewUsers` permissions but neither `commerce-editOrders`
+     * nor `commerce-deleteOrders` must not be able to delete another customer's payment source.
      */
-    public function testDeleteAllowedForNonOwnerWithEditOrdersPermission(): void
+    public function testDeleteDeniedForNonOwnerWithoutOrderPermission(): void
+    {
+        $this->_assertDeleteDenied(['viewUsers', 'editUsers', 'commerce-manageOrders']);
+    }
+
+    /**
+     * A user with `commerce-editOrders` and Craft's `editUsers` permission is allowed to
+     * delete another customer's payment source.
+     */
+    public function testDeleteAllowedForNonOwnerWithEditOrdersAndEditUsersPermissions(): void
+    {
+        $this->_assertDeleteAllowed(['commerce-manageOrders', 'commerce-editOrders', 'viewUsers', 'editUsers']);
+    }
+
+    /**
+     * A user with `commerce-deleteOrders` and Craft's `editUsers` permission is allowed to
+     * delete another customer's payment source.
+     */
+    public function testDeleteAllowedForNonOwnerWithDeleteOrdersAndEditUsersPermissions(): void
+    {
+        $this->_assertDeleteAllowed(['commerce-manageOrders', 'commerce-deleteOrders', 'viewUsers', 'editUsers']);
+    }
+
+    private function _assertDeleteAllowed(array $operatorPermissions): void
     {
         /** @var User $owner */
         $owner = $this->tester->grabFixture('customer')->getElement('customer1');
         /** @var User $operator */
         $operator = $this->tester->grabFixture('customer')->getElement('customer2');
 
-        Craft::$app->getUserPermissions()->saveUserPermissions($operator->id, ['commerce-manageOrders', 'commerce-editOrders']);
+        Craft::$app->getUserPermissions()->saveUserPermissions($operator->id, $operatorPermissions);
 
         $paymentSource = $this->_makePaymentSource($owner->id);
 
@@ -148,5 +148,34 @@ class PaymentSourcesControllerTest extends Unit
         self::assertNotNull($response);
         self::assertSame(200, $response->statusCode);
         self::assertSame('Payment source deleted.', $response->data['message']);
+    }
+
+    private function _assertDeleteDenied(array $operatorPermissions): void
+    {
+        /** @var User $owner */
+        $owner = $this->tester->grabFixture('customer')->getElement('customer1');
+        /** @var User $operator */
+        $operator = $this->tester->grabFixture('customer')->getElement('customer2');
+
+        Craft::$app->getUserPermissions()->saveUserPermissions($operator->id, $operatorPermissions);
+
+        $paymentSource = $this->_makePaymentSource($owner->id);
+
+        $paymentSourcesService = $this->make(PaymentSources::class, [
+            'getPaymentSourceById' => fn() => $paymentSource,
+            'deletePaymentSourceById' => function() {
+                self::fail('deletePaymentSourceById() should not be called when the operator lacks the full permission set.');
+            },
+        ]);
+        Plugin::getInstance()->set('paymentSources', $paymentSourcesService);
+
+        Craft::$app->getUser()->setIdentity($operator);
+
+        $this->request->headers->set('X-Http-Method-Override', 'POST');
+        $this->request->setBodyParams(['id' => $paymentSource->id]);
+
+        $response = $this->controller->runAction('delete');
+
+        self::assertNull($response);
     }
 }
