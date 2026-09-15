@@ -31,6 +31,8 @@ class PlansController extends BaseStoreSettingsController
 {
     public function actionPlanIndex(): Response
     {
+        $this->requirePermission('commerce-manageSubscriptions');
+
         $plans = Plugin::getInstance()->getPlans()->getAllPlans();
         return $this->renderTemplate('commerce/store-settings/subscription-plans', ['plans' => $plans]);
     }
@@ -176,6 +178,8 @@ class PlansController extends BaseStoreSettingsController
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
+        $this->requirePermission('commerce-manageSubscriptions');
+
         $ids = Json::decode($this->request->getRequiredBodyParam('ids'));
 
         $success = Plugin::getInstance()->getPlans()->reorderPlans($ids);
