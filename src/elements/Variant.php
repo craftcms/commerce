@@ -1069,6 +1069,10 @@ class Variant extends Purchasable implements NestedElementInterface
 
             $record->primaryOwnerId = $this->getPrimaryOwnerId();
 
+            // @TODO Remove this denormalized `isDefault` write in Commerce 6.0; `VariantQuery` now derives
+            // both the displayed and queried `isDefault` value from `commerce_products.defaultVariantId`
+            // directly, so this column is kept only for backward compatibility with code that queries it
+            // via raw SQL. See #4361.
             if ($this->getOwner()->getIsCanonical()) {
                 $record->isDefault = $this->isDefault;
             }

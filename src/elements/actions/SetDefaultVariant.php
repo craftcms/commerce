@@ -88,6 +88,10 @@ EOT;
             ['id' => $product->id]
         )->execute();
 
+        // @TODO Remove these denormalized `isDefault` writes in Commerce 6.0; `VariantQuery` now derives
+        // both the displayed and queried `isDefault` value from `commerce_products.defaultVariantId`
+        // directly (updated above), so this column is kept only for backward compatibility with code
+        // that queries it via raw SQL. See #4361.
         if ($product->getIsCanonical()) {
             // Remove previous default
             Craft::$app->getDb()->createCommand()->update(
