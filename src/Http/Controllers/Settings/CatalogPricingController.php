@@ -7,6 +7,7 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 use craft\commerce\web\assets\catalogpricing\CatalogPricingAsset;
 use craft\helpers\Cp;
 use craft\web\assets\htmx\HtmxAsset;
+use CraftCms\Cms\Condition\ConditionBuilderRenderer;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Sites;
@@ -78,7 +79,7 @@ readonly class CatalogPricingController
 
         $condition = $request->input('condition') ?? ['class' => CatalogPricingCondition::class];
         $conditionBuilder = Conditions::createCondition($condition);
-        $conditionBuilderHtml = $conditionBuilder->getBuilderHtml();
+        $conditionBuilderHtml = new ConditionBuilderRenderer($conditionBuilder)->render();
 
         $view = \Craft::$app->getView();
 

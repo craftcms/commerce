@@ -6,14 +6,16 @@ namespace CraftCms\Commerce\Purchasable\Conditions;
 
 use CraftCms\Cms\Condition\BaseTextConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery;
+use Illuminate\Database\Query\Builder;
 
 use function CraftCms\Cms\t;
 
-class SkuConditionRule extends BaseTextConditionRule implements ElementConditionRuleInterface
+class SkuConditionRule extends BaseTextConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     public function getLabel(): string
     {
@@ -25,10 +27,10 @@ class SkuConditionRule extends BaseTextConditionRule implements ElementCondition
         return ['sku'];
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        /** @var PurchasableQuery $query */
-        $query->sku($this->paramValue());
+        /** @var PurchasableQuery $elementQuery */
+        $elementQuery->sku($this->paramValue());
     }
 
     public function matchElement(ElementInterface $element): bool

@@ -6,16 +6,19 @@ namespace CraftCms\Commerce\Product\Variant\Conditions;
 
 use CraftCms\Cms\Condition\BaseElementSelectConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
+use CraftCms\Cms\Form\Controls\ElementSelect;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Product\Variant\Queries\VariantQuery;
+use Illuminate\Database\Query\Builder;
 use Override;
 
 use function CraftCms\Cms\t;
 
-class VariantProductConditionRule extends BaseElementSelectConditionRule implements ElementConditionRuleInterface
+class VariantProductConditionRule extends BaseElementSelectConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     protected function elementType(): string
     {
@@ -32,10 +35,10 @@ class VariantProductConditionRule extends BaseElementSelectConditionRule impleme
         return ['product', 'productId', 'primaryOwnerId', 'primaryOwner', 'owner', 'ownerId'];
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        /** @var VariantQuery $query */
-        $query->ownerId($this->getElementIds());
+        /** @var VariantQuery $elementQuery */
+        $elementQuery->ownerId($this->getElementIds());
     }
 
     public function matchElement(ElementInterface $element): bool
@@ -51,10 +54,8 @@ class VariantProductConditionRule extends BaseElementSelectConditionRule impleme
     }
 
     #[Override]
-    protected function elementSelectConfig(): array
+    protected function elementSelect(): ElementSelect
     {
-        return array_merge(parent::elementSelectConfig(), [
-            'showSiteMenu' => true,
-        ]);
+        return parent::elementSelect()->showSiteMenu();
     }
 }

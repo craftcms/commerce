@@ -37,7 +37,7 @@
   }) }}
 
   {% set customerConditionInput %}
-    {{ catalogPricingRule.customerCondition.getBuilderHtml()|raw }}
+    {{ catalogPricingRule.customerCondition|commerceConditionBuilderHtml }}
   {% endset %}
 
   {{ forms.field({

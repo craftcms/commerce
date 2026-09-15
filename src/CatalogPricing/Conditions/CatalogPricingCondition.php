@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\CatalogPricing\Conditions;
 
 use CraftCms\Cms\Condition\BaseCondition;
+use CraftCms\Cms\Condition\Contracts\ConditionGroupInterface;
 use CraftCms\Cms\Condition\Contracts\ConditionRuleInterface;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Commerce\CatalogPricing\Contracts\CatalogPricingConditionRuleInterface;
@@ -20,6 +21,12 @@ class CatalogPricingCondition extends BaseCondition
     public array $queryParams = [];
 
     public bool $allPrices = false;
+
+    #[Override]
+    public static function createGroup(): ConditionGroupInterface
+    {
+        return new CatalogPricingConditionGroup();
+    }
 
     #[Override]
     public function getRules(): array
@@ -47,7 +54,7 @@ class CatalogPricingCondition extends BaseCondition
 
         // Make sure the rule doesn't conflict with the existing params
         $queryParams = array_merge($this->queryParams);
-        foreach ($this->getConditionRules() as $existingRule) {
+        foreach ($this->getConditionRules()->findRules(fn(ConditionRuleInterface $r) => true) as $existingRule) {
             /** @var CatalogPricingConditionRuleInterface $existingRule */
             array_push($queryParams, ...$existingRule->getExclusiveQueryParams());
         }
@@ -76,7 +83,7 @@ class CatalogPricingCondition extends BaseCondition
 
     public function modifyQuery(Builder $query): void
     {
-        $rules = $this->getConditionRules();
+        $rules = $this->getConditionRules()->findRules(fn(ConditionRuleInterface $rule) => true);
 
         /** @var CatalogPricingCustomerConditionRule|null $customerRule */
         $customerRule = Arr::first($rules, fn(ConditionRuleInterface $rule) => $rule instanceof CatalogPricingCustomerConditionRule);

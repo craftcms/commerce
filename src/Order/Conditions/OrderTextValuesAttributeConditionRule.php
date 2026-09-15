@@ -6,13 +6,15 @@ namespace CraftCms\Commerce\Order\Conditions;
 
 use CraftCms\Cms\Condition\BaseTextConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
+use Illuminate\Database\Query\Builder;
 
 /**
  * @property-read float|int $orderAttributeValue
  */
-abstract class OrderTextValuesAttributeConditionRule extends BaseTextConditionRule implements ElementConditionRuleInterface
+abstract class OrderTextValuesAttributeConditionRule extends BaseTextConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     public string $orderAttribute = '';
 
@@ -31,8 +33,8 @@ abstract class OrderTextValuesAttributeConditionRule extends BaseTextConditionRu
         return $this->matchValue($element->{$this->orderAttribute});
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        $query->{$this->orderAttribute}($this->paramValue());
+        $elementQuery->{$this->orderAttribute}($this->paramValue());
     }
 }

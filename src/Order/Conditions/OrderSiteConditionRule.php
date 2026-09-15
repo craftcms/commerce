@@ -6,15 +6,17 @@ namespace CraftCms\Commerce\Order\Conditions;
 
 use CraftCms\Cms\Condition\BaseMultiSelectConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Queries\OrderQuery;
+use Illuminate\Database\Query\Builder;
 
 use function CraftCms\Cms\t;
 
-class OrderSiteConditionRule extends BaseMultiSelectConditionRule implements ElementConditionRuleInterface
+class OrderSiteConditionRule extends BaseMultiSelectConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     public function getLabel(): string
     {
@@ -31,10 +33,10 @@ class OrderSiteConditionRule extends BaseMultiSelectConditionRule implements Ele
         return Sites::getAllSites()->pluck('name', 'id')->all();
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        /** @var OrderQuery $query */
-        $query->orderSiteId($this->paramValue());
+        /** @var OrderQuery $elementQuery */
+        $elementQuery->orderSiteId($this->paramValue());
     }
 
     public function matchElement(ElementInterface $element): bool

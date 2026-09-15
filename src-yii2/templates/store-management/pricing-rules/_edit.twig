@@ -51,7 +51,7 @@
       <hr>
 
       {% set productConditionInput %}
-        {{ catalogPricingRule.productCondition.getBuilderHtml()|raw }}
+        {{ catalogPricingRule.productCondition|commerceConditionBuilderHtml }}
       {% endset %}
 
       {{ forms.field({
@@ -61,7 +61,7 @@
       }, productConditionInput) }}
 
       {% set variantConditionInput %}
-        {{ catalogPricingRule.variantCondition.getBuilderHtml()|raw }}
+        {{ catalogPricingRule.variantCondition|commerceConditionBuilderHtml }}
       {% endset %}
 
       {{ forms.field({
@@ -70,12 +70,12 @@
         errors: catalogPricingRule.getErrors('variantCondition')
       }, variantConditionInput) }}
 
-      <a class="fieldtoggle {% if catalogPricingRule.purchasableCondition.getConditionRules()|length > 0 %}expanded{% endif %}"
+      <a class="fieldtoggle {% if catalogPricingRule.purchasableCondition.getConditionRules().getRules()|length > 0 %}expanded{% endif %}"
          data-target="cpr-purchasable-condition">{{ 'Advanced'|t('commerce') }}</a>
       <div id="cpr-purchasable-condition"
-        class="{% if catalogPricingRule.purchasableCondition.getConditionRules()|length < 1 %}hidden{% endif %}">
+        class="{% if catalogPricingRule.purchasableCondition.getConditionRules().getRules()|length < 1 %}hidden{% endif %}">
           {% set purchasableConditionInput %}
-            {{ catalogPricingRule.purchasableCondition.getBuilderHtml()|raw }}
+            {{ catalogPricingRule.purchasableCondition|commerceConditionBuilderHtml }}
           {% endset %}
 
           {{ forms.field({
@@ -88,7 +88,7 @@
       <hr>
 
       {% set customerConditionInput %}
-        {{ catalogPricingRule.customerCondition.getBuilderHtml()|raw }}
+        {{ catalogPricingRule.customerCondition|commerceConditionBuilderHtml }}
       {% endset %}
 
       {{ forms.field({

@@ -115,7 +115,7 @@
         <p>{{ "Filtering conditions which describe to which orders this rule is applicable to. Write 0 to skip a condition."|t('commerce') }}</p>
 
         {% set orderConditionInput %}
-          {{ shippingRule.orderCondition.getBuilderHtml()|raw }}
+          {{ shippingRule.orderCondition|commerceConditionBuilderHtml }}
         {% endset %}
 
         {{ forms.field({
@@ -158,7 +158,7 @@
         <hr>
 
         {% set customerConditionInput %}
-          {{ shippingRule.customerCondition.getBuilderHtml()|raw }}
+          {{ shippingRule.customerCondition|commerceConditionBuilderHtml }}
         {% endset %}
 
         {{ forms.field({

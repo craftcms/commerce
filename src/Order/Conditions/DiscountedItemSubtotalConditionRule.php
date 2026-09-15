@@ -8,6 +8,7 @@ use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\OrderAdjustments;
+use Illuminate\Database\Query\Builder;
 use LogicException;
 use Override;
 
@@ -25,7 +26,7 @@ class DiscountedItemSubtotalConditionRule extends OrderCurrencyValuesAttributeCo
     }
 
     #[Override]
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
         throw new LogicException('Discounted Item Subtotal condition rule does not support queries');
     }

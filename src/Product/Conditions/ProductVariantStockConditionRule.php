@@ -6,14 +6,16 @@ namespace CraftCms\Commerce\Product\Conditions;
 
 use CraftCms\Cms\Condition\BaseNumberConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
+use Illuminate\Database\Query\Builder;
 
 use function CraftCms\Cms\t;
 
-class ProductVariantStockConditionRule extends BaseNumberConditionRule implements ElementConditionRuleInterface
+class ProductVariantStockConditionRule extends BaseNumberConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     public function getLabel(): string
     {
@@ -25,7 +27,7 @@ class ProductVariantStockConditionRule extends BaseNumberConditionRule implement
         return ['variantStock'];
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
         $variantQuery = Variant::find();
         $variantQuery->select(['commerce_variants.primaryOwnerId as id']);

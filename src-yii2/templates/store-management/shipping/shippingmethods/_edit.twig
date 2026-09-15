@@ -58,7 +58,7 @@
     </div>
 
     {% set orderConditionInput %}
-      {{ shippingMethod.orderCondition.getBuilderHtml()|raw }}
+      {{ shippingMethod.orderCondition|commerceConditionBuilderHtml }}
     {% endset %}
 
     {{ forms.field({
@@ -69,7 +69,7 @@
     }, orderConditionInput) }}
 
     {% set customerConditionInput %}
-      {{ shippingMethod.customerCondition.getBuilderHtml()|raw }}
+      {{ shippingMethod.customerCondition|commerceConditionBuilderHtml }}
     {% endset %}
 
     {{ forms.field({

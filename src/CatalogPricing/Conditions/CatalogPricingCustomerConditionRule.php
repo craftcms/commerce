@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\CatalogPricing\Conditions;
 
-use craft\helpers\Cp;
 use CraftCms\Cms\Condition\BaseConditionRule;
-use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\Form\Contracts\Node;
+use CraftCms\Cms\Form\Controls\ElementSelect;
+use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\CatalogPricing\Contracts\CatalogPricingConditionRuleInterface;
 use Illuminate\Database\Query\Builder;
@@ -40,23 +41,11 @@ class CatalogPricingCustomerConditionRule extends BaseConditionRule implements C
         ]);
     }
 
+    /** @return list<Node> */
     #[Override]
-    protected function inputHtml(): string
+    protected function inputNodes(): array
     {
-        return Html::hiddenLabel($this->getLabel(), 'customer') .
-            Html::tag('div',
-                Cp::elementSelectHtml([
-                    'name' => 'customerId',
-                    'elements' => array_filter([$this->customerId]),
-                    'elementType' => User::class,
-                    'sources' => null,
-                    'criteria' => null,
-                    'single' => true,
-                ]),
-                [
-                    'class' => ['flex', 'flex-start'],
-                ]
-            );
+        return [Field::make($this->getLabel(), ElementSelect::make('customerId')->elementType(User::class)->single()->value($this->customerId))];
     }
 
     #[Override]

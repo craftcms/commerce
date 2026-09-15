@@ -6,6 +6,7 @@ namespace CraftCms\Commerce\Order\Conditions;
 
 use CraftCms\Cms\Condition\BaseMultiSelectConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Commerce\Order\Elements\Order;
@@ -13,11 +14,12 @@ use CraftCms\Commerce\Order\Queries\OrderQuery;
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
 use CraftCms\Commerce\Payment\Gateway\Gateways;
 use Deprecated;
+use Illuminate\Database\Query\Builder;
 use Override;
 
 use function CraftCms\Cms\t;
 
-class PaymentGatewayConditionRule extends BaseMultiSelectConditionRule implements ElementConditionRuleInterface
+class PaymentGatewayConditionRule extends BaseMultiSelectConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     /**
      * @var string|null Legacy single value property for backwards compatibility
@@ -99,12 +101,12 @@ class PaymentGatewayConditionRule extends BaseMultiSelectConditionRule implement
         return app(Gateways::class)->getAllGateways()->mapWithKeys(fn(GatewayInterface $gateway) => [$gateway->uid => $gateway->name])->all();
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
         $gateways = app(Gateways::class)->getAllGateways();
 
-        /** @var OrderQuery $query */
-        $query->gatewayId($this->paramValue(fn($uid) => $gateways->firstWhere('uid', $uid)?->id));
+        /** @var OrderQuery $elementQuery */
+        $elementQuery->gatewayId($this->paramValue(fn($uid) => $gateways->firstWhere('uid', $uid)?->id));
     }
 
     public function matchElement(ElementInterface $element): bool

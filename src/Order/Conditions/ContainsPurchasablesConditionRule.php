@@ -4,20 +4,23 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Conditions;
 
-use craft\helpers\Cp;
 use CraftCms\Cms\Condition\BaseElementSelectConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionInterface;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
+use CraftCms\Cms\Form\Contracts\Node;
+use CraftCms\Cms\Form\Controls\Choice;
+use CraftCms\Cms\Form\Controls\ElementSelect;
+use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\Support\Facades\Conditions;
-use CraftCms\Cms\Support\Html;
-use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Inventory\Enums\ContainsPurchasablesMatch;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Queries\OrderQuery;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Purchasable\Purchasables;
+use Illuminate\Database\Query\Builder;
 use Override;
 
 use function CraftCms\Cms\t;
@@ -25,7 +28,7 @@ use function CraftCms\Cms\t;
 /**
  * @method array|string|null paramValue(?callable $normalizeValue = null)
  */
-class ContainsPurchasablesConditionRule extends BaseElementSelectConditionRule implements ElementConditionRuleInterface
+class ContainsPurchasablesConditionRule extends BaseElementSelectConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     public string $purchasableType = Variant::class;
 
@@ -60,15 +63,15 @@ class ContainsPurchasablesConditionRule extends BaseElementSelectConditionRule i
         return $this->purchasableType;
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
         $ids = $this->getElementIds();
         if (empty($ids)) {
             return;
         }
 
-        /** @var OrderQuery $query */
-        $query->containsPurchasables(['purchasables' => $ids, 'match' => $this->getMatch()]);
+        /** @var OrderQuery $elementQuery */
+        $elementQuery->containsPurchasables(['purchasables' => $ids, 'match' => $this->getMatch()]);
     }
 
     public function matchElement(ElementInterface $element): bool
@@ -101,45 +104,23 @@ class ContainsPurchasablesConditionRule extends BaseElementSelectConditionRule i
         ]);
     }
 
+    /** @return list<Node> */
     #[Override]
-    protected function inputHtml(): string
+    protected function inputNodes(): array
     {
-        $matchId = 'match';
-        $purchasableTypeOptions = $this->purchasableTypeOptions();
-
-        $purchasableTypeHtml = count($purchasableTypeOptions) === 1
-            ? Html::hiddenInput('purchasableType', $purchasableTypeOptions[0]['value'])
-            : Cp::selectHtml([
-                'id' => 'purchasable-type',
-                'name' => 'purchasableType',
-                'options' => $purchasableTypeOptions,
-                'value' => $this->purchasableType,
-                'inputAttributes' => [
-                    'hx' => [
-                        'post' => Url::actionUrl('conditions/render'),
-                    ],
-                ],
-            ]);
-
-        return Html::hiddenLabel($this->getLabel(), $matchId) .
-            Html::tag('div',
-                Cp::selectHtml([
-                    'id' => $matchId,
-                    'name' => 'match',
-                    'options' => $this->matchOptions(),
-                    'value' => $this->getMatch()->value,
-                    'inputAttributes' => [
-                        'hx' => [
-                            'post' => Url::actionUrl('conditions/render'),
-                        ],
-                    ],
-                ]) .
-                $purchasableTypeHtml .
-                parent::inputHtml(),
-                [
-                    'class' => ['flex', 'flex-start'],
-                ]
-            );
+        return [
+            Field::make(t('Match', category: 'commerce'), Choice::make('match')
+                ->options($this->matchOptions())
+                ->withoutPlaceholder()
+                ->value($this->getMatch()->value)
+                ->reactive()),
+            Field::make(t('Purchasable Type', category: 'commerce'), Choice::make('purchasableType')
+                ->options($this->purchasableTypeOptions())
+                ->withoutPlaceholder()
+                ->value($this->purchasableType)
+                ->reactive()),
+            ...parent::inputNodes(),
+        ];
     }
 
     #[Override]
@@ -176,10 +157,8 @@ class ContainsPurchasablesConditionRule extends BaseElementSelectConditionRule i
     }
 
     #[Override]
-    protected function elementSelectConfig(): array
+    protected function elementSelect(): ElementSelect
     {
-        return array_merge(parent::elementSelectConfig(), [
-            'showSiteMenu' => true,
-        ]);
+        return parent::elementSelect()->showSiteMenu();
     }
 }

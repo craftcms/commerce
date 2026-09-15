@@ -4,21 +4,24 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Address\Conditions;
 
-use craft\helpers\Cp;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Condition\BaseTextConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
-use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\Form\Contracts\Node;
+use CraftCms\Cms\Form\Controls\Textarea;
+use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Commerce\Formula\Formulas;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Log;
 use LogicException;
 use Throwable;
 
 use function CraftCms\Cms\t;
 
-class PostalCodeFormulaConditionRule extends BaseTextConditionRule implements ElementConditionRuleInterface
+class PostalCodeFormulaConditionRule extends BaseTextConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     public function getLabel(): string
     {
@@ -30,7 +33,7 @@ class PostalCodeFormulaConditionRule extends BaseTextConditionRule implements El
         return [];
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
         throw new LogicException('Discount Address Condition does not support element queries.');
     }
@@ -58,18 +61,10 @@ class PostalCodeFormulaConditionRule extends BaseTextConditionRule implements El
         ];
     }
 
+    /** @return list<Node> */
     #[\Override]
-    protected function inputHtml(): string
+    protected function inputNodes(): array
     {
-        return Html::hiddenLabel($this->getLabel(), 'value') .
-            Cp::textareaHtml([
-                'type' => $this->inputType(),
-                'id' => 'value',
-                'name' => 'value',
-                'code' => 'value',
-                'value' => $this->value,
-                'autocomplete' => false,
-                'class' => 'fullwidth code',
-            ]);
+        return [Field::make($this->getLabel(), Textarea::make('value')->value($this->value)->monospace())];
     }
 }

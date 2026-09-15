@@ -6,6 +6,7 @@ namespace CraftCms\Commerce\Order\Conditions;
 
 use CraftCms\Cms\Condition\BaseMultiSelectConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Cms\Support\Arr;
@@ -13,13 +14,14 @@ use CraftCms\Commerce\Order\Data\OrderStatus;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Order\Queries\OrderQuery;
+use Illuminate\Database\Query\Builder;
 
 use function CraftCms\Cms\t;
 
 /**
  * @method array|string|null paramValue(?callable $normalizeValue = null)
  */
-class OrderStatusConditionRule extends BaseMultiSelectConditionRule implements ElementConditionRuleInterface
+class OrderStatusConditionRule extends BaseMultiSelectConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     public function getLabel(): string
     {
@@ -31,12 +33,12 @@ class OrderStatusConditionRule extends BaseMultiSelectConditionRule implements E
         return ['orderStatus'];
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
         $orderStatuses = app(OrderStatuses::class)->getAllOrderStatuses();
 
-        /** @var OrderQuery $query */
-        $query->orderStatus($this->paramValue(fn(string $value) => Arr::first($orderStatuses, fn(OrderStatus $status) => $status->uid === $value)?->handle));
+        /** @var OrderQuery $elementQuery */
+        $elementQuery->orderStatus($this->paramValue(fn(string $value) => Arr::first($orderStatuses, fn(OrderStatus $status) => $status->uid === $value)?->handle));
     }
 
     public function matchElement(ElementInterface $element): bool

@@ -6,6 +6,7 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\helpers\Cp;
 use CraftCms\Cms\Address\Elements\Address;
+use CraftCms\Cms\Condition\ConditionBuilderRenderer;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Addresses;
@@ -92,7 +93,7 @@ readonly class StoreManagementController
         $condition->mainTag = 'div';
         $condition->name = 'marketAddressCondition';
         $condition->id = 'marketAddressCondition';
-        $marketAddressConditionFieldHtml = Cp::fieldHtml($condition->getBuilderHtml(), [
+        $marketAddressConditionFieldHtml = Cp::fieldHtml(new ConditionBuilderRenderer($condition)->render(), [
             'label' => t('Order Address Condition'),
             'instructions' => t('Only allow orders with addresses that match the following rules:'),
         ]);

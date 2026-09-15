@@ -9,6 +9,7 @@ use CommerceGuys\Addressing\AddressInterface;
 use craft\errors\MutexException;
 use CraftCms\Cms\Address\Elements\Address as AddressElement;
 use CraftCms\Cms\Component\ComponentHelper;
+use CraftCms\Cms\Condition\Contracts\ConditionRuleInterface;
 use CraftCms\Cms\Cp\Html\StatusHtml;
 use CraftCms\Cms\Cp\RequestedSite;
 use CraftCms\Cms\Element\Actions\Delete;
@@ -3178,7 +3179,7 @@ class Order extends Element implements HasStoreInterface
         }
 
         $marketLocationCondition = $this->getStore()->getSettings()->getMarketAddressCondition();
-        if ($address && count($marketLocationCondition->getConditionRules()) > 0 && !$marketLocationCondition->matchElement($address)) {
+        if ($address && !empty($marketLocationCondition->getConditionRules()->findRules(fn(ConditionRuleInterface $rule) => true)) && !$marketLocationCondition->matchElement($address)) {
             $this->errors()->add($attribute, t('The address provided is outside the store\'s market.', category: 'commerce'));
         }
     }
@@ -3874,11 +3875,9 @@ class Order extends Element implements HasStoreInterface
             return $config;
         }
 
-        $rules = $condition->getConditionRules();
-
         // see if it's limited to one product type
         /** @var OrderStatusConditionRule|null $orderStatusConditionRule */
-        $orderStatusConditionRule = Arr::first($rules, fn($rule) => $rule instanceof OrderStatusConditionRule);
+        $orderStatusConditionRule = Arr::first($condition->getConditionRules()->findRules(fn(ConditionRuleInterface $rule) => $rule instanceof OrderStatusConditionRule));
         $orderStatusOptions = $orderStatusConditionRule?->getValues();
 
         $currentSite = app(RequestedSite::class)->get() ?? Sites::getCurrentSite();

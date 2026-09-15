@@ -237,7 +237,7 @@
     <div id="conditions" class="hidden flex-fields">
 
         {% set orderConditionInput %}
-            {{ discount.orderCondition.getBuilderHtml()|raw }}
+            {{ discount.orderCondition|commerceConditionBuilderHtml }}
         {% endset %}
 
         {{ forms.field({
@@ -247,7 +247,7 @@
         }, orderConditionInput) }}
 
         {% set customerConditionInput %}
-            {{ discount.customerCondition.getBuilderHtml()|raw }}
+            {{ discount.customerCondition|commerceConditionBuilderHtml }}
         {% endset %}
 
         {{ forms.field({
@@ -257,7 +257,7 @@
         }, customerConditionInput) }}
 
         {% set shippingAddressConditionInput %}
-            {{ discount.shippingAddressCondition.getBuilderHtml()|raw }}
+            {{ discount.shippingAddressCondition|commerceConditionBuilderHtml }}
         {% endset %}
 
         {{ forms.field({
@@ -267,7 +267,7 @@
         }, shippingAddressConditionInput) }}
 
         {% set billingAddressConditionInput %}
-            {{ discount.billingAddressCondition.getBuilderHtml()|raw }}
+            {{ discount.billingAddressCondition|commerceConditionBuilderHtml }}
         {% endset %}
 
         {{ forms.field({

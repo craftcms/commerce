@@ -110,7 +110,7 @@
 
     <hr>
     {% set orderConditionInput %}
-        {{ gateway.getOrderCondition().getBuilderHtml(readOnly)|raw }}
+        {{ gateway.getOrderCondition()|commerceConditionBuilderHtml(not readOnly) }}
     {% endset %}
 
     {{ forms.field({
@@ -120,7 +120,7 @@
     }, orderConditionInput) }}
 
     {% set billingAddressConditionInput %}
-        {{ gateway.getBillingAddressCondition().getBuilderHtml(readOnly)|raw }}
+        {{ gateway.getBillingAddressCondition()|commerceConditionBuilderHtml(not readOnly) }}
     {% endset %}
 
     {{ forms.field({
@@ -130,7 +130,7 @@
     }, billingAddressConditionInput) }}
 
     {% set shippingAddressConditionInput %}
-        {{ gateway.getShippingAddressCondition().getBuilderHtml(readOnly)|raw }}
+        {{ gateway.getShippingAddressCondition()|commerceConditionBuilderHtml(not readOnly) }}
     {% endset %}
 
     {{ forms.field({

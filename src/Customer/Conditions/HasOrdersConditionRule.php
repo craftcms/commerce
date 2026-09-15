@@ -6,20 +6,24 @@ namespace CraftCms\Commerce\Customer\Conditions;
 
 use CraftCms\Cms\Condition\BaseNumberConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
+use CraftCms\Cms\Form\Contracts\Node;
+use CraftCms\Cms\Form\Controls\ConditionBuilder;
+use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\Support\Facades\Conditions;
-use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Commerce\Order\Conditions\CompletedConditionRule;
 use CraftCms\Commerce\Order\Conditions\OrderCondition;
 use CraftCms\Commerce\Order\Elements\Order;
+use Illuminate\Database\Query\Builder;
 use Override;
 use RuntimeException;
 
 use function CraftCms\Cms\t;
 
-class HasOrdersConditionRule extends BaseNumberConditionRule implements ElementConditionRuleInterface
+class HasOrdersConditionRule extends BaseNumberConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     /** @see getOrderCondition() */
     private OrderCondition|array|null $_orderCondition = null;
@@ -53,34 +57,21 @@ class HasOrdersConditionRule extends BaseNumberConditionRule implements ElementC
         return ['hasOrders'];
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
         throw new RuntimeException('Has orders condition rule does not support queries');
     }
 
+    /** @return list<Node> */
     #[Override]
-    public function getHtml(): string
+    protected function inputNodes(): array
     {
-        $html = Html::tag('label', t('Total Orders', category: 'commerce'), [
-            'style' => [
-                'padding-top' => '0.25rem',
-                'padding-bottom' => '0.5rem',
-                'font-weight' => 'bold',
-                'color' => '#596673',
-                'display' => 'block',
-            ],
-        ]);
-        $html .= parent::getHtml();
-        $html .= Html::tag('div', t('Match Orders', category: 'commerce'), [
-            'style' => [
-                'margin-top' => '1rem',
-                'font-weight' => 'bold',
-                'color' => '#596673',
-            ],
-        ]);
-        $html .= Html::tag('div', $this->getOrderCondition()->getBuilderHtml(), ['style' => ['margin-top' => '0.5rem']]);
-
-        return $html;
+        return [
+            ...parent::inputNodes(),
+            Field::make(t('Match Orders', category: 'commerce'), ConditionBuilder::make('orderCondition')
+                ->conditionClass(OrderCondition::class)
+                ->queryParams(['customerId'])),
+        ];
     }
 
     public function matchElement(ElementInterface $element): bool

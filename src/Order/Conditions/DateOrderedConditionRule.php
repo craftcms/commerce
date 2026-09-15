@@ -6,14 +6,16 @@ namespace CraftCms\Commerce\Order\Conditions;
 
 use CraftCms\Cms\Condition\BaseDateRangeConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Queries\OrderQuery;
+use Illuminate\Database\Query\Builder;
 
 use function CraftCms\Cms\t;
 
-class DateOrderedConditionRule extends BaseDateRangeConditionRule implements ElementConditionRuleInterface
+class DateOrderedConditionRule extends BaseDateRangeConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     public function getLabel(): string
     {
@@ -25,10 +27,10 @@ class DateOrderedConditionRule extends BaseDateRangeConditionRule implements Ele
         return ['dateOrdered'];
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        /** @var OrderQuery $query */
-        $query->dateOrdered($this->queryParamValue());
+        /** @var OrderQuery $elementQuery */
+        $elementQuery->dateOrdered($this->queryParamValue());
     }
 
     public function matchElement(ElementInterface $element): bool

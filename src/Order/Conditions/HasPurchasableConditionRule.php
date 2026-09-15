@@ -4,19 +4,22 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Conditions;
 
-use craft\helpers\Cp;
 use CraftCms\Cms\Condition\BaseElementSelectConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionInterface;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
+use CraftCms\Cms\Form\Contracts\Node;
+use CraftCms\Cms\Form\Controls\Choice;
+use CraftCms\Cms\Form\Controls\ElementSelect;
+use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\Support\Facades\Conditions;
-use CraftCms\Cms\Support\Html;
-use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Queries\OrderQuery;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Purchasable\Purchasables;
+use Illuminate\Database\Query\Builder;
 use Override;
 
 use function CraftCms\Cms\t;
@@ -24,7 +27,7 @@ use function CraftCms\Cms\t;
 /**
  * @method array|string|null paramValue(?callable $normalizeValue = null)
  */
-class HasPurchasableConditionRule extends BaseElementSelectConditionRule implements ElementConditionRuleInterface
+class HasPurchasableConditionRule extends BaseElementSelectConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     public string $purchasableType = Variant::class;
 
@@ -43,14 +46,14 @@ class HasPurchasableConditionRule extends BaseElementSelectConditionRule impleme
         return $this->purchasableType;
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
         if ($this->getElementId() === null) {
             return;
         }
 
-        /** @var OrderQuery $query */
-        $query->hasPurchasables([$this->getElementId()]);
+        /** @var OrderQuery $elementQuery */
+        $elementQuery->hasPurchasables([$this->getElementId()]);
     }
 
     public function matchElement(ElementInterface $element): bool
@@ -77,29 +80,18 @@ class HasPurchasableConditionRule extends BaseElementSelectConditionRule impleme
         ]);
     }
 
+    /** @return list<Node> */
     #[Override]
-    protected function inputHtml(): string
+    protected function inputNodes(): array
     {
-        $id = 'purchasable-type';
-
-        return Html::hiddenLabel($this->getLabel(), $id) .
-            Html::tag('div',
-                Cp::selectHtml([
-                    'id' => $id,
-                    'name' => 'purchasableType',
-                    'options' => $this->purchasableTypeOptions(),
-                    'value' => $this->purchasableType,
-                    'inputAttributes' => [
-                        'hx' => [
-                            'post' => Url::actionUrl('conditions/render'),
-                        ],
-                    ],
-                ]) .
-                parent::inputHtml(),
-                [
-                    'class' => ['flex', 'flex-start'],
-                ]
-            );
+        return [
+            Field::make(t('Purchasable Type', category: 'commerce'), Choice::make('purchasableType')
+                ->options($this->purchasableTypeOptions())
+                ->withoutPlaceholder()
+                ->value($this->purchasableType)
+                ->reactive()),
+            ...parent::inputNodes(),
+        ];
     }
 
     #[Override]
@@ -127,10 +119,8 @@ class HasPurchasableConditionRule extends BaseElementSelectConditionRule impleme
     }
 
     #[Override]
-    protected function elementSelectConfig(): array
+    protected function elementSelect(): ElementSelect
     {
-        return array_merge(parent::elementSelectConfig(), [
-            'showSiteMenu' => true,
-        ]);
+        return parent::elementSelect()->showSiteMenu();
     }
 }

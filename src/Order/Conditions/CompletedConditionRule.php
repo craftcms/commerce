@@ -6,14 +6,16 @@ namespace CraftCms\Commerce\Order\Conditions;
 
 use CraftCms\Cms\Condition\BaseLightswitchConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Queries\OrderQuery;
+use Illuminate\Database\Query\Builder;
 
 use function CraftCms\Cms\t;
 
-class CompletedConditionRule extends BaseLightswitchConditionRule implements ElementConditionRuleInterface
+class CompletedConditionRule extends BaseLightswitchConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     public function getLabel(): string
     {
@@ -25,10 +27,10 @@ class CompletedConditionRule extends BaseLightswitchConditionRule implements Ele
         return ['isCompleted'];
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        /** @var OrderQuery $query */
-        $query->isCompleted($this->value);
+        /** @var OrderQuery $elementQuery */
+        $elementQuery->isCompleted($this->value);
     }
 
     public function matchElement(ElementInterface $element): bool
