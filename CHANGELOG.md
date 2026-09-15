@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.7.4 - 2026-09-15
 
 - Fixed a bug where custom order fields with a visibility condition based on order attributes couldn’t be saved. ([#4198](https://github.com/craftcms/commerce/issues/4198))
 - Fixed a bug where the Payment Amount field on order edit pages could get reformatted incorrectly per the user’s formatting locale. ([#4109](https://github.com/craftcms/commerce/issues/4109))
