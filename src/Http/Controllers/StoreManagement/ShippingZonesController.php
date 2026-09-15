@@ -4,67 +4,72 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
-use CraftCms\Cms\Condition\ConditionBuilderRenderer;
+use CraftCms\Cms\Cp\Html\ContentHtml;
+use CraftCms\Cms\Form\Controls\ConditionBuilder;
+use CraftCms\Cms\Form\Controls\Text;
+use CraftCms\Cms\Form\Form;
+use CraftCms\Cms\Form\FormContext;
+use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Form\Nodes\HiddenField;
+use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
-use CraftCms\Cms\Support\Facades\HtmlStack;
-use CraftCms\Cms\Support\Facades\I18N;
-use CraftCms\Cms\Support\Html as NewHtml;
-use CraftCms\Cms\Support\Json;
-use CraftCms\Cms\View\Enums\Position;
+use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\Translation\Formatter;
+use CraftCms\Commerce\Address\Conditions\ZoneAddressCondition;
 use CraftCms\Commerce\Formula\Formulas;
 use CraftCms\Commerce\Shipping\Data\ShippingAddressZone;
 use CraftCms\Commerce\Shipping\ShippingZones;
+use CraftCms\Commerce\Store\Data\Store;
 
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\t;
 
-readonly class ShippingZonesController extends LegacyStoreManagementController
+readonly class ShippingZonesController extends BaseStoreManagementController
 {
+    protected function getSectionCrumb(Store $store): array
+    {
+        return ['label' => t('Shipping Zones', category: 'commerce'), 'href' => $store->getStoreSettingsUrl('shippingzones')];
+    }
+
     public function index(?string $storeHandle = null): CpScreenResponse
     {
         $store = $this->resolveStore($storeHandle);
 
-        $shippingZones = app(ShippingZones::class)->getAllShippingZones($store->id);
-
-        $tableData = [];
-        foreach ($shippingZones as $shippingZone) {
-            $label = NewHtml::encode(t($shippingZone->name, category: 'site'));
-            $tableData[] = [
+        $rows = app(ShippingZones::class)->getAllShippingZones($store->id)
+            ->map(fn(ShippingAddressZone $shippingZone) => [
                 'id' => $shippingZone->id,
-                'title' => NewHtml::a($label, $shippingZone->getCpEditUrl()),
-                'url' => $shippingZone->getCpEditUrl(),
-                'description' => NewHtml::encode(t($shippingZone->description, category: 'site')),
-            ];
-        }
+                'name' => ['html' => Html::a(Html::encode(t($shippingZone->name, category: 'site')), $shippingZone->getCpEditUrl(), ['class' => 'cell-bold'])],
+                'description' => t($shippingZone->description, category: 'site'),
+            ])
+            ->values()
+            ->all();
 
-        $tableData = Json::encode($tableData);
+        $nodes = [
+            Table::make('shipping-zones')
+                ->columns([
+                    ['key' => 'name', 'label' => t('Name')],
+                    ['key' => 'description', 'label' => t('Description', category: 'commerce')],
+                ])
+                ->rows($rows)
+                ->emptyMessage(t('No shipping zones exist yet.', category: 'commerce'))
+                ->createAction(t('New shipping zone', category: 'commerce'), $store->getStoreSettingsUrl('shippingzones/new'))
+                ->deletable(action([self::class, 'delete'])),
+        ];
 
-        $js = <<<JS
-    var columns = [
-        { name: 'title', title: Craft.t('commerce', 'Name') },
-        { name: 'description', title: Craft.t('commerce', 'Description') },
-    ];
+        $title = t('Shipping Zones', category: 'commerce');
 
-    new Craft.VueAdminTable({
-        columns: columns,
-        container: '#shipping-vue-admin-table',
-        deleteAction: 'commerce/shipping-zones/delete',
-        tableData: {$tableData},
-    });
-JS;
-
-        HtmlStack::js($js, Position::BodyEnd);
-
-        return $this->storeManagementCpScreen($storeHandle)
-            ->additionalButtonsHtml(NewHtml::a(t('New shipping zone', category: 'commerce'), $store->getStoreSettingsUrl('shippingzones/new'), ['class' => 'btn submit add icon']))
-            ->contentHtml(NewHtml::tag('div', '', ['id' => 'shipping-vue-admin-table']));
+        return $this->cpScreenResponse($store)
+            ->title($title)
+            ->crumbs($this->crumbs($store))
+            ->inertiaPage('Form', [
+                'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+            ]);
     }
 
     public function edit(?string $storeHandle = null, ?int $id = null): CpScreenResponse
     {
         $store = $this->resolveStore($storeHandle);
-        $storeHandle = $store->handle;
 
         if ($id) {
             $shippingZone = app(ShippingZones::class)->getShippingZoneById($id, $store->id);
@@ -75,32 +80,52 @@ JS;
 
         $title = $shippingZone->id ? $shippingZone->name : t('Create a shipping zone', category: 'commerce');
 
-        $condition = $shippingZone->getCondition();
-        $condition->mainTag = 'div';
-        $condition->name = 'condition';
-        $condition->id = 'condition';
+        $formatter = app(Formatter::class);
+        $metadataHtml = $shippingZone->id ? app(ContentHtml::class)->metadataHtml([
+            t('Created at') => $formatter->asDateTime($shippingZone->dateCreated, 'short'),
+            t('Updated at') => $formatter->asDateTime($shippingZone->dateUpdated, 'short'),
+        ]) : null;
 
-        // Condition classes no longer self-render; ConditionBuilderRenderer replaces the old getBuilderHtml()/builderHtml().
-        $conditionHtml = new ConditionBuilderRenderer($condition)->render();
+        $formNodes = [
+            HiddenField::make('storeId'),
+        ];
 
-        $metadata = [];
         if ($shippingZone->id) {
-            $metadata = [
-                t('Created at') => I18N::getFormatter()->asDatetime($shippingZone->dateCreated, 'short'),
-                t('Updated at') => I18N::getFormatter()->asDatetime($shippingZone->dateUpdated, 'short'),
-            ];
+            $formNodes[] = HiddenField::make('shippingZoneId');
         }
 
-        return $this->storeManagementCpScreen($storeHandle, false)
+        $formNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
+            ->instructions(t('What this shipping zone will be called in the control panel.', category: 'commerce'))
+            ->required();
+        $formNodes[] = Field::make(t('Description', category: 'commerce'), Text::make('description'))
+            ->instructions(t('Describe this shipping zone.', category: 'commerce'));
+        // Zones aren't project-config-tracked (Zone::setCondition() hardcodes forProjectConfig
+        // to false), so this deliberately doesn't call ->forProjectConfig() either.
+        $formNodes[] = Field::make(t('Address Condition'), ConditionBuilder::make('condition')
+            ->conditionClass(ZoneAddressCondition::class)
+            ->value($shippingZone->getCondition()->getConfig()));
+
+        $values = [
+            'storeId' => $store->id,
+            'shippingZoneId' => $shippingZone->id,
+            'name' => $shippingZone->name,
+            'description' => $shippingZone->description,
+        ];
+
+        $form = $this->formResolver->resolve(Form::make($formNodes), new FormContext(values: $values));
+
+        return $this->cpScreenResponse($store)
             ->title($title)
-            ->addCrumb(t('Shipping Zones', category: 'commerce'), $store->getStoreSettingsUrl('shippingzones'))
+            ->crumbs($this->crumbs($store, ...($shippingZone->id ? [['label' => $title]] : [])))
             ->action('commerce/shipping-zones/save')
             ->redirectUrl($store->getStoreSettingsUrl('shippingzones'))
-            ->metaSidebarHtml(\craft\helpers\Cp::metadataHtml($metadata))
-            ->contentTemplate('commerce/store-management/shipping/shippingzones/_edit', [
-                'shippingZone' => $shippingZone,
-                'conditionHtml' => $conditionHtml,
-                'store' => $store,
+            ->inertiaPage('Form', [
+                'form' => $form,
+                'submit' => [
+                    'method' => 'post',
+                    'url' => action([self::class, 'save']),
+                ],
+                'metadataHtml' => $metadataHtml,
             ]);
     }
 

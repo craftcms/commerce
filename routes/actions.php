@@ -130,6 +130,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
         Route::post('shipping-categories/save', [ShippingCategoriesController::class, 'save']);
         Route::post('shipping-categories/delete', [ShippingCategoriesController::class, 'delete']);
         Route::post('shipping-categories/set-default-category', [ShippingCategoriesController::class, 'setDefaultCategory']);
+        Route::post('shipping-categories/render-form', [ShippingCategoriesController::class, 'renderForm']);
     });
 
     Route::middleware('can:commerce-manageTaxes')->group(function () {

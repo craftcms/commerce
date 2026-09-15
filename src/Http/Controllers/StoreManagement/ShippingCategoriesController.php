@@ -5,108 +5,88 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use craft\helpers\Cp;
+use CraftCms\Cms\Cp\Html\ContentHtml;
+use CraftCms\Cms\Form\Controls\Choice;
+use CraftCms\Cms\Form\Controls\ColorSelect;
+use CraftCms\Cms\Form\Controls\Handle;
+use CraftCms\Cms\Form\Controls\IconPicker;
+use CraftCms\Cms\Form\Controls\Lightswitch;
+use CraftCms\Cms\Form\Controls\Text;
+use CraftCms\Cms\Form\Enums\ControlMode;
+use CraftCms\Cms\Form\Form;
+use CraftCms\Cms\Form\FormContext;
+use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Form\Nodes\HiddenField;
+use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Arr;
-use CraftCms\Cms\Support\Facades\HtmlStack;
-use CraftCms\Cms\Support\Facades\I18N;
-use CraftCms\Cms\Support\Html as NewHtml;
-use CraftCms\Cms\Support\Json;
-use CraftCms\Cms\View\Enums\Position;
+use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\Translation\Formatter;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use CraftCms\Commerce\Shipping\Data\ShippingCategory;
 use CraftCms\Commerce\Shipping\ShippingCategories;
-
+use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
+
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\t;
 
-readonly class ShippingCategoriesController extends LegacyStoreManagementController
+readonly class ShippingCategoriesController extends BaseStoreManagementController
 {
+    protected function getSectionCrumb(Store $store): array
+    {
+        return ['label' => t('Shipping Categories', category: 'commerce'), 'href' => $store->getStoreSettingsUrl('shippingcategories')];
+    }
+
     public function index(?string $storeHandle = null): CpScreenResponse
     {
         $store = $this->resolveStore($storeHandle);
-        $storeHandle = $store->handle;
 
         $shippingCategories = app(ShippingCategories::class)->getAllShippingCategories($store->id);
 
-        $tableData = [];
-        foreach ($shippingCategories as $shippingCategory) {
-            $label = NewHtml::encode(t($shippingCategory->name, category: 'site'));
-            $tableData[] = [
+        $rows = $shippingCategories
+            ->map(fn(ShippingCategory $shippingCategory) => [
                 'id' => $shippingCategory->id,
-                'title' => $label,
-                'chip' => Cp::chipHtml($shippingCategory, [
-                    'labelHtml' => NewHtml::a($label, $shippingCategory->getCpEditUrl(), [
-                        'class' => ['chip-label', 'cell-bold'],
-                    ]),
-                ]),
-                'url' => $shippingCategory->getCpEditUrl(),
+                'name' => ['html' => Cp::chipHtml($shippingCategory, [
+                    'labelHtml' => Html::a(Html::encode(t($shippingCategory->name, category: 'site')), $shippingCategory->getCpEditUrl(), ['class' => 'cell-bold']),
+                ])],
                 'handle' => $shippingCategory->handle,
-                'description' => NewHtml::encode(t($shippingCategory->description, category: 'site')),
-                'default' => $shippingCategory->default,
-                '_showDelete' => (count($shippingCategories) > 1 && !$shippingCategory->default),
-            ];
-        }
+                'description' => t($shippingCategory->description, category: 'site'),
+                'default' => $shippingCategory->default ? ['icon' => 'check', 'label' => t('Yes')] : '',
+                '_deletable' => $shippingCategories->count() > 1 && !$shippingCategory->default,
+            ])
+            ->values()
+            ->all();
 
-        $tableData = Json::encode($tableData);
+        $nodes = [
+            Table::make('shipping-categories')
+                ->columns([
+                    ['key' => 'name', 'label' => t('Name')],
+                    ['key' => 'handle', 'label' => t('Handle')],
+                    ['key' => 'description', 'label' => t('Description', category: 'commerce')],
+                    ['key' => 'default', 'label' => t('Default Category', category: 'commerce')],
+                ])
+                ->rows($rows)
+                ->emptyMessage(t('No shipping categories exist yet.', category: 'commerce'))
+                ->createAction(t('New shipping category', category: 'commerce'), $store->getStoreSettingsUrl('shippingcategories/new'))
+                ->deletable(action([self::class, 'delete'])),
+        ];
 
-        $js = <<<JS
-var columns = [
-        { name: 'chip', title: Craft.t('commerce', 'Name') },
-        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
-        { name: 'description', title: Craft.t('commerce', 'Description') },
-        {
-            name: 'default',
-            title: Craft.t('commerce', 'Default'),
-            callback: function(value) {
-                if (value) {
-                    return '<div data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce','Yes'))+'"></div>';
-                }
-            }
-        },
-    ];
+        $title = t('Shipping Categories', category: 'commerce');
 
-    new Craft.VueAdminTable({
-        actions: [
-        {
-            label: '',
-            icon: 'settings',
-            actions: [
-                {
-                    label: Craft.t('commerce', 'Set Default Category'),
-                    action: 'commerce/shipping-categories/set-default-category',
-                    param: 'storeHandle',
-                    value: '{$storeHandle}',
-                    allowMultiple: false
-                }
-            ]
-        }
-    ],
-        checkboxes: true,
-        columns: columns,
-        container: '#shipping-vue-admin-table',
-        deleteAction: 'commerce/shipping-categories/delete',
-        padded: true,
-        tableData: {$tableData},
-    });
-JS;
-
-        HtmlStack::js($js, Position::BodyEnd);
-
-        return $this->storeManagementCpScreen($storeHandle)
-            ->additionalButtonsHtml(NewHtml::a(
-                t('New shipping category', category: 'commerce'),
-                $store->getStoreSettingsUrl('shippingcategories/new'),
-                ['class' => 'btn submit add icon']
-            ))
-            ->contentHtml(NewHtml::tag('div', '', ['id' => 'shipping-vue-admin-table']));
+        return $this->cpScreenResponse($store)
+            ->title($title)
+            ->crumbs($this->crumbs($store))
+            ->inertiaPage('Form', [
+                'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+            ]);
     }
 
     public function edit(?string $storeHandle = null, ?int $id = null): CpScreenResponse
     {
         $store = $this->resolveStore($storeHandle);
-        $storeHandle = $store->handle;
 
         if ($id) {
             $shippingCategory = app(ShippingCategories::class)->getShippingCategoryById($id, $store->id);
@@ -116,39 +96,190 @@ JS;
         }
 
         $title = $shippingCategory->id ? $shippingCategory->name : t('Create a new shipping category', category: 'commerce');
+        $lockDefault = $this->lockDefault($shippingCategory, $store);
 
-        $productTypes = app(ProductTypes::class)->getAllProductTypes();
-        $productTypesOptions = [];
-        if (!empty($productTypes)) {
-            $productTypesOptions = Arr::mapWithKeys($productTypes, fn($row) => [$row->id => ['label' => $row->name, 'value' => $row->id]]);
+        $formatter = app(Formatter::class);
+        $metadataHtml = $shippingCategory->id ? app(ContentHtml::class)->metadataHtml([
+            t('Created at') => $formatter->asDateTime($shippingCategory->dateCreated, 'short'),
+            t('Updated at') => $formatter->asDateTime($shippingCategory->dateUpdated, 'short'),
+        ]) : null;
+
+        $values = $this->initialValues($shippingCategory, $store);
+
+        $form = $this->formResolver->resolve(
+            $this->buildForm($shippingCategory, $values, $lockDefault),
+            new FormContext(values: $values, refreshable: true),
+        );
+
+        return $this->cpScreenResponse($store)
+            ->title($title)
+            ->crumbs($this->crumbs($store, ...($shippingCategory->id ? [['label' => $title]] : [])))
+            ->action('commerce/shipping-categories/save')
+            ->redirectUrl($store->getStoreSettingsUrl('shippingcategories'))
+            ->inertiaPage('Form', [
+                'form' => $form,
+                'submit' => [
+                    'method' => 'post',
+                    'url' => action([self::class, 'save']),
+                ],
+                'refreshUrl' => action([self::class, 'renderForm']),
+                'metadataHtml' => $metadataHtml,
+            ]);
+    }
+
+    /**
+     * Re-resolves the {@see edit()} Form tree for the values currently in progress on the
+     * client, so toggling "Default Category" can force every product type on (and disable
+     * further picking) without a full page reload.
+     */
+    public function renderForm(Request $request): JsonResponse
+    {
+        $request->validate([
+            'values' => ['required', 'array'],
+            'values.storeId' => ['required', 'integer'],
+            'values.shippingCategoryId' => ['nullable', 'integer'],
+            'scope' => ['present', 'array', 'size:0'],
+        ]);
+
+        $values = $request->input('values');
+        $store = app(Stores::class)->getStoreById((int)$values['storeId']);
+        abort_if($store === null, 404);
+
+        $shippingCategoryId = $values['shippingCategoryId'] ?? null;
+        if ($shippingCategoryId) {
+            $shippingCategory = app(ShippingCategories::class)->getShippingCategoryById((int)$shippingCategoryId, $store->id);
+            abort_if($shippingCategory === null, 404);
+        } else {
+            $shippingCategory = new ShippingCategory(['storeId' => $store->id]);
+        }
+
+        $lockDefault = $this->lockDefault($shippingCategory, $store);
+
+        // The client only posts values for controls currently in the rendered tree, so layer
+        // them over this model's real defaults before re-resolving — otherwise a field that's
+        // about to be revealed (or the productTypes list, once `default` forces it) would fall
+        // back to empty instead of its actual value.
+        $values = array_replace($this->initialValues($shippingCategory, $store), $values);
+
+        // `default` just flipped on (that's what triggered this round trip): the productTypes
+        // control is about to render disabled, so its stale posted selection — captured before
+        // the toggle — needs overriding to "every product type" rather than merged in as-is.
+        if ($values['default'] ?? false) {
+            $values['productTypes'] = array_column(app(ProductTypes::class)->getAllProductTypes(), 'id');
+        }
+
+        $form = $this->formResolver->resolve(
+            $this->buildForm($shippingCategory, $values, $lockDefault),
+            new FormContext(values: $values, refreshable: true),
+        );
+
+        return new JsonResponse(['form' => $form]);
+    }
+
+    private function lockDefault(ShippingCategory $shippingCategory, Store $store): bool
+    {
+        if (!$shippingCategory->id) {
+            return false;
         }
 
         $allShippingCategories = app(ShippingCategories::class)->getAllShippingCategories($store->id);
-        $isDefaultAndOnlyCategory = $id && $allShippingCategories->count() === 1 && $allShippingCategories->firstWhere('id', $id);
+        $isOnlyCategory = $allShippingCategories->count() === 1 && $allShippingCategories->firstWhere('id', $shippingCategory->id);
 
-        $metaSidebar = '';
-        if ($shippingCategory->id) {
-            $metaSidebar = Cp::metadataHtml([
-                t('Created at') => I18N::getFormatter()->asDatetime($shippingCategory->dateCreated, 'short'),
-                t('Updated at') => I18N::getFormatter()->asDatetime($shippingCategory->dateUpdated, 'short'),
-            ]);
+        return $isOnlyCategory || $shippingCategory->default;
+    }
+
+    /** @return array<string, mixed> */
+    private function initialValues(ShippingCategory $shippingCategory, Store $store): array
+    {
+        // A default category is available to every product type, whether or not it's ever
+        // been explicitly assigned to them — mirrors save()'s own handling below.
+        $productTypes = $shippingCategory->default
+            ? array_column(app(ProductTypes::class)->getAllProductTypes(), 'id')
+            : $shippingCategory->getProductTypeIds();
+
+        return [
+            'storeId' => $store->id,
+            'shippingCategoryId' => $shippingCategory->id,
+            'name' => $shippingCategory->name,
+            'handle' => $shippingCategory->handle,
+            'icon' => $shippingCategory->icon,
+            'color' => $shippingCategory->color ?? '',
+            'description' => $shippingCategory->description,
+            'productTypes' => $productTypes,
+            'default' => $shippingCategory->default,
+            'defaultDisplay' => $shippingCategory->default,
+        ];
+    }
+
+    /** @param array<string, mixed> $values */
+    private function buildForm(ShippingCategory $shippingCategory, array $values, bool $lockDefault): Form
+    {
+        $isDefault = (bool)($values['default'] ?? false);
+
+        $handle = Handle::make('handle');
+        if (!$shippingCategory->id) {
+            $handle->source('name');
         }
 
-        return $this->storeManagementCpScreen($storeHandle, false)
-            ->title($title)
-            ->addCrumb(t('Shipping Categories', category: 'commerce'), $store->getStoreSettingsUrl('shippingcategories'))
-            ->action('commerce/shipping-categories/save')
-            ->redirectUrl($store->getStoreSettingsUrl('shippingcategories'))
-            ->metaSidebarHtml($metaSidebar)
-            ->contentTemplate('commerce/store-management/shipping/shippingcategories/_edit', [
-                'id' => $id,
-                'shippingCategory' => $shippingCategory,
-                'productTypes' => $productTypes,
-                'storeHandle' => $storeHandle,
-                'title' => $title,
-                'productTypesOptions' => $productTypesOptions,
-                'isDefaultAndOnlyCategory' => $isDefaultAndOnlyCategory,
-            ]);
+        $productTypesOptions = array_values(array_map(
+            fn($productType) => ['label' => $productType->name, 'value' => $productType->id],
+            app(ProductTypes::class)->getAllProductTypes(),
+        ));
+
+        $formNodes = [
+            HiddenField::make('storeId'),
+        ];
+
+        if ($shippingCategory->id) {
+            $formNodes[] = HiddenField::make('shippingCategoryId');
+        }
+
+        $formNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
+            ->instructions(t('What this shipping category will be called in the control panel.', category: 'commerce'))
+            ->required();
+        $formNodes[] = Field::make(t('Handle', category: 'commerce'), $handle)
+            ->instructions(t('How you\'ll refer to this shipping category in the templates.', category: 'commerce'))
+            ->required();
+        $formNodes[] = Field::make(t('Description', category: 'commerce'), Text::make('description'));
+        $formNodes[] = Field::make(t('Icon', category: 'app'), IconPicker::make('icon'));
+        $formNodes[] = Field::make(t('Color', category: 'commerce'), ColorSelect::make('color')
+            ->colors($this->colorPalette())
+            ->allowTransparent()
+            ->blankLabel(t('No color', category: 'app')));
+
+        $productTypesControl = Choice::make('productTypes')->multiple()->options($productTypesOptions);
+        if ($isDefault) {
+            $productTypesControl->mode(ControlMode::Disabled);
+        }
+
+        $productTypesField = Field::make(t('Available to Product Types', category: 'commerce'), $productTypesControl)
+            ->instructions($isDefault
+                ? t('The default shipping category is automatically available to all product types.', category: 'commerce')
+                : t('Which product types should this category be available to?', category: 'commerce'));
+
+        if ($productTypesOptions === []) {
+            $productTypesField->warning(
+                t('There aren\'t any product types to select yet.', category: 'commerce') . ' ' .
+                Html::a(t('Create a product type', category: 'commerce'), 'commerce/settings/producttypes/new', ['class' => 'go']),
+            );
+        }
+
+        $formNodes[] = $productTypesField;
+
+        $defaultKey = $lockDefault ? 'defaultDisplay' : 'default';
+        $defaultControl = Lightswitch::make($defaultKey)->mode($lockDefault ? ControlMode::Disabled : ControlMode::Editable);
+        if (!$lockDefault) {
+            $defaultControl->reactive();
+        }
+
+        $formNodes[] = Field::make(t('Default Category', category: 'commerce'), $defaultControl)
+            ->instructions(t('This category will be used as the default for all purchasables in this store.', category: 'commerce'));
+
+        if ($lockDefault) {
+            $formNodes[] = HiddenField::make('default');
+        }
+
+        return Form::make($formNodes);
     }
 
     public function save(Request $request): Response
@@ -162,7 +293,11 @@ JS;
         $shippingCategory->name = $request->input('name');
         $shippingCategory->handle = $request->input('handle');
         $shippingCategory->icon = $request->input('icon');
-        $shippingCategory->color = $request->input('color');
+        // '__blank__' is ColorSelect's internal sentinel for "no color" selected — it should
+        // never reach here (the client translates it back to '' before posting), but guard
+        // against it anyway for a genuinely JS-less submission.
+        $color = $request->input('color');
+        $shippingCategory->color = ($color && $color !== '__blank__') ? $color : null;
         $shippingCategory->description = $request->input('description');
         $shippingCategory->default = (bool)$request->input('default');
 
@@ -200,30 +335,16 @@ JS;
 
     public function delete(Request $request): Response
     {
+        abort_unless($request->expectsJson(), 400);
+
         $id = $request->input('id');
-        $ids = $request->input('ids');
+        abort_if(!$id, 400, 'Missing shipping category id');
 
-        abort_if((!$id && empty($ids)) || ($id && !empty($ids)), 400, 'id or ids must be specified.');
-
-        if ($id) {
-            abort_unless($request->expectsJson(), 400);
-            $ids = [$id];
+        if (!app(ShippingCategories::class)->deleteShippingCategoryById((int)$id)) {
+            return $this->asFailure(t('Could not delete shipping category.', category: 'commerce'));
         }
 
-        $failedIds = [];
-        foreach ($ids as $deleteId) {
-            if (!app(ShippingCategories::class)->deleteShippingCategoryById((int)$deleteId)) {
-                $failedIds[] = $deleteId;
-            }
-        }
-
-        if (!empty($failedIds)) {
-            return $this->asFailure(t('Could not delete {count, number} shipping {count, plural, one{category} other{categories}}.', [
-                'count' => count($failedIds),
-            ], category: 'commerce'));
-        }
-
-        return $this->asSuccess(t('Shipping categories deleted.', category: 'commerce'));
+        return $this->asSuccess(t('Shipping category deleted.', category: 'commerce'));
     }
 
     public function setDefaultCategory(Request $request): Response

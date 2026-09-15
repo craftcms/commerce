@@ -5,119 +5,108 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use craft\helpers\Cp;
+use CraftCms\Cms\Cp\Html\ContentHtml;
+use CraftCms\Cms\Form\Controls\Choice;
+use CraftCms\Cms\Form\Controls\ColorSelect;
+use CraftCms\Cms\Form\Controls\Handle;
+use CraftCms\Cms\Form\Controls\IconPicker;
+use CraftCms\Cms\Form\Controls\Lightswitch;
+use CraftCms\Cms\Form\Controls\Text;
+use CraftCms\Cms\Form\Enums\ControlMode;
+use CraftCms\Cms\Form\Form;
+use CraftCms\Cms\Form\FormContext;
+use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Form\Nodes\HiddenField;
+use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Arr;
-use CraftCms\Cms\Support\Facades\HtmlStack;
-use CraftCms\Cms\Support\Facades\I18N;
-use CraftCms\Cms\Support\Html as NewHtml;
-use CraftCms\Cms\Support\Json;
-use CraftCms\Cms\View\Enums\Position;
+use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\Translation\Formatter;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Tax\Data\TaxCategory;
-
 use CraftCms\Commerce\Tax\TaxCategories;
 use CraftCms\Commerce\Tax\Taxes;
-use CraftCms\Commerce\Tax\TaxRates;
+
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\t;
 
-readonly class TaxCategoriesController extends LegacyStoreManagementController
+/**
+ * Tax categories are shared across every store (they're products' own data, not
+ * per-store configuration), so unlike the rest of store-management this screen's
+ * store-switcher is suppressed — see {@see showsStoreSwitcher()} — even though it's
+ * still reached through a store-handled URL.
+ */
+readonly class TaxCategoriesController extends BaseStoreManagementController
 {
+    protected function getSectionCrumb(Store $store): array
+    {
+        return ['label' => t('Tax Categories', category: 'commerce'), 'href' => $store->getStoreSettingsUrl('taxcategories')];
+    }
+
+    #[\Override]
+    protected function showsStoreSwitcher(): bool
+    {
+        return false;
+    }
+
     public function index(?string $storeHandle = null): CpScreenResponse
     {
         $store = $this->resolveStore($storeHandle);
 
         $taxCategories = app(TaxCategories::class)->getAllTaxCategories();
+        $canDelete = app(Taxes::class)->deleteTaxCategories();
 
-        $tableData = [];
-        foreach ($taxCategories as $taxCategory) {
-            $label = NewHtml::encode(t($taxCategory->name, category: 'site'));
+        $rows = array_map(function(TaxCategory $taxCategory) use ($store, $taxCategories, $canDelete) {
+            $label = Html::encode(t($taxCategory->name, category: 'site'));
             $taxRates = $taxCategory->getTaxRates($store->id);
-            $tableData[] = [
+
+            return [
                 'id' => $taxCategory->id,
-                'title' => $label,
-                'chip' => Cp::chipHtml($taxCategory, [
-                    'labelHtml' => NewHtml::a($label, $taxCategory->getCpEditUrl($store->id), [
-                        'class' => ['chip-label', 'cell-bold'],
-                    ]),
-                ]),
-                'url' => $taxCategory->getCpEditUrl($store->id),
+                'name' => ['html' => Cp::chipHtml($taxCategory, [
+                    'labelHtml' => Html::a($label, $taxCategory->getCpEditUrl($store->id), ['class' => 'cell-bold']),
+                ])],
                 'handle' => $taxCategory->handle,
-                'description' => NewHtml::encode(t($taxCategory->description, category: 'site')),
-                'default' => $taxCategory->default,
-                '_showDelete' => $taxRates->isEmpty() && (count($taxCategories) > 1 && !$taxCategory->default),
+                'description' => t($taxCategory->description, category: 'site'),
+                'default' => $taxCategory->default ? ['icon' => 'check', 'label' => t('Yes')] : '',
+                '_deletable' => $canDelete && $taxRates->isEmpty() && count($taxCategories) > 1 && !$taxCategory->default,
             ];
-        }
+        }, $taxCategories);
 
-        $buttons = app(Taxes::class)->taxCategoryActionHtml();
-        if (app(Taxes::class)->createTaxCategories()) {
-            $buttons .= NewHtml::a(t('New tax category', category: 'commerce'), $store->getStoreSettingsUrl('taxcategories/new'), [
-                'class' => ['btn', 'submit', 'add', 'icon'],
+        $nodes = [
+            Table::make('tax-categories')
+                ->columns([
+                    ['key' => 'name', 'label' => t('Name')],
+                    ['key' => 'handle', 'label' => t('Handle')],
+                    ['key' => 'description', 'label' => t('Description', category: 'commerce')],
+                    ['key' => 'default', 'label' => t('Default Category', category: 'commerce')],
+                ])
+                ->rows(array_values($rows))
+                ->emptyMessage(t('No tax categories exist yet.', category: 'commerce'))
+                ->when(
+                    app(Taxes::class)->createTaxCategories(),
+                    fn(Table $table) => $table->createAction(t('New tax category', category: 'commerce'), $store->getStoreSettingsUrl('taxcategories/new')),
+                )
+                ->when($canDelete, fn(Table $table) => $table->deletable(action([self::class, 'delete']))),
+        ];
+
+        $title = t('Tax Categories', category: 'commerce');
+        $engineButtonsHtml = app(Taxes::class)->taxCategoryActionHtml();
+
+        return $this->cpScreenResponse($store)
+            ->title($title)
+            ->crumbs($this->crumbs($store))
+            ->when($engineButtonsHtml !== '', fn(CpScreenResponse $screen) => $screen->additionalButtonsHtml($engineButtonsHtml))
+            ->inertiaPage('Form', [
+                'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
             ]);
-        }
-
-        $tableData = Json::encode($tableData);
-        $deleteAction = app(Taxes::class)->deleteTaxCategories() ? "'commerce/tax-categories/delete'" : 'null';
-
-        $js = <<<JS
-    var columns = [
-        { name: 'chip', title: Craft.t('commerce', 'Name') },
-        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
-        { name: 'description', title: Craft.t('commerce', 'Description') },
-        {
-            name: 'default',
-            title: Craft.t('commerce', 'Default?'),
-            callback: function(value) {
-                if (value) {
-                    return '<div data-icon="check"></div>';
-                }
-            }
-        },
-    ];
-
-    var actions = [
-        {
-            label: '',
-            icon: 'settings',
-            actions: [
-                {
-                    label: Craft.t('commerce', 'Set default category'),
-                    action: 'commerce/tax-categories/set-default-category',
-                    param: 'default',
-                    value: 1,
-                    allowMultiple: false
-                }
-            ]
-        }
-    ];
-
-    new Craft.VueAdminTable({
-        columns: columns,
-        checkboxes: true,
-        actions: actions,
-        padded: true,
-        container: '#tax-vue-admin-table',
-        deleteAction: {$deleteAction},
-        tableData: {$tableData},
-    });
-JS;
-
-        HtmlStack::js($js, Position::BodyEnd);
-
-        return $this->storeManagementCpScreen($storeHandle, hasStoreSwitcher: false)
-            ->additionalButtonsHtml($buttons)
-            ->contentHtml(NewHtml::tag('div', '', ['id' => 'tax-vue-admin-table']));
     }
 
     public function edit(?string $storeHandle = null, ?int $id = null): CpScreenResponse
     {
         $store = $this->resolveStore($storeHandle);
-        $storeHandle = $store->handle;
-
-        $productTypes = app(ProductTypes::class)->getAllProductTypes();
 
         if ($id) {
             $taxCategory = app(TaxCategories::class)->getTaxCategoryById($id);
@@ -128,38 +117,124 @@ JS;
 
         $title = $taxCategory->id ? $taxCategory->name : t('Create a new tax category', category: 'commerce');
 
-        $productTypesOptions = [];
-        if (!empty($productTypes)) {
-            $productTypesOptions = Arr::mapWithKeys($productTypes, fn($row) => [$row->id => ['label' => $row->name, 'value' => $row->id]]);
-        }
+        $productTypes = app(ProductTypes::class)->getAllProductTypes();
+        $productTypesOptions = array_values(array_map(
+            fn($productType) => ['label' => $productType->name, 'value' => $productType->id],
+            $productTypes,
+        ));
 
         $allTaxCategoryIds = array_keys(app(TaxCategories::class)->getAllTaxCategories());
         $isDefaultAndOnlyCategory = $id && count($allTaxCategoryIds) === 1 && in_array($id, $allTaxCategoryIds);
 
         $taxRates = collect();
-        app(Stores::class)->getAllStores()->each(fn(Store $s) => $taxRates->push(...app(TaxRates::class)->getAllTaxRates($s->id)->all()));
-
-        $metaSidebar = '';
         if ($taxCategory->id) {
-            $metaSidebar = Cp::metadataHtml([
-                t('Created at') => I18N::getFormatter()->asDatetime($taxCategory->dateCreated, 'short'),
-                t('Updated at') => I18N::getFormatter()->asDatetime($taxCategory->dateUpdated, 'short'),
-            ]);
+            app(Stores::class)->getAllStores()->each(fn(Store $s) => $taxRates->push(...$taxCategory->getTaxRates($s->id)->all()));
         }
 
-        return $this->storeManagementCpScreen($storeHandle, false, false)
+        $formatter = app(Formatter::class);
+        $metadataHtml = $taxCategory->id ? app(ContentHtml::class)->metadataHtml([
+            t('Created at') => $formatter->asDateTime($taxCategory->dateCreated, 'short'),
+            t('Updated at') => $formatter->asDateTime($taxCategory->dateUpdated, 'short'),
+        ]) : null;
+
+        $handle = Handle::make('handle');
+        if (!$taxCategory->id) {
+            $handle->source('name');
+        }
+
+        $lockDefault = $isDefaultAndOnlyCategory || ($taxCategory->id && $taxCategory->default);
+
+        $formNodes = [
+            HiddenField::make('storeId'),
+        ];
+
+        if ($taxCategory->id) {
+            $formNodes[] = HiddenField::make('taxCategoryId');
+        }
+
+        $formNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
+            ->instructions(t('What this tax category will be called in the control panel.', category: 'commerce'))
+            ->required();
+        $formNodes[] = Field::make(t('Handle', category: 'commerce'), $handle)
+            ->instructions(t('How you\'ll refer to this tax category in the templates.', category: 'commerce'))
+            ->required();
+        $formNodes[] = Field::make(t('Icon', category: 'app'), IconPicker::make('icon'));
+        $formNodes[] = Field::make(t('Color', category: 'commerce'), ColorSelect::make('color')
+            ->colors($this->colorPalette())
+            ->allowTransparent()
+            ->blankLabel(t('No color', category: 'app')));
+        $formNodes[] = Field::make(t('Description', category: 'commerce'), Text::make('description'));
+
+        $productTypesField = Field::make(
+            t('Available to Product Types', category: 'commerce'),
+            Choice::make('productTypes')->multiple()->options($productTypesOptions),
+        )->instructions(t('Which product types should this category be available to?', category: 'commerce'));
+
+        if ($productTypesOptions === []) {
+            $productTypesField->warning(
+                t('There aren\'t any product types to select yet.', category: 'commerce') . ' ' .
+                Html::a(t('Create a product type', category: 'commerce'), 'commerce/settings/producttypes/new', ['class' => 'go']),
+            );
+        }
+
+        $formNodes[] = $productTypesField;
+
+        // A locked default can't be un-set here (it's the only category, or already the
+        // default), so the interactive control moves to a display-only path and the real
+        // `default` key posts via a paired HiddenField instead — a Disabled control renders
+        // `name=null` and submits nothing on its own.
+        $defaultKey = $lockDefault ? 'defaultDisplay' : 'default';
+        $defaultField = Field::make(
+            t('Default Category', category: 'commerce'),
+            Lightswitch::make($defaultKey)->mode($lockDefault ? ControlMode::Disabled : ControlMode::Editable),
+        )->instructions(t('New products default to the first tax category available to them. If none are available, this category will be used.', category: 'commerce'));
+
+        $formNodes[] = $defaultField;
+
+        if ($lockDefault) {
+            $formNodes[] = HiddenField::make('default');
+        }
+
+        if ($taxCategory->id && $taxRates->isNotEmpty()) {
+            $formNodes[] = Table::make('used-by-tax-rates')
+                ->columns([
+                    ['key' => 'name', 'label' => t('Rate', category: 'commerce')],
+                    ['key' => 'store', 'label' => t('Store', category: 'commerce')],
+                ])
+                ->rows($taxRates->map(fn($taxRate) => [
+                    'id' => $taxRate->id,
+                    'name' => ['html' => Html::a(Html::encode($taxRate->name), $taxRate->getCpEditUrl())],
+                    'store' => t($taxRate->getStore()->name, category: 'site'),
+                ])->values()->all());
+        }
+
+        $values = [
+            'storeId' => $store->id,
+            'taxCategoryId' => $taxCategory->id,
+            'name' => $taxCategory->name,
+            'handle' => $taxCategory->handle,
+            'icon' => $taxCategory->icon,
+            'color' => $taxCategory->color ?? '',
+            'description' => $taxCategory->description,
+            'productTypes' => $taxCategory->getProductTypeIds(),
+            'default' => $taxCategory->default,
+            'defaultDisplay' => $taxCategory->default,
+        ];
+
+        $form = $this->formResolver->resolve(Form::make($formNodes), new FormContext(values: $values));
+
+        return $this->cpScreenResponse($store)
             ->title($title)
-            ->addCrumb(t('Tax Categories', category: 'commerce'), $store->getStoreSettingsUrl('taxcategories'))
+            ->crumbs($this->crumbs($store, ...($taxCategory->id ? [['label' => $title]] : [])))
             ->action('commerce/tax-categories/save')
             ->redirectUrl($store->getStoreSettingsUrl('taxcategories'))
-            ->metaSidebarHtml($metaSidebar)
-            ->contentTemplate('commerce/store-management/tax/taxcategories/_edit', [
-                'taxCategory' => $taxCategory,
-                'productTypes' => $productTypes,
-                'productTypesOptions' => $productTypesOptions,
-                'isDefaultAndOnlyCategory' => $isDefaultAndOnlyCategory,
-                'taxRates' => $taxRates,
-                'store' => $store,
+            ->inertiaPage('Form', [
+                'form' => $form,
+                'submit' => [
+                    'method' => 'post',
+                    'url' => action([self::class, 'save']),
+                ],
+                'metadataHtml' => $metadataHtml,
             ]);
     }
 
@@ -171,7 +246,11 @@ JS;
         $taxCategory->name = $request->input('name');
         $taxCategory->handle = $request->input('handle');
         $taxCategory->icon = $request->input('icon');
-        $taxCategory->color = $request->input('color');
+        // '__blank__' is ColorSelect's internal sentinel for "no color" selected — it should
+        // never reach here (the client translates it back to '' before posting), but guard
+        // against it anyway for a genuinely JS-less submission.
+        $color = $request->input('color');
+        $taxCategory->color = ($color && $color !== '__blank__') ? $color : null;
         $taxCategory->description = $request->input('description');
         $taxCategory->default = (bool)$request->input('default');
 
@@ -201,30 +280,16 @@ JS;
 
     public function delete(Request $request): Response
     {
+        abort_unless($request->expectsJson(), 400);
+
         $id = $request->input('id');
-        $ids = $request->input('ids');
+        abort_if(!$id, 400, 'Missing tax category id');
 
-        abort_if((!$id && empty($ids)) || ($id && !empty($ids)), 400, 'id or ids must be specified.');
-
-        if ($id) {
-            abort_unless($request->expectsJson(), 400);
-            $ids = [$id];
+        if (!app(TaxCategories::class)->deleteTaxCategoryById((int)$id)) {
+            return $this->asFailure(t('Could not delete tax category.', category: 'commerce'));
         }
 
-        $failedIds = [];
-        foreach ($ids as $deleteId) {
-            if (!app(TaxCategories::class)->deleteTaxCategoryById((int)$deleteId)) {
-                $failedIds[] = $deleteId;
-            }
-        }
-
-        if (!empty($failedIds)) {
-            return $this->asFailure(t('Could not delete {count, number} tax {count, plural, one{category} other{categories}}.', [
-                'count' => count($failedIds),
-            ], category: 'commerce'));
-        }
-
-        return $this->asSuccess(t('Tax categories deleted.', category: 'commerce'));
+        return $this->asSuccess(t('Tax category deleted.', category: 'commerce'));
     }
 
     public function setDefaultCategory(Request $request): Response

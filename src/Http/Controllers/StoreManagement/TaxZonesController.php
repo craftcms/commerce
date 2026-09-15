@@ -4,15 +4,21 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
-use craft\helpers\Cp;
-use CraftCms\Cms\Condition\ConditionBuilderRenderer;
+use CraftCms\Cms\Cp\Html\ContentHtml;
+use CraftCms\Cms\Form\Controls\ConditionBuilder;
+use CraftCms\Cms\Form\Controls\Lightswitch;
+use CraftCms\Cms\Form\Controls\Text;
+use CraftCms\Cms\Form\Form;
+use CraftCms\Cms\Form\FormContext;
+use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Form\Nodes\HiddenField;
+use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
-use CraftCms\Cms\Support\Facades\HtmlStack;
-use CraftCms\Cms\Support\Facades\I18N;
-use CraftCms\Cms\Support\Html as NewHtml;
-use CraftCms\Cms\Support\Json;
-use CraftCms\Cms\View\Enums\Position;
+use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\Translation\Formatter;
+use CraftCms\Commerce\Address\Conditions\ZoneAddressCondition;
 use CraftCms\Commerce\Formula\Formulas;
+use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Tax\Data\TaxAddressZone;
 use CraftCms\Commerce\Tax\TaxZones;
 
@@ -20,61 +26,53 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\t;
 
-readonly class TaxZonesController extends LegacyStoreManagementController
+readonly class TaxZonesController extends BaseStoreManagementController
 {
+    protected function getSectionCrumb(Store $store): array
+    {
+        return ['label' => t('Tax Zones', category: 'commerce'), 'href' => $store->getStoreSettingsUrl('taxzones')];
+    }
+
     public function index(?string $storeHandle = null): CpScreenResponse
     {
         $store = $this->resolveStore($storeHandle);
 
-        $taxZones = app(TaxZones::class)->getAllTaxZones($store->id);
-
-        $tableData = [];
-        foreach ($taxZones as $taxZone) {
-            $label = NewHtml::encode(t($taxZone->name, category: 'site'));
-            $tableData[] = [
+        $rows = app(TaxZones::class)->getAllTaxZones($store->id)
+            ->map(fn(TaxAddressZone $taxZone) => [
                 'id' => $taxZone->id,
-                'title' => NewHtml::a($label, $taxZone->getCpEditUrl()),
-                'url' => $taxZone->getCpEditUrl(),
-                'description' => NewHtml::encode(t($taxZone->description, category: 'site')),
-                'default' => $taxZone->default,
-            ];
-        }
+                'name' => ['html' => Html::a(Html::encode(t($taxZone->name, category: 'site')), $taxZone->getCpEditUrl(), ['class' => 'cell-bold'])],
+                'description' => t($taxZone->description, category: 'site'),
+                'default' => $taxZone->default ? ['icon' => 'check', 'label' => t('Yes')] : '',
+            ])
+            ->values()
+            ->all();
 
-        $tableData = Json::encode($tableData);
+        $nodes = [
+            Table::make('tax-zones')
+                ->columns([
+                    ['key' => 'name', 'label' => t('Name')],
+                    ['key' => 'description', 'label' => t('Description', category: 'commerce')],
+                    ['key' => 'default', 'label' => t('Default Zone', category: 'commerce')],
+                ])
+                ->rows($rows)
+                ->emptyMessage(t('No tax zones exist yet.', category: 'commerce'))
+                ->createAction(t('New tax zone', category: 'commerce'), $store->getStoreSettingsUrl('taxzones/new'))
+                ->deletable(action([self::class, 'delete'])),
+        ];
 
-        $js = <<<JS
-var columns = [
-    { name: 'title', title: Craft.t('commerce', 'Name') },
-    { name: 'description', title: Craft.t('commerce', 'Description') },
-    {
-        name: 'default',
-        title: Craft.t('commerce', 'Default Zone'),
-        callback: function(value) {
-            if (value) {
-                return '<div data-icon="check"></div>';
-            }
-        }
-    },
-];
+        $title = t('Tax Zones', category: 'commerce');
 
-new Craft.VueAdminTable({
-    columns: columns,
-    container: '#tax-vue-admin-table',
-    deleteAction: 'commerce/tax-zones/delete',
-    tableData: {$tableData},
-    });
-JS;
-        HtmlStack::js($js, Position::BodyEnd);
-
-        return $this->storeManagementCpScreen($storeHandle)
-            ->additionalButtonsHtml(NewHtml::a(t('New tax zone', category: 'commerce'), $store->getStoreSettingsUrl('taxzones/new'), ['class' => 'btn submit add icon']))
-            ->contentHtml(NewHtml::tag('div', '', ['id' => 'tax-vue-admin-table']));
+        return $this->cpScreenResponse($store)
+            ->title($title)
+            ->crumbs($this->crumbs($store))
+            ->inertiaPage('Form', [
+                'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+            ]);
     }
 
     public function edit(?string $storeHandle = null, ?int $id = null): CpScreenResponse
     {
         $store = $this->resolveStore($storeHandle);
-        $storeHandle = $store->handle;
 
         if ($id) {
             $taxZone = app(TaxZones::class)->getTaxZoneById($id, $store->id);
@@ -85,33 +83,58 @@ JS;
 
         $title = $taxZone->id ? $taxZone->name : t('Create a tax zone', category: 'commerce');
 
-        $condition = $taxZone->getCondition();
-        $condition->mainTag = 'div';
-        $condition->name = 'condition';
-        $condition->id = 'condition';
+        $defaultLabel = $store->getUseBillingAddressForTax()
+            ? t('Default to this tax zone when no billing address is set', category: 'commerce')
+            : t('Default to this tax zone when no shipping address is set', category: 'commerce');
 
-        // Condition classes no longer self-render; ConditionBuilderRenderer replaces the old getBuilderHtml()/builderHtml().
-        $conditionHtml = new ConditionBuilderRenderer($condition)->render();
+        $formatter = app(Formatter::class);
+        $metadataHtml = $taxZone->id ? app(ContentHtml::class)->metadataHtml([
+            t('Created at') => $formatter->asDateTime($taxZone->dateCreated, 'short'),
+            t('Updated at') => $formatter->asDateTime($taxZone->dateUpdated, 'short'),
+        ]) : null;
 
-        $metaSidebar = '';
+        $formNodes = [
+            HiddenField::make('storeId'),
+        ];
+
         if ($taxZone->id) {
-            $metaSidebar = Cp::metadataHtml([
-                t('Created at') => I18N::getFormatter()->asDatetime($taxZone->dateCreated, 'short'),
-                t('Updated at') => I18N::getFormatter()->asDatetime($taxZone->dateUpdated, 'short'),
-            ]);
+            $formNodes[] = HiddenField::make('taxZoneId');
         }
 
-        return $this->storeManagementCpScreen($storeHandle, false)
+        $formNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
+            ->instructions(t('What this tax zone will be called in the control panel.', category: 'commerce'))
+            ->required();
+        $formNodes[] = Field::make(t('Description', category: 'commerce'), Text::make('description'))
+            ->instructions(t('Describe this tax zone.', category: 'commerce'));
+        $formNodes[] = Field::make($defaultLabel, Lightswitch::make('default'));
+        // Zones aren't project-config-tracked (Zone::setCondition() hardcodes forProjectConfig
+        // to false), so this deliberately doesn't call ->forProjectConfig() either.
+        $formNodes[] = Field::make(t('Address Condition'), ConditionBuilder::make('condition')
+            ->conditionClass(ZoneAddressCondition::class)
+            ->value($taxZone->getCondition()->getConfig()));
+
+        $values = [
+            'storeId' => $store->id,
+            'taxZoneId' => $taxZone->id,
+            'name' => $taxZone->name,
+            'description' => $taxZone->description,
+            'default' => $taxZone->default,
+        ];
+
+        $form = $this->formResolver->resolve(Form::make($formNodes), new FormContext(values: $values));
+
+        return $this->cpScreenResponse($store)
             ->title($title)
-            ->addCrumb(t('Tax Zones', category: 'commerce'), $store->getStoreSettingsUrl('taxzones'))
-            ->selectedSubnavItem('store-management')
+            ->crumbs($this->crumbs($store, ...($taxZone->id ? [['label' => $title]] : [])))
             ->action('commerce/tax-zones/save')
             ->redirectUrl($store->getStoreSettingsUrl('taxzones'))
-            ->metaSidebarHtml($metaSidebar)
-            ->contentTemplate('commerce/store-management/tax/taxzones/_edit', [
-                'taxZone' => $taxZone,
-                'store' => $store,
-                'conditionHtml' => $conditionHtml,
+            ->inertiaPage('Form', [
+                'form' => $form,
+                'submit' => [
+                    'method' => 'post',
+                    'url' => action([self::class, 'save']),
+                ],
+                'metadataHtml' => $metadataHtml,
             ]);
     }
 

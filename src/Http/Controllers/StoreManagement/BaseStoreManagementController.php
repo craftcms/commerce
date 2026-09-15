@@ -8,6 +8,7 @@ use CraftCms\Cms\Cp\Data\NavItem;
 use CraftCms\Cms\Form\FormResolver;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Shared\Enums\Color;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Store\Data\Store;
@@ -62,6 +63,18 @@ abstract readonly class BaseStoreManagementController
     abstract protected function getSectionCrumb(Store $store): array;
 
     /**
+     * Whether {@see crumbs()} includes the store-switcher crumb. Almost every screen is scoped
+     * to the current store, so this defaults to `true` — override it to return `false` for the
+     * rare screen whose data isn't actually store-specific (e.g. tax categories, which are
+     * shared across every store even though they're reached through a store-handled URL), where
+     * a switcher would wrongly imply switching stores shows something different.
+     */
+    protected function showsStoreSwitcher(): bool
+    {
+        return true;
+    }
+
+    /**
      * Builds "Commerce / <store switcher> / <section>[ / ...$trail]".
      *
      * Pass one entry per crumb beyond this controller's own section (in practice almost
@@ -75,7 +88,7 @@ abstract readonly class BaseStoreManagementController
     {
         $crumbs = [
             ['label' => t('Commerce', category: 'commerce'), 'href' => cp_url('commerce')],
-            $this->storeCrumb($store),
+            ...($this->showsStoreSwitcher() ? [$this->storeCrumb($store)] : []),
             $this->getSectionCrumb($store),
             ...array_map(fn(array $crumb) => ['label' => $crumb['label'], 'href' => $crumb['url'] ?? null], $trail),
         ];
@@ -212,5 +225,18 @@ abstract readonly class BaseStoreManagementController
     {
         return new CpScreenResponse()
             ->subnav($this->subnav($store));
+    }
+
+    /**
+     * The color values shared by any component keyed to {@see Color} as its category color
+     * (tax and shipping categories today), for a {@see \CraftCms\Cms\Form\Controls\ColorSelect}
+     * control's `->colors()` — narrows its default (the shared UI palette, which includes a
+     * couple of colors outside this enum) down to exactly what {@see Color::tryFrom()} accepts.
+     *
+     * @return list<string>
+     */
+    protected function colorPalette(): array
+    {
+        return array_map(fn(Color $color) => $color->value, Color::cases());
     }
 }
