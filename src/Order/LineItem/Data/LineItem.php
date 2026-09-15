@@ -304,13 +304,7 @@ class LineItem extends Component implements HasStoreInterface
         ];
     }
 
-    /**
-     * Runs the purchasable-supplied checks from {@see PurchasableInterface::validateLineItem()} — kept
-     * imperative rather than folded into {@see LineItemRules} since it needs to resolve and delegate to
-     * the purchasable itself, not just inspect this line item's own attributes.
-     *
-     * @TODO Add a validation rule preventing qty from being reduced below the total fulfilled quantity across inventory locations when the order is complete
-     */
+    // @TODO Add a validation rule preventing qty from being reduced below the total fulfilled quantity across inventory locations when the order is complete
     #[\Override]
     public function afterValidate(?Validator $validator = null): void
     {

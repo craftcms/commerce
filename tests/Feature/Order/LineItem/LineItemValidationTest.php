@@ -21,10 +21,6 @@ beforeEach(function() {
 });
 
 test('saveLineItem fails and returns false when qty exceeds the purchasable max qty', function() {
-    // A brand new variant, with maxQty set at creation time - Purchasables::getPurchasableById()
-    // memoizes per-request, and OrdersFixture::seed() already resolved/cached the fixture's own
-    // white/blue variants for this store+customer, so mutating and re-saving one of those here
-    // would be invisible to that already-warmed cache entry.
     $variant = new Variant();
     $variant->title = 'Limited';
     $variant->setPrimaryOwner($this->fixture->product);

@@ -10,12 +10,6 @@ use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use Illuminate\Validation\Rule;
 
 /**
- * Purchasable-supplied checks (stock, qty limits, donation amount, etc. — see
- * {@see \CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface::validateLineItem()}) are kept
- * imperative on {@see LineItem::afterValidate()} rather than folded in here, since they need to
- * resolve and delegate to the purchasable itself. This ruleset covers only the plain declarative
- * rules from the legacy `getValidationRules()`.
- *
  * @extends Ruleset<LineItem>
  */
 class LineItemRules extends Ruleset
