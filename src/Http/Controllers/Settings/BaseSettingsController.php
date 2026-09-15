@@ -119,13 +119,34 @@ abstract class BaseSettingsController
         ];
     }
 
-    /** @return list<array<string, string>> */
-    protected function crumbs(?string $title = null, ?string $url = null): array
+    /**
+     * Returns this controller's own section crumb (e.g. "Emails"). {@see self::crumbs()}
+     * decides whether it actually links, based on whether anything follows it.
+     *
+     * @return array{label: string, href: string}
+     */
+    abstract protected function getSectionCrumb(): array;
+
+    /**
+     * Builds "Settings / <section>[ / ...$trail]". Pass one entry per crumb
+     * beyond the section (usually zero, for an index; one, for a record being
+     * edited). Whichever crumb ends up last never links, since it's the page
+     * already showing.
+     *
+     * @param array{label: string, url?: ?string} ...$trail
+     * @return list<array<string, string>>
+     */
+    final protected function crumbs(array ...$trail): array
     {
-        return array_filter([
+        $crumbs = [
             ['label' => t('Settings'), 'href' => cp_url('commerce/settings')],
-            $title && $url ? ['label' => $title, 'href' => $url] : null,
-        ]);
+            $this->getSectionCrumb(),
+            ...array_map(fn(array $crumb) => ['label' => $crumb['label'], 'href' => $crumb['url'] ?? null], $trail),
+        ];
+
+        $crumbs[array_key_last($crumbs)]['href'] = null;
+
+        return $crumbs;
     }
 
     protected function cpScreenResponse(): CpScreenResponse

@@ -44,15 +44,9 @@ use function CraftCms\Cms\t;
 
 class ProductTypesController extends BaseSettingsController
 {
-    protected function crumbs(?string $title = null, ?string $url = null): array
+    protected function getSectionCrumb(): array
     {
-        $crumbs = parent::crumbs(t('Product Types', category: 'commerce'), cp_url('commerce/settings/producttypes'));
-
-        if ($title || $url) {
-            $crumbs[] = ['label' => $title, 'href' => $url];
-        }
-
-        return $crumbs;
+        return ['label' => t('Product Types', category: 'commerce'), 'href' => cp_url('commerce/settings/producttypes')];
     }
 
     public function productTypeIndex(): CpScreenResponse
@@ -98,7 +92,7 @@ class ProductTypesController extends BaseSettingsController
 
         return $this->cpScreenResponse()
             ->title($title)
-            ->crumbs($this->crumbs($title))
+            ->crumbs($this->crumbs())
             ->inertiaPage('Form', [
                 'form' => $this->formResolver->resolve($form, new FormContext()),
             ]);
@@ -130,7 +124,7 @@ class ProductTypesController extends BaseSettingsController
 
         return $this->cpScreenResponse()
             ->title($title)
-            ->crumbs($this->crumbs($brandNewProductType ? null : $title))
+            ->crumbs($brandNewProductType ? $this->crumbs() : $this->crumbs(['label' => $title]))
             ->redirectUrl('commerce/settings/producttypes')
             ->inertiaPage('Form', [
                 'form' => $form,

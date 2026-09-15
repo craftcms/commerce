@@ -38,15 +38,9 @@ use function CraftCms\Cms\t;
 
 class GatewaysController extends BaseSettingsController
 {
-    protected function crumbs(?string $title = null, ?string $url = null): array
+    protected function getSectionCrumb(): array
     {
-        $crumbs = parent::crumbs(t('Gateways', category: 'commerce'), cp_url('commerce/settings/gateways'));
-
-        if ($title || $url) {
-            $crumbs[] = ['label' => $title, 'href' => $url];
-        }
-
-        return $crumbs;
+        return ['label' => t('Gateways', category: 'commerce'), 'href' => cp_url('commerce/settings/gateways')];
     }
 
     public function index(): CpScreenResponse
@@ -121,7 +115,7 @@ class GatewaysController extends BaseSettingsController
 
         return $this->cpScreenResponse()
             ->title($title)
-            ->crumbs($this->crumbs($title))
+            ->crumbs($this->crumbs())
             ->inertiaPage('Form', [
                 'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
             ]);
@@ -169,7 +163,7 @@ class GatewaysController extends BaseSettingsController
 
         return $this->cpScreenResponse()
             ->title($title)
-            ->crumbs($this->crumbs($gateway->id ? $title : null))
+            ->crumbs($gateway->id ? $this->crumbs(['label' => $title]) : $this->crumbs())
             ->action('commerce/gateways/save')
             ->redirectUrl('commerce/settings/gateways')
             ->inertiaPage('Form', [

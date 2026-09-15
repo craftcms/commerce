@@ -17,10 +17,16 @@ use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Orders;
 use Symfony\Component\HttpFoundation\Response;
 
+use function CraftCms\Cms\cp_url;
 use function CraftCms\Cms\t;
 
 class OrderSettingsController extends BaseSettingsController
 {
+    protected function getSectionCrumb(): array
+    {
+        return ['label' => t('Order Fields', category: 'commerce'), 'href' => cp_url('commerce/settings/ordersettings')];
+    }
+
     public function edit(): CpScreenResponse
     {
         $fieldLayout = Fields::getLayoutByType(Order::class);
@@ -34,7 +40,7 @@ class OrderSettingsController extends BaseSettingsController
 
         return $this->cpScreenResponse()
             ->title($title)
-            ->crumbs($this->crumbs($title))
+            ->crumbs($this->crumbs())
             ->redirectUrl('commerce/settings/ordersettings')
             ->inertiaPage('Form', [
                 'form' => $this->formResolver->resolve($form, new FormContext(

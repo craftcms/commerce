@@ -35,15 +35,9 @@ use function CraftCms\Cms\t;
 
 class PdfsController extends BaseSettingsController
 {
-    protected function crumbs(?string $title = null, ?string $url = null): array
+    protected function getSectionCrumb(): array
     {
-        $crumbs = parent::crumbs(t('PDFs', category: 'commerce'), cp_url('commerce/settings/pdfs'));
-
-        if ($title || $url) {
-            $crumbs[] = ['label' => $title, 'href' => $url];
-        }
-
-        return $crumbs;
+        return ['label' => t('PDFs', category: 'commerce'), 'href' => cp_url('commerce/settings/pdfs')];
     }
 
     public function index(): CpScreenResponse
@@ -98,7 +92,7 @@ class PdfsController extends BaseSettingsController
 
         return $this->cpScreenResponse()
             ->title($title)
-            ->crumbs($this->crumbs($title))
+            ->crumbs($this->crumbs())
             ->inertiaPage('Form', [
                 'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
             ]);
@@ -209,7 +203,7 @@ class PdfsController extends BaseSettingsController
 
         return $this->cpScreenResponse()
             ->title($title)
-            ->crumbs($this->crumbs($pdf->id ? $title : null))
+            ->crumbs($pdf->id ? $this->crumbs(['label' => $title]) : $this->crumbs())
             ->action('commerce/pdfs/save')
             ->redirectUrl('commerce/settings/pdfs')
             ->inertiaPage('Form', [

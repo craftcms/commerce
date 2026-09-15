@@ -37,15 +37,9 @@ use function CraftCms\Cms\t;
 
 class EmailsController extends BaseSettingsController
 {
-    protected function crumbs(?string $title = null, ?string $url = null): array
+    protected function getSectionCrumb(): array
     {
-        $crumbs = parent::crumbs(t('Emails', category: 'commerce'), cp_url('commerce/settings/emails'));
-
-        if ($title || $url) {
-            $crumbs[] = ['label' => $title, 'href' => $url];
-        }
-
-        return $crumbs;
+        return ['label' => t('Emails', category: 'commerce'), 'href' => cp_url('commerce/settings/emails')];
     }
 
     public function index(): CpScreenResponse
@@ -116,7 +110,7 @@ class EmailsController extends BaseSettingsController
 
         return $this->cpScreenResponse()
             ->title($title)
-            ->crumbs($this->crumbs($title))
+            ->crumbs($this->crumbs())
             ->inertiaPage('Form', [
                 'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
             ]);
@@ -165,7 +159,7 @@ class EmailsController extends BaseSettingsController
 
         return $this->cpScreenResponse()
             ->title($title)
-            ->crumbs($this->crumbs($email->id ? $title : null))
+            ->crumbs($email->id ? $this->crumbs(['label' => $title]) : $this->crumbs())
             ->action('commerce/emails/save')
             ->redirectUrl('commerce/settings/emails')
             ->inertiaPage('Form', [

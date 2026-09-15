@@ -36,15 +36,9 @@ use function CraftCms\Cms\t;
 
 class StoresController extends BaseSettingsController
 {
-    protected function crumbs(?string $title = null, ?string $url = null): array
+    protected function getSectionCrumb(): array
     {
-        $crumbs = parent::crumbs(t('Stores'), cp_url('commerce/settings/stores'));
-
-        if ($title || $url) {
-            $crumbs[] = ['label' => $title, 'href' => $url];
-        }
-
-        return $crumbs;
+        return ['label' => t('Stores'), 'href' => cp_url('commerce/settings/stores')];
     }
 
     public function editStore(?int $storeId = null): CpScreenResponse
@@ -92,7 +86,7 @@ class StoresController extends BaseSettingsController
 
         return $this->cpScreenResponse()
             ->title($title)
-            ->crumbs($this->crumbs($brandNewStore ? null : $title))
+            ->crumbs($brandNewStore ? $this->crumbs() : $this->crumbs(['label' => $title]))
             ->redirectUrl('commerce/settings/stores')
             ->inertiaPage('Form', [
                 'form' => $this->formResolver->resolve($form, new FormContext(
@@ -431,7 +425,7 @@ class StoresController extends BaseSettingsController
 
         return $this->cpScreenResponse()
             ->title($title)
-            ->crumbs($this->crumbs($title))
+            ->crumbs($this->crumbs(['label' => $title]))
             ->redirectUrl('commerce/settings/sites')
             ->inertiaPage('Form', [
                 'form' => $this->formResolver->resolve($form, new FormContext(

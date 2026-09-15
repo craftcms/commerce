@@ -36,15 +36,9 @@ class LineItemStatusesController extends BaseSettingsController
 {
     private const array STATUS_COLORS = ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'];
 
-    protected function crumbs(?string $title = null, ?string $url = null): array
+    protected function getSectionCrumb(): array
     {
-        $crumbs = parent::crumbs(t('Line Item Statuses', category: 'commerce'), cp_url('commerce/settings/lineitemstatuses'));
-
-        if ($title || $url) {
-            $crumbs[] = ['label' => $title, 'href' => $url];
-        }
-
-        return $crumbs;
+        return ['label' => t('Line Item Statuses', category: 'commerce'), 'href' => cp_url('commerce/settings/lineitemstatuses')];
     }
 
     public function index(): CpScreenResponse
@@ -101,7 +95,7 @@ class LineItemStatusesController extends BaseSettingsController
 
         return $this->cpScreenResponse()
             ->title($title)
-            ->crumbs($this->crumbs($title))
+            ->crumbs($this->crumbs())
             ->inertiaPage('Form', [
                 'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
             ]);
@@ -182,7 +176,7 @@ class LineItemStatusesController extends BaseSettingsController
 
         return $this->cpScreenResponse()
             ->title($title)
-            ->crumbs($this->crumbs($lineItemStatus->id ? $title : null))
+            ->crumbs($lineItemStatus->id ? $this->crumbs(['label' => $title]) : $this->crumbs())
             ->action('commerce/line-item-statuses/save')
             ->redirectUrl('commerce/settings/lineitemstatuses')
             ->inertiaPage('Form', [

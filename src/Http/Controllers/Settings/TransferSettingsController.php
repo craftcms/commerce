@@ -18,11 +18,17 @@ use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Transfer\Transfers;
 use Symfony\Component\HttpFoundation\Response;
 
+use function CraftCms\Cms\cp_url;
 use function CraftCms\Cms\t;
 
 class TransferSettingsController extends BaseSettingsController
 {
     use RespondsWithFlash;
+
+    protected function getSectionCrumb(): array
+    {
+        return ['label' => t('Transfer Fields', category: 'commerce'), 'href' => cp_url('commerce/settings/transfers')];
+    }
 
     public function saveTransferSettings(): Response
     {
@@ -82,7 +88,7 @@ class TransferSettingsController extends BaseSettingsController
 
         return $this->cpScreenResponse()
             ->title($title)
-            ->crumbs($this->crumbs($title))
+            ->crumbs($this->crumbs())
             ->redirectUrl('commerce/settings/transfers')
             ->inertiaPage('Form', [
                 'form' => $form,

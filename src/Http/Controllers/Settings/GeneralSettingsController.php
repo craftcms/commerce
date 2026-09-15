@@ -18,11 +18,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Symfony\Component\HttpFoundation\Response;
 
+use function CraftCms\Cms\cp_url;
 use function CraftCms\Cms\t;
 
 class GeneralSettingsController extends BaseSettingsController
 {
     use RespondsWithFlash;
+
+    protected function getSectionCrumb(): array
+    {
+        return ['label' => t('General Settings', category: 'commerce'), 'href' => cp_url('commerce/settings/general')];
+    }
 
     public function edit(): CpScreenResponse
     {
@@ -78,7 +84,7 @@ class GeneralSettingsController extends BaseSettingsController
 
         return $this->cpScreenResponse()
             ->title($title)
-            ->crumbs($this->crumbs($title))
+            ->crumbs($this->crumbs())
             ->redirectUrl('commerce/settings/general')
             ->inertiaPage('Form', [
                 'form' => $form,

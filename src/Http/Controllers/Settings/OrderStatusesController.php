@@ -40,15 +40,9 @@ class OrderStatusesController extends BaseSettingsController
 {
     private const array STATUS_COLORS = ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'];
 
-    protected function crumbs(?string $title = null, ?string $url = null): array
+    protected function getSectionCrumb(): array
     {
-        $crumbs = parent::crumbs(t('Order Statuses', category: 'commerce'), cp_url('commerce/settings/orderstatuses'));
-
-        if ($title || $url) {
-            $crumbs[] = ['label' => $title, 'href' => $url];
-        }
-
-        return $crumbs;
+        return ['label' => t('Order Statuses', category: 'commerce'), 'href' => cp_url('commerce/settings/orderstatuses')];
     }
 
     public function index(): CpScreenResponse
@@ -114,7 +108,7 @@ class OrderStatusesController extends BaseSettingsController
 
         return $this->cpScreenResponse()
             ->title($title)
-            ->crumbs($this->crumbs($title))
+            ->crumbs($this->crumbs())
             ->inertiaPage('Form', [
                 'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
             ]);
@@ -218,7 +212,7 @@ class OrderStatusesController extends BaseSettingsController
 
         return $this->cpScreenResponse()
             ->title($title)
-            ->crumbs($this->crumbs($orderStatus->id ? $title : null))
+            ->crumbs($orderStatus->id ? $this->crumbs(['label' => $title]) : $this->crumbs())
             ->action('commerce/order-statuses/save')
             ->redirectUrl('commerce/settings/orderstatuses')
             ->inertiaPage('Form', [
