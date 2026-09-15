@@ -19,7 +19,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\t;
 
-readonly class ShippingZonesController extends BaseStoreManagementController
+readonly class ShippingZonesController extends LegacyStoreManagementController
 {
     public function index(?string $storeHandle = null): CpScreenResponse
     {

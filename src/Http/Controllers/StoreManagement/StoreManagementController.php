@@ -23,7 +23,7 @@ use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\t;
 
-readonly class StoreManagementController extends BaseStoreManagementController
+readonly class StoreManagementController extends LegacyStoreManagementController
 {
     public function __construct(private Plugin $plugin)
     {

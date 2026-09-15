@@ -34,7 +34,7 @@ use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
-readonly class SalesController extends BaseStoreManagementController
+readonly class SalesController extends LegacyStoreManagementController
 {
     private function guard(): void
     {

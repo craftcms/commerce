@@ -45,7 +45,7 @@ use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\t;
 
-readonly class DiscountsController extends BaseStoreManagementController
+readonly class DiscountsController extends LegacyStoreManagementController
 {
     public const string DISCOUNT_COUNTER_TYPE_TOTAL = 'total';
     public const string DISCOUNT_COUNTER_TYPE_EMAIL = 'email';

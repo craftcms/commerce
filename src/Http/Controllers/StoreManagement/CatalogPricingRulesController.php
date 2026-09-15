@@ -37,7 +37,7 @@ use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\t;
 
-readonly class CatalogPricingRulesController extends BaseStoreManagementController
+readonly class CatalogPricingRulesController extends LegacyStoreManagementController
 {
     public function index(?string $storeHandle = null): CpScreenResponse
     {

@@ -20,7 +20,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\t;
 
-readonly class TaxZonesController extends BaseStoreManagementController
+readonly class TaxZonesController extends LegacyStoreManagementController
 {
     public function index(?string $storeHandle = null): CpScreenResponse
     {

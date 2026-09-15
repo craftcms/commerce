@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\t;
 
-readonly class TaxRatesController extends BaseStoreManagementController
+readonly class TaxRatesController extends LegacyStoreManagementController
 {
     public function index(?string $storeHandle = null): CpScreenResponse
     {

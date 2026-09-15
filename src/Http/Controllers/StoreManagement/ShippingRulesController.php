@@ -25,7 +25,7 @@ use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
-readonly class ShippingRulesController extends BaseStoreManagementController
+readonly class ShippingRulesController extends LegacyStoreManagementController
 {
     public function edit(?string $storeHandle = null, ?int $methodId = null, ?int $ruleId = null): string
     {

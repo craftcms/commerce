@@ -21,7 +21,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\t;
 
-readonly class ShippingCategoriesController extends BaseStoreManagementController
+readonly class ShippingCategoriesController extends LegacyStoreManagementController
 {
     public function index(?string $storeHandle = null): CpScreenResponse
     {
