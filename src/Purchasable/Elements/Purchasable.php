@@ -788,6 +788,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         $canonicalPurchasableId = $this->getCanonicalId();
         $purchasableId = $this->id;
 
+        app(Purchasables::class)->forgetCachedPurchasable($purchasableId);
+
         if (!$this->propagating) {
             $isOwnerDraftApplying = false;
             $isOwnerRevisionApplying = false;
