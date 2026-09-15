@@ -583,6 +583,8 @@ class Inventory extends Component
                 'movementHash' => $this->getMovementHash(),
                 'dateCreated' => Db::prepareDateForDb(new \DateTime()),
                 'note' => $updateInventoryLevel->note,
+                'transferId' => $updateInventoryLevel->transferId,
+                'lineItemId' => $updateInventoryLevel->lineItemId,
             ])
             ->execute();
 
@@ -818,6 +820,103 @@ class Inventory extends Component
         }
 
         return collect($inventoryFulfillmentLevels);
+    }
+
+    /**
+     * Returns the net RESERVED quantity at an inventory location for an inventory item, broken down by the
+     * order line item each reservation is tied to. Only rows with a `lineItemId` are included — ad-hoc manual
+     * reservations (created outside order completion, with no `lineItemId`) aren't linked to any order and are
+     * excluded. Rows are ordered oldest-first (FIFO) so callers can consume reservations in a deterministic order.
+     *
+     * @param int $inventoryItemId
+     * @param int $inventoryLocationId
+     * @return Collection<array{lineItemId: int, reservedQty: int}>
+     */
+    public function getReservedQuantitiesByLineItem(int $inventoryItemId, int $inventoryLocationId): Collection
+    {
+        $rows = (new Query())
+            ->select([
+                'lineItemId',
+                'reservedQty' => new Expression('SUM([[quantity]])'),
+                'firstReservedDate' => new Expression('MIN([[dateCreated]])'),
+            ])
+            ->from(Table::INVENTORYTRANSACTIONS)
+            ->where([
+                'type' => InventoryTransactionType::RESERVED->value,
+                'inventoryItemId' => $inventoryItemId,
+                'inventoryLocationId' => $inventoryLocationId,
+            ])
+            ->andWhere(['not', ['lineItemId' => null]])
+            ->groupBy(['lineItemId'])
+            ->having(['>', 'reservedQty', 0])
+            ->orderBy(['firstReservedDate' => SORT_ASC])
+            ->all();
+
+        return collect($rows)->map(fn(array $row) => [
+            'lineItemId' => (int)$row['lineItemId'],
+            'reservedQty' => (int)$row['reservedQty'],
+        ]);
+    }
+
+    /**
+     * Returns, per order line item, how much of a transfer's origin-side RESERVED debit has not yet been
+     * resolved into COMMITTED stock at the destination location. Used when receiving a transfer to determine
+     * which order(s) the incoming stock should be committed against, oldest reservation first (FIFO).
+     *
+     * @param int $transferId
+     * @param int $inventoryItemId
+     * @param int $originLocationId
+     * @param int $destinationLocationId
+     * @return Collection<array{lineItemId: int, remainingQty: int}>
+     */
+    public function getOutstandingTransferReservations(int $transferId, int $inventoryItemId, int $originLocationId, int $destinationLocationId): Collection
+    {
+        $earmarked = (new Query())
+            ->select([
+                'lineItemId',
+                'earmarkedQty' => new Expression('SUM(-[[quantity]])'),
+                'firstDate' => new Expression('MIN([[dateCreated]])'),
+            ])
+            ->from(Table::INVENTORYTRANSACTIONS)
+            ->where([
+                'type' => InventoryTransactionType::RESERVED->value,
+                'transferId' => $transferId,
+                'inventoryItemId' => $inventoryItemId,
+                'inventoryLocationId' => $originLocationId,
+            ])
+            ->andWhere(['not', ['lineItemId' => null]])
+            ->groupBy(['lineItemId'])
+            ->orderBy(['firstDate' => SORT_ASC])
+            ->all();
+
+        $committed = (new Query())
+            ->select([
+                'lineItemId',
+                'committedQty' => new Expression('SUM([[quantity]])'),
+            ])
+            ->from(Table::INVENTORYTRANSACTIONS)
+            ->where([
+                'type' => InventoryTransactionType::COMMITTED->value,
+                'transferId' => $transferId,
+                'inventoryItemId' => $inventoryItemId,
+                'inventoryLocationId' => $destinationLocationId,
+            ])
+            ->andWhere(['not', ['lineItemId' => null]])
+            ->groupBy(['lineItemId'])
+            ->pairs();
+
+        $result = [];
+        foreach ($earmarked as $row) {
+            $remaining = (int)$row['earmarkedQty'] - (int)($committed[$row['lineItemId']] ?? 0);
+            if ($remaining > 0) {
+                $result[] = [
+                    'lineItemId' => (int)$row['lineItemId'],
+                    'remainingQty' => $remaining,
+                ];
+            }
+        }
+
+        return collect($result);
     }
 
     /**

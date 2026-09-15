@@ -776,6 +776,8 @@ JS, [
 
             if ($this->getTransferStatus() === TransferStatusType::PENDING && $originalTransferStatus == TransferStatusType::DRAFT->value) {
                 $inventoryUpdateCollection = new UpdateInventoryLevelCollection();
+                $inventoryService = Plugin::getInstance()->getInventory();
+
                 foreach ($this->getDetails() as $detail) {
                     $inventoryUpdate1 = new UpdateInventoryLevelInTransfer();
                     $inventoryUpdate1->type = InventoryTransactionType::INCOMING->value;
@@ -788,19 +790,48 @@ JS, [
 
                     $inventoryUpdateCollection->push($inventoryUpdate1);
 
-                    $inventoryUpdate2 = new UpdateInventoryLevelInTransfer();
-                    $inventoryUpdate2->type = 'onHand';
-                    $inventoryUpdate2->updateAction = InventoryUpdateQuantityType::ADJUST;
-                    $inventoryUpdate2->inventoryItemId = $detail->inventoryItemId;
-                    $inventoryUpdate2->transferId = $this->id;
-                    $inventoryUpdate2->inventoryLocationId = $this->originLocationId;
-                    $inventoryUpdate2->quantity = $detail->quantity * -1;
-                    $inventoryUpdate2->note = Craft::t('commerce', 'Outgoing transfer from Transfer ID: ') . $this->id;
+                    // Debit any order-RESERVED stock at the origin location first, so that stock which was
+                    // earmarked for a specific order's shortfall is tracked through the transfer rather than
+                    // just draining generic AVAILABLE stock and stranding the reservation. Any remaining
+                    // quantity beyond what's reserved is debited from AVAILABLE as before.
+                    $remainingQty = $detail->quantity;
+                    foreach ($inventoryService->getReservedQuantitiesByLineItem($detail->inventoryItemId, $this->originLocationId) as $reservation) {
+                        if ($remainingQty <= 0) {
+                            break;
+                        }
 
-                    $inventoryUpdateCollection->push($inventoryUpdate2);
+                        $qty = min($remainingQty, $reservation['reservedQty']);
+
+                        $reservedDebit = new UpdateInventoryLevelInTransfer();
+                        $reservedDebit->type = InventoryTransactionType::RESERVED->value;
+                        $reservedDebit->updateAction = InventoryUpdateQuantityType::ADJUST;
+                        $reservedDebit->inventoryItemId = $detail->inventoryItemId;
+                        $reservedDebit->transferId = $this->id;
+                        $reservedDebit->lineItemId = $reservation['lineItemId'];
+                        $reservedDebit->inventoryLocationId = $this->originLocationId;
+                        $reservedDebit->quantity = $qty * -1;
+                        $reservedDebit->note = Craft::t('commerce', 'Outgoing transfer from Transfer ID: ') . $this->id;
+
+                        $inventoryUpdateCollection->push($reservedDebit);
+
+                        $remainingQty -= $qty;
+                    }
+
+                    if ($remainingQty > 0) {
+                        $availableDebit = new UpdateInventoryLevelInTransfer();
+                        $availableDebit->type = InventoryTransactionType::AVAILABLE->value;
+                        $availableDebit->updateAction = InventoryUpdateQuantityType::ADJUST;
+                        $availableDebit->inventoryItemId = $detail->inventoryItemId;
+                        $availableDebit->transferId = $this->id;
+                        $availableDebit->inventoryLocationId = $this->originLocationId;
+                        $availableDebit->quantity = $remainingQty * -1;
+                        $availableDebit->note = Craft::t('commerce', 'Outgoing transfer from Transfer ID: ') . $this->id;
+
+                        $inventoryUpdateCollection->push($availableDebit);
+                    }
                 }
 
-                Plugin::getInstance()->getInventory()->executeUpdateInventoryLevels($inventoryUpdateCollection);
+                $inventoryService->executeUpdateInventoryLevels($inventoryUpdateCollection);
             }
 
             $existingDetailIds = (new Query())

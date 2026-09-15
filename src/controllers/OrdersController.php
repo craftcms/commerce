@@ -282,7 +282,9 @@ class OrdersController extends Controller
 
         foreach ($movements as $movement) {
             if (!$movement->isValid()) {
-                return $this->asFailure(Craft::t('commerce', 'Invalid inventory movements.'),
+                $errorMessage = collect($movement->getErrors())->flatten()->first() ?? Craft::t('commerce', 'Invalid inventory movements.');
+
+                return $this->asFailure($errorMessage,
                     [
                         'errors' => ['fulfillment' => $movement->getErrors() ],
                     ]);
