@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a bug where an “Array to string conversion” error could occur when a datetime attribute (such as `dateOrdered`) was used with the `date` filter in an order-related object template, such as a PDF file name format. ([#4255](https://github.com/craftcms/commerce/issues/4255))
 - Fixed a PHP error on the dashboard that could occur for users without edit permissions for any site. ([#4347](https://github.com/craftcms/commerce/issues/4347))
 - Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) RCE vulnerability. (hackrate#1883)
 - Fixed some [medium-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerabilities. (hackrate#1884, hackrate#1885, hackrate#1895)
