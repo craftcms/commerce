@@ -89,6 +89,7 @@ readonly class PaymentCurrenciesController
 
         $currency->id = $request->input('currencyId') ? (int)$request->input('currencyId') : null;
         $currency->storeId = (int)$request->input('storeId');
+        $this->requireStoreAccess($currency->storeId);
         $currency->iso = $request->input('iso');
         $currency->rate = (float)$request->input('rate', 1);
 
@@ -105,6 +106,11 @@ readonly class PaymentCurrenciesController
 
         $id = $request->input('id');
         abort_if(!$id, 400, 'Missing currency id');
+
+        $currency = app(PaymentCurrencies::class)->getPaymentCurrencyById((int)$id);
+        if ($currency) {
+            $this->requireStoreAccess($currency->storeId);
+        }
 
         if (!app(PaymentCurrencies::class)->deletePaymentCurrencyById((int)$id)) {
             return $this->asFailure();

@@ -216,6 +216,7 @@ JS;
     {
         $id = $request->input('id') ? (int)$request->input('id') : null;
         $storeId = $request->input('storeId') ? (int)$request->input('storeId') : null;
+        $this->requireStoreAccess($storeId);
 
         if ($id) {
             $catalogPricingRule = app(CatalogPricingRules::class)->getCatalogPricingRuleById($id, $storeId);
@@ -295,6 +296,11 @@ JS;
         }
 
         foreach ($ids as $deleteId) {
+            $catalogPricingRule = app(CatalogPricingRules::class)->getCatalogPricingRuleById((int)$deleteId);
+            if ($catalogPricingRule) {
+                $this->requireStoreAccess($catalogPricingRule->storeId);
+            }
+
             app(CatalogPricingRules::class)->deleteCatalogPricingRuleById((int)$deleteId);
         }
 
@@ -320,6 +326,7 @@ JS;
             $rules = CatalogPricingRuleRecord::whereIn('id', $ids)->get();
 
             foreach ($rules as $rule) {
+                $this->requireStoreAccess($rule->storeId);
                 $storeId ??= $rule->storeId;
                 $rule->enabled = ($status == 'enabled');
                 $rule->save();

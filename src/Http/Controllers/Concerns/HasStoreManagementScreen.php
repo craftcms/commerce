@@ -7,9 +7,9 @@ namespace CraftCms\Commerce\Http\Controllers\Concerns;
 use craft\web\assets\admintable\AdminTableAsset;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
-
 use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
+use CraftCms\Commerce\Support\ObjectState;
 use CraftCms\Commerce\Tax\Taxes;
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
@@ -30,6 +30,17 @@ trait HasStoreManagementScreen
         }
 
         return $store;
+    }
+
+    protected function requireStoreAccess(?int $storeId): void
+    {
+        if (!ObjectState::has($this, 'allowableStoreIds')) {
+            ObjectState::set($this, 'allowableStoreIds', app(Stores::class)->getStoresByUserId(currentUser()?->getCraftUserId())->map(fn(Store $s) => $s->id)->all());
+        }
+
+        $allowableStoreIds = ObjectState::get($this, 'allowableStoreIds');
+
+        abort_unless($storeId !== null && in_array($storeId, $allowableStoreIds, true), 403, t('You are not permitted to perform this action for this store.', category: 'commerce'));
     }
 
     protected function storeManagementCpScreen(?string $storeHandle, bool $isIndex = true, bool $hasStoreSwitcher = true): CpScreenResponse

@@ -164,6 +164,7 @@ JS;
         $shippingCategory->id = $shippingCategoryId ? (int)$shippingCategoryId : null;
         $storeId = $request->input('storeId');
         $shippingCategory->storeId = $storeId ? (int)$storeId : null;
+        $this->requireStoreAccess($shippingCategory->storeId);
         $shippingCategory->name = $request->input('name');
         $shippingCategory->handle = $request->input('handle');
         $shippingCategory->icon = $request->input('icon');
@@ -217,7 +218,12 @@ JS;
 
         $failedIds = [];
         foreach ($ids as $deleteId) {
-            if (!app(ShippingCategories::class)->deleteShippingCategoryById((int)$deleteId)) {
+            $shippingCategory = app(ShippingCategories::class)->getShippingCategoryById((int)$deleteId);
+            if ($shippingCategory) {
+                $this->requireStoreAccess($shippingCategory->storeId);
+            }
+
+            if (!$shippingCategory || !app(ShippingCategories::class)->deleteShippingCategoryById((int)$deleteId)) {
                 $failedIds[] = $deleteId;
             }
         }
@@ -237,6 +243,7 @@ JS;
         $storeHandle = $request->input('storeHandle');
         $store = $storeHandle ? app(Stores::class)->getStoreByHandle($storeHandle) : null;
         abort_if(!$storeHandle || $store === null, 400, 'Invalid store.');
+        $this->requireStoreAccess($store->id);
 
         if (!empty($ids)) {
             $id = Arr::first($ids);

@@ -170,6 +170,7 @@ JS;
         $storeId = $request->input('storeId');
         $store = app(Stores::class)->getStoreById($storeId);
         abort_if($store === null, 400, 'Invalid store.');
+        $this->requireStoreAccess($store->id);
 
         $page = (int)$request->input('page', 1);
         $limit = (int)$request->input('per_page', 100);
@@ -323,6 +324,7 @@ JS;
         abort_unless(currentUserElement()?->can($discount->id === null ? 'commerce-createDiscounts' : 'commerce-editDiscounts'), 403);
 
         $discount->storeId = $request->input('storeId');
+        $this->requireStoreAccess($discount->storeId);
         $discount->name = $request->input('name');
         $discount->description = $request->input('description');
         $discount->enabled = (bool)$request->input('enabled');
@@ -490,6 +492,11 @@ JS;
         }
 
         foreach ($ids as $deleteId) {
+            $discount = app(Discounts::class)->getDiscountById((int)$deleteId);
+            if ($discount) {
+                $this->requireStoreAccess($discount->storeId);
+            }
+
             app(Discounts::class)->deleteDiscountById($deleteId);
         }
 
@@ -511,6 +518,11 @@ JS;
 
         if (!in_array($type, $types, true)) {
             return $this->asFailure(t('Type not in allowed options.', category: 'commerce'));
+        }
+
+        $discount = app(Discounts::class)->getDiscountById((int)$id);
+        if ($discount) {
+            $this->requireStoreAccess($discount->storeId);
         }
 
         match ($type) {
@@ -535,6 +547,7 @@ JS;
             $discounts = DiscountRecord::whereIn('id', $ids)->get();
 
             foreach ($discounts as $discount) {
+                $this->requireStoreAccess($discount->storeId);
                 $discount->enabled = ($status == 'enabled');
                 $discount->save();
             }

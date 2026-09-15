@@ -223,6 +223,7 @@ JS;
 
         $taxRate->id = $request->input('taxRateId') ? (int)$request->input('taxRateId') : null;
         $taxRate->storeId = $request->input('storeId') ? (int)$request->input('storeId') : null;
+        $this->requireStoreAccess($taxRate->storeId);
         $taxRate->name = $request->input('name');
         $taxRate->code = $request->input('code');
         $taxRate->include = (bool)$request->input('include');
@@ -252,6 +253,11 @@ JS;
         $id = $request->input('id');
         abort_if(!$id, 400, 'Missing tax rate id');
 
+        $taxRate = app(TaxRates::class)->getTaxRateById((int)$id);
+        if ($taxRate) {
+            $this->requireStoreAccess($taxRate->storeId);
+        }
+
         app(TaxRates::class)->deleteTaxRateById((int)$id);
         return $this->asSuccess();
     }
@@ -267,6 +273,7 @@ JS;
             $taxRates = TaxRateRecord::whereIn('id', $ids)->get();
 
             foreach ($taxRates as $taxRate) {
+                $this->requireStoreAccess($taxRate->storeId);
                 $taxRate->enabled = ($status == 'enabled');
                 $taxRate->save();
             }

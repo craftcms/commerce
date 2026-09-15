@@ -165,6 +165,7 @@ JS;
         $shippingMethod->color = $request->input('color');
         $storeId = $request->input('storeId');
         $shippingMethod->storeId = $storeId ? (int)$storeId : null;
+        $this->requireStoreAccess($shippingMethod->storeId);
         $shippingMethod->setOrderCondition($request->input('orderCondition'));
         $shippingMethod->setCustomerCondition($request->input('customerCondition'));
         $shippingMethod->enabled = (bool)$request->input('enabled');
@@ -190,7 +191,12 @@ JS;
 
         $failedIds = [];
         foreach ($ids as $deleteId) {
-            if (!app(ShippingMethods::class)->deleteShippingMethodById((int)$deleteId)) {
+            $shippingMethod = app(ShippingMethods::class)->getShippingMethodById((int)$deleteId);
+            if ($shippingMethod) {
+                $this->requireStoreAccess($shippingMethod->storeId);
+            }
+
+            if (!$shippingMethod || !app(ShippingMethods::class)->deleteShippingMethodById((int)$deleteId)) {
                 $failedIds[] = $deleteId;
             }
         }
@@ -215,6 +221,7 @@ JS;
             $shippingMethods = ShippingMethodRecord::whereIn('id', $ids)->get();
 
             foreach ($shippingMethods as $shippingMethod) {
+                $this->requireStoreAccess($shippingMethod->storeId);
                 $shippingMethod->enabled = ($status == 'enabled');
                 $shippingMethod->save();
             }
