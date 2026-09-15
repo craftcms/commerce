@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Http\Controllers\Settings;
+namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use craft\commerce\web\assets\catalogpricing\CatalogPricingAsset;
 use craft\helpers\Cp;

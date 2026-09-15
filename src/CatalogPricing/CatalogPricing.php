@@ -312,9 +312,16 @@ class CatalogPricing
 
     public function getCatalogPricesPageInfo(int $storeId, ?CatalogPricingCondition $conditionBuilder = null, bool $includeBasePrices = true, ?string $searchText = null, int $limit = 100, int $offset = 0): array
     {
+        // getCountForPagination() wraps the query as-is and counts a column from its SELECT —
+        // but this query only ever selects price/promotionalPrice/salePrice aggregates, never
+        // purchasableId, so that column was never there to count. select()ing it first (like
+        // the pre-port Yii2 version did) replaces the aggregate select instead of layering atop
+        // it, giving a plain "one row per purchasableId" result to just count.
         $total = $this->buildCatalogPricesQuery($storeId, $conditionBuilder, $includeBasePrices, $searchText)
+            ->select(['purchasableId'])
             ->groupBy('purchasableId')
-            ->getCountForPagination(['purchasableId']);
+            ->get()
+            ->count();
 
         return [
             'first' => $offset + 1,
@@ -512,10 +519,14 @@ class CatalogPricing
      */
     public function createCatalogPricesQuery(?int $userId = null, int|string|null $storeId = null, bool $allPrices = false, ?CatalogPricingCondition $condition = null): \Illuminate\Database\Query\Builder
     {
+        // Quoted via the connection's own grammar, not embedded as bare SQL — the column is
+        // camelCase, and an unquoted raw fragment gets folded to lowercase by Postgres.
+        $isPromotionalPrice = DB::connection()->getQueryGrammar()->wrap('isPromotionalPrice');
+
         $query = DB::table(Table::CATALOG_PRICING . ' as cp')
             ->select([
-                DB::raw('MIN(CASE WHEN isPromotionalPrice = FALSE THEN price END) AS price'),
-                DB::raw('MIN(CASE WHEN isPromotionalPrice = TRUE THEN price END) AS promotionalPrice'),
+                DB::raw("MIN(CASE WHEN {$isPromotionalPrice} = FALSE THEN price END) AS price"),
+                DB::raw("MIN(CASE WHEN {$isPromotionalPrice} = TRUE THEN price END) AS promotionalPrice"),
                 DB::raw('MIN(price) AS salePrice'),
             ]);
 
@@ -534,10 +545,12 @@ class CatalogPricing
         /** @var CatalogPricingCondition $condition */
         $condition->modifyQuery($query);
 
+        // Plain where()s rather than whereRaw() — the column is camelCase, and an unquoted
+        // raw fragment gets folded to lowercase by Postgres, no longer matching it.
         $query->where(function($q) {
-            $q->whereNull('dateFrom')->orWhereRaw('dateFrom <= ?', [CraftDb::prepareDateForDb(new DateTime())]);
+            $q->whereNull('dateFrom')->orWhere('dateFrom', '<=', CraftDb::prepareDateForDb(new DateTime()));
         })->where(function($q) {
-            $q->whereNull('dateTo')->orWhereRaw('dateTo >= ?', [CraftDb::prepareDateForDb(new DateTime())]);
+            $q->whereNull('dateTo')->orWhere('dateTo', '>=', CraftDb::prepareDateForDb(new DateTime()));
         });
 
         if (!$allPrices) {
@@ -575,9 +588,9 @@ class CatalogPricing
         $condition->modifyQuery($query);
 
         $query->where(function($q) {
-            $q->whereNull('dateFrom')->orWhereRaw('dateFrom <= ?', [CraftDb::prepareDateForDb(new DateTime())]);
+            $q->whereNull('dateFrom')->orWhere('dateFrom', '<=', CraftDb::prepareDateForDb(new DateTime()));
         })->where(function($q) {
-            $q->whereNull('dateTo')->orWhereRaw('dateTo >= ?', [CraftDb::prepareDateForDb(new DateTime())]);
+            $q->whereNull('dateTo')->orWhere('dateTo', '>=', CraftDb::prepareDateForDb(new DateTime()));
         })->orderBy('purchasableId')->orderBy('price');
 
         if (!$allPrices) {

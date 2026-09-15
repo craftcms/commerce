@@ -3,7 +3,7 @@
 use CraftCms\Cms\Http\Controllers\Elements\EditElementController;
 use CraftCms\Cms\Http\Middleware\RequireAdmin;
 use CraftCms\Commerce\Http\Controllers\DonationsController;
-use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingRulesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\DiscountsController;
 use CraftCms\Commerce\Http\Controllers\Settings\EmailsController;

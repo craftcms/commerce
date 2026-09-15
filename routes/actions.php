@@ -5,7 +5,7 @@ use CraftCms\Cms\Http\Middleware\RequireCpRequest;
 use CraftCms\Commerce\Http\Controllers\CartController;
 use CraftCms\Commerce\Http\Controllers\DonationsController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
-use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingRulesController;
 use CraftCms\Commerce\Http\Controllers\DownloadsController;
 use CraftCms\Commerce\Http\Controllers\EmailPreviewController;
