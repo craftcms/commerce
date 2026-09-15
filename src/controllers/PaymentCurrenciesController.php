@@ -32,6 +32,17 @@ use yii\web\Response;
 class PaymentCurrenciesController extends BaseStoreManagementController
 {
     /**
+     * @inheritdoc
+     */
+    public function init(): void
+    {
+        parent::init();
+
+        // All payment currency actions require access to manage payment currencies
+        $this->requirePermission('commerce-managePaymentCurrencies');
+    }
+
+    /**
      * @throws CurrencyException
      */
     public function actionIndex(?string $storeHandle = null): Response
