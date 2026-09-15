@@ -9,7 +9,10 @@ use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
-use CraftCms\Commerce\Purchasable\Queries\Concerns\QueriesPurchasableAttributes;
+use CraftCms\Commerce\Purchasable\Queries\Concerns\QueriesPurchasableCategories;
+use CraftCms\Commerce\Purchasable\Queries\Concerns\QueriesPurchasableDimensions;
+use CraftCms\Commerce\Purchasable\Queries\Concerns\QueriesPurchasableInventory;
+use CraftCms\Commerce\Purchasable\Queries\Concerns\QueriesPurchasablePricing;
 use Illuminate\Support\Facades\DB;
 use Tpetry\QueryExpressions\Language\Alias;
 use function CraftCms\Cms\currentUser;
@@ -20,7 +23,10 @@ use function CraftCms\Cms\currentUser;
  */
 abstract class PurchasableQuery extends ElementQuery
 {
-    use QueriesPurchasableAttributes;
+    use QueriesPurchasableCategories;
+    use QueriesPurchasableDimensions;
+    use QueriesPurchasableInventory;
+    use QueriesPurchasablePricing;
 
     protected string $table = Table::PURCHASABLES;
 
@@ -33,7 +39,7 @@ abstract class PurchasableQuery extends ElementQuery
 
     /**
      * Whether catalog pricing rules are active, decided once at construction time (the join/select
-     * setup below depends on it), and reused by {@see QueriesPurchasableAttributes}'s price-family
+     * setup below depends on it), and reused by {@see QueriesPurchasablePricing}'s price-family
      * `apply*()` methods so they always agree with which columns/joins are actually on the query.
      */
     public readonly bool $hasCatalogPricingRules;

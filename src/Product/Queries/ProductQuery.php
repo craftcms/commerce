@@ -12,11 +12,14 @@ use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Product\Elements\Product;
-use CraftCms\Commerce\Product\ProductType\ProductTypes;
+use CraftCms\Commerce\Product\ProductType\Concerns\QueriesProductTypeAuthorization;
+use CraftCms\Commerce\Product\Queries\Concerns\QueriesProductDates;
+use CraftCms\Commerce\Product\Queries\Concerns\QueriesProductDefaultVariant;
+use CraftCms\Commerce\Product\Queries\Concerns\QueriesProductRef;
 use CraftCms\Commerce\Product\Queries\Concerns\QueriesProductType;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Product\Variant\Queries\VariantQuery;
-use DateTime;
+use Illuminate\Contracts\Database\Query\Builder as BuilderContract;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Override;
@@ -29,7 +32,11 @@ use function CraftCms\Cms\currentUser;
  */
 class ProductQuery extends ElementQuery
 {
+    use QueriesProductDates;
+    use QueriesProductDefaultVariant;
+    use QueriesProductRef;
     use QueriesProductType;
+    use QueriesProductTypeAuthorization;
 
     #[Override]
     protected string $table = Table::PRODUCTS;
@@ -57,40 +64,16 @@ class ProductQuery extends ElementQuery
     ];
 
     /**
-     * Whether to only return products that the user has permission to view.
-     */
-    public ?bool $editable = null;
-
-    /**
-     * Whether to only return products that the user has permission to save.
-     */
-    public ?bool $savable = null;
-
-    public mixed $expiryDate = null;
-
-    public mixed $defaultPrice = null;
-
-    public mixed $defaultHeight = null;
-
-    public mixed $defaultLength = null;
-
-    public mixed $defaultWidth = null;
-
-    public mixed $defaultWeight = null;
-
-    public mixed $defaultSku = null;
-
-    /**
      * Only return products that match the resulting variant query.
      */
     public mixed $hasVariant = null;
 
-    public mixed $postDate = null;
-
     /**
-     * The reference code(s) used to identify the product(s), e.g. `{product:productTypeHandle/slug}`.
+     * Whether catalog pricing rules are active, decided once at construction time (the join/select
+     * setup below depends on it), and reused by {@see QueriesProductDefaultVariant::applyDefaultPrice()}
+     * so it always agrees with which columns/joins are actually on the query.
      */
-    public mixed $ref = null;
+    public readonly bool $hasCatalogPricingRules;
 
     /** @param array<string, mixed> $config */
     public function __construct(array $config = [])
@@ -128,9 +111,9 @@ class ProductQuery extends ElementQuery
         // Tailor the query based on whether there are catalog pricing rules.
         // The legacy Yii2 query staged this through the element query's `subQuery`; the new
         // architecture is a single query, so the catalog prices are joined in directly here.
-        $hasCatalogPricingRules = app(CatalogPricingRules::class)->hasCatalogPricingRules();
+        $this->hasCatalogPricingRules = app(CatalogPricingRules::class)->hasCatalogPricingRules();
 
-        if ($hasCatalogPricingRules) {
+        if ($this->hasCatalogPricingRules) {
             $catalogPricesQuery = app(CatalogPricing::class)
                 ->createCatalogPricesQuery(userId: currentUser()?->getCraftUserId())
                 ->addSelect(['cp.purchasableId', 'cp.storeId']);
@@ -145,145 +128,9 @@ class ProductQuery extends ElementQuery
             $this->query->addSelect(['purchasablesstores.basePrice as defaultPrice']);
         }
 
-        $this->beforeQuery(function(self $query) use ($hasCatalogPricingRules) {
-            if (isset($query->defaultPrice)) {
-                $query->whereParam(
-                    $hasCatalogPricingRules ? 'catalogprices.price' : 'purchasablesstores.basePrice',
-                    $query->defaultPrice,
-                );
-            }
-
-            if (isset($query->postDate)) {
-                $query->whereDateParam('commerce_products.postDate', $query->postDate);
-            }
-
-            if (isset($query->expiryDate)) {
-                $query->whereDateParam('commerce_products.expiryDate', $query->expiryDate);
-            }
-
-            if (isset($query->defaultHeight)) {
-                $query->whereParam('purchasables.height', $query->defaultHeight);
-            }
-
-            if (isset($query->defaultLength)) {
-                $query->whereParam('purchasables.length', $query->defaultLength);
-            }
-
-            if (isset($query->defaultWidth)) {
-                $query->whereParam('purchasables.width', $query->defaultWidth);
-            }
-
-            if (isset($query->defaultWeight)) {
-                $query->whereParam('purchasables.weight', $query->defaultWeight);
-            }
-
-            if (isset($query->defaultSku)) {
-                $query->whereParam('purchasables.sku', $query->defaultSku);
-            }
-
-            $query->applyHasVariantParam();
-            // Mirrors EntryQuery: "editable" means accessible in the editing UI (view permission),
-            // not necessarily savable. Use ->savable() to filter by save permission.
-            $query->applyPermissionParam($query->editable, 'commerce-viewProductType');
-            $query->applyPermissionParam($query->savable, 'commerce-saveProductType');
-            $query->applyRefParam();
+        $this->beforeQuery(static function(self $productQuery) {
+            static::applyHasVariant($productQuery, $productQuery->hasVariant);
         });
-    }
-
-    /**
-     * Narrows the query results based on the products’ default variant price.
-     */
-    public function defaultPrice(mixed $value): static
-    {
-        $this->defaultPrice = $value;
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the products’ default variant height.
-     */
-    public function defaultHeight(mixed $value): static
-    {
-        $this->defaultHeight = $value;
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the products’ default variant length.
-     */
-    public function defaultLength(mixed $value): static
-    {
-        $this->defaultLength = $value;
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the products’ default variant width.
-     */
-    public function defaultWidth(mixed $value): static
-    {
-        $this->defaultWidth = $value;
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the products’ default variant weight.
-     */
-    public function defaultWeight(mixed $value): static
-    {
-        $this->defaultWeight = $value;
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the products’ default variant SKU.
-     */
-    public function defaultSku(mixed $value): static
-    {
-        $this->defaultSku = $value;
-        return $this;
-    }
-
-    /**
-     * Narrows the query results to only products that were posted before a certain date.
-     */
-    public function before(DateTime|string $value): static
-    {
-        if ($value instanceof DateTime) {
-            $value = $value->format(DateTime::W3C);
-        }
-
-        $this->postDate = Arr::wrap($this->postDate);
-        $this->postDate[] = '<' . $value;
-
-        return $this;
-    }
-
-    /**
-     * Narrows the query results to only products that were posted on or after a certain date.
-     */
-    public function after(DateTime|string $value): static
-    {
-        if ($value instanceof DateTime) {
-            $value = $value->format(DateTime::W3C);
-        }
-
-        $this->postDate = Arr::wrap($this->postDate);
-        $this->postDate[] = '>=' . $value;
-
-        return $this;
-    }
-
-    public function editable(?bool $value = true): static
-    {
-        $this->editable = $value;
-        return $this;
-    }
-
-    public function savable(?bool $value = true): static
-    {
-        $this->savable = $value;
-        return $this;
     }
 
     /**
@@ -298,30 +145,33 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Narrows the query results based on the products’ post dates.
+     * @param VariantQuery|array<string, mixed>|null $value
+     *
+     * @throws QueryAbortedException
      */
-    public function postDate(mixed $value): static
+    public static function applyHasVariant(BuilderContract $query, mixed $value): void
     {
-        $this->postDate = $value;
-        return $this;
-    }
+        if ($value === null) {
+            return;
+        }
 
-    /**
-     * Narrows the query results based on the products’ expiry dates.
-     */
-    public function expiryDate(mixed $value): static
-    {
-        $this->expiryDate = $value;
-        return $this;
-    }
+        if ($value instanceof VariantQuery) {
+            $variantQuery = $value;
+        } elseif (is_array($value)) {
+            $variantQuery = Variant::find();
+            self::configure($variantQuery, $value);
+        } else {
+            throw new QueryAbortedException('Invalid param used. ProductQuery::hasVariant param only expects a variant query or variant query config.');
+        }
 
-    /**
-     * Narrows the query results based on a reference string.
-     */
-    public function ref(mixed $value): static
-    {
-        $this->ref = $value;
-        return $this;
+        $variantQuery->limit(null);
+        $variantQuery->select('commerce_variants.primaryOwnerId as primaryOwnerId');
+        $variantQuery->whereNotNull('commerce_variants.primaryOwnerId');
+
+        // The legacy query correlated a nested EXISTS subquery against `commerce_products.id`;
+        // the resulting SQL is equivalent to (and simpler as) an IN subquery here.
+        $variantQuery->applyBeforeQueryCallbacks();
+        $query->whereIn('commerce_products.id', $variantQuery->getQuery());
     }
 
     #[Override]
@@ -352,131 +202,6 @@ class ProductQuery extends ElementQuery
                 ->where('commerce_products.expiryDate', '<=', $currentTime),
             default => parent::statusCondition($status),
         };
-    }
-
-    /**
-     * Applies the 'hasVariant' param to the query being prepared.
-     *
-     * @throws QueryAbortedException
-     */
-    private function applyHasVariantParam(): void
-    {
-        if ($this->hasVariant === null) {
-            return;
-        }
-
-        if ($this->hasVariant instanceof VariantQuery) {
-            $variantQuery = $this->hasVariant;
-        } elseif (is_array($this->hasVariant)) {
-            $variantQuery = Variant::find();
-            self::configure($variantQuery, $this->hasVariant);
-        } else {
-            throw new QueryAbortedException('Invalid param used. ProductQuery::hasVariant param only expects a variant query or variant query config.');
-        }
-
-        $variantQuery->limit(null);
-        $variantQuery->select('commerce_variants.primaryOwnerId as primaryOwnerId');
-        $variantQuery->whereNotNull('commerce_variants.primaryOwnerId');
-
-        // The legacy query correlated a nested EXISTS subquery against `commerce_products.id`;
-        // the resulting SQL is equivalent to (and simpler as) an IN subquery here.
-        $variantQuery->applyBeforeQueryCallbacks();
-        $this->whereIn('commerce_products.id', $variantQuery->getQuery());
-    }
-
-    /**
-     * Applies an authorization param to the query being prepared.
-     *
-     * @throws QueryAbortedException
-     */
-    private function applyPermissionParam(?bool $value, string $permissionPrefix): void
-    {
-        if ($value === null) {
-            return;
-        }
-
-        $user = currentUser();
-
-        if (!$user) {
-            throw new QueryAbortedException();
-        }
-
-        $productTypes = app(ProductTypes::class)->getAllProductTypes();
-
-        if (empty($productTypes)) {
-            return;
-        }
-
-        $authorizedTypeIds = [];
-
-        foreach ($productTypes as $productType) {
-            if ($user->can("$permissionPrefix:$productType->uid")) {
-                $authorizedTypeIds[] = $productType->id;
-            }
-        }
-
-        if (count($authorizedTypeIds) === count($productTypes)) {
-            // They have access to everything
-            if (!$value) {
-                throw new QueryAbortedException();
-            }
-            return;
-        }
-
-        if (empty($authorizedTypeIds)) {
-            // They don't have access to anything
-            if ($value) {
-                throw new QueryAbortedException();
-            }
-            return;
-        }
-
-        if ($value) {
-            $this->whereIn('commerce_products.typeId', $authorizedTypeIds);
-        } else {
-            $this->whereNotIn('commerce_products.typeId', $authorizedTypeIds);
-        }
-    }
-
-    /**
-     * Applies the 'ref' param to the query being prepared.
-     */
-    private function applyRefParam(): void
-    {
-        if (!$this->ref) {
-            return;
-        }
-
-        $refs = Arr::wrap($this->ref);
-        $joinProductTypes = false;
-
-        $this->where(function(Builder $query) use (&$joinProductTypes, $refs) {
-            foreach ($refs as $ref) {
-                $parts = array_filter(explode('/', (string)$ref), static fn(string $part) => $part !== '');
-
-                if (empty($parts)) {
-                    continue;
-                }
-
-                if (count($parts) === 1) {
-                    $query->orWhereParam('elements_sites.slug', reset($parts));
-                    continue;
-                }
-
-                $parts = array_values($parts);
-
-                $query->orWhere(function(Builder $query) use ($parts) {
-                    $query->whereParam('commerce_producttypes.handle', $parts[0])
-                        ->whereParam('elements_sites.slug', $parts[1]);
-                });
-
-                $joinProductTypes = true;
-            }
-        });
-
-        if ($joinProductTypes) {
-            $this->join(new Alias(Table::PRODUCTTYPES, 'commerce_producttypes'), 'commerce_producttypes.id', '=', 'commerce_products.typeId');
-        }
     }
 
     #[Override]

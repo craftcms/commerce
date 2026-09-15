@@ -13,7 +13,13 @@ use CraftCms\Commerce\Order\LineItem\LineItems;
 use CraftCms\Commerce\Order\OrderAdjustments;
 use CraftCms\Commerce\Order\OrderNotices;
 use CraftCms\Commerce\Order\Orders;
-use CraftCms\Commerce\Order\Queries\Concerns\QueriesOrderAttributes;
+use CraftCms\Commerce\Order\Queries\Concerns\QueriesOrderCustomer;
+use CraftCms\Commerce\Order\Queries\Concerns\QueriesOrderDates;
+use CraftCms\Commerce\Order\Queries\Concerns\QueriesOrderFulfillment;
+use CraftCms\Commerce\Order\Queries\Concerns\QueriesOrderIdentity;
+use CraftCms\Commerce\Order\Queries\Concerns\QueriesOrderPurchasables;
+use CraftCms\Commerce\Order\Queries\Concerns\QueriesOrderStatus;
+use CraftCms\Commerce\Order\Queries\Concerns\QueriesOrderTotals;
 use CraftCms\Commerce\Payment\Transactions;
 use Illuminate\Support\Collection;
 use Override;
@@ -24,7 +30,13 @@ use Tpetry\QueryExpressions\Language\Alias;
  */
 class OrderQuery extends ElementQuery
 {
-    use QueriesOrderAttributes;
+    use QueriesOrderCustomer;
+    use QueriesOrderDates;
+    use QueriesOrderFulfillment;
+    use QueriesOrderIdentity;
+    use QueriesOrderPurchasables;
+    use QueriesOrderStatus;
+    use QueriesOrderTotals;
 
     protected string $table = Table::ORDERS;
 

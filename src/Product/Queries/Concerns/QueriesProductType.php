@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Product-type scope, mirroring the `QueriesFields`/`QueriesAssetLocation` convention from craft
- * core — see {@see \CraftCms\Commerce\Order\Queries\Concerns\QueriesOrderAttributes} for why
+ * core — see {@see \CraftCms\Commerce\Order\Queries\Concerns\QueriesOrderIdentity} for why
  * condition rules must call `applyTypeId()` directly rather than the fluent `type()`/`typeId()`
  * setters.
  *
@@ -27,15 +27,15 @@ trait QueriesProductType
 
     protected function initQueriesProductType(): void
     {
-        $this->beforeQuery(function(ProductQuery $query) {
-            $query->normalizeTypeId();
+        $this->beforeQuery(static function(ProductQuery $productQuery) {
+            $productQuery->normalizeTypeId();
 
             // See if 'type' was set to an invalid handle
-            if ($query->typeId === []) {
+            if ($productQuery->typeId === []) {
                 throw new QueryAbortedException();
             }
 
-            static::applyTypeId($query, $query->typeId, $query);
+            static::applyTypeId($productQuery, $productQuery->typeId, $productQuery);
         });
     }
 
