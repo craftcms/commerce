@@ -7,9 +7,8 @@
 - Fixed a PHP error that could occur when using a datetime attribute in an order-related object template. ([#4255](https://github.com/craftcms/commerce/issues/4255))
 - Fixed a PHP error on the dashboard that could occur for users without edit permissions for any site. ([#4347](https://github.com/craftcms/commerce/issues/4347))
 - Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) RCE vulnerability. (GHSA-w9pv-3qgc-2pq2)
-- Fixed some [medium-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerabilities. (GHSA-wr49-2q4p-354w, hackrate#1885, hackrate#1895)
-- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) cross-store authorization vulnerability. (hackrate#1893)
-- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerability. (hackrate#1894)
+- Fixed some [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerabilities. (GHSA-wr49-2q4p-354w, GHSA-jx83-gwwg-84gf, GHSA-w2cw-phpj-gcgw, GHSA-fw8v-h534-cqw2)
+- Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) cross-store authorization vulnerability. (GHSA-wfxq-r2hv-px5r)
 
 ## 5.7.3 - 2026-09-02
 
