@@ -503,6 +503,7 @@ JS;
     public function clearDiscountUses(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
+        abort_unless(currentUserElement()?->can('commerce-editDiscounts'), 403);
 
         $id = $request->input('id');
         $type = $request->input('type', 'total');
