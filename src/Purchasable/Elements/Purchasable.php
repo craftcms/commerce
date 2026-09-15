@@ -46,7 +46,6 @@ use CraftCms\RulesetValidation\Attributes\Ruleset;
 use Illuminate\Support\Collection;
 use Money\Money;
 use Money\Teller;
-use yii\validators\Validator;
 use function CraftCms\Cms\t;
 
 /**
@@ -604,13 +603,13 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         $lineItem->width = (float)$this->width; //converting nulls
     }
 
-    public function getLineItemRules(LineItem $lineItem): array
+    public function validateLineItem(LineItem $lineItem): void
     {
         $order = $lineItem->getOrder();
 
         // After the order is complete shouldn't check things like stock being available or the purchasable being around since they are irrelevant.
         if ($order && $order->isCompleted) {
-            return [];
+            return;
         }
 
         $lineItemQuantitiesByPurchasableId = [];
@@ -620,61 +619,49 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             }
         }
 
-        return [
-            // an inline validator defined as an anonymous function
-            [
-                'purchasableId',
-                function($attribute, $params, Validator $validator) use ($lineItem) {
-                    $purchasable = $lineItem->getPurchasable();
-                    if ($purchasable === null) {
-                        $lineItem->errors()->add($attribute, t('No purchasable available.', category: 'commerce'));
-                    }
+        $purchasable = $lineItem->getPurchasable();
+        if ($purchasable === null) {
+            $lineItem->errors()->add('purchasableId', t('No purchasable available.', category: 'commerce'));
+        }
 
-                    if (!app(Purchasables::class)->isPurchasableAvailable($lineItem->getPurchasable(), $lineItem->getOrder())) {
-                        $lineItem->errors()->add($attribute, t('The item is not enabled for sale.', category: 'commerce'));
-                    }
-                },
-            ],
-            [
-                'qty',
-                function($attribute, $params, Validator $validator) use ($lineItem, $lineItemQuantitiesByPurchasableId) {
-                    if ($lineItem->type == LineItemType::Custom) {
-                        return;
-                    }
+        if (!app(Purchasables::class)->isPurchasableAvailable($lineItem->getPurchasable(), $lineItem->getOrder())) {
+            $lineItem->errors()->add('purchasableId', t('The item is not enabled for sale.', category: 'commerce'));
+        }
 
-                    $lineItemPurchasable = $lineItem->getPurchasable();
-                    if (!$lineItemPurchasable instanceof Purchasable) {
-                        return;
-                    }
+        if ($lineItem->type == LineItemType::Custom) {
+            return;
+        }
 
-                    if (!$this->hasStock()) {
-                        if (!app(Purchasables::class)->isPurchasableOutOfStockPurchasingAllowed($lineItemPurchasable, $lineItem->getOrder())) {
-                            $error = t('"{description}" is currently out of stock.', ['description' => $lineItemPurchasable->getDescription()], category: 'commerce');
-                            $lineItem->errors()->add($attribute, $error);
-                        }
-                    }
+        $lineItemPurchasable = $lineItem->getPurchasable();
+        if (!$lineItemPurchasable instanceof Purchasable) {
+            return;
+        }
 
-                    $lineItemQty = $lineItem->purchasableId ? $lineItemQuantitiesByPurchasableId[$lineItem->purchasableId] : $lineItem->qty;
+        if (!$this->hasStock()) {
+            if (!app(Purchasables::class)->isPurchasableOutOfStockPurchasingAllowed($lineItemPurchasable, $lineItem->getOrder())) {
+                $error = t('"{description}" is currently out of stock.', ['description' => $lineItemPurchasable->getDescription()], category: 'commerce');
+                $lineItem->errors()->add('qty', $error);
+            }
+        }
 
-                    if ($this->hasStock() && $this->inventoryTracked && $lineItemQty > $this->getStock()) {
-                        if (!app(Purchasables::class)->isPurchasableOutOfStockPurchasingAllowed($lineItemPurchasable, $lineItem->getOrder())) {
-                            $error = t('There are only {num} "{description}" items left in stock.', ['num' => $this->getStock(), 'description' => $lineItemPurchasable->getDescription()], category: 'commerce');
-                            $lineItem->errors()->add($attribute, $error);
-                        }
-                    }
+        $lineItemQty = $lineItem->purchasableId ? $lineItemQuantitiesByPurchasableId[$lineItem->purchasableId] : $lineItem->qty;
 
-                    if ($this->minQty > 1 && $lineItemQty < $this->minQty) {
-                        $error = t('Minimum order quantity for this item is {num}.', ['num' => $this->minQty], category: 'commerce');
-                        $lineItem->errors()->add($attribute, $error);
-                    }
+        if ($this->hasStock() && $this->inventoryTracked && $lineItemQty > $this->getStock()) {
+            if (!app(Purchasables::class)->isPurchasableOutOfStockPurchasingAllowed($lineItemPurchasable, $lineItem->getOrder())) {
+                $error = t('There are only {num} "{description}" items left in stock.', ['num' => $this->getStock(), 'description' => $lineItemPurchasable->getDescription()], category: 'commerce');
+                $lineItem->errors()->add('qty', $error);
+            }
+        }
 
-                    if ($this->maxQty != 0 && $lineItemQty > $this->maxQty) {
-                        $error = t('Maximum order quantity for this item is {num}.', ['num' => $this->maxQty], category: 'commerce');
-                        $lineItem->errors()->add($attribute, $error);
-                    }
-                },
-            ],
-        ];
+        if ($this->minQty > 1 && $lineItemQty < $this->minQty) {
+            $error = t('Minimum order quantity for this item is {num}.', ['num' => $this->minQty], category: 'commerce');
+            $lineItem->errors()->add('qty', $error);
+        }
+
+        if ($this->maxQty != 0 && $lineItemQty > $this->maxQty) {
+            $error = t('Maximum order quantity for this item is {num}.', ['num' => $this->maxQty], category: 'commerce');
+            $lineItem->errors()->add('qty', $error);
+        }
     }
 
     public function setAttributes($values): void

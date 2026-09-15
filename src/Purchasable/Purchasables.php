@@ -35,6 +35,12 @@ class Purchasables
 
     /**
      * Memoization of purchasables by a composite "id-siteId-forCustomer" key, to avoid duplicate queries.
+     *
+     * TODO: this cache is never invalidated on save/update, only on deletePurchasableById() - a
+     * purchasable fetched (and thus cached) early in a request, then saved with new attribute values
+     * later in the same request, will still return the stale pre-save instance from here. Found via
+     * a test that mutated and re-saved a fixture-created variant already resolved by an earlier
+     * getPurchasableById() call with the same site/customer scope.
      */
     private ?Collection $purchasableById = null;
 

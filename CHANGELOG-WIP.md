@@ -478,6 +478,7 @@
 - Deprecated `craft\commerce\elements\conditions\orders\*`. The `CraftCms\Commerce\Order\Conditions` equivalents should be used instead.
 - Added `CraftCms\Commerce\Order\Actions\CopyLoadCartUrl`, `DownloadOrderPdfAction`, and `UpdateOrderStatus`.
 - Deprecated `craft\commerce\elements\actions\CopyLoadCartUrl`, `DownloadOrderPdfAction`, and `UpdateOrderStatus`. The `CraftCms\Commerce\Order\Actions` equivalents should be used instead.
+- Fixed `LineItems::saveLineItem($lineItem, true)` — `$runValidation` was ported from the real 5.x implementation (which validates via `$lineItem->validate()` before saving), but the actual validation call behind it was dropped during the port, leaving it a silent no-op regardless of the flag's value. Now wired up for real, via `LineItem`'s own `#[Ruleset(LineItemRules::class)]` plus an `afterValidate()` override that runs the purchasable's checks (see `PurchasableInterface::validateLineItem()` below).
 
 #### Controllers
 
@@ -685,6 +686,7 @@
 - Deprecated `craft\commerce\elements\conditions\purchasables\PurchasableConditionRule`, `PurchasableTypeConditionRule`, `SkuConditionRule`, `CatalogPricingRulePurchasableCategoryConditionRule`, and `CatalogPricingRulePurchasableCondition`. The `CraftCms\Commerce\Purchasable\Conditions` equivalents should be used instead.
 - Added `CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableSkuField`, `PurchasablePriceField`, `PurchasableStockField`, `PurchasableWeightField`, `PurchasableDimensionsField`, `PurchasableAllowedQtyField`, `PurchasableAvailableForPurchaseField`, `PurchasableFreeShippingField`, and `PurchasablePromotableField`.
 - Deprecated `craft\commerce\fieldlayoutelements\PurchasableSkuField`, `PurchasablePriceField`, `PurchasableStockField`, `PurchasableWeightField`, `PurchasableDimensionsField`, `PurchasableAllowedQtyField`, `PurchasableAvailableForPurchaseField`, `PurchasableFreeShippingField`, and `PurchasablePromotableField`. The `CraftCms\Commerce\Purchasable\FieldLayoutElements` equivalents should be used instead.
+- **Breaking**: Changed `PurchasableInterface::getLineItemRules(LineItem $lineItem): array` to `validateLineItem(LineItem $lineItem): void`. The old method returned legacy Yii2-shaped inline-closure validation rules (`[attribute, closure]` pairs merged into `LineItem`'s own `rules()`), which was never actually wired up to run — `LineItem::getValidationRules()` had zero callers, so `Purchasable`/`Donation`'s implementations were dead code. Replaced with a plain imperative method that adds errors directly to `$lineItem->errors()`, matching the pattern used elsewhere in this migration (e.g. `ProductType::afterValidate()`). This is a genuine break from the real 5.x `craft\commerce\base\PurchasableInterface::getLineItemRules()` for any third-party purchasable type — accepted intentionally in favor of a consistent, non-Yii2 validation approach across `CraftCms\Commerce\*`. `Purchasable::validateLineItem()` and `Donation::validateLineItem()` carry the exact same business logic as before (stock/qty checks, donation amount checks), just unwrapped from the legacy closure shape.
 
 #### Controllers
 

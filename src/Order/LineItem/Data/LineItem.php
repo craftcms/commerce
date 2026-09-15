@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\LineItem\Data;
 
-use Closure;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
@@ -15,6 +14,7 @@ use CraftCms\Commerce\Order\Data\LineItemStatus;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Events\LineItemPopulated;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
+use CraftCms\Commerce\Order\LineItem\Validation\LineItemRules;
 use CraftCms\Commerce\Order\LineItemStatuses;
 use CraftCms\Commerce\Order\Orders;
 use CraftCms\Commerce\Promotion\Discounts;
@@ -30,7 +30,9 @@ use CraftCms\Commerce\Store\Exceptions\StoreNotFoundException;
 use CraftCms\Commerce\Tax\Data\TaxCategory;
 use CraftCms\Commerce\Tax\Models\TaxRate as TaxRateRecord;
 use CraftCms\Commerce\Tax\TaxCategories;
+use CraftCms\RulesetValidation\Attributes\Ruleset;
 use DateTime;
+use Illuminate\Validation\Validator;
 use LitEmoji\LitEmoji;
 use Money\Teller;
 use RuntimeException;
@@ -52,6 +54,7 @@ use RuntimeException;
  * @property-read float $salePrice
  * @property-read string $salePriceAsCurrency
  */
+#[Ruleset(LineItemRules::class)]
 class LineItem extends Component implements HasStoreInterface
 {
     public ?int $id = null;
@@ -288,53 +291,36 @@ class LineItem extends Component implements HasStoreInterface
         return Currency::round($this->getPrice() - $this->getPromotionalPrice());
     }
 
-    /**
-     * Returns legacy-shaped validation rules for this line item, merging in any purchasable-supplied
-     * rules from {@see PurchasableInterface::getLineItemRules()}.
-     *
-     * @TODO Not yet wired up to a real validator. This is kept as a plain data method, in the same
-     * shape as the legacy `defineRules()`, pending the broader migration of line item validation onto
-     * the new Ruleset system.
-     */
-    public function getValidationRules(): array
+    #[\Override]
+    public function validationData(): array
     {
-        $rules = [
-            [
-                [
-                    'optionsSignature',
-                    'price',
-                    'promotionalAmount',
-                    'weight',
-                    'length',
-                    'height',
-                    'width',
-                    'qty',
-                    'taxCategoryId',
-                    'type',
-                    'shippingCategoryId',
-                ], 'required',
-            ],
-            [['snapshot'], 'required', 'when' => fn() => $this->type === LineItemType::Purchasable],
-            [['qty'], 'integer', 'min' => 1],
-            [['shippingCategoryId', 'taxCategoryId'], 'integer'],
-            [['price'], 'number', 'min' => 0],
-            [['promotionalPrice'], 'number', 'min' => 0, 'skipOnEmpty' => true],
-            [['orderId', 'purchasableId', 'hasFreeShipping', 'isPromotable', 'isShippable', 'isTaxable', 'type'], 'safe'],
+        return [
+            ...parent::validationData(),
+            'optionsSignature' => $this->getOptionsSignature(),
+            'price' => $this->getPrice(),
+            'promotionalPrice' => $this->getPromotionalPrice(),
+            'promotionalAmount' => $this->getPromotionalAmount(),
+            'snapshot' => $this->getSnapshot(),
         ];
+    }
 
-        if ($this->type === LineItemType::Purchasable && $this->purchasableId) {
-            $order = $this->getOrder();
-            $purchasable = app(Purchasables::class)->getPurchasableById($this->purchasableId, $order?->orderSiteId, $order?->getCustomer()?->id);
-            if ($purchasable && !empty($purchasableRules = $purchasable->getLineItemRules($this))) {
-                foreach ($purchasableRules as $rule) {
-                    $rules[] = $this->_normalizePurchasableRule($rule, $purchasable);
-                }
-            }
+    /**
+     * Runs the purchasable-supplied checks from {@see PurchasableInterface::validateLineItem()} — kept
+     * imperative rather than folded into {@see LineItemRules} since it needs to resolve and delegate to
+     * the purchasable itself, not just inspect this line item's own attributes.
+     *
+     * @TODO Add a validation rule preventing qty from being reduced below the total fulfilled quantity across inventory locations when the order is complete
+     */
+    #[\Override]
+    public function afterValidate(?Validator $validator = null): void
+    {
+        if ($this->type !== LineItemType::Purchasable || !$this->purchasableId) {
+            return;
         }
 
-        // @TODO Add a validation rule preventing qty from being reduced below the total fulfilled quantity across inventory locations when the order is complete
-
-        return $rules;
+        $order = $this->getOrder();
+        $purchasable = app(Purchasables::class)->getPurchasableById($this->purchasableId, $order?->orderSiteId, $order?->getCustomer()?->id);
+        $purchasable?->validateLineItem($this);
     }
 
     public function getFulfilledTotalQuantity(): int
@@ -346,22 +332,6 @@ class LineItem extends Component implements HasStoreInterface
         }
 
         return 0;
-    }
-
-    /**
-     * Normalizes a purchasable's validation rule.
-     */
-    private function _normalizePurchasableRule(mixed $rule, PurchasableInterface $purchasable): mixed
-    {
-        if (isset($rule[1]) && $rule[1] instanceof Closure) {
-            $method = $rule[1];
-            $method = $method->bindTo($purchasable);
-            $rule[1] = static function($attribute, $params, $validator, $current) use ($method) {
-                $method($attribute, $params, $validator, $current);
-            };
-        }
-
-        return $rule;
     }
 
     /**

@@ -16,7 +16,6 @@ use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
 use CraftCms\RulesetValidation\Attributes\Ruleset;
 use Override;
-use yii\validators\Validator;
 use function CraftCms\Cms\t;
 
 #[Ruleset(DonationRules::class)]
@@ -136,25 +135,18 @@ class Donation extends Purchasable
     }
 
     #[Override]
-    public function getLineItemRules(LineItem $lineItem): array
+    public function validateLineItem(LineItem $lineItem): void
     {
-        return [
-            [
-                'purchasableId',
-                function($attribute, $params, Validator $validator) use ($lineItem) {
-                    $options = $lineItem->getOptions();
-                    if (!isset($options['donationAmount'])) {
-                        $lineItem->errors()->add($attribute, t('No donation amount supplied.', category: 'commerce'));
-                    }
-                    if (isset($options['donationAmount']) && !is_numeric($options['donationAmount'])) {
-                        $lineItem->errors()->add($attribute, t('Donation needs to be an amount.', category: 'commerce'));
-                    }
-                    if (isset($options['donationAmount']) && $options['donationAmount'] == 0) {
-                        $lineItem->errors()->add($attribute, t('Donation can not be zero.', category: 'commerce'));
-                    }
-                },
-            ],
-        ];
+        $options = $lineItem->getOptions();
+        if (!isset($options['donationAmount'])) {
+            $lineItem->errors()->add('purchasableId', t('No donation amount supplied.', category: 'commerce'));
+        }
+        if (isset($options['donationAmount']) && !is_numeric($options['donationAmount'])) {
+            $lineItem->errors()->add('purchasableId', t('Donation needs to be an amount.', category: 'commerce'));
+        }
+        if (isset($options['donationAmount']) && $options['donationAmount'] == 0) {
+            $lineItem->errors()->add('purchasableId', t('Donation can not be zero.', category: 'commerce'));
+        }
     }
 
     #[Override]

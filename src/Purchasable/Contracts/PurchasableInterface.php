@@ -37,7 +37,7 @@ interface PurchasableInterface extends ElementInterface
 
     public function getSnapshot(): array;
 
-    public function getLineItemRules(LineItem $lineItem): array;
+    public function validateLineItem(LineItem $lineItem): void;
 
     public function afterOrderComplete(Order $order, LineItem $lineItem): void;
 
