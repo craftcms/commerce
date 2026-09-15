@@ -9,6 +9,8 @@
 - Fixed some [medium-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerabilities. (hackrate#1884, hackrate#1885, hackrate#1895)
 - Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) cross-store authorization vulnerability. (hackrate#1893)
 - Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerability. (hackrate#1894)
+- Fixed a bug where an order’s line items could be fulfilled beyond a stock location’s physical on-hand quantity. ([#4268](https://github.com/craftcms/commerce/issues/4268))
+- Fixed a bug where reserved inventory stock wasn’t updated when the reserved stock was moved via an inventory transfer. ([#4268](https://github.com/craftcms/commerce/issues/4268))
 
 ## 5.7.3 - 2026-09-02
 

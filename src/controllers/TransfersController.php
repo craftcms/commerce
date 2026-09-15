@@ -180,17 +180,53 @@ class TransfersController extends BaseCpController
             if ($acceptedAmount = $details[$detail->uid]['accept'] ?? null) {
                 // Update the total accepted
                 $detail->quantityAccepted += $acceptedAmount;
+                $remainingAccepted = $acceptedAmount;
 
-                $inventoryAcceptedMovement = new InventoryTransferMovement();
-                $inventoryAcceptedMovement->quantity = $acceptedAmount;
-                $inventoryAcceptedMovement->transferId = $transfer->id;
-                $inventoryAcceptedMovement->setInventoryItem($detail->getInventoryItem());
-                $inventoryAcceptedMovement->toInventoryLocation = $transfer->getDestinationLocation();
-                $inventoryAcceptedMovement->fromInventoryLocation = $transfer->getDestinationLocation(); // we are moving from incoming to available
-                $inventoryAcceptedMovement->toInventoryTransactionType = InventoryTransactionType::AVAILABLE;
-                $inventoryAcceptedMovement->fromInventoryTransactionType = InventoryTransactionType::INCOMING;
+                // Resolve any of this transfer's stock that was earmarked (via a RESERVED debit at the origin,
+                // see Transfer::afterSave()) for a specific order's shortfall first, by committing it straight
+                // to that order's line item at the destination instead of letting it become generic AVAILABLE
+                // stock. Any remaining amount beyond what's earmarked is a plain restock, as before.
+                $outstandingReservations = Plugin::getInstance()->getInventory()->getOutstandingTransferReservations(
+                    $transfer->id,
+                    $detail->inventoryItemId,
+                    $transfer->originLocationId,
+                    $transfer->destinationLocationId
+                );
 
-                $inventoryMovementCollection->push($inventoryAcceptedMovement);
+                foreach ($outstandingReservations as $reservation) {
+                    if ($remainingAccepted <= 0) {
+                        break;
+                    }
+
+                    $qty = min($remainingAccepted, $reservation['remainingQty']);
+
+                    $committedMovement = new InventoryTransferMovement();
+                    $committedMovement->quantity = $qty;
+                    $committedMovement->transferId = $transfer->id;
+                    $committedMovement->lineItemId = $reservation['lineItemId'];
+                    $committedMovement->setInventoryItem($detail->getInventoryItem());
+                    $committedMovement->toInventoryLocation = $transfer->getDestinationLocation();
+                    $committedMovement->fromInventoryLocation = $transfer->getDestinationLocation();
+                    $committedMovement->toInventoryTransactionType = InventoryTransactionType::COMMITTED;
+                    $committedMovement->fromInventoryTransactionType = InventoryTransactionType::INCOMING;
+
+                    $inventoryMovementCollection->push($committedMovement);
+
+                    $remainingAccepted -= $qty;
+                }
+
+                if ($remainingAccepted > 0) {
+                    $inventoryAcceptedMovement = new InventoryTransferMovement();
+                    $inventoryAcceptedMovement->quantity = $remainingAccepted;
+                    $inventoryAcceptedMovement->transferId = $transfer->id;
+                    $inventoryAcceptedMovement->setInventoryItem($detail->getInventoryItem());
+                    $inventoryAcceptedMovement->toInventoryLocation = $transfer->getDestinationLocation();
+                    $inventoryAcceptedMovement->fromInventoryLocation = $transfer->getDestinationLocation(); // we are moving from incoming to available
+                    $inventoryAcceptedMovement->toInventoryTransactionType = InventoryTransactionType::AVAILABLE;
+                    $inventoryAcceptedMovement->fromInventoryTransactionType = InventoryTransactionType::INCOMING;
+
+                    $inventoryMovementCollection->push($inventoryAcceptedMovement);
+                }
             }
 
             if ($rejectedAmount = $details[$detail->uid]['reject'] ?? null) {

@@ -30,6 +30,12 @@ class UpdateInventoryLevel extends Model
     public ?int $transferId = null;
 
     /**
+     * Whether the update should be associated with an order line item.
+     * @var int|null
+     */
+    public ?int $lineItemId = null;
+
+    /**
      * @var InventoryUpdateQuantityType The action to perform on the inventory.
      */
     public InventoryUpdateQuantityType $updateAction;
