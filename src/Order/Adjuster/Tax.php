@@ -301,7 +301,7 @@ class Tax implements AdjusterInterface
                         )
                     );
                     $purchasableTax = $this->_getTaxAmount((float)$purchasableAmount, $taxRate->rate, $taxRate->include);
-                    $itemTax = $this->_getTeller()->multiply($purchasableTax, $item->qty); //already rounded
+                    $itemTax = (float)$this->_getTeller()->multiply($purchasableTax, $item->qty); //already rounded
                 } else {
                     $taxableAmount = $item->getTaxableSubtotal($taxRate->taxable);
                     $taxableAmount = (float)$this->_getTeller()->add(

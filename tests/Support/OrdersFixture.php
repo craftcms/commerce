@@ -130,6 +130,7 @@ class OrdersFixture
         $white->setSku('hct-white');
         $white->setBasePrice(19.99);
         $white->isDefault = true;
+        $white->promotable = true;
         $white->siteId = $site->id;
         if (!Elements::saveElement($white)) {
             throw new RuntimeException('Could not save white variant: ' . json_encode($white->errors()->all()));
@@ -140,6 +141,7 @@ class OrdersFixture
         $blue->setPrimaryOwner($product);
         $blue->setSku('hct-blue');
         $blue->setBasePrice(21.99);
+        $blue->promotable = true;
         $blue->siteId = $site->id;
         if (!Elements::saveElement($blue)) {
             throw new RuntimeException('Could not save blue variant: ' . json_encode($blue->errors()->all()));

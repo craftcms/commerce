@@ -304,6 +304,20 @@ class LineItem extends Component implements HasStoreInterface
         ];
     }
 
+    #[\Override]
+    public function extraFields(): array
+    {
+        return array_filter([
+            'lineItemStatus',
+            'order',
+            $this->type === LineItemType::Purchasable ? 'purchasable' : null,
+            'shippingCategory',
+            'snapshot',
+            'taxCategory',
+            'fulfilledTotalQuantity',
+        ]);
+    }
+
     // @TODO Add a validation rule preventing qty from being reduced below the total fulfilled quantity across inventory locations when the order is complete
     #[\Override]
     public function afterValidate(?Validator $validator = null): void
