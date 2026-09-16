@@ -7,6 +7,7 @@ namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 use craft\helpers\Cp;
 use CraftCms\Cms\Cp\Html\ContentHtml;
 use CraftCms\Cms\Form\Controls\Choice;
+use CraftCms\Cms\Form\Controls\ComboboxCreate;
 use CraftCms\Cms\Form\Controls\Lightswitch;
 use CraftCms\Cms\Form\Controls\Number;
 use CraftCms\Cms\Form\Controls\Text;
@@ -223,11 +224,19 @@ readonly class TaxRatesController extends BaseStoreManagementController
             fn(TaxAddressZone $zone) => ['label' => $zone->name, 'value' => $zone->id],
             app(TaxZones::class)->getAllTaxZones($store->id)->all(),
         ));
+        $canCreateTaxZones = app(Taxes::class)->createTaxZones();
+        if ($canCreateTaxZones) {
+            $taxZoneOptions[] = ['label' => t('Create a new tax zone…', category: 'commerce'), 'value' => '__add__'];
+        }
 
         $taxCategoryOptions = array_values(array_map(
             fn(TaxCategory $category) => ['label' => $category->name, 'value' => $category->id],
             app(TaxCategories::class)->getAllTaxCategories(),
         ));
+        $canCreateTaxCategories = app(Taxes::class)->createTaxCategories();
+        if ($canCreateTaxCategories) {
+            $taxCategoryOptions[] = ['label' => t('Create a new tax category…', category: 'commerce'), 'value' => '__add__'];
+        }
 
         $taxIdValidatorOptions = app(Taxes::class)->getEnabledTaxIdValidators()
             ->map(fn($validator) => ['label' => $validator::displayName(), 'value' => $validator::class])
@@ -249,14 +258,34 @@ readonly class TaxRatesController extends BaseStoreManagementController
             ->instructions(t('Can be used as an internal reference.', category: 'commerce'));
         $formNodes[] = Field::make(t('Taxable Subject', category: 'commerce'), Choice::make('taxable')->options($taxableOptions)->reactive())
             ->instructions(t('Select what this rate should be applied to.', category: 'commerce'));
-        $formNodes[] = Field::make(t('Tax Zone', category: 'commerce'), Choice::make('taxZoneId')->options($taxZoneOptions)->placeholder(t('Everywhere', category: 'commerce')))
+        $taxZoneControl = ComboboxCreate::make('taxZoneId')
+            ->options($taxZoneOptions)
+            ->placeholder(t('Everywhere', category: 'commerce'))
+            ->clearable()
+            ->requireOptionMatch()
+            ->showAllOnEmpty();
+        if ($canCreateTaxZones) {
+            $taxZoneControl
+                ->createUrl(action([TaxZonesController::class, 'edit'], ['storeHandle' => $store->handle]))
+                ->resultKey('taxZone');
+        }
+        $formNodes[] = Field::make(t('Tax Zone', category: 'commerce'), $taxZoneControl)
             ->instructions(t('Select a tax zone. If empty, this rate will match anywhere.', category: 'commerce'));
 
         $formNodes[] = Field::make(t('Disqualify with valid business tax ID?', category: 'commerce'), Choice::make('taxIdValidators')->multiple()->options($taxIdValidatorOptions)->reactive())
             ->instructions(t('Do not apply this rate if the order address has any of the selected valid business tax IDs.', category: 'commerce'));
 
         if ($showTaxCategory) {
-            $formNodes[] = Field::make(t('Tax Category', category: 'commerce'), Choice::make('taxCategoryId')->options($taxCategoryOptions))
+            $taxCategoryControl = ComboboxCreate::make('taxCategoryId')
+                ->options($taxCategoryOptions)
+                ->requireOptionMatch()
+                ->showAllOnEmpty();
+            if ($canCreateTaxCategories) {
+                $taxCategoryControl
+                    ->createUrl(action([TaxCategoriesController::class, 'edit'], ['storeHandle' => $store->handle]))
+                    ->resultKey('taxCategory');
+            }
+            $formNodes[] = Field::make(t('Tax Category', category: 'commerce'), $taxCategoryControl)
                 ->instructions(t('Select a tax category.', category: 'commerce'))
                 ->required();
         }
