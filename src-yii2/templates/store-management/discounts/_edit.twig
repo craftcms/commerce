@@ -236,45 +236,29 @@
 
     <div id="conditions" class="hidden flex-fields">
 
-        {% set orderConditionInput %}
-            {{ discount.orderCondition|commerceConditionBuilderHtml }}
-        {% endset %}
-
         {{ forms.field({
             label: 'Match Order'|t('commerce'),
             instructions: 'Create rules that allow this discount to match the order.'|t('commerce'),
             errors: discount.getErrors('orderCondition')
-        }, orderConditionInput) }}
-
-        {% set customerConditionInput %}
-            {{ discount.customerCondition|commerceConditionBuilderHtml }}
-        {% endset %}
+        }, orderConditionHtml|raw) }}
 
         {{ forms.field({
             label: 'Match Customer'|t('commerce'),
             instructions: 'Create rules that allow this discount to match the order’s customer.'|t('commerce'),
             errors: discount.getErrors('customerCondition')
-        }, customerConditionInput) }}
-
-        {% set shippingAddressConditionInput %}
-            {{ discount.shippingAddressCondition|commerceConditionBuilderHtml }}
-        {% endset %}
+        }, customerConditionHtml|raw) }}
 
         {{ forms.field({
             label: 'Match Shipping Address'|t('commerce'),
             instructions: 'Create rules that allow this discount to match the order’s shipping address.'|t('commerce'),
             errors: discount.getErrors('shippingAddressCondition')
-        }, shippingAddressConditionInput) }}
-
-        {% set billingAddressConditionInput %}
-            {{ discount.billingAddressCondition|commerceConditionBuilderHtml }}
-        {% endset %}
+        }, shippingAddressConditionHtml|raw) }}
 
         {{ forms.field({
             label: 'Match Billing Address'|t('commerce'),
             instructions: 'Create rules that allow this discount to match the order’s billing address.'|t('commerce'),
             errors: discount.getErrors('billingAddressCondition')
-        }, billingAddressConditionInput) }}
+        }, billingAddressConditionHtml|raw) }}
 
         {{ forms.dateTimeField({
             label: "Start Date"|t('commerce'),

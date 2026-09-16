@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
+use CraftCms\Cms\Condition\ConditionBuilderRenderer;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\HtmlStack;
@@ -100,7 +101,7 @@ JS;
             ->metaSidebarHtml(\craft\helpers\Cp::metadataHtml($metadata))
             ->contentTemplate('commerce/store-management/shipping/shippingzones/_edit', [
                 'shippingZone' => $shippingZone,
-                'condition' => $condition,
+                'conditionHtml' => new ConditionBuilderRenderer($condition)->render(),
                 'store' => $store,
             ]);
     }

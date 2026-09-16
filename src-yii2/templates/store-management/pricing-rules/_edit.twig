@@ -50,52 +50,36 @@
 
       <hr>
 
-      {% set productConditionInput %}
-        {{ catalogPricingRule.productCondition|commerceConditionBuilderHtml }}
-      {% endset %}
-
       {{ forms.field({
         id: 'productCondition',
         label: 'Match Product'|t('commerce'),
         errors: catalogPricingRule.getErrors('productCondition')
-      }, productConditionInput) }}
-
-      {% set variantConditionInput %}
-        {{ catalogPricingRule.variantCondition|commerceConditionBuilderHtml }}
-      {% endset %}
+      }, productConditionHtml|raw) }}
 
       {{ forms.field({
         id: 'variantCondition',
         label: 'Match Variant'|t('commerce'),
         errors: catalogPricingRule.getErrors('variantCondition')
-      }, variantConditionInput) }}
+      }, variantConditionHtml|raw) }}
 
       <a class="fieldtoggle {% if catalogPricingRule.purchasableCondition.getConditionRules().getRules()|length > 0 %}expanded{% endif %}"
          data-target="cpr-purchasable-condition">{{ 'Advanced'|t('commerce') }}</a>
       <div id="cpr-purchasable-condition"
         class="{% if catalogPricingRule.purchasableCondition.getConditionRules().getRules()|length < 1 %}hidden{% endif %}">
-          {% set purchasableConditionInput %}
-            {{ catalogPricingRule.purchasableCondition|commerceConditionBuilderHtml }}
-          {% endset %}
-
           {{ forms.field({
             id: 'purchasableCondition',
             label: 'Match Purchasable'|t('commerce'),
             errors: catalogPricingRule.getErrors('purchasableCondition')
-          }, purchasableConditionInput) }}
+          }, purchasableConditionHtml|raw) }}
       </div>
 
       <hr>
-
-      {% set customerConditionInput %}
-        {{ catalogPricingRule.customerCondition|commerceConditionBuilderHtml }}
-      {% endset %}
 
       {{ forms.field({
         id: 'customerCondition',
         label: 'Match Customer'|t('commerce'),
         errors: catalogPricingRule.getErrors('customerCondition')
-      }, customerConditionInput) }}
+      }, customerConditionHtml|raw) }}
   </div>
 
   <div id="actions" class="hidden">

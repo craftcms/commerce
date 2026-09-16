@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\helpers\Localization;
+use CraftCms\Cms\Condition\ConditionBuilderRenderer;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\InputNamespace;
@@ -57,7 +58,9 @@ readonly class ShippingRulesController
         $condition->id = 'condition';
 
         $newShippingZoneFields = InputNamespace::namespaceInputs(
-            Template::renderTemplate('commerce/store-management/shipping/shippingzones/_fields', ['condition' => $condition])
+            Template::renderTemplate('commerce/store-management/shipping/shippingzones/_fields', [
+                'conditionHtml' => new ConditionBuilderRenderer($condition)->render(),
+            ])
         );
         $newShippingZoneJs = HtmlStack::clearJsBuffer(false);
         InputNamespace::set(null);
@@ -90,6 +93,8 @@ readonly class ShippingRulesController
             'storeId' => $store->id,
             'storeHandle' => $store->handle,
             'storeSwitcher' => $this->getStoreSwitcher($store->handle),
+            'orderConditionHtml' => new ConditionBuilderRenderer($shippingRule->getOrderCondition())->render(),
+            'customerConditionHtml' => new ConditionBuilderRenderer($shippingRule->getCustomerCondition())->render(),
         ], TemplateMode::Cp);
     }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\helpers\Cp;
+use CraftCms\Cms\Condition\ConditionBuilderRenderer;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\HtmlStack;
@@ -112,7 +113,7 @@ JS;
             ->contentTemplate('commerce/store-management/tax/taxzones/_edit', [
                 'taxZone' => $taxZone,
                 'store' => $store,
-                'condition' => $condition,
+                'conditionHtml' => new ConditionBuilderRenderer($condition)->render(),
             ]);
     }
 

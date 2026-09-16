@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
+use CraftCms\Cms\Condition\ConditionBuilderRenderer;
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Html;
@@ -105,6 +106,9 @@ readonly class GatewaysController
             'gatewayOptions' => $gatewayOptions,
             'title' => $gateway->id ? $gateway->name : t('Create a new gateway', category: 'commerce'),
             'readOnly' => $this->readOnly,
+            'orderConditionHtml' => new ConditionBuilderRenderer($gateway->getOrderCondition(), !$this->readOnly)->render(),
+            'billingAddressConditionHtml' => new ConditionBuilderRenderer($gateway->getBillingAddressCondition(), !$this->readOnly)->render(),
+            'shippingAddressConditionHtml' => new ConditionBuilderRenderer($gateway->getShippingAddressCondition(), !$this->readOnly)->render(),
         ], TemplateMode::Cp);
     }
 

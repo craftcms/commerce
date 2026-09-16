@@ -8,6 +8,7 @@ use craft\commerce\web\assets\coupons\CouponsAsset;
 use craft\db\Query;
 use craft\elements\Category;
 use craft\helpers\AdminTable;
+use CraftCms\Cms\Condition\ConditionBuilderRenderer;
 use CraftCms\Cms\Edition;
 use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Http\RespondsWithFlash;
@@ -699,6 +700,11 @@ JS;
                 'elementType' => $purchasableType,
             ];
         }
+
+        $variables['orderConditionHtml'] = new ConditionBuilderRenderer($discount->orderCondition)->render();
+        $variables['customerConditionHtml'] = new ConditionBuilderRenderer($discount->customerCondition)->render();
+        $variables['shippingAddressConditionHtml'] = new ConditionBuilderRenderer($discount->shippingAddressCondition)->render();
+        $variables['billingAddressConditionHtml'] = new ConditionBuilderRenderer($discount->billingAddressCondition)->render();
     }
 
     public function generateCoupons(Request $request): Response

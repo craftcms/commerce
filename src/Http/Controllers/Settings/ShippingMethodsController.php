@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\helpers\Cp;
+use CraftCms\Cms\Condition\ConditionBuilderRenderer;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\HtmlStack;
@@ -150,6 +151,8 @@ JS;
                 'shippingRules' => $shippingRules,
                 'store' => $store,
                 'storeHandle' => $storeHandle,
+                'orderConditionHtml' => new ConditionBuilderRenderer($shippingMethod->getOrderCondition())->render(),
+                'customerConditionHtml' => new ConditionBuilderRenderer($shippingMethod->getCustomerCondition())->render(),
             ]);
     }
 

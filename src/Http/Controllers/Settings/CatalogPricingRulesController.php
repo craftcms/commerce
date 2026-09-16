@@ -6,6 +6,7 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\helpers\Cp;
 use craft\helpers\Localization;
+use CraftCms\Cms\Condition\ConditionBuilderRenderer;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\DateTimeHelper;
@@ -378,6 +379,11 @@ JS;
             ['label' => t('Original price', category: 'commerce'), 'value' => 'price'],
             ['label' => t('Original promotional price', category: 'commerce'), 'value' => 'promotionalPrice'],
         ];
+
+        $variables['productConditionHtml'] = new ConditionBuilderRenderer($catalogPricingRule->getProductCondition())->render();
+        $variables['variantConditionHtml'] = new ConditionBuilderRenderer($catalogPricingRule->getVariantCondition())->render();
+        $variables['purchasableConditionHtml'] = new ConditionBuilderRenderer($catalogPricingRule->getPurchasableCondition())->render();
+        $variables['customerConditionHtml'] = new ConditionBuilderRenderer($catalogPricingRule->getCustomerCondition())->render();
 
         return $variables;
     }
