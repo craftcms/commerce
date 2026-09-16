@@ -216,7 +216,7 @@ class ShippingRule extends Component implements ShippingRuleInterface, HasStoreI
         }
 
         $customer = $order->getCustomer();
-        if (!$customer && !empty($this->getCustomerCondition()->getConditionRules())) {
+        if (!$customer && !empty($this->getCustomerCondition()->getConditionRules()->getRules())) {
             return false;
         }
 

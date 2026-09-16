@@ -338,7 +338,7 @@ class Product extends Element implements HasStoreInterface
             return $config;
         }
 
-        $rules = $condition->getConditionRules();
+        $rules = $condition->getConditionRules()->getRules();
 
         // see if it's limited to one product type
         /** @var ProductTypeConditionRule|null $productTypeRule */
