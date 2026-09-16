@@ -506,11 +506,11 @@ class ProductTypesController extends BaseSettingsController
         $productType->id = $productTypeId;
         $productType->name = $request->input('name');
         $productType->handle = $request->input('handle');
-        $productType->enableVersioning = $request->input('enableVersioning') ?? $productType->enableVersioning;
+        $productType->enableVersioning = (bool)$request->input('enableVersioning', $productType->enableVersioning);
         $productType->hasDimensions = (bool)$request->input('hasDimensions');
         $productType->hasProductTitleField = (bool)$request->input('hasProductTitleField');
-        $productType->productTitleFormat = $request->input('productTitleFormat', $productType->productTitleFormat) ?? '';
-        $productType->productUiLabelFormat = $request->input('productUiLabelFormat');
+        $productType->productTitleFormat = $request->input('productTitleFormat') ?? $productType->productTitleFormat;
+        $productType->productUiLabelFormat = $request->input('productUiLabelFormat') ?? $productType->productUiLabelFormat;
         $productType->productTitleTranslationMethod = $request->input('productTitleTranslationMethod', $productType->productTitleTranslationMethod);
         $productType->productTitleTranslationKeyFormat = $request->input('productTitleTranslationKeyFormat', $productType->productTitleTranslationKeyFormat);
         $productType->showSlugField = (bool)$request->input('showSlugField', $productType->showSlugField);
@@ -518,18 +518,18 @@ class ProductTypesController extends BaseSettingsController
         $productType->slugTranslationKeyFormat = $request->input('slugTranslationKeyFormat', $productType->slugTranslationKeyFormat);
         $maxVariants = $request->input('maxVariants');
         $productType->maxVariants = $maxVariants ? (int)$maxVariants : null;
-        $productType->hasVariantTitleField = $request->input('hasVariantTitleField', false);
-        $productType->variantTitleFormat = $request->input('variantTitleFormat', $productType->variantTitleFormat) ?? '';
-        $productType->variantUiLabelFormat = $request->input('variantUiLabelFormat');
+        $productType->hasVariantTitleField = (bool)$request->input('hasVariantTitleField', false);
+        $productType->variantTitleFormat = $request->input('variantTitleFormat') ?? $productType->variantTitleFormat;
+        $productType->variantUiLabelFormat = $request->input('variantUiLabelFormat') ?? $productType->variantUiLabelFormat;
         $productType->variantTitleTranslationMethod = $request->input('variantTitleTranslationMethod', $productType->variantTitleTranslationMethod);
         $productType->variantTitleTranslationKeyFormat = $request->input('variantTitleTranslationKeyFormat', $productType->variantTitleTranslationKeyFormat);
         $productType->skuFormat = $request->input('skuFormat');
-        $productType->descriptionFormat = $request->input('descriptionFormat');
+        $productType->descriptionFormat = $request->input('descriptionFormat') ?? $productType->descriptionFormat;
         $productType->propagationMethod = PropagationMethod::tryFrom($request->input('propagationMethod') ?? '') ?? PropagationMethod::All;
-        $productType->isStructure = $request->input('isStructure');
+        $productType->isStructure = (bool)$request->input('isStructure');
         $maxLevels = (int)$request->input('maxLevels');
         $productType->maxLevels = $maxLevels ?: null; // zero should be null
-        $productType->defaultPlacement = $request->input('defaultPlacement', $productType->defaultPlacement) ?? $productType->defaultPlacement;
+        $productType->defaultPlacement = $request->input('defaultPlacement') ?? $productType->defaultPlacement;
         $productType->previewTargets = $request->input('previewTargets') ?: [];
 
         // Site-specific settings

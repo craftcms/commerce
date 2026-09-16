@@ -127,12 +127,13 @@ class LineItems
      *
      * @param LineItem $lineItem The line item to save.
      * @param bool $runValidation Whether the Line Item should be validated.
-     * @TODO `$runValidation` is not yet wired up to a real validator; `LineItem::getValidationRules()`
-     * still returns legacy-shaped rule arrays pending the broader migration of line item validation
-     * onto the new Ruleset system.
      */
     public function saveLineItem(LineItem $lineItem, bool $runValidation = true): bool
     {
+        if ($runValidation && !$lineItem->validate()) {
+            return false;
+        }
+
         $isNewLineItem = !$lineItem->id;
 
         $beforeEvent = new LineItemSaving(

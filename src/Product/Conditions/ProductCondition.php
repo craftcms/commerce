@@ -21,6 +21,7 @@ class ProductCondition extends ElementCondition
             ProductVariantSearchConditionRule::class,
             ProductVariantSkuConditionRule::class,
             ProductVariantStockConditionRule::class,
+            ProductVariantInventoryTrackedConditionRule::class,
             ProductVariantPriceConditionRule::class,
         ]);
     }

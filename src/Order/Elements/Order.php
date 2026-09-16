@@ -6,10 +6,10 @@ namespace CraftCms\Commerce\Order\Elements;
 
 use Carbon\Carbon;
 use CommerceGuys\Addressing\AddressInterface;
-use craft\commerce\Plugin;
 use craft\errors\MutexException;
 use CraftCms\Cms\Address\Elements\Address as AddressElement;
 use CraftCms\Cms\Component\ComponentHelper;
+use CraftCms\Cms\Condition\Contracts\ConditionRuleInterface;
 use CraftCms\Cms\Cp\Html\StatusHtml;
 use CraftCms\Cms\Cp\RequestedSite;
 use CraftCms\Cms\Element\Actions\Delete;
@@ -950,6 +950,21 @@ class Order extends Element implements HasStoreInterface
         return $fields;
     }
 
+    /**
+     * @see fields()
+     * @see https://github.com/craftcms/commerce/issues/4255
+     */
+    public function getObjectTemplateVariables(): array
+    {
+        $variables = [];
+
+        foreach (ComponentHelper::datetimeAttributes($this) as $attribute) {
+            $variables[$attribute] = $this->$attribute;
+        }
+
+        return $variables;
+    }
+
     #[Override]
     public function extraFields(): array
     {
@@ -1214,7 +1229,7 @@ class Order extends Element implements HasStoreInterface
 
             try {
                 // Replaces the legacy `renderSandboxedObjectTemplate()`; object-template rendering is sandboxed by default.
-                $baseReference = renderObjectTemplate($referenceTemplate, $this);
+                $baseReference = renderObjectTemplate($referenceTemplate, $this, $this->getObjectTemplateVariables());
 
                 // Check if this reference already exists and append suffix if needed
                 $suffix = 0;
@@ -2009,12 +2024,7 @@ class Order extends Element implements HasStoreInterface
      */
     public function isPaymentAmountPartial(): bool
     {
-        // NOTE: `PaymentCurrencies::convertCurrency()` was not carried over to the migrated
-        // `src/Services/PaymentCurrencies.php` (only `convert()`/`convertAmount()` were), so the
-        // legacy `Plugin::getInstance()->getPaymentCurrencies()` facade is used deliberately here —
-        // it still implements `convertCurrency()` in terms of the new service's primitives.
-        // TODO: fix in Commerce 6.0 - port `convertCurrency()` to the migrated PaymentCurrencies service and drop this Plugin::getInstance() call
-        $paymentAmountInPrimaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($this->getPaymentAmount(), $this->getPaymentCurrency(), $this->currency, true);
+        $paymentAmountInPrimaryCurrency = app(PaymentCurrencies::class)->convertCurrency($this->getPaymentAmount(), $this->getPaymentCurrency(), $this->currency, true);
 
         return $paymentAmountInPrimaryCurrency < $this->getOutstandingBalance();
     }
@@ -3169,7 +3179,7 @@ class Order extends Element implements HasStoreInterface
         }
 
         $marketLocationCondition = $this->getStore()->getSettings()->getMarketAddressCondition();
-        if ($address && count($marketLocationCondition->getConditionRules()) > 0 && !$marketLocationCondition->matchElement($address)) {
+        if ($address && !empty($marketLocationCondition->getConditionRules()->findRules(fn(ConditionRuleInterface $rule) => true)) && !$marketLocationCondition->matchElement($address)) {
             $this->errors()->add($attribute, t('The address provided is outside the store\'s market.', category: 'commerce'));
         }
     }
@@ -3865,11 +3875,9 @@ class Order extends Element implements HasStoreInterface
             return $config;
         }
 
-        $rules = $condition->getConditionRules();
-
         // see if it's limited to one product type
         /** @var OrderStatusConditionRule|null $orderStatusConditionRule */
-        $orderStatusConditionRule = Arr::first($rules, fn($rule) => $rule instanceof OrderStatusConditionRule);
+        $orderStatusConditionRule = Arr::first($condition->getConditionRules()->findRules(fn(ConditionRuleInterface $rule) => $rule instanceof OrderStatusConditionRule));
         $orderStatusOptions = $orderStatusConditionRule?->getValues();
 
         $currentSite = app(RequestedSite::class)->get() ?? Sites::getCurrentSite();

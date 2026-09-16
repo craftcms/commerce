@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Transfer\Elements;
 
-use craft\commerce\web\assets\transfers\TransfersAsset;
 use CraftCms\Cms\Cp\Html\StatusHtml;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionInterface;
 use CraftCms\Cms\Element\Element;
@@ -14,6 +13,7 @@ use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\User\Elements\User;
+use CraftCms\Cms\View\LegacyAssets\InternalAssetRegistry;
 use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
 use CraftCms\Commerce\Inventory\Data\InventoryLocation;
 use CraftCms\Commerce\Inventory\Data\UpdateInventoryLevelInTransfer;
@@ -21,6 +21,7 @@ use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
 use CraftCms\Commerce\Inventory\Enums\InventoryUpdateQuantityType;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Inventory\InventoryLocations;
+use CraftCms\Commerce\Transfer\Assets\TransfersAsset;
 use CraftCms\Commerce\Transfer\Conditions\TransferCondition;
 use CraftCms\Commerce\Transfer\Data\TransferDetail;
 use CraftCms\Commerce\Transfer\Enums\TransferStatusType;
@@ -301,10 +302,7 @@ class Transfer extends Element
     #[Override]
     public function prepareEditScreen(Response|CpScreenResponse $response, string $containerId): void
     {
-        // TODO: this still registers the legacy `craft\commerce\web\assets\transfers\TransfersAsset`
-        // yii2 AssetBundle via the yii2-adapter bridge, since Commerce's own webpack-built CP assets
-        // haven't been ported to a native `HtmlStack`-based registration mechanism yet.
-        \Craft::$app->getView()->registerAssetBundle(TransfersAsset::class);
+        app(InternalAssetRegistry::class)->register(TransfersAsset::class);
 
         HtmlStack::jsWithVars(fn($containerId, $settingsJs) => <<<JS
 new Craft.Commerce.TransferEdit($('#' + $containerId), $settingsJs);

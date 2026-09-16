@@ -8,15 +8,18 @@ use craft\helpers\Cp;
 use CraftCms\Cms\Condition\BaseConditionRule;
 use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
+use CraftCms\Cms\Element\Queries\ElementQuery;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Purchasables;
+use Illuminate\Database\Query\Builder;
 
 use function CraftCms\Cms\t;
 
-class PurchasableConditionRule extends BaseConditionRule implements ElementConditionRuleInterface
+class PurchasableConditionRule extends BaseConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     /**
      * @var array<class-string, array<int>>|null
@@ -118,14 +121,14 @@ class PurchasableConditionRule extends BaseConditionRule implements ElementCondi
         return ['id'];
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
         $ids = $this->getElementIds();
         if ($ids === null) {
             return;
         }
 
-        $query->id($ids);
+        ElementQuery::applyId($query, $ids);
     }
 
     public function matchElement(ElementInterface $element): bool

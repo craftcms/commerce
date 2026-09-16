@@ -160,11 +160,13 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
             });
         });
 
-        Route::prefix('commerce/store-management/{storeHandle}')->group(function () {
-            Route::get('payment-currencies', [PaymentCurrenciesController::class, 'index']);
-            Route::get('payment-currencies/new', [PaymentCurrenciesController::class, 'edit']);
-            Route::get('payment-currencies/{id}', [PaymentCurrenciesController::class, 'edit'])->whereNumber('id');
-        });
+        Route::middleware('can:commerce-managePaymentCurrencies')
+            ->prefix('commerce/store-management/{storeHandle}')
+            ->group(function () {
+                Route::get('payment-currencies', [PaymentCurrenciesController::class, 'index']);
+                Route::get('payment-currencies/new', [PaymentCurrenciesController::class, 'edit']);
+                Route::get('payment-currencies/{id}', [PaymentCurrenciesController::class, 'edit'])->whereNumber('id');
+            });
     });
 
     // PromotionsController extends BaseCpController (not BaseStoreManagementController) — it

@@ -112,7 +112,9 @@ readonly class PaymentSourcesController
             return null;
         }
 
-        if ($paymentSource->getCustomer()?->id != $currentUser->id && !$currentUser->can('commerce-manageOrders')) {
+        $canManagePaymentSource = ($currentUser->can('commerce-editOrders') || $currentUser->can('commerce-deleteOrders')) && $currentUser->can('editUsers');
+
+        if ($paymentSource->getCustomer()?->id != $currentUser->id && !$canManagePaymentSource) {
             return null;
         }
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Transfer\FieldLayoutElements;
 
-use craft\commerce\web\assets\transfers\TransfersAsset;
 use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Cp\Html\ElementHtml;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
@@ -14,9 +13,11 @@ use CraftCms\Cms\Support\Facades\InputNamespace;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Str;
+use CraftCms\Cms\View\LegacyAssets\InternalAssetRegistry;
 use CraftCms\Commerce\Inventory\Data\InventoryLevel;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Inventory\InventoryLocations;
+use CraftCms\Commerce\Transfer\Assets\TransfersAsset;
 use CraftCms\Commerce\Transfer\Elements\Transfer;
 use InvalidArgumentException;
 use Override;
@@ -121,10 +122,7 @@ class TransferManagementField extends BaseNativeField
         $defaultFirstLocation = $allLocations->first();
         $defaultSecondLocation = $allLocations->skip(1)->first();
 
-        // TODO: this still registers the legacy `craft\commerce\web\assets\transfers\TransfersAsset`
-        // yii2 AssetBundle via the yii2-adapter bridge, since Commerce's own webpack-built CP assets
-        // haven't been ported to a native `HtmlStack`-based registration mechanism yet.
-        \Craft::$app->getView()->registerAssetBundle(TransfersAsset::class);
+        app(InternalAssetRegistry::class)->register(TransfersAsset::class);
 
         $namespacedId = InputNamespace::namespaceId('transfer-management');
 

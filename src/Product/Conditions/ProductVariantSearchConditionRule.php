@@ -6,15 +6,17 @@ namespace CraftCms\Commerce\Product\Conditions;
 
 use CraftCms\Cms\Condition\BaseTextConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
+use Illuminate\Database\Query\Builder;
 use Override;
 
 use function CraftCms\Cms\t;
 
-class ProductVariantSearchConditionRule extends BaseTextConditionRule implements ElementConditionRuleInterface
+class ProductVariantSearchConditionRule extends BaseTextConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     public function getLabel(): string
     {
@@ -44,7 +46,7 @@ class ProductVariantSearchConditionRule extends BaseTextConditionRule implements
         return trim($this->value);
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
         $variantQuery = Variant::find();
         $variantQuery->select(['commerce_variants.primaryOwnerId as id']);

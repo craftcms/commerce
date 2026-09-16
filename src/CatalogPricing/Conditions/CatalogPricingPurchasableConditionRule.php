@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\CatalogPricing\Conditions;
 
-use craft\helpers\Cp;
 use CraftCms\Cms\Condition\BaseConditionRule;
-use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\Form\Contracts\Node;
+use CraftCms\Cms\Form\Controls\ElementSelect;
+use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Commerce\CatalogPricing\Contracts\CatalogPricingConditionRuleInterface;
-use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Purchasables;
 use Illuminate\Database\Query\Builder;
 
@@ -65,43 +65,16 @@ class CatalogPricingPurchasableConditionRule extends BaseConditionRule implement
         ]);
     }
 
-    protected function inputHtml(): string
+    /** @return list<Node> */
+    #[Override]
+    protected function inputNodes(): array
     {
-        $id = 'purchasable';
-
-        $html = '';
-        foreach (app(Purchasables::class)->getAllPurchasableElementTypes() as $purchasableType) {
-            /** @var PurchasableInterface|string $purchasableType */
-            $elements = null;
-            if (!empty($this->_elementIds) && isset($this->_elementIds[$purchasableType]) && !empty($this->_elementIds[$purchasableType])) {
-                $elements = $purchasableType::find()
-                    ->id($this->_elementIds[$purchasableType])
-                    ->status(null)
-                    ->all();
-            }
-
-            $html .= Html::tag('div',
-                Html::beginTag('div') .
-                Html::tag('strong', $purchasableType::displayName()) .
-                Html::endTag('div') .
-                Cp::elementSelectHtml([
-                    'name' => Html::namespaceInputName($purchasableType, 'elementIds'),
-                    'elements' => $elements,
-                    'elementType' => $purchasableType,
-                    'sources' => null,
-                    'criteria' => null,
-                    'single' => false,
-                ])
-            );
-        }
-
-        return Html::hiddenLabel($this->getLabel(), $id) .
-            Html::tag('div',
-                $html,
-                [
-                    'class' => ['flex', 'flex-start'],
-                ]
-            );
+        return array_map(
+            fn(string $purchasableType) => Field::make($purchasableType::displayName(), ElementSelect::make(['elementIds', $purchasableType])
+                ->elementType($purchasableType)
+                ->value($this->_elementIds[$purchasableType] ?? [])),
+            app(Purchasables::class)->getAllPurchasableElementTypes(),
+        );
     }
 
     #[Override]

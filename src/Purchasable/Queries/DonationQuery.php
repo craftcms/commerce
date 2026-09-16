@@ -20,9 +20,9 @@ class DonationQuery extends PurchasableQuery
 
         $this->query->join(new Alias(Table::DONATIONS, 'commerce_donations'), 'commerce_donations.id', '=', 'elements.id');
 
-        $this->beforeQuery(function(self $query) {
-            if ($query->sku) {
-                $query->where('commerce_donations.sku', $query->sku);
+        $this->beforeQuery(static function(self $donationQuery) {
+            if ($donationQuery->sku) {
+                $donationQuery->where('commerce_donations.sku', $donationQuery->sku);
             }
         });
     }

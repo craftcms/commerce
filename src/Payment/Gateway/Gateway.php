@@ -9,6 +9,7 @@ use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Component\Concerns\ConfigurableComponent;
 use CraftCms\Cms\Component\Concerns\SavableComponent;
 use CraftCms\Cms\Component\Contracts\ConfigurableComponentInterface;
+use CraftCms\Cms\Condition\Contracts\ConditionRuleInterface;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionInterface;
 use CraftCms\Cms\Support\Env;
 use CraftCms\Cms\Support\Facades\Conditions;
@@ -164,7 +165,7 @@ abstract class Gateway extends Component implements GatewayInterface, Configurab
      */
     public function hasOrderCondition(): bool
     {
-        return $this->getOrderCondition()->getConditionRules() !== [];
+        return !empty($this->getOrderCondition()->getConditionRules()->findRules(fn(ConditionRuleInterface $rule) => true));
     }
 
     /**
@@ -224,7 +225,7 @@ abstract class Gateway extends Component implements GatewayInterface, Configurab
      */
     public function hasBillingAddressCondition(): bool
     {
-        return $this->getBillingAddressCondition()->getConditionRules() !== [];
+        return !empty($this->getBillingAddressCondition()->getConditionRules()->findRules(fn(ConditionRuleInterface $rule) => true));
     }
 
     /**
@@ -269,7 +270,7 @@ abstract class Gateway extends Component implements GatewayInterface, Configurab
      */
     public function hasShippingAddressCondition(): bool
     {
-        return $this->getShippingAddressCondition()->getConditionRules() !== [];
+        return !empty($this->getShippingAddressCondition()->getConditionRules()->findRules(fn(ConditionRuleInterface $rule) => true));
     }
 
     /**

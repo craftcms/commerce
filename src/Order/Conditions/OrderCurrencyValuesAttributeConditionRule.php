@@ -6,16 +6,18 @@ namespace CraftCms\Commerce\Order\Conditions;
 
 use CraftCms\Cms\Condition\BaseNumberConditionRule;
 use CraftCms\Cms\Condition\Contracts\ConditionInterface;
-use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
-use CraftCms\Cms\Support\Facades\I18N;
+use CraftCms\Cms\Form\Contracts\Node;
+use CraftCms\Cms\Form\Controls\Money;
+use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\Support\Facades\Sites;
-use CraftCms\Cms\Support\Html;
-use CraftCms\Cms\Support\Money as MoneyHelper;
+use CraftCms\Commerce\Order\Queries\OrderQuery;
 use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
+use Illuminate\Database\Query\Builder;
 use Money\Currency;
 use Override;
 
@@ -24,7 +26,7 @@ use function CraftCms\Cms\t;
 /**
  * @property-read float|int $orderAttributeValue
  */
-abstract class OrderCurrencyValuesAttributeConditionRule extends BaseNumberConditionRule implements ElementConditionRuleInterface
+abstract class OrderCurrencyValuesAttributeConditionRule extends BaseNumberConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     public string $orderAttribute = '';
 
@@ -64,67 +66,36 @@ abstract class OrderCurrencyValuesAttributeConditionRule extends BaseNumberCondi
         return $this->matchValue($element->{$this->orderAttribute});
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        $query->{$this->orderAttribute}($this->paramValue());
+        OrderQuery::{'apply' . ucfirst($this->orderAttribute)}($query, $this->paramValue());
     }
 
-    protected function inputHtml(): string
+    /** @return list<Node> */
+    #[Override]
+    protected function inputNodes(): array
     {
-        // don't show the value input if the condition checks for empty/notempty
-        if ($this->operator === self::OPERATOR_EMPTY || $this->operator === self::OPERATOR_NOT_EMPTY) {
-            return '';
+        if (in_array($this->operator, [self::OPERATOR_EMPTY, self::OPERATOR_NOT_EMPTY], true)) {
+            return [];
+        }
+
+        if (in_array($this->operator, [self::OPERATOR_IN, self::OPERATOR_NOT_IN], true)) {
+            return parent::inputNodes();
         }
 
         if ($this->operator === self::OPERATOR_BETWEEN) {
-            $maxValue = is_numeric($this->maxValue) ? MoneyHelper::toNumber(MoneyHelper::toMoney(['value' => $this->maxValue, 'currency' => $this->currencyCode()])) : $this->maxValue;
-
-            return Html::tag('div',
-                Html::hiddenLabel(t('Min Value'), 'min') .
-                FormFields::moneyInputHtml($this->inputOptions()) .
-                Html::tag('span', t('and')) .
-                Html::hiddenLabel(t('Max Value'), 'max') .
-                FormFields::moneyInputHtml(array_merge(
-                    $this->inputOptions(),
-                    ['id' => 'maxValue', 'name' => 'maxValue', 'value' => $maxValue]
-                )) .
-                Html::tag('craft-info-icon', t('The values are matched inclusively.')),
-                ['class' => 'flex flex-center']
-            );
+            return [
+                Field::make(t('Min Value'), Money::make('value')->currency($this->currencyCode())->value($this->value)),
+                Field::make(t('Max Value'), Money::make('maxValue')->currency($this->currencyCode())->value($this->maxValue))
+                    ->tip(t('The values are matched inclusively.')),
+            ];
         }
 
-        return FormFields::moneyInputHtml($this->inputOptions());
-    }
-
-    /** @return array<string, mixed> */
-    protected function inputOptions(): array
-    {
-        $value = is_numeric($this->value) ? MoneyHelper::toNumber(MoneyHelper::toMoney(['value' => $this->value, 'currency' => $this->currencyCode()])) : $this->value;
-
-        return [
-            'type' => 'text',
-            'id' => 'value',
-            'name' => 'value',
-            'value' => $value,
-            'autocomplete' => false,
-            'currency' => $this->currencyCode(),
-            'currencyLabel' => $this->currencyLabel(),
-            'showCurrency' => true,
-            'decimals' => $this->subUnit ?? 2,
-            'showClear' => false,
-        ];
+        return [Field::make($this->getLabel(), Money::make('value')->currency($this->currencyCode())->value($this->value))];
     }
 
     private function currencyCode(): string
     {
         return $this->currency?->getCode() ?? 'USD';
-    }
-
-    private function currencyLabel(): string
-    {
-        return t('({currencyCode}) {currencySymbol}', [
-            'currencyCode' => $this->currencyCode(),
-            'currencySymbol' => I18N::getFormattingLocale()->getCurrencySymbol($this->currencyCode()),
-        ]);
     }
 }

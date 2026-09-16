@@ -20,7 +20,6 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Throwable;
 use function CraftCms\Cms\t;
@@ -290,30 +289,22 @@ class Gateways
     {
         $query = DB::table(Table::GATEWAYS)
             ->select([
+                'billingAddressCondition',
                 'dateArchived',
                 'handle',
                 'id',
                 'isArchived',
                 'isFrontendEnabled',
                 'name',
+                'orderCondition',
                 'paymentType',
                 'settings',
+                'shippingAddressCondition',
                 'sortOrder',
                 'type',
                 'uid',
             ])
             ->orderBy('sortOrder');
-
-        // TODO: Remove these hasColumn checks in Commerce 6.0 once the schema guarantees orderCondition / billingAddressCondition / shippingAddressCondition columns on the gateways table
-        if (Schema::hasColumn(Table::GATEWAYS, 'orderCondition')) {
-            $query->addSelect('orderCondition');
-        }
-        if (Schema::hasColumn(Table::GATEWAYS, 'billingAddressCondition')) {
-            $query->addSelect('billingAddressCondition');
-        }
-        if (Schema::hasColumn(Table::GATEWAYS, 'shippingAddressCondition')) {
-            $query->addSelect('shippingAddressCondition');
-        }
 
         return $query;
     }

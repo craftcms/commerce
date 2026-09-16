@@ -320,12 +320,12 @@ readonly class PaymentsController
         // Save the return and cancel URLs to the order
         $returnUrl = $request->input('redirect');
         if ($returnUrl !== null) {
-            $order->returnUrl = renderSandboxedObjectTemplate($returnUrl, $order);
+            $order->returnUrl = renderSandboxedObjectTemplate($returnUrl, $order, $order->getObjectTemplateVariables());
         }
 
         $cancelUrl = $request->input('cancelUrl');
         if ($cancelUrl !== null) {
-            $order->cancelUrl = renderSandboxedObjectTemplate($cancelUrl, $order);
+            $order->cancelUrl = renderSandboxedObjectTemplate($cancelUrl, $order, $order->getObjectTemplateVariables());
         }
 
         // Do one final save to confirm the price does not change out from under the customer. Also removes any out of stock items etc.

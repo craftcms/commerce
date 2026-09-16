@@ -23,6 +23,7 @@ use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Stats\Contracts\StatInterface;
 use CraftCms\Commerce\Stats\TotalRevenue as TotalRevenueStat;
+use CraftCms\Commerce\Store\Stores;
 use Illuminate\Validation\Rule;
 
 use function CraftCms\Cms\currentUser;
@@ -46,7 +47,7 @@ class TotalRevenue extends Widget
 
         if (!$this->storeId) {
             /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
-            $this->storeId = Cp::requestedSite()->getStore()->id;
+            $this->storeId = Cp::requestedSite()?->getStore()->id ?? app(Stores::class)->getPrimaryStore()->id;
         }
 
         $this->dateRange = $this->dateRange ?: StatInterface::DATE_RANGE_TODAY;

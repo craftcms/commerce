@@ -56,7 +56,7 @@ class GatewaysController extends BaseSettingsController
         )];
         $typeCell = fn(GatewayInterface $gateway) => ['html' => $gateway instanceof MissingGateway
             ? Html::tag('span', Html::encode($gateway->expectedType), ['class' => 'error'])
-            : Html::encode($gateway::displayName())];
+            : Html::encode($gateway::displayName()), ];
 
         $rows = $gateways->map(fn(GatewayInterface $gateway) => [
             'id' => $gateway->id,
@@ -268,7 +268,7 @@ class GatewaysController extends BaseSettingsController
         if ($gateway->id && $gateway->supportsWebhooks()) {
             $formNodes[] = Field::make(t('Webhook URL', category: 'commerce'), Text::make('webhookUrl')
                 ->mode(ControlMode::ReadOnly)
-                ->value(Url::siteUrl('commerce/webhooks/process-webhook/gateway/'.$gateway->id)))
+                ->value(Url::siteUrl('commerce/webhooks/process-webhook/gateway/' . $gateway->id)))
                 ->instructions(t('The webhook URL for this gateway.', category: 'commerce'));
         }
 

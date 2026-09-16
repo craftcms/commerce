@@ -5,20 +5,25 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Purchasable\Conditions;
 
 use craft\elements\Category;
-use craft\helpers\Cp;
 use CraftCms\Cms\Condition\BaseConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
-use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\Element\Queries\ElementQuery;
+use CraftCms\Cms\Form\Contracts\Node;
+use CraftCms\Cms\Form\Controls\Choice;
+use CraftCms\Cms\Form\Controls\ElementSelect;
+use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
+use Illuminate\Database\Query\Builder;
 
 use function CraftCms\Cms\t;
 
 /**
  * @todo Remove this rule once the standard Related To condition rule supports source/target/either relationship type selection
  */
-class CatalogPricingRulePurchasableCategoryConditionRule extends BaseConditionRule implements ElementConditionRuleInterface
+class CatalogPricingRulePurchasableCategoryConditionRule extends BaseConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     public const string CATEGORY_RELATIONSHIP_TYPE_SOURCE = 'sourceElement';
 
@@ -52,53 +57,21 @@ class CatalogPricingRulePurchasableCategoryConditionRule extends BaseConditionRu
         ]);
     }
 
-    protected function inputHtml(): string
+    /** @return list<Node> */
+    protected function inputNodes(): array
     {
-        $id = 'cpr-purchasable-category';
-
-        $elements = !empty($this->elementIds) ? Category::find()->id($this->elementIds)->all() : [];
-
-        return Html::hiddenLabel($this->getLabel(), $id) .
-            Html::tag('div',
-                Html::tag('div',
-                    Cp::elementSelectHtml([
-                        'name' => 'elementIds',
-                        'elements' => $elements,
-                        'elementType' => Category::class,
-                        'sources' => null,
-                        'criteria' => null,
-                        'single' => false,
-                    ])
-                ),
-                [
-                    'class' => ['flex', 'flex-start'],
-                ]
-            ) .
-            Html::tag('div',
-                Html::a(t('Advanced'), null, [
-                    'class' => array_filter(['fieldtoggle', $this->categoryRelationshipType !== self::CATEGORY_RELATIONSHIP_TYPE_BOTH ? 'expanded' : '']),
-                    'data-target' => 'category-relationship-type-advanced',
-                ]) .
-                Html::tag('div',
-                    Cp::selectHtml([
-                        'id' => 'categoryRelationshipType',
-                        'name' => 'categoryRelationshipType',
-                        'label' => t('Categories Relationship Type', category: 'commerce'),
-                        'instructions' => t('How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link}).', ['link' => 'https://craftcms.com/docs/4.x/relations.html#terminology'], category: 'commerce'),
-                        'options' => [
-                            self::CATEGORY_RELATIONSHIP_TYPE_SOURCE => t('Source - The purchasable relationship field is on the category', category: 'commerce'),
-                            self::CATEGORY_RELATIONSHIP_TYPE_TARGET => t('Target - The category relationship field is on the purchasable', category: 'commerce'),
-                            self::CATEGORY_RELATIONSHIP_TYPE_BOTH => t('Either (Default) - The relationship field is on the purchasable or the category', category: 'commerce'),
-                        ],
-                        'value' => $this->categoryRelationshipType,
-                    ]),
-                    [
-                        'class' => $this->categoryRelationshipType === self::CATEGORY_RELATIONSHIP_TYPE_BOTH ? 'hidden' : '',
-                        'id' => 'category-relationship-type-advanced',
-                    ]
-                ),
-                ['style' => ['width' => '100%']]
-            );
+        return [
+            Field::make($this->getLabel(), ElementSelect::make('elementIds')->elementType(Category::class)->value($this->elementIds ?? [])),
+            Field::make(t('Categories Relationship Type', category: 'commerce'), Choice::make('categoryRelationshipType')
+                ->options([
+                    ['value' => self::CATEGORY_RELATIONSHIP_TYPE_SOURCE, 'label' => t('Source - The purchasable relationship field is on the category', category: 'commerce')],
+                    ['value' => self::CATEGORY_RELATIONSHIP_TYPE_TARGET, 'label' => t('Target - The category relationship field is on the purchasable', category: 'commerce')],
+                    ['value' => self::CATEGORY_RELATIONSHIP_TYPE_BOTH, 'label' => t('Either (Default) - The relationship field is on the purchasable or the category', category: 'commerce')],
+                ])
+                ->withoutPlaceholder()
+                ->value($this->categoryRelationshipType))
+                ->instructions(t('How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link}).', ['link' => 'https://craftcms.com/docs/4.x/relations.html#terminology'], category: 'commerce')),
+        ];
     }
 
     public function getExclusiveQueryParams(): array
@@ -106,13 +79,13 @@ class CatalogPricingRulePurchasableCategoryConditionRule extends BaseConditionRu
         return [];
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
         if ($this->elementIds === null) {
             return;
         }
 
-        $query->andRelatedTo([$this->categoryRelationshipType => $this->elementIds]);
+        ElementQuery::applyRelatedTo($query, [$this->categoryRelationshipType => $this->elementIds], $elementQuery);
     }
 
     public function matchElement(ElementInterface $element): bool

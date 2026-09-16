@@ -10,6 +10,7 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Inventory\Data\InventoryLocation;
 use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Transfer\Enums\TransferStatusType;
+use Illuminate\Contracts\Database\Query\Builder as BuilderContract;
 use Override;
 
 /**
@@ -44,18 +45,10 @@ class TransferQuery extends ElementQuery
             'commerce_transfers.destinationLocationId',
         ]);
 
-        $this->beforeQuery(function(self $query) {
-            if ($query->transferStatus) {
-                $query->whereParam('commerce_transfers.transferStatus', $query->transferStatus);
-            }
-
-            if ($query->originLocation) {
-                $query->whereParam('commerce_transfers.originLocationId', $query->originLocation);
-            }
-
-            if ($query->destinationLocation) {
-                $query->whereParam('commerce_transfers.destinationLocationId', $query->destinationLocation);
-            }
+        $this->beforeQuery(static function(self $transferQuery) {
+            static::applyTransferStatus($transferQuery, $transferQuery->transferStatus);
+            static::applyOriginLocation($transferQuery, $transferQuery->originLocation);
+            static::applyDestinationLocation($transferQuery, $transferQuery->destinationLocation);
         });
     }
 
@@ -96,6 +89,33 @@ class TransferQuery extends ElementQuery
 
         $this->destinationLocation = $value;
         return $this;
+    }
+
+    public static function applyTransferStatus(BuilderContract $query, mixed $value): void
+    {
+        if (!$value) {
+            return;
+        }
+
+        $query->whereParam('commerce_transfers.transferStatus', $value);
+    }
+
+    public static function applyOriginLocation(BuilderContract $query, mixed $value): void
+    {
+        if (!$value) {
+            return;
+        }
+
+        $query->whereParam('commerce_transfers.originLocationId', $value);
+    }
+
+    public static function applyDestinationLocation(BuilderContract $query, mixed $value): void
+    {
+        if (!$value) {
+            return;
+        }
+
+        $query->whereParam('commerce_transfers.destinationLocationId', $value);
     }
 
     /** @param array<string, mixed> $row */

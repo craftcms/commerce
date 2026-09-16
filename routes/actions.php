@@ -110,8 +110,10 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->g
 Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStoreSettings'])->group(function () {
     Route::post('store-management/save', [StoreManagementController::class, 'save']);
 
-    Route::post('payment-currencies/save', [PaymentCurrenciesController::class, 'save']);
-    Route::post('payment-currencies/delete', [PaymentCurrenciesController::class, 'delete']);
+    Route::middleware('can:commerce-managePaymentCurrencies')->group(function () {
+        Route::post('payment-currencies/save', [PaymentCurrenciesController::class, 'save']);
+        Route::post('payment-currencies/delete', [PaymentCurrenciesController::class, 'delete']);
+    });
 
     Route::middleware('can:commerce-manageShipping')->group(function () {
         Route::post('shipping-zones/save', [ShippingZonesController::class, 'save']);
