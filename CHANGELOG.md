@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where currency-based order condition rules could show the incorrect currency. ([#4368](https://github.com/craftcms/commerce/issues/4368))
+
 ## 5.7.4 - 2026-09-15
 
 - Fixed a bug where custom order fields with a visibility condition based on order attributes couldn’t be saved. ([#4198](https://github.com/craftcms/commerce/issues/4198))

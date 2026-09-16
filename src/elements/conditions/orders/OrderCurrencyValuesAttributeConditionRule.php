@@ -17,6 +17,7 @@ use craft\commerce\Plugin;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\fields\conditions\MoneyFieldConditionRule;
 use craft\fields\Money;
+use craft\helpers\Cp;
 use craft\models\Site;
 use Money\Currency;
 use yii\db\QueryInterface;
@@ -72,9 +73,13 @@ abstract class OrderCurrencyValuesAttributeConditionRule extends MoneyFieldCondi
             $this->currency = $this->getCondition()->getStore()->getCurrency();
         } else {
             /** @var Site|StoreBehavior|null $currentSite */
-            $currentSite = Craft::$app->getSites()->getCurrentSite();
+            if (Craft::$app->getRequest()->getIsCpRequest()) {
+                $currentSite = Cp::requestedSite();
+            } else {
+                $currentSite = Craft::$app->getSites()->getCurrentSite();
+            }
 
-            if ($currentSite->getBehavior(StoreBehavior::class)) {
+            if ($currentSite->getBehavior('commerce:store')) {
                 $this->currency = $currentSite?->getStore()->getCurrency();
             }
         }
