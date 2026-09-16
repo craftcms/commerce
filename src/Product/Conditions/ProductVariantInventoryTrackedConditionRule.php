@@ -6,14 +6,16 @@ namespace CraftCms\Commerce\Product\Conditions;
 
 use CraftCms\Cms\Condition\BaseLightswitchConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
+use Illuminate\Database\Query\Builder;
 
 use function CraftCms\Cms\t;
 
-class ProductVariantInventoryTrackedConditionRule extends BaseLightswitchConditionRule implements ElementConditionRuleInterface
+class ProductVariantInventoryTrackedConditionRule extends BaseLightswitchConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     public function getLabel(): string
     {
@@ -25,12 +27,18 @@ class ProductVariantInventoryTrackedConditionRule extends BaseLightswitchConditi
         return ['variantStock'];
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
         $variantQuery = Variant::find();
-        $variantQuery->select(['commerce_variants.primaryOwnerId as id']);
         $variantQuery->inventoryTracked($this->value);
 
+        // getQuery() returns the raw, un-prepared builder — the inventoryTracked() scope set
+        // just above is only translated into a where clause by a beforeQuery callback, which
+        // hasn't run yet at this point. applyBeforeQueryCallbacks() also re-applies the query's
+        // default select columns, so restrict back down to the single column this subquery needs
+        // afterward.
+        $variantQuery->applyBeforeQueryCallbacks();
+        $variantQuery->select(['commerce_variants.primaryOwnerId as id']);
         $query->whereIn('elements.id', $variantQuery->getQuery());
     }
 

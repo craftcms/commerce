@@ -6,16 +6,18 @@ namespace CraftCms\Commerce\Order\Conditions;
 
 use CraftCms\Cms\Condition\BaseMultiSelectConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Queries\OrderQuery;
 use CraftCms\Commerce\Shipping\Data\BaseShippingMethod;
 use CraftCms\Commerce\Shipping\ShippingMethods;
+use Illuminate\Database\Query\Builder;
 
 use function CraftCms\Cms\t;
 
-class ShippingMethodConditionRule extends BaseMultiSelectConditionRule implements ElementConditionRuleInterface
+class ShippingMethodConditionRule extends BaseMultiSelectConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     public function getLabel(): string
     {
@@ -32,10 +34,9 @@ class ShippingMethodConditionRule extends BaseMultiSelectConditionRule implement
         return app(ShippingMethods::class)->getAllShippingMethods()->mapWithKeys(fn(BaseShippingMethod $method) => [$method->handle => $method->name])->all();
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        /** @var OrderQuery $query */
-        $query->shippingMethodHandle($this->paramValue());
+        OrderQuery::applyShippingMethodHandle($query, $this->paramValue());
     }
 
     public function matchElement(ElementInterface $element): bool

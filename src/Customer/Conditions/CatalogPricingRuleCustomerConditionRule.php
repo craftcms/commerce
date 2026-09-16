@@ -6,15 +6,17 @@ namespace CraftCms\Commerce\Customer\Conditions;
 
 use CraftCms\Cms\Condition\BaseElementSelectConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
-use CraftCms\Cms\Element\Queries\UserQuery;
+use CraftCms\Cms\Element\Queries\ElementQuery;
 use CraftCms\Cms\User\Elements\User;
+use Illuminate\Database\Query\Builder;
 use Override;
 
 use function CraftCms\Cms\t;
 
-class CatalogPricingRuleCustomerConditionRule extends BaseElementSelectConditionRule implements ElementConditionRuleInterface
+class CatalogPricingRuleCustomerConditionRule extends BaseElementSelectConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     #[Override]
     protected function elementType(): string
@@ -32,10 +34,9 @@ class CatalogPricingRuleCustomerConditionRule extends BaseElementSelectCondition
         return ['id'];
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        /** @var UserQuery $query */
-        $query->id($this->getElementIds());
+        ElementQuery::applyId($query, $this->getElementIds());
     }
 
     public function matchElement(ElementInterface $element): bool

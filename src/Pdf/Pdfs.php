@@ -36,7 +36,6 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Throwable;
 use function CraftCms\Cms\t;
@@ -464,6 +463,7 @@ class Pdfs
                 'id',
                 'isDefault',
                 'language',
+                'linkExpiry',
                 'name',
                 'paperOrientation',
                 'paperSize',
@@ -474,11 +474,6 @@ class Pdfs
             ])
             ->orderBy('name')
             ->orderBy('sortOrder');
-
-        // TODO: Remove this hasColumn check in Commerce 6.0 once the schema guarantees the linkExpiry column on the pdfs table
-        if (Schema::hasColumn(Table::PDFS, 'linkExpiry')) {
-            $query->addSelect('linkExpiry');
-        }
 
         return $query;
     }

@@ -6,14 +6,16 @@ namespace CraftCms\Commerce\Purchasable\Conditions;
 
 use CraftCms\Cms\Condition\BaseMultiSelectConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use CraftCms\Commerce\Purchasable\Purchasables;
+use Illuminate\Database\Query\Builder;
 
 use function CraftCms\Cms\t;
 
-class PurchasableTypeConditionRule extends BaseMultiSelectConditionRule implements ElementConditionRuleInterface
+class PurchasableTypeConditionRule extends BaseMultiSelectConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     public function getLabel(): string
     {
@@ -25,7 +27,7 @@ class PurchasableTypeConditionRule extends BaseMultiSelectConditionRule implemen
         return ['purchasableType'];
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
         $query->whereParam('elements.type', $this->paramValue());
     }

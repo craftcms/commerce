@@ -9,8 +9,10 @@ use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
-use CraftCms\Commerce\Shipping\Data\ShippingCategory;
-use CraftCms\Commerce\Tax\Data\TaxCategory;
+use CraftCms\Commerce\Purchasable\Queries\Concerns\QueriesPurchasableCategories;
+use CraftCms\Commerce\Purchasable\Queries\Concerns\QueriesPurchasableDimensions;
+use CraftCms\Commerce\Purchasable\Queries\Concerns\QueriesPurchasableInventory;
+use CraftCms\Commerce\Purchasable\Queries\Concerns\QueriesPurchasablePricing;
 use Illuminate\Support\Facades\DB;
 use Tpetry\QueryExpressions\Language\Alias;
 use function CraftCms\Cms\currentUser;
@@ -21,6 +23,11 @@ use function CraftCms\Cms\currentUser;
  */
 abstract class PurchasableQuery extends ElementQuery
 {
+    use QueriesPurchasableCategories;
+    use QueriesPurchasableDimensions;
+    use QueriesPurchasableInventory;
+    use QueriesPurchasablePricing;
+
     protected string $table = Table::PURCHASABLES;
 
     /** @var array<string, int> */
@@ -28,37 +35,14 @@ abstract class PurchasableQuery extends ElementQuery
         'commerce_purchasables.sku' => SORT_ASC,
     ];
 
-    public ?bool $availableForPurchase = null;
-
-    public mixed $sku = null;
-
-    public mixed $price = null;
-
-    public mixed $promotionalPrice = null;
-
-    public ?bool $onPromotion = null;
-
-    public mixed $salePrice = null;
-
-    public mixed $width = false;
-
-    public mixed $height = false;
-
-    public mixed $length = false;
-
-    public mixed $weight = false;
-
-    public mixed $stock = null;
-
-    public ?bool $hasStock = null;
-
-    public mixed $shippingCategoryId = null;
-
-    public mixed $taxCategoryId = null;
-
     public int|false|null $forCustomer = null;
 
-    public ?bool $inventoryTracked = null;
+    /**
+     * Whether catalog pricing rules are active, decided once at construction time (the join/select
+     * setup below depends on it), and reused by {@see QueriesPurchasablePricing}'s price-family
+     * `apply*()` methods so they always agree with which columns/joins are actually on the query.
+     */
+    public readonly bool $hasCatalogPricingRules;
 
     /** @param array<string, mixed> $config */
     public function __construct(string $elementType, array $config = [])
@@ -92,7 +76,9 @@ abstract class PurchasableQuery extends ElementQuery
         });
         $this->query->leftJoin(new Alias(Table::INVENTORYITEMS, 'inventoryitems'), 'inventoryitems.purchasableId', '=', 'commerce_purchasables.id');
 
-        if (app(CatalogPricingRules::class)->hasCatalogPricingRules()) {
+        $this->hasCatalogPricingRules = app(CatalogPricingRules::class)->hasCatalogPricingRules();
+
+        if ($this->hasCatalogPricingRules) {
             $customerId = $this->forCustomer;
             if ($customerId === null) {
                 $customerId = currentUser()?->getCraftUserId();
@@ -135,26 +121,6 @@ abstract class PurchasableQuery extends ElementQuery
             );
 
             $this->query->addSelect(['catalogpricingruleids.catalogPricingRuleId']);
-
-            if (isset($this->price)) {
-                $this->query->whereParam('catalogprices.price', $this->price);
-            }
-
-            if (isset($this->promotionalPrice)) {
-                $this->query->whereParam('catalogprices.promotionalPrice', $this->promotionalPrice);
-            }
-
-            if (isset($this->onPromotion)) {
-                if ($this->onPromotion) {
-                    $this->query->whereColumn('catalogprices.promotionalPrice', '<', 'catalogprices.price');
-                } else {
-                    $this->query->whereColumn('catalogprices.price', '=', 'catalogprices.promotionalPrice');
-                }
-            }
-
-            if (isset($this->salePrice)) {
-                $this->query->whereParam('catalogprices.salePrice', $this->salePrice);
-            }
         } else {
             // `salePrice` and `catalogPricingRuleId` are deliberately not selected here: `salePrice` is a
             // getter-only virtual attribute (Purchasable::getSalePrice()) with no setter, so populating it
@@ -165,228 +131,12 @@ abstract class PurchasableQuery extends ElementQuery
                 'purchasables_stores.basePrice as price',
                 'purchasables_stores.basePromotionalPrice as promotionalPrice',
             ]);
-
-            if (isset($this->price)) {
-                $this->query->whereParam('purchasables_stores.basePrice', $this->price);
-            }
-
-            if (isset($this->promotionalPrice)) {
-                $this->query->whereParam('purchasables_stores.basePromotionalPrice', $this->promotionalPrice);
-            }
-
-            if (isset($this->onPromotion)) {
-                if ($this->onPromotion) {
-                    $this->query->whereColumn('purchasables_stores.basePromotionalPrice', '<', 'purchasables_stores.basePrice');
-                } else {
-                    $this->query->whereColumn('purchasables_stores.basePrice', '<', 'purchasables_stores.basePromotionalPrice');
-                }
-            }
-
-            if (isset($this->salePrice)) {
-                $this->query->whereParam(DB::raw('CASE WHEN purchasables_stores.basePromotionalPrice < purchasables_stores.basePrice THEN purchasables_stores.basePromotionalPrice ELSE purchasables_stores.basePrice END'), $this->salePrice);
-            }
         }
-
-        $this->beforeQuery(function(self $query) {
-            if (isset($query->sku)) {
-                $query->whereParam('commerce_purchasables.sku', $query->sku);
-            }
-
-            // We don't join the inventory levels table, and rely on the cached store available total.
-            if (isset($query->stock)) {
-                $query->whereParam('purchasables_stores.stock', $query->stock);
-            }
-
-            if (isset($query->inventoryTracked)) {
-                $query->whereParam('purchasables_stores.inventoryTracked', $query->inventoryTracked);
-            }
-
-            if (isset($query->availableForPurchase)) {
-                $query->where('purchasables_stores.availableForPurchase', $query->availableForPurchase);
-            }
-
-            if (isset($query->shippingCategoryId)) {
-                $query->whereParam('purchasables_stores.shippingCategoryId', $query->shippingCategoryId);
-            }
-
-            if (isset($query->taxCategoryId)) {
-                $query->whereParam('commerce_purchasables.taxCategoryId', $query->taxCategoryId);
-            }
-
-            if ($query->width !== false) {
-                if ($query->width === null) {
-                    $query->whereNull('commerce_purchasables.width');
-                } else {
-                    $query->whereParam('commerce_purchasables.width', $query->width);
-                }
-            }
-
-            if ($query->height !== false) {
-                if ($query->height === null) {
-                    $query->whereNull('commerce_purchasables.height');
-                } else {
-                    $query->whereParam('commerce_purchasables.height', $query->height);
-                }
-            }
-
-            if ($query->length !== false) {
-                if ($query->length === null) {
-                    $query->whereNull('commerce_purchasables.length');
-                } else {
-                    $query->whereParam('commerce_purchasables.length', $query->length);
-                }
-            }
-
-            if ($query->weight !== false) {
-                if ($query->weight === null) {
-                    $query->whereNull('commerce_purchasables.weight');
-                } else {
-                    $query->whereParam('commerce_purchasables.weight', $query->weight);
-                }
-            }
-
-            if (isset($query->hasStock)) {
-                if ($query->hasStock) {
-                    $query->where(function($q) {
-                        $q->where('purchasables_stores.inventoryTracked', false)
-                            ->orWhere(function($q2) {
-                                $q2->where('purchasables_stores.inventoryTracked', true)
-                                    ->where('purchasables_stores.stock', '>', 0);
-                            });
-                    });
-                } else {
-                    $query->where('purchasables_stores.inventoryTracked', true)
-                        ->where('purchasables_stores.stock', '<', 1);
-                }
-            }
-        });
-    }
-
-    public function availableForPurchase(?bool $value = true): static
-    {
-        $this->availableForPurchase = $value;
-        return $this;
-    }
-
-    public function sku(mixed $value): static
-    {
-        $this->sku = $value;
-        return $this;
-    }
-
-    public function stock(mixed $value): static
-    {
-        $this->stock = $value;
-        return $this;
-    }
-
-    public function hasStock(?bool $value = true): static
-    {
-        $this->hasStock = $value;
-        return $this;
     }
 
     public function forCustomer(int|false|null $value = null): static
     {
         $this->forCustomer = $value;
-        return $this;
-    }
-
-    public function width(mixed $value): static
-    {
-        $this->width = $value;
-        return $this;
-    }
-
-    public function height(mixed $value): static
-    {
-        $this->height = $value;
-        return $this;
-    }
-
-    public function length(mixed $value): static
-    {
-        $this->length = $value;
-        return $this;
-    }
-
-    public function weight(mixed $value): static
-    {
-        $this->weight = $value;
-        return $this;
-    }
-
-    public function price(mixed $value): static
-    {
-        $this->price = $value;
-        return $this;
-    }
-
-    public function inventoryTracked(?bool $value = true): static
-    {
-        $this->inventoryTracked = $value;
-        return $this;
-    }
-
-    public function promotionalPrice(mixed $value): static
-    {
-        $this->promotionalPrice = $value;
-        return $this;
-    }
-
-    public function salePrice(mixed $value): static
-    {
-        $this->salePrice = $value;
-        return $this;
-    }
-
-    public function shippingCategoryId(mixed $value): static
-    {
-        $this->shippingCategoryId = $value;
-        return $this;
-    }
-
-    public function shippingCategory(mixed $value): static
-    {
-        if ($value instanceof ShippingCategory) {
-            $this->shippingCategoryId = [$value->id];
-        } elseif ($value !== null) {
-            $this->shippingCategoryId = DB::table(Table::SHIPPINGCATEGORIES . ' as shippingcategories')
-                ->whereColumn('shippingcategories.id', 'purchasables_stores.shippingCategoryId')
-                ->whereParam('handle', $value)
-                ->select('shippingcategories.id');
-        } else {
-            $this->shippingCategoryId = null;
-        }
-
-        return $this;
-    }
-
-    public function taxCategoryId(mixed $value): static
-    {
-        $this->taxCategoryId = $value;
-        return $this;
-    }
-
-    public function taxCategory(mixed $value): static
-    {
-        if ($value instanceof TaxCategory) {
-            $this->taxCategoryId = [$value->id];
-        } elseif ($value !== null) {
-            $this->taxCategoryId = DB::table(Table::TAXCATEGORIES . ' as taxcategories')
-                ->whereColumn('taxcategories.id', 'commerce_purchasables.taxCategoryId')
-                ->whereParam('handle', $value)
-                ->select('taxcategories.id');
-        } else {
-            $this->taxCategoryId = null;
-        }
-
-        return $this;
-    }
-
-    public function onPromotion(?bool $value = true): static
-    {
-        $this->onPromotion = $value;
         return $this;
     }
 }

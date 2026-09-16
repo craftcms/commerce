@@ -144,6 +144,7 @@ readonly class TaxZonesController extends BaseStoreManagementController
 
         $taxZone->id = $request->input('taxZoneId') ? (int)$request->input('taxZoneId') : null;
         $taxZone->storeId = $request->input('storeId') ? (int)$request->input('storeId') : null;
+        $this->requireStoreAccess($taxZone->storeId);
         $taxZone->name = $request->input('name');
         $taxZone->description = $request->input('description');
         $taxZone->default = (bool)$request->input('default');
@@ -174,6 +175,11 @@ readonly class TaxZonesController extends BaseStoreManagementController
 
         $id = $request->input('id');
         abort_if(!$id, 400, 'Missing tax zone id');
+
+        $taxZone = app(TaxZones::class)->getTaxZoneById((int)$id);
+        if ($taxZone) {
+            $this->requireStoreAccess($taxZone->storeId);
+        }
 
         app(TaxZones::class)->deleteTaxZoneById((int)$id);
         return $this->asSuccess();

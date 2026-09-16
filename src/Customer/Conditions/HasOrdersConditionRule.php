@@ -5,22 +5,25 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Customer\Conditions;
 
 use CraftCms\Cms\Condition\BaseNumberConditionRule;
-use CraftCms\Cms\Condition\ConditionBuilderRenderer;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
+use CraftCms\Cms\Form\Contracts\Node;
+use CraftCms\Cms\Form\Controls\ConditionBuilder;
+use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\Support\Facades\Conditions;
-use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Commerce\Order\Conditions\CompletedConditionRule;
 use CraftCms\Commerce\Order\Conditions\OrderCondition;
 use CraftCms\Commerce\Order\Elements\Order;
+use Illuminate\Database\Query\Builder;
 use Override;
 use RuntimeException;
 
 use function CraftCms\Cms\t;
 
-class HasOrdersConditionRule extends BaseNumberConditionRule implements ElementConditionRuleInterface
+class HasOrdersConditionRule extends BaseNumberConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     /** @see getOrderCondition() */
     private OrderCondition|array|null $_orderCondition = null;
@@ -54,34 +57,21 @@ class HasOrdersConditionRule extends BaseNumberConditionRule implements ElementC
         return ['hasOrders'];
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
         throw new RuntimeException('Has orders condition rule does not support queries');
     }
 
-    public function getHtml(): string
+    /** @return list<Node> */
+    #[Override]
+    protected function inputNodes(): array
     {
-        $html = Html::tag('label', t('Total Orders', category: 'commerce'), [
-            'style' => [
-                'padding-top' => '0.25rem',
-                'padding-bottom' => '0.5rem',
-                'font-weight' => 'bold',
-                'color' => '#596673',
-                'display' => 'block',
-            ],
-        ]);
-        $html .= parent::getHtml();
-        $html .= Html::tag('div', t('Match Orders', category: 'commerce'), [
-            'style' => [
-                'margin-top' => '1rem',
-                'font-weight' => 'bold',
-                'color' => '#596673',
-            ],
-        ]);
-        // Condition classes no longer self-render; ConditionBuilderRenderer replaces the old getBuilderHtml()/builderHtml().
-        $html .= Html::tag('div', new ConditionBuilderRenderer($this->getOrderCondition())->render(), ['style' => ['margin-top' => '0.5rem']]);
-
-        return $html;
+        return [
+            ...parent::inputNodes(),
+            Field::make(t('Match Orders', category: 'commerce'), ConditionBuilder::make('orderCondition')
+                ->conditionClass(OrderCondition::class)
+                ->queryParams(['customerId'])),
+        ];
     }
 
     public function matchElement(ElementInterface $element): bool
@@ -124,11 +114,8 @@ class HasOrdersConditionRule extends BaseNumberConditionRule implements ElementC
         $this->_orderCondition->id = 'hasOrdersOrderCondition';
         $this->_orderCondition->mainTag = 'div';
         $this->_orderCondition->name = 'orderCondition';
-        // TODO: cms-6's condition system no longer supports restricting a condition instance's
-        // selectable rule types via a `$queryParams` allow-list (that filtering is now entirely
-        // delegated to each rule's own static isSelectableForCondition()) — no direct per-instance
-        // equivalent exists yet, so the nested order condition builder here is no longer restricted
-        // to customerId-related rules.
+        // Exclude unwanted condition rules
+        $this->_orderCondition->queryParams = ['customerId'];
 
         return $this->_orderCondition;
     }

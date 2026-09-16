@@ -62,10 +62,10 @@
         errors: catalogPricingRule.getErrors('variantCondition')
       }, variantConditionHtml) }}
 
-      <a class="fieldtoggle {% if catalogPricingRule.purchasableCondition.getConditionRules()|length > 0 %}expanded{% endif %}"
+      <a class="fieldtoggle {% if catalogPricingRule.purchasableCondition.getConditionRules().getRules()|length > 0 %}expanded{% endif %}"
          data-target="cpr-purchasable-condition">{{ 'Advanced'|t('commerce') }}</a>
       <div id="cpr-purchasable-condition"
-        class="{% if catalogPricingRule.purchasableCondition.getConditionRules()|length < 1 %}hidden{% endif %}">
+        class="{% if catalogPricingRule.purchasableCondition.getConditionRules().getRules()|length < 1 %}hidden{% endif %}">
           {{ forms.field({
             id: 'purchasableCondition',
             label: 'Match Purchasable'|t('commerce'),

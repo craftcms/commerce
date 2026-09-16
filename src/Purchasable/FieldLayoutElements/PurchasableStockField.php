@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Purchasable\FieldLayoutElements;
 
-use craft\commerce\web\assets\inventory\InventoryAsset;
 use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
@@ -15,6 +14,8 @@ use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\InputNamespace;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Url;
+use CraftCms\Cms\View\LegacyAssets\InternalAssetRegistry;
+use CraftCms\Commerce\Inventory\Assets\InventoryAsset;
 use CraftCms\Commerce\Inventory\Data\InventoryLevel;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
@@ -62,10 +63,7 @@ class PurchasableStockField extends BaseNativeField
             $element = $element->getCanonical();
         }
 
-        // TODO: this still registers the legacy `craft\commerce\web\assets\inventory\InventoryAsset`
-        // yii2 AssetBundle via the yii2-adapter bridge, since Commerce's own webpack-built CP assets
-        // haven't been ported to a native `HtmlStack`-based registration mechanism yet.
-        \Craft::$app->getView()->registerAssetBundle(InventoryAsset::class);
+        app(InternalAssetRegistry::class)->register(InventoryAsset::class);
 
         $totalStock = $element->getStock();
         $inventoryLevels = app(Inventory::class)->getInventoryLevelsForPurchasable($element);

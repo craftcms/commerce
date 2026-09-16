@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Conditions;
 
+use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
+use Illuminate\Database\Query\Builder;
 use Override;
 use RuntimeException;
 
@@ -18,6 +20,13 @@ class CouponCodeConditionRule extends OrderTextValuesAttributeConditionRule
     public function getLabel(): string
     {
         return t('Coupon Code', category: 'commerce');
+    }
+
+    #[Override]
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
+    {
+        // Coupon codes are matched case-insensitively (see matchValue() below).
+        $query->whereParam('commerce_orders.couponCode', $this->paramValue(), caseInsensitive: true);
     }
 
     #[Override]

@@ -290,6 +290,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
         $shippingCategory->id = $shippingCategoryId ? (int)$shippingCategoryId : null;
         $storeId = $request->input('storeId');
         $shippingCategory->storeId = $storeId ? (int)$storeId : null;
+        $this->requireStoreAccess($shippingCategory->storeId);
         $shippingCategory->name = $request->input('name');
         $shippingCategory->handle = $request->input('handle');
         $shippingCategory->icon = $request->input('icon');
@@ -340,7 +341,14 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
         $id = $request->input('id');
         abort_if(!$id, 400, 'Missing shipping category id');
 
-        if (!app(ShippingCategories::class)->deleteShippingCategoryById((int)$id)) {
+        // Resolve first so we can check the record's own store before deleting it — mirrors
+        // the store-access guard save()/setDefaultCategory() already carry.
+        $shippingCategory = app(ShippingCategories::class)->getShippingCategoryById((int)$id);
+        if ($shippingCategory) {
+            $this->requireStoreAccess($shippingCategory->storeId);
+        }
+
+        if (!$shippingCategory || !app(ShippingCategories::class)->deleteShippingCategoryById((int)$id)) {
             return $this->asFailure(t('Could not delete shipping category.', category: 'commerce'));
         }
 
@@ -353,6 +361,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
         $storeHandle = $request->input('storeHandle');
         $store = $storeHandle ? app(Stores::class)->getStoreByHandle($storeHandle) : null;
         abort_if(!$storeHandle || $store === null, 400, 'Invalid store.');
+        $this->requireStoreAccess($store->id);
 
         if (!empty($ids)) {
             $id = Arr::first($ids);

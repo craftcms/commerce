@@ -222,6 +222,10 @@ class InventoryLocations
             return;
         }
 
+        if (!$event->user->can('commerce-manageInventoryLocations')) {
+            return;
+        }
+
         $event->authorized = true;
     }
 
@@ -232,6 +236,10 @@ class InventoryLocations
         }
 
         if ($this->getAllInventoryLocations(true)->firstWhere('addressId', $event->element->getCanonicalId()) === null) {
+            return;
+        }
+
+        if (!$event->user->can('commerce-manageInventoryLocations')) {
             return;
         }
 

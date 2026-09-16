@@ -130,7 +130,7 @@ class CatalogPricingRule extends Component implements HasStoreInterface
             $siteIds = $this->getStore()->getSites()->map(fn($site) => $site->id)->all();
             $productVariantIds = null;
 
-            if (!empty($this->getProductCondition()->getConditionRules())) {
+            if (!empty($this->getProductCondition()->getConditionRules()->getRules())) {
                 $productQuery = Product::find();
                 $productQuery->siteId($siteIds);
                 $productCondition = $this->getProductCondition();
@@ -158,7 +158,7 @@ class CatalogPricingRule extends Component implements HasStoreInterface
             $this->_purchasableIds = $productVariantIds;
 
             $variantIds = $productVariantIds;
-            if (!empty($this->getVariantCondition()->getConditionRules())) {
+            if (!empty($this->getVariantCondition()->getConditionRules()->getRules())) {
                 $variantQuery = Variant::find();
                 $variantQuery->siteId($siteIds);
                 $variantCondition = $this->getVariantCondition();
@@ -182,7 +182,7 @@ class CatalogPricingRule extends Component implements HasStoreInterface
 
             $this->_purchasableIds = $variantIds;
 
-            if (!empty($this->getPurchasableCondition()->getConditionRules())) {
+            if (!empty($this->getPurchasableCondition()->getConditionRules()->getRules())) {
                 $purchasableQuery = Purchasable::find();
                 $purchasableCondition = $this->getPurchasableCondition();
                 $purchasableCondition->modifyQuery($purchasableQuery);
@@ -320,7 +320,7 @@ class CatalogPricingRule extends Component implements HasStoreInterface
 
     public function getUserIds(): ?array
     {
-        if ($this->_userIds === null && !empty($this->getCustomerCondition()->getConditionRules())) {
+        if ($this->_userIds === null && !empty($this->getCustomerCondition()->getConditionRules()->getRules())) {
             $userQuery = User::find();
             $this->getCustomerCondition()->modifyQuery($userQuery);
             $this->_userIds = $userQuery->ids();

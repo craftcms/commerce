@@ -6,15 +6,17 @@ namespace CraftCms\Commerce\Customer\Conditions;
 
 use CraftCms\Cms\Condition\BaseLightswitchConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Cms\User\Elements\User;
+use Illuminate\Database\Query\Builder;
 use RuntimeException;
 
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\t;
 
-class SignedInConditionRule extends BaseLightswitchConditionRule implements ElementConditionRuleInterface
+class SignedInConditionRule extends BaseLightswitchConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     public function getLabel(): string
     {
@@ -26,7 +28,7 @@ class SignedInConditionRule extends BaseLightswitchConditionRule implements Elem
         return [];
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
         throw new RuntimeException('Signed in condition rule does not support element queries.');
     }

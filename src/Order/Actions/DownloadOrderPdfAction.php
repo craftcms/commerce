@@ -165,7 +165,7 @@ JS;
      */
     private function pdfFileName(Pdf $pdf, Order $order): string
     {
-        $fileName = renderSandboxedObjectTemplate($pdf->fileNameFormat, $order);
+        $fileName = renderSandboxedObjectTemplate($pdf->fileNameFormat, $order, $order->getObjectTemplateVariables());
         if (!$fileName) {
             $fileName = $pdf->handle . '-' . $order->number;
         }

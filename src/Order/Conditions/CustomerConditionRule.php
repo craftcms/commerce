@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Conditions;
 
-use craft\helpers\Cp;
 use CraftCms\Cms\Condition\BaseMultiSelectConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
+use CraftCms\Cms\Form\Contracts\Node;
+use CraftCms\Cms\Form\Controls\ElementSelect;
+use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Order\Queries\OrderQuery;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Query\Builder;
 use Override;
 
 use function CraftCms\Cms\t;
@@ -20,26 +22,18 @@ use function CraftCms\Cms\t;
 /**
  * @todo Switch parent class to BaseElementSelectConditionRule in Commerce 6.0 once it supports negative matching (it currently lacks OPERATOR_NOT_IN support that this rule needs)
  */
-class CustomerConditionRule extends BaseMultiSelectConditionRule implements ElementConditionRuleInterface
+class CustomerConditionRule extends BaseMultiSelectConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
     public function getLabel(): string
     {
         return t('Customer', category: 'commerce');
     }
 
-    protected function inputHtml(): string
+    /** @return list<Node> */
+    #[Override]
+    protected function inputNodes(): array
     {
-        $users = User::find()->status(null)->limit(null)->id($this->values)->all();
-
-        return Cp::elementSelectHtml([
-            'name' => 'values',
-            'elements' => $users,
-            'elementType' => User::class,
-            'sources' => null,
-            'criteria' => null,
-            'condition' => null,
-            'single' => false,
-        ]);
+        return [Field::make($this->getLabel(), ElementSelect::make('values')->elementType(User::class)->value($this->getValues()))];
     }
 
     /** @return array<never, never> */
@@ -54,15 +48,18 @@ class CustomerConditionRule extends BaseMultiSelectConditionRule implements Elem
         return ['customerId'];
     }
 
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(Builder $query, ElementQueryInterface $elementQuery): void
     {
-        /** @var OrderQuery $query */
         $paramValue = $this->paramValue();
         if ($this->operator === self::OPERATOR_NOT_IN) {
-            // Account for the fact that querying using a combination of `not` and `in` doesn't match `null` in the column
-            $query->whereParam(DB::raw('coalesce(commerce_orders.customerId, -1)'), $paramValue);
+            // A plain "not in" doesn't match a null customerId column value, so explicitly
+            // include those rows too.
+            $query->where(function(Builder $query) use ($paramValue) {
+                $query->whereNull('commerce_orders.customerId');
+                $query->whereParam('commerce_orders.customerId', $paramValue, boolean: 'or');
+            });
         } else {
-            $query->customerId($paramValue);
+            $query->whereParam('commerce_orders.customerId', $paramValue);
         }
     }
 

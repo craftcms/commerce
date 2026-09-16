@@ -135,6 +135,7 @@ readonly class ShippingZonesController extends BaseStoreManagementController
 
         $shippingZone->id = $request->input('shippingZoneId') ? (int)$request->input('shippingZoneId') : null;
         $shippingZone->storeId = $request->input('storeId') ? (int)$request->input('storeId') : null;
+        $this->requireStoreAccess($shippingZone->storeId);
         $shippingZone->name = $request->input('name');
         $shippingZone->description = $request->input('description');
         $shippingZone->setCondition($request->input('condition'));
@@ -164,6 +165,11 @@ readonly class ShippingZonesController extends BaseStoreManagementController
 
         $id = $request->input('id');
         abort_if(!$id, 400, 'Missing shipping zone id');
+
+        $shippingZone = app(ShippingZones::class)->getShippingZoneById((int)$id);
+        if ($shippingZone) {
+            $this->requireStoreAccess($shippingZone->storeId);
+        }
 
         if (!app(ShippingZones::class)->deleteShippingZoneById((int)$id)) {
             return $this->asFailure(t('Could not delete shipping zone', category: 'commerce'));

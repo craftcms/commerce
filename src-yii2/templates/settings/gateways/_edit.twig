@@ -109,23 +109,35 @@
     }) }}
 
     <hr>
+    {% set orderConditionInput %}
+        {{ gateway.getOrderCondition()|commerceConditionBuilderHtml(not readOnly) }}
+    {% endset %}
+
     {{ forms.field({
         label: 'Match Order'|t('commerce'),
         instructions: 'Create rules that allow this gateway to match the order.'|t('commerce'),
         errors: gateway.getErrors('orderCondition'),
-    }, orderConditionHtml) }}
+    }, orderConditionInput) }}
+
+    {% set billingAddressConditionInput %}
+        {{ gateway.getBillingAddressCondition()|commerceConditionBuilderHtml(not readOnly) }}
+    {% endset %}
 
     {{ forms.field({
         label: 'Match Billing Address'|t('commerce'),
         instructions: 'Create rules that allow this gateway to match the billing address.'|t('commerce'),
         errors: gateway.getErrors('billingAddressCondition'),
-    }, billingAddressConditionHtml) }}
+    }, billingAddressConditionInput) }}
+
+    {% set shippingAddressConditionInput %}
+        {{ gateway.getShippingAddressCondition()|commerceConditionBuilderHtml(not readOnly) }}
+    {% endset %}
 
     {{ forms.field({
         label: 'Match Shipping Address'|t('commerce'),
         instructions: 'Create rules that allow this gateway to match the shipping address.'|t('commerce'),
         errors: gateway.getErrors('shippingAddressCondition'),
-    }, shippingAddressConditionHtml) }}
+    }, shippingAddressConditionInput) }}
 
 {% endblock %}
 

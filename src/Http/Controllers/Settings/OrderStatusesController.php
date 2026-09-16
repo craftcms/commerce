@@ -28,6 +28,7 @@ use CraftCms\Commerce\Order\Data\OrderStatus;
 use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
+use CraftCms\Commerce\Support\ObjectState;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -228,6 +229,7 @@ class OrderStatusesController extends BaseSettingsController
     {
         $id = $request->input('id') ? (int)$request->input('id') : null;
         $storeId = $request->input('storeId') ? (int)$request->input('storeId') : null;
+        $this->requireStoreAccess($storeId);
         $orderStatus = $id ? app(OrderStatuses::class)->getOrderStatusById($id, $storeId) : null;
         $orderStatus ??= new OrderStatus();
 
@@ -296,10 +298,25 @@ class OrderStatusesController extends BaseSettingsController
 
         $storeId = DB::table(DbTable::ORDERSTATUSES)->where('id', $orderStatusId)->value('storeId');
 
+        if ($storeId) {
+            $this->requireStoreAccess((int)$storeId);
+        }
+
         if (!$storeId || !app(OrderStatuses::class)->deleteOrderStatusById((int)$orderStatusId, $storeId)) {
             return $this->asFailure(t('Couldn\'t archive Order Status.', category: 'commerce'));
         }
 
         return $this->asSuccess();
+    }
+
+    private function requireStoreAccess(?int $storeId): void
+    {
+        if (!ObjectState::has($this, 'allowableStoreIds')) {
+            ObjectState::set($this, 'allowableStoreIds', app(Stores::class)->getStoresByUserId(currentUser()?->getCraftUserId())->map(fn(Store $s) => $s->id)->all());
+        }
+
+        $allowableStoreIds = ObjectState::get($this, 'allowableStoreIds');
+
+        abort_unless($storeId !== null && in_array($storeId, $allowableStoreIds, true), 403, t('You are not permitted to perform this action for this store.', category: 'commerce'));
     }
 }

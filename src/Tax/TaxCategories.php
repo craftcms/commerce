@@ -11,7 +11,6 @@ use CraftCms\Commerce\Tax\Data\TaxCategory;
 use CraftCms\Commerce\Tax\Models\TaxCategory as TaxCategoryRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use function CraftCms\Cms\t;
 
 #[Singleton]
@@ -214,20 +213,17 @@ class TaxCategories
     {
         $query = DB::table(Table::TAXCATEGORIES . ' as taxCategories')
             ->select([
+                'taxCategories.color',
                 'taxCategories.dateCreated',
                 'taxCategories.dateDeleted',
                 'taxCategories.dateUpdated',
                 'taxCategories.default',
                 'taxCategories.description',
                 'taxCategories.handle',
+                'taxCategories.icon',
                 'taxCategories.id',
                 'taxCategories.name',
             ]);
-
-        // Only add icon and color if the columns exist (for pre-migration compatibility).
-        if (Schema::hasColumn(Table::TAXCATEGORIES, 'icon')) {
-            $query->addSelect(['taxCategories.icon', 'taxCategories.color']);
-        }
 
         if (!$withTrashed) {
             $query->whereNull('dateDeleted');

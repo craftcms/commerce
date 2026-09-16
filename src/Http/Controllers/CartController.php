@@ -113,9 +113,6 @@ class CartController
             $this->cart->clearNotices();
         }
 
-        // Set the custom fields submitted
-        $this->cart->setFieldValuesFromRequest('fields');
-
         // Backwards compatible way of adding to the cart
         if ($purchasableId = $request->input('purchasableId')) {
             $note = $request->input('note', '');
@@ -303,6 +300,10 @@ class CartController
         if ($shippingMethodHandle = $request->input('shippingMethodHandle')) {
             $this->cart->shippingMethodHandle = $shippingMethodHandle;
         }
+
+        // Set the custom fields submitted, after the cart's attributes have been updated so that
+        // any field layout visibility conditions based on those attributes are evaluated correctly
+        $this->cart->setFieldValuesFromRequest('fields');
 
         return $this->returnCart($request);
     }

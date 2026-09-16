@@ -133,9 +133,10 @@ class Plugin extends BasePlugin
 
     public const string HANDLE = 'commerce';
 
-    public string $schemaVersion = '5.7.0.0';
+    public string $schemaVersion = '6.0.0.0';
 
-    public string $minVersionRequired = '3.4.11';
+    // TODO: keep in sync with the latest 5.x patch release as it advances, right up until 6.0 stable ships
+    public string $minVersionRequired = '5.7.3';
 
     public bool $hasCpSettings = true;
 

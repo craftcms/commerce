@@ -13,7 +13,6 @@ use CraftCms\Commerce\Store\Stores;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use function CraftCms\Cms\t;
 
 #[Singleton]
@@ -246,21 +245,18 @@ class ShippingCategories
     {
         $query = DB::table(Table::SHIPPINGCATEGORIES . ' as shippingCategories')
             ->select([
+                'shippingCategories.color',
                 'shippingCategories.dateCreated',
                 'shippingCategories.dateDeleted',
                 'shippingCategories.dateUpdated',
                 'shippingCategories.default',
                 'shippingCategories.description',
                 'shippingCategories.handle',
+                'shippingCategories.icon',
                 'shippingCategories.id',
                 'shippingCategories.name',
                 'shippingCategories.storeId',
             ]);
-
-        // Only add icon and color if the columns exist (for pre-migration compatibility).
-        if (Schema::hasColumn(Table::SHIPPINGCATEGORIES, 'icon')) {
-            $query->addSelect(['shippingCategories.icon', 'shippingCategories.color']);
-        }
 
         if (!$withTrashed) {
             $query->whereNull('dateDeleted');

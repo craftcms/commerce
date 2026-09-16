@@ -63,7 +63,7 @@
 {% js %}
 
     var primaryBaseCurrency = '{{ primaryCurrency.iso }}';
-    var paymentAmount = '{{ order.getpaymentAmount() }}';
+    var paymentAmount = '{{ order.getPaymentAmount()|number }}';
     var orderId = '{{ order.id }}';
 
     function debounce(func, wait, immediate) {

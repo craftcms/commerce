@@ -130,6 +130,7 @@ class OrdersFixture
         $white->setSku('hct-white');
         $white->setBasePrice(19.99);
         $white->isDefault = true;
+        $white->promotable = true;
         $white->siteId = $site->id;
         if (!Elements::saveElement($white)) {
             throw new RuntimeException('Could not save white variant: ' . json_encode($white->errors()->all()));
@@ -140,6 +141,7 @@ class OrdersFixture
         $blue->setPrimaryOwner($product);
         $blue->setSku('hct-blue');
         $blue->setBasePrice(21.99);
+        $blue->promotable = true;
         $blue->siteId = $site->id;
         if (!Elements::saveElement($blue)) {
             throw new RuntimeException('Could not save blue variant: ' . json_encode($blue->errors()->all()));
@@ -238,6 +240,15 @@ class OrdersFixture
 
         if (!$order->markAsComplete()) {
             throw new RuntimeException('Could not complete order: ' . json_encode($order->errors()->all()));
+        }
+
+        // markAsComplete() resets the order status to the store's default, so re-apply the
+        // requested one (if any) after completion, same as dateOrdered below.
+        if ($orderStatusId && $order->orderStatusId !== $orderStatusId) {
+            $order->orderStatusId = $orderStatusId;
+            if (!Elements::saveElement($order, false)) {
+                throw new RuntimeException('Could not update orderStatusId: ' . json_encode($order->errors()->all()));
+            }
         }
 
         if ($dateOrdered) {

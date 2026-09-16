@@ -163,6 +163,7 @@ readonly class StoreManagementController extends LegacyStoreManagementController
         abort_unless(currentUser()?->can('commerce-manageGeneralStoreSettings'), 403);
 
         $storeId = (int)$request->input('id');
+        $this->requireStoreAccess($storeId);
         $store = app(Stores::class)->getStoreById($storeId);
         $storeSettings = app(StoreSettings::class)->getStoreSettingsById($storeId);
         $currentUser = currentUserElement();
