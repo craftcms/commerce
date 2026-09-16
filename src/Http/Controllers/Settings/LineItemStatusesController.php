@@ -202,7 +202,7 @@ class LineItemStatusesController extends BaseSettingsController
         $lineItemStatus->default = (bool)$request->input('default');
 
         if (!app(LineItemStatuses::class)->saveLineItemStatus($lineItemStatus)) {
-            return $this->asModelFailure($lineItemStatus, t('Couldn\'t save line item status.', category: 'commerce'), 'lineItemStatus');
+            return $this->asModelFailure($lineItemStatus, t('Couldn’t save line item status.', category: 'commerce'), 'lineItemStatus');
         }
 
         return $this->asModelSuccess($lineItemStatus, t('Line item status saved.', category: 'commerce'), 'lineItemStatus');
@@ -216,7 +216,10 @@ class LineItemStatusesController extends BaseSettingsController
         $ids = Json::decode($request->input('ids'));
 
         if (!app(LineItemStatuses::class)->reorderLineItemStatuses($ids)) {
-            return $this->asFailure(t('Couldn\'t reorder Line Item Statuses.', category: 'commerce'));
+            // The double space before "Line" matches lang/en/commerce.php's existing key
+            // exactly (a pre-existing typo carried over from the legacy Yii2 controller) —
+            // don't "fix" the spacing here without also updating the lang file.
+            return $this->asFailure(t('Couldn’t reorder  Line Item Statuses.', category: 'commerce'));
         }
 
         return $this->asSuccess();
@@ -232,7 +235,7 @@ class LineItemStatusesController extends BaseSettingsController
         $storeId = DB::table(DbTable::LINEITEMSTATUSES)->where('id', $lineItemStatusId)->value('storeId');
 
         if (!$storeId || !app(LineItemStatuses::class)->archiveLineItemStatusById((int)$lineItemStatusId, $storeId)) {
-            return $this->asFailure(t('Couldn\'t archive Line Item Status.', category: 'commerce'));
+            return $this->asFailure(t('Couldn’t archive Line Item Status.', category: 'commerce'));
         }
 
         return $this->asSuccess();

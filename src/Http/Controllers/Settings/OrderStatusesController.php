@@ -249,7 +249,7 @@ class OrderStatusesController extends BaseSettingsController
         }
 
         if (!app(OrderStatuses::class)->saveOrderStatus($orderStatus, $emailIds)) {
-            return $this->asModelFailure($orderStatus, t('Couldn\'t save order status.', category: 'commerce'), 'orderStatus');
+            return $this->asModelFailure($orderStatus, t('Couldn’t save order status.', category: 'commerce'), 'orderStatus');
         }
 
         return $this->asModelSuccess($orderStatus, t('Order status saved.', category: 'commerce'), 'orderStatus');
@@ -283,7 +283,7 @@ class OrderStatusesController extends BaseSettingsController
         $ids = Json::decode($request->input('ids'));
 
         if (!app(OrderStatuses::class)->reorderOrderStatuses($ids)) {
-            return $this->asFailure(t('Couldn\'t reorder Order Statuses.', category: 'commerce'));
+            return $this->asFailure(t('Couldn’t reorder Order Statuses.', category: 'commerce'));
         }
 
         return $this->asSuccess();
@@ -303,7 +303,7 @@ class OrderStatusesController extends BaseSettingsController
         }
 
         if (!$storeId || !app(OrderStatuses::class)->deleteOrderStatusById((int)$orderStatusId, $storeId)) {
-            return $this->asFailure(t('Couldn\'t archive Order Status.', category: 'commerce'));
+            return $this->asFailure(t('Couldn’t archive Order Status.', category: 'commerce'));
         }
 
         return $this->asSuccess();

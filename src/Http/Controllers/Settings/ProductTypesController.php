@@ -577,7 +577,7 @@ class ProductTypesController extends BaseSettingsController
             return $this->asSuccess(t('Product type saved.', category: 'commerce'));
         }
 
-        return $this->asModelFailure($productType, t('Couldn\'t save product type.', category: 'commerce'), 'productType');
+        return $this->asModelFailure($productType, t('Couldn’t save product type.', category: 'commerce'), 'productType');
     }
 
     public function deleteProductType(Request $request): Response

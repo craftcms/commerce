@@ -77,7 +77,7 @@ class OrderSettingsController extends BaseSettingsController
         ];
 
         if (!$fieldLayout->validate()) {
-            return $this->asFailure(t('Couldn\'t save order fields.', category: 'commerce'));
+            return $this->asFailure(t('Couldn’t save order fields.', category: 'commerce'));
         }
 
         if ($currentOrderFieldLayout = ProjectConfig::get(Orders::CONFIG_FIELDLAYOUT_KEY)) {

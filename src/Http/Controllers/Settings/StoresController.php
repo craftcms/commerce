@@ -264,7 +264,7 @@ class StoresController extends BaseSettingsController
         }
 
         if (!$store->validate() || !$storesService->saveStore($store)) {
-            return $this->asModelFailure($store, t('Couldn\'t save the store.'), 'store');
+            return $this->asModelFailure($store, t('Couldn’t save the store.'), 'store');
         }
 
         if ($siteId = $request->input('siteId')) {
@@ -383,7 +383,7 @@ class StoresController extends BaseSettingsController
         $ids = Json::decode($request->input('ids'));
 
         if (!app(Stores::class)->reorderStores($ids)) {
-            return $this->asFailure(t('Couldn\'t reorder stores.', category: 'commerce'));
+            return $this->asFailure(t('Couldn’t reorder stores.', category: 'commerce'));
         }
 
         return $this->asSuccess();

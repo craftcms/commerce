@@ -260,7 +260,7 @@ class EmailsController extends BaseSettingsController
         // The old template combined this with Recipient as one compound field, showing/hiding
         // this half inline based on the select above; here it's its own Field, toggled visible
         // via the Form's refreshable round trip instead.
-        $formNodes[] = Field::make(t('Custom Recipient', category: 'commerce'), Text::make('to')->textExpanderTriggers($envTriggers))
+        $formNodes[] = Field::make(t('Recipient', category: 'commerce'), Text::make('to')->textExpanderTriggers($envTriggers))
             ->visible($isCustomRecipient);
         $formNodes[] = Field::make(t('BCC’d Recipient', category: 'commerce'), Text::make('bcc')->textExpanderTriggers($envTriggers))
             ->instructions(t('Additional recipients that should receive this email. Twig code can be used here.', category: 'commerce'));
@@ -319,7 +319,7 @@ class EmailsController extends BaseSettingsController
         $email->setSenderName($request->input('senderName'));
 
         if (!$emailsService->saveEmail($email)) {
-            return $this->asModelFailure($email, t('Couldn\'t save email.', category: 'commerce'), 'email');
+            return $this->asModelFailure($email, t('Couldn’t save email.', category: 'commerce'), 'email');
         }
 
         return $this->asModelSuccess($email, t('Email saved.', category: 'commerce'), 'email');
@@ -333,7 +333,7 @@ class EmailsController extends BaseSettingsController
         abort_if(!$id, 400, 'Missing email id');
 
         if (!app(Emails::class)->deleteEmailById((int)$id)) {
-            return $this->asFailure(t('Couldn\'t delete email.', category: 'commerce'));
+            return $this->asFailure(t('Couldn’t delete email.', category: 'commerce'));
         }
 
         return $this->asSuccess();

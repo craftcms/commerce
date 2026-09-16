@@ -242,7 +242,7 @@ class PdfsController extends BaseSettingsController
         $pdf->paperOrientation = $request->input('paperOrientation');
 
         if (!$pdfsService->savePdf($pdf)) {
-            return $this->asModelFailure($pdf, t('Couldn\'t save PDF.', category: 'commerce'), 'pdf');
+            return $this->asModelFailure($pdf, t('Couldn’t save PDF.', category: 'commerce'), 'pdf');
         }
 
         return $this->asModelSuccess($pdf, t('PDF saved.', category: 'commerce'), 'pdf');
@@ -268,7 +268,7 @@ class PdfsController extends BaseSettingsController
         $ids = Json::decode($request->input('ids'));
 
         if (!app(Pdfs::class)->reorderPdfs($ids)) {
-            return $this->asFailure(t('Couldn\'t reorder PDFs.', category: 'commerce'));
+            return $this->asFailure(t('Couldn’t reorder PDFs.', category: 'commerce'));
         }
 
         return $this->asSuccess();

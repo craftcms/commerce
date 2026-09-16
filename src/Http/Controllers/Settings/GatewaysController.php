@@ -391,7 +391,7 @@ class GatewaysController extends BaseSettingsController
         $gateway = $gatewayService->createGateway($config);
 
         if (!$gatewayService->saveGateway($gateway)) {
-            return $this->asModelFailure($gateway, t('Couldn\'t save gateway.', category: 'commerce'), 'gateway');
+            return $this->asModelFailure($gateway, t('Couldn’t save gateway.', category: 'commerce'), 'gateway');
         }
 
         return $this->asModelSuccess($gateway, t('Gateway saved.', category: 'commerce'), 'gateway');
@@ -418,7 +418,7 @@ class GatewaysController extends BaseSettingsController
         $ids = json_decode($request->input('ids'), true);
 
         if (!app(Gateways::class)->reorderGateways($ids)) {
-            return $this->asFailure(t('Couldn\'t reorder gateways.', category: 'commerce'));
+            return $this->asFailure(t('Couldn’t reorder gateways.', category: 'commerce'));
         }
 
         return $this->asSuccess();
