@@ -72,12 +72,12 @@ abstract class OrderCurrencyValuesAttributeConditionRule extends MoneyFieldCondi
         if ($this->getCondition() instanceof HasStoreInterface) {
             $this->currency = $this->getCondition()->getStore()->getCurrency();
         } else {
-            /** @var Site|StoreBehavior|null $currentSite */
             if (Craft::$app->getRequest()->getIsCpRequest()) {
                 $currentSite = Cp::requestedSite();
             } else {
                 $currentSite = Craft::$app->getSites()->getCurrentSite();
             }
+            /** @var Site|StoreBehavior|null $currentSite */
 
             if ($currentSite->getBehavior('commerce:store')) {
                 $this->currency = $currentSite?->getStore()->getCurrency();
