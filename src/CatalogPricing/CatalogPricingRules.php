@@ -117,7 +117,7 @@ class CatalogPricingRules
     public function getAllCatalogPricingRulesWithUserConditions(?int $storeId = null): Collection
     {
         return $this->getAllCatalogPricingRules($storeId)->filter(
-            fn(CatalogPricingRule $r) => !empty($r->getCustomerCondition()->getConditionRules())
+            fn(CatalogPricingRule $r) => !empty($r->getCustomerCondition()->getConditionRules()->getRules())
         );
     }
 

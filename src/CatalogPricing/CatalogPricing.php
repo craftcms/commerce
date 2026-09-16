@@ -86,7 +86,7 @@ class CatalogPricing
                     continue;
                 }
 
-                if (!empty($catalogPricingRule->getCustomerCondition()->getConditionRules()) && !in_array($catalogPricingRule->id, $cprWithUserIds, true)) {
+                if (!empty($catalogPricingRule->getCustomerCondition()->getConditionRules()->getRules()) && !in_array($catalogPricingRule->id, $cprWithUserIds, true)) {
                     continue;
                 }
 

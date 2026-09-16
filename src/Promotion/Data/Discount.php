@@ -120,7 +120,7 @@ class Discount extends Component implements HasStoreInterface
             return false;
         }
 
-        return !empty($this->getOrderCondition()->getConditionRules());
+        return !empty($this->getOrderCondition()->getConditionRules()->getRules());
     }
 
     public function setOrderCondition(ElementConditionInterface|string|array|null $condition): void
@@ -159,7 +159,7 @@ class Discount extends Component implements HasStoreInterface
             return false;
         }
 
-        return !empty($this->getCustomerCondition()->getConditionRules());
+        return !empty($this->getCustomerCondition()->getConditionRules()->getRules());
     }
 
     public function setCustomerCondition(ElementConditionInterface|string|array|null $condition): void
@@ -199,7 +199,7 @@ class Discount extends Component implements HasStoreInterface
             return false;
         }
 
-        return !empty($this->getShippingAddressCondition()->getConditionRules());
+        return !empty($this->getShippingAddressCondition()->getConditionRules()->getRules());
     }
 
     public function setShippingAddressCondition(ElementConditionInterface|string|array|null $condition): void
@@ -239,7 +239,7 @@ class Discount extends Component implements HasStoreInterface
             return false;
         }
 
-        return !empty($this->getBillingAddressCondition()->getConditionRules());
+        return !empty($this->getBillingAddressCondition()->getConditionRules()->getRules());
     }
 
     public function setBillingAddressCondition(ElementConditionInterface|string|array|null $condition): void

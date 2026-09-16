@@ -153,7 +153,7 @@ abstract class BaseShippingMethod extends Component implements ShippingMethodInt
         }
 
         $customer = $order->getCustomer();
-        if (!$customer && !empty($this->getCustomerCondition()->getConditionRules())) {
+        if (!$customer && !empty($this->getCustomerCondition()->getConditionRules()->getRules())) {
             return false;
         }
 
