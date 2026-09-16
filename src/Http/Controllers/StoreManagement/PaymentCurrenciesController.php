@@ -178,7 +178,7 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
             return $this->asModelSuccess($currency, t('Currency saved.', category: 'commerce'), 'currency');
         }
 
-        return $this->asModelFailure($currency, t('Couldn\'t save currency.', category: 'commerce'), 'currency');
+        return $this->asModelFailure($currency, t('Couldn’t save currency.', category: 'commerce'), 'currency');
     }
 
     public function delete(Request $request): Response

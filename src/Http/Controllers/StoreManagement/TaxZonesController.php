@@ -164,7 +164,7 @@ readonly class TaxZonesController extends BaseStoreManagementController
 
         return $this->asModelFailure(
             $taxZone,
-            t('Couldn\'t save tax zone.', category: 'commerce'),
+            t('Couldn’t save tax zone.', category: 'commerce'),
             'taxZone'
         );
     }

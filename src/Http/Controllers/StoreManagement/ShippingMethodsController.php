@@ -72,7 +72,7 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
                 ->rows($rows)
                 ->emptyMessage(t('No shipping methods exist yet.', category: 'commerce'))
                 ->createAction(t('New shipping method', category: 'commerce'), $store->getStoreSettingsUrl('shippingmethods/new'))
-                ->deletable(action([self::class, 'delete'])),
+                ->deletable(action([self::class, 'delete']), bulk: true),
         ];
 
         $title = t('Shipping Methods', category: 'commerce');
@@ -133,12 +133,12 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
         $formNodes[] = Field::make(t('Match Order', category: 'commerce'), ConditionBuilder::make('orderCondition')
             ->conditionClass(ShippingMethodOrderCondition::class)
             ->value($shippingMethod->getOrderCondition()->getConfig()))
-            ->instructions(t('Conditions here are matched against an order before looking through the rules. This is useful if you want to qualify a method\'s availability early, or if there are common conditions to all rules for this method.', category: 'commerce'));
+            ->instructions(t('Conditions here are matched against an order before looking through the rules. This is useful if you want to qualify a method’s availability early, or if there are common conditions to all rules for this method.', category: 'commerce'));
 
         $formNodes[] = Field::make(t('Match Customer', category: 'commerce'), ConditionBuilder::make('customerCondition')
             ->conditionClass(ShippingMethodCustomerCondition::class)
             ->value($shippingMethod->getCustomerCondition()->getConfig()))
-            ->instructions(t('Conditions here are matched against the order\'s customer before looking through the rules. This is useful if you want qualify a method\'s availability early or if there are common conditions to all rules for this method.', category: 'commerce'));
+            ->instructions(t('Conditions here are matched against the order’s customer before looking through the rules. This is useful if you want qualify a method’s availability early or if there are common conditions to all rules for this method.', category: 'commerce'));
 
         $formNodes[] = Field::make(t('Enable this shipping method on the front end', category: 'commerce'), Lightswitch::make('enabled'));
 
@@ -256,7 +256,7 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
         $shippingMethod->enabled = (bool)$request->input('enabled');
 
         if (!app(ShippingMethods::class)->saveShippingMethod($shippingMethod)) {
-            return $this->asModelFailure($shippingMethod, t('Couldn\'t save shipping method.', category: 'commerce'), 'shippingMethod');
+            return $this->asModelFailure($shippingMethod, t('Couldn’t save shipping method.', category: 'commerce'), 'shippingMethod');
         }
 
         return $this->asModelSuccess($shippingMethod, t('Shipping method saved.', category: 'commerce'), 'shippingMethod');
@@ -267,18 +267,32 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
         abort_unless($request->expectsJson(), 400);
 
         $id = $request->input('id');
-        abort_if(!$id, 400, 'Missing shipping method id');
+        $ids = $request->input('ids');
+        abort_if((!$id && empty($ids)) || ($id && !empty($ids)), 400, 'id or ids must be specified.');
 
-        $shippingMethod = app(ShippingMethods::class)->getShippingMethodById((int)$id);
-        if ($shippingMethod) {
-            $this->requireStoreAccess($shippingMethod->storeId);
+        if ($id) {
+            $ids = [$id];
         }
 
-        if (!$shippingMethod || !app(ShippingMethods::class)->deleteShippingMethodById((int)$id)) {
-            return $this->asFailure(t('Could not delete shipping method and its rules.', category: 'commerce'));
+        $failedIds = [];
+        foreach ($ids as $deleteId) {
+            $shippingMethod = app(ShippingMethods::class)->getShippingMethodById((int)$deleteId);
+            if ($shippingMethod) {
+                $this->requireStoreAccess($shippingMethod->storeId);
+            }
+
+            if (!$shippingMethod || !app(ShippingMethods::class)->deleteShippingMethodById((int)$deleteId)) {
+                $failedIds[] = $deleteId;
+            }
         }
 
-        return $this->asSuccess(t('Shipping method and rules deleted.', category: 'commerce'));
+        if (!empty($failedIds)) {
+            return $this->asFailure(t('Could not delete {count, number} shipping {count, plural, one{method} other{methods}} and rules.', [
+                'count' => count($failedIds),
+            ], category: 'commerce'));
+        }
+
+        return $this->asSuccess(t('Shipping methods and rules deleted.', category: 'commerce'));
     }
 
     public function updateStatus(Request $request): Response

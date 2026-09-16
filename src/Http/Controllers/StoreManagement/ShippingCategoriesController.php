@@ -71,7 +71,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
                 ->rows($rows)
                 ->emptyMessage(t('No shipping categories exist yet.', category: 'commerce'))
                 ->createAction(t('New shipping category', category: 'commerce'), $store->getStoreSettingsUrl('shippingcategories/new'))
-                ->deletable(action([self::class, 'delete'])),
+                ->deletable(action([self::class, 'delete']), bulk: true),
         ];
 
         $title = t('Shipping Categories', category: 'commerce');
@@ -238,7 +238,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
             ->instructions(t('What this shipping category will be called in the control panel.', category: 'commerce'))
             ->required();
         $formNodes[] = Field::make(t('Handle', category: 'commerce'), $handle)
-            ->instructions(t('How you\'ll refer to this shipping category in the templates.', category: 'commerce'))
+            ->instructions(t('How you’ll refer to this shipping category in the templates.', category: 'commerce'))
             ->required();
         $formNodes[] = Field::make(t('Description', category: 'commerce'), Text::make('description'));
         $formNodes[] = Field::make(t('Icon', category: 'app'), IconPicker::make('icon'));
@@ -259,7 +259,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
 
         if ($productTypesOptions === []) {
             $productTypesField->warning(
-                t('There aren\'t any product types to select yet.', category: 'commerce') . ' ' .
+                t('There aren’t any product types to select yet.', category: 'commerce') . ' ' .
                 Html::a(t('Create a product type', category: 'commerce'), 'commerce/settings/producttypes/new', ['class' => 'go']),
             );
         }
@@ -318,7 +318,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
         if (!app(ShippingCategories::class)->saveShippingCategory($shippingCategory)) {
             return $this->asModelFailure(
                 $shippingCategory,
-                t('Couldn\'t save shipping category.', category: 'commerce'),
+                t('Couldn’t save shipping category.', category: 'commerce'),
                 'shippingCategory'
             );
         }
@@ -339,20 +339,34 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
         abort_unless($request->expectsJson(), 400);
 
         $id = $request->input('id');
-        abort_if(!$id, 400, 'Missing shipping category id');
+        $ids = $request->input('ids');
+        abort_if((!$id && empty($ids)) || ($id && !empty($ids)), 400, 'id or ids must be specified.');
 
-        // Resolve first so we can check the record's own store before deleting it — mirrors
-        // the store-access guard save()/setDefaultCategory() already carry.
-        $shippingCategory = app(ShippingCategories::class)->getShippingCategoryById((int)$id);
-        if ($shippingCategory) {
-            $this->requireStoreAccess($shippingCategory->storeId);
+        if ($id) {
+            $ids = [$id];
         }
 
-        if (!$shippingCategory || !app(ShippingCategories::class)->deleteShippingCategoryById((int)$id)) {
-            return $this->asFailure(t('Could not delete shipping category.', category: 'commerce'));
+        $failedIds = [];
+        foreach ($ids as $deleteId) {
+            // Resolve first so we can check the record's own store before deleting it — mirrors
+            // the store-access guard save()/setDefaultCategory() already carry.
+            $shippingCategory = app(ShippingCategories::class)->getShippingCategoryById((int)$deleteId);
+            if ($shippingCategory) {
+                $this->requireStoreAccess($shippingCategory->storeId);
+            }
+
+            if (!$shippingCategory || !app(ShippingCategories::class)->deleteShippingCategoryById((int)$deleteId)) {
+                $failedIds[] = $deleteId;
+            }
         }
 
-        return $this->asSuccess(t('Shipping category deleted.', category: 'commerce'));
+        if (!empty($failedIds)) {
+            return $this->asFailure(t('Could not delete {count, number} shipping {count, plural, one{category} other{categories}}.', [
+                'count' => count($failedIds),
+            ], category: 'commerce'));
+        }
+
+        return $this->asSuccess(t('Shipping categories deleted.', category: 'commerce'));
     }
 
     public function setDefaultCategory(Request $request): Response

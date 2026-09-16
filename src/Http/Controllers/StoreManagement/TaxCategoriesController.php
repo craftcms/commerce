@@ -89,7 +89,7 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
                     app(Taxes::class)->createTaxCategories(),
                     fn(Table $table) => $table->createAction(t('New tax category', category: 'commerce'), $store->getStoreSettingsUrl('taxcategories/new')),
                 )
-                ->when($canDelete, fn(Table $table) => $table->deletable(action([self::class, 'delete']))),
+                ->when($canDelete, fn(Table $table) => $table->deletable(action([self::class, 'delete']), bulk: true)),
         ];
 
         $title = t('Tax Categories', category: 'commerce');
@@ -156,7 +156,7 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
             ->instructions(t('What this tax category will be called in the control panel.', category: 'commerce'))
             ->required();
         $formNodes[] = Field::make(t('Handle', category: 'commerce'), $handle)
-            ->instructions(t('How you\'ll refer to this tax category in the templates.', category: 'commerce'))
+            ->instructions(t('How you’ll refer to this tax category in the templates.', category: 'commerce'))
             ->required();
         $formNodes[] = Field::make(t('Icon', category: 'app'), IconPicker::make('icon'));
         $formNodes[] = Field::make(t('Color', category: 'commerce'), ColorSelect::make('color')
@@ -172,7 +172,7 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
 
         if ($productTypesOptions === []) {
             $productTypesField->warning(
-                t('There aren\'t any product types to select yet.', category: 'commerce') . ' ' .
+                t('There aren’t any product types to select yet.', category: 'commerce') . ' ' .
                 Html::a(t('Create a product type', category: 'commerce'), 'commerce/settings/producttypes/new', ['class' => 'go']),
             );
         }
@@ -266,7 +266,7 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
         if (!app(TaxCategories::class)->saveTaxCategory($taxCategory)) {
             return $this->asModelFailure(
                 $taxCategory,
-                t('Couldn\'t save tax category.', category: 'commerce'),
+                t('Couldn’t save tax category.', category: 'commerce'),
                 'taxCategory'
             );
         }
@@ -283,13 +283,27 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
         abort_unless($request->expectsJson(), 400);
 
         $id = $request->input('id');
-        abort_if(!$id, 400, 'Missing tax category id');
+        $ids = $request->input('ids');
+        abort_if((!$id && empty($ids)) || ($id && !empty($ids)), 400, 'id or ids must be specified.');
 
-        if (!app(TaxCategories::class)->deleteTaxCategoryById((int)$id)) {
-            return $this->asFailure(t('Could not delete tax category.', category: 'commerce'));
+        if ($id) {
+            $ids = [$id];
         }
 
-        return $this->asSuccess(t('Tax category deleted.', category: 'commerce'));
+        $failedIds = [];
+        foreach ($ids as $deleteId) {
+            if (!app(TaxCategories::class)->deleteTaxCategoryById((int)$deleteId)) {
+                $failedIds[] = $deleteId;
+            }
+        }
+
+        if (!empty($failedIds)) {
+            return $this->asFailure(t('Could not delete {count, number} tax {count, plural, one{category} other{categories}}.', [
+                'count' => count($failedIds),
+            ], category: 'commerce'));
+        }
+
+        return $this->asSuccess(t('Tax categories deleted.', category: 'commerce'));
     }
 
     public function setDefaultCategory(Request $request): Response

@@ -154,7 +154,7 @@ readonly class ShippingZonesController extends BaseStoreManagementController
 
         return $this->asModelFailure(
             $shippingZone,
-            t('Couldn\'t save shipping zone.', category: 'commerce'),
+            t('Couldn’t save shipping zone.', category: 'commerce'),
             'shippingZone'
         );
     }

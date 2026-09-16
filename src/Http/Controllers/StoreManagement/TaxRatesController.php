@@ -226,7 +226,7 @@ readonly class TaxRatesController extends BaseStoreManagementController
         ));
         $canCreateTaxZones = app(Taxes::class)->createTaxZones();
         if ($canCreateTaxZones) {
-            $taxZoneOptions[] = ['label' => t('Create a new tax zone…', category: 'commerce'), 'value' => '__add__'];
+            $taxZoneOptions[] = ['label' => t('Create a tax zone', category: 'commerce'), 'value' => '__add__'];
         }
 
         $taxCategoryOptions = array_values(array_map(
@@ -235,7 +235,7 @@ readonly class TaxRatesController extends BaseStoreManagementController
         ));
         $canCreateTaxCategories = app(Taxes::class)->createTaxCategories();
         if ($canCreateTaxCategories) {
-            $taxCategoryOptions[] = ['label' => t('Create a new tax category…', category: 'commerce'), 'value' => '__add__'];
+            $taxCategoryOptions[] = ['label' => t('Create a new tax category', category: 'commerce'), 'value' => '__add__'];
         }
 
         $taxIdValidatorOptions = app(Taxes::class)->getEnabledTaxIdValidators()
@@ -344,7 +344,7 @@ readonly class TaxRatesController extends BaseStoreManagementController
         $taxRate->taxIdValidators = array_values($request->input('taxIdValidators', []) ?: []);
 
         if (!app(TaxRates::class)->saveTaxRate($taxRate)) {
-            return $this->asModelFailure($taxRate, t('Couldn\'t save tax rate.', category: 'commerce'), 'taxRate');
+            return $this->asModelFailure($taxRate, t('Couldn’t save tax rate.', category: 'commerce'), 'taxRate');
         }
 
         return $this->asModelSuccess($taxRate, t('Tax rate saved.', category: 'commerce'), 'taxRate');
