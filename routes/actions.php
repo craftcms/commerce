@@ -145,6 +145,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
         Route::post('tax-rates/save', [TaxRatesController::class, 'save']);
         Route::post('tax-rates/delete', [TaxRatesController::class, 'delete']);
         Route::post('tax-rates/update-status', [TaxRatesController::class, 'updateStatus']);
+        Route::post('tax-rates/render-form', [TaxRatesController::class, 'renderForm']);
     });
 
     Route::middleware('can:commerce-managePromotions')->group(function () {

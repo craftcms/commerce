@@ -5,123 +5,96 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use craft\helpers\Cp;
+use CraftCms\Cms\Cp\Html\ContentHtml;
+use CraftCms\Cms\Form\Controls\Choice;
+use CraftCms\Cms\Form\Controls\Lightswitch;
+use CraftCms\Cms\Form\Controls\Number;
+use CraftCms\Cms\Form\Controls\Text;
+use CraftCms\Cms\Form\Form;
+use CraftCms\Cms\Form\FormContext;
+use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Form\Nodes\HiddenField;
+use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
-use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
-use CraftCms\Cms\Support\Html as NewHtml;
-use CraftCms\Cms\Support\Json;
+use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\Translation\Formatter;
 use CraftCms\Cms\Translation\Locale;
-use CraftCms\Cms\View\Enums\Position;
-use CraftCms\Commerce\Helpers\Cp as CommerceCp;
-use CraftCms\Commerce\Helpers\Localization;
+use CraftCms\Commerce\Store\Data\Store;
+use CraftCms\Commerce\Store\Stores;
+use CraftCms\Commerce\Tax\Data\TaxAddressZone;
+use CraftCms\Commerce\Tax\Data\TaxCategory;
 use CraftCms\Commerce\Tax\Data\TaxRate;
+use CraftCms\Commerce\Helpers\Localization;
 use CraftCms\Commerce\Tax\Models\TaxRate as TaxRateRecord;
 use CraftCms\Commerce\Tax\TaxCategories;
 use CraftCms\Commerce\Tax\Taxes;
 use CraftCms\Commerce\Tax\TaxRates;
-
 use CraftCms\Commerce\Tax\TaxZones;
+
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\t;
 
-readonly class TaxRatesController extends LegacyStoreManagementController
+readonly class TaxRatesController extends BaseStoreManagementController
 {
+    protected function getSectionCrumb(Store $store): array
+    {
+        return ['label' => t('Tax Rates', category: 'commerce'), 'href' => $store->getStoreSettingsUrl('taxrates')];
+    }
+
     public function index(?string $storeHandle = null): CpScreenResponse
     {
         $store = $this->resolveStore($storeHandle);
-        $storeHandle = $store->handle;
 
         $taxRates = app(TaxRates::class)->getAllTaxRates($store->id);
 
-        // Preload all zone and category data for listing.
-        app(TaxZones::class)->getAllTaxZones($store->id);
-        app(TaxCategories::class)->getAllTaxCategories();
-
-        $tableData = [];
-        foreach ($taxRates as $taxRate) {
-            $label = NewHtml::encode(t($taxRate->name, category: 'site'));
-            $tableData[] = [
+        $rows = $taxRates
+            ->map(fn(TaxRate $taxRate) => [
                 'id' => $taxRate->id,
-                'status' => $taxRate->enabled,
-                'title' => NewHtml::a($label, $taxRate->getCpEditUrl()),
-                'url' => $taxRate->getCpEditUrl(),
+                'name' => ['html' => Html::a(Html::encode(t($taxRate->name, category: 'site')), $taxRate->getCpEditUrl(), ['class' => 'cell-bold'])],
                 'rate' => $taxRate->getRateAsPercent(),
-                'included' => $taxRate->include,
-                'removeIncluded' => $taxRate->removeIncluded,
-                'vat' => $taxRate->hasTaxIdValidators(),
-                'zone' => $taxRate->getIsEverywhere() ? t('Everywhere', category: 'commerce') : ($taxRate->getTaxZone() ? NewHtml::encode($taxRate->getTaxZone()->name) : ''),
-                'category' => $taxRate->getTaxCategory() ? Cp::chipHtml($taxRate->getTaxCategory()) : '',
-            ];
-        }
+                'included' => $taxRate->include ? ['icon' => 'check', 'label' => t('Yes')] : '',
+                'removeIncluded' => $taxRate->removeIncluded ? ['icon' => 'check', 'label' => t('Yes')] : '',
+                'zone' => $taxRate->getIsEverywhere() ? t('Everywhere', category: 'commerce') : t($taxRate->getTaxZone()->name, category: 'site'),
+                'category' => $taxRate->getTaxCategory() ? ['html' => Cp::chipHtml($taxRate->getTaxCategory())] : '',
+                'enabled' => $taxRate->enabled ? ['icon' => 'check', 'label' => t('Yes')] : '',
+            ])
+            ->values()
+            ->all();
 
-        $buttonsHtml = app(Taxes::class)->taxRateActionHtml();
+        $nodes = [
+            Table::make('tax-rates')
+                ->columns([
+                    ['key' => 'name', 'label' => t('Name')],
+                    ['key' => 'rate', 'label' => t('Rate', category: 'commerce')],
+                    ['key' => 'included', 'label' => t('Include in price?', category: 'commerce')],
+                    ['key' => 'removeIncluded', 'label' => t('Remove from price?', category: 'commerce')],
+                    ['key' => 'zone', 'label' => t('Tax Zone', category: 'commerce')],
+                    ['key' => 'category', 'label' => t('Tax Category', category: 'commerce')],
+                    ['key' => 'enabled', 'label' => t('Enabled?', category: 'commerce')],
+                ])
+                ->rows($rows)
+                ->emptyMessage(t('No tax rates exist yet.', category: 'commerce'))
+                ->when(
+                    app(Taxes::class)->createTaxRates(),
+                    fn(Table $table) => $table->createAction(t('New tax rate', category: 'commerce'), $store->getStoreSettingsUrl('taxrates/new')),
+                )
+                ->when($this->canDeleteTaxRates(), fn(Table $table) => $table->deletable(action([self::class, 'delete']))),
+        ];
 
-        if (app(Taxes::class)->createTaxRates()) {
-            $buttonsHtml .= NewHtml::a(t('New tax rate', category: 'commerce'), "commerce/store-management/$storeHandle/taxrates/new", [
-                'class' => 'btn submit add icon',
+        $title = t('Tax Rates', category: 'commerce');
+        $engineButtonsHtml = app(Taxes::class)->taxRateActionHtml();
+
+        return $this->cpScreenResponse($store)
+            ->title($title)
+            ->crumbs($this->crumbs($store))
+            ->when($engineButtonsHtml !== '', fn(CpScreenResponse $screen) => $screen->additionalButtonsHtml($engineButtonsHtml))
+            ->inertiaPage('Form', [
+                'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
             ]);
-        }
-
-        $tableData = Json::encode($tableData, JSON_UNESCAPED_UNICODE);
-        $deleteAction = app(Taxes::class)->deleteTaxRates() ? 'commerce/tax-rates/delete' : null;
-
-        $js = <<<JS
-var columns = [
-    { name: 'title', title: Craft.t('commerce', 'Name') },
-    { name: 'rate', title: Craft.t('commerce', 'Rate') },
-    { name: 'included', title: Craft.t('commerce', 'Include in price?'), callback: function(value) {
-      if (value) {
-          return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
-      }
-    } },
-    { name: 'removeIncluded', title: Craft.t('commerce', 'Remove from price?'), callback: function(value) {
-            if (value) {
-                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
-            }
-        } },
-    { name: 'zone', title: Craft.t('commerce', 'Tax Zone') },
-    { name: 'category', title: Craft.t('commerce', 'Tax Category') }
-];
-
-var actions = [
-  {
-    label: Craft.t('commerce', 'Set status'),
-    actions: [
-      {
-        label: Craft.t('commerce', 'Enabled'),
-        action: 'commerce/tax-rates/update-status',
-        param: 'status',
-        value: 'enabled',
-        status: 'enabled'
-      },
-      {
-        label: Craft.t('commerce', 'Disabled'),
-        action: 'commerce/tax-rates/update-status',
-        param: 'status',
-        value: 'disabled',
-        status: 'disabled'
-      }
-    ]
-  }
-];
-
-new Craft.VueAdminTable({
-    columns: columns,
-    actions: actions,
-    checkboxes: true,
-    container: '#taxrate-vue-admin-table',
-    deleteAction: '{$deleteAction}',
-    tableData: {$tableData},
-});
-JS;
-
-        HtmlStack::js($js, Position::BodyEnd);
-
-        return $this->storeManagementCpScreen($storeHandle)
-            ->additionalButtonsHtml($buttonsHtml)
-            ->contentHtml(NewHtml::tag('div', '', ['id' => 'taxrate-vue-admin-table']));
     }
 
     public function edit(?string $storeHandle = null, ?int $id = null): CpScreenResponse
@@ -129,9 +102,6 @@ JS;
         abort_unless(app(Taxes::class)->viewTaxRates(), 403, 'Tax engine does not permit you to perform this action');
 
         $store = $this->resolveStore($storeHandle);
-        $storeHandle = $store->handle;
-        $percentSymbol = I18N::getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
-
 
         if ($id) {
             $taxRate = app(TaxRates::class)->getTaxRateById($id, $store->id);
@@ -142,72 +112,185 @@ JS;
 
         $title = $taxRate->id ? $taxRate->name : t('Create a new tax rate', category: 'commerce');
 
-        $variables = compact('taxRate', 'store', 'storeHandle', 'percentSymbol');
+        $formatter = app(Formatter::class);
+        $metadataHtml = $taxRate->id ? app(ContentHtml::class)->metadataHtml([
+            t('Created at') => $formatter->asDateTime($taxRate->dateCreated, 'short'),
+            t('Updated at') => $formatter->asDateTime($taxRate->dateUpdated, 'short'),
+        ]) : null;
 
-        $taxZone = null;
-        if ($taxRate->taxZoneId) {
-            $taxZone = app(TaxZones::class)->getTaxZoneById($taxRate->taxZoneId, $store->id);
-        }
+        $values = $this->initialValues($taxRate, $store);
 
-        $taxCategory = null;
-        if ($taxRate->taxCategoryId) {
-            $taxCategory = app(TaxCategories::class)->getTaxCategoryById($taxRate->taxCategoryId);
-        }
+        $form = $this->formResolver->resolve(
+            $this->buildForm($taxRate, $values, $store),
+            new FormContext(values: $values, refreshable: true),
+        );
 
-        $variables['taxZoneField'] = CommerceCp::taxZoneFieldHtml([
-            'label' => t('Tax Zone', category: 'commerce'),
-            'instructions' => t('Select a tax zone. If empty, this rate will match anywhere.', category: 'commerce'),
-            'id' => 'taxZoneId',
-            'name' => 'taxZoneId',
-            'value' => $taxZone,
-            'errors' => $taxRate->getErrors('taxZoneId'),
-            'required' => false,
-            'limit' => 1,
-            'storeId' => $store->id,
-            'storeHandle' => $storeHandle,
-        ]);
-
-        $variables['taxCategoryField'] = CommerceCp::taxCategoryFieldHtml([
-            'label' => t('Tax Category', category: 'commerce'),
-            'instructions' => t('Select a tax category.', category: 'commerce'),
-            'id' => 'taxCategoryId',
-            'name' => 'taxCategoryId',
-            'value' => $taxCategory,
-            'errors' => $taxRate->getErrors('taxCategoryId'),
-            'required' => true,
-            'limit' => 1,
-            'storeHandle' => $storeHandle,
-        ]);
-
-        $taxable = [];
-        $taxable[TaxRateRecord::TAXABLE_PURCHASABLE] = t('Unit price (minus discounts)', category: 'commerce');
-        $taxable[TaxRateRecord::TAXABLE_PRICE] = t('Line item price (minus discounts)', category: 'commerce');
-        $taxable[TaxRateRecord::TAXABLE_SHIPPING] = t('Line item shipping cost', category: 'commerce');
-        $taxable[TaxRateRecord::TAXABLE_PRICE_SHIPPING] = t('Both (Line item price + Line item shipping costs)', category: 'commerce');
-        $taxable[TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING] = t('Order total shipping cost', category: 'commerce');
-        $taxable[TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE] = t('Order total taxable price (Line item subtotal + Total discounts + Total shipping)', category: 'commerce');
-        $variables['taxables'] = $taxable;
-        $variables['taxablesNoTaxCategory'] = TaxRateRecord::ORDER_TAXABALES;
-
-        $variables['hideTaxCategory'] = false;
-        if ($variables['taxRate']->id && in_array($variables['taxRate']->taxable, $variables['taxablesNoTaxCategory'], false)) {
-            $variables['hideTaxCategory'] = true;
-        }
-
-        $variables['taxIdValidators'] = [];
-        $taxIdValidators = app(Taxes::class)->getEnabledTaxIdValidators();
-        foreach ($taxIdValidators as $validator) {
-            $variables['taxIdValidators'][] = $validator;
-        }
-
-        return $this->storeManagementCpScreen($storeHandle, false)
+        return $this->cpScreenResponse($store)
             ->title($title)
-            ->addCrumb(t('Tax Rates', category: 'commerce'), $store->getStoreSettingsUrl('taxrates'))
-            ->selectedSubnavItem('store-management')
+            ->crumbs($this->crumbs($store, ...($taxRate->id ? [['label' => $title]] : [])))
             ->action('commerce/tax-rates/save')
             ->redirectUrl($store->getStoreSettingsUrl('taxrates'))
-            ->metaSidebarTemplate('commerce/store-management/tax/taxrates/_sidebar', $variables)
-            ->contentTemplate('commerce/store-management/tax/taxrates/_edit', $variables);
+            ->inertiaPage('Form', [
+                'form' => $form,
+                'submit' => [
+                    'method' => 'post',
+                    'url' => action([self::class, 'save']),
+                ],
+                'refreshUrl' => action([self::class, 'renderForm']),
+                'metadataHtml' => $metadataHtml,
+            ]);
+    }
+
+    /**
+     * Re-resolves the {@see edit()} Form tree for the values currently in progress on the
+     * client, so switching the taxable subject, toggling "Included in price?", or checking a
+     * tax ID validator can reveal or hide the fields that depend on them without a full page
+     * reload.
+     */
+    public function renderForm(Request $request): JsonResponse
+    {
+        $request->validate([
+            'values' => ['required', 'array'],
+            'values.storeId' => ['required', 'integer'],
+            'values.taxRateId' => ['nullable', 'integer'],
+            'scope' => ['present', 'array', 'size:0'],
+        ]);
+
+        $values = $request->input('values');
+        $store = app(Stores::class)->getStoreById((int)$values['storeId']);
+        abort_if($store === null, 404);
+
+        $taxRateId = $values['taxRateId'] ?? null;
+        if ($taxRateId) {
+            $taxRate = app(TaxRates::class)->getTaxRateById((int)$taxRateId, $store->id);
+            abort_if($taxRate === null, 404);
+        } else {
+            $taxRate = new TaxRate(['storeId' => $store->id]);
+        }
+
+        $values = array_replace($this->initialValues($taxRate, $store), $values);
+
+        $form = $this->formResolver->resolve(
+            $this->buildForm($taxRate, $values, $store),
+            new FormContext(values: $values, refreshable: true),
+        );
+
+        return new JsonResponse(['form' => $form]);
+    }
+
+    /** @return array<string, mixed> */
+    private function initialValues(TaxRate $taxRate, Store $store): array
+    {
+        return [
+            'storeId' => $store->id,
+            'taxRateId' => $taxRate->id,
+            'name' => $taxRate->name,
+            'code' => $taxRate->code,
+            'taxable' => $taxRate->taxable,
+            'taxZoneId' => $taxRate->taxZoneId,
+            // `taxCategoryId` is required, so a Choice control that never fires a real
+            // change event (e.g. the sole option in a brand-new tax rate's dropdown, never
+            // explicitly picked) would otherwise post null — a native `<select>` shows its
+            // first option regardless of whether anything actually set it. Default to the
+            // store's actual default category rather than relying on that visual illusion.
+            'taxCategoryId' => $taxRate->taxCategoryId ?? app(TaxCategories::class)->getDefaultTaxCategory()->id,
+            'taxIdValidators' => $taxRate->taxIdValidators,
+            'rate' => round($taxRate->rate * 100, 6),
+            'include' => $taxRate->include,
+            'removeIncluded' => $taxRate->removeIncluded,
+            'removeVatIncluded' => $taxRate->removeVatIncluded,
+            'enabled' => $taxRate->enabled,
+        ];
+    }
+
+    /** @param array<string, mixed> $values */
+    private function buildForm(TaxRate $taxRate, array $values, Store $store): Form
+    {
+        $showTaxCategory = !in_array($values['taxable'] ?? TaxRateRecord::TAXABLE_PRICE, TaxRateRecord::ORDER_TAXABALES, true);
+        $include = (bool) ($values['include'] ?? false);
+        $hasTaxIdValidators = !empty($values['taxIdValidators'] ?? []);
+
+        $taxableOptions = [
+            ['label' => t('Unit price (minus discounts)', category: 'commerce'), 'value' => TaxRateRecord::TAXABLE_PURCHASABLE],
+            ['label' => t('Line item price (minus discounts)', category: 'commerce'), 'value' => TaxRateRecord::TAXABLE_PRICE],
+            ['label' => t('Line item shipping cost', category: 'commerce'), 'value' => TaxRateRecord::TAXABLE_SHIPPING],
+            ['label' => t('Both (Line item price + Line item shipping costs)', category: 'commerce'), 'value' => TaxRateRecord::TAXABLE_PRICE_SHIPPING],
+            ['label' => t('Order total shipping cost', category: 'commerce'), 'value' => TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING],
+            ['label' => t('Order total taxable price (Line item subtotal + Total discounts + Total shipping)', category: 'commerce'), 'value' => TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE],
+        ];
+
+        $taxZoneOptions = array_values(array_map(
+            fn(TaxAddressZone $zone) => ['label' => $zone->name, 'value' => $zone->id],
+            app(TaxZones::class)->getAllTaxZones($store->id)->all(),
+        ));
+
+        $taxCategoryOptions = array_values(array_map(
+            fn(TaxCategory $category) => ['label' => $category->name, 'value' => $category->id],
+            app(TaxCategories::class)->getAllTaxCategories(),
+        ));
+
+        $taxIdValidatorOptions = app(Taxes::class)->getEnabledTaxIdValidators()
+            ->map(fn($validator) => ['label' => $validator::displayName(), 'value' => $validator::class])
+            ->values()
+            ->all();
+
+        $formNodes = [
+            HiddenField::make('storeId'),
+        ];
+
+        if ($taxRate->id) {
+            $formNodes[] = HiddenField::make('taxRateId');
+        }
+
+        $formNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
+            ->instructions(t('Enter a human-friendly name for this tax rate to be used in the control panel.', category: 'commerce'))
+            ->required();
+        $formNodes[] = Field::make(t('Code', category: 'commerce'), Text::make('code')->monospace())
+            ->instructions(t('Can be used as an internal reference.', category: 'commerce'));
+        $formNodes[] = Field::make(t('Taxable Subject', category: 'commerce'), Choice::make('taxable')->options($taxableOptions)->reactive())
+            ->instructions(t('Select what this rate should be applied to.', category: 'commerce'));
+        $formNodes[] = Field::make(t('Tax Zone', category: 'commerce'), Choice::make('taxZoneId')->options($taxZoneOptions)->placeholder(t('Everywhere', category: 'commerce')))
+            ->instructions(t('Select a tax zone. If empty, this rate will match anywhere.', category: 'commerce'));
+
+        $formNodes[] = Field::make(t('Disqualify with valid business tax ID?', category: 'commerce'), Choice::make('taxIdValidators')->multiple()->options($taxIdValidatorOptions)->reactive())
+            ->instructions(t('Do not apply this rate if the order address has any of the selected valid business tax IDs.', category: 'commerce'));
+
+        if ($showTaxCategory) {
+            $formNodes[] = Field::make(t('Tax Category', category: 'commerce'), Choice::make('taxCategoryId')->options($taxCategoryOptions))
+                ->instructions(t('Select a tax category.', category: 'commerce'))
+                ->required();
+        }
+
+        $formNodes[] = Field::make(t('Rate', category: 'commerce'), Number::make('rate')->step('any')->suffix($this->percentSymbol()))
+            ->instructions(t('Enter a percentage like {ex1} or {ex2}.', ['ex1' => '`5`', 'ex2' => '`10.5`'], category: 'commerce'))
+            ->required();
+
+        $formNodes[] = Field::make(t('Included in price?', category: 'commerce'), Lightswitch::make('include')->reactive())
+            ->instructions(t('Enable if this rate should be built into the taxable subject price instead of adding a cost to the order.', category: 'commerce'));
+
+        if ($include) {
+            $formNodes[] = Field::make(t('Adjust price when included rate is disqualified?', category: 'commerce'), Lightswitch::make('removeIncluded'))
+                ->instructions(t('If enabled and this rate does not match the order, the rate amount will be removed from the subject price in the cart.', category: 'commerce'));
+
+            if ($hasTaxIdValidators) {
+                $formNodes[] = Field::make(t('Remove the included tax when a valid organization tax ID is present?', category: 'commerce'), Lightswitch::make('removeVatIncluded'))
+                    ->instructions(t('If enabled and this rate does not match the order, the rate amount will be removed from the subject price in the cart.', category: 'commerce'));
+            }
+        }
+
+        $formNodes[] = Field::make(t('Enable this tax rate', category: 'commerce'), Lightswitch::make('enabled'));
+
+        return Form::make($formNodes);
+    }
+
+    private function percentSymbol(): string
+    {
+        return I18N::getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
+    }
+
+    private function canDeleteTaxRates(): bool
+    {
+        return app(Taxes::class)->deleteTaxRates();
     }
 
     public function save(Request $request): Response
@@ -228,9 +311,7 @@ JS;
         $taxRate->taxZoneId = (int)$request->input('taxZoneId') ?: null;
         $taxRate->rate = Localization::normalizePercentage($request->input('rate'));
         $taxRate->enabled = (bool)$request->input('enabled');
-
-        $validators = collect($request->input('taxIdValidators'))->filter(fn($enabled) => (bool)$enabled)->keys();
-        $taxRate->taxIdValidators = $validators->toArray();
+        $taxRate->taxIdValidators = array_values($request->input('taxIdValidators', []) ?: []);
 
         if (!app(TaxRates::class)->saveTaxRate($taxRate)) {
             return $this->asModelFailure($taxRate, t('Couldn\'t save tax rate.', category: 'commerce'), 'taxRate');
