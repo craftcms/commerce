@@ -1,0 +1,65 @@
+{# @var settings \craft\commerce\models\Settings #}
+{% extends "commerce/_layouts/settings" %}
+
+{% set selectedTab = 'settings' %}
+{% set fullPageForm = not readOnly %}
+
+{% set crumbs = [
+  { label: 'Commerce'|t('commerce'), url: url('commerce') },
+] %}
+
+{% import "_includes/forms" as forms %}
+
+{% from _self import configWarning %}
+
+{% block content %}
+    <h2>{{ "General Settings"|t('commerce') }}</h2>
+
+    <form action="" method="post" accept-charset="UTF-8" data-saveshortcut>
+
+        {% if not readOnly %}
+            {{ actionInput('commerce/settings/save-settings') }}
+            {{ redirectInput('commerce/settings/general') }}
+        {% endif %}
+
+        <h3>{{ 'Units'|t('commerce') }}</h3>
+        {{ forms.selectField({
+            label: "Weight Unit"|t('commerce'),
+            instructions: "The unit of measurement that should be used when specifying product weights."|t('commerce'),
+            name: 'settings[weightUnits]',
+            value: settings.weightUnits,
+            options: settings.getWeightUnitsOptions(),
+            errors: settings.getErrors('weightUnits'),
+            required: true,
+            disabled: readOnly,
+            warning: configWarning('weightUnits', 'commerce'),
+        }) }}
+
+        {{ forms.selectField({
+            label: "Dimension Unit"|t('commerce'),
+            instructions: "The unit of measurement that should be used when specifying product dimensions."|t('commerce'),
+            name: 'settings[dimensionUnits]',
+            value: settings.dimensionUnits,
+            options: settings.getDimensionUnits(),
+            errors: settings.getErrors('dimensionUnits'),
+            required: true,
+            disabled: readOnly,
+            warning: configWarning('dimensionUnits', 'commerce'),
+        }) }}
+
+        <hr>
+        <h3>{{ 'Control Panel Settings'|t('commerce') }}</h3>
+        {{ forms.selectField({
+            label: "Default View"|t('commerce'),
+            instructions: "Default Commerce control panel view. If the user does not have permission it will fall back to a location they can access."|t('commerce'),
+            name: 'settings[defaultView]',
+            value: settings.defaultView,
+            options: settings.getDefaultViewOptions(),
+            errors: settings.getErrors('defaultView'),
+            disabled: readOnly,
+            required: true,
+            warning: configWarning('defaultView', 'commerce'),
+        }) }}
+    </form>
+
+{% endblock %}

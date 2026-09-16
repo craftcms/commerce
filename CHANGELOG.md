@@ -11,8 +11,8 @@
 
 ## 5.7.3 - 2026-09-02
 
-- Fixed a bug where `craft\commerce\elements\Order::setShippingAddress()` and `setBillingAddress()` weren’t setting custom field values. ([#4353](https://github.com/craftcms/commerce/issues/4353))
-- Fixed a bug where variants’ auto-generated SKUs would be incorrect if the SKU Format contained `{id}`.
+- Fixed a bug where `craft\commerce\elements\Order::setShippingAddress()` and `setBillingAddress()` weren't setting custom field values. ([#4353](https://github.com/craftcms/commerce/issues/4353))
+- Fixed a bug where variants' auto-generated SKUs would be incorrect if the SKU Format contained `{id}`.
 - Fixed a bug where adding a new site via project config apply could cause additional project config changes. ([#4348](https://github.com/craftcms/commerce/issues/4348))
 - Fixed a deprecation warning that was getting logged when accessing `/admin/commerce`. ([#4349](https://github.com/craftcms/commerce/issues/4349))
 
