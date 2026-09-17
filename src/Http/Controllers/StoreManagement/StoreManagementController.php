@@ -217,7 +217,9 @@ readonly class StoreManagementController extends BaseStoreManagementController
             // same searchable, chip-based picker the legacy selectize field did.
             Field::make(t('Country List', category: 'commerce'), Combobox::make('countries')
                 ->multiple()
-                ->options($countryOptions))
+                ->options($countryOptions)
+                ->requireOptionMatch()
+                ->showAllOnEmpty())
                 ->instructions(t('The countries that orders are allowed to be placed from.', category: 'commerce')),
 
             // Neither of these two strings has a category — matches the legacy controller,
@@ -238,7 +240,6 @@ readonly class StoreManagementController extends BaseStoreManagementController
                 $canCreate = true;
             }
             if ($this->plugin->is(Plugin::EDITION_ENTERPRISE, '=')) {
-                $limit = null;
                 $canCreate = true;
             }
 
@@ -252,10 +253,15 @@ readonly class StoreManagementController extends BaseStoreManagementController
                 $inventoryLocationOptions[] = ['label' => t('Create a new inventory location'), 'value' => '__add__'];
             }
 
+            // Not ->limit(): that caps how many *unselected* options render in the dropdown at
+            // once (a UI performance guard), not how many the user is allowed to pick — an
+            // entirely different, unrelated concept that happened to share a name with the
+            // edition's own inventory-location-count limit computed above.
             $inventoryLocationsControl = ComboboxCreate::make('inventoryLocations')
                 ->multiple()
                 ->options($inventoryLocationOptions)
-                ->limit($limit);
+                ->requireOptionMatch()
+                ->showAllOnEmpty();
 
             if ($canCreate) {
                 $inventoryLocationsControl
