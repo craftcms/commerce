@@ -240,25 +240,25 @@
             label: 'Match Order'|t('commerce'),
             instructions: 'Create rules that allow this discount to match the order.'|t('commerce'),
             errors: discount.getErrors('orderCondition')
-        }, orderConditionHtml) }}
+        }, orderConditionHtml|raw) }}
 
         {{ forms.field({
             label: 'Match Customer'|t('commerce'),
             instructions: 'Create rules that allow this discount to match the order’s customer.'|t('commerce'),
             errors: discount.getErrors('customerCondition')
-        }, customerConditionHtml) }}
+        }, customerConditionHtml|raw) }}
 
         {{ forms.field({
             label: 'Match Shipping Address'|t('commerce'),
             instructions: 'Create rules that allow this discount to match the order’s shipping address.'|t('commerce'),
             errors: discount.getErrors('shippingAddressCondition')
-        }, shippingAddressConditionHtml) }}
+        }, shippingAddressConditionHtml|raw) }}
 
         {{ forms.field({
             label: 'Match Billing Address'|t('commerce'),
             instructions: 'Create rules that allow this discount to match the order’s billing address.'|t('commerce'),
             errors: discount.getErrors('billingAddressCondition')
-        }, billingAddressConditionHtml) }}
+        }, billingAddressConditionHtml|raw) }}
 
         {{ forms.dateTimeField({
             label: "Start Date"|t('commerce'),

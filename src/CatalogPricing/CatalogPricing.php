@@ -20,6 +20,7 @@ use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[Singleton]
@@ -224,6 +225,9 @@ class CatalogPricing
                     'dateFrom' => $row[5],
                     'dateTo' => $row[6],
                     'hasUpdatePending' => $row[7],
+                    'uid' => Str::uuid()->toString(),
+                    'dateCreated' => now()->toDateTimeString(),
+                    'dateUpdated' => now()->toDateTimeString(),
                 ], $chunk));
 
                 $count += $chunkSize;

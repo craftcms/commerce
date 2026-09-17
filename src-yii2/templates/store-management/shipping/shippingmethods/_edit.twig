@@ -62,14 +62,14 @@
         label: 'Match Order'|t('commerce'),
         errors: shippingMethod.getErrors('orderCondition'),
         instructions: 'Conditions here are matched against an order before looking through the rules. This is useful if you want to qualify a method’s availability early, or if there are common conditions to all rules for this method.'|t('commerce'),
-    }, orderConditionHtml) }}
+    }, orderConditionHtml|raw) }}
 
     {{ forms.field({
         id: 'customerCondition',
         label: 'Match Customer'|t('commerce'),
         errors: shippingMethod.getErrors('customerCondition'),
         instructions: 'Conditions here are matched against the order’s customer before looking through the rules. This is useful if you want qualify a method’s availability early or if there are common conditions to all rules for this method.'|t('commerce'),
-    }, customerConditionHtml) }}
+    }, customerConditionHtml|raw) }}
 
 {% if shippingMethod.id %}
   <div id="rules">

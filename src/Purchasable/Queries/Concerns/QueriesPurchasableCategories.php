@@ -60,10 +60,10 @@ trait QueriesPurchasableCategories
         if ($value instanceof ShippingCategory) {
             $this->shippingCategoryId = [$value->id];
         } elseif ($value !== null) {
-            $this->shippingCategoryId = DB::table(Table::SHIPPINGCATEGORIES . ' as shippingcategories')
-                ->whereColumn('shippingcategories.id', 'purchasables_stores.shippingCategoryId')
-                ->whereParam('handle', $value)
-                ->select('shippingcategories.id');
+            // Mirrors ProductTypeConditionRule's handle-resolution branch — a subquery Builder
+            // can't be passed through whereParam()/QueryParam::parse() (it isn't a scalar or an
+            // array of scalars), so the handle is resolved to ids eagerly instead.
+            $this->shippingCategoryId = DB::table(Table::SHIPPINGCATEGORIES)->whereParam('handle', $value)->pluck('id')->all();
         } else {
             $this->shippingCategoryId = null;
         }
@@ -82,10 +82,7 @@ trait QueriesPurchasableCategories
         if ($value instanceof TaxCategory) {
             $this->taxCategoryId = [$value->id];
         } elseif ($value !== null) {
-            $this->taxCategoryId = DB::table(Table::TAXCATEGORIES . ' as taxcategories')
-                ->whereColumn('taxcategories.id', 'commerce_purchasables.taxCategoryId')
-                ->whereParam('handle', $value)
-                ->select('taxcategories.id');
+            $this->taxCategoryId = DB::table(Table::TAXCATEGORIES)->whereParam('handle', $value)->pluck('id')->all();
         } else {
             $this->taxCategoryId = null;
         }

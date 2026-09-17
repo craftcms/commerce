@@ -11,6 +11,10 @@ use CraftCms\Cms\Component\Concerns\SavableComponent;
 use CraftCms\Cms\Component\Contracts\ConfigurableComponentInterface;
 use CraftCms\Cms\Condition\Contracts\ConditionRuleInterface;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionInterface;
+use CraftCms\Cms\Form\Enums\ControlMode;
+use CraftCms\Cms\Form\FormContext;
+use CraftCms\Cms\Form\FormHtmlRenderer;
+use CraftCms\Cms\Form\FormResolver;
 use CraftCms\Cms\Support\Env;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Json;
@@ -116,6 +120,37 @@ abstract class Gateway extends Component implements GatewayInterface, Configurab
             'authorize' => t('Authorize Only (Manually Capture)', category: 'commerce'),
             'purchase' => t('Purchase (Authorize and Capture Immediately)', category: 'commerce'),
         ];
+    }
+
+    /**
+     * Renders this gateway's settingsForm() as a standalone HTML string, for CP templates still
+     * rendered via Twig rather than the Form API.
+     */
+    public function getSettingsHtml(): ?string
+    {
+        return $this->renderSettingsFormHtml(readOnly: false);
+    }
+
+    /**
+     * @see getSettingsHtml()
+     */
+    public function getReadOnlySettingsHtml(): ?string
+    {
+        return $this->renderSettingsFormHtml(readOnly: true);
+    }
+
+    private function renderSettingsFormHtml(bool $readOnly): ?string
+    {
+        $form = $this->settingsForm();
+
+        if ($form === null) {
+            return null;
+        }
+
+        $context = new FormContext(mode: $readOnly ? ControlMode::ReadOnly : ControlMode::Editable);
+        $payload = app(FormResolver::class)->resolve($form, $context);
+
+        return app(FormHtmlRenderer::class)->render($payload);
     }
 
     #[Override]

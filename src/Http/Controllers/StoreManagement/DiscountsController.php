@@ -701,6 +701,11 @@ JS;
                 'elementType' => $purchasableType,
             ];
         }
+
+        $variables['orderConditionHtml'] = new ConditionBuilderRenderer($discount->orderCondition)->render();
+        $variables['customerConditionHtml'] = new ConditionBuilderRenderer($discount->customerCondition)->render();
+        $variables['shippingAddressConditionHtml'] = new ConditionBuilderRenderer($discount->shippingAddressCondition)->render();
+        $variables['billingAddressConditionHtml'] = new ConditionBuilderRenderer($discount->billingAddressCondition)->render();
     }
 
     public function generateCoupons(Request $request): Response

@@ -54,13 +54,13 @@
         id: 'productCondition',
         label: 'Match Product'|t('commerce'),
         errors: catalogPricingRule.getErrors('productCondition')
-      }, productConditionHtml) }}
+      }, productConditionHtml|raw) }}
 
       {{ forms.field({
         id: 'variantCondition',
         label: 'Match Variant'|t('commerce'),
         errors: catalogPricingRule.getErrors('variantCondition')
-      }, variantConditionHtml) }}
+      }, variantConditionHtml|raw) }}
 
       <a class="fieldtoggle {% if catalogPricingRule.purchasableCondition.getConditionRules().getRules()|length > 0 %}expanded{% endif %}"
          data-target="cpr-purchasable-condition">{{ 'Advanced'|t('commerce') }}</a>
@@ -70,7 +70,7 @@
             id: 'purchasableCondition',
             label: 'Match Purchasable'|t('commerce'),
             errors: catalogPricingRule.getErrors('purchasableCondition')
-          }, purchasableConditionHtml) }}
+          }, purchasableConditionHtml|raw) }}
       </div>
 
       <hr>
@@ -79,7 +79,7 @@
         id: 'customerCondition',
         label: 'Match Customer'|t('commerce'),
         errors: catalogPricingRule.getErrors('customerCondition')
-      }, customerConditionHtml) }}
+      }, customerConditionHtml|raw) }}
   </div>
 
   <div id="actions" class="hidden">

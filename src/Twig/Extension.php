@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Twig;
 
-use CraftCms\Cms\Condition\ConditionBuilderRenderer;
-use CraftCms\Cms\Condition\Contracts\ConditionInterface;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Helpers\PaymentForm;
@@ -25,7 +23,6 @@ class Extension extends AbstractExtension implements GlobalsInterface
         return [
             new TwigFilter('commerceCurrency', Currency::formatAsCurrency(...)),
             new TwigFilter('commercePaymentFormNamespace', PaymentForm::getPaymentFormNamespace(...)),
-            new TwigFilter('commerceConditionBuilderHtml', fn(ConditionInterface $condition, bool $editable = true): string => new ConditionBuilderRenderer($condition, $editable)->render(), ['is_safe' => ['html']]),
         ];
     }
 

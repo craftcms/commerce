@@ -1570,15 +1570,8 @@ class Order extends Element implements HasStoreInterface
 
             $storeId = $this->storeId;
 
-            if ($method instanceof ShippingMethod) {
-                // @TODO Remove this dateCreated/dateUpdated copy in Commerce 6.0 once ShippingMethodOption no longer exposes those attributes
-                foreach (['dateCreated', 'dateUpdated'] as $attribute) {
-                    $option->$attribute = $method->$attribute;
-                }
-
-                if ($method->storeId !== $storeId) {
-                    continue;
-                }
+            if ($method instanceof ShippingMethod && $method->storeId !== $storeId) {
+                continue;
             }
 
             $matchesOrder = in_array($method->getHandle(), $matchingMethodHandles);
