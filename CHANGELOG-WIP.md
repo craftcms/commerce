@@ -738,6 +738,7 @@
 - Removed `craft\commerce\records\ShippingCategory`. `CraftCms\Commerce\Shipping\Records\ShippingCategory` should be used instead.
 - `CraftCms\Commerce\Shipping\Models\ShippingRule` and `BaseShippingMethod` now use `CraftCms\Commerce\Order\Conditions\ShippingRuleOrderCondition`, `ShippingMethodOrderCondition`, `CraftCms\Commerce\Customer\Conditions\ShippingRuleCustomerCondition`, and `ShippingMethodCustomerCondition`.
 - `CraftCms\Commerce\Base\Zone` and `ZoneInterface` now use `CraftCms\Commerce\Address\Conditions\ZoneAddressCondition`.
+- `CraftCms\Commerce\Shipping\Data\ShippingMethodOption` no longer includes `dateCreated`/`dateUpdated` in its serialized fields, as they never reflected anything meaningful for a per-order computed option.
 
 #### Controllers
 
