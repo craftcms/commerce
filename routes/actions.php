@@ -109,6 +109,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->g
 // this group must check both, matching that legacy compound check exactly.
 Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStoreSettings'])->group(function () {
     Route::post('store-management/save', [StoreManagementController::class, 'save']);
+    Route::post('store-management/render-form', [StoreManagementController::class, 'renderForm']);
 
     Route::middleware('can:commerce-managePaymentCurrencies')->group(function () {
         Route::post('payment-currencies/save', [PaymentCurrenciesController::class, 'save']);

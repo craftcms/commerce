@@ -249,6 +249,7 @@ return [
     'Couldn’t save shipping method.' => 'Couldn’t save shipping method.',
     'Couldn’t save shipping rule.' => 'Couldn’t save shipping rule.',
     'Couldn’t save shipping zone.' => 'Couldn’t save shipping zone.',
+    'Couldn’t save store location address.' => 'Couldn’t save store location address.',
     'Couldn’t save store.' => 'Couldn’t save store.',
     'Couldn’t save subscription fields.' => 'Couldn’t save subscription fields.',
     'Couldn’t save subscription plan.' => 'Couldn’t save subscription plan.',
