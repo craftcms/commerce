@@ -25,10 +25,9 @@ use DateTime;
 use RuntimeException;
 
 /**
- * Builds the same order graph as the legacy `tests-yii2/fixtures/OrdersFixture.php` +
- * `data/orders.php` (customer1@crafttest.com, two Hypercolor T-Shirt variants, three completed
- * orders — one from "yesterday", two from "today") so the ported stat tests can assert against
- * the same numbers the legacy Codeception tests did.
+ * Builds an order graph (customer1@crafttest.com, two Hypercolor T-Shirt variants, three
+ * completed orders — one from "yesterday", two from "today") for stat and order/line-item
+ * service tests to assert against.
  */
 class OrdersFixture
 {

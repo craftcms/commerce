@@ -8,9 +8,9 @@ use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 
 /**
  * A minimal concrete `Purchasable` for tests that need to populate a `LineItem` from *some*
- * purchasable without setting up a real Product/Variant. Ports `tests-yii2/mockclasses/Purchasable.php`
- * — everything else (tax/shipping category, snapshot, etc.) falls through to the base class'
- * real implementation, which resolves against the store's defaults.
+ * purchasable without setting up a real Product/Variant — everything else (tax/shipping
+ * category, snapshot, etc.) falls through to the base class' real implementation, which
+ * resolves against the store's defaults.
  */
 class MockPurchasable extends Purchasable
 {

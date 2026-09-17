@@ -662,33 +662,17 @@ class Discounts
     {
         $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
-        $table = Table::DISCOUNTS;
-        $isPgsql = DB::connection()->getDriverName() === 'pgsql';
+        // Driver-agnostic re-sequencing (rather than a MySQL/PostgreSQL-only raw statement, which
+        // isn't valid SQL against a sqlite connection) — the discount count per store is small
+        // enough that a per-row update isn't a meaningful performance concern.
+        $ids = DB::table(Table::DISCOUNTS)
+            ->where('storeId', $storeId)
+            ->orderBy('sortOrder')
+            ->orderBy('id')
+            ->pluck('id');
 
-        if ($isPgsql) {
-            DB::statement("
-                UPDATE {$table} a
-                SET sortOrder = b.rownumber
-                FROM (
-                    SELECT id, sortOrder, ROW_NUMBER() OVER (ORDER BY sortOrder ASC, id ASC) as rownumber
-                    FROM {$table}
-                    WHERE storeId = {$storeId}
-                    ORDER BY sortOrder ASC, id ASC
-                ) b
-                WHERE a.id = b.id
-            ");
-        } else {
-            DB::statement("
-                UPDATE {$table} a
-                JOIN (
-                    SELECT id, sortOrder, (@ROW_NUMBER := @ROW_NUMBER + 1) as rownumber
-                    FROM {$table},
-                    (SELECT @ROW_NUMBER := 0) AS X
-                    WHERE storeId = {$storeId}
-                    ORDER BY sortOrder ASC, id ASC
-                ) b ON a.id = b.id
-                SET a.sortOrder = b.rownumber
-            ");
+        foreach ($ids as $index => $id) {
+            DB::table(Table::DISCOUNTS)->where('id', $id)->update(['sortOrder' => $index + 1]);
         }
 
         $this->clearCaches();

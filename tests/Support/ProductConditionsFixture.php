@@ -14,9 +14,8 @@ use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use RuntimeException;
 
 /**
- * Builds two product types (mirroring the legacy `tests-yii2/fixtures/data/products.php`
- * "hoodies"/"tShirts" split), each with one product, for tests that need to distinguish
- * products by type — e.g. `ProductTypeConditionRule`.
+ * Builds two product types ("hoodies"/"tShirts"), each with one product, for tests that need
+ * to distinguish products by type — e.g. `ProductTypeConditionRule`.
  */
 class ProductConditionsFixture
 {

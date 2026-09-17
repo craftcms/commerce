@@ -151,6 +151,11 @@ class TestCase extends Orchestra
             $config->set('auth.defaults.guard', 'craft');
             $config->set('auth.guards.craft', ['driver' => 'session', 'provider' => 'users']);
 
+            // Laravel's password broker (activation/password-reset emails) hashes its tokens
+            // with this key. It's never set via the environment in this suite, so without it
+            // DatabaseTokenRepository's $hashKey constructor argument is null.
+            $config->set('app.key', 'base64:' . base64_encode(str_repeat('a', 32)));
+
             $connection = env('DB_CONNECTION', 'testing');
             $driver = $config->get("database.connections.{$connection}.driver");
 

@@ -21,9 +21,7 @@ use RuntimeException;
 /**
  * Builds one product type ("tees") with two variants and a second ("hoodies") with one, plus a
  * dedicated shipping category and tax category assigned to a subset of the variants — for tests
- * that need to distinguish variants by price, shipping category, or tax category (mirrors the
- * legacy `tests-yii2/fixtures/data/products.php` "rad-hoodie"/"hypercolor-tshirt" split, minus
- * the multi-store/multi-site product it also seeded, which is out of scope here).
+ * that need to distinguish variants by price, shipping category, or tax category.
  */
 class VariantQueryFixture
 {
