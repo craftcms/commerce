@@ -1034,6 +1034,7 @@ return [
     'Shipping method saved.' => 'Shipping method saved.',
     'Shipping methods and rules deleted.' => 'Shipping methods and rules deleted.',
     'Shipping methods updated.' => 'Shipping methods updated.',
+    'Shipping rule deleted.' => 'Shipping rule deleted.',
     'Shipping rule saved.' => 'Shipping rule saved.',
     'Shipping zone saved.' => 'Shipping zone saved.',
     'Shipping' => 'Shipping',

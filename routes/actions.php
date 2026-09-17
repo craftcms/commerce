@@ -128,6 +128,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
         Route::post('shipping-rules/duplicate', [ShippingRulesController::class, 'duplicate']);
         Route::post('shipping-rules/reorder', [ShippingRulesController::class, 'reorder']);
         Route::post('shipping-rules/delete', [ShippingRulesController::class, 'delete']);
+        Route::post('shipping-rules/render-form', [ShippingRulesController::class, 'renderForm']);
 
         Route::post('shipping-categories/save', [ShippingCategoriesController::class, 'save']);
         Route::post('shipping-categories/delete', [ShippingCategoriesController::class, 'delete']);
