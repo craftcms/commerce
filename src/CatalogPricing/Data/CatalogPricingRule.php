@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\CatalogPricing\Data;
 
-use craft\events\CancelableEvent;
-use craft\helpers\Db;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionInterface;
-use CraftCms\Cms\Element\Queries\ElementQuery;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Json;
@@ -17,12 +14,12 @@ use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingRuleProductConditi
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingRuleVariantCondition;
 use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingRule as PricingCatalogRuleRecord;
 use CraftCms\Commerce\Customer\Conditions\CatalogPricingRuleCustomerCondition;
-use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableCondition;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
+use CraftCms\Commerce\Purchasable\Queries\PurchasableConditionQuery;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
 use DateTime;
@@ -143,7 +140,7 @@ class CatalogPricingRule extends Component implements HasStoreInterface
                         ->productId($productIds);
 
                     if ($this->isPromotionalPrice) {
-                        $productVariantIdsQuery->andWhere(Db::parseBooleanParam('purchasables_stores.promotable', true));
+                        $productVariantIdsQuery->whereBooleanParam('purchasables_stores.promotable', true);
                     }
 
                     $productVariantIds = $productVariantIdsQuery->ids();
@@ -165,11 +162,11 @@ class CatalogPricingRule extends Component implements HasStoreInterface
                 $variantCondition->modifyQuery($variantQuery);
 
                 if ($this->isPromotionalPrice) {
-                    $variantQuery->andWhere(Db::parseBooleanParam('purchasables_stores.promotable', true));
+                    $variantQuery->whereBooleanParam('purchasables_stores.promotable', true);
                 }
 
                 if ($productVariantIds !== null) {
-                    $variantQuery->andWhere(['commerce_variants.id' => $productVariantIds]);
+                    $variantQuery->whereIn('commerce_variants.id', $productVariantIds);
                 }
 
                 $variantIds = $variantQuery->ids();
@@ -183,41 +180,26 @@ class CatalogPricingRule extends Component implements HasStoreInterface
             $this->_purchasableIds = $variantIds;
 
             if (!empty($this->getPurchasableCondition()->getConditionRules()->getRules())) {
-                $purchasableQuery = Purchasable::find();
+                $purchasableQuery = new PurchasableConditionQuery(Purchasable::class);
+                $purchasableQuery->siteId($siteIds);
                 $purchasableCondition = $this->getPurchasableCondition();
                 $purchasableCondition->modifyQuery($purchasableQuery);
 
                 if ($variantIds !== null) {
-                    $purchasableQuery->andWhere(['id' => $variantIds]);
+                    $purchasableQuery->whereIn('elements.id', $variantIds);
                 }
 
                 if ($this->isPromotionalPrice) {
-                    $purchasableQuery->andWhere(Db::parseBooleanParam('purchasables_stores.promotable', true));
+                    $purchasableQuery->whereBooleanParam('purchasables_stores.promotable', true);
                 }
 
-                /** @phpstan-ignore-next-line */
-                $purchasableQuery->on(ElementQuery::EVENT_AFTER_PREPARE, $this->afterPreparePurchasableQuery(...), ['siteIds' => $siteIds]);
                 $this->_purchasableIds = $purchasableQuery->ids();
-                /** @phpstan-ignore-next-line */
-                $purchasableQuery->off(ElementQuery::EVENT_AFTER_PREPARE, $this->afterPreparePurchasableQuery(...));
             }
 
             $this->_purchasableIds = $this->_purchasableIds !== null ? array_unique($this->_purchasableIds) : null;
         }
 
         return $this->_purchasableIds;
-    }
-
-    public function afterPreparePurchasableQuery(CancelableEvent $event): void
-    {
-        foreach ($event->sender->subQuery->where as &$value) {
-            if (is_array($value) && isset($value['elements_sites.siteId'])) {
-                $value['elements_sites.siteId'] = $event->data['siteIds'];
-            }
-        }
-
-        $event->sender->subQuery->join[] = ['LEFT JOIN', ['sitestores' => Table::SITESTORES], '[[elements_sites.siteId]] = [[sitestores.siteId]]'];
-        $event->sender->subQuery->join[] = ['LEFT JOIN', ['purchasables_stores' => Table::PURCHASABLES_STORES], '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[elements.id]]'];
     }
 
     public function getCustomerCondition(): ElementConditionInterface

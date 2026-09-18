@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\CatalogPricing\Data\CatalogPricingRule as CatalogPricingRuleData;
@@ -10,6 +11,7 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Product\Conditions\ProductTypeConditionRule;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
+use CraftCms\Commerce\Purchasable\Conditions\PurchasableTypeConditionRule;
 use CraftCms\Commerce\Purchasable\Conditions\SkuConditionRule;
 use CraftCms\Commerce\Tests\Support\CatalogPricingFixture;
 use Illuminate\Support\Facades\DB;
@@ -139,6 +141,26 @@ test('generateCatalogPrices applies a catalog pricing rule to matching variant p
         -0.3,
         ['rad-hood'],
     ],
+    'rule with a purchasable SKU condition only applies to matching purchasables' => [
+        [
+            'apply' => CatalogPricingRuleRecord::APPLY_BY_PERCENT,
+            'name' => '20% off',
+            'enabled' => true,
+            'applyAmount' => -0.2,
+            'applyPriceType' => CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE,
+            'isPromotionalPrice' => false,
+            'storeId' => 'primaryStore',
+        ],
+        [
+            'purchasableCondition' => fn() => tap(new SkuConditionRule(), function(SkuConditionRule $rule) {
+                $rule->operator = 'bw';
+                $rule->value = 'rad';
+            }),
+        ],
+        'usSite',
+        -0.2,
+        ['rad-hood'],
+    ],
     'rule with a product type condition only applies to matching products' => [
         [
             'apply' => CatalogPricingRuleRecord::APPLY_BY_PERCENT,
@@ -178,3 +200,51 @@ test('generateCatalogPrices applies a catalog pricing rule to matching variant p
         ['ddb-red'],
     ],
 ]);
+
+test('getPurchasableIds() with a purchasableCondition returns matching purchasable ids', function() {
+    $fixture = CatalogPricingFixture::seed();
+
+    $rule = createCatalogPricingRule([
+        'apply' => CatalogPricingRuleRecord::APPLY_BY_PERCENT,
+        'name' => '20% off',
+        'enabled' => true,
+        'applyAmount' => -0.2,
+        'applyPriceType' => CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE,
+        'isPromotionalPrice' => false,
+        'storeId' => $fixture->stores->primaryStore->id,
+    ], [
+        'purchasableCondition' => tap(new SkuConditionRule(), function(SkuConditionRule $rule) {
+            $rule->operator = 'bw';
+            $rule->value = 'rad';
+        }),
+    ]);
+
+    expect($rule->getPurchasableIds())->toBe([$fixture->radHood->id]);
+});
+
+test('getPurchasableIds() with a purchasableCondition and isPromotionalPrice excludes purchasables that are not promotable', function() {
+    $fixture = CatalogPricingFixture::seed();
+
+    Elements::saveElement(tap($fixture->radHood, function(Variant $variant) {
+        $variant->promotable = false;
+    }));
+
+    $rule = createCatalogPricingRule([
+        'apply' => CatalogPricingRuleRecord::APPLY_BY_PERCENT,
+        'name' => '20% off',
+        'enabled' => true,
+        'applyAmount' => -0.2,
+        'applyPriceType' => CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE,
+        'isPromotionalPrice' => true,
+        'storeId' => $fixture->stores->primaryStore->id,
+    ], [
+        'purchasableCondition' => tap(new PurchasableTypeConditionRule(), function(PurchasableTypeConditionRule $rule) {
+            $rule->setValues([Variant::class]);
+        }),
+    ]);
+
+    $purchasableIds = $rule->getPurchasableIds();
+
+    expect($purchasableIds)->not->toContain($fixture->radHood->id)
+        ->and($purchasableIds)->toContain($fixture->hctWhite->id);
+});
