@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController;
-use CraftCms\Commerce\Http\Controllers\Settings\ShippingZonesController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\ShippingZonesController;
 use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
 use Illuminate\Support\Facades\App;

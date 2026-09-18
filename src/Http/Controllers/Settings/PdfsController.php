@@ -4,11 +4,23 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use CraftCms\Cms\Config\GeneralConfig;
-use CraftCms\Cms\Http\RespondsWithFlash;
+use CraftCms\Cms\Cp\FormFields;
+use CraftCms\Cms\Cp\SelectOptions;
+use CraftCms\Cms\Form\Controls\Choice;
+use CraftCms\Cms\Form\Controls\Combobox;
+use CraftCms\Cms\Form\Controls\Handle;
+use CraftCms\Cms\Form\Controls\Lightswitch;
+use CraftCms\Cms\Form\Controls\Number;
+use CraftCms\Cms\Form\Controls\Text;
+use CraftCms\Cms\Form\Enums\ControlMode;
+use CraftCms\Cms\Form\Form;
+use CraftCms\Cms\Form\FormContext;
+use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Form\Nodes\Heading;
+use CraftCms\Cms\Form\Nodes\HiddenField;
+use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Json;
-use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Helpers\Locale as LocaleHelper;
 use CraftCms\Commerce\Pdf\Data\Pdf;
 use CraftCms\Commerce\Pdf\Models\Pdf as PdfRecord;
@@ -18,34 +30,72 @@ use CraftCms\Commerce\Store\Stores;
 
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use function CraftCms\Cms\pageTemplate;
+use function CraftCms\Cms\cp_url;
 use function CraftCms\Cms\t;
 
-readonly class PdfsController
+class PdfsController extends BaseSettingsController
 {
-    use RespondsWithFlash;
-
-    private bool $readOnly;
-
-    public function __construct(GeneralConfig $generalConfig)
+    protected function getSectionCrumb(): array
     {
-        $this->readOnly = !$generalConfig->allowAdminChanges;
+        return ['label' => t('PDFs', category: 'commerce'), 'href' => cp_url('commerce/settings/pdfs')];
     }
 
-    public function index(): string
+    public function index(): CpScreenResponse
     {
-        $pdfs = [];
         $stores = app(Stores::class)->getAllStores();
+        $isMultiStore = $stores->count() > 1;
 
-        $stores->each(function(Store $store) use (&$pdfs) {
-            $pdfs[$store->handle] = app(Pdfs::class)->getAllPdfs($store->id);
+        // Every store's table can plant its own create action in the page's shared actions
+        // slot, so with more than one store, only the first store's table gets one — a single
+        // combined "New PDF" menu covering every store, rather than one button apiece.
+        $createMenuItems = $this->readOnly ? [] : $stores->map(fn(Store $store) => [
+            'label' => $store->name,
+            'url' => cp_url("commerce/settings/pdfs/{$store->handle}/new"),
+        ])->all();
+        $createMenuAssigned = false;
+
+        $nodes = [];
+        $stores->each(function(Store $store) use (&$nodes, $isMultiStore, $createMenuItems, &$createMenuAssigned) {
+            if ($isMultiStore) {
+                $nodes[] = Heading::make("{$store->handle}-heading", $store->name);
+            }
+
+            $rows = app(Pdfs::class)->getAllPdfs($store->id)
+                ->map(fn(Pdf $pdf) => [
+                    'id' => $pdf->id,
+                    'name' => ['label' => t($pdf->name, category: 'site'), 'url' => $pdf->getCpEditUrl()],
+                    'handle' => ['html' => FormFields::copytextHtml(['value' => $pdf->handle, 'monospace' => true])],
+                    'enabled' => $pdf->enabled ? ['icon' => 'check', 'label' => t('Yes')] : '',
+                    'default' => $pdf->isDefault ? ['icon' => 'check', 'label' => t('Yes')] : '',
+                ])
+                ->all();
+
+            $nodes[] = Table::make("{$store->handle}-pdfs")
+                ->columns([
+                    ['key' => 'name', 'label' => t('Name')],
+                    ['key' => 'handle', 'label' => t('Handle')],
+                    ['key' => 'enabled', 'label' => t('Enabled?', category: 'commerce')],
+                    ['key' => 'default', 'label' => t('Default?', category: 'commerce')],
+                ])
+                ->rows($rows)
+                ->emptyMessage(t('No PDFs exist yet.', category: 'commerce'))
+                ->when(!$createMenuAssigned && $createMenuItems, function(Table $table) use ($createMenuItems, &$createMenuAssigned) {
+                    $table->createActionMenu(t('New PDF', category: 'commerce'), $createMenuItems);
+                    $createMenuAssigned = true;
+                })
+                ->when(!$this->readOnly, fn(Table $table) => $table
+                    ->reorderable(action([self::class, 'reorder']))
+                    ->deletable(action([self::class, 'delete'])));
         });
 
-        return pageTemplate('commerce/settings/pdfs/index', [
-            'pdfs' => $pdfs,
-            'stores' => $stores->all(),
-            'readOnly' => $this->readOnly,
-        ], TemplateMode::Cp);
+        $title = t('PDFs', category: 'commerce');
+
+        return $this->cpScreenResponse()
+            ->title($title)
+            ->crumbs($this->crumbs())
+            ->inertiaPage('Form', [
+                'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+            ]);
     }
 
     public function edit(?string $storeHandle = null, ?int $id = null): CpScreenResponse
@@ -53,12 +103,6 @@ readonly class PdfsController
         if ($storeHandle === null || !$store = app(Stores::class)->getStoreByHandle($storeHandle)) {
             $store = app(Stores::class)->getPrimaryStore();
         }
-
-        $pdfLanguageOptions = [
-            PdfRecord::LOCALE_ORDER_LANGUAGE => t('The language the order was made in.', category: 'commerce'),
-        ];
-
-        $pdfLanguageOptions = array_merge($pdfLanguageOptions, LocaleHelper::getSiteAndOtherLanguages());
 
         if ($id) {
             $pdf = app(Pdfs::class)->getPdfById($id, $store->id);
@@ -68,28 +112,106 @@ readonly class PdfsController
         }
 
         $title = $pdf->id ? $pdf->name : t('Create a new PDF', category: 'commerce');
+        $isDefault = $pdf->isDefault || app(Pdfs::class)->getAllPdfs($pdf->storeId)->count() === 0;
 
-        $isDefault = app(Pdfs::class)->getAllPdfs($pdf->storeId)->count() === 0 || $pdf->isDefault;
-        $paperOrientationOptions = Pdf::getPaperOrientationOptions();
-        $paperSizeOptions = Pdf::getPaperSizeOptions();
+        // The old select field grouped these under "Site Languages"/"Other Languages" optgroup
+        // headers; Choice has no optgroup concept, so this flattens them into one list — every
+        // option still selectable, just without the section headers.
+        $languageOptions = collect([PdfRecord::LOCALE_ORDER_LANGUAGE => t('The language the order was made in.', category: 'commerce')])
+            ->merge(LocaleHelper::getSiteAndOtherLanguages())
+            ->reject(fn($label) => is_array($label))
+            ->map(fn($label, $value) => ['label' => $label, 'value' => $value])
+            ->values()
+            ->all();
 
-        return new CpScreenResponse()
+        $paperOrientationOptions = collect(Pdf::getPaperOrientationOptions())
+            ->map(fn($label, $value) => ['label' => $label, 'value' => $value])
+            ->values()
+            ->all();
+
+        $paperSizeOptions = collect(Pdf::getPaperSizeOptions())
+            ->map(fn($label, $value) => ['label' => $label, 'value' => $value])
+            ->values()
+            ->all();
+
+        $handle = Handle::make('handle');
+        if (!$pdf->id) {
+            $handle->source('name');
+        }
+
+        $defaultNode = $pdf->isDefault
+            ? HiddenField::make('isDefault')
+            : Field::make(t('Default Order PDF', category: 'commerce'), Lightswitch::make('isDefault'))
+                ->instructions(t('This is the default PDF that will be rendered when requesting the order PDF.', category: 'commerce'));
+
+        $formNodes = [
+            HiddenField::make('storeId'),
+        ];
+
+        if ($pdf->id) {
+            $formNodes[] = HiddenField::make('id');
+        }
+
+        $formNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
+            ->instructions(t('What this PDF will be called in the control panel.', category: 'commerce'))
+            ->required();
+        $formNodes[] = Field::make(t('Handle', category: 'commerce'), $handle)
+            ->instructions(t('How you’ll refer to this PDF in the templates.', category: 'commerce'))
+            ->required();
+        $formNodes[] = Field::make(t('Description', category: 'commerce'), Text::make('description'));
+        // Same template-path autosuggest as the old craft.cp.getTemplateSuggestions() JS call —
+        // Combobox is a free-text input with suggestions, not a closed choice.
+        $formNodes[] = Field::make(t('PDF Template Path', category: 'commerce'), Combobox::make('templatePath')->options(SelectOptions::getTemplateSuggestions()))
+            ->instructions(t('The template that the PDF should be generated from.', category: 'commerce'))
+            ->required();
+        $formNodes[] = Field::make(t('Order PDF Filename Format', category: 'commerce'), Text::make('fileNameFormat')->monospace())
+            ->instructions(t('What the order PDF filename should look like (sans extension). You can include tags that output order properties, such as {ex1} or {ex2}.', [
+                // Field::instructions() runs through the same markdown as the Twig field macro, but
+                // (unlike the old macro) doesn't pass raw inline HTML through — backticks instead of
+                // literal <code> tags get the same rendered result.
+                'ex1' => '`{number}`',
+                'ex2' => '`{myOrderCustomField}`',
+            ], category: 'commerce'));
+        $formNodes[] = Field::make(t('Language', category: 'commerce'), Choice::make('language')->options($languageOptions))
+            ->instructions(t('The language to be used when PDF is rendered.'));
+        $formNodes[] = Field::make(t('Paper Orientation', category: 'commerce'), Choice::make('paperOrientation')->options($paperOrientationOptions));
+        $formNodes[] = Field::make(t('Paper Size', category: 'commerce'), Choice::make('paperSize')->options($paperSizeOptions));
+        $formNodes[] = Field::make(t('Link Duration', category: 'commerce'), Number::make('linkExpiry')->min(1))
+            ->instructions(t('How long (in seconds) a PDF download link should remain valid before expiring. Default is 86400 (24 hours).', category: 'commerce'));
+        $formNodes[] = Field::make(t('Enabled?', category: 'commerce'), Lightswitch::make('enabled'))
+            ->instructions(t('If disabled, this PDF will not be available or sent with emails.', category: 'commerce'));
+        $formNodes[] = $defaultNode;
+
+        $form = $this->formResolver->resolve(Form::make($formNodes), new FormContext(
+            values: [
+                'storeId' => $store->id,
+                'id' => $pdf->id,
+                'name' => $pdf->name,
+                'handle' => $pdf->handle,
+                'description' => $pdf->description,
+                'templatePath' => $pdf->templatePath,
+                'fileNameFormat' => $pdf->fileNameFormat,
+                'language' => $pdf->language,
+                'paperOrientation' => $pdf->paperOrientation,
+                'paperSize' => $pdf->paperSize,
+                'linkExpiry' => $pdf->linkExpiry,
+                'enabled' => $pdf->enabled,
+                'isDefault' => $isDefault,
+            ],
+            mode: $this->generalConfig->allowAdminChanges ? ControlMode::Editable : ControlMode::ReadOnly,
+        ));
+
+        return $this->cpScreenResponse()
             ->title($title)
-            ->crumbs([
-                ['label' => t('Commerce', category: 'commerce'), 'url' => 'commerce'],
-                ['label' => t('Settings'), 'url' => 'commerce/settings', 'ariaLabel' => t('Commerce Settings', category: 'commerce')],
-                ['label' => t('PDFs', category: 'commerce'), 'url' => 'commerce/settings/pdfs'],
-            ])
-            ->selectedSubnavItem('settings')
+            ->crumbs($pdf->id ? $this->crumbs(['label' => $title]) : $this->crumbs())
             ->action('commerce/pdfs/save')
             ->redirectUrl('commerce/settings/pdfs')
-            ->contentTemplate('commerce/settings/pdfs/_edit', [
-                'pdf' => $pdf,
-                'pdfLanguageOptions' => $pdfLanguageOptions,
-                'isDefault' => $isDefault,
-                'paperOrientationOptions' => $paperOrientationOptions,
-                'paperSizeOptions' => $paperSizeOptions,
-                'readOnly' => $this->readOnly,
+            ->inertiaPage('Form', [
+                'form' => $form,
+                'submit' => [
+                    'method' => 'post',
+                    'url' => action([self::class, 'save']),
+                ],
             ]);
     }
 
@@ -120,7 +242,7 @@ readonly class PdfsController
         $pdf->paperOrientation = $request->input('paperOrientation');
 
         if (!$pdfsService->savePdf($pdf)) {
-            return $this->asModelFailure($pdf, t('Couldn\'t save PDF.', category: 'commerce'), 'pdf');
+            return $this->asModelFailure($pdf, t('Couldn’t save PDF.', category: 'commerce'), 'pdf');
         }
 
         return $this->asModelSuccess($pdf, t('PDF saved.', category: 'commerce'), 'pdf');
@@ -146,7 +268,7 @@ readonly class PdfsController
         $ids = Json::decode($request->input('ids'));
 
         if (!app(Pdfs::class)->reorderPdfs($ids)) {
-            return $this->asFailure(t('Couldn\'t reorder PDFs.', category: 'commerce'));
+            return $this->asFailure(t('Couldn’t reorder PDFs.', category: 'commerce'));
         }
 
         return $this->asSuccess();

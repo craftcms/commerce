@@ -5,35 +5,36 @@ use CraftCms\Cms\Http\Middleware\RequireCpRequest;
 use CraftCms\Commerce\Http\Controllers\CartController;
 use CraftCms\Commerce\Http\Controllers\DonationsController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
-use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingController;
-use CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingRulesController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingRulesController;
 use CraftCms\Commerce\Http\Controllers\DownloadsController;
 use CraftCms\Commerce\Http\Controllers\EmailPreviewController;
-use CraftCms\Commerce\Http\Controllers\Settings\DiscountsController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\DiscountsController;
 use CraftCms\Commerce\Http\Controllers\Settings\EmailsController;
 use CraftCms\Commerce\Http\Controllers\FormulasController;
 use CraftCms\Commerce\Http\Controllers\Settings\GatewaysController;
+use CraftCms\Commerce\Http\Controllers\Settings\GeneralSettingsController;
 use CraftCms\Commerce\Http\Controllers\InventoryController;
 use CraftCms\Commerce\Http\Controllers\InventoryLocationsController;
 use CraftCms\Commerce\Http\Controllers\Settings\LineItemStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderSettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController;
-use CraftCms\Commerce\Http\Controllers\Settings\PaymentCurrenciesController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\PaymentCurrenciesController;
 use CraftCms\Commerce\Http\Controllers\PaymentSourcesController;
 use CraftCms\Commerce\Http\Controllers\PaymentsController;
 use CraftCms\Commerce\Http\Controllers\Settings\PdfsController;
 use CraftCms\Commerce\Http\Controllers\Settings\ProductTypesController;
-use CraftCms\Commerce\Http\Controllers\Settings\SalesController;
-use CraftCms\Commerce\Http\Controllers\Settings\SettingsController;
-use CraftCms\Commerce\Http\Controllers\Settings\ShippingCategoriesController;
-use CraftCms\Commerce\Http\Controllers\Settings\ShippingMethodsController;
-use CraftCms\Commerce\Http\Controllers\Settings\ShippingRulesController;
-use CraftCms\Commerce\Http\Controllers\Settings\ShippingZonesController;
-use CraftCms\Commerce\Http\Controllers\Settings\StoreManagementController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\SalesController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\ShippingCategoriesController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\ShippingMethodsController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\ShippingRulesController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\ShippingZonesController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\StoreManagementController;
 use CraftCms\Commerce\Http\Controllers\Settings\StoresController;
-use CraftCms\Commerce\Http\Controllers\Settings\TaxCategoriesController;
-use CraftCms\Commerce\Http\Controllers\Settings\TaxRatesController;
-use CraftCms\Commerce\Http\Controllers\Settings\TaxZonesController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\TaxCategoriesController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\TaxRatesController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\TaxZonesController;
+use CraftCms\Commerce\Http\Controllers\Settings\TransferSettingsController;
 use CraftCms\Commerce\Http\Controllers\TransfersController;
 use CraftCms\Commerce\Http\Controllers\UserOrdersController;
 use CraftCms\Commerce\Http\Controllers\WebhooksController;
@@ -81,8 +82,8 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->g
     Route::post('gateways/archive', [GatewaysController::class, 'archive']);
     Route::post('gateways/reorder', [GatewaysController::class, 'reorder']);
 
-    Route::post('settings/save-settings', [SettingsController::class, 'saveSettings']);
-    Route::post('settings/save-transfer-settings', [SettingsController::class, 'saveTransferSettings']);
+    Route::post('settings/save-settings', [GeneralSettingsController::class, 'saveSettings']);
+    Route::post('settings/save-transfer-settings', [TransferSettingsController::class, 'saveTransferSettings']);
     Route::post('order-settings/save', [OrderSettingsController::class, 'save']);
 
     Route::post('stores/save-store', [StoresController::class, 'saveStore']);
@@ -108,6 +109,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->g
 // this group must check both, matching that legacy compound check exactly.
 Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStoreSettings'])->group(function () {
     Route::post('store-management/save', [StoreManagementController::class, 'save']);
+    Route::post('store-management/render-form', [StoreManagementController::class, 'renderForm']);
 
     Route::middleware('can:commerce-managePaymentCurrencies')->group(function () {
         Route::post('payment-currencies/save', [PaymentCurrenciesController::class, 'save']);
@@ -127,10 +129,12 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
         Route::post('shipping-rules/duplicate', [ShippingRulesController::class, 'duplicate']);
         Route::post('shipping-rules/reorder', [ShippingRulesController::class, 'reorder']);
         Route::post('shipping-rules/delete', [ShippingRulesController::class, 'delete']);
+        Route::post('shipping-rules/render-form', [ShippingRulesController::class, 'renderForm']);
 
         Route::post('shipping-categories/save', [ShippingCategoriesController::class, 'save']);
         Route::post('shipping-categories/delete', [ShippingCategoriesController::class, 'delete']);
         Route::post('shipping-categories/set-default-category', [ShippingCategoriesController::class, 'setDefaultCategory']);
+        Route::post('shipping-categories/render-form', [ShippingCategoriesController::class, 'renderForm']);
     });
 
     Route::middleware('can:commerce-manageTaxes')->group(function () {
@@ -145,6 +149,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
         Route::post('tax-rates/save', [TaxRatesController::class, 'save']);
         Route::post('tax-rates/delete', [TaxRatesController::class, 'delete']);
         Route::post('tax-rates/update-status', [TaxRatesController::class, 'updateStatus']);
+        Route::post('tax-rates/render-form', [TaxRatesController::class, 'renderForm']);
     });
 
     Route::middleware('can:commerce-managePromotions')->group(function () {

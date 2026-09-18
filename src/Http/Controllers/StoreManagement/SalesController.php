@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Http\Controllers\Settings;
+namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use craft\elements\Category;
 use craft\helpers\Localization;
 use CraftCms\Cms\Edition;
 use CraftCms\Cms\Entry\Elements\Entry;
-use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\Elements;
@@ -17,7 +16,6 @@ use CraftCms\Cms\Support\Facades\UserGroups;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Translation\Locale;
 use CraftCms\Cms\View\TemplateMode;
-use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\Products;
@@ -36,11 +34,8 @@ use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
-readonly class SalesController
+readonly class SalesController extends LegacyStoreManagementController
 {
-    use HasStoreManagementScreen;
-    use RespondsWithFlash;
-
     private function guard(): void
     {
         abort_unless(app(Sales::class)->canUseSales(), 403, 'Unable to use sales while using multi store or pricing rules.');

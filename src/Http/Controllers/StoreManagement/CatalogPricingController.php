@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Http\Controllers\Settings;
+namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use craft\commerce\web\assets\catalogpricing\CatalogPricingAsset;
 use craft\helpers\Cp;
@@ -79,6 +79,7 @@ readonly class CatalogPricingController
 
         $condition = $request->input('condition') ?? ['class' => CatalogPricingCondition::class];
         $conditionBuilder = Conditions::createCondition($condition);
+        // Condition classes no longer self-render; ConditionBuilderRenderer replaces the old getBuilderHtml()/builderHtml().
         $conditionBuilderHtml = new ConditionBuilderRenderer($conditionBuilder)->render();
 
         $view = \Craft::$app->getView();

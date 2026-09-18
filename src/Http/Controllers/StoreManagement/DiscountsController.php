@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CraftCms\Commerce\Http\Controllers\Settings;
+namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use craft\commerce\web\assets\coupons\CouponsAsset;
 use craft\db\Query;
@@ -11,7 +11,6 @@ use craft\helpers\AdminTable;
 use CraftCms\Cms\Condition\ConditionBuilderRenderer;
 use CraftCms\Cms\Edition;
 use CraftCms\Cms\Entry\Elements\Entry;
-use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\DateTimeHelper;
@@ -27,7 +26,6 @@ use CraftCms\Cms\Translation\Locale;
 use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Localization;
-use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Promotion\Coupons;
@@ -47,11 +45,8 @@ use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\t;
 
-readonly class DiscountsController
+readonly class DiscountsController extends LegacyStoreManagementController
 {
-    use HasStoreManagementScreen;
-    use RespondsWithFlash;
-
     public const string DISCOUNT_COUNTER_TYPE_TOTAL = 'total';
     public const string DISCOUNT_COUNTER_TYPE_EMAIL = 'email';
     public const string DISCOUNT_COUNTER_TYPE_CUSTOMER = 'customer';
@@ -622,6 +617,12 @@ JS;
             $variables['emailUsage'] = 0;
             $variables['customerUsage'] = 0;
         }
+
+        // Condition classes no longer self-render; ConditionBuilderRenderer replaces the old getBuilderHtml()/builderHtml().
+        $variables['orderConditionHtml'] = new ConditionBuilderRenderer($discount->getOrderCondition())->render();
+        $variables['customerConditionHtml'] = new ConditionBuilderRenderer($discount->getCustomerCondition())->render();
+        $variables['shippingAddressConditionHtml'] = new ConditionBuilderRenderer($discount->getShippingAddressCondition())->render();
+        $variables['billingAddressConditionHtml'] = new ConditionBuilderRenderer($discount->getBillingAddressCondition())->render();
 
         $variables['categoryElementType'] = Category::class;
         $variables['entryElementType'] = Entry::class;

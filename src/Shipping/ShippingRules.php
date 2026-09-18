@@ -179,6 +179,8 @@ class ShippingRules
                 'shippingrules.percentageRate',
                 'shippingrules.minRate',
                 'shippingrules.maxRate',
+                'shippingrules.dateCreated',
+                'shippingrules.dateUpdated',
             ])
             ->join(Table::SHIPPINGMETHODS . ' as methods', 'methods.id', '=', 'shippingrules.methodId')
             ->orderBy('shippingrules.methodId')

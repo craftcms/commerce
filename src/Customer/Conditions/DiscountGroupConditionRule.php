@@ -6,7 +6,7 @@ namespace CraftCms\Commerce\Customer\Conditions;
 
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Cms\User\Conditions\GroupConditionRule;
-use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Database\Query\Builder;
 use Override;
 use RuntimeException;
 
