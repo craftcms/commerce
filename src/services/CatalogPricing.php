@@ -512,6 +512,10 @@ class CatalogPricing extends Component
         // Queue purchasable-based and rule-based work into separate rows so they are never cross-contaminated.
         // Catalog pricing rules determine which purchasables are relevant, so the two must be processed independently.
 
+        // A job already working through the queue will pick up anything added while it runs, so only
+        // push when nothing is pending. Otherwise every save queues a job that reserves nothing.
+        $wasEmpty = !$this->hasPendingCatalogPricingQueueRows();
+
         if (!empty($purchasableIds) || ($purchasableIds === null && empty($catalogPricingRuleIds))) {
             // Specific purchasable IDs: these will be regenerated against all applicable rules
             $this->_queueCatalogPricingIds($storeId, CatalogPricingQueueRecord::TYPE_PURCHASABLE, $purchasableIds);
@@ -521,7 +525,20 @@ class CatalogPricing extends Component
             $this->_queueCatalogPricingIds($storeId, CatalogPricingQueueRecord::TYPE_RULE, $catalogPricingRuleIds);
         }
 
-        QueueHelper::push(Craft::createObject(CatalogPricingJob::class), $priority);
+        if ($wasEmpty) {
+            QueueHelper::push(Craft::createObject(CatalogPricingJob::class), $priority);
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasPendingCatalogPricingQueueRows(): bool
+    {
+        return (new Query())
+            ->from(Table::CATALOG_PRICING_QUEUE)
+            ->where(['reserved' => false])
+            ->exists();
     }
 
     /**
@@ -542,16 +559,9 @@ class CatalogPricing extends Component
      */
     public function reserveCatalogPricingQueueRow(): ?CatalogPricingQueueRecord
     {
-        $mutex = Craft::$app->getMutex();
+        $this->_releaseExpiredCatalogPricingQueueRows();
 
-        // Use the same lock as the write methods so that reservation and inserts/merges are fully serialised.
-        // Non-blocking: if a write operation is currently holding the lock, return null and let the next
-        // queue job execution pick up the row instead.
-        if (!$mutex->acquire('catalogpricingqueue', 0)) {
-            return null;
-        }
-
-        try {
+        while (true) {
             $pendingId = (new Query())
                 ->select(['id'])
                 ->from(Table::CATALOG_PRICING_QUEUE)
@@ -563,20 +573,36 @@ class CatalogPricing extends Component
                 return null;
             }
 
-            /** @var CatalogPricingQueueRecord|null $record */
-            $record = CatalogPricingQueueRecord::findOne(['id' => (int)$pendingId, 'reserved' => false]);
+            // Claiming in one conditional statement leaves the row lock to the database, so no
+            // application lock is needed. A losing claim affects no rows and moves to the next one.
+            $claimed = Db::update(Table::CATALOG_PRICING_QUEUE, ['reserved' => true], [
+                'id' => (int)$pendingId,
+                'reserved' => false,
+            ]);
 
-            if (!$record) {
-                return null;
+            if ($claimed === 1) {
+                return CatalogPricingQueueRecord::findOne(['id' => (int)$pendingId]);
             }
-
-            $record->reserved = true;
-            $record->save(false);
-
-            return $record;
-        } finally {
-            $mutex->release('catalogpricingqueue');
         }
+    }
+
+    /**
+     * Frees rows still reserved by a job that never finished, so the work is not lost.
+     *
+     * @return void
+     * @throws Exception
+     */
+    private function _releaseExpiredCatalogPricingQueueRows(): void
+    {
+        // The queue has already given up on a job holding a row this long.
+        $ttr = Craft::$app->getQueue()->ttr;
+        $expiredBefore = (new DateTime('now', new \DateTimeZone('UTC')))->modify("-{$ttr} seconds");
+
+        Db::update(Table::CATALOG_PRICING_QUEUE, ['reserved' => false], [
+            'and',
+            ['reserved' => true],
+            ['<', 'dateUpdated', Db::prepareDateForDb($expiredBefore)],
+        ]);
     }
 
     /**
@@ -613,19 +639,10 @@ class CatalogPricing extends Component
      * @param array|null $ids
      * @return void
      * @throws Exception
-     * @throws \RuntimeException if the queue mutex cannot be acquired
      */
     private function _queueCatalogPricingIds(?int $storeId, string $type, ?array $ids): void
     {
-        $mutex = Craft::$app->getMutex();
-
-        if (!$mutex->acquire('catalogpricingqueue', 5)) {
-            throw new \RuntimeException('Unable to acquire the catalog pricing queue mutex.');
-        }
-
-        try {
-            // Merge into an existing unreserved row for the same store and type.
-            // _mergeIdSets keeps null when either side is null (broader scope wins).
+        while (true) {
             /** @var CatalogPricingQueueRecord|null $pendingRecord */
             $pendingRecord = CatalogPricingQueueRecord::findOne([
                 'storeId' => $storeId,
@@ -633,27 +650,37 @@ class CatalogPricing extends Component
                 'reserved' => false,
             ]);
 
-            if ($pendingRecord) {
-                // Merge IDs, preserving null to represent the broader "all IDs" scope.
-                $pendingIds = $pendingRecord->getIds();
-                $ids = ($pendingIds === null || $ids === null)
-                    ? null
-                    : $this->_normalizeIds(array_merge($pendingIds, $ids));
-
-                $pendingRecord->setIds($ids);
-                $pendingRecord->save(false);
+            if (!$pendingRecord) {
+                $record = new CatalogPricingQueueRecord();
+                $record->storeId = $storeId;
+                $record->type = $type;
+                $record->setIds($ids);
+                $record->reserved = false;
+                $record->save(false);
 
                 return;
             }
 
-            $record = new CatalogPricingQueueRecord();
-            $record->storeId = $storeId;
-            $record->type = $type;
-            $record->setIds($ids);
-            $record->reserved = false;
-            $record->save(false);
-        } finally {
-            $mutex->release('catalogpricingqueue');
+            // Merge IDs, preserving null to represent the broader "all IDs" scope.
+            $originalIds = $pendingRecord->getAttribute('ids');
+            $pendingIds = $pendingRecord->getIds();
+            $pendingRecord->setIds(($pendingIds === null || $ids === null)
+                ? null
+                : $this->_normalizeIds(array_merge($pendingIds, $ids)));
+
+            // Write back only if the row is unchanged and still unreserved, so the read and write
+            // need no lock between them. Losing the race affects no rows, so re-read and merge again.
+            $merged = Db::update(Table::CATALOG_PRICING_QUEUE, [
+                'ids' => $pendingRecord->getAttribute('ids'),
+            ], [
+                'id' => $pendingRecord->id,
+                'reserved' => false,
+                'ids' => $originalIds,
+            ]);
+
+            if ($merged === 1) {
+                return;
+            }
         }
     }
 
