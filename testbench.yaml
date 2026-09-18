@@ -1,4 +1,5 @@
 providers:
+  - Inertia\ServiceProvider
   - CraftCms\Aliases\AliasesServiceProvider
   - CraftCms\DependencyAwareCache\CacheServiceProvider
   - CraftCms\Cms\Providers\CraftServiceProvider

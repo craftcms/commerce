@@ -851,10 +851,6 @@ JS, [
     #[Override]
     public function canView(\CraftCms\Cms\User\Elements\User $user): bool
     {
-        if (parent::canView($user)) {
-            return true;
-        }
-
         try {
             $productType = $this->getType();
         } catch (\Exception) {
@@ -867,10 +863,6 @@ JS, [
     #[Override]
     public function canSave(\CraftCms\Cms\User\Elements\User $user): bool
     {
-        if (parent::canSave($user)) {
-            return true;
-        }
-
         try {
             $productType = $this->getType();
         } catch (\Exception) {
@@ -892,10 +884,6 @@ JS, [
     #[Override]
     public function canDuplicate(\CraftCms\Cms\User\Elements\User $user): bool
     {
-        if (parent::canDuplicate($user)) {
-            return true;
-        }
-
         try {
             $productType = $this->getType();
         } catch (\Exception) {
@@ -909,10 +897,6 @@ JS, [
     #[Override]
     public function canDelete(\CraftCms\Cms\User\Elements\User $user): bool
     {
-        if (parent::canDelete($user)) {
-            return true;
-        }
-
         try {
             $productType = $this->getType();
         } catch (\Exception) {

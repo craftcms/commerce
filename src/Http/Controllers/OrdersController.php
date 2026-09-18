@@ -530,7 +530,7 @@ JS, []);
                 $sqlQuery->orderBy([$column => $direction == 'asc' ? SORT_ASC : SORT_DESC]);
             }
         } else {
-            $sqlQuery->orderBy(['id' => 'asc']);
+            $sqlQuery->orderBy(['purchasables.id' => 'asc']);
         }
 
         // Trigger event before working out the total and limiting the results for pagination

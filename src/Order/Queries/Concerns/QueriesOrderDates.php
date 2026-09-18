@@ -27,7 +27,7 @@ trait QueriesOrderDates
     protected function initQueriesOrderDates(): void
     {
         $this->beforeQuery(static function(OrderQuery $orderQuery) {
-            static::applyDateAuthorized($orderQuery, $orderQuery->datePaid);
+            static::applyDateAuthorized($orderQuery, $orderQuery->dateAuthorized);
             static::applyDateOrdered($orderQuery, $orderQuery->dateOrdered);
             static::applyDatePaid($orderQuery, $orderQuery->datePaid);
             static::applyDateFirstPaid($orderQuery, $orderQuery->dateFirstPaid);
@@ -35,18 +35,13 @@ trait QueriesOrderDates
         });
     }
 
-    /**
-     * NOTE: ported verbatim from the legacy Yii2 query, which filters `dateAuthorized` by the
-     * value of `datePaid` (not `dateAuthorized`). This looks like a pre-existing bug, but is
-     * preserved for behavioral parity; worth revisiting separately.
-     */
-    public static function applyDateAuthorized(BuilderContract $query, mixed $datePaidValue): void
+    public static function applyDateAuthorized(BuilderContract $query, mixed $value): void
     {
-        if (!isset($datePaidValue)) {
+        if (!isset($value)) {
             return;
         }
 
-        $query->whereDateParam('commerce_orders.dateAuthorized', $datePaidValue);
+        $query->whereDateParam('commerce_orders.dateAuthorized', $value);
     }
 
     public static function applyDateOrdered(BuilderContract $query, mixed $value): void

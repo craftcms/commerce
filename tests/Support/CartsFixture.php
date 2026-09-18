@@ -24,6 +24,9 @@ class CartsFixture
 
     public User $loadingUser;
 
+    /** The single address saved as both the primary billing and shipping address for {@see $credentialedUser}. */
+    public int $credentialedUserAddressId;
+
     public static function seed(): self
     {
         $fixture = new self();
@@ -56,7 +59,7 @@ class CartsFixture
             throw new RuntimeException('Could not save credentialed user: ' . json_encode($credentialedUser->errors()->all()));
         }
         $this->credentialedUser = $credentialedUser;
-        $this->savePrimaryAddress($credentialedUser);
+        $this->credentialedUserAddressId = $this->savePrimaryAddress($credentialedUser);
 
         $loadingUser = new User();
         $loadingUser->username = 'cart-loading-user';
@@ -70,7 +73,7 @@ class CartsFixture
         $this->loadingUser = $loadingUser;
     }
 
-    private function savePrimaryAddress(User $user): void
+    private function savePrimaryAddress(User $user): int
     {
         $address = new Address();
         $address->setPrimaryOwner($user);
@@ -88,5 +91,7 @@ class CartsFixture
 
         app(Customers::class)->savePrimaryShippingAddressId($user, $address->id);
         app(Customers::class)->savePrimaryBillingAddressId($user, $address->id);
+
+        return $address->id;
     }
 }

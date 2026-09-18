@@ -165,12 +165,17 @@ class ProductQuery extends ElementQuery
         }
 
         $variantQuery->limit(null);
-        $variantQuery->select('commerce_variants.primaryOwnerId as primaryOwnerId');
         $variantQuery->whereNotNull('commerce_variants.primaryOwnerId');
 
         // The legacy query correlated a nested EXISTS subquery against `commerce_products.id`;
         // the resulting SQL is equivalent to (and simpler as) an IN subquery here.
+        //
+        // applyBeforeQueryCallbacks() must run before select(): it triggers VariantQuery's own
+        // joinOwners() callback, which adds several of its own select columns (ownerId, sortOrder,
+        // isDefault, etc). Selecting first would just have those columns appended on top of it,
+        // producing an IN subquery with more than the single column it's allowed to have.
         $variantQuery->applyBeforeQueryCallbacks();
+        $variantQuery->select('commerce_variants.primaryOwnerId as primaryOwnerId');
         $query->whereIn('commerce_products.id', $variantQuery->getQuery());
     }
 
