@@ -23,6 +23,6 @@ abstract readonly class LegacyStoreManagementController extends BaseStoreManagem
 {
     protected function getSectionCrumb(Store $store): array
     {
-        throw new \LogicException(static::class.' has not been converted to the Form system yet — it must not call crumbs().');
+        throw new \LogicException(static::class . ' has not been converted to the Form system yet — it must not call crumbs().');
     }
 }

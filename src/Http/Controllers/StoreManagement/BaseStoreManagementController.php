@@ -51,7 +51,8 @@ abstract readonly class BaseStoreManagementController
 
     public function __construct(
         protected FormResolver $formResolver,
-    ) {}
+    ) {
+    }
 
     /**
      * Returns this controller's own section crumb, scoped to the given store — its label and
@@ -133,7 +134,7 @@ abstract readonly class BaseStoreManagementController
     protected function subnav(Store $store): array
     {
         $currentPath = request()->craftPath();
-        $selected = fn(?string $path = null) => $currentPath === "commerce/store-management/{$store->handle}".($path ? "/{$path}" : '');
+        $selected = fn(?string $path = null) => $currentPath === "commerce/store-management/{$store->handle}" . ($path ? "/{$path}" : '');
 
         $items = [];
 

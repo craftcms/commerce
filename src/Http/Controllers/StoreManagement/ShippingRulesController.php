@@ -9,7 +9,6 @@ use CraftCms\Cms\Cp\Html\ContentHtml;
 use CraftCms\Cms\Form\Controls\ConditionBuilder;
 use CraftCms\Cms\Form\Controls\Lightswitch;
 use CraftCms\Cms\Form\Controls\Money as MoneyControl;
-use CraftCms\Cms\Form\Controls\Number;
 use CraftCms\Cms\Form\Controls\Table as TableControl;
 use CraftCms\Cms\Form\Controls\Text;
 use CraftCms\Cms\Form\Controls\Textarea;
