@@ -57,11 +57,10 @@ function taxRate(array $item): TaxRate
 }
 
 /**
- * Runs `Tax::adjust()` against an order built from the given address/line-item/tax-rate data,
- * mirroring the legacy `tests-yii2/unit/adjusters/TaxTest.php::dataCases()` fixtures. `getTaxRates()`
- * and `validateTaxIdNumber()` are mocked (both protected) so the adjuster's own tax-calculation
- * logic is isolated from the tax-rate-lookup and VAT-ID-validation-service concerns, which are
- * covered elsewhere.
+ * Runs `Tax::adjust()` against an order built from the given address/line-item/tax-rate data.
+ * `getTaxRates()` and `validateTaxIdNumber()` are mocked (both protected) so the adjuster's own
+ * tax-calculation logic is isolated from the tax-rate-lookup and VAT-ID-validation-service
+ * concerns, which are covered elsewhere.
  */
 function adjustWithTaxRates(array $addressData, array $lineItemData, array $taxRateData): array
 {

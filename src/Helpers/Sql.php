@@ -34,4 +34,13 @@ class Sql
     {
         return DB::connection()->getDriverName() === 'sqlite' ? "datetime('now')" : 'NOW()';
     }
+
+    /**
+     * Wraps a numeric SQL expression in a CAST on SQLite, where it's returned unchanged.
+     *
+     */
+    public static function decimalSql(string $expression): string
+    {
+        return DB::connection()->getDriverName() === 'sqlite' ? "CAST($expression AS DECIMAL(24,6))" : $expression;
+    }
 }

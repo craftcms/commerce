@@ -629,13 +629,13 @@ class Order extends Element implements HasStoreInterface
     #[Override]
     public function canSave(\CraftCms\Cms\User\Elements\User $user): bool
     {
-        return parent::canSave($user) || $user->can('commerce-editOrders');
+        return $user->can('commerce-editOrders');
     }
 
     #[Override]
     public function canView(\CraftCms\Cms\User\Elements\User $user): bool
     {
-        return parent::canView($user) || $user->can('commerce-manageOrders');
+        return $user->can('commerce-manageOrders');
     }
 
     #[Override]
@@ -647,7 +647,7 @@ class Order extends Element implements HasStoreInterface
     #[Override]
     public function canDelete(\CraftCms\Cms\User\Elements\User $user): bool
     {
-        return parent::canDelete($user) || $user->can('commerce-deleteOrders');
+        return $user->can('commerce-deleteOrders');
     }
 
     /**
@@ -915,6 +915,14 @@ class Order extends Element implements HasStoreInterface
     {
         $fields = parent::fields();
 
+        // `Purchasable::fields()` wires this same loop up for its own `currencyAttributes()` -
+        // without it here too, every `{attribute}AsCurrency` getter this class defines (e.g.
+        // `getTotalAsCurrency()`) is unreachable from `toArray()`, since none of them are
+        // otherwise-public properties `parent::fields()` could have picked up by reflection.
+        foreach ($this->currencyAttributes() as $attribute) {
+            $fields[$attribute . 'AsCurrency'] = $attribute . 'AsCurrency';
+        }
+
         $datetimeAttributes = ComponentHelper::datetimeAttributes($this);
 
         // @todo Commerce 6 - remove this and let the parent handle ISO-8601 serialization; update Vue components
@@ -948,6 +956,24 @@ class Order extends Element implements HasStoreInterface
         $fields['totalSaleAmountAsCurrency'] = 'totalPromotionalAmountAsCurrency';
 
         return $fields;
+    }
+
+    #[Override]
+    public function toArray(array $fields = [], array $expand = [], $recursive = true): array
+    {
+        $arr = parent::toArray($fields, $expand, $recursive);
+
+        if ($recursive && array_key_exists('lineItems', $arr)) {
+            $nestedFields = $this->extractFieldsFor($fields, 'lineItems');
+            $nestedExpand = $this->extractFieldsFor($expand, 'lineItems');
+
+            $arr['lineItems'] = array_map(
+                fn(LineItem $lineItem) => $lineItem->toArray($nestedFields, $nestedExpand),
+                array_values($this->getLineItems()),
+            );
+        }
+
+        return $arr;
     }
 
     /**

@@ -657,6 +657,7 @@
 - Added `CraftCms\Commerce\Purchasable\Models\PurchasableStore`.
 - Added `CraftCms\Commerce\Purchasable\Queries\PurchasableQuery`.
 - Added `CraftCms\Commerce\Purchasable\Queries\DonationQuery`.
+- Added `CraftCms\Commerce\Purchasable\Queries\PurchasableConditionQuery`.
 - Added `CraftCms\Commerce\Purchasable\Records\Purchasable`.
 - Added `CraftCms\Commerce\Purchasable\Records\PurchasableStore`.
 - Added `CraftCms\Commerce\Purchasable\Validation\PurchasableRules`.

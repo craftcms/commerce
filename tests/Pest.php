@@ -6,6 +6,7 @@ use CraftCms\Commerce\Tests\TestCase;
 use CraftCms\Commerce\Tests\UnitTestCase;
 
 require __DIR__ . '/Support/gql.php';
+require __DIR__ . '/Support/CommerceActionRoutes.php';
 
 uses(TestCase::class)->in('Feature');
 uses(UnitTestCase::class)->in('Unit');

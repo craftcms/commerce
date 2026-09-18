@@ -499,9 +499,9 @@ class CatalogPricing
 
         $query = DB::table(Table::CATALOG_PRICING . ' as cp')
             ->select([
-                DB::raw("MIN(CASE WHEN {$isPromotionalPrice} = FALSE THEN price END) AS price"),
-                DB::raw("MIN(CASE WHEN {$isPromotionalPrice} = TRUE THEN price END) AS promotionalPrice"),
-                DB::raw('MIN(price) AS salePrice'),
+                DB::raw(Sql::decimalSql('MIN(CASE WHEN isPromotionalPrice = FALSE THEN price END)') . ' AS price'),
+                DB::raw(Sql::decimalSql('MIN(CASE WHEN isPromotionalPrice = TRUE THEN price END)') . ' AS promotionalPrice'),
+                DB::raw(Sql::decimalSql('MIN(price)') . ' AS salePrice'),
             ]);
 
         $condition ??= Conditions::createCondition([

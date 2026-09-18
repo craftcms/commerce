@@ -14,9 +14,8 @@ use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use RuntimeException;
 
 /**
- * Mirrors the legacy `tests-yii2/fixtures/data/product-types.php` and `products.php` GQL fixture
- * data (handles, slugs, and skus are asserted against literally by the ported GQL tests), minus
- * the UK-store-only product type/product those files also seeded, which is out of scope here.
+ * Builds product-type/product/variant GQL fixture data — handles, slugs, and skus are asserted
+ * against literally by the GQL tests.
  */
 class GqlProductsFixture
 {
@@ -62,9 +61,8 @@ class GqlProductsFixture
         $productType = new ProductType();
         $productType->name = $name;
         $productType->handle = $handle;
-        // Matches the legacy fixture: with no dedicated title field, a variant's title always
-        // derives from the default '{product.title}' format, regardless of the title we set on
-        // it when creating it below.
+        // With no dedicated title field, a variant's title always derives from the default
+        // '{product.title}' format, regardless of the title we set on it when creating it below.
         $productType->hasVariantTitleField = false;
 
         $siteSettings = new ProductTypeSite();

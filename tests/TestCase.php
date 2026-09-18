@@ -57,7 +57,21 @@ class TestCase extends Orchestra
         // `Edition::get()`'s first call, since it caches its result for the rest of the request.
         putenv('CRAFT_EDITION=pro');
 
+        // `Sites::setCurrentSite()` sets `$_SERVER['CRAFT_SITE']` as a side effect of resolving
+        // the current site for a real request — a plain superglobal, not container-scoped state,
+        // so it survives into the next test's fresh `Application`. `Yii2ServiceProvider::boot()`
+        // eagerly builds the legacy `Craft::$app` bridge on every test (not just the first), and
+        // that build happens before this test's own database transaction/install state is ready.
+        // With `CRAFT_SITE` left over from a previous test's request, `_requestedSite()` takes a
+        // branch that resolves the site by that env var instead of skipping straight to its
+        // fallback logic — and at this early a point, that lookup can find nothing yet, which its
+        // non-nullable return type turns into a hard `TypeError` instead of a graceful null. Clear
+        // it before `parent::setUp()` boots the fresh application, since that's when it happens.
+        unset($_SERVER['CRAFT_SITE'], $_SERVER['CRAFT_SITE_UPPER']);
+
         parent::setUp();
+
+        $this->registerSqliteCompatibilityFunctions();
 
         config()->set('app.debug', true);
 
@@ -66,6 +80,23 @@ class TestCase extends Orchestra
 
         File::cleanDirectory(config_path('craft/project'));
         File::cleanDirectory(storage_path('runtime/compiled_classes'));
+    }
+
+    /**
+     * A handful of query scopes use raw SQL functions (`LEFT()`, `RAND()`) that only MySQL and
+     * PostgreSQL provide — both of Commerce's supported production databases — since this suite
+     * runs against SQLite instead, register compatible substitutes on the current connection so
+     * those scopes behave the same here rather than raising "no such function" errors.
+     */
+    protected function registerSqliteCompatibilityFunctions(): void
+    {
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            return;
+        }
+
+        $pdo = DB::connection()->getPdo();
+        $pdo->sqliteCreateFunction('LEFT', fn(?string $string, int $length): string => substr((string)$string, 0, $length), 2);
+        $pdo->sqliteCreateFunction('RAND', fn(): float => mt_rand() / mt_getrandmax(), 0);
     }
 
     protected function connectionsToTransact(): array
@@ -150,6 +181,11 @@ class TestCase extends Orchestra
         tap($app->make(ConfigRepository::class), function(ConfigRepository $config) {
             $config->set('auth.defaults.guard', 'craft');
             $config->set('auth.guards.craft', ['driver' => 'session', 'provider' => 'users']);
+
+            // Laravel's password broker (activation/password-reset emails) hashes its tokens
+            // with this key. It's never set via the environment in this suite, so without it
+            // DatabaseTokenRepository's $hashKey constructor argument is null.
+            $config->set('app.key', 'base64:' . base64_encode(str_repeat('a', 32)));
 
             $connection = env('DB_CONNECTION', 'testing');
             $driver = $config->get("database.connections.{$connection}.driver");

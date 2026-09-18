@@ -434,6 +434,7 @@ class Stores
     {
         $this->allStores = null;
         $this->allStoresBySiteId = null;
+        $this->allSiteStores = null;
         $this->loadAllStores();
     }
 

@@ -175,20 +175,12 @@ class Transfer extends Element
     #[Override]
     public function canView(User $user): bool
     {
-        if (parent::canView($user)) {
-            return true;
-        }
-
         return $user->can('commerce-manageInventoryTransfers');
     }
 
     #[Override]
     public function canSave(User $user): bool
     {
-        if (parent::canSave($user)) {
-            return true;
-        }
-
         return $user->can('commerce-manageInventoryTransfers');
     }
 
@@ -201,15 +193,7 @@ class Transfer extends Element
     #[Override]
     public function canDelete(User $user): bool
     {
-        $canDelete = false;
-
-        if (parent::canSave($user)) {
-            $canDelete = true;
-        }
-
-        if ($this->getTransferStatus() === TransferStatusType::DRAFT) {
-            $canDelete = true;
-        }
+        $canDelete = $this->getTransferStatus() === TransferStatusType::DRAFT;
 
         return $canDelete && $user->can('commerce-manageInventoryTransfers');
     }
