@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where currency-based order condition rules could show the incorrect currency. ([#4368](https://github.com/craftcms/commerce/issues/4368))
+- Fixed a bug where the order edit page could throw an error when generating a PDF URL for an order belonging to a non-primary store. ([#4370](https://github.com/craftcms/commerce/issues/4370))
 
 ## 5.7.4 - 2026-09-15
 
