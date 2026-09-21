@@ -27,6 +27,7 @@ use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderNoticesTrait;
 use craft\commerce\elements\traits\OrderValidatorsTrait;
 use craft\commerce\enums\ContainsPurchasablesMatch;
+use craft\commerce\enums\LineItemType;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\LineItemNotFoundException;
 use craft\commerce\errors\OrderAdjustmentNotFoundException;
@@ -3837,6 +3838,10 @@ class Order extends Element implements HasStoreInterface
 
         if ($this->isCompleted) {
             foreach ($this->_deletingLineItems as $lineItem) {
+                if ($lineItem->type === LineItemType::Custom) {
+                    continue;
+                }
+
                 $purchasable = $lineItem->getPurchasable();
                 if ($purchasable instanceof Purchasable && $purchasable::hasInventory() && $purchasable->inventoryTracked) {
                     Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
