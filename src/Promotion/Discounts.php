@@ -749,8 +749,13 @@ class Discounts
 
     public function getCustomerUsageStatsById(int $id): array
     {
+        // customerId is camelCase — quoted via the connection's own grammar, not embedded as
+        // bare SQL, since an unquoted raw fragment gets folded to lowercase by Postgres (see
+        // CatalogPricing::createCatalogPricesQuery()'s isPromotionalPrice for the same fix).
+        $customerId = DB::connection()->getQueryGrammar()->wrap('customerId');
+
         return (array) DB::table(Table::CUSTOMER_DISCOUNTUSES)
-            ->selectRaw('COALESCE(SUM(uses), 0) as uses, COUNT(customerId) as users')
+            ->selectRaw("COALESCE(SUM(uses), 0) as uses, COUNT({$customerId}) as users")
             ->where('discountId', $id)
             ->first();
     }
