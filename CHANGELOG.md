@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where currency-based order condition rules could show the incorrect currency. ([#4368](https://github.com/craftcms/commerce/issues/4368))
+- Fixed a PHP error that could occur when deleting a completed order that contained a custom line item. ([#4371](https://github.com/craftcms/commerce/issues/4371))
 
 ## 5.7.4 - 2026-09-15
 
