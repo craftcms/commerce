@@ -63,9 +63,14 @@ class PdfsController extends BaseSettingsController
             $rows = app(Pdfs::class)->getAllPdfs($store->id)
                 ->map(fn(Pdf $pdf) => [
                     'id' => $pdf->id,
+                    // Restores the legacy VueAdminTable screen's own automatic status dot
+                    // (driven there by an implicit `status` row key, not a real column) — the
+                    // explicit "Enabled?" Yes/No column below was this same information, added
+                    // as a stand-in for the dot when this screen first converted; dropped now
+                    // that the dot itself is back, matching the legacy column set exactly again.
+                    '_status' => $pdf->enabled,
                     'name' => ['label' => t($pdf->name, category: 'site'), 'url' => $pdf->getCpEditUrl()],
                     'handle' => ['html' => FormFields::copytextHtml(['value' => $pdf->handle, 'monospace' => true])],
-                    'enabled' => $pdf->enabled ? ['icon' => 'check', 'label' => t('Yes')] : '',
                     'default' => $pdf->isDefault ? ['icon' => 'check', 'label' => t('Yes')] : '',
                 ])
                 ->all();
@@ -74,7 +79,6 @@ class PdfsController extends BaseSettingsController
                 ->columns([
                     ['key' => 'name', 'label' => t('Name')],
                     ['key' => 'handle', 'label' => t('Handle')],
-                    ['key' => 'enabled', 'label' => t('Enabled?', category: 'commerce')],
                     ['key' => 'default', 'label' => t('Default?', category: 'commerce')],
                 ])
                 ->rows($rows)

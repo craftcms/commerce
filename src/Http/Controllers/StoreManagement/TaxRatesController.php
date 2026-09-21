@@ -55,13 +55,18 @@ readonly class TaxRatesController extends BaseStoreManagementController
         $rows = $taxRates
             ->map(fn(TaxRate $taxRate) => [
                 'id' => $taxRate->id,
+                // Restores the legacy VueAdminTable screen's own automatic status dot (driven
+                // there by an implicit `status` row key, not a real column) — the explicit
+                // "Enabled?" Yes/No column below was this same information, added as a
+                // stand-in for the dot when this screen first converted; dropped now that the
+                // dot itself is back, matching the legacy column set exactly again.
+                '_status' => $taxRate->enabled,
                 'name' => ['html' => Html::a(Html::encode(t($taxRate->name, category: 'site')), $taxRate->getCpEditUrl(), ['class' => 'cell-bold'])],
                 'rate' => $taxRate->getRateAsPercent(),
                 'included' => $taxRate->include ? ['icon' => 'check', 'label' => t('Yes')] : '',
                 'removeIncluded' => $taxRate->removeIncluded ? ['icon' => 'check', 'label' => t('Yes')] : '',
                 'zone' => $taxRate->getIsEverywhere() ? t('Everywhere', category: 'commerce') : t($taxRate->getTaxZone()->name, category: 'site'),
                 'category' => $taxRate->getTaxCategory() ? ['html' => Cp::chipHtml($taxRate->getTaxCategory())] : '',
-                'enabled' => $taxRate->enabled ? ['icon' => 'check', 'label' => t('Yes')] : '',
             ])
             ->values()
             ->all();
@@ -75,7 +80,6 @@ readonly class TaxRatesController extends BaseStoreManagementController
                     ['key' => 'removeIncluded', 'label' => t('Remove from price?', category: 'commerce')],
                     ['key' => 'zone', 'label' => t('Tax Zone', category: 'commerce')],
                     ['key' => 'category', 'label' => t('Tax Category', category: 'commerce')],
-                    ['key' => 'enabled', 'label' => t('Enabled?', category: 'commerce')],
                 ])
                 ->rows($rows)
                 ->emptyMessage(t('No tax rates exist yet.', category: 'commerce'))

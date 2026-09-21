@@ -71,6 +71,11 @@ class EmailsController extends BaseSettingsController
 
                     return [
                         'id' => $email->id,
+                        // Restores the legacy VueAdminTable screen's own automatic status dot
+                        // (driven there by an implicit `status` row key, not a real column) —
+                        // this screen's own conversion dropped it entirely rather than adding a
+                        // stand-in column the way PdfsController/TaxRatesController did.
+                        '_status' => $email->enabled,
                         'name' => ['label' => t($email->name, category: 'site'), 'url' => $email->getCpEditUrl()],
                         'subject' => t($email->subject, category: 'site'),
                         'to' => $to,
