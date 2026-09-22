@@ -94,6 +94,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
             ->crumbs($this->crumbs($store))
             ->inertiaPage('Form', [
                 'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+                'contentMaxWidth' => false,
             ]);
     }
 

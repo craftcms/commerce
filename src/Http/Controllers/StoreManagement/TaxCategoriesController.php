@@ -101,6 +101,7 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
             ->when($engineButtonsHtml !== '', fn(CpScreenResponse $screen) => $screen->additionalButtonsHtml($engineButtonsHtml))
             ->inertiaPage('Form', [
                 'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+                'contentMaxWidth' => false,
             ]);
     }
 

@@ -80,6 +80,7 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
             ->crumbs($this->crumbs($store))
             ->inertiaPage('Form', [
                 'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+                'contentMaxWidth' => false,
             ]);
     }
 

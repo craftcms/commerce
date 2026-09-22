@@ -360,6 +360,7 @@ class StoresController extends BaseSettingsController
             ->crumbs($this->crumbs())
             ->inertiaPage('Form', [
                 'form' => $this->formResolver->resolve($form, new FormContext()),
+                'contentMaxWidth' => false,
             ]);
     }
 

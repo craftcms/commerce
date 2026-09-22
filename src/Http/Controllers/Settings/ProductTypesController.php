@@ -55,6 +55,7 @@ class ProductTypesController extends BaseSettingsController
         $canManageTaxes = (bool)currentUser()?->can('commerce-manageTaxes');
 
         $rows = array_map(fn(ProductType $productType) => [
+            'id' => $productType->id,
             'name' => [
                 'label' => t($productType->name, category: 'site'),
                 'url' => $productType->getCpEditUrl(),
@@ -87,6 +88,10 @@ class ProductTypesController extends BaseSettingsController
                 ->createAction(
                     $this->readOnly ? null : t('New product type', category: 'commerce'),
                     $this->readOnly ? null : cp_url('commerce/settings/producttypes/new'),
+                )
+                ->when(
+                    !$this->readOnly,
+                    fn(Table $table) => $table->deletable(action([self::class, 'deleteProductType'])),
                 ),
         ]);
 
@@ -95,6 +100,7 @@ class ProductTypesController extends BaseSettingsController
             ->crumbs($this->crumbs())
             ->inertiaPage('Form', [
                 'form' => $this->formResolver->resolve($form, new FormContext()),
+                'contentMaxWidth' => false,
             ]);
     }
 

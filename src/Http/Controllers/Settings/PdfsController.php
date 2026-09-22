@@ -99,6 +99,7 @@ class PdfsController extends BaseSettingsController
             ->crumbs($this->crumbs())
             ->inertiaPage('Form', [
                 'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+                'contentMaxWidth' => false,
             ]);
     }
 
