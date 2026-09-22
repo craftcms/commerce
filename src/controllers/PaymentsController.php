@@ -80,6 +80,8 @@ class PaymentsController extends BaseFrontEndController
         $isCpRequest = $this->request->getIsCpRequest();
         $userSession = Craft::$app->getUser();
 
+        $isCpAndAllowed = $isCpRequest && $currentUser && $currentUser->can('commerce-manageOrders');
+
         $number = $this->request->getParam('number');
 
         $useMutex = $number || (!$isCpRequest && $plugin->getCarts()->getHasSessionCartNumber());
@@ -137,7 +139,6 @@ class PaymentsController extends BaseFrontEndController
          * it requires the user have the correct permission.
          */
         $isSiteRequestAndAllowed = $isSiteRequest && $order->getEmail() == $this->request->getParam('email');
-        $isCpAndAllowed = $isCpRequest && $currentUser && $currentUser->can('commerce-manageOrders');
         $checkPaymentCanBeMade = $number && ($isSiteRequestAndAllowed || $isCpAndAllowed);
 
         if (!$order->getIsActiveCart() && !$checkPaymentCanBeMade) {
@@ -247,7 +248,7 @@ class PaymentsController extends BaseFrontEndController
         // This will return the gateway to be used. The orders gateway ID could be null, but it will know the gateway from the paymentSource ID
         $gateway = $order->getGateway();
 
-        if (!$gateway || !$gateway->availableForUseWithOrder($order) || (!$gateway->getIsFrontendEnabled() && !$isCpRequest)) {
+        if (!$gateway || !$gateway->availableForUseWithOrder($order) || (!$gateway->getIsFrontendEnabled() && !$isCpAndAllowed)) {
             $error = Craft::t('commerce', 'There is no gateway or payment source available for use with this order.');
 
             if ($order->gatewayId) {
@@ -446,7 +447,7 @@ class PaymentsController extends BaseFrontEndController
         $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
 
         // set a partial payment amount on the order in the orders currency (not payment currency)
-        $partialAllowed = (($this->request->isSiteRequest && $order->getStore()->getAllowPartialPaymentOnCheckout()) || $this->request->isCpRequest);
+        $partialAllowed = (($this->request->isSiteRequest && $order->getStore()->getAllowPartialPaymentOnCheckout()) || $isCpAndAllowed);
 
         if ($partialAllowed) {
             if ($isCpAndAllowed) {
