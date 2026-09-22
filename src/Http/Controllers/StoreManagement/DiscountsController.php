@@ -26,7 +26,6 @@ use CraftCms\Cms\Form\Nodes\Heading;
 use CraftCms\Cms\Form\Nodes\HiddenField;
 use CraftCms\Cms\Form\Nodes\MarkdownContent;
 use CraftCms\Cms\Form\Nodes\Table;
-use CraftCms\Cms\Form\Nodes\UsageCounter;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\DateTimeHelper;
@@ -38,6 +37,7 @@ use CraftCms\Cms\Translation\Formatter;
 use CraftCms\Cms\Translation\Locale;
 use CraftCms\Commerce\Address\Conditions\DiscountAddressCondition;
 use CraftCms\Commerce\Customer\Conditions\DiscountCustomerCondition;
+use CraftCms\Commerce\Form\Nodes\UsageCounter;
 use CraftCms\Commerce\Helpers\Localization;
 use CraftCms\Commerce\Order\Conditions\DiscountOrderCondition;
 use CraftCms\Commerce\Promotion\Coupons;
@@ -130,7 +130,11 @@ readonly class DiscountsController extends BaseStoreManagementController
                     currentUserElement()?->can('commerce-createDiscounts'),
                     fn(Table $table) => $table->createAction(t('New discount', category: 'commerce'), $store->getStoreSettingsUrl('discounts/new')),
                 )
-                ->reorderable(action([self::class, 'reorder']))
+                ->reorderable(
+                    action([self::class, 'reorder']),
+                    t('Discounts reordered.', category: 'commerce'),
+                    t('Couldn’t reorder discounts.', category: 'commerce'),
+                )
                 ->when(
                     currentUserElement()?->can('commerce-deleteDiscounts'),
                     fn(Table $table) => $table->deletable(action([self::class, 'delete']), bulk: true),

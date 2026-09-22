@@ -1,40 +1,27 @@
 {
   "name": "@craftcms/commerce",
   "private": true,
-  "main": "webpack.config.js",
-  "browserslist": [
-    "extends @craftcms/browserslist-config"
-  ],
+  "packageManager": "pnpm@11.25.0",
+  "description": "Commerce's Vue 3/Vite bundle for the new CP Form system (Form Node/Control components Commerce contributes via window.Cp.$components — see resources/js/cp.ts). The legacy Vue 2/webpack `commerceui` order-edit bundle lives in ./legacy, a separate pnpm workspace package — the two can't share a `vue` dependency.",
   "scripts": {
-    "prebuild": "npm run fix-prettier",
-    "build": "webpack --node-env=production --progress",
-    "dev": "webpack --node-env=dev --mode=development --progress",
-    "serve": "webpack-dev-server --node-env=development",
+    "build": "vite build",
+    "dev": "vite",
+    "typecheck": "vue-tsc --noEmit",
+    "build:legacy": "pnpm --filter @craftcms/commerce-legacy build",
+    "dev:legacy": "pnpm --filter @craftcms/commerce-legacy dev",
     "check-prettier": "prettier --check .",
     "fix-prettier": "prettier --write .",
     "prepare": "husky install"
   },
   "devDependencies": {
-    "@craftcms/vue": "^1.0.0",
-    "@craftcms/webpack": "^1.1.0",
-    "axios": "^0.28.0",
-    "chart.js": "^2.9.4",
-    "chartjs-adapter-moment": "^0.1.2",
-    "craftcms-sass": "^3.5.6",
-    "deepmerge": "^4.2.2",
-    "lodash.debounce": "^4.0.8",
-    "lodash.find": "^4.6.0",
-    "lodash.isequal": "^4.5.0",
-    "lodash.isobjectlike": "^4.0.0",
-    "moment": "^2.29.4",
-    "prismjs": "^1.27.0",
-    "vue": "^2.6.14",
-    "vue-prism-editor": "^0.6.1",
-    "vue-select": "^3.20.0",
-    "vuelidate": "^0.7.7",
-    "vuex": "^3.6.2",
+    "@vitejs/plugin-vue": "^6.0.9",
     "husky": "^7.0.4",
+    "laravel-vite-plugin": "^3.2.0",
     "lint-staged": "^12.4.0",
-    "prettier": "^2.7.1"
+    "prettier": "^2.7.1",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.0",
+    "vue": "^3.5.33",
+    "vue-tsc": "^3.3.11"
   }
 }

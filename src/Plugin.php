@@ -16,6 +16,7 @@ use CraftCms\Cms\Element\Events\DefineDeletionBlockers;
 use CraftCms\Cms\Element\Events\ElementSaved;
 use CraftCms\Cms\Element\Queries\Events\ElementsHydrated;
 use CraftCms\Cms\FieldLayout\FieldLayout;
+use CraftCms\Cms\Form\FormNodeTypes;
 use CraftCms\Cms\GarbageCollection\Actions\DeletePartialElements;
 use CraftCms\Cms\GarbageCollection\Events\RunningGarbageCollection;
 use CraftCms\Cms\Gql\Events\GqlEagerLoadableFieldsResolving;
@@ -61,6 +62,7 @@ use CraftCms\Commerce\Dashboard\Widgets\TotalOrders;
 use CraftCms\Commerce\Dashboard\Widgets\TotalOrdersByCountry;
 use CraftCms\Commerce\Dashboard\Widgets\TotalRevenue;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Form\Nodes\UsageCounter;
 use CraftCms\Commerce\Gql\Handlers\HasProduct;
 use CraftCms\Commerce\Gql\Handlers\HasVariant;
 use CraftCms\Commerce\Gql\Handlers\RelatedProducts;
@@ -199,6 +201,18 @@ class Plugin extends BasePlugin
         VariantQuery::class,
     ];
 
+    /** The Form Node/Control Vue components Commerce contributes to the shared CP `Form` system's
+     *  component registry — see `resources/js/cp.ts` (registered via `window.Cp.$components`,
+     *  since `@craftcms/ui`/`cms`'s own JS is a private, unpublished workspace package). Built by
+     *  this repo's own root `package.json`/`vite.config.ts` (a pnpm workspace — the legacy Vue 2/
+     *  webpack `commerceui` bundle lives in `./legacy`, a separate workspace member, since the two
+     *  can't share a `vue` dependency). `'resources/js/cp.ts'` is the manifest entry key
+     *  `vite.config.ts` builds under — the same entry-point path/convention `cms`'s own
+     *  `resources/js/cp.ts` uses. */
+    protected array $vite = [
+        'input' => ['resources/js/cp.ts'],
+    ];
+
     protected array $commands = [
         ResaveProductsCommand::class,
         ResaveVariantsCommand::class,
@@ -233,6 +247,8 @@ class Plugin extends BasePlugin
         $arguments->register('hasVariant', HasVariant::class);
         $arguments->register('relatedToProducts', RelatedProducts::class);
         $arguments->register('relatedToVariants', RelatedVariants::class);
+
+        app(FormNodeTypes::class)->register(UsageCounter::class);
 
         $this->registerBehaviorMacros();
         $this->registerVariableMacros();
