@@ -912,29 +912,6 @@
 - Removed `craft\commerce\models\Settings::VIEW_URI_CUSTOMERS`, `VIEW_URI_PROMOTIONS`, `VIEW_URI_SHIPPING`, and `VIEW_URI_TAX` constants.
 - Improved `craft\commerce\Plugin`'s `Plugin::getInstance()->getX()` service getters to be backed by a lazy-instantiate-and-cache trait rather than Yii2's component locator.
 
-### System
-
-- Raised `Plugin::$minVersionRequired` from `3.4.11` to `5.7.3` (the latest 5.x patch release, kept in sync as new patches ship until 6.0 stable). Installs must be on at least that version before updating to Commerce 6.0.
-- Removed the Commerce Yii2 debug panel and all related classes (`CommercePanel`, `DebugPanel` helper, `CommerceDebugPanelDataEvent`, and its Twig views) — the Yii2 debug module they relied on no longer exists in Craft CMS 6.
-- Added `getPriceAsCurrency()` to `CraftCms\Commerce\Shipping\Models\ShippingMethodOption` and `getAmountAsCurrency()` to `CraftCms\Commerce\Order\Models\OrderAdjustment` (the latter used repeatedly in the shipped `example-templates/`), closing out the rest of the `CurrencyAttributeBehavior` removal — third-party templates/plugins could still call these via the legacy behavior's magic `__call`, independent of whether Commerce's own code used them.
-- Added `CraftCms\Commerce\Plugin::HANDLE`, replacing the `Plugin::getInstance()->handle` runtime lookup at its one call site (`Catalog\Products::afterSaveSiteHandler()`), which was also fixed to reference the new `CraftCms\Commerce\Plugin` instead of the legacy `craft\commerce\Plugin`.
-- Moved CKEditor's product/variant rich-text link options registration from `craft\commerce\Plugin::boot()` to `CraftCms\Commerce\Plugin::registerCKEditorLinkOptions()`. Dropped Redactor support entirely, since the Redactor plugin isn't supported under Craft 6.
-- Reorganized every domain's `Records\*`/`Models\*` split under `src/` into a consistent two-namespace convention: `Models\*` is now Eloquent persistence models only, and `Data\*` holds everything else (plain data/config objects). `Records\*` is gone.
-- Moved `CraftCms\Commerce\Tax\Models\EuVatIdValidator` to `CraftCms\Commerce\Tax\VatValidator\Eu`.
-- Moved `craft\commerce\Plugin::_registerProjectConfigEventListeners()` to `CraftCms\Commerce\Plugin::registerProjectConfigEventListeners()`, using `CraftCms\Cms\ProjectConfig\ProjectConfig::onAdd()`/`onUpdate()`/`onRemove()` and `CraftCms\Cms\ProjectConfig\Events\ConfigEvent` instead of their legacy Yii2 equivalents. `ProductTypes::pruneDeletedSite()` now listens for the Laravel `SiteDeleted` event instead of `craft\services\Sites::EVENT_AFTER_DELETE_SITE`.
-- Moved `craft\commerce\Plugin::_registerPoweredByHeader()` to a real Laravel middleware, `CraftCms\Commerce\Http\Middleware\PoweredByHeader`, pushed onto the `craft` middleware group.
-- Added `CraftCms\Commerce\Plugin\Concerns\HasCommerceEditions` and moved `$schemaVersion`, `$minVersionRequired`, `$hasCpSettings`, and `$hasReadOnlyCpSettings` from `craft\commerce\Plugin` onto `CraftCms\Commerce\Plugin`.
-- `craft\commerce\Plugin` is now a pure `class_alias` shim for `CraftCms\Commerce\Plugin`. Its custom `boot()`/method overrides and the `craft\commerce\plugin\Routes` trait have been ported onto `CraftCms\Commerce\Plugin` or dropped as dead/redundant code (`_registerGqlInterfaces()`/`_registerGqlQueries()`, `beforeInstall()`'s version guards, the `@commerceLib` alias).
-- Split `CraftCms\Commerce\Plugin` into two more `Concerns` traits: `Plugin\Concerns\HasCommerceMacros` (all `Macroable` macro registration) and `Plugin\Concerns\HasCommerceEventListeners` (all event listener registration).
-- Moved the 8 listeners previously registered imperatively in `registerCraftEventListeners()` into 8 dedicated classes under `CraftCms\Commerce\Plugin\Listeners\*`, registered declaratively via `Plugin::$events`.
-- Replaced every `Plugin::getInstance()` call in `src/` with dependency injection.
-- Removed `CraftCms\Commerce\CatalogPricing\CatalogPricing::afterSavePurchasableHandler()` (and its legacy `craft\commerce\services\CatalogPricing` pass-through) as it was deprecated since 5.5.0.
-- Changed `CatalogPricing::generateCatalogPrices()`'s `bool $showConsoleOutput` parameter to `?\Symfony\Component\Console\Output\OutputInterface $output`.
-- Updated every `CraftCms\Commerce\*\Conditions\*ConditionRule` for cms-6's nestable-condition-groups rework: `ElementQueryConditionRuleInterface::modifyQuery()` now takes `(Builder $query, ElementQueryInterface $elementQuery)` instead of a single `ElementQueryInterface $query`. Added `CatalogPricingCondition::createGroup()`, required by the new `ConditionInterface` contract.
-- Fixed several call sites (`Order::validateAddressesInMarketAddressCondition()`, `Order::modifyCustomSource()`, `Gateway::hasOrderCondition()`/`hasBillingAddressCondition()`/`hasShippingAddressCondition()`, `CatalogPricingCondition::modifyQuery()`) that assumed `getConditionRules()` returned an array, now that it returns a `ConditionGroupInterface` object.
-- Removed `GatewayOrderCondition::getBuilderHtml()` and `Address\Conditions\GatewayAddressCondition::getBuilderHtml()`, as `ConditionInterface::getBuilderHtml()` no longer exists; rendering now goes through `CraftCms\Cms\Condition\ConditionBuilderRenderer`.
-- Ported every condition rule's custom input from the removed `inputHtml()`/`elementSelectConfig()`/`inputOptions()` HTML-string methods to the new Form API's `inputNodes()`. Third-party condition rules overriding these methods must be updated accordingly.
-
 ### Translations
 
 - Moved `src-yii2/translations/` to a top-level `lang/` directory (e.g. `lang/en/commerce.php`, `lang/de/commerce.php`), matching the Laravel convention `CraftCms\Cms\Plugin\Concerns\HasTranslations` looks for (`dirname($plugin->getBasePath()).'/lang'`) ahead of the legacy `src/translations` fallback. Message file structure and content are unchanged.
@@ -942,8 +919,5 @@
 
 ### Testing
 
-- Added a Pest/Orchestra Testbench harness under `tests/` (`TestCase`, `UnitTestCase`, `Pest.php`, `Feature/`, `Unit/`, `Arch/`) for testing `CraftCms\Commerce\` code in `src/`. Run via `composer run tests`.
-- Added `CraftCms\Commerce\Product\Variant\Elements\VariantCollection`. 
-- Deprecated `craft\commerce\elements\VariantCollection`.
-- Added `CraftCms\Commerce\Order\DeletionBlockers\OrderCustomersDeletionBlocker`. Deprecated `craft\commerce\elements\deletionblockers\OrderCustomersDeletionBlocker`.
-- Removed the remaining `Craft::createObject()` calls from `src/`, replaced with direct `new X()` construction.
+- Deprecated `craft\commerce\elements\VariantCollection`. Use `CraftCms\Commerce\Product\Variant\Elements\VariantCollection` instead.
+- Deprecated `craft\commerce\elements\deletionblockers\OrderCustomersDeletionBlocker`. Use `CraftCms\Commerce\Order\DeletionBlockers\OrderCustomersDeletionBlocker` instead.
