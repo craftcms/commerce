@@ -10,11 +10,14 @@
 - Added `CraftCms\Commerce\Product\Variant\Models\Variant`.
 - Added `CraftCms\Commerce\Product\ProductType\Data\ProductTypeSite`.
 - Added `CraftCms\Commerce\Product\Products`.
+- Added `CraftCms\Commerce\Support\Facades\Products`.
 - Added `CraftCms\Commerce\Product\Variant\Variants`.
+- Added `CraftCms\Commerce\Support\Facades\Variants`.
 - Added `CraftCms\Commerce\Product\ProductType\Data\ProductType`.
 - Added `CraftCms\Commerce\Product\ProductType\Models\ProductType`.
 - Added `CraftCms\Commerce\Product\ProductType\Models\ProductTypeSite`.
 - Added `CraftCms\Commerce\Product\ProductType\ProductTypes`.
+- Added `CraftCms\Commerce\Support\Facades\ProductTypes`.
 - Added `CraftCms\Commerce\Product\Events\CustomizeProductSnapshotDataEvent`.
 - Added `CraftCms\Commerce\Product\Events\CustomizeProductSnapshotFieldsEvent`.
 - Added `CraftCms\Commerce\Product\Variant\Events\CustomizeVariantSnapshotDataEvent`.
@@ -72,7 +75,9 @@
 ### Catalog Pricing
 
 - Added `CraftCms\Commerce\CatalogPricing\CatalogPricing`.
+- Added `CraftCms\Commerce\Support\Facades\CatalogPricing`.
 - Added `CraftCms\Commerce\CatalogPricing\CatalogPricingRules`.
+- Added `CraftCms\Commerce\Support\Facades\CatalogPricingRules`.
 - Added `CraftCms\Commerce\CatalogPricing\Records\CatalogPricingQueue`.
 - Added `CraftCms\Commerce\CatalogPricing\Records\CatalogPricingRule`.
 - Added `CraftCms\Commerce\CatalogPricing\Data\CatalogPricing`.
@@ -126,6 +131,7 @@
 ### Customers
 
 - Added `CraftCms\Commerce\Customer\Customers`.
+- Added `CraftCms\Commerce\Support\Facades\Customers`.
 - Added `CraftCms\Commerce\Customer\Records\Customer`.
 - Added `CraftCms\Commerce\Customer\Customers::afterSaveUserHandler()` and `afterSaveAddressHandler()`, listening for `CraftCms\Cms\Element\Events\ElementSaved` to persist primary billing/shipping addresses, primary payment sources, and order email syncing.
 - Deprecated `craft\commerce\services\Customers`. `CraftCms\Commerce\Customer\Customers` should be used instead.
@@ -197,6 +203,7 @@
 ### Email
 
 - Added `CraftCms\Commerce\Email\Emails`.
+- Added `CraftCms\Commerce\Support\Facades\Emails`.
 - Added `CraftCms\Commerce\Email\Records\Email`.
 - Added `CraftCms\Commerce\Email\Models\Email`.
 - Added `CraftCms\Commerce\Email\Exceptions\EmailException`.
@@ -219,6 +226,7 @@
 ### Pdf
 
 - Added `CraftCms\Commerce\Pdf\Pdfs`.
+- Added `CraftCms\Commerce\Support\Facades\Pdfs`.
 - Added `CraftCms\Commerce\Pdf\Records\Pdf`.
 - Added `CraftCms\Commerce\Pdf\Models\Pdf`.
 - Added `CraftCms\Commerce\Http\RateLimiters\PdfChallengeRateLimiter`, replacing the per-action `yii\filters\RateLimiter` behavior used to throttle PDF download challenge requests.
@@ -240,6 +248,7 @@
 ### Formulas
 
 - Added `CraftCms\Commerce\Formula\Formulas`.
+- Added `CraftCms\Commerce\Support\Facades\Formulas`.
 - Deprecated `craft\commerce\services\Formulas`. `CraftCms\Commerce\Formula\Formulas` should be used instead.
 
 #### Controllers
@@ -304,7 +313,9 @@
 ### Inventory
 
 - Added `CraftCms\Commerce\Inventory\Inventory`.
+- Added `CraftCms\Commerce\Support\Facades\Inventory`.
 - Added `CraftCms\Commerce\Inventory\InventoryLocations`.
+- Added `CraftCms\Commerce\Support\Facades\InventoryLocations`.
 - Added `CraftCms\Commerce\Inventory\Records\InventoryItem`.
 - Added `CraftCms\Commerce\Inventory\Records\InventoryLocation`.
 - Added `CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection`.
@@ -388,20 +399,30 @@
 - Added `CraftCms\Commerce\Order\LineItem\Data\LineItem`.
 - Added `CraftCms\Commerce\Order\LineItem\Models\LineItem`.
 - Added `CraftCms\Commerce\Order\LineItem\LineItems`.
+- Added `CraftCms\Commerce\Support\Facades\LineItems`.
 - Added `CraftCms\Commerce\Order\LineItem\Enums\LineItemType` enum.
 - Added `CraftCms\Commerce\Order\Orders`.
+- Added `CraftCms\Commerce\Support\Facades\Orders`.
 - Added `CraftCms\Commerce\Order\Carts`.
+- Added `CraftCms\Commerce\Support\Facades\Carts`.
 - Added `CraftCms\Commerce\Order\OrderNotices`.
+- Added `CraftCms\Commerce\Support\Facades\OrderNotices`.
 - Added `CraftCms\Commerce\Order\OrderHistories`.
+- Added `CraftCms\Commerce\Support\Facades\OrderHistories`.
 - Added `CraftCms\Commerce\Order\OrderAdjustments`.
+- Added `CraftCms\Commerce\Support\Facades\OrderAdjustments`.
 - Added `CraftCms\Commerce\Order\OrderStatuses`.
+- Added `CraftCms\Commerce\Support\Facades\OrderStatuses`.
 - Added `CraftCms\Commerce\Order\LineItemStatuses`.
+- Added `CraftCms\Commerce\Support\Facades\LineItemStatuses`.
 - Added `CraftCms\Commerce\Order\Adjuster\Tax`.
 - Added `CraftCms\Commerce\Order\Adjuster\Shipping`.
 - Added `CraftCms\Commerce\Order\Adjuster\Discount`.
 - Added `CraftCms\Commerce\Order\Adjuster\Contracts\AdjusterInterface`.
 - Added `CraftCms\Commerce\Order\Adjuster\AdjusterTypes`, a `CraftCms\Cms\Component\TypeRegistry` for registering order adjuster types.
+- Added `CraftCms\Commerce\Support\Facades\AdjusterTypes`.
 - Added `CraftCms\Commerce\Order\Adjuster\DiscountAdjusterTypes`, a `CraftCms\Cms\Component\TypeRegistry` for registering adjuster types that should be treated as discounts.
+- Added `CraftCms\Commerce\Support\Facades\DiscountAdjusterTypes`.
 - Deprecated `craft\commerce\services\OrderAdjustments::EVENT_REGISTER_ORDER_ADJUSTERS`. `CraftCms\Commerce\Order\Adjuster\AdjusterTypes::register()` should be used instead.
 - Deprecated `craft\commerce\services\OrderAdjustments::EVENT_REGISTER_DISCOUNT_ADJUSTERS`. `CraftCms\Commerce\Order\Adjuster\DiscountAdjusterTypes::register()` should be used instead.
 - Added `CraftCms\Commerce\Order\Exporters\Expanded`.
@@ -494,12 +515,19 @@
 ### Payments
 
 - Added `CraftCms\Commerce\Payment\Transactions`.
+- Added `CraftCms\Commerce\Support\Facades\Transactions`.
 - Added `CraftCms\Commerce\Payment\PaymentSources`.
+- Added `CraftCms\Commerce\Support\Facades\PaymentSources`.
 - Added `CraftCms\Commerce\Payment\Gateway\Gateways`.
+- Added `CraftCms\Commerce\Support\Facades\Gateways`.
 - Added `CraftCms\Commerce\Payment\Payments`.
+- Added `CraftCms\Commerce\Support\Facades\Payments`.
 - Added `CraftCms\Commerce\Payment\Webhooks`.
+- Added `CraftCms\Commerce\Support\Facades\Webhooks`.
 - Added `CraftCms\Commerce\Payment\Currencies`.
+- Added `CraftCms\Commerce\Support\Facades\Currencies`.
 - Added `CraftCms\Commerce\Payment\PaymentCurrencies`.
+- Added `CraftCms\Commerce\Support\Facades\PaymentCurrencies`.
 - Added `CraftCms\Commerce\Payment\Records\Transaction`.
 - Added `CraftCms\Commerce\Payment\Records\PaymentSource`.
 - Added `CraftCms\Commerce\Payment\Gateway\Records\Gateway`.
@@ -522,6 +550,7 @@
 - Added `CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface`.
 - Added `CraftCms\Commerce\Payment\Gateway\Contracts\RequestResponseInterface`.
 - Added `CraftCms\Commerce\Payment\Gateway\GatewayTypes`, a `CraftCms\Cms\Component\TypeRegistry` for registering gateway types.
+- Added `CraftCms\Commerce\Support\Facades\GatewayTypes`.
 - Deprecated `craft\commerce\services\Gateways::EVENT_REGISTER_GATEWAY_TYPES`. `CraftCms\Commerce\Payment\Gateway\GatewayTypes::register()` should be used instead.
 - Added `CraftCms\Commerce\Payment\Gateway\Gateway`.
 - Added `CraftCms\Commerce\Payment\Gateway\Types\Dummy`.
@@ -592,8 +621,11 @@
 ### Promotions
 
 - Added `CraftCms\Commerce\Promotion\Discounts`.
+- Added `CraftCms\Commerce\Support\Facades\Discounts`.
 - Added `CraftCms\Commerce\Promotion\Sales`.
+- Added `CraftCms\Commerce\Support\Facades\Sales`.
 - Added `CraftCms\Commerce\Promotion\Coupons`.
+- Added `CraftCms\Commerce\Support\Facades\Coupons`.
 - Added `CraftCms\Commerce\Promotion\Models\Discount`.
 - Added `CraftCms\Commerce\Promotion\Models\Sale`.
 - Added `CraftCms\Commerce\Promotion\Models\Coupon`.
@@ -663,11 +695,13 @@
 - Added `CraftCms\Commerce\Purchasable\Validation\PurchasableRules`.
 - Added `CraftCms\Commerce\Purchasable\Validation\DonationRules`.
 - Added `CraftCms\Commerce\Purchasable\Purchasables`.
+- Added `CraftCms\Commerce\Support\Facades\Purchasables`.
 - Added `CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface`.
 - Added `CraftCms\Commerce\Purchasable\Events\PurchasableAvailableEvent`.
 - Added `CraftCms\Commerce\Purchasable\Events\PurchasableOutOfStockPurchasesAllowedEvent`.
 - Added `CraftCms\Commerce\Purchasable\Events\PurchasableShippableEvent`.
 - Added `CraftCms\Commerce\Purchasable\PurchasableTypes`, a `CraftCms\Cms\Component\TypeRegistry` for registering purchasable element types.
+- Added `CraftCms\Commerce\Support\Facades\PurchasableTypes`.
 - Deprecated `craft\commerce\services\Purchasables::EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES`. `CraftCms\Commerce\Purchasable\PurchasableTypes::register()` should be used instead.
 - Deprecated `craft\commerce\base\Purchasable`. `CraftCms\Commerce\Purchasable\Elements\Purchasable` should be used instead.
 - Deprecated `craft\commerce\elements\Donation`. `CraftCms\Commerce\Purchasable\Elements\Donation` should be used instead.
@@ -696,10 +730,15 @@
 ### Shipping
 
 - Added `CraftCms\Commerce\Shipping\ShippingMethods`.
+- Added `CraftCms\Commerce\Support\Facades\ShippingMethods`.
 - Added `CraftCms\Commerce\Shipping\ShippingRules`.
+- Added `CraftCms\Commerce\Support\Facades\ShippingRules`.
 - Added `CraftCms\Commerce\Shipping\ShippingRuleCategories`.
+- Added `CraftCms\Commerce\Support\Facades\ShippingRuleCategories`.
 - Added `CraftCms\Commerce\Shipping\ShippingCategories`.
+- Added `CraftCms\Commerce\Support\Facades\ShippingCategories`.
 - Added `CraftCms\Commerce\Shipping\ShippingZones`.
+- Added `CraftCms\Commerce\Support\Facades\ShippingZones`.
 - Added `CraftCms\Commerce\Shipping\Models\ShippingRule`.
 - Added `CraftCms\Commerce\Shipping\Models\ShippingMethod`.
 - Added `CraftCms\Commerce\Shipping\Models\ShippingMethodOption`.
@@ -751,7 +790,9 @@
 ### Stores
 
 - Added `CraftCms\Commerce\Store\Stores`.
+- Added `CraftCms\Commerce\Support\Facades\Stores`.
 - Added `CraftCms\Commerce\Store\StoreSettings`.
+- Added `CraftCms\Commerce\Support\Facades\StoreSettings`.
 - Added `CraftCms\Commerce\Store\Models\Store`.
 - Added `CraftCms\Commerce\Store\Models\StoreSettings`.
 - Added `CraftCms\Commerce\Store\Models\SiteStore`.
@@ -819,7 +860,12 @@
 ### Tax
 
 - Added `CraftCms\Commerce\Tax\TaxCategories`.
+- Added `CraftCms\Commerce\Support\Facades\TaxCategories`.
 - Added `CraftCms\Commerce\Tax\TaxZones`.
+- Added `CraftCms\Commerce\Support\Facades\TaxZones`.
+- Added `CraftCms\Commerce\Support\Facades\TaxRates`.
+- Added `CraftCms\Commerce\Support\Facades\Taxes`.
+- Added `CraftCms\Commerce\Support\Facades\Vat`.
 - Added `CraftCms\Commerce\Tax\Records\TaxCategory`.
 - Added `CraftCms\Commerce\Tax\Records\TaxZone`.
 - Added `CraftCms\Commerce\Tax\Records\TaxRate`.
@@ -856,6 +902,7 @@
 - Added `CraftCms\Commerce\Transfer\Conditions\TransferCondition`.
 - Added `CraftCms\Commerce\Transfer\FieldLayoutElements\TransferManagementField`.
 - Added `CraftCms\Commerce\Transfer\Transfers`.
+- Added `CraftCms\Commerce\Support\Facades\Transfers`.
 - Added `CraftCms\Commerce\Transfer\Models\TransferDetail`.
 - Added `CraftCms\Commerce\Transfer\Records\Transfer`.
 - Added `CraftCms\Commerce\Transfer\Records\TransferDetail`.
@@ -912,29 +959,6 @@
 - Removed `craft\commerce\models\Settings::VIEW_URI_CUSTOMERS`, `VIEW_URI_PROMOTIONS`, `VIEW_URI_SHIPPING`, and `VIEW_URI_TAX` constants.
 - Improved `craft\commerce\Plugin`'s `Plugin::getInstance()->getX()` service getters to be backed by a lazy-instantiate-and-cache trait rather than Yii2's component locator.
 
-### System
-
-- Raised `Plugin::$minVersionRequired` from `3.4.11` to `5.7.3` (the latest 5.x patch release, kept in sync as new patches ship until 6.0 stable). Installs must be on at least that version before updating to Commerce 6.0.
-- Removed the Commerce Yii2 debug panel and all related classes (`CommercePanel`, `DebugPanel` helper, `CommerceDebugPanelDataEvent`, and its Twig views) — the Yii2 debug module they relied on no longer exists in Craft CMS 6.
-- Added `getPriceAsCurrency()` to `CraftCms\Commerce\Shipping\Models\ShippingMethodOption` and `getAmountAsCurrency()` to `CraftCms\Commerce\Order\Models\OrderAdjustment` (the latter used repeatedly in the shipped `example-templates/`), closing out the rest of the `CurrencyAttributeBehavior` removal — third-party templates/plugins could still call these via the legacy behavior's magic `__call`, independent of whether Commerce's own code used them.
-- Added `CraftCms\Commerce\Plugin::HANDLE`, replacing the `Plugin::getInstance()->handle` runtime lookup at its one call site (`Catalog\Products::afterSaveSiteHandler()`), which was also fixed to reference the new `CraftCms\Commerce\Plugin` instead of the legacy `craft\commerce\Plugin`.
-- Moved CKEditor's product/variant rich-text link options registration from `craft\commerce\Plugin::boot()` to `CraftCms\Commerce\Plugin::registerCKEditorLinkOptions()`. Dropped Redactor support entirely, since the Redactor plugin isn't supported under Craft 6.
-- Reorganized every domain's `Records\*`/`Models\*` split under `src/` into a consistent two-namespace convention: `Models\*` is now Eloquent persistence models only, and `Data\*` holds everything else (plain data/config objects). `Records\*` is gone.
-- Moved `CraftCms\Commerce\Tax\Models\EuVatIdValidator` to `CraftCms\Commerce\Tax\VatValidator\Eu`.
-- Moved `craft\commerce\Plugin::_registerProjectConfigEventListeners()` to `CraftCms\Commerce\Plugin::registerProjectConfigEventListeners()`, using `CraftCms\Cms\ProjectConfig\ProjectConfig::onAdd()`/`onUpdate()`/`onRemove()` and `CraftCms\Cms\ProjectConfig\Events\ConfigEvent` instead of their legacy Yii2 equivalents. `ProductTypes::pruneDeletedSite()` now listens for the Laravel `SiteDeleted` event instead of `craft\services\Sites::EVENT_AFTER_DELETE_SITE`.
-- Moved `craft\commerce\Plugin::_registerPoweredByHeader()` to a real Laravel middleware, `CraftCms\Commerce\Http\Middleware\PoweredByHeader`, pushed onto the `craft` middleware group.
-- Added `CraftCms\Commerce\Plugin\Concerns\HasCommerceEditions` and moved `$schemaVersion`, `$minVersionRequired`, `$hasCpSettings`, and `$hasReadOnlyCpSettings` from `craft\commerce\Plugin` onto `CraftCms\Commerce\Plugin`.
-- `craft\commerce\Plugin` is now a pure `class_alias` shim for `CraftCms\Commerce\Plugin`. Its custom `boot()`/method overrides and the `craft\commerce\plugin\Routes` trait have been ported onto `CraftCms\Commerce\Plugin` or dropped as dead/redundant code (`_registerGqlInterfaces()`/`_registerGqlQueries()`, `beforeInstall()`'s version guards, the `@commerceLib` alias).
-- Split `CraftCms\Commerce\Plugin` into two more `Concerns` traits: `Plugin\Concerns\HasCommerceMacros` (all `Macroable` macro registration) and `Plugin\Concerns\HasCommerceEventListeners` (all event listener registration).
-- Moved the 8 listeners previously registered imperatively in `registerCraftEventListeners()` into 8 dedicated classes under `CraftCms\Commerce\Plugin\Listeners\*`, registered declaratively via `Plugin::$events`.
-- Replaced every `Plugin::getInstance()` call in `src/` with dependency injection.
-- Removed `CraftCms\Commerce\CatalogPricing\CatalogPricing::afterSavePurchasableHandler()` (and its legacy `craft\commerce\services\CatalogPricing` pass-through) as it was deprecated since 5.5.0.
-- Changed `CatalogPricing::generateCatalogPrices()`'s `bool $showConsoleOutput` parameter to `?\Symfony\Component\Console\Output\OutputInterface $output`.
-- Updated every `CraftCms\Commerce\*\Conditions\*ConditionRule` for cms-6's nestable-condition-groups rework: `ElementQueryConditionRuleInterface::modifyQuery()` now takes `(Builder $query, ElementQueryInterface $elementQuery)` instead of a single `ElementQueryInterface $query`. Added `CatalogPricingCondition::createGroup()`, required by the new `ConditionInterface` contract.
-- Fixed several call sites (`Order::validateAddressesInMarketAddressCondition()`, `Order::modifyCustomSource()`, `Gateway::hasOrderCondition()`/`hasBillingAddressCondition()`/`hasShippingAddressCondition()`, `CatalogPricingCondition::modifyQuery()`) that assumed `getConditionRules()` returned an array, now that it returns a `ConditionGroupInterface` object.
-- Removed `GatewayOrderCondition::getBuilderHtml()` and `Address\Conditions\GatewayAddressCondition::getBuilderHtml()`, as `ConditionInterface::getBuilderHtml()` no longer exists; rendering now goes through `CraftCms\Cms\Condition\ConditionBuilderRenderer`.
-- Ported every condition rule's custom input from the removed `inputHtml()`/`elementSelectConfig()`/`inputOptions()` HTML-string methods to the new Form API's `inputNodes()`. Third-party condition rules overriding these methods must be updated accordingly.
-
 ### Translations
 
 - Moved `src-yii2/translations/` to a top-level `lang/` directory (e.g. `lang/en/commerce.php`, `lang/de/commerce.php`), matching the Laravel convention `CraftCms\Cms\Plugin\Concerns\HasTranslations` looks for (`dirname($plugin->getBasePath()).'/lang'`) ahead of the legacy `src/translations` fallback. Message file structure and content are unchanged.
@@ -942,8 +966,5 @@
 
 ### Testing
 
-- Added a Pest/Orchestra Testbench harness under `tests/` (`TestCase`, `UnitTestCase`, `Pest.php`, `Feature/`, `Unit/`, `Arch/`) for testing `CraftCms\Commerce\` code in `src/`. Run via `composer run tests`.
-- Added `CraftCms\Commerce\Product\Variant\Elements\VariantCollection`. 
-- Deprecated `craft\commerce\elements\VariantCollection`.
-- Added `CraftCms\Commerce\Order\DeletionBlockers\OrderCustomersDeletionBlocker`. Deprecated `craft\commerce\elements\deletionblockers\OrderCustomersDeletionBlocker`.
-- Removed the remaining `Craft::createObject()` calls from `src/`, replaced with direct `new X()` construction.
+- Deprecated `craft\commerce\elements\VariantCollection`. Use `CraftCms\Commerce\Product\Variant\Elements\VariantCollection` instead.
+- Deprecated `craft\commerce\elements\deletionblockers\OrderCustomersDeletionBlocker`. Use `CraftCms\Commerce\Order\DeletionBlockers\OrderCustomersDeletionBlocker` instead.

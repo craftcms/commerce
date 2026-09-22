@@ -71,8 +71,6 @@ class TestCase extends Orchestra
 
         parent::setUp();
 
-        $this->registerSqliteCompatibilityFunctions();
-
         config()->set('app.debug', true);
 
         app()->setLocale('en-US');
@@ -80,23 +78,6 @@ class TestCase extends Orchestra
 
         File::cleanDirectory(config_path('craft/project'));
         File::cleanDirectory(storage_path('runtime/compiled_classes'));
-    }
-
-    /**
-     * A handful of query scopes use raw SQL functions (`LEFT()`, `RAND()`) that only MySQL and
-     * PostgreSQL provide — both of Commerce's supported production databases — since this suite
-     * runs against SQLite instead, register compatible substitutes on the current connection so
-     * those scopes behave the same here rather than raising "no such function" errors.
-     */
-    protected function registerSqliteCompatibilityFunctions(): void
-    {
-        if (DB::connection()->getDriverName() !== 'sqlite') {
-            return;
-        }
-
-        $pdo = DB::connection()->getPdo();
-        $pdo->sqliteCreateFunction('LEFT', fn(?string $string, int $length): string => substr((string)$string, 0, $length), 2);
-        $pdo->sqliteCreateFunction('RAND', fn(): float => mt_rand() / mt_getrandmax(), 0);
     }
 
     protected function connectionsToTransact(): array

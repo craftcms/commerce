@@ -21,13 +21,13 @@ use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Store\Stores;
 use DateInterval;
 use DateTime;
-use Illuminate\Container\Attributes\Singleton;
+use Illuminate\Container\Attributes\Scoped;
 use Illuminate\Support\Facades\Cookie;
 
 use Illuminate\Support\Facades\DB;
 use function CraftCms\Cms\currentUserElement;
 
-#[Singleton]
+#[Scoped]
 class Carts
 {
     public const string EVENT_BEFORE_PURGE_INACTIVE_CARTS = 'beforePurgeInactiveCarts';

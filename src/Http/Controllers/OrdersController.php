@@ -509,7 +509,8 @@ JS, []);
         }
 
         // Do not return any purchasables with temp SKUs
-        $sqlQuery->andWhere(new \yii\db\Expression("LEFT([[purchasables.sku]], " . strlen(Purchasable::TEMPORARY_SKU_PREFIX) . ") != '" . Purchasable::TEMPORARY_SKU_PREFIX . "'"));
+        // SUBSTR(str, start, length) is identical across MySQL/MariaDB, PostgreSQL, and SQLite.
+        $sqlQuery->andWhere(new \yii\db\Expression("SUBSTR([[purchasables.sku]], 1, " . strlen(Purchasable::TEMPORARY_SKU_PREFIX) . ") != '" . Purchasable::TEMPORARY_SKU_PREFIX . "'"));
 
         // Do not return soft deleted purchasables
         $sqlQuery->andWhere(['elements.dateDeleted' => null]);

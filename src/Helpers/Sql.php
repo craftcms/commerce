@@ -43,4 +43,12 @@ class Sql
     {
         return DB::connection()->getDriverName() === 'sqlite' ? "CAST($expression AS DECIMAL(24,6))" : $expression;
     }
+
+    public static function randomSql(): string
+    {
+        return match (DB::connection()->getDriverName()) {
+            'mariadb', 'mysql' => 'RAND()',
+            default => 'RANDOM()',
+        };
+    }
 }

@@ -33,14 +33,14 @@ use CraftCms\Commerce\Promotion\Models\EmailDiscountUse as EmailDiscountUseRecor
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Store\Stores;
 use DateTime;
-use Illuminate\Container\Attributes\Singleton;
+use Illuminate\Container\Attributes\Scoped;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\t;
 
-#[Singleton]
+#[Scoped]
 class Discounts
 {
     /** @var array<int, Collection<int, Discount>>|null */

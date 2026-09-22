@@ -15,10 +15,12 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Transfer\Data\TransferDetail;
 use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Transfer\FieldLayoutElements\TransferManagementField;
+use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;
 
 use function CraftCms\Cms\t;
 
+#[Singleton]
 class Transfers
 {
     public const string CONFIG_FIELDLAYOUT_KEY = 'commerce.transfers.fieldLayouts';

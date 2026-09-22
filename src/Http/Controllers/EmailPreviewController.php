@@ -8,11 +8,11 @@ use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Helpers\Locale;
+use CraftCms\Commerce\Helpers\Sql;
 use CraftCms\Commerce\Order\Data\OrderHistory;
 use CraftCms\Commerce\Order\Elements\Order;
 use Illuminate\Http\Request;
 
-use Illuminate\Support\Facades\DB;
 use function CraftCms\Cms\t;
 use function CraftCms\Cms\template;
 
@@ -31,12 +31,7 @@ readonly class EmailPreviewController
             $order = Order::find()->shortNumber(substr((string)$orderNumber, 0, 7))->one();
         } else {
             $orderQuery = Order::find()->isCompleted(true);
-
-            if (DB::connection()->getDriverName() === 'pgsql') {
-                $orderQuery->orderByRaw('RANDOM()');
-            } else {
-                $orderQuery->orderByRaw('RAND()');
-            }
+            $orderQuery->orderByRaw(Sql::randomSql());
 
             $order = $orderQuery->one();
         }

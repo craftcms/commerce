@@ -15,7 +15,7 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Sql;
 use CraftCms\Commerce\Store\Stores;
 use DateTime;
-use Illuminate\Container\Attributes\Singleton;
+use Illuminate\Container\Attributes\Scoped;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[Singleton]
+#[Scoped]
 class CatalogPricing
 {
     private ?array $allCatalogPrices = null;
