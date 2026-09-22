@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where the `dateAuthorized` order query param incorrectly filtered on the `datePaid`. 
+
 ## 5.7.4 - 2026-09-15
 
 - Fixed a bug where custom order fields with a visibility condition based on order attributes couldn’t be saved. ([#4198](https://github.com/craftcms/commerce/issues/4198))
