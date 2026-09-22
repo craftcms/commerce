@@ -17,14 +17,14 @@ use CraftCms\Commerce\Purchasable\Events\PurchasableAvailableEvent;
 use CraftCms\Commerce\Purchasable\Events\PurchasableOutOfStockPurchasesAllowedEvent;
 use CraftCms\Commerce\Purchasable\Events\PurchasableShippableEvent;
 use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery;
-use Illuminate\Container\Attributes\Singleton;
+use Illuminate\Container\Attributes\Scoped;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 use Throwable;
 use function CraftCms\Cms\currentUserElement;
 
-#[Singleton]
+#[Scoped]
 class Purchasables
 {
     public const string EVENT_PURCHASABLE_OUT_OF_STOCK_PURCHASES_ALLOWED = 'allowOutOfStockPurchases';

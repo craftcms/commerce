@@ -7,7 +7,7 @@ namespace CraftCms\Commerce\Formula;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Twig\Environment;
 use Exception;
-use Illuminate\Container\Attributes\Singleton;
+use Illuminate\Container\Attributes\Scoped;
 use Illuminate\Support\Facades\Cache;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
@@ -16,7 +16,7 @@ use Twig\Loader\FilesystemLoader;
 use Twig\Sandbox\SecurityPolicy;
 use function CraftCms\Cms\t;
 
-#[Singleton]
+#[Scoped]
 class Formulas
 {
     private Environment $twigEnv;
