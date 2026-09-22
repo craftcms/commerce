@@ -165,6 +165,8 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
         Route::post('discounts/save', [DiscountsController::class, 'save']);
         Route::post('discounts/render-form', [DiscountsController::class, 'renderForm']);
         Route::post('discounts/reorder', [DiscountsController::class, 'reorder']);
+        Route::post('discounts/table-data', [DiscountsController::class, 'tableData']);
+        Route::post('discounts/move-to-page', [DiscountsController::class, 'moveToPage']);
         Route::post('discounts/delete', [DiscountsController::class, 'delete']);
         Route::post('discounts/clear-discount-uses', [DiscountsController::class, 'clearDiscountUses']);
         Route::post('discounts/update-status', [DiscountsController::class, 'updateStatus']);

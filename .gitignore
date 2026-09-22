@@ -8,6 +8,8 @@
 *aspnet_client/*
 node_modules/
 /vendor
+# Vue 3/Vite pipeline output (matches cms's own convention); legacy/'s webpack dist/ stays committed — no CI build step for it.
+/public/build
 .env
 .phpunit.cache
 *-private.md

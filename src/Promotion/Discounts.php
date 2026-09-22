@@ -707,6 +707,34 @@ class Discounts
         return true;
     }
 
+    /**
+     * Moves a discount to an absolute 0-based rank across the whole store-wide ordered set —
+     * used by the paginated `Table` Node's within-page reorder and "move to page" action, where
+     * the client only has one page's ids loaded, not the full list {@see reorderDiscounts()}
+     * needs.
+     *
+     * Re-derives the full id list and delegates to {@see reorderDiscounts()} rather than
+     * shifting a `sortOrder` value directly: `sortOrder` isn't guaranteed contiguous (a deleted
+     * discount leaves a gap), so treating the target as a literal value would land the wrong
+     * rank whenever a gap precedes it. This is rank-correct regardless of gaps, and self-heals
+     * any that already exist.
+     */
+    public function moveDiscountToPosition(int $id, int $toPosition): bool
+    {
+        $ids = DB::table(Table::DISCOUNTS)->orderBy('sortOrder')->pluck('id')->all();
+        $currentIndex = array_search($id, $ids); // loose: ids may come back as strings
+
+        if ($currentIndex === false) {
+            return false;
+        }
+
+        array_splice($ids, $currentIndex, 1);
+        $toPosition = max(0, min($toPosition, count($ids)));
+        array_splice($ids, $toPosition, 0, [$id]);
+
+        return $this->reorderDiscounts($ids);
+    }
+
     public function appendCouponCode(int $discountId, string|Coupon $coupon, ?int $maxUses = null): bool
     {
         $discount = $this->getDiscountById($discountId);

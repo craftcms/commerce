@@ -53,6 +53,8 @@ use CraftCms\Commerce\Store\Stores;
 use DateTime;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\currentUserElement;
@@ -75,43 +77,12 @@ readonly class DiscountsController extends BaseStoreManagementController
         return ['label' => t('Discounts', category: 'commerce'), 'href' => $store->getStoreSettingsUrl('discounts')];
     }
 
+    /** Page size for the {@see Table} Node's `dataUrl()` mode (smaller than legacy's 100, to exercise pagination at this screen's current scale). */
+    private const int DISCOUNTS_PER_PAGE = 10;
+
     public function index(?string $storeHandle = null): CpScreenResponse
     {
         $store = $this->resolveStore($storeHandle);
-
-        $discounts = app(Discounts::class)->getAllDiscounts($store->id);
-
-        $dateFormat = I18N::getFormattingLocale()->getDateTimeFormat('short', Locale::FORMAT_PHP);
-        $rows = $discounts
-            ->map(function(Discount $discount) use ($store, $dateFormat) {
-                $dateRange = (!$discount->dateFrom && !$discount->dateTo)
-                    ? '∞'
-                    : ($discount->dateFrom?->format($dateFormat) ?? '∞') . ' - ' . ($discount->dateTo?->format($dateFormat) ?? '∞');
-
-                // Matches the legacy screen's own search exactly: name, description, and any
-                // coupon code — the latter two never columns here (or there) either.
-                $couponCodes = collect(app(Coupons::class)->getCouponsByDiscountId($discount->id))
-                    ->map(fn(Coupon $coupon) => $coupon->code)
-                    ->implode(' ');
-
-                return [
-                    'id' => $discount->id,
-                    // `_status` gets Table's own status dot for free — matching the legacy
-                    // VueAdminTable screen's own plain enabled/disabled boolean, not a richer
-                    // live/pending/expired scheme (`dateFrom`/`dateTo` are already their own
-                    // "Duration" column).
-                    '_status' => $discount->enabled,
-                    '_search' => trim("{$discount->name} {$discount->description} {$couponCodes}"),
-                    'name' => ['label' => t($discount->name, category: 'site'), 'url' => $store->getStoreSettingsUrl('discounts/' . $discount->id)],
-                    'requireCouponCode' => $discount->requireCouponCode ? ['icon' => 'check', 'label' => t('Yes')] : '',
-                    'duration' => $dateRange,
-                    'timesUsed' => $discount->totalDiscountUses,
-                    'stop' => $discount->stopProcessing ? ['icon' => 'check', 'label' => t('Yes')] : '',
-                    'ignore' => $discount->ignorePromotions ? ['icon' => 'check', 'label' => t('Yes')] : '',
-                ];
-            })
-            ->values()
-            ->all();
 
         $nodes = [
             Table::make('discounts')
@@ -123,7 +94,8 @@ readonly class DiscountsController extends BaseStoreManagementController
                     ['key' => 'stop', 'label' => t('Stops Processing?', category: 'commerce')],
                     ['key' => 'ignore', 'label' => t('Ignore Promotions?', category: 'commerce')],
                 ])
-                ->rows($rows)
+                ->dataUrl(action([self::class, 'tableData'], ['storeHandle' => $store->handle]), self::DISCOUNTS_PER_PAGE)
+                ->moveToPageUrl(action([self::class, 'moveToPage'], ['storeHandle' => $store->handle]))
                 ->emptyMessage(t('No discounts exist yet.', category: 'commerce'))
                 ->searchable()
                 ->when(
@@ -141,14 +113,9 @@ readonly class DiscountsController extends BaseStoreManagementController
                 )
                 ->when(
                     currentUserElement()?->can('commerce-editDiscounts'),
-                    fn(Table $table) => $table->bulkActions([
-                        [
-                            'label' => t('Set status', category: 'commerce'),
-                            'items' => [
-                                ['label' => t('Enabled', category: 'commerce'), 'url' => action([self::class, 'updateStatus']), 'params' => ['status' => 'enabled']],
-                                ['label' => t('Disabled', category: 'commerce'), 'url' => action([self::class, 'updateStatus']), 'params' => ['status' => 'disabled']],
-                            ],
-                        ],
+                    fn(Table $table) => $table->statusActions([
+                        ['label' => t('Enabled', category: 'commerce'), 'url' => action([self::class, 'updateStatus']), 'params' => ['status' => 'enabled']],
+                        ['label' => t('Disabled', category: 'commerce'), 'url' => action([self::class, 'updateStatus']), 'params' => ['status' => 'disabled']],
                     ]),
                 ),
         ];
@@ -159,6 +126,113 @@ readonly class DiscountsController extends BaseStoreManagementController
             ->inertiaPage('Form', [
                 'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
             ]);
+    }
+
+    /** {@see Table::dataUrl()}'s endpoint: one (optionally searched) page of discounts, paginated the same way {@see \CraftCms\Cms\Http\ViewModels\ContentIndexViewModel::pagination()} does. */
+    public function tableData(Request $request): JsonResponse
+    {
+        abort_unless($request->expectsJson(), 400);
+
+        $store = $this->resolveStore($request->input('storeHandle'));
+        $page = max(1, (int) $request->input('page', 1));
+        $perPage = self::DISCOUNTS_PER_PAGE;
+        $search = trim((string) $request->input('search', ''));
+
+        $discounts = $this->searchedDiscounts($store, $search);
+        $dateFormat = I18N::getFormattingLocale()->getDateTimeFormat('short', Locale::FORMAT_PHP);
+
+        $rows = Table::prepareRows(
+            $discounts
+                ->slice(($page - 1) * $perPage, $perPage)
+                ->map(fn(Discount $discount) => $this->buildDiscountRow($discount, $store, $dateFormat))
+                ->values()
+                ->all(),
+        );
+
+        $paginator = new LengthAwarePaginator($rows, $discounts->count(), $perPage, $page, [
+            'path' => LengthAwarePaginator::resolveCurrentPath(),
+        ]);
+
+        return new JsonResponse([
+            'data' => $rows,
+            'pagination' => [
+                'total' => $paginator->total(),
+                'per_page' => $paginator->perPage(),
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'next_page_url' => $paginator->nextPageUrl(),
+                'prev_page_url' => $paginator->previousPageUrl(),
+                'from' => $paginator->firstItem(),
+                'to' => $paginator->lastItem(),
+            ],
+        ]);
+    }
+
+    /** {@see Table::moveToPageUrl()}'s endpoint — see {@see Discounts::moveDiscountToPosition()} for the actual move. */
+    public function moveToPage(Request $request): Response
+    {
+        abort_unless($request->expectsJson(), 400);
+
+        $store = $this->resolveStore($request->input('storeHandle'));
+        $id = (int) $request->input('id');
+        $page = max(1, (int) $request->input('page', 1));
+
+        $discount = app(Discounts::class)->getDiscountById($id, $store->id);
+        abort_if($discount === null, 404);
+
+        $toPosition = ($page - 1) * self::DISCOUNTS_PER_PAGE;
+
+        if (!app(Discounts::class)->moveDiscountToPosition($id, $toPosition)) {
+            return $this->asFailure(t('Couldn’t reorder discounts.', category: 'commerce'));
+        }
+
+        return $this->asSuccess();
+    }
+
+    /**
+     * Matches the legacy screen's own search exactly: name, description, and any coupon code
+     * (neither a column here).
+     *
+     * @return Collection<int, Discount>
+     */
+    private function searchedDiscounts(Store $store, string $search): Collection
+    {
+        $discounts = app(Discounts::class)->getAllDiscounts($store->id);
+
+        if ($search === '') {
+            return $discounts;
+        }
+
+        $needle = mb_strtolower($search);
+
+        return $discounts->filter(function(Discount $discount) use ($needle) {
+            $couponCodes = collect(app(Coupons::class)->getCouponsByDiscountId($discount->id))
+                ->map(fn(Coupon $coupon) => $coupon->code)
+                ->implode(' ');
+
+            $haystack = mb_strtolower(trim("{$discount->name} {$discount->description} {$couponCodes}"));
+
+            return str_contains($haystack, $needle);
+        })->values();
+    }
+
+    /** `_status` gives a plain enabled/disabled dot (matching legacy), not a richer live/pending/expired scheme — `dateFrom`/`dateTo` already have their own "Duration" column. */
+    private function buildDiscountRow(Discount $discount, Store $store, string $dateFormat): array
+    {
+        $dateRange = (!$discount->dateFrom && !$discount->dateTo)
+            ? '∞'
+            : ($discount->dateFrom?->format($dateFormat) ?? '∞') . ' - ' . ($discount->dateTo?->format($dateFormat) ?? '∞');
+
+        return [
+            'id' => $discount->id,
+            '_status' => $discount->enabled,
+            'name' => ['label' => t($discount->name, category: 'site'), 'url' => $store->getStoreSettingsUrl('discounts/' . $discount->id)],
+            'requireCouponCode' => $discount->requireCouponCode ? ['icon' => 'check', 'label' => t('Yes')] : '',
+            'duration' => $dateRange,
+            'timesUsed' => $discount->totalDiscountUses,
+            'stop' => $discount->stopProcessing ? ['icon' => 'check', 'label' => t('Yes')] : '',
+            'ignore' => $discount->ignorePromotions ? ['icon' => 'check', 'label' => t('Yes')] : '',
+        ];
     }
 
     public function edit(?string $storeHandle = null, ?int $id = null): Response|CpScreenResponse
@@ -646,9 +720,22 @@ readonly class DiscountsController extends BaseStoreManagementController
         $discount->setCoupons($discountCoupons);
     }
 
+    /** Two payload shapes, same `id`/`ids` dual-payload precedent {@see delete()} follows: upfront mode posts the full reordered `ids`; endpoint mode (only one page loaded) posts a single `id`/`toPosition` instead. */
     public function reorder(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
+
+        if ($request->has('toPosition')) {
+            $id = (int) $request->input('id');
+            $toPosition = (int) $request->input('toPosition');
+
+            if (!app(Discounts::class)->moveDiscountToPosition($id, $toPosition)) {
+                return $this->asFailure(t('Couldn’t reorder discounts.', category: 'commerce'));
+            }
+
+            return $this->asSuccess();
+        }
+
         abort_unless($request->input('ids'), 400, 'Missing ids');
 
         $ids = $request->input('ids');
