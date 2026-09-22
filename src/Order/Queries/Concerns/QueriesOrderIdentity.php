@@ -77,7 +77,8 @@ trait QueriesOrderIdentity
             throw new QueryAbortedException();
         }
 
-        $query->whereRaw('LEFT(commerce_orders.number, 7) = ?', [$value]);
+        // SUBSTR(str, start, length) is identical across MySQL/MariaDB, PostgreSQL, and SQLite.
+        $query->whereRaw('SUBSTR(commerce_orders.number, 1, 7) = ?', [$value]);
     }
 
     public static function applyReference(BuilderContract $query, mixed $value): void
