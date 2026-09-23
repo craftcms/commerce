@@ -17,7 +17,6 @@ use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Addresses;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\HtmlStack;
-use CraftCms\Cms\Support\Facades\InputNamespace;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Commerce\Inventory\Data\DeactivateInventoryLocation;
 use CraftCms\Commerce\Inventory\Data\InventoryLocation;
@@ -70,8 +69,6 @@ readonly class InventoryLocationsController
             $inventoryLocation = new InventoryLocation();
             $title = t('Create a new inventory location');
         }
-
-        InputNamespace::set('inventoryLocationAddress');
 
         $address = $inventoryLocation->getAddress();
         $fieldLayout = $address->getFieldLayout();
