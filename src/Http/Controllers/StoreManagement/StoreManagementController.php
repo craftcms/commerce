@@ -8,7 +8,7 @@ use craft\helpers\Cp;
 use CraftCms\Cms\Form\Controls\Address as AddressControl;
 use CraftCms\Cms\Form\Controls\Choice;
 use CraftCms\Cms\Form\Controls\Combobox;
-use CraftCms\Cms\Form\Controls\ComboboxCreate;
+use CraftCms\Cms\Form\Controls\Combobox\CreateOption as ComboboxCreateOption;
 use CraftCms\Cms\Form\Controls\ConditionBuilder;
 use CraftCms\Cms\Form\Form;
 use CraftCms\Cms\Form\FormContext;
@@ -250,24 +250,22 @@ readonly class StoreManagementController extends BaseStoreManagementController
             if ($canCreate) {
                 // No `category` here, matching InventoryLocationsController::edit()'s own title
                 // for this same screen — not a commerce.php string.
-                $inventoryLocationOptions[] = ['label' => t('Create a new inventory location'), 'value' => '__add__'];
+                $inventoryLocationOptions[] = new ComboboxCreateOption(
+                    t('Create a new inventory location'),
+                    action([InventoryLocationsController::class, 'edit']),
+                    'inventoryLocation',
+                );
             }
 
             // Not ->limit(): that caps how many *unselected* options render in the dropdown at
             // once (a UI performance guard), not how many the user is allowed to pick — an
             // entirely different, unrelated concept that happened to share a name with the
             // edition's own inventory-location-count limit computed above.
-            $inventoryLocationsControl = ComboboxCreate::make('inventoryLocations')
+            $inventoryLocationsControl = Combobox::make('inventoryLocations')
                 ->multiple()
                 ->options($inventoryLocationOptions)
                 ->requireOptionMatch()
                 ->showAllOnEmpty();
-
-            if ($canCreate) {
-                $inventoryLocationsControl
-                    ->createUrl(action([InventoryLocationsController::class, 'edit']))
-                    ->resultKey('inventoryLocation');
-            }
 
             $formNodes[] = Heading::make('inventory-locations-heading', t('Inventory Locations', category: 'commerce'));
             $formNodes[] = Field::make(t('Inventory Locations', category: 'commerce'), $inventoryLocationsControl)
