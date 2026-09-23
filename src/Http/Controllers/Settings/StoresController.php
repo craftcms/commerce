@@ -84,7 +84,7 @@ class StoresController extends BaseSettingsController
         $form = $this->buildStoreForm($storeModel, $brandNewStore, $allowCurrencyChange, $availableSiteOptions, $currencyOptions);
         $values = $this->storeInitialValues($storeModel);
 
-        return $this->cpScreenResponse()
+        return $this->cpScreenResponse(subnav: false)
             ->title($title)
             ->crumbs($brandNewStore ? $this->crumbs() : $this->crumbs(['label' => $title]))
             ->redirectUrl('commerce/settings/stores')

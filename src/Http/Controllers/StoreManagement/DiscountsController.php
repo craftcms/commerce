@@ -260,7 +260,7 @@ readonly class DiscountsController extends BaseStoreManagementController
             new FormContext(values: $values, refreshable: true),
         );
 
-        return $this->cpScreenResponse($store)
+        return $this->cpScreenResponse($store, subnav: false)
             ->title($title)
             ->crumbs($this->crumbs($store, ...($discount->id ? [['label' => $title]] : [])))
             ->action('commerce/discounts/save')

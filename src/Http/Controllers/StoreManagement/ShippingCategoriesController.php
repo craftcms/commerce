@@ -125,7 +125,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
             new FormContext(values: $values, refreshable: true),
         );
 
-        return $this->cpScreenResponse($store)
+        return $this->cpScreenResponse($store, subnav: false)
             ->title($title)
             ->crumbs($this->crumbs($store, ...($shippingCategory->id ? [['label' => $title]] : [])))
             ->action('commerce/shipping-categories/save')

@@ -175,7 +175,7 @@ class LineItemStatusesController extends BaseSettingsController
             mode: $this->generalConfig->allowAdminChanges ? ControlMode::Editable : ControlMode::ReadOnly,
         ));
 
-        return $this->cpScreenResponse()
+        return $this->cpScreenResponse(subnav: false)
             ->title($title)
             ->crumbs($lineItemStatus->id ? $this->crumbs(['label' => $title]) : $this->crumbs())
             ->action('commerce/line-item-statuses/save')

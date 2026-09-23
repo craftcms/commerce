@@ -212,7 +212,7 @@ class OrderStatusesController extends BaseSettingsController
             mode: $this->generalConfig->allowAdminChanges ? ControlMode::Editable : ControlMode::ReadOnly,
         ));
 
-        return $this->cpScreenResponse()
+        return $this->cpScreenResponse(subnav: false)
             ->title($title)
             ->crumbs($orderStatus->id ? $this->crumbs(['label' => $title]) : $this->crumbs())
             ->action('commerce/order-statuses/save')

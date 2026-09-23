@@ -83,7 +83,7 @@ readonly class ShippingRulesController extends BaseStoreManagementController
 
         $redirectUrl = $store->getStoreSettingsUrl("shippingmethods/{$shippingMethod->id}#rules");
 
-        $response = $this->cpScreenResponse($store)
+        $response = $this->cpScreenResponse($store, subnav: false)
             ->title($title)
             ->crumbs($this->crumbs(
                 $store,

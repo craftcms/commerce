@@ -163,7 +163,7 @@ class EmailsController extends BaseSettingsController
             refreshable: !$this->readOnly,
         ));
 
-        return $this->cpScreenResponse()
+        return $this->cpScreenResponse(subnav: false)
             ->title($title)
             ->crumbs($email->id ? $this->crumbs(['label' => $title]) : $this->crumbs())
             ->action('commerce/emails/save')

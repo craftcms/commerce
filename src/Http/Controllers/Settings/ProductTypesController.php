@@ -128,7 +128,7 @@ class ProductTypesController extends BaseSettingsController
             ),
         );
 
-        return $this->cpScreenResponse()
+        return $this->cpScreenResponse(subnav: false)
             ->title($title)
             ->crumbs($brandNewProductType ? $this->crumbs() : $this->crumbs(['label' => $title]))
             ->redirectUrl('commerce/settings/producttypes')

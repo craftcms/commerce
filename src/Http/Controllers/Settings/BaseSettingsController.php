@@ -149,9 +149,14 @@ abstract class BaseSettingsController
         return $crumbs;
     }
 
-    protected function cpScreenResponse(): CpScreenResponse
+    /**
+     * `$subnav = false` for a screen reached by drilling into one record from an index's own
+     * table (an edit screen, say) — matching `cms`'s own precedent (e.g. Settings > Sites,
+     * whose edit screen also drops the sites subnav).
+     */
+    protected function cpScreenResponse(bool $subnav = true): CpScreenResponse
     {
         return new CpScreenResponse()
-            ->subnav($this->subnav());
+            ->subnav($subnav ? $this->subnav() : null);
     }
 }

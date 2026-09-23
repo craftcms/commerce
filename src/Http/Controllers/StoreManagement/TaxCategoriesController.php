@@ -224,7 +224,7 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
 
         $form = $this->formResolver->resolve(Form::make($formNodes), new FormContext(values: $values));
 
-        return $this->cpScreenResponse($store)
+        return $this->cpScreenResponse($store, subnav: false)
             ->title($title)
             ->crumbs($this->crumbs($store, ...($taxCategory->id ? [['label' => $title]] : [])))
             ->action('commerce/tax-categories/save')

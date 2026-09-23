@@ -162,7 +162,7 @@ class GatewaysController extends BaseSettingsController
             refreshable: !$this->readOnly,
         ));
 
-        return $this->cpScreenResponse()
+        return $this->cpScreenResponse(subnav: false)
             ->title($title)
             ->crumbs($gateway->id ? $this->crumbs(['label' => $title]) : $this->crumbs())
             ->action('commerce/gateways/save')

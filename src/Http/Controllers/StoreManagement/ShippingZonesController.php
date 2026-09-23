@@ -115,7 +115,7 @@ readonly class ShippingZonesController extends BaseStoreManagementController
 
         $form = $this->formResolver->resolve(Form::make($formNodes), new FormContext(values: $values));
 
-        return $this->cpScreenResponse($store)
+        return $this->cpScreenResponse($store, subnav: false)
             ->title($title)
             ->crumbs($this->crumbs($store, ...($shippingZone->id ? [['label' => $title]] : [])))
             ->action('commerce/shipping-zones/save')

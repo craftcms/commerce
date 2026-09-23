@@ -131,7 +131,7 @@ readonly class TaxRatesController extends BaseStoreManagementController
             new FormContext(values: $values, refreshable: true),
         );
 
-        return $this->cpScreenResponse($store)
+        return $this->cpScreenResponse($store, subnav: false)
             ->title($title)
             ->crumbs($this->crumbs($store, ...($taxRate->id ? [['label' => $title]] : [])))
             ->action('commerce/tax-rates/save')

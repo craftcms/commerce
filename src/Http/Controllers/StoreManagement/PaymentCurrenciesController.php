@@ -150,7 +150,7 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
 
         $form = $this->formResolver->resolve(Form::make($formNodes), new FormContext(values: $values));
 
-        return $this->cpScreenResponse($store)
+        return $this->cpScreenResponse($store, subnav: false)
             ->title($title)
             ->crumbs($this->crumbs($store, ...($currency->id ? [['label' => $title]] : [])))
             ->action('commerce/payment-currencies/save')

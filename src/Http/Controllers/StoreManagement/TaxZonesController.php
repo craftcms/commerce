@@ -124,7 +124,7 @@ readonly class TaxZonesController extends BaseStoreManagementController
 
         $form = $this->formResolver->resolve(Form::make($formNodes), new FormContext(values: $values));
 
-        return $this->cpScreenResponse($store)
+        return $this->cpScreenResponse($store, subnav: false)
             ->title($title)
             ->crumbs($this->crumbs($store, ...($taxZone->id ? [['label' => $title]] : [])))
             ->action('commerce/tax-zones/save')
