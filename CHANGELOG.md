@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.7.5 - 2026-09-23
 
 - Fixed a bug where the `dateAuthorized` order query param incorrectly filtered on the `datePaid`.
 - Fixed a bug where currency-based order condition rules could show the incorrect currency. ([#4368](https://github.com/craftcms/commerce/issues/4368))
