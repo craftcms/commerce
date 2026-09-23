@@ -4,8 +4,8 @@
 
 - Fixed a bug where the `dateAuthorized` order query param incorrectly filtered on the `datePaid`.
 - Fixed a bug where currency-based order condition rules could show the incorrect currency. ([#4368](https://github.com/craftcms/commerce/issues/4368))
-- Fixed a bug where the order edit page could throw an error when generating a PDF URL for an order belonging to a non-primary store. ([#4370](https://github.com/craftcms/commerce/issues/4370))
-- Fixed a PHP error that could occur when deleting a completed order that contained a custom line item. ([#4371](https://github.com/craftcms/commerce/issues/4371))
+- Fixed an error that could occur on order edit pages, for orders belonging to a non-primary store. ([#4370](https://github.com/craftcms/commerce/issues/4370))
+- Fixed an error that could occur when deleting a completed order that contained a custom line item. ([#4371](https://github.com/craftcms/commerce/issues/4371))
 - Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (GHSA-wwpp-9fw2-4cxh)
 
 ## 5.7.4 - 2026-09-15
