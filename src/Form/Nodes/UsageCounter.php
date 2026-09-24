@@ -42,7 +42,8 @@ class UsageCounter implements Node
         private readonly string $resetUrl,
         private readonly array $resetBody,
         private readonly string $resetLabel,
-    ) {}
+    ) {
+    }
 
     /** @param array<string, mixed> $resetBody */
     public static function make(string $uid, string $label, string $resetUrl, array $resetBody, string $resetLabel): self
