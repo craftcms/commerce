@@ -103,6 +103,7 @@ class EmailsController extends BaseSettingsController
                 ])
                 ->rows($rows)
                 ->emptyMessage(t('No emails exist yet.', category: 'commerce'))
+                ->statusFilter()
                 ->when(!$createMenuAssigned && $createMenuItems, function(Table $table) use ($createMenuItems, &$createMenuAssigned) {
                     $table->createActionMenu(t('New email', category: 'commerce'), $createMenuItems)
                         ->createActionInPageHeader();

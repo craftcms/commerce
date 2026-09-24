@@ -84,6 +84,7 @@ readonly class TaxRatesController extends BaseStoreManagementController
                 ])
                 ->rows($rows)
                 ->emptyMessage(t('No tax rates exist yet.', category: 'commerce'))
+                ->statusFilter()
                 ->when(
                     app(Taxes::class)->createTaxRates(),
                     fn(Table $table) => $table->createAction(t('New tax rate', category: 'commerce'), $store->getStoreSettingsUrl('taxrates/new')),

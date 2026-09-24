@@ -97,6 +97,7 @@ readonly class DiscountsController extends BaseStoreManagementController
                 ->dataUrl(action([self::class, 'tableData'], ['storeHandle' => $store->handle]), self::DISCOUNTS_PER_PAGE)
                 ->moveToPageUrl(action([self::class, 'moveToPage'], ['storeHandle' => $store->handle]))
                 ->emptyMessage(t('No discounts exist yet.', category: 'commerce'))
+                ->statusFilter()
                 ->searchable()
                 ->when(
                     currentUserElement()?->can('commerce-createDiscounts'),
@@ -126,7 +127,7 @@ readonly class DiscountsController extends BaseStoreManagementController
             ]);
     }
 
-    /** {@see Table::dataUrl()}'s endpoint: one (optionally searched) page of discounts, paginated the same way {@see \CraftCms\Cms\Http\ViewModels\ContentIndexViewModel::pagination()} does. */
+    /** {@see Table::dataUrl()}'s endpoint: one (optionally searched and status-filtered) page of discounts, paginated the same way {@see \CraftCms\Cms\Http\ViewModels\ContentIndexViewModel::pagination()} does. */
     public function tableData(Request $request): JsonResponse
     {
         abort_unless($request->expectsJson(), 400);
@@ -135,8 +136,12 @@ readonly class DiscountsController extends BaseStoreManagementController
         $page = max(1, (int) $request->input('page', 1));
         $perPage = max(1, $request->integer('per_page', self::DISCOUNTS_PER_PAGE));
         $search = trim((string) $request->input('search', ''));
+        $status = (string) $request->input('status', '');
 
-        $discounts = $this->searchedDiscounts($store, $search);
+        $discounts = $this->searchedDiscounts($store, $search)
+            ->when($status !== '', fn(Collection $discounts) => $discounts
+                ->filter(fn(Discount $discount) => $discount->enabled === ($status === 'enabled'))
+                ->values());
         $dateFormat = I18N::getFormattingLocale()->getDateTimeFormat('short', Locale::FORMAT_PHP);
 
         $rows = Table::prepareRows(

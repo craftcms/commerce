@@ -51,8 +51,9 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
         $rows = $shippingMethods
             ->map(fn(ShippingMethod $shippingMethod) => [
                 'id' => $shippingMethod->id,
+                '_status' => $shippingMethod->getIsEnabled(),
                 'name' => ['html' => app(ElementHtml::class)->chipHtml($shippingMethod, [
-                    'showStatus' => true,
+                    'showStatus' => false,
                     'labelHtml' => Html::a(Html::encode(t($shippingMethod->name, category: 'site')), $shippingMethod->getCpEditUrl(), ['class' => 'cell-bold']),
                 ])],
                 'handle' => $shippingMethod->handle,
@@ -70,6 +71,7 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
                 ])
                 ->rows($rows)
                 ->emptyMessage(t('No shipping methods exist yet.', category: 'commerce'))
+                ->statusFilter()
                 ->createAction(t('New shipping method', category: 'commerce'), $store->getStoreSettingsUrl('shippingmethods/new'))
                 ->deletable(action([self::class, 'delete']), bulk: true)
                 ->statusActions($this->statusActions(action([self::class, 'updateStatus']))),
