@@ -54,6 +54,7 @@ readonly class ShippingZonesController extends BaseStoreManagementController
                 ->rows($rows)
                 ->emptyMessage(t('No shipping zones exist yet.', category: 'commerce'))
                 ->createAction(t('New shipping zone', category: 'commerce'), $store->getStoreSettingsUrl('shippingzones/new'))
+                ->createActionInPageHeader()
                 ->deletable(action([self::class, 'delete'])),
         ];
 

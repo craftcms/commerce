@@ -87,7 +87,9 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
                 ->emptyMessage(t('No tax categories exist yet.', category: 'commerce'))
                 ->when(
                     app(Taxes::class)->createTaxCategories(),
-                    fn(Table $table) => $table->createAction(t('New tax category', category: 'commerce'), $store->getStoreSettingsUrl('taxcategories/new')),
+                    fn(Table $table) => $table
+                        ->createAction(t('New tax category', category: 'commerce'), $store->getStoreSettingsUrl('taxcategories/new'))
+                        ->createActionInPageHeader(),
                 )
                 ->when($canDelete, fn(Table $table) => $table->deletable(action([self::class, 'delete']), bulk: true)),
         ];

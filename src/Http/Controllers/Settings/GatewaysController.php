@@ -79,6 +79,7 @@ class GatewaysController extends BaseSettingsController
                 ->emptyMessage(t('No gateways exist yet.', category: 'commerce'))
                 ->when(!$this->readOnly, fn(Table $table) => $table
                     ->createAction(t('New gateway', category: 'commerce'), cp_url('commerce/settings/gateways/new'))
+                    ->createActionInPageHeader()
                     ->reorderable(action([self::class, 'reorder']))
                     ->deletable(action([self::class, 'archive']))),
         ];

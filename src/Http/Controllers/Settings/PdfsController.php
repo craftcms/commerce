@@ -84,7 +84,8 @@ class PdfsController extends BaseSettingsController
                 ->rows($rows)
                 ->emptyMessage(t('No PDFs exist yet.', category: 'commerce'))
                 ->when(!$createMenuAssigned && $createMenuItems, function(Table $table) use ($createMenuItems, &$createMenuAssigned) {
-                    $table->createActionMenu(t('New PDF', category: 'commerce'), $createMenuItems);
+                    $table->createActionMenu(t('New PDF', category: 'commerce'), $createMenuItems)
+                        ->createActionInPageHeader();
                     $createMenuAssigned = true;
                 })
                 ->when(!$this->readOnly, fn(Table $table) => $table

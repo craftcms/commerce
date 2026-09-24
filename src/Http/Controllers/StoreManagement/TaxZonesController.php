@@ -57,6 +57,7 @@ readonly class TaxZonesController extends BaseStoreManagementController
                 ->rows($rows)
                 ->emptyMessage(t('No tax zones exist yet.', category: 'commerce'))
                 ->createAction(t('New tax zone', category: 'commerce'), $store->getStoreSettingsUrl('taxzones/new'))
+                ->createActionInPageHeader()
                 ->deletable(action([self::class, 'delete'])),
         ];
 

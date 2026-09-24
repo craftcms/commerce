@@ -89,6 +89,7 @@ class ProductTypesController extends BaseSettingsController
                     $this->readOnly ? null : t('New product type', category: 'commerce'),
                     $this->readOnly ? null : cp_url('commerce/settings/producttypes/new'),
                 )
+                ->createActionInPageHeader()
                 ->when(
                     !$this->readOnly,
                     fn(Table $table) => $table->deletable(action([self::class, 'deleteProductType'])),

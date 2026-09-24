@@ -347,6 +347,7 @@ class StoresController extends BaseSettingsController
                     $showNewStoreButton ? t('New store') : null,
                     $showNewStoreButton ? Url::cpUrl('commerce/settings/stores/new') : null,
                 )
+                ->createActionInPageHeader()
                 ->when(!$this->readOnly, fn(Table $table) => $table
                     ->reorderable(action([self::class, 'reorderStores']))
                     ->deletable(

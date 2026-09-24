@@ -71,6 +71,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
                 ->rows($rows)
                 ->emptyMessage(t('No shipping categories exist yet.', category: 'commerce'))
                 ->createAction(t('New shipping category', category: 'commerce'), $store->getStoreSettingsUrl('shippingcategories/new'))
+                ->createActionInPageHeader()
                 ->deletable(action([self::class, 'delete']), bulk: true)
                 ->bulkActions([
                     [

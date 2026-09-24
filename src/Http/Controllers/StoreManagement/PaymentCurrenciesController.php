@@ -67,6 +67,7 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
                 ->rows($rows)
                 ->emptyMessage(t('No additional payment currencies exist yet.', category: 'commerce'))
                 ->createAction(t('New currency', category: 'commerce'), $store->getStoreSettingsUrl('payment-currencies/new'))
+                ->createActionInPageHeader()
                 ->deletable(
                     action([self::class, 'delete']),
                     t('Warning, deleting this currency will stop all payments and refunds in this currency, are you sure you want to delete it?', category: 'commerce'),

@@ -80,7 +80,8 @@ class LineItemStatusesController extends BaseSettingsController
                 ->rows($rows)
                 ->emptyMessage(t('No line item statuses exist yet.', category: 'commerce'))
                 ->when(!$createMenuAssigned && $createMenuItems, function(Table $table) use ($createMenuItems, &$createMenuAssigned) {
-                    $table->createActionMenu(t('New line item status', category: 'commerce'), $createMenuItems);
+                    $table->createActionMenu(t('New line item status', category: 'commerce'), $createMenuItems)
+                        ->createActionInPageHeader();
                     $createMenuAssigned = true;
                 })
                 ->when(!$this->readOnly, fn(Table $table) => $table
