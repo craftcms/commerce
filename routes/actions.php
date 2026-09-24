@@ -174,6 +174,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
         Route::post('discounts/generate-coupons', [DiscountsController::class, 'generateCoupons']);
 
         Route::post('catalog-pricing-rules/save', [CatalogPricingRulesController::class, 'save']);
+        Route::post('catalog-pricing-rules/table-data', [CatalogPricingRulesController::class, 'tableData']);
         Route::post('catalog-pricing-rules/delete', [CatalogPricingRulesController::class, 'delete']);
         Route::post('catalog-pricing-rules/update-status', [CatalogPricingRulesController::class, 'updateStatus']);
 

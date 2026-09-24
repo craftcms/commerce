@@ -7,18 +7,17 @@ namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 use craft\helpers\Cp;
 use craft\helpers\Localization;
 use CraftCms\Cms\Condition\ConditionBuilderRenderer;
+use CraftCms\Cms\Form\Form;
+use CraftCms\Cms\Form\FormContext;
+use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Facades\Elements;
-use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Facades\UserGroups;
-use CraftCms\Cms\Support\Html;
-use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Money;
 use CraftCms\Cms\Translation\Locale;
-use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingRuleProductCondition;
@@ -29,123 +28,161 @@ use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableCondition;
 use CraftCms\Commerce\Purchasable\Conditions\PurchasableConditionRule;
+use CraftCms\Commerce\Store\Data\Store;
 use DateTime;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\t;
 
-readonly class CatalogPricingRulesController extends LegacyStoreManagementController
+readonly class CatalogPricingRulesController extends BaseStoreManagementController
 {
+    protected function getSectionCrumb(Store $store): array
+    {
+        return ['label' => t('Pricing Rules', category: 'commerce'), 'href' => $store->getStoreSettingsUrl('pricing-rules')];
+    }
+
+    private const int RULES_PER_PAGE = 50;
+
     public function index(?string $storeHandle = null): CpScreenResponse
     {
         $store = $this->resolveStore($storeHandle);
 
-        $catalogPricingRules = app(CatalogPricingRules::class)->getAllCatalogPricingRules($store->id);
+        $nodes = [
+            Table::make('catalog-pricing-rules')
+                ->columns([
+                    ['key' => 'name', 'label' => t('Name'), 'sortable' => true],
+                    ['key' => 'duration', 'label' => t('Duration', category: 'commerce'), 'sortable' => true],
+                    ['key' => 'effect', 'label' => t('Effect', category: 'commerce')],
+                    ['key' => 'isPromotionalPrice', 'label' => t('Is Promotional Price?', category: 'commerce'), 'sortable' => true],
+                ])
+                ->dataUrl(action([self::class, 'tableData'], ['storeHandle' => $store->handle]), self::RULES_PER_PAGE)
+                ->emptyMessage(t('No catalog pricing rules exist yet.', category: 'commerce'))
+                ->statusFilter()
+                ->searchable()
+                ->toggleableColumns()
+                ->when(
+                    currentUserElement()?->can('commerce-createCatalogPricingRules'),
+                    fn(Table $table) => $table->createAction(t('New catalog pricing rule', category: 'commerce'), $store->getStoreSettingsUrl('pricing-rules/new')),
+                )
+                ->when(
+                    currentUserElement()?->can('commerce-deleteCatalogPricingRules'),
+                    fn(Table $table) => $table->deletable(action([self::class, 'delete']), bulk: true),
+                )
+                ->when(
+                    currentUserElement()?->can('commerce-editCatalogPricingRules'),
+                    fn(Table $table) => $table->statusActions($this->statusActions(action([self::class, 'updateStatus']))),
+                ),
+        ];
 
-        $actionButtonHtml = currentUserElement()?->can('commerce-createCatalogPricingRules') ?
-            Html::a(t('New catalog pricing rule', category: 'commerce'),
-                $store->getStoreSettingsUrl('pricing-rules/new'),
-                ['class' => 'btn submit add icon'])
-            : '';
+        return $this->cpScreenResponse($store)
+            ->title(t('Pricing Rules', category: 'commerce'))
+            ->crumbs($this->crumbs($store))
+            ->inertiaPage('Form', [
+                'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+                'contentMaxWidth' => false,
+            ]);
+    }
 
-        $tableData = [];
-        $catalogPricingRules->each(function(CatalogPricingRule $pcr) use (&$tableData, $store) {
-            $effect = $pcr->apply === CatalogPricingRuleRecord::APPLY_BY_PERCENT || $pcr->apply === CatalogPricingRuleRecord::APPLY_TO_PERCENT
-                ? $pcr->applyAmountAsPercent . ' ' . ($pcr->apply === CatalogPricingRuleRecord::APPLY_BY_PERCENT
-                    ? t('(off original price)', category: 'commerce')
-                    : t('(of original price)', category: 'commerce'))
-                : Currency::formatAsCurrency($pcr->applyAmountAsFlat, app(PaymentCurrencies::class)->getPrimaryPaymentCurrency($store->id)->iso, true) . ' ' . ($pcr->apply === CatalogPricingRuleRecord::APPLY_BY_FLAT
-                    ? t('(off original price)', category: 'commerce')
-                    : t('(new price)', category: 'commerce'));
+    public function tableData(Request $request): JsonResponse
+    {
+        abort_unless($request->expectsJson(), 400);
 
-            $dateRange = ($pcr->dateFrom ? I18N::getFormatter()->asDatetime($pcr->dateFrom, 'short') : '∞') . ' - ' . ($pcr->dateTo ? I18N::getFormatter()->asDatetime($pcr->dateTo, 'short') : '∞');
-            $dateRange = !$pcr->dateFrom && !$pcr->dateTo ? '∞' : $dateRange;
+        $store = $this->resolveStore($request->input('storeHandle'));
+        $page = max(1, (int) $request->input('page', 1));
+        $perPage = max(1, $request->integer('per_page', self::RULES_PER_PAGE));
+        $search = mb_strtolower(trim((string) $request->input('search', '')));
+        $status = (string) $request->input('status', '');
 
-            $tableData[] = [
-                'id' => $pcr->id,
-                'title' => t($pcr->name, category: 'site'),
-                'url' => $pcr->getCpEditUrl(),
-                'status' => $pcr->enabled ? true : false,
-                'duration' => $dateRange,
-                'effect' => $effect,
-                'isPromotionalPrice' => $pcr->isPromotionalPrice,
-            ];
-        });
+        $rules = app(CatalogPricingRules::class)->getAllCatalogPricingRules($store->id)
+            ->when($search !== '', fn(Collection $rules) => $rules->filter(
+                fn(CatalogPricingRule $rule) => str_contains(mb_strtolower("{$rule->name} {$rule->description}"), $search),
+            ))
+            ->when($status !== '', fn(Collection $rules) => $rules->filter(
+                fn(CatalogPricingRule $rule) => $rule->enabled === ($status === 'enabled'),
+            ))
+            ->values();
+        $rules = $this->sortedRules($rules, $request->array('sort'));
 
-        $tableData = Json::encode($tableData);
+        $currencyIso = app(PaymentCurrencies::class)->getPrimaryPaymentCurrency($store->id)->iso;
+        $dateFormat = I18N::getFormattingLocale()->getDateTimeFormat('short', Locale::FORMAT_PHP);
 
-        $actions = [];
-        if (currentUserElement()?->can('commerce-editCatalogPricingRules')) {
-            $actions[] = [
-                'label' => t('Set status', category: 'commerce'),
-                'actions' => [
-                    [
-                        'label' => t('Enabled', category: 'commerce'),
-                        'action' => 'commerce/catalog-pricing-rules/update-status',
-                        'param' => 'status',
-                        'value' => 'enabled',
-                        'status' => 'enabled',
-                    ],
-                    [
-                        'label' => t('Disabled', category: 'commerce'),
-                        'action' => 'commerce/catalog-pricing-rules/update-status',
-                        'param' => 'status',
-                        'value' => 'disabled',
-                        'status' => 'disabled',
-                    ],
-                ],
-            ];
+        $rows = Table::prepareRows(
+            $rules
+                ->slice(($page - 1) * $perPage, $perPage)
+                ->map(fn(CatalogPricingRule $rule) => $this->buildRuleRow($rule, $store, $currencyIso, $dateFormat))
+                ->values()
+                ->all(),
+        );
+
+        $paginator = new LengthAwarePaginator($rows, $rules->count(), $perPage, $page, [
+            'path' => LengthAwarePaginator::resolveCurrentPath(),
+        ]);
+
+        return new JsonResponse([
+            'data' => $rows,
+            'pagination' => [
+                'total' => $paginator->total(),
+                'per_page' => $paginator->perPage(),
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'next_page_url' => $paginator->nextPageUrl(),
+                'prev_page_url' => $paginator->previousPageUrl(),
+                'from' => $paginator->firstItem(),
+                'to' => $paginator->lastItem(),
+            ],
+        ]);
+    }
+
+    /**
+     * @param Collection<int, CatalogPricingRule> $rules
+     * @param array<int, mixed> $sort
+     * @return Collection<int, CatalogPricingRule>
+     */
+    private function sortedRules(Collection $rules, array $sort): Collection
+    {
+        $value = match ($sort[0]['field'] ?? null) {
+            'name' => fn(CatalogPricingRule $rule) => mb_strtolower(t($rule->name, category: 'site')),
+            'duration' => fn(CatalogPricingRule $rule) => $rule->dateFrom?->getTimestamp() ?? PHP_INT_MIN,
+            'isPromotionalPrice' => fn(CatalogPricingRule $rule) => $rule->isPromotionalPrice,
+            default => null,
+        };
+
+        if ($value === null) {
+            return $rules;
         }
 
-        $deleteAction = null;
-        if (currentUserElement()?->can('commerce-deleteCatalogPricingRules')) {
-            $actions[] = [
-                'label' => t('Delete', category: 'commerce'),
-                'action' => 'commerce/catalog-pricing-rules/delete',
-                'error' => true,
-            ];
-            $deleteAction = '"commerce/catalog-pricing-rules/delete"';
-        }
+        return $rules
+            ->sortBy($value, SORT_NATURAL, ($sort[0]['direction'] ?? 'asc') === 'desc')
+            ->values();
+    }
 
-        $actions = Json::encode($actions);
+    private function buildRuleRow(CatalogPricingRule $rule, Store $store, string $currencyIso, string $dateFormat): array
+    {
+        $dateRange = (!$rule->dateFrom && !$rule->dateTo)
+            ? '∞'
+            : ($rule->dateFrom?->format($dateFormat) ?? '∞') . ' - ' . ($rule->dateTo?->format($dateFormat) ?? '∞');
 
-        $js = <<<JS
-var actions = {$actions};
+        $effect = match ($rule->apply) {
+            CatalogPricingRuleRecord::APPLY_BY_PERCENT => $rule->applyAmountAsPercent . ' ' . t('(off original price)', category: 'commerce'),
+            CatalogPricingRuleRecord::APPLY_TO_PERCENT => $rule->applyAmountAsPercent . ' ' . t('(of original price)', category: 'commerce'),
+            CatalogPricingRuleRecord::APPLY_BY_FLAT => Currency::formatAsCurrency($rule->applyAmountAsFlat, $currencyIso, true) . ' ' . t('(off original price)', category: 'commerce'),
+            default => Currency::formatAsCurrency($rule->applyAmountAsFlat, $currencyIso, true) . ' ' . t('(new price)', category: 'commerce'),
+        };
 
-var columns = [
-    { name: '__slot:title', title: Craft.t('commerce', 'Name') },
-    { name: 'duration', title: Craft.t('commerce', 'Duration') },
-    { name: 'effect', title: Craft.t('commerce', 'Effect') },
-    { name: 'isPromotionalPrice', title: Craft.t('commerce', 'Is Promotional Price?'),
-        callback: function(value) {
-            if (value) {
-                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
-            }
-        }
-    },
-];
-
-new Craft.VueAdminTable({
-  actions: actions,
-  checkboxes: true,
-  columns: columns,
-  fullPane: false,
-  container: '#pcr-vue-admin-table',
-  deleteAction: {$deleteAction},
-  emptyMessage: Craft.t('commerce', 'No catalog pricing rules exist yet.'),
-  padded: true,
-  tableData: {$tableData}
-});
-JS;
-
-        HtmlStack::js($js, Position::BodyEnd);
-
-        return $this->storeManagementCpScreen($storeHandle)
-            ->additionalButtonsHtml($actionButtonHtml)
-            ->contentTemplate('commerce/store-management/pricing-rules/index');
+        return [
+            'id' => $rule->id,
+            '_status' => $rule->enabled,
+            'name' => ['label' => t($rule->name, category: 'site'), 'url' => $store->getStoreSettingsUrl('pricing-rules/' . $rule->id)],
+            'duration' => $dateRange,
+            'effect' => $effect,
+            'isPromotionalPrice' => $rule->isPromotionalPrice ? ['icon' => 'check', 'label' => t('Yes')] : '',
+        ];
     }
 
     public function edit(?string $storeHandle = null, ?int $id = null): CpScreenResponse
