@@ -6,6 +6,7 @@ namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use CraftCms\Cms\Cp\Data\NavItem;
 use CraftCms\Cms\Form\FormResolver;
+use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Shared\Enums\Color;
@@ -244,5 +245,20 @@ abstract readonly class BaseStoreManagementController
     protected function colorPalette(): array
     {
         return array_map(fn(Color $color) => $color->value, Color::cases());
+    }
+
+    /**
+     * The Enabled/Disabled pair every store-management {@see Table} index's "Set status"
+     * menu uses today (shipping methods, discounts), for {@see Table::statusActions()} —
+     * posts `{status: 'enabled'|'disabled'}` to `$url`.
+     *
+     * @return list<array<string, mixed>>
+     */
+    protected function statusActions(string $url): array
+    {
+        return [
+            ['label' => t('Enabled', category: 'commerce'), 'url' => $url, 'params' => ['status' => 'enabled'], 'fill' => 'success'],
+            ['label' => t('Disabled', category: 'commerce'), 'url' => $url, 'params' => ['status' => 'disabled'], 'fill' => 'danger'],
+        ];
     }
 }

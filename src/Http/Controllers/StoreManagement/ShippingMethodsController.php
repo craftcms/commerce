@@ -73,10 +73,7 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
                 ->emptyMessage(t('No shipping methods exist yet.', category: 'commerce'))
                 ->createAction(t('New shipping method', category: 'commerce'), $store->getStoreSettingsUrl('shippingmethods/new'))
                 ->deletable(action([self::class, 'delete']), bulk: true)
-                ->statusActions([
-                    ['label' => t('Enabled', category: 'commerce'), 'url' => action([self::class, 'updateStatus']), 'params' => ['status' => 'enabled']],
-                    ['label' => t('Disabled', category: 'commerce'), 'url' => action([self::class, 'updateStatus']), 'params' => ['status' => 'disabled']],
-                ]),
+                ->statusActions($this->statusActions(action([self::class, 'updateStatus']))),
         ];
 
         $title = t('Shipping Methods', category: 'commerce');

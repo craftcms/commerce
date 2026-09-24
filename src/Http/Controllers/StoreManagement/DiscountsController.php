@@ -113,10 +113,7 @@ readonly class DiscountsController extends BaseStoreManagementController
                 )
                 ->when(
                     currentUserElement()?->can('commerce-editDiscounts'),
-                    fn(Table $table) => $table->statusActions([
-                        ['label' => t('Enabled', category: 'commerce'), 'url' => action([self::class, 'updateStatus']), 'params' => ['status' => 'enabled']],
-                        ['label' => t('Disabled', category: 'commerce'), 'url' => action([self::class, 'updateStatus']), 'params' => ['status' => 'disabled']],
-                    ]),
+                    fn(Table $table) => $table->statusActions($this->statusActions(action([self::class, 'updateStatus']))),
                 ),
         ];
 
