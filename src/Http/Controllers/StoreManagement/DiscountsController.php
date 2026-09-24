@@ -421,16 +421,6 @@ readonly class DiscountsController extends BaseStoreManagementController
         ];
     }
 
-    /** @return array{date: string, time: string, timezone: string} */
-    private function dateTimeControlValue(?DateTime $value): array
-    {
-        return [
-            'date' => $value?->format('Y-m-d') ?? '',
-            'time' => $value?->format('H:i') ?? '',
-            'timezone' => $value?->getTimezone()->getName() ?? date_default_timezone_get(),
-        ];
-    }
-
     /** @param array<string, mixed> $values */
     private function buildForm(Discount $discount, array $values, Store $store): Form
     {

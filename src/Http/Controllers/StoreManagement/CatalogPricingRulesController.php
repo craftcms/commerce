@@ -4,19 +4,28 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
-use craft\helpers\Cp;
-use craft\helpers\Localization;
-use CraftCms\Cms\Condition\ConditionBuilderRenderer;
+use CraftCms\Cms\Cp\Html\ContentHtml;
+use CraftCms\Cms\Form\Controls\Choice;
+use CraftCms\Cms\Form\Controls\Combobox;
+use CraftCms\Cms\Form\Controls\ConditionBuilder;
+use CraftCms\Cms\Form\Controls\DateTime as DateTimeControl;
+use CraftCms\Cms\Form\Controls\Lightswitch;
+use CraftCms\Cms\Form\Controls\Money as MoneyControl;
+use CraftCms\Cms\Form\Controls\Number;
+use CraftCms\Cms\Form\Controls\Text;
 use CraftCms\Cms\Form\Form;
 use CraftCms\Cms\Form\FormContext;
+use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Form\Nodes\Group;
+use CraftCms\Cms\Form\Nodes\HiddenField;
 use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\I18N;
-use CraftCms\Cms\Support\Facades\UserGroups;
 use CraftCms\Cms\Support\Money;
+use CraftCms\Cms\Translation\Formatter;
 use CraftCms\Cms\Translation\Locale;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
@@ -24,11 +33,14 @@ use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingRuleProductConditi
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingRuleVariantCondition;
 use CraftCms\Commerce\CatalogPricing\Data\CatalogPricingRule;
 use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingRule as CatalogPricingRuleRecord;
+use CraftCms\Commerce\Customer\Conditions\CatalogPricingRuleCustomerCondition;
 use CraftCms\Commerce\Helpers\Currency;
+use CraftCms\Commerce\Helpers\Localization;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableCondition;
 use CraftCms\Commerce\Purchasable\Conditions\PurchasableConditionRule;
 use CraftCms\Commerce\Store\Data\Store;
+use CraftCms\Commerce\Store\Stores;
 use DateTime;
 
 use Illuminate\Http\JsonResponse;
@@ -190,66 +202,234 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
         abort_unless(currentUserElement()?->can($id === null ? 'commerce-createCatalogPricingRules' : 'commerce-editCatalogPricingRules'), 403);
 
         $store = $this->resolveStore($storeHandle);
-        $storeHandle = $store->handle;
+        $catalogPricingRule = $this->resolveCatalogPricingRule($id, $store);
+        abort_if($id !== null && $catalogPricingRule === null, 404);
+        $catalogPricingRule ??= $this->newCatalogPricingRule($store, request()->integer('purchasableId') ?: null);
 
-        if ($id) {
-            $catalogPricingRule = app(CatalogPricingRules::class)->getCatalogPricingRuleById($id, $store->id);
-            abort_if($catalogPricingRule === null || $catalogPricingRule->storeId !== $store->id, 404);
-        } else {
-            $catalogPricingRule = new CatalogPricingRule(['storeId' => $store->id]);
+        $title = $catalogPricingRule->id ? $catalogPricingRule->name : t('Create a new catalog pricing rule', category: 'commerce');
 
-            $purchasableId = request()->input('purchasableId') ? (int)request()->input('purchasableId') : null;
-            if ($purchasableId && $purchasableType = Elements::getElementTypeById($purchasableId)) {
-                $purchasable = Elements::getElementById($purchasableId, $purchasableType, Cp::requestedSite()->id);
+        $formatter = app(Formatter::class);
+        $metadataHtml = $catalogPricingRule->id ? app(ContentHtml::class)->metadataHtml([
+            t('ID', category: 'commerce') => (string) $catalogPricingRule->id,
+            t('Created at') => $formatter->asDateTime($catalogPricingRule->dateCreated, 'short'),
+            t('Updated at') => $formatter->asDateTime($catalogPricingRule->dateUpdated, 'short'),
+        ]) : null;
 
-                if ($purchasable && $purchasable->title) {
-                    $catalogPricingRule->name = t('{name} catalog price', ['name' => $purchasable->title], category: 'commerce');
-                }
+        $values = $this->initialValues($catalogPricingRule, $store);
 
-                $rule = Conditions::createConditionRule([
-                    'class' => PurchasableConditionRule::class,
-                    'elementIds' => [$purchasableType => [$purchasableId]],
-                ]);
+        $form = $this->formResolver->resolve(
+            $this->buildForm($values, $store),
+            new FormContext(values: $values, refreshable: true),
+        );
 
-                /** @var CatalogPricingRulePurchasableCondition $purchasableCondition */
-                $purchasableCondition = Conditions::createCondition(CatalogPricingRulePurchasableCondition::class);
-                $purchasableCondition->addConditionRule($rule);
-                $catalogPricingRule->setPurchasableCondition($purchasableCondition);
-            }
+        return $this->cpScreenResponse($store, subnav: false)
+            ->title($title)
+            ->crumbs($this->crumbs($store, ...($catalogPricingRule->id ? [['label' => $title]] : [])))
+            ->action('commerce/catalog-pricing-rules/save')
+            ->redirectUrl($store->getStoreSettingsUrl('pricing-rules'))
+            ->inertiaPage('Form', [
+                'form' => $form,
+                'submit' => [
+                    'method' => 'post',
+                    'url' => action([self::class, 'save']),
+                ],
+                'refreshUrl' => action([self::class, 'renderForm']),
+                'metadataHtml' => $metadataHtml,
+            ]);
+    }
+
+    /**
+     * Re-resolves the {@see edit()} Form tree for the values currently in progress on the
+     * client, so changing the effect can swap between the percentage and money inputs and
+     * show or hide the price type.
+     */
+    public function renderForm(Request $request): JsonResponse
+    {
+        $request->validate([
+            'values' => ['required', 'array'],
+            'values.storeId' => ['required', 'integer'],
+            'values.id' => ['nullable', 'integer'],
+            'scope' => ['present', 'array', 'size:0'],
+        ]);
+
+        $values = $request->input('values');
+        $store = app(Stores::class)->getStoreById((int) $values['storeId']);
+        abort_if($store === null, 404);
+        $this->requireStoreAccess($store->id);
+
+        $id = isset($values['id']) ? (int) $values['id'] : null;
+        abort_unless(currentUserElement()?->can($id === null ? 'commerce-createCatalogPricingRules' : 'commerce-editCatalogPricingRules'), 403);
+
+        $catalogPricingRule = $this->resolveCatalogPricingRule($id, $store);
+        abort_if($id !== null && $catalogPricingRule === null, 404);
+        $catalogPricingRule ??= $this->newCatalogPricingRule($store);
+
+        $values = array_replace($this->initialValues($catalogPricingRule, $store), $values);
+
+        $form = $this->formResolver->resolve(
+            $this->buildForm($values, $store),
+            new FormContext(values: $values, refreshable: true),
+        );
+
+        return new JsonResponse(['form' => $form]);
+    }
+
+    private function resolveCatalogPricingRule(?int $id, Store $store): ?CatalogPricingRule
+    {
+        $catalogPricingRule = $id ? app(CatalogPricingRules::class)->getCatalogPricingRuleById($id, $store->id) : null;
+
+        return $catalogPricingRule?->storeId === $store->id ? $catalogPricingRule : null;
+    }
+
+    /** A `purchasableId` (from a purchasable's own edit screen) prefills the name and a purchasable condition matching just that purchasable. */
+    private function newCatalogPricingRule(Store $store, ?int $purchasableId = null): CatalogPricingRule
+    {
+        $catalogPricingRule = new CatalogPricingRule(['storeId' => $store->id]);
+
+        if (!$purchasableId || !$purchasableType = Elements::getElementTypeById($purchasableId)) {
+            return $catalogPricingRule;
         }
 
-        $variables = $this->populateVariables(['id' => $id, 'catalogPricingRule' => $catalogPricingRule, 'storeHandle' => $storeHandle]);
+        $purchasable = Elements::getElementById($purchasableId, $purchasableType, $store->getSites()->pluck('id')->all());
 
-        return $this->storeManagementCpScreen($storeHandle, false)
-            ->title(t('Catalog Pricing Rule', category: 'commerce'))
-            ->addCrumb(t('Pricing Rules', category: 'commerce'), $store->getStoreSettingsUrl('pricing-rules'))
-            ->action('commerce/catalog-pricing-rules/save')
-            ->redirectUrl('commerce/store-management/' . $store->handle . '/pricing-rules')
-            ->metaSidebarTemplate('commerce/store-management/pricing-rules/_sidebar', $variables)
-            ->tabs([
-                'rule' => [
-                    'label' => t('Rule', category: 'commerce'),
-                    'url' => '#rule',
-                    'class' => array_filter([$variables['catalogPricingRule']->getErrors() ? 'error' : null]),
-                ],
-                'conditions' => [
-                    'label' => t('Conditions', category: 'commerce'),
-                    'url' => '#conditions',
-                ],
-                'actions' => [
-                    'label' => t('Actions', category: 'commerce'),
-                    'url' => '#actions',
-                    'class' => array_filter([($variables['catalogPricingRule']->getErrors('applyAmount') || $variables['catalogPricingRule']->getErrors('apply')) ? 'error' : null]),
-                ],
+        if ($purchasable?->title) {
+            $catalogPricingRule->name = t('{name} catalog price', ['name' => $purchasable->title], category: 'commerce');
+        }
+
+        /** @var CatalogPricingRulePurchasableCondition $purchasableCondition */
+        $purchasableCondition = Conditions::createCondition(CatalogPricingRulePurchasableCondition::class);
+        $purchasableCondition->addConditionRule(Conditions::createConditionRule([
+            'class' => PurchasableConditionRule::class,
+            'elementIds' => [$purchasableType => [$purchasableId]],
+        ]));
+        $catalogPricingRule->setPurchasableCondition($purchasableCondition);
+
+        return $catalogPricingRule;
+    }
+
+    /** @return array<string, mixed> */
+    private function initialValues(CatalogPricingRule $catalogPricingRule, Store $store): array
+    {
+        $apply = $catalogPricingRule->apply;
+
+        // Stored negative (an adjustment subtracted from the original price) and as a fraction
+        // for the percentage types — shown to the editor as a plain positive amount/percentage,
+        // flipped back in save().
+        $applyAmount = match (true) {
+            $catalogPricingRule->applyAmount === null => null,
+            $this->isPercentApply($apply) => round(-$catalogPricingRule->applyAmount * 100, 6),
+            default => -$catalogPricingRule->applyAmount,
+        };
+
+        return [
+            'id' => $catalogPricingRule->id,
+            'storeId' => $store->id,
+            'name' => $catalogPricingRule->name,
+            'description' => $catalogPricingRule->description,
+            'enabled' => $catalogPricingRule->enabled,
+            'dateFrom' => $this->dateTimeControlValue($catalogPricingRule->dateFrom),
+            'dateTo' => $this->dateTimeControlValue($catalogPricingRule->dateTo),
+            'productCondition' => $catalogPricingRule->getProductCondition()->getConfig(),
+            'variantCondition' => $catalogPricingRule->getVariantCondition()->getConfig(),
+            'purchasableCondition' => $catalogPricingRule->getPurchasableCondition()->getConfig(),
+            'customerCondition' => $catalogPricingRule->getCustomerCondition()->getConfig(),
+            'apply' => $apply,
+            'applyPriceType' => $catalogPricingRule->applyPriceType,
+            'applyAmount' => $applyAmount,
+            'isPromotionalPrice' => $catalogPricingRule->isPromotionalPrice,
+        ];
+    }
+
+    /** @param array<string, mixed> $values */
+    private function buildForm(array $values, Store $store): Form
+    {
+        $apply = (string) ($values['apply'] ?? '');
+        $hasPurchasableRules = !empty($values['purchasableCondition']['conditionRules']['rules'] ?? []);
+
+        $applyAmountControl = $this->isPercentApply($apply)
+            ? Number::make('applyAmount')->step('any')->size(5)->suffix(I18N::getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT))
+            : MoneyControl::make('applyAmount')->currency($store->getCurrency()?->getCode() ?? 'USD')->size(5)->showCurrency();
+
+        $actionsFields = [
+            Field::make(t('Effect', category: 'commerce'), Combobox::make('apply')
+                ->options([
+                    ['type' => 'optgroup', 'label' => t('Reduce price', category: 'commerce'), 'options' => [
+                        ['label' => t('Reduce the price by a percentage of the original price', category: 'commerce'), 'value' => CatalogPricingRuleRecord::APPLY_BY_PERCENT],
+                        ['label' => t('Reduce the price by a fixed amount', category: 'commerce'), 'value' => CatalogPricingRuleRecord::APPLY_BY_FLAT],
+                    ]],
+                    ['type' => 'optgroup', 'label' => t('Set price', category: 'commerce'), 'options' => [
+                        ['label' => t('Set the price to a percentage of the original price', category: 'commerce'), 'value' => CatalogPricingRuleRecord::APPLY_TO_PERCENT],
+                        ['label' => t('Set the price to a flat amount', category: 'commerce'), 'value' => CatalogPricingRuleRecord::APPLY_TO_FLAT],
+                    ]],
+                ])
+                ->requireOptionMatch()
+                ->showAllOnEmpty()
+                ->reactive())
+                ->instructions(t('Select how the catalog pricing rule will be applied to the purchasable(s).', category: 'commerce'))
+                ->required(),
+        ];
+
+        if ($apply !== CatalogPricingRuleRecord::APPLY_TO_FLAT) {
+            $actionsFields[] = Field::make(t('Price Type', category: 'commerce'), Choice::make('applyPriceType')
+                ->options([
+                    ['label' => t('Original price', category: 'commerce'), 'value' => CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE],
+                    ['label' => t('Original promotional price', category: 'commerce'), 'value' => CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PROMOTIONAL_PRICE],
+                ])
+                ->withoutPlaceholder());
+        } else {
+            $actionsFields[] = HiddenField::make('applyPriceType');
+        }
+
+        $actionsFields[] = Field::make(t('Amount', category: 'commerce'), $applyAmountControl);
+        $actionsFields[] = Field::make(t('Is Promotional Price?', category: 'commerce'), Lightswitch::make('isPromotionalPrice'));
+
+        return Form::make([
+            HiddenField::make('id'),
+            HiddenField::make('storeId'),
+        ])
+            ->addTab(t('Rule', category: 'commerce'), [
+                Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
+                    ->instructions(t('What this catalog pricing rule will be called in the control panel.', category: 'commerce'))
+                    ->required(),
+                Field::make(t('Description', category: 'commerce'), Text::make('description'))
+                    ->instructions(t('Catalog pricing rule description.', category: 'commerce')),
+                Field::make(t('Enable this rule', category: 'commerce'), Lightswitch::make('enabled'))
+                    ->instructions(t('Whether this catalog pricing rule should be available for use, regardless of other conditions.', category: 'commerce')),
             ])
-            ->contentTemplate('commerce/store-management/pricing-rules/_edit', $variables);
+            ->addTab(t('Conditions', category: 'commerce'), [
+                Field::make(t('Start Date', category: 'commerce'), DateTimeControl::make('dateFrom')->showTime())
+                    ->instructions(t('Date from which the catalog pricing rule will be active. Leave blank for unlimited start date', category: 'commerce')),
+                Field::make(t('End Date', category: 'commerce'), DateTimeControl::make('dateTo')->showTime())
+                    ->instructions(t('Date when the catalog pricing rule will be finished. Leave blank for unlimited end date', category: 'commerce')),
+                Field::make(t('Match Product', category: 'commerce'), ConditionBuilder::make('productCondition')
+                    ->conditionClass(CatalogPricingRuleProductCondition::class)),
+                Field::make(t('Match Variant', category: 'commerce'), ConditionBuilder::make('variantCondition')
+                    ->conditionClass(CatalogPricingRuleVariantCondition::class)),
+                Group::make('purchasable-condition-advanced', [
+                    Field::make(t('Match Purchasable', category: 'commerce'), ConditionBuilder::make('purchasableCondition')
+                        ->conditionClass(CatalogPricingRulePurchasableCondition::class)),
+                ])
+                    ->label(t('Advanced', category: 'commerce'))
+                    ->collapsible()
+                    ->expanded($hasPurchasableRules),
+                Field::make(t('Match Customer', category: 'commerce'), ConditionBuilder::make('customerCondition')
+                    ->conditionClass(CatalogPricingRuleCustomerCondition::class)),
+            ])
+            ->addTab(t('Actions', category: 'commerce'), $actionsFields);
+    }
+
+    private function isPercentApply(string $apply): bool
+    {
+        return in_array($apply, [CatalogPricingRuleRecord::APPLY_BY_PERCENT, CatalogPricingRuleRecord::APPLY_TO_PERCENT], true);
     }
 
     public function save(Request $request): Response
     {
-        $id = $request->input('id') ? (int)$request->input('id') : null;
-        $storeId = $request->input('storeId') ? (int)$request->input('storeId') : null;
+        $id = $request->input('id') ? (int) $request->input('id') : null;
+        $storeId = (int) $request->input('storeId');
         $this->requireStoreAccess($storeId);
+
+        abort_unless(currentUserElement()?->can($id === null ? 'commerce-createCatalogPricingRules' : 'commerce-editCatalogPricingRules'), 403);
 
         if ($id) {
             $catalogPricingRule = app(CatalogPricingRules::class)->getCatalogPricingRuleById($id, $storeId);
@@ -258,60 +438,62 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
             $catalogPricingRule = new CatalogPricingRule();
         }
 
-        abort_unless(currentUserElement()?->can($catalogPricingRule->id === null ? 'commerce-createCatalogPricingRules' : 'commerce-editCatalogPricingRules'), 403);
-
         $catalogPricingRule->storeId = $storeId;
         $catalogPricingRule->name = $request->input('name');
         $catalogPricingRule->description = $request->input('description');
-        $catalogPricingRule->apply = $request->input('apply');
-        $catalogPricingRule->enabled = (bool)$request->input('enabled');
-        $catalogPricingRule->isPromotionalPrice = (bool)$request->input('isPromotionalPrice');
-        $catalogPricingRule->applyPriceType = $request->input('applyPriceType');
+        $catalogPricingRule->apply = (string) $request->input('apply');
+        $catalogPricingRule->enabled = (bool) $request->input('enabled');
+        $catalogPricingRule->isPromotionalPrice = (bool) $request->input('isPromotionalPrice');
+        $catalogPricingRule->applyPriceType = $request->input('applyPriceType') ?: CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE;
+        $catalogPricingRule->dateFrom = $this->dateTimeInput($request->input('dateFrom'));
+        $catalogPricingRule->dateTo = $this->dateTimeInput($request->input('dateTo'));
 
-        if (($date = $request->input('dateFrom')) !== null && $dateFrom = DateTimeHelper::toDateTime($date)) {
-            $catalogPricingRule->dateFrom = $dateFrom instanceof DateTime ? $dateFrom : DateTime::createFromInterface($dateFrom);
-        }
-        if (($date = $request->input('dateTo')) !== null && $dateTo = DateTimeHelper::toDateTime($date)) {
-            $catalogPricingRule->dateTo = $dateTo instanceof DateTime ? $dateTo : DateTime::createFromInterface($dateTo);
-        }
-
+        // A value left over from before the effect was switched can arrive in the other
+        // control's shape, so either shape is accepted for either type.
         $applyAmount = $request->input('applyAmount');
+        $applyAmount = is_array($applyAmount) ? $applyAmount : ['value' => $applyAmount];
 
-        if ($catalogPricingRule->apply == CatalogPricingRuleRecord::APPLY_BY_PERCENT || $catalogPricingRule->apply == CatalogPricingRuleRecord::APPLY_TO_PERCENT) {
-            $applyAmount = Localization::normalizeNumber($applyAmount);
-            $catalogPricingRule->applyAmount = (float)$applyAmount / -100;
+        if ($this->isPercentApply($catalogPricingRule->apply)) {
+            $catalogPricingRule->applyAmount = -Localization::normalizePercentage($applyAmount['value'] ?? null);
         } else {
-            if (is_array($applyAmount)) {
-                $applyAmount += ['currency' => $catalogPricingRule->getStore()->getCurrency()];
-                $applyAmount = Money::toDecimal(Money::toMoney($applyAmount));
-            }
-            $catalogPricingRule->applyAmount = (float)$applyAmount * -1;
+            $applyAmount += ['currency' => $catalogPricingRule->getStore()->getCurrency()];
+            $catalogPricingRule->applyAmount = (float) Money::toDecimal(Money::toMoney($applyAmount)) * -1;
         }
 
-        $productCondition = $request->input('productCondition') ?? Conditions::createCondition([
+        $catalogPricingRule->setProductCondition($request->input('productCondition') ?? Conditions::createCondition([
             'class' => CatalogPricingRuleProductCondition::class,
-        ]);
-        $catalogPricingRule->setProductCondition($productCondition);
-
-        $variantCondition = $request->input('variantCondition') ?? Conditions::createCondition([
+        ]));
+        $catalogPricingRule->setVariantCondition($request->input('variantCondition') ?? Conditions::createCondition([
             'class' => CatalogPricingRuleVariantCondition::class,
-        ]);
-        $catalogPricingRule->setVariantCondition($variantCondition);
-
-        $purchasableCondition = $request->input('purchasableCondition') ?? Conditions::createCondition([
+        ]));
+        $catalogPricingRule->setPurchasableCondition($request->input('purchasableCondition') ?? Conditions::createCondition([
             'class' => CatalogPricingRulePurchasableCondition::class,
-        ]);
-        $catalogPricingRule->setPurchasableCondition($purchasableCondition);
-
-        $catalogPricingRule->setCustomerCondition($request->input('customerCondition'));
+        ]));
+        $catalogPricingRule->setCustomerCondition($request->input('customerCondition') ?? Conditions::createCondition([
+            'class' => CatalogPricingRuleCustomerCondition::class,
+        ]));
 
         if (app(CatalogPricingRules::class)->saveCatalogPricingRule($catalogPricingRule)) {
-            return $this->asSuccess(t('Catalog pricing rule saved.', category: 'commerce'));
+            return $this->asModelSuccess($catalogPricingRule, t('Catalog pricing rule saved.', category: 'commerce'), 'catalogPricingRule');
         }
 
-        $variables = $this->populateVariables(['catalogPricingRule' => $catalogPricingRule]);
+        return $this->asModelFailure($catalogPricingRule, t('Couldn’t save catalog pricing rule.', category: 'commerce'), 'catalogPricingRule');
+    }
 
-        return $this->asFailure(t('Couldn\'t save catalog pricing rule.', category: 'commerce'), $variables);
+    /** An empty date clears it — the rule is loaded from the database first, so leaving it unset would keep the old date. */
+    private function dateTimeInput(mixed $value): ?DateTime
+    {
+        if (!$value || (is_array($value) && empty($value['date']))) {
+            return null;
+        }
+
+        $dateTime = DateTimeHelper::toDateTime($value);
+
+        if (!$dateTime) {
+            return null;
+        }
+
+        return $dateTime instanceof DateTime ? $dateTime : DateTime::createFromInterface($dateTime);
     }
 
     public function delete(Request $request): Response
@@ -372,52 +554,5 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
         ]);
 
         return $this->asSuccess(t('Catalog pricing rules updated.', category: 'commerce'));
-    }
-
-    private function populateVariables(array $variables): array
-    {
-        /** @var CatalogPricingRule $catalogPricingRule */
-        $catalogPricingRule = $variables['catalogPricingRule'];
-
-        $variables['title'] = $catalogPricingRule->id ? $catalogPricingRule->name : t('Create a new catalog pricing rule', category: 'commerce');
-
-        $groups = UserGroups::getAllGroups();
-        $variables['groups'] = $groups->mapWithKeys(fn($group) => [$group->id => $group->name])->all();
-
-        $variables['percentSymbol'] = I18N::getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
-        $primaryCurrencyIso = app(PaymentCurrencies::class)->getPrimaryPaymentCurrencyIso();
-        $variables['currencySymbol'] = I18N::getLocale()->getCurrencySymbol($primaryCurrencyIso);
-
-        $variables['applyAmount'] = '';
-        if ($catalogPricingRule->applyAmount !== null) {
-            if ($catalogPricingRule->apply == CatalogPricingRuleRecord::APPLY_BY_PERCENT || $catalogPricingRule->apply == CatalogPricingRuleRecord::APPLY_TO_PERCENT) {
-                $amount = -(float)$catalogPricingRule->applyAmount * 100;
-                $variables['applyAmount'] = I18N::getFormatter()->asDecimal($amount);
-            } else {
-                $variables['applyAmount'] = I18N::getFormatter()->asDecimal(-(float)$catalogPricingRule->applyAmount);
-            }
-        }
-
-        $variables['applyOptions'] = [
-            ['optgroup' => t('Reduce price', category: 'commerce')],
-            ['label' => t('Reduce the price by a percentage of the original price', category: 'commerce'), 'value' => CatalogPricingRuleRecord::APPLY_BY_PERCENT],
-            ['label' => t('Reduce the price by a fixed amount', category: 'commerce'), 'value' => CatalogPricingRuleRecord::APPLY_BY_FLAT],
-            ['optgroup' => t('Set price', category: 'commerce')],
-            ['label' => t('Set the price to a percentage of the original price', category: 'commerce'), 'value' => CatalogPricingRuleRecord::APPLY_TO_PERCENT],
-            ['label' => t('Set the price to a flat amount', category: 'commerce'), 'value' => CatalogPricingRuleRecord::APPLY_TO_FLAT],
-        ];
-
-        $variables['applyPriceTypeOptions'] = [
-            ['label' => t('Original price', category: 'commerce'), 'value' => 'price'],
-            ['label' => t('Original promotional price', category: 'commerce'), 'value' => 'promotionalPrice'],
-        ];
-
-        // Condition classes no longer self-render; ConditionBuilderRenderer replaces the old getBuilderHtml()/builderHtml().
-        $variables['productConditionHtml'] = new ConditionBuilderRenderer($catalogPricingRule->getProductCondition())->render();
-        $variables['variantConditionHtml'] = new ConditionBuilderRenderer($catalogPricingRule->getVariantCondition())->render();
-        $variables['purchasableConditionHtml'] = new ConditionBuilderRenderer($catalogPricingRule->getPurchasableCondition())->render();
-        $variables['customerConditionHtml'] = new ConditionBuilderRenderer($catalogPricingRule->getCustomerCondition())->render();
-
-        return $variables;
     }
 }

@@ -15,6 +15,7 @@ use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Tax\Taxes;
+use DateTime;
 
 use function CraftCms\Cms\cp_url;
 use function CraftCms\Cms\currentUser;
@@ -245,6 +246,21 @@ abstract readonly class BaseStoreManagementController
     protected function colorPalette(): array
     {
         return array_map(fn(Color $color) => $color->value, Color::cases());
+    }
+
+    /**
+     * The value shape a {@see \CraftCms\Cms\Form\Controls\DateTime} control expects,
+     * with empty strings for an unset date.
+     *
+     * @return array{date: string, time: string, timezone: string}
+     */
+    protected function dateTimeControlValue(?DateTime $value): array
+    {
+        return [
+            'date' => $value?->format('Y-m-d') ?? '',
+            'time' => $value?->format('H:i') ?? '',
+            'timezone' => $value?->getTimezone()->getName() ?? date_default_timezone_get(),
+        ];
     }
 
     /**
