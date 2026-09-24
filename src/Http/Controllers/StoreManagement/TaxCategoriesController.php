@@ -65,6 +65,7 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
 
             return [
                 'id' => $taxCategory->id,
+                '_sort' => ['name' => t($taxCategory->name, category: 'site')],
                 'name' => ['html' => app(ElementHtml::class)->chipHtml($taxCategory, [
                     'labelHtml' => Html::a($label, $taxCategory->getCpEditUrl($store->id), ['class' => 'cell-bold']),
                 ])],
@@ -78,7 +79,7 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
         $nodes = [
             Table::make('tax-categories')
                 ->columns([
-                    ['key' => 'name', 'label' => t('Name')],
+                    ['key' => 'name', 'label' => t('Name'), 'sortable' => true],
                     ['key' => 'handle', 'label' => t('Handle')],
                     ['key' => 'description', 'label' => t('Description', category: 'commerce')],
                     ['key' => 'default', 'label' => t('Default Category', category: 'commerce')],

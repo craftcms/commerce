@@ -94,7 +94,7 @@ class EmailsController extends BaseSettingsController
 
             $nodes[] = Table::make("{$store->handle}-emails")
                 ->columns([
-                    ['key' => 'name', 'label' => t('Name')],
+                    ['key' => 'name', 'label' => t('Name'), 'sortable' => true],
                     ['key' => 'subject', 'label' => t('Subject', category: 'commerce')],
                     ['key' => 'to', 'label' => t('To', category: 'commerce')],
                     ['key' => 'bcc', 'label' => t('Bcc', category: 'commerce')],

@@ -42,6 +42,7 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
         $rows = app(PaymentCurrencies::class)->getAllPaymentCurrencies($store->id)
             ->map(fn(PaymentCurrency $currency) => [
                 'id' => $currency->id,
+                '_sort' => ['name' => t($currency->getName(), category: 'site')],
                 // getName() is just the ISO code today (there's no display-name lookup yet) —
                 // matches the "Code" column below exactly, which is a pre-existing redundancy,
                 // not something introduced here.
@@ -60,7 +61,7 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
         $nodes = [
             Table::make('payment-currencies')
                 ->columns([
-                    ['key' => 'name', 'label' => t('Currency', category: 'commerce')],
+                    ['key' => 'name', 'label' => t('Currency', category: 'commerce'), 'sortable' => true],
                     ['key' => 'handle', 'label' => t('Code', category: 'commerce')],
                     ['key' => 'rate', 'label' => t('Conversion Rate', category: 'commerce')],
                 ])

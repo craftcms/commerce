@@ -40,6 +40,7 @@ readonly class TaxZonesController extends BaseStoreManagementController
         $rows = app(TaxZones::class)->getAllTaxZones($store->id)
             ->map(fn(TaxAddressZone $taxZone) => [
                 'id' => $taxZone->id,
+                '_sort' => ['name' => t($taxZone->name, category: 'site')],
                 'name' => ['html' => Html::a(Html::encode(t($taxZone->name, category: 'site')), $taxZone->getCpEditUrl(), ['class' => 'cell-bold'])],
                 'description' => t($taxZone->description, category: 'site'),
                 'default' => $taxZone->default ? ['icon' => 'check', 'label' => t('Yes')] : '',
@@ -50,7 +51,7 @@ readonly class TaxZonesController extends BaseStoreManagementController
         $nodes = [
             Table::make('tax-zones')
                 ->columns([
-                    ['key' => 'name', 'label' => t('Name')],
+                    ['key' => 'name', 'label' => t('Name'), 'sortable' => true],
                     ['key' => 'description', 'label' => t('Description', category: 'commerce')],
                     ['key' => 'default', 'label' => t('Default Zone', category: 'commerce')],
                 ])

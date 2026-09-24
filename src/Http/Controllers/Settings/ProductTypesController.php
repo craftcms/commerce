@@ -77,7 +77,7 @@ class ProductTypesController extends BaseSettingsController
         $form = Form::make([
             Table::make('product-types')
                 ->columns([
-                    ['key' => 'name', 'label' => t('Name')],
+                    ['key' => 'name', 'label' => t('Name'), 'sortable' => true],
                     ['key' => 'handle', 'label' => t('Handle')],
                     ['key' => 'maxVariants', 'label' => t('Max Variants', category: 'commerce')],
                     ['key' => 'shippingCategories', 'label' => t('Available Shipping Categories', category: 'commerce')],

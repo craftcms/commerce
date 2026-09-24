@@ -49,6 +49,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
         $rows = $shippingCategories
             ->map(fn(ShippingCategory $shippingCategory) => [
                 'id' => $shippingCategory->id,
+                '_sort' => ['name' => t($shippingCategory->name, category: 'site')],
                 'name' => ['html' => app(ElementHtml::class)->chipHtml($shippingCategory, [
                     'labelHtml' => Html::a(Html::encode(t($shippingCategory->name, category: 'site')), $shippingCategory->getCpEditUrl(), ['class' => 'cell-bold']),
                 ])],
@@ -63,7 +64,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
         $nodes = [
             Table::make('shipping-categories')
                 ->columns([
-                    ['key' => 'name', 'label' => t('Name')],
+                    ['key' => 'name', 'label' => t('Name'), 'sortable' => true],
                     ['key' => 'handle', 'label' => t('Handle')],
                     ['key' => 'description', 'label' => t('Description', category: 'commerce')],
                     ['key' => 'default', 'label' => t('Default Category', category: 'commerce')],

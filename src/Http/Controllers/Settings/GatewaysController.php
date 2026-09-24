@@ -93,6 +93,7 @@ class GatewaysController extends BaseSettingsController
 
             $archivedRows = array_values(array_map(fn(GatewayInterface $gateway) => [
                 'id' => $gateway->id,
+                '_sort' => ['name' => t($gateway->name, category: 'site')],
                 'name' => $nameCell($gateway),
                 'handle' => ['html' => FormFields::copytextHtml(['value' => $gateway->handle, 'monospace' => true])],
                 'type' => $typeCell($gateway),
@@ -103,7 +104,7 @@ class GatewaysController extends BaseSettingsController
                 Table::make('archived-gateways-table')
                     ->columns([
                         ['key' => 'id', 'label' => t('ID')],
-                        ['key' => 'name', 'label' => t('Name')],
+                        ['key' => 'name', 'label' => t('Name'), 'sortable' => true],
                         ['key' => 'handle', 'label' => t('Handle')],
                         ['key' => 'type', 'label' => t('Type', category: 'commerce')],
                         ['key' => 'hasTransactions', 'label' => t('Has Transactions?', category: 'commerce')],

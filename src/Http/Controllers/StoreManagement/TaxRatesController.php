@@ -62,6 +62,7 @@ readonly class TaxRatesController extends BaseStoreManagementController
                 // stand-in for the dot when this screen first converted; dropped now that the
                 // dot itself is back, matching the legacy column set exactly again.
                 '_status' => $taxRate->enabled,
+                '_sort' => ['name' => t($taxRate->name, category: 'site')],
                 'name' => ['html' => Html::a(Html::encode(t($taxRate->name, category: 'site')), $taxRate->getCpEditUrl(), ['class' => 'cell-bold'])],
                 'rate' => $taxRate->getRateAsPercent(),
                 'included' => $taxRate->include ? ['icon' => 'check', 'label' => t('Yes')] : '',
@@ -75,7 +76,7 @@ readonly class TaxRatesController extends BaseStoreManagementController
         $nodes = [
             Table::make('tax-rates')
                 ->columns([
-                    ['key' => 'name', 'label' => t('Name')],
+                    ['key' => 'name', 'label' => t('Name'), 'sortable' => true],
                     ['key' => 'rate', 'label' => t('Rate', category: 'commerce')],
                     ['key' => 'included', 'label' => t('Include in price?', category: 'commerce')],
                     ['key' => 'removeIncluded', 'label' => t('Remove from price?', category: 'commerce')],

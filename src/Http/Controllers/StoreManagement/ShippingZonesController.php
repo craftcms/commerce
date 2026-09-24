@@ -39,6 +39,7 @@ readonly class ShippingZonesController extends BaseStoreManagementController
         $rows = app(ShippingZones::class)->getAllShippingZones($store->id)
             ->map(fn(ShippingAddressZone $shippingZone) => [
                 'id' => $shippingZone->id,
+                '_sort' => ['name' => t($shippingZone->name, category: 'site')],
                 'name' => ['html' => Html::a(Html::encode(t($shippingZone->name, category: 'site')), $shippingZone->getCpEditUrl(), ['class' => 'cell-bold'])],
                 'description' => t($shippingZone->description, category: 'site'),
             ])
@@ -48,7 +49,7 @@ readonly class ShippingZonesController extends BaseStoreManagementController
         $nodes = [
             Table::make('shipping-zones')
                 ->columns([
-                    ['key' => 'name', 'label' => t('Name')],
+                    ['key' => 'name', 'label' => t('Name'), 'sortable' => true],
                     ['key' => 'description', 'label' => t('Description', category: 'commerce')],
                 ])
                 ->rows($rows)

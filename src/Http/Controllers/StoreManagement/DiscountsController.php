@@ -87,18 +87,19 @@ readonly class DiscountsController extends BaseStoreManagementController
         $nodes = [
             Table::make('discounts')
                 ->columns([
-                    ['key' => 'name', 'label' => t('Name')],
-                    ['key' => 'requireCouponCode', 'label' => t('Require Coupon Code', category: 'commerce')],
-                    ['key' => 'duration', 'label' => t('Duration', category: 'commerce')],
-                    ['key' => 'timesUsed', 'label' => t('Times Used', category: 'commerce')],
-                    ['key' => 'stop', 'label' => t('Stops Processing?', category: 'commerce')],
-                    ['key' => 'ignore', 'label' => t('Ignore Promotions?', category: 'commerce')],
+                    ['key' => 'name', 'label' => t('Name'), 'sortable' => true],
+                    ['key' => 'requireCouponCode', 'label' => t('Require Coupon Code', category: 'commerce'), 'sortable' => true],
+                    ['key' => 'duration', 'label' => t('Duration', category: 'commerce'), 'sortable' => true],
+                    ['key' => 'timesUsed', 'label' => t('Times Used', category: 'commerce'), 'sortable' => true],
+                    ['key' => 'stop', 'label' => t('Stops Processing?', category: 'commerce'), 'sortable' => true],
+                    ['key' => 'ignore', 'label' => t('Ignore Promotions?', category: 'commerce'), 'sortable' => true],
                 ])
                 ->dataUrl(action([self::class, 'tableData'], ['storeHandle' => $store->handle]), self::DISCOUNTS_PER_PAGE)
                 ->moveToPageUrl(action([self::class, 'moveToPage'], ['storeHandle' => $store->handle]))
                 ->emptyMessage(t('No discounts exist yet.', category: 'commerce'))
                 ->statusFilter()
                 ->searchable()
+                ->toggleableColumns()
                 ->when(
                     currentUserElement()?->can('commerce-createDiscounts'),
                     fn(Table $table) => $table->createAction(t('New discount', category: 'commerce'), $store->getStoreSettingsUrl('discounts/new')),
@@ -142,6 +143,7 @@ readonly class DiscountsController extends BaseStoreManagementController
             ->when($status !== '', fn(Collection $discounts) => $discounts
                 ->filter(fn(Discount $discount) => $discount->enabled === ($status === 'enabled'))
                 ->values());
+        $discounts = $this->sortedDiscounts($discounts, $request->array('sort'));
         $dateFormat = I18N::getFormattingLocale()->getDateTimeFormat('short', Locale::FORMAT_PHP);
 
         $rows = Table::prepareRows(
@@ -190,6 +192,35 @@ readonly class DiscountsController extends BaseStoreManagementController
         }
 
         return $this->asSuccess();
+    }
+
+    /**
+     * Sorts by one column of the table, keeping `sortOrder` among ties. An unknown or missing
+     * sort leaves the discounts in `sortOrder`.
+     *
+     * @param Collection<int, Discount> $discounts
+     * @param array<int, mixed> $sort
+     * @return Collection<int, Discount>
+     */
+    private function sortedDiscounts(Collection $discounts, array $sort): Collection
+    {
+        $value = match ($sort[0]['field'] ?? null) {
+            'name' => fn(Discount $discount) => mb_strtolower(t($discount->name, category: 'site')),
+            'requireCouponCode' => fn(Discount $discount) => $discount->requireCouponCode,
+            'duration' => fn(Discount $discount) => $discount->dateFrom?->getTimestamp() ?? PHP_INT_MIN,
+            'timesUsed' => fn(Discount $discount) => $discount->totalDiscountUses,
+            'stop' => fn(Discount $discount) => $discount->stopProcessing,
+            'ignore' => fn(Discount $discount) => $discount->ignorePromotions,
+            default => null,
+        };
+
+        if ($value === null) {
+            return $discounts;
+        }
+
+        return $discounts
+            ->sortBy($value, SORT_NATURAL, ($sort[0]['direction'] ?? 'asc') === 'desc')
+            ->values();
     }
 
     /**

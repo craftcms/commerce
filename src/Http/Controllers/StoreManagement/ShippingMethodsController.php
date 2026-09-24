@@ -52,6 +52,7 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
             ->map(fn(ShippingMethod $shippingMethod) => [
                 'id' => $shippingMethod->id,
                 '_status' => $shippingMethod->getIsEnabled(),
+                '_sort' => ['name' => t($shippingMethod->name, category: 'site')],
                 'name' => ['html' => app(ElementHtml::class)->chipHtml($shippingMethod, [
                     'showStatus' => false,
                     'labelHtml' => Html::a(Html::encode(t($shippingMethod->name, category: 'site')), $shippingMethod->getCpEditUrl(), ['class' => 'cell-bold']),
@@ -65,7 +66,7 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
         $nodes = [
             Table::make('shipping-methods')
                 ->columns([
-                    ['key' => 'name', 'label' => t('Name')],
+                    ['key' => 'name', 'label' => t('Name'), 'sortable' => true],
                     ['key' => 'handle', 'label' => t('Handle')],
                     ['key' => 'type', 'label' => t('Type', category: 'commerce')],
                 ])
