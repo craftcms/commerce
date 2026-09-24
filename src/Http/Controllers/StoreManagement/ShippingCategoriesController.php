@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
-use craft\helpers\Cp;
 use CraftCms\Cms\Cp\Html\ContentHtml;
+use CraftCms\Cms\Cp\Html\ElementHtml;
 use CraftCms\Cms\Form\Controls\Choice;
 use CraftCms\Cms\Form\Controls\ColorSelect;
 use CraftCms\Cms\Form\Controls\Handle;
@@ -49,7 +49,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
         $rows = $shippingCategories
             ->map(fn(ShippingCategory $shippingCategory) => [
                 'id' => $shippingCategory->id,
-                'name' => ['html' => Cp::chipHtml($shippingCategory, [
+                'name' => ['html' => app(ElementHtml::class)->chipHtml($shippingCategory, [
                     'labelHtml' => Html::a(Html::encode(t($shippingCategory->name, category: 'site')), $shippingCategory->getCpEditUrl(), ['class' => 'cell-bold']),
                 ])],
                 'handle' => $shippingCategory->handle,

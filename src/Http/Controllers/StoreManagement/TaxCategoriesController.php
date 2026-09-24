@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
-use craft\helpers\Cp;
 use CraftCms\Cms\Cp\Html\ContentHtml;
+use CraftCms\Cms\Cp\Html\ElementHtml;
 use CraftCms\Cms\Form\Controls\Choice;
 use CraftCms\Cms\Form\Controls\ColorSelect;
 use CraftCms\Cms\Form\Controls\Handle;
@@ -65,7 +65,7 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
 
             return [
                 'id' => $taxCategory->id,
-                'name' => ['html' => Cp::chipHtml($taxCategory, [
+                'name' => ['html' => app(ElementHtml::class)->chipHtml($taxCategory, [
                     'labelHtml' => Html::a($label, $taxCategory->getCpEditUrl($store->id), ['class' => 'cell-bold']),
                 ])],
                 'handle' => $taxCategory->handle,

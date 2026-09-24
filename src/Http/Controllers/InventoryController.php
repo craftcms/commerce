@@ -10,6 +10,7 @@ use craft\enums\MenuItemType;
 use craft\helpers\AdminTable;
 use craft\helpers\Cp;
 use craft\web\assets\htmx\HtmxAsset;
+use CraftCms\Cms\Cp\Html\ElementHtml;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpModalResponse;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
@@ -264,7 +265,7 @@ readonly class InventoryController
             $inventoryItemDomId = sprintf("edit-$id-link-%s", mt_rand());
             if ($purchasable) {
                 // When providing the `labelHtml` option we need to encode it ourselves
-                $inventoryLevel['purchasable'] = Cp::chipHtml($purchasable, ['labelHtml' => Html::encode($purchasable->getDescription()), 'showActionMenu' => !$purchasable->getIsDraft() && $purchasable->canSave($currentUser)]);
+                $inventoryLevel['purchasable'] = app(ElementHtml::class)->chipHtml($purchasable, ['labelHtml' => Html::encode($purchasable->getDescription()), 'showActionMenu' => !$purchasable->getIsDraft() && $purchasable->canSave($currentUser)]);
             } else {
                 $inventoryLevel['purchasable'] = Html::encode($inventoryLevel['description']);
             }

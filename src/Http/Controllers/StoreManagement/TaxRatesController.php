@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
-use craft\helpers\Cp;
 use CraftCms\Cms\Cp\Html\ContentHtml;
+use CraftCms\Cms\Cp\Html\ElementHtml;
 use CraftCms\Cms\Form\Controls\Choice;
 use CraftCms\Cms\Form\Controls\Combobox;
 use CraftCms\Cms\Form\Controls\Combobox\CreateOption as ComboboxCreateOption;
@@ -67,7 +67,7 @@ readonly class TaxRatesController extends BaseStoreManagementController
                 'included' => $taxRate->include ? ['icon' => 'check', 'label' => t('Yes')] : '',
                 'removeIncluded' => $taxRate->removeIncluded ? ['icon' => 'check', 'label' => t('Yes')] : '',
                 'zone' => $taxRate->getIsEverywhere() ? t('Everywhere', category: 'commerce') : t($taxRate->getTaxZone()->name, category: 'site'),
-                'category' => $taxRate->getTaxCategory() ? ['html' => Cp::chipHtml($taxRate->getTaxCategory())] : '',
+                'category' => $taxRate->getTaxCategory() ? ['html' => app(ElementHtml::class)->chipHtml($taxRate->getTaxCategory())] : '',
             ])
             ->values()
             ->all();
