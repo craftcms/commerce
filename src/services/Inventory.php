@@ -93,9 +93,10 @@ class Inventory extends Component
 
     /**
      * @param Purchasable $purchasable
+     * @param Order|null $order
      * @return Collection<InventoryLevel>
      */
-    public function getInventoryLevelsForPurchasable(Purchasable $purchasable): Collection
+    public function getInventoryLevelsForPurchasable(Purchasable $purchasable, ?Order $order = null): Collection
     {
         $inventoryLevels = collect();
 
@@ -113,10 +114,9 @@ class Inventory extends Component
             return $inventoryLevels; // empty collection
         }
 
-        $storeId = $purchasable->getStore()->id;
-        $storeInventoryLocations = Plugin::getInstance()->getInventoryLocations()->getInventoryLocations($storeId);
+        $purchasableInventoryLocations = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationsForPurchasable($purchasable, $order);
 
-        foreach ($storeInventoryLocations as $inventoryLocation) {
+        foreach ($purchasableInventoryLocations as $inventoryLocation) {
             $inventoryLevel = $this->getInventoryLevel($purchasable->inventoryItemId, $inventoryLocation->id);
 
             if (!$inventoryLevel) {
@@ -849,7 +849,7 @@ class Inventory extends Component
                     $qtyLineItem[$purchasable->id] = 0;
                 }
                 $qtyLineItem[$purchasable->id] += $lineItem->qty;
-                $allInventoryLevels[$purchasable->id] = $purchasable->getInventoryLevels();
+                $allInventoryLevels[$purchasable->id] = $purchasable->getInventoryLevels($order);
             }
         }
 
