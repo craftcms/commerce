@@ -133,7 +133,7 @@ readonly class DiscountsController extends BaseStoreManagementController
 
         $store = $this->resolveStore($request->input('storeHandle'));
         $page = max(1, (int) $request->input('page', 1));
-        $perPage = self::DISCOUNTS_PER_PAGE;
+        $perPage = max(1, $request->integer('per_page', self::DISCOUNTS_PER_PAGE));
         $search = trim((string) $request->input('search', ''));
 
         $discounts = $this->searchedDiscounts($store, $search);
@@ -178,7 +178,7 @@ readonly class DiscountsController extends BaseStoreManagementController
         $discount = app(Discounts::class)->getDiscountById($id, $store->id);
         abort_if($discount === null, 404);
 
-        $toPosition = ($page - 1) * self::DISCOUNTS_PER_PAGE;
+        $toPosition = ($page - 1) * max(1, $request->integer('per_page', self::DISCOUNTS_PER_PAGE));
 
         if (!app(Discounts::class)->moveDiscountToPosition($id, $toPosition)) {
             return $this->asFailure(t('Couldn’t reorder discounts.', category: 'commerce'));
