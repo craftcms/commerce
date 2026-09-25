@@ -35,11 +35,15 @@ use CraftCms\Commerce\Http\Controllers\Users\UsersController;
 use CraftCms\Commerce\Http\Controllers\VariantsController;
 use Illuminate\Support\Facades\Route;
 
+use function CraftCms\Cms\cp_url;
+
 Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
     Route::middleware('can:commerce-manageDonationSettings')
         ->get('commerce/donations', [DonationsController::class, 'edit']);
 
     Route::middleware(RequireAdmin::class)->group(function () {
+        Route::get('commerce/settings', fn() => redirect(cp_url('commerce/settings/general')));
+
         Route::get('commerce/settings/gateways', [GatewaysController::class, 'index']);
         Route::get('commerce/settings/gateways/new', [GatewaysController::class, 'edit']);
         Route::post('commerce/settings/gateways/render-form', [GatewaysController::class, 'renderForm']);

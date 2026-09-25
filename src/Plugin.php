@@ -424,7 +424,7 @@ class Plugin extends BasePlugin
             $item->add(new NavItem()
                 ->label(t('Settings', category: 'app'))
                 ->ariaLabel(t('Commerce Settings', category: 'commerce'))
-                ->url('commerce/settings/general'));
+                ->url('commerce/settings'));
         }
 
         return $item;
