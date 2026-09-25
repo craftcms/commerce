@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Promotion;
 
-use Carbon\Carbon;
 use craft\elements\Category;
 use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Sites;
+use CraftCms\Cms\Support\Query;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Formula\Formulas;
@@ -128,10 +128,10 @@ class Discounts
             ->where('enabled', true)
             ->where('storeId', $store->id)
             ->where(function($q) use ($date) {
-                $q->whereNull('dateFrom')->orWhere('dateFrom', '<=', $date->format('Y-m-d H:i:s'));
+                $q->whereNull('dateFrom')->orWhere('dateFrom', '<=', Query::prepareDateForDb($date));
             })
             ->where(function($q) use ($date) {
-                $q->whereNull('dateTo')->orWhere('dateTo', '>=', $date->format('Y-m-d H:i:s'));
+                $q->whereNull('dateTo')->orWhere('dateTo', '>=', Query::prepareDateForDb($date));
             })
             ->where(function($q) {
                 $q->where('totalDiscountUseLimit', 0)
@@ -543,8 +543,8 @@ class Discounts
         $record->storeId = $model->storeId;
         $record->name = $model->name;
         $record->description = $model->description;
-        $record->dateFrom = $model->dateFrom ? Carbon::instance($model->dateFrom) : null;
-        $record->dateTo = $model->dateTo ? Carbon::instance($model->dateTo) : null;
+        $record->dateFrom = Query::prepareDateForDb($model->dateFrom);
+        $record->dateTo = Query::prepareDateForDb($model->dateTo);
         $record->enabled = $model->enabled;
         $record->stopProcessing = $model->stopProcessing;
         $record->orderCondition = $model->hasOrderCondition() ? $model->getOrderCondition()->getConfig() : null;
