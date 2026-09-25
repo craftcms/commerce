@@ -78,21 +78,20 @@ abstract readonly class BaseStoreManagementController
     }
 
     /**
-     * Builds "Commerce / <store switcher> / <section>[ / ...$trail]".
-     *
-     * Pass one entry per crumb beyond this controller's own section (in practice almost
-     * always either none, for an index, or one, for a record being edited). Whichever crumb
-     * ends up last never links, since it's the page already showing.
+     * Builds "Commerce / <store switcher> / <section>[ / ...$trail]", where `$trail` is any
+     * crumbs beyond the section (e.g. the record being edited). The last crumb never links.
      *
      * @param array{label: string, url?: ?string} ...$trail
      * @return list<array<string, mixed>>
      */
     final protected function crumbs(Store $store, array ...$trail): array
     {
+        $sectionCrumb = $this->getSectionCrumb($store);
+
         $crumbs = [
             ['label' => t('Commerce', category: 'commerce'), 'href' => cp_url('commerce')],
             ...($this->showsStoreSwitcher() ? [$this->storeCrumb($store)] : []),
-            $this->getSectionCrumb($store),
+            [...$sectionCrumb, 'items' => $this->sectionMenu($store, $sectionCrumb['href'])],
             ...array_map(fn(array $crumb) => ['label' => $crumb['label'], 'href' => $crumb['url'] ?? null], $trail),
         ];
 
@@ -102,9 +101,34 @@ abstract readonly class BaseStoreManagementController
     }
 
     /**
-     * The store-switcher crumb — a store icon and name that opens a menu of every other store
-     * the current user can access. It never links anywhere itself; switching stores happens
-     * entirely through its menu.
+     * The section crumb's switcher: every section in {@see subnav()}, with its groups as
+     * headings, the way an element index's source crumb lists its sources.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function sectionMenu(Store $store, string $sectionUrl): array
+    {
+        $link = fn(NavItem $item) => [
+            'type' => 'link',
+            'label' => $item->label,
+            'href' => $item->href,
+            'selected' => $item->href === $sectionUrl,
+        ];
+
+        return array_map(fn(NavItem $item) => $item->group
+            ? ['type' => 'group', 'heading' => $item->label, 'items' => array_map($link, $item->subnav ?: [])]
+            : $link($item), $this->subnav($store));
+    }
+
+    /**
+     * The store-switcher crumb — a store icon and name that opens a menu of every store the
+     * current user can access, modelled on {@see \CraftCms\Cms\Cp\SiteSwitcher::crumb()}.
+     *
+     * It never links anywhere itself: a crumb with a URL has its menu replaced with the main
+     * navigation on the client (`withNavCrumbMenus()`), so switching stores happens entirely
+     * through its menu. Each store links to the same section of that store, falling back to
+     * the section's index from a record's edit screen, since records belong to a single store.
+     * The menu is left off when there's only one store to choose from.
      *
      * @return array<string, mixed>
      */
@@ -118,17 +142,22 @@ abstract readonly class BaseStoreManagementController
             }
 
             return false;
-        });
+        })->values();
+
+        $section = explode('/', request()->craftPath())[3] ?? null;
 
         return [
             'label' => t($store->getName(), category: 'site'),
             'icon' => 'store',
             'href' => null,
-            'actions' => $switchableStores->map(fn(Store $s) => [
-                'type' => 'link',
-                'label' => t($s->getName(), category: 'site'),
-                'href' => $s->getStoreSettingsUrl(),
-            ])->all(),
+            'items' => $switchableStores->count() > 1
+                ? $switchableStores->map(fn(Store $s) => [
+                    'type' => 'link',
+                    'label' => t($s->getName(), category: 'site'),
+                    'href' => $s->getStoreSettingsUrl($section),
+                    'selected' => $s->id === $store->id,
+                ])->all()
+                : [],
         ];
     }
 
