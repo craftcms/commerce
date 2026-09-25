@@ -10,12 +10,14 @@ use CraftCms\Cms\Form\FormResolver;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 
+use CraftCms\Commerce\Http\Controllers\Concerns\HasSubnavCrumbMenu;
 use CraftCms\Commerce\Plugin;
 use function CraftCms\Cms\cp_url;
 use function CraftCms\Cms\t;
 
 abstract class BaseSettingsController
 {
+    use HasSubnavCrumbMenu;
     use RespondsWithFlash;
 
     protected bool $readOnly;
@@ -128,19 +130,30 @@ abstract class BaseSettingsController
     abstract protected function getSectionCrumb(): array;
 
     /**
-     * Builds "Settings / <section>[ / ...$trail]". Pass one entry per crumb
-     * beyond the section (usually zero, for an index; one, for a record being
-     * edited). Whichever crumb ends up last never links, since it's the page
-     * already showing.
+     * Builds "Settings / <section>[ / ...$trail]", where `$trail` is any crumbs beyond the
+     * section (e.g. the record being edited). The last crumb never links.
      *
      * @param array{label: string, url?: ?string} ...$trail
-     * @return list<array<string, string>>
+     * @return list<array<string, mixed>>
      */
     final protected function crumbs(array ...$trail): array
     {
+        return $this->crumbsForSection($this->getSectionCrumb(), ...$trail);
+    }
+
+    /**
+     * {@see crumbs()} for a screen that isn't this controller's own section, e.g. the Sites
+     * screen, which {@see StoresController} serves but the subnav lists alongside Stores.
+     *
+     * @param array{label: string, href: string} $sectionCrumb
+     * @param array{label: string, url?: ?string} ...$trail
+     * @return list<array<string, mixed>>
+     */
+    final protected function crumbsForSection(array $sectionCrumb, array ...$trail): array
+    {
         $crumbs = [
             ['label' => t('Settings'), 'href' => cp_url('commerce/settings')],
-            $this->getSectionCrumb(),
+            [...$sectionCrumb, 'items' => $this->subnavCrumbMenu($this->subnav(), $sectionCrumb['href'])],
             ...array_map(fn(array $crumb) => ['label' => $crumb['label'], 'href' => $crumb['url'] ?? null], $trail),
         ];
 

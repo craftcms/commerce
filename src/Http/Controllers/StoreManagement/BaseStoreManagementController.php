@@ -12,6 +12,7 @@ use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Shared\Enums\Color;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
+use CraftCms\Commerce\Http\Controllers\Concerns\HasSubnavCrumbMenu;
 use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Tax\Taxes;
@@ -49,6 +50,7 @@ use function CraftCms\Cms\t;
 abstract readonly class BaseStoreManagementController
 {
     use HasStoreManagementScreen;
+    use HasSubnavCrumbMenu;
     use RespondsWithFlash;
 
     public function __construct(
@@ -91,33 +93,13 @@ abstract readonly class BaseStoreManagementController
         $crumbs = [
             ['label' => t('Commerce', category: 'commerce'), 'href' => cp_url('commerce')],
             ...($this->showsStoreSwitcher() ? [$this->storeCrumb($store)] : []),
-            [...$sectionCrumb, 'items' => $this->sectionMenu($store, $sectionCrumb['href'])],
+            [...$sectionCrumb, 'items' => $this->subnavCrumbMenu($this->subnav($store), $sectionCrumb['href'])],
             ...array_map(fn(array $crumb) => ['label' => $crumb['label'], 'href' => $crumb['url'] ?? null], $trail),
         ];
 
         $crumbs[array_key_last($crumbs)]['href'] = null;
 
         return $crumbs;
-    }
-
-    /**
-     * The section crumb's switcher: every section in {@see subnav()}, with its groups as
-     * headings, the way an element index's source crumb lists its sources.
-     *
-     * @return list<array<string, mixed>>
-     */
-    private function sectionMenu(Store $store, string $sectionUrl): array
-    {
-        $link = fn(NavItem $item) => [
-            'type' => 'link',
-            'label' => $item->label,
-            'href' => $item->href,
-            'selected' => $item->href === $sectionUrl,
-        ];
-
-        return array_map(fn(NavItem $item) => $item->group
-            ? ['type' => 'group', 'heading' => $item->label, 'items' => array_map($link, $item->subnav ?: [])]
-            : $link($item), $this->subnav($store));
     }
 
     /**

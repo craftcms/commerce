@@ -427,7 +427,7 @@ class StoresController extends BaseSettingsController
 
         return $this->cpScreenResponse()
             ->title($title)
-            ->crumbs($this->crumbs(['label' => $title]))
+            ->crumbs($this->crumbsForSection(['label' => $title, 'href' => cp_url('commerce/settings/sites')]))
             ->redirectUrl('commerce/settings/sites')
             ->inertiaPage('Form', [
                 'form' => $this->formResolver->resolve($form, new FormContext(
