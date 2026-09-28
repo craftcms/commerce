@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed a bug where all catalog pricing rule prices could be removed if a catalog pricing rule was deleted before its catalog pricing job ran. ([#4374](https://github.com/craftcms/commerce/issues/4374))
+- Fixed a bug where all catalog pricing could be removed if a catalog pricing rule was deleted before its catalog pricing job ran. ([#4374](https://github.com/craftcms/commerce/issues/4374))
 
 ## 5.7.5 - 2026-09-23
 
