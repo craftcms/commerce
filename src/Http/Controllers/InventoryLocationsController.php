@@ -4,324 +4,438 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use craft\commerce\Plugin;
 use CraftCms\Cms\Address\Elements\Address;
+use CraftCms\Cms\Cp\Html\ContentHtml;
 use CraftCms\Cms\FieldLayout\FieldLayoutCompiler;
-use CraftCms\Cms\FieldLayout\LayoutElements\Addresses\AddressField;
-use CraftCms\Cms\Form\Enums\ControlMode;
+use CraftCms\Cms\Form\Contracts\Node;
+use CraftCms\Cms\Form\Controls\Choice;
+use CraftCms\Cms\Form\Controls\Handle;
+use CraftCms\Cms\Form\Controls\Text;
+use CraftCms\Cms\Form\Form;
 use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\FormHtmlRenderer;
+use CraftCms\Cms\Form\FormResolver;
+use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Form\Nodes\HiddenField;
+use CraftCms\Cms\Form\Nodes\Separator;
+use CraftCms\Cms\Form\Nodes\Tab;
+use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\RespondsWithFlash;
-use CraftCms\Cms\Http\Responses\CpModalResponse;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
-use CraftCms\Cms\Support\Facades\Addresses;
 use CraftCms\Cms\Support\Facades\Elements;
-use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\Translation\Formatter;
 use CraftCms\Commerce\Inventory\Data\DeactivateInventoryLocation;
 use CraftCms\Commerce\Inventory\Data\InventoryLocation;
 use CraftCms\Commerce\Inventory\InventoryLocations;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-
 use Symfony\Component\HttpFoundation\Response;
-use function CraftCms\Cms\currentUser;
+
+use function CraftCms\Cms\cp_url;
 use function CraftCms\Cms\t;
 
 readonly class InventoryLocationsController
 {
     use RespondsWithFlash;
 
+    /** The Address element's geographic fields, which the Address control nests under `address`. */
+    private const array ADDRESS_CONTROL_FIELDS = [
+        'addressLine1',
+        'addressLine2',
+        'addressLine3',
+        'administrativeArea',
+        'locality',
+        'dependentLocality',
+        'postalCode',
+        'sortingCode',
+    ];
+
+    /** The Address element's other native attributes an address field layout can edit. */
+    private const array ADDRESS_NATIVE_FIELDS = [
+        'countryCode',
+        'organization',
+        'organizationTaxId',
+        'fullName',
+        'firstName',
+        'lastName',
+        'latitude',
+        'longitude',
+    ];
+
+    public function __construct(
+        private FormResolver $formResolver,
+    ) {
+    }
+
     public function index(): CpScreenResponse
     {
         $inventoryLocations = app(InventoryLocations::class)->getAllInventoryLocations();
-        $currentUser = currentUser();
+        $canDelete = $inventoryLocations->count() > 1;
 
-        $screen = new CpScreenResponse()
+        $rows = $inventoryLocations->map(fn(InventoryLocation $inventoryLocation) => [
+            'id' => $inventoryLocation->id,
+            '_sort' => ['name' => $inventoryLocation->getUiLabel()],
+            'name' => ['html' => Html::a(Html::encode($inventoryLocation->getUiLabel()), $inventoryLocation->getCpEditUrl(), ['class' => 'cell-bold'])],
+            'handle' => $inventoryLocation->handle,
+            'address' => $inventoryLocation->getAddressLine(),
+        ])->values()->all();
+
+        $nodes = [
+            Table::make('inventory-locations')
+                ->columns([
+                    ['key' => 'name', 'label' => t('Name', category: 'commerce'), 'sortable' => true],
+                    ['key' => 'handle', 'label' => t('Handle', category: 'commerce')],
+                    ['key' => 'address', 'label' => t('Address')],
+                ])
+                ->rows($rows)
+                ->emptyMessage(t('No inventory locations exist yet.', category: 'commerce'))
+                ->when(
+                    app(InventoryLocations::class)->canCreateInventoryLocation(),
+                    fn(Table $table) => $table
+                        ->createAction(t('New location', category: 'commerce'), cp_url('commerce/inventory-locations/new'))
+                        ->createActionInPageHeader(),
+                )
+                ->when($canDelete, fn(Table $table) => $table->deletable(
+                    action([self::class, 'deactivate']),
+                    modalUrl: action([self::class, 'prepareDeleteModal']),
+                )),
+        ];
+
+        return new CpScreenResponse()
             ->title(t('Inventory Locations', category: 'commerce'))
-            ->addCrumb(t('Commerce', category: 'commerce'), 'commerce')
+            ->crumbs($this->crumbs())
             ->selectedSubnavItem('inventory-locations')
-            ->contentTemplate('commerce/inventory-locations/_index', []);
-
-        $locationCount = count($inventoryLocations);
-        $showNewButton = $locationCount < Plugin::EDITION_PRO_STORE_LIMIT;
-        $userCanCreate = $currentUser?->can('commerce-createLocations');
-
-        if ($userCanCreate && $showNewButton) {
-            $button = Html::a(
-                t('New location', category: 'commerce'),
-                'commerce/inventory-locations/new',
-                ['class' => 'btn submit add icon']
-            );
-            $screen->additionalButtonsHtml($button);
-        }
-
-        return $screen;
+            ->inertiaPage('Form', [
+                'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+                'contentMaxWidth' => false,
+            ]);
     }
 
     public function edit(?int $inventoryLocationId = null): CpScreenResponse
     {
-        if ($inventoryLocationId !== null) {
-            $inventoryLocation = app(InventoryLocations::class)->getInventoryLocationById($inventoryLocationId);
-            abort_if(!$inventoryLocation, 404, 'Inventory location not found');
-
-            $title = trim((string)$inventoryLocation->getUiLabel()) ?: t('Edit Inventory Location');
-        } else {
-            $inventoryLocation = new InventoryLocation();
-            $title = t('Create a new inventory location');
-        }
-
+        $inventoryLocation = $this->resolveInventoryLocation($inventoryLocationId);
         $address = $inventoryLocation->getAddress();
-        $fieldLayout = $address->getFieldLayout();
 
-        // The legacy FieldLayout::createForm()/FieldLayoutForm API is gone — form building now
-        // goes through FieldLayoutCompiler (produces an immutable FormPayload) + FormHtmlRenderer
-        // (renders that payload to HTML/tab data), matching cms-6's own EditElementController::
-        // prepareEditor(). There's no more tabIdPrefix (namespace alone drives both input names
-        // and DOM ids), and the payload can't be mutated the way $form->tabs used to be.
-        // TODO: strip the address field layout's own title/LabelField (currently just rendered
-        // alongside our own explicit Name field below) via CraftCms\Cms\FieldLayout\Events\
-        // FieldLayoutFormResolving once that's worth the complexity — it fires inside
-        // FieldLayoutCompiler::form() with a mutable Form the listener can filter nodes from.
-        $payload = app(FieldLayoutCompiler::class)->compile(
-            $fieldLayout,
-            $address,
-            new FormContext(
-                namespace: 'inventoryLocationAddress',
-                errors: $address->errors()->getMessages(),
-                mode: ControlMode::Editable,
-                refreshable: true,
-            ),
+        $title = $inventoryLocation->id
+            ? (trim($inventoryLocation->getUiLabel()) ?: t('Edit Inventory Location'))
+            : t('Create a new inventory location');
+
+        $formatter = app(Formatter::class);
+        $metadataHtml = $inventoryLocation->id ? app(ContentHtml::class)->metadataHtml([
+            t('Created at') => $formatter->asDateTime($inventoryLocation->dateCreated, 'short'),
+            t('Updated at') => $formatter->asDateTime($inventoryLocation->dateUpdated, 'short'),
+        ]) : null;
+
+        $form = $this->formResolver->resolve(
+            $this->buildForm($inventoryLocation, $address),
+            new FormContext(values: $this->initialValues($inventoryLocation, $address), refreshable: true),
         );
-        $renderer = app(FormHtmlRenderer::class);
-        $form = $renderer->render($payload);
-        $tabs = $renderer->tabMenu($payload);
-
-        // These used to be injected directly into the compiled form's first tab; they're rendered
-        // ahead of the form's own HTML instead now, namespaced to match (see _edit.twig).
-        $extraFieldsHtml =
-            Html::hiddenInput('inventoryLocationId', (string)$inventoryLocationId) .
-            \craft\helpers\Cp::textFieldHtml([
-                'name' => 'name',
-                'id' => 'name',
-                'value' => $inventoryLocation->name,
-                'required' => true,
-                'label' => t('Name', category: 'commerce'),
-                'errors' => $inventoryLocation->getErrors('name'),
-            ]) .
-            \craft\helpers\Cp::textFieldHtml([
-                'name' => 'handle',
-                'id' => 'handle',
-                'value' => $inventoryLocation->handle,
-                'required' => true,
-                'label' => t('Handle', category: 'commerce'),
-                'errors' => $inventoryLocation->getErrors('handle'),
-            ]) .
-            Html::hiddenInput('id', (string)$address->id) .
-            Html::tag('hr');
-
-        $variables = [
-            'inventoryLocationId' => $inventoryLocationId,
-            'inventoryLocation' => $inventoryLocation,
-            'typeName' => t('Inventory Location', category: 'commerce'),
-            'lowerTypeName' => t('inventory location', category: 'commerce'),
-            'locationFieldHtml' => '',
-            'addressField' => new AddressField(),
-            'extraFieldsHtml' => $extraFieldsHtml,
-            'form' => $form,
-            'countries' => Addresses::getCountryRepository()->getList(\Craft::$app->language),
-        ];
 
         return new CpScreenResponse()
             ->title($title)
-            ->tabs($tabs)
-            ->addCrumb(t('Commerce', category: 'commerce'), 'commerce')
-            ->addCrumb(t('Inventory Locations', category: 'commerce'), 'commerce/inventory-locations')
+            ->crumbs($this->crumbs(...($inventoryLocation->id ? [['label' => $title]] : [])))
             ->action('commerce/inventory-locations/save')
             ->redirectUrl('commerce/inventory-locations')
             ->selectedSubnavItem('inventory-locations')
-            ->contentTemplate('commerce/inventory-locations/_edit', $variables);
+            ->inertiaPage('Form', [
+                'form' => $form,
+                'submit' => [
+                    'method' => 'post',
+                    'url' => action([self::class, 'save']),
+                ],
+                'refreshUrl' => action([self::class, 'renderForm']),
+                'metadataHtml' => $metadataHtml,
+            ]);
     }
 
-    public function save(Request $request): ?Response
+    /**
+     * Re-resolves the {@see edit()} Form tree for the values currently in progress on the
+     * client, so changing the country can reveal the right set of country-specific address
+     * fields without a full page reload.
+     */
+    public function renderForm(Request $request): JsonResponse
     {
-        // find the inventory location or make a new one
-        $inventoryLocationId = $request->input('inventoryLocationAddress.inventoryLocationId');
-        $inventoryLocation = null;
+        $request->validate([
+            'values' => ['required', 'array'],
+            'scope' => ['present', 'array', 'size:0'],
+        ]);
 
-        if ($inventoryLocationId) {
-            $inventoryLocation = app(InventoryLocations::class)->getInventoryLocationById((int)$inventoryLocationId);
+        $values = $request->input('values');
+        $inventoryLocationId = ($values['inventoryLocationId'] ?? null) ? (int)$values['inventoryLocationId'] : null;
+        $inventoryLocation = $this->resolveInventoryLocation($inventoryLocationId);
+        $address = $inventoryLocation->getAddress();
+
+        if (!empty($values['countryCode'])) {
+            $address->countryCode = $values['countryCode'];
         }
 
-        $inventoryLocation ??= new InventoryLocation();
+        $values = array_replace($this->initialValues($inventoryLocation, $address), $values);
 
-        $inventoryLocation->name = $request->input('inventoryLocationAddress.name');
-        $inventoryLocation->handle = $request->input('inventoryLocationAddress.handle');
+        $form = $this->formResolver->resolve(
+            $this->buildForm($inventoryLocation, $address),
+            new FormContext(values: $values, refreshable: true),
+        );
 
-        // Pre-validate the inventory location so that we don't save the address if the rest isn't valid
-        // This is to avoid orphaned addresses
+        return new JsonResponse(['form' => $form]);
+    }
+
+    public function save(Request $request): Response
+    {
+        $inventoryLocation = $this->resolveInventoryLocation($request->integer('inventoryLocationId') ?: null);
+
+        if (!$inventoryLocation->id && !app(InventoryLocations::class)->canCreateInventoryLocation()) {
+            return $this->asFailure(t('The maximum number of inventory locations for this edition has been reached.', category: 'commerce'));
+        }
+
+        $inventoryLocation->name = (string)$request->input('name');
+        $inventoryLocation->handle = (string)$request->input('handle');
+
+        // Validated before the address is saved, so an invalid location never orphans an address.
         $isValid = $inventoryLocation->validate();
 
-        if ($inventoryLocationAddress = $request->input('inventoryLocationAddress')) {
-            // Remove the non-address fields from the post data
-            unset($inventoryLocationAddress['name'], $inventoryLocationAddress['handle'], $inventoryLocationAddress['inventoryLocationId']);
+        $addressId = $request->integer('addressId') ?: null;
+        /** @var Address|null $address */
+        $address = $isValid && $addressId ? Elements::getElementById($addressId, Address::class) : null;
+        $address ??= new Address();
 
-            $inventoryLocationAddress['title'] = $inventoryLocation->name;
-            if ($isValid) {
-                $addressId = $inventoryLocationAddress['id'] ?: null;
-                /** @var Address|null $address */
-                $address = $addressId ? Elements::getElementById((int)$addressId, Address::class) : null;
-                $address ??= new Address();
+        $this->populateAddress($address, $request);
+        $address->title = $inventoryLocation->name;
 
-                $address->id = $addressId;
-            } else {
-                $address = new Address();
-            }
-
-            $address->setAttributes($inventoryLocationAddress);
-
-            if (isset($inventoryLocationAddress['fields'])) {
-                $address->setFieldValues($inventoryLocationAddress['fields']);
-            }
-
-            // Only try and save if the inventory location is valid
-            $hasAddressErrors = false;
-            if ($isValid && !Elements::saveElement($address)) {
-                $hasAddressErrors = $address->hasErrors();
-            } else {
-                // If we aren't saving the address let's validate it to show any potential errors
-                if (!$address->validate()) {
-                    $hasAddressErrors = $address->hasErrors();
-                }
-            }
-
-            if ($hasAddressErrors) {
-                $inventoryLocation->addModelErrors($address, 'address');
-            }
-
-            $inventoryLocation->setAddress($address);
+        if ($isValid) {
+            Elements::saveElement($address);
+        } else {
+            $address->validate();
         }
 
-        $inventoryLocation->addressId = $inventoryLocation->getAddress()->id;
+        $inventoryLocation->setAddress($address);
 
-        if ($inventoryLocation->hasErrors() || !app(InventoryLocations::class)->saveInventoryLocation($inventoryLocation)) {
+        if (
+            $inventoryLocation->errors()->isNotEmpty() ||
+            $address->errors()->isNotEmpty() ||
+            !app(InventoryLocations::class)->saveInventoryLocation($inventoryLocation)
+        ) {
             return $this->asModelFailure(
                 model: $inventoryLocation,
-                message: t('Couldn\'t save inventory location.', category: 'commerce'),
-                modelName: 'inventoryLocation'
+                message: t('Couldn’t save inventory location.', category: 'commerce'),
+                modelName: 'inventoryLocation',
+                data: ['errors' => [
+                    ...$inventoryLocation->errors()->getMessages(),
+                    ...$this->addressErrors($address),
+                ]],
             );
         }
 
         return $this->asModelSuccess(
             model: $inventoryLocation,
             message: t('Inventory location saved.', category: 'commerce'),
-            modelName: 'inventoryLocation'
+            modelName: 'inventoryLocation',
         );
     }
 
-    public function inventoryLocationsTableData(Request $request): Response
+    /**
+     * The Form shown by the index Table's delete modal, asking where the location's stock
+     * should move to. Its values are posted to {@see deactivate()} along with the row `id`.
+     */
+    public function prepareDeleteModal(Request $request): JsonResponse
     {
         abort_unless($request->expectsJson(), 400);
 
-        $inventoryLocations = app(InventoryLocations::class)->getAllInventoryLocations();
+        $inventoryLocationId = $request->integer('id');
+        abort_if(!$inventoryLocationId, 400, 'Missing id');
 
-        $data = [];
-        foreach ($inventoryLocations as $inventoryLocation) {
-            $id = $inventoryLocation->id;
-            $deleteButtonId = sprintf("deleteButton-$id-%s", mt_rand());
+        $inventoryLocation = $this->resolveInventoryLocation($inventoryLocationId);
 
-            $deleteButton = Html::a('', '#', [
-                'role' => 'button',
-                'title' => t('Delete', category: 'commerce'),
-                'class' => 'delete icon',
-                'id' => $deleteButtonId,
-            ]);
+        $destinationOptions = app(InventoryLocations::class)->getAllInventoryLocations()
+            ->reject(fn(InventoryLocation $location) => $location->id === $inventoryLocation->id)
+            ->map(fn(InventoryLocation $location) => ['value' => (string)$location->id, 'label' => $location->getUiLabel()])
+            ->values()
+            ->all();
 
-            HtmlStack::jsWithVars(fn($id, $settings) => <<<JS
-\$('#' + $id).on('click', (e) => {
-	e.preventDefault();
-	const slideout = new Craft.CpModal('commerce/inventory-locations/prepare-delete-modal', $settings);
-	slideout.on('close', (e) => {
-	  window.InventoryLocationsAdminTable.reload();
-	});
-});
-JS, [
-                $deleteButtonId,
-                ['params' => ['inventoryLocationId' => $id]],
-            ]);
+        abort_if(empty($destinationOptions), 400, 'Can not delete last inventory location.');
 
-            /** @var InventoryLocation $inventoryLocation */
-            $data[] = [
-                'id' => $inventoryLocation->id,
-                'title' => $inventoryLocation->getUiLabel(),
-                'handle' => $inventoryLocation->handle,
-                'address' => Html::encode($inventoryLocation->getAddressLine()),
-                'url' => $inventoryLocation->getCpEditUrl(),
-                'delete' => $inventoryLocations->count() > 1 ? $deleteButton : '',
-            ];
-        }
-
-        return response()->json([
-            'data' => $data,
-            'headHtml' => HtmlStack::headHtml(),
-            'bodyHtml' => HtmlStack::bodyHtml(),
-        ]);
-    }
-
-    public function prepareDeleteModal(Request $request): CpModalResponse
-    {
-        abort_unless($request->expectsJson(), 400);
-
-        $inventoryLocationId = $request->input('inventoryLocationId');
-        abort_if(!$inventoryLocationId, 400, 'Missing inventoryLocationId');
-
-        $inventoryLocation = app(InventoryLocations::class)->getInventoryLocationById((int)$inventoryLocationId);
-        $allInventoryLocations = app(InventoryLocations::class)->getAllInventoryLocations();
-
-        $destinationInventoryLocations = $allInventoryLocations
-            ->filter(fn($location) => $location->id != $inventoryLocation->id);
-
-        $destinationInventoryLocationsOptions = $destinationInventoryLocations
-            ->map(fn($location) => ['value' => $location->id, 'label' => $location->getUiLabel()])->all();
-
-        abort_if(empty($destinationInventoryLocationsOptions), 400, 'Can not delete last inventory location.');
-
-        $deactivateInventoryLocation = new DeactivateInventoryLocation([
-            'inventoryLocation' => $inventoryLocation,
-            'destinationInventoryLocation' => $destinationInventoryLocations->first(),
+        $form = Form::make([
+            Field::make(t('Destination Inventory Location', category: 'commerce'), Choice::make('destinationInventoryLocation')->options($destinationOptions))
+                ->instructions(t('Choose the destination inventory location for the existing on hand stock.', category: 'commerce'))
+                ->required(),
         ]);
 
-        return new CpModalResponse()
-            ->action('commerce/inventory-locations/deactivate')
-            ->submitButtonLabel(t('Delete'))
-            ->errorSummary('Can not delete inventory location.')
-            ->contentTemplate('commerce/inventory-locations/_deleteModal', [
-                'deactivateInventoryLocation' => $deactivateInventoryLocation,
-                'inventoryLocationOptions' => $destinationInventoryLocationsOptions,
-            ]);
+        return new JsonResponse([
+            'form' => $this->formResolver->resolve($form, new FormContext(values: [
+                'destinationInventoryLocation' => $destinationOptions[0]['value'],
+            ])),
+            'title' => t('Deleting the {location} location.', ['location' => $inventoryLocation->name], category: 'commerce'),
+            'submitLabel' => t('Delete'),
+        ]);
     }
 
     public function deactivate(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
 
-        $inventoryLocationId = $request->input('inventoryLocation');
-        $destinationInventoryLocationId = $request->input('destinationInventoryLocation');
-        abort_if(!$inventoryLocationId || !$destinationInventoryLocationId, 400, 'Missing inventoryLocation or destinationInventoryLocation');
-
-        $inventoryLocation = app(InventoryLocations::class)->getInventoryLocationById((int)$inventoryLocationId);
-        $destinationInventoryLocation = app(InventoryLocations::class)->getInventoryLocationById((int)$destinationInventoryLocationId);
+        $inventoryLocationId = $request->integer('id');
+        $destinationInventoryLocationId = $request->integer('destinationInventoryLocation');
+        abort_if(!$inventoryLocationId || !$destinationInventoryLocationId, 400, 'Missing id or destinationInventoryLocation');
 
         $deactivateInventoryLocation = new DeactivateInventoryLocation([
-            'inventoryLocation' => $inventoryLocation,
-            'destinationInventoryLocation' => $destinationInventoryLocation,
+            'inventoryLocation' => $this->resolveInventoryLocation($inventoryLocationId),
+            'destinationInventoryLocation' => $this->resolveInventoryLocation($destinationInventoryLocationId),
         ]);
 
         if (!app(InventoryLocations::class)->executeDeactivateInventoryLocation($deactivateInventoryLocation)) {
-            return $this->asFailure(t('Inventory was not updated.', category: 'commerce'), [
-                'errors' => $deactivateInventoryLocation->getErrors(),
-            ]);
+            $errors = $deactivateInventoryLocation->errors();
+
+            return $this->asFailure(
+                implode(' ', [t('Inventory was not updated.', category: 'commerce'), ...$errors->get('inventoryLocation')]),
+                ['errors' => $errors->getMessages()],
+            );
         }
 
-        return response()->json(['success' => true]);
+        return $this->asSuccess();
+    }
+
+    /**
+     * Builds "Commerce / Inventory Locations[ / ...$trail]". The last crumb never links.
+     *
+     * @param array{label: string, url?: ?string} ...$trail
+     * @return list<array{label: string, href: ?string}>
+     */
+    private function crumbs(array ...$trail): array
+    {
+        $crumbs = [
+            ['label' => t('Commerce', category: 'commerce'), 'href' => cp_url('commerce')],
+            ['label' => t('Inventory Locations', category: 'commerce'), 'href' => cp_url('commerce/inventory-locations')],
+            ...array_map(fn(array $crumb) => ['label' => $crumb['label'], 'href' => $crumb['url'] ?? null], $trail),
+        ];
+
+        $crumbs[array_key_last($crumbs)]['href'] = null;
+
+        return $crumbs;
+    }
+
+    private function resolveInventoryLocation(?int $inventoryLocationId): InventoryLocation
+    {
+        if ($inventoryLocationId === null) {
+            return new InventoryLocation();
+        }
+
+        $inventoryLocation = app(InventoryLocations::class)->getInventoryLocationById($inventoryLocationId);
+        abort_if(!$inventoryLocation, 404, 'Inventory location not found');
+
+        return $inventoryLocation;
+    }
+
+    /** @return array{inventoryLocationId: ?int, addressId: ?int, name: string, handle: string} */
+    private function initialValues(InventoryLocation $inventoryLocation, Address $address): array
+    {
+        return [
+            'inventoryLocationId' => $inventoryLocation->id,
+            'addressId' => $address->id,
+            'name' => $inventoryLocation->name,
+            'handle' => $inventoryLocation->handle,
+        ];
+    }
+
+    /**
+     * The location's own fields followed by the Address element's field layout, so custom
+     * address fields and the admin-configured layout carry over.
+     */
+    private function buildForm(InventoryLocation $inventoryLocation, Address $address): Form
+    {
+        $handle = Handle::make('handle');
+        if (!$inventoryLocation->id) {
+            $handle->source('name');
+        }
+
+        $ownNodes = [
+            ...($inventoryLocation->id ? [HiddenField::make('inventoryLocationId')] : []),
+            HiddenField::make('addressId'),
+            Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())->required(),
+            Field::make(t('Handle', category: 'commerce'), $handle)->required(),
+            Separator::make('address-separator'),
+        ];
+
+        $addressNodes = $this->prepareAddressNodes(app(FieldLayoutCompiler::class)->form(
+            $address->getFieldLayout(),
+            $address,
+            new FormContext(refreshable: true),
+        )->nodes());
+
+        if (($addressNodes[0] ?? null) instanceof Tab) {
+            $addressNodes[0]->prepend(...$ownNodes);
+
+            return Form::make($addressNodes);
+        }
+
+        return Form::make([...$ownNodes, ...$addressNodes]);
+    }
+
+    /**
+     * Drops the layout's Label (`title`) field, since the location's name is used as the
+     * address title, and makes the country select reactive so the address fields follow it.
+     *
+     * @param list<Node> $nodes
+     * @return list<Node>
+     */
+    private function prepareAddressNodes(array $nodes): array
+    {
+        $prepared = [];
+
+        foreach ($nodes as $node) {
+            if ($node instanceof Tab) {
+                $prepared[] = Tab::make($node->uid(), $node->props()['label'], $this->prepareAddressNodes($node->children()));
+                continue;
+            }
+
+            $control = $node->getControl();
+            $path = $control ? (array)$control->path() : [];
+
+            if ($path === ['title']) {
+                continue;
+            }
+
+            if ($control && $path === ['countryCode']) {
+                $control->reactive();
+            }
+
+            $prepared[] = $node;
+        }
+
+        return $prepared;
+    }
+
+    private function populateAddress(Address $address, Request $request): void
+    {
+        $address->setAttributes([
+            ...$request->only(self::ADDRESS_NATIVE_FIELDS),
+            ...array_intersect_key((array)$request->input('address'), array_flip(self::ADDRESS_CONTROL_FIELDS)),
+        ]);
+
+        $fields = $request->input('fields');
+        if (is_array($fields)) {
+            $address->setFieldValues($fields);
+        }
+    }
+
+    /**
+     * Maps the address's validation errors onto the control paths they render at.
+     *
+     * @return array<string, list<string>>
+     */
+    private function addressErrors(Address $address): array
+    {
+        $customFieldHandles = array_map(fn($field) => $field->handle, $address->getFieldLayout()->getCustomFields());
+        $errors = [];
+
+        foreach ($address->errors()->getMessages() as $attribute => $messages) {
+            $root = explode('.', (string)$attribute)[0];
+            $path = match (true) {
+                in_array($root, self::ADDRESS_CONTROL_FIELDS, true) => "address.$attribute",
+                in_array($root, $customFieldHandles, true) => "fields.$attribute",
+                default => (string)$attribute,
+            };
+            $errors[$path] = $messages;
+        }
+
+        return $errors;
     }
 }

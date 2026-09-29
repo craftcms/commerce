@@ -12,7 +12,6 @@ use CraftCms\Cms\Form\Controls\Combobox\CreateOption as ComboboxCreateOption;
 use CraftCms\Cms\Form\Controls\ConditionBuilder;
 use CraftCms\Cms\Form\Form;
 use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\FormResolver;
 use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\Form\Nodes\Heading;
 use CraftCms\Cms\Form\Nodes\HiddenField;
@@ -25,7 +24,6 @@ use CraftCms\Commerce\Address\Conditions\ZoneAddressCondition;
 use CraftCms\Commerce\Http\Controllers\InventoryLocationsController;
 use CraftCms\Commerce\Inventory\Data\InventoryLocation;
 use CraftCms\Commerce\Inventory\InventoryLocations;
-use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Store\StoreSettings;
@@ -49,13 +47,6 @@ readonly class StoreManagementController extends BaseStoreManagementController
         'postalCode',
         'sortingCode',
     ];
-
-    public function __construct(
-        private Plugin $plugin,
-        FormResolver $formResolver,
-    ) {
-        parent::__construct($formResolver);
-    }
 
     protected function getSectionCrumb(Store $store): array
     {
@@ -232,22 +223,11 @@ readonly class StoreManagementController extends BaseStoreManagementController
         ];
 
         if (currentUserElement()?->can('commerce-manageInventoryLocations')) {
-            $canCreate = false;
-            $limit = Plugin::EDITION_PRO_STORE_LIMIT;
-            $locationsCount = app(InventoryLocations::class)->getAllInventoryLocations()->count();
-
-            if ($locationsCount < $limit) {
-                $canCreate = true;
-            }
-            if ($this->plugin->is(Plugin::EDITION_ENTERPRISE, '=')) {
-                $canCreate = true;
-            }
-
             $inventoryLocationOptions = app(InventoryLocations::class)->getAllInventoryLocations()
                 ->map(fn(InventoryLocation $inventoryLocation) => ['label' => $inventoryLocation->name, 'value' => (string) $inventoryLocation->id])
                 ->values()
                 ->all();
-            if ($canCreate) {
+            if (app(InventoryLocations::class)->canCreateInventoryLocation()) {
                 // No `category` here, matching InventoryLocationsController::edit()'s own title
                 // for this same screen — not a commerce.php string.
                 $inventoryLocationOptions[] = new ComboboxCreateOption(
@@ -258,9 +238,7 @@ readonly class StoreManagementController extends BaseStoreManagementController
             }
 
             // Not ->limit(): that caps how many *unselected* options render in the dropdown at
-            // once (a UI performance guard), not how many the user is allowed to pick — an
-            // entirely different, unrelated concept that happened to share a name with the
-            // edition's own inventory-location-count limit computed above.
+            // once (a UI performance guard), not how many locations the edition allows.
             $inventoryLocationsControl = Combobox::make('inventoryLocations')
                 ->multiple()
                 ->options($inventoryLocationOptions)

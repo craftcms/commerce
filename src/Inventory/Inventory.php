@@ -256,19 +256,28 @@ class Inventory
             $inventoryTotals->where('il.id', $inventoryLocationId);
         }
 
+        $wrap = fn(string $value): string => DB::connection()->getQueryGrammar()->wrap($value);
+        $sumOfTypes = fn(array $types, string $alias): string => sprintf(
+            "SUM(CASE WHEN it.type IN (%s) THEN it.quantity ELSE 0 END) as %s",
+            implode(',', array_map(fn(string $type) => "'$type'", $types)),
+            $wrap($alias),
+        );
+
         $query = DB::table(Table::INVENTORYITEMS . ' as ii')
-            ->selectRaw('ii.id as inventoryItemId')
-            ->selectRaw('ii.purchasableId as purchasableId')
-            ->selectRaw('it.inventoryLocationId as inventoryLocationId')
-            ->selectRaw("SUM(CASE WHEN it.type = 'available' THEN it.quantity ELSE 0 END) as availableTotal")
-            ->selectRaw("SUM(CASE WHEN it.type = 'committed' THEN it.quantity ELSE 0 END) as committedTotal")
-            ->selectRaw("SUM(CASE WHEN it.type = 'reserved' THEN it.quantity ELSE 0 END) as reservedTotal")
-            ->selectRaw("SUM(CASE WHEN it.type = 'damaged' THEN it.quantity ELSE 0 END) as damagedTotal")
-            ->selectRaw("SUM(CASE WHEN it.type = 'safety' THEN it.quantity ELSE 0 END) as safetyTotal")
-            ->selectRaw("SUM(CASE WHEN it.type = 'qualityControl' THEN it.quantity ELSE 0 END) as qualityControlTotal")
-            ->selectRaw("SUM(CASE WHEN it.type = 'incoming' THEN it.quantity ELSE 0 END) as incomingTotal")
-            ->selectRaw("SUM(CASE WHEN it.type IN ('qualityControl','safety','damaged','reserved') THEN it.quantity ELSE 0 END) as unavailableTotal")
-            ->selectRaw("SUM(CASE WHEN it.type IN ('qualityControl','safety','damaged','reserved','available','committed') THEN it.quantity ELSE 0 END) as onHandTotal")
+            ->select([
+                'ii.id as inventoryItemId',
+                'ii.purchasableId as purchasableId',
+                'it.inventoryLocationId as inventoryLocationId',
+            ])
+            ->selectRaw($sumOfTypes(['available'], 'availableTotal'))
+            ->selectRaw($sumOfTypes(['committed'], 'committedTotal'))
+            ->selectRaw($sumOfTypes(['reserved'], 'reservedTotal'))
+            ->selectRaw($sumOfTypes(['damaged'], 'damagedTotal'))
+            ->selectRaw($sumOfTypes(['safety'], 'safetyTotal'))
+            ->selectRaw($sumOfTypes(['qualityControl'], 'qualityControlTotal'))
+            ->selectRaw($sumOfTypes(['incoming'], 'incomingTotal'))
+            ->selectRaw($sumOfTypes(['qualityControl', 'safety', 'damaged', 'reserved'], 'unavailableTotal'))
+            ->selectRaw($sumOfTypes(['qualityControl', 'safety', 'damaged', 'reserved', 'available', 'committed'], 'onHandTotal'))
             ->leftJoinSub($inventoryTotals, 'it', function($join) {
                 $join->on('it.inventoryItemId', '=', 'ii.id');
             })

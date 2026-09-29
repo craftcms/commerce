@@ -239,7 +239,7 @@ Route::middleware(['auth', 'can:commerce-manageInventoryStockLevels'])->group(fu
 
 Route::middleware(['auth', 'can:commerce-manageInventoryLocations'])->group(function () {
     Route::post('inventory-locations/save', [InventoryLocationsController::class, 'save']);
-    Route::get('inventory-locations/inventory-locations-table-data', [InventoryLocationsController::class, 'inventoryLocationsTableData']);
+    Route::post('inventory-locations/render-form', [InventoryLocationsController::class, 'renderForm']);
     Route::get('inventory-locations/prepare-delete-modal', [InventoryLocationsController::class, 'prepareDeleteModal']);
     Route::post('inventory-locations/deactivate', [InventoryLocationsController::class, 'deactivate']);
 });

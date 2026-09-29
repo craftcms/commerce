@@ -14,6 +14,7 @@ use CraftCms\Commerce\Inventory\Data\InventoryLocation;
 use CraftCms\Commerce\Inventory\Data\InventoryLocationDeactivatedMovement;
 use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
 use CraftCms\Commerce\Inventory\Models\InventoryLocation as InventoryLocationRecord;
+use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
 use Illuminate\Container\Attributes\Singleton;
@@ -166,6 +167,19 @@ class InventoryLocations
         }
 
         return true;
+    }
+
+    /**
+     * Whether another inventory location can be created under the current edition. Pro is
+     * capped at {@see Plugin::EDITION_PRO_STORE_LIMIT} locations; Enterprise is unlimited.
+     */
+    public function canCreateInventoryLocation(): bool
+    {
+        if (app(Plugin::class)->is(Plugin::EDITION_ENTERPRISE, '=')) {
+            return true;
+        }
+
+        return $this->getAllInventoryLocations()->count() < Plugin::EDITION_PRO_STORE_LIMIT;
     }
 
     public function getInventoryLocationByHandle(string $handle): ?InventoryLocation
