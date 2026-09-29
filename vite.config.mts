@@ -1,4 +1,4 @@
-import {defineConfig} from 'vite';
+import {defineConfig, type Plugin} from 'vite';
 import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
 
@@ -19,18 +19,87 @@ import laravel from 'laravel-vite-plugin';
  * actually reads this at runtime, so this path is load-bearing, not just a
  * convention to match `cms`'s own layout.
  */
+/**
+ * Specifiers the CP publishes through its import map (see `cms`'s
+ * `Cp::sharedModules()`). Left out of the build so Commerce's components share
+ * the CP's own instances rather than bundling second copies.
+ */
+const cpSharedModules = ['vue'];
+
+/**
+ * `build.rollupOptions.external` only applies to builds, and the dev server
+ * rewrites even an external bare `vue` import to its own `/@id/` URL, which the
+ * import map can't match. So in dev each shared module resolves to a stand-in
+ * that loads it through a specifier Vite can't rewrite, leaving the browser to
+ * resolve it via the import map, and re-exports its named exports.
+ *
+ * The CP normally serves a production build of Vue, which has no HMR runtime,
+ * so component updates fall back to a full reload unless `cms`'s own dev server
+ * is providing a development build.
+ */
+function externalCpSharedModules(): Plugin {
+  const prefix = '\0commerce-cp-shared:';
+
+  return {
+    name: 'commerce:external-cp-shared-modules',
+    apply: 'serve',
+    enforce: 'pre',
+    resolveId(id) {
+      return cpSharedModules.includes(id) ? prefix + id : null;
+    },
+    async load(id) {
+      if (!id.startsWith(prefix)) {
+        return null;
+      }
+
+      const specifier = id.slice(prefix.length);
+      const names = Object.keys(await import(specifier)).filter(
+        (name) => name !== 'default' && /^[A-Za-z_$][\w$]*$/.test(name)
+      );
+
+      return [
+        `const specifier = ${JSON.stringify(specifier)};`,
+        'const shared = await import(/* @vite-ignore */ specifier);',
+        `export const {${names.join(', ')}} = shared;`,
+        ...(specifier === 'vue'
+          ? [
+              'globalThis.__VUE_HMR_RUNTIME__ ??= {',
+              '  createRecord: () => true,',
+              '  rerender: () => location.reload(),',
+              '  reload: () => location.reload(),',
+              '};',
+            ]
+          : []),
+      ].join('\n');
+    },
+  };
+}
+
 export default defineConfig({
   plugins: [
+    externalCpSharedModules(),
     laravel({
       input: ['resources/js/cp.ts'],
       publicDirectory: 'public',
       buildDirectory: 'build',
       refresh: false,
     }),
-    vue(),
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => tag.includes('-'),
+        },
+      },
+    }),
   ],
   build: {
     outDir: 'public/build',
     emptyOutDir: true,
+    rollupOptions: {
+      external: cpSharedModules,
+    },
+  },
+  optimizeDeps: {
+    exclude: cpSharedModules,
   },
 });

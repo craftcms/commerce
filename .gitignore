@@ -10,6 +10,7 @@ node_modules/
 /vendor
 # Vue 3/Vite pipeline output (matches cms's own convention); legacy/'s webpack dist/ stays committed — no CI build step for it.
 /public/build
+/public/hot
 .env
 .phpunit.cache
 *-private.md
