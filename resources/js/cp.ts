@@ -1,3 +1,4 @@
+import CouponGeneratorNode from './modules/forms/CouponGeneratorNode.vue';
 import UsageCounterNode from './modules/forms/UsageCounterNode.vue';
 
 /**
@@ -21,6 +22,10 @@ import UsageCounterNode from './modules/forms/UsageCounterNode.vue';
  * future `cms`-native one of a similar name.
  */
 function registerComponents(): void {
+  window.Cp.$components.register(
+    'commerce:coupon-generator',
+    CouponGeneratorNode
+  );
   window.Cp.$components.register('commerce:usage-counter', UsageCounterNode);
 }
 

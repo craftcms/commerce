@@ -109,35 +109,26 @@ class Coupons
             throw new \RuntimeException('Discount must be saved before it can have coupons');
         }
 
-        $existingCouponIds = $this->query()
-            ->where('discountId', $discount->id)
-            ->pluck('id')
+        $couponIds = collect($discount->getCoupons())
+            ->map(fn(Coupon $coupon) => $coupon->id)
+            ->filter()
             ->all();
 
-        $couponIds = [];
+        $this->query()
+            ->where('discountId', $discount->id)
+            ->whereNotIn('id', $couponIds)
+            ->pluck('id')
+            ->each(fn(int|string $deleteId) => $this->deleteCouponById((int) $deleteId));
+
         foreach ($discount->getCoupons() as $key => $coupon) {
             $coupon->discountId = $discount->id;
 
             if (!$this->saveCoupon($coupon)) {
                 $discount->addModelErrors($coupon, 'coupon.' . $key);
             }
-
-            if ($coupon->id) {
-                $couponIds[] = $coupon->id;
-            }
         }
 
-        $return = !$discount->hasErrors();
-
-        if (empty($existingCouponIds) || $existingCouponIds === $couponIds) {
-            return $return;
-        }
-
-        foreach (array_diff($existingCouponIds, $couponIds) as $deleteId) {
-            $this->deleteCouponById($deleteId);
-        }
-
-        return $return;
+        return !$discount->hasErrors();
     }
 
     public function saveCoupon(Coupon $coupon, bool $runValidation = true): bool

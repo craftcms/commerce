@@ -369,6 +369,11 @@ class Discount extends Component implements HasStoreInterface
                     }
                 },
             ],
+            'coupons' => [
+                function($attribute, $value, \Closure $fail) {
+                    $this->validateCoupons($fail);
+                },
+            ],
             'orderConditionFormula' => [
                 'nullable',
                 'string',
@@ -392,6 +397,55 @@ class Discount extends Component implements HasStoreInterface
                 },
             ],
         ];
+    }
+
+    #[\Override]
+    public function validationData(): array
+    {
+        return [
+            ...parent::validationData(),
+            'coupons' => $this->getCoupons(),
+        ];
+    }
+
+    /**
+     * Validates the discount's coupon codes as a set: none may be blank, none may repeat
+     * (case-insensitively), and none may already belong to another discount.
+     */
+    private function validateCoupons(\Closure $fail): void
+    {
+        $codes = array_map(fn(Coupon $coupon) => trim((string) $coupon->code), $this->getCoupons());
+
+        if (empty($codes)) {
+            return;
+        }
+
+        if (in_array('', $codes, true)) {
+            $fail(t('Coupon codes cannot be blank.', category: 'commerce'));
+        }
+
+        $codes = array_values(array_filter($codes));
+        $lowercaseCodes = array_map('mb_strtolower', $codes);
+
+        if (count(array_unique($lowercaseCodes)) !== count($lowercaseCodes)) {
+            $fail(t('Coupon codes must be unique.', category: 'commerce'));
+            return;
+        }
+
+        if (empty($lowercaseCodes)) {
+            return;
+        }
+
+        DB::table(Table::COUPONS . ' as coupons')
+            ->select(['coupons.code', 'discounts.name'])
+            ->leftJoin(Table::DISCOUNTS . ' as discounts', 'discounts.id', '=', 'coupons.discountId')
+            ->whereIn(DB::raw('LOWER(coupons.code)'), $lowercaseCodes)
+            ->when($this->id, fn($query) => $query->where('coupons.discountId', '!=', $this->id))
+            ->get()
+            ->each(fn(object $existing) => $fail(t('Coupon code “{code}” is already in use by discount “{name}”.', [
+                'code' => $existing->code,
+                'name' => $existing->name,
+            ], category: 'commerce')));
     }
 
     private function _loadPurchasableRelations(): void

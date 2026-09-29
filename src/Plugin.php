@@ -62,6 +62,7 @@ use CraftCms\Commerce\Dashboard\Widgets\TotalOrders;
 use CraftCms\Commerce\Dashboard\Widgets\TotalOrdersByCountry;
 use CraftCms\Commerce\Dashboard\Widgets\TotalRevenue;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Form\Nodes\CouponGenerator;
 use CraftCms\Commerce\Form\Nodes\UsageCounter;
 use CraftCms\Commerce\Gql\Handlers\HasProduct;
 use CraftCms\Commerce\Gql\Handlers\HasVariant;
@@ -248,6 +249,7 @@ class Plugin extends BasePlugin
         $arguments->register('relatedToProducts', RelatedProducts::class);
         $arguments->register('relatedToVariants', RelatedVariants::class);
 
+        app(FormNodeTypes::class)->register(CouponGenerator::class);
         app(FormNodeTypes::class)->register(UsageCounter::class);
 
         $this->registerBehaviorMacros();

@@ -13,6 +13,7 @@ use CraftCms\Cms\Form\Controls\ElementSelect;
 use CraftCms\Cms\Form\Controls\Lightswitch;
 use CraftCms\Cms\Form\Controls\Money as MoneyControl;
 use CraftCms\Cms\Form\Controls\Number;
+use CraftCms\Cms\Form\Controls\Table as TableControl;
 use CraftCms\Cms\Form\Controls\Text;
 use CraftCms\Cms\Form\Controls\Textarea;
 use CraftCms\Cms\Form\Enums\ChoicePresentation;
@@ -37,6 +38,7 @@ use CraftCms\Cms\Translation\Formatter;
 use CraftCms\Cms\Translation\Locale;
 use CraftCms\Commerce\Address\Conditions\DiscountAddressCondition;
 use CraftCms\Commerce\Customer\Conditions\DiscountCustomerCondition;
+use CraftCms\Commerce\Form\Nodes\CouponGenerator;
 use CraftCms\Commerce\Form\Nodes\UsageCounter;
 use CraftCms\Commerce\Helpers\Localization;
 use CraftCms\Commerce\Order\Conditions\DiscountOrderCondition;
@@ -79,6 +81,8 @@ readonly class DiscountsController extends BaseStoreManagementController
 
     /** Page size for the {@see Table} Node's `dataUrl()` mode (smaller than legacy's 100, to exercise pagination at this screen's current scale). */
     private const int DISCOUNTS_PER_PAGE = 10;
+
+    private const int MAX_GENERATED_COUPONS = 400;
 
     public function index(?string $storeHandle = null): CpScreenResponse
     {
@@ -388,9 +392,13 @@ readonly class DiscountsController extends BaseStoreManagementController
             'categoryRelationshipType' => $discount->categoryRelationshipType,
 
             'requireCouponCode' => $discount->requireCouponCode,
-            // No coupon-management UI yet (see buildForm()) — carried through as a hidden field
-            // purely so an unrelated save doesn't reset it back to the default format.
             'couponFormat' => $discount->couponFormat,
+            'coupons' => array_map(fn(Coupon $coupon) => [
+                'id' => $coupon->id,
+                'code' => $coupon->code,
+                'uses' => $coupon->uses,
+                'maxUses' => $coupon->maxUses ?? '',
+            ], $discount->getCoupons()),
 
             'orderCondition' => $discount->getOrderCondition()->getConfig(),
             'customerCondition' => $discount->getCustomerCondition()->getConfig(),
@@ -474,15 +482,33 @@ readonly class DiscountsController extends BaseStoreManagementController
         }
 
         $couponsFields = [
-            Field::make(t('Require Coupon Code', category: 'commerce'), Lightswitch::make('requireCouponCode')),
+            Field::make(t('Require Coupon Code', category: 'commerce'), Lightswitch::make('requireCouponCode')->reactive()),
             HiddenField::make('couponFormat'),
-            // TODO: coupon code management (the editable list of codes, uses, and max-uses,
-            // plus the "Generate" batch-create action) isn't built yet — existing coupons on
-            // this discount are left untouched by a save from this screen in the meantime (see
-            // save()).
-            MarkdownContent::make('coupons-todo', t('Coupon code management isn’t available on this screen yet — existing coupons are left as-is when you save.', category: 'commerce'))
-                ->displayInPane(false),
         ];
+
+        if ($values['requireCouponCode'] ?? false) {
+            $couponsFields[] = Field::make(t('Coupons', category: 'commerce'), TableControl::make('coupons')
+                ->columns([
+                    'id' => ['type' => 'singleline', 'heading' => t('ID'), 'class' => 'hidden'],
+                    'code' => ['type' => 'singleline', 'heading' => t('Code', category: 'commerce')],
+                    'uses' => ['type' => 'singleline', 'heading' => t('Uses', category: 'commerce')],
+                    'maxUses' => [
+                        'type' => 'singleline',
+                        'heading' => t('Max Uses', category: 'commerce'),
+                        'info' => t('Leave blank for unlimited uses.', category: 'commerce'),
+                    ],
+                ])
+                ->defaultValues(['uses' => 0])
+                ->addRowLabel(t('Add a coupon', category: 'commerce'))
+                ->allowAdd()
+                ->allowDelete())
+                ->actions(CouponGenerator::make(
+                    'coupon-generator',
+                    action([self::class, 'generateCoupons']),
+                    ['coupons'],
+                    ['couponFormat'],
+                ));
+        }
 
         // Only a saved discount has usage history to report — a brand new, unsaved one has
         // nothing yet, and no valid id to reset usage against anyway. The raw SQL aggregates
@@ -653,10 +679,9 @@ readonly class DiscountsController extends BaseStoreManagementController
         $discount->appliedTo = $request->input('appliedTo') ?: DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
         $discount->orderConditionFormula = trim((string) $request->input('orderConditionFormula', ''));
 
-        // No coupon-management UI yet (see buildForm()) — deliberately not touching
-        // setCoupons()/setCouponsOnDiscount() here at all. `id` is already set above, so
-        // Discount::getCoupons()'s own lazy-load-from-DB fallback keeps whatever coupons this
-        // discount already has, unchanged, once the request reaches Discounts::saveDiscount().
+        if ($request->has('coupons')) {
+            $this->setCouponsOnDiscount((array) $request->input('coupons'), $discount);
+        }
 
         $moneyInputs = ['baseDiscount', 'perItemDiscount', 'purchaseTotal'];
         $signFlippedMoneyInputs = ['baseDiscount', 'perItemDiscount'];
@@ -719,29 +744,28 @@ readonly class DiscountsController extends BaseStoreManagementController
     }
 
     /**
-     * Used by {@see save()} once the Coupons tab's editable table is built — kept ready rather
-     * than deleted so wiring it back up is a one-line change, not a rewrite.
+     * Only IDs of coupons already on this discount are kept — any other posted ID is treated
+     * as a new coupon, so a crafted request can't move another discount's coupon onto this one.
+     *
+     * @param array<array{id?: int|string|null, code?: string|null, uses?: int|string|null, maxUses?: int|string|null}> $coupons
      */
     private function setCouponsOnDiscount(array $coupons, Discount $discount): void
     {
-        if (empty($coupons)) {
-            $discount->setCoupons([]);
-            return;
-        }
+        $existingIds = $discount->id
+            ? array_map(fn(Coupon $coupon) => $coupon->id, app(Coupons::class)->getCouponsByDiscountId($discount->id))
+            : [];
 
-        $discountCoupons = [];
+        $discount->setCoupons(array_values(array_map(function(array $row) use ($existingIds): Coupon {
+            $id = is_numeric($row['id'] ?? null) ? (int) $row['id'] : null;
+            $maxUses = $row['maxUses'] ?? null;
 
-        foreach ($coupons as $c) {
-            $discountCoupons[] = new Coupon([
-                'id' => $c['id'] ?: null,
-                'discountId' => null,
-                'code' => $c['code'],
-                'uses' => $c['uses'] ?: 0,
-                'maxUses' => is_numeric($c['maxUses']) ? (int) $c['maxUses'] : null,
+            return new Coupon([
+                'id' => in_array($id, $existingIds, true) ? $id : null,
+                'code' => trim((string) ($row['code'] ?? '')),
+                'uses' => (int) ($row['uses'] ?? 0),
+                'maxUses' => is_numeric($maxUses) ? (int) $maxUses : null,
             ]);
-        }
-
-        $discount->setCoupons($discountCoupons);
+        }, array_filter($coupons, 'is_array'))));
     }
 
     /** Two payload shapes, same `id`/`ids` dual-payload precedent {@see delete()} follows: upfront mode posts the full reordered `ids`; endpoint mode (only one page loaded) posts a single `id`/`toPosition` instead. */
@@ -883,10 +907,20 @@ readonly class DiscountsController extends BaseStoreManagementController
     public function generateCoupons(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
+        abort_unless(currentUserElement()?->can('commerce-editDiscounts') || currentUserElement()?->can('commerce-createDiscounts'), 403);
 
-        $count = (int) $request->input('count', 0);
-        $format = $request->input('format', Coupons::DEFAULT_COUPON_FORMAT);
-        $existingCodes = $request->input('existingCodes', []);
+        $request->validate([
+            'count' => ['required', 'integer', 'min:1', 'max:' . self::MAX_GENERATED_COUPONS],
+            'format' => ['required', 'string', 'max:20', 'regex:/' . preg_quote(Coupons::COUPON_FORMAT_REPLACEMENT_CHAR, '/') . '/'],
+            'existingCodes' => ['array'],
+            'existingCodes.*' => ['nullable', 'string'],
+        ], [
+            'format.regex' => t('Coupon format is required and must contain at least one `#`.', category: 'commerce'),
+        ]);
+
+        $count = (int) $request->input('count');
+        $format = (string) $request->input('format');
+        $existingCodes = array_values(array_filter((array) $request->input('existingCodes', [])));
 
         try {
             $coupons = app(Coupons::class)->generateCouponCodes(count: $count, format: $format, existingCodes: $existingCodes);

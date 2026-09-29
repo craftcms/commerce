@@ -615,7 +615,16 @@ class Discounts
                 $relation->save();
             }
 
-            app(\CraftCms\Commerce\Promotion\Coupons::class)->saveDiscountCoupons($model);
+            if (!app(\CraftCms\Commerce\Promotion\Coupons::class)->saveDiscountCoupons($model)) {
+                DB::rollBack();
+
+                if ($isNew) {
+                    $model->id = null;
+                }
+
+                Log::info('Discount not saved due to coupon validation error.');
+                return false;
+            }
 
             DB::commit();
 
