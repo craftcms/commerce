@@ -12,7 +12,6 @@ use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Url;
-use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\View\LegacyAssets\InternalAssetRegistry;
 use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
 use CraftCms\Commerce\Inventory\Data\InventoryLocation;
@@ -193,38 +192,6 @@ class Transfer extends Element
             'received' => $this->getTotalReceived() . '/' . $this->getTotalQuantity(),
             default => parent::attributeHtml($attribute),
         };
-    }
-
-    #[Override]
-    public function canView(User $user): bool
-    {
-        return $user->can('commerce-manageInventoryTransfers');
-    }
-
-    #[Override]
-    public function canSave(User $user): bool
-    {
-        return $user->can('commerce-manageInventoryTransfers');
-    }
-
-    #[Override]
-    public function canDuplicate(User $user): bool
-    {
-        return false;
-    }
-
-    #[Override]
-    public function canDelete(User $user): bool
-    {
-        $canDelete = $this->getTransferStatus() === TransferStatusType::DRAFT;
-
-        return $canDelete && $user->can('commerce-manageInventoryTransfers');
-    }
-
-    #[Override]
-    public function canCreateDrafts(User $user): bool
-    {
-        return false;
     }
 
     #[Override]

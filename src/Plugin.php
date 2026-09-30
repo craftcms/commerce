@@ -114,6 +114,7 @@ use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableStockField;
 use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableWeightField;
 use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Transfer\FieldLayoutElements\TransferManagementField;
+use CraftCms\Commerce\Transfer\Policies\TransferPolicy;
 use CraftCms\Commerce\Twig\Extension as CommerceTwigExtension;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
@@ -121,6 +122,7 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 
 use function CraftCms\Cms\currentUser;
@@ -251,6 +253,8 @@ class Plugin extends BasePlugin
 
         app(FormNodeTypes::class)->register(CouponGenerator::class);
         app(FormNodeTypes::class)->register(UsageCounter::class);
+
+        Gate::policy(Transfer::class, TransferPolicy::class);
 
         $this->registerBehaviorMacros();
         $this->registerVariableMacros();
