@@ -12,6 +12,7 @@ use CraftCms\Cms\Element\Enums\PropagationMethod;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
+use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Product\ProductType\Data\ProductType;
 use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingQueue;
 use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingRule;
@@ -1405,13 +1406,12 @@ class Install extends Migration
         DB::table(CraftTable::FIELDLAYOUTS)->whereIn('type', [
             Order::class,
             Product::class,
+            Transfer::class,
             Variant::class,
             'craft\\commerce\\elements\\Order',
             'craft\\commerce\\elements\\Product',
             'craft\\commerce\\elements\\Variant',
-            // Subscription and Transfer field layouts predate/are pending the Laravel port —
-            // these strings mirror the FQCNs `craft\commerce\elements\Subscription` (element
-            // removed in 6.0) and `craft\commerce\elements\Transfer` (not yet ported to src/).
+            // `craft\commerce\elements\Subscription` was removed in 6.0, so it has no Laravel class.
             'craft\\commerce\\elements\\Subscription',
             'craft\\commerce\\elements\\Transfer',
         ])->delete();

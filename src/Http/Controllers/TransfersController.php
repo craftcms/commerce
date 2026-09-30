@@ -9,23 +9,14 @@ use CraftCms\Cms\Element\Validation\ElementRules;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Drafts;
-use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\View\TemplateMode;
-use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
-use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
-use CraftCms\Commerce\Inventory\Data\InventoryTransferMovement;
-use CraftCms\Commerce\Inventory\Data\UpdateInventoryLevel;
-use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
-use CraftCms\Commerce\Inventory\Enums\InventoryUpdateQuantityType;
-use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Inventory\InventoryLocations;
 use CraftCms\Commerce\Transfer\Data\TransferDetail;
 use CraftCms\Commerce\Transfer\Elements\Transfer;
-use CraftCms\Commerce\Transfer\Enums\TransferStatusType;
 use CraftCms\Commerce\Transfer\FieldLayoutElements\TransferManagementField;
 use CraftCms\Commerce\Transfer\Transfers;
 use Illuminate\Http\Request;
@@ -53,7 +44,7 @@ readonly class TransfersController
         $success = Drafts::saveElementAsDraft($transfer, $user->id, null, null, false);
 
         if (!$success) {
-            return $this->asModelFailure($transfer, t('Couldn\'t create {type}.', [
+            return $this->asModelFailure($transfer, t('Couldn’t create {type}.', [
                 'type' => Transfer::lowerDisplayName(),
             ]), 'transfer');
         }
@@ -82,17 +73,17 @@ readonly class TransfersController
 
     public function markAsPending(Request $request): Response
     {
-        $transferId = $request->input('transferId');
+        $transferId = $request->integer('transferId');
         abort_if(!$transferId, 400, 'Missing transferId');
 
-        $transfer = Transfer::findOne($transferId);
-        $transfer->transferStatus = TransferStatusType::PENDING;
+        $transfer = Transfer::find()->id($transferId)->one();
+        abort_if($transfer === null, 404);
 
-        if (!Elements::saveElement($transfer)) {
-            return $this->asFailure(t('Couldn\'t mark transfer as pending.'));
+        if (!app(Transfers::class)->markAsPending($transfer)) {
+            return $this->asFailure(t('Couldn’t mark transfer as pending.', category: 'commerce'));
         }
 
-        return $this->asSuccess(t('Transfer marked as pending.'));
+        return $this->asSuccess(t('Transfer marked as pending.', category: 'commerce'));
     }
 
     public function saveSettings(): Response
@@ -109,7 +100,7 @@ readonly class TransfersController
         $fieldLayout->type = Transfer::class;
 
         if (!$fieldLayout->validate()) {
-            return $this->asFailure(t('Couldn\'t save transfer fields.', category: 'commerce'));
+            return $this->asFailure(t('Couldn’t save transfer fields.', category: 'commerce'));
         }
 
         if ($currentTransfersFieldLayout = ProjectConfig::get(Transfers::CONFIG_FIELDLAYOUT_KEY)) {
@@ -122,7 +113,7 @@ readonly class TransfersController
         $result = ProjectConfig::set(Transfers::CONFIG_FIELDLAYOUT_KEY, $configData, force: true);
 
         if (!$result) {
-            return $this->asFailure(t('Couldn\'t save transfer fields.'));
+            return $this->asFailure(t('Couldn’t save transfer fields.', category: 'commerce'));
         }
 
         return $this->asSuccess(t('Transfer fields saved.', category: 'commerce'));
@@ -130,59 +121,14 @@ readonly class TransfersController
 
     public function receiveTransfer(Request $request): Response
     {
-        $details = $request->input('details', []);
-        $transferId = $request->input('transferId');
+        $transferId = $request->integer('transferId');
         abort_if(!$transferId, 400, 'Missing transferId');
 
-        /** @var Transfer $transfer */
         $transfer = Transfer::find()->id($transferId)->one();
-
-        $inventoryMovementCollection = new InventoryMovementCollection();
-        $inventoryUpdateCollection = new UpdateInventoryLevelCollection();
-
-        $transferDetails = $transfer->getDetails();
-
-        foreach ($transferDetails as $detail) {
-            if ($acceptedAmount = $details[$detail->uid]['accept'] ?? null) {
-                // Update the total accepted
-                $detail->quantityAccepted += $acceptedAmount;
-
-                $inventoryAcceptedMovement = new InventoryTransferMovement();
-                $inventoryAcceptedMovement->quantity = (int)$acceptedAmount;
-                $inventoryAcceptedMovement->transferId = $transfer->id;
-                $inventoryAcceptedMovement->setInventoryItem($detail->getInventoryItem());
-                $inventoryAcceptedMovement->toInventoryLocation = $transfer->getDestinationLocation();
-                $inventoryAcceptedMovement->fromInventoryLocation = $transfer->getDestinationLocation(); // we are moving from incoming to available
-                $inventoryAcceptedMovement->toInventoryTransactionType = InventoryTransactionType::AVAILABLE;
-                $inventoryAcceptedMovement->fromInventoryTransactionType = InventoryTransactionType::INCOMING;
-
-                $inventoryMovementCollection->push($inventoryAcceptedMovement);
-            }
-
-            if ($rejectedAmount = $details[$detail->uid]['reject'] ?? null) {
-                // Update the total rejected
-                $detail->quantityRejected += $rejectedAmount;
-
-                $inventoryRejectedMovement = new UpdateInventoryLevel();
-                $inventoryRejectedMovement->quantity = $rejectedAmount * -1;
-                $inventoryRejectedMovement->updateAction = InventoryUpdateQuantityType::ADJUST;
-                $inventoryRejectedMovement->inventoryItemId = $detail->inventoryItemId;
-                $inventoryRejectedMovement->transferId = $transfer->id;
-                $inventoryRejectedMovement->setInventoryLocation($transfer->getDestinationLocation());
-                $inventoryRejectedMovement->type = InventoryTransactionType::INCOMING->value;
-
-                $inventoryUpdateCollection->push($inventoryRejectedMovement);
-            }
-        }
-
-        $transfer->setDetails($transferDetails);
+        abort_if($transfer === null, 404);
 
         try {
-            // Accepted movement
-            app(Inventory::class)->executeInventoryMovements($inventoryMovementCollection);
-            // Rejected updates
-            app(Inventory::class)->executeUpdateInventoryLevels($inventoryUpdateCollection);
-            Elements::saveElement($transfer, false);
+            app(Transfers::class)->receive($transfer, $request->input('details', []));
         } catch (\Throwable $e) {
             Log::error('Failed to save transfer details: ' . $e->getMessage(), ['exception' => $e]);
             return $this->asFailure(t('Failed to receive transfer: {error}', ['error' => $e->getMessage()], category: 'commerce'));
@@ -234,7 +180,7 @@ readonly class TransfersController
                     'value' => '',
                     'class' => 'text fullwidth',
                     'disabled' => $deleted,
-                    'placeholder' => $deleted ? t('"{name}" deleted.', ['name' => $detail->inventoryItemDescription]) : '',
+                    'placeholder' => $deleted ? t('“{name}” deleted.', ['name' => $detail->inventoryItemDescription]) : '',
                 ])
             );
             $tableRows .= Html::tag('td', (string)$detail->quantityRejected, ['class' => 'rightalign']);
@@ -245,7 +191,7 @@ readonly class TransfersController
                     'value' => '',
                     'class' => 'text fullwidth',
                     'disabled' => $deleted,
-                    'placeholder' => $deleted ? t('"{name}" deleted.', ['name' => $detail->inventoryItemDescription]) : '',
+                    'placeholder' => $deleted ? t('“{name}” deleted.', ['name' => $detail->inventoryItemDescription]) : '',
                 ])
             );
         }
@@ -278,12 +224,13 @@ readonly class TransfersController
 
         /** @var ?Transfer $transfer */
         $transfer = Transfer::find()->id($transferId)->drafts(null)->one();
+        abort_if($transfer === null, 404);
 
         // We will only change the transfer if it is a draft.
-        if ($transfer && $transfer->isTransferDraft()) {
+        if ($transfer->isTransferDraft()) {
             $allLocations = app(InventoryLocations::class)->getAllInventoryLocations();
-            $defaultFirstLocationId = $allLocations->first()->id;
-            $defaultSecondLocationId = $allLocations->skip(1)->first()->id;
+            $defaultFirstLocationId = $allLocations->first()?->id;
+            $defaultSecondLocationId = $allLocations->skip(1)->first()?->id;
 
             $originLocationId = (int)$request->input('originLocationId', $defaultFirstLocationId);
             $destinationLocationId = (int)$request->input('destinationLocationId', $defaultSecondLocationId);

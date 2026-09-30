@@ -26,7 +26,7 @@ class TransferDetail extends Component
 
     public int $quantityRejected = 0;
 
-    public string $uid;
+    public ?string $uid = null;
 
     private ?Transfer $_transfer = null;
 

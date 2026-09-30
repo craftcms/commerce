@@ -433,11 +433,8 @@ class Inventory
             'movementHash' => $this->getMovementHash(),
             'dateCreated' => now()->toDateTimeString(),
             'userId' => request()->craftUser()?->getCraftUserId(),
+            'transferId' => $updateInventoryLevel->transferId,
         ];
-
-        if ($updateInventoryLevel instanceof UpdateInventoryLevelInTransfer) {
-            $data['transfer'] = $updateInventoryLevel->transferId;
-        }
 
         DB::table($tableName)->insert($data);
 
@@ -461,6 +458,7 @@ class Inventory
             'movementHash' => $this->getMovementHash(),
             'dateCreated' => now()->toDateTimeString(),
             'note' => $updateInventoryLevel->note,
+            'transferId' => $updateInventoryLevel->transferId,
         ]);
 
         return true;

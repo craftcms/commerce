@@ -31,6 +31,7 @@ use CraftCms\Commerce\Transfer\Queries\TransferQuery;
 use CraftCms\Commerce\Transfer\Transfers;
 use CraftCms\Commerce\Transfer\Validation\TransferRules;
 use CraftCms\RulesetValidation\Attributes\Ruleset;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Validator;
 use Override;
 use Symfony\Component\HttpFoundation\Response;
@@ -56,13 +57,16 @@ class Transfer extends Element
     #[Override]
     public function __toString(): string
     {
-        if ($this->getOriginLocation() === null && $this->getDestinationLocation() === null) {
+        $originLocation = $this->getOriginLocation();
+        $destinationLocation = $this->getDestinationLocation();
+
+        if ($originLocation === null || $destinationLocation === null) {
             return t('Transfer', category: 'commerce');
         }
 
         return t('{from} to {to}', [
-            'from' => $this->getOriginLocation()->getUiLabel(),
-            'to' => $this->getDestinationLocation()->getUiLabel(),
+            'from' => $originLocation->getUiLabel(),
+            'to' => $destinationLocation->getUiLabel(),
         ], category: 'commerce');
     }
 
@@ -134,6 +138,25 @@ class Transfer extends Element
                 'heading' => t('Transfer Status', category: 'commerce'),
             ],
             ...$transferStatusSources,
+        ];
+    }
+
+    #[Override]
+    protected static function defineSortOptions(): array
+    {
+        return [
+            [
+                'label' => t('Date Created', category: 'app'),
+                'orderBy' => 'elements.dateCreated',
+                'attribute' => 'dateCreated',
+                'defaultDir' => 'desc',
+            ],
+            [
+                'label' => t('Date Updated', category: 'app'),
+                'orderBy' => 'elements.dateUpdated',
+                'attribute' => 'dateUpdated',
+                'defaultDir' => 'desc',
+            ],
         ];
     }
 
@@ -217,15 +240,17 @@ class Transfer extends Element
     }
 
     #[Override]
-    public function getMetadata(): array
+    protected function metadata(): array
     {
-        $metadata = parent::getMetadata();
+        $metadata = parent::metadata();
 
         $statusHtml = app(StatusHtml::class)->statusIndicatorHtml($this->getTransferStatus()->label(), [
             'color' => $this->getTransferStatus()->color(),
         ]) . ' ' . Html::tag('span', $this->getTransferStatus()->label());
 
-        return array_merge([t('Transfer Status', category: 'commerce') => $statusHtml], $metadata);
+        $metadata[t('Transfer Status', category: 'commerce')] = $statusHtml;
+
+        return $metadata;
     }
 
     #[Override]
@@ -261,6 +286,8 @@ class Transfer extends Element
             $this->validateLocations();
             $this->validateDetails();
         }
+
+        parent::afterValidate($validator);
     }
 
     public function validateLocations(): void
@@ -506,86 +533,93 @@ JS, [
     public function afterSave(bool $isNew): void
     {
         if (!$this->propagating) {
-            $transferId = $this->getCanonicalId();
-            $transferRecord = TransferRecord::find($transferId);
+            DB::transaction(function(): void {
+                $transferRecord = TransferRecord::find($this->getCanonicalId()) ?? new TransferRecord();
+                $originalTransferStatus = $transferRecord->transferStatus;
 
-            if (!$transferRecord) {
-                $transferRecord = new TransferRecord();
-            }
+                $transferRecord->id = $this->id;
+                $transferRecord->originLocationId = $this->originLocationId;
+                $transferRecord->destinationLocationId = $this->destinationLocationId;
+                $transferRecord->transferStatus = $this->getTransferStatus()->value;
+                $transferRecord->save();
 
-            $originalTransferStatus = $transferRecord->transferStatus;
-
-            $transferRecord->id = $this->id;
-            $transferRecord->originLocationId = $this->originLocationId;
-            $transferRecord->destinationLocationId = $this->destinationLocationId;
-            $transferRecord->transferStatus = $this->getTransferStatus()->value;
-
-            $transferRecord->save();
-
-            if ($this->getTransferStatus() === TransferStatusType::PENDING && $originalTransferStatus === TransferStatusType::DRAFT->value) {
-                $inventoryUpdateCollection = new UpdateInventoryLevelCollection();
-                foreach ($this->getDetails() as $detail) {
-                    $inventoryUpdate1 = new UpdateInventoryLevelInTransfer();
-                    $inventoryUpdate1->type = InventoryTransactionType::INCOMING->value;
-                    $inventoryUpdate1->updateAction = InventoryUpdateQuantityType::ADJUST;
-                    $inventoryUpdate1->inventoryItemId = $detail->inventoryItemId;
-                    $inventoryUpdate1->transferId = $this->id;
-                    $inventoryUpdate1->inventoryLocationId = $this->destinationLocationId;
-                    $inventoryUpdate1->quantity = $detail->quantity;
-                    $inventoryUpdate1->note = t('Incoming transfer from Transfer ID: ', category: 'commerce') . $this->id;
-
-                    $inventoryUpdateCollection->push($inventoryUpdate1);
-
-                    $inventoryUpdate2 = new UpdateInventoryLevelInTransfer();
-                    $inventoryUpdate2->type = 'onHand';
-                    $inventoryUpdate2->updateAction = InventoryUpdateQuantityType::ADJUST;
-                    $inventoryUpdate2->inventoryItemId = $detail->inventoryItemId;
-                    $inventoryUpdate2->transferId = $this->id;
-                    $inventoryUpdate2->inventoryLocationId = $this->originLocationId;
-                    $inventoryUpdate2->quantity = $detail->quantity * -1;
-                    $inventoryUpdate2->note = t('Outgoing transfer from Transfer ID: ', category: 'commerce') . $this->id;
-
-                    $inventoryUpdateCollection->push($inventoryUpdate2);
+                if ($this->isTransferPending() && $originalTransferStatus === TransferStatusType::DRAFT->value) {
+                    $this->moveDetailsToIncoming();
                 }
 
-                app(Inventory::class)->executeUpdateInventoryLevels($inventoryUpdateCollection);
-            }
+                $this->saveDetails();
 
-            $existingDetailIds = TransferDetailRecord::where('transferId', $this->id)->pluck('id')->all();
-
-            $currentDetailIds = [];
-
-            foreach ($this->getDetails() as $detail) {
-                if ($detail->id) {
-                    $detailRecord = TransferDetailRecord::find($detail->id);
-                } else {
-                    $detailRecord = new TransferDetailRecord();
-                }
-                $detailRecord->transferId = $this->id;
-                $detailRecord->inventoryItemId = $detail->inventoryItemId;
-                $inventoryItem = $detail->inventoryItemId ? app(Inventory::class)->getInventoryItemById($detail->inventoryItemId) : null;
-                $detailRecord->inventoryItemDescription = $inventoryItem?->getSku() ?? '';
-                $detailRecord->quantity = $detail->quantity;
-                $detailRecord->quantityAccepted = $detail->quantityAccepted;
-                $detailRecord->quantityRejected = $detail->quantityRejected;
-
-                $detailRecord->save();
-                $detail->id = $detailRecord->id;
-
-                $currentDetailIds[] = $detailRecord->id;
-            }
-
-            $deletedDetailIds = array_diff($existingDetailIds, $currentDetailIds);
-            if (!empty($deletedDetailIds)) {
-                TransferDetailRecord::whereIn('id', $deletedDetailIds)->delete();
-            }
-
-            $this->updateTransferStatus();
-            $transferRecord->transferStatus = $this->getTransferStatus()->value;
-
-            $transferRecord->save();
+                $this->updateTransferStatus();
+                $transferRecord->transferStatus = $this->getTransferStatus()->value;
+                $transferRecord->save();
+            });
         }
 
         parent::afterSave($isNew);
+    }
+
+    /**
+     * Moves each detail's quantity out of the origin location's on-hand stock and into the destination
+     * location's incoming stock.
+     */
+    private function moveDetailsToIncoming(): void
+    {
+        $inventoryUpdateCollection = new UpdateInventoryLevelCollection();
+
+        foreach ($this->getDetails() as $detail) {
+            $inventoryUpdateCollection->push(new UpdateInventoryLevelInTransfer([
+                'type' => InventoryTransactionType::INCOMING->value,
+                'updateAction' => InventoryUpdateQuantityType::ADJUST,
+                'inventoryItemId' => $detail->inventoryItemId,
+                'transferId' => $this->id,
+                'inventoryLocationId' => $this->destinationLocationId,
+                'quantity' => $detail->quantity,
+                'note' => t('Incoming transfer from Transfer ID: ', category: 'commerce') . $this->id,
+            ]));
+
+            $inventoryUpdateCollection->push(new UpdateInventoryLevelInTransfer([
+                'type' => 'onHand',
+                'updateAction' => InventoryUpdateQuantityType::ADJUST,
+                'inventoryItemId' => $detail->inventoryItemId,
+                'transferId' => $this->id,
+                'inventoryLocationId' => $this->originLocationId,
+                'quantity' => $detail->quantity * -1,
+                'note' => t('Outgoing transfer from Transfer ID: ', category: 'commerce') . $this->id,
+            ]));
+        }
+
+        app(Inventory::class)->executeUpdateInventoryLevels($inventoryUpdateCollection);
+    }
+
+    private function saveDetails(): void
+    {
+        $existingDetailIds = TransferDetailRecord::where('transferId', $this->id)->pluck('id')->all();
+        $currentDetailIds = [];
+
+        foreach ($this->getDetails() as $detail) {
+            $detailRecord = ($detail->id ? TransferDetailRecord::find($detail->id) : null) ?? new TransferDetailRecord();
+
+            if ($detail->uid) {
+                $detailRecord->uid = $detail->uid;
+            }
+
+            $detailRecord->transferId = $this->id;
+            $detailRecord->inventoryItemId = $detail->inventoryItemId;
+            $detailRecord->inventoryItemDescription = $detail->getInventoryItem()?->getSku() ?? '';
+            $detailRecord->quantity = $detail->quantity;
+            $detailRecord->quantityAccepted = $detail->quantityAccepted;
+            $detailRecord->quantityRejected = $detail->quantityRejected;
+            $detailRecord->save();
+
+            $detail->id = $detailRecord->id;
+            $detail->uid = $detailRecord->uid;
+            $currentDetailIds[] = $detailRecord->id;
+        }
+
+        $deletedDetailIds = array_diff($existingDetailIds, $currentDetailIds);
+
+        if (!empty($deletedDetailIds)) {
+            TransferDetailRecord::whereIn('id', $deletedDetailIds)->delete();
+        }
     }
 }

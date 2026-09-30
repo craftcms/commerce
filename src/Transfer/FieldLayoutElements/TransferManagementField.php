@@ -60,15 +60,14 @@ class TransferManagementField extends BaseNativeField
         $html = '';
         $currentUser = currentUserElement();
 
-        $origin = app(InventoryLocations::class)->getInventoryLocationById($element->originLocationId);
-        $destination = app(InventoryLocations::class)->getInventoryLocationById($element->destinationLocationId);
+        $locationCards = '';
 
-        $html .= Html::tag('div',
-            Html::tag('div',
-                app(ElementHtml::class)->elementCardHtml($origin->getAddress()), ['class' => 'flex-grow']) .
-            Html::tag('div',
-                app(ElementHtml::class)->elementCardHtml($destination->getAddress()), ['class' => 'flex-grow'])
-            , ['class' => 'flex']);
+        foreach ([$element->getOriginLocation(), $element->getDestinationLocation()] as $location) {
+            $locationCards .= Html::tag('div',
+                $location ? app(ElementHtml::class)->elementCardHtml($location->getAddress()) : '', ['class' => 'flex-grow']);
+        }
+
+        $html .= Html::tag('div', $locationCards, ['class' => 'flex']);
 
         $tableRows = '';
 
@@ -144,7 +143,7 @@ class TransferManagementField extends BaseNativeField
             'name' => 'originLocationId',
             'options' => $inventoryLocationOptions,
             'errors' => $element->errors()->get('originLocationId'),
-            'value' => $element->originLocationId ?? $defaultFirstLocation->id,
+            'value' => $element->originLocationId ?? $defaultFirstLocation?->id,
             'inputAttributes' => [
                 'hx' => [
                     'post' => '',
@@ -158,7 +157,7 @@ class TransferManagementField extends BaseNativeField
             'name' => 'destinationLocationId',
             'errors' => $element->errors()->get('destinationLocationId'),
             'options' => $inventoryLocationOptions,
-            'value' => $element->destinationLocationId ?? $defaultSecondLocation->id,
+            'value' => $element->destinationLocationId ?? $defaultSecondLocation?->id,
             'inputAttributes' => [
                 'hx' => [
                     'post' => '',

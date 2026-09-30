@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Transfer\Models;
 
 use CraftCms\Cms\Shared\BaseModel;
+use CraftCms\Cms\Shared\Concerns\HasUid;
 use CraftCms\Commerce\Database\Table;
 
 /**
@@ -15,6 +16,8 @@ use CraftCms\Commerce\Database\Table;
  */
 class Transfer extends BaseModel
 {
+    use HasUid;
+
     #[\Override]
     protected $table = Table::TRANSFERS;
 
