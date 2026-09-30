@@ -13,8 +13,6 @@ use CraftCms\Cms\Http\Controllers\Concerns\RedirectsToShownSource;
 use CraftCms\Cms\Http\Requests\ElementIndexRequest;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Facades\Drafts;
-use CraftCms\Cms\Support\Facades\Fields;
-use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Commerce\Form\Controls\TransferReceive;
 use CraftCms\Commerce\Http\ViewModels\TransferIndexViewModel;
 use CraftCms\Commerce\Transfer\Data\TransferDetail;
@@ -93,39 +91,6 @@ readonly class TransfersController
         }
 
         return $this->asSuccess(t('Transfer marked as pending.', category: 'commerce'));
-    }
-
-    public function saveSettings(): Response
-    {
-        $fieldLayout = Fields::assembleLayoutFromPost();
-
-        $fieldLayout->reservedFieldHandles = [
-            'originLocationId',
-            'originLocation',
-            'destinationLocationId',
-            'destinationLocation',
-        ];
-
-        $fieldLayout->type = Transfer::class;
-
-        if (!$fieldLayout->validate()) {
-            return $this->asFailure(t('Couldn’t save transfer fields.', category: 'commerce'));
-        }
-
-        if ($currentTransfersFieldLayout = ProjectConfig::get(Transfers::CONFIG_FIELDLAYOUT_KEY)) {
-            $uid = array_key_first($currentTransfersFieldLayout);
-        } else {
-            $uid = (string)\CraftCms\Cms\Support\Str::uuid();
-        }
-
-        $configData = [$uid => $fieldLayout->getConfig()];
-        $result = ProjectConfig::set(Transfers::CONFIG_FIELDLAYOUT_KEY, $configData, force: true);
-
-        if (!$result) {
-            return $this->asFailure(t('Couldn’t save transfer fields.', category: 'commerce'));
-        }
-
-        return $this->asSuccess(t('Transfer fields saved.', category: 'commerce'));
     }
 
     /**

@@ -247,7 +247,6 @@ Route::middleware(['auth', 'can:commerce-manageInventoryLocations'])->group(func
 Route::middleware(['auth', 'can:commerce-manageInventoryTransfers'])->group(function () {
     Route::get('transfers/create', [TransfersController::class, 'create']);
     Route::post('transfers/mark-as-pending', [TransfersController::class, 'markAsPending']);
-    Route::post('transfers/save-settings', [TransfersController::class, 'saveSettings']);
     Route::post('transfers/receive-transfer', [TransfersController::class, 'receiveTransfer']);
     Route::get('transfers/prepare-receive-modal', [TransfersController::class, 'prepareReceiveModal']);
 });
