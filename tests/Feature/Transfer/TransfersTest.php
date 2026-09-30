@@ -19,10 +19,12 @@ use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Transfer\Enums\TransferStatusType;
 use CraftCms\Commerce\Transfer\Transfers;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\from;
 use function Pest\Laravel\get;
+use function Pest\Laravel\getJson;
 use function Pest\Laravel\postJson;
 
 function createTransferInventoryLocation(string $handle): InventoryLocation
@@ -333,4 +335,125 @@ test('marking a transfer as pending from the editor redirects back to it', funct
         ->assertRedirect($editUrl);
 
     expect(Transfer::find()->id($transfer->id)->one()->getTransferStatus())->toBe(TransferStatusType::PENDING);
+});
+
+test('only a pending or partially received transfer offers to receive inventory in the editor', function() {
+    $transfer = createDraftTransfer($this->origin, $this->destination, [
+        ['variant' => $this->hoodieVariant, 'quantity' => 2],
+    ]);
+
+    $receive = fn(Transfer $transfer) => collect($transfer->actionMenuDescriptors())
+        ->firstWhere('behavior.type', 'formModal');
+
+    expect($receive($transfer))->toBeNull();
+
+    app(Transfers::class)->markAsPending($transfer);
+    $transfer = Transfer::find()->id($transfer->id)->one();
+
+    expect($receive($transfer)['behavior'])->toBe([
+        'type' => 'formModal',
+        'modalUrl' => Url::actionUrl('commerce/transfers/prepare-receive-modal'),
+        'actionUrl' => Url::actionUrl('commerce/transfers/receive-transfer'),
+        'params' => ['transferId' => $transfer->id],
+    ]);
+
+    app(Transfers::class)->receive($transfer, [$transfer->getDetails()[0]->uid => ['accept' => 2]]);
+
+    expect($receive(Transfer::find()->id($transfer->id)->one()))->toBeNull();
+});
+
+test('the receive modal lists each item with what has been received so far', function() {
+    actingAs(User::find()->admin(true)->one());
+    prioritizeCommerceRoutes();
+
+    $transfer = createDraftTransfer($this->origin, $this->destination, [
+        ['variant' => $this->hoodieVariant, 'quantity' => 4],
+    ]);
+    app(Transfers::class)->markAsPending($transfer);
+    $detail = $transfer->getDetails()[0];
+    app(Transfers::class)->receive($transfer, [$detail->uid => ['accept' => 1, 'reject' => 1]]);
+
+    $response = getJson(Url::actionUrl('commerce/transfers/prepare-receive-modal', ['transferId' => $transfer->id]))
+        ->assertOk()
+        ->assertJsonPath('title', 'Receive Transfer')
+        ->assertJsonPath('submitLabel', 'Receive');
+
+    expect(findFormControl($response->json('form'), 'details'))
+        ->component->toBe('commerce:transfer-receive')
+        ->and(findFormControl($response->json('form'), 'details')['props']['rows'])->toBe([
+            [
+                'uid' => $detail->uid,
+                'label' => 'rad-hood',
+                'quantity' => 4,
+                'accepted' => 1,
+                'rejected' => 1,
+                'deletedMessage' => null,
+            ],
+        ]);
+});
+
+test('receiving from the modal applies the posted quantities', function() {
+    actingAs(User::find()->admin(true)->one());
+    prioritizeCommerceRoutes();
+
+    $transfer = createDraftTransfer($this->origin, $this->destination, [
+        ['variant' => $this->hoodieVariant, 'quantity' => 4],
+    ]);
+    app(Transfers::class)->markAsPending($transfer);
+    $detail = $transfer->getDetails()[0];
+
+    postJson(Url::actionUrl('commerce/transfers/receive-transfer'), [
+        'transferId' => $transfer->id,
+        'details' => [$detail->uid => ['accept' => '3', 'reject' => '']],
+    ])->assertOk()->assertJsonPath('message', 'Updated');
+
+    $saved = Transfer::find()->id($transfer->id)->one();
+
+    expect($saved->getTransferStatus())->toBe(TransferStatusType::PARTIAL)
+        ->and($saved->getDetails()[0])
+        ->quantityAccepted->toBe(3)
+        ->quantityRejected->toBe(0);
+});
+
+test('submitting the receive modal untouched receives nothing', function() {
+    actingAs(User::find()->admin(true)->one());
+    prioritizeCommerceRoutes();
+
+    $transfer = createDraftTransfer($this->origin, $this->destination, [
+        ['variant' => $this->hoodieVariant, 'quantity' => 4],
+    ]);
+    app(Transfers::class)->markAsPending($transfer);
+
+    postJson(Url::actionUrl('commerce/transfers/receive-transfer'), [
+        'transferId' => $transfer->id,
+        'details' => null,
+    ])->assertOk();
+
+    expect(Transfer::find()->id($transfer->id)->one()->getTransferStatus())->toBe(TransferStatusType::PENDING);
+});
+
+test('a draft transfer can’t be received', function() {
+    actingAs(User::find()->admin(true)->one());
+    prioritizeCommerceRoutes();
+
+    $transfer = createDraftTransfer($this->origin, $this->destination, [
+        ['variant' => $this->hoodieVariant, 'quantity' => 4],
+    ]);
+
+    getJson(Url::actionUrl('commerce/transfers/prepare-receive-modal', ['transferId' => $transfer->id]))->assertBadRequest();
+    postJson(Url::actionUrl('commerce/transfers/receive-transfer'), ['transferId' => $transfer->id])->assertBadRequest();
+});
+
+test('receiving requires being able to save the transfer', function() {
+    actingAs(User::find()->admin(true)->one());
+    prioritizeCommerceRoutes();
+
+    $transfer = createDraftTransfer($this->origin, $this->destination, [
+        ['variant' => $this->hoodieVariant, 'quantity' => 4],
+    ]);
+    app(Transfers::class)->markAsPending($transfer);
+    Gate::before(fn($user, string $ability, array $arguments) => $ability === 'save' && ($arguments[0] ?? null) instanceof Transfer ? false : null);
+
+    getJson(Url::actionUrl('commerce/transfers/prepare-receive-modal', ['transferId' => $transfer->id]))->assertForbidden();
+    postJson(Url::actionUrl('commerce/transfers/receive-transfer'), ['transferId' => $transfer->id])->assertForbidden();
 });

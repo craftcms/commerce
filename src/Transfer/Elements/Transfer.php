@@ -242,7 +242,26 @@ class Transfer extends Element
     #[Override]
     protected function extraActionMenuDescriptors(ElementActionContext $context = ElementActionContext::Editor): array
     {
-        if (!$this->id || !$this->isTransferDraft() || count($this->getDetails()) === 0) {
+        if (!$this->id) {
+            return [];
+        }
+
+        if ($this->canBeReceived()) {
+            return [
+                [
+                    'label' => t('Receive Inventory', category: 'commerce'),
+                    'icon' => 'arrow-down',
+                    'behavior' => [
+                        'type' => 'formModal',
+                        'modalUrl' => Url::actionUrl('commerce/transfers/prepare-receive-modal'),
+                        'actionUrl' => Url::actionUrl('commerce/transfers/receive-transfer'),
+                        'params' => ['transferId' => $this->id],
+                    ],
+                ],
+            ];
+        }
+
+        if (!$this->isTransferDraft() || count($this->getDetails()) === 0) {
             return [];
         }
 
@@ -445,6 +464,14 @@ class Transfer extends Element
     public function isTransferReceived(): bool
     {
         return $this->getTransferStatus() === TransferStatusType::RECEIVED;
+    }
+
+    /**
+     * Whether the transfer has been sent and is still waiting on some of its items.
+     */
+    public function canBeReceived(): bool
+    {
+        return $this->isTransferPending() || $this->isTransferPartial();
     }
 
     public function getTotalRejected(): int

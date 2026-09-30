@@ -1,5 +1,6 @@
 import CouponGeneratorNode from './modules/forms/CouponGeneratorNode.vue';
 import TransferDetailsControl from './modules/forms/TransferDetailsControl.vue';
+import TransferReceiveControl from './modules/forms/TransferReceiveControl.vue';
 import UsageCounterNode from './modules/forms/UsageCounterNode.vue';
 
 /**
@@ -31,6 +32,10 @@ function registerComponents(): void {
   window.Cp.$components.register(
     'commerce:transfer-details',
     TransferDetailsControl
+  );
+  window.Cp.$components.register(
+    'commerce:transfer-receive',
+    TransferReceiveControl
   );
 
   // Loaded on demand, so the element index `cms` shares through the import

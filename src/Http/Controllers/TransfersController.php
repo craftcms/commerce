@@ -4,22 +4,26 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use CraftCms\Cms\Cp\Html\ElementHtml;
 use CraftCms\Cms\Element\Validation\ElementRules;
+use CraftCms\Cms\Form\Form;
+use CraftCms\Cms\Form\FormContext;
+use CraftCms\Cms\Form\FormResolver;
+use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\Http\Controllers\Concerns\RedirectsToShownSource;
 use CraftCms\Cms\Http\Requests\ElementIndexRequest;
 use CraftCms\Cms\Http\RespondsWithFlash;
-use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Drafts;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
-use CraftCms\Cms\Support\Facades\Sites;
-use CraftCms\Cms\Support\Html;
+use CraftCms\Commerce\Form\Controls\TransferReceive;
 use CraftCms\Commerce\Http\ViewModels\TransferIndexViewModel;
+use CraftCms\Commerce\Transfer\Data\TransferDetail;
 use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Transfer\Transfers;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
@@ -124,16 +128,47 @@ readonly class TransfersController
         return $this->asSuccess(t('Transfer fields saved.', category: 'commerce'));
     }
 
+    /**
+     * The Form shown by the “Receive Inventory” modal. Its values are posted to {@see receiveTransfer()}
+     * along with the `transferId`.
+     */
+    public function prepareReceiveModal(Request $request, FormResolver $formResolver): JsonResponse
+    {
+        abort_unless($request->expectsJson(), 400);
+
+        $transfer = $this->resolveReceivableTransfer($request);
+
+        $rows = array_map(fn(TransferDetail $detail) => [
+            'uid' => $detail->uid,
+            'label' => $detail->inventoryItemDescription,
+            'quantity' => $detail->quantity,
+            'accepted' => $detail->quantityAccepted,
+            'rejected' => $detail->quantityRejected,
+            'deletedMessage' => $detail->inventoryItemId === null
+                ? t('“{name}” deleted.', ['name' => $detail->inventoryItemDescription])
+                : null,
+        ], $transfer->getDetails());
+
+        // TODO: Add “Accept all remaining” / “Reject all remaining” shortcuts.
+        $form = Form::make([
+            Field::make(null, TransferReceive::make('details')->rows($rows)),
+        ]);
+
+        return new JsonResponse([
+            'form' => $formResolver->resolve($form, new FormContext()),
+            'title' => t('Receive Transfer', category: 'commerce'),
+            'submitLabel' => t('Receive', category: 'commerce'),
+        ]);
+    }
+
     public function receiveTransfer(Request $request): Response
     {
-        $transferId = $request->integer('transferId');
-        abort_if(!$transferId, 400, 'Missing transferId');
+        $transfer = $this->resolveReceivableTransfer($request);
 
-        $transfer = Transfer::find()->id($transferId)->one();
-        abort_if($transfer === null, 404);
-
+        // TODO: Look into validating received quantities (e.g. no negatives, accepted + rejected not exceeding
+        // what's still to be received). Legacy receiving never validated them.
         try {
-            app(Transfers::class)->receive($transfer, $request->input('details', []));
+            app(Transfers::class)->receive($transfer, $request->input('details') ?? []);
         } catch (\Throwable $e) {
             Log::error('Failed to save transfer details: ' . $e->getMessage(), ['exception' => $e]);
             return $this->asFailure(t('Failed to receive transfer: {error}', ['error' => $e->getMessage()], category: 'commerce'));
@@ -142,83 +177,16 @@ readonly class TransfersController
         return $this->asSuccess(t('Updated', category: 'commerce'));
     }
 
-    public function receiveTransferScreen(Request $request): CpScreenResponse
+    private function resolveReceivableTransfer(Request $request): Transfer
     {
-        $transferId = $request->input('transferId');
+        $transferId = $request->integer('transferId');
         abort_if(!$transferId, 400, 'Missing transferId');
 
-        /** @var ?Transfer $transfer */
         $transfer = Transfer::find()->id($transferId)->one();
+        abort_if($transfer === null, 404);
+        Gate::authorize('save', $transfer);
+        abort_unless($transfer->canBeReceived(), 400, 'Only a pending transfer can be received.');
 
-        if (!$transfer) {
-            return new CpScreenResponse()
-                ->contentHtml('Cant find transfer');
-        }
-
-        $html = Html::beginTag('div', [
-            'hx' => [
-                'action' => 'commerce/transfers/receive-transfer-modal-content',
-            ],
-        ]);
-
-        $html .= Html::tag('h2', t('Receive Transfer', category: 'commerce'));
-
-        $html .= Html::hiddenInput('transferId', $transferId);
-
-        // @TODO Add shortcut links to accept-all and reject-all unreceived items in the receive-transfer modal
-        // $html .= Html::a(t('Accept All Unreceived', category: 'commerce'), '#');
-        // $html .= Html::a(t('Reject All Unreceived', category: 'commerce'), '#');
-
-        $tableRows = '';
-        foreach ($transfer->getDetails() as $detail) {
-            $deleted = $detail->inventoryItemId == null;
-            $key = $detail->uid;
-            $purchasable = $detail->getInventoryItem()?->getPurchasable(Sites::getCurrentSite()->id);
-            $label = $purchasable ? app(ElementHtml::class)->elementChipHtml($purchasable) : $detail->inventoryItemDescription;
-            $tableRows .= Html::beginTag('tr');
-            $tableRows .= Html::tag('td', $label);
-            $tableRows .= Html::tag('td', (string)$detail->quantityAccepted, ['class' => 'rightalign']);
-            $tableRows .= Html::tag('td',
-                Html::tag('input', '', [
-                    'type' => 'number',
-                    'name' => 'details[' . $key . '][accept]',
-                    'value' => '',
-                    'class' => 'text fullwidth',
-                    'disabled' => $deleted,
-                    'placeholder' => $deleted ? t('“{name}” deleted.', ['name' => $detail->inventoryItemDescription]) : '',
-                ])
-            );
-            $tableRows .= Html::tag('td', (string)$detail->quantityRejected, ['class' => 'rightalign']);
-            $tableRows .= Html::tag('td',
-                Html::tag('input', '', [
-                    'type' => 'number',
-                    'name' => 'details[' . $key . '][reject]',
-                    'value' => '',
-                    'class' => 'text fullwidth',
-                    'disabled' => $deleted,
-                    'placeholder' => $deleted ? t('“{name}” deleted.', ['name' => $detail->inventoryItemDescription]) : '',
-                ])
-            );
-        }
-
-        $html .= Html::tag('table',
-            Html::tag('thead',
-                Html::tag('tr',
-                    Html::tag('th', t('Item', category: 'commerce')) .
-                    Html::tag('th', t('Accepted', category: 'commerce'), ['class' => 'rightalign']) .
-                    Html::tag('th', t('Accept', category: 'commerce')) .
-                    Html::tag('th', t('Rejected', category: 'commerce'), ['class' => 'rightalign']) .
-                    Html::tag('th', t('Reject', category: 'commerce'))
-                )
-            ) .
-            $tableRows,
-            ['class' => 'data fullwidth']);
-
-        $html .= Html::endTag('div');
-
-        return new CpScreenResponse()
-            ->action('commerce/transfers/receive-transfer')
-            ->submitButtonLabel(t('Receive', category: 'commerce'))
-            ->contentHtml($html);
+        return $transfer;
     }
 }

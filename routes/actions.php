@@ -249,7 +249,7 @@ Route::middleware(['auth', 'can:commerce-manageInventoryTransfers'])->group(func
     Route::post('transfers/mark-as-pending', [TransfersController::class, 'markAsPending']);
     Route::post('transfers/save-settings', [TransfersController::class, 'saveSettings']);
     Route::post('transfers/receive-transfer', [TransfersController::class, 'receiveTransfer']);
-    Route::get('transfers/receive-transfer-screen', [TransfersController::class, 'receiveTransferScreen']);
+    Route::get('transfers/prepare-receive-modal', [TransfersController::class, 'prepareReceiveModal']);
 });
 
 Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->group(function () {
