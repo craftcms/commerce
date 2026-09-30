@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Cms\Support\Url;
+use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Inventory\Data\InventoryLocation;
 use CraftCms\Commerce\Inventory\Inventory;
@@ -14,6 +16,9 @@ use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Transfer\Enums\TransferStatusType;
 use CraftCms\Commerce\Transfer\Transfers;
 use Illuminate\Support\Facades\DB;
+
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\from;
 
 function createTransferInventoryLocation(string $handle): InventoryLocation
 {
@@ -146,4 +151,36 @@ test('receiving everything marks the transfer as received', function() {
 
 test('sort options do not include table attributes that have no column', function() {
     expect(Transfer::sortOptions())->not->toHaveKeys(['originLocation', 'destinationLocation', 'received']);
+});
+
+test('only a draft transfer with items offers to be marked as pending in the editor', function() {
+    $transfer = createDraftTransfer($this->origin, $this->destination, [
+        ['variant' => $this->hoodieVariant, 'quantity' => 1],
+    ]);
+
+    $markAsPending = fn(Transfer $transfer) => collect($transfer->actionMenuDescriptors())
+        ->firstWhere('behavior.actionUrl', Url::actionUrl('commerce/transfers/mark-as-pending'));
+
+    expect($markAsPending($transfer))
+        ->behavior->params->toBe(['transferId' => $transfer->id]);
+
+    app(Transfers::class)->markAsPending($transfer);
+
+    expect($markAsPending(Transfer::find()->id($transfer->id)->one()))->toBeNull();
+});
+
+test('marking a transfer as pending from the editor redirects back to it', function() {
+    actingAs(User::find()->admin(true)->one());
+    prioritizeCommerceRoutes();
+
+    $transfer = createDraftTransfer($this->origin, $this->destination, [
+        ['variant' => $this->hoodieVariant, 'quantity' => 1],
+    ]);
+    $editUrl = $transfer->getCpEditUrl();
+
+    from($editUrl)
+        ->post(Url::actionUrl('commerce/transfers/mark-as-pending'), ['transferId' => $transfer->id], ['X-Inertia' => 'true'])
+        ->assertRedirect($editUrl);
+
+    expect(Transfer::find()->id($transfer->id)->one()->getTransferStatus())->toBe(TransferStatusType::PENDING);
 });

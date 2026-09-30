@@ -23,8 +23,21 @@ import laravel from 'laravel-vite-plugin';
  * Specifiers the CP publishes through its import map (see `cms`'s
  * `Cp::sharedModules()`). Left out of the build so Commerce's components share
  * the CP's own instances rather than bundling second copies.
+ *
+ * Each maps to its named exports, or `null` for a package the dev server can
+ * import itself to find them — `@craftcms/cms/elements` only exists in the
+ * browser, through the import map.
  */
-const cpSharedModules = ['vue'];
+const cpSharedModuleExports: Record<string, string[] | null> = {
+  vue: null,
+  '@craftcms/cms/elements': [
+    'ElementIndexPage',
+    'ElementEditor',
+    'CpButtonLink',
+    'appendIndexQuery',
+  ],
+};
+const cpSharedModules = Object.keys(cpSharedModuleExports);
 
 /**
  * `build.rollupOptions.external` only applies to builds, and the dev server
@@ -53,9 +66,11 @@ function externalCpSharedModules(): Plugin {
       }
 
       const specifier = id.slice(prefix.length);
-      const names = Object.keys(await import(specifier)).filter(
-        (name) => name !== 'default' && /^[A-Za-z_$][\w$]*$/.test(name)
-      );
+      const names =
+        cpSharedModuleExports[specifier] ??
+        Object.keys(await import(specifier)).filter(
+          (name) => name !== 'default' && /^[A-Za-z_$][\w$]*$/.test(name)
+        );
 
       return [
         `const specifier = ${JSON.stringify(specifier)};`,

@@ -30,6 +30,7 @@ use CraftCms\Commerce\Http\Controllers\StoreManagement\TaxCategoriesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\TaxRatesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\TaxZonesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TransferSettingsController;
+use CraftCms\Commerce\Http\Controllers\EditTransferController;
 use CraftCms\Commerce\Http\Controllers\TransfersController;
 use CraftCms\Commerce\Http\Controllers\Users\UsersController;
 use CraftCms\Commerce\Http\Controllers\VariantsController;
@@ -100,7 +101,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
     ];
     Route::get('commerce/products/{productTypeHandle}/{id}{slug?}', EditElementController::class)->where($idSlugParams);
     Route::get('commerce/variants/{id}{slug?}', EditElementController::class)->where($idSlugParams);
-    Route::get('commerce/inventory/transfers/{id}{slug?}', EditElementController::class)->where($idSlugParams);
+    Route::get('commerce/inventory/transfers/{id}{slug?}', EditTransferController::class)->where($idSlugParams);
 
     Route::get('commerce/products/{productTypeHandle?}', [ProductsController::class, 'productIndex']);
     Route::get('commerce/variants/{productTypeHandle?}', [VariantsController::class, 'index']);

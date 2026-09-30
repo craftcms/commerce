@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Transfer\Elements;
 
+use CraftCms\Cms\Cp\Data\ActionItem;
 use CraftCms\Cms\Cp\Html\StatusHtml;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionInterface;
 use CraftCms\Cms\Element\Element;
+use CraftCms\Cms\Element\Enums\ElementActionContext;
 use CraftCms\Cms\FieldLayout\FieldLayout;
-use CraftCms\Cms\Http\Responses\CpScreenResponse;
-use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Url;
-use CraftCms\Cms\View\LegacyAssets\InternalAssetRegistry;
+use CraftCms\Commerce\Http\ViewModels\TransferEditViewModel;
 use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
 use CraftCms\Commerce\Inventory\Data\InventoryLocation;
 use CraftCms\Commerce\Inventory\Data\UpdateInventoryLevelInTransfer;
@@ -20,7 +20,6 @@ use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
 use CraftCms\Commerce\Inventory\Enums\InventoryUpdateQuantityType;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Inventory\InventoryLocations;
-use CraftCms\Commerce\Transfer\Assets\TransfersAsset;
 use CraftCms\Commerce\Transfer\Conditions\TransferCondition;
 use CraftCms\Commerce\Transfer\Data\TransferDetail;
 use CraftCms\Commerce\Transfer\Enums\TransferStatusType;
@@ -33,7 +32,6 @@ use CraftCms\RulesetValidation\Attributes\Ruleset;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Validator;
 use Override;
-use Symfony\Component\HttpFoundation\Response;
 
 use function CraftCms\Cms\t;
 
@@ -221,6 +219,48 @@ class Transfer extends Element
     }
 
     #[Override]
+    public static function editViewModelClass(): string
+    {
+        return TransferEditViewModel::class;
+    }
+
+    /**
+     * @return list<ActionItem>
+     */
+    #[Override]
+    protected function crumbs(): array
+    {
+        return [
+            new ActionItem()->label(t('Commerce', category: 'commerce'))->href(Url::cpUrl('commerce')),
+            new ActionItem()->label(static::pluralDisplayName())->href(Url::cpUrl('commerce/inventory/transfers')),
+        ];
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    #[Override]
+    protected function extraActionMenuDescriptors(ElementActionContext $context = ElementActionContext::Editor): array
+    {
+        if (!$this->id || !$this->isTransferDraft() || count($this->getDetails()) === 0) {
+            return [];
+        }
+
+        return [
+            [
+                'label' => t('Mark as Pending', category: 'commerce'),
+                'icon' => 'arrow-right',
+                'behavior' => [
+                    'type' => 'submit',
+                    'actionUrl' => Url::actionUrl('commerce/transfers/mark-as-pending'),
+                    'params' => ['transferId' => $this->id],
+                    'confirm' => t('Are you sure you want to mark this transfer as pending? This will show as incoming at the destination.', category: 'commerce'),
+                ],
+            ],
+        ];
+    }
+
+    #[Override]
     protected function safeActionMenuItems(): array
     {
         $safeActions = parent::safeActionMenuItems();
@@ -275,58 +315,6 @@ class Transfer extends Element
                 $this->addModelErrors($detail, 'details');
             }
         }
-    }
-
-    #[Override]
-    public function prepareEditScreen(Response|CpScreenResponse $response, string $containerId): void
-    {
-        app(InternalAssetRegistry::class)->register(TransfersAsset::class);
-
-        HtmlStack::jsWithVars(fn($containerId, $settingsJs) => <<<JS
-new Craft.Commerce.TransferEdit($('#' + $containerId), $settingsJs);
-JS, [
-            $containerId,
-            [],
-        ]);
-
-        $receiveInventoryButtonId = sprintf('receive-transfer-%s', mt_rand());
-
-        HtmlStack::jsWithVars(fn($id, $settings) => <<<JS
-$('#' + $id).on('click', (e) => {
-	e.preventDefault();
-	const modal = new Craft.Commerce.ReceiveTransferScreen($settings);
-	modal.on('close', (e) => {
-	  console.log('closed');
-	});
-});
-JS, [
-            $receiveInventoryButtonId,
-            ['params' => ['transferId' => $this->id]],
-        ]);
-
-        if (!$this->isTransferDraft()) {
-            $response->additionalButtonsHtml(Html::a(
-                t('Receive Inventory', category: 'commerce'),
-                '#',
-                [
-                    'id' => $receiveInventoryButtonId,
-                    'class' => 'btn',
-                ]
-            ));
-        }
-
-        $response->crumbs([
-            [
-                'label' => t('Commerce', category: 'commerce'),
-                'url' => Url::cpUrl('commerce'),
-            ],
-            [
-                'label' => self::pluralDisplayName(),
-                'url' => Url::cpUrl('commerce/inventory/transfers'),
-            ],
-        ]);
-
-        $response->selectedSubnavItem('inventory-transfers');
     }
 
     /**

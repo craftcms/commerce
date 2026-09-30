@@ -27,6 +27,17 @@ function registerComponents(): void {
     CouponGeneratorNode
   );
   window.Cp.$components.register('commerce:usage-counter', UsageCounterNode);
+
+  // Loaded on demand, so the element index `cms` shares through the import
+  // map is only fetched on the pages that use it.
+  window.Cp.$inertia.register(
+    'commerce::inventory/transfers/Index',
+    () => import('./pages/inventory/transfers/Index.vue')
+  );
+  window.Cp.$inertia.register(
+    'commerce::inventory/transfers/Edit',
+    () => import('./pages/inventory/transfers/Edit.vue')
+  );
 }
 
 if (window.Cp) {

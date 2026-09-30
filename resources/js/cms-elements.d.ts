@@ -1,0 +1,51 @@
+/**
+ * Ambient types for `@craftcms/cms/elements`, the element index `cms` shares
+ * with plugin bundles through the import map (see `cms`'s `Cp::sharedModules()`
+ * and `resources/js/elements.ts`). Hand-authored for the same reason as
+ * `window.d.ts`; keep in sync with `cms`'s `ElementIndexPage.vue`,
+ * `ElementEditor.vue`, `CpButtonLink.vue` and `useElementIndexVisits.ts`.
+ */
+declare module '@craftcms/cms/elements' {
+  import type {DefineComponent} from 'vue';
+
+  export type IndexQueryValue =
+    | string
+    | number
+    | boolean
+    | null
+    | undefined
+    | IndexQueryValue[]
+    | IndexQueryParams;
+
+  export interface IndexQueryParams {
+    [key: string]: IndexQueryValue;
+  }
+
+  export interface ElementIndexRoute {
+    url(query?: IndexQueryParams): string;
+  }
+
+  export function appendIndexQuery(
+    url: string,
+    query: IndexQueryParams
+  ): string;
+
+  export const ElementIndexPage: DefineComponent<{
+    route: ElementIndexRoute;
+    sourceHref?: string;
+    customizableSources?: boolean;
+  }>;
+
+  export const ElementEditor: DefineComponent<{
+    saveData?: () => Record<string, unknown>;
+  }>;
+
+  export const CpButtonLink: DefineComponent<{
+    href: string;
+    variant?: string;
+    size?: 'zero' | 'small' | 'medium' | 'large';
+    icon?: string;
+    target?: string;
+    inertia?: boolean;
+  }>;
+}

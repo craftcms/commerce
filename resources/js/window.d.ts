@@ -18,6 +18,11 @@ interface CpComponentRegistry {
   register(name: string, component: CpComponentRegistration): void;
 }
 
+interface InertiaPageRegistry {
+  // A page component, or a loader resolving to one (or its module).
+  register(name: string, componentOrLoader: unknown): void;
+}
+
 interface InertiaRouter {
   reload(options?: {only?: string[]}): void;
 }
@@ -44,6 +49,7 @@ declare global {
   interface Window {
     Cp: {
       $components: CpComponentRegistry;
+      $inertia: InertiaPageRegistry;
       $router: InertiaRouter;
       $axios: MinimalAxiosInstance;
     };

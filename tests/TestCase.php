@@ -8,6 +8,7 @@ use Craft;
 use CraftCms\Cms\Database\Migrations\Install;
 use CraftCms\Cms\Database\Migrator;
 use CraftCms\Cms\Site\Data\Site;
+use CraftCms\Cms\User\Models\User as UserModel;
 use CraftCms\Commerce\Tests\Support\DatabaseLock;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables;
@@ -162,6 +163,7 @@ class TestCase extends Orchestra
         tap($app->make(ConfigRepository::class), function(ConfigRepository $config) {
             $config->set('auth.defaults.guard', 'craft');
             $config->set('auth.guards.craft', ['driver' => 'session', 'provider' => 'users']);
+            $config->set('auth.providers.users.model', UserModel::class);
 
             // Laravel's password broker (activation/password-reset emails) hashes its tokens
             // with this key. It's never set via the environment in this suite, so without it

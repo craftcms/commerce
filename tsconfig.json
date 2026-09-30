@@ -12,6 +12,6 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": []
   },
-  "include": ["resources/js/**/*.ts", "resources/js/**/*.vue", "resources/js/window.d.ts"],
+  "include": ["resources/js/**/*.ts", "resources/js/**/*.vue", "resources/js/window.d.ts", "resources/js/cms-elements.d.ts"],
   "exclude": ["legacy", "node_modules"]
 }

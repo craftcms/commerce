@@ -6,6 +6,8 @@ namespace CraftCms\Commerce\Http\Controllers;
 
 use CraftCms\Cms\Cp\Html\ElementHtml;
 use CraftCms\Cms\Element\Validation\ElementRules;
+use CraftCms\Cms\Http\Controllers\Concerns\RedirectsToShownSource;
+use CraftCms\Cms\Http\Requests\ElementIndexRequest;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Drafts;
@@ -13,22 +15,25 @@ use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
-use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Http\ViewModels\TransferIndexViewModel;
 use CraftCms\Commerce\Inventory\InventoryLocations;
 use CraftCms\Commerce\Transfer\Data\TransferDetail;
 use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Transfer\FieldLayoutElements\TransferManagementField;
 use CraftCms\Commerce\Transfer\Transfers;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\currentUserElement;
-use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
 readonly class TransfersController
 {
+    use RedirectsToShownSource;
     use RespondsWithFlash;
 
     public function create(): Response
@@ -66,9 +71,12 @@ readonly class TransfersController
         return $response;
     }
 
-    public function index(): string
+    public function index(ElementIndexRequest $request): InertiaResponse|RedirectResponse
     {
-        return pageTemplate('commerce/inventory/transfers/_index', [], TemplateMode::Cp);
+        $viewModel = new TransferIndexViewModel($request);
+
+        return $this->shownSourceRedirect($request, $viewModel, false)
+            ?? Inertia::render('commerce::inventory/transfers/Index', [$viewModel]);
     }
 
     public function markAsPending(Request $request): Response
