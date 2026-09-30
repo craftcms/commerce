@@ -16,6 +16,7 @@ use CraftCms\Cms\Element\Events\DefineDeletionBlockers;
 use CraftCms\Cms\Element\Events\ElementSaved;
 use CraftCms\Cms\Element\Queries\Events\ElementsHydrated;
 use CraftCms\Cms\FieldLayout\FieldLayout;
+use CraftCms\Cms\Form\FormControlTypes;
 use CraftCms\Cms\Form\FormNodeTypes;
 use CraftCms\Cms\GarbageCollection\Actions\DeletePartialElements;
 use CraftCms\Cms\GarbageCollection\Events\RunningGarbageCollection;
@@ -62,6 +63,7 @@ use CraftCms\Commerce\Dashboard\Widgets\TotalOrders;
 use CraftCms\Commerce\Dashboard\Widgets\TotalOrdersByCountry;
 use CraftCms\Commerce\Dashboard\Widgets\TotalRevenue;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Form\Controls\TransferDetails;
 use CraftCms\Commerce\Form\Nodes\CouponGenerator;
 use CraftCms\Commerce\Form\Nodes\UsageCounter;
 use CraftCms\Commerce\Gql\Handlers\HasProduct;
@@ -253,6 +255,7 @@ class Plugin extends BasePlugin
 
         app(FormNodeTypes::class)->register(CouponGenerator::class);
         app(FormNodeTypes::class)->register(UsageCounter::class);
+        app(FormControlTypes::class)->register(TransferDetails::class);
 
         Gate::policy(Transfer::class, TransferPolicy::class);
 

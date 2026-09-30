@@ -16,10 +16,7 @@ use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Commerce\Http\ViewModels\TransferIndexViewModel;
-use CraftCms\Commerce\Inventory\InventoryLocations;
-use CraftCms\Commerce\Transfer\Data\TransferDetail;
 use CraftCms\Commerce\Transfer\Elements\Transfer;
-use CraftCms\Commerce\Transfer\FieldLayoutElements\TransferManagementField;
 use CraftCms\Commerce\Transfer\Transfers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -223,50 +220,5 @@ readonly class TransfersController
             ->action('commerce/transfers/receive-transfer')
             ->submitButtonLabel(t('Receive', category: 'commerce'))
             ->contentHtml($html);
-    }
-
-    public function renderManagement(Request $request): string
-    {
-        $transferId = $request->input('transferId');
-        abort_if(!$transferId, 400, 'Missing transferId');
-
-        /** @var ?Transfer $transfer */
-        $transfer = Transfer::find()->id($transferId)->drafts(null)->one();
-        abort_if($transfer === null, 404);
-
-        // We will only change the transfer if it is a draft.
-        if ($transfer->isTransferDraft()) {
-            $allLocations = app(InventoryLocations::class)->getAllInventoryLocations();
-            $defaultFirstLocationId = $allLocations->first()?->id;
-            $defaultSecondLocationId = $allLocations->skip(1)->first()?->id;
-
-            $originLocationId = (int)$request->input('originLocationId', $defaultFirstLocationId);
-            $destinationLocationId = (int)$request->input('destinationLocationId', $defaultSecondLocationId);
-
-            $transfer->originLocationId = $originLocationId;
-            $transfer->destinationLocationId = $destinationLocationId;
-
-            $details = $request->input('details', []);
-            $transfer->setDetails($details);
-
-            $details = $request->input('details', []);
-
-            if ($request->input('removeInventoryItemUid')) {
-                $details = array_filter($details, fn($detail) => $detail['uid'] !== $request->input('removeInventoryItemUid'));
-            }
-            $transfer->setDetails($details);
-
-            $addItem = $request->input('addItem', false);
-            $addInventoryItemId = $request->input('newInventoryItemId', null);
-            if ($addItem && $addInventoryItemId) {
-                $transfer->addDetail(new TransferDetail([
-                    'uid' => (string)\CraftCms\Cms\Support\Str::uuid(),
-                    'inventoryItemId' => $addInventoryItemId,
-                    'quantity' => 1,
-                ]));
-            }
-        }
-
-        return TransferManagementField::renderFieldHtml($transfer);
     }
 }

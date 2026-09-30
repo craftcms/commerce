@@ -250,7 +250,6 @@ Route::middleware(['auth', 'can:commerce-manageInventoryTransfers'])->group(func
     Route::post('transfers/save-settings', [TransfersController::class, 'saveSettings']);
     Route::post('transfers/receive-transfer', [TransfersController::class, 'receiveTransfer']);
     Route::get('transfers/receive-transfer-screen', [TransfersController::class, 'receiveTransferScreen']);
-    Route::get('transfers/render-management', [TransfersController::class, 'renderManagement']);
 });
 
 Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->group(function () {

@@ -4,25 +4,28 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Transfer\FieldLayoutElements;
 
-use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Cp\Html\ElementHtml;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
+use CraftCms\Cms\FieldLayout\FieldLayoutElementContext;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
-use CraftCms\Cms\Support\Facades\HtmlStack;
-use CraftCms\Cms\Support\Facades\InputNamespace;
-use CraftCms\Cms\Support\Facades\Sites;
+use CraftCms\Cms\Form\Contracts\Node;
+use CraftCms\Cms\Form\Controls\Choice;
+use CraftCms\Cms\Form\Enums\ControlMode;
+use CraftCms\Cms\Form\Enums\FieldWidth;
+use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Form\Nodes\Group;
+use CraftCms\Cms\Form\Nodes\TemplateContent;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Str;
-use CraftCms\Cms\View\LegacyAssets\InternalAssetRegistry;
+use CraftCms\Commerce\Form\Controls\TransferDetails;
 use CraftCms\Commerce\Inventory\Data\InventoryLevel;
+use CraftCms\Commerce\Inventory\Data\InventoryLocation;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Inventory\InventoryLocations;
-use CraftCms\Commerce\Transfer\Assets\TransfersAsset;
 use CraftCms\Commerce\Transfer\Elements\Transfer;
 use InvalidArgumentException;
 use Override;
 
-use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\t;
 
 /**
@@ -42,23 +45,127 @@ class TransferManagementField extends BaseNativeField
     #[Override]
     public string $attribute = 'transfer-management';
 
+    #[Override]
+    public function formNode(FieldLayoutElementContext $context): ?Node
+    {
+        $transfer = $context->element;
+
+        if (!$transfer instanceof Transfer) {
+            throw new InvalidArgumentException('TransferManagementField can only be used in transfer field layouts.');
+        }
+
+        $uid = $this->uid ?? $this->attribute;
+
+        if ($context->mode !== ControlMode::Editable || !$transfer->isTransferDraft()) {
+            return TemplateContent::make($uid, self::renderStaticFieldHtml($transfer));
+        }
+
+        $locations = app(InventoryLocations::class)->getAllInventoryLocations();
+        $locationOptions = $locations
+            ->map(fn(InventoryLocation $location) => ['label' => $location->getUiLabel(), 'value' => (string)$location->id])
+            ->values()
+            ->all();
+        $originLocationId = $transfer->originLocationId ?? $locations->first()?->id;
+        $destinationLocationId = $transfer->destinationLocationId ?? $locations->skip(1)->first()?->id;
+
+        return Group::make($uid, [
+            Field::make(
+                t('Origin', category: 'commerce'),
+                Choice::make('originLocationId')
+                    ->options($locationOptions)
+                    ->value($originLocationId !== null ? (string)$originLocationId : null)
+                    ->reactive(),
+            )->width(FieldWidth::Half)->required(),
+            Field::make(
+                t('Destination', category: 'commerce'),
+                Choice::make('destinationLocationId')
+                    ->options($locationOptions)
+                    ->value($destinationLocationId !== null ? (string)$destinationLocationId : null),
+            )->width(FieldWidth::Half)->required(),
+            Field::make(
+                t('Transfer Items', category: 'commerce'),
+                TransferDetails::make('details')
+                    ->value(self::detailsValue($transfer))
+                    ->itemsHtml(self::detailsItemsHtml($transfer))
+                    ->options(self::inventoryItemOptions($originLocationId))
+                    ->reactive(),
+            )->required(),
+        ]);
+    }
+
     protected function inputHtml(?ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Transfer) {
             throw new InvalidArgumentException('TransferManagementField can only be used in transfer field layouts.');
         }
 
-        if ($static) {
-            return self::renderStaticFieldHtml($element);
+        return self::renderStaticFieldHtml($element);
+    }
+
+    /**
+     * @return array<string, array{id: ?int, uid: string, inventoryItemId: ?int, quantity: int}>
+     */
+    private static function detailsValue(Transfer $transfer): array
+    {
+        $value = [];
+
+        foreach ($transfer->getDetails() as $detail) {
+            $uid = $detail->uid ?? (string)Str::uuid();
+            $value[$uid] = [
+                'id' => $detail->id,
+                'uid' => $uid,
+                'inventoryItemId' => $detail->inventoryItemId,
+                'quantity' => $detail->quantity,
+            ];
         }
 
-        return self::renderFieldHtml($element);
+        return $value;
+    }
+
+    /**
+     * TODO: Show the purchasable's element chip again once variant authorization no longer recurses
+     * (`Variant::canSave()` → `parent::canSave()` → Gate → `Variant::canSave()`).
+     *
+     * @return array<int, string>
+     */
+    private static function detailsItemsHtml(Transfer $transfer): array
+    {
+        $html = [];
+
+        foreach ($transfer->getDetails() as $detail) {
+            $html[$detail->inventoryItemId] = e($detail->inventoryItemDescription);
+        }
+
+        return $html;
+    }
+
+    /**
+     * The origin location's inventory items, most on hand first. Items with none on hand can't be transferred.
+     *
+     * @return list<array{label: string, value: string, disabled: bool}>
+     */
+    private static function inventoryItemOptions(?int $originLocationId): array
+    {
+        $origin = $originLocationId ? app(InventoryLocations::class)->getInventoryLocationById($originLocationId) : null;
+
+        if ($origin === null) {
+            return [];
+        }
+
+        return app(Inventory::class)->getInventoryLocationLevels($origin)
+            ->sortByDesc(fn(InventoryLevel $level) => $level->onHandTotal)
+            ->map(fn(InventoryLevel $level) => [
+                'label' => $level->getInventoryItem()->getSku() . ' (' . ($level->onHandTotal ? $level->onHandTotal . ' ' . t('on hand', category: 'commerce') : t('None on hand', category: 'commerce')) . ')',
+                'value' => (string)$level->getInventoryItem()->id,
+                'disabled' => !($level->onHandTotal > 0),
+            ])
+            ->values()
+            ->all();
     }
 
     public static function renderStaticFieldHtml(Transfer $element): string
     {
         $html = '';
-        $currentUser = currentUserElement();
 
         $locationCards = '';
 
@@ -71,10 +178,10 @@ class TransferManagementField extends BaseNativeField
 
         $tableRows = '';
 
+        // TODO: Show the purchasable's element chip again once variant authorization no longer recurses.
         foreach ($element->getDetails() as $detail) {
-            $purchasable = $detail->getInventoryItem()?->getPurchasable(Sites::getCurrentSite()->id);
             $tableRows .= Html::tag('tr',
-                Html::tag('td', ($purchasable ? app(ElementHtml::class)->elementChipHtml($purchasable, ['showActionMenu' => !$purchasable->getIsDraft() && $purchasable->canSave($currentUser)]) : Html::tag('span', $detail->inventoryItemDescription))) .
+                Html::tag('td', Html::tag('span', e($detail->inventoryItemDescription))) .
                 Html::tag('td', (string)$detail->quantityRejected, ['class' => 'rightalign']) .
                 Html::tag('td', (string)$detail->quantityAccepted, ['class' => 'rightalign']) .
                 Html::tag('td', $detail->getReceived() . '/' . $detail->quantity, ['class' => 'rightalign'])
@@ -104,188 +211,5 @@ class TransferManagementField extends BaseNativeField
         $html .= Html::tag('hr') . $table;
 
         return $html;
-    }
-
-    public static function renderFieldHtml(Transfer $element): string
-    {
-        // Only draft is editable
-        if (!$element->isTransferDraft()) {
-            return self::renderStaticFieldHtml($element);
-        }
-
-        $currentUser = currentUserElement();
-        $inventoryLocationOptions = app(InventoryLocations::class)->getAllInventoryLocationsAsList(false);
-        $isHtmxRequest = request()->hasHeader('HX-Request');
-
-        $allLocations = app(InventoryLocations::class)->getAllInventoryLocations();
-        $defaultFirstLocation = $allLocations->first();
-        $defaultSecondLocation = $allLocations->skip(1)->first();
-
-        app(InternalAssetRegistry::class)->register(TransfersAsset::class);
-
-        $namespacedId = InputNamespace::namespaceId('transfer-management');
-
-        $html = Html::beginTag('div', [
-            'id' => $namespacedId,
-            'hx' => [
-                'ext' => 'craft-cp',
-                'target' => '#' . $namespacedId,
-                'include' => '#' . $namespacedId,
-                'vals' => [
-                    'action' => 'commerce/transfers/render-management',
-                    'transferId' => $element->id,
-                ],
-            ],
-        ]);
-
-        $originLocationSelectFieldConfig = [
-            'label' => t('Origin', category: 'commerce'),
-            'name' => 'originLocationId',
-            'options' => $inventoryLocationOptions,
-            'errors' => $element->errors()->get('originLocationId'),
-            'value' => $element->originLocationId ?? $defaultFirstLocation?->id,
-            'inputAttributes' => [
-                'hx' => [
-                    'post' => '',
-                    'trigger' => 'change',
-                ],
-            ],
-        ];
-
-        $destinationLocationSelectFieldConfig = [
-            'label' => t('Destination', category: 'commerce'),
-            'name' => 'destinationLocationId',
-            'errors' => $element->errors()->get('destinationLocationId'),
-            'options' => $inventoryLocationOptions,
-            'value' => $element->destinationLocationId ?? $defaultSecondLocation?->id,
-            'inputAttributes' => [
-                'hx' => [
-                    'post' => '',
-                    'trigger' => 'change',
-                ],
-            ],
-        ];
-
-        $destinationLocationSelectField = Html::tag('div', FormFields::selectFieldHtml($destinationLocationSelectFieldConfig), ['class' => 'flex-grow']);
-        $originLocationSelectField = Html::tag('div', FormFields::selectFieldHtml($originLocationSelectFieldConfig), ['class' => 'flex-grow']);
-
-        $html .= Html::tag('div', $originLocationSelectField . $destinationLocationSelectField, ['class' => 'flex']);
-
-        $tableRows = '';
-
-        foreach ($element->getDetails() as $detail) {
-            $key = $detail->uid ?? (string)Str::uuid();
-            $purchasable = $detail->getInventoryItem()?->getPurchasable(Sites::getCurrentSite()->id);
-            $tableRows .= Html::tag('tr',
-                Html::hiddenInput('details[' . $key . '][id]', (string)$detail->id) .
-                Html::hiddenInput('details[' . $key . '][uid]', $detail->uid) .
-                Html::hiddenInput('details[' . $key . '][inventoryItemId]', (string)$detail->inventoryItemId) .
-                Html::tag('td', ($purchasable ? app(ElementHtml::class)->elementChipHtml($purchasable, ['showActionMenu' => !$purchasable->getIsDraft() && $purchasable->canSave($currentUser)]) : Html::tag('span', $detail->inventoryItemDescription))) .
-                Html::tag('td', FormFields::textHtml([
-                    'type' => 'number',
-                    'name' => 'details[' . $key . '][quantity]',
-                    'value' => (string)$detail->quantity,
-                    'class' => 'text fullwidth',
-                    'errors' => $element->errors()->get('details.' . $key . '.quantity'),
-                    'inputAttributes' => [
-                        'hx' => [
-                            'post' => '',
-                        ],
-                    ],
-                ])) .
-                Html::tag('td', Html::a('', '#', [
-                    'hx' => [
-                        'post' => '',
-                        'trigger' => 'click',
-                        'vals' => [
-                            'removeInventoryItemUid' => $key,
-                        ],
-                    ],
-                    'class' => 'delete icon',
-                    'title' => t('Delete'),
-                    'aria-label' => t('Delete'),
-                    'role' => 'button',
-                ]), ['class' => 'thin'])
-            );
-        }
-
-        // sum row
-        $tableRows .= Html::tag('tr',
-            Html::tag('td') .
-            Html::tag('td', $element->sumDetailsQuanity() . ' ' . t('Total', category: 'commerce')) .
-            Html::tag('td')
-        );
-
-        $table = Html::tag('table',
-            Html::tag('thead',
-                Html::tag('tr',
-                    Html::tag('th', t('Inventory Item', category: 'commerce')) .
-                    Html::tag('th', t('Quantity', category: 'commerce'), ['style' => 'width: 20%;']) .
-                    Html::tag('th', '')
-                )
-            ) .
-            Html::tag('tbody', $tableRows)
-            , ['class' => 'data fullwidth']
-        );
-
-        $html .= FormFields::fieldHtml($table, [
-            'label' => t('Transfer Items', category: 'commerce'),
-        ]);
-
-        if ($element->originLocationId) {
-            $sourceLocation = app(InventoryLocations::class)->getInventoryLocationById($element->originLocationId);
-        } else {
-            $sourceLocation = $defaultFirstLocation;
-        }
-
-        $inventoryLevels = app(Inventory::class)->getInventoryLocationLevels($sourceLocation)->sortByDesc([
-            fn(InventoryLevel $level) => $level->onHandTotal,
-        ]);
-        $inventoryItemOptions = [];
-
-        /** @var InventoryLevel $level */
-        foreach ($inventoryLevels as $level) {
-            $inventoryItemOptions[] = [
-                'label' => $level->getInventoryItem()->getSku() . ' (' . ($level->onHandTotal ? $level->onHandTotal . ' ' . t('on hand', category: 'commerce') : t('None on hand', category: 'commerce')) . ')',
-                'value' => $level->getInventoryItem()->id,
-                'disabled' => !($level->onHandTotal > 0),
-            ];
-        }
-
-        HtmlStack::startJsBuffer();
-
-        $addToItems = Html::tag('div',
-            FormFields::selectizeHtml([
-                'name' => 'newInventoryItemId',
-                'options' => $inventoryItemOptions,
-                'value' => '',
-                'placeholder' => t('Select an item', category: 'commerce'),
-            ]) .
-            Html::tag('button', t('Add an item', category: 'commerce'), [
-                'type' => 'button',
-                'class' => 'btn secondary',
-                'hx' => [
-                    'post' => '',
-                    'target' => '#' . $namespacedId,
-                    'trigger' => 'click',
-                    'vals' => [
-                        'addItem' => true,
-                    ],
-                ],
-            ])
-            , ['class' => 'flex']);
-
-        $html .= $addToItems;
-        $fieldJs = (string)HtmlStack::clearJsBuffer(false);
-
-        if ($fieldJs) {
-            if ($isHtmxRequest) {
-                $html .= Html::tag('script', $fieldJs, ['type' => 'text/javascript']);
-            } else {
-                HtmlStack::js($fieldJs);
-            }
-        }
-
-        return $html . Html::endTag('div');
     }
 }

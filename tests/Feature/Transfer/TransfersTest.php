@@ -3,7 +3,10 @@
 declare(strict_types=1);
 
 use CraftCms\Cms\Address\Elements\Address;
+use CraftCms\Cms\Http\Controllers\Elements\SaveElementController;
+use CraftCms\Cms\Http\Controllers\Elements\UpdateFieldLayoutController;
 use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Database\Table;
@@ -19,6 +22,8 @@ use Illuminate\Support\Facades\DB;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\from;
+use function Pest\Laravel\get;
+use function Pest\Laravel\postJson;
 
 function createTransferInventoryLocation(string $handle): InventoryLocation
 {
@@ -60,6 +65,7 @@ function createDraftTransfer(InventoryLocation $origin, InventoryLocation $desti
 }
 
 beforeEach(function() {
+    $this->withoutVite();
     $fixture = ProductConditionsFixture::seed();
     $this->hoodieVariant = $fixture->hoodieVariant;
     $this->tShirtVariant = $fixture->tShirtVariant;
@@ -167,6 +173,150 @@ test('only a draft transfer with items offers to be marked as pending in the edi
     app(Transfers::class)->markAsPending($transfer);
 
     expect($markAsPending(Transfer::find()->id($transfer->id)->one()))->toBeNull();
+});
+
+/**
+ * @param array<string, mixed> $form
+ * @return array<string, mixed>|null
+ */
+function findFormControl(array $form, string $path): ?array
+{
+    foreach ($form['nodes'] ?? $form['children'] ?? [] as $node) {
+        if (($node['control']['path'] ?? null) === [$path]) {
+            return $node['control'];
+        }
+
+        if ($control = findFormControl($node, $path)) {
+            return $control;
+        }
+    }
+
+    return null;
+}
+
+test('a draft transfer’s editor manages its locations and items with form controls', function() {
+    actingAs(User::find()->admin(true)->one());
+    prioritizeCommerceRoutes();
+
+    $transfer = createDraftTransfer($this->origin, $this->destination, [
+        ['variant' => $this->hoodieVariant, 'quantity' => 2],
+    ]);
+
+    $form = get($transfer->getCpEditUrl())->assertOk()->inertiaProps('form');
+    $details = findFormControl($form, 'details');
+    $detail = $transfer->getDetails()[0];
+
+    expect(findFormControl($form, 'originLocationId'))
+        ->reactive->toBeTrue()
+        ->and(findFormControl($form, 'destinationLocationId'))->not->toBeNull()
+        ->and($details)
+        ->component->toBe('commerce:transfer-details')
+        ->reactive->toBeTrue()
+        ->and($form['values']['details'])->toBe([
+            $detail->uid => [
+                'id' => $detail->id,
+                'uid' => $detail->uid,
+                'inventoryItemId' => $this->hoodieVariant->inventoryItemId,
+                'quantity' => 2,
+            ],
+        ])
+        ->and($details['props']['itemsHtml'])->toHaveKey((string)$this->hoodieVariant->inventoryItemId)
+        ->and(collect($details['props']['options'])->pluck('value')->all())
+        ->toContain((string)$this->hoodieVariant->inventoryItemId, (string)$this->tShirtVariant->inventoryItemId);
+});
+
+test('a transfer that has left draft is shown without form controls', function() {
+    actingAs(User::find()->admin(true)->one());
+    prioritizeCommerceRoutes();
+
+    $transfer = createDraftTransfer($this->origin, $this->destination, [
+        ['variant' => $this->hoodieVariant, 'quantity' => 2],
+    ]);
+    app(Transfers::class)->markAsPending($transfer);
+
+    $form = get($transfer->getCpEditUrl())->assertOk()->inertiaProps('form');
+
+    expect(findFormControl($form, 'originLocationId'))->toBeNull()
+        ->and(findFormControl($form, 'details'))->toBeNull();
+});
+
+test('changing the origin refreshes the items that can be transferred', function() {
+    actingAs(User::find()->admin(true)->one());
+
+    $transfer = createDraftTransfer($this->origin, $this->destination, [
+        ['variant' => $this->hoodieVariant, 'quantity' => 2],
+    ]);
+
+    $form = postJson(action(UpdateFieldLayoutController::class), [
+        'elementType' => Transfer::class,
+        'elementId' => $transfer->id,
+        'siteId' => $transfer->siteId,
+        'originLocationId' => $this->destination->id,
+        'destinationLocationId' => $this->origin->id,
+    ])->assertOk()->json('form');
+
+    expect($form['values']['originLocationId'])->toBe((string)$this->destination->id)
+        ->and(collect(findFormControl($form, 'details')['props']['options'])->where('disabled', false))->toBeEmpty();
+});
+
+test('saving a draft transfer from the editor adds, updates and removes its items', function() {
+    actingAs(User::find()->admin(true)->one());
+
+    $transfer = createDraftTransfer($this->origin, $this->destination, [
+        ['variant' => $this->hoodieVariant, 'quantity' => 2],
+        ['variant' => $this->tShirtVariant, 'quantity' => 3],
+    ]);
+    $hoodieDetail = collect($transfer->getDetails())->firstWhere('inventoryItemId', $this->hoodieVariant->inventoryItemId);
+    $newUid = (string)Str::uuid();
+
+    postJson(action([SaveElementController::class, 'store']), [
+        'elementType' => Transfer::class,
+        'elementId' => $transfer->id,
+        'siteId' => $transfer->siteId,
+        'originLocationId' => (string)$this->origin->id,
+        'destinationLocationId' => (string)$this->destination->id,
+        'details' => [
+            $hoodieDetail->uid => [
+                'id' => $hoodieDetail->id,
+                'uid' => $hoodieDetail->uid,
+                'inventoryItemId' => $this->hoodieVariant->inventoryItemId,
+                'quantity' => '5',
+            ],
+            $newUid => [
+                'id' => null,
+                'uid' => $newUid,
+                'inventoryItemId' => (string)$this->tShirtVariant->inventoryItemId,
+                'quantity' => '1',
+            ],
+        ],
+    ])->assertOk();
+
+    $details = collect(Transfer::find()->id($transfer->id)->one()->getDetails())->keyBy('uid');
+
+    expect($details)->toHaveCount(2)
+        ->and($details[$hoodieDetail->uid])
+        ->id->toBe($hoodieDetail->id)
+        ->quantity->toBe(5)
+        ->and($details[$newUid])
+        ->inventoryItemId->toBe($this->tShirtVariant->inventoryItemId)
+        ->quantity->toBe(1);
+});
+
+test('a draft transfer can’t be saved without any items', function() {
+    actingAs(User::find()->admin(true)->one());
+
+    $transfer = createDraftTransfer($this->origin, $this->destination, [
+        ['variant' => $this->hoodieVariant, 'quantity' => 2],
+    ]);
+
+    postJson(action([SaveElementController::class, 'store']), [
+        'elementType' => Transfer::class,
+        'elementId' => $transfer->id,
+        'siteId' => $transfer->siteId,
+        'details' => [],
+    ])->assertBadRequest()->assertJsonStructure(['errors' => ['details']]);
+
+    expect(Transfer::find()->id($transfer->id)->one()->getDetails())->toHaveCount(1);
 });
 
 test('marking a transfer as pending from the editor redirects back to it', function() {
