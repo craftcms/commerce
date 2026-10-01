@@ -12,6 +12,7 @@ use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Auth\Events\ElementAuthorizing;
 use CraftCms\Cms\Cms;
 use CraftCms\Cms\Cp\Data\NavItem;
+use CraftCms\Cms\Cp\Navigation;
 use CraftCms\Cms\Element\Events\DefineDeletionBlockers;
 use CraftCms\Cms\Element\Events\ElementSaved;
 use CraftCms\Cms\Element\Queries\Events\ElementsHydrated;
@@ -408,7 +409,13 @@ class Plugin extends BasePlugin
             $item->add(new NavItem()->label(t('Orders', category: 'commerce'))->url('commerce/orders'));
         }
 
-        if (app(ProductTypes::class)->getViewableProductTypeIds(true)) {
+        $viewableProductTypeIds = app(ProductTypes::class)->getViewableProductTypeIds(true);
+
+        if (count($viewableProductTypeIds) > 1) {
+            foreach (app(Navigation::class)->sourceSubnav(Product::class, 'commerce/products') as $productNavItem) {
+                $item->add($productNavItem);
+            }
+        } elseif ($viewableProductTypeIds) {
             $item->add(new NavItem()->label(t('Products', category: 'commerce'))->url('commerce/products'));
         }
 
