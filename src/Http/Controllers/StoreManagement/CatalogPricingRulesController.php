@@ -222,6 +222,11 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
             new FormContext(values: $values, refreshable: true),
         );
 
+        $sidebarForm = $this->formResolver->resolve(
+            $this->buildSidebarForm(),
+            new FormContext(values: $values),
+        );
+
         return $this->cpScreenResponse($store, subnav: false)
             ->title($title)
             ->crumbs($this->crumbs($store, ...($catalogPricingRule->id ? [['label' => $title]] : [])))
@@ -235,6 +240,7 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
                 ],
                 'refreshUrl' => action([self::class, 'renderForm']),
                 'metadataHtml' => $metadataHtml,
+                'sidebarForm' => $sidebarForm,
             ]);
     }
 
@@ -393,8 +399,6 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
                     ->required(),
                 Field::make(t('Description', category: 'commerce'), Text::make('description'))
                     ->instructions(t('Catalog pricing rule description.', category: 'commerce')),
-                Field::make(t('Enable this rule', category: 'commerce'), Lightswitch::make('enabled'))
-                    ->instructions(t('Whether this catalog pricing rule should be available for use, regardless of other conditions.', category: 'commerce')),
             ])
             ->addTab(t('Conditions', category: 'commerce'), [
                 Field::make(t('Start Date', category: 'commerce'), DateTimeControl::make('dateFrom')->showTime())
@@ -416,6 +420,15 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
                     ->conditionClass(CatalogPricingRuleCustomerCondition::class)),
             ])
             ->addTab(t('Actions', category: 'commerce'), $actionsFields);
+    }
+
+    /** The details column's controls, submitted alongside {@see buildForm()}. */
+    private function buildSidebarForm(): Form
+    {
+        return Form::make([
+            Field::make(t('Enable this rule', category: 'commerce'), Lightswitch::make('enabled'))
+                ->instructions(t('Whether this catalog pricing rule should be available for use, regardless of other conditions.', category: 'commerce')),
+        ]);
     }
 
     private function isPercentApply(string $apply): bool

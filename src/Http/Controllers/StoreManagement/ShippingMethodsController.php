@@ -144,8 +144,6 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
             ->value($shippingMethod->getCustomerCondition()->getConfig()))
             ->instructions(t('Conditions here are matched against the order’s customer before looking through the rules. This is useful if you want qualify a method’s availability early or if there are common conditions to all rules for this method.', category: 'commerce'));
 
-        $formNodes[] = Field::make(t('Enable this shipping method on the front end', category: 'commerce'), Lightswitch::make('enabled'));
-
         if ($shippingMethod->id) {
             $shippingRules = app(ShippingRules::class)->getAllShippingRulesByShippingMethodId($shippingMethod->id);
 
@@ -187,6 +185,7 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
         ];
 
         $form = $this->formResolver->resolve(Form::make($formNodes), new FormContext(values: $values));
+        $sidebarForm = $this->formResolver->resolve($this->buildSidebarForm(), new FormContext(values: $values));
 
         return $this->cpScreenResponse($store, subnav: false)
             ->title($title)
@@ -201,7 +200,16 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
                     'url' => action([self::class, 'save']),
                 ],
                 'metadataHtml' => $metadataHtml,
+                'sidebarForm' => $sidebarForm,
             ]);
+    }
+
+    /** The details column's controls, submitted alongside the main form built in {@see edit()}. */
+    private function buildSidebarForm(): Form
+    {
+        return Form::make([
+            Field::make(t('Enable this shipping method on the front end', category: 'commerce'), Lightswitch::make('enabled')),
+        ]);
     }
 
     /** @return array<string, mixed>|string */

@@ -134,6 +134,11 @@ readonly class TaxRatesController extends BaseStoreManagementController
             new FormContext(values: $values, refreshable: true),
         );
 
+        $sidebarForm = $this->formResolver->resolve(
+            $this->buildSidebarForm(),
+            new FormContext(values: $values),
+        );
+
         return $this->cpScreenResponse($store, subnav: false)
             ->title($title)
             ->crumbs($this->crumbs($store, ...($taxRate->id ? [['label' => $title]] : [])))
@@ -147,6 +152,7 @@ readonly class TaxRatesController extends BaseStoreManagementController
                 ],
                 'refreshUrl' => action([self::class, 'renderForm']),
                 'metadataHtml' => $metadataHtml,
+                'sidebarForm' => $sidebarForm,
             ]);
     }
 
@@ -313,9 +319,15 @@ readonly class TaxRatesController extends BaseStoreManagementController
             }
         }
 
-        $formNodes[] = Field::make(t('Enable this tax rate', category: 'commerce'), Lightswitch::make('enabled'));
-
         return Form::make($formNodes);
+    }
+
+    /** The details column's controls, submitted alongside {@see buildForm()}. */
+    private function buildSidebarForm(): Form
+    {
+        return Form::make([
+            Field::make(t('Enable this tax rate', category: 'commerce'), Lightswitch::make('enabled')),
+        ]);
     }
 
     private function percentSymbol(): string

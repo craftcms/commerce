@@ -297,6 +297,11 @@ readonly class DiscountsController extends BaseStoreManagementController
             new FormContext(values: $values, refreshable: true),
         );
 
+        $sidebarForm = $this->formResolver->resolve(
+            $this->buildSidebarForm(),
+            new FormContext(values: $values),
+        );
+
         return $this->cpScreenResponse($store, subnav: false)
             ->title($title)
             ->crumbs($this->crumbs($store, ...($discount->id ? [['label' => $title]] : [])))
@@ -310,6 +315,7 @@ readonly class DiscountsController extends BaseStoreManagementController
                 ],
                 'refreshUrl' => action([self::class, 'renderForm']),
                 'metadataHtml' => $metadataHtml,
+                'sidebarForm' => $sidebarForm,
             ]);
     }
 
@@ -637,12 +643,19 @@ readonly class DiscountsController extends BaseStoreManagementController
                     ->required(),
                 Field::make(t('Description', category: 'commerce'), Text::make('description'))
                     ->instructions(t('Discount description.', category: 'commerce')),
-                Field::make(t('Enable this discount', category: 'commerce'), Lightswitch::make('enabled')),
             ])
             ->addTab(t('Matching Items', category: 'commerce'), $matchingItemsFields)
             ->addTab(t('Coupons', category: 'commerce'), $couponsFields)
             ->addTab(t('Conditions', category: 'commerce'), $conditionsFields)
             ->addTab(t('Actions', category: 'commerce'), $actionsFields);
+    }
+
+    /** The details column's controls, submitted alongside {@see buildForm()}. */
+    private function buildSidebarForm(): Form
+    {
+        return Form::make([
+            Field::make(t('Enable this discount', category: 'commerce'), Lightswitch::make('enabled')),
+        ]);
     }
 
     public function save(Request $request): Response

@@ -81,6 +81,11 @@ readonly class ShippingRulesController extends BaseStoreManagementController
             new FormContext(values: $values, refreshable: true),
         );
 
+        $sidebarForm = $this->formResolver->resolve(
+            $this->buildSidebarForm(),
+            new FormContext(values: $values),
+        );
+
         $redirectUrl = $store->getStoreSettingsUrl("shippingmethods/{$shippingMethod->id}#rules");
 
         $response = $this->cpScreenResponse($store, subnav: false)
@@ -113,6 +118,7 @@ readonly class ShippingRulesController extends BaseStoreManagementController
             ],
             'refreshUrl' => action([self::class, 'renderForm']),
             'metadataHtml' => $metadataHtml,
+            'sidebarForm' => $sidebarForm,
         ]);
     }
 
@@ -349,10 +355,17 @@ readonly class ShippingRulesController extends BaseStoreManagementController
                     ->required(),
                 Field::make(t('Description', category: 'commerce'), Text::make('description'))
                     ->instructions(t('Describe this rule.', category: 'commerce')),
-                Field::make(t('Enable this shipping rule', category: 'commerce'), Lightswitch::make('enabled')),
             ])
             ->addTab(t('Conditions', category: 'commerce'), $conditionsTabFields)
             ->addTab(t('Costs', category: 'commerce'), $costsTabFields);
+    }
+
+    /** The details column's controls, submitted alongside {@see buildForm()}. */
+    private function buildSidebarForm(): Form
+    {
+        return Form::make([
+            Field::make(t('Enable this shipping rule', category: 'commerce'), Lightswitch::make('enabled')),
+        ]);
     }
 
     public function duplicate(Request $request): Response
