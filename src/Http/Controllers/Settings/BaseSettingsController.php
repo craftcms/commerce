@@ -130,7 +130,7 @@ abstract class BaseSettingsController
     abstract protected function getSectionCrumb(): array;
 
     /**
-     * Builds "Settings / <section>[ / ...$trail]", where `$trail` is any crumbs beyond the
+     * Builds "Commerce / Settings / <section>[ / ...$trail]", where `$trail` is any crumbs beyond the
      * section (e.g. the record being edited). The last crumb never links.
      *
      * @param array{label: string, url?: ?string} ...$trail
@@ -152,6 +152,7 @@ abstract class BaseSettingsController
     final protected function crumbsForSection(array $sectionCrumb, array ...$trail): array
     {
         $crumbs = [
+            ['label' => t('Commerce', category: 'commerce'), 'href' => cp_url('commerce')],
             ['label' => t('Settings'), 'href' => cp_url('commerce/settings')],
             [...$sectionCrumb, 'items' => $this->subnavCrumbMenu($this->subnav(), $sectionCrumb['href'])],
             ...array_map(fn(array $crumb) => ['label' => $crumb['label'], 'href' => $crumb['url'] ?? null], $trail),
