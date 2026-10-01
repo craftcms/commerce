@@ -1305,6 +1305,7 @@ class Install extends Migration
             'rate' => 1,
             'dateCreated' => $now,
             'dateUpdated' => $now,
+            'uid' => Str::uuid()->toString(),
         ]);
 
         // Default shipping category for the store
@@ -1315,6 +1316,7 @@ class Install extends Migration
             'default' => true,
             'dateCreated' => $now,
             'dateUpdated' => $now,
+            'uid' => Str::uuid()->toString(),
         ]);
 
         // Default order status for the store
@@ -1326,6 +1328,7 @@ class Install extends Migration
             'default' => true,
             'dateCreated' => $now,
             'dateUpdated' => $now,
+            'uid' => Str::uuid()->toString(),
         ]);
 
         // Default (Dummy) gateway
@@ -1338,6 +1341,7 @@ class Install extends Migration
             'isArchived' => false,
             'dateCreated' => $now,
             'dateUpdated' => $now,
+            'uid' => Str::uuid()->toString(),
         ]);
 
         // Default tax category (global, not store-specific)
@@ -1347,6 +1351,7 @@ class Install extends Migration
             'default' => true,
             'dateCreated' => $now,
             'dateUpdated' => $now,
+            'uid' => Str::uuid()->toString(),
         ]);
 
         // Default inventory location, assigned to the store
@@ -1355,6 +1360,7 @@ class Install extends Migration
             'name' => 'Default',
             'dateCreated' => $now,
             'dateUpdated' => $now,
+            'uid' => Str::uuid()->toString(),
         ]);
 
         DB::table(Table::INVENTORYLOCATIONS_STORES)->insert([
@@ -1363,6 +1369,7 @@ class Install extends Migration
             'sortOrder' => 1,
             'dateCreated' => $now,
             'dateUpdated' => $now,
+            'uid' => Str::uuid()->toString(),
         ]);
     }
 
