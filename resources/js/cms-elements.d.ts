@@ -3,7 +3,8 @@
  * with plugin bundles through the import map (see `cms`'s `Cp::sharedModules()`
  * and `resources/js/elements.ts`). Hand-authored for the same reason as
  * `window.d.ts`; keep in sync with `cms`'s `ElementIndexPage.vue`,
- * `ElementEditor.vue`, `CpButtonLink.vue` and `useElementIndexVisits.ts`.
+ * `ElementEditor.vue`, `CpButtonLink.vue`, `ActionMenu.vue`, `common/types` and
+ * `useElementIndexVisits.ts`.
  */
 declare module '@craftcms/cms/elements' {
   import type {DefineComponent} from 'vue';
@@ -38,6 +39,32 @@ declare module '@craftcms/cms/elements' {
 
   export const ElementEditor: DefineComponent<{
     saveData?: () => Record<string, unknown>;
+  }>;
+
+  export interface ActionItemLink {
+    type: 'link';
+    href: string;
+    label: string;
+    icon?: string;
+    external?: boolean;
+    selected?: boolean;
+  }
+
+  export interface ActionItemGroup {
+    type: 'group';
+    heading?: string;
+    items: ActionItemLink[];
+  }
+
+  export type ActionItem = ActionItemLink | ActionItemGroup;
+
+  export const ActionMenu: DefineComponent<{
+    actions: ActionItem[];
+    icon?: string;
+    label?: string | null;
+    buttonVariant?: string;
+    searchable?: boolean;
+    flush?: boolean | string;
   }>;
 
   export const CpButtonLink: DefineComponent<{

@@ -493,15 +493,16 @@ class CatalogPricing
      */
     public function createCatalogPricesQuery(?int $userId = null, int|string|null $storeId = null, bool $allPrices = false, ?CatalogPricingCondition $condition = null): \Illuminate\Database\Query\Builder
     {
-        // Quoted via the connection's own grammar, not embedded as bare SQL — the column is
-        // camelCase, and an unquoted raw fragment gets folded to lowercase by Postgres.
-        $isPromotionalPrice = DB::connection()->getQueryGrammar()->wrap('isPromotionalPrice');
+        // Quoted via the connection's own grammar, not embedded as bare SQL — the column and
+        // aliases are camelCase, and unquoted raw identifiers get folded to lowercase by Postgres.
+        $grammar = DB::connection()->getQueryGrammar();
+        $isPromotionalPrice = $grammar->wrap('isPromotionalPrice');
 
         $query = DB::table(Table::CATALOG_PRICING . ' as cp')
             ->select([
-                DB::raw(Sql::decimalSql('MIN(CASE WHEN isPromotionalPrice = FALSE THEN price END)') . ' AS price'),
-                DB::raw(Sql::decimalSql('MIN(CASE WHEN isPromotionalPrice = TRUE THEN price END)') . ' AS promotionalPrice'),
-                DB::raw(Sql::decimalSql('MIN(price)') . ' AS salePrice'),
+                DB::raw(Sql::decimalSql("MIN(CASE WHEN $isPromotionalPrice = FALSE THEN price END)") . ' AS ' . $grammar->wrap('price')),
+                DB::raw(Sql::decimalSql("MIN(CASE WHEN $isPromotionalPrice = TRUE THEN price END)") . ' AS ' . $grammar->wrap('promotionalPrice')),
+                DB::raw(Sql::decimalSql('MIN(price)') . ' AS ' . $grammar->wrap('salePrice')),
             ]);
 
         $condition ??= Conditions::createCondition([

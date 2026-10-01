@@ -4,41 +4,49 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use craft\commerce\web\assets\productindex\ProductIndexAsset;
+use CraftCms\Cms\Cp\SiteSwitcher;
 use CraftCms\Cms\Element\ElementHelper;
 use CraftCms\Cms\Element\Validation\ElementRules;
+use CraftCms\Cms\Http\Controllers\Concerns\RedirectsToShownSource;
+use CraftCms\Cms\Http\Requests\ElementIndexRequest;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Structure\Structures;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\Drafts;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Url;
-use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Http\ViewModels\ProductIndexViewModel;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\Products;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use DateTime;
 
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\currentUserElement;
-use function CraftCms\Cms\pageTemplate;
 use function CraftCms\Cms\t;
 
 readonly class ProductsController
 {
+    use RedirectsToShownSource;
     use RespondsWithFlash;
 
-    public function productIndex(?string $productTypeHandle = null): string
+    public function productIndex(ElementIndexRequest $request, ?string $productTypeHandle = null): InertiaResponse|RedirectResponse
     {
         $this->requireViewableProductTypes();
 
-        \Craft::$app->getView()->registerAssetBundle(ProductIndexAsset::class);
+        $viewModel = new ProductIndexViewModel($request, $productTypeHandle);
 
-        return pageTemplate('commerce/products/_index', [
-            'productTypeHandle' => $productTypeHandle,
-        ], TemplateMode::Cp);
+        if ($viewModel->showSiteMenu()) {
+            app(SiteSwitcher::class)->scopeToSite();
+        }
+
+        return $this->shownSourceRedirect($request, $viewModel, $productTypeHandle !== null && $productTypeHandle !== '')
+            ?? Inertia::render('commerce::products/Index', [$viewModel]);
     }
 
     public function create(Request $request, ?string $productType = null): Response

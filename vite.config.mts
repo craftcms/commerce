@@ -34,6 +34,7 @@ const cpSharedModuleExports: Record<string, string[] | null> = {
     'ElementIndexPage',
     'ElementEditor',
     'CpButtonLink',
+    'ActionMenu',
     'appendIndexQuery',
   ],
 };

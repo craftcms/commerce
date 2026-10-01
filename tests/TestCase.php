@@ -7,6 +7,7 @@ namespace CraftCms\Commerce\Tests;
 use Craft;
 use CraftCms\Cms\Database\Migrations\Install;
 use CraftCms\Cms\Database\Migrator;
+use CraftCms\Cms\Element\Element;
 use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\User\Models\User as UserModel;
 use CraftCms\Commerce\Tests\Support\DatabaseLock;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\File;
 use Orchestra\Testbench\Concerns\WithWorkbench;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Override;
+use ReflectionProperty;
 
 use function Orchestra\Testbench\default_skeleton_path;
 use function Orchestra\Testbench\package_path;
@@ -94,6 +96,8 @@ class TestCase extends Orchestra
     protected function tearDown(): void
     {
         parent::tearDown();
+
+        new ReflectionProperty(Element::class, 'sources')->setValue(null, []);
     }
 
     protected function refreshTestDatabase(): void

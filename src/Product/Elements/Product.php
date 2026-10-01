@@ -355,6 +355,21 @@ class Product extends Element implements HasStoreInterface
         return $config;
     }
 
+    /**
+     * Product type sources have index URLs of their own (`commerce/products/{handle}`).
+     */
+    #[Override]
+    public static function sourceCpUri(array $source, ?string $page = null): ?string
+    {
+        $handle = $source['data']['handle'] ?? null;
+
+        if (!str_starts_with((string)($source['key'] ?? ''), 'productType:') || !is_string($handle) || $handle === '') {
+            return null;
+        }
+
+        return "commerce/products/$handle";
+    }
+
     #[Override]
     protected static function defineFieldLayouts(?string $source): array
     {
