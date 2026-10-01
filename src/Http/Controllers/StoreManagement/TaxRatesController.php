@@ -357,7 +357,7 @@ readonly class TaxRatesController extends BaseStoreManagementController
         $taxRate->taxable = $request->input('taxable');
         $taxRate->taxCategoryId = (int)$request->input('taxCategoryId') ?: null;
         $taxRate->taxZoneId = (int)$request->input('taxZoneId') ?: null;
-        $taxRate->rate = Localization::normalizePercentage($request->input('rate'));
+        $taxRate->rate = Localization::normalizePercentage((string) $request->input('rate'));
         $taxRate->enabled = (bool)$request->input('enabled');
         $taxRate->taxIdValidators = array_values($request->input('taxIdValidators', []) ?: []);
 

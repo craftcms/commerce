@@ -467,7 +467,7 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
         $applyAmount = is_array($applyAmount) ? $applyAmount : ['value' => $applyAmount];
 
         if ($this->isPercentApply($catalogPricingRule->apply)) {
-            $catalogPricingRule->applyAmount = -Localization::normalizePercentage($applyAmount['value'] ?? null);
+            $catalogPricingRule->applyAmount = -Localization::normalizePercentage((string) ($applyAmount['value'] ?? ''));
         } else {
             $applyAmount += ['currency' => $catalogPricingRule->getStore()->getCurrency()];
             $catalogPricingRule->applyAmount = (float) Money::toDecimal(Money::toMoney($applyAmount)) * -1;
