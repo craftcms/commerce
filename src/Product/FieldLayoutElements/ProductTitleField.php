@@ -6,7 +6,9 @@ namespace CraftCms\Commerce\Product\FieldLayoutElements;
 
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Field\Enums\TranslationMethod;
+use CraftCms\Cms\FieldLayout\FieldLayoutElementContext;
 use CraftCms\Cms\FieldLayout\LayoutElements\TitleField;
+use CraftCms\Cms\Form\Contracts\Control;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Commerce\Product\Elements\Product;
 use InvalidArgumentException;
@@ -25,6 +27,22 @@ class ProductTitleField extends TitleField
                 'class' => ['fld-product-title-field-icon', 'fld-field-hidden', 'hidden'],
             ]) .
             parent::selectorInnerHtml();
+    }
+
+    #[Override]
+    protected function formControl(FieldLayoutElementContext $context): ?Control
+    {
+        $element = $context->element;
+
+        if ($element !== null && !$element instanceof Product) {
+            throw new InvalidArgumentException(sprintf('%s can only be used in product field layouts.', self::class));
+        }
+
+        if ($element && !$element->getType()->hasProductTitleField) {
+            return null;
+        }
+
+        return parent::formControl($context);
     }
 
     #[Override]

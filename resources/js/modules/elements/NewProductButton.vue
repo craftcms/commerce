@@ -61,7 +61,7 @@
     return url.toString();
   }
 
-  // Full page loads: the product editor is still the legacy screen.
+  // Full page loads, as cms’s NewEntryButton does: each visit creates a draft.
   const menuItems = computed<ActionItemLink[]>(() =>
     available.value.map((productType) => ({
       type: 'link',

@@ -1,6 +1,7 @@
 <?php
 
 use CraftCms\Cms\Http\Controllers\Elements\EditElementController;
+use CraftCms\Cms\Http\Controllers\Elements\ElementRevisionsController;
 use CraftCms\Cms\Http\Middleware\RequireAdmin;
 use CraftCms\Commerce\Http\Controllers\DonationsController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingController;
@@ -17,6 +18,8 @@ use CraftCms\Commerce\Http\Controllers\Settings\OrderSettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\PaymentCurrenciesController;
 use CraftCms\Commerce\Http\Controllers\Settings\PdfsController;
+use CraftCms\Commerce\Http\Controllers\CreateProductController;
+use CraftCms\Commerce\Http\Controllers\EditProductController;
 use CraftCms\Commerce\Http\Controllers\ProductsController;
 use CraftCms\Commerce\Http\Controllers\Settings\ProductTypesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\SalesController;
@@ -82,16 +85,15 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
         Route::get('commerce/settings/pdfs/{storeHandle}/{id}', [PdfsController::class, 'edit'])->whereNumber('id');
     });
 
-    // ProductsController/VariantsController extend BaseCpController directly (no extra
-    // permission beyond accessPlugin-commerce) — each additionally guards its own methods with
-    // an inline "does the user have access to any product type" check.
-    Route::get('commerce/products/{productType}/new', [ProductsController::class, 'create']);
+    // No extra permission middleware: CreateProductController authorizes the new product through ProductPolicy, and
+    // ProductsController/VariantsController check for a viewable product type themselves.
+    Route::get('commerce/products/{productType}/new', CreateProductController::class);
 
     // Product/variant/transfer edit screens just resolve the element by {id} — the
     // productTypeHandle segment is cosmetic (matches legacy: the old `elements/edit` route
     // never checked it against the element either). No extra permission middleware here,
-    // matching the legacy UrlManager rules — access is enforced by the element's own
-    // canView()/canSave() (see Product::canView()/Transfer::canView()).
+    // matching the legacy UrlManager rules — access is enforced by the element's policy
+    // (ProductPolicy) or its own canView()/canSave() (Transfer::canView()).
     // The product/variant routes must be registered before the {productTypeHandle?} index
     // routes below, since a bare numeric segment (`commerce/variants/123`) would otherwise
     // match the index route first.
@@ -99,7 +101,8 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
         'id' => '\d+',
         'slug' => '(?:-[^\/]*)',
     ];
-    Route::get('commerce/products/{productTypeHandle}/{id}{slug?}', EditElementController::class)->where($idSlugParams);
+    Route::get('commerce/products/{productTypeHandle}/{id}{slug}/revisions', [ElementRevisionsController::class, 'index'])->where($idSlugParams);
+    Route::get('commerce/products/{productTypeHandle}/{id}{slug?}', EditProductController::class)->where($idSlugParams);
     Route::get('commerce/variants/{id}{slug?}', EditElementController::class)->where($idSlugParams);
     Route::get('commerce/inventory/transfers/{id}{slug?}', EditTransferController::class)->where($idSlugParams);
 

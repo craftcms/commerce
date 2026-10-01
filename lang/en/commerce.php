@@ -1319,6 +1319,7 @@ return [
     'Variant Tracks Stock' => 'Variant Tracks Stock',
     'Variant UI Label Format' => 'Variant UI Label Format',
     'Variant has no product.' => 'Variant has no product.',
+    'Variants can’t be edited from this screen yet.' => 'Variants can’t be edited from this screen yet.',
     'Variants not restored.' => 'Variants not restored.',
     'Variants restored.' => 'Variants restored.',
     'Variants' => 'Variants',

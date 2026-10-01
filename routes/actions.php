@@ -3,6 +3,7 @@
 use CraftCms\Cms\Http\Middleware\RequireAdmin;
 use CraftCms\Cms\Http\Middleware\RequireCpRequest;
 use CraftCms\Commerce\Http\Controllers\CartController;
+use CraftCms\Commerce\Http\Controllers\CreateProductController;
 use CraftCms\Commerce\Http\Controllers\DonationsController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingController;
@@ -263,6 +264,8 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->g
 Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
     Route::post('formulas/validate-condition', [FormulasController::class, 'validateCondition']);
     Route::post('formulas/validate-formula', [FormulasController::class, 'validateFormula']);
+
+    Route::post('products/create', CreateProductController::class);
 });
 
 // Rendered inside an iframe from the email edit screen's preview button — admin-only, matching

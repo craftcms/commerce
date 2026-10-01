@@ -14,6 +14,7 @@ use CraftCms\Commerce\Purchasable\Queries\Concerns\QueriesPurchasableDimensions;
 use CraftCms\Commerce\Purchasable\Queries\Concerns\QueriesPurchasableInventory;
 use CraftCms\Commerce\Purchasable\Queries\Concerns\QueriesPurchasablePricing;
 use Illuminate\Support\Facades\DB;
+use Tpetry\QueryExpressions\Function\Aggregate\Min;
 use Tpetry\QueryExpressions\Language\Alias;
 use function CraftCms\Cms\currentUser;
 
@@ -110,7 +111,7 @@ abstract class PurchasableQuery extends ElementQuery
             // more complex than a bare column reference (e.g. a subquery-as-column expression).
             $this->query->leftJoinSub(
                 DB::table(Table::CATALOG_PRICING . ' as cpr')
-                    ->select(['purchasableId', 'storeId', DB::raw('MIN(catalogPricingRuleId) as catalogPricingRuleId')])
+                    ->select(['purchasableId', 'storeId', new Alias(new Min('catalogPricingRuleId'), 'catalogPricingRuleId')])
                     ->whereNotNull('catalogPricingRuleId')
                     ->groupBy(['purchasableId', 'storeId']),
                 'catalogpricingruleids',

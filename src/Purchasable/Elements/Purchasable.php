@@ -363,7 +363,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         return true;
     }
 
-    public function setBasePrice(Money|array|float|int|null $basePrice): void
+    public function setBasePrice(Money|array|float|int|string|null $basePrice): void
     {
         if (is_array($basePrice)) {
             if (isset($basePrice['value']) && $basePrice['value'] === '') {
@@ -394,7 +394,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         return $this->_basePrice;
     }
 
-    public function setBasePromotionalPrice(Money|array|float|int|null $basePromotionalPrice): void
+    public function setBasePromotionalPrice(Money|array|float|int|string|null $basePromotionalPrice): void
     {
         if (is_array($basePromotionalPrice)) {
             if (isset($basePromotionalPrice['value']) && $basePromotionalPrice['value'] === '') {

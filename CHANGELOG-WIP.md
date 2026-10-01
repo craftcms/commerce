@@ -65,6 +65,19 @@
 - Removed `craft\commerce\linktypes\Product`, superseded by `CraftCms\Commerce\Product\LinkTypes\ProductLinkType`.
 - Added `CraftCms\Commerce\Product\Jobs\ResaveProductVariantsJob`, a native Laravel `ShouldQueue` job.
 - Removed `craft\commerce\queue\jobs\ResaveProductVariants`. `CraftCms\Commerce\Product\Jobs\ResaveProductVariantsJob` should be used instead.
+- Added `CraftCms\Commerce\Product\Policies\ProductPolicy`, registered via `Gate::policy()`. Product authorization now goes through it rather than `Product::canView()`, `canSave()`, `canDuplicate()`, `canDelete()`, `canDeleteForSite()`, and `canCreateDrafts()` overrides, using the same product type permissions as before.
+- Added `CraftCms\Commerce\Http\ViewModels\ProductIndexViewModel`.
+- The products index is now an Inertia page built on core’s element index. Product type sources link to `commerce/products/{productTypeHandle}`.
+- `CraftCms\Commerce\Product\Elements\Product::getStore()` now falls back to the store of the product’s site when `storeId` isn’t set.
+- Removed `craft\commerce\web\assets\productindex\ProductIndexAsset`.
+- Added `CraftCms\Commerce\Http\Controllers\CreateProductController`, replacing `ProductsController::create()`. It also handles the `commerce/products/create` action, which returns the new draft as JSON.
+- New products now follow their product type’s “Enabled by default” site setting, rather than always being enabled.
+- The product edit screen is now an Inertia page (`commerce::products/Edit`), rendered by `CraftCms\Commerce\Http\Controllers\EditProductController` and `CraftCms\Commerce\Http\ViewModels\ProductEditViewModel`. Products save through `elements/save`.
+- Added `Product::editViewModelClass()`, `Product::metaFieldsNodes()` and `Product::extraActionMenuDescriptors()`. `Product::crumbs()` now returns `CraftCms\Cms\Cp\Data\ActionItem` objects.
+- Added `ProductTitleField::formControl()` and `VariantsField::formNode()`. Variants can’t be edited from the Inertia product edit screen yet.
+- Added the `commerce/products/{productTypeHandle}/{id}{slug}/revisions` control panel route.
+- Removed `Product::safeActionMenuItems()`. Its “Product type settings” item opened a slideout on an action that no longer exists. The item is now provided by `Product::extraActionMenuDescriptors()`.
+- Fixed an error that occurred when saving a product whose product type has versioning enabled.
 
 #### Controllers
 
@@ -673,6 +686,7 @@
 - Deprecated `craft\commerce\elements\conditions\addresses\DiscountAddressCondition`, `ZoneAddressCondition`, `GatewayAddressCondition`, and `PostalCodeFormulaConditionRule`. The `CraftCms\Commerce\Address\Conditions` equivalents should be used instead.
 - Added `CraftCms\Commerce\Promotion\Actions\CreateDiscount` and `CreateSale`.
 - Deprecated `craft\commerce\elements\actions\CreateDiscount` and `CreateSale`. The `CraftCms\Commerce\Promotion\Actions` equivalents should be used instead.
+- `CraftCms\Commerce\Promotion\Actions\CreateDiscount` now redirects to the new discount screen from `performAction()`, so it works from the element index’s bulk actions bar.
 - `CraftCms\Commerce\Promotion\Models\Coupon::getRules()` now validates that `code` is unique (case-insensitively, against every coupon regardless of discount), replacing `craft\commerce\validators\CouponsValidator`.
 - Removed `craft\commerce\validators\CouponsValidator`.
 

@@ -15,6 +15,9 @@ use Illuminate\Routing\Router;
  * action trigger before any of Commerce's own (more specific) routes get a chance, regardless of
  * whether a legacy controller still exists for the requested action.
  *
+ * Commerce routes served by a cms controller (e.g. the product revisions index) are matched by
+ * their `commerce/` path instead.
+ *
  * Call this once a test is ready to dispatch a real HTTP request to one of Commerce's own action
  * routes.
  *
@@ -37,7 +40,10 @@ function prioritizeCommerceRoutes(): void
         // Some routes are registered with a leading `\` on the controller's FQCN and some
         // aren't (depends on whether the array callable passed to Route::get()/post() etc. used
         // a `::class` reference or a literal string), so normalize it away before comparing.
-        if (is_string($controller) && str_starts_with(ltrim($controller, '\\'), 'CraftCms\\Commerce\\')) {
+        if (
+            (is_string($controller) && str_starts_with(ltrim($controller, '\\'), 'CraftCms\\Commerce\\'))
+            || str_contains($route->uri(), '/commerce/')
+        ) {
             $commerceRoutes[] = $route;
         } else {
             $otherRoutes[] = $route;

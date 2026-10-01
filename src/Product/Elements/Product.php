@@ -7,8 +7,8 @@ namespace CraftCms\Commerce\Product\Elements;
 use craft\events\ElementCriteriaEvent;
 use CraftCms\Cms\Asset\Actions\CopyReferenceTag;
 use CraftCms\Cms\Cms;
+use CraftCms\Cms\Cp\Data\ActionItem;
 use CraftCms\Cms\Cp\FormFields;
-use CraftCms\Cms\Cp\Html\ElementHtml;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Element\Actions\Delete;
 use CraftCms\Cms\Element\Actions\Duplicate;
@@ -19,6 +19,8 @@ use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\CurrentElementIndex;
 use CraftCms\Cms\Element\Data\EagerLoadPlan;
 use CraftCms\Cms\Element\Element;
+use CraftCms\Cms\Element\ElementHelper;
+use CraftCms\Cms\Element\Enums\ElementActionContext;
 use CraftCms\Cms\Element\Enums\PropagationMethod;
 use CraftCms\Cms\Element\NestedElementManager;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
@@ -27,28 +29,31 @@ use CraftCms\Cms\Entry\Actions\NewSiblingAfter;
 use CraftCms\Cms\Entry\Actions\NewSiblingBefore;
 use CraftCms\Cms\Field\Enums\TranslationMethod;
 use CraftCms\Cms\FieldLayout\FieldLayout;
+use CraftCms\Cms\Form\Contracts\Node;
+use CraftCms\Cms\Form\Controls\DateTime as DateTimeControl;
+use CraftCms\Cms\Form\Controls\ElementSelect;
+use CraftCms\Cms\Form\Controls\Slug;
+use CraftCms\Cms\Form\Enums\ControlMode;
+use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\Http\Controllers\NestedElementsController;
-use CraftCms\Cms\Http\Requests\ElementRequest;
 use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Structure\Enums\Mode as StructureMode;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Facades\DeltaRegistry;
 use CraftCms\Cms\Support\Facades\ElementActions;
 use CraftCms\Cms\Support\Facades\Elements;
-use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
-use CraftCms\Cms\Support\Facades\InputNamespace;
 use CraftCms\Cms\Support\Facades\Revisions;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Facades\Structures;
 use CraftCms\Cms\Support\Html;
-use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Query;
 use CraftCms\Cms\Support\Sequence;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
+use CraftCms\Commerce\Http\ViewModels\ProductEditViewModel;
 use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Product\Conditions\ProductCondition;
 use CraftCms\Commerce\Product\Conditions\ProductTypeConditionRule;
@@ -68,14 +73,18 @@ use CraftCms\Commerce\Promotion\Sales;
 use CraftCms\Commerce\Shipping\Data\ShippingCategory;
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
+use CraftCms\Commerce\Store\Data\Store;
+use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Tax\Data\TaxCategory;
 use CraftCms\RulesetValidation\Attributes\Ruleset;
 use DateTime;
+use DateTimeInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
 use Illuminate\Validation\Validator;
+
+use InvalidArgumentException;
 use Override;
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\renderSandboxedObjectTemplate;
@@ -207,6 +216,12 @@ class Product extends Element implements HasStoreInterface
     public static function trackChanges(): bool
     {
         return true;
+    }
+
+    #[Override]
+    public static function editViewModelClass(): string
+    {
+        return ProductEditViewModel::class;
     }
 
     #[Override]
@@ -408,12 +423,6 @@ class Product extends Element implements HasStoreInterface
 
         if ($source === '*') {
             $productTypes = $productTypesService->getViewableProductTypes();
-        } elseif (preg_match('/^productType:(\d+)$/', $source, $matches)) {
-            $productType = $productTypesService->getProductTypeById((int)$matches[1]);
-
-            if ($productType) {
-                $productTypes = [$productType];
-            }
         } elseif (preg_match('/^productType:(.+)$/', $source, $matches)) {
             $productType = $productTypesService->getProductTypeByUid($matches[1]);
 
@@ -516,38 +525,27 @@ class Product extends Element implements HasStoreInterface
         return $actions;
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     #[Override]
-    protected function safeActionMenuItems(): array
-    {
-        $actions = parent::safeActionMenuItems();
-
-        if (
-            app(ElementRequest::class)->element === $this &&
-            currentUser()?->isAdmin() &&
-            Cms::config()->allowAdminChanges
-        ) {
-            // Product type settings
-            $productTypeEditId = sprintf('edit-product-type-%s', mt_rand());
-            $actions[] = [
-                'id' => $productTypeEditId,
-                'icon' => 'gear',
-                'label' => t('Product type settings', category: 'commerce'),
-            ];
-
-            HtmlStack::jsWithVars(fn($id, $params) => <<<JS
-(() => {
-  $('#' + $id).on('activate', function() {
-    const params = $params;
-    new Craft.CpScreenSlideout('commerce/product-types/edit-product-type', {params});
-  });
-})();
-JS, [
-                InputNamespace::namespaceId($productTypeEditId),
-                ['productTypeId' => $this->typeId],
-            ]);
+    protected function extraActionMenuDescriptors(
+        ElementActionContext $context = ElementActionContext::Editor,
+    ): array {
+        if (!currentUser()?->isAdmin() || !Cms::config()->allowAdminChanges) {
+            return [];
         }
 
-        return $actions;
+        return [
+            [
+                'label' => t('Product type settings', category: 'commerce'),
+                'icon' => 'gear',
+                'behavior' => [
+                    'type' => 'slideout',
+                    'url' => Url::cpUrl("commerce/settings/producttypes/$this->typeId"),
+                ],
+            ],
+        ];
     }
 
     #[Override]
@@ -760,6 +758,24 @@ JS, [
         return \CraftCms\Commerce\Helpers\Currency::formatAsCurrency($amount, $this->getStore()->getCurrency());
     }
 
+    /**
+     * Unsaved products have no `storeId` (queries select it from the site's store), so it falls back to the site's store.
+     */
+    #[Override]
+    public function getStore(): Store
+    {
+        $stores = app(Stores::class);
+        $store = $this->storeId !== null
+            ? $stores->getStoreById($this->storeId)
+            : ($this->siteId !== null ? $stores->getStoreBySiteId($this->siteId) : null);
+
+        if (!$store) {
+            throw new InvalidArgumentException('Invalid store ID: ' . $this->storeId);
+        }
+
+        return $store;
+    }
+
     #[Override]
     public function fields(): array
     {
@@ -862,31 +878,35 @@ JS, [
         return null;
     }
 
+    /**
+     * @return list<ActionItem>
+     */
     #[Override]
     protected function crumbs(): array
     {
         $productType = $this->getType();
 
-        $productTypes = Collection::make(app(ProductTypes::class)->getViewableProductTypes());
+        $productTypeOptions = Collection::make(app(ProductTypes::class)->getViewableProductTypes())
+            ->map(fn(ProductType $type) => [
+                'type' => 'link',
+                'label' => t($type->name, category: 'site'),
+                'href' => Url::cpUrl("commerce/products/$type->handle"),
+                'selected' => $type->id === $productType->id,
+            ])
+            ->values();
 
-        $productTypeOptions = $productTypes
-            ->map(fn(ProductType $t) => [
-                'label' => t($t->name, category: 'site'),
-                'url' => "commerce/products/$t->handle",
-                'selected' => $t->id === $productType->id,
-            ]);
+        $current = $productTypeOptions->firstWhere('selected', true) ?? [
+            'label' => t($productType->name, category: 'site'),
+            'href' => Url::cpUrl("commerce/products/$productType->handle"),
+        ];
 
         return [
-            [
-                'label' => t('Products', category: 'commerce'),
-                'url' => 'commerce/products',
-            ],
-            [
-                'menu' => [
-                    'label' => t('Select product type', category: 'commerce'),
-                    'items' => $productTypeOptions->all(),
-                ],
-            ],
+            new ActionItem()->label(t('Commerce', category: 'commerce'))->href(Url::cpUrl('commerce')),
+            new ActionItem()->label(t('Products', category: 'commerce'))->href(Url::cpUrl('commerce/products')),
+            new ActionItem()
+                ->label($current['label'])
+                ->href($current['href'])
+                ->items($productTypeOptions->count() > 1 ? $productTypeOptions->all() : []),
         ];
     }
 
@@ -1322,6 +1342,105 @@ JS, [
         return implode("\n", $fields);
     }
 
+    /**
+     * @return list<Node>
+     */
+    #[Override]
+    protected function metaFieldsNodes(bool $static): array
+    {
+        $nodes = [];
+        $productType = $this->getType();
+        $mode = $static ? ControlMode::Disabled : ControlMode::Editable;
+
+        if ($productType->showSlugField) {
+            $slug = Slug::make('slug')
+                ->value(!ElementHelper::isTempSlug($this->slug) ? $this->slug : null)
+                ->mode($mode);
+
+            if (!$static && $productType->hasProductTitleField) {
+                $slug
+                    ->source('title')
+                    ->autoGenerate(
+                        $this->isProvisionalDraft
+                        || $this->slug === null
+                        || ElementHelper::isTempSlug($this->slug),
+                    );
+            }
+
+            $nodes[] = Field::make(t('Slug'))->control($slug);
+        }
+
+        if ($productType->isStructure && $productType->maxLevels !== 1) {
+            $nodes[] = Field::make(t('Parent'))
+                ->control(
+                    ElementSelect::make('parentId')
+                        ->elementType(self::class)
+                        ->sources(["productType:$productType->uid"])
+                        ->criteria($this->parentOptionCriteria($productType))
+                        ->selectionLabel(t('Choose'))
+                        ->limit(1)
+                        ->value(array_filter([$this->parentIdForForm()]))
+                        ->mode($mode),
+                );
+        }
+
+        $nodes[] = Field::make(t('Post Date'))
+            ->control(
+                DateTimeControl::make('postDate')
+                    ->showTime()
+                    ->minuteIncrement(1)
+                    ->value(self::dateTimeControlValue($this->userPostDate()))
+                    ->mode($mode),
+            );
+
+        $nodes[] = Field::make(t('Expiry Date'))
+            ->control(
+                DateTimeControl::make('expiryDate')
+                    ->showTime()
+                    ->minuteIncrement(1)
+                    ->value(self::dateTimeControlValue($this->expiryDate))
+                    ->mode($mode),
+            );
+
+        return $nodes;
+    }
+
+    /**
+     * The {@see DateTimeControl} value shape, which needs the date/time/timezone keys even when the date is empty.
+     *
+     * @return array{date: string, time: string, timezone: string}
+     */
+    private static function dateTimeControlValue(?DateTimeInterface $value): array
+    {
+        return [
+            'date' => $value?->format('Y-m-d') ?? '',
+            'time' => $value?->format('H:i') ?? '',
+            'timezone' => $value?->getTimezone()->getName() ?? Cms::timezone(),
+        ];
+    }
+
+    /**
+     * The product's parent, falling back to its canonical product's position when it has no structure data of its own.
+     */
+    private function parentIdForForm(): ?int
+    {
+        if ($parentId = $this->getParentId()) {
+            return $parentId;
+        }
+
+        /** @var self|null $parent */
+        $parent = self::find()
+            ->siteId($this->siteId)
+            ->ancestorOf($this->lft ? $this : ($this->getIsCanonical() ? $this->id : $this->getCanonical(true)))
+            ->ancestorDist(1)
+            ->drafts(null)
+            ->draftOf(false)
+            ->status(null)
+            ->one();
+
+        return $parent?->id;
+    }
+
     /** @return array<string, mixed> */
     private function parentOptionCriteria(ProductType $productType): array
     {
@@ -1723,7 +1842,7 @@ JS, [
                 // May be null if the product is currently stored as an unpublished draft
                 if ($currentProduct) {
                     $revisionNotes = 'Revision from ' . I18N::getFormatter()->asDatetime($currentProduct->dateUpdated);
-                    app(Revisions::class)->createRevision($currentProduct, notes: $revisionNotes);
+                    Revisions::createRevision($currentProduct, notes: $revisionNotes);
                 }
             }
         }
@@ -1885,24 +2004,11 @@ JS, [
             }
             case 'variants':
             {
-                $value = $this->getVariants(true);
-                /** @var Variant|null $first */
-                $first = $value->first();
-                $html = $first ? app(ElementHtml::class)->elementChipHtml($first) : '';
-
-                if ($value->isNotEmpty() && $value->count() > 1) {
-                    $otherItems = $value->filter(fn($v, $k) => $k > 0);
-                    $otherHtml = $otherItems->map(fn($v) => app(ElementHtml::class)->elementChipHtml($v))->join('');
-
-                    $html .= Html::tag('span', '+' . I18N::getFormatter()->asInteger($otherItems->count()), [
-                        'title' => $otherItems->map(fn($v) => $v->title)->join(', '),
-                        'class' => 'btn small',
-                        'role' => 'button',
-                        'onclick' => 'jQuery(this).replaceWith(' . Json::encode($otherHtml) . ')',
-                    ]);
-                }
-
-                return $html;
+                // TODO: Render variant chips again once Variant authorization goes through a policy — chips
+                // call Variant::canView(), which currently recurses through the Gate.
+                return Html::encode($this->getVariants(true)
+                    ->map(fn(Variant $variant) => $variant->title ?: $variant->getSku())
+                    ->join(', '));
             }
             default:
             {
@@ -1927,7 +2033,7 @@ JS, [
 
         // Save a new revision?
         if ($this->shouldSaveRevision()) {
-            app(Revisions::class)->createRevision($this, notes: $this->revisionNotes);
+            Revisions::createRevision($this, notes: $this->revisionNotes);
         }
     }
 

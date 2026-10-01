@@ -10,6 +10,7 @@ use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\ProductType\Data\ProductType;
 use CraftCms\Commerce\Product\ProductType\Data\ProductTypeSite;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
+use CraftCms\Commerce\Store\Stores;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Testing\AssertableInertia;
 
@@ -123,4 +124,12 @@ it('builds product type source URLs from the handle', function() {
         ->toBe('commerce/products/hoodies')
         ->and(Product::sourceCpUri(['key' => 'custom:abc', 'data' => ['handle' => 'hoodies']]))->toBeNull()
         ->and(Product::sourceCpUri(['key' => '*']))->toBeNull();
+});
+
+it('resolves an unsaved product’s store from its site', function() {
+    $product = new Product();
+    $product->typeId = $this->hoodies->id;
+    $product->siteId = Sites::getPrimarySite()->id;
+
+    expect($product->getStore()->id)->toBe(app(Stores::class)->getStoreBySiteId($product->siteId)->id);
 });

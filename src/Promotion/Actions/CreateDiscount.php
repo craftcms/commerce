@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Promotion\Actions;
 
 use CraftCms\Cms\Element\Actions\ElementAction;
-use CraftCms\Cms\Support\Facades\HtmlStack;
-use CraftCms\Cms\Support\Json;
+use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
+use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Store\Stores;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 use function CraftCms\Cms\t;
 
@@ -18,27 +19,14 @@ class CreateDiscount extends ElementAction
         return t('Create discount…', category: 'commerce');
     }
 
-    public function getTriggerHtml(): ?string
+    public function performAction(ElementQueryInterface $query): bool
     {
         $currentStore = app(Stores::class)->getCurrentStore();
-        $type = Json::encode(static::class);
-        $url = Json::encode('commerce/store-management/' . $currentStore->handle . '/discounts/new');
-        $js = <<<JS
-(function()
-{
-    var trigger = new Craft.ElementActionTrigger({
-        type: $type,
-        batch: true,
-        activate: function(\$selectedItems)
-        {
-            Craft.redirectTo(Craft.getUrl($url, 'purchasableIds='+Craft.elementIndex.getSelectedElementIds().join('|')));
-        }
-    });
-})();
-JS;
 
-        HtmlStack::js($js);
+        $this->setResponse(new RedirectResponse(Url::cpUrl("commerce/store-management/$currentStore->handle/discounts/new", [
+            'purchasableIds' => implode('|', $query->ids()),
+        ])));
 
-        return null;
+        return true;
     }
 }
