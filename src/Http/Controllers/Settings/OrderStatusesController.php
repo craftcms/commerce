@@ -7,10 +7,10 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 use craft\db\Query;
 use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Form\Controls\Choice;
+use CraftCms\Cms\Form\Controls\ColorSelect;
 use CraftCms\Cms\Form\Controls\Handle;
 use CraftCms\Cms\Form\Controls\Lightswitch;
 use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Enums\ChoicePresentation;
 use CraftCms\Cms\Form\Enums\ControlMode;
 use CraftCms\Cms\Form\Form;
 use CraftCms\Cms\Form\FormContext;
@@ -19,6 +19,7 @@ use CraftCms\Cms\Form\Nodes\Heading;
 use CraftCms\Cms\Form\Nodes\HiddenField;
 use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Shared\Enums\Color;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Commerce\Database\Table as DbTable;
@@ -39,8 +40,6 @@ use function CraftCms\Cms\t;
 
 class OrderStatusesController extends BaseSettingsController
 {
-    private const array STATUS_COLORS = ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'];
-
     protected function getSectionCrumb(): array
     {
         return ['label' => t('Order Statuses', category: 'commerce'), 'href' => cp_url('commerce/settings/orderstatuses')];
@@ -130,28 +129,18 @@ class OrderStatusesController extends BaseSettingsController
             $orderStatus = new OrderStatus(['storeId' => $store->id]);
         }
 
+        $statusColor = static fn(OrderStatus $status): string => (Color::tryFromStatus($status->color) ?? Color::Gray)->value;
+
         if ($orderStatus->id) {
             $title = $orderStatus->name;
-            $statusColor = $orderStatus->color;
+            $color = $statusColor($orderStatus);
         } else {
             $title = t('Create a new order status', category: 'commerce');
 
-            $availableColors = self::STATUS_COLORS;
-            app(OrderStatuses::class)->getAllOrderStatuses($store->id)->each(function(OrderStatus $status) use (&$availableColors) {
-                $key = array_search($status->color, $availableColors, true);
-                if ($key !== false) {
-                    unset($availableColors[$key]);
-                }
-            });
-
-            $statusColor = !empty($availableColors) ? array_shift($availableColors) : 'green';
+            $usedColors = app(OrderStatuses::class)->getAllOrderStatuses($store->id)->map($statusColor)->all();
+            $availableColors = array_values(array_diff($this->colorPalette(), $usedColors));
+            $color = $availableColors[0] ?? Color::Green->value;
         }
-
-        $colorOptions = array_map(fn(string $color) => [
-            'label' => ucfirst(t($color, category: 'commerce')),
-            'labelHtml' => Html::tag('span', '', ['class' => "status $color"]) . Html::encode(ucfirst(t($color, category: 'commerce'))),
-            'value' => $color,
-        ], self::STATUS_COLORS);
 
         $emailOptions = app(Emails::class)->getAllEmails($store->id)
             ->map(fn(Email $email) => ['label' => $email->name, 'value' => $email->id])
@@ -193,7 +182,7 @@ class OrderStatusesController extends BaseSettingsController
             ->required();
         $formNodes[] = Field::make(t('Description', category: 'commerce'), Text::make('description'))
             ->instructions(t('Order Status description.', category: 'commerce'));
-        $formNodes[] = Field::make(t('Color', category: 'commerce'), Choice::make('color')->presentation(ChoicePresentation::Radios)->options($colorOptions))
+        $formNodes[] = Field::make(t('Color', category: 'commerce'), ColorSelect::make('color')->colors($this->colorPalette()))
             ->instructions(t('Choose a color to represent the order’s status', category: 'commerce'));
         $formNodes[] = $emailsNode;
         $formNodes[] = $defaultNode;
@@ -206,7 +195,7 @@ class OrderStatusesController extends BaseSettingsController
                 'name' => $orderStatus->name,
                 'handle' => $orderStatus->handle,
                 'description' => $orderStatus->description,
-                'color' => $statusColor,
+                'color' => $color,
                 'emails' => $orderStatus->getEmailIds(),
                 'default' => $isDefault,
             ],

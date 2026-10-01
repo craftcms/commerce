@@ -10,6 +10,7 @@ use CraftCms\Cms\Form\FormResolver;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 
+use CraftCms\Commerce\Http\Controllers\Concerns\HasColorPalette;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasSubnavCrumbMenu;
 use CraftCms\Commerce\Plugin;
 use function CraftCms\Cms\cp_url;
@@ -17,6 +18,7 @@ use function CraftCms\Cms\t;
 
 abstract class BaseSettingsController
 {
+    use HasColorPalette;
     use HasSubnavCrumbMenu;
     use RespondsWithFlash;
 

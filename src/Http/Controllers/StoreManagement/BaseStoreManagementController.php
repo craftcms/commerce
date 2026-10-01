@@ -9,8 +9,8 @@ use CraftCms\Cms\Form\FormResolver;
 use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
-use CraftCms\Cms\Shared\Enums\Color;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
+use CraftCms\Commerce\Http\Controllers\Concerns\HasColorPalette;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasSubnavCrumbMenu;
 use CraftCms\Commerce\Store\Data\Store;
@@ -49,6 +49,7 @@ use function CraftCms\Cms\t;
  */
 abstract readonly class BaseStoreManagementController
 {
+    use HasColorPalette;
     use HasStoreManagementScreen;
     use HasSubnavCrumbMenu;
     use RespondsWithFlash;
@@ -244,19 +245,6 @@ abstract readonly class BaseStoreManagementController
     {
         return new CpScreenResponse()
             ->subnav($subnav ? $this->subnav($store) : null);
-    }
-
-    /**
-     * The color values shared by any component keyed to {@see Color} as its category color
-     * (tax and shipping categories today), for a {@see \CraftCms\Cms\Form\Controls\ColorSelect}
-     * control's `->colors()` — narrows its default (the shared UI palette, which includes a
-     * couple of colors outside this enum) down to exactly what {@see Color::tryFrom()} accepts.
-     *
-     * @return list<string>
-     */
-    protected function colorPalette(): array
-    {
-        return array_map(fn(Color $color) => $color->value, Color::cases());
     }
 
     /**

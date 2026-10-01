@@ -403,7 +403,7 @@ class Install extends Migration
             $table->integer('storeId')->nullable();
             $table->string('name');
             $table->string('handle');
-            $table->enum('color', ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'])->default('green');
+            $table->string('color')->default('green');
             $table->boolean('isArchived')->default(false);
             $table->dateTime('dateArchived')->nullable();
             $table->integer('sortOrder')->nullable();
@@ -527,7 +527,7 @@ class Install extends Migration
             $table->integer('storeId')->nullable();
             $table->string('name');
             $table->string('handle');
-            $table->enum('color', ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'])->default('green');
+            $table->string('color')->default('green');
             $table->string('description')->nullable();
             $table->dateTime('dateDeleted')->nullable();
             $table->integer('sortOrder')->nullable();

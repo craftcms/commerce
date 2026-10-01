@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use CraftCms\Cms\Cp\FormFields;
-use CraftCms\Cms\Form\Controls\Choice;
+use CraftCms\Cms\Form\Controls\ColorSelect;
 use CraftCms\Cms\Form\Controls\Handle;
 use CraftCms\Cms\Form\Controls\Lightswitch;
 use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Enums\ChoicePresentation;
 use CraftCms\Cms\Form\Enums\ControlMode;
 use CraftCms\Cms\Form\Form;
 use CraftCms\Cms\Form\FormContext;
@@ -18,6 +17,7 @@ use CraftCms\Cms\Form\Nodes\Heading;
 use CraftCms\Cms\Form\Nodes\HiddenField;
 use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Shared\Enums\Color;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Commerce\Database\Table as DbTable;
@@ -34,8 +34,6 @@ use function CraftCms\Cms\t;
 
 class LineItemStatusesController extends BaseSettingsController
 {
-    private const array STATUS_COLORS = ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'];
-
     protected function getSectionCrumb(): array
     {
         return ['label' => t('Line Item Statuses', category: 'commerce'), 'href' => cp_url('commerce/settings/lineitemstatuses')];
@@ -116,28 +114,18 @@ class LineItemStatusesController extends BaseSettingsController
             $lineItemStatus = new LineItemStatus(['storeId' => $store->id]);
         }
 
+        $statusColor = static fn(LineItemStatus $status): string => (Color::tryFromStatus($status->color) ?? Color::Gray)->value;
+
         if ($lineItemStatus->id) {
             $title = $lineItemStatus->name;
-            $statusColor = $lineItemStatus->color;
+            $color = $statusColor($lineItemStatus);
         } else {
             $title = t('Create a new line item status', category: 'commerce');
 
-            $availableColors = self::STATUS_COLORS;
-            app(LineItemStatuses::class)->getAllLineItemStatuses($store->id)->each(function(LineItemStatus $status) use (&$availableColors) {
-                $key = array_search($status->color, $availableColors, true);
-                if ($key !== false) {
-                    unset($availableColors[$key]);
-                }
-            });
-
-            $statusColor = !empty($availableColors) ? array_shift($availableColors) : 'green';
+            $usedColors = app(LineItemStatuses::class)->getAllLineItemStatuses($store->id)->map($statusColor)->all();
+            $availableColors = array_values(array_diff($this->colorPalette(), $usedColors));
+            $color = $availableColors[0] ?? Color::Green->value;
         }
-
-        $colorOptions = array_map(fn(string $color) => [
-            'label' => ucfirst(t($color, category: 'commerce')),
-            'labelHtml' => Html::tag('span', '', ['class' => "status $color"]) . Html::encode(ucfirst(t($color, category: 'commerce'))),
-            'value' => $color,
-        ], self::STATUS_COLORS);
 
         $handle = Handle::make('handle');
         if (!$lineItemStatus->id) {
@@ -159,7 +147,7 @@ class LineItemStatusesController extends BaseSettingsController
         $formNodes[] = Field::make(t('Handle', category: 'commerce'), $handle)
             ->instructions(t('How you’ll refer to this status in the templates.', category: 'commerce'))
             ->required();
-        $formNodes[] = Field::make(t('Color', category: 'commerce'), Choice::make('color')->presentation(ChoicePresentation::Radios)->options($colorOptions))
+        $formNodes[] = Field::make(t('Color', category: 'commerce'), ColorSelect::make('color')->colors($this->colorPalette()))
             ->instructions(t('Choose a color to represent the order’s status', category: 'commerce'));
         $formNodes[] = Field::make(t('New line items get this status by default when the order is completed', category: 'commerce'), Lightswitch::make('default'));
 
@@ -170,7 +158,7 @@ class LineItemStatusesController extends BaseSettingsController
                 'id' => $lineItemStatus->id,
                 'name' => $lineItemStatus->name,
                 'handle' => $lineItemStatus->handle,
-                'color' => $statusColor,
+                'color' => $color,
                 'default' => $lineItemStatus->default,
             ],
             mode: $this->generalConfig->allowAdminChanges ? ControlMode::Editable : ControlMode::ReadOnly,
