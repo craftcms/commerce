@@ -903,23 +903,37 @@
 - Added `CraftCms\Commerce\Transfer\FieldLayoutElements\TransferManagementField`.
 - Added `CraftCms\Commerce\Transfer\Transfers`.
 - Added `CraftCms\Commerce\Support\Facades\Transfers`.
+- Added `CraftCms\Commerce\Transfer\Data\TransferDetail`.
+- Added `CraftCms\Commerce\Transfer\Models\Transfer`.
 - Added `CraftCms\Commerce\Transfer\Models\TransferDetail`.
-- Added `CraftCms\Commerce\Transfer\Records\Transfer`.
-- Added `CraftCms\Commerce\Transfer\Records\TransferDetail`.
 - Added `CraftCms\Commerce\Transfer\Enums\TransferStatusType` enum.
+- Added `CraftCms\Commerce\Transfer\Policies\TransferPolicy`, registered via `Gate::policy()`, which lets users with the “Manage inventory transfers” permission view and save transfers and delete draft transfers.
+- Added `CraftCms\Commerce\Transfer\Transfers::markAsPending()` and `receive()`.
+- Added `CraftCms\Commerce\Transfer\Elements\Transfer::canBeReceived()`.
+- Added `CraftCms\Commerce\Form\Controls\TransferDetails` and `CraftCms\Commerce\Form\Controls\TransferReceive` form controls.
+- Added `CraftCms\Commerce\Http\ViewModels\TransferIndexViewModel` and `CraftCms\Commerce\Http\ViewModels\TransferEditViewModel`.
+- The transfers index and edit screens are now Inertia pages built on core's element index and element editor.
+- Transfers are now saved through core's `elements/save` action. `TransferManagementField` now provides origin, destination and item form controls, and changing the origin refreshes the items that can be transferred.
+- Receiving a transfer now happens in a “Receive Inventory” modal opened from the transfer's action menu.
 - Deprecated `craft\commerce\elements\Transfer`. `CraftCms\Commerce\Transfer\Elements\Transfer` should be used instead.
 - Deprecated `craft\commerce\elements\db\TransferQuery`. `CraftCms\Commerce\Transfer\Queries\TransferQuery` should be used instead.
 - Deprecated `craft\commerce\elements\conditions\transfers\TransferCondition`. `CraftCms\Commerce\Transfer\Conditions\TransferCondition` should be used instead.
 - Deprecated `craft\commerce\fieldlayoutelements\TransferManagementField`. `CraftCms\Commerce\Transfer\FieldLayoutElements\TransferManagementField` should be used instead.
 - Deprecated `craft\commerce\services\Transfers`. `CraftCms\Commerce\Transfer\Transfers` should be used instead.
-- Deprecated `craft\commerce\models\TransferDetail`. `CraftCms\Commerce\Transfer\Models\TransferDetail` should be used instead.
+- Deprecated `craft\commerce\models\TransferDetail`. `CraftCms\Commerce\Transfer\Data\TransferDetail` should be used instead.
 - Deprecated `craft\commerce\enums\TransferStatusType`. `CraftCms\Commerce\Transfer\Enums\TransferStatusType` should be used instead.
-- Removed `craft\commerce\records\Transfer`. `CraftCms\Commerce\Transfer\Records\Transfer` should be used instead.
-- Removed `craft\commerce\records\TransferDetail`. `CraftCms\Commerce\Transfer\Records\TransferDetail` should be used instead.
+- Removed `craft\commerce\records\Transfer`. `CraftCms\Commerce\Transfer\Models\Transfer` should be used instead.
+- Removed `craft\commerce\records\TransferDetail`. `CraftCms\Commerce\Transfer\Models\TransferDetail` should be used instead.
+- Removed `craft\commerce\web\assets\transfers\TransfersAsset` as it was unused.
 
 #### Controllers
 
 - Removed `craft\commerce\controllers\TransfersController`. `CraftCms\Commerce\Http\Controllers\TransfersController` should be used instead.
+- Added `CraftCms\Commerce\Http\Controllers\EditTransferController`, rendering the transfer edit screen.
+- Added the `commerce/transfers/prepare-receive-modal` action, returning the “Receive Inventory” modal's form.
+- The `commerce/transfers/receive-transfer` action now returns JSON for the “Receive Inventory” modal and requires permission to save the transfer.
+- Removed the `commerce/transfers/render-management` and `commerce/transfers/receive-transfer-screen` actions.
+- Removed the `commerce/transfers/save-settings` action. `commerce/settings/save-transfer-settings` should be used instead.
 
 ### Users
 
@@ -937,7 +951,7 @@
 - Added garbage collection registration via `CraftCms\Cms\GarbageCollection\Events\RunningGarbageCollection`, purging incomplete carts, orphaned variants, and partial Donation/Order/Product/Variant/Transfer elements.
 - Added `craft.commerce`, `craft.orders`, `craft.products`, and `craft.variants` Twig variables via `CraftCms\Cms\Twig\Variables\CraftVariable::macro()`.
 - Added `Plugin::getDonation()`, reachable in Twig as `craft.commerce.getDonation()`, matching the legacy `craft\commerce\plugin\Variables::getDonation()` trait method.
-- The `commerce/products/<productTypeHandle>/<id>`, `commerce/variants/<id>`, and `commerce/inventory/transfers/<id>` element-edit screens, previously Craft core's generic `elements/edit` action registered via a legacy `UrlManager` rule, are now registered directly in `routes/cp.php` against `CraftCms\Cms\Http\Controllers\Elements\EditElementController`.
+- The `commerce/products/<productTypeHandle>/<id>` and `commerce/variants/<id>` element-edit screens, previously Craft core's generic `elements/edit` action registered via a legacy `UrlManager` rule, are now registered directly in `routes/cp.php` against `CraftCms\Cms\Http\Controllers\Elements\EditElementController`. `commerce/inventory/transfers/<id>` is registered against `CraftCms\Commerce\Http\Controllers\EditTransferController`.
 - Registered Commerce's Twig extension via the `CraftCms\Cms\Support\Facades\Twig` facade.
 - Added `CraftCms\Commerce\Order\Elements\Order::defineExporters()`, registering `CraftCms\Commerce\Order\Exporters\OrderExport` and `LineItemExport`.
 - Added `CraftCms\Commerce\Base\Zone`.
