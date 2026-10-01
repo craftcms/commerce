@@ -5,8 +5,10 @@ declare(strict_types=1);
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\User\UserPermissions;
 use CraftCms\Commerce\Product\Elements\Product;
+use CraftCms\Commerce\Product\Policies\ProductPolicy;
 use CraftCms\Commerce\Product\ProductType\Data\ProductType;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
+use Illuminate\Support\Facades\Gate;
 
 /**
  * Stubs the acting user's granted permission strings for `Gate::after()`'s `UserPermissions`
@@ -208,4 +210,67 @@ test('an admin user bypasses all product type permissions', function() {
     expect($product->canSave($admin))->toBeTrue();
     expect($product->canDelete($admin))->toBeTrue();
     expect($product->canDuplicate($admin))->toBeTrue();
+});
+
+test('products are authorized by the product policy', function() {
+    expect(Gate::getPolicyFor(Product::class))->toBeInstanceOf(ProductPolicy::class);
+});
+
+test('a draft can be saved by anyone, regardless of product type permissions', function() {
+    [$user, $product] = existingProduct();
+    $product->draftId = 5;
+    grantProductPermissionTestPermissions([]);
+
+    expect($product->canSave($user))->toBeTrue();
+});
+
+test('canDeleteForSite follows the delete permission', function() {
+    [$user, $product] = existingProduct();
+
+    grantProductPermissionTestPermissions(['commerce-deleteProductType:randomuid']);
+    expect($product->canDeleteForSite($user))->toBeTrue();
+
+    grantProductPermissionTestPermissions(['commerce-saveProductType:randomuid']);
+    expect($product->canDeleteForSite($user))->toBeFalse();
+});
+
+test('canDuplicateAsDraft follows canDuplicate', function() {
+    [$user, $product] = existingProduct();
+
+    grantProductPermissionTestPermissions(['commerce-createProductType:randomuid', 'commerce-saveProductType:randomuid']);
+    expect($product->canDuplicateAsDraft($user))->toBeTrue();
+
+    grantProductPermissionTestPermissions(['commerce-createProductType:randomuid']);
+    expect($product->canDuplicateAsDraft($user))->toBeFalse();
+});
+
+test('canCopy follows the view permission', function() {
+    [$user, $product] = existingProduct();
+
+    grantProductPermissionTestPermissions(['commerce-viewProductType:randomuid']);
+    expect($product->canCopy($user))->toBeTrue();
+
+    grantProductPermissionTestPermissions([]);
+    expect($product->canCopy($user))->toBeFalse();
+});
+
+test('a product without a product type is denied everything', function() {
+    grantProductPermissionTestPermissions([
+        'commerce-viewProductType:randomuid',
+        'commerce-createProductType:randomuid',
+        'commerce-saveProductType:randomuid',
+        'commerce-deleteProductType:randomuid',
+    ]);
+
+    $user = new User();
+    $user->id = 1;
+    $user->admin = false;
+
+    $product = new Product();
+    $product->id = 100;
+
+    expect($product->canView($user))->toBeFalse()
+        ->and($product->canSave($user))->toBeFalse()
+        ->and($product->canDelete($user))->toBeFalse()
+        ->and($product->canDuplicate($user))->toBeFalse();
 });

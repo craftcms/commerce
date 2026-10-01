@@ -20,6 +20,7 @@ use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use DateTime;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\pageTemplate;
@@ -29,13 +30,10 @@ readonly class ProductsController
 {
     use RespondsWithFlash;
 
-    public function __construct()
-    {
-        abort_if(empty(app(ProductTypes::class)->getViewableProductTypeIds(true)), 403, 'User is not permitted to view any product types.');
-    }
-
     public function productIndex(?string $productTypeHandle = null): string
     {
+        $this->requireViewableProductTypes();
+
         \Craft::$app->getView()->registerAssetBundle(ProductIndexAsset::class);
 
         return pageTemplate('commerce/products/_index', [
@@ -45,6 +43,8 @@ readonly class ProductsController
 
     public function create(Request $request, ?string $productType = null): Response
     {
+        $this->requireViewableProductTypes();
+
         $productTypeHandle = $productType ?? $request->input('productType');
         abort_if(!$productTypeHandle, 400, 'Missing productType');
 
@@ -86,7 +86,7 @@ readonly class ProductsController
         }
 
         // Make sure the user is allowed to create this entry
-        abort_unless($product->canSave($user), 403, 'User not authorized to create this product.');
+        abort_unless(Gate::allows('save', $product), 403, 'User not authorized to create this product.');
 
         // Title & slug
         $product->title = $request->input('title');
@@ -162,5 +162,10 @@ readonly class ProductsController
         }
 
         return $response;
+    }
+
+    private function requireViewableProductTypes(): void
+    {
+        abort_if(empty(app(ProductTypes::class)->getViewableProductTypeIds(true)), 403, 'User is not permitted to view any product types.');
     }
 }

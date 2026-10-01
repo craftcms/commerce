@@ -101,6 +101,7 @@ use CraftCms\Commerce\Product\FieldLayoutElements\ProductTitleField;
 use CraftCms\Commerce\Product\Fields\Products as ProductsField;
 use CraftCms\Commerce\Product\Fields\Variants as VariantsField;
 use CraftCms\Commerce\Product\LinkTypes\ProductLinkType;
+use CraftCms\Commerce\Product\Policies\ProductPolicy;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Product\Variant\FieldLayoutElements\VariantsField as VariantsLayoutElement;
@@ -259,6 +260,7 @@ class Plugin extends BasePlugin
         app(FormControlTypes::class)->register(TransferDetails::class);
         app(FormControlTypes::class)->register(TransferReceive::class);
 
+        Gate::policy(Product::class, ProductPolicy::class);
         Gate::policy(Transfer::class, TransferPolicy::class);
 
         $this->registerBehaviorMacros();

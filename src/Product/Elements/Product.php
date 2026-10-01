@@ -768,13 +768,6 @@ JS, [
     }
 
     #[Override]
-    public function canCreateDrafts(\CraftCms\Cms\User\Elements\User $user): bool
-    {
-        // Everyone with view permissions can create drafts
-        return true;
-    }
-
-    #[Override]
     public function hasRevisions(): bool
     {
         return $this->getType()->enableVersioning;
@@ -846,75 +839,6 @@ JS, [
     public function __toString(): string
     {
         return (string)$this->title;
-    }
-
-    #[Override]
-    public function canView(\CraftCms\Cms\User\Elements\User $user): bool
-    {
-        try {
-            $productType = $this->getType();
-        } catch (\Exception) {
-            return false;
-        }
-
-        return $user->can('commerce-viewProductType:' . $productType->uid);
-    }
-
-    #[Override]
-    public function canSave(\CraftCms\Cms\User\Elements\User $user): bool
-    {
-        try {
-            $productType = $this->getType();
-        } catch (\Exception) {
-            return false;
-        }
-
-        if ($this->getIsDraft()) {
-            return $this->canCreateDrafts($user);
-        }
-
-        // New products require create permission
-        if (!$this->id) {
-            return $user->can('commerce-createProductType:' . $productType->uid);
-        }
-
-        return $user->can('commerce-saveProductType:' . $productType->uid);
-    }
-
-    #[Override]
-    public function canDuplicate(\CraftCms\Cms\User\Elements\User $user): bool
-    {
-        try {
-            $productType = $this->getType();
-        } catch (\Exception) {
-            return false;
-        }
-
-        return $user->can('commerce-createProductType:' . $productType->uid)
-            && $user->can('commerce-saveProductType:' . $productType->uid);
-    }
-
-    #[Override]
-    public function canDelete(\CraftCms\Cms\User\Elements\User $user): bool
-    {
-        try {
-            $productType = $this->getType();
-        } catch (\Exception) {
-            return false;
-        }
-
-        return $user->can('commerce-deleteProductType:' . $productType->uid);
-    }
-
-    /**
-     * Products can be deleted for a single site by anyone who can delete the product. The legacy
-     * element deferred to `Elements::canDelete()`; the new Elements service has no such method
-     * (authorization is policy-based now), so the element's own check is used directly.
-     */
-    #[Override]
-    public function canDeleteForSite(\CraftCms\Cms\User\Elements\User $user): bool
-    {
-        return $this->canDelete($user);
     }
 
     #[Override]
