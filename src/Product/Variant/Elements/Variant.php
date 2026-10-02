@@ -228,35 +228,6 @@ class Variant extends Purchasable implements NestedElementInterface
     }
 
     #[Override]
-    public function canSave(\CraftCms\Cms\User\Elements\User $user): bool
-    {
-        $product = $this->getOwner();
-        if ($product === null) {
-            return false;
-        }
-
-        return $product->canSave($user);
-    }
-
-    #[Override]
-    public function canCopy(\CraftCms\Cms\User\Elements\User $user): bool
-    {
-        return true;
-    }
-
-    #[Override]
-    public function canDelete(\CraftCms\Cms\User\Elements\User $user): bool
-    {
-        return $this->canSave($user);
-    }
-
-    #[Override]
-    public function canDuplicate(\CraftCms\Cms\User\Elements\User $user): bool
-    {
-        return $this->canSave($user);
-    }
-
-    #[Override]
     protected static function includeSetStatusAction(): bool
     {
         return true;
@@ -599,17 +570,6 @@ class Variant extends Purchasable implements NestedElementInterface
         }
 
         return $tags;
-    }
-
-    #[Override]
-    public function canView(\CraftCms\Cms\User\Elements\User $user): bool
-    {
-        $product = $this->getOwner();
-        if ($product === null) {
-            return false;
-        }
-
-        return $product->canView($user);
     }
 
     #[Override]

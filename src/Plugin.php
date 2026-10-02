@@ -107,6 +107,7 @@ use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Product\Variant\FieldLayoutElements\VariantsField as VariantsLayoutElement;
 use CraftCms\Commerce\Product\Variant\FieldLayoutElements\VariantTitleField;
+use CraftCms\Commerce\Product\Variant\Policies\VariantPolicy;
 use CraftCms\Commerce\Purchasable\Elements\Donation;
 use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableAllowedQtyField;
 use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableAvailableForPurchaseField;
@@ -263,6 +264,7 @@ class Plugin extends BasePlugin
 
         Gate::policy(Product::class, ProductPolicy::class);
         Gate::policy(Transfer::class, TransferPolicy::class);
+        Gate::policy(Variant::class, VariantPolicy::class);
 
         $this->registerBehaviorMacros();
         $this->registerVariableMacros();
