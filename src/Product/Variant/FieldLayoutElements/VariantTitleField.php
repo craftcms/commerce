@@ -6,7 +6,9 @@ namespace CraftCms\Commerce\Product\Variant\FieldLayoutElements;
 
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Field\Enums\TranslationMethod;
+use CraftCms\Cms\FieldLayout\FieldLayoutElementContext;
 use CraftCms\Cms\FieldLayout\LayoutElements\TitleField;
+use CraftCms\Cms\Form\Contracts\Control;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
@@ -47,6 +49,20 @@ class VariantTitleField extends TitleField
 
         /** @phpstan-ignore-next-line nullsafe.neverNull (variantTitleTranslationMethod is an uncast, free-form DB string column - tryFrom() genuinely can return null) */
         return TranslationMethod::tryFrom($element->getOwner()->getType()->variantTitleTranslationMethod)?->description();
+    }
+
+    #[Override]
+    protected function formControl(FieldLayoutElementContext $context): ?Control
+    {
+        if (!$context->element instanceof Variant) {
+            throw new InvalidArgumentException('VariantTitleField can only be used in variant field layouts.');
+        }
+
+        if (!$context->element->getOwner()->getType()->hasVariantTitleField) {
+            return null;
+        }
+
+        return parent::formControl($context);
     }
 
     protected function inputHtml(?ElementInterface $element = null, bool $static = false): ?string

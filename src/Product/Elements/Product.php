@@ -53,7 +53,6 @@ use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
-use CraftCms\Commerce\Http\ViewModels\ProductEditViewModel;
 use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Product\Conditions\ProductCondition;
 use CraftCms\Commerce\Product\Conditions\ProductTypeConditionRule;
@@ -216,12 +215,6 @@ class Product extends Element implements HasStoreInterface
     public static function trackChanges(): bool
     {
         return true;
-    }
-
-    #[Override]
-    public static function editViewModelClass(): string
-    {
-        return ProductEditViewModel::class;
     }
 
     #[Override]

@@ -7,6 +7,10 @@ namespace CraftCms\Commerce\Purchasable\Elements;
 use craft\helpers\Localization;
 use CraftCms\Cms\Element\Contracts\NestedElementInterface;
 use CraftCms\Cms\Element\Element;
+use CraftCms\Cms\Form\Contracts\Node;
+use CraftCms\Cms\Form\Controls\Choice;
+use CraftCms\Cms\Form\Enums\ControlMode;
+use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
@@ -506,7 +510,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
     public function setSku(?string $sku = null): void
     {
-        $this->_sku = $sku;
+        $this->_sku = $sku ?? '';
     }
 
     /**
@@ -1010,6 +1014,47 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         $html .= $this->shippingCategoryFieldHtml($static);
 
         return $html;
+    }
+
+    /** @return list<Node> */
+    #[\Override]
+    protected function metaFieldsNodes(bool $static): array
+    {
+        $mode = $static ? ControlMode::Disabled : ControlMode::Editable;
+        $taxCategories = $this->availableTaxCategories();
+        $taxCategory = collect($taxCategories)->firstWhere('id', $this->taxCategoryId)
+            ?? collect($taxCategories)->first();
+        $shippingCategories = $this->availableShippingCategories();
+        $shippingCategory = collect($shippingCategories)->firstWhere('id', $this->shippingCategoryId)
+            ?? collect($shippingCategories)->first();
+
+        return [
+            ...parent::metaFieldsNodes($static),
+            Field::make(t('Tax Category', category: 'commerce'))
+                ->required()
+                ->control(
+                    Choice::make('taxCategoryId')
+                        ->options(array_map(fn(TaxCategory $category): array => [
+                            'label' => $category->getUiLabel(),
+                            'value' => (int)$category->id,
+                        ], $taxCategories))
+                        ->withoutPlaceholder()
+                        ->value($taxCategory?->id)
+                        ->mode($mode),
+                ),
+            Field::make(t('Shipping Category', category: 'commerce'))
+                ->required()
+                ->control(
+                    Choice::make('shippingCategoryId')
+                        ->options(array_map(fn(ShippingCategory $category): array => [
+                            'label' => $category->getUiLabel(),
+                            'value' => (int)$category->id,
+                        ], $shippingCategories))
+                        ->withoutPlaceholder()
+                        ->value($shippingCategory?->id)
+                        ->mode($mode),
+                ),
+        ];
     }
 
     /**

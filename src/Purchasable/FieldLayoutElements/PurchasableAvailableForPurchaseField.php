@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Purchasable\FieldLayoutElements;
 
 use CraftCms\Cms\Element\Contracts\ElementInterface;
+use CraftCms\Cms\FieldLayout\FieldLayoutElementContext;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
+use CraftCms\Cms\Form\Contracts\Control;
 use CraftCms\Cms\Form\Controls\Lightswitch;
 use CraftCms\Cms\Form\FormContext;
 use CraftCms\Cms\Form\Nodes\Field;
@@ -34,6 +36,19 @@ class PurchasableAvailableForPurchaseField extends BaseNativeField
     {
         unset($config['required']);
         parent::__construct($config);
+    }
+
+    #[Override]
+    protected function formControl(FieldLayoutElementContext $context): ?Control
+    {
+        $element = $context->element;
+        if (!$element instanceof Purchasable) {
+            throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
+        }
+
+        return Lightswitch::make('availableForPurchase')
+            ->size('small')
+            ->value($element->getIsFresh() ? $this->defaultAvailableForPurchase : $element->availableForPurchase);
     }
 
     protected function inputHtml(?ElementInterface $element = null, bool $static = false): ?string

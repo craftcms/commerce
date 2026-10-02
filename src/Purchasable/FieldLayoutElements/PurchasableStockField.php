@@ -6,10 +6,14 @@ namespace CraftCms\Commerce\Purchasable\FieldLayoutElements;
 
 use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
+use CraftCms\Cms\FieldLayout\FieldLayoutElementContext;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
+use CraftCms\Cms\Form\Contracts\Node;
 use CraftCms\Cms\Form\Controls\Lightswitch;
+use CraftCms\Cms\Form\Enums\FieldWidth;
 use CraftCms\Cms\Form\FormContext;
 use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Form\Nodes\Group;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\InputNamespace;
 use CraftCms\Cms\Support\Html;
@@ -48,6 +52,39 @@ class PurchasableStockField extends BaseNativeField
     {
         unset($config['required']);
         parent::__construct($config);
+    }
+
+    #[Override]
+    public function formNode(FieldLayoutElementContext $context): ?Node
+    {
+        $element = $context->element;
+        if (!$element instanceof Purchasable) {
+            throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
+        }
+
+        if ($element->getIsRevision()) {
+            /** @var Purchasable $element */
+            $element = $element->getCanonical();
+        }
+
+        return Group::make($this->uid ?? $this->attribute, [
+            Field::make(t('Track Inventory', category: 'commerce'))
+                ->width(FieldWidth::Half)
+                ->control(
+                    Lightswitch::make('inventoryTracked')
+                        ->size('small')
+                        ->value($element->getIsFresh() ? $this->defaultInventoryTracked : $element->inventoryTracked)
+                        ->mode($context->mode),
+                ),
+            Field::make(t('Allow out of stock purchases', category: 'commerce'))
+                ->width(FieldWidth::Half)
+                ->control(
+                    Lightswitch::make('allowOutOfStockPurchases')
+                        ->size('small')
+                        ->value($element->getIsFresh() ? $this->defaultAllowOutOfStockPurchases : $element->getIsOutOfStockPurchasingAllowed())
+                        ->mode($context->mode),
+                ),
+        ])->width($this->width);
     }
 
     protected function inputHtml(?ElementInterface $element = null, bool $static = false): ?string

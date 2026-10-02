@@ -19,7 +19,6 @@ use CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\PaymentCurrenciesController;
 use CraftCms\Commerce\Http\Controllers\Settings\PdfsController;
 use CraftCms\Commerce\Http\Controllers\CreateProductController;
-use CraftCms\Commerce\Http\Controllers\EditProductController;
 use CraftCms\Commerce\Http\Controllers\ProductsController;
 use CraftCms\Commerce\Http\Controllers\Settings\ProductTypesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\SalesController;
@@ -36,7 +35,6 @@ use CraftCms\Commerce\Http\Controllers\Settings\TransferSettingsController;
 use CraftCms\Commerce\Http\Controllers\EditTransferController;
 use CraftCms\Commerce\Http\Controllers\TransfersController;
 use CraftCms\Commerce\Http\Controllers\Users\UsersController;
-use CraftCms\Commerce\Http\Controllers\VariantsController;
 use Illuminate\Support\Facades\Route;
 
 use function CraftCms\Cms\cp_url;
@@ -86,28 +84,25 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
     });
 
     // No extra permission middleware: CreateProductController authorizes the new product through ProductPolicy, and
-    // ProductsController/VariantsController check for a viewable product type themselves.
+    // ProductsController checks for a viewable product type itself.
     Route::get('commerce/products/{productType}/new', CreateProductController::class);
 
-    // Product/variant/transfer edit screens just resolve the element by {id} — the
+    // Product/transfer edit screens just resolve the element by {id} — the
     // productTypeHandle segment is cosmetic (matches legacy: the old `elements/edit` route
     // never checked it against the element either). No extra permission middleware here,
     // matching the legacy UrlManager rules — access is enforced by the element's policy
     // (ProductPolicy) or its own canView()/canSave() (Transfer::canView()).
-    // The product/variant routes must be registered before the {productTypeHandle?} index
-    // routes below, since a bare numeric segment (`commerce/variants/123`) would otherwise
-    // match the index route first.
     $idSlugParams = [
         'id' => '\d+',
         'slug' => '(?:-[^\/]*)',
     ];
     Route::get('commerce/products/{productTypeHandle}/{id}{slug}/revisions', [ElementRevisionsController::class, 'index'])->where($idSlugParams);
-    Route::get('commerce/products/{productTypeHandle}/{id}{slug?}', EditProductController::class)->where($idSlugParams);
-    Route::get('commerce/variants/{id}{slug?}', EditElementController::class)->where($idSlugParams);
+    Route::get('commerce/products/{productTypeHandle}/{id}{slug?}', EditElementController::class)->where($idSlugParams);
     Route::get('commerce/inventory/transfers/{id}{slug?}', EditTransferController::class)->where($idSlugParams);
 
     Route::get('commerce/products/{productTypeHandle?}', [ProductsController::class, 'productIndex']);
-    Route::get('commerce/variants/{productTypeHandle?}', [VariantsController::class, 'index']);
+
+    // TODO: Decide whether Commerce needs a new standalone variant browsing experience.
 
     // BaseStoreManagementController::init() always required commerce-manageStoreSettings, on
     // top of whichever more specific permission each feature area's own controller adds — every

@@ -6,7 +6,13 @@ namespace CraftCms\Commerce\Purchasable\FieldLayoutElements;
 
 use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
+use CraftCms\Cms\FieldLayout\FieldLayoutElementContext;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
+use CraftCms\Cms\Form\Contracts\Node;
+use CraftCms\Cms\Form\Controls\Money;
+use CraftCms\Cms\Form\Enums\FieldWidth;
+use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Form\Nodes\Group;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
@@ -49,6 +55,44 @@ class PurchasablePriceField extends BaseNativeField
     protected function defaultLabel(?ElementInterface $element = null, bool $static = false): ?string
     {
         return t('Price', category: 'commerce');
+    }
+
+    #[Override]
+    public function formNode(FieldLayoutElementContext $context): ?Node
+    {
+        $element = $context->element;
+        if (!$element instanceof Purchasable) {
+            throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
+        }
+
+        $currency = $element->getStore()->getCurrency()->getCode();
+        $fields = [
+            Field::make(t('Price', category: 'commerce'))
+                ->required()
+                ->width(FieldWidth::Half)
+                ->control(
+                    Money::make('basePrice')
+                        ->currency($currency)
+                        ->size(12)
+                        ->value($element->basePrice ?? 0)
+                        ->mode($context->mode),
+                ),
+        ];
+
+        if (app(CatalogPricingRules::class)->canUseCatalogPricingRules()) {
+            $fields[] = Field::make(t('Promotional Price', category: 'commerce'))
+                ->width(FieldWidth::Half)
+                ->control(
+                    Money::make('basePromotionalPrice')
+                        ->currency($currency)
+                        ->size(12)
+                        ->value($element->basePromotionalPrice)
+                        ->mode($context->mode),
+                );
+        }
+
+        return Group::make($this->uid ?? $this->attribute, $fields)
+            ->width($this->width);
     }
 
     protected function inputHtml(?ElementInterface $element = null, bool $static = false): ?string

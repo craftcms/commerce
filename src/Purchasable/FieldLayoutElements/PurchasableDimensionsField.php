@@ -6,7 +6,13 @@ namespace CraftCms\Commerce\Purchasable\FieldLayoutElements;
 
 use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
+use CraftCms\Cms\FieldLayout\FieldLayoutElementContext;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
+use CraftCms\Cms\Form\Contracts\Node;
+use CraftCms\Cms\Form\Controls\Text;
+use CraftCms\Cms\Form\Enums\FieldWidth;
+use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Form\Nodes\Group;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Commerce\Plugin;
@@ -39,6 +45,29 @@ class PurchasableDimensionsField extends BaseNativeField
         }
 
         return parent::showInForm($element);
+    }
+
+    #[Override]
+    public function formNode(FieldLayoutElementContext $context): ?Node
+    {
+        $element = $context->element;
+        if (!$element instanceof Purchasable) {
+            throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
+        }
+
+        $unit = app(Plugin::class)->getSettings()->dimensionUnits;
+
+        return Group::make($this->uid ?? $this->attribute, [
+            Field::make(t('Length', category: 'commerce'))
+                ->width(FieldWidth::Third)
+                ->control(Text::make('length')->value($element->length)->inputMode('decimal')->suffix($unit)->mode($context->mode)),
+            Field::make(t('Width', category: 'commerce'))
+                ->width(FieldWidth::Third)
+                ->control(Text::make('width')->value($element->width)->inputMode('decimal')->suffix($unit)->mode($context->mode)),
+            Field::make(t('Height', category: 'commerce'))
+                ->width(FieldWidth::Third)
+                ->control(Text::make('height')->value($element->height)->inputMode('decimal')->suffix($unit)->mode($context->mode)),
+        ])->width($this->width);
     }
 
     protected function inputHtml(?ElementInterface $element = null, bool $static = false): ?string

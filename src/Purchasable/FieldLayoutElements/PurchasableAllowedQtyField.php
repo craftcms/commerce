@@ -6,7 +6,13 @@ namespace CraftCms\Commerce\Purchasable\FieldLayoutElements;
 
 use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
+use CraftCms\Cms\FieldLayout\FieldLayoutElementContext;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
+use CraftCms\Cms\Form\Contracts\Node;
+use CraftCms\Cms\Form\Controls\Number;
+use CraftCms\Cms\Form\Enums\FieldWidth;
+use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Form\Nodes\Group;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use InvalidArgumentException;
@@ -27,6 +33,40 @@ class PurchasableAllowedQtyField extends BaseNativeField
     {
         unset($config['required']);
         parent::__construct($config);
+    }
+
+    #[Override]
+    public function formNode(FieldLayoutElementContext $context): ?Node
+    {
+        $element = $context->element;
+        if (!$element instanceof Purchasable) {
+            throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
+        }
+
+        return Group::make($this->uid ?? $this->attribute, [
+            Field::make(t('Minimum', category: 'commerce'))
+                ->width(FieldWidth::Half)
+                ->control(
+                    Number::make('minQty')
+                        ->placeholder(t('Any', category: 'commerce'))
+                        ->value($element->minQty)
+                        ->mode($context->mode),
+                ),
+            Field::make(t('Maximum', category: 'commerce'))
+                ->width(FieldWidth::Half)
+                ->control(
+                    Number::make('maxQty')
+                        ->placeholder(t('Any', category: 'commerce'))
+                        ->value($element->maxQty)
+                        ->mode($context->mode),
+                ),
+        ])
+            ->asField()
+            ->label($this->label())
+            ->instructions($this->instructionsText($element))
+            ->tip($this->tipText($element))
+            ->warning($this->warningText($element))
+            ->width($this->width);
     }
 
     protected function inputHtml(?ElementInterface $element = null, bool $static = false): ?string

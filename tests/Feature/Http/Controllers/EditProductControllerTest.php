@@ -8,10 +8,11 @@ use CraftCms\Cms\Support\Facades\Drafts;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\User\Elements\User;
-use CraftCms\Commerce\Http\ViewModels\ProductEditViewModel;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
+use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Tests\Support\ProductConditionsFixture;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Testing\AssertableInertia;
 
@@ -27,13 +28,30 @@ beforeEach(function() {
     $this->fixture = ProductConditionsFixture::seed();
 });
 
+/** @return array<string, mixed>|null */
+function findProductFormControl(array|Collection $nodes, string $component): ?array
+{
+    foreach ($nodes as $node) {
+        if (data_get($node, 'control.component') === $component) {
+            return data_get($node, 'control');
+        }
+
+        $control = findProductFormControl(data_get($node, 'children', []), $component);
+        if ($control !== null) {
+            return $control;
+        }
+    }
+
+    return null;
+}
+
 it('renders the product edit page', function() {
     $hoodie = $this->fixture->hoodie;
 
     get($hoodie->getCpEditUrl())
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => $page
-            ->component('commerce::products/Edit', false)
+            ->component('elements/Edit', false)
             ->where('elementType', Product::class)
             ->where('canonicalId', $hoodie->id)
             ->where('siteId', $hoodie->siteId)
@@ -50,8 +68,89 @@ it('renders the product edit page', function() {
         );
 });
 
-it('autosaves products through the product edit view model', function() {
-    expect(Product::editViewModelClass())->toBe(ProductEditViewModel::class);
+it('manages variants through the product form as a nested element index', function() {
+    $hoodie = $this->fixture->hoodie;
+    $productType = app(ProductTypes::class)->getProductTypeById($hoodie->typeId);
+    $productType->maxVariants = 3;
+    expect(app(ProductTypes::class)->saveProductType($productType))->toBeTrue();
+
+    get($hoodie->getCpEditUrl())
+        ->assertOk()
+        ->assertInertia(fn(AssertableInertia $page) => $page->where('form.nodes', function(Collection $nodes) use ($hoodie) {
+            $control = findProductFormControl($nodes, 'craft:nested-elements');
+
+            expect($control)->not->toBeNull()
+                ->and($control['path'])->toBe(['variants'])
+                ->and($control['props']['viewMode'])->toBe('index')
+                ->and($control['props']['manager']['elementType'])->toBe(Variant::class)
+                ->and($control['props']['manager']['ownerId'])->toBe($hoodie->id)
+                ->and($control['props']['manager']['attribute'])->toBe('variants')
+                ->and($control['props']['manager']['canCreate'])->toBeTrue()
+                ->and($control['props']['manager']['canPaste'])->toBeTrue()
+                ->and($control['props']['manager']['sortable'])->toBeTrue()
+                ->and($control['props']['manager']['maxElements'])->toBe(3)
+                ->and($control['props']['index'])->toHaveKeys(['indexSettings', 'initial']);
+
+            return true;
+        }));
+});
+
+it('renders variants with the shared element editor', function() {
+    $variant = $this->fixture->hoodie->getDefaultVariant();
+
+    get('/' . Cms::config()->cpTrigger . '/' . Cms::config()->actionTrigger . '/elements/edit?' . http_build_query([
+        'elementType' => Variant::class,
+        'elementId' => $variant->id,
+        'siteId' => $variant->siteId,
+    ]))
+        ->assertOk()
+        ->assertInertia(fn(AssertableInertia $page) => $page
+            ->component('elements/Edit', false)
+            ->where('elementType', Variant::class)
+            ->where('canonicalId', $variant->id)
+            ->where('siteId', $variant->siteId)
+            ->where('saveUrl', Url::actionUrl('elements/save'))
+            ->has('form.values.sku')
+            ->has('form.values.basePrice')
+            ->has('form.values.inventoryTracked')
+            ->has('form.values.allowOutOfStockPurchases')
+            ->has('form.values.availableForPurchase')
+            ->has('form.values.minQty')
+            ->has('form.values.maxQty')
+            ->has('form.values.freeShipping')
+            ->has('form.values.promotable')
+            ->missing('form.values.length')
+            ->missing('form.values.weight')
+            ->where('sidebarForm.values.taxCategoryId', $variant->taxCategoryId)
+            ->where('sidebarForm.values.shippingCategoryId', $variant->shippingCategoryId)
+        );
+});
+
+it('renders variant dimensions when enabled by the product type', function() {
+    $productType = app(ProductTypes::class)->getProductTypeById($this->fixture->hoodie->typeId);
+    $productType->hasDimensions = true;
+    expect(app(ProductTypes::class)->saveProductType($productType))->toBeTrue();
+    $variant = $this->fixture->hoodie->getDefaultVariant();
+
+    get('/' . Cms::config()->cpTrigger . '/' . Cms::config()->actionTrigger . '/elements/edit?' . http_build_query([
+        'elementType' => Variant::class,
+        'elementId' => $variant->id,
+        'siteId' => $variant->siteId,
+    ]))
+        ->assertOk()
+        ->assertInertia(fn(AssertableInertia $page) => $page
+            ->has('form.values.length')
+            ->has('form.values.width')
+            ->has('form.values.height')
+            ->has('form.values.weight')
+        );
+});
+
+it('does not expose standalone variant pages', function() {
+    $cpPath = '/' . Cms::config()->cpTrigger . '/commerce/variants';
+
+    get($cpPath)->assertNotFound();
+    get($cpPath . '/' . $this->fixture->hoodie->getDefaultVariant()->id)->assertNotFound();
 });
 
 it('requires permission to view the product', function() {

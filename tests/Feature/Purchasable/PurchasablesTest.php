@@ -3,8 +3,15 @@
 declare(strict_types=1);
 
 use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Purchasable\Purchasables;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
+
+test('null SKUs are normalized to blank strings', function() {
+    $variant = new Variant(['sku' => null]);
+
+    expect($variant->getSku())->toBe('');
+});
 
 test('getPurchasableById does not return a stale instance after the purchasable is re-saved', function() {
     $fixture = OrdersFixture::seed();

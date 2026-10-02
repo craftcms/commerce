@@ -6,7 +6,10 @@ namespace CraftCms\Commerce\Purchasable\FieldLayoutElements;
 
 use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
+use CraftCms\Cms\FieldLayout\FieldLayoutElementContext;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
+use CraftCms\Cms\Form\Contracts\Control;
+use CraftCms\Cms\Form\Controls\Text;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
@@ -38,6 +41,21 @@ class PurchasableWeightField extends BaseNativeField
         }
 
         return parent::showInForm($element);
+    }
+
+    #[Override]
+    protected function formControl(FieldLayoutElementContext $context): ?Control
+    {
+        $element = $context->element;
+        if (!$element instanceof Purchasable) {
+            throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
+        }
+
+        return Text::make('weight')
+            ->value($element->weight)
+            ->inputMode('decimal')
+            ->size(10)
+            ->suffix(app(Plugin::class)->getSettings()->weightUnits);
     }
 
     protected function inputHtml(?ElementInterface $element = null, bool $static = false): ?string

@@ -230,10 +230,6 @@ class Variant extends Purchasable implements NestedElementInterface
     #[Override]
     public function canSave(\CraftCms\Cms\User\Elements\User $user): bool
     {
-        if (parent::canSave($user)) {
-            return true;
-        }
-
         $product = $this->getOwner();
         if ($product === null) {
             return false;
@@ -251,20 +247,12 @@ class Variant extends Purchasable implements NestedElementInterface
     #[Override]
     public function canDelete(\CraftCms\Cms\User\Elements\User $user): bool
     {
-        if (parent::canDelete($user)) {
-            return true;
-        }
-
         return $this->canSave($user);
     }
 
     #[Override]
     public function canDuplicate(\CraftCms\Cms\User\Elements\User $user): bool
     {
-        if (parent::canDuplicate($user)) {
-            return true;
-        }
-
         return $this->canSave($user);
     }
 
@@ -616,10 +604,6 @@ class Variant extends Purchasable implements NestedElementInterface
     #[Override]
     public function canView(\CraftCms\Cms\User\Elements\User $user): bool
     {
-        if (parent::canView($user)) {
-            return true;
-        }
-
         $product = $this->getOwner();
         if ($product === null) {
             return false;
