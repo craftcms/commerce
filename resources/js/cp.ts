@@ -45,12 +45,12 @@ function registerComponents(): void {
     () => import('./pages/products/Index.vue')
   );
   window.Cp.$inertia.register(
-    'commerce::inventory/transfers/Index',
-    () => import('./pages/inventory/transfers/Index.vue')
+    'commerce::variants/Index',
+    () => import('./pages/variants/Index.vue')
   );
   window.Cp.$inertia.register(
-    'commerce::inventory/transfers/Edit',
-    () => import('./pages/inventory/transfers/Edit.vue')
+    'commerce::inventory/transfers/Index',
+    () => import('./pages/inventory/transfers/Index.vue')
   );
 }
 

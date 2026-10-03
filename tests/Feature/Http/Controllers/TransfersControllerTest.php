@@ -72,7 +72,7 @@ it('renders the transfer edit page', function() {
     get($this->indexPath . '/' . $transfer->id)
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => $page
-            ->component('commerce::inventory/transfers/Edit', false)
+            ->component('elements/Edit', false)
             ->where('elementType', Transfer::class)
             ->where('elementId', $transfer->id)
             ->where('saveUrl', Url::actionUrl('elements/save'))
