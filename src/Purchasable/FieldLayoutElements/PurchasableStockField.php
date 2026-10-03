@@ -10,6 +10,7 @@ use CraftCms\Cms\FieldLayout\FieldLayoutElementContext;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
 use CraftCms\Cms\Form\Contracts\Node;
 use CraftCms\Cms\Form\Controls\Lightswitch;
+use CraftCms\Cms\Form\Enums\ControlMode;
 use CraftCms\Cms\Form\Enums\FieldWidth;
 use CraftCms\Cms\Form\FormContext;
 use CraftCms\Cms\Form\Nodes\Field;
@@ -62,29 +63,53 @@ class PurchasableStockField extends BaseNativeField
             throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
         }
 
+        if (!$this->uid) {
+            throw new InvalidArgumentException('Persisted Purchasable Stock FieldLayout elements require stable UIDs.');
+        }
+
         if ($element->getIsRevision()) {
             /** @var Purchasable $element */
             $element = $element->getCanonical();
         }
 
-        return Group::make($this->uid ?? $this->attribute, [
+        $static = $context->mode !== ControlMode::Editable;
+        $status = $this->showStatus() ? $this->statusClass($element, $static) : null;
+        $statusLabel = $status !== null
+            ? ($this->statusLabel($element, $static) ?? ucfirst($status))
+            : null;
+        $inventoryTracked = $element->getIsFresh() ? $this->defaultInventoryTracked : $element->inventoryTracked;
+
+        return Group::make($this->uid, [
             Field::make(t('Track Inventory', category: 'commerce'))
+                ->status($status, $statusLabel)
                 ->width(FieldWidth::Half)
                 ->control(
                     Lightswitch::make('inventoryTracked')
                         ->size('small')
-                        ->value($element->getIsFresh() ? $this->defaultInventoryTracked : $element->inventoryTracked)
-                        ->mode($context->mode),
+                        ->value($inventoryTracked)
+                        ->mode($context->mode)
+                        ->reactive(),
                 ),
             Field::make(t('Allow out of stock purchases', category: 'commerce'))
+                ->status($status, $statusLabel)
+                ->visible($inventoryTracked)
                 ->width(FieldWidth::Half)
                 ->control(
                     Lightswitch::make('allowOutOfStockPurchases')
                         ->size('small')
                         ->value($element->getIsFresh() ? $this->defaultAllowOutOfStockPurchases : $element->getIsOutOfStockPurchasingAllowed())
-                        ->mode($context->mode),
+                        ->mode($context->mode)
+                        ->reactive(),
                 ),
-        ])->width($this->width);
+        ])
+            ->asField()
+            ->label($this->label !== null && $this->label !== $this->defaultLabel() ? $this->label() : null)
+            ->instructions($this->instructionsText($element))
+            ->instructionsPosition($this->instructionsPosition)
+            ->tip($this->tipText($element))
+            ->warning($this->warningText($element))
+            ->layoutUid($this->uid)
+            ->width($this->width);
     }
 
     protected function inputHtml(?ElementInterface $element = null, bool $static = false): ?string

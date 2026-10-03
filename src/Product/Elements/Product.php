@@ -9,6 +9,7 @@ use CraftCms\Cms\Asset\Actions\CopyReferenceTag;
 use CraftCms\Cms\Cms;
 use CraftCms\Cms\Cp\Data\ActionItem;
 use CraftCms\Cms\Cp\FormFields;
+use CraftCms\Cms\Cp\Html\ElementHtml;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Element\Actions\Delete;
 use CraftCms\Cms\Element\Actions\Duplicate;
@@ -1177,6 +1178,7 @@ class Product extends Element implements HasStoreInterface
         }
 
         $this->_variants = $variants instanceof VariantCollection ? $variants : VariantCollection::make($variants);
+        $this->setDirtyAttributes(['variants']);
     }
 
     /**
@@ -1674,7 +1676,7 @@ class Product extends Element implements HasStoreInterface
         $type = $this->getType();
 
         foreach ($this->getVariants(true) as $variant) {
-            if ($variant->sku || !$type->skuFormat) {
+            if (($variant->sku && !PurchasableHelper::isTempSku($variant->sku)) || !$type->skuFormat) {
                 continue;
             }
 
@@ -1997,11 +1999,9 @@ class Product extends Element implements HasStoreInterface
             }
             case 'variants':
             {
-                // TODO: Render variant chips again once Variant authorization goes through a policy — chips
-                // call Variant::canView(), which currently recurses through the Gate.
-                return Html::encode($this->getVariants(true)
-                    ->map(fn(Variant $variant) => $variant->title ?: $variant->getSku())
-                    ->join(', '));
+                return $this->getVariants(true)
+                    ->map(fn(Variant $variant) => app(ElementHtml::class)->elementChipHtml($variant))
+                    ->join('');
             }
             default:
             {

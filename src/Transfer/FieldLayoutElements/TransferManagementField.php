@@ -122,18 +122,16 @@ class TransferManagementField extends BaseNativeField
         return $value;
     }
 
-    /**
-     * TODO: Show the purchasable's element chip again once variant authorization no longer recurses
-     * (`Variant::canSave()` → `parent::canSave()` → Gate → `Variant::canSave()`).
-     *
-     * @return array<int, string>
-     */
+    /** @return array<int, string> */
     private static function detailsItemsHtml(Transfer $transfer): array
     {
         $html = [];
 
         foreach ($transfer->getDetails() as $detail) {
-            $html[$detail->inventoryItemId] = e($detail->inventoryItemDescription);
+            $purchasable = $detail->getInventoryItem()?->getPurchasable();
+            $html[$detail->inventoryItemId] = $purchasable
+                ? app(ElementHtml::class)->elementChipHtml($purchasable)
+                : e($detail->inventoryItemDescription);
         }
 
         return $html;
@@ -178,10 +176,14 @@ class TransferManagementField extends BaseNativeField
 
         $tableRows = '';
 
-        // TODO: Show the purchasable's element chip again once variant authorization no longer recurses.
         foreach ($element->getDetails() as $detail) {
+            $purchasable = $detail->getInventoryItem()?->getPurchasable();
+            $purchasableHtml = $purchasable
+                ? app(ElementHtml::class)->elementChipHtml($purchasable)
+                : Html::tag('span', e($detail->inventoryItemDescription));
+
             $tableRows .= Html::tag('tr',
-                Html::tag('td', Html::tag('span', e($detail->inventoryItemDescription))) .
+                Html::tag('td', $purchasableHtml) .
                 Html::tag('td', (string)$detail->quantityRejected, ['class' => 'rightalign']) .
                 Html::tag('td', (string)$detail->quantityAccepted, ['class' => 'rightalign']) .
                 Html::tag('td', $detail->getReceived() . '/' . $detail->quantity, ['class' => 'rightalign'])

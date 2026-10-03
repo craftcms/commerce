@@ -385,7 +385,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         }
 
         if ($basePrice instanceof Money) {
-            $basePrice = MoneyHelper::toDecimal($basePrice);
+            $basePrice = (float)MoneyHelper::toDecimal($basePrice);
         } elseif ($basePrice !== null) {
             $basePrice = (float)$basePrice;
         }
@@ -416,7 +416,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         }
 
         if ($basePromotionalPrice instanceof Money) {
-            $basePromotionalPrice = MoneyHelper::toDecimal($basePromotionalPrice);
+            $basePromotionalPrice = (float)MoneyHelper::toDecimal($basePromotionalPrice);
         } elseif ($basePromotionalPrice !== null) {
             $basePromotionalPrice = (float)$basePromotionalPrice;
         }
@@ -510,7 +510,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
     public function setSku(?string $sku = null): void
     {
-        $this->_sku = $sku ?? '';
+        $this->_sku = $sku ?? PurchasableHelper::tempSku();
     }
 
     /**
@@ -959,9 +959,11 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function afterDelete(): void
     {
-        $purchasable = PurchasableRecord::find($this->id);
+        if ($this->hardDelete) {
+            $purchasable = PurchasableRecord::find($this->id);
 
-        $purchasable?->delete();
+            $purchasable?->delete();
+        }
 
         parent::afterDelete();
     }

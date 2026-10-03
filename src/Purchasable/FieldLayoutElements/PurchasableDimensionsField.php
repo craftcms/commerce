@@ -55,19 +55,42 @@ class PurchasableDimensionsField extends BaseNativeField
             throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
         }
 
+        if (!$this->uid) {
+            throw new InvalidArgumentException('Persisted Purchasable Dimensions FieldLayout elements require stable UIDs.');
+        }
+
         $unit = app(Plugin::class)->getSettings()->dimensionUnits;
 
-        return Group::make($this->uid ?? $this->attribute, [
+        $static = $context->mode !== \CraftCms\Cms\Form\Enums\ControlMode::Editable;
+        $status = $this->showStatus() ? $this->statusClass($element, $static) : null;
+        $statusLabel = $status !== null
+            ? ($this->statusLabel($element, $static) ?? ucfirst($status))
+            : null;
+        $localized = fn(?float $value): string => $value === null ? '' : I18N::getFormatter()->asDecimal($value);
+
+        return Group::make($this->uid, [
             Field::make(t('Length', category: 'commerce'))
+                ->status($status, $statusLabel)
                 ->width(FieldWidth::Third)
-                ->control(Text::make('length')->value($element->length)->inputMode('decimal')->suffix($unit)->mode($context->mode)),
+                ->control(Text::make('length')->value($localized($element->length))->inputMode('decimal')->suffix($unit)->mode($context->mode)->reactive()),
             Field::make(t('Width', category: 'commerce'))
+                ->status($status, $statusLabel)
                 ->width(FieldWidth::Third)
-                ->control(Text::make('width')->value($element->width)->inputMode('decimal')->suffix($unit)->mode($context->mode)),
+                ->control(Text::make('width')->value($localized($element->width))->inputMode('decimal')->suffix($unit)->mode($context->mode)->reactive()),
             Field::make(t('Height', category: 'commerce'))
+                ->status($status, $statusLabel)
                 ->width(FieldWidth::Third)
-                ->control(Text::make('height')->value($element->height)->inputMode('decimal')->suffix($unit)->mode($context->mode)),
-        ])->width($this->width);
+                ->control(Text::make('height')->value($localized($element->height))->inputMode('decimal')->suffix($unit)->mode($context->mode)->reactive()),
+        ])
+            ->asField()
+            ->label($this->label !== null && $this->label !== '__blank__' ? $this->label() : null)
+            ->instructions($this->instructionsText($element))
+            ->instructionsPosition($this->instructionsPosition)
+            ->tip($this->tipText($element))
+            ->warning($this->warningText($element))
+            ->required($this->required)
+            ->layoutUid($this->uid)
+            ->width($this->width);
     }
 
     protected function inputHtml(?ElementInterface $element = null, bool $static = false): ?string

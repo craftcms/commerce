@@ -35,7 +35,29 @@ class VariantPolicy extends ElementPolicy
 
     public function duplicate(CraftUser $user, Variant $variant): bool
     {
-        return $this->save($user, $variant);
+        $product = $variant->getOwner();
+        if (!$product || !$this->save($user, $variant)) {
+            return false;
+        }
+
+        $maxVariants = $product->getType()->maxVariants;
+
+        return !$maxVariants || $product->getVariants(true)->count() < $maxVariants;
+    }
+
+    public function duplicateAsDraft(CraftUser $user, Variant $variant): bool
+    {
+        return $this->duplicate($user, $variant);
+    }
+
+    public function createDrafts(CraftUser $user, Variant $variant): bool
+    {
+        return true;
+    }
+
+    public function deleteForSite(CraftUser $user, Variant $variant): bool
+    {
+        return false;
     }
 
     public function copy(CraftUser $user, Variant $variant): bool

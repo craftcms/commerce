@@ -73,10 +73,13 @@ it('renders product rows with their price and SKU', function() {
         );
 });
 
-it('renders the variants column as text', function() {
+it('renders the variants column with element chips', function() {
     get($this->indexPath . '/hoodies?columns[]=variants')
         ->assertOk()
-        ->assertInertia(fn(AssertableInertia $page) => $page->where('data.0.variants', 'Rad Hoodie'));
+        ->assertInertia(fn(AssertableInertia $page) => $page->where(
+            'data.0.variants',
+            fn(string $html) => str_contains($html, '<craft-chip') && str_contains($html, 'Rad Hoodie'),
+        ));
 });
 
 it('offers the product type actions on a product type source', function() {

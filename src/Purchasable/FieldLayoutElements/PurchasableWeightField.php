@@ -52,7 +52,7 @@ class PurchasableWeightField extends BaseNativeField
         }
 
         return Text::make('weight')
-            ->value($element->weight)
+            ->value($element->weight !== null ? I18N::getFormatter()->asDecimal($element->weight) : '')
             ->inputMode('decimal')
             ->size(10)
             ->suffix(app(Plugin::class)->getSettings()->weightUnits);

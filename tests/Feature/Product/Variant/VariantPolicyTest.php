@@ -76,6 +76,26 @@ test('save delete and duplicate authorization follow saving the owning product',
         ->and($variant->canDuplicate($user))->toBeTrue();
 });
 
+test('variant draft and site-specific abilities match product propagation', function() {
+    [$user, $variant] = variantPolicyTestElements();
+    grantVariantPolicyTestPermissions(['commerce-saveProductType:randomuid']);
+
+    expect($user->can('createDrafts', $variant))->toBeTrue()
+        ->and($user->can('duplicateAsDraft', $variant))->toBeTrue()
+        ->and($user->can('deleteForSite', $variant))->toBeFalse();
+});
+
+test('variants cannot be duplicated after the product type variant limit is reached', function() {
+    [$user, $variant] = variantPolicyTestElements();
+    grantVariantPolicyTestPermissions(['commerce-saveProductType:randomuid']);
+
+    $variant->getOwner()->getType()->maxVariants = 1;
+    $variant->getOwner()->setVariants([$variant]);
+
+    expect($variant->canDuplicate($user))->toBeFalse()
+        ->and($user->can('duplicateAsDraft', $variant))->toBeFalse();
+});
+
 test('copy authorization preserves the existing behavior', function() {
     [$user, $variant] = variantPolicyTestElements();
     grantVariantPolicyTestPermissions([]);

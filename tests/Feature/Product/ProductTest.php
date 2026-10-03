@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use CraftCms\Cms\Database\Table as CraftTable;
+use CraftCms\Cms\Element\Operations\ElementDuplicates;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Commerce\Database\Table;
@@ -339,4 +340,50 @@ test('a SKU format referencing {id} is regenerated once the variant has been ass
     expect($variant->sku)->toBe('SKU-' . $variant->id);
 
     Elements::deleteElementById($product->id, Product::class, null, true);
+});
+
+test('publishing a new product saves its variant with a generated SKU', function() {
+    $productType = createSkuFormatProductType('publishWithVariant', 'published-{product.title}');
+
+    $product = new Product();
+    $product->title = 'Tee';
+    $product->typeId = $productType->id;
+    $product->enabled = true;
+
+    $variant = new Variant();
+    $variant->title = 'Tee variant';
+    $product->setVariants([$variant]);
+
+    expect(Elements::saveElement($product))->toBeTrue();
+
+    $savedVariants = Product::find()->id($product->id)->one()->getVariants(true);
+    expect($savedVariants)->toHaveCount(1)
+        ->and($savedVariants->first()->getOwnerId())->toBe($product->id)
+        ->and($savedVariants->first()->getSku())->toBe('published-Tee');
+
+    Elements::deleteElementById($product->id, Product::class, null, true);
+});
+
+test('duplicating deleting and restoring a product carries its variants', function() {
+    $fixture = ProductConditionsFixture::seed();
+    $source = $fixture->hoodie;
+    $sourceVariant = $source->getDefaultVariant();
+
+    $duplicate = app(ElementDuplicates::class)->duplicateElement($source);
+    $duplicateVariants = Product::find()->id($duplicate->id)->one()->getVariants(true);
+
+    expect($duplicateVariants)->toHaveCount(1)
+        ->and($duplicateVariants->first()->getOwnerId())->toBe($duplicate->id)
+        ->and($duplicateVariants->first()->id)->not->toBe($sourceVariant->id);
+
+    $duplicateVariantId = $duplicateVariants->first()->id;
+    expect(Elements::deleteElement($duplicate))->toBeTrue()
+        ->and(DB::table(CraftTable::ELEMENTS)->where('id', $duplicate->id)->whereNotNull('dateDeleted')->exists())->toBeTrue()
+        ->and(DB::table(CraftTable::ELEMENTS)->where('id', $duplicateVariantId)->whereNotNull('dateDeleted')->exists())->toBeTrue();
+
+    expect(Elements::restoreElement($duplicate))->toBeTrue()
+        ->and(DB::table(CraftTable::ELEMENTS)->where('id', $duplicate->id)->whereNull('dateDeleted')->exists())->toBeTrue()
+        ->and(DB::table(CraftTable::ELEMENTS)->where('id', $duplicateVariantId)->whereNull('dateDeleted')->exists())->toBeTrue();
+
+    Elements::deleteElementById($duplicate->id, Product::class, null, true);
 });

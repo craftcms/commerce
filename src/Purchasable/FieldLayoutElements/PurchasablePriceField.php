@@ -65,33 +65,55 @@ class PurchasablePriceField extends BaseNativeField
             throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
         }
 
+        if (!$this->uid) {
+            throw new InvalidArgumentException('Persisted Purchasable Price FieldLayout elements require stable UIDs.');
+        }
+
+        $static = $context->mode !== \CraftCms\Cms\Form\Enums\ControlMode::Editable;
+        $status = $this->showStatus() ? $this->statusClass($element, $static) : null;
+        $statusLabel = $status !== null
+            ? ($this->statusLabel($element, $static) ?? ucfirst($status))
+            : null;
+
         $currency = $element->getStore()->getCurrency()->getCode();
         $fields = [
             Field::make(t('Price', category: 'commerce'))
                 ->required()
+                ->status($status, $statusLabel)
                 ->width(FieldWidth::Half)
                 ->control(
                     Money::make('basePrice')
                         ->currency($currency)
                         ->size(12)
                         ->value($element->basePrice ?? 0)
-                        ->mode($context->mode),
+                        ->mode($context->mode)
+                        ->reactive(),
                 ),
         ];
 
         if (app(CatalogPricingRules::class)->canUseCatalogPricingRules()) {
             $fields[] = Field::make(t('Promotional Price', category: 'commerce'))
+                ->status($status, $statusLabel)
                 ->width(FieldWidth::Half)
                 ->control(
                     Money::make('basePromotionalPrice')
                         ->currency($currency)
                         ->size(12)
                         ->value($element->basePromotionalPrice)
-                        ->mode($context->mode),
+                        ->mode($context->mode)
+                        ->reactive(),
                 );
         }
 
-        return Group::make($this->uid ?? $this->attribute, $fields)
+        return Group::make($this->uid, $fields)
+            ->asField()
+            ->label($this->showLabel() ? $this->label() : null)
+            ->instructions($this->instructionsText($element))
+            ->instructionsPosition($this->instructionsPosition)
+            ->tip($this->tipText($element))
+            ->warning($this->warningText($element))
+            ->required($this->required)
+            ->layoutUid($this->uid)
             ->width($this->width);
     }
 

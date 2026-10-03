@@ -32,6 +32,7 @@ use CraftCms\Commerce\Http\Controllers\StoreManagement\TaxCategoriesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\TaxRatesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\TaxZonesController;
 use CraftCms\Commerce\Http\Controllers\Settings\TransferSettingsController;
+use CraftCms\Commerce\Http\Controllers\VariantsController;
 use CraftCms\Commerce\Http\Controllers\TransfersController;
 use CraftCms\Commerce\Http\Controllers\Users\UsersController;
 use Illuminate\Support\Facades\Route;
@@ -101,8 +102,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
     Route::get('commerce/inventory/transfers/{id}{slug?}', EditElementController::class)->where($idSlugParams);
 
     Route::get('commerce/products/{productTypeHandle?}', [ProductsController::class, 'productIndex']);
-
-    // TODO: Decide whether Commerce needs a new standalone variant browsing experience.
+    Route::get('commerce/variants/{productTypeHandle?}', [VariantsController::class, 'index']);
 
     // BaseStoreManagementController::init() always required commerce-manageStoreSettings, on
     // top of whichever more specific permission each feature area's own controller adds — every

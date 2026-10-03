@@ -43,29 +43,46 @@ class PurchasableAllowedQtyField extends BaseNativeField
             throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
         }
 
-        return Group::make($this->uid ?? $this->attribute, [
+        if (!$this->uid) {
+            throw new InvalidArgumentException('Persisted Purchasable Allowed Quantity FieldLayout elements require stable UIDs.');
+        }
+
+        $static = $context->mode !== \CraftCms\Cms\Form\Enums\ControlMode::Editable;
+        $status = $this->showStatus() ? $this->statusClass($element, $static) : null;
+        $statusLabel = $status !== null
+            ? ($this->statusLabel($element, $static) ?? ucfirst($status))
+            : null;
+
+        return Group::make($this->uid, [
             Field::make(t('Minimum', category: 'commerce'))
+                ->status($status, $statusLabel)
                 ->width(FieldWidth::Half)
                 ->control(
                     Number::make('minQty')
                         ->placeholder(t('Any', category: 'commerce'))
                         ->value($element->minQty)
-                        ->mode($context->mode),
+                        ->mode($context->mode)
+                        ->reactive(),
                 ),
             Field::make(t('Maximum', category: 'commerce'))
+                ->status($status, $statusLabel)
                 ->width(FieldWidth::Half)
                 ->control(
                     Number::make('maxQty')
                         ->placeholder(t('Any', category: 'commerce'))
                         ->value($element->maxQty)
-                        ->mode($context->mode),
+                        ->mode($context->mode)
+                        ->reactive(),
                 ),
         ])
             ->asField()
             ->label($this->label())
             ->instructions($this->instructionsText($element))
+            ->instructionsPosition($this->instructionsPosition)
             ->tip($this->tipText($element))
             ->warning($this->warningText($element))
+            ->required($this->required)
+            ->layoutUid($this->uid)
             ->width($this->width);
     }
 

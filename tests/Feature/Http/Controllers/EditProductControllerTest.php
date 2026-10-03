@@ -146,11 +146,13 @@ it('renders variant dimensions when enabled by the product type', function() {
         );
 });
 
-it('does not expose standalone variant pages', function() {
+it('exposes the variants index and shared variant editor', function() {
     $cpPath = '/' . Cms::config()->cpTrigger . '/commerce/variants';
 
-    get($cpPath)->assertNotFound();
-    get($cpPath . '/' . $this->fixture->hoodie->getDefaultVariant()->id)->assertNotFound();
+    get($cpPath)->assertOk();
+    get($cpPath . '/' . $this->fixture->hoodie->getDefaultVariant()->id)
+        ->assertOk()
+        ->assertInertia(fn(AssertableInertia $page) => $page->component('elements/Edit', false));
 });
 
 it('requires permission to view the product', function() {

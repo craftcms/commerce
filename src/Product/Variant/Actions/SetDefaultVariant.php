@@ -8,7 +8,6 @@ use CraftCms\Cms\Element\Actions\ElementAction;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Cms\Support\Facades\ElementCaches;
 use CraftCms\Cms\Support\Facades\HtmlStack;
-use CraftCms\Cms\Support\Json;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use Illuminate\Support\Facades\DB;
@@ -24,21 +23,22 @@ class SetDefaultVariant extends ElementAction
 
     public function getTriggerHtml(): ?string
     {
-        $type = Json::encode(static::class);
-
-        $js = <<<EOT
-(function()
-{
+        HtmlStack::jsWithVars(fn($type) => <<<JS
+(() => {
     new Craft.ElementActionTrigger({
         type: $type,
-        batch: false,
+        bulk: false,
     });
 })();
-EOT;
-
-        HtmlStack::js($js);
+JS, [static::class]);
 
         return null;
+    }
+
+    #[\Override]
+    public static function supportsBulk(): bool
+    {
+        return false;
     }
 
     public function performAction(ElementQueryInterface $query): bool
