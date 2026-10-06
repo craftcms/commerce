@@ -9,6 +9,7 @@ use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Form\Controls\Choice;
 use CraftCms\Cms\Form\Controls\Number;
 use CraftCms\Cms\Form\Controls\Text;
+use CraftCms\Cms\Form\Controls\Textarea;
 use CraftCms\Cms\Form\Form;
 use CraftCms\Cms\Form\FormContext;
 use CraftCms\Cms\Form\FormResolver;
@@ -50,6 +51,9 @@ readonly class InventoryController
     use RespondsWithFlash;
 
     private const string ON_HAND = 'onHand';
+
+    /** The length of the inventory transactions table's `note` column. */
+    private const int NOTE_MAX_LENGTH = 255;
 
     /** The stock level columns, in display order, keyed by the column they're totalled in. */
     private const array LEVEL_COLUMNS = [
@@ -240,7 +244,7 @@ readonly class InventoryController
                 $isSet ? t('Set to', category: 'commerce') : t('Adjust by', category: 'commerce'),
                 Number::make('quantity')->autofocus(),
             )->required(),
-            Field::make(t('Notes', category: 'commerce'), Text::make('note')),
+            Field::make(t('Notes', category: 'commerce'), Textarea::make('note')->rows(3)),
         ]);
 
         return new JsonResponse([
@@ -257,6 +261,8 @@ readonly class InventoryController
 
     public function updateLevels(Request $request): Response
     {
+        $request->validate(['note' => ['nullable', 'string', 'max:' . self::NOTE_MAX_LENGTH]]);
+
         $updateAction = InventoryUpdateQuantityType::tryFrom((string)$request->input('updateAction'));
         abort_if($updateAction === null, 400, 'Invalid updateAction');
 
@@ -351,7 +357,7 @@ readonly class InventoryController
                 t('Move To', category: 'commerce'),
                 Choice::make(['inventoryMovement', 'toInventoryTransactionType'])->options($toTypeOptions),
             )->required(),
-            Field::make(t('Notes', category: 'commerce'), Text::make(['inventoryMovement', 'note'])),
+            Field::make(t('Notes', category: 'commerce'), Textarea::make(['inventoryMovement', 'note'])->rows(3)),
         ]);
 
         return new JsonResponse([
@@ -373,6 +379,8 @@ readonly class InventoryController
 
     public function saveInventoryMovement(Request $request): Response
     {
+        $request->validate(['inventoryMovement.note' => ['nullable', 'string', 'max:' . self::NOTE_MAX_LENGTH]]);
+
         $fromType = InventoryTransactionType::tryFrom((string)$request->input('inventoryMovement.fromInventoryTransactionType'));
         $toType = InventoryTransactionType::tryFrom((string)$request->input('inventoryMovement.toInventoryTransactionType'));
         abort_if(!$fromType || !$toType, 400, 'Invalid inventory transaction type');

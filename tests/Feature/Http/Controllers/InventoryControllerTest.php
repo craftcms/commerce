@@ -219,6 +219,31 @@ it('sets and adjusts a stock level', function() {
     expect(app(Inventory::class)->getInventoryLevel($this->inventoryItem, $this->location)->availableTotal)->toBe(6);
 });
 
+it('rejects a note longer than the transaction note column', function() {
+    postJson(Url::actionUrl('commerce/inventory/update-levels'), [
+        'inventoryLocationId' => $this->location->id,
+        'inventoryItemId' => $this->inventoryItem->id,
+        'type' => 'available',
+        'updateAction' => 'set',
+        'quantity' => 3,
+        'note' => str_repeat('a', 256),
+    ])->assertUnprocessable()->assertJsonValidationErrors(['note']);
+
+    postJson(Url::actionUrl('commerce/inventory/save-inventory-movement'), [
+        'inventoryMovement' => [
+            'inventoryItemId' => $this->inventoryItem->id,
+            'fromInventoryLocationId' => $this->location->id,
+            'toInventoryLocationId' => $this->location->id,
+            'fromInventoryTransactionType' => 'available',
+            'toInventoryTransactionType' => 'damaged',
+            'quantity' => 1,
+            'note' => str_repeat('a', 256),
+        ],
+    ])->assertUnprocessable()->assertJsonValidationErrors(['inventoryMovement.note']);
+
+    expect(app(Inventory::class)->getInventoryLevel($this->inventoryItem, $this->location)->availableTotal)->toBe(0);
+});
+
 it('doesn’t record an adjustment of zero', function() {
     postJson(Url::actionUrl('commerce/inventory/update-levels'), [
         'inventoryLocationId' => $this->location->id,
