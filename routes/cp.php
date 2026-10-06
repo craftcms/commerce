@@ -188,6 +188,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
     // (not via init()) — replicated here as a route-group-wide permission instead.
     Route::middleware('can:commerce-manageInventoryStockLevels')->group(function () {
         Route::get('commerce/inventory/item/{inventoryItemId}', [InventoryController::class, 'itemEdit'])->whereNumber('inventoryItemId');
+        Route::get('commerce/inventory/levels/{inventoryLocationHandle}/orders', [InventoryController::class, 'unfulfilledOrders']);
         Route::get('commerce/inventory/levels/{inventoryLocationHandle}', [InventoryController::class, 'editLocationLevels']);
         Route::get('commerce/inventory/levels', [InventoryController::class, 'editLocationLevels']);
         Route::get('commerce/inventory', [InventoryController::class, 'editLocationLevels']);

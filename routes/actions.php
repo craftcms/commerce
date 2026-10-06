@@ -230,12 +230,11 @@ Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function () {
 // (not via init()) — replicated here as a route-group-wide permission instead.
 Route::middleware(['auth', 'can:commerce-manageInventoryStockLevels'])->group(function () {
     Route::post('inventory/item-save', [InventoryController::class, 'itemSave']);
-    Route::get('inventory/inventory-levels-table-data', [InventoryController::class, 'inventoryLevelsTableData']);
+    Route::post('inventory/inventory-levels-table-data', [InventoryController::class, 'inventoryLevelsTableData']);
+    Route::get('inventory/prepare-update-levels-modal', [InventoryController::class, 'prepareUpdateLevelsModal']);
     Route::post('inventory/update-levels', [InventoryController::class, 'updateLevels']);
-    Route::get('inventory/edit-update-levels-modal', [InventoryController::class, 'editUpdateLevelsModal']);
+    Route::get('inventory/prepare-movement-modal', [InventoryController::class, 'prepareMovementModal']);
     Route::post('inventory/save-inventory-movement', [InventoryController::class, 'saveInventoryMovement']);
-    Route::get('inventory/edit-movement-modal', [InventoryController::class, 'editMovementModal']);
-    Route::get('inventory/unfulfilled-orders', [InventoryController::class, 'unfulfilledOrders']);
 });
 
 Route::middleware(['auth', 'can:commerce-manageInventoryLocations'])->group(function () {

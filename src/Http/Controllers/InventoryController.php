@@ -4,499 +4,287 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use craft\db\Query;
-use craft\db\Table as CraftTable;
-use craft\enums\MenuItemType;
-use craft\helpers\AdminTable;
-use craft\helpers\Cp;
-use craft\web\assets\htmx\HtmxAsset;
-use CraftCms\Cms\Cp\Html\ElementHtml;
+use CraftCms\Cms\Cp\Data\ActionItem;
+use CraftCms\Cms\Database\Table as CraftTable;
+use CraftCms\Cms\Form\Controls\Choice;
+use CraftCms\Cms\Form\Controls\Number;
+use CraftCms\Cms\Form\Controls\Text;
+use CraftCms\Cms\Form\Form;
+use CraftCms\Cms\Form\FormContext;
+use CraftCms\Cms\Form\FormResolver;
+use CraftCms\Cms\Form\Nodes\Callout;
+use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Form\Nodes\Heading;
+use CraftCms\Cms\Form\Nodes\HiddenField;
+use CraftCms\Cms\Form\Nodes\Tab;
+use CraftCms\Cms\Form\Nodes\Table as TableNode;
 use CraftCms\Cms\Http\RespondsWithFlash;
-use CraftCms\Cms\Http\Responses\CpModalResponse;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
-use CraftCms\Cms\Support\Facades\HtmlStack;
-use CraftCms\Cms\Support\Html;
-use CraftCms\Cms\View\LegacyAssets\InternalAssetRegistry;
-use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Cms\Support\Facades\Sites;
+use CraftCms\Cms\Support\Url;
+use CraftCms\Cms\Translation\Formatter;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
-use CraftCms\Commerce\Inventory\Assets\InventoryAsset;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
+use CraftCms\Commerce\Inventory\Data\InventoryItem;
+use CraftCms\Commerce\Inventory\Data\InventoryLocation;
 use CraftCms\Commerce\Inventory\Data\InventoryManualMovement;
+use CraftCms\Commerce\Inventory\Data\InventoryTransaction;
 use CraftCms\Commerce\Inventory\Data\UpdateInventoryLevel;
 use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
 use CraftCms\Commerce\Inventory\Enums\InventoryUpdateQuantityType;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Inventory\InventoryLocations;
-use CraftCms\Commerce\Purchasable\Elements\Purchasable;
+use CraftCms\Commerce\Order\Elements\Order;
 use Illuminate\Http\JsonResponse;
-
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
-use function CraftCms\Cms\currentUserElement;
+
 use function CraftCms\Cms\t;
-use function CraftCms\Cms\template;
 
 readonly class InventoryController
 {
     use RespondsWithFlash;
 
-    public function itemEdit(?int $inventoryItemId = null): CpScreenResponse
-    {
-        \Craft::$app->getView()->registerAssetBundle(HtmxAsset::class);
+    private const string ON_HAND = 'onHand';
 
-        abort_if($inventoryItemId === null, 404, 'Inventory Item not found');
+    /** The stock level columns, in display order, keyed by the column they're totalled in. */
+    private const array LEVEL_COLUMNS = [
+        'reserved' => 'reservedTotal',
+        'damaged' => 'damagedTotal',
+        'safety' => 'safetyTotal',
+        'qualityControl' => 'qualityControlTotal',
+        'committed' => 'committedTotal',
+        'available' => 'availableTotal',
+        self::ON_HAND => 'onHandTotal',
+        'incoming' => 'incomingTotal',
+    ];
 
-        $inventoryItem = app(Inventory::class)->getInventoryItemById($inventoryItemId);
-
-        return new CpScreenResponse()
-            ->title('Inventory Item')
-            ->action('commerce/inventory/item-save')
-            ->submitButtonLabel(t('Save'))
-            ->redirectUrl('commerce/inventory')
-            ->contentTemplate('commerce/inventory/item/_edit.twig', ['inventoryItem' => $inventoryItem])
-            ->addCrumb(t('Inventory', category: 'commerce'), 'commerce/inventory')
-            ->tabs([
-                'details' => [
-                    'label' => t('Details', category: 'commerce'),
-                    'url' => '#details',
-                ],
-                'history' => [
-                    'label' => t('History', category: 'commerce'),
-                    'url' => '#history',
-                ],
-            ])
-            ->prepareScreen(function($screen, string $containerId) {
-                HtmlStack::js('htmx.process(document.getElementById("' . $containerId . '"));');
-            });
+    public function __construct(
+        private FormResolver $formResolver,
+    ) {
     }
 
-    public function itemSave(Request $request): Response
+    public function editLocationLevels(Request $request, ?string $inventoryLocationHandle = null): CpScreenResponse|RedirectResponse
     {
-        $inventoryItemId = $request->input('inventoryItemId');
-        abort_if(!$inventoryItemId, 404);
-
-        $inventoryItem = app(Inventory::class)->getInventoryItemById((int)$inventoryItemId);
-
-        $inventoryItem->countryCodeOfOrigin = $request->input('countryCodeOfOrigin', $inventoryItem->countryCodeOfOrigin);
-        $inventoryItem->administrativeAreaCodeOfOrigin = $request->input('administrativeAreaCodeOfOrigin', $inventoryItem->administrativeAreaCodeOfOrigin);
-        $inventoryItem->harmonizedSystemCode = $request->input('harmonizedSystemCode', $inventoryItem->harmonizedSystemCode);
-
-        $success = app(Inventory::class)->saveInventoryItem($inventoryItem);
-
-        if (!$success) {
-            return $this->asModelFailure($inventoryItem, t('Couldn\'t save inventory item.'), 'inventoryItem');
-        }
-
-        return $this->asModelSuccess($inventoryItem, t('Inventory Item saved.'), 'inventoryItem');
-    }
-
-    public function editLocationLevels(Request $request, ?string $inventoryLocationHandle = null): Response|CpScreenResponse
-    {
-        app(InternalAssetRegistry::class)->register(InventoryAsset::class);
-
-        $inventoryItemId = $request->query('inventoryItemId'); // Used for quick link to manage stock
         $inventoryLocations = app(InventoryLocations::class)->getAllInventoryLocations();
+        $inventoryLocationHandle ??= $request->input('inventoryLocationHandle');
 
         if (!$inventoryLocationHandle) {
-            $inventoryLocationHandle = $request->input('inventoryLocationHandle');
+            abort_if($inventoryLocations->isEmpty(), 404, 'No inventory locations exist.');
 
-            if (!$inventoryLocationHandle) {
-                return redirect($inventoryLocations[0]->getCpManageInventoryUrl());
-            }
+            return redirect($inventoryLocations->first()->getCpManageInventoryUrl());
         }
 
-        $search = $request->query('search');
+        $currentLocation = $this->resolveInventoryLocation($inventoryLocationHandle);
 
-        $currentLocation = app(InventoryLocations::class)->getInventoryLocationByHandle($inventoryLocationHandle);
-        $selectedItem = 'manage-' . $currentLocation->handle;
-        $title = $currentLocation->getUiLabel() . ' ' . t('Inventory', category: 'commerce');
+        // Narrows the table to one item, for the "Manage" links on a purchasable's stock field.
+        $inventoryItemId = $request->integer('inventoryItemId') ?: null;
 
-        $locationMenuItems = [];
-
-        foreach ($inventoryLocations as $location) {
-            $locationMenuItems[] = [
-                'label' => $location->getUiLabel(),
-                'url' => $location->getCpManageInventoryUrl(),
-                'selected' => $location->handle === $inventoryLocationHandle,
-            ];
-        }
-        $crumbs = [
-            [
-                'label' => t('Inventory', category: 'commerce'),
-                'url' => 'commerce/inventory',
-            ],
-        ];
-
-        if (count($locationMenuItems) > 1) {
-            $crumbs[] = [
-                'icon' => 'warehouse',
-                'menu' => [
-                    'label' => t('Select section'),
-                    'items' => $locationMenuItems,
-                ],
-            ];
-        } else {
-            $crumbs[] = [
-                'label' => $currentLocation->getUiLabel(),
-                'url' => $currentLocation->getCpManageInventoryUrl(),
-            ];
-        }
+        $table = TableNode::make('inventory-levels')
+            ->columns([
+                ['key' => 'purchasable', 'label' => t('Purchasable', category: 'commerce'), 'sortable' => true],
+                ['key' => 'sku', 'label' => t('SKU', category: 'commerce'), 'sortable' => true],
+                ...array_map(fn(string $type) => [
+                    'key' => $type,
+                    'label' => $this->levelLabel($type),
+                    'sortable' => true,
+                ], array_keys(self::LEVEL_COLUMNS)),
+            ])
+            ->dataUrl(action([self::class, 'inventoryLevelsTableData'], array_filter([
+                'inventoryLocationId' => $currentLocation->id,
+                'inventoryItemId' => $inventoryItemId,
+            ])), 50)
+            ->searchable(t('Search inventory', category: 'commerce'))
+            ->toggleableColumns()
+            ->emptyMessage(t('No inventory found.', category: 'commerce'));
 
         return new CpScreenResponse()
-            ->title($title)
-            ->action(null)
-            ->crumbs($crumbs)
-            ->contentTemplate('commerce/inventory/levels/_index', compact(
-                'inventoryLocations',
-                'currentLocation',
-                'inventoryItemId',
-                'selectedItem',
-                'search',
-            ))
-            ->selectedSubnavItem('inventory');
+            ->title($currentLocation->getUiLabel() . ' ' . t('Inventory', category: 'commerce'))
+            ->crumbs($this->crumbs($currentLocation))
+            ->selectedSubnavItem('inventory')
+            ->inertiaPage('Form', [
+                'form' => $this->formResolver->resolve(Form::make([$table]), new FormContext()),
+                'contentMaxWidth' => false,
+            ]);
     }
 
-    public function inventoryLevelsTableData(Request $request): Response
+    public function inventoryLevelsTableData(Request $request): JsonResponse
     {
-        $currentUser = currentUserElement();
-        $inventoryLevelsManagerContainerId = $request->input('containerId');
-        abort_if(!$inventoryLevelsManagerContainerId, 400, 'Missing containerId');
+        $request->validate([
+            'inventoryLocationId' => ['required', 'integer'],
+            'inventoryItemId' => ['nullable', 'integer'],
+            'page' => ['nullable', 'integer', 'min:1'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:250'],
+            'search' => ['nullable', 'string'],
+            'sort' => ['nullable', 'array'],
+        ]);
 
-        $inventoryItemId = $request->input('inventoryItemId'); // Used for quick link to manage stock
-        $page = (int)$request->input('page', 1);
-        $limit = (int)$request->input('per_page', 15);
-        $offset = ($page - 1) * $limit;
-        $inventoryLocationId = (int)$request->input('inventoryLocationId');
-        $search = $request->input('search');
+        $inventoryLocation = $this->resolveInventoryLocationById($request->integer('inventoryLocationId'));
 
-        $inventoryQuery = app(Inventory::class)->getInventoryLevelQuery(limit: $limit, offset: $offset, inventoryLocationId: $inventoryLocationId)
-            ->where('inventoryLocationId', $inventoryLocationId);
+        $page = $request->integer('page', 1);
+        $perPage = $request->integer('per_page', 50);
+        $inventoryItemId = $request->integer('inventoryItemId') ?: null;
+        $search = $request->string('search')->trim()->toString();
+
+        $query = app(Inventory::class)->getInventoryLevelQuery(inventoryLocationId: $inventoryLocation->id)
+            ->where('inventoryLocationId', $inventoryLocation->id)
+            ->addSelect(['purchasables.description', 'purchasables.sku'])
+            ->leftJoin(Table::PURCHASABLES . ' as purchasables', 'ii.purchasableId', '=', 'purchasables.id')
+            ->groupBy('purchasables.description', 'purchasables.sku')
+            ->whereNotNull('elements.id');
 
         if ($inventoryItemId) {
-            $inventoryQuery->where('inventoryItemId', $inventoryItemId);
+            $query->where('inventoryItemId', $inventoryItemId);
         }
 
-        $inventoryQuery->addSelect(['purchasables.description', 'purchasables.sku']);
-        $inventoryQuery->leftJoin(Table::PURCHASABLES . ' as purchasables', 'ii.purchasableId', '=', 'purchasables.id');
-        $inventoryQuery->groupBy('purchasables.description', 'purchasables.sku');
-
-        $inventoryQuery->whereNotNull('elements.id');
-
-        if ($search) {
+        if ($search !== '') {
             $likeOperator = DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
-            $inventoryQuery->where(function($q) use ($likeOperator, $search) {
-                $q->where('purchasables.description', $likeOperator, "%$search%")
-                    ->orWhere('purchasables.sku', $likeOperator, "%$search%");
-            });
+            $query->where(fn($query) => $query
+                ->where('purchasables.description', $likeOperator, "%$search%")
+                ->orWhere('purchasables.sku', $likeOperator, "%$search%"));
         }
 
-        $sort = $request->input('sort');
-        if ($sort) {
-            $field = $sort[0]['sortField'];
-            $direction = $sort[0]['direction'];
-
-            // Validate the sorting inputs
-            if (
-                !in_array($direction, ['asc', 'desc']) ||
-                !in_array($field, [
-                    'item',
-                    'sku',
-                    'reservedTotal',
-                    'damagedTotal',
-                    'safetyTotal',
-                    'qualityControlTotal',
-                    'committedTotal',
-                    'availableTotal',
-                    'onHandTotal',
-                    'incomingTotal',
-                ])
-            ) {
-                $field = null;
-                $direction = null;
-            }
-
-            if ($field && $direction) {
-                if ($field == 'sku') {
-                    $field = 'purchasables.sku';
-                }
-
-                if ($field == 'item') {
-                    $field = 'purchasables.description';
-                }
-                $inventoryQuery->orderBy($field, $direction);
-            }
+        $sortFields = [
+            'purchasable' => 'purchasables.description',
+            'sku' => 'purchasables.sku',
+            ...self::LEVEL_COLUMNS,
+        ];
+        $sortField = $sortFields[(string)$request->input('sort.0.field')] ?? null;
+        $sortDirection = $request->input('sort.0.direction');
+        if ($sortField && in_array($sortDirection, ['asc', 'desc'], true)) {
+            $query->orderBy($sortField, $sortDirection);
         }
 
-        $inventoryTableData = $inventoryQuery->get();
+        $total = $query->getCountForPagination();
+        $levels = $query->forPage($page, $perPage)->get();
+        $purchasables = $this->purchasablesById($levels->pluck('purchasableId')->filter()->unique()->all());
 
-        $total = $inventoryQuery->getCountForPagination();
+        $rows = $levels->map(function(object $level) use ($inventoryLocation, $purchasables) {
+            $level = (array)$level;
+            $purchasable = $purchasables[$level['purchasableId']] ?? null;
+            $sku = PurchasableHelper::isTempSku((string)$level['sku']) ? '' : (string)$level['sku'];
 
-        // Batch-load all purchasables for this page in one query per element type,
-        // rather than one getElementById call per row.
-        $requestedSite = Cp::requestedSite();
-        $purchasableIds = $inventoryTableData->pluck('purchasableId')->filter()->unique()->all();
-        $purchasablesMap = [];
-        if ($purchasableIds) {
-            $elementTypes = new Query()
-                ->select(['id', 'type'])
-                ->from(CraftTable::ELEMENTS)
-                ->where(['id' => $purchasableIds])
-                ->pairs();
-            $byType = [];
-            foreach ($elementTypes as $id => $type) {
-                /** @var class-string<\craft\base\Element> $type */
-                $byType[$type][] = $id;
-            }
-            foreach ($byType as $type => $ids) {
-                foreach ($type::find()->id($ids)->siteId($requestedSite->id)->all() as $element) {
-                    $purchasablesMap[$element->id] = $element;
-                }
-            }
-        }
+            $row = [
+                'id' => $level['inventoryItemId'],
+                'purchasable' => [
+                    'label' => $purchasable?->getDescription() ?: (string)$level['description'],
+                    'url' => $purchasable?->getCpEditUrl(),
+                ],
+                'sku' => [
+                    'label' => $sku !== '' ? $sku : t('Edit'),
+                    'url' => Url::cpUrl('commerce/inventory/item/' . $level['inventoryItemId']),
+                ],
+            ];
 
-        $time = microtime(true);
-        foreach ($inventoryTableData as $key => &$inventoryLevel) {
-            $id = $inventoryLevel['inventoryItemId'];
-            /** @var ?Purchasable $purchasable */
-            $purchasable = $purchasablesMap[$inventoryLevel['purchasableId']] ?? null;
-            $inventoryItemDomId = sprintf("edit-$id-link-%s", mt_rand());
-            if ($purchasable) {
-                // When providing the `labelHtml` option we need to encode it ourselves
-                $inventoryLevel['purchasable'] = app(ElementHtml::class)->chipHtml($purchasable, ['labelHtml' => Html::encode($purchasable->getDescription()), 'showActionMenu' => !$purchasable->getIsDraft() && $purchasable->canSave($currentUser)]);
-            } else {
-                $inventoryLevel['purchasable'] = Html::encode($inventoryLevel['description']);
-            }
-            if (PurchasableHelper::isTempSku($inventoryLevel['sku'])) {
-                $inventoryLevel['sku'] = '';
+            foreach (self::LEVEL_COLUMNS as $type => $totalColumn) {
+                $quantity = (int)$level[$totalColumn];
+                $items = $this->levelActions($inventoryLocation, (int)$level['inventoryItemId'], $type, $quantity);
+
+                $row[$type] = $items ? ['label' => (string)$quantity, 'items' => $items] : $quantity;
             }
 
-            // Ensure encoded SKU
-            $inventoryLevel['sku'] = Html::tag('span', Html::a(Html::encode($inventoryLevel['sku']), "#", ['id' => "$inventoryItemDomId", 'class' => 'code']));
-            $inventoryLevel['id'] = $id;
+            return $row;
+        })->all();
 
-            HtmlStack::jsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS
-\$('#' + $id).on('click', (e) => {
-	e.preventDefault();
-	const slideout = new Craft.CpScreenSlideout('commerce/inventory/item-edit', $params);
-	slideout.on('close', (e) => {
-	  $($inventoryLevelsManagerContainerId).data('inventoryLevelsManager').adminTable.reload();
-	});
-});
-JS, [
-                $inventoryItemDomId,
-                ['params' => ['inventoryItemId' => $id]],
-                $inventoryLevelsManagerContainerId,
-            ]);
+        $lastPage = max(1, (int)ceil($total / $perPage));
 
-            // @TODO Reduce the number of per-row modal click listeners registered here for inventory level columns
-            $columnTypes = [...InventoryTransactionType::values(), 'onHand'];
-            $columnTypes = array_filter($columnTypes, fn($type) => $type !== 'fulfilled');
-            foreach ($columnTypes as $type) {
-                $items = [];
-                $id = $inventoryLevel['id'];
+        return new JsonResponse([
+            'data' => TableNode::prepareRows($rows),
+            'pagination' => [
+                'total' => $total,
+                'per_page' => $perPage,
+                'current_page' => $page,
+                'last_page' => $lastPage,
+                'next_page_url' => null,
+                'prev_page_url' => null,
+                'from' => $total ? ($page - 1) * $perPage + 1 : 0,
+                'to' => min($total, $page * $perPage),
+            ],
+        ]);
+    }
 
-                $showOrderLinks = (
-                    $type == InventoryTransactionType::COMMITTED->value &&
-                    $inventoryLevel['committedTotal'] > 0
-                );
+    /**
+     * The Form shown by a stock level's “Set Quantity” and “Adjust Quantity” modals. Its values are
+     * posted to {@see updateLevels()} along with the request's own parameters.
+     */
+    public function prepareUpdateLevelsModal(Request $request): JsonResponse
+    {
+        abort_unless($request->expectsJson(), 400);
 
-                if ($showOrderLinks) {
-                    $showOrderLinksId = sprintf("$type-show-$id-order-links-%s", mt_rand());
-                    $items['orderLinks'] = [
-                        'type' => MenuItemType::Button,
-                        'id' => $showOrderLinksId,
-                        'label' => t('See Orders', category: 'commerce'),
-                        'icon' => 'cart-shopping',
-                    ];
+        $inventoryLocation = $this->resolveInventoryLocationById($request->integer('inventoryLocationId'));
+        $inventoryItem = $this->resolveInventoryItem($request->integer('inventoryItemId'));
 
-                    HtmlStack::jsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS
-\$('#' + $id).on('click', (e) => {
-    e.preventDefault();
-    let modal = new Craft.CpModal('commerce/inventory/unfulfilled-orders', {
-        containerElement: 'div',
-        showSubmitButton: false,
-        params: $params
-    })
-    modal.on('close', (e) => {
-      $($inventoryLevelsManagerContainerId).data('inventoryLevelsManager').adminTable.reload();
-    });
-});
-JS, [
-                        $showOrderLinksId,
-                        [
-                            'inventoryItemId' => $inventoryLevel['inventoryItemId'],
-                            'inventoryLocationId' => $inventoryLevel['inventoryLocationId'],
-                        ],
-                        $inventoryLevelsManagerContainerId,
-                    ]);
-                }
+        $type = (string)$request->query('type');
+        abort_unless($this->canAdjust($type), 400, 'Invalid type');
 
-                $showSet = (
-                    $type == 'onHand' ||
-                    in_array(InventoryTransactionType::from($type), InventoryTransactionType::allowedManualAdjustmentTypes())
-                );
+        $updateAction = InventoryUpdateQuantityType::tryFrom((string)$request->query('updateAction'));
+        abort_if($updateAction === null, 400, 'Invalid updateAction');
 
-                if ($showSet) {
-                    $setId = sprintf("$type-update-level-$id-set-%s", mt_rand());
-                    $items['set'] = [
-                        'type' => MenuItemType::Button,
-                        'id' => $setId,
-                        'label' => t('Set Quantity', category: 'commerce'),
-                        'icon' => 'bullseye',
-                    ];
+        $isSet = $updateAction === InventoryUpdateQuantityType::SET;
+        $quantity = (int)app(Inventory::class)->getInventoryLevel($inventoryItem, $inventoryLocation)->{$type . 'Total'};
+        $label = $this->levelLabel($type);
 
-                    HtmlStack::jsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS
-\$('#' + $id).on('click', (e) => {
-    e.preventDefault();
-    let modal = new Craft.Commerce.UpdateInventoryLevelModal({
-        params: $params,
-        showHeader: true
-    })
-    modal.on('submit', (e) => {
-      $($inventoryLevelsManagerContainerId).data('inventoryLevelsManager').adminTable.reload();
-    });
-});
-JS, [
-                        $setId,
-                        [
-                            'ids' => [$inventoryLevel['inventoryItemId']],
-                            'inventoryLocationId' => $inventoryLevel['inventoryLocationId'],
-                            'updateAction' => InventoryUpdateQuantityType::SET->value,
-                            'type' => $type,
-                        ],
-                        $inventoryLevelsManagerContainerId,
-                    ]);
-                }
+        $form = Form::make([
+            Callout::make('current-level', t('{item} currently has {quantity} {type} at {location}.', [
+                'item' => $this->inventoryItemLabel($inventoryItem),
+                'quantity' => $quantity,
+                'type' => $label,
+                'location' => $inventoryLocation->getUiLabel(),
+            ], category: 'commerce')),
+            Field::make(
+                $isSet ? t('Set to', category: 'commerce') : t('Adjust by', category: 'commerce'),
+                Number::make('quantity')->autofocus(),
+            )->required(),
+            Field::make(t('Notes', category: 'commerce'), Text::make('note')),
+        ]);
 
-                // Leave as it until we add more conditions for showing an adjustment
-                $showAdjust = $showSet;
-
-                if ($showAdjust) {
-                    $adjustId = sprintf("$type-update-level-$id-adjust-%s", mt_rand());
-                    $items['adjust'] = [
-                        'type' => MenuItemType::Button,
-                        'id' => $adjustId,
-                        'icon' => 'arrow-trend-up',
-                        'label' => t('Adjust Quantity', category: 'commerce'),
-                    ];
-
-                    HtmlStack::jsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS
-\$('#' + $id).on('click', (e) => {
-    e.preventDefault();
-    let modal = new Craft.Commerce.UpdateInventoryLevelModal({
-        params: $params,
-        showHeader: true
-    })
-    modal.on('submit', (e) => {
-      $($inventoryLevelsManagerContainerId).data('inventoryLevelsManager').adminTable.reload();
-    });
-});
-JS, [
-                        $adjustId,
-                        [
-                            'ids' => [$inventoryLevel['inventoryItemId']],
-                            'inventoryLocationId' => $inventoryLevel['inventoryLocationId'],
-                            'updateAction' => InventoryUpdateQuantityType::ADJUST->value,
-                            'type' => $type,
-                        ],
-                        $inventoryLevelsManagerContainerId,
-                    ]);
-                }
-
-                $showMovement = (
-                    $type !== 'onHand' &&
-                    in_array(InventoryTransactionType::from($type), InventoryTransactionType::allowedManualMoveTransactionTypes()) &&
-                    $inventoryLevel[$type . 'Total'] > 0);
-
-                if ($showMovement) {
-                    $movementId = sprintf("$type-inventory-movement-$id-%s", mt_rand());
-                    $items['movement'] = [
-                        'type' => MenuItemType::Button,
-                        'id' => $movementId,
-                        'icon' => 'arrow-right',
-                        'label' => t('Move Inventory', category: 'commerce'),
-                    ];
-
-                    HtmlStack::jsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS
-\$('#' + $id).on('click', (e) => {
-    e.preventDefault();
-    let modal = new Craft.Commerce.InventoryMovementModal({
-        params: $params,
-        showHeader: true
-    })
-    modal.on('submit', (e) => {
-      console.log(e);
-      $($inventoryLevelsManagerContainerId).data('inventoryLevelsManager').adminTable.reload();
-    });
-});
-JS, [
-                        $movementId,
-                        [
-                            'inventoryMovement' => [
-                                'note' => '',
-                                'fromInventoryTransactionType' => $type,
-                                'quantity' => '0',
-                                'inventoryItemId' => $inventoryLevel['inventoryItemId'],
-                                'fromInventoryLocationId' => $inventoryLevel['inventoryLocationId'],
-                            ],
-                        ],
-                        $inventoryLevelsManagerContainerId,
-                    ]);
-                }
-
-                $config = [
-                    'class' => '',
-                    'hiddenLabel' => t('Actions'),
-                    'buttonAttributes' => [
-                        'class' => ['action-btn'],
-                        'data' => [
-                            'icon' => 'ellipsis',
-                            'inventoryItemId' => $inventoryLevel['inventoryItemId'],
-                            'inventoryLocationId' => $inventoryLocationId,
-                            'type' => $type,
-                        ],
-                    ],
-                ];
-                $valueDiv = $inventoryLevel[$type . 'Total'];
-                $actionButton = Cp::disclosureMenu($items, $config);
-                $inventoryLevel[$type] = $valueDiv . (count($items) ? $actionButton : '');
-            }
-        }
-        unset($inventoryLevel);
-
-        return response()->json([
-            'pagination' => AdminTable::paginationLinks($page, (int)$total, $limit),
-            'data' => $inventoryTableData,
-            'headHtml' => HtmlStack::headHtml(),
-            'bodyHtml' => HtmlStack::bodyHtml(),
+        return new JsonResponse([
+            'form' => $this->formResolver->resolve($form, new FormContext(values: [
+                'quantity' => $isSet ? $quantity : 0,
+                'note' => '',
+            ])),
+            'title' => $isSet
+                ? t('Set {type} Quantity', ['type' => $label], category: 'commerce')
+                : t('Adjust {type} Quantity', ['type' => $label], category: 'commerce'),
+            'submitLabel' => t('Update', category: 'commerce'),
         ]);
     }
 
     public function updateLevels(Request $request): Response
     {
-        $updateAction = InventoryUpdateQuantityType::from($request->input('updateAction'));
-        $quantity = (int)$request->input('quantity');
-        $note = $request->input('note');
-        $inventoryLocationId = (int)$request->input('inventoryLocationId');
-        $inventoryItemIds = $request->input('ids');
-        $type = $request->input('type');
+        $updateAction = InventoryUpdateQuantityType::tryFrom((string)$request->input('updateAction'));
+        abort_if($updateAction === null, 400, 'Invalid updateAction');
+
+        $type = (string)$request->input('type');
+        abort_unless($this->canAdjust($type), 400, 'Invalid type');
+
+        $inventoryLocationId = $request->integer('inventoryLocationId');
+        // `ids` is the list form; `inventoryItemId` the single-item form the edit screen posts.
+        $inventoryItemIds = array_filter(array_map(intval(...), [
+            ...(array)$request->input('ids', []),
+            ...(array)$request->input('inventoryItemId', []),
+        ]));
+        abort_if(!$inventoryLocationId || !$inventoryItemIds, 400, 'Missing inventoryLocationId or inventory item IDs');
+
+        $quantity = $request->integer('quantity');
+        $note = (string)$request->input('note');
 
         // We don't add zero amounts as transactions movements
-        if ($updateAction === InventoryUpdateQuantityType::ADJUST && $quantity == 0) {
+        if ($updateAction === InventoryUpdateQuantityType::ADJUST && $quantity === 0) {
             return $this->asFailure(t('No inventory changes made.', category: 'commerce'));
         }
 
-        $errors = [];
         $updateInventoryLevels = UpdateInventoryLevelCollection::make();
         foreach ($inventoryItemIds as $inventoryItemId) {
             // Verbosely set property to show usages
             $updateInventoryLevel = new UpdateInventoryLevel();
             $updateInventoryLevel->type = $type;
             $updateInventoryLevel->updateAction = $updateAction;
-            $updateInventoryLevel->inventoryItemId = (int)$inventoryItemId;
+            $updateInventoryLevel->inventoryItemId = $inventoryItemId;
             $updateInventoryLevel->inventoryLocationId = $inventoryLocationId;
             $updateInventoryLevel->quantity = $quantity;
             $updateInventoryLevel->note = $note;
@@ -505,11 +293,9 @@ JS, [
         }
 
         if (!app(Inventory::class)->executeUpdateInventoryLevels($updateInventoryLevels)) {
-            $errors['updateQuantities'] = [t('Inventory could not be set.', category: 'commerce')];
-        }
-
-        if (count($errors) > 0) {
-            return $this->asFailure(t('Inventory was not updated.', category: 'commerce'), ['errors' => $errors]);
+            return $this->asFailure(t('Inventory was not updated.', category: 'commerce'), [
+                'errors' => ['quantity' => [t('Inventory could not be set.', category: 'commerce')]],
+            ]);
         }
 
         $resultingInventoryLevels = [];
@@ -523,145 +309,395 @@ JS, [
         ]);
     }
 
-    public function editUpdateLevelsModal(Request $request): CpModalResponse|JsonResponse
+    /**
+     * The Form shown by a stock level's “Move Inventory” modal. Its values are posted to
+     * {@see saveInventoryMovement()}.
+     */
+    public function prepareMovementModal(Request $request): JsonResponse
     {
-        $inventoryLocationId = (int)$request->input('inventoryLocationId');
-        $note = $request->input('note', '');
-        $inventoryItemIds = (array)$request->input('ids', []); // param needs to be 'ids' to be compatible with admin table
-        $updateAction = $request->input('updateAction', 'adjust');
-        $quantity = (int)$request->input('quantity', 0);
-        $type = $request->input('type');
-        abort_if(!$type, 400, 'Missing type');
+        abort_unless($request->expectsJson(), 400);
 
-        $inventoryLevels = [];
-        foreach ($inventoryItemIds as $inventoryItemId) {
-            $inventoryLevels[] = app(Inventory::class)->getInventoryLevel((int)$inventoryItemId, $inventoryLocationId);
-        }
+        $inventoryLocation = $this->resolveInventoryLocationById($request->integer('inventoryLocationId'));
+        $inventoryItem = $this->resolveInventoryItem($request->integer('inventoryItemId'));
 
-        $params = [
-            'inventoryLocationId' => $inventoryLocationId,
-            'inventoryItemIds' => $inventoryItemIds,
-            'inventoryLevels' => $inventoryLevels,
-            'updateAction' => $updateAction,
-            'inventoryLocationOptions' => app(InventoryLocations::class)->getAllInventoryLocations()->mapWithKeys(fn($location) => [$location->id => $location->getUiLabel()])->all(),
-            'type' => $type,
-            'quantity' => $quantity,
-            'note' => $note,
-        ];
+        $fromType = InventoryTransactionType::tryFrom((string)$request->query('type'));
+        abort_unless($fromType && in_array($fromType, InventoryTransactionType::allowedManualMoveTransactionTypes(), true), 400, 'Invalid type');
 
-        // Live preview refresh only swaps the preview region, leaving the form inputs untouched.
-        if ($request->input('preview')) {
-            return response()->json([
-                'previewHtml' => template('commerce/inventory/levels/_updateInventoryLevelPreview', $params, TemplateMode::Cp),
-            ]);
-        }
+        $toTypeOptions = collect(InventoryTransactionType::allowedManualMoveTransactionTypes())
+            ->reject(fn(InventoryTransactionType $type) => $type === $fromType)
+            ->map(fn(InventoryTransactionType $type) => ['value' => $type->value, 'label' => $type->typeAsLabel()])
+            ->values()
+            ->all();
 
-        return new CpModalResponse()
-            ->action('commerce/inventory/update-levels')
-            ->submitButtonLabel(t('Update', category: 'commerce'))
-            ->contentTemplate('commerce/inventory/levels/_updateInventoryLevelModal', $params);
+        $available = app(Inventory::class)->getInventoryLevel($inventoryItem, $inventoryLocation)->getTotal($fromType);
+
+        $form = Form::make([
+            HiddenField::make(['inventoryMovement', 'inventoryItemId']),
+            HiddenField::make(['inventoryMovement', 'fromInventoryLocationId']),
+            HiddenField::make(['inventoryMovement', 'toInventoryLocationId']),
+            HiddenField::make(['inventoryMovement', 'fromInventoryTransactionType']),
+            Callout::make('current-level', t('{item} currently has {quantity} {type} at {location}.', [
+                'item' => $this->inventoryItemLabel($inventoryItem),
+                'quantity' => $available,
+                'type' => $fromType->typeAsLabel(),
+                'location' => $inventoryLocation->getUiLabel(),
+            ], category: 'commerce')),
+            Field::make(
+                t('Quantity', category: 'commerce'),
+                Number::make(['inventoryMovement', 'quantity'])->min(1)->max($available)->autofocus(),
+            )->required(),
+            Field::make(
+                t('Move To', category: 'commerce'),
+                Choice::make(['inventoryMovement', 'toInventoryTransactionType'])->options($toTypeOptions),
+            )->required(),
+            Field::make(t('Notes', category: 'commerce'), Text::make(['inventoryMovement', 'note'])),
+        ]);
+
+        return new JsonResponse([
+            'form' => $this->formResolver->resolve($form, new FormContext(values: [
+                'inventoryMovement' => [
+                    'inventoryItemId' => $inventoryItem->id,
+                    'fromInventoryLocationId' => $inventoryLocation->id,
+                    'toInventoryLocationId' => $inventoryLocation->id,
+                    'fromInventoryTransactionType' => $fromType->value,
+                    'toInventoryTransactionType' => $toTypeOptions[0]['value'],
+                    'quantity' => 1,
+                    'note' => '',
+                ],
+            ])),
+            'title' => t('Move {type} Inventory', ['type' => $fromType->typeAsLabel()], category: 'commerce'),
+            'submitLabel' => t('Move', category: 'commerce'),
+        ]);
     }
 
     public function saveInventoryMovement(Request $request): Response
     {
-        $fromInventoryLocationId = (int)$request->input('inventoryMovement.fromInventoryLocationId');
-        $toInventoryLocationId = (int)$request->input('inventoryMovement.toInventoryLocationId');
-        $note = $request->input('inventoryMovement.note');
-        $fromInventoryTransactionType = $request->input('inventoryMovement.fromInventoryTransactionType');
-        $toInventoryTransactionType = $request->input('inventoryMovement.toInventoryTransactionType');
-        $inventoryItemId = $request->input('inventoryMovement.inventoryItemId');
-        $quantity = (int)$request->input('inventoryMovement.quantity');
+        $fromType = InventoryTransactionType::tryFrom((string)$request->input('inventoryMovement.fromInventoryTransactionType'));
+        $toType = InventoryTransactionType::tryFrom((string)$request->input('inventoryMovement.toInventoryTransactionType'));
+        abort_if(!$fromType || !$toType, 400, 'Invalid inventory transaction type');
 
-        if ($quantity == 0) {
+        $fromLocation = app(InventoryLocations::class)->getInventoryLocationById($request->integer('inventoryMovement.fromInventoryLocationId'));
+        $toLocation = app(InventoryLocations::class)->getInventoryLocationById($request->integer('inventoryMovement.toInventoryLocationId'));
+        abort_if(!$fromLocation || !$toLocation, 400, 'Invalid inventory location');
+
+        $quantity = $request->integer('inventoryMovement.quantity');
+
+        if ($quantity === 0) {
             return $this->asSuccess(t('No inventory movements made.', category: 'commerce'));
         }
 
         $inventoryMovement = new InventoryManualMovement();
-        $inventoryMovement->inventoryItemId = (int)$inventoryItemId;
-        $inventoryMovement->fromInventoryLocation = app(InventoryLocations::class)->getInventoryLocationById($fromInventoryLocationId);
-        $inventoryMovement->toInventoryLocation = app(InventoryLocations::class)->getInventoryLocationById($toInventoryLocationId);
-        $inventoryMovement->fromInventoryTransactionType = InventoryTransactionType::from($fromInventoryTransactionType);
-        $inventoryMovement->toInventoryTransactionType = InventoryTransactionType::from($toInventoryTransactionType);
+        $inventoryMovement->inventoryItemId = $request->integer('inventoryMovement.inventoryItemId');
+        $inventoryMovement->fromInventoryLocation = $fromLocation;
+        $inventoryMovement->toInventoryLocation = $toLocation;
+        $inventoryMovement->fromInventoryTransactionType = $fromType;
+        $inventoryMovement->toInventoryTransactionType = $toType;
         $inventoryMovement->quantity = $quantity;
-        $inventoryMovement->note = $note;
+        $inventoryMovement->note = (string)$request->input('inventoryMovement.note');
 
-        if ($inventoryMovement->validate()) {
-            /** @var InventoryMovementCollection $inventoryMovementCollection */
-            $inventoryMovementCollection = InventoryMovementCollection::make()->push($inventoryMovement);
-            if (!app(Inventory::class)->executeInventoryMovements($inventoryMovementCollection)) {
-                return $this->asFailure(t('Inventory movement could not be saved.', category: 'commerce'));
-            }
+        if (!$inventoryMovement->validate()) {
+            // Both rules are about whether the quantity can be moved, so that's where they're shown.
+            return $this->asFailure(t('Inventory movement could not be saved.', category: 'commerce'), [
+                'errors' => ['inventoryMovement.quantity' => $inventoryMovement->errors()->all()],
+            ]);
+        }
+
+        /** @var InventoryMovementCollection $inventoryMovements */
+        $inventoryMovements = InventoryMovementCollection::make()->push($inventoryMovement);
+
+        if (!app(Inventory::class)->executeInventoryMovements($inventoryMovements)) {
+            return $this->asFailure(t('Inventory movement could not be saved.', category: 'commerce'));
         }
 
         return $this->asSuccess(t('Inventory movement saved.', category: 'commerce'));
     }
 
-    public function editMovementModal(Request $request): CpModalResponse|JsonResponse
+    public function unfulfilledOrders(Request $request, string $inventoryLocationHandle): CpScreenResponse
     {
-        $fromInventoryLocationId = (int)$request->input('inventoryMovement.fromInventoryLocationId');
-        $toInventoryLocationId = (int)$request->input('inventoryMovement.toInventoryLocationId', $fromInventoryLocationId);
-        $note = $request->input('inventoryMovement.note', '');
-        $fromInventoryTransactionType = $request->input('inventoryMovement.fromInventoryTransactionType');
-        $toInventoryTransactionType = $request->input('inventoryMovement.toInventoryTransactionType');
-        $inventoryItemId = $request->input('inventoryMovement.inventoryItemId');
-        $quantity = (int)$request->input('inventoryMovement.quantity', 0);
+        $inventoryLocation = $this->resolveInventoryLocation($inventoryLocationHandle);
+        $inventoryItem = $this->resolveInventoryItem($request->integer('inventoryItemId'));
 
-        $movableTo = collect(InventoryTransactionType::allowedManualMoveTransactionTypes())
-            ->filter(fn($type) => $type->value !== $fromInventoryTransactionType)
-            ->mapWithKeys(fn($type) => [$type->value => $type->typeAsLabel()]);
+        $orders = app(Inventory::class)->getUnfulfilledOrders($inventoryItem, $inventoryLocation);
+        $formatter = app(Formatter::class);
 
-        $toInventoryTransactionType = InventoryTransactionType::tryFrom($toInventoryTransactionType);
-        if (!$toInventoryTransactionType) {
-            $toInventoryTransactionType = $movableTo->keys()->first();
-        } else {
-            $toInventoryTransactionType = $toInventoryTransactionType->value;
-        }
-
-        $inventoryMovement = new InventoryManualMovement();
-        $inventoryMovement->inventoryItemId = (int)$inventoryItemId;
-        $inventoryMovement->fromInventoryLocation = app(InventoryLocations::class)->getInventoryLocationById($fromInventoryLocationId);
-        $inventoryMovement->toInventoryLocation = app(InventoryLocations::class)->getInventoryLocationById($toInventoryLocationId);
-        $inventoryMovement->fromInventoryTransactionType = InventoryTransactionType::from($fromInventoryTransactionType);
-        $inventoryMovement->toInventoryTransactionType = InventoryTransactionType::from($toInventoryTransactionType);
-        $inventoryMovement->quantity = $quantity;
-        $inventoryMovement->note = $note;
-
-        $fromLevel = app(Inventory::class)->getInventoryLevel($inventoryMovement->inventoryItemId, $inventoryMovement->fromInventoryLocation);
-        $fromTotal = $fromLevel->{$fromInventoryTransactionType . 'Total'};
-
-        $movableTo = $movableTo->toArray();
-        $params = [
-            'inventoryMovement' => $inventoryMovement,
-            'toInventoryTransactionTypes' => $movableTo,
-            'maxFromQuantity' => $fromTotal,
-        ];
-
-        // Live preview refresh only swaps the preview region, leaving the form inputs untouched.
-        if ($request->input('preview')) {
-            return response()->json([
-                'previewHtml' => template('commerce/inventory/levels/_inventoryMovementPreview', $params, TemplateMode::Cp),
-            ]);
-        }
-
-        return new CpModalResponse()
-            ->action('commerce/inventory/save-inventory-movement')
-            ->submitButtonLabel(t('Move', category: 'commerce'))
-            ->contentTemplate('commerce/inventory/levels/_inventoryMovementModal', $params);
-    }
-
-    public function unfulfilledOrders(Request $request): CpModalResponse
-    {
-        $inventoryLocationId = (int)$request->input('inventoryLocationId');
-        $inventoryItemId = (int)$request->input('inventoryItemId');
-
-        $orders = app(Inventory::class)->getUnfulfilledOrders($inventoryItemId, $inventoryLocationId);
+        $table = TableNode::make('unfulfilled-orders')
+            ->columns([
+                ['key' => 'order', 'label' => t('Order', category: 'commerce')],
+                ['key' => 'dateOrdered', 'label' => t('Date Ordered', category: 'commerce')],
+            ])
+            ->rows(array_map(fn(Order $order) => [
+                'id' => $order->id,
+                'order' => ['label' => (string)($order->reference ?: $order->getShortNumber()), 'url' => $order->getCpEditUrl()],
+                'dateOrdered' => $order->dateOrdered ? $formatter->asDateTime($order->dateOrdered, 'short') : '',
+            ], $orders))
+            ->emptyMessage(t('No unfulfilled orders.', category: 'commerce'));
 
         $title = t('{count} Unfulfilled Orders', ['count' => count($orders)], category: 'commerce');
 
-        return new CpModalResponse()
-            ->contentTemplate('commerce/inventory/levels/_unfulfilledOrdersModal', compact(
-                'title',
-                'orders'
-            ));
+        return new CpScreenResponse()
+            ->title($title)
+            ->crumbs($this->crumbs($inventoryLocation, $this->inventoryItemLabel($inventoryItem)))
+            ->selectedSubnavItem('inventory')
+            ->inertiaPage('Form', [
+                'form' => $this->formResolver->resolve(Form::make([$table]), new FormContext()),
+            ]);
+    }
+
+    public function itemEdit(int $inventoryItemId): CpScreenResponse
+    {
+        $inventoryItem = $this->resolveInventoryItem($inventoryItemId);
+
+        $form = Form::make([
+            Tab::make('details', t('Details', category: 'commerce'), [
+                HiddenField::make('inventoryItemId'),
+                Field::make(t('Country Code of Origin', category: 'commerce'), Text::make('countryCodeOfOrigin')),
+                Field::make(t('Administrative Area Code of Origin', category: 'commerce'), Text::make('administrativeAreaCodeOfOrigin')),
+                Field::make(t('Harmonized System Code', category: 'commerce'), Text::make('harmonizedSystemCode')),
+            ]),
+            Tab::make('history', t('History', category: 'commerce'), $this->historyNodes($inventoryItem)),
+        ]);
+
+        $title = $this->inventoryItemLabel($inventoryItem);
+
+        return new CpScreenResponse()
+            ->title($title)
+            ->crumbs([
+                new ActionItem()->label(t('Commerce', category: 'commerce'))->href(Url::cpUrl('commerce')),
+                new ActionItem()->label(t('Inventory', category: 'commerce'))->href(Url::cpUrl('commerce/inventory')),
+                new ActionItem()->label($title),
+            ])
+            ->action('commerce/inventory/item-save')
+            ->redirectUrl('commerce/inventory')
+            ->selectedSubnavItem('inventory')
+            ->inertiaPage('Form', [
+                'form' => $this->formResolver->resolve($form, new FormContext(values: [
+                    'inventoryItemId' => $inventoryItem->id,
+                    'countryCodeOfOrigin' => $inventoryItem->countryCodeOfOrigin,
+                    'administrativeAreaCodeOfOrigin' => $inventoryItem->administrativeAreaCodeOfOrigin,
+                    'harmonizedSystemCode' => $inventoryItem->harmonizedSystemCode,
+                ])),
+                'submit' => [
+                    'method' => 'post',
+                    'url' => action([self::class, 'itemSave']),
+                ],
+            ]);
+    }
+
+    public function itemSave(Request $request): Response
+    {
+        $inventoryItem = $this->resolveInventoryItem($request->integer('inventoryItemId'));
+
+        $inventoryItem->countryCodeOfOrigin = (string)$request->input('countryCodeOfOrigin', $inventoryItem->countryCodeOfOrigin);
+        $inventoryItem->administrativeAreaCodeOfOrigin = (string)$request->input('administrativeAreaCodeOfOrigin', $inventoryItem->administrativeAreaCodeOfOrigin);
+        $inventoryItem->harmonizedSystemCode = (string)$request->input('harmonizedSystemCode', $inventoryItem->harmonizedSystemCode);
+
+        if (!app(Inventory::class)->saveInventoryItem($inventoryItem)) {
+            return $this->asModelFailure($inventoryItem, t('Couldn’t save inventory item.', category: 'commerce'), 'inventoryItem');
+        }
+
+        return $this->asModelSuccess($inventoryItem, t('Inventory Item saved.', category: 'commerce'), 'inventoryItem');
+    }
+
+    /**
+     * Builds "Commerce / Inventory / {location}[ / $current]". The location crumb switches
+     * between locations when there's more than one.
+     *
+     * @return list<ActionItem>
+     */
+    private function crumbs(InventoryLocation $currentLocation, ?string $current = null): array
+    {
+        $inventoryLocations = app(InventoryLocations::class)->getAllInventoryLocations();
+
+        $locationCrumb = new ActionItem()
+            ->label($currentLocation->getUiLabel())
+            ->href($currentLocation->getCpManageInventoryUrl());
+
+        if ($inventoryLocations->count() > 1) {
+            $locationCrumb->items($inventoryLocations->map(fn(InventoryLocation $location) => new ActionItem()
+                ->label($location->getUiLabel())
+                ->href($location->getCpManageInventoryUrl())
+                ->selected($location->id === $currentLocation->id))->values()->all());
+        }
+
+        return [
+            new ActionItem()->label(t('Commerce', category: 'commerce'))->href(Url::cpUrl('commerce')),
+            new ActionItem()->label(t('Inventory', category: 'commerce'))->href(Url::cpUrl('commerce/inventory')),
+            $locationCrumb,
+            ...($current !== null ? [new ActionItem()->label($current)] : []),
+        ];
+    }
+
+    /**
+     * The actions offered on one stock level cell, as menu items. Setting, adjusting and moving
+     * open a modal Form.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function levelActions(InventoryLocation $inventoryLocation, int $inventoryItemId, string $type, int $quantity): array
+    {
+        $params = [
+            'inventoryLocationId' => $inventoryLocation->id,
+            'inventoryItemId' => $inventoryItemId,
+            'type' => $type,
+        ];
+
+        $items = [];
+
+        if ($type === InventoryTransactionType::COMMITTED->value && $quantity > 0) {
+            $items[] = [
+                'label' => t('See Orders', category: 'commerce'),
+                'url' => Url::cpUrl("commerce/inventory/levels/$inventoryLocation->handle/orders", ['inventoryItemId' => $inventoryItemId]),
+            ];
+        }
+
+        if ($this->canAdjust($type)) {
+            foreach ([
+                [InventoryUpdateQuantityType::SET, t('Set Quantity', category: 'commerce')],
+                [InventoryUpdateQuantityType::ADJUST, t('Adjust Quantity', category: 'commerce')],
+            ] as [$updateAction, $label]) {
+                $items[] = [
+                    'label' => $label,
+                    'modalUrl' => action([self::class, 'prepareUpdateLevelsModal']),
+                    'actionUrl' => action([self::class, 'updateLevels']),
+                    'params' => [...$params, 'updateAction' => $updateAction->value],
+                ];
+            }
+        }
+
+        if (
+            $quantity > 0 &&
+            in_array(InventoryTransactionType::tryFrom($type), InventoryTransactionType::allowedManualMoveTransactionTypes(), true)
+        ) {
+            $items[] = [
+                'label' => t('Move Inventory', category: 'commerce'),
+                'modalUrl' => action([self::class, 'prepareMovementModal']),
+                'actionUrl' => action([self::class, 'saveInventoryMovement']),
+                'params' => $params,
+            ];
+        }
+
+        return $items;
+    }
+
+    private function canAdjust(string $type): bool
+    {
+        return $type === self::ON_HAND ||
+            in_array(InventoryTransactionType::tryFrom($type), InventoryTransactionType::allowedManualAdjustmentTypes(), true);
+    }
+
+    private function levelLabel(string $type): string
+    {
+        return $type === self::ON_HAND
+            ? t('On Hand', category: 'commerce')
+            : InventoryTransactionType::from($type)->typeAsLabel();
+    }
+
+    private function inventoryItemLabel(InventoryItem $inventoryItem): string
+    {
+        $purchasable = $inventoryItem->getPurchasable('*');
+        $sku = (string)$purchasable?->getSku();
+
+        return match (true) {
+            $sku !== '' && !PurchasableHelper::isTempSku($sku) => $sku,
+            (string)$purchasable?->getDescription() !== '' => $purchasable->getDescription(),
+            default => t('Inventory Item', category: 'commerce'),
+        };
+    }
+
+    /**
+     * Each location's transactions for the item, newest first.
+     *
+     * @return list<Heading|TableNode>
+     */
+    private function historyNodes(InventoryItem $inventoryItem): array
+    {
+        $formatter = app(Formatter::class);
+        $nodes = [];
+
+        foreach (app(InventoryLocations::class)->getAllInventoryLocations() as $location) {
+            $transactions = app(Inventory::class)->getInventoryTransactions($inventoryItem, $location);
+
+            $nodes[] = Heading::make("history-heading-$location->id", $location->getUiLabel());
+            $nodes[] = TableNode::make("history-$location->id")
+                ->columns([
+                    ['key' => 'date', 'label' => t('Date', category: 'commerce')],
+                    ['key' => 'type', 'label' => t('Type', category: 'commerce')],
+                    ['key' => 'quantity', 'label' => t('Qty', category: 'commerce')],
+                    ['key' => 'order', 'label' => t('Order', category: 'commerce')],
+                    ['key' => 'note', 'label' => t('Note', category: 'commerce')],
+                ])
+                ->rows($transactions->map(function(InventoryTransaction $transaction) use ($formatter) {
+                    $order = $transaction->getOrder();
+
+                    return [
+                        'date' => $transaction->dateCreated ? $formatter->asDateTime($transaction->dateCreated, 'short') : '',
+                        'type' => InventoryTransactionType::tryFrom($transaction->type)?->typeAsLabel() ?? $transaction->type,
+                        'quantity' => $transaction->quantity,
+                        'order' => $order ? ['label' => (string)($order->reference ?: $order->getShortNumber()), 'url' => $order->getCpEditUrl()] : '',
+                        'note' => $transaction->note,
+                    ];
+                })->values()->all())
+                ->emptyMessage(t('No inventory transactions for this location.', category: 'commerce'))
+                ->bordered();
+        }
+
+        return $nodes;
+    }
+
+    /**
+     * Loads the page's purchasables with one query per element type.
+     *
+     * @param list<int> $ids
+     * @return array<int, \CraftCms\Commerce\Purchasable\Elements\Purchasable>
+     */
+    private function purchasablesById(array $ids): array
+    {
+        if (!$ids) {
+            return [];
+        }
+
+        $siteId = Sites::getCurrentSite()->id;
+        $purchasables = [];
+
+        $idsByType = DB::table(CraftTable::ELEMENTS)->whereIn('id', $ids)->get(['id', 'type'])->groupBy('type');
+
+        /** @var class-string<\CraftCms\Commerce\Purchasable\Elements\Purchasable> $type */
+        foreach ($idsByType as $type => $elements) {
+            foreach ($type::find()->id($elements->pluck('id')->all())->siteId($siteId)->status(null)->all() as $purchasable) {
+                $purchasables[$purchasable->id] = $purchasable;
+            }
+        }
+
+        return $purchasables;
+    }
+
+    private function resolveInventoryLocation(string $handle): InventoryLocation
+    {
+        $inventoryLocation = app(InventoryLocations::class)->getInventoryLocationByHandle($handle);
+        abort_if(!$inventoryLocation, 404, 'Inventory location not found');
+
+        return $inventoryLocation;
+    }
+
+    private function resolveInventoryLocationById(int $inventoryLocationId): InventoryLocation
+    {
+        abort_if(!$inventoryLocationId, 400, 'Missing inventoryLocationId');
+
+        $inventoryLocation = app(InventoryLocations::class)->getInventoryLocationById($inventoryLocationId);
+        abort_if(!$inventoryLocation, 404, 'Inventory location not found');
+
+        return $inventoryLocation;
+    }
+
+    private function resolveInventoryItem(int $inventoryItemId): InventoryItem
+    {
+        abort_if(!$inventoryItemId, 400, 'Missing inventoryItemId');
+        abort_unless(
+            app(Inventory::class)->getInventoryItemQuery()->where('id', $inventoryItemId)->exists(),
+            404,
+            'Inventory item not found',
+        );
+
+        return app(Inventory::class)->getInventoryItemById($inventoryItemId);
     }
 }

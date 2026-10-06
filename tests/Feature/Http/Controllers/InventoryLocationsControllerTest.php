@@ -16,12 +16,16 @@ use CraftCms\Commerce\Inventory\InventoryLocations;
 use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Tests\Support\VariantQueryFixture;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 use function Pest\Laravel\getJson;
 use function Pest\Laravel\postJson;
 
 beforeEach(function() {
+    $this->withoutVite();
     actingAs(User::find()->admin(true)->one());
     prioritizeCommerceRoutes();
     app(Plugin::class)->edition = Plugin::EDITION_ENTERPRISE;
@@ -45,6 +49,51 @@ function createInventoryLocationForController(string $handle): InventoryLocation
 
     return $inventoryLocation;
 }
+
+it('renders the inventory locations index page', function() {
+    $inventoryLocation = createInventoryLocationForController('warehouse');
+
+    get(Url::cpUrl('commerce/inventory-locations'))
+        ->assertOk()
+        ->assertInertia(fn(AssertableInertia $page) => $page
+            ->component('Form', false)
+            ->where('title', 'Inventory Locations')
+            ->where('crumbs.0.label', 'Commerce')
+            ->where('form.nodes.0.props.rows', fn($rows) => collect($rows)->contains(
+                fn(array $row) => $row['id'] === $inventoryLocation->id && $row['handle'] === 'warehouse'
+            ))
+        );
+});
+
+it('requires the manage inventory locations permission', function() {
+    Gate::before(fn($user, $ability) => $ability === 'commerce-manageInventoryLocations' ? false : null);
+
+    get(Url::cpUrl('commerce/inventory-locations'))->assertForbidden();
+});
+
+it('renders the new inventory location page', function() {
+    get(Url::cpUrl('commerce/inventory-locations/new'))
+        ->assertOk()
+        ->assertInertia(fn(AssertableInertia $page) => $page
+            ->component('Form', false)
+            ->where('title', 'Create a new inventory location')
+            ->where('submit.url', Url::actionUrl('commerce/inventory-locations/save'))
+            ->has('form.nodes')
+        );
+});
+
+it('renders the inventory location edit page', function() {
+    $inventoryLocation = createInventoryLocationForController('warehouse');
+
+    get(Url::cpUrl("commerce/inventory-locations/$inventoryLocation->id"))
+        ->assertOk()
+        ->assertInertia(fn(AssertableInertia $page) => $page
+            ->component('Form', false)
+            ->where('title', 'Warehouse')
+            ->where('form.values.inventoryLocationId', $inventoryLocation->id)
+            ->where('form.values.handle', 'warehouse')
+        );
+});
 
 it('creates an inventory location with its address', function() {
     postJson(Url::actionUrl('commerce/inventory-locations/save'), [

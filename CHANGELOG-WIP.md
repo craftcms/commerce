@@ -383,11 +383,17 @@
 - Deprecated `craft\commerce\events\UpdateInventoryLevelEvent`. `CraftCms\Commerce\Inventory\Events\UpdateInventoryLevelEvent` should be used instead.
 - Removed `craft\commerce\records\InventoryItem`. `CraftCms\Commerce\Inventory\Records\InventoryItem` should be used instead.
 - Removed `craft\commerce\records\InventoryLocation`. `CraftCms\Commerce\Inventory\Records\InventoryLocation` should be used instead.
+- Removed `craft\commerce\web\assets\inventory\InventoryAsset`.
 
 #### Controllers
 
 - Removed `craft\commerce\controllers\InventoryController`. `CraftCms\Commerce\Http\Controllers\InventoryController` should be used instead.
 - Removed `craft\commerce\controllers\InventoryLocationsController`. `CraftCms\Commerce\Http\Controllers\InventoryLocationsController` should be used instead.
+- The `commerce/inventory/inventory-levels-table-data` action now requires a `POST` request.
+- Added the `commerce/inventory/prepare-update-levels-modal` action, returning the “Set Quantity” and “Adjust Quantity” modals' form.
+- Added the `commerce/inventory/prepare-movement-modal` action, returning the “Move Inventory” modal's form.
+- Removed the `commerce/inventory/edit-update-levels-modal`, `commerce/inventory/edit-movement-modal` and `commerce/inventory/unfulfilled-orders` actions.
+- Removed the `cp.commerce.inventory.index` template hook.
 
 ### Orders
 
