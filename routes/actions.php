@@ -75,8 +75,10 @@ Route::post('payment-sources/delete', [PaymentSourcesController::class, 'delete'
 // These are also reachable, unauthenticated, at their site-side action URL (per
 // CraftCms\Cms\Plugin\Concerns\HasRoutes::registerActionRoutes()) — the `auth`/`can`
 // middleware below is what actually protects them, not the URL prefix.
-Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageDonationSettings'])
-    ->post('donations/save', [DonationsController::class, 'save']);
+Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageDonationSettings'])->group(function () {
+    Route::post('donations/save', [DonationsController::class, 'save']);
+    Route::post('donations/render-form', [DonationsController::class, 'renderForm']);
+});
 
 Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->group(function () {
     Route::post('gateways/save', [GatewaysController::class, 'save']);
