@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use CraftCms\Cms\Cms;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Purchasable\Elements\Donation;
@@ -10,6 +11,7 @@ use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
+use function Pest\Laravel\post;
 use function Pest\Laravel\postJson;
 
 beforeEach(function() {
@@ -90,6 +92,38 @@ it('saves the donation settings', function() {
     expect($donation->enabled)->toBeTrue()
         ->and($donation->availableForPurchase)->toBeTrue()
         ->and($donation->sku)->toBe('GIVE-1');
+});
+
+it('redirects back to the donation settings after saving from the page', function() {
+    get(Url::cpUrl('commerce/donations'))->assertOk();
+
+    $cpTrigger = Cms::config()->cpTrigger;
+    $actionTrigger = Cms::config()->actionTrigger;
+
+    post("/$cpTrigger/$actionTrigger/commerce/donations/save", [
+        'enabled' => true,
+        'availableForPurchase' => true,
+        'sku' => 'GIVE-1',
+        'redirect' => encrypt('commerce/donations'),
+    ])->assertRedirect(Url::cpUrl('commerce/donations'));
+
+    expect(Donation::find()->status(null)->one()->sku)->toBe('GIVE-1');
+});
+
+it('returns to the donation settings when saving and continuing to edit', function() {
+    get(Url::cpUrl('commerce/donations'))->assertOk();
+
+    $cpTrigger = Cms::config()->cpTrigger;
+    $actionTrigger = Cms::config()->actionTrigger;
+
+    // Saving without leaving the screen posts no redirect.
+    post("/$cpTrigger/$actionTrigger/commerce/donations/save", [
+        'enabled' => true,
+        'availableForPurchase' => true,
+        'sku' => 'GIVE-2',
+    ], ['referer' => Url::cpUrl('commerce/donations')])->assertRedirect(Url::cpUrl('commerce/donations'));
+
+    expect(Donation::find()->status(null)->one()->sku)->toBe('GIVE-2');
 });
 
 it('keeps the values of fields that weren’t shown', function() {

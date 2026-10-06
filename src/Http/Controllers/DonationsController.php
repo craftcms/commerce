@@ -113,7 +113,7 @@ readonly class DonationsController
             return $this->asModelFailure($donation, t('Couldn’t save donation settings.', category: 'commerce'), 'donation');
         }
 
-        return $this->asSuccess(t('Donation settings saved.', category: 'commerce'), redirect: 'commerce/donations');
+        return $this->asSuccess(t('Donation settings saved.', category: 'commerce'));
     }
 
     /** @return array{enabled: bool, availableForPurchase: bool, sku: ?string} */
