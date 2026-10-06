@@ -39,6 +39,12 @@ class LineItemStatusesController extends BaseSettingsController
         return ['label' => t('Line Item Statuses', category: 'commerce'), 'href' => cp_url('commerce/settings/lineitemstatuses')];
     }
 
+    #[\Override]
+    protected function subnav(): array
+    {
+        return OrderSettingsController::ordersSubnav();
+    }
+
     public function index(): CpScreenResponse
     {
         $stores = app(Stores::class)->getAllStores();

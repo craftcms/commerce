@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
+use CraftCms\Cms\Cp\Data\NavItem;
 use CraftCms\Cms\Form\Controls\FieldLayoutDesigner;
 use CraftCms\Cms\Form\Enums\ControlMode;
 use CraftCms\Cms\Form\Form;
@@ -25,6 +26,37 @@ class OrderSettingsController extends BaseSettingsController
     protected function getSectionCrumb(): array
     {
         return ['label' => t('Order Fields', category: 'commerce'), 'href' => cp_url('commerce/settings/ordersettings')];
+    }
+
+    #[\Override]
+    protected function subnav(): array
+    {
+        return self::ordersSubnav();
+    }
+
+    /**
+     * The order settings screens, which list only each other in their subnav.
+     *
+     * @return NavItem[]
+     */
+    public static function ordersSubnav(): array
+    {
+        $path = request()->craftPath();
+
+        return [
+            new NavItem()
+                ->label(t('Order Fields', category: 'commerce'))
+                ->url(cp_url('commerce/settings/ordersettings'))
+                ->selected($path === 'commerce/settings/ordersettings'),
+            new NavItem()
+                ->label(t('Order Statuses', category: 'commerce'))
+                ->url(cp_url('commerce/settings/orderstatuses'))
+                ->selected($path === 'commerce/settings/orderstatuses'),
+            new NavItem()
+                ->label(t('Line Item Statuses', category: 'commerce'))
+                ->url(cp_url('commerce/settings/lineitemstatuses'))
+                ->selected($path === 'commerce/settings/lineitemstatuses'),
+        ];
     }
 
     public function edit(): CpScreenResponse

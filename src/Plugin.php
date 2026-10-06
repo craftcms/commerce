@@ -13,6 +13,7 @@ use CraftCms\Cms\Auth\Events\ElementAuthorizing;
 use CraftCms\Cms\Cms;
 use CraftCms\Cms\Cp\Data\NavItem;
 use CraftCms\Cms\Cp\Navigation;
+use CraftCms\Cms\Cp\Settings as CpSettings;
 use CraftCms\Cms\Element\Events\DefineDeletionBlockers;
 use CraftCms\Cms\Element\Events\ElementSaved;
 use CraftCms\Cms\Element\Queries\Events\ElementsHydrated;
@@ -131,6 +132,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 
+use function CraftCms\Cms\cp_url;
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
 
@@ -149,7 +151,7 @@ class Plugin extends BasePlugin
     // TODO: keep in sync with the latest 5.x patch release as it advances, right up until 6.0 stable ships
     public string $minVersionRequired = '5.7.3';
 
-    public bool $hasCpSettings = true;
+    public bool $hasCpSettings = false;
 
     public bool $hasReadOnlyCpSettings = true;
 
@@ -262,6 +264,8 @@ class Plugin extends BasePlugin
         app(FormControlTypes::class)->register(TransferDetails::class);
         app(FormControlTypes::class)->register(TransferReceive::class);
 
+        $this->registerCpSettings();
+
         Gate::policy(Product::class, ProductPolicy::class);
         Gate::policy(Transfer::class, TransferPolicy::class);
         Gate::policy(Variant::class, VariantPolicy::class);
@@ -287,6 +291,31 @@ class Plugin extends BasePlugin
                 $this->registerCKEditorLinkOptions();
                 $this->registerLegacyCpRoutes();
             }
+        }
+    }
+
+    private function registerCpSettings(): void
+    {
+        $settings = [
+            'general' => ['gear', fn() => t('General', category: 'commerce')],
+            'stores' => ['store', fn() => t('Stores', category: 'commerce')],
+            'producttypes' => ['boxes-stacked', fn() => t('Product Types', category: 'commerce')],
+            'ordersettings' => ['receipt', fn() => t('Orders', category: 'commerce')],
+            'pdfs' => ['file-pdf', fn() => t('PDFs', category: 'commerce')],
+            'emails' => ['envelopes', fn() => t('Emails', category: 'commerce')],
+            'gateways' => ['credit-card', fn() => t('Gateways', category: 'commerce')],
+            'transfers' => ['truck-arrow-right', fn() => t('Transfers', category: 'commerce')],
+        ];
+
+        foreach ($settings as $handle => [$icon, $label]) {
+            $setting = fn() => [
+                'label' => $label(),
+                'url' => cp_url("commerce/settings/$handle"),
+                'icon' => File::get(dirname($this->getBasePath()) . "/resources/icons/light/$icon.svg"),
+            ];
+
+            app(CpSettings::class)->registerSetting('Commerce', $handle, $setting);
+            app(CpSettings::class)->registerReadOnlySetting('Commerce', $handle, $setting);
         }
     }
 
@@ -413,40 +442,51 @@ class Plugin extends BasePlugin
 
         $viewableProductTypeIds = app(ProductTypes::class)->getViewableProductTypeIds(true);
 
+        $productNavItems = [];
+
         if (count($viewableProductTypeIds) > 1) {
-            foreach (app(Navigation::class)->sourceSubnav(Product::class, 'commerce/products') as $productNavItem) {
-                $item->add($productNavItem);
-            }
+            $productNavItems = app(Navigation::class)->sourceSubnav(Product::class, 'commerce/products');
         } elseif ($viewableProductTypeIds) {
-            $item->add(new NavItem()->label(t('Products', category: 'commerce'))->url('commerce/products'));
+            $productNavItems[] = new NavItem()->label(t('Products', category: 'commerce'))->url('commerce/products');
         }
 
+        if (currentUser()?->can('commerce-manageDonationSettings')) {
+            $donationsNavItem = new NavItem()->label(t('Donations', category: 'commerce'))->url('commerce/donations');
+            $lastProductNavItem = end($productNavItems);
+
+            // Listed directly beneath the product types, under their heading when they have one.
+            if ($lastProductNavItem instanceof NavItem && $lastProductNavItem->group && is_array($lastProductNavItem->subnav)) {
+                $lastProductNavItem->add($donationsNavItem);
+            } else {
+                $productNavItems[] = $donationsNavItem;
+            }
+        }
+
+        foreach ($productNavItems as $productNavItem) {
+            $item->add($productNavItem);
+        }
+
+        $inventoryItems = [];
+
         if (currentUser()?->can('commerce-manageInventoryStockLevels')) {
-            $item->add(new NavItem()->label(t('Inventory', category: 'commerce'))->url('commerce/inventory'));
+            $inventoryItems[] = new NavItem()->label(t('Manage Inventory', category: 'commerce'))->url('commerce/inventory');
         }
 
         if (currentUser()?->can('commerce-manageInventoryLocations')) {
-            $item->add(new NavItem()->label(t('Inventory Locations', category: 'commerce'))->url('commerce/inventory-locations'));
+            $inventoryItems[] = new NavItem()->label(t('Inventory Locations', category: 'commerce'))->url('commerce/inventory-locations');
         }
 
         $multipleLocations = app(InventoryLocations::class)->getAllInventoryLocations()->count() > 1;
         if ($multipleLocations && currentUser()?->can('commerce-manageInventoryTransfers')) {
-            $item->add(new NavItem()->label(t('Inventory Transfers', category: 'commerce'))->url('commerce/inventory/transfers'));
+            $inventoryItems[] = new NavItem()->label(t('Inventory Transfers', category: 'commerce'))->url('commerce/inventory/transfers');
         }
 
-        if (currentUser()?->can('commerce-manageDonationSettings')) {
-            $item->add(new NavItem()->label(t('Donations', category: 'commerce'))->url('commerce/donations'));
+        if ($inventoryItems) {
+            $item->add(new NavItem()->label(t('Inventory', category: 'commerce'))->group(true)->subnav($inventoryItems));
         }
 
         if (currentUser()?->can('commerce-manageStoreSettings')) {
             $item->add(new NavItem()->label(t('Store Management', category: 'commerce'))->url('commerce/store-management'));
-        }
-
-        if (currentUser()?->isAdmin()) {
-            $item->add(new NavItem()
-                ->label(t('Settings', category: 'app'))
-                ->ariaLabel(t('Commerce Settings', category: 'commerce'))
-                ->url('commerce/settings'));
         }
 
         return $item;

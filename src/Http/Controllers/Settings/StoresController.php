@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\db\Query;
+use CraftCms\Cms\Cp\Data\NavItem;
 use CraftCms\Cms\Form\Controls\Choice;
 use CraftCms\Cms\Form\Controls\Handle;
 use CraftCms\Cms\Form\Controls\Lightswitch;
@@ -39,6 +40,23 @@ class StoresController extends BaseSettingsController
     protected function getSectionCrumb(): array
     {
         return ['label' => t('Stores'), 'href' => cp_url('commerce/settings/stores')];
+    }
+
+    #[\Override]
+    protected function subnav(): array
+    {
+        $path = request()->craftPath();
+
+        return [
+            new NavItem()
+                ->label(t('Stores', category: 'commerce'))
+                ->url(cp_url('commerce/settings/stores'))
+                ->selected($path === 'commerce/settings/stores'),
+            new NavItem()
+                ->label(t('Sites'))
+                ->url(cp_url('commerce/settings/sites'))
+                ->selected($path === 'commerce/settings/sites'),
+        ];
     }
 
     public function editStore(?int $storeId = null): CpScreenResponse

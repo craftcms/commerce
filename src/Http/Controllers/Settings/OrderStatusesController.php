@@ -45,6 +45,12 @@ class OrderStatusesController extends BaseSettingsController
         return ['label' => t('Order Statuses', category: 'commerce'), 'href' => cp_url('commerce/settings/orderstatuses')];
     }
 
+    #[\Override]
+    protected function subnav(): array
+    {
+        return OrderSettingsController::ordersSubnav();
+    }
+
     public function index(): CpScreenResponse
     {
         $stores = app(Stores::class)->getAllStores();

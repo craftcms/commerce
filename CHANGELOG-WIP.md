@@ -384,6 +384,8 @@
 - Removed `craft\commerce\records\InventoryItem`. `CraftCms\Commerce\Inventory\Records\InventoryItem` should be used instead.
 - Removed `craft\commerce\records\InventoryLocation`. `CraftCms\Commerce\Inventory\Records\InventoryLocation` should be used instead.
 - Removed `craft\commerce\web\assets\inventory\InventoryAsset`.
+- Renamed the "Inventory" Control Panel nav item to "Manage Inventory".
+- The "Manage Inventory", "Inventory Locations", and "Inventory Transfers" Control Panel nav items are now grouped under an "Inventory" heading.
 
 #### Controllers
 
@@ -746,6 +748,7 @@
 #### Controllers
 
 - Removed `craft\commerce\controllers\DonationsController`. `CraftCms\Commerce\Http\Controllers\DonationsController` should be used instead.
+- Moved the "Donations" Control Panel nav item to directly beneath the product types.
 
 ### Shipping
 
@@ -842,6 +845,8 @@
 - Removed `craft\commerce\records\StoreSettings`. `CraftCms\Commerce\Store\Records\StoreSettings` should be used instead.
 - Removed `craft\commerce\records\Store`. `CraftCms\Commerce\Store\Records\Store` should be used instead.
 - Removed `craft\commerce\base\StoreRecordTrait` as it was unused.
+- Added a "Commerce" section to the Control Panel Settings page, with "General", "Stores", "Product Types", "Orders", "PDFs", "Emails", "Gateways", and "Transfers" tiles linking to the corresponding Commerce settings screens.
+- Removed the "Settings" Control Panel nav item from the Commerce nav. Commerce settings are now reached from the Control Panel Settings page.
 
 #### Controllers
 
