@@ -531,6 +531,7 @@
 - Removed `craft\commerce\controllers\LineItemStatusesController`. `CraftCms\Commerce\Http\Controllers\Settings\LineItemStatusesController` should be used instead.
 - Removed `craft\commerce\controllers\UserOrdersController`. `CraftCms\Commerce\Http\Controllers\UserOrdersController` should be used instead.
 - Removed `craft\commerce\controllers\OrderSettingsController`. `CraftCms\Commerce\Http\Controllers\Settings\OrderSettingsController` should be used instead.
+- Moved the `commerce/settings/ordersettings`, `commerce/settings/orderstatuses`, and `commerce/settings/lineitemstatuses` control panel routes to `commerce/settings/orders/fields`, `commerce/settings/orders/statuses`, and `commerce/settings/orders/line-item-statuses`.
 - Removed `craft\commerce\controllers\DownloadsController`. `CraftCms\Commerce\Http\Controllers\DownloadsController` should be used instead.
 
 ### Payments
@@ -852,6 +853,7 @@
 
 - Removed `craft\commerce\controllers\StoreManagementController`. `CraftCms\Commerce\Http\Controllers\Settings\StoreManagementController` should be used instead.
 - Removed `craft\commerce\controllers\StoresController`. `CraftCms\Commerce\Http\Controllers\Settings\StoresController` should be used instead.
+- Moved the `commerce/settings/sites` control panel route to `commerce/settings/stores/sites`.
 
 ### Subscriptions
 

@@ -42,7 +42,7 @@ class OrderStatusesController extends BaseSettingsController
 {
     protected function getSectionCrumb(): array
     {
-        return ['label' => t('Order Statuses', category: 'commerce'), 'href' => cp_url('commerce/settings/orderstatuses')];
+        return ['label' => t('Order Statuses', category: 'commerce'), 'href' => cp_url('commerce/settings/orders/statuses')];
     }
 
     #[\Override]
@@ -61,7 +61,7 @@ class OrderStatusesController extends BaseSettingsController
         // combined "New order status" menu covering every store, rather than one button apiece.
         $createMenuItems = $this->readOnly ? [] : $stores->map(fn(Store $store) => [
             'label' => $store->name,
-            'url' => cp_url("commerce/settings/orderstatuses/{$store->handle}/new"),
+            'url' => cp_url("commerce/settings/orders/statuses/{$store->handle}/new"),
         ])->all();
         $createMenuAssigned = false;
 
@@ -212,7 +212,7 @@ class OrderStatusesController extends BaseSettingsController
             ->title($title)
             ->crumbs($orderStatus->id ? $this->crumbs(['label' => $title]) : $this->crumbs())
             ->action('commerce/order-statuses/save')
-            ->redirectUrl('commerce/settings/orderstatuses')
+            ->redirectUrl('commerce/settings/orders/statuses')
             ->inertiaPage('Form', [
                 'form' => $form,
                 'submit' => [

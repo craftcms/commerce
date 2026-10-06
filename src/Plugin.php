@@ -300,7 +300,7 @@ class Plugin extends BasePlugin
             'general' => ['gear', fn() => t('General', category: 'commerce')],
             'stores' => ['store', fn() => t('Stores', category: 'commerce')],
             'producttypes' => ['boxes-stacked', fn() => t('Product Types', category: 'commerce')],
-            'ordersettings' => ['receipt', fn() => t('Orders', category: 'commerce')],
+            'orders' => ['receipt', fn() => t('Orders', category: 'commerce')],
             'pdfs' => ['file-pdf', fn() => t('PDFs', category: 'commerce')],
             'emails' => ['envelopes', fn() => t('Emails', category: 'commerce')],
             'gateways' => ['credit-card', fn() => t('Gateways', category: 'commerce')],

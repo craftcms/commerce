@@ -36,7 +36,7 @@ class LineItemStatusesController extends BaseSettingsController
 {
     protected function getSectionCrumb(): array
     {
-        return ['label' => t('Line Item Statuses', category: 'commerce'), 'href' => cp_url('commerce/settings/lineitemstatuses')];
+        return ['label' => t('Line Item Statuses', category: 'commerce'), 'href' => cp_url('commerce/settings/orders/line-item-statuses')];
     }
 
     #[\Override]
@@ -55,7 +55,7 @@ class LineItemStatusesController extends BaseSettingsController
         // combined "New line item status" menu covering every store, rather than one button apiece.
         $createMenuItems = $this->readOnly ? [] : $stores->map(fn(Store $store) => [
             'label' => $store->name,
-            'url' => cp_url("commerce/settings/lineitemstatuses/{$store->handle}/new"),
+            'url' => cp_url("commerce/settings/orders/line-item-statuses/{$store->handle}/new"),
         ])->all();
         $createMenuAssigned = false;
 
@@ -174,7 +174,7 @@ class LineItemStatusesController extends BaseSettingsController
             ->title($title)
             ->crumbs($lineItemStatus->id ? $this->crumbs(['label' => $title]) : $this->crumbs())
             ->action('commerce/line-item-statuses/save')
-            ->redirectUrl('commerce/settings/lineitemstatuses')
+            ->redirectUrl('commerce/settings/orders/line-item-statuses')
             ->inertiaPage('Form', [
                 'form' => $form,
                 'submit' => [

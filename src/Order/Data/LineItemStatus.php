@@ -75,7 +75,7 @@ class LineItemStatus extends Component implements HasStoreInterface, Chippable
 
     public function getCpEditUrl(): string
     {
-        return Url::cpUrl('commerce/settings/lineitemstatuses/' . $this->getStore()->handle . '/' . $this->id);
+        return Url::cpUrl('commerce/settings/orders/line-item-statuses/' . $this->getStore()->handle . '/' . $this->id);
     }
 
     public function getLabelHtml(): string

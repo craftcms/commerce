@@ -54,8 +54,8 @@ class StoresController extends BaseSettingsController
                 ->selected($path === 'commerce/settings/stores'),
             new NavItem()
                 ->label(t('Sites'))
-                ->url(cp_url('commerce/settings/sites'))
-                ->selected($path === 'commerce/settings/sites'),
+                ->url(cp_url('commerce/settings/stores/sites'))
+                ->selected($path === 'commerce/settings/stores/sites'),
         ];
     }
 
@@ -445,8 +445,8 @@ class StoresController extends BaseSettingsController
 
         return $this->cpScreenResponse()
             ->title($title)
-            ->crumbs($this->crumbsForSection(['label' => $title, 'href' => cp_url('commerce/settings/sites')]))
-            ->redirectUrl('commerce/settings/sites')
+            ->crumbs($this->crumbsForSection(['label' => $title, 'href' => cp_url('commerce/settings/stores/sites')]))
+            ->redirectUrl('commerce/settings/stores/sites')
             ->inertiaPage('Form', [
                 'form' => $this->formResolver->resolve($form, new FormContext(
                     values: $values,

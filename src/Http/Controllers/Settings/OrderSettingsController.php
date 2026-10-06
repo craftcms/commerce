@@ -25,7 +25,7 @@ class OrderSettingsController extends BaseSettingsController
 {
     protected function getSectionCrumb(): array
     {
-        return ['label' => t('Order Fields', category: 'commerce'), 'href' => cp_url('commerce/settings/ordersettings')];
+        return ['label' => t('Order Fields', category: 'commerce'), 'href' => cp_url('commerce/settings/orders/fields')];
     }
 
     #[\Override]
@@ -46,16 +46,16 @@ class OrderSettingsController extends BaseSettingsController
         return [
             new NavItem()
                 ->label(t('Order Fields', category: 'commerce'))
-                ->url(cp_url('commerce/settings/ordersettings'))
-                ->selected($path === 'commerce/settings/ordersettings'),
+                ->url(cp_url('commerce/settings/orders/fields'))
+                ->selected($path === 'commerce/settings/orders/fields'),
             new NavItem()
                 ->label(t('Order Statuses', category: 'commerce'))
-                ->url(cp_url('commerce/settings/orderstatuses'))
-                ->selected($path === 'commerce/settings/orderstatuses'),
+                ->url(cp_url('commerce/settings/orders/statuses'))
+                ->selected($path === 'commerce/settings/orders/statuses'),
             new NavItem()
                 ->label(t('Line Item Statuses', category: 'commerce'))
-                ->url(cp_url('commerce/settings/lineitemstatuses'))
-                ->selected($path === 'commerce/settings/lineitemstatuses'),
+                ->url(cp_url('commerce/settings/orders/line-item-statuses'))
+                ->selected($path === 'commerce/settings/orders/line-item-statuses'),
         ];
     }
 
@@ -73,7 +73,7 @@ class OrderSettingsController extends BaseSettingsController
         return $this->cpScreenResponse()
             ->title($title)
             ->crumbs($this->crumbs())
-            ->redirectUrl('commerce/settings/ordersettings')
+            ->redirectUrl('commerce/settings/orders/fields')
             ->inertiaPage('Form', [
                 'form' => $this->formResolver->resolve($form, new FormContext(
                     values: [

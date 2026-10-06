@@ -91,9 +91,9 @@ class OrderStatus extends Component implements HasStoreInterface, Chippable
     public function getCpEditUrl(): string
     {
         // getStoreSettingsUrl() points at commerce/store-management/..., but order statuses
-        // live under commerce/settings/orderstatuses/... — build that URL directly, matching
+        // live under commerce/settings/orders/statuses/... — build that URL directly, matching
         // the sibling LineItemStatus::getCpEditUrl().
-        return Url::cpUrl('commerce/settings/orderstatuses/' . $this->getStore()->handle . '/' . $this->id);
+        return Url::cpUrl('commerce/settings/orders/statuses/' . $this->getStore()->handle . '/' . $this->id);
     }
 
     public function getEmailIds(): array
