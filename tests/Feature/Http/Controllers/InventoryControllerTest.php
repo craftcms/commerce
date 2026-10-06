@@ -99,6 +99,7 @@ it('returns the stock level rows with their actions', function() {
         ->and($row['sku'])->toBe([
             'label' => $this->fixture->blueVariant->getSku(),
             'url' => Url::cpUrl('commerce/inventory/item/' . $this->inventoryItem->id),
+            'slideout' => true,
         ])
         ->and($row['available']['label'])->toBe('7')
         ->and(array_column($row['available']['items'], 'label'))->toBe(['Set Quantity', 'Adjust Quantity', 'Move Inventory'])
@@ -335,6 +336,19 @@ it('renders the inventory item page with its history', function() {
             ->where('form.nodes.1.children.1.props.rows.0.quantity', 7)
             ->where('form.nodes.1.children.1.props.rows.0.type', 'Available')
         );
+});
+
+it('renders the inventory item screen for a slideout', function() {
+    get(Url::cpUrl('commerce/inventory/item/' . $this->inventoryItem->id), [
+        'X-Inertia' => 'true',
+        'X-Craft-Container-Id' => 'slideout-1',
+        'Accept' => 'application/json',
+    ])
+        ->assertOk()
+        ->assertJsonPath('component', 'Form')
+        ->assertJsonPath('props.title', $this->fixture->blueVariant->getSku())
+        ->assertJsonPath('props.form.values.inventoryItemId', $this->inventoryItem->id)
+        ->assertJsonPath('props.submit.url', Url::actionUrl('commerce/inventory/item-save'));
 });
 
 it('saves an inventory item', function() {

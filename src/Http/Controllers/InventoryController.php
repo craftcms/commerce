@@ -177,6 +177,7 @@ readonly class InventoryController
                 'sku' => [
                     'label' => $sku !== '' ? $sku : t('Edit'),
                     'url' => Url::cpUrl('commerce/inventory/item/' . $level['inventoryItemId']),
+                    'slideout' => true,
                 ],
             ];
 
