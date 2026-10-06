@@ -57,7 +57,6 @@ class InventoryLocationsController extends BaseCpController
     public function actionIndex(): Response
     {
         $inventoryLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
-        $currentUser = Craft::$app->getUser()->getIdentity();
         $variables = [];
 
         $screen = $this->asCpScreen()
@@ -66,15 +65,8 @@ class InventoryLocationsController extends BaseCpController
             ->selectedSubnavItem('inventory-locations')
             ->contentTemplate('commerce/inventory-locations/_index', $variables);
 
-        $locationCount = count($inventoryLocations);
-        $showNewButton = false;
-        $userCanCreate = ($currentUser && $currentUser->can('commerce-createLocations'));
-
-        if ($locationCount < Plugin::EDITION_PRO_STORE_LIMIT) {
-            $showNewButton = true;
-        }
-
-        if ($userCanCreate && $showNewButton) {
+        // The `commerce-manageInventoryLocations` permission required in `init()` covers creating locations
+        if (count($inventoryLocations) < Plugin::EDITION_PRO_STORE_LIMIT) {
             $button = Html::a(
                 Craft::t('commerce', 'New location'),
                 'commerce/inventory-locations/new',
