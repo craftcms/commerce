@@ -1762,7 +1762,7 @@ class OrderQuery extends ElementQuery
         }
 
         if (isset($this->dateAuthorized)) {
-            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateAuthorized', $this->datePaid));
+            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateAuthorized', $this->dateAuthorized));
         }
 
         if (isset($this->dateOrdered)) {

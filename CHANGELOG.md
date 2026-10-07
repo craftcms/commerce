@@ -2,12 +2,26 @@
 
 ## Unreleased
 
-- Fixed a PHP error on the dashboard that could occur for users without edit permissions for any site. ([#4347](https://github.com/craftcms/commerce/issues/4347))
-- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) RCE vulnerability. (hackrate#1883)
-- Fixed some [medium-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerabilities. (hackrate#1884, hackrate#1885, hackrate#1895)
-- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) cross-store authorization vulnerability. (hackrate#1893)
-- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) permission-check vulnerability. (hackrate#1894)
-- Fixed a bug where saving a provisional product draft could result in two variants being flagged as the default. ([#4361](https://github.com/craftcms/commerce/issues/4361))
+- Fixed a bug where all catalog pricing could be removed if a catalog pricing rule was deleted before its catalog pricing job ran. ([#4374](https://github.com/craftcms/commerce/issues/4374))
+- Fixed a bug where non-admin users couldn’t create inventory locations. ([#4376](https://github.com/craftcms/commerce/issues/4376))
+
+## 5.7.5 - 2026-09-23
+
+- Fixed a bug where the `dateAuthorized` order query param incorrectly filtered on the `datePaid`.
+- Fixed a bug where currency-based order condition rules could show the incorrect currency. ([#4368](https://github.com/craftcms/commerce/issues/4368))
+- Fixed an error that could occur on order edit pages, for orders belonging to a non-primary store. ([#4370](https://github.com/craftcms/commerce/issues/4370))
+- Fixed an error that could occur when deleting a completed order that contained a custom line item. ([#4371](https://github.com/craftcms/commerce/issues/4371))
+- Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (GHSA-wwpp-9fw2-4cxh)
+
+## 5.7.4 - 2026-09-15
+
+- Fixed a bug where custom order fields with a visibility condition based on order attributes couldn’t be saved. ([#4198](https://github.com/craftcms/commerce/issues/4198))
+- Fixed a bug where the Payment Amount field on order edit pages could get reformatted incorrectly per the user’s formatting locale. ([#4109](https://github.com/craftcms/commerce/issues/4109))
+- Fixed a PHP error that could occur when using a date/time attribute in an order-related object template. ([#4255](https://github.com/craftcms/commerce/issues/4255))
+- Fixed a PHP error on the Dashboard that could occur for users without edit permissions for any site. ([#4347](https://github.com/craftcms/commerce/issues/4347))
+- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) RCE vulnerability. (GHSA-w9pv-3qgc-2pq2)
+- Fixed [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerabilities. (GHSA-wr49-2q4p-354w, GHSA-jx83-gwwg-84gf, GHSA-w2cw-phpj-gcgw, GHSA-fw8v-h534-cqw2, GHSA-wfxq-r2hv-px5r)
+
 
 ## 5.7.3 - 2026-09-02
 

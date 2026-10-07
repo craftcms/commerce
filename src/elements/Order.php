@@ -27,6 +27,7 @@ use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderNoticesTrait;
 use craft\commerce\elements\traits\OrderValidatorsTrait;
 use craft\commerce\enums\ContainsPurchasablesMatch;
+use craft\commerce\enums\LineItemType;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\LineItemNotFoundException;
 use craft\commerce\errors\OrderAdjustmentNotFoundException;
@@ -1539,6 +1540,30 @@ class Order extends Element implements HasStoreInterface
     }
 
     /**
+     * Returns the order's raw datetime attribute values, for use as extra `$variables` when rendering an object
+     * template against this order (e.g. the order reference format or a PDF file name format).
+     *
+     * `fields()` re-serializes datetime attributes into `['date' => ..., 'time' => ...]` arrays for the control
+     * panel's Vue components, but `craft\web\View::renderObjectTemplate()` populates its template variables from
+     * `fields()` before falling back to raw attributes, so a template like `{{ dateOrdered|date('Y-m-d') }}` would
+     * otherwise receive that array instead of a `DateTime` object. `renderObjectTemplate()` won't overwrite
+     * variables that are already set, so passing this array in preserves the raw values.
+     *
+     * @see fields()
+     * @see https://github.com/craftcms/commerce/issues/4255
+     */
+    public function getObjectTemplateVariables(): array
+    {
+        $variables = [];
+
+        foreach (Component::datetimeAttributes($this) as $attribute) {
+            $variables[$attribute] = $this->$attribute;
+        }
+
+        return $variables;
+    }
+
+    /**
      * @inheritdoc
      */
     public function extraFields(): array
@@ -1847,7 +1872,7 @@ class Order extends Element implements HasStoreInterface
             $referenceTemplate = $this->getStore()->getOrderReferenceFormat();
 
             try {
-                $baseReference = Craft::$app->getView()->renderSandboxedObjectTemplate($referenceTemplate, $this);
+                $baseReference = Craft::$app->getView()->renderSandboxedObjectTemplate($referenceTemplate, $this, $this->getObjectTemplateVariables());
 
                 // Check if this reference already exists and append suffix if needed
                 $suffix = 0;
@@ -3813,6 +3838,10 @@ class Order extends Element implements HasStoreInterface
 
         if ($this->isCompleted) {
             foreach ($this->_deletingLineItems as $lineItem) {
+                if ($lineItem->type === LineItemType::Custom) {
+                    continue;
+                }
+
                 $purchasable = $lineItem->getPurchasable();
                 if ($purchasable instanceof Purchasable && $purchasable::hasInventory() && $purchasable->inventoryTracked) {
                     Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
