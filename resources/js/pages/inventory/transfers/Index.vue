@@ -3,6 +3,8 @@
     appendIndexQuery,
     CpButtonLink,
     ElementIndexPage,
+    useAppLayout,
+    useCustomizeSources,
     type ElementIndexRoute,
   } from '@craftcms/cms/elements';
 
@@ -10,7 +12,22 @@
     indexUrl: string;
     newTransferUrl: string | null;
     newTransferLabel: string;
+    sourceNavItems?: Array<CraftCms.Cms.Cp.Data.NavItem>;
+    elementType?: string | null;
+    page?: string | null;
+    source?: {key?: string | null} | null;
   }>();
+
+  const subnavActions = useCustomizeSources(() => ({
+    elementType: props.elementType,
+    page: props.page,
+    sourceKey: props.source?.key,
+  }));
+
+  useAppLayout(() => ({
+    subnav: props.sourceNavItems ?? [],
+    subnavActions: subnavActions.value,
+  }));
 
   // `indexUrl` carries the `site` param `Url::cpUrl()` adds, which the index
   // query is merged over.
