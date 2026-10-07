@@ -441,11 +441,6 @@ class Plugin extends BasePlugin
             $item->add(new NavItem()->label(t('Orders', category: 'commerce'))->url('commerce/orders'));
         }
 
-        /**
-         * One entry, whatever the product types are. The index puts them in the
-         * secondary nav itself, so listing them here as well would say the same
-         * thing twice.
-         */
         if (app(ProductTypes::class)->getViewableProductTypeIds(true)) {
             $item->add(new NavItem()->label(t('Products', category: 'commerce'))->url('commerce/products'));
         }
