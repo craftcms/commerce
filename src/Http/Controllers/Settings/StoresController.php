@@ -189,9 +189,9 @@ class StoresController extends BaseSettingsController
             Field::make(t('Use Billing Address For Tax', category: 'commerce'), Lightswitch::make('useBillingAddressForTax')),
             Field::make(t('Validate Business Tax ID as Vat ID', category: 'commerce'), Lightswitch::make('validateOrganizationTaxIdAsVatId')),
             Field::make(t('Order Reference Number Format', category: 'commerce'), Text::make('orderReferenceFormat')->monospace())
-                ->instructions(t('A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or {ex2}. The result of this format must be unique.', [
-                    'ex1' => '2018-{number[:7]}',
-                    'ex2' => "{{object.dateCompleted|date('y')}}-{{ seq(object.dateCompleted|date('y'), 8) }}",
+                ->instructions(t('A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.', [
+                    'ex1' => Html::code('2018-{number[:7]}'),
+                    'ex2' => Html::code("{{object.dateCompleted|date('y')}}-{{ seq(object.dateCompleted|date('y'), 8) }}"),
                 ], category: 'commerce')),
         ];
 

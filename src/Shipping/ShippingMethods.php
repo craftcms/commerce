@@ -130,7 +130,7 @@ class ShippingMethods
         if ($model->id) {
             $record = ShippingMethodRecord::find($model->id);
             if (!$record) {
-                throw new \RuntimeException(t('No shipping method exists with the ID "{id}"', ['id' => $model->id], category: 'commerce'));
+                throw new \RuntimeException(t('No shipping method exists with the ID “{id}”', ['id' => $model->id], category: 'commerce'));
             }
         } else {
             $record = new ShippingMethodRecord();

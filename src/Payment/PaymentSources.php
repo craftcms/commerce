@@ -165,7 +165,7 @@ class PaymentSources
             $record = PaymentSourceRecord::find($paymentSource->id);
 
             if (!$record) {
-                throw new \RuntimeException(t('No payment source exists with the ID "{id}"', ['id' => $paymentSource->id], category: 'commerce'));
+                throw new \RuntimeException(t('No payment source exists with the ID “{id}”', ['id' => $paymentSource->id], category: 'commerce'));
             }
         } else {
             $record = new PaymentSourceRecord();

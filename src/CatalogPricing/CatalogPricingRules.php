@@ -195,7 +195,7 @@ class CatalogPricingRules
             $record = CatalogPricingRuleRecord::find($catalogPricingRule->id);
 
             if (!$record) {
-                throw new \RuntimeException(t('No catalog pricing rule exists with the ID "{id}"', ['id' => $catalogPricingRule->id], category: 'commerce'));
+                throw new \RuntimeException(t('No catalog pricing rule exists with the ID “{id}”', ['id' => $catalogPricingRule->id], category: 'commerce'));
             }
         }
 

@@ -157,7 +157,7 @@ readonly class SalesController extends LegacyStoreManagementController
             return $this->asModelSuccess($sale, t('Sale saved.', category: 'commerce'), 'sale');
         }
 
-        return $this->asModelFailure($sale, t('Couldn\'t save sale.', category: 'commerce'), 'sale');
+        return $this->asModelFailure($sale, t('Couldn’t save sale.', category: 'commerce'), 'sale');
     }
 
     public function reorder(Request $request): Response
@@ -167,7 +167,7 @@ readonly class SalesController extends LegacyStoreManagementController
 
         $ids = Json::decode($request->input('ids'));
         if (!app(Sales::class)->reorderSales($ids)) {
-            return $this->asFailure(t('Couldn\'t reorder sales.', category: 'commerce'));
+            return $this->asFailure(t('Couldn’t reorder sales.', category: 'commerce'));
         }
 
         return $this->asSuccess();
@@ -294,7 +294,7 @@ readonly class SalesController extends LegacyStoreManagementController
         $sale->setPurchasableIds(array_unique($salePurchasableIds));
 
         if (!app(Sales::class)->saveSale($sale)) {
-            return $this->asFailure(t('Couldn\'t save sale.', category: 'commerce'));
+            return $this->asFailure(t('Couldn’t save sale.', category: 'commerce'));
         }
 
         return $this->asSuccess();

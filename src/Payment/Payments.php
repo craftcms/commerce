@@ -99,10 +99,10 @@ class Payments
 
         if ($defaultAction === TransactionRecord::TYPE_AUTHORIZE) {
             if (!$gateway->supportsAuthorize()) {
-                throw new PaymentException(t('Gateway doesn\'t support authorize', category: 'commerce'));
+                throw new PaymentException(t('Gateway doesn’t support authorize', category: 'commerce'));
             }
         } elseif (!$gateway->supportsPurchase()) {
-            throw new PaymentException(t('Gateway doesn\'t support purchase', category: 'commerce'));
+            throw new PaymentException(t('Gateway doesn’t support purchase', category: 'commerce'));
         }
 
         //creating order, transaction and request
@@ -360,11 +360,11 @@ class Payments
             $gateway = $parent->getGateway();
 
             if (!$gateway->supportsRefund()) {
-                throw new RefundException(t('Gateway doesn\'t support refunds.', category: 'commerce'));
+                throw new RefundException(t('Gateway doesn’t support refunds.', category: 'commerce'));
             }
 
             if ($amount < $parent->paymentAmount && !$gateway->supportsPartialRefund()) {
-                throw new RefundException(t('Gateway doesn\'t support partial refunds.', category: 'commerce'));
+                throw new RefundException(t('Gateway doesn’t support partial refunds.', category: 'commerce'));
             }
 
             $child = app(Transactions::class)->createTransaction(null, $parent, TransactionRecord::TYPE_REFUND);
