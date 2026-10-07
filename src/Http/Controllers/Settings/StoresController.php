@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\db\Query;
+use CraftCms\Cms\Cp\Components\Select;
 use CraftCms\Cms\Cp\Data\NavItem;
 use CraftCms\Cms\Form\Controls\Choice;
 use CraftCms\Cms\Form\Controls\Handle;
 use CraftCms\Cms\Form\Controls\Lightswitch;
-use CraftCms\Cms\Form\Controls\Table as TableControl;
 use CraftCms\Cms\Form\Controls\Text;
 use CraftCms\Cms\Form\Enums\ControlMode;
 use CraftCms\Cms\Form\Form;
@@ -24,6 +24,7 @@ use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\Database\Table as DbTable;
+use CraftCms\Commerce\Form\Controls\SiteStores;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Plugin;
@@ -421,26 +422,40 @@ class StoresController extends BaseSettingsController
         ])->all();
 
         $rows = [];
+        $values = [];
 
         foreach (Sites::getAllSites() as $site) {
             $siteStore = $sitesStores->count() > 0 ? $sitesStores->firstWhere('siteId', $site->id) : null;
+            $siteName = t($site->name, category: 'site');
+            $storeId = request()->old("siteStores.$site->id.storeId", $siteStore->storeId ?? $primaryStoreId);
+            $values[$site->id] = ['storeId' => $storeId];
 
-            $rows[$site->id] = [
-                'site' => t($site->name, category: 'site'),
-                'storeId' => $siteStore->storeId ?? $primaryStoreId,
+            $rows[] = [
+                'id' => $site->id,
+                'site' => $siteName,
+                'store' => ['html' => Select::make()
+                    ->name("siteStores[$site->id][storeId]")
+                    ->label(t('Store for {site}', ['site' => $siteName], category: 'commerce'))
+                    ->labelSrOnly()
+                    ->options($storeOptions)
+                    ->selectAttributes(['data-site-id' => $site->id])
+                    ->value($storeId)
+                    ->disabled($this->readOnly)
+                    ->toHtml(), ],
             ];
         }
 
+        $table = Table::make('siteStores')
+            ->columns([
+                ['key' => 'site', 'label' => t('Site')],
+                ['key' => 'store', 'label' => t('Store', category: 'commerce')],
+            ])
+            ->rows($rows);
+
         $form = Form::make([
-            Field::make(null, TableControl::make('siteStores')
-                ->columns([
-                    'site' => ['type' => 'heading', 'heading' => t('Site')],
-                    'storeId' => ['type' => 'select', 'heading' => t('Store', category: 'commerce'), 'options' => $storeOptions],
-                ])
-                ->keyed()),
+            Field::make(null, SiteStores::make('siteStores')->table($table)),
         ]);
 
-        $values = ['siteStores' => $rows];
         $title = t('Sites');
 
         return $this->cpScreenResponse()
@@ -448,8 +463,9 @@ class StoresController extends BaseSettingsController
             ->crumbs($this->crumbsForSection(['label' => $title, 'href' => cp_url('commerce/settings/stores/sites')]))
             ->redirectUrl('commerce/settings/stores/sites')
             ->inertiaPage('Form', [
+                'contentMaxWidth' => false,
                 'form' => $this->formResolver->resolve($form, new FormContext(
-                    values: $values,
+                    values: ['siteStores' => $values],
                     mode: $this->readOnly ? ControlMode::ReadOnly : ControlMode::Editable,
                 )),
                 'submit' => [

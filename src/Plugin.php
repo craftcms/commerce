@@ -65,6 +65,7 @@ use CraftCms\Commerce\Dashboard\Widgets\TotalOrders;
 use CraftCms\Commerce\Dashboard\Widgets\TotalOrdersByCountry;
 use CraftCms\Commerce\Dashboard\Widgets\TotalRevenue;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Form\Controls\SiteStores;
 use CraftCms\Commerce\Form\Controls\TransferDetails;
 use CraftCms\Commerce\Form\Controls\TransferReceive;
 use CraftCms\Commerce\Form\Nodes\CouponGenerator;
@@ -261,6 +262,7 @@ class Plugin extends BasePlugin
 
         app(FormNodeTypes::class)->register(CouponGenerator::class);
         app(FormNodeTypes::class)->register(UsageCounter::class);
+        app(FormControlTypes::class)->register(SiteStores::class);
         app(FormControlTypes::class)->register(TransferDetails::class);
         app(FormControlTypes::class)->register(TransferReceive::class);
 
