@@ -450,6 +450,7 @@ class StoresController extends BaseSettingsController
                 ['key' => 'site', 'label' => t('Site')],
                 ['key' => 'store', 'label' => t('Store', category: 'commerce')],
             ])
+            ->showFooter(false)
             ->rows($rows);
 
         $form = Form::make([
