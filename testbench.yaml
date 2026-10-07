@@ -1,6 +1,24 @@
+laravel: workbench
+
 providers:
+  - Workbench\App\Providers\WorkbenchServiceProvider
   - Inertia\ServiceProvider
   - CraftCms\Aliases\AliasesServiceProvider
   - CraftCms\DependencyAwareCache\CacheServiceProvider
   - CraftCms\Cms\Providers\CraftServiceProvider
   - CraftCms\Yii2Adapter\Yii2ServiceProvider
+
+workbench:
+  user: 1
+  start: /admin
+  install: false
+  build:
+    - vendor-publish:
+        --tag: craftcms-assets
+        --force: true
+    - db-seed:
+        --class: Workbench\Database\Seeders\DatabaseSeeder
+        --force: true
+  discovers:
+    web: true
+    config: true

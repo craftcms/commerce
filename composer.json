@@ -21,12 +21,13 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "php": "^8.5",
-    "craftcms/cms": "dev-feature/6.x-form-component-compatibility-and-usage-updates",
+    "craftcms/cms": "dev-feature/6.x-form-component-compatibility-and-usage-updates as 6.x-dev",
+    "craftcms/cms-assets": "6.x-dev as dev-feature/6.x-form-component-compatibility-and-usage-updates",
     "dompdf/dompdf": "^3.1.6",
     "ibericode/vat": "^2.0",
     "iio/libmergepdf": "^4.0",
-    "moneyphp/money": "^4.2.0"
+    "moneyphp/money": "^4.2.0",
+    "php": "^8.5"
   },
   "require-dev": {
     "craftcms/ecs": "dev-main",
@@ -52,7 +53,9 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "CraftCms\\Commerce\\Tests\\": "tests/"
+      "CraftCms\\Commerce\\Tests\\": "tests/",
+      "Workbench\\App\\": "workbench/app/",
+      "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
     }
   },
   "extra": {
@@ -122,11 +125,20 @@
       "./vendor/bin/pest --compact"
     ],
     "post-autoload-dump": [
-      "@clear",
       "@prepare"
     ],
-    "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
-    "prepare": "@php vendor/bin/testbench package:discover --ansi"
+    "prepare": [
+      "@php workbench/prepare.php",
+      "@php vendor/bin/testbench package:discover --ansi"
+    ],
+    "workbench:setup": [
+      "@php workbench/prepare.php",
+      "@php vendor/bin/testbench workbench:build --no-interaction"
+    ],
+    "serve": [
+      "Composer\\Config::disableProcessTimeout",
+      "@php vendor/bin/testbench serve --host=127.0.0.1 --port=8125"
+    ]
   },
   "config": {
     "sort-packages": true,
