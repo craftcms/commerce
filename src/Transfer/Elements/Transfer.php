@@ -117,7 +117,7 @@ class Transfer extends Element
             $transferStatusSources[] = [
                 'key' => $status->value,
                 'status' => $status->color(),
-                'label' => t($status->label(), category: 'commerce'),
+                'label' => $status->label(),
                 'badgeCount' => static::find()->transferStatus($status->value)->count(),
                 'criteria' => [
                     'transferStatus' => $status->value,
