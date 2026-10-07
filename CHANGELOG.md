@@ -4,6 +4,7 @@
 
 - Fixed a bug where all catalog pricing could be removed if a catalog pricing rule was deleted before its catalog pricing job ran. ([#4374](https://github.com/craftcms/commerce/issues/4374))
 - Fixed a bug where non-admin users couldn’t create inventory locations. ([#4376](https://github.com/craftcms/commerce/issues/4376))
+- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) RCE vulnerability.
 
 ## 5.7.5 - 2026-09-23
 
