@@ -235,6 +235,7 @@
 
 - Removed `craft\commerce\controllers\EmailsController`. `CraftCms\Commerce\Http\Controllers\Settings\EmailsController` should be used instead.
 - The "Emails" settings screen now lists one store at a time, at `commerce/settings/emails/<storeHandle>`, with a subnav for switching stores.
+- The "Emails" settings screen is now searchable and has a "View" menu for choosing columns.
 - Removed `craft\commerce\controllers\EmailPreviewController`. `CraftCms\Commerce\Http\Controllers\EmailPreviewController` should be used instead.
 
 ### Pdf
@@ -259,6 +260,7 @@
 
 - Removed `craft\commerce\controllers\PdfsController`. `CraftCms\Commerce\Http\Controllers\Settings\PdfsController` should be used instead.
 - The "PDFs" settings screen now lists one store at a time, at `commerce/settings/pdfs/<storeHandle>`, with a subnav for switching stores.
+- The "PDFs" settings screen is now searchable and has a "View" menu for choosing columns.
 
 ### Formulas
 

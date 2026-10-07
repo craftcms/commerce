@@ -66,6 +66,13 @@ class EmailsController extends BaseSettingsController
                     // this screen's own conversion dropped it entirely rather than adding a
                     // stand-in column the way PdfsController/TaxRatesController did.
                     '_status' => $email->enabled,
+                    '_search' => implode(' ', [
+                        t($email->name, category: 'site'),
+                        t($email->subject, category: 'site'),
+                        $to,
+                        $email->getBcc(false),
+                        $email->templatePath,
+                    ]),
                     'name' => ['label' => t($email->name, category: 'site'), 'url' => $email->getCpEditUrl()],
                     'subject' => t($email->subject, category: 'site'),
                     'to' => $to,
@@ -94,6 +101,8 @@ class EmailsController extends BaseSettingsController
             ->rows($rows)
             ->emptyMessage(t('No emails exist yet.', category: 'commerce'))
             ->statusFilter()
+            ->searchable()
+            ->toggleableColumns()
             ->createAction(
                 $this->readOnly ? null : t('New email', category: 'commerce'),
                 $this->readOnly ? null : cp_url("commerce/settings/emails/{$store->handle}/new"),

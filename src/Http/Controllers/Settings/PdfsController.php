@@ -59,6 +59,7 @@ class PdfsController extends BaseSettingsController
                 // as a stand-in for the dot when this screen first converted; dropped now
                 // that the dot itself is back, matching the legacy column set exactly again.
                 '_status' => $pdf->enabled,
+                '_search' => implode(' ', [t($pdf->name, category: 'site'), $pdf->handle]),
                 'name' => ['label' => t($pdf->name, category: 'site'), 'url' => $pdf->getCpEditUrl()],
                 'handle' => ['html' => FormFields::copytextHtml(['value' => $pdf->handle, 'monospace' => true])],
                 'default' => $pdf->isDefault ? ['icon' => 'check', 'label' => t('Yes')] : '',
@@ -74,6 +75,8 @@ class PdfsController extends BaseSettingsController
             ->rows($rows)
             ->emptyMessage(t('No PDFs exist yet.', category: 'commerce'))
             ->statusFilter()
+            ->searchable()
+            ->toggleableColumns()
             ->createAction(
                 $this->readOnly ? null : t('New PDF', category: 'commerce'),
                 $this->readOnly ? null : cp_url("commerce/settings/pdfs/{$store->handle}/new"),
