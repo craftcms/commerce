@@ -84,6 +84,7 @@
 - Removed `craft\commerce\controllers\ProductsController`. `CraftCms\Commerce\Http\Controllers\ProductsController` should be used instead.
 - Removed `craft\commerce\controllers\VariantsController`. `CraftCms\Commerce\Http\Controllers\VariantsController` should be used instead.
 - Removed `craft\commerce\controllers\ProductTypesController`. `CraftCms\Commerce\Http\Controllers\Settings\ProductTypesController` should be used instead.
+- The "Product Types" settings screen is now searchable and has a "View" menu for choosing columns.
 
 ### Catalog Pricing
 
@@ -859,6 +860,7 @@
 
 - Removed `craft\commerce\controllers\StoreManagementController`. `CraftCms\Commerce\Http\Controllers\Settings\StoreManagementController` should be used instead.
 - Removed `craft\commerce\controllers\StoresController`. `CraftCms\Commerce\Http\Controllers\Settings\StoresController` should be used instead.
+- The "Stores" settings screen is now searchable and has a "View" menu for choosing columns.
 - Moved the `commerce/settings/sites` control panel route to `commerce/settings/stores/sites`.
 
 ### Subscriptions
