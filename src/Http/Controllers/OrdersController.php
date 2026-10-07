@@ -1231,7 +1231,7 @@ JS, []);
 
         $variables['ordersBodyClass'] = ' commerceorders-post-57';
 
-        $variables['title'] = t('Order', category: 'commerce') . ' ' . $order->reference;
+        $variables['title'] = t('Order {reference}', ['reference' => $order->reference], category: 'commerce');
 
         if (!$order->isCompleted && $order->origin == Order::ORIGIN_CP) {
             $variables['title'] = t('New Order', category: 'commerce');

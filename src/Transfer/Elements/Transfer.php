@@ -117,7 +117,7 @@ class Transfer extends Element
             $transferStatusSources[] = [
                 'key' => $status->value,
                 'status' => $status->color(),
-                'label' => t($status->label(), category: 'commerce'),
+                'label' => $status->label(),
                 'badgeCount' => static::find()->transferStatus($status->value)->count(),
                 'criteria' => [
                     'transferStatus' => $status->value,
@@ -556,7 +556,7 @@ class Transfer extends Element
                 'transferId' => $this->id,
                 'inventoryLocationId' => $this->destinationLocationId,
                 'quantity' => $detail->quantity,
-                'note' => t('Incoming transfer from Transfer ID: ', category: 'commerce') . $this->id,
+                'note' => t('Incoming transfer from Transfer ID: {id}', ['id' => $this->id], category: 'commerce'),
             ]));
 
             $inventoryUpdateCollection->push(new UpdateInventoryLevelInTransfer([
@@ -566,7 +566,7 @@ class Transfer extends Element
                 'transferId' => $this->id,
                 'inventoryLocationId' => $this->originLocationId,
                 'quantity' => $detail->quantity * -1,
-                'note' => t('Outgoing transfer from Transfer ID: ', category: 'commerce') . $this->id,
+                'note' => t('Outgoing transfer from Transfer ID: {id}', ['id' => $this->id], category: 'commerce'),
             ]));
         }
 

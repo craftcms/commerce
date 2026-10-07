@@ -181,10 +181,10 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
             : ($rule->dateFrom?->format($dateFormat) ?? '∞') . ' - ' . ($rule->dateTo?->format($dateFormat) ?? '∞');
 
         $effect = match ($rule->apply) {
-            CatalogPricingRuleRecord::APPLY_BY_PERCENT => $rule->applyAmountAsPercent . ' ' . t('(off original price)', category: 'commerce'),
-            CatalogPricingRuleRecord::APPLY_TO_PERCENT => $rule->applyAmountAsPercent . ' ' . t('(of original price)', category: 'commerce'),
-            CatalogPricingRuleRecord::APPLY_BY_FLAT => Currency::formatAsCurrency($rule->applyAmountAsFlat, $currencyIso, true) . ' ' . t('(off original price)', category: 'commerce'),
-            default => Currency::formatAsCurrency($rule->applyAmountAsFlat, $currencyIso, true) . ' ' . t('(new price)', category: 'commerce'),
+            CatalogPricingRuleRecord::APPLY_BY_PERCENT => t('{amount} (off original price)', ['amount' => $rule->applyAmountAsPercent], category: 'commerce'),
+            CatalogPricingRuleRecord::APPLY_TO_PERCENT => t('{amount} (of original price)', ['amount' => $rule->applyAmountAsPercent], category: 'commerce'),
+            CatalogPricingRuleRecord::APPLY_BY_FLAT => t('{amount} (off original price)', ['amount' => Currency::formatAsCurrency($rule->applyAmountAsFlat, $currencyIso, true)], category: 'commerce'),
+            default => t('{amount} (new price)', ['amount' => Currency::formatAsCurrency($rule->applyAmountAsFlat, $currencyIso, true)], category: 'commerce'),
         };
 
         return [

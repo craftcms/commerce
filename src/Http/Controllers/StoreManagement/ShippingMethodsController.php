@@ -218,22 +218,22 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
         $lines = [];
 
         if ($rule->baseRate > 0) {
-            $lines[] = t('Base Rate', category: 'commerce') . ': ' . Currency::formatAsCurrency($rule->baseRate);
+            $lines[] = t('{label}: {value}', ['label' => t('Base Rate', category: 'commerce'), 'value' => Currency::formatAsCurrency($rule->baseRate)], category: 'commerce');
         }
         if ($rule->minRate > 0) {
-            $lines[] = t('Minimum Total Shipping Cost', category: 'commerce') . ': ' . Currency::formatAsCurrency($rule->minRate);
+            $lines[] = t('{label}: {value}', ['label' => t('Minimum Total Shipping Cost', category: 'commerce'), 'value' => Currency::formatAsCurrency($rule->minRate)], category: 'commerce');
         }
         if ($rule->maxRate > 0) {
-            $lines[] = t('Maximum Total Shipping Cost', category: 'commerce') . ': ' . Currency::formatAsCurrency($rule->maxRate);
+            $lines[] = t('{label}: {value}', ['label' => t('Maximum Total Shipping Cost', category: 'commerce'), 'value' => Currency::formatAsCurrency($rule->maxRate)], category: 'commerce');
         }
         if ($rule->perItemRate > 0) {
-            $lines[] = t('Default Per Item Rate', category: 'commerce') . ': ' . Currency::formatAsCurrency($rule->perItemRate);
+            $lines[] = t('{label}: {value}', ['label' => t('Default Per Item Rate', category: 'commerce'), 'value' => Currency::formatAsCurrency($rule->perItemRate)], category: 'commerce');
         }
         if ($rule->weightRate > 0) {
-            $lines[] = t('Default Weight Rate', category: 'commerce') . ': ' . Currency::formatAsCurrency($rule->weightRate);
+            $lines[] = t('{label}: {value}', ['label' => t('Default Weight Rate', category: 'commerce'), 'value' => Currency::formatAsCurrency($rule->weightRate)], category: 'commerce');
         }
         if ($rule->percentageRate > 0) {
-            $lines[] = t('Default Percentage Rate', category: 'commerce') . ': ' . rtrim(rtrim((string) $rule->percentageRate, '0'), '.');
+            $lines[] = t('{label}: {value}', ['label' => t('Default Percentage Rate', category: 'commerce'), 'value' => rtrim(rtrim((string) $rule->percentageRate, '0'), '.')], category: 'commerce');
         }
 
         if ($lines === []) {
