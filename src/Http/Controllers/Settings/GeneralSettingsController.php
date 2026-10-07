@@ -48,19 +48,19 @@ class GeneralSettingsController extends BaseSettingsController
 
         $form = Form::make([
             Heading::make('units-heading', t('Units', category: 'commerce'))->level(3),
-            Field::make(t('Weight Unit'), Combobox::make('weightUnits')
+            Field::make(t('Weight Unit', category: 'commerce'), Combobox::make('weightUnits')
                 ->options(array_map(fn($unit, $label) => ['value' => $unit, 'label' => $label], array_keys($settings->getWeightUnitsOptions()), $settings->getWeightUnitsOptions()))
                 ->showAllOnEmpty())
                 ->required()
                 ->instructions(t('The unit of measurement that should be used when specifying product weights.', category: 'commerce')),
-            Field::make(t('Dimension Unit'), Combobox::make('dimensionUnits')
+            Field::make(t('Dimension Unit', category: 'commerce'), Combobox::make('dimensionUnits')
                 ->options(array_map(fn($unit, $label) => ['value' => $unit, 'label' => $label], array_keys($settings->getDimensionUnits()), $settings->getDimensionUnits()))
                 ->showAllOnEmpty())
                 ->required()
                 ->instructions(t('The unit of measurement that should be used when specifying product dimensions.', category: 'commerce')),
             Separator::make('default-view-separator'),
             Heading::make('default-view-heading', t('Control Panel Settings', category: 'commerce'))->level(3),
-            Field::make(t('Default View'), Combobox::make('defaultView')
+            Field::make(t('Default View', category: 'commerce'), Combobox::make('defaultView')
                 ->options(array_map(fn($unit, $label) => ['value' => $unit, 'label' => $label], array_keys($settings->getDefaultViewOptions()), $settings->getDefaultViewOptions()))
                 ->showAllOnEmpty())
                 ->required()

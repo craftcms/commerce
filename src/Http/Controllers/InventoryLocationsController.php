@@ -117,8 +117,8 @@ readonly class InventoryLocationsController
         $address = $inventoryLocation->getAddress();
 
         $title = $inventoryLocation->id
-            ? (trim($inventoryLocation->getUiLabel()) ?: t('Edit Inventory Location'))
-            : t('Create a new inventory location');
+            ? (trim($inventoryLocation->getUiLabel()) ?: t('Edit Inventory Location', category: 'commerce'))
+            : t('Create a new inventory location', category: 'commerce');
 
         $formatter = app(Formatter::class);
         $metadataHtml = $inventoryLocation->id ? app(ContentHtml::class)->metadataHtml([

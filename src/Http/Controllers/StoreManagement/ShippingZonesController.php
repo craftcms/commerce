@@ -104,7 +104,7 @@ readonly class ShippingZonesController extends BaseStoreManagementController
             ->instructions(t('Describe this shipping zone.', category: 'commerce'));
         // Zones aren't project-config-tracked (Zone::setCondition() hardcodes forProjectConfig
         // to false), so this deliberately doesn't call ->forProjectConfig() either.
-        $formNodes[] = Field::make(t('Address Condition'), ConditionBuilder::make('condition')
+        $formNodes[] = Field::make(t('Address Condition', category: 'commerce'), ConditionBuilder::make('condition')
             ->conditionClass(ZoneAddressCondition::class)
             ->value($shippingZone->getCondition()->getConfig()));
 

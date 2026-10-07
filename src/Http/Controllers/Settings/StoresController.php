@@ -40,7 +40,7 @@ class StoresController extends BaseSettingsController
 {
     protected function getSectionCrumb(): array
     {
-        return ['label' => t('Stores'), 'href' => cp_url('commerce/settings/stores')];
+        return ['label' => t('Stores', category: 'commerce'), 'href' => cp_url('commerce/settings/stores')];
     }
 
     #[\Override]
@@ -71,13 +71,13 @@ class StoresController extends BaseSettingsController
             $storeModel = $storesService->getStoreById($storeId);
             abort_if($storeModel === null, 404, 'Store not found');
 
-            $title = trim((string)$storeModel->getName()) ?: t('Edit Store');
+            $title = trim((string)$storeModel->getName()) ?: t('Edit Store', category: 'commerce');
         } else {
             $storeModel = new Store();
             $brandNewStore = true;
             $allowCurrencyChange = true;
 
-            $title = t('Create a new Store');
+            $title = t('Create a new store', category: 'commerce');
         }
 
         $hasOrders = $storeModel->id && Order::find()
@@ -153,7 +153,7 @@ class StoresController extends BaseSettingsController
             Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
                 ->required(),
             Field::make(t('Handle', category: 'app'), $handle)
-                ->instructions(t('How you’ll refer to this store in the templates.', category: 'app'))
+                ->instructions(t('How you’ll refer to this store in the templates.', category: 'commerce'))
                 ->required(),
             $brandNewStore
                 ? Field::make(t('Sites', category: 'commerce'), Choice::make('siteId')->options($availableSiteOptions))
@@ -283,7 +283,7 @@ class StoresController extends BaseSettingsController
         }
 
         if (!$store->validate() || !$storesService->saveStore($store)) {
-            return $this->asModelFailure($store, t('Couldn’t save the store.'), 'store');
+            return $this->asModelFailure($store, t('Couldn’t save the store.', category: 'commerce'), 'store');
         }
 
         if ($siteId = $request->input('siteId')) {
@@ -292,7 +292,7 @@ class StoresController extends BaseSettingsController
             $storesService->saveSiteStore($siteStore);
         }
 
-        return $this->asModelSuccess($store, t('Store saved.'), 'store');
+        return $this->asModelSuccess($store, t('Store saved.', category: 'commerce'), 'store');
     }
 
     public function storesIndex(): CpScreenResponse
@@ -344,7 +344,7 @@ class StoresController extends BaseSettingsController
             '_deletable' => !$s->primary,
         ])->all();
 
-        $title = t('Stores');
+        $title = t('Stores', category: 'commerce');
 
         $showNewStoreButton = !$this->readOnly && $stores->count() < count(Sites::getAllSites());
 
@@ -371,7 +371,7 @@ class StoresController extends BaseSettingsController
                 ->searchable()
                 ->toggleableColumns()
                 ->createAction(
-                    $showNewStoreButton ? t('New store') : null,
+                    $showNewStoreButton ? t('New store', category: 'commerce') : null,
                     $showNewStoreButton ? Url::cpUrl('commerce/settings/stores/new') : null,
                 )
                 ->createActionInPageHeader()

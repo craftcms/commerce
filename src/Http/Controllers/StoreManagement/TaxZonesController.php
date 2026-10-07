@@ -112,7 +112,7 @@ readonly class TaxZonesController extends BaseStoreManagementController
         $formNodes[] = Field::make($defaultLabel, Lightswitch::make('default'));
         // Zones aren't project-config-tracked (Zone::setCondition() hardcodes forProjectConfig
         // to false), so this deliberately doesn't call ->forProjectConfig() either.
-        $formNodes[] = Field::make(t('Address Condition'), ConditionBuilder::make('condition')
+        $formNodes[] = Field::make(t('Address Condition', category: 'commerce'), ConditionBuilder::make('condition')
             ->conditionClass(ZoneAddressCondition::class)
             ->value($taxZone->getCondition()->getConfig()));
 

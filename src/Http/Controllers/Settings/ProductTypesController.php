@@ -350,7 +350,7 @@ class ProductTypesController extends BaseSettingsController
                 $settingsFields[] = Field::make(
                     t('{name} Translation Key Format', ['name' => t('Slug')]),
                     Text::make('slugTranslationKeyFormat')->monospace(),
-                )->instructions(t('Template that defines the {name} field’s custom "translation key" format. Values will be copied to all sites that produce the same key.', ['name' => t('Slug')]));
+                )->instructions(t('Template that defines the {name} field’s custom “translation key” format. Values will be copied to all sites that produce the same key.', ['name' => t('Slug')]));
             }
         }
 
@@ -425,9 +425,9 @@ class ProductTypesController extends BaseSettingsController
                     'urlFormat' => [
                         'heading' => t('URL Format'),
                         'type' => 'singleline',
-                        'info' => t('The URL/URI to use for this target.'),
+                        'info' => t('The URL/URI to use for this target.', category: 'commerce'),
                     ],
-                    'refresh' => ['heading' => t('Auto-refresh'), 'type' => 'lightswitch'],
+                    'refresh' => ['heading' => t('Auto-Refresh'), 'type' => 'lightswitch'],
                 ])
                 ->allowAdd()
                 ->allowDelete()
