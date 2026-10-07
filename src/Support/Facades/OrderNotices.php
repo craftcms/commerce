@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Facade;
 use Override;
 
 /**
+ * @method static \CraftCms\Commerce\Order\Elements\Order[] eagerLoadOrderNoticesForOrders(\CraftCms\Commerce\Order\Elements\Order[] $orders)
+ *
  * @see \CraftCms\Commerce\Order\OrderNotices
  */
 class OrderNotices extends Facade

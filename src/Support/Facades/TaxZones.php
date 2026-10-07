@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Facade;
 use Override;
 
 /**
+ * @method static \Illuminate\Support\Collection getAllTaxZones(int|null $storeId = null)
+ * @method static \CraftCms\Commerce\Tax\Data\TaxAddressZone|null getTaxZoneById(int $id, int|null $storeId = null)
+ * @method static bool saveTaxZone(\CraftCms\Commerce\Tax\Data\TaxAddressZone $model, bool $runValidation = true)
+ * @method static bool deleteTaxZoneById(int $id)
+ *
  * @see \CraftCms\Commerce\Tax\TaxZones
  */
 class TaxZones extends Facade
