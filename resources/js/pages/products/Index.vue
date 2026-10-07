@@ -2,6 +2,8 @@
   import {
     appendIndexQuery,
     ElementIndexPage,
+    useAppLayout,
+    useCustomizeSources,
     type ElementIndexRoute,
   } from '@craftcms/cms/elements';
   import NewProductButton, {
@@ -14,7 +16,25 @@
     creatableProductTypes: CreatableProductType[];
     newProductLabel: string;
     newProductMenuLabel: string;
+    /** The product types, as the index's own view model described them. */
+    sourceNavItems?: Array<CraftCms.Cms.Cp.Data.NavItem>;
+    elementType?: string | null;
+    page?: string | null;
+    source?: {key?: string | null} | null;
   }>();
+
+  const subnavActions = useCustomizeSources(() => ({
+    elementType: props.elementType,
+    page: props.page,
+    sourceKey: props.source?.key,
+  }));
+
+  // Products have no nav section of their own to hang their types off, so the
+  // index puts them in the shell's secondary nav itself.
+  useAppLayout(() => ({
+    subnav: props.sourceNavItems ?? [],
+    subnavActions: subnavActions.value,
+  }));
 
   // `indexUrl` carries the `site` param `Url::cpUrl()` adds, which the index
   // query is merged over.
