@@ -22,7 +22,6 @@
 - Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) RCE vulnerability. (GHSA-w9pv-3qgc-2pq2)
 - Fixed [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerabilities. (GHSA-wr49-2q4p-354w, GHSA-jx83-gwwg-84gf, GHSA-w2cw-phpj-gcgw, GHSA-fw8v-h534-cqw2, GHSA-wfxq-r2hv-px5r)
 
-
 ## 5.7.3 - 2026-09-02
 
 - Fixed a bug where `craft\commerce\elements\Order::setShippingAddress()` and `setBillingAddress()` weren’t setting custom field values. ([#4353](https://github.com/craftcms/commerce/issues/4353))
