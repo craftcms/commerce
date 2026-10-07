@@ -367,7 +367,6 @@ class Product extends Element implements HasStoreInterface
     /**
      * Product type sources have index URLs of their own (`commerce/products/{handle}`).
      */
-    #[Override]
     public static function sourceCpUri(array $source, ?string $page = null): ?string
     {
         $handle = $source['data']['handle'] ?? null;
