@@ -69,10 +69,10 @@ class TopProducts extends Widget
         ];
 
         $this->revenueCheckboxOptions = [
-            ['value' => TopProductsStat::REVENUE_OPTION_DISCOUNT, 'label' => t('Discount', category: 'commerce') . ' — ' . t('Include line item discounts.', category: 'commerce')],
-            ['value' => TopProductsStat::REVENUE_OPTION_TAX_INCLUDED, 'label' => t('Tax (inc)', category: 'commerce') . ' — ' . t('Include built-in line item tax.', category: 'commerce')],
-            ['value' => TopProductsStat::REVENUE_OPTION_TAX, 'label' => t('Tax', category: 'commerce') . ' — ' . t('Include separate line item tax.', category: 'commerce')],
-            ['value' => TopProductsStat::REVENUE_OPTION_SHIPPING, 'label' => t('Shipping', category: 'commerce') . ' — ' . t('Include line item shipping costs.', category: 'commerce')],
+            ['value' => TopProductsStat::REVENUE_OPTION_DISCOUNT, 'label' => t('{label} — {description}', ['label' => t('Discount', category: 'commerce'), 'description' => t('Include line item discounts.', category: 'commerce')], category: 'commerce')],
+            ['value' => TopProductsStat::REVENUE_OPTION_TAX_INCLUDED, 'label' => t('{label} — {description}', ['label' => t('Tax (inc)', category: 'commerce'), 'description' => t('Include built-in line item tax.', category: 'commerce')], category: 'commerce')],
+            ['value' => TopProductsStat::REVENUE_OPTION_TAX, 'label' => t('{label} — {description}', ['label' => t('Tax', category: 'commerce'), 'description' => t('Include separate line item tax.', category: 'commerce')], category: 'commerce')],
+            ['value' => TopProductsStat::REVENUE_OPTION_SHIPPING, 'label' => t('{label} — {description}', ['label' => t('Shipping', category: 'commerce'), 'description' => t('Include line item shipping costs.', category: 'commerce')], category: 'commerce')],
         ];
 
         $this->title = match ($this->type) {

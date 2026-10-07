@@ -153,7 +153,7 @@ class TransferManagementField extends BaseNativeField
         return app(Inventory::class)->getInventoryLocationLevels($origin)
             ->sortByDesc(fn(InventoryLevel $level) => $level->onHandTotal)
             ->map(fn(InventoryLevel $level) => [
-                'label' => $level->getInventoryItem()->getSku() . ' (' . ($level->onHandTotal ? $level->onHandTotal . ' ' . t('on hand', category: 'commerce') : t('None on hand', category: 'commerce')) . ')',
+                'label' => $level->getInventoryItem()->getSku() . ' (' . ($level->onHandTotal ? t('{count} on hand', ['count' => $level->onHandTotal], category: 'commerce') : t('None on hand', category: 'commerce')) . ')',
                 'value' => (string)$level->getInventoryItem()->id,
                 'disabled' => !($level->onHandTotal > 0),
             ])
@@ -194,7 +194,7 @@ class TransferManagementField extends BaseNativeField
             Html::tag('td') .
             Html::tag('td', '') .
             Html::tag('td', '') .
-            Html::tag('td', t('Total ', category: 'commerce') . ' ' . $element->getTotalReceived() . '/' . $element->getTotalQuantity(), ['class' => 'rightalign'])
+            Html::tag('td', t('Total {received}/{quantity}', ['received' => $element->getTotalReceived(), 'quantity' => $element->getTotalQuantity()], category: 'commerce'), ['class' => 'rightalign'])
         );
 
         $table = Html::tag('table',

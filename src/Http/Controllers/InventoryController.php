@@ -107,7 +107,7 @@ readonly class InventoryController
             ->emptyMessage(t('No inventory found.', category: 'commerce'));
 
         return new CpScreenResponse()
-            ->title($currentLocation->getUiLabel() . ' ' . t('Inventory', category: 'commerce'))
+            ->title(t('{location} Inventory', ['location' => $currentLocation->getUiLabel()], category: 'commerce'))
             ->crumbs($this->crumbs($currentLocation))
             ->selectedSubnavItem('inventory')
             ->inertiaPage('Form', [
