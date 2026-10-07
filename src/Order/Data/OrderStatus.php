@@ -75,7 +75,7 @@ class OrderStatus extends Component implements HasStoreInterface, Chippable
                 function($attribute, $value, $fail) {
                     $reserved = ['id', 'dateCreated', 'dateUpdated', 'uid', 'title', 'create'];
                     if (in_array($value, $reserved, true)) {
-                        $fail(t('"{value}" is a reserved word.', ['value' => $value], category: 'commerce'));
+                        $fail(t('“{value}” is a reserved word.', ['value' => $value], category: 'commerce'));
                     }
                 },
             ],

@@ -54,7 +54,7 @@ class PurchasableAllowedQtyField extends BaseNativeField
             : null;
 
         return Group::make($this->uid, [
-            Field::make(t('Minimum', category: 'commerce'))
+            Field::make(t('Minimum allowed quantity', category: 'commerce'))
                 ->status($status, $statusLabel)
                 ->width(FieldWidth::Half)
                 ->control(
@@ -64,7 +64,7 @@ class PurchasableAllowedQtyField extends BaseNativeField
                         ->mode($context->mode)
                         ->reactive(),
                 ),
-            Field::make(t('Maximum', category: 'commerce'))
+            Field::make(t('Maximum allowed quantity', category: 'commerce'))
                 ->status($status, $statusLabel)
                 ->width(FieldWidth::Half)
                 ->control(

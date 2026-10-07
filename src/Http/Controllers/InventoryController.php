@@ -504,7 +504,7 @@ readonly class InventoryController
             return $this->asModelFailure($inventoryItem, t('Couldn’t save inventory item.', category: 'commerce'), 'inventoryItem');
         }
 
-        return $this->asModelSuccess($inventoryItem, t('Inventory Item saved.', category: 'commerce'), 'inventoryItem');
+        return $this->asModelSuccess($inventoryItem, t('Inventory item saved.', category: 'commerce'), 'inventoryItem');
     }
 
     /**

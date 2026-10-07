@@ -30,19 +30,18 @@ class Coupon extends Component
                 'required',
                 'string',
                 function($attribute, $value, \Closure $fail) {
-                    $isPgsql = DB::connection()->getDriverName() === 'pgsql';
+                    $existing = DB::table(Table::COUPONS . ' as coupons')
+                        ->select(['coupons.code', 'discounts.name'])
+                        ->leftJoin(Table::DISCOUNTS . ' as discounts', 'discounts.id', '=', 'coupons.discountId')
+                        ->when($this->id, fn($q) => $q->where('coupons.id', '!=', $this->id))
+                        ->where(DB::raw('LOWER(coupons.code)'), mb_strtolower($value))
+                        ->first();
 
-                    $exists = DB::table(Table::COUPONS)
-                        ->when($this->id, fn($q) => $q->where('id', '!=', $this->id))
-                        ->when(
-                            $isPgsql,
-                            fn($q) => $q->whereRaw('LOWER(code) = LOWER(?)', [$value]),
-                            fn($q) => $q->where('code', $value),
-                        )
-                        ->exists();
-
-                    if ($exists) {
-                        $fail(t('Coupon code "{code}" is already in use.', ['code' => $value], category: 'commerce'));
+                    if ($existing) {
+                        $fail(t('Coupon code “{code}” is already in use by discount “{name}”.', [
+                            'code' => $existing->code,
+                            'name' => $existing->name,
+                        ], category: 'commerce'));
                     }
                 },
             ],
