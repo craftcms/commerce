@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Facade;
 use Override;
 
 /**
+ * @method static bool isValidVatId(string $vatId)
+ *
  * @see \CraftCms\Commerce\Tax\Vat
  */
 class Vat extends Facade
