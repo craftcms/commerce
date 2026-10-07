@@ -14,7 +14,6 @@ use CraftCms\Cms\Form\Enums\ControlMode;
 use CraftCms\Cms\Form\Form;
 use CraftCms\Cms\Form\FormContext;
 use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\Heading;
 use CraftCms\Cms\Form\Nodes\HiddenField;
 use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
@@ -25,8 +24,8 @@ use CraftCms\Commerce\Email\Data\Email;
 use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Email\Models\Email as EmailRecord;
 use CraftCms\Commerce\Helpers\Locale as LocaleHelper;
+use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreSubnav;
 use CraftCms\Commerce\Pdf\Pdfs;
-use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
 
 use Illuminate\Http\JsonResponse;
@@ -37,89 +36,87 @@ use function CraftCms\Cms\t;
 
 class EmailsController extends BaseSettingsController
 {
+    use HasStoreSubnav;
+
     protected function getSectionCrumb(): array
     {
         return ['label' => t('Emails', category: 'commerce'), 'href' => cp_url('commerce/settings/emails')];
     }
 
-    public function index(): CpScreenResponse
+    public function index(?string $storeHandle = null): CpScreenResponse|Response
     {
-        $stores = app(Stores::class)->getAllStores();
-        $isMultiStore = $stores->count() > 1;
+        if ($storeHandle === null) {
+            return redirect(cp_url('commerce/settings/emails/' . app(Stores::class)->getPrimaryStore()->handle));
+        }
 
-        // Every store's table can plant its own create action in the page's shared actions
-        // slot, so with more than one store, only the first store's table gets one — a single
-        // combined "New email" menu covering every store, rather than one button apiece.
-        $createMenuItems = $this->readOnly ? [] : $stores->map(fn(Store $store) => [
-            'label' => $store->name,
-            'url' => cp_url("commerce/settings/emails/{$store->handle}/new"),
-        ])->all();
-        $createMenuAssigned = false;
+        $store = app(Stores::class)->getStoreByHandle($storeHandle);
+        abort_if($store === null, 404);
 
-        $nodes = [];
-        $stores->each(function(Store $store) use (&$nodes, $isMultiStore, $createMenuItems, &$createMenuAssigned) {
-            if ($isMultiStore) {
-                $nodes[] = Heading::make("{$store->handle}-heading", $store->name);
-            }
+        $rows = app(Emails::class)->getAllEmails($store->id)
+            ->map(function(Email $email) {
+                $to = $email->recipientType === EmailRecord::TYPE_CUSTOM
+                    ? $email->getTo(false)
+                    : t('Customer', category: 'commerce');
+                $previewUrl = Url::actionUrl('commerce/email-preview/render', ['email' => "{$email->id}:{$email->storeId}"]);
 
-            $rows = app(Emails::class)->getAllEmails($store->id)
-                ->map(function(Email $email) {
-                    $to = $email->recipientType === EmailRecord::TYPE_CUSTOM
-                        ? $email->getTo(false)
-                        : t('Customer', category: 'commerce');
-                    $previewUrl = Url::actionUrl('commerce/email-preview/render', ['email' => "{$email->id}:{$email->storeId}"]);
+                return [
+                    'id' => $email->id,
+                    // Restores the legacy VueAdminTable screen's own automatic status dot
+                    // (driven there by an implicit `status` row key, not a real column) —
+                    // this screen's own conversion dropped it entirely rather than adding a
+                    // stand-in column the way PdfsController/TaxRatesController did.
+                    '_status' => $email->enabled,
+                    '_search' => implode(' ', [
+                        t($email->name, category: 'site'),
+                        t($email->subject, category: 'site'),
+                        $to,
+                        $email->getBcc(false),
+                        $email->templatePath,
+                    ]),
+                    'name' => ['label' => t($email->name, category: 'site'), 'url' => $email->getCpEditUrl()],
+                    'subject' => t($email->subject, category: 'site'),
+                    'to' => $to,
+                    'bcc' => $email->getBcc(false),
+                    'template' => $email->templatePath ? ['html' => Html::tag('code', Html::encode($email->templatePath))] : '',
+                    // Opens in a new tab, same as the old admin table's preview button — the
+                    // structured link shapes don't support that, so this is a hand-built anchor.
+                    'preview' => ['html' => Html::a(t('Preview', category: 'commerce'), $previewUrl, [
+                        'class' => 'btn small',
+                        'target' => '_blank',
+                        'rel' => 'noopener',
+                    ])],
+                ];
+            })
+            ->all();
 
-                    return [
-                        'id' => $email->id,
-                        // Restores the legacy VueAdminTable screen's own automatic status dot
-                        // (driven there by an implicit `status` row key, not a real column) —
-                        // this screen's own conversion dropped it entirely rather than adding a
-                        // stand-in column the way PdfsController/TaxRatesController did.
-                        '_status' => $email->enabled,
-                        'name' => ['label' => t($email->name, category: 'site'), 'url' => $email->getCpEditUrl()],
-                        'subject' => t($email->subject, category: 'site'),
-                        'to' => $to,
-                        'bcc' => $email->getBcc(false),
-                        'template' => $email->templatePath ? ['html' => Html::tag('code', Html::encode($email->templatePath))] : '',
-                        // Opens in a new tab, same as the old admin table's preview button — the
-                        // structured link shapes don't support that, so this is a hand-built anchor.
-                        'preview' => ['html' => Html::a(t('Preview', category: 'commerce'), $previewUrl, [
-                            'class' => 'btn small',
-                            'target' => '_blank',
-                            'rel' => 'noopener',
-                        ])],
-                    ];
-                })
-                ->all();
-
-            $nodes[] = Table::make("{$store->handle}-emails")
-                ->columns([
-                    ['key' => 'name', 'label' => t('Name'), 'sortable' => true],
-                    ['key' => 'subject', 'label' => t('Subject', category: 'commerce')],
-                    ['key' => 'to', 'label' => t('To', category: 'commerce')],
-                    ['key' => 'bcc', 'label' => t('Bcc', category: 'commerce')],
-                    ['key' => 'template', 'label' => t('Template Path', category: 'commerce')],
-                    ['key' => 'preview', 'label' => t('Preview', category: 'commerce')],
-                ])
-                ->rows($rows)
-                ->emptyMessage(t('No emails exist yet.', category: 'commerce'))
-                ->statusFilter()
-                ->when(!$createMenuAssigned && $createMenuItems, function(Table $table) use ($createMenuItems, &$createMenuAssigned) {
-                    $table->createActionMenu(t('New email', category: 'commerce'), $createMenuItems)
-                        ->createActionInPageHeader();
-                    $createMenuAssigned = true;
-                })
-                ->when(!$this->readOnly, fn(Table $table) => $table
-                    ->deletable(action([self::class, 'delete'])));
-        });
-
-        $title = t('Emails', category: 'commerce');
+        $table = Table::make("{$store->handle}-emails")
+            ->columns([
+                ['key' => 'name', 'label' => t('Name'), 'sortable' => true],
+                ['key' => 'subject', 'label' => t('Subject', category: 'commerce')],
+                ['key' => 'to', 'label' => t('To', category: 'commerce')],
+                ['key' => 'bcc', 'label' => t('Bcc', category: 'commerce')],
+                ['key' => 'template', 'label' => t('Template Path', category: 'commerce')],
+                ['key' => 'preview', 'label' => t('Preview', category: 'commerce')],
+            ])
+            ->rows($rows)
+            ->emptyMessage(t('No emails exist yet.', category: 'commerce'))
+            ->statusFilter()
+            ->searchable()
+            ->toggleableColumns()
+            ->createAction(
+                $this->readOnly ? null : t('New email', category: 'commerce'),
+                $this->readOnly ? null : cp_url("commerce/settings/emails/{$store->handle}/new"),
+            )
+            ->createActionInPageHeader()
+            ->when(!$this->readOnly, fn(Table $table) => $table
+                ->deletable(action([self::class, 'delete'])));
 
         return $this->cpScreenResponse()
-            ->title($title)
-            ->crumbs($this->crumbs())
+            ->subnav($this->storeSubnav('commerce/settings/emails', $store))
+            ->title(t('Emails', category: 'commerce'))
+            ->crumbs($this->crumbs($this->storeCrumb('commerce/settings/emails', $store)))
             ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+                'form' => $this->formResolver->resolve(Form::make([$table]), new FormContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -165,11 +162,13 @@ class EmailsController extends BaseSettingsController
             refreshable: !$this->readOnly,
         ));
 
+        $storeCrumb = $this->storeCrumb('commerce/settings/emails', $store);
+
         return $this->cpScreenResponse(subnav: false)
             ->title($title)
-            ->crumbs($email->id ? $this->crumbs(['label' => $title]) : $this->crumbs())
+            ->crumbs($email->id ? $this->crumbs($storeCrumb, ['label' => $title]) : $this->crumbs($storeCrumb))
             ->action('commerce/emails/save')
-            ->redirectUrl('commerce/settings/emails')
+            ->redirectUrl("commerce/settings/emails/{$store->handle}")
             ->inertiaPage('Form', [
                 'form' => $form,
                 'submit' => [

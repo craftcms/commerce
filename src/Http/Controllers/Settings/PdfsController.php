@@ -16,16 +16,15 @@ use CraftCms\Cms\Form\Enums\ControlMode;
 use CraftCms\Cms\Form\Form;
 use CraftCms\Cms\Form\FormContext;
 use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\Heading;
 use CraftCms\Cms\Form\Nodes\HiddenField;
 use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Commerce\Helpers\Locale as LocaleHelper;
+use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreSubnav;
 use CraftCms\Commerce\Pdf\Data\Pdf;
 use CraftCms\Commerce\Pdf\Models\Pdf as PdfRecord;
 use CraftCms\Commerce\Pdf\Pdfs;
-use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
 
 use Illuminate\Http\Request;
@@ -35,72 +34,64 @@ use function CraftCms\Cms\t;
 
 class PdfsController extends BaseSettingsController
 {
+    use HasStoreSubnav;
+
     protected function getSectionCrumb(): array
     {
         return ['label' => t('PDFs', category: 'commerce'), 'href' => cp_url('commerce/settings/pdfs')];
     }
 
-    public function index(): CpScreenResponse
+    public function index(?string $storeHandle = null): CpScreenResponse|Response
     {
-        $stores = app(Stores::class)->getAllStores();
-        $isMultiStore = $stores->count() > 1;
+        if ($storeHandle === null) {
+            return redirect(cp_url('commerce/settings/pdfs/' . app(Stores::class)->getPrimaryStore()->handle));
+        }
 
-        // Every store's table can plant its own create action in the page's shared actions
-        // slot, so with more than one store, only the first store's table gets one — a single
-        // combined "New PDF" menu covering every store, rather than one button apiece.
-        $createMenuItems = $this->readOnly ? [] : $stores->map(fn(Store $store) => [
-            'label' => $store->name,
-            'url' => cp_url("commerce/settings/pdfs/{$store->handle}/new"),
-        ])->all();
-        $createMenuAssigned = false;
+        $store = app(Stores::class)->getStoreByHandle($storeHandle);
+        abort_if($store === null, 404);
 
-        $nodes = [];
-        $stores->each(function(Store $store) use (&$nodes, $isMultiStore, $createMenuItems, &$createMenuAssigned) {
-            if ($isMultiStore) {
-                $nodes[] = Heading::make("{$store->handle}-heading", $store->name);
-            }
+        $rows = app(Pdfs::class)->getAllPdfs($store->id)
+            ->map(fn(Pdf $pdf) => [
+                'id' => $pdf->id,
+                // Restores the legacy VueAdminTable screen's own automatic status dot
+                // (driven there by an implicit `status` row key, not a real column) — the
+                // explicit "Enabled?" Yes/No column below was this same information, added
+                // as a stand-in for the dot when this screen first converted; dropped now
+                // that the dot itself is back, matching the legacy column set exactly again.
+                '_status' => $pdf->enabled,
+                '_search' => implode(' ', [t($pdf->name, category: 'site'), $pdf->handle]),
+                'name' => ['label' => t($pdf->name, category: 'site'), 'url' => $pdf->getCpEditUrl()],
+                'handle' => ['html' => FormFields::copytextHtml(['value' => $pdf->handle, 'monospace' => true])],
+                'default' => $pdf->isDefault ? ['icon' => 'check', 'label' => t('Yes')] : '',
+            ])
+            ->all();
 
-            $rows = app(Pdfs::class)->getAllPdfs($store->id)
-                ->map(fn(Pdf $pdf) => [
-                    'id' => $pdf->id,
-                    // Restores the legacy VueAdminTable screen's own automatic status dot
-                    // (driven there by an implicit `status` row key, not a real column) — the
-                    // explicit "Enabled?" Yes/No column below was this same information, added
-                    // as a stand-in for the dot when this screen first converted; dropped now
-                    // that the dot itself is back, matching the legacy column set exactly again.
-                    '_status' => $pdf->enabled,
-                    'name' => ['label' => t($pdf->name, category: 'site'), 'url' => $pdf->getCpEditUrl()],
-                    'handle' => ['html' => FormFields::copytextHtml(['value' => $pdf->handle, 'monospace' => true])],
-                    'default' => $pdf->isDefault ? ['icon' => 'check', 'label' => t('Yes')] : '',
-                ])
-                ->all();
-
-            $nodes[] = Table::make("{$store->handle}-pdfs")
-                ->columns([
-                    ['key' => 'name', 'label' => t('Name')],
-                    ['key' => 'handle', 'label' => t('Handle')],
-                    ['key' => 'default', 'label' => t('Default?', category: 'commerce')],
-                ])
-                ->rows($rows)
-                ->emptyMessage(t('No PDFs exist yet.', category: 'commerce'))
-                ->statusFilter()
-                ->when(!$createMenuAssigned && $createMenuItems, function(Table $table) use ($createMenuItems, &$createMenuAssigned) {
-                    $table->createActionMenu(t('New PDF', category: 'commerce'), $createMenuItems)
-                        ->createActionInPageHeader();
-                    $createMenuAssigned = true;
-                })
-                ->when(!$this->readOnly, fn(Table $table) => $table
-                    ->reorderable(action([self::class, 'reorder']))
-                    ->deletable(action([self::class, 'delete'])));
-        });
-
-        $title = t('PDFs', category: 'commerce');
+        $table = Table::make("{$store->handle}-pdfs")
+            ->columns([
+                ['key' => 'name', 'label' => t('Name')],
+                ['key' => 'handle', 'label' => t('Handle')],
+                ['key' => 'default', 'label' => t('Default?', category: 'commerce')],
+            ])
+            ->rows($rows)
+            ->emptyMessage(t('No PDFs exist yet.', category: 'commerce'))
+            ->statusFilter()
+            ->searchable()
+            ->toggleableColumns()
+            ->createAction(
+                $this->readOnly ? null : t('New PDF', category: 'commerce'),
+                $this->readOnly ? null : cp_url("commerce/settings/pdfs/{$store->handle}/new"),
+            )
+            ->createActionInPageHeader()
+            ->when(!$this->readOnly, fn(Table $table) => $table
+                ->reorderable(action([self::class, 'reorder']))
+                ->deletable(action([self::class, 'delete'])));
 
         return $this->cpScreenResponse()
-            ->title($title)
-            ->crumbs($this->crumbs())
+            ->subnav($this->storeSubnav('commerce/settings/pdfs', $store))
+            ->title(t('PDFs', category: 'commerce'))
+            ->crumbs($this->crumbs($this->storeCrumb('commerce/settings/pdfs', $store)))
             ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+                'form' => $this->formResolver->resolve(Form::make([$table]), new FormContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -208,11 +199,13 @@ class PdfsController extends BaseSettingsController
             mode: $this->generalConfig->allowAdminChanges ? ControlMode::Editable : ControlMode::ReadOnly,
         ));
 
+        $storeCrumb = $this->storeCrumb('commerce/settings/pdfs', $store);
+
         return $this->cpScreenResponse(subnav: false)
             ->title($title)
-            ->crumbs($pdf->id ? $this->crumbs(['label' => $title]) : $this->crumbs())
+            ->crumbs($pdf->id ? $this->crumbs($storeCrumb, ['label' => $title]) : $this->crumbs($storeCrumb))
             ->action('commerce/pdfs/save')
-            ->redirectUrl('commerce/settings/pdfs')
+            ->redirectUrl("commerce/settings/pdfs/{$store->handle}")
             ->inertiaPage('Form', [
                 'form' => $form,
                 'submit' => [

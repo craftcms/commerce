@@ -85,6 +85,8 @@ class ProductTypesController extends BaseSettingsController
                 ])
                 ->rows(array_values($rows))
                 ->emptyMessage(t('No product types exist yet.', category: 'commerce'))
+                ->searchable()
+                ->toggleableColumns()
                 ->createAction(
                     $this->readOnly ? null : t('New product type', category: 'commerce'),
                     $this->readOnly ? null : cp_url('commerce/settings/producttypes/new'),

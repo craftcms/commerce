@@ -74,12 +74,12 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
         Route::post('commerce/settings/producttypes/render-form', [ProductTypesController::class, 'renderForm']);
         Route::get('commerce/settings/producttypes/{productTypeId}', [ProductTypesController::class, 'editProductType'])->whereNumber('productTypeId');
 
-        Route::get('commerce/settings/emails', [EmailsController::class, 'index']);
+        Route::get('commerce/settings/emails/{storeHandle?}', [EmailsController::class, 'index']);
         Route::get('commerce/settings/emails/{storeHandle}/new', [EmailsController::class, 'edit']);
         Route::post('commerce/settings/emails/render-form', [EmailsController::class, 'renderForm']);
         Route::get('commerce/settings/emails/{storeHandle}/{id}', [EmailsController::class, 'edit'])->whereNumber('id');
 
-        Route::get('commerce/settings/pdfs', [PdfsController::class, 'index']);
+        Route::get('commerce/settings/pdfs/{storeHandle?}', [PdfsController::class, 'index']);
         Route::get('commerce/settings/pdfs/{storeHandle}/new', [PdfsController::class, 'edit']);
         Route::get('commerce/settings/pdfs/{storeHandle}/{id}', [PdfsController::class, 'edit'])->whereNumber('id');
     });

@@ -323,6 +323,12 @@ class StoresController extends BaseSettingsController
 
         $rows = $stores->map(fn(Store $s) => [
             'id' => $s->id,
+            '_search' => implode(' ', [
+                t($s->getName(), category: 'site'),
+                $s->handle,
+                $s->getSiteNames()->join(' '),
+                $s->getCurrency()?->getCode(),
+            ]),
             'name' => [
                 'label' => t($s->getName(), category: 'site'),
                 'url' => Url::cpUrl('commerce/settings/stores/' . $s->id),
@@ -362,6 +368,8 @@ class StoresController extends BaseSettingsController
                 ])
                 ->rows($rows)
                 ->emptyMessage(t('No stores exist yet.', category: 'commerce'))
+                ->searchable()
+                ->toggleableColumns()
                 ->createAction(
                     $showNewStoreButton ? t('New store') : null,
                     $showNewStoreButton ? Url::cpUrl('commerce/settings/stores/new') : null,
