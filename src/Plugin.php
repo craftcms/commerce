@@ -442,30 +442,19 @@ class Plugin extends BasePlugin
             $item->add(new NavItem()->label(t('Orders', category: 'commerce'))->url('commerce/orders'));
         }
 
-        $viewableProductTypeIds = app(ProductTypes::class)->getViewableProductTypeIds(true);
-
-        $productNavItems = [];
-
-        if (count($viewableProductTypeIds) > 1) {
-            $productNavItems = app(Navigation::class)->sourceSubnav(Product::class, 'commerce/products');
-        } elseif ($viewableProductTypeIds) {
-            $productNavItems[] = new NavItem()->label(t('Products', category: 'commerce'))->url('commerce/products');
+        /**
+         * One entry, whatever the product types are. The index puts them in the
+         * secondary nav itself, so listing them here as well would say the same
+         * thing twice.
+         */
+        if (app(ProductTypes::class)->getViewableProductTypeIds(true)) {
+            $item->add(new NavItem()->label(t('Products', category: 'commerce'))->url('commerce/products'));
         }
 
         if (currentUser()?->can('commerce-manageDonationSettings')) {
-            $donationsNavItem = new NavItem()->label(t('Donations', category: 'commerce'))->url('commerce/donations');
-            $lastProductNavItem = end($productNavItems);
-
-            // Listed directly beneath the product types, under their heading when they have one.
-            if ($lastProductNavItem instanceof NavItem && $lastProductNavItem->group && is_array($lastProductNavItem->subnav)) {
-                $lastProductNavItem->add($donationsNavItem);
-            } else {
-                $productNavItems[] = $donationsNavItem;
-            }
-        }
-
-        foreach ($productNavItems as $productNavItem) {
-            $item->add($productNavItem);
+            $item->add(
+                new NavItem()->label(t('Donations', category: 'commerce'))->url('commerce/donations')
+            );
         }
 
         $inventoryItems = [];
