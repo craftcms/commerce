@@ -973,6 +973,7 @@ return [
     'Receive' => 'Receive',
     'Received' => 'Received',
     'Recent Orders' => 'Recent Orders',
+    'Recent Orders – {orderStatus}' => 'Recent Orders – {orderStatus}',
     'Recipient' => 'Recipient',
     'Recover Cart' => 'Recover Cart',
     'Redirect' => 'Redirect',
