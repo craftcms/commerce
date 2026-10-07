@@ -12,7 +12,6 @@ use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Auth\Events\ElementAuthorizing;
 use CraftCms\Cms\Cms;
 use CraftCms\Cms\Cp\Data\NavItem;
-use CraftCms\Cms\Cp\Navigation;
 use CraftCms\Cms\Cp\Settings as CpSettings;
 use CraftCms\Cms\Element\Events\DefineDeletionBlockers;
 use CraftCms\Cms\Element\Events\ElementSaved;
