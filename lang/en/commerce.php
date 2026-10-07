@@ -857,6 +857,8 @@ return [
     'Payment Currencies' => 'Payment Currencies',
     'Payment Gateway' => 'Payment Gateway',
     'Payment Method' => 'Payment Method',
+    'Payment Sources' => 'Payment Sources',
+    'Payment Type' => 'Payment Type',
     'Payment error: {message}' => 'Payment error: {message}',
     'Payment method issue' => 'Payment method issue',
     'Payment source created.' => 'Payment source created.',

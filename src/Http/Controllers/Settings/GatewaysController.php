@@ -20,11 +20,10 @@ use CraftCms\Cms\Form\Nodes\HiddenField;
 use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Html;
-use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Address\Conditions\GatewayAddressCondition;
 use CraftCms\Commerce\Database\Table as DbTable;
 use CraftCms\Commerce\Order\Conditions\GatewayOrderCondition;
-use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
+use CraftCms\Commerce\Payment\Gateway\Gateway;
 use CraftCms\Commerce\Payment\Gateway\Gateways;
 use CraftCms\Commerce\Payment\Gateway\Types\Dummy;
 use CraftCms\Commerce\Payment\Gateway\Types\MissingGateway;
@@ -49,34 +48,51 @@ class GatewaysController extends BaseSettingsController
         $gateways = $gatewayService->getAllGateways();
         $archivedGateways = $gatewayService->getAllArchivedGateways();
 
-        $nameCell = fn(GatewayInterface $gateway) => ['html' => Html::a(
+        $nameCell = fn(Gateway $gateway) => ['html' => Html::a(
             Html::encode(t($gateway->name, category: 'site')),
             $gateway->getCpEditUrl(),
             ['class' => 'cell-bold'],
         )];
-        $typeCell = fn(GatewayInterface $gateway) => ['html' => $gateway instanceof MissingGateway
+        $typeCell = fn(Gateway $gateway) => ['html' => $gateway instanceof MissingGateway
             ? Html::tag('span', Html::encode($gateway->expectedType), ['class' => 'error'])
             : Html::encode($gateway::displayName()), ];
+        $checkCell = fn(bool $value) => $value ? ['icon' => 'check', 'label' => t('Yes')] : '';
+        $copyCell = fn(?string $value) => $value ? ['html' => FormFields::copytextHtml(['value' => $value, 'monospace' => true])] : '';
 
-        $rows = $gateways->map(fn(GatewayInterface $gateway) => [
+        $rows = $gateways->map(fn(Gateway $gateway) => [
             'id' => $gateway->id,
+            '_search' => implode(' ', [
+                t($gateway->name, category: 'site'),
+                $gateway->handle,
+                $gateway instanceof MissingGateway ? $gateway->expectedType : $gateway::displayName(),
+            ]),
             'name' => $nameCell($gateway),
-            'handle' => ['html' => FormFields::copytextHtml(['value' => $gateway->handle, 'monospace' => true])],
+            'handle' => $copyCell($gateway->handle),
             'type' => $typeCell($gateway),
-            'customerEnabled' => $gateway->getIsFrontendEnabled() ? ['icon' => 'check', 'label' => t('Yes')] : '',
+            'paymentType' => $gateway instanceof MissingGateway
+                ? ''
+                : $gateway->getPaymentTypeOptions()[$gateway->paymentType] ?? $gateway->paymentType,
+            'customerEnabled' => $checkCell((bool)$gateway->getIsFrontendEnabled()),
+            'paymentSources' => $checkCell($gateway->supportsPaymentSources()),
+            'webhookUrl' => $copyCell($gateway->supportsWebhooks() ? $gateway->getWebhookUrl() : null),
         ])->values()->all();
 
         $nodes = [
             Table::make('gateways')
                 ->columns([
-                    ['key' => 'id', 'label' => t('ID')],
                     ['key' => 'name', 'label' => t('Name')],
+                    ['key' => 'id', 'label' => t('ID')],
                     ['key' => 'handle', 'label' => t('Handle')],
                     ['key' => 'type', 'label' => t('Type', category: 'commerce')],
+                    ['key' => 'paymentType', 'label' => t('Payment Type', category: 'commerce')],
                     ['key' => 'customerEnabled', 'label' => t('Customer Enabled?', category: 'commerce')],
+                    ['key' => 'paymentSources', 'label' => t('Payment Sources', category: 'commerce')],
+                    ['key' => 'webhookUrl', 'label' => t('Webhook URL', category: 'commerce')],
                 ])
                 ->rows($rows)
                 ->emptyMessage(t('No gateways exist yet.', category: 'commerce'))
+                ->searchable()
+                ->toggleableColumns(['paymentSources', 'webhookUrl'])
                 ->when(!$this->readOnly, fn(Table $table) => $table
                     ->createAction(t('New gateway', category: 'commerce'), cp_url('commerce/settings/gateways/new'))
                     ->createActionInPageHeader()
@@ -91,7 +107,7 @@ class GatewaysController extends BaseSettingsController
                 ->pluck('gatewayId')
                 ->all();
 
-            $archivedRows = array_values(array_map(fn(GatewayInterface $gateway) => [
+            $archivedRows = array_values(array_map(fn(Gateway $gateway) => [
                 'id' => $gateway->id,
                 '_sort' => ['name' => t($gateway->name, category: 'site')],
                 'name' => $nameCell($gateway),
@@ -271,7 +287,7 @@ class GatewaysController extends BaseSettingsController
         if ($gateway->id && $gateway->supportsWebhooks()) {
             $formNodes[] = Field::make(t('Webhook URL', category: 'commerce'), Text::make('webhookUrl')
                 ->mode(ControlMode::ReadOnly)
-                ->value(Url::siteUrl('commerce/webhooks/process-webhook/gateway/' . $gateway->id)))
+                ->value($gateway->getWebhookUrl()))
                 ->instructions(t('The webhook URL for this gateway.', category: 'commerce'));
         }
 

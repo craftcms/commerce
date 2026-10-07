@@ -486,7 +486,9 @@ class Plugin extends BasePlugin
         }
 
         if (currentUser()?->can('commerce-manageStoreSettings')) {
-            $item->add(new NavItem()->label(t('Store Management', category: 'commerce'))->url('commerce/store-management'));
+            $item->add(new NavItem()->label(t('Settings', category: 'app'))->group(true)->subnav([
+                new NavItem()->label(t('Store Management', category: 'commerce'))->url('commerce/store-management'),
+            ]));
         }
 
         return $item;

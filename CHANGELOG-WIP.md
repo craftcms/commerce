@@ -234,6 +234,7 @@
 #### Controllers
 
 - Removed `craft\commerce\controllers\EmailsController`. `CraftCms\Commerce\Http\Controllers\Settings\EmailsController` should be used instead.
+- The "Emails" settings screen now lists one store at a time, at `commerce/settings/emails/<storeHandle>`, with a subnav for switching stores.
 - Removed `craft\commerce\controllers\EmailPreviewController`. `CraftCms\Commerce\Http\Controllers\EmailPreviewController` should be used instead.
 
 ### Pdf
@@ -257,6 +258,7 @@
 #### Controllers
 
 - Removed `craft\commerce\controllers\PdfsController`. `CraftCms\Commerce\Http\Controllers\Settings\PdfsController` should be used instead.
+- The "PDFs" settings screen now lists one store at a time, at `commerce/settings/pdfs/<storeHandle>`, with a subnav for switching stores.
 
 ### Formulas
 
@@ -638,6 +640,7 @@
 - Removed `craft\commerce\controllers\PaymentSourcesController`. `CraftCms\Commerce\Http\Controllers\PaymentSourcesController` should be used instead.
 - Removed `craft\commerce\controllers\WebhooksController`. `CraftCms\Commerce\Http\Controllers\WebhooksController` should be used instead.
 - Removed `craft\commerce\controllers\Settings\GatewaysController`. `CraftCms\Commerce\Http\Controllers\Settings\GatewaysController` should be used instead.
+- The "Gateways" settings screen is now searchable and has a "View" menu for choosing columns, with new "Payment Type", "Payment Sources", and "Webhook URL" columns.
 - Removed `craft\commerce\controllers\PaymentCurrenciesController`. `CraftCms\Commerce\Http\Controllers\Settings\PaymentCurrenciesController` should be used instead.
 
 ### Promotions
@@ -848,6 +851,7 @@
 - Removed `craft\commerce\base\StoreRecordTrait` as it was unused.
 - Added a "Commerce" section to the Control Panel Settings page, with "General", "Stores", "Product Types", "Orders", "PDFs", "Emails", "Gateways", and "Transfers" tiles linking to the corresponding Commerce settings screens.
 - Removed the "Settings" Control Panel nav item from the Commerce nav. Commerce settings are now reached from the Control Panel Settings page.
+- The "Store Management" Control Panel nav item is now grouped under a "Settings" heading.
 
 #### Controllers
 
