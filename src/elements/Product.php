@@ -1170,18 +1170,6 @@ JS, [
         $variants = $this->getVariants($includeDisabled);
         $defaultVariant = $variants->firstWhere('id', $this->defaultVariantId);
 
-        if (!$defaultVariant && $this->defaultVariantId) {
-            $canonicalVariantId = (new Query())
-                ->select(['canonicalId', 'id'])
-                ->from(['{{%elements}}'])
-                ->where(['id' => $this->defaultVariantId])
-                ->one();
-
-            if ($canonicalVariantId) {
-                $defaultVariant = $variants->firstWhere('id', $canonicalVariantId['canonicalId'] ?? $canonicalVariantId['id']);
-            }
-        }
-
         return $defaultVariant ?: $variants->first();
     }
 
