@@ -431,6 +431,7 @@ class Plugin extends BasePlugin
     public function getCpNavItem(): NavItem|array|null
     {
         $item = parent::getCpNavItem();
+        $item->group(true);
 
         if (!$item instanceof NavItem) {
             return $item;
@@ -439,7 +440,10 @@ class Plugin extends BasePlugin
         $item->label(t('Commerce', category: 'commerce'));
 
         if (currentUser()?->can('commerce-manageOrders')) {
-            $item->add(new NavItem()->label(t('Orders', category: 'commerce'))->url('commerce/orders'));
+            $item->add(new NavItem()
+                ->icon('receipt')
+                ->label(t('Orders', category: 'commerce'))
+                ->url('commerce/orders'));
         }
 
         $viewableProductTypeIds = app(ProductTypes::class)->getViewableProductTypeIds(true);
@@ -449,11 +453,17 @@ class Plugin extends BasePlugin
         if (count($viewableProductTypeIds) > 1) {
             $productNavItems = app(Navigation::class)->sourceSubnav(Product::class, 'commerce/products');
         } elseif ($viewableProductTypeIds) {
-            $productNavItems[] = new NavItem()->label(t('Products', category: 'commerce'))->url('commerce/products');
+            $productNavItems[] = new NavItem()
+                ->icon('cart-shopping')
+                ->label(t('Products', category: 'commerce'))
+                ->url('commerce/products');
         }
 
         if (currentUser()?->can('commerce-manageDonationSettings')) {
-            $donationsNavItem = new NavItem()->label(t('Donations', category: 'commerce'))->url('commerce/donations');
+            $donationsNavItem = new NavItem()
+                    ->icon('circle-dollar-to-slot')
+                    ->label(t('Donations', category: 'commerce'))
+                    ->url('commerce/donations');
             $lastProductNavItem = end($productNavItems);
 
             // Listed directly beneath the product types, under their heading when they have one.
@@ -471,24 +481,35 @@ class Plugin extends BasePlugin
         $inventoryItems = [];
 
         if (currentUser()?->can('commerce-manageInventoryStockLevels')) {
-            $inventoryItems[] = new NavItem()->label(t('Manage Inventory', category: 'commerce'))->url('commerce/inventory');
+            $inventoryItems[] = new NavItem()
+                ->label(t('Manage Inventory', category: 'commerce'))
+                ->url('commerce/inventory');
         }
 
         if (currentUser()?->can('commerce-manageInventoryLocations')) {
-            $inventoryItems[] = new NavItem()->label(t('Inventory Locations', category: 'commerce'))->url('commerce/inventory-locations');
+            $inventoryItems[] = new NavItem()
+                ->label(t('Inventory Locations', category: 'commerce'))
+                ->url('commerce/inventory-locations');
         }
 
         $multipleLocations = app(InventoryLocations::class)->getAllInventoryLocations()->count() > 1;
         if ($multipleLocations && currentUser()?->can('commerce-manageInventoryTransfers')) {
-            $inventoryItems[] = new NavItem()->label(t('Inventory Transfers', category: 'commerce'))->url('commerce/inventory/transfers');
+            $inventoryItems[] = new NavItem()
+                ->label(t('Inventory Transfers', category: 'commerce'))
+                ->url('commerce/inventory/transfers');
         }
 
         if ($inventoryItems) {
-            $item->add(new NavItem()->label(t('Inventory', category: 'commerce'))->group(true)->subnav($inventoryItems));
+            $item->add(new NavItem()->label(t('Inventory', category: 'commerce'))
+                ->icon('warehouse')
+                ->group(true)->subnav($inventoryItems));
         }
 
         if (currentUser()?->can('commerce-manageStoreSettings')) {
-            $item->add(new NavItem()->label(t('Settings', category: 'app'))->group(true)->subnav([
+            $item->add(new NavItem()
+                ->icon('gear')
+                ->label(t('Settings', category: 'app'))
+                ->group(true)->subnav([
                 new NavItem()->label(t('Store Management', category: 'commerce'))->url('commerce/store-management'),
             ]));
         }
