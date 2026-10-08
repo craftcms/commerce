@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\db\Query;
+use CraftCms\Cms\Cp\Components\Select;
 use CraftCms\Cms\Cp\Data\NavItem;
 use CraftCms\Cms\Cp\SelectOptions;
 use CraftCms\Cms\Form\Controls\Choice;
 use CraftCms\Cms\Form\Controls\Combobox;
 use CraftCms\Cms\Form\Controls\Handle;
 use CraftCms\Cms\Form\Controls\Lightswitch;
-use CraftCms\Cms\Form\Controls\Table as TableControl;
 use CraftCms\Cms\Form\Controls\Text;
 use CraftCms\Cms\Form\Enums\ControlMode;
 use CraftCms\Cms\Form\Form;
@@ -27,6 +27,7 @@ use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\Database\Table as DbTable;
+use CraftCms\Commerce\Form\Controls\SiteStores;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Plugin;
@@ -42,7 +43,7 @@ class StoresController extends BaseSettingsController
 {
     protected function getSectionCrumb(): array
     {
-        return ['label' => t('Stores'), 'href' => cp_url('commerce/settings/stores')];
+        return ['label' => t('Stores', category: 'commerce'), 'href' => cp_url('commerce/settings/stores')];
     }
 
     #[\Override]
@@ -73,13 +74,13 @@ class StoresController extends BaseSettingsController
             $storeModel = $storesService->getStoreById($storeId);
             abort_if($storeModel === null, 404, 'Store not found');
 
-            $title = trim((string)$storeModel->getName()) ?: t('Edit Store');
+            $title = trim((string)$storeModel->getName()) ?: t('Edit Store', category: 'commerce');
         } else {
             $storeModel = new Store();
             $brandNewStore = true;
             $allowCurrencyChange = true;
 
-            $title = t('Create a new Store');
+            $title = t('Create a new store', category: 'commerce');
         }
 
         $hasOrders = $storeModel->id && Order::find()
@@ -155,7 +156,7 @@ class StoresController extends BaseSettingsController
             Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
                 ->required(),
             Field::make(t('Handle', category: 'app'), $handle)
-                ->instructions(t('How you’ll refer to this store in the templates.', category: 'app'))
+                ->instructions(t('How you’ll refer to this store in the templates.', category: 'commerce'))
                 ->required(),
             $brandNewStore
                 ? Field::make(t('Sites', category: 'commerce'), Choice::make('siteId')->options($availableSiteOptions))
@@ -211,9 +212,9 @@ class StoresController extends BaseSettingsController
             Field::make(t('Order Reference Number Format', category: 'commerce'), Text::make('orderReferenceFormat')
                 ->monospace()
                 ->textExpanderTriggers(SelectOptions::getEnvTextExpanderTriggers()))
-                ->instructions(t('A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or {ex2}. The result of this format must be unique.', [
-                    'ex1' => '2018-{number[:7]}',
-                    'ex2' => "{{object.dateCompleted|date('y')}}-{{ seq(object.dateCompleted|date('y'), 8) }}",
+                ->instructions(t('A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.', [
+                    'ex1' => Html::code('2018-{number[:7]}'),
+                    'ex2' => Html::code("{{object.dateCompleted|date('y')}}-{{ seq(object.dateCompleted|date('y'), 8) }}"),
                 ], category: 'commerce'))
                 ->tip(sprintf(
                     '%s [%s](%s)',
@@ -361,7 +362,7 @@ class StoresController extends BaseSettingsController
         }
 
         if (!$store->validate() || !$storesService->saveStore($store)) {
-            return $this->asModelFailure($store, t('Couldn’t save the store.'), 'store');
+            return $this->asModelFailure($store, t('Couldn’t save the store.', category: 'commerce'), 'store');
         }
 
         if ($siteId = $request->input('siteId')) {
@@ -370,7 +371,7 @@ class StoresController extends BaseSettingsController
             $storesService->saveSiteStore($siteStore);
         }
 
-        return $this->asModelSuccess($store, t('Store saved.'), 'store');
+        return $this->asModelSuccess($store, t('Store saved.', category: 'commerce'), 'store');
     }
 
     public function storesIndex(): CpScreenResponse
@@ -422,7 +423,7 @@ class StoresController extends BaseSettingsController
             '_deletable' => !$s->primary,
         ])->all();
 
-        $title = t('Stores');
+        $title = t('Stores', category: 'commerce');
 
         $showNewStoreButton = !$this->readOnly && $stores->count() < count(Sites::getAllSites());
 
@@ -449,7 +450,7 @@ class StoresController extends BaseSettingsController
                 ->searchable()
                 ->toggleableColumns()
                 ->createAction(
-                    $showNewStoreButton ? t('New store') : null,
+                    $showNewStoreButton ? t('New store', category: 'commerce') : null,
                     $showNewStoreButton ? Url::cpUrl('commerce/settings/stores/new') : null,
                 )
                 ->createActionInPageHeader()
@@ -508,26 +509,41 @@ class StoresController extends BaseSettingsController
         ])->all();
 
         $rows = [];
+        $values = [];
 
         foreach (Sites::getAllSites() as $site) {
             $siteStore = $sitesStores->count() > 0 ? $sitesStores->firstWhere('siteId', $site->id) : null;
+            $siteName = t($site->name, category: 'site');
+            $storeId = request()->old("siteStores.$site->id.storeId", $siteStore->storeId ?? $primaryStoreId);
+            $values[$site->id] = ['storeId' => $storeId];
 
-            $rows[$site->id] = [
-                'site' => t($site->name, category: 'site'),
-                'storeId' => $siteStore->storeId ?? $primaryStoreId,
+            $rows[] = [
+                'id' => $site->id,
+                'site' => $siteName,
+                'store' => ['html' => Select::make()
+                    ->name("siteStores[$site->id][storeId]")
+                    ->label(t('Store for {site}', ['site' => $siteName], category: 'commerce'))
+                    ->labelSrOnly()
+                    ->options($storeOptions)
+                    ->selectAttributes(['data-site-id' => $site->id])
+                    ->value($storeId)
+                    ->disabled($this->readOnly)
+                    ->toHtml(), ],
             ];
         }
 
+        $table = Table::make('siteStores')
+            ->columns([
+                ['key' => 'site', 'label' => t('Site')],
+                ['key' => 'store', 'label' => t('Store', category: 'commerce')],
+            ])
+            ->showFooter(false)
+            ->rows($rows);
+
         $form = Form::make([
-            Field::make(null, TableControl::make('siteStores')
-                ->columns([
-                    'site' => ['type' => 'heading', 'heading' => t('Site')],
-                    'storeId' => ['type' => 'select', 'heading' => t('Store', category: 'commerce'), 'options' => $storeOptions],
-                ])
-                ->keyed()),
+            Field::make(null, SiteStores::make('siteStores')->table($table)),
         ]);
 
-        $values = ['siteStores' => $rows];
         $title = t('Sites');
 
         return $this->cpScreenResponse()
@@ -535,8 +551,9 @@ class StoresController extends BaseSettingsController
             ->crumbs($this->crumbsForSection(['label' => $title, 'href' => cp_url('commerce/settings/stores/sites')]))
             ->redirectUrl('commerce/settings/stores/sites')
             ->inertiaPage('Form', [
+                'contentMaxWidth' => false,
                 'form' => $this->formResolver->resolve($form, new FormContext(
-                    values: $values,
+                    values: ['siteStores' => $values],
                     mode: $this->readOnly ? ControlMode::ReadOnly : ControlMode::Editable,
                 )),
                 'submit' => [

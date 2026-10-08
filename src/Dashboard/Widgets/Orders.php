@@ -68,7 +68,7 @@ class Orders extends Widget
             $orderStatus = app(OrderStatuses::class)->getOrderStatusByUid(Arr::first($this->orderStatuses), $this->storeId);
 
             if ($orderStatus) {
-                return t('Recent Orders', category: 'commerce') . ' – ' . t($orderStatus->name, category: 'commerce');
+                return t('Recent Orders – {orderStatus}', ['orderStatus' => $orderStatus->getUiLabel()], category: 'commerce');
             }
         }
 

@@ -1,4 +1,5 @@
 import CouponGeneratorNode from './modules/forms/CouponGeneratorNode.vue';
+import SiteStoresControl from './modules/forms/SiteStoresControl.vue';
 import TransferDetailsControl from './modules/forms/TransferDetailsControl.vue';
 import TransferReceiveControl from './modules/forms/TransferReceiveControl.vue';
 import UsageCounterNode from './modules/forms/UsageCounterNode.vue';
@@ -29,6 +30,7 @@ function registerComponents(): void {
     CouponGeneratorNode
   );
   window.Cp.$components.register('commerce:usage-counter', UsageCounterNode);
+  window.Cp.$components.register('commerce:site-stores', SiteStoresControl);
   window.Cp.$components.register(
     'commerce:transfer-details',
     TransferDetailsControl

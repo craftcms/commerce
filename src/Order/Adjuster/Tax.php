@@ -159,7 +159,7 @@ class Tax implements AdjusterInterface
 
                 $adjustment = $this->_createAdjustment($taxRate);
                 // We need to display the adjustment that removed the included tax
-                $adjustment->name = t($taxRate->name, category: 'site') . ' ' . t('Removed', category: 'commerce');
+                $adjustment->name = t('{name} Removed', ['name' => $taxRate->getUiLabel()], category: 'commerce');
                 $adjustment->amount = $orderLevelAmountToBeRemovedByDiscount;
                 $adjustment->type = 'discount'; // @TODO Stop using a discount adjustment for removed included tax and instead modify the item price directly #COM-26
                 $adjustment->included = false;
@@ -207,7 +207,7 @@ class Tax implements AdjusterInterface
                         }
                         $adjustment = $this->_createAdjustment($taxRate);
                         // We need to display the adjustment that removed the included tax
-                        $adjustment->name = t($taxRate->name, category: 'site') . ' ' . t('Removed', category: 'commerce');
+                        $adjustment->name = t('{name} Removed', ['name' => $taxRate->getUiLabel()], category: 'commerce');
                         $adjustment->amount = $amount;
                         $adjustment->setLineItem($item);
                         $adjustment->type = 'discount';

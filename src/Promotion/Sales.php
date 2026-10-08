@@ -339,7 +339,7 @@ class Sales
             $record = SaleRecord::find($model->id);
 
             if (!$record) {
-                throw new \RuntimeException(t('No sale exists with the ID "{id}"', ['id' => $model->id], category: 'commerce'));
+                throw new \RuntimeException(t('No sale exists with the ID “{id}”', ['id' => $model->id], category: 'commerce'));
             }
         }
 

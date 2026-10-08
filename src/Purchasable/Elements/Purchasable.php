@@ -643,7 +643,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
         if (!$this->hasStock()) {
             if (!app(Purchasables::class)->isPurchasableOutOfStockPurchasingAllowed($lineItemPurchasable, $lineItem->getOrder())) {
-                $error = t('"{description}" is currently out of stock.', ['description' => $lineItemPurchasable->getDescription()], category: 'commerce');
+                $error = t('“{description}” is currently out of stock.', ['description' => $lineItemPurchasable->getDescription()], category: 'commerce');
                 $lineItem->errors()->add('qty', $error);
             }
         }
@@ -652,7 +652,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
         if ($this->hasStock() && $this->inventoryTracked && $lineItemQty > $this->getStock()) {
             if (!app(Purchasables::class)->isPurchasableOutOfStockPurchasingAllowed($lineItemPurchasable, $lineItem->getOrder())) {
-                $error = t('There are only {num} "{description}" items left in stock.', ['num' => $this->getStock(), 'description' => $lineItemPurchasable->getDescription()], category: 'commerce');
+                $error = t('There are only {num} “{description}” items left in stock.', ['num' => $this->getStock(), 'description' => $lineItemPurchasable->getDescription()], category: 'commerce');
                 $lineItem->errors()->add('qty', $error);
             }
         }

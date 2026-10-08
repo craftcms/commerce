@@ -1,0 +1,9 @@
+{
+    "name": "craftcms/commerce-workbench",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Workbench\\App\\": "app/"
+        }
+    }
+}

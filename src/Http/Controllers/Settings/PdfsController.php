@@ -171,7 +171,7 @@ class PdfsController extends BaseSettingsController
                 'ex2' => '`{myOrderCustomField}`',
             ], category: 'commerce'));
         $formNodes[] = Field::make(t('Language', category: 'commerce'), Choice::make('language')->options($languageOptions))
-            ->instructions(t('The language to be used when PDF is rendered.'));
+            ->instructions(t('The language to be used when PDF is rendered.', category: 'commerce'));
         $formNodes[] = Field::make(t('Paper Orientation', category: 'commerce'), Choice::make('paperOrientation')->options($paperOrientationOptions));
         $formNodes[] = Field::make(t('Paper Size', category: 'commerce'), Choice::make('paperSize')->options($paperSizeOptions));
         $formNodes[] = Field::make(t('Link Duration', category: 'commerce'), Number::make('linkExpiry')->min(1))

@@ -124,6 +124,6 @@ readonly class PaymentSourcesController
             return $this->asModelSuccess($paymentSource, t('Payment source deleted.', category: 'commerce'));
         }
 
-        return $this->asModelFailure($paymentSource, t('Couldn\'t delete the payment source.', category: 'commerce'));
+        return $this->asModelFailure($paymentSource, t('Couldn’t delete the payment source.', category: 'commerce'));
     }
 }

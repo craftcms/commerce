@@ -179,7 +179,7 @@ class PaymentCurrencies
         if ($model->id) {
             $record = PaymentCurrencyRecord::find($model->id);
             if (!$record) {
-                throw new \RuntimeException(t('No currency exists with the ID "{id}"', ['id' => $model->id], category: 'commerce'));
+                throw new \RuntimeException(t('No currency exists with the ID “{id}”', ['id' => $model->id], category: 'commerce'));
             }
         } else {
             $record = new PaymentCurrencyRecord();

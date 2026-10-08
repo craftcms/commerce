@@ -316,7 +316,7 @@ class Emails
 
                 $newEmail->setTo($emails);
             } catch (\Exception $e) {
-                $error = t('Email template parse error for custom email "{email}" in "To:". Order: "{order}". Template error: "{message}" {file}:{line}', [
+                $error = t('Email template parse error for custom email “{email}” in “To:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
                     'message' => $e->getMessage(),
@@ -332,7 +332,7 @@ class Emails
         }
 
         if (!$newEmail->getTo()) {
-            $error = t('Email error. No email address found for order. Order: "{order}"', ['order' => $order->getShortNumber()], category: 'commerce');
+            $error = t('Email error. No email address found for order. Order: “{order}”', ['order' => $order->getShortNumber()], category: 'commerce');
             Log::error($error);
 
             Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
@@ -351,7 +351,7 @@ class Emails
                     $newEmail->setBcc($bcc);
                 }
             } catch (\Exception $e) {
-                $error = t('Email template parse error for email "{email}" in "BCC:". Order: "{order}". Template error: "{message}" {file}:{line}', [
+                $error = t('Email template parse error for email “{email}” in “BCC:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
                     'message' => $e->getMessage(),
@@ -377,7 +377,7 @@ class Emails
                     $newEmail->setCc($cc);
                 }
             } catch (\Exception $e) {
-                $error = t('Email template parse error for email "{email}" in "CC:". Order: "{order}". Template error: "{message}" {file}:{line}', [
+                $error = t('Email template parse error for email “{email}” in “CC:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
                     'message' => $e->getMessage(),
@@ -397,7 +397,7 @@ class Emails
             try {
                 $newEmail->setReplyTo(Template::renderSandboxedString($email->replyTo, $renderVariables, TemplateMode::Site));
             } catch (\Exception $e) {
-                $error = t('Email template parse error for email "{email}" in "ReplyTo:". Order: "{order}". Template error: "{message}" {file}:{line}', [
+                $error = t('Email template parse error for email “{email}” in “ReplyTo:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
                     'message' => $e->getMessage(),
@@ -416,7 +416,7 @@ class Emails
         try {
             $newEmail->setSubject(Template::renderSandboxedString($email->subject, $renderVariables, TemplateMode::Site));
         } catch (\Exception $e) {
-            $error = t('Email template parse error for email "{email}" in "Subject:". Order: "{order}". Template error: "{message}" {file}:{line}', [
+            $error = t('Email template parse error for email “{email}” in “Subject:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
                 'order' => $order->getShortNumber(),
                 'message' => $e->getMessage(),
@@ -434,7 +434,7 @@ class Emails
         try {
             $templatePath = Template::renderSandboxedString($email->templatePath, $renderVariables, TemplateMode::Site);
         } catch (\Exception $e) {
-            $error = t('Email template path parse error for email "{email}" in "Template Path". Order: "{order}". Template error: "{message}" {file}:{line}', [
+            $error = t('Email template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
                 'order' => $order->getShortNumber(),
                 'message' => $e->getMessage(),
@@ -450,7 +450,7 @@ class Emails
 
         // Email Body
         if (!app(TemplateResolver::class)->exists($templatePath, TemplateMode::Site)) {
-            $error = t('Email template does not exist at "{templatePath}" which resulted in "{templateParsedPath}" for email "{email}". Order: "{order}".', [
+            $error = t('Email template does not exist at “{templatePath}” which resulted in “{templateParsedPath}” for email “{email}”. Order: “{order}”.', [
                 'templatePath' => $email->templatePath,
                 'templateParsedPath' => $templatePath,
                 'email' => $email->name,
@@ -469,7 +469,7 @@ class Emails
             try {
                 $plainTextTemplatePath = Template::renderSandboxedString($email->plainTextTemplatePath, $renderVariables, TemplateMode::Site);
             } catch (\Exception $e) {
-                $error = t('Email plain text template path parse error for email "{email}" in "Template Path". Order: "{order}". Template error: "{message}" {file}:{line}', [
+                $error = t('Email plain text template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
                     'message' => $e->getMessage(),
@@ -485,7 +485,7 @@ class Emails
 
             // Plain Text Body
             if ($plainTextTemplatePath && !app(TemplateResolver::class)->exists($plainTextTemplatePath, TemplateMode::Site)) {
-                $error = t('Email plain text template does not exist at "{templatePath}" which resulted in "{templateParsedPath}" for email "{email}". Order: "{order}".', [
+                $error = t('Email plain text template does not exist at “{templatePath}” which resulted in “{templateParsedPath}” for email “{email}”. Order: “{order}”.', [
                     'templatePath' => $email->plainTextTemplatePath,
                     'templateParsedPath' => $plainTextTemplatePath,
                     'email' => $email->name,
@@ -502,7 +502,7 @@ class Emails
         if ($pdf = $email->getPdf()) {
             // Email Body
             if (!app(TemplateResolver::class)->exists($pdf->templatePath, TemplateMode::Site)) {
-                $error = t('Email PDF template does not exist at "{templatePath}" for email "{email}". Order: "{order}".', [
+                $error = t('Email PDF template does not exist at “{templatePath}” for email “{email}”. Order: “{order}”.', [
                     'templatePath' => $pdf->templatePath,
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
@@ -539,7 +539,7 @@ class Emails
                 $options = ['fileName' => $fileName . '.pdf', 'contentType' => 'application/pdf'];
                 $newEmail->attach($tempPath, $options);
             } catch (\Exception $e) {
-                $error = t('Email PDF generation error for email "{email}". Order: "{order}". PDF Template error: "{message}" {file}:{line}', [
+                $error = t('Email PDF generation error for email “{email}”. Order: “{order}”. PDF Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
                     'message' => $e->getMessage(),
@@ -562,7 +562,7 @@ class Emails
             $body = Template::renderTemplate($templatePath, $renderVariables, TemplateMode::Site);
             $newEmail->setHtmlBody($body);
         } catch (\Exception $e) {
-            $error = t('Email template parse error for email "{email}". Order: "{order}". Template error: "{message}" {file}:{line}', [
+            $error = t('Email template parse error for email “{email}”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
                 'order' => $order->getShortNumber(),
                 'message' => $e->getMessage(),
@@ -583,7 +583,7 @@ class Emails
                 $plainTextBody = Template::renderTemplate($plainTextTemplatePath, $renderVariables, TemplateMode::Site);
                 $newEmail->setTextBody($plainTextBody);
             } catch (\Exception $e) {
-                $error = t('Email plain text template parse error for email "{email}". Order: "{order}". Template error: "{message}" {file}:{line}', [
+                $error = t('Email plain text template parse error for email “{email}”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
                     'message' => $e->getMessage(),
@@ -611,7 +611,7 @@ class Emails
             event($event);
 
             if (!$event->isValid) {
-                $notice = t('Email "{email}" for order {order} was cancelled.', [
+                $notice = t('Email “{email}” for order {order} was cancelled.', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
                 ], category: 'commerce');
@@ -630,7 +630,7 @@ class Emails
 
             app('mail.manager')->mailer()->getSymfonyTransport()->send($newEmail->getSymfonyEmail());
         } catch (\Exception $e) {
-            $error = t('Email "{email}" could not be sent for order "{order}". Error: {error} {file}:{line}', [
+            $error = t('Email “{email}” could not be sent for order “{order}”. Error: {error} {file}:{line}', [
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),

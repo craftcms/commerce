@@ -281,7 +281,7 @@ JS, []);
                 $order->setRecalculationMode(Order::RECALCULATION_MODE_ALL);
             }
 
-            return $this->asFailure(t('Couldn\'t save order.', category: 'commerce'));
+            return $this->asFailure(t('Couldn’t save order.', category: 'commerce'));
         }
 
         // This request is marking the order as complete
@@ -927,10 +927,10 @@ JS, []);
                 return $this->asSuccess(t('Transaction captured successfully: {message}', ['message' => $message], category: 'commerce'));
             }
 
-            return $this->asFailure(t('Couldn\'t capture transaction: {message}', ['message' => $message], category: 'commerce'));
+            return $this->asFailure(t('Couldn’t capture transaction: {message}', ['message' => $message], category: 'commerce'));
         }
 
-        return $this->asFailure(t('Couldn\'t capture transaction.', category: 'commerce'));
+        return $this->asFailure(t('Couldn’t capture transaction.', category: 'commerce'));
     }
 
     public function transactionRefund(Request $request): Response
@@ -971,13 +971,13 @@ JS, []);
                     return $this->asSuccess(t('Transaction refunded successfully: {message}', ['message' => $message], category: 'commerce'));
                 }
 
-                return $this->asFailure(t('Couldn\'t refund transaction: {message}', ['message' => $message], category: 'commerce'));
+                return $this->asFailure(t('Couldn’t refund transaction: {message}', ['message' => $message], category: 'commerce'));
             } catch (RefundException $exception) {
                 return $this->asFailure($exception->getMessage());
             }
         }
 
-        return $this->asFailure(t('Couldn\'t refund transaction.', category: 'commerce'));
+        return $this->asFailure(t('Couldn’t refund transaction.', category: 'commerce'));
     }
 
     public function paymentAmountData(Request $request): Response
@@ -1231,7 +1231,7 @@ JS, []);
 
         $variables['ordersBodyClass'] = ' commerceorders-post-57';
 
-        $variables['title'] = t('Order', category: 'commerce') . ' ' . $order->reference;
+        $variables['title'] = t('Order {reference}', ['reference' => $order->reference], category: 'commerce');
 
         if (!$order->isCompleted && $order->origin == Order::ORIGIN_CP) {
             $variables['title'] = t('New Order', category: 'commerce');

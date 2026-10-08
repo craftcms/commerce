@@ -36,6 +36,28 @@ php craft plugin/install commerce
 php craft commerce/example-templates
 ```
 
+## Development workbench
+
+The [Orchestra Workbench](https://packages.tools/workbench) runs Commerce inside a local Craft app. It keeps its SQLite database, environment, project config, and runtime files under `workbench/`.
+
+```bash
+composer install
+pnpm install
+pnpm build
+composer workbench:setup
+composer serve
+```
+
+The current CMS feature branch needs frontend assets built from the same CMS checkout. Build that checkout's frontend, set `WORKBENCH_CMS_ASSETS_PATH` in `workbench/.env` to its absolute `cms-assets/resources` path, and rerun `composer workbench:setup`. This overrides the published CMS assets during setup.
+
+Open <http://localhost:8125/> to sign in automatically as the seeded admin and open the control panel. To test manual login, visit `/admin/login` and use `admin` / `craftcms2018!!`.
+
+`workbench:setup` creates `workbench/.env` with a random app key, installs Craft and Commerce, and publishes their assets. You can run it again without resetting the database. Edit `workbench/.env` before the first setup to change the site URL or admin credentials.
+
+Run `pnpm dev` in a second terminal for Commerce component updates. After rebuilding with `pnpm build`, run `composer workbench:setup` again to publish the updated assets.
+
+To reset the local site, stop the server, delete `workbench/database/database.sqlite*` and `workbench/config/craft/project`, then run `composer workbench:setup`.
+
 ## Resources
 
 We highly recommend you check out these resources as you’re getting started with Craft Commerce:

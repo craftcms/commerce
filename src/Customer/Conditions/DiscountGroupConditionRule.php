@@ -33,7 +33,7 @@ class DiscountGroupConditionRule extends GroupConditionRule
     protected function operatorLabel(string $operator): string
     {
         return match ($operator) {
-            self::OPERATOR_IN_ALL => t('is in all of'),
+            self::OPERATOR_IN_ALL => t('is in all of', category: 'commerce'),
             default => parent::operatorLabel($operator),
         };
     }

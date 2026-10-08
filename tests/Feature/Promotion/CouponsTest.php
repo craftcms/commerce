@@ -78,6 +78,17 @@ test('saveCoupon persists a new coupon but rejects a duplicate code', function(s
     'code already in use' => ['discount_1', false],
 ]);
 
+test('saveCoupon names the discount that already uses a duplicate code, ignoring case', function(string $code) {
+    $fixture = DiscountsFixture::seed();
+    $coupon = new Coupon(['code' => $code, 'discountId' => $fixture->discountWithCoupon->id]);
+
+    expect(app(Coupons::class)->saveCoupon($coupon, true))->toBeFalse();
+    expect($coupon->errors()->first('code'))->toBe('Coupon code “discount_1” is already in use by discount “Discount 1”.');
+})->with([
+    'exact case' => ['discount_1'],
+    'different case' => ['DISCOUNT_1'],
+]);
+
 test('deleteCouponById removes the coupon record', function() {
     $fixture = DiscountsFixture::seed();
 

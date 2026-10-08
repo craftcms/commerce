@@ -519,7 +519,7 @@ class Discounts
             $record = DiscountRecord::find($model->id);
 
             if (!$record) {
-                throw new \RuntimeException(t('No discount exists with the ID "{id}"', ['id' => $model->id], category: 'commerce'));
+                throw new \RuntimeException(t('No discount exists with the ID “{id}”', ['id' => $model->id], category: 'commerce'));
             }
         } else {
             $record = new DiscountRecord();

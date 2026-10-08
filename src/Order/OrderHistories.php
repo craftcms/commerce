@@ -106,7 +106,7 @@ class OrderHistories
             $record = OrderHistoryRecord::find($model->id);
 
             if (!$record) {
-                throw new \RuntimeException(t('No order history exists with the ID "{id}"', ['id' => $model->id], category: 'commerce'));
+                throw new \RuntimeException(t('No order history exists with the ID “{id}”', ['id' => $model->id], category: 'commerce'));
             }
         } else {
             $record = new OrderHistoryRecord();

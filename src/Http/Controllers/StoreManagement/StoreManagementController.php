@@ -217,9 +217,9 @@ readonly class StoreManagementController extends BaseStoreManagementController
             // which called t() on them without one too (falls back to the 'app' category;
             // there's no local lang/en/app.php in either repo to verify against the way
             // commerce.php settles everything else).
-            Field::make(t('Order Address Condition'), ConditionBuilder::make('marketAddressCondition')
+            Field::make(t('Order Address Condition', category: 'commerce'), ConditionBuilder::make('marketAddressCondition')
                 ->conditionClass(ZoneAddressCondition::class))
-                ->instructions(t('Only allow orders with addresses that match the following rules:')),
+                ->instructions(t('Only allow orders with addresses that match the following rules:', category: 'commerce')),
         ];
 
         if (currentUserElement()?->can('commerce-manageInventoryLocations')) {
@@ -231,7 +231,7 @@ readonly class StoreManagementController extends BaseStoreManagementController
                 // No `category` here, matching InventoryLocationsController::edit()'s own title
                 // for this same screen — not a commerce.php string.
                 $inventoryLocationOptions[] = new ComboboxCreateOption(
-                    t('Create a new inventory location'),
+                    t('Create a new inventory location', category: 'commerce'),
                     action([InventoryLocationsController::class, 'edit']),
                     'inventoryLocation',
                 );

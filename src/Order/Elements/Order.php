@@ -3199,7 +3199,7 @@ class Order extends Element implements HasStoreInterface
 
         $marketLocationCondition = $this->getStore()->getSettings()->getMarketAddressCondition();
         if ($address && !empty($marketLocationCondition->getConditionRules()->findRules(fn(ConditionRuleInterface $rule) => true)) && !$marketLocationCondition->matchElement($address)) {
-            $this->errors()->add($attribute, t('The address provided is outside the store\'s market.', category: 'commerce'));
+            $this->errors()->add($attribute, t('The address provided is outside the store’s market.', category: 'commerce'));
         }
     }
 
@@ -3228,7 +3228,7 @@ class Order extends Element implements HasStoreInterface
     public function validateAddressReuse(string $attribute): void
     {
         if ($this->shippingSameAsBilling && $this->billingSameAsShipping) {
-            $this->errors()->add($attribute, t('shippingSameAsBilling and billingSameAsShipping can\'t both be set.', category: 'commerce'));
+            $this->errors()->add($attribute, t('shippingSameAsBilling and billingSameAsShipping can’t both be set.', category: 'commerce'));
         }
     }
 
