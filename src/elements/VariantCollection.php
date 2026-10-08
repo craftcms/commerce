@@ -8,6 +8,7 @@
 namespace craft\commerce\elements;
 
 use craft\elements\ElementCollection;
+use craft\helpers\Component as ComponentHelper;
 use Illuminate\Support\Collection;
 
 /**
@@ -35,8 +36,10 @@ class VariantCollection extends ElementCollection
                 continue;
             }
 
-            $item += ['class' => Variant::class];
-            $item = \Craft::createObject($item);
+            // Never let a caller attach behaviors or event handlers, or override the class to instantiate
+            $item = ComponentHelper::cleanseConfig($item);
+            unset($item['class'], $item['__class']);
+            $item = \Craft::createObject(['class' => Variant::class] + $item);
         }
 
         /** @var static $collection */

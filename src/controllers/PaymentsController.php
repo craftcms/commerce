@@ -226,7 +226,8 @@ class PaymentsController extends BaseFrontEndController
         // Set Payment Gateway on cart
         // Same as CartController::updateCart()
         if ($gatewayId = $this->request->getParam('gatewayId')) {
-            if ($plugin->getGateways()->getGatewayById($gatewayId)) {
+            $gateway = $plugin->getGateways()->getGatewayById($gatewayId);
+            if ($gateway && !$gateway->isArchived) {
                 $order->setGatewayId($gatewayId);
             }
         }
@@ -248,7 +249,7 @@ class PaymentsController extends BaseFrontEndController
         // This will return the gateway to be used. The orders gateway ID could be null, but it will know the gateway from the paymentSource ID
         $gateway = $order->getGateway();
 
-        if (!$gateway || !$gateway->availableForUseWithOrder($order) || (!$gateway->getIsFrontendEnabled() && !$isCpAndAllowed)) {
+        if (!$gateway || $gateway->isArchived || !$gateway->availableForUseWithOrder($order) || (!$gateway->getIsFrontendEnabled() && !$isCpAndAllowed)) {
             $error = Craft::t('commerce', 'There is no gateway or payment source available for use with this order.');
 
             if ($order->gatewayId) {

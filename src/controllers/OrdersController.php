@@ -57,6 +57,7 @@ use craft\errors\InvalidElementException;
 use craft\errors\UnsupportedSiteException;
 use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Component as ComponentHelper;
 use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
@@ -939,8 +940,13 @@ JS, []);
 
         $attributes = $this->request->getRequiredParam('address');
 
-        // Never let a caller override the class to instantiate
-        unset($attributes['class']);
+        if (!is_array($attributes)) {
+            throw new BadRequestHttpException('Invalid address.');
+        }
+
+        // Never let a caller attach behaviors or event handlers, or override the class to instantiate
+        $attributes = ComponentHelper::cleanseConfig($attributes);
+        unset($attributes['class'], $attributes['__class']);
         $attributes = ['class' => Address::class] + $attributes;
 
         $address = Craft::createObject($attributes);
