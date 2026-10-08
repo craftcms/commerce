@@ -1,5 +1,12 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where all catalog pricing could be removed if a catalog pricing rule was deleted before its catalog pricing job ran. ([#4374](https://github.com/craftcms/commerce/issues/4374))
+- Fixed a bug where non-admin users couldn’t create inventory locations. ([#4376](https://github.com/craftcms/commerce/issues/4376))
+- Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) RCE vulnerabilities. (GHSA-2m9x-wwwf-f798, GHSA-4rf5-rp2q-cwvw)
+- Fixed a [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (GHSA-xh76-fg84-9j86)
+
 ## 5.7.5 - 2026-09-23
 
 - Fixed a bug where the `dateAuthorized` order query param incorrectly filtered on the `datePaid`.

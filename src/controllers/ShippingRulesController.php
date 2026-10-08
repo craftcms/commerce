@@ -14,6 +14,7 @@ use craft\commerce\models\ShippingRule;
 use craft\commerce\models\ShippingRuleCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
+use craft\helpers\Component as ComponentHelper;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use craft\helpers\MoneyHelper;
@@ -173,6 +174,9 @@ class ShippingRulesController extends BaseShippingSettingsController
         $ruleCategories = [];
         $allRulesCategories = $this->request->getBodyParam('ruleCategories');
         foreach ($allRulesCategories as $key => $ruleCategory) {
+            // Never let a caller attach behaviors or event handlers
+            $ruleCategory = ComponentHelper::cleanseConfig($ruleCategory);
+
             $perItemRate = $ruleCategory['perItemRate'];
             $weightRate = $ruleCategory['weightRate'];
             $percentageRate = $ruleCategory['percentageRate'];
