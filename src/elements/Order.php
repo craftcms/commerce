@@ -1619,8 +1619,8 @@ class Order extends Element implements HasStoreInterface
                 !$model->isCompleted,
             ],
 
-            [['shippingAddress'], 'validateOrganizationTaxIdAsVatId', 'when' => fn(Order $order) => $order->getStore()->getValidateOrganizationTaxIdAsVatId() && !$order->getStore()->getUseBillingAddressForTax()],
-            [['billingAddress'], 'validateOrganizationTaxIdAsVatId', 'when' => fn(Order $order) => $order->getStore()->getValidateOrganizationTaxIdAsVatId() && $order->getStore()->getUseBillingAddressForTax()],
+            [['shippingAddress'], 'validateOrganizationTaxIdAsVatId', 'when' => fn(Order $order) => !$order->isCompleted && $order->getStore()->getValidateOrganizationTaxIdAsVatId() && !$order->getStore()->getUseBillingAddressForTax()],
+            [['billingAddress'], 'validateOrganizationTaxIdAsVatId', 'when' => fn(Order $order) => !$order->isCompleted && $order->getStore()->getValidateOrganizationTaxIdAsVatId() && $order->getStore()->getUseBillingAddressForTax()],
 
             // Line items are valid?
             [['lineItems'], 'validateLineItems'],

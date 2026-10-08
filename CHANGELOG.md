@@ -4,6 +4,7 @@
 
 - Fixed a bug where all catalog pricing could be removed if a catalog pricing rule was deleted before its catalog pricing job ran. ([#4374](https://github.com/craftcms/commerce/issues/4374))
 - Fixed a bug where non-admin users couldn’t create inventory locations. ([#4376](https://github.com/craftcms/commerce/issues/4376))
+- Fixed a bug where completed orders couldn’t be saved if their VAT ID was no longer valid or couldn’t be validated. ([#4377](https://github.com/craftcms/commerce/pull/4377))
 - Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) RCE vulnerabilities. (GHSA-2m9x-wwwf-f798, GHSA-4rf5-rp2q-cwvw)
 - Fixed a [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (GHSA-xh76-fg84-9j86)
 
