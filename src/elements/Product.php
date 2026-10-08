@@ -1171,11 +1171,6 @@ JS, [
         $defaultVariant = $variants->firstWhere('id', $this->defaultVariantId);
 
         if (!$defaultVariant && $this->defaultVariantId) {
-            // `defaultVariantId` may be referencing a draft/derivative variant ID that hasn't been
-            // resolved to its canonical variant yet, e.g. while a provisional draft is being applied
-            // and the default variant was changed via the "Set default variant" action while the draft
-            // was open. `getVariants()` can still reflect the pre-merge canonical variant set at this
-            // point, so fall back to resolving the stored ID via its canonical ID. See #4361.
             $canonicalVariantId = (new Query())
                 ->select(['canonicalId', 'id'])
                 ->from(['{{%elements}}'])
@@ -1680,7 +1675,13 @@ JS, [
             $record->typeId = $this->typeId;
 
             $defaultVariant = $this->getDefaultVariant();
-            $record->defaultVariantId = $defaultVariant->id ?? null;
+            $defaultVariantId = $defaultVariant->id ?? null;
+
+            if ($defaultVariantId && $this->getIsCanonical() && $defaultVariant->getIsDerivative()) {
+                $defaultVariantId = $defaultVariant->getCanonicalId();
+            }
+
+            $record->defaultVariantId = $defaultVariantId;
             $record->defaultSku = $defaultVariant?->getSkuAsText() ?? '';
             $record->defaultPrice = $defaultVariant?->getBasePrice() ?? 0.0;
             $record->defaultHeight = $defaultVariant->height ?? 0.0;
@@ -1689,7 +1690,7 @@ JS, [
             $record->defaultWeight = $defaultVariant->weight ?? 0.0;
 
             // Make sure to update the object
-            $this->defaultVariantId = $defaultVariant->id ?? null;
+            $this->defaultVariantId = $defaultVariantId;
             $this->defaultSku = $defaultVariant?->getSkuAsText();
             $this->defaultPrice = $defaultVariant?->getBasePrice() ?? 0.0;
             $this->defaultHeight = $defaultVariant->height ?? 0;
@@ -1709,27 +1710,25 @@ JS, [
 
             $this->setDirtyAttributes($dirtyAttributes);
 
-            if ($this->getIsCanonical() && $defaultVariant?->id) {
-                // Make sure exactly one canonical variant is flagged as the default. This is normally kept in
-                // sync by `SetDefaultVariant`/`Variant::afterSave()`, but that update is deferred while a
-                // variant's default status is changed from within a provisional draft (so as to not affect the
-                // canonical product before the draft is applied), and can otherwise be missed when the draft
-                // is applied. Re-asserting it here, whenever the canonical product is saved, is a self-healing
-                // safety net. See #4361.
-                // @TODO Remove this denormalized `isDefault` write in Commerce 6.0; `VariantQuery` now derives
-                // both the displayed and queried `isDefault` value from `commerce_products.defaultVariantId`
-                // directly, so this column is kept only for backward compatibility with code that queries it
-                // via raw SQL.
+            if ($this->getIsCanonical()) {
+                // @TODO Remove in Commerce 6.0 if the `isDefault` column is removed from the variants table
+                $staleDefaultCondition = ['and', ['primaryOwnerId' => $this->id], ['isDefault' => true]];
+                if ($defaultVariantId) {
+                    $staleDefaultCondition[] = ['not', ['id' => $defaultVariantId]];
+                }
                 Craft::$app->getDb()->createCommand()->update(
                     Table::VARIANTS,
                     ['isDefault' => false],
-                    ['and', ['primaryOwnerId' => $this->id], ['not', ['id' => $defaultVariant->id]], ['isDefault' => true]]
+                    $staleDefaultCondition
                 )->execute();
-                Craft::$app->getDb()->createCommand()->update(
-                    Table::VARIANTS,
-                    ['isDefault' => true],
-                    ['and', ['id' => $defaultVariant->id], ['isDefault' => false]]
-                )->execute();
+
+                if ($defaultVariantId) {
+                    Craft::$app->getDb()->createCommand()->update(
+                        Table::VARIANTS,
+                        ['isDefault' => true],
+                        ['and', ['id' => $defaultVariantId], ['isDefault' => false]]
+                    )->execute();
+                }
             }
 
             if ($this->getIsCanonical() &&

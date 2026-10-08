@@ -566,13 +566,7 @@ class VariantQueryTest extends Unit
     }
 
     /**
-     * `isDefault()` filtering must derive from `commerce_products.defaultVariantId`, the same source used
-     * for the displayed `isDefault` value, rather than the denormalized `commerce_variants.isDefault`
-     * column. This pins the fix for the query/display divergence found while investigating #4361: even if
-     * the stored column is stale or wrong, filtering must still match what `defaultVariantId` says.
-     *
      * @return void
-     * @since 5.7.4
      */
     public function testIsDefaultDerivesFromDefaultVariantId(): void
     {
@@ -604,12 +598,9 @@ class VariantQueryTest extends Unit
         Craft::$app->getElements()->saveElement($product, false);
 
         try {
-            // Sanity check: a normal save keeps the stored column and defaultVariantId in sync already.
             self::assertSame($variantA->id, Variant::find()->productId($product->id)->isDefault(true)->one()?->id);
             self::assertSame($variantB->id, Variant::find()->productId($product->id)->isDefault(false)->one()?->id);
 
-            // Directly corrupt the denormalized `commerce_variants.isDefault` column, simulating the drift
-            // from #4361, without touching `commerce_products.defaultVariantId`.
             Craft::$app->getDb()->createCommand()->update(
                 Table::VARIANTS,
                 ['isDefault' => true],
@@ -621,11 +612,9 @@ class VariantQueryTest extends Unit
                 ['id' => $variantA->id]
             )->execute();
 
-            // Filtering must still agree with `defaultVariantId`, ignoring the now-wrong stored column.
             self::assertSame($variantA->id, Variant::find()->productId($product->id)->isDefault(true)->one()?->id);
             self::assertSame($variantB->id, Variant::find()->productId($product->id)->isDefault(false)->one()?->id);
 
-            // And the displayed value (read via the computed expression) must still agree too.
             self::assertTrue(Variant::find()->id($variantA->id)->one()?->isDefault);
             self::assertFalse(Variant::find()->id($variantB->id)->one()?->isDefault);
         } finally {
