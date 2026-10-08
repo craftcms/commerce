@@ -23,17 +23,6 @@ class Store extends BaseModel
     #[\Override]
     protected $casts = [
         'primary' => 'boolean',
-        'autoSetNewCartAddresses' => 'boolean',
-        'autoSetCartShippingMethodOption' => 'boolean',
-        'autoSetPaymentSource' => 'boolean',
-        'allowEmptyCartOnCheckout' => 'boolean',
-        'allowCheckoutWithoutPayment' => 'boolean',
-        'allowPartialPaymentOnCheckout' => 'boolean',
-        'requireShippingAddressAtCheckout' => 'boolean',
-        'requireBillingAddressAtCheckout' => 'boolean',
-        'requireShippingMethodSelectionAtCheckout' => 'boolean',
-        'useBillingAddressForTax' => 'boolean',
-        'validateOrganizationTaxIdAsVatId' => 'boolean',
         'sortOrder' => 'integer',
     ];
 }

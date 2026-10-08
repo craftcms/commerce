@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 use CraftCms\Cms\ProjectConfig\ProjectConfig;
 use CraftCms\Cms\Site\Events\SiteSaved;
+use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Store\Models\SiteStore as SiteStoreRecord;
 use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Tests\Support\StoresFixture;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Runs $callback with ProjectConfig::isApplyingExternalChanges forced to $isApplying, restoring
@@ -82,4 +84,35 @@ test('afterSaveCraftSiteHandler creates a mapping to the primary store outside o
 
     expect($siteStore)->not->toBeNull()
         ->and($siteStore->storeId)->toBe($fixture->primaryStore->id);
+});
+
+test('saveStore keeps an environment variable reference on a boolean setting', function() {
+    $fixture = StoresFixture::seed();
+    $stores = app(Stores::class);
+    putenv('COMMERCE_TEST_AUTO_SET_ADDRESSES=yes');
+
+    $store = $stores->getStoreById($fixture->primaryStore->id);
+    $store->setAutoSetNewCartAddresses('$COMMERCE_TEST_AUTO_SET_ADDRESSES');
+
+    expect($stores->saveStore($store))->toBeTrue()
+        ->and(DB::table(Table::STORES)->where('id', $store->id)->value('autoSetNewCartAddresses'))->toBe('$COMMERCE_TEST_AUTO_SET_ADDRESSES');
+
+    $saved = $stores->getStoreById($store->id);
+
+    expect($saved->getAutoSetNewCartAddresses(false))->toBe('$COMMERCE_TEST_AUTO_SET_ADDRESSES')
+        ->and($saved->getAutoSetNewCartAddresses())->toBeTrue();
+
+    putenv('COMMERCE_TEST_AUTO_SET_ADDRESSES');
+});
+
+test('saveStore turns on a boolean setting stored as the string "false"', function() {
+    $fixture = StoresFixture::seed();
+    $stores = app(Stores::class);
+    DB::table(Table::STORES)->where('id', $fixture->primaryStore->id)->update(['allowEmptyCartOnCheckout' => 'false']);
+
+    $store = $stores->getStoreById($fixture->primaryStore->id);
+    $store->setAllowEmptyCartOnCheckout(true);
+
+    expect($stores->saveStore($store))->toBeTrue()
+        ->and($stores->getStoreById($store->id)->getAllowEmptyCartOnCheckout())->toBeTrue();
 });
