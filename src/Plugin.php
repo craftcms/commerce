@@ -430,12 +430,12 @@ class Plugin extends BasePlugin
     public function getCpNavItem(): NavItem|array|null
     {
         $item = parent::getCpNavItem();
-        $item->group(true);
 
         if (!$item instanceof NavItem) {
             return $item;
         }
 
+        $item->group(true);
         $item->label(t('Commerce', category: 'commerce'));
 
         if (currentUser()?->can('commerce-manageOrders')) {
