@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Form\Nodes;
 
-use CraftCms\Cms\Form\Contracts\Control;
-use CraftCms\Cms\Form\Contracts\Node;
-use CraftCms\Cms\Form\FormHtmlRenderer;
-use CraftCms\Cms\Form\FormPayload;
-use CraftCms\Cms\Form\NodePayload;
+use CraftCms\Cms\Ui\Contracts\Control;
+use CraftCms\Cms\Ui\Contracts\Node;
+use CraftCms\Cms\Ui\NodePayload;
+use CraftCms\Cms\Ui\UiHtmlRenderer;
+use CraftCms\Cms\Ui\UiPayload;
 use Illuminate\Support\Traits\Conditionable;
 
 use function CraftCms\Cms\t;
 
 /**
  * A "Generate" button that batch-creates coupon codes, for use in a
- * {@see \CraftCms\Cms\Form\Nodes\Field::actions()} slot next to a coupons
- * {@see \CraftCms\Cms\Form\Controls\Table}. Generated codes are appended to the
+ * {@see \CraftCms\Cms\Ui\Nodes\Field::actions()} slot next to a coupons
+ * {@see \CraftCms\Cms\Ui\Controls\Table}. Generated codes are appended to the
  * table's rows, and the format used is written back to the coupon format value.
  *
  * Commerce-owned, registered by Commerce's own Vite bundle — see
@@ -51,7 +51,7 @@ class CouponGenerator implements Node
      * Generating needs a client-side request that appends to the table's rows,
      * so the JS-less fallback renders nothing.
      */
-    public static function renderHtml(NodePayload $node, FormPayload $payload, FormHtmlRenderer $renderer): string
+    public static function renderHtml(NodePayload $node, UiPayload $payload, UiHtmlRenderer $renderer): string
     {
         return '';
     }

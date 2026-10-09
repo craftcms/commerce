@@ -5,21 +5,21 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use CraftCms\Cms\Cp\FormFields;
-use CraftCms\Cms\Form\Controls\ColorSelect;
-use CraftCms\Cms\Form\Controls\Handle;
-use CraftCms\Cms\Form\Controls\Lightswitch;
-use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Enums\ControlMode;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\Heading;
-use CraftCms\Cms\Form\Nodes\HiddenField;
-use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Shared\Enums\Color;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Json;
+use CraftCms\Cms\Ui\Controls\ColorSelect;
+use CraftCms\Cms\Ui\Controls\Handle;
+use CraftCms\Cms\Ui\Controls\Lightswitch;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Enums\ControlMode;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\Heading;
+use CraftCms\Cms\Ui\Nodes\HiddenField;
+use CraftCms\Cms\Ui\Nodes\Table;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Commerce\Database\Table as DbTable;
 use CraftCms\Commerce\Order\Data\LineItemStatus;
 use CraftCms\Commerce\Order\LineItemStatuses;
@@ -101,8 +101,8 @@ class LineItemStatusesController extends BaseSettingsController
         return $this->cpScreenResponse()
             ->title($title)
             ->crumbs($this->crumbs())
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -157,7 +157,7 @@ class LineItemStatusesController extends BaseSettingsController
             ->instructions(t('Choose a color to represent the order’s status', category: 'commerce'));
         $formNodes[] = Field::make(t('New line items get this status by default when the order is completed', category: 'commerce'), Lightswitch::make('default'));
 
-        $form = $this->formResolver->resolve(Form::make($formNodes), new FormContext(
+        $form = $this->formResolver->resolve(Ui::make($formNodes), new UiContext(
             values: [
                 'storeId' => $store->id,
                 'sortOrder' => $lineItemStatus->sortOrder,
@@ -175,8 +175,8 @@ class LineItemStatusesController extends BaseSettingsController
             ->crumbs($lineItemStatus->id ? $this->crumbs(['label' => $title]) : $this->crumbs())
             ->action('commerce/line-item-statuses/save')
             ->redirectUrl('commerce/settings/orders/line-item-statuses')
-            ->inertiaPage('Form', [
-                'form' => $form,
+            ->inertiaPage('Ui', [
+                'ui' => $form,
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

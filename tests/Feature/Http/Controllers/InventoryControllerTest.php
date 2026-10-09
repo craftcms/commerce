@@ -59,15 +59,15 @@ it('renders the stock levels page for a location', function() {
     get(Url::cpUrl($this->levelsUri, ['inventoryItemId' => $this->inventoryItem->id]))
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => $page
-            ->component('Form', false)
+            ->component('Ui', false)
             ->where('title', $this->location->getUiLabel() . ' Inventory')
             ->where('crumbs.0.label', 'Commerce')
             ->where('crumbs.1.label', 'Inventory')
-            ->where('form.nodes.0.props.searchable', true)
-            ->where('form.nodes.0.props.dataUrl', fn(string $url) => str_contains($url, 'inventory-levels-table-data')
+            ->where('ui.nodes.0.props.searchable', true)
+            ->where('ui.nodes.0.props.dataUrl', fn(string $url) => str_contains($url, 'inventory-levels-table-data')
                 && str_contains($url, 'inventoryLocationId=' . $this->location->id)
                 && str_contains($url, 'inventoryItemId=' . $this->inventoryItem->id))
-            ->where('form.nodes.0.props.columns', fn($columns) => collect($columns)->pluck('key')->all() === [
+            ->where('ui.nodes.0.props.columns', fn($columns) => collect($columns)->pluck('key')->all() === [
                 'purchasable', 'sku', 'reserved', 'damaged', 'safety', 'qualityControl', 'committed', 'available', 'onHand', 'incoming',
             ])
         );
@@ -158,13 +158,13 @@ it('returns the set and adjust quantity modal forms', function(string $updateAct
         'updateAction' => $updateAction,
     ]))->assertOk()->json();
 
-    $fields = collect($response['form']['nodes'])->where('component', 'craft:field')->values();
+    $fields = collect($response['ui']['nodes'])->where('component', 'craft:field')->values();
 
     expect($response['title'])->toBe($title)
         ->and($response['submitLabel'])->toBe('Update')
         ->and($fields[0]['props']['label'])->toBe($label)
-        ->and($response['form']['values'])->toBe(['quantity' => $quantity, 'note' => ''])
-        ->and(collect($response['form']['nodes'])->firstWhere('uid', 'current-level')['props']['html'])
+        ->and($response['ui']['values'])->toBe(['quantity' => $quantity, 'note' => ''])
+        ->and(collect($response['ui']['nodes'])->firstWhere('uid', 'current-level')['props']['html'])
         ->toContain('currently has 7 Available');
 })->with([
     'set' => ['set', 'Set Available Quantity', 'Set to', 7],
@@ -280,7 +280,7 @@ it('returns the move inventory modal form', function() {
 
     expect($response['title'])->toBe('Move Available Inventory')
         ->and($response['submitLabel'])->toBe('Move')
-        ->and($response['form']['values']['inventoryMovement'])->toEqual([
+        ->and($response['ui']['values']['inventoryMovement'])->toEqual([
             'inventoryItemId' => $this->inventoryItem->id,
             'fromInventoryLocationId' => $this->location->id,
             'toInventoryLocationId' => $this->location->id,
@@ -340,9 +340,9 @@ it('renders the unfulfilled orders page', function() {
     get(Url::cpUrl("$this->levelsUri/orders", ['inventoryItemId' => $this->inventoryItem->id]))
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => $page
-            ->component('Form', false)
+            ->component('Ui', false)
             ->where('title', '0 Unfulfilled Orders')
-            ->where('form.nodes.0.props.rows', [])
+            ->where('ui.nodes.0.props.rows', [])
         );
 });
 
@@ -352,14 +352,14 @@ it('renders the inventory item page with its history', function() {
     get(Url::cpUrl('commerce/inventory/item/' . $this->inventoryItem->id))
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => $page
-            ->component('Form', false)
+            ->component('Ui', false)
             ->where('title', $this->fixture->blueVariant->getSku())
             ->where('submit.url', Url::actionUrl('commerce/inventory/item-save'))
-            ->where('form.values.inventoryItemId', $this->inventoryItem->id)
-            ->where('form.nodes.0.props.label', 'Details')
-            ->where('form.nodes.1.props.label', 'History')
-            ->where('form.nodes.1.children.1.props.rows.0.quantity', 7)
-            ->where('form.nodes.1.children.1.props.rows.0.type', 'Available')
+            ->where('ui.values.inventoryItemId', $this->inventoryItem->id)
+            ->where('ui.nodes.0.props.label', 'Details')
+            ->where('ui.nodes.1.props.label', 'History')
+            ->where('ui.nodes.1.children.1.props.rows.0.quantity', 7)
+            ->where('ui.nodes.1.children.1.props.rows.0.type', 'Available')
         );
 });
 
@@ -370,9 +370,9 @@ it('renders the inventory item screen for a slideout', function() {
         'Accept' => 'application/json',
     ])
         ->assertOk()
-        ->assertJsonPath('component', 'Form')
+        ->assertJsonPath('component', 'Ui')
         ->assertJsonPath('props.title', $this->fixture->blueVariant->getSku())
-        ->assertJsonPath('props.form.values.inventoryItemId', $this->inventoryItem->id)
+        ->assertJsonPath('props.ui.values.inventoryItemId', $this->inventoryItem->id)
         ->assertJsonPath('props.submit.url', Url::actionUrl('commerce/inventory/item-save'));
 });
 

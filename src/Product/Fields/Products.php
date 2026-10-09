@@ -20,7 +20,7 @@ use function CraftCms\Cms\t;
  * @todo the legacy `inputTemplateVariables()` hook this field used to register `CommerceCpAsset`/
  * `ProductIndexAsset` and pass a `jsSettings.productTypeId` setting to `Craft.Commerce.ProductSelectInput`
  * (auto-scoping the element-select modal to the field's configured product type source) doesn't exist
- * on the new `formControl()`-based rendering pipeline. Revisit once that pipeline exposes an equivalent
+ * on the new `uiControl()`-based rendering pipeline. Revisit once that pipeline exposes an equivalent
  * extension point.
  */
 class Products extends BaseRelationField

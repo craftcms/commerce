@@ -56,10 +56,10 @@ it('renders the inventory locations index page', function() {
     get(Url::cpUrl('commerce/inventory-locations'))
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => $page
-            ->component('Form', false)
+            ->component('Ui', false)
             ->where('title', 'Inventory Locations')
             ->where('crumbs.0.label', 'Commerce')
-            ->where('form.nodes.0.props.rows', fn($rows) => collect($rows)->contains(
+            ->where('ui.nodes.0.props.rows', fn($rows) => collect($rows)->contains(
                 fn(array $row) => $row['id'] === $inventoryLocation->id && $row['handle'] === 'warehouse'
             ))
         );
@@ -75,10 +75,10 @@ it('renders the new inventory location page', function() {
     get(Url::cpUrl('commerce/inventory-locations/new'))
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => $page
-            ->component('Form', false)
+            ->component('Ui', false)
             ->where('title', 'Create a new inventory location')
             ->where('submit.url', Url::actionUrl('commerce/inventory-locations/save'))
-            ->has('form.nodes')
+            ->has('ui.nodes')
         );
 });
 
@@ -88,10 +88,10 @@ it('renders the inventory location edit page', function() {
     get(Url::cpUrl("commerce/inventory-locations/$inventoryLocation->id"))
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => $page
-            ->component('Form', false)
+            ->component('Ui', false)
             ->where('title', 'Warehouse')
-            ->where('form.values.inventoryLocationId', $inventoryLocation->id)
-            ->where('form.values.handle', 'warehouse')
+            ->where('ui.values.inventoryLocationId', $inventoryLocation->id)
+            ->where('ui.values.handle', 'warehouse')
         );
 });
 
@@ -175,11 +175,11 @@ it('returns the delete modal form without the location being deleted', function(
     $response = getJson(Url::actionUrl('commerce/inventory-locations/prepare-delete-modal', ['id' => $inventoryLocation->id]))
         ->assertOk();
 
-    $options = collect($response->json('form.nodes.0.control.props.options'))->pluck('value');
+    $options = collect($response->json('ui.nodes.0.control.props.options'))->pluck('value');
 
     expect($options)->not->toContain((string)$inventoryLocation->id)
         ->and($options)->not->toBeEmpty()
-        ->and($response->json('form.values.destinationInventoryLocation'))->toBe($options->first());
+        ->and($response->json('ui.values.destinationInventoryLocation'))->toBe($options->first());
 });
 
 it('moves stock to the destination when deleting an inventory location', function() {

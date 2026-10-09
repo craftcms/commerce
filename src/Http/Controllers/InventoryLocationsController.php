@@ -7,23 +7,23 @@ namespace CraftCms\Commerce\Http\Controllers;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Cp\Html\ContentHtml;
 use CraftCms\Cms\FieldLayout\FieldLayoutCompiler;
-use CraftCms\Cms\Form\Contracts\Node;
-use CraftCms\Cms\Form\Controls\Choice;
-use CraftCms\Cms\Form\Controls\Handle;
-use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\FormResolver;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\HiddenField;
-use CraftCms\Cms\Form\Nodes\Separator;
-use CraftCms\Cms\Form\Nodes\Tab;
-use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Translation\Formatter;
+use CraftCms\Cms\Ui\Contracts\Node;
+use CraftCms\Cms\Ui\Controls\Choice;
+use CraftCms\Cms\Ui\Controls\Handle;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\HiddenField;
+use CraftCms\Cms\Ui\Nodes\Separator;
+use CraftCms\Cms\Ui\Nodes\Tab;
+use CraftCms\Cms\Ui\Nodes\Table;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
+use CraftCms\Cms\Ui\UiResolver;
 use CraftCms\Commerce\Inventory\Data\DeactivateInventoryLocation;
 use CraftCms\Commerce\Inventory\Data\InventoryLocation;
 use CraftCms\Commerce\Inventory\InventoryLocations;
@@ -63,7 +63,7 @@ readonly class InventoryLocationsController
     ];
 
     public function __construct(
-        private FormResolver $formResolver,
+        private UiResolver $formResolver,
     ) {
     }
 
@@ -105,8 +105,8 @@ readonly class InventoryLocationsController
             ->title(t('Inventory Locations', category: 'commerce'))
             ->crumbs($this->crumbs())
             ->selectedSubnavItem('inventory-locations')
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -128,7 +128,7 @@ readonly class InventoryLocationsController
 
         $form = $this->formResolver->resolve(
             $this->buildForm($inventoryLocation, $address),
-            new FormContext(values: $this->initialValues($inventoryLocation, $address), refreshable: true),
+            new UiContext(values: $this->initialValues($inventoryLocation, $address), refreshable: true),
         );
 
         return new CpScreenResponse()
@@ -137,8 +137,8 @@ readonly class InventoryLocationsController
             ->action('commerce/inventory-locations/save')
             ->redirectUrl('commerce/inventory-locations')
             ->selectedSubnavItem('inventory-locations')
-            ->inertiaPage('Form', [
-                'form' => $form,
+            ->inertiaPage('Ui', [
+                'ui' => $form,
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
@@ -173,10 +173,10 @@ readonly class InventoryLocationsController
 
         $form = $this->formResolver->resolve(
             $this->buildForm($inventoryLocation, $address),
-            new FormContext(values: $values, refreshable: true),
+            new UiContext(values: $values, refreshable: true),
         );
 
-        return new JsonResponse(['form' => $form]);
+        return new JsonResponse(['ui' => $form]);
     }
 
     public function save(Request $request): Response
@@ -253,14 +253,14 @@ readonly class InventoryLocationsController
 
         abort_if(empty($destinationOptions), 400, 'Can not delete last inventory location.');
 
-        $form = Form::make([
+        $form = Ui::make([
             Field::make(t('Destination Inventory Location', category: 'commerce'), Choice::make('destinationInventoryLocation')->options($destinationOptions))
                 ->instructions(t('Choose the destination inventory location for the existing on hand stock.', category: 'commerce'))
                 ->required(),
         ]);
 
         return new JsonResponse([
-            'form' => $this->formResolver->resolve($form, new FormContext(values: [
+            'ui' => $this->formResolver->resolve($form, new UiContext(values: [
                 'destinationInventoryLocation' => $destinationOptions[0]['value'],
             ])),
             'title' => t('Deleting the {location} location.', ['location' => $inventoryLocation->name], category: 'commerce'),
@@ -339,7 +339,7 @@ readonly class InventoryLocationsController
      * The location's own fields followed by the Address element's field layout, so custom
      * address fields and the admin-configured layout carry over.
      */
-    private function buildForm(InventoryLocation $inventoryLocation, Address $address): Form
+    private function buildForm(InventoryLocation $inventoryLocation, Address $address): Ui
     {
         $handle = Handle::make('handle');
         if (!$inventoryLocation->id) {
@@ -354,19 +354,19 @@ readonly class InventoryLocationsController
             Separator::make('address-separator'),
         ];
 
-        $addressNodes = $this->prepareAddressNodes(app(FieldLayoutCompiler::class)->form(
+        $addressNodes = $this->prepareAddressNodes(app(FieldLayoutCompiler::class)->ui(
             $address->getFieldLayout(),
             $address,
-            new FormContext(refreshable: true),
+            new UiContext(refreshable: true),
         )->nodes());
 
         if (($addressNodes[0] ?? null) instanceof Tab) {
             $addressNodes[0]->prepend(...$ownNodes);
 
-            return Form::make($addressNodes);
+            return Ui::make($addressNodes);
         }
 
-        return Form::make([...$ownNodes, ...$addressNodes]);
+        return Ui::make([...$ownNodes, ...$addressNodes]);
     }
 
     /**

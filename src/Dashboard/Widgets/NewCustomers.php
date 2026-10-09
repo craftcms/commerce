@@ -8,9 +8,9 @@ use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\Cp;
 use CraftCms\Cms\Dashboard\Widgets\Widget;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
 use CraftCms\Cms\Support\DateTimeHelper;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
 use CraftCms\Commerce\Stats\NewCustomers as NewCustomersStat;
@@ -90,10 +90,10 @@ class NewCustomers extends Widget
     }
 
     #[\Override]
-    public function settingsForm(FormContext $context = new FormContext()): ?Form
+    public function settingsUi(UiContext $context = new UiContext()): ?Ui
     {
         \Craft::$app->getView()->registerAssetBundle(CommerceWidgetsAsset::class);
 
-        return Form::make($this->statSettingsFields());
+        return Ui::make($this->statSettingsFields());
     }
 }

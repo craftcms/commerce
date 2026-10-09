@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers;
 
 use CraftCms\Cms\Cp\Data\ActionItem;
-use CraftCms\Cms\Form\Controls\Lightswitch;
-use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\FormResolver;
-use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Url;
+use CraftCms\Cms\Ui\Controls\Lightswitch;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
+use CraftCms\Cms\Ui\UiResolver;
 use CraftCms\Commerce\Purchasable\Elements\Donation;
 use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Store\Stores;
@@ -31,7 +31,7 @@ readonly class DonationsController
     use RespondsWithFlash;
 
     public function __construct(
-        private FormResolver $formResolver,
+        private UiResolver $formResolver,
     ) {
     }
 
@@ -61,8 +61,8 @@ readonly class DonationsController
             ->selectedSubnavItem('donations')
             ->action('commerce/donations/save')
             ->redirectUrl('commerce/donations')
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve($this->buildForm($values), new FormContext(values: $values, refreshable: true)),
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve($this->buildForm($values), new UiContext(values: $values, refreshable: true)),
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
@@ -88,7 +88,7 @@ readonly class DonationsController
         $values = array_replace($this->initialValues($donation), $request->input('values'));
 
         return new JsonResponse([
-            'form' => $this->formResolver->resolve($this->buildForm($values), new FormContext(values: $values, refreshable: true)),
+            'ui' => $this->formResolver->resolve($this->buildForm($values), new UiContext(values: $values, refreshable: true)),
         ]);
     }
 
@@ -132,12 +132,12 @@ readonly class DonationsController
      *
      * @param array<string, mixed> $values
      */
-    private function buildForm(array $values): Form
+    private function buildForm(array $values): Ui
     {
         $enabled = (bool)($values['enabled'] ?? false);
         $availableForPurchase = (bool)($values['availableForPurchase'] ?? false);
 
-        return Form::make([
+        return Ui::make([
             Field::make(t('Enabled', category: 'commerce'), Lightswitch::make('enabled')->reactive()),
             Field::make(t('Available for purchase?', category: 'commerce'), Lightswitch::make('availableForPurchase')->reactive())
                 ->visible($enabled),

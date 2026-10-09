@@ -204,7 +204,7 @@ test('a draft transfer’s editor manages its locations and items with form cont
         ['variant' => $this->hoodieVariant, 'quantity' => 2],
     ]);
 
-    $form = get($transfer->getCpEditUrl())->assertOk()->inertiaProps('form');
+    $form = get($transfer->getCpEditUrl())->assertOk()->inertiaProps('ui');
     $details = findFormControl($form, 'details');
     $detail = $transfer->getDetails()[0];
 
@@ -236,7 +236,7 @@ test('a transfer that has left draft is shown without form controls', function()
     ]);
     app(Transfers::class)->markAsPending($transfer);
 
-    $form = get($transfer->getCpEditUrl())->assertOk()->inertiaProps('form');
+    $form = get($transfer->getCpEditUrl())->assertOk()->inertiaProps('ui');
 
     expect(findFormControl($form, 'originLocationId'))->toBeNull()
         ->and(findFormControl($form, 'details'))->toBeNull();
@@ -255,7 +255,7 @@ test('changing the origin refreshes the items that can be transferred', function
         'siteId' => $transfer->siteId,
         'originLocationId' => $this->destination->id,
         'destinationLocationId' => $this->origin->id,
-    ])->assertOk()->json('form');
+    ])->assertOk()->json('ui');
 
     expect($form['values']['originLocationId'])->toBe((string)$this->destination->id)
         ->and(collect(findFormControl($form, 'details')['props']['options'])->where('disabled', false))->toBeEmpty();
@@ -378,9 +378,9 @@ test('the receive modal lists each item with what has been received so far', fun
         ->assertJsonPath('title', 'Receive Transfer')
         ->assertJsonPath('submitLabel', 'Receive');
 
-    expect(findFormControl($response->json('form'), 'details'))
+    expect(findFormControl($response->json('ui'), 'details'))
         ->component->toBe('commerce:transfer-receive')
-        ->and(findFormControl($response->json('form'), 'details')['props']['rows'])->toBe([
+        ->and(findFormControl($response->json('ui'), 'details')['props']['rows'])->toBe([
             [
                 'uid' => $detail->uid,
                 'label' => 'rad-hood',
