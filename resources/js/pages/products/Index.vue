@@ -23,17 +23,6 @@
     source?: {key?: string | null} | null;
   }>();
 
-  const subnavActions = useCustomizeSources(() => ({
-    elementType: props.elementType,
-    page: props.page,
-    sourceKey: props.source?.key,
-  }));
-
-  useAppLayout(() => ({
-    subnav: props.sourceNavItems ?? [],
-    subnavActions: subnavActions.value,
-  }));
-
   // `indexUrl` carries the `site` param `Url::cpUrl()` adds, which the index
   // query is merged over.
   function indexUrlWith(path: string, query = {}): string {
@@ -57,6 +46,19 @@
   // source isn't overridden by the one in the URL. The switch adds `site`
   // itself.
   const sourceHref = props.indexUrl.split('?')[0];
+
+  const subnavActions = useCustomizeSources(() => ({
+    elementType: props.elementType,
+    page: props.page,
+    sourceKey: props.source?.key,
+    route,
+    sourceHref,
+  }));
+
+  useAppLayout(() => ({
+    subnav: props.sourceNavItems ?? [],
+    subnavActions: subnavActions.value,
+  }));
 </script>
 
 <template>
