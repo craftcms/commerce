@@ -70,7 +70,7 @@ declare module '@craftcms/cms/elements' {
     href: string | null;
     selected: boolean;
     group: boolean;
-    subnav: ActionItem[] | false;
+    subnav: NavItem[] | false;
   }
 
   export interface UseAppLayoutOptions {
