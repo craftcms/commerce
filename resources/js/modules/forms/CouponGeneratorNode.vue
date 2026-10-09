@@ -118,12 +118,15 @@
 
     loading.value = true;
     try {
-      const {data} = await window.Cp.$axios.post<{coupons?: string[]}>(
+      const {data} = await window.Craft.sendActionRequest<{coupons?: string[]}>(
+        'POST',
         props.node.props.generateUrl,
         {
-          count: Number(count),
-          format,
-          existingCodes: currentRows().map((row) => row.code),
+          data: {
+            count: Number(count),
+            format,
+            existingCodes: currentRows().map((row) => row.code),
+          },
         }
       );
 

@@ -45,7 +45,9 @@
 
     loading.value = true;
     try {
-      await window.Cp.$axios.post(props.node.props.resetUrl, props.node.props.resetBody);
+      await window.Craft.sendActionRequest('POST', props.node.props.resetUrl, {
+        data: props.node.props.resetBody,
+      });
       window.Cp.$router.reload({only: ['ui']});
     } finally {
       loading.value = false;

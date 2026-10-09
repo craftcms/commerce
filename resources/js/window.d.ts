@@ -27,34 +27,20 @@ interface InertiaRouter {
   reload(options?: {only?: string[]}): void;
 }
 
-/**
- * Only the slice of axios's real `AxiosInstance` this bundle actually calls.
- * `@craftcms/ui`'s own `actionClient` (unavailable here — see file header)
- * layers a CSRF-refresh-on-419/403 retry interceptor on top of a plain axios
- * instance; this bundle deliberately doesn't replicate that (it'd mean
- * porting its `Csrf` token-refresh service too, real but genuinely deep
- * plumbing for what these are — infrequent, admin-only actions) and instead
- * relies on the baseline `X-CSRF-TOKEN` header `cp.ts`'s own `start()`
- * already sets as an axios default. Worth revisiting if this ever proves to
- * be a real problem in practice.
- */
-interface MinimalAxiosInstance {
-  post<T = unknown>(
-    url: string,
-    data?: Record<string, unknown>
-  ): Promise<{data: T}>;
-}
-
 declare global {
   interface Window {
     Cp: {
       $components: CpComponentRegistry;
       $inertia: InertiaPageRegistry;
       $router: InertiaRouter;
-      $axios: MinimalAxiosInstance;
     };
     Craft: {
       t(category: string, message: string, params?: Record<string, unknown>): string;
+      sendActionRequest<T = unknown>(
+        method: string,
+        action: string,
+        options?: {data?: Record<string, unknown>}
+      ): Promise<{data: T}>;
       csrfTokenValue?: string;
     };
   }
