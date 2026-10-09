@@ -36,6 +36,8 @@ const cpSharedModuleExports: Record<string, string[] | null> = {
     'CpButtonLink',
     'ActionMenu',
     'appendIndexQuery',
+    'useAppLayout',
+    'useCustomizeSources',
   ],
 };
 const cpSharedModules = Object.keys(cpSharedModuleExports);

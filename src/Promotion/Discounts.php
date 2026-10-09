@@ -543,8 +543,8 @@ class Discounts
         $record->storeId = $model->storeId;
         $record->name = $model->name;
         $record->description = $model->description;
-        $record->dateFrom = Query::prepareDateForDb($model->dateFrom);
-        $record->dateTo = Query::prepareDateForDb($model->dateTo);
+        $record->setAttribute('dateFrom', Query::prepareDateForDb($model->dateFrom));
+        $record->setAttribute('dateTo', Query::prepareDateForDb($model->dateTo));
         $record->enabled = $model->enabled;
         $record->stopProcessing = $model->stopProcessing;
         $record->orderCondition = $model->hasOrderCondition() ? $model->getOrderCondition()->getConfig() : null;

@@ -4,10 +4,10 @@
  * and `resources/js/elements.ts`). Hand-authored for the same reason as
  * `window.d.ts`; keep in sync with `cms`'s `ElementIndexPage.vue`,
  * `ElementEditor.vue`, `CpButtonLink.vue`, `ActionMenu.vue`, `common/types` and
- * `useElementIndexVisits.ts`.
+ * `useElementIndexVisits.ts`, `useAppLayout.ts`, `useCustomizeSources.ts`.
  */
 declare module '@craftcms/cms/elements' {
-  import type {DefineComponent} from 'vue';
+  import type {ComputedRef, DefineComponent} from 'vue';
 
   export type IndexQueryValue =
     | string
@@ -56,7 +56,41 @@ declare module '@craftcms/cms/elements' {
     items: ActionItemLink[];
   }
 
-  export type ActionItem = ActionItemLink | ActionItemGroup;
+  export interface ActionItemButton {
+    type?: 'button';
+    label: string;
+    icon?: string;
+    onClick?: (event: Event) => void;
+  }
+
+  export type ActionItem = ActionItemLink | ActionItemGroup | ActionItemButton;
+
+  export interface NavItem {
+    label: string | null;
+    href: string | null;
+    selected: boolean;
+    group: boolean;
+    subnav: NavItem[] | false;
+  }
+
+  export interface UseAppLayoutOptions {
+    subnav?: NavItem[];
+    subnavActions?: ActionItem[];
+  }
+
+  export function useAppLayout(
+    options: UseAppLayoutOptions | (() => UseAppLayoutOptions)
+  ): void;
+
+  export interface CustomizeSourcesTarget {
+    elementType?: string | null;
+    page?: string | null;
+    sourceKey?: string | null;
+  }
+
+  export function useCustomizeSources(
+    target: () => CustomizeSourcesTarget
+  ): ComputedRef<ActionItemButton[]>;
 
   export const ActionMenu: DefineComponent<{
     actions: ActionItem[];
