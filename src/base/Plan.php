@@ -125,7 +125,7 @@ abstract class Plan extends Model implements PlanInterface, CpEditable
     }
 
     /**
-     * Returns the number of non-expired subscriptions for this plan.
+     * Returns the number of active subscriptions for this plan.
      *
      * @since 5.7.7
      */

@@ -4,7 +4,7 @@
 
 - Added `craft\commerce\base\Plan::getActiveSubscriptionCount()`.
 - Added `craft\commerce\services\Subscriptions::getActiveSubscriptionCountByPlanId()`.
-- Fixed a bug where the Subscription Plans index page was counting expired subscriptions as active. ([#4381](https://github.com/craftcms/commerce/issues/4381))
+- Fixed a bug where the Subscription Plans index page was counting expired and suspended subscriptions as active. ([#4381](https://github.com/craftcms/commerce/issues/4381))
 
 ## 5.7.6 - 2026-10-08
 
