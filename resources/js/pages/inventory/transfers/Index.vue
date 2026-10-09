@@ -19,17 +19,6 @@
     source?: {key?: string | null} | null;
   }>();
 
-  const subnavActions = useCustomizeSources(() => ({
-    elementType: props.elementType,
-    page: props.page,
-    sourceKey: props.source?.key,
-  }));
-
-  useAppLayout(() => ({
-    subnav: props.sourceNavItems ?? [],
-    subnavActions: subnavActions.value,
-  }));
-
   // `indexUrl` carries the `site` param `Url::cpUrl()` adds, which the index
   // query is merged over.
   const route: ElementIndexRoute = {
@@ -42,6 +31,18 @@
       });
     },
   };
+
+  const subnavActions = useCustomizeSources(() => ({
+    elementType: props.elementType,
+    page: props.page,
+    sourceKey: props.source?.key,
+    route,
+  }));
+
+  useAppLayout(() => ({
+    subnav: props.sourceNavItems ?? [],
+    subnavActions: subnavActions.value,
+  }));
 </script>
 
 <template>

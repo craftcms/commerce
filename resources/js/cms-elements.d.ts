@@ -86,6 +86,8 @@ declare module '@craftcms/cms/elements' {
     elementType?: string | null;
     page?: string | null;
     sourceKey?: string | null;
+    route?: ElementIndexRoute | null;
+    sourceHref?: string | null;
   }
 
   export function useCustomizeSources(
