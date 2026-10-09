@@ -27,6 +27,7 @@ use CraftCms\Cms\Ui\Controls\Text;
 use CraftCms\Cms\Ui\Controls\Textarea;
 use CraftCms\Cms\Ui\Enums\ChoicePresentation;
 use CraftCms\Cms\Ui\Nodes\Action;
+use CraftCms\Cms\Ui\Nodes\Callout;
 use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Cms\Ui\Nodes\Group;
 use CraftCms\Cms\Ui\Nodes\Heading;
@@ -514,6 +515,9 @@ readonly class DiscountsController extends BaseStoreManagementController
                     ['coupons'],
                     ['couponFormat'],
                 ));
+        } elseif (!empty($values['coupons']) || !empty($discount->getCoupons())) {
+            $couponsFields[] = Callout::make('coupons-deletion-warning', t('Saving this discount will delete its coupons because Require Coupon Code is turned off.', category: 'commerce'))
+                ->variant('warning');
         }
 
         // Only a saved discount has usage history to report — a brand new, unsaved one has
@@ -692,9 +696,7 @@ readonly class DiscountsController extends BaseStoreManagementController
         $discount->appliedTo = $request->input('appliedTo') ?: DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
         $discount->orderConditionFormula = trim((string) $request->input('orderConditionFormula', ''));
 
-        if ($request->has('coupons')) {
-            $this->setCouponsOnDiscount((array) $request->input('coupons'), $discount);
-        }
+        $this->setCouponsOnDiscount((array) $request->input('coupons', []), $discount);
 
         $moneyInputs = ['baseDiscount', 'perItemDiscount', 'purchaseTotal'];
         $signFlippedMoneyInputs = ['baseDiscount', 'perItemDiscount'];

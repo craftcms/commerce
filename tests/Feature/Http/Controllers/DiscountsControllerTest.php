@@ -71,13 +71,13 @@ it('adds, updates and removes coupons when saving a discount', function() {
     expect(discountCouponCodes($discount->id))->toBe([]);
 });
 
-it('leaves coupons untouched when none are posted', function() {
+it('deletes coupons when none are posted', function(bool $requireCouponCode) {
     $discount = DiscountsFixture::seed()->discountWithCoupon;
 
-    postJson(Url::actionUrl('commerce/discounts/save'), discountSaveBody($discount, null))->assertOk();
+    postJson(Url::actionUrl('commerce/discounts/save'), discountSaveBody($discount, null, ['requireCouponCode' => $requireCouponCode]))->assertOk();
 
-    expect(discountCouponCodes($discount->id))->toBe(['discount_1']);
-});
+    expect(discountCouponCodes($discount->id))->toBe([]);
+})->with([true, false]);
 
 it('allows removing a coupon and re-adding the same code in one save', function() {
     $discount = DiscountsFixture::seed()->discountWithCoupon;
@@ -173,8 +173,30 @@ it('renders the coupons table and generator only when a coupon code is required'
 
     expect(str_contains($form, 'commerce:coupon-generator'))->toBe($requireCouponCode)
         ->and(str_contains($form, 'Add a coupon'))->toBe($requireCouponCode)
-        ->and($response->json('ui.values.coupons.0.code'))->toBe('discount_1');
+        ->and(str_contains($form, 'Saving this discount will delete its coupons'))->toBe(!$requireCouponCode);
+
+    if ($requireCouponCode) {
+        expect($response->json('ui.values.coupons.0.code'))->toBe('discount_1');
+    } else {
+        expect($response->json('ui.values'))->not->toHaveKey('coupons');
+    }
 })->with([
     'required' => true,
     'not required' => false,
+]);
+
+it('warns about coupon deletion only when coupons exist', function(bool $savedCoupons, array $coupons, bool $warning) {
+    $fixture = DiscountsFixture::seed();
+    $discount = $savedCoupons ? $fixture->discountWithCoupon : new Discount(['storeId' => $fixture->storeId]);
+
+    $response = postJson(Url::actionUrl('commerce/discounts/render-form'), [
+        'values' => ['id' => $discount->id, 'storeId' => $discount->storeId, 'requireCouponCode' => false, 'coupons' => $coupons],
+        'scope' => [],
+    ])->assertOk();
+
+    expect(str_contains(json_encode($response->json('ui')), 'Saving this discount will delete its coupons'))->toBe($warning);
+})->with([
+    'no coupons' => [false, [], false],
+    'unsaved coupons' => [false, [['code' => 'UNSAVED']], true],
+    'saved coupons removed from table' => [true, [], true],
 ]);
