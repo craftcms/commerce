@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\CatalogPricing\Conditions;
 
 use CraftCms\Cms\Condition\BaseConditionRule;
-use CraftCms\Cms\Form\Contracts\Node;
-use CraftCms\Cms\Form\Controls\ElementSelect;
-use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Ui\Contracts\Node;
+use CraftCms\Cms\Ui\Controls\ElementSelect;
+use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\CatalogPricing\Contracts\CatalogPricingConditionRuleInterface;
 use Illuminate\Database\Query\Builder;

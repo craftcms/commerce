@@ -8,23 +8,23 @@ use craft\db\Query;
 use CraftCms\Cms\Cp\Components\Select;
 use CraftCms\Cms\Cp\Data\NavItem;
 use CraftCms\Cms\Cp\SelectOptions;
-use CraftCms\Cms\Form\Controls\Choice;
-use CraftCms\Cms\Form\Controls\Combobox;
-use CraftCms\Cms\Form\Controls\Handle;
-use CraftCms\Cms\Form\Controls\Lightswitch;
-use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Enums\ControlMode;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\HiddenField;
-use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Env;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Url;
+use CraftCms\Cms\Ui\Controls\Choice;
+use CraftCms\Cms\Ui\Controls\Combobox;
+use CraftCms\Cms\Ui\Controls\Handle;
+use CraftCms\Cms\Ui\Controls\Lightswitch;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Enums\ControlMode;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\HiddenField;
+use CraftCms\Cms\Ui\Nodes\Table;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\Database\Table as DbTable;
 use CraftCms\Commerce\Form\Controls\SiteStores;
@@ -111,7 +111,7 @@ class StoresController extends BaseSettingsController
             ->crumbs($brandNewStore ? $this->crumbs() : $this->crumbs(['label' => $title]))
             ->redirectUrl('commerce/settings/stores')
             ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve($form, new FormContext(
+                'form' => $this->formResolver->resolve($form, new UiContext(
                     values: $values,
                     mode: $this->readOnly ? ControlMode::ReadOnly : ControlMode::Editable,
                 )),
@@ -132,7 +132,7 @@ class StoresController extends BaseSettingsController
         bool $allowCurrencyChange,
         array $availableSiteOptions,
         array $currencyOptions,
-    ): Form {
+    ): Ui {
         $currencyControl = Choice::make('currency')->options($currencyOptions);
 
         if (!$allowCurrencyChange) {
@@ -224,7 +224,7 @@ class StoresController extends BaseSettingsController
                 )),
         ];
 
-        return Form::make()
+        return Ui::make()
             ->addTab(t('Store', category: 'commerce'), array_values(array_filter($storeFields)))
             ->addTab(t('Settings', category: 'commerce'), $settingsFields);
     }
@@ -435,7 +435,7 @@ class StoresController extends BaseSettingsController
                     && app(CatalogPricingRules::class)->canUseCatalogPricingRules());
         }
 
-        $form = Form::make([
+        $form = Ui::make([
             Table::make('stores')
                 ->columns([
                     ['key' => 'name', 'label' => t('Name')],
@@ -466,7 +466,7 @@ class StoresController extends BaseSettingsController
             ->title($title)
             ->crumbs($this->crumbs())
             ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve($form, new FormContext()),
+                'form' => $this->formResolver->resolve($form, new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -540,7 +540,7 @@ class StoresController extends BaseSettingsController
             ->showFooter(false)
             ->rows($rows);
 
-        $form = Form::make([
+        $form = Ui::make([
             Field::make(null, SiteStores::make('siteStores')->table($table)),
         ]);
 
@@ -552,7 +552,7 @@ class StoresController extends BaseSettingsController
             ->redirectUrl('commerce/settings/stores/sites')
             ->inertiaPage('Form', [
                 'contentMaxWidth' => false,
-                'form' => $this->formResolver->resolve($form, new FormContext(
+                'form' => $this->formResolver->resolve($form, new UiContext(
                     values: ['siteStores' => $values],
                     mode: $this->readOnly ? ControlMode::ReadOnly : ControlMode::Editable,
                 )),

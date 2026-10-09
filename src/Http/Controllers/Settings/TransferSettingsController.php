@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use CraftCms\Cms\Form\Controls\FieldLayoutDesigner;
-use CraftCms\Cms\Form\Enums\ControlMode;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\Support\Str;
+use CraftCms\Cms\Ui\Controls\FieldLayoutDesigner;
+use CraftCms\Cms\Ui\Enums\ControlMode;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Transfer\Transfers;
 use Symfony\Component\HttpFoundation\Response;
@@ -67,13 +67,13 @@ class TransferSettingsController extends BaseSettingsController
     {
         $fieldLayout = app(Transfers::class)->getFieldLayout();
 
-        $form = Form::make([
+        $form = Ui::make([
             Field::make(null, FieldLayoutDesigner::make('fieldLayout')
                 ->elementType(Transfer::class)
                 ->withCardViewDesigner()),
         ]);
 
-        $form = $this->formResolver->resolve($form, new FormContext(
+        $form = $this->formResolver->resolve($form, new UiContext(
             values: [
                 'fieldLayout' => [
                     'id' => $fieldLayout->id,

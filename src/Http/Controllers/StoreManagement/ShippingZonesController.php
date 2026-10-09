@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use CraftCms\Cms\Cp\Html\ContentHtml;
-use CraftCms\Cms\Form\Controls\ConditionBuilder;
-use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\HiddenField;
-use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Translation\Formatter;
+use CraftCms\Cms\Ui\Controls\ConditionBuilder;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\HiddenField;
+use CraftCms\Cms\Ui\Nodes\Table;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Commerce\Address\Conditions\ZoneAddressCondition;
 use CraftCms\Commerce\Formula\Formulas;
 use CraftCms\Commerce\Shipping\Data\ShippingAddressZone;
@@ -65,7 +65,7 @@ readonly class ShippingZonesController extends BaseStoreManagementController
             ->title($title)
             ->crumbs($this->crumbs($store))
             ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+                'form' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -115,7 +115,7 @@ readonly class ShippingZonesController extends BaseStoreManagementController
             'description' => $shippingZone->description,
         ];
 
-        $form = $this->formResolver->resolve(Form::make($formNodes), new FormContext(values: $values));
+        $form = $this->formResolver->resolve(Ui::make($formNodes), new UiContext(values: $values));
 
         return $this->cpScreenResponse($store, subnav: false)
             ->title($title)

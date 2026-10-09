@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Dashboard\Widgets\Concerns;
 
-use CraftCms\Cms\Form\Controls\Choice;
-use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Ui\Controls\Choice;
+use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Stats\Contracts\StatInterface;
 

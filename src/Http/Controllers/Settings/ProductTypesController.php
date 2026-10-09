@@ -7,26 +7,26 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 use CraftCms\Cms\Cp\SelectOptions;
 use CraftCms\Cms\Element\Enums\PropagationMethod;
 use CraftCms\Cms\Field\Enums\TranslationMethod;
-use CraftCms\Cms\Form\Controls\Choice;
-use CraftCms\Cms\Form\Controls\FieldLayoutDesigner;
-use CraftCms\Cms\Form\Controls\Handle;
-use CraftCms\Cms\Form\Controls\Lightswitch;
-use CraftCms\Cms\Form\Controls\Number;
-use CraftCms\Cms\Form\Controls\Table as TableControl;
-use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Enums\ControlMode;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\Heading;
-use CraftCms\Cms\Form\Nodes\HiddenField;
-use CraftCms\Cms\Form\Nodes\Separator;
-use CraftCms\Cms\Form\Nodes\Table;
-use CraftCms\Cms\Form\Nodes\TemplateContent;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\Ui\Controls\Choice;
+use CraftCms\Cms\Ui\Controls\FieldLayoutDesigner;
+use CraftCms\Cms\Ui\Controls\Handle;
+use CraftCms\Cms\Ui\Controls\Lightswitch;
+use CraftCms\Cms\Ui\Controls\Number;
+use CraftCms\Cms\Ui\Controls\Table as TableControl;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Enums\ControlMode;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\Heading;
+use CraftCms\Cms\Ui\Nodes\HiddenField;
+use CraftCms\Cms\Ui\Nodes\Separator;
+use CraftCms\Cms\Ui\Nodes\Table;
+use CraftCms\Cms\Ui\Nodes\TemplateContent;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\ProductType\Data\ProductType;
 use CraftCms\Commerce\Product\ProductType\Data\ProductTypeSite;
@@ -74,7 +74,7 @@ class ProductTypesController extends BaseSettingsController
 
         $title = t('Product Types', category: 'commerce');
 
-        $form = Form::make([
+        $form = Ui::make([
             Table::make('product-types')
                 ->columns([
                     ['key' => 'name', 'label' => t('Name'), 'sortable' => true],
@@ -102,7 +102,7 @@ class ProductTypesController extends BaseSettingsController
             ->title($title)
             ->crumbs($this->crumbs())
             ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve($form, new FormContext()),
+                'form' => $this->formResolver->resolve($form, new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -124,7 +124,7 @@ class ProductTypesController extends BaseSettingsController
 
         $form = $this->formResolver->resolve(
             $this->buildForm($productType, $values, $brandNewProductType),
-            new FormContext(
+            new UiContext(
                 values: $values,
                 mode: $this->readOnly ? ControlMode::ReadOnly : ControlMode::Editable,
                 refreshable: !$this->readOnly,
@@ -180,7 +180,7 @@ class ProductTypesController extends BaseSettingsController
 
         $form = $this->formResolver->resolve(
             $this->buildForm($productType, $values, brandNew: !$productTypeId),
-            new FormContext(
+            new UiContext(
                 values: $values,
                 mode: ControlMode::Editable,
                 refreshable: true,
@@ -268,7 +268,7 @@ class ProductTypesController extends BaseSettingsController
      *
      * @param  array<string, mixed>  $values
      */
-    private function buildForm(ProductType $productType, array $values, bool $brandNew): Form
+    private function buildForm(ProductType $productType, array $values, bool $brandNew): Ui
     {
         $isMultiSite = Sites::isMultiSite();
 
@@ -447,7 +447,7 @@ class ProductTypesController extends BaseSettingsController
             )->instructions(t('Of the enabled sites above, which sites should products in this product type be saved to?', category: 'commerce'));
         }
 
-        return Form::make()
+        return Ui::make()
             ->addTab(t('Settings'), $settingsFields)
             ->addTab(t('Tax & Shipping', category: 'commerce'), [
                 Heading::make('shipping-categories-heading', t('Available Shipping Categories', category: 'commerce')),

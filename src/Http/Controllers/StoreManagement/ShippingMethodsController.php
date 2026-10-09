@@ -6,20 +6,20 @@ namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use CraftCms\Cms\Cp\Html\ContentHtml;
 use CraftCms\Cms\Cp\Html\ElementHtml;
-use CraftCms\Cms\Form\Controls\ColorSelect;
-use CraftCms\Cms\Form\Controls\ConditionBuilder;
-use CraftCms\Cms\Form\Controls\Handle;
-use CraftCms\Cms\Form\Controls\IconPicker;
-use CraftCms\Cms\Form\Controls\Lightswitch;
-use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\HiddenField;
-use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Translation\Formatter;
+use CraftCms\Cms\Ui\Controls\ColorSelect;
+use CraftCms\Cms\Ui\Controls\ConditionBuilder;
+use CraftCms\Cms\Ui\Controls\Handle;
+use CraftCms\Cms\Ui\Controls\IconPicker;
+use CraftCms\Cms\Ui\Controls\Lightswitch;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\HiddenField;
+use CraftCms\Cms\Ui\Nodes\Table;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Commerce\Customer\Conditions\ShippingMethodCustomerCondition;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Order\Conditions\ShippingMethodOrderCondition;
@@ -84,7 +84,7 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
             ->title($title)
             ->crumbs($this->crumbs($store))
             ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+                'form' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -184,8 +184,8 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
             'enabled' => $shippingMethod->enabled,
         ];
 
-        $form = $this->formResolver->resolve(Form::make($formNodes), new FormContext(values: $values));
-        $sidebarForm = $this->formResolver->resolve($this->buildSidebarForm(), new FormContext(values: $values));
+        $form = $this->formResolver->resolve(Ui::make($formNodes), new UiContext(values: $values));
+        $sidebarForm = $this->formResolver->resolve($this->buildSidebarForm(), new UiContext(values: $values));
 
         return $this->cpScreenResponse($store, subnav: false)
             ->title($title)
@@ -205,9 +205,9 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
     }
 
     /** The details column's controls, submitted alongside the main form built in {@see edit()}. */
-    private function buildSidebarForm(): Form
+    private function buildSidebarForm(): Ui
     {
-        return Form::make([
+        return Ui::make([
             Field::make(t('Enable this shipping method on the front end', category: 'commerce'), Lightswitch::make('enabled')),
         ]);
     }

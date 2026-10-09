@@ -6,20 +6,20 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Cp\SelectOptions;
-use CraftCms\Cms\Form\Controls\Choice;
-use CraftCms\Cms\Form\Controls\Combobox;
-use CraftCms\Cms\Form\Controls\Handle;
-use CraftCms\Cms\Form\Controls\Lightswitch;
-use CraftCms\Cms\Form\Controls\Number;
-use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Enums\ControlMode;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\HiddenField;
-use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Json;
+use CraftCms\Cms\Ui\Controls\Choice;
+use CraftCms\Cms\Ui\Controls\Combobox;
+use CraftCms\Cms\Ui\Controls\Handle;
+use CraftCms\Cms\Ui\Controls\Lightswitch;
+use CraftCms\Cms\Ui\Controls\Number;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Enums\ControlMode;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\HiddenField;
+use CraftCms\Cms\Ui\Nodes\Table;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Commerce\Helpers\Locale as LocaleHelper;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreSubnav;
 use CraftCms\Commerce\Pdf\Data\Pdf;
@@ -91,7 +91,7 @@ class PdfsController extends BaseSettingsController
             ->title(t('PDFs', category: 'commerce'))
             ->crumbs($this->crumbs($this->storeCrumb('commerce/settings/pdfs', $store)))
             ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Form::make([$table]), new FormContext()),
+                'form' => $this->formResolver->resolve(Ui::make([$table]), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -180,7 +180,7 @@ class PdfsController extends BaseSettingsController
             ->instructions(t('If disabled, this PDF will not be available or sent with emails.', category: 'commerce'));
         $formNodes[] = $defaultNode;
 
-        $form = $this->formResolver->resolve(Form::make($formNodes), new FormContext(
+        $form = $this->formResolver->resolve(Ui::make($formNodes), new UiContext(
             values: [
                 'storeId' => $store->id,
                 'id' => $pdf->id,

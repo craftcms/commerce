@@ -6,22 +6,22 @@ namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use CraftCms\Cms\Cp\Html\ContentHtml;
 use CraftCms\Cms\Cp\Html\ElementHtml;
-use CraftCms\Cms\Form\Controls\Choice;
-use CraftCms\Cms\Form\Controls\ColorSelect;
-use CraftCms\Cms\Form\Controls\Handle;
-use CraftCms\Cms\Form\Controls\IconPicker;
-use CraftCms\Cms\Form\Controls\Lightswitch;
-use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Enums\ControlMode;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\HiddenField;
-use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Translation\Formatter;
+use CraftCms\Cms\Ui\Controls\Choice;
+use CraftCms\Cms\Ui\Controls\ColorSelect;
+use CraftCms\Cms\Ui\Controls\Handle;
+use CraftCms\Cms\Ui\Controls\IconPicker;
+use CraftCms\Cms\Ui\Controls\Lightswitch;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Enums\ControlMode;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\HiddenField;
+use CraftCms\Cms\Ui\Nodes\Table;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use CraftCms\Commerce\Shipping\Data\ShippingCategory;
 use CraftCms\Commerce\Shipping\ShippingCategories;
@@ -95,7 +95,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
             ->title($title)
             ->crumbs($this->crumbs($store))
             ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+                'form' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -124,7 +124,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
 
         $form = $this->formResolver->resolve(
             $this->buildForm($shippingCategory, $values, $lockDefault),
-            new FormContext(values: $values, refreshable: true),
+            new UiContext(values: $values, refreshable: true),
         );
 
         return $this->cpScreenResponse($store, subnav: false)
@@ -186,7 +186,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
 
         $form = $this->formResolver->resolve(
             $this->buildForm($shippingCategory, $values, $lockDefault),
-            new FormContext(values: $values, refreshable: true),
+            new UiContext(values: $values, refreshable: true),
         );
 
         return new JsonResponse(['form' => $form]);
@@ -228,7 +228,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
     }
 
     /** @param array<string, mixed> $values */
-    private function buildForm(ShippingCategory $shippingCategory, array $values, bool $lockDefault): Form
+    private function buildForm(ShippingCategory $shippingCategory, array $values, bool $lockDefault): Ui
     {
         $isDefault = (bool)($values['default'] ?? false);
 
@@ -295,7 +295,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
             $formNodes[] = HiddenField::make('default');
         }
 
-        return Form::make($formNodes);
+        return Ui::make($formNodes);
     }
 
     public function save(Request $request): Response

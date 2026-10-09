@@ -8,8 +8,8 @@ use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Field\Enums\TranslationMethod;
 use CraftCms\Cms\FieldLayout\FieldLayoutElementContext;
 use CraftCms\Cms\FieldLayout\LayoutElements\TitleField;
-use CraftCms\Cms\Form\Contracts\Control;
 use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\Ui\Contracts\Control;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use InvalidArgumentException;
@@ -52,7 +52,7 @@ class VariantTitleField extends TitleField
     }
 
     #[Override]
-    protected function formControl(FieldLayoutElementContext $context): ?Control
+    protected function uiControl(FieldLayoutElementContext $context): ?Control
     {
         if (!$context->element instanceof Variant) {
             throw new InvalidArgumentException('VariantTitleField can only be used in variant field layouts.');
@@ -62,7 +62,7 @@ class VariantTitleField extends TitleField
             return null;
         }
 
-        return parent::formControl($context);
+        return parent::uiControl($context);
     }
 
     protected function inputHtml(?ElementInterface $element = null, bool $static = false): ?string

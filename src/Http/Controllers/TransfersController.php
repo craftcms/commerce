@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers;
 
 use CraftCms\Cms\Element\Validation\ElementRules;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\FormResolver;
-use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\Http\Controllers\Concerns\RedirectsToShownSource;
 use CraftCms\Cms\Http\Requests\ElementIndexRequest;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Facades\Drafts;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
+use CraftCms\Cms\Ui\UiResolver;
 use CraftCms\Commerce\Form\Controls\TransferReceive;
 use CraftCms\Commerce\Http\ViewModels\TransferIndexViewModel;
 use CraftCms\Commerce\Transfer\Data\TransferDetail;
@@ -97,7 +97,7 @@ readonly class TransfersController
      * The Form shown by the “Receive Inventory” modal. Its values are posted to {@see receiveTransfer()}
      * along with the `transferId`.
      */
-    public function prepareReceiveModal(Request $request, FormResolver $formResolver): JsonResponse
+    public function prepareReceiveModal(Request $request, UiResolver $formResolver): JsonResponse
     {
         abort_unless($request->expectsJson(), 400);
 
@@ -115,12 +115,12 @@ readonly class TransfersController
         ], $transfer->getDetails());
 
         // TODO: Add “Accept all remaining” / “Reject all remaining” shortcuts.
-        $form = Form::make([
+        $form = Ui::make([
             Field::make(null, TransferReceive::make('details')->rows($rows)),
         ]);
 
         return new JsonResponse([
-            'form' => $formResolver->resolve($form, new FormContext()),
+            'form' => $formResolver->resolve($form, new UiContext()),
             'title' => t('Receive Transfer', category: 'commerce'),
             'submitLabel' => t('Receive', category: 'commerce'),
         ]);

@@ -11,14 +11,14 @@ use CraftCms\Cms\Component\Concerns\SavableComponent;
 use CraftCms\Cms\Component\Contracts\ConfigurableComponentInterface;
 use CraftCms\Cms\Condition\Contracts\ConditionRuleInterface;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionInterface;
-use CraftCms\Cms\Form\Enums\ControlMode;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\FormHtmlRenderer;
-use CraftCms\Cms\Form\FormResolver;
 use CraftCms\Cms\Support\Env;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Url;
+use CraftCms\Cms\Ui\Enums\ControlMode;
+use CraftCms\Cms\Ui\UiContext;
+use CraftCms\Cms\Ui\UiHtmlRenderer;
+use CraftCms\Cms\Ui\UiResolver;
 use CraftCms\Commerce\Address\Conditions\GatewayAddressCondition;
 use CraftCms\Commerce\Order\Conditions\GatewayOrderCondition;
 use CraftCms\Commerce\Order\Elements\Order;
@@ -123,7 +123,7 @@ abstract class Gateway extends Component implements GatewayInterface, Configurab
     }
 
     /**
-     * Renders this gateway's settingsForm() as a standalone HTML string, for CP templates still
+     * Renders this gateway's settingsUi() as a standalone HTML string, for CP templates still
      * rendered via Twig rather than the Form API.
      */
     public function getSettingsHtml(): ?string
@@ -141,16 +141,16 @@ abstract class Gateway extends Component implements GatewayInterface, Configurab
 
     private function renderSettingsFormHtml(bool $readOnly): ?string
     {
-        $form = $this->settingsForm();
+        $form = $this->settingsUi();
 
         if ($form === null) {
             return null;
         }
 
-        $context = new FormContext(mode: $readOnly ? ControlMode::ReadOnly : ControlMode::Editable);
-        $payload = app(FormResolver::class)->resolve($form, $context);
+        $context = new UiContext(mode: $readOnly ? ControlMode::ReadOnly : ControlMode::Editable);
+        $payload = app(UiResolver::class)->resolve($form, $context);
 
-        return app(FormHtmlRenderer::class)->render($payload);
+        return app(UiHtmlRenderer::class)->render($payload);
     }
 
     #[Override]

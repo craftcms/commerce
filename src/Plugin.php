@@ -18,8 +18,6 @@ use CraftCms\Cms\Element\Events\DefineDeletionBlockers;
 use CraftCms\Cms\Element\Events\ElementSaved;
 use CraftCms\Cms\Element\Queries\Events\ElementsHydrated;
 use CraftCms\Cms\FieldLayout\FieldLayout;
-use CraftCms\Cms\Form\FormControlTypes;
-use CraftCms\Cms\Form\FormNodeTypes;
 use CraftCms\Cms\GarbageCollection\Actions\DeletePartialElements;
 use CraftCms\Cms\GarbageCollection\Events\RunningGarbageCollection;
 use CraftCms\Cms\Gql\Events\GqlEagerLoadableFieldsResolving;
@@ -33,6 +31,8 @@ use CraftCms\Cms\Support\Facades\Twig;
 use CraftCms\Cms\Support\File;
 use CraftCms\Cms\Support\Path;
 use CraftCms\Cms\SystemMessage\Models\SystemMessage;
+use CraftCms\Cms\Ui\UiControlTypes;
+use CraftCms\Cms\Ui\UiNodeTypes;
 use CraftCms\Cms\User\Events\EditUserScreensResolving;
 use CraftCms\Cms\User\Events\UserAssignedToGroups;
 use CraftCms\Cms\View\TemplateMode;
@@ -260,11 +260,11 @@ class Plugin extends BasePlugin
         $arguments->register('relatedToProducts', RelatedProducts::class);
         $arguments->register('relatedToVariants', RelatedVariants::class);
 
-        app(FormNodeTypes::class)->register(CouponGenerator::class);
-        app(FormNodeTypes::class)->register(UsageCounter::class);
-        app(FormControlTypes::class)->register(SiteStores::class);
-        app(FormControlTypes::class)->register(TransferDetails::class);
-        app(FormControlTypes::class)->register(TransferReceive::class);
+        app(UiNodeTypes::class)->register(CouponGenerator::class);
+        app(UiNodeTypes::class)->register(UsageCounter::class);
+        app(UiControlTypes::class)->register(SiteStores::class);
+        app(UiControlTypes::class)->register(TransferDetails::class);
+        app(UiControlTypes::class)->register(TransferReceive::class);
 
         $this->registerCpSettings();
 

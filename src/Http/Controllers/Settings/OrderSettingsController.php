@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use CraftCms\Cms\Cp\Data\NavItem;
-use CraftCms\Cms\Form\Controls\FieldLayoutDesigner;
-use CraftCms\Cms\Form\Enums\ControlMode;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\Support\Str;
+use CraftCms\Cms\Ui\Controls\FieldLayoutDesigner;
+use CraftCms\Cms\Ui\Enums\ControlMode;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Orders;
 use Symfony\Component\HttpFoundation\Response;
@@ -64,7 +64,7 @@ class OrderSettingsController extends BaseSettingsController
         $fieldLayout = Fields::getLayoutByType(Order::class);
         $title = t('Order Settings', category: 'commerce');
 
-        $form = Form::make([
+        $form = Ui::make([
             Field::make(null, FieldLayoutDesigner::make('fieldLayout')
                 ->elementType(Order::class)
                 ->withCardViewDesigner()),
@@ -75,7 +75,7 @@ class OrderSettingsController extends BaseSettingsController
             ->crumbs($this->crumbs())
             ->redirectUrl('commerce/settings/orders/fields')
             ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve($form, new FormContext(
+                'form' => $this->formResolver->resolve($form, new UiContext(
                     values: [
                         'fieldLayout' => [
                             'id' => $fieldLayout->id,

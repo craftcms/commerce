@@ -18,9 +18,6 @@ use CraftCms\Cms\Element\Queries\ElementQuery;
 use CraftCms\Cms\Element\Validation\ElementRules;
 use CraftCms\Cms\Field\Field;
 use CraftCms\Cms\FieldLayout\FieldLayoutCompiler;
-use CraftCms\Cms\Form\Enums\ControlMode;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\FormHtmlRenderer;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpModalResponse;
 use CraftCms\Cms\Support\Arr;
@@ -33,6 +30,9 @@ use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Money;
 use CraftCms\Cms\Support\Url;
+use CraftCms\Cms\Ui\Enums\ControlMode;
+use CraftCms\Cms\Ui\UiContext;
+use CraftCms\Cms\Ui\UiHtmlRenderer;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Cms\View\TemplateMode;
@@ -1243,18 +1243,18 @@ JS, []);
 
         $fieldLayout = $order->getFieldLayout();
         // The legacy FieldLayout::createForm()/FieldLayoutForm API is gone — form building now
-        // goes through FieldLayoutCompiler (produces an immutable FormPayload) + FormHtmlRenderer
+        // goes through FieldLayoutCompiler (produces an immutable UiPayload) + UiHtmlRenderer
         // (renders that payload to HTML/tab data), matching cms-6's own EditElementController::
         // prepareEditor(). There's no more tabIdPrefix (namespace alone drives both input names
         // and DOM ids) — the static (read-only) form gets its own namespace so its tab ids never
         // collide with the dynamic form's; the dynamic (editable) form is left unnamespaced so its
         // submitted field names still match what setFieldValuesFromRequest('fields') expects.
-        $renderer = app(FormHtmlRenderer::class);
+        $renderer = app(UiHtmlRenderer::class);
 
         $staticPayload = app(FieldLayoutCompiler::class)->compile(
             $fieldLayout,
             $order,
-            new FormContext(
+            new UiContext(
                 namespace: 'static_fields',
                 mode: ControlMode::ReadOnly,
             ),
@@ -1262,7 +1262,7 @@ JS, []);
         $dynamicPayload = app(FieldLayoutCompiler::class)->compile(
             $fieldLayout,
             $order,
-            new FormContext(
+            new UiContext(
                 errors: $order->errors()->getMessages(),
                 mode: ControlMode::Editable,
                 refreshable: true,

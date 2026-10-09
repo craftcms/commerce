@@ -6,20 +6,20 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use craft\helpers\App;
 use CraftCms\Cms\Cp\SelectOptions;
-use CraftCms\Cms\Form\Controls\Choice;
-use CraftCms\Cms\Form\Controls\Combobox;
-use CraftCms\Cms\Form\Controls\Lightswitch;
-use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Enums\ControlMode;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\HiddenField;
-use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Url;
+use CraftCms\Cms\Ui\Controls\Choice;
+use CraftCms\Cms\Ui\Controls\Combobox;
+use CraftCms\Cms\Ui\Controls\Lightswitch;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Enums\ControlMode;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\HiddenField;
+use CraftCms\Cms\Ui\Nodes\Table;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Commerce\Email\Data\Email;
 use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Email\Models\Email as EmailRecord;
@@ -116,7 +116,7 @@ class EmailsController extends BaseSettingsController
             ->title(t('Emails', category: 'commerce'))
             ->crumbs($this->crumbs($this->storeCrumb('commerce/settings/emails', $store)))
             ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Form::make([$table]), new FormContext()),
+                'form' => $this->formResolver->resolve(Ui::make([$table]), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -156,7 +156,7 @@ class EmailsController extends BaseSettingsController
             'enabled' => $email->enabled,
         ];
 
-        $form = $this->formResolver->resolve($this->buildForm($values), new FormContext(
+        $form = $this->formResolver->resolve($this->buildForm($values), new UiContext(
             values: $values,
             mode: $this->generalConfig->allowAdminChanges ? ControlMode::Editable : ControlMode::ReadOnly,
             refreshable: !$this->readOnly,
@@ -196,7 +196,7 @@ class EmailsController extends BaseSettingsController
 
         $values = $request->input('values');
 
-        $form = $this->formResolver->resolve($this->buildForm($values), new FormContext(
+        $form = $this->formResolver->resolve($this->buildForm($values), new UiContext(
             values: $values,
             mode: ControlMode::Editable,
             refreshable: true,
@@ -206,7 +206,7 @@ class EmailsController extends BaseSettingsController
     }
 
     /** @param array<string, mixed> $values */
-    private function buildForm(array $values): Form
+    private function buildForm(array $values): Ui
     {
         $storeId = (int)($values['storeId'] ?? 0);
         $store = app(Stores::class)->getStoreById($storeId) ?? app(Stores::class)->getPrimaryStore();
@@ -287,7 +287,7 @@ class EmailsController extends BaseSettingsController
         $formNodes[] = Field::make(t('Enabled?', category: 'commerce'), Lightswitch::make('enabled'))
             ->instructions(t('If disabled, this email will not send.', category: 'commerce'));
 
-        return Form::make($formNodes);
+        return Ui::make($formNodes);
     }
 
     public function save(Request $request): Response

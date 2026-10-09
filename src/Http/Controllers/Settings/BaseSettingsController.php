@@ -6,9 +6,9 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use CraftCms\Cms\Config\GeneralConfig;
 use CraftCms\Cms\Cp\Data\NavItem;
-use CraftCms\Cms\Form\FormResolver;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Ui\UiResolver;
 
 use CraftCms\Commerce\Http\Controllers\Concerns\HasColorPalette;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasSubnavCrumbMenu;
@@ -26,7 +26,7 @@ abstract class BaseSettingsController
 
     public function __construct(
         protected GeneralConfig $generalConfig,
-        protected FormResolver $formResolver,
+        protected UiResolver $formResolver,
         protected readonly Plugin $plugin,
     ) {
         $this->readOnly = !$generalConfig->allowAdminChanges;

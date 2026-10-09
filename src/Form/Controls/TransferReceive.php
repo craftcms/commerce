@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Form\Controls;
 
-use CraftCms\Cms\Form\ControlPayload;
-use CraftCms\Cms\Form\Controls\Control;
-use CraftCms\Cms\Form\FormHtmlRenderer;
+use CraftCms\Cms\Ui\ControlPayload;
+use CraftCms\Cms\Ui\Controls\Control;
+use CraftCms\Cms\Ui\UiHtmlRenderer;
 use Override;
 
 use function CraftCms\Cms\t;
@@ -23,7 +23,7 @@ class TransferReceive extends Control
     /** @var list<array{uid: string, label: string, quantity: int, accepted: int, rejected: int, deletedMessage: ?string}> */
     private array $rows = [];
 
-    public static function renderHtml(ControlPayload $control, mixed $value, array $attributes, FormHtmlRenderer $renderer): string
+    public static function renderHtml(ControlPayload $control, mixed $value, array $attributes, UiHtmlRenderer $renderer): string
     {
         return '';
     }

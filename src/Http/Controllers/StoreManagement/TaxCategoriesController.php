@@ -6,22 +6,22 @@ namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use CraftCms\Cms\Cp\Html\ContentHtml;
 use CraftCms\Cms\Cp\Html\ElementHtml;
-use CraftCms\Cms\Form\Controls\Choice;
-use CraftCms\Cms\Form\Controls\ColorSelect;
-use CraftCms\Cms\Form\Controls\Handle;
-use CraftCms\Cms\Form\Controls\IconPicker;
-use CraftCms\Cms\Form\Controls\Lightswitch;
-use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Enums\ControlMode;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\HiddenField;
-use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Translation\Formatter;
+use CraftCms\Cms\Ui\Controls\Choice;
+use CraftCms\Cms\Ui\Controls\ColorSelect;
+use CraftCms\Cms\Ui\Controls\Handle;
+use CraftCms\Cms\Ui\Controls\IconPicker;
+use CraftCms\Cms\Ui\Controls\Lightswitch;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Enums\ControlMode;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\HiddenField;
+use CraftCms\Cms\Ui\Nodes\Table;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
@@ -103,7 +103,7 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
             ->crumbs($this->crumbs($store))
             ->when($engineButtonsHtml !== '', fn(CpScreenResponse $screen) => $screen->additionalButtonsHtml($engineButtonsHtml))
             ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+                'form' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -225,7 +225,7 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
             'defaultDisplay' => $taxCategory->default,
         ];
 
-        $form = $this->formResolver->resolve(Form::make($formNodes), new FormContext(values: $values));
+        $form = $this->formResolver->resolve(Ui::make($formNodes), new UiContext(values: $values));
 
         return $this->cpScreenResponse($store, subnav: false)
             ->title($title)

@@ -8,10 +8,10 @@ use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\FieldLayout\FieldLayoutElementContext;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
-use CraftCms\Cms\Form\Contracts\Control;
-use CraftCms\Cms\Form\Controls\Lightswitch;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Ui\Contracts\Control;
+use CraftCms\Cms\Ui\Controls\Lightswitch;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use InvalidArgumentException;
 use Override;
@@ -39,7 +39,7 @@ class PurchasablePromotableField extends BaseNativeField
     }
 
     #[Override]
-    protected function formControl(FieldLayoutElementContext $context): ?Control
+    protected function uiControl(FieldLayoutElementContext $context): ?Control
     {
         $element = $context->element;
         if (!$element instanceof Purchasable) {
@@ -67,7 +67,7 @@ class PurchasablePromotableField extends BaseNativeField
     }
 
     #[Override]
-    protected function settingsNodes(FormContext $context): array
+    protected function settingsNodes(UiContext $context): array
     {
         return [
             ...parent::settingsNodes($context),

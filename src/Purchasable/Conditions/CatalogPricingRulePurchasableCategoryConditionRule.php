@@ -11,10 +11,10 @@ use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Cms\Element\Queries\ElementQuery;
-use CraftCms\Cms\Form\Contracts\Node;
-use CraftCms\Cms\Form\Controls\Choice;
-use CraftCms\Cms\Form\Controls\ElementSelect;
-use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Ui\Contracts\Node;
+use CraftCms\Cms\Ui\Controls\Choice;
+use CraftCms\Cms\Ui\Controls\ElementSelect;
+use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use Illuminate\Database\Query\Builder;
 

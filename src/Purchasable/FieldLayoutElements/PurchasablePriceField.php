@@ -8,17 +8,17 @@ use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\FieldLayout\FieldLayoutElementContext;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
-use CraftCms\Cms\Form\Contracts\Node;
-use CraftCms\Cms\Form\Controls\Money;
-use CraftCms\Cms\Form\Enums\FieldWidth;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\Group;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Facades\InputNamespace;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Json;
+use CraftCms\Cms\Ui\Contracts\Node;
+use CraftCms\Cms\Ui\Controls\Money;
+use CraftCms\Cms\Ui\Enums\FieldWidth;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\Group;
 use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Cms\View\LegacyAssets\InternalAssetRegistry;
 use CraftCms\Cms\View\TemplateMode;
@@ -58,7 +58,7 @@ class PurchasablePriceField extends BaseNativeField
     }
 
     #[Override]
-    public function formNode(FieldLayoutElementContext $context): ?Node
+    public function uiNode(FieldLayoutElementContext $context): ?Node
     {
         $element = $context->element;
         if (!$element instanceof Purchasable) {
@@ -69,7 +69,7 @@ class PurchasablePriceField extends BaseNativeField
             throw new InvalidArgumentException('Persisted Purchasable Price FieldLayout elements require stable UIDs.');
         }
 
-        $static = $context->mode !== \CraftCms\Cms\Form\Enums\ControlMode::Editable;
+        $static = $context->mode !== \CraftCms\Cms\Ui\Enums\ControlMode::Editable;
         $status = $this->showStatus() ? $this->statusClass($element, $static) : null;
         $statusLabel = $status !== null
             ? ($this->statusLabel($element, $static) ?? ucfirst($status))

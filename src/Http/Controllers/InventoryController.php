@@ -6,24 +6,24 @@ namespace CraftCms\Commerce\Http\Controllers;
 
 use CraftCms\Cms\Cp\Data\ActionItem;
 use CraftCms\Cms\Database\Table as CraftTable;
-use CraftCms\Cms\Form\Controls\Choice;
-use CraftCms\Cms\Form\Controls\Number;
-use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Controls\Textarea;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\FormResolver;
-use CraftCms\Cms\Form\Nodes\Callout;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\Heading;
-use CraftCms\Cms\Form\Nodes\HiddenField;
-use CraftCms\Cms\Form\Nodes\Tab;
-use CraftCms\Cms\Form\Nodes\Table as TableNode;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\Translation\Formatter;
+use CraftCms\Cms\Ui\Controls\Choice;
+use CraftCms\Cms\Ui\Controls\Number;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Controls\Textarea;
+use CraftCms\Cms\Ui\Nodes\Callout;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\Heading;
+use CraftCms\Cms\Ui\Nodes\HiddenField;
+use CraftCms\Cms\Ui\Nodes\Tab;
+use CraftCms\Cms\Ui\Nodes\Table as TableNode;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
+use CraftCms\Cms\Ui\UiResolver;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
@@ -68,7 +68,7 @@ readonly class InventoryController
     ];
 
     public function __construct(
-        private FormResolver $formResolver,
+        private UiResolver $formResolver,
     ) {
     }
 
@@ -111,7 +111,7 @@ readonly class InventoryController
             ->crumbs($this->crumbs($currentLocation))
             ->selectedSubnavItem('inventory')
             ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Form::make([$table]), new FormContext()),
+                'form' => $this->formResolver->resolve(Ui::make([$table]), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -233,7 +233,7 @@ readonly class InventoryController
         $quantity = (int)app(Inventory::class)->getInventoryLevel($inventoryItem, $inventoryLocation)->{$type . 'Total'};
         $label = $this->levelLabel($type);
 
-        $form = Form::make([
+        $form = Ui::make([
             Callout::make('current-level', t('{item} currently has {quantity} {type} at {location}.', [
                 'item' => $this->inventoryItemLabel($inventoryItem),
                 'quantity' => $quantity,
@@ -248,7 +248,7 @@ readonly class InventoryController
         ]);
 
         return new JsonResponse([
-            'form' => $this->formResolver->resolve($form, new FormContext(values: [
+            'form' => $this->formResolver->resolve($form, new UiContext(values: [
                 'quantity' => $isSet ? $quantity : 0,
                 'note' => '',
             ])),
@@ -338,7 +338,7 @@ readonly class InventoryController
 
         $available = app(Inventory::class)->getInventoryLevel($inventoryItem, $inventoryLocation)->getTotal($fromType);
 
-        $form = Form::make([
+        $form = Ui::make([
             HiddenField::make(['inventoryMovement', 'inventoryItemId']),
             HiddenField::make(['inventoryMovement', 'fromInventoryLocationId']),
             HiddenField::make(['inventoryMovement', 'toInventoryLocationId']),
@@ -361,7 +361,7 @@ readonly class InventoryController
         ]);
 
         return new JsonResponse([
-            'form' => $this->formResolver->resolve($form, new FormContext(values: [
+            'form' => $this->formResolver->resolve($form, new UiContext(values: [
                 'inventoryMovement' => [
                     'inventoryItemId' => $inventoryItem->id,
                     'fromInventoryLocationId' => $inventoryLocation->id,
@@ -448,7 +448,7 @@ readonly class InventoryController
             ->crumbs($this->crumbs($inventoryLocation, $this->inventoryItemLabel($inventoryItem)))
             ->selectedSubnavItem('inventory')
             ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Form::make([$table]), new FormContext()),
+                'form' => $this->formResolver->resolve(Ui::make([$table]), new UiContext()),
             ]);
     }
 
@@ -456,7 +456,7 @@ readonly class InventoryController
     {
         $inventoryItem = $this->resolveInventoryItem($inventoryItemId);
 
-        $form = Form::make([
+        $form = Ui::make([
             Tab::make('details', t('Details', category: 'commerce'), [
                 HiddenField::make('inventoryItemId'),
                 Field::make(t('Country Code of Origin', category: 'commerce'), Text::make('countryCodeOfOrigin')),
@@ -479,7 +479,7 @@ readonly class InventoryController
             ->redirectUrl('commerce/inventory')
             ->selectedSubnavItem('inventory')
             ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve($form, new FormContext(values: [
+                'form' => $this->formResolver->resolve($form, new UiContext(values: [
                     'inventoryItemId' => $inventoryItem->id,
                     'countryCodeOfOrigin' => $inventoryItem->countryCodeOfOrigin,
                     'administrativeAreaCodeOfOrigin' => $inventoryItem->administrativeAreaCodeOfOrigin,

@@ -6,18 +6,18 @@ namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Cp\Html\ContentHtml;
-use CraftCms\Cms\Form\Controls\Choice;
-use CraftCms\Cms\Form\Controls\Number;
-use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Enums\ControlMode;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\HiddenField;
-use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Translation\Formatter;
+use CraftCms\Cms\Ui\Controls\Choice;
+use CraftCms\Cms\Ui\Controls\Number;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Enums\ControlMode;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\HiddenField;
+use CraftCms\Cms\Ui\Nodes\Table;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Payment\Data\PaymentCurrency;
@@ -81,7 +81,7 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
             ->title($title)
             ->crumbs($this->crumbs($store))
             ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+                'form' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -120,7 +120,7 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
 
         if ($isoLocked) {
             // A disabled/readonly Choice never gets a `name` attribute (see
-            // FormHtmlRenderer::renderControl()), so it wouldn't submit at all — this
+            // UiHtmlRenderer::renderControl()), so it wouldn't submit at all — this
             // pairs a plain readonly display with a HiddenField carrying the real value
             // through, mirroring the old template's readonly-select-plus-hidden-input pair.
             $formNodes[] = HiddenField::make('iso');
@@ -150,7 +150,7 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
             'rate' => $currency->rate ?: 1,
         ];
 
-        $form = $this->formResolver->resolve(Form::make($formNodes), new FormContext(values: $values));
+        $form = $this->formResolver->resolve(Ui::make($formNodes), new UiContext(values: $values));
 
         return $this->cpScreenResponse($store, subnav: false)
             ->title($title)

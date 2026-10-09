@@ -6,20 +6,20 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Cp\SelectOptions;
-use CraftCms\Cms\Form\Controls\Choice;
-use CraftCms\Cms\Form\Controls\Combobox;
-use CraftCms\Cms\Form\Controls\ConditionBuilder;
-use CraftCms\Cms\Form\Controls\Handle;
-use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Enums\ControlMode;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\Group;
-use CraftCms\Cms\Form\Nodes\HiddenField;
-use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\Ui\Controls\Choice;
+use CraftCms\Cms\Ui\Controls\Combobox;
+use CraftCms\Cms\Ui\Controls\ConditionBuilder;
+use CraftCms\Cms\Ui\Controls\Handle;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Enums\ControlMode;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\Group;
+use CraftCms\Cms\Ui\Nodes\HiddenField;
+use CraftCms\Cms\Ui\Nodes\Table;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Commerce\Address\Conditions\GatewayAddressCondition;
 use CraftCms\Commerce\Database\Table as DbTable;
 use CraftCms\Commerce\Order\Conditions\GatewayOrderCondition;
@@ -135,7 +135,7 @@ class GatewaysController extends BaseSettingsController
             ->title($title)
             ->crumbs($this->crumbs())
             ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+                'form' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -174,7 +174,7 @@ class GatewaysController extends BaseSettingsController
             ...$gateway->getSettings(),
         ];
 
-        $form = $this->formResolver->resolve($this->buildForm($values), new FormContext(
+        $form = $this->formResolver->resolve($this->buildForm($values), new UiContext(
             values: $values,
             mode: $this->generalConfig->allowAdminChanges ? ControlMode::Editable : ControlMode::ReadOnly,
             refreshable: !$this->readOnly,
@@ -212,7 +212,7 @@ class GatewaysController extends BaseSettingsController
 
         $values = $request->input('values');
 
-        $form = $this->formResolver->resolve($this->buildForm($values), new FormContext(
+        $form = $this->formResolver->resolve($this->buildForm($values), new UiContext(
             values: $values,
             mode: ControlMode::Editable,
             refreshable: true,
@@ -224,9 +224,9 @@ class GatewaysController extends BaseSettingsController
     /**
      * @param  array<string, mixed>  $values  Passed by reference so a stale `paymentType`
      *   left over from a since-changed Gateway type — no longer one of its options — can be
-     *   corrected here and reflected back in the FormContext both callers resolve against.
+     *   corrected here and reflected back in the UiContext both callers resolve against.
      */
-    private function buildForm(array &$values): Form
+    private function buildForm(array &$values): Ui
     {
         $gatewayService = app(Gateways::class);
         $type = $values['type'] ?? Dummy::class;
@@ -308,7 +308,7 @@ class GatewaysController extends BaseSettingsController
             ->instructions(t('If set to Authorize Only, you will need to manually capture payments before the funds will be transferred to your account. The Gateway needs to support the selected option.', category: 'commerce'))
             ->required();
 
-        $settingsForm = $gateway->settingsForm(new FormContext(
+        $settingsForm = $gateway->settingsUi(new UiContext(
             values: $values,
             mode: ControlMode::Editable,
         ));
@@ -344,7 +344,7 @@ class GatewaysController extends BaseSettingsController
             ->value($values['shippingAddressCondition'] ?? []))
             ->instructions(t('Create rules that allow this gateway to match the shipping address.', category: 'commerce'));
 
-        return Form::make($formNodes);
+        return Ui::make($formNodes);
     }
 
     public function save(Request $request): Response
