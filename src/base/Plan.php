@@ -27,6 +27,7 @@ use function count;
  * @property GatewayInterface $gateway
  * @property Entry|null $information
  * @property int $subscriptionCount
+ * @property-read int $activeSubscriptionCount
  * @property User $user
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -121,6 +122,16 @@ abstract class Plan extends Model implements PlanInterface, CpEditable
     public function getSubscriptionCount(): int
     {
         return Commerce::getInstance()->getSubscriptions()->getSubscriptionCountByPlanId($this->id);
+    }
+
+    /**
+     * Returns the number of non-expired subscriptions for this plan.
+     *
+     * @since 5.7.7
+     */
+    public function getActiveSubscriptionCount(): int
+    {
+        return Commerce::getInstance()->getSubscriptions()->getActiveSubscriptionCountByPlanId($this->id);
     }
 
     /**

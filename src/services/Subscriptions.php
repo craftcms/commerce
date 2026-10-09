@@ -468,6 +468,16 @@ class Subscriptions extends Component
     }
 
     /**
+     * Returns the number of non-expired subscriptions for a plan.
+     *
+     * @since 5.7.7
+     */
+    public function getActiveSubscriptionCountByPlanId(int $planId): int
+    {
+        return SubscriptionRecord::find()->where(['planId' => $planId, 'isExpired' => false])->count();
+    }
+
+    /**
      * Returns subscription count for a plan.
      *
      * @deprecated in 4.0. Use [[getSubscriptionCountByPlanId]] instead.

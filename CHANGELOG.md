@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Added `craft\commerce\base\Plan::getActiveSubscriptionCount()`.
+- Added `craft\commerce\services\Subscriptions::getActiveSubscriptionCountByPlanId()`.
+- Fixed a bug where the Subscription Plans index page was counting expired subscriptions as active. ([#4381](https://github.com/craftcms/commerce/issues/4381))
+
 ## 5.7.6 - 2026-10-08
 
 - Fixed a bug where all catalog pricing rules’ prices could be removed if a rule was deleted while its catalog pricing job was running. ([#4374](https://github.com/craftcms/commerce/issues/4374))
