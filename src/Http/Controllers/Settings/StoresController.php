@@ -7,7 +7,9 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 use craft\db\Query;
 use CraftCms\Cms\Cp\Components\Select;
 use CraftCms\Cms\Cp\Data\NavItem;
+use CraftCms\Cms\Cp\SelectOptions;
 use CraftCms\Cms\Form\Controls\Choice;
+use CraftCms\Cms\Form\Controls\Combobox;
 use CraftCms\Cms\Form\Controls\Handle;
 use CraftCms\Cms\Form\Controls\Lightswitch;
 use CraftCms\Cms\Form\Controls\Text;
@@ -18,6 +20,7 @@ use CraftCms\Cms\Form\Nodes\Field;
 use CraftCms\Cms\Form\Nodes\HiddenField;
 use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Env;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Json;
@@ -165,34 +168,60 @@ class StoresController extends BaseSettingsController
                 : Field::make(t('Make this the primary store', category: 'commerce'), Lightswitch::make('primary')),
         ];
 
+        $booleanOptions = [
+            ['label' => t('Yes'), 'value' => '1', 'data' => ['indicator' => ['variant' => 'success']]],
+            ['label' => t('No'), 'value' => '0', 'data' => ['indicator' => ['variant' => 'empty']]],
+            ...self::booleanEnvOptions(),
+        ];
+
+        $booleanMenu = fn(string $label, string $name) => Field::make($label, Combobox::make($name)
+            ->options($booleanOptions)
+            ->requireOptionMatch())
+            ->tip(t('This can be set to an environment variable with a boolean value ({examples}).', [
+                'examples' => '`yes`/`no`/`true`/`false`/`on`/`off`/`0`/`1`',
+            ]));
+
+        $strategyMenu = fn(string $name, array $options) => Combobox::make($name)
+            ->options([
+                ...self::choiceOptions($options),
+                ...SelectOptions::getEnvOptions(array_keys($options)),
+            ])
+            ->requireOptionMatch();
+
         $settingsFields = [
-            Field::make(t('Auto Set New Cart Addresses', category: 'commerce'), Lightswitch::make('autoSetNewCartAddresses'))
+            $booleanMenu(t('Auto Set New Cart Addresses', category: 'commerce'), 'autoSetNewCartAddresses')
                 ->instructions(t('Whether the user’s primary shipping and billing addresses should be set automatically on new carts.', category: 'commerce')),
-            Field::make(t('Auto Set Cart Shipping Method Option', category: 'commerce'), Lightswitch::make('autoSetCartShippingMethodOption'))
+            $booleanMenu(t('Auto Set Cart Shipping Method Option', category: 'commerce'), 'autoSetCartShippingMethodOption')
                 ->instructions(t('Whether the first available shipping method option should be set automatically on carts.', category: 'commerce')),
-            Field::make(t('Auto Set Payment Source', category: 'commerce'), Lightswitch::make('autoSetPaymentSource'))
+            $booleanMenu(t('Auto Set Payment Source', category: 'commerce'), 'autoSetPaymentSource')
                 ->instructions(t('Whether the user’s primary payment source should be set automatically on new carts.', category: 'commerce')),
-            Field::make(t('Allow Empty Cart On Checkout', category: 'commerce'), Lightswitch::make('allowEmptyCartOnCheckout')),
-            Field::make(t('Allow Checkout Without Payment', category: 'commerce'), Lightswitch::make('allowCheckoutWithoutPayment')),
-            Field::make(t('Allow Partial Payment On Checkout', category: 'commerce'), Lightswitch::make('allowPartialPaymentOnCheckout')),
-            Field::make(t('Free Order Payment Strategy', category: 'commerce'), Choice::make('freeOrderPaymentStrategy')
-                ->options(self::choiceOptions($storeModel->getFreeOrderPaymentStrategyOptions())))
+            $booleanMenu(t('Allow Empty Cart On Checkout', category: 'commerce'), 'allowEmptyCartOnCheckout'),
+            $booleanMenu(t('Allow Checkout Without Payment', category: 'commerce'), 'allowCheckoutWithoutPayment'),
+            $booleanMenu(t('Allow Partial Payment On Checkout', category: 'commerce'), 'allowPartialPaymentOnCheckout'),
+            Field::make(t('Free Order Payment Strategy', category: 'commerce'), $strategyMenu('freeOrderPaymentStrategy', $storeModel->getFreeOrderPaymentStrategyOptions()))
                 ->instructions(t('Strategy to apply when an order is free or has a zero balance.', category: 'commerce'))
                 ->required(),
-            Field::make(t('Minimum Total Price Strategy', category: 'commerce'), Choice::make('minimumTotalPriceStrategy')
-                ->options(self::choiceOptions($storeModel->getMinimumTotalPriceStrategyOptions())))
+            Field::make(t('Minimum Total Price Strategy', category: 'commerce'), $strategyMenu('minimumTotalPriceStrategy', $storeModel->getMinimumTotalPriceStrategyOptions()))
                 ->instructions(t('Strategy to apply when calculating the minimum order price.', category: 'commerce'))
                 ->required(),
-            Field::make(t('Require Shipping Address At Checkout', category: 'commerce'), Lightswitch::make('requireShippingAddressAtCheckout')),
-            Field::make(t('Require Billing Address At Checkout', category: 'commerce'), Lightswitch::make('requireBillingAddressAtCheckout')),
-            Field::make(t('Require Shipping Method Selection At Checkout', category: 'commerce'), Lightswitch::make('requireShippingMethodSelectionAtCheckout')),
-            Field::make(t('Use Billing Address For Tax', category: 'commerce'), Lightswitch::make('useBillingAddressForTax')),
-            Field::make(t('Validate Business Tax ID as Vat ID', category: 'commerce'), Lightswitch::make('validateOrganizationTaxIdAsVatId')),
-            Field::make(t('Order Reference Number Format', category: 'commerce'), Text::make('orderReferenceFormat')->monospace())
+            $booleanMenu(t('Require Shipping Address At Checkout', category: 'commerce'), 'requireShippingAddressAtCheckout'),
+            $booleanMenu(t('Require Billing Address At Checkout', category: 'commerce'), 'requireBillingAddressAtCheckout'),
+            $booleanMenu(t('Require Shipping Method Selection At Checkout', category: 'commerce'), 'requireShippingMethodSelectionAtCheckout'),
+            $booleanMenu(t('Use Billing Address For Tax', category: 'commerce'), 'useBillingAddressForTax'),
+            $booleanMenu(t('Validate Business Tax ID as Vat ID', category: 'commerce'), 'validateOrganizationTaxIdAsVatId'),
+            Field::make(t('Order Reference Number Format', category: 'commerce'), Text::make('orderReferenceFormat')
+                ->monospace()
+                ->textExpanderTriggers(SelectOptions::getEnvTextExpanderTriggers()))
                 ->instructions(t('A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.', [
                     'ex1' => Html::code('2018-{number[:7]}'),
                     'ex2' => Html::code("{{object.dateCompleted|date('y')}}-{{ seq(object.dateCompleted|date('y'), 8) }}"),
-                ], category: 'commerce')),
+                ], category: 'commerce'))
+                ->tip(sprintf(
+                    '%s [%s](%s)',
+                    t('Type `$` to choose an environment variable.'),
+                    t('Learn more'),
+                    'https://craftcms.com/docs/5.x/configure.html#control-panel-settings',
+                )),
         ];
 
         return Form::make()
@@ -210,21 +239,71 @@ class StoresController extends BaseSettingsController
             'siteId' => null,
             'currency' => $storeModel->getCurrency()?->getCode(),
             'primary' => $storeModel->primary,
-            'autoSetNewCartAddresses' => $storeModel->getAutoSetNewCartAddresses(),
-            'autoSetCartShippingMethodOption' => $storeModel->getAutoSetCartShippingMethodOption(),
-            'autoSetPaymentSource' => $storeModel->getAutoSetPaymentSource(),
-            'allowEmptyCartOnCheckout' => $storeModel->getAllowEmptyCartOnCheckout(),
-            'allowCheckoutWithoutPayment' => $storeModel->getAllowCheckoutWithoutPayment(),
-            'allowPartialPaymentOnCheckout' => $storeModel->getAllowPartialPaymentOnCheckout(),
-            'freeOrderPaymentStrategy' => $storeModel->getFreeOrderPaymentStrategy(),
-            'minimumTotalPriceStrategy' => $storeModel->getMinimumTotalPriceStrategy(),
-            'requireShippingAddressAtCheckout' => $storeModel->getRequireShippingAddressAtCheckout(),
-            'requireBillingAddressAtCheckout' => $storeModel->getRequireBillingAddressAtCheckout(),
-            'requireShippingMethodSelectionAtCheckout' => $storeModel->getRequireShippingMethodSelectionAtCheckout(),
-            'useBillingAddressForTax' => $storeModel->getUseBillingAddressForTax(),
-            'validateOrganizationTaxIdAsVatId' => $storeModel->getValidateOrganizationTaxIdAsVatId(),
-            'orderReferenceFormat' => $storeModel->getOrderReferenceFormat(),
+            'autoSetNewCartAddresses' => self::booleanMenuValue($storeModel->getAutoSetNewCartAddresses(false)),
+            'autoSetCartShippingMethodOption' => self::booleanMenuValue($storeModel->getAutoSetCartShippingMethodOption(false)),
+            'autoSetPaymentSource' => self::booleanMenuValue($storeModel->getAutoSetPaymentSource(false)),
+            'allowEmptyCartOnCheckout' => self::booleanMenuValue($storeModel->getAllowEmptyCartOnCheckout(false)),
+            'allowCheckoutWithoutPayment' => self::booleanMenuValue($storeModel->getAllowCheckoutWithoutPayment(false)),
+            'allowPartialPaymentOnCheckout' => self::booleanMenuValue($storeModel->getAllowPartialPaymentOnCheckout(false)),
+            'freeOrderPaymentStrategy' => $storeModel->getFreeOrderPaymentStrategy(false),
+            'minimumTotalPriceStrategy' => $storeModel->getMinimumTotalPriceStrategy(false),
+            'requireShippingAddressAtCheckout' => self::booleanMenuValue($storeModel->getRequireShippingAddressAtCheckout(false)),
+            'requireBillingAddressAtCheckout' => self::booleanMenuValue($storeModel->getRequireBillingAddressAtCheckout(false)),
+            'requireShippingMethodSelectionAtCheckout' => self::booleanMenuValue($storeModel->getRequireShippingMethodSelectionAtCheckout(false)),
+            'useBillingAddressForTax' => self::booleanMenuValue($storeModel->getUseBillingAddressForTax(false)),
+            'validateOrganizationTaxIdAsVatId' => self::booleanMenuValue($storeModel->getValidateOrganizationTaxIdAsVatId(false)),
+            'orderReferenceFormat' => $storeModel->getOrderReferenceFormat(false),
         ];
+    }
+
+    /**
+     * Boolean environment variables, each showing what it currently resolves to.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private static function booleanEnvOptions(): array
+    {
+        $groups = SelectOptions::getBooleanEnvOptions();
+        $groups[0]['options'] = $groups[0]['options']
+            ->map(function(array $option): array {
+                $enabled = $option['data']['boolean'] === '1';
+
+                return [
+                    ...$option,
+                    'data' => [
+                        ...$option['data'],
+                        'hint' => $enabled ? t('Yes') : t('No'),
+                        'indicator' => ['variant' => $enabled ? 'success' : 'empty'],
+                    ],
+                ];
+            })
+            ->all();
+
+        return $groups;
+    }
+
+    /**
+     * The option a boolean setting selects: its environment variable, or Yes/No.
+     */
+    private static function booleanMenuValue(bool|string $value): string
+    {
+        if (is_string($value) && str_starts_with($value, '$')) {
+            return $value;
+        }
+
+        return Env::normalizeBooleanValue($value) ? '1' : '0';
+    }
+
+    /**
+     * The value a boolean setting stores: an environment variable reference, or a boolean.
+     */
+    private static function booleanMenuInput(mixed $value): bool|string
+    {
+        if (is_string($value) && str_starts_with($value, '$')) {
+            return $value;
+        }
+
+        return Env::normalizeBooleanValue($value) ?? false;
     }
 
     /**
@@ -255,17 +334,17 @@ class StoresController extends BaseSettingsController
 
         $store->setName($request->input('name'));
         $store->handle = $request->input('handle');
-        $store->setAutoSetNewCartAddresses($request->input('autoSetNewCartAddresses'));
-        $store->setAutoSetCartShippingMethodOption($request->input('autoSetCartShippingMethodOption'));
-        $store->setAutoSetPaymentSource($request->input('autoSetPaymentSource'));
-        $store->setAllowEmptyCartOnCheckout($request->input('allowEmptyCartOnCheckout'));
-        $store->setAllowCheckoutWithoutPayment($request->input('allowCheckoutWithoutPayment'));
-        $store->setAllowPartialPaymentOnCheckout($request->input('allowPartialPaymentOnCheckout'));
-        $store->setRequireShippingAddressAtCheckout($request->input('requireShippingAddressAtCheckout'));
-        $store->setRequireBillingAddressAtCheckout($request->input('requireBillingAddressAtCheckout'));
-        $store->setRequireShippingMethodSelectionAtCheckout($request->input('requireShippingMethodSelectionAtCheckout'));
-        $store->setUseBillingAddressForTax($request->input('useBillingAddressForTax'));
-        $store->setValidateOrganizationTaxIdAsVatId($request->input('validateOrganizationTaxIdAsVatId'));
+        $store->setAutoSetNewCartAddresses(self::booleanMenuInput($request->input('autoSetNewCartAddresses')));
+        $store->setAutoSetCartShippingMethodOption(self::booleanMenuInput($request->input('autoSetCartShippingMethodOption')));
+        $store->setAutoSetPaymentSource(self::booleanMenuInput($request->input('autoSetPaymentSource')));
+        $store->setAllowEmptyCartOnCheckout(self::booleanMenuInput($request->input('allowEmptyCartOnCheckout')));
+        $store->setAllowCheckoutWithoutPayment(self::booleanMenuInput($request->input('allowCheckoutWithoutPayment')));
+        $store->setAllowPartialPaymentOnCheckout(self::booleanMenuInput($request->input('allowPartialPaymentOnCheckout')));
+        $store->setRequireShippingAddressAtCheckout(self::booleanMenuInput($request->input('requireShippingAddressAtCheckout')));
+        $store->setRequireBillingAddressAtCheckout(self::booleanMenuInput($request->input('requireBillingAddressAtCheckout')));
+        $store->setRequireShippingMethodSelectionAtCheckout(self::booleanMenuInput($request->input('requireShippingMethodSelectionAtCheckout')));
+        $store->setUseBillingAddressForTax(self::booleanMenuInput($request->input('useBillingAddressForTax')));
+        $store->setValidateOrganizationTaxIdAsVatId(self::booleanMenuInput($request->input('validateOrganizationTaxIdAsVatId')));
         $store->setOrderReferenceFormat($request->input('orderReferenceFormat'));
         $store->setFreeOrderPaymentStrategy($request->input('freeOrderPaymentStrategy'));
         $store->setMinimumTotalPriceStrategy($request->input('minimumTotalPriceStrategy'));
