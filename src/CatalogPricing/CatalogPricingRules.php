@@ -207,8 +207,8 @@ class CatalogPricingRules
         $record->apply = $catalogPricingRule->apply;
         $record->applyAmount = $catalogPricingRule->applyAmount;
         $record->applyPriceType = $catalogPricingRule->applyPriceType;
-        $record->dateFrom = Query::prepareDateForDb($catalogPricingRule->dateFrom);
-        $record->dateTo = Query::prepareDateForDb($catalogPricingRule->dateTo);
+        $record->setAttribute('dateFrom', Query::prepareDateForDb($catalogPricingRule->dateFrom));
+        $record->setAttribute('dateTo', Query::prepareDateForDb($catalogPricingRule->dateTo));
         $record->description = $catalogPricingRule->description;
         $record->enabled = $catalogPricingRule->enabled;
         $record->isPromotionalPrice = $catalogPricingRule->isPromotionalPrice;

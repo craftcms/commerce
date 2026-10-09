@@ -301,16 +301,10 @@ class CatalogPricing
 
     public function getCatalogPricesPageInfo(int $storeId, ?CatalogPricingCondition $conditionBuilder = null, bool $includeBasePrices = true, ?string $searchText = null, int $limit = 100, int $offset = 0): array
     {
-        // getCountForPagination() wraps the query as-is and counts a column from its SELECT —
-        // but this query only ever selects price/promotionalPrice/salePrice aggregates, never
-        // purchasableId, so that column was never there to count. select()ing it first (like
-        // the pre-port Yii2 version did) replaces the aggregate select instead of layering atop
-        // it, giving a plain "one row per purchasableId" result to just count.
         $total = $this->buildCatalogPricesQuery($storeId, $conditionBuilder, $includeBasePrices, $searchText)
             ->select(['purchasableId'])
             ->groupBy('purchasableId')
-            ->get()
-            ->count();
+            ->getCountForPagination();
 
         return [
             'first' => $offset + 1,

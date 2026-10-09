@@ -427,7 +427,7 @@ readonly class DiscountsController extends BaseStoreManagementController
             // negative internally (a discount subtracted from the total), shown to the editor as
             // a plain positive amount/percentage — flipped back in save().
             'perItemDiscount' => $discount->perItemDiscount < 0 ? $discount->perItemDiscount * -1 : $discount->perItemDiscount,
-            'percentDiscount' => round(-($discount->percentDiscount ?? 0) * 100, 6),
+            'percentDiscount' => round(-$discount->percentDiscount * 100, 6),
             'percentageOffSubject' => $discount->percentageOffSubject,
             'ignorePromotions' => $discount->ignorePromotions,
             'baseDiscount' => $discount->baseDiscount < 0 ? $discount->baseDiscount * -1 : $discount->baseDiscount,

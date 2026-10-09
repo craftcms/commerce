@@ -514,7 +514,7 @@ class StoresController extends BaseSettingsController
         foreach (Sites::getAllSites() as $site) {
             $siteStore = $sitesStores->count() > 0 ? $sitesStores->firstWhere('siteId', $site->id) : null;
             $siteName = t($site->name, category: 'site');
-            $storeId = request()->old("siteStores.$site->id.storeId", $siteStore->storeId ?? $primaryStoreId);
+            $storeId = session()->getOldInput("siteStores.$site->id.storeId", $siteStore->storeId ?? $primaryStoreId);
             $values[$site->id] = ['storeId' => $storeId];
 
             $rows[] = [

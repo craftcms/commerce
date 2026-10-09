@@ -7,12 +7,10 @@ namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 use craft\helpers\Localization;
 use CraftCms\Cms\Cp\Html\ContentHtml;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
-use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Money;
 use CraftCms\Cms\Translation\Formatter;
-use CraftCms\Cms\Translation\Locale;
 use CraftCms\Cms\Ui\Controls\ConditionBuilder;
 use CraftCms\Cms\Ui\Controls\Lightswitch;
 use CraftCms\Cms\Ui\Controls\Money as MoneyControl;
@@ -494,10 +492,5 @@ readonly class ShippingRulesController extends BaseStoreManagementController
         }
 
         return $this->asSuccess(t('Shipping rule deleted.', category: 'commerce'));
-    }
-
-    private function percentSymbol(): string
-    {
-        return I18N::getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
     }
 }

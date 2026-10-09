@@ -46,14 +46,14 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
                 // getName() is just the ISO code today (there's no display-name lookup yet) —
                 // matches the "Code" column below exactly, which is a pre-existing redundancy,
                 // not something introduced here.
-                'name' => $currency->primary
+                'name' => $currency->getPrimary()
                     ? ['html' => Html::encode(t('{name} (Primary)', ['name' => t($currency->getName(), category: 'site')], category: 'commerce'))]
                     : ['html' => Html::a(Html::encode(t($currency->getName(), category: 'site')), $currency->getCpEditUrl(), ['class' => 'cell-bold'])],
                 'handle' => ['html' => FormFields::copytextHtml(['value' => $currency->iso, 'monospace' => true])],
-                'rate' => $currency->primary
+                'rate' => $currency->getPrimary()
                     ? ['html' => Html::tag('span', Html::encode(t('Base', category: 'commerce')), ['class' => 'token'])]
                     : (string) $currency->rate,
-                '_deletable' => !$currency->primary,
+                '_deletable' => !$currency->getPrimary(),
             ])
             ->values()
             ->all();
@@ -102,7 +102,7 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
 
         $currencyOptions = app(Currencies::class)->getAllCurrenciesList();
         $hasCompletedOrders = Order::find()->isCompleted(true)->exists();
-        $isoLocked = $currency->id && $currency->primary && $hasCompletedOrders;
+        $isoLocked = $currency->id && $currency->getPrimary() && $hasCompletedOrders;
 
         $formatter = app(Formatter::class);
         $metaSidebarHtml = $currency->id ? app(ContentHtml::class)->metadataHtml([
@@ -136,7 +136,7 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
         }
 
         $formNodes[] = Field::make(t('Conversion Rate', category: 'commerce'), Number::make('rate')
-            ->mode($currency->primary ? ControlMode::ReadOnly : ControlMode::Editable))
+            ->mode($currency->getPrimary() ? ControlMode::ReadOnly : ControlMode::Editable))
             ->instructions(t('The conversion rate that will be used when converting an amount to this currency. For example, if an item costs {amount1}, a conversion rate of {rate} would result in {amount2} in the alternate currency.', [
                 'amount1' => 10,
                 'rate' => 1.5,

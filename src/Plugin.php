@@ -221,7 +221,7 @@ class Plugin extends BasePlugin
      *  `vite.config.ts` builds under — the same entry-point path/convention `cms`'s own
      *  `resources/js/cp.ts` uses. */
     protected array $vite = [
-        'input' => ['resources/js/cp.ts'],
+        'resources/js/cp.ts',
     ];
 
     protected array $commands = [

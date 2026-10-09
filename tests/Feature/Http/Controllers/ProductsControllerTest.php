@@ -78,7 +78,10 @@ it('selects a product type source from the handle segment', function() {
             ->where('productTypeHandle', 'hoodies')
             ->where('source.key', 'productType:' . $this->hoodies->uid)
             ->where('title', 'Hoodies')
-            ->where('crumbs.2.href', Url::cpUrl('commerce/products/hoodies'))
+            ->where('crumbs.2.label', 'Hoodies')
+            ->where('crumbs.2.href', null)
+            ->where('crumbs.2.items.1.items.0.href', Url::cpUrl('commerce/products/hoodies'))
+            ->where('crumbs.2.items.1.items.0.selected', true)
         );
 });
 

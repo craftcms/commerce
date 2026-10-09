@@ -5,6 +5,7 @@
     useAppLayout,
     useCustomizeSources,
     type ElementIndexRoute,
+    type NavItem,
   } from '@craftcms/cms/elements';
   import NewProductButton, {
     type CreatableProductType,
@@ -16,7 +17,7 @@
     creatableProductTypes: CreatableProductType[];
     newProductLabel: string;
     newProductMenuLabel: string;
-    sourceNavItems?: Array<CraftCms.Cms.Cp.Data.NavItem>;
+    sourceNavItems?: NavItem[];
     elementType?: string | null;
     page?: string | null;
     source?: {key?: string | null} | null;

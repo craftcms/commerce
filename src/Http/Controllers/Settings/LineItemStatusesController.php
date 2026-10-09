@@ -54,7 +54,7 @@ class LineItemStatusesController extends BaseSettingsController
         // slot, so with more than one store, only the first store's table gets one — a single
         // combined "New line item status" menu covering every store, rather than one button apiece.
         $createMenuItems = $this->readOnly ? [] : $stores->map(fn(Store $store) => [
-            'label' => $store->name,
+            'label' => $store->getName(),
             'url' => cp_url("commerce/settings/orders/line-item-statuses/{$store->handle}/new"),
         ])->all();
         $createMenuAssigned = false;
@@ -62,7 +62,7 @@ class LineItemStatusesController extends BaseSettingsController
         $nodes = [];
         $stores->each(function(Store $store) use (&$nodes, $isMultiStore, $createMenuItems, &$createMenuAssigned) {
             if ($isMultiStore) {
-                $nodes[] = Heading::make("{$store->handle}-heading", $store->name);
+                $nodes[] = Heading::make("{$store->handle}-heading", $store->getName());
             }
 
             $rows = app(LineItemStatuses::class)->getAllLineItemStatuses($store->id)

@@ -6,13 +6,14 @@
     useAppLayout,
     useCustomizeSources,
     type ElementIndexRoute,
+    type NavItem,
   } from '@craftcms/cms/elements';
 
   const props = defineProps<{
     indexUrl: string;
     newTransferUrl: string | null;
     newTransferLabel: string;
-    sourceNavItems?: Array<CraftCms.Cms.Cp.Data.NavItem>;
+    sourceNavItems?: NavItem[];
     elementType?: string | null;
     page?: string | null;
     source?: {key?: string | null} | null;
