@@ -110,8 +110,8 @@ readonly class InventoryController
             ->title(t('{location} Inventory', ['location' => $currentLocation->getUiLabel()], category: 'commerce'))
             ->crumbs($this->crumbs($currentLocation))
             ->selectedSubnavItem('inventory')
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Ui::make([$table]), new UiContext()),
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve(Ui::make([$table]), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -248,7 +248,7 @@ readonly class InventoryController
         ]);
 
         return new JsonResponse([
-            'form' => $this->formResolver->resolve($form, new UiContext(values: [
+            'ui' => $this->formResolver->resolve($form, new UiContext(values: [
                 'quantity' => $isSet ? $quantity : 0,
                 'note' => '',
             ])),
@@ -361,7 +361,7 @@ readonly class InventoryController
         ]);
 
         return new JsonResponse([
-            'form' => $this->formResolver->resolve($form, new UiContext(values: [
+            'ui' => $this->formResolver->resolve($form, new UiContext(values: [
                 'inventoryMovement' => [
                     'inventoryItemId' => $inventoryItem->id,
                     'fromInventoryLocationId' => $inventoryLocation->id,
@@ -447,8 +447,8 @@ readonly class InventoryController
             ->title($title)
             ->crumbs($this->crumbs($inventoryLocation, $this->inventoryItemLabel($inventoryItem)))
             ->selectedSubnavItem('inventory')
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Ui::make([$table]), new UiContext()),
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve(Ui::make([$table]), new UiContext()),
             ]);
     }
 
@@ -478,8 +478,8 @@ readonly class InventoryController
             ->action('commerce/inventory/item-save')
             ->redirectUrl('commerce/inventory')
             ->selectedSubnavItem('inventory')
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve($form, new UiContext(values: [
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve($form, new UiContext(values: [
                     'inventoryItemId' => $inventoryItem->id,
                     'countryCodeOfOrigin' => $inventoryItem->countryCodeOfOrigin,
                     'administrativeAreaCodeOfOrigin' => $inventoryItem->administrativeAreaCodeOfOrigin,

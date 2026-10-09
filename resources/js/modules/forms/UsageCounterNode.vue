@@ -29,12 +29,12 @@
   const loading = ref(false);
 
   /**
-   * Posts the reset, then re-fetches this page's own `form` prop via the real,
+   * Posts the reset, then re-fetches this page's own `ui` prop via the real,
    * currently-mounted Inertia router (`window.Cp.$router` — see window.d.ts
    * for why this bundle can't just `import {router} from '@inertiajs/vue3'`
    * itself) so the count shown here reflects the fresh, now-cleared total
    * rather than going stale until a full page reload. Mirrors `cms`'s own
-   * `AdminTableNode.vue`'s `refreshForm()`.
+   * `AdminTableNode.vue`'s `refreshUi()`.
    */
   async function reset(): Promise<void> {
     const message = props.node.props.confirmMessage ?? window.Craft.t('app', 'Are you sure?');
@@ -46,7 +46,7 @@
     loading.value = true;
     try {
       await window.Cp.$axios.post(props.node.props.resetUrl, props.node.props.resetBody);
-      window.Cp.$router.reload({only: ['form']});
+      window.Cp.$router.reload({only: ['ui']});
     } finally {
       loading.value = false;
     }

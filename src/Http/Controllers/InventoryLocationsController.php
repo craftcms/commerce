@@ -105,8 +105,8 @@ readonly class InventoryLocationsController
             ->title(t('Inventory Locations', category: 'commerce'))
             ->crumbs($this->crumbs())
             ->selectedSubnavItem('inventory-locations')
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -137,8 +137,8 @@ readonly class InventoryLocationsController
             ->action('commerce/inventory-locations/save')
             ->redirectUrl('commerce/inventory-locations')
             ->selectedSubnavItem('inventory-locations')
-            ->inertiaPage('Form', [
-                'form' => $form,
+            ->inertiaPage('Ui', [
+                'ui' => $form,
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
@@ -176,7 +176,7 @@ readonly class InventoryLocationsController
             new UiContext(values: $values, refreshable: true),
         );
 
-        return new JsonResponse(['form' => $form]);
+        return new JsonResponse(['ui' => $form]);
     }
 
     public function save(Request $request): Response
@@ -260,7 +260,7 @@ readonly class InventoryLocationsController
         ]);
 
         return new JsonResponse([
-            'form' => $this->formResolver->resolve($form, new UiContext(values: [
+            'ui' => $this->formResolver->resolve($form, new UiContext(values: [
                 'destinationInventoryLocation' => $destinationOptions[0]['value'],
             ])),
             'title' => t('Deleting the {location} location.', ['location' => $inventoryLocation->name], category: 'commerce'),
@@ -354,7 +354,7 @@ readonly class InventoryLocationsController
             Separator::make('address-separator'),
         ];
 
-        $addressNodes = $this->prepareAddressNodes(app(FieldLayoutCompiler::class)->form(
+        $addressNodes = $this->prepareAddressNodes(app(FieldLayoutCompiler::class)->ui(
             $address->getFieldLayout(),
             $address,
             new UiContext(refreshable: true),

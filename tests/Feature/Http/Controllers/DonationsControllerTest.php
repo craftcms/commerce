@@ -32,14 +32,14 @@ it('renders the donation settings page, creating the donation', function() {
     get(Url::cpUrl('commerce/donations'))
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => $page
-            ->component('Form', false)
+            ->component('Ui', false)
             ->where('title', 'Donation Settings')
             ->where('crumbs.0.label', 'Commerce')
             ->where('submit.url', Url::actionUrl('commerce/donations/save'))
             ->where('refreshUrl', Url::actionUrl('commerce/donations/render-form'))
-            ->where('form.values.sku', 'DONATION-CC5')
-            ->where('form.values.availableForPurchase', false)
-            ->has('form.values.enabled')
+            ->where('ui.values.sku', 'DONATION-CC5')
+            ->where('ui.values.availableForPurchase', false)
+            ->has('ui.values.enabled')
         );
 
     expect(Donation::find()->status(null)->count())->toBe(1);
@@ -58,7 +58,7 @@ it('shows the fields that apply to the lightswitches’ state', function(array $
     $form = postJson(Url::actionUrl('commerce/donations/render-form'), [
         'values' => $values,
         'scope' => [],
-    ])->assertOk()->json('form');
+    ])->assertOk()->json('ui');
 
     expect(donationFormFields($form))->toBe($visible)
         // A field that's revealed keeps the donation's own value.

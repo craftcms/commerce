@@ -134,8 +134,8 @@ class GatewaysController extends BaseSettingsController
         return $this->cpScreenResponse()
             ->title($title)
             ->crumbs($this->crumbs())
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -185,8 +185,8 @@ class GatewaysController extends BaseSettingsController
             ->crumbs($gateway->id ? $this->crumbs(['label' => $title]) : $this->crumbs())
             ->action('commerce/gateways/save')
             ->redirectUrl('commerce/settings/gateways')
-            ->inertiaPage('Form', [
-                'form' => $form,
+            ->inertiaPage('Ui', [
+                'ui' => $form,
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
@@ -218,7 +218,7 @@ class GatewaysController extends BaseSettingsController
             refreshable: true,
         ));
 
-        return new JsonResponse(['form' => $form]);
+        return new JsonResponse(['ui' => $form]);
     }
 
     /**

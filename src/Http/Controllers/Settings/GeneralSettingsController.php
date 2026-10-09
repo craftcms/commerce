@@ -86,8 +86,8 @@ class GeneralSettingsController extends BaseSettingsController
             ->title($title)
             ->crumbs($this->crumbs())
             ->redirectUrl('commerce/settings/general')
-            ->inertiaPage('Form', [
-                'form' => $form,
+            ->inertiaPage('Ui', [
+                'ui' => $form,
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'saveSettings']),

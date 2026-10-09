@@ -169,11 +169,11 @@ it('renders the coupons table and generator only when a coupon code is required'
         'scope' => [],
     ])->assertOk();
 
-    $form = json_encode($response->json('form'));
+    $form = json_encode($response->json('ui'));
 
     expect(str_contains($form, 'commerce:coupon-generator'))->toBe($requireCouponCode)
         ->and(str_contains($form, 'Add a coupon'))->toBe($requireCouponCode)
-        ->and($response->json('form.values.coupons.0.code'))->toBe('discount_1');
+        ->and($response->json('ui.values.coupons.0.code'))->toBe('discount_1');
 })->with([
     'required' => true,
     'not required' => false,

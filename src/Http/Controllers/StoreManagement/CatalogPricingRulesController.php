@@ -95,8 +95,8 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
         return $this->cpScreenResponse($store)
             ->title(t('Pricing Rules', category: 'commerce'))
             ->crumbs($this->crumbs($store))
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -232,15 +232,15 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
             ->crumbs($this->crumbs($store, ...($catalogPricingRule->id ? [['label' => $title]] : [])))
             ->action('commerce/catalog-pricing-rules/save')
             ->redirectUrl($store->getStoreSettingsUrl('pricing-rules'))
-            ->inertiaPage('Form', [
-                'form' => $form,
+            ->inertiaPage('Ui', [
+                'ui' => $form,
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
                 ],
                 'refreshUrl' => action([self::class, 'renderForm']),
                 'metadataHtml' => $metadataHtml,
-                'sidebarForm' => $sidebarForm,
+                'sidebarUi' => $sidebarForm,
             ]);
     }
 
@@ -277,7 +277,7 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
             new UiContext(values: $values, refreshable: true),
         );
 
-        return new JsonResponse(['form' => $form]);
+        return new JsonResponse(['ui' => $form]);
     }
 
     private function resolveCatalogPricingRule(?int $id, Store $store): ?CatalogPricingRule

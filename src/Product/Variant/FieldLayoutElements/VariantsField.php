@@ -43,7 +43,7 @@ class VariantsField extends BaseNativeField
         }
 
         $static = $context->mode !== ControlMode::Editable
-            || $context->form->mode !== ControlMode::Editable
+            || $context->ui->mode !== ControlMode::Editable
             || $product->getIsRevision();
 
         return $product->getVariantManager()->uiControl(

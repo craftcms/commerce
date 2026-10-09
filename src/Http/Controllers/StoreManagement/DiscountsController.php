@@ -126,8 +126,8 @@ readonly class DiscountsController extends BaseStoreManagementController
         return $this->cpScreenResponse($store)
             ->title(t('Discounts', category: 'commerce'))
             ->crumbs($this->crumbs($store))
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -307,15 +307,15 @@ readonly class DiscountsController extends BaseStoreManagementController
             ->crumbs($this->crumbs($store, ...($discount->id ? [['label' => $title]] : [])))
             ->action('commerce/discounts/save')
             ->redirectUrl($store->getStoreSettingsUrl('discounts'))
-            ->inertiaPage('Form', [
-                'form' => $form,
+            ->inertiaPage('Ui', [
+                'ui' => $form,
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
                 ],
                 'refreshUrl' => action([self::class, 'renderForm']),
                 'metadataHtml' => $metadataHtml,
-                'sidebarForm' => $sidebarForm,
+                'sidebarUi' => $sidebarForm,
             ]);
     }
 
@@ -349,7 +349,7 @@ readonly class DiscountsController extends BaseStoreManagementController
             new UiContext(values: $values, refreshable: true),
         );
 
-        return new JsonResponse(['form' => $form]);
+        return new JsonResponse(['ui' => $form]);
     }
 
     private function resolveDiscount(?int $id, Store $store): ?Discount

@@ -120,7 +120,7 @@ readonly class TransfersController
         ]);
 
         return new JsonResponse([
-            'form' => $formResolver->resolve($form, new UiContext()),
+            'ui' => $formResolver->resolve($form, new UiContext()),
             'title' => t('Receive Transfer', category: 'commerce'),
             'submitLabel' => t('Receive', category: 'commerce'),
         ]);

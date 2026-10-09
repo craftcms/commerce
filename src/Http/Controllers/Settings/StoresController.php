@@ -110,8 +110,8 @@ class StoresController extends BaseSettingsController
             ->title($title)
             ->crumbs($brandNewStore ? $this->crumbs() : $this->crumbs(['label' => $title]))
             ->redirectUrl('commerce/settings/stores')
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve($form, new UiContext(
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve($form, new UiContext(
                     values: $values,
                     mode: $this->readOnly ? ControlMode::ReadOnly : ControlMode::Editable,
                 )),
@@ -465,8 +465,8 @@ class StoresController extends BaseSettingsController
         return $this->cpScreenResponse()
             ->title($title)
             ->crumbs($this->crumbs())
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve($form, new UiContext()),
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve($form, new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -550,9 +550,9 @@ class StoresController extends BaseSettingsController
             ->title($title)
             ->crumbs($this->crumbsForSection(['label' => $title, 'href' => cp_url('commerce/settings/stores/sites')]))
             ->redirectUrl('commerce/settings/stores/sites')
-            ->inertiaPage('Form', [
+            ->inertiaPage('Ui', [
                 'contentMaxWidth' => false,
-                'form' => $this->formResolver->resolve($form, new UiContext(
+                'ui' => $this->formResolver->resolve($form, new UiContext(
                     values: ['siteStores' => $values],
                     mode: $this->readOnly ? ControlMode::ReadOnly : ControlMode::Editable,
                 )),

@@ -83,8 +83,8 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
         return $this->cpScreenResponse($store)
             ->title($title)
             ->crumbs($this->crumbs($store))
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -193,14 +193,14 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
             ->action('commerce/shipping-methods/save')
             ->redirectUrl($store->getStoreSettingsUrl('shippingmethods/{id}#rules'))
             ->submitButtonLabel($shippingMethod->id ? t('Save and set rules', category: 'commerce') : t('Save'))
-            ->inertiaPage('Form', [
-                'form' => $form,
+            ->inertiaPage('Ui', [
+                'ui' => $form,
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
                 ],
                 'metadataHtml' => $metadataHtml,
-                'sidebarForm' => $sidebarForm,
+                'sidebarUi' => $sidebarForm,
             ]);
     }
 

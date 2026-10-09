@@ -102,8 +102,8 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
             ->title($title)
             ->crumbs($this->crumbs($store))
             ->when($engineButtonsHtml !== '', fn(CpScreenResponse $screen) => $screen->additionalButtonsHtml($engineButtonsHtml))
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -232,8 +232,8 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
             ->crumbs($this->crumbs($store, ...($taxCategory->id ? [['label' => $title]] : [])))
             ->action('commerce/tax-categories/save')
             ->redirectUrl($store->getStoreSettingsUrl('taxcategories'))
-            ->inertiaPage('Form', [
-                'form' => $form,
+            ->inertiaPage('Ui', [
+                'ui' => $form,
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

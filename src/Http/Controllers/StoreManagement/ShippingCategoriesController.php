@@ -94,8 +94,8 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
         return $this->cpScreenResponse($store)
             ->title($title)
             ->crumbs($this->crumbs($store))
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -132,8 +132,8 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
             ->crumbs($this->crumbs($store, ...($shippingCategory->id ? [['label' => $title]] : [])))
             ->action('commerce/shipping-categories/save')
             ->redirectUrl($store->getStoreSettingsUrl('shippingcategories'))
-            ->inertiaPage('Form', [
-                'form' => $form,
+            ->inertiaPage('Ui', [
+                'ui' => $form,
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
@@ -189,7 +189,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
             new UiContext(values: $values, refreshable: true),
         );
 
-        return new JsonResponse(['form' => $form]);
+        return new JsonResponse(['ui' => $form]);
     }
 
     private function lockDefault(ShippingCategory $shippingCategory, Store $store): bool

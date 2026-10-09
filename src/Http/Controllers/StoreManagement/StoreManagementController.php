@@ -113,8 +113,8 @@ readonly class StoreManagementController extends BaseStoreManagementController
             ->crumbs($this->crumbs($store))
             ->action('commerce/store-management/save')
             ->redirectUrl($store->getStoreSettingsUrl())
-            ->inertiaPage('Form', [
-                'form' => $form,
+            ->inertiaPage('Ui', [
+                'ui' => $form,
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
@@ -147,7 +147,7 @@ readonly class StoreManagementController extends BaseStoreManagementController
             new UiContext(values: $values, refreshable: true),
         );
 
-        return new JsonResponse(['form' => $form]);
+        return new JsonResponse(['ui' => $form]);
     }
 
     /** @return array<string, mixed> */

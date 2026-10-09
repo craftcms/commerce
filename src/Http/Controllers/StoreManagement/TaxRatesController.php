@@ -100,8 +100,8 @@ readonly class TaxRatesController extends BaseStoreManagementController
             ->title($title)
             ->crumbs($this->crumbs($store))
             ->when($engineButtonsHtml !== '', fn(CpScreenResponse $screen) => $screen->additionalButtonsHtml($engineButtonsHtml))
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -144,15 +144,15 @@ readonly class TaxRatesController extends BaseStoreManagementController
             ->crumbs($this->crumbs($store, ...($taxRate->id ? [['label' => $title]] : [])))
             ->action('commerce/tax-rates/save')
             ->redirectUrl($store->getStoreSettingsUrl('taxrates'))
-            ->inertiaPage('Form', [
-                'form' => $form,
+            ->inertiaPage('Ui', [
+                'ui' => $form,
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
                 ],
                 'refreshUrl' => action([self::class, 'renderForm']),
                 'metadataHtml' => $metadataHtml,
-                'sidebarForm' => $sidebarForm,
+                'sidebarUi' => $sidebarForm,
             ]);
     }
 
@@ -190,7 +190,7 @@ readonly class TaxRatesController extends BaseStoreManagementController
             new UiContext(values: $values, refreshable: true),
         );
 
-        return new JsonResponse(['form' => $form]);
+        return new JsonResponse(['ui' => $form]);
     }
 
     /** @return array<string, mixed> */

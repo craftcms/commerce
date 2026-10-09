@@ -79,7 +79,7 @@ it('renders the transfer edit page', function() {
             ->where('canAutosave', false)
             ->where('crumbs.0.label', 'Commerce')
             ->where('crumbs.1.label', 'Transfers')
-            ->has('form')
+            ->has('ui')
         );
 });
 

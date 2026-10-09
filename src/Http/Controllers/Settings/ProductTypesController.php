@@ -101,8 +101,8 @@ class ProductTypesController extends BaseSettingsController
         return $this->cpScreenResponse()
             ->title($title)
             ->crumbs($this->crumbs())
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve($form, new UiContext()),
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve($form, new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -135,8 +135,8 @@ class ProductTypesController extends BaseSettingsController
             ->title($title)
             ->crumbs($brandNewProductType ? $this->crumbs() : $this->crumbs(['label' => $title]))
             ->redirectUrl('commerce/settings/producttypes')
-            ->inertiaPage('Form', [
-                'form' => $form,
+            ->inertiaPage('Ui', [
+                'ui' => $form,
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'saveProductType']),
@@ -187,7 +187,7 @@ class ProductTypesController extends BaseSettingsController
             ),
         );
 
-        return new JsonResponse(['form' => $form]);
+        return new JsonResponse(['ui' => $form]);
     }
 
     /**

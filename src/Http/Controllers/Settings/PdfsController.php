@@ -90,8 +90,8 @@ class PdfsController extends BaseSettingsController
             ->subnav($this->storeSubnav('commerce/settings/pdfs', $store))
             ->title(t('PDFs', category: 'commerce'))
             ->crumbs($this->crumbs($this->storeCrumb('commerce/settings/pdfs', $store)))
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Ui::make([$table]), new UiContext()),
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve(Ui::make([$table]), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -206,8 +206,8 @@ class PdfsController extends BaseSettingsController
             ->crumbs($pdf->id ? $this->crumbs($storeCrumb, ['label' => $title]) : $this->crumbs($storeCrumb))
             ->action('commerce/pdfs/save')
             ->redirectUrl("commerce/settings/pdfs/{$store->handle}")
-            ->inertiaPage('Form', [
-                'form' => $form,
+            ->inertiaPage('Ui', [
+                'ui' => $form,
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

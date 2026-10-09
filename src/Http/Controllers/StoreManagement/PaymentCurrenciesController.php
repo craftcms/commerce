@@ -80,8 +80,8 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
         return $this->cpScreenResponse($store)
             ->title($title)
             ->crumbs($this->crumbs($store))
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -157,8 +157,8 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
             ->crumbs($this->crumbs($store, ...($currency->id ? [['label' => $title]] : [])))
             ->action('commerce/payment-currencies/save')
             ->redirectUrl($store->getStoreSettingsUrl('payment-currencies'))
-            ->inertiaPage('Form', [
-                'form' => $form,
+            ->inertiaPage('Ui', [
+                'ui' => $form,
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

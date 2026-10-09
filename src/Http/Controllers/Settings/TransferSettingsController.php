@@ -90,8 +90,8 @@ class TransferSettingsController extends BaseSettingsController
             ->title($title)
             ->crumbs($this->crumbs())
             ->redirectUrl('commerce/settings/transfers')
-            ->inertiaPage('Form', [
-                'form' => $form,
+            ->inertiaPage('Ui', [
+                'ui' => $form,
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'saveTransferSettings']),

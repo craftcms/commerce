@@ -110,15 +110,15 @@ readonly class ShippingRulesController extends BaseStoreManagementController
                 ]);
         }
 
-        return $response->inertiaPage('Form', [
-            'form' => $form,
+        return $response->inertiaPage('Ui', [
+            'ui' => $form,
             'submit' => [
                 'method' => 'post',
                 'url' => action([self::class, 'save']),
             ],
             'refreshUrl' => action([self::class, 'renderForm']),
             'metadataHtml' => $metadataHtml,
-            'sidebarForm' => $sidebarForm,
+            'sidebarUi' => $sidebarForm,
         ]);
     }
 
@@ -161,7 +161,7 @@ readonly class ShippingRulesController extends BaseStoreManagementController
             new UiContext(values: $values, refreshable: true),
         );
 
-        return new JsonResponse(['form' => $form]);
+        return new JsonResponse(['ui' => $form]);
     }
 
     /** @return array<string, mixed> */

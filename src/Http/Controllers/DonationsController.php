@@ -61,8 +61,8 @@ readonly class DonationsController
             ->selectedSubnavItem('donations')
             ->action('commerce/donations/save')
             ->redirectUrl('commerce/donations')
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve($this->buildForm($values), new UiContext(values: $values, refreshable: true)),
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve($this->buildForm($values), new UiContext(values: $values, refreshable: true)),
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
@@ -88,7 +88,7 @@ readonly class DonationsController
         $values = array_replace($this->initialValues($donation), $request->input('values'));
 
         return new JsonResponse([
-            'form' => $this->formResolver->resolve($this->buildForm($values), new UiContext(values: $values, refreshable: true)),
+            'ui' => $this->formResolver->resolve($this->buildForm($values), new UiContext(values: $values, refreshable: true)),
         ]);
     }
 
