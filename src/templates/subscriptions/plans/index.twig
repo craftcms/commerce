@@ -27,7 +27,7 @@
     status: plan.enabled ? true : false,
     handle: plan.handle|e,
     gateway: plan.gateway.name|t('site')|e,
-    subscriptions: plan.subscriptionCount,
+    subscriptions: plan.activeSubscriptionCount,
     information: plan.planInformationId ? 'Yes'|t('commerce')|e : 'No'|t('commerce')|e,
   }]) %}
 {% endfor %}
