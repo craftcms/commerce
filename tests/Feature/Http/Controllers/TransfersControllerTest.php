@@ -33,6 +33,16 @@ it('renders the transfers index page', function() {
             ->where('elementType', Transfer::class)
             ->where('indexUrl', Url::cpUrl('commerce/inventory/transfers'))
             ->where('source.key', '*')
+            ->has('sourceNavItems', 2)
+            ->where('sourceNavItems.0.label', 'All Transfers')
+            ->where('sourceNavItems.0.href', Url::cpUrl('commerce/inventory/transfers'))
+            ->where('sourceNavItems.0.selected', true)
+            ->where('sourceNavItems.1.label', 'Transfer Status')
+            ->where('sourceNavItems.1.group', true)
+            ->has('sourceNavItems.1.subnav', 4)
+            ->where('sourceNavItems.1.subnav.1.label', 'Pending')
+            ->where('sourceNavItems.1.subnav.1.href', Url::cpUrl('commerce/inventory/transfers', ['source' => 'pending']))
+            ->where('sourceNavItems.1.subnav.1.selected', false)
             ->where('newTransferLabel', 'New transfer')
             ->where('newTransferUrl', Url::actionUrl('commerce/transfers/create'))
             ->where('crumbs.0.label', 'Commerce')
@@ -47,6 +57,11 @@ it('selects a transfer status source', function() {
         ->assertInertia(fn(AssertableInertia $page) => $page
             ->where('source.key', 'pending')
             ->where('title', 'Pending')
+            ->where('sourceNavItems.0.selected', false)
+            ->where('sourceNavItems.1.subnav.0.selected', false)
+            ->where('sourceNavItems.1.subnav.1.selected', true)
+            ->where('sourceNavItems.1.subnav.2.selected', false)
+            ->where('sourceNavItems.1.subnav.3.selected', false)
         );
 });
 
@@ -79,7 +94,7 @@ it('renders the transfer edit page', function() {
             ->where('canAutosave', false)
             ->where('crumbs.0.label', 'Commerce')
             ->where('crumbs.1.label', 'Transfers')
-            ->has('form')
+            ->has('ui')
         );
 });
 

@@ -5,20 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use CraftCms\Cms\Cp\Html\ContentHtml;
-use CraftCms\Cms\Form\Controls\Choice;
-use CraftCms\Cms\Form\Controls\Combobox;
-use CraftCms\Cms\Form\Controls\ConditionBuilder;
-use CraftCms\Cms\Form\Controls\DateTime as DateTimeControl;
-use CraftCms\Cms\Form\Controls\Lightswitch;
-use CraftCms\Cms\Form\Controls\Money as MoneyControl;
-use CraftCms\Cms\Form\Controls\Number;
-use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\Group;
-use CraftCms\Cms\Form\Nodes\HiddenField;
-use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\Conditions;
@@ -27,6 +13,20 @@ use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Money;
 use CraftCms\Cms\Translation\Formatter;
 use CraftCms\Cms\Translation\Locale;
+use CraftCms\Cms\Ui\Controls\Choice;
+use CraftCms\Cms\Ui\Controls\Combobox;
+use CraftCms\Cms\Ui\Controls\ConditionBuilder;
+use CraftCms\Cms\Ui\Controls\DateTime as DateTimeControl;
+use CraftCms\Cms\Ui\Controls\Lightswitch;
+use CraftCms\Cms\Ui\Controls\Money as MoneyControl;
+use CraftCms\Cms\Ui\Controls\Number;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\Group;
+use CraftCms\Cms\Ui\Nodes\HiddenField;
+use CraftCms\Cms\Ui\Nodes\Table;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingRuleProductCondition;
@@ -95,8 +95,8 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
         return $this->cpScreenResponse($store)
             ->title(t('Pricing Rules', category: 'commerce'))
             ->crumbs($this->crumbs($store))
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -219,12 +219,12 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
 
         $form = $this->formResolver->resolve(
             $this->buildForm($values, $store),
-            new FormContext(values: $values, refreshable: true),
+            new UiContext(values: $values, refreshable: true),
         );
 
         $sidebarForm = $this->formResolver->resolve(
             $this->buildSidebarForm(),
-            new FormContext(values: $values),
+            new UiContext(values: $values),
         );
 
         return $this->cpScreenResponse($store, subnav: false)
@@ -232,15 +232,15 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
             ->crumbs($this->crumbs($store, ...($catalogPricingRule->id ? [['label' => $title]] : [])))
             ->action('commerce/catalog-pricing-rules/save')
             ->redirectUrl($store->getStoreSettingsUrl('pricing-rules'))
-            ->inertiaPage('Form', [
-                'form' => $form,
+            ->inertiaPage('Ui', [
+                'ui' => $form,
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
                 ],
                 'refreshUrl' => action([self::class, 'renderForm']),
                 'metadataHtml' => $metadataHtml,
-                'sidebarForm' => $sidebarForm,
+                'sidebarUi' => $sidebarForm,
             ]);
     }
 
@@ -274,10 +274,10 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
 
         $form = $this->formResolver->resolve(
             $this->buildForm($values, $store),
-            new FormContext(values: $values, refreshable: true),
+            new UiContext(values: $values, refreshable: true),
         );
 
-        return new JsonResponse(['form' => $form]);
+        return new JsonResponse(['ui' => $form]);
     }
 
     private function resolveCatalogPricingRule(?int $id, Store $store): ?CatalogPricingRule
@@ -347,7 +347,7 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
     }
 
     /** @param array<string, mixed> $values */
-    private function buildForm(array $values, Store $store): Form
+    private function buildForm(array $values, Store $store): Ui
     {
         $apply = (string) ($values['apply'] ?? '');
         $hasPurchasableRules = !empty($values['purchasableCondition']['conditionRules']['rules'] ?? []);
@@ -389,7 +389,7 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
         $actionsFields[] = Field::make(t('Amount', category: 'commerce'), $applyAmountControl);
         $actionsFields[] = Field::make(t('Is Promotional Price?', category: 'commerce'), Lightswitch::make('isPromotionalPrice'));
 
-        return Form::make([
+        return Ui::make([
             HiddenField::make('id'),
             HiddenField::make('storeId'),
         ])
@@ -423,9 +423,9 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
     }
 
     /** The details column's controls, submitted alongside {@see buildForm()}. */
-    private function buildSidebarForm(): Form
+    private function buildSidebarForm(): Ui
     {
-        return Form::make([
+        return Ui::make([
             Field::make(t('Enable this rule', category: 'commerce'), Lightswitch::make('enabled'))
                 ->instructions(t('Whether this catalog pricing rule should be available for use, regardless of other conditions.', category: 'commerce')),
         ]);

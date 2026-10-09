@@ -1033,6 +1033,7 @@ return [
     'Save product to other sites in the same site group' => 'Save product to other sites in the same site group',
     'Save product to other sites with the same language' => 'Save product to other sites with the same language',
     'Save' => 'Save',
+    'Saving this discount will delete its coupons because Require Coupon Code is turned off.' => 'Saving this discount will delete its coupons because Require Coupon Code is turned off.',
     'Search customer…' => 'Search customer…',
     'Search inventory' => 'Search inventory',
     'Search or enter customer email…' => 'Search or enter customer email…',

@@ -417,12 +417,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/cms.git",
-                "reference": "2fa1cdc38bf0d3adf8d51bac1b617fe45a39d369"
+                "reference": "ae2fe8942244ea128b788f286923a849404a72cb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/cms/zipball/2fa1cdc38bf0d3adf8d51bac1b617fe45a39d369",
-                "reference": "2fa1cdc38bf0d3adf8d51bac1b617fe45a39d369",
+                "url": "https://api.github.com/repos/craftcms/cms/zipball/ae2fe8942244ea128b788f286923a849404a72cb",
+                "reference": "ae2fe8942244ea128b788f286923a849404a72cb",
                 "shasum": ""
             },
             "require": {
@@ -485,11 +485,11 @@
                 "barryvdh/laravel-debugbar": "^4.2",
                 "craftcms/test-plugin": "1.0.1",
                 "dg/bypass-finals": "^1.9",
-                "driftingly/rector-laravel": "^2.1",
+                "driftingly/rector-laravel": "^2.6.2",
                 "fakerphp/faker": "^1.19.0",
                 "intervention/image-driver-vips": "^4.1",
-                "larastan/larastan": "^3.12",
-                "laravel/boost": "^2.6",
+                "larastan/larastan": "^3.13",
+                "laravel/boost": "^2.10.3",
                 "laravel/pao": "^1.0",
                 "laravel/pint": "^1.22",
                 "laravel/socialite": "^5.23",
@@ -603,7 +603,7 @@
                 "rss": "https://github.com/craftcms/cms/releases.atom",
                 "source": "https://github.com/craftcms/cms"
             },
-            "time": "2026-10-07T07:42:26+00:00"
+            "time": "2026-10-09T14:47:05+00:00"
         },
         {
             "name": "craftcms/cms-assets",
@@ -611,12 +611,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/cms-assets.git",
-                "reference": "00bad07191812d783bf86ec6d9ddf166e0919609"
+                "reference": "be93661e9a77ade658749c3d667631b68beec2d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/cms-assets/zipball/00bad07191812d783bf86ec6d9ddf166e0919609",
-                "reference": "00bad07191812d783bf86ec6d9ddf166e0919609",
+                "url": "https://api.github.com/repos/craftcms/cms-assets/zipball/be93661e9a77ade658749c3d667631b68beec2d7",
+                "reference": "be93661e9a77ade658749c3d667631b68beec2d7",
                 "shasum": ""
             },
             "default-branch": true,
@@ -629,7 +629,7 @@
             "support": {
                 "source": "https://github.com/craftcms/cms-assets/tree/6.x"
             },
-            "time": "2026-10-07T08:25:32+00:00"
+            "time": "2026-10-09T14:58:47+00:00"
         },
         {
             "name": "craftcms/laravel-aliases",
@@ -12301,12 +12301,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/yii2-adapter.git",
-                "reference": "49a927354629904a876926946c211d018cc02a97"
+                "reference": "a94de44c90e1e090db34092763b2992645278d79"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/yii2-adapter/zipball/49a927354629904a876926946c211d018cc02a97",
-                "reference": "49a927354629904a876926946c211d018cc02a97",
+                "url": "https://api.github.com/repos/craftcms/yii2-adapter/zipball/a94de44c90e1e090db34092763b2992645278d79",
+                "reference": "a94de44c90e1e090db34092763b2992645278d79",
                 "shasum": ""
             },
             "require": {
@@ -12405,7 +12405,7 @@
                 "rss": "https://github.com/craftcms/cms/releases.atom",
                 "source": "https://github.com/craftcms/cms"
             },
-            "time": "2026-10-06T22:14:47+00:00"
+            "time": "2026-10-09T10:39:54+00:00"
         },
         {
             "name": "creocoder/yii2-nested-sets",

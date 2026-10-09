@@ -6,18 +6,18 @@ namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Cp\Html\ContentHtml;
-use CraftCms\Cms\Form\Controls\Choice;
-use CraftCms\Cms\Form\Controls\Number;
-use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Enums\ControlMode;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\HiddenField;
-use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Translation\Formatter;
+use CraftCms\Cms\Ui\Controls\Choice;
+use CraftCms\Cms\Ui\Controls\Number;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Enums\ControlMode;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\HiddenField;
+use CraftCms\Cms\Ui\Nodes\Table;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Payment\Data\PaymentCurrency;
@@ -46,14 +46,14 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
                 // getName() is just the ISO code today (there's no display-name lookup yet) —
                 // matches the "Code" column below exactly, which is a pre-existing redundancy,
                 // not something introduced here.
-                'name' => $currency->primary
+                'name' => $currency->getPrimary()
                     ? ['html' => Html::encode(t('{name} (Primary)', ['name' => t($currency->getName(), category: 'site')], category: 'commerce'))]
                     : ['html' => Html::a(Html::encode(t($currency->getName(), category: 'site')), $currency->getCpEditUrl(), ['class' => 'cell-bold'])],
                 'handle' => ['html' => FormFields::copytextHtml(['value' => $currency->iso, 'monospace' => true])],
-                'rate' => $currency->primary
+                'rate' => $currency->getPrimary()
                     ? ['html' => Html::tag('span', Html::encode(t('Base', category: 'commerce')), ['class' => 'token'])]
                     : (string) $currency->rate,
-                '_deletable' => !$currency->primary,
+                '_deletable' => !$currency->getPrimary(),
             ])
             ->values()
             ->all();
@@ -80,8 +80,8 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
         return $this->cpScreenResponse($store)
             ->title($title)
             ->crumbs($this->crumbs($store))
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -102,7 +102,7 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
 
         $currencyOptions = app(Currencies::class)->getAllCurrenciesList();
         $hasCompletedOrders = Order::find()->isCompleted(true)->exists();
-        $isoLocked = $currency->id && $currency->primary && $hasCompletedOrders;
+        $isoLocked = $currency->id && $currency->getPrimary() && $hasCompletedOrders;
 
         $formatter = app(Formatter::class);
         $metaSidebarHtml = $currency->id ? app(ContentHtml::class)->metadataHtml([
@@ -120,7 +120,7 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
 
         if ($isoLocked) {
             // A disabled/readonly Choice never gets a `name` attribute (see
-            // FormHtmlRenderer::renderControl()), so it wouldn't submit at all — this
+            // UiHtmlRenderer::renderControl()), so it wouldn't submit at all — this
             // pairs a plain readonly display with a HiddenField carrying the real value
             // through, mirroring the old template's readonly-select-plus-hidden-input pair.
             $formNodes[] = HiddenField::make('iso');
@@ -136,7 +136,7 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
         }
 
         $formNodes[] = Field::make(t('Conversion Rate', category: 'commerce'), Number::make('rate')
-            ->mode($currency->primary ? ControlMode::ReadOnly : ControlMode::Editable))
+            ->mode($currency->getPrimary() ? ControlMode::ReadOnly : ControlMode::Editable))
             ->instructions(t('The conversion rate that will be used when converting an amount to this currency. For example, if an item costs {amount1}, a conversion rate of {rate} would result in {amount2} in the alternate currency.', [
                 'amount1' => 10,
                 'rate' => 1.5,
@@ -150,15 +150,15 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
             'rate' => $currency->rate ?: 1,
         ];
 
-        $form = $this->formResolver->resolve(Form::make($formNodes), new FormContext(values: $values));
+        $form = $this->formResolver->resolve(Ui::make($formNodes), new UiContext(values: $values));
 
         return $this->cpScreenResponse($store, subnav: false)
             ->title($title)
             ->crumbs($this->crumbs($store, ...($currency->id ? [['label' => $title]] : [])))
             ->action('commerce/payment-currencies/save')
             ->redirectUrl($store->getStoreSettingsUrl('payment-currencies'))
-            ->inertiaPage('Form', [
-                'form' => $form,
+            ->inertiaPage('Ui', [
+                'ui' => $form,
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

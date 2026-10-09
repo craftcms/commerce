@@ -119,7 +119,7 @@ it('deletes a shipping rule via an ajax request', function() {
         'X-Requested-With' => 'XMLHttpRequest',
     ])
         ->assertOk()
-        ->assertExactJson([]);
+        ->assertExactJson(['message' => 'Shipping rule deleted.']);
 
     expect(DB::table(Table::SHIPPINGRULES)->where('id', $usOnly->id)->exists())->toBeFalse();
 });

@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use CraftCms\Cms\Form\Controls\Combobox;
-use CraftCms\Cms\Form\Enums\ControlMode;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\Heading;
-use CraftCms\Cms\Form\Nodes\Separator;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Plugins;
+use CraftCms\Cms\Ui\Controls\Combobox;
+use CraftCms\Cms\Ui\Enums\ControlMode;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\Heading;
+use CraftCms\Cms\Ui\Nodes\Separator;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,7 +46,7 @@ class GeneralSettingsController extends BaseSettingsController
             return null;
         };
 
-        $form = Form::make([
+        $form = Ui::make([
             Heading::make('units-heading', t('Units', category: 'commerce'))->level(3),
             Field::make(t('Weight Unit', category: 'commerce'), Combobox::make('weightUnits')
                 ->options(array_map(fn($unit, $label) => ['value' => $unit, 'label' => $label], array_keys($settings->getWeightUnitsOptions()), $settings->getWeightUnitsOptions()))
@@ -68,7 +68,7 @@ class GeneralSettingsController extends BaseSettingsController
                 ->instructions(t('Default Commerce control panel view. If the user does not have permission it will fall back to a location they can access.', category: 'commerce')),
         ]);
 
-        $form = $this->formResolver->resolve($form, new FormContext(
+        $form = $this->formResolver->resolve($form, new UiContext(
             namespace: 'settings',
             values: [
                 'settings' => [
@@ -86,8 +86,8 @@ class GeneralSettingsController extends BaseSettingsController
             ->title($title)
             ->crumbs($this->crumbs())
             ->redirectUrl('commerce/settings/general')
-            ->inertiaPage('Form', [
-                'form' => $form,
+            ->inertiaPage('Ui', [
+                'ui' => $form,
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'saveSettings']),

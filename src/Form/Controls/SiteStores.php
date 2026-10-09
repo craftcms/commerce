@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Form\Controls;
 
-use CraftCms\Cms\Form\ControlPayload;
-use CraftCms\Cms\Form\Controls\Control;
-use CraftCms\Cms\Form\FormHtmlRenderer;
-use CraftCms\Cms\Form\Nodes\Table;
+use CraftCms\Cms\Ui\ControlPayload;
+use CraftCms\Cms\Ui\Controls\Control;
+use CraftCms\Cms\Ui\Nodes\Table;
+use CraftCms\Cms\Ui\UiHtmlRenderer;
 
 class SiteStores extends Control
 {
@@ -20,7 +20,7 @@ class SiteStores extends Control
         return $this;
     }
 
-    public static function renderHtml(ControlPayload $control, mixed $value, array $attributes, FormHtmlRenderer $renderer): string
+    public static function renderHtml(ControlPayload $control, mixed $value, array $attributes, UiHtmlRenderer $renderer): string
     {
         return '';
     }

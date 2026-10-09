@@ -6,27 +6,6 @@ namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use CraftCms\Cms\Cp\Html\ContentHtml;
 use CraftCms\Cms\Entry\Elements\Entry;
-use CraftCms\Cms\Form\Controls\Choice;
-use CraftCms\Cms\Form\Controls\ConditionBuilder;
-use CraftCms\Cms\Form\Controls\DateTime as DateTimeControl;
-use CraftCms\Cms\Form\Controls\ElementSelect;
-use CraftCms\Cms\Form\Controls\Lightswitch;
-use CraftCms\Cms\Form\Controls\Money as MoneyControl;
-use CraftCms\Cms\Form\Controls\Number;
-use CraftCms\Cms\Form\Controls\Table as TableControl;
-use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Controls\Textarea;
-use CraftCms\Cms\Form\Enums\ChoicePresentation;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\FormResolver;
-use CraftCms\Cms\Form\Nodes\Action;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\Group;
-use CraftCms\Cms\Form\Nodes\Heading;
-use CraftCms\Cms\Form\Nodes\HiddenField;
-use CraftCms\Cms\Form\Nodes\MarkdownContent;
-use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\DateTimeHelper;
@@ -36,6 +15,28 @@ use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Money;
 use CraftCms\Cms\Translation\Formatter;
 use CraftCms\Cms\Translation\Locale;
+use CraftCms\Cms\Ui\Controls\Choice;
+use CraftCms\Cms\Ui\Controls\ConditionBuilder;
+use CraftCms\Cms\Ui\Controls\DateTime as DateTimeControl;
+use CraftCms\Cms\Ui\Controls\ElementSelect;
+use CraftCms\Cms\Ui\Controls\Lightswitch;
+use CraftCms\Cms\Ui\Controls\Money as MoneyControl;
+use CraftCms\Cms\Ui\Controls\Number;
+use CraftCms\Cms\Ui\Controls\Table as TableControl;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Controls\Textarea;
+use CraftCms\Cms\Ui\Enums\ChoicePresentation;
+use CraftCms\Cms\Ui\Nodes\Action;
+use CraftCms\Cms\Ui\Nodes\Callout;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\Group;
+use CraftCms\Cms\Ui\Nodes\Heading;
+use CraftCms\Cms\Ui\Nodes\HiddenField;
+use CraftCms\Cms\Ui\Nodes\MarkdownContent;
+use CraftCms\Cms\Ui\Nodes\Table;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
+use CraftCms\Cms\Ui\UiResolver;
 use CraftCms\Commerce\Address\Conditions\DiscountAddressCondition;
 use CraftCms\Commerce\Customer\Conditions\DiscountCustomerCondition;
 use CraftCms\Commerce\Form\Nodes\CouponGenerator;
@@ -69,7 +70,7 @@ readonly class DiscountsController extends BaseStoreManagementController
     public const string DISCOUNT_COUNTER_TYPE_CUSTOMER = 'customer';
 
     public function __construct(
-        FormResolver $formResolver,
+        UiResolver $formResolver,
     ) {
         parent::__construct($formResolver);
     }
@@ -126,8 +127,8 @@ readonly class DiscountsController extends BaseStoreManagementController
         return $this->cpScreenResponse($store)
             ->title(t('Discounts', category: 'commerce'))
             ->crumbs($this->crumbs($store))
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -294,12 +295,12 @@ readonly class DiscountsController extends BaseStoreManagementController
 
         $form = $this->formResolver->resolve(
             $this->buildForm($discount, $values, $store),
-            new FormContext(values: $values, refreshable: true),
+            new UiContext(values: $values, refreshable: true),
         );
 
         $sidebarForm = $this->formResolver->resolve(
             $this->buildSidebarForm(),
-            new FormContext(values: $values),
+            new UiContext(values: $values),
         );
 
         return $this->cpScreenResponse($store, subnav: false)
@@ -307,15 +308,15 @@ readonly class DiscountsController extends BaseStoreManagementController
             ->crumbs($this->crumbs($store, ...($discount->id ? [['label' => $title]] : [])))
             ->action('commerce/discounts/save')
             ->redirectUrl($store->getStoreSettingsUrl('discounts'))
-            ->inertiaPage('Form', [
-                'form' => $form,
+            ->inertiaPage('Ui', [
+                'ui' => $form,
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
                 ],
                 'refreshUrl' => action([self::class, 'renderForm']),
                 'metadataHtml' => $metadataHtml,
-                'sidebarForm' => $sidebarForm,
+                'sidebarUi' => $sidebarForm,
             ]);
     }
 
@@ -346,10 +347,10 @@ readonly class DiscountsController extends BaseStoreManagementController
 
         $form = $this->formResolver->resolve(
             $this->buildForm($discount, $values, $store),
-            new FormContext(values: $values, refreshable: true),
+            new UiContext(values: $values, refreshable: true),
         );
 
-        return new JsonResponse(['form' => $form]);
+        return new JsonResponse(['ui' => $form]);
     }
 
     private function resolveDiscount(?int $id, Store $store): ?Discount
@@ -426,7 +427,7 @@ readonly class DiscountsController extends BaseStoreManagementController
             // negative internally (a discount subtracted from the total), shown to the editor as
             // a plain positive amount/percentage — flipped back in save().
             'perItemDiscount' => $discount->perItemDiscount < 0 ? $discount->perItemDiscount * -1 : $discount->perItemDiscount,
-            'percentDiscount' => round(-($discount->percentDiscount ?? 0) * 100, 6),
+            'percentDiscount' => round(-$discount->percentDiscount * 100, 6),
             'percentageOffSubject' => $discount->percentageOffSubject,
             'ignorePromotions' => $discount->ignorePromotions,
             'baseDiscount' => $discount->baseDiscount < 0 ? $discount->baseDiscount * -1 : $discount->baseDiscount,
@@ -436,7 +437,7 @@ readonly class DiscountsController extends BaseStoreManagementController
     }
 
     /** @param array<string, mixed> $values */
-    private function buildForm(Discount $discount, array $values, Store $store): Form
+    private function buildForm(Discount $discount, array $values, Store $store): Ui
     {
         $currency = $store->getCurrency()?->getCode() ?? 'USD';
         $percentSymbol = I18N::getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
@@ -514,6 +515,9 @@ readonly class DiscountsController extends BaseStoreManagementController
                     ['coupons'],
                     ['couponFormat'],
                 ));
+        } elseif (!empty($values['coupons']) || !empty($discount->getCoupons())) {
+            $couponsFields[] = Callout::make('coupons-deletion-warning', t('Saving this discount will delete its coupons because Require Coupon Code is turned off.', category: 'commerce'))
+                ->variant('warning');
         }
 
         // Only a saved discount has usage history to report — a brand new, unsaved one has
@@ -633,7 +637,7 @@ readonly class DiscountsController extends BaseStoreManagementController
             Field::make(t('Don’t apply any subsequent discounts to an order if this discount is applied', category: 'commerce'), Lightswitch::make('stopProcessing')),
         ];
 
-        return Form::make([
+        return Ui::make([
             HiddenField::make('id'),
             HiddenField::make('storeId'),
         ])
@@ -651,9 +655,9 @@ readonly class DiscountsController extends BaseStoreManagementController
     }
 
     /** The details column's controls, submitted alongside {@see buildForm()}. */
-    private function buildSidebarForm(): Form
+    private function buildSidebarForm(): Ui
     {
-        return Form::make([
+        return Ui::make([
             Field::make(t('Enable this discount', category: 'commerce'), Lightswitch::make('enabled')),
         ]);
     }
@@ -692,9 +696,7 @@ readonly class DiscountsController extends BaseStoreManagementController
         $discount->appliedTo = $request->input('appliedTo') ?: DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
         $discount->orderConditionFormula = trim((string) $request->input('orderConditionFormula', ''));
 
-        if ($request->has('coupons')) {
-            $this->setCouponsOnDiscount((array) $request->input('coupons'), $discount);
-        }
+        $this->setCouponsOnDiscount((array) $request->input('coupons', []), $discount);
 
         $moneyInputs = ['baseDiscount', 'perItemDiscount', 'purchaseTotal'];
         $signFlippedMoneyInputs = ['baseDiscount', 'perItemDiscount'];

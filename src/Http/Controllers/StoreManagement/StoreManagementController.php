@@ -5,21 +5,21 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use craft\helpers\Cp;
-use CraftCms\Cms\Form\Controls\Address as AddressControl;
-use CraftCms\Cms\Form\Controls\Choice;
-use CraftCms\Cms\Form\Controls\Combobox;
-use CraftCms\Cms\Form\Controls\Combobox\CreateOption as ComboboxCreateOption;
-use CraftCms\Cms\Form\Controls\ConditionBuilder;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\Heading;
-use CraftCms\Cms\Form\Nodes\HiddenField;
-use CraftCms\Cms\Form\Nodes\MarkdownContent;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Addresses;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\Ui\Controls\Address as AddressControl;
+use CraftCms\Cms\Ui\Controls\Choice;
+use CraftCms\Cms\Ui\Controls\Combobox;
+use CraftCms\Cms\Ui\Controls\Combobox\CreateOption as ComboboxCreateOption;
+use CraftCms\Cms\Ui\Controls\ConditionBuilder;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\Heading;
+use CraftCms\Cms\Ui\Nodes\HiddenField;
+use CraftCms\Cms\Ui\Nodes\MarkdownContent;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Commerce\Address\Conditions\ZoneAddressCondition;
 use CraftCms\Commerce\Http\Controllers\InventoryLocationsController;
 use CraftCms\Commerce\Inventory\Data\InventoryLocation;
@@ -105,7 +105,7 @@ readonly class StoreManagementController extends BaseStoreManagementController
 
         $form = $this->formResolver->resolve(
             $this->buildForm($store, $values),
-            new FormContext(values: $values, refreshable: true),
+            new UiContext(values: $values, refreshable: true),
         );
 
         return $this->cpScreenResponse($store)
@@ -113,8 +113,8 @@ readonly class StoreManagementController extends BaseStoreManagementController
             ->crumbs($this->crumbs($store))
             ->action('commerce/store-management/save')
             ->redirectUrl($store->getStoreSettingsUrl())
-            ->inertiaPage('Form', [
-                'form' => $form,
+            ->inertiaPage('Ui', [
+                'ui' => $form,
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
@@ -144,10 +144,10 @@ readonly class StoreManagementController extends BaseStoreManagementController
 
         $form = $this->formResolver->resolve(
             $this->buildForm($store, $values),
-            new FormContext(values: $values, refreshable: true),
+            new UiContext(values: $values, refreshable: true),
         );
 
-        return new JsonResponse(['form' => $form]);
+        return new JsonResponse(['ui' => $form]);
     }
 
     /** @return array<string, mixed> */
@@ -174,7 +174,7 @@ readonly class StoreManagementController extends BaseStoreManagementController
     }
 
     /** @param array<string, mixed> $values */
-    private function buildForm(Store $store, array $values): Form
+    private function buildForm(Store $store, array $values): Ui
     {
         $countryOptions = collect(Addresses::getCountryList())
             ->map(fn(string $label, string $value) => ['label' => $label, 'value' => $value])
@@ -250,7 +250,7 @@ readonly class StoreManagementController extends BaseStoreManagementController
                 ->instructions(t('The inventory locations this store uses.', category: 'commerce'));
         }
 
-        return Form::make($formNodes);
+        return Ui::make($formNodes);
     }
 
     public function save(Request $request): Response

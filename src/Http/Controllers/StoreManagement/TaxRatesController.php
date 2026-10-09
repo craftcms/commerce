@@ -6,22 +6,22 @@ namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use CraftCms\Cms\Cp\Html\ContentHtml;
 use CraftCms\Cms\Cp\Html\ElementHtml;
-use CraftCms\Cms\Form\Controls\Choice;
-use CraftCms\Cms\Form\Controls\Combobox;
-use CraftCms\Cms\Form\Controls\Combobox\CreateOption as ComboboxCreateOption;
-use CraftCms\Cms\Form\Controls\Lightswitch;
-use CraftCms\Cms\Form\Controls\Number;
-use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\HiddenField;
-use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Translation\Formatter;
 use CraftCms\Cms\Translation\Locale;
+use CraftCms\Cms\Ui\Controls\Choice;
+use CraftCms\Cms\Ui\Controls\Combobox;
+use CraftCms\Cms\Ui\Controls\Combobox\CreateOption as ComboboxCreateOption;
+use CraftCms\Cms\Ui\Controls\Lightswitch;
+use CraftCms\Cms\Ui\Controls\Number;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\HiddenField;
+use CraftCms\Cms\Ui\Nodes\Table;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Commerce\Helpers\Localization;
 use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
@@ -100,8 +100,8 @@ readonly class TaxRatesController extends BaseStoreManagementController
             ->title($title)
             ->crumbs($this->crumbs($store))
             ->when($engineButtonsHtml !== '', fn(CpScreenResponse $screen) => $screen->additionalButtonsHtml($engineButtonsHtml))
-            ->inertiaPage('Form', [
-                'form' => $this->formResolver->resolve(Form::make($nodes), new FormContext()),
+            ->inertiaPage('Ui', [
+                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
                 'contentMaxWidth' => false,
             ]);
     }
@@ -131,12 +131,12 @@ readonly class TaxRatesController extends BaseStoreManagementController
 
         $form = $this->formResolver->resolve(
             $this->buildForm($taxRate, $values, $store),
-            new FormContext(values: $values, refreshable: true),
+            new UiContext(values: $values, refreshable: true),
         );
 
         $sidebarForm = $this->formResolver->resolve(
             $this->buildSidebarForm(),
-            new FormContext(values: $values),
+            new UiContext(values: $values),
         );
 
         return $this->cpScreenResponse($store, subnav: false)
@@ -144,15 +144,15 @@ readonly class TaxRatesController extends BaseStoreManagementController
             ->crumbs($this->crumbs($store, ...($taxRate->id ? [['label' => $title]] : [])))
             ->action('commerce/tax-rates/save')
             ->redirectUrl($store->getStoreSettingsUrl('taxrates'))
-            ->inertiaPage('Form', [
-                'form' => $form,
+            ->inertiaPage('Ui', [
+                'ui' => $form,
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
                 ],
                 'refreshUrl' => action([self::class, 'renderForm']),
                 'metadataHtml' => $metadataHtml,
-                'sidebarForm' => $sidebarForm,
+                'sidebarUi' => $sidebarForm,
             ]);
     }
 
@@ -187,10 +187,10 @@ readonly class TaxRatesController extends BaseStoreManagementController
 
         $form = $this->formResolver->resolve(
             $this->buildForm($taxRate, $values, $store),
-            new FormContext(values: $values, refreshable: true),
+            new UiContext(values: $values, refreshable: true),
         );
 
-        return new JsonResponse(['form' => $form]);
+        return new JsonResponse(['ui' => $form]);
     }
 
     /** @return array<string, mixed> */
@@ -219,7 +219,7 @@ readonly class TaxRatesController extends BaseStoreManagementController
     }
 
     /** @param array<string, mixed> $values */
-    private function buildForm(TaxRate $taxRate, array $values, Store $store): Form
+    private function buildForm(TaxRate $taxRate, array $values, Store $store): Ui
     {
         $showTaxCategory = !in_array($values['taxable'] ?? TaxRateRecord::TAXABLE_PRICE, TaxRateRecord::ORDER_TAXABALES, true);
         $include = (bool) ($values['include'] ?? false);
@@ -319,13 +319,13 @@ readonly class TaxRatesController extends BaseStoreManagementController
             }
         }
 
-        return Form::make($formNodes);
+        return Ui::make($formNodes);
     }
 
     /** The details column's controls, submitted alongside {@see buildForm()}. */
-    private function buildSidebarForm(): Form
+    private function buildSidebarForm(): Ui
     {
-        return Form::make([
+        return Ui::make([
             Field::make(t('Enable this tax rate', category: 'commerce'), Lightswitch::make('enabled')),
         ]);
     }

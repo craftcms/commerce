@@ -8,8 +8,8 @@ use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Field\Enums\TranslationMethod;
 use CraftCms\Cms\FieldLayout\FieldLayoutElementContext;
 use CraftCms\Cms\FieldLayout\LayoutElements\TitleField;
-use CraftCms\Cms\Form\Contracts\Control;
 use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\Ui\Contracts\Control;
 use CraftCms\Commerce\Product\Elements\Product;
 use InvalidArgumentException;
 use Override;
@@ -30,7 +30,7 @@ class ProductTitleField extends TitleField
     }
 
     #[Override]
-    protected function formControl(FieldLayoutElementContext $context): ?Control
+    protected function uiControl(FieldLayoutElementContext $context): ?Control
     {
         $element = $context->element;
 
@@ -42,7 +42,7 @@ class ProductTitleField extends TitleField
             return null;
         }
 
-        return parent::formControl($context);
+        return parent::uiControl($context);
     }
 
     #[Override]

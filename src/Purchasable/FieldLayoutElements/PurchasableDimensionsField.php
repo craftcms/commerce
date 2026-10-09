@@ -8,13 +8,13 @@ use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\FieldLayout\FieldLayoutElementContext;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
-use CraftCms\Cms\Form\Contracts\Node;
-use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Enums\FieldWidth;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\Group;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\Ui\Contracts\Node;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Enums\FieldWidth;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\Group;
 use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
@@ -48,7 +48,7 @@ class PurchasableDimensionsField extends BaseNativeField
     }
 
     #[Override]
-    public function formNode(FieldLayoutElementContext $context): ?Node
+    public function uiNode(FieldLayoutElementContext $context): ?Node
     {
         $element = $context->element;
         if (!$element instanceof Purchasable) {
@@ -61,7 +61,7 @@ class PurchasableDimensionsField extends BaseNativeField
 
         $unit = app(Plugin::class)->getSettings()->dimensionUnits;
 
-        $static = $context->mode !== \CraftCms\Cms\Form\Enums\ControlMode::Editable;
+        $static = $context->mode !== \CraftCms\Cms\Ui\Enums\ControlMode::Editable;
         $status = $this->showStatus() ? $this->statusClass($element, $static) : null;
         $statusLabel = $status !== null
             ? ($this->statusLabel($element, $static) ?? ucfirst($status))

@@ -60,11 +60,11 @@ it('renders the product edit page', function() {
             ->where('crumbs.0.label', 'Commerce')
             ->where('crumbs.1.label', 'Products')
             ->where('crumbs.2.label', $this->fixture->hoodiesType->name)
-            ->has('form.values.title')
-            ->has('sidebarForm.values.slug')
-            ->has('sidebarForm.values.postDate')
-            ->has('sidebarForm.values.expiryDate')
-            ->missing('sidebarForm.values.parentId')
+            ->has('ui.values.title')
+            ->has('sidebarUi.values.slug')
+            ->has('sidebarUi.values.postDate')
+            ->has('sidebarUi.values.expiryDate')
+            ->missing('sidebarUi.values.parentId')
         );
 });
 
@@ -76,7 +76,7 @@ it('manages variants through the product form as a nested element index', functi
 
     get($hoodie->getCpEditUrl())
         ->assertOk()
-        ->assertInertia(fn(AssertableInertia $page) => $page->where('form.nodes', function(Collection $nodes) use ($hoodie) {
+        ->assertInertia(fn(AssertableInertia $page) => $page->where('ui.nodes', function(Collection $nodes) use ($hoodie) {
             $control = findProductFormControl($nodes, 'craft:nested-elements');
 
             expect($control)->not->toBeNull()
@@ -110,19 +110,19 @@ it('renders variants with the shared element editor', function() {
             ->where('canonicalId', $variant->id)
             ->where('siteId', $variant->siteId)
             ->where('saveUrl', Url::actionUrl('elements/save'))
-            ->has('form.values.sku')
-            ->has('form.values.basePrice')
-            ->has('form.values.inventoryTracked')
-            ->has('form.values.allowOutOfStockPurchases')
-            ->has('form.values.availableForPurchase')
-            ->has('form.values.minQty')
-            ->has('form.values.maxQty')
-            ->has('form.values.freeShipping')
-            ->has('form.values.promotable')
-            ->missing('form.values.length')
-            ->missing('form.values.weight')
-            ->where('sidebarForm.values.taxCategoryId', $variant->taxCategoryId)
-            ->where('sidebarForm.values.shippingCategoryId', $variant->shippingCategoryId)
+            ->has('ui.values.sku')
+            ->has('ui.values.basePrice')
+            ->has('ui.values.inventoryTracked')
+            ->has('ui.values.allowOutOfStockPurchases')
+            ->has('ui.values.availableForPurchase')
+            ->has('ui.values.minQty')
+            ->has('ui.values.maxQty')
+            ->has('ui.values.freeShipping')
+            ->has('ui.values.promotable')
+            ->missing('ui.values.length')
+            ->missing('ui.values.weight')
+            ->where('sidebarUi.values.taxCategoryId', $variant->taxCategoryId)
+            ->where('sidebarUi.values.shippingCategoryId', $variant->shippingCategoryId)
         );
 });
 
@@ -139,10 +139,10 @@ it('renders variant dimensions when enabled by the product type', function() {
     ]))
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => $page
-            ->has('form.values.length')
-            ->has('form.values.width')
-            ->has('form.values.height')
-            ->has('form.values.weight')
+            ->has('ui.values.length')
+            ->has('ui.values.width')
+            ->has('ui.values.height')
+            ->has('ui.values.weight')
         );
 });
 
@@ -170,7 +170,7 @@ it('hides the title field when the product type generates titles', function() {
 
     get($this->fixture->hoodie->getCpEditUrl())
         ->assertOk()
-        ->assertInertia(fn(AssertableInertia $page) => $page->missing('form.values.title'));
+        ->assertInertia(fn(AssertableInertia $page) => $page->missing('ui.values.title'));
 });
 
 it('shows the parent field for structured product types', function() {
@@ -180,7 +180,7 @@ it('shows the parent field for structured product types', function() {
 
     get($this->fixture->hoodie->getCpEditUrl())
         ->assertOk()
-        ->assertInertia(fn(AssertableInertia $page) => $page->has('sidebarForm.values.parentId'));
+        ->assertInertia(fn(AssertableInertia $page) => $page->has('sidebarUi.values.parentId'));
 });
 
 it('offers the product type settings to admins', function() {

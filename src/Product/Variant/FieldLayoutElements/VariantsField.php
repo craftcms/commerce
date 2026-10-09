@@ -8,8 +8,8 @@ use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Enums\ElementIndexViewMode;
 use CraftCms\Cms\FieldLayout\FieldLayoutElementContext;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
-use CraftCms\Cms\Form\Contracts\Control;
-use CraftCms\Cms\Form\Enums\ControlMode;
+use CraftCms\Cms\Ui\Contracts\Control;
+use CraftCms\Cms\Ui\Enums\ControlMode;
 use CraftCms\Commerce\Product\Elements\Product;
 use InvalidArgumentException;
 use Override;
@@ -34,7 +34,7 @@ class VariantsField extends BaseNativeField
     }
 
     #[Override]
-    protected function formControl(FieldLayoutElementContext $context): ?Control
+    protected function uiControl(FieldLayoutElementContext $context): ?Control
     {
         $product = $context->element;
 
@@ -43,10 +43,10 @@ class VariantsField extends BaseNativeField
         }
 
         $static = $context->mode !== ControlMode::Editable
-            || $context->form->mode !== ControlMode::Editable
+            || $context->ui->mode !== ControlMode::Editable
             || $product->getIsRevision();
 
-        return $product->getVariantManager()->formControl(
+        return $product->getVariantManager()->uiControl(
             $this->attribute(),
             $product,
             'index',

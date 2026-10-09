@@ -6,27 +6,25 @@ namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use craft\helpers\Localization;
 use CraftCms\Cms\Cp\Html\ContentHtml;
-use CraftCms\Cms\Form\Controls\ConditionBuilder;
-use CraftCms\Cms\Form\Controls\Lightswitch;
-use CraftCms\Cms\Form\Controls\Money as MoneyControl;
-use CraftCms\Cms\Form\Controls\Table as TableControl;
-use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Controls\Textarea;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\Nodes\Callout;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\Group;
-use CraftCms\Cms\Form\Nodes\Heading;
-use CraftCms\Cms\Form\Nodes\HiddenField;
-use CraftCms\Cms\Form\Nodes\MarkdownContent;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
-use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Money;
 use CraftCms\Cms\Translation\Formatter;
-use CraftCms\Cms\Translation\Locale;
+use CraftCms\Cms\Ui\Controls\ConditionBuilder;
+use CraftCms\Cms\Ui\Controls\Lightswitch;
+use CraftCms\Cms\Ui\Controls\Money as MoneyControl;
+use CraftCms\Cms\Ui\Controls\Table as TableControl;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Controls\Textarea;
+use CraftCms\Cms\Ui\Nodes\Callout;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\Group;
+use CraftCms\Cms\Ui\Nodes\Heading;
+use CraftCms\Cms\Ui\Nodes\HiddenField;
+use CraftCms\Cms\Ui\Nodes\MarkdownContent;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Commerce\Customer\Conditions\ShippingRuleCustomerCondition;
 use CraftCms\Commerce\Order\Conditions\ShippingRuleOrderCondition;
 use CraftCms\Commerce\Shipping\Data\ShippingMethod;
@@ -78,12 +76,12 @@ readonly class ShippingRulesController extends BaseStoreManagementController
 
         $form = $this->formResolver->resolve(
             $this->buildForm($shippingMethod, $shippingRule, $values, $store),
-            new FormContext(values: $values, refreshable: true),
+            new UiContext(values: $values, refreshable: true),
         );
 
         $sidebarForm = $this->formResolver->resolve(
             $this->buildSidebarForm(),
-            new FormContext(values: $values),
+            new UiContext(values: $values),
         );
 
         $redirectUrl = $store->getStoreSettingsUrl("shippingmethods/{$shippingMethod->id}#rules");
@@ -110,15 +108,15 @@ readonly class ShippingRulesController extends BaseStoreManagementController
                 ]);
         }
 
-        return $response->inertiaPage('Form', [
-            'form' => $form,
+        return $response->inertiaPage('Ui', [
+            'ui' => $form,
             'submit' => [
                 'method' => 'post',
                 'url' => action([self::class, 'save']),
             ],
             'refreshUrl' => action([self::class, 'renderForm']),
             'metadataHtml' => $metadataHtml,
-            'sidebarForm' => $sidebarForm,
+            'sidebarUi' => $sidebarForm,
         ]);
     }
 
@@ -158,10 +156,10 @@ readonly class ShippingRulesController extends BaseStoreManagementController
 
         $form = $this->formResolver->resolve(
             $this->buildForm($shippingMethod, $shippingRule, $values, $store),
-            new FormContext(values: $values, refreshable: true),
+            new UiContext(values: $values, refreshable: true),
         );
 
-        return new JsonResponse(['form' => $form]);
+        return new JsonResponse(['ui' => $form]);
     }
 
     /** @return array<string, mixed> */
@@ -217,7 +215,7 @@ readonly class ShippingRulesController extends BaseStoreManagementController
     }
 
     /** @param array<string, mixed> $values */
-    private function buildForm(ShippingMethod $shippingMethod, ShippingRule $shippingRule, array $values, Store $store): Form
+    private function buildForm(ShippingMethod $shippingMethod, ShippingRule $shippingRule, array $values, Store $store): Ui
     {
         $currency = $store->getCurrency()?->getCode() ?? 'USD';
 
@@ -348,7 +346,7 @@ readonly class ShippingRulesController extends BaseStoreManagementController
                 ->hiddenRows($hiddenRuleCategoryIds));
         }
 
-        return Form::make($formNodes)
+        return Ui::make($formNodes)
             ->addTab(t('Rule', category: 'commerce'), [
                 Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
                     ->instructions(t('What this shipping rule will be called in the control panel.', category: 'commerce'))
@@ -361,9 +359,9 @@ readonly class ShippingRulesController extends BaseStoreManagementController
     }
 
     /** The details column's controls, submitted alongside {@see buildForm()}. */
-    private function buildSidebarForm(): Form
+    private function buildSidebarForm(): Ui
     {
-        return Form::make([
+        return Ui::make([
             Field::make(t('Enable this shipping rule', category: 'commerce'), Lightswitch::make('enabled')),
         ]);
     }
@@ -494,10 +492,5 @@ readonly class ShippingRulesController extends BaseStoreManagementController
         }
 
         return $this->asSuccess(t('Shipping rule deleted.', category: 'commerce'));
-    }
-
-    private function percentSymbol(): string
-    {
-        return I18N::getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
     }
 }

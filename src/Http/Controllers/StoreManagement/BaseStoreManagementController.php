@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
 use CraftCms\Cms\Cp\Data\NavItem;
-use CraftCms\Cms\Form\FormResolver;
-use CraftCms\Cms\Form\Nodes\Table;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Ui\Nodes\Table;
+use CraftCms\Cms\Ui\UiResolver;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasColorPalette;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen;
@@ -55,7 +55,7 @@ abstract readonly class BaseStoreManagementController
     use RespondsWithFlash;
 
     public function __construct(
-        protected FormResolver $formResolver,
+        protected UiResolver $formResolver,
     ) {
     }
 
@@ -248,7 +248,7 @@ abstract readonly class BaseStoreManagementController
     }
 
     /**
-     * The value shape a {@see \CraftCms\Cms\Form\Controls\DateTime} control expects,
+     * The value shape a {@see \CraftCms\Cms\Ui\Controls\DateTime} control expects,
      * with empty strings for an unset date.
      *
      * @return array{date: string, time: string, timezone: string}

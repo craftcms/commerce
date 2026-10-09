@@ -23,7 +23,7 @@ use CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableCondit
 
 /**
  * Rendering-level smoke test for every condition rule whose `inputHtml()`/`elementSelectConfig()`
- * was ported to the Form API (`getForm()`/`inputNodes()`) after cms-6 PR #19588 removed the old
+ * was ported to the Ui API (`getUi()`/`inputNodes()`) after cms-6 PR #19588 removed the old
  * methods. phpstan can't catch a wrong Form API call (missing required setter, bad control usage)
  * since these are all fluent calls on concrete classes — only rendering the actual HTML surfaces
  * that, so this exercises the same `ConditionBuilderRenderer` path the CP uses.

@@ -12,14 +12,11 @@ use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Auth\Events\ElementAuthorizing;
 use CraftCms\Cms\Cms;
 use CraftCms\Cms\Cp\Data\NavItem;
-use CraftCms\Cms\Cp\Navigation;
 use CraftCms\Cms\Cp\Settings as CpSettings;
 use CraftCms\Cms\Element\Events\DefineDeletionBlockers;
 use CraftCms\Cms\Element\Events\ElementSaved;
 use CraftCms\Cms\Element\Queries\Events\ElementsHydrated;
 use CraftCms\Cms\FieldLayout\FieldLayout;
-use CraftCms\Cms\Form\FormControlTypes;
-use CraftCms\Cms\Form\FormNodeTypes;
 use CraftCms\Cms\GarbageCollection\Actions\DeletePartialElements;
 use CraftCms\Cms\GarbageCollection\Events\RunningGarbageCollection;
 use CraftCms\Cms\Gql\Events\GqlEagerLoadableFieldsResolving;
@@ -33,6 +30,8 @@ use CraftCms\Cms\Support\Facades\Twig;
 use CraftCms\Cms\Support\File;
 use CraftCms\Cms\Support\Path;
 use CraftCms\Cms\SystemMessage\Models\SystemMessage;
+use CraftCms\Cms\Ui\UiControlTypes;
+use CraftCms\Cms\Ui\UiNodeTypes;
 use CraftCms\Cms\User\Events\EditUserScreensResolving;
 use CraftCms\Cms\User\Events\UserAssignedToGroups;
 use CraftCms\Cms\View\TemplateMode;
@@ -222,7 +221,7 @@ class Plugin extends BasePlugin
      *  `vite.config.ts` builds under — the same entry-point path/convention `cms`'s own
      *  `resources/js/cp.ts` uses. */
     protected array $vite = [
-        'input' => ['resources/js/cp.ts'],
+        'resources/js/cp.ts',
     ];
 
     protected array $commands = [
@@ -260,11 +259,11 @@ class Plugin extends BasePlugin
         $arguments->register('relatedToProducts', RelatedProducts::class);
         $arguments->register('relatedToVariants', RelatedVariants::class);
 
-        app(FormNodeTypes::class)->register(CouponGenerator::class);
-        app(FormNodeTypes::class)->register(UsageCounter::class);
-        app(FormControlTypes::class)->register(SiteStores::class);
-        app(FormControlTypes::class)->register(TransferDetails::class);
-        app(FormControlTypes::class)->register(TransferReceive::class);
+        app(UiNodeTypes::class)->register(CouponGenerator::class);
+        app(UiNodeTypes::class)->register(UsageCounter::class);
+        app(UiControlTypes::class)->register(SiteStores::class);
+        app(UiControlTypes::class)->register(TransferDetails::class);
+        app(UiControlTypes::class)->register(TransferReceive::class);
 
         $this->registerCpSettings();
 
@@ -446,36 +445,18 @@ class Plugin extends BasePlugin
                 ->url('commerce/orders'));
         }
 
-        $viewableProductTypeIds = app(ProductTypes::class)->getViewableProductTypeIds(true);
-
-        $productNavItems = [];
-
-        if (count($viewableProductTypeIds) > 1) {
-            $productNavItems = app(Navigation::class)->sourceSubnav(Product::class, 'commerce/products');
-        } elseif ($viewableProductTypeIds) {
-            $productNavItems[] = new NavItem()
+        if (app(ProductTypes::class)->getViewableProductTypeIds(true)) {
+            $item->add(new NavItem()
                 ->icon('cart-shopping')
                 ->label(t('Products', category: 'commerce'))
-                ->url('commerce/products');
+                ->url('commerce/products'));
         }
 
         if (currentUser()?->can('commerce-manageDonationSettings')) {
-            $donationsNavItem = new NavItem()
-                    ->icon('circle-dollar-to-slot')
-                    ->label(t('Donations', category: 'commerce'))
-                    ->url('commerce/donations');
-            $lastProductNavItem = end($productNavItems);
-
-            // Listed directly beneath the product types, under their heading when they have one.
-            if ($lastProductNavItem instanceof NavItem && $lastProductNavItem->group && is_array($lastProductNavItem->subnav)) {
-                $lastProductNavItem->add($donationsNavItem);
-            } else {
-                $productNavItems[] = $donationsNavItem;
-            }
-        }
-
-        foreach ($productNavItems as $productNavItem) {
-            $item->add($productNavItem);
+            $item->add(new NavItem()
+                ->icon('circle-dollar-to-slot')
+                ->label(t('Donations', category: 'commerce'))
+                ->url('commerce/donations'));
         }
 
         $inventoryItems = [];
