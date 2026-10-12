@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use CraftCms\Cms\Auth\SessionAuth;
 use CraftCms\Cms\Cms;
+use CraftCms\Cms\Element\Validation\ElementRules;
 use CraftCms\Cms\Support\Facades\Drafts;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Url;
@@ -259,4 +260,30 @@ it('saves the product through the element save action', function() {
 
     expect($saved->title)->toBe('Renamed Hoodie')
         ->and($saved->getVariants()->pluck('id')->all())->toBe($hoodie->getVariants()->pluck('id')->all());
+});
+
+it('keeps a new variant when a fresh product autosaves its unchanged variants', function() {
+    $user = User::find()->admin(true)->one();
+    $product = new Product([
+        'typeId' => $this->fixture->hoodie->typeId,
+        'siteId' => $this->fixture->hoodie->siteId,
+    ]);
+    $product->ruleset->useScenario(ElementRules::SCENARIO_ESSENTIALS);
+    expect(Drafts::saveElementAsDraft($product, $user->id, markAsSaved: false))->toBeTrue();
+
+    $variant = new Variant(['siteId' => $product->siteId]);
+    $variant->setOwnerId($product->id);
+    $variant->ruleset->useScenario(ElementRules::SCENARIO_ESSENTIALS);
+    expect(Drafts::saveElementAsDraft($variant, $user->id, markAsSaved: false))->toBeTrue();
+
+    postJson('/' . Cms::config()->cpTrigger . '/' . Cms::config()->actionTrigger . '/elements/save-draft', [
+        'elementType' => Product::class,
+        'elementId' => $product->id,
+        'siteId' => $product->siteId,
+        'draftId' => $product->draftId,
+        'fresh' => 1,
+        'variants' => '*',
+    ])->assertOk();
+
+    expect(Variant::find()->id($variant->id)->drafts(null)->status(null)->exists())->toBeTrue();
 });
