@@ -43,6 +43,7 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
             ->map(fn(PaymentCurrency $currency) => [
                 'id' => $currency->id,
                 '_sort' => ['name' => t($currency->getName(), category: 'site')],
+                '_search' => implode(' ', [t($currency->getName(), category: 'site'), $currency->iso]),
                 // getName() is just the ISO code today (there's no display-name lookup yet) —
                 // matches the "Code" column below exactly, which is a pre-existing redundancy,
                 // not something introduced here.
@@ -67,6 +68,8 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
                 ])
                 ->rows($rows)
                 ->emptyMessage(t('No additional payment currencies exist yet.', category: 'commerce'))
+                ->searchable()
+                ->toggleableColumns()
                 ->createAction(t('New currency', category: 'commerce'), $store->getStoreSettingsUrl('payment-currencies/new'))
                 ->createActionInPageHeader()
                 ->deletable(

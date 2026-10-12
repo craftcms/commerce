@@ -56,6 +56,12 @@ readonly class TaxRatesController extends BaseStoreManagementController
         $rows = $taxRates
             ->map(fn(TaxRate $taxRate) => [
                 'id' => $taxRate->id,
+                '_search' => implode(' ', [
+                    t($taxRate->name, category: 'site'),
+                    $taxRate->getRateAsPercent(),
+                    $taxRate->getIsEverywhere() ? t('Everywhere', category: 'commerce') : t($taxRate->getTaxZone()->name, category: 'site'),
+                    t($taxRate->getTaxCategory()?->name, category: 'site'),
+                ]),
                 // Restores the legacy VueAdminTable screen's own automatic status dot (driven
                 // there by an implicit `status` row key, not a real column) — the explicit
                 // "Enabled?" Yes/No column below was this same information, added as a
@@ -86,6 +92,8 @@ readonly class TaxRatesController extends BaseStoreManagementController
                 ->rows($rows)
                 ->emptyMessage(t('No tax rates exist yet.', category: 'commerce'))
                 ->statusFilter()
+                ->searchable()
+                ->toggleableColumns()
                 ->when(
                     app(Taxes::class)->createTaxRates(),
                     fn(Table $table) => $table->createAction(t('New tax rate', category: 'commerce'), $store->getStoreSettingsUrl('taxrates/new')),

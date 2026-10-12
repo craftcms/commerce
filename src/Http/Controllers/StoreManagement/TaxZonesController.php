@@ -41,6 +41,7 @@ readonly class TaxZonesController extends BaseStoreManagementController
             ->map(fn(TaxAddressZone $taxZone) => [
                 'id' => $taxZone->id,
                 '_sort' => ['name' => t($taxZone->name, category: 'site')],
+                '_search' => implode(' ', [t($taxZone->name, category: 'site'), t($taxZone->description, category: 'site')]),
                 'name' => ['html' => Html::a(Html::encode(t($taxZone->name, category: 'site')), $taxZone->getCpEditUrl(), ['class' => 'cell-bold'])],
                 'description' => t($taxZone->description, category: 'site'),
                 'default' => $taxZone->default ? ['icon' => 'check', 'label' => t('Yes')] : '',
@@ -57,6 +58,8 @@ readonly class TaxZonesController extends BaseStoreManagementController
                 ])
                 ->rows($rows)
                 ->emptyMessage(t('No tax zones exist yet.', category: 'commerce'))
+                ->searchable()
+                ->toggleableColumns()
                 ->createAction(t('New tax zone', category: 'commerce'), $store->getStoreSettingsUrl('taxzones/new'))
                 ->createActionInPageHeader()
                 ->deletable(action([self::class, 'delete'])),

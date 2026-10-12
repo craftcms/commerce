@@ -646,6 +646,7 @@
 - Removed `craft\commerce\controllers\Settings\GatewaysController`. `CraftCms\Commerce\Http\Controllers\Settings\GatewaysController` should be used instead.
 - The "Gateways" settings screen is now searchable and has a "View" menu for choosing columns, with new "Payment Type", "Payment Sources", and "Webhook URL" columns.
 - Removed `craft\commerce\controllers\PaymentCurrenciesController`. `CraftCms\Commerce\Http\Controllers\Settings\PaymentCurrenciesController` should be used instead.
+- The "Payment Currencies" screen is now searchable and has a "View" menu for choosing columns.
 
 ### Promotions
 
@@ -817,6 +818,7 @@
 - Removed `craft\commerce\controllers\ShippingMethodsController`. `CraftCms\Commerce\Http\Controllers\Settings\ShippingMethodsController` should be used instead.
 - Removed `craft\commerce\controllers\ShippingRulesController`. `CraftCms\Commerce\Http\Controllers\Settings\ShippingRulesController` should be used instead.
 - Removed `craft\commerce\controllers\ShippingCategoriesController`. `CraftCms\Commerce\Http\Controllers\Settings\ShippingCategoriesController` should be used instead.
+- The "Shipping Methods", "Shipping Zones" and "Shipping Categories" screens are now searchable and have a "View" menu for choosing columns.
 
 ### Stores
 
@@ -930,6 +932,7 @@
 - Removed `craft\commerce\controllers\TaxZonesController`. `CraftCms\Commerce\Http\Controllers\Settings\TaxZonesController` should be used instead.
 - Removed `craft\commerce\controllers\TaxCategoriesController`. `CraftCms\Commerce\Http\Controllers\Settings\TaxCategoriesController` should be used instead.
 - Removed `craft\commerce\controllers\TaxRatesController`. `CraftCms\Commerce\Http\Controllers\Settings\TaxRatesController` should be used instead.
+- The "Tax Rates", "Tax Zones" and "Tax Categories" screens are now searchable and have a "View" menu for choosing columns.
 
 ### Transfers
 

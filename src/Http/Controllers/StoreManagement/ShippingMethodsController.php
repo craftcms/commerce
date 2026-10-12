@@ -53,6 +53,11 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
                 'id' => $shippingMethod->id,
                 '_status' => $shippingMethod->getIsEnabled(),
                 '_sort' => ['name' => t($shippingMethod->name, category: 'site')],
+                '_search' => implode(' ', [
+                    t($shippingMethod->name, category: 'site'),
+                    $shippingMethod->handle,
+                    $shippingMethod->getType(),
+                ]),
                 'name' => ['html' => app(ElementHtml::class)->chipHtml($shippingMethod, [
                     'showStatus' => false,
                     'labelHtml' => Html::a(Html::encode(t($shippingMethod->name, category: 'site')), $shippingMethod->getCpEditUrl(), ['class' => 'cell-bold']),
@@ -73,6 +78,8 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
                 ->rows($rows)
                 ->emptyMessage(t('No shipping methods exist yet.', category: 'commerce'))
                 ->statusFilter()
+                ->searchable()
+                ->toggleableColumns()
                 ->createAction(t('New shipping method', category: 'commerce'), $store->getStoreSettingsUrl('shippingmethods/new'))
                 ->deletable(action([self::class, 'delete']))
                 ->bulkDeletable(action([self::class, 'delete']))

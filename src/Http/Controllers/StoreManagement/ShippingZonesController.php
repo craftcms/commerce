@@ -40,6 +40,7 @@ readonly class ShippingZonesController extends BaseStoreManagementController
             ->map(fn(ShippingAddressZone $shippingZone) => [
                 'id' => $shippingZone->id,
                 '_sort' => ['name' => t($shippingZone->name, category: 'site')],
+                '_search' => implode(' ', [t($shippingZone->name, category: 'site'), t($shippingZone->description, category: 'site')]),
                 'name' => ['html' => Html::a(Html::encode(t($shippingZone->name, category: 'site')), $shippingZone->getCpEditUrl(), ['class' => 'cell-bold'])],
                 'description' => t($shippingZone->description, category: 'site'),
             ])
@@ -54,6 +55,8 @@ readonly class ShippingZonesController extends BaseStoreManagementController
                 ])
                 ->rows($rows)
                 ->emptyMessage(t('No shipping zones exist yet.', category: 'commerce'))
+                ->searchable()
+                ->toggleableColumns()
                 ->createAction(t('New shipping zone', category: 'commerce'), $store->getStoreSettingsUrl('shippingzones/new'))
                 ->createActionInPageHeader()
                 ->deletable(action([self::class, 'delete'])),

@@ -66,6 +66,11 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
             return [
                 'id' => $taxCategory->id,
                 '_sort' => ['name' => t($taxCategory->name, category: 'site')],
+                '_search' => implode(' ', [
+                    t($taxCategory->name, category: 'site'),
+                    $taxCategory->handle,
+                    t($taxCategory->description, category: 'site'),
+                ]),
                 'name' => ['html' => app(ElementHtml::class)->chipHtml($taxCategory, [
                     'labelHtml' => Html::a($label, $taxCategory->getCpEditUrl($store->id), ['class' => 'cell-bold']),
                 ])],
@@ -86,6 +91,8 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
                 ])
                 ->rows(array_values($rows))
                 ->emptyMessage(t('No tax categories exist yet.', category: 'commerce'))
+                ->searchable()
+                ->toggleableColumns()
                 ->when(
                     app(Taxes::class)->createTaxCategories(),
                     fn(Table $table) => $table

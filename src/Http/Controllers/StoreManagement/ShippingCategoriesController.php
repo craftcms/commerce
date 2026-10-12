@@ -50,6 +50,11 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
             ->map(fn(ShippingCategory $shippingCategory) => [
                 'id' => $shippingCategory->id,
                 '_sort' => ['name' => t($shippingCategory->name, category: 'site')],
+                '_search' => implode(' ', [
+                    t($shippingCategory->name, category: 'site'),
+                    $shippingCategory->handle,
+                    t($shippingCategory->description, category: 'site'),
+                ]),
                 'name' => ['html' => app(ElementHtml::class)->chipHtml($shippingCategory, [
                     'labelHtml' => Html::a(Html::encode(t($shippingCategory->name, category: 'site')), $shippingCategory->getCpEditUrl(), ['class' => 'cell-bold']),
                 ])],
@@ -71,6 +76,8 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
                 ])
                 ->rows($rows)
                 ->emptyMessage(t('No shipping categories exist yet.', category: 'commerce'))
+                ->searchable()
+                ->toggleableColumns()
                 ->createAction(t('New shipping category', category: 'commerce'), $store->getStoreSettingsUrl('shippingcategories/new'))
                 ->createActionInPageHeader()
                 ->deletable(action([self::class, 'delete']))
