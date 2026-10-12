@@ -115,8 +115,7 @@ class EmailsController extends BaseSettingsController
             ->subnav($this->storeSubnav('commerce/settings/emails', $store))
             ->title(t('Emails', category: 'commerce'))
             ->crumbs($this->crumbs($this->storeCrumb('commerce/settings/emails', $store)))
-            ->inertiaPage('Ui', [
-                'ui' => $this->formResolver->resolve(Ui::make([$table]), new UiContext()),
+            ->ui(Ui::make([$table]), props: [
                 'contentMaxWidth' => false,
             ]);
     }
@@ -169,8 +168,7 @@ class EmailsController extends BaseSettingsController
             ->crumbs($email->id ? $this->crumbs($storeCrumb, ['label' => $title]) : $this->crumbs($storeCrumb))
             ->action('commerce/emails/save')
             ->redirectUrl("commerce/settings/emails/{$store->handle}")
-            ->inertiaPage('Ui', [
-                'ui' => $form,
+            ->ui($form, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

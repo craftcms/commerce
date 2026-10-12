@@ -67,8 +67,7 @@ readonly class TaxZonesController extends BaseStoreManagementController
         return $this->cpScreenResponse($store)
             ->title($title)
             ->crumbs($this->crumbs($store))
-            ->inertiaPage('Ui', [
-                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
+            ->ui(Ui::make($nodes), props: [
                 'contentMaxWidth' => false,
             ]);
     }
@@ -131,8 +130,7 @@ readonly class TaxZonesController extends BaseStoreManagementController
             ->crumbs($this->crumbs($store, ...($taxZone->id ? [['label' => $title]] : [])))
             ->action('commerce/tax-zones/save')
             ->redirectUrl($store->getStoreSettingsUrl('taxzones'))
-            ->inertiaPage('Ui', [
-                'ui' => $form,
+            ->ui($form, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

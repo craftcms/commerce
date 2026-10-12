@@ -134,8 +134,7 @@ class GatewaysController extends BaseSettingsController
         return $this->cpScreenResponse()
             ->title($title)
             ->crumbs($this->crumbs())
-            ->inertiaPage('Ui', [
-                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
+            ->ui(Ui::make($nodes), props: [
                 'contentMaxWidth' => false,
             ]);
     }
@@ -185,8 +184,7 @@ class GatewaysController extends BaseSettingsController
             ->crumbs($gateway->id ? $this->crumbs(['label' => $title]) : $this->crumbs())
             ->action('commerce/gateways/save')
             ->redirectUrl('commerce/settings/gateways')
-            ->inertiaPage('Ui', [
-                'ui' => $form,
+            ->ui($form, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
@@ -308,12 +306,12 @@ class GatewaysController extends BaseSettingsController
             ->instructions(t('If set to Authorize Only, you will need to manually capture payments before the funds will be transferred to your account. The Gateway needs to support the selected option.', category: 'commerce'))
             ->required();
 
-        $settingsForm = $gateway->settingsUi(new UiContext(
+        $settingsUi = $gateway->settingsUi(new UiContext(
             values: $values,
             mode: ControlMode::Editable,
         ));
-        if ($settingsForm !== null) {
-            array_push($formNodes, ...$settingsForm->nodes());
+        if ($settingsUi !== null) {
+            array_push($formNodes, ...$settingsUi->nodes());
         }
 
         // getBooleanEnvOptions()'s optgroup carries its own `options` as a Collection (fine for

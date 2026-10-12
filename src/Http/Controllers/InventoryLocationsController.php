@@ -105,8 +105,7 @@ readonly class InventoryLocationsController
             ->title(t('Inventory Locations', category: 'commerce'))
             ->crumbs($this->crumbs())
             ->selectedSubnavItem('inventory-locations')
-            ->inertiaPage('Ui', [
-                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
+            ->ui(Ui::make($nodes), props: [
                 'contentMaxWidth' => false,
             ]);
     }
@@ -137,8 +136,7 @@ readonly class InventoryLocationsController
             ->action('commerce/inventory-locations/save')
             ->redirectUrl('commerce/inventory-locations')
             ->selectedSubnavItem('inventory-locations')
-            ->inertiaPage('Ui', [
-                'ui' => $form,
+            ->ui($form, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

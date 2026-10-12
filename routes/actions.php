@@ -82,7 +82,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageDona
 
 Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->group(function () {
     Route::post('gateways/save', [GatewaysController::class, 'save']);
-    Route::post('gateways/archive', [GatewaysController::class, 'archive']);
+    Route::match(['post', 'delete'], 'gateways/archive', [GatewaysController::class, 'archive']);
     Route::post('gateways/reorder', [GatewaysController::class, 'reorder']);
 
     Route::post('settings/save-settings', [GeneralSettingsController::class, 'saveSettings']);
@@ -90,21 +90,21 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->g
     Route::post('order-settings/save', [OrderSettingsController::class, 'save']);
 
     Route::post('stores/save-store', [StoresController::class, 'saveStore']);
-    Route::post('stores/delete-store', [StoresController::class, 'deleteStore']);
+    Route::match(['post', 'delete'], 'stores/delete-store', [StoresController::class, 'deleteStore']);
     Route::post('stores/reorder-stores', [StoresController::class, 'reorderStores']);
     Route::post('stores/save-site-stores', [StoresController::class, 'saveSiteStores']);
 
     Route::post('order-statuses/save', [OrderStatusesController::class, 'save']);
     Route::match(['get', 'post'], 'order-statuses/get-order-statuses', [OrderStatusesController::class, 'getOrderStatuses']);
     Route::post('order-statuses/reorder', [OrderStatusesController::class, 'reorder']);
-    Route::post('order-statuses/delete', [OrderStatusesController::class, 'delete']);
+    Route::match(['post', 'delete'], 'order-statuses/delete', [OrderStatusesController::class, 'delete']);
 
     Route::post('line-item-statuses/save', [LineItemStatusesController::class, 'save']);
     Route::post('line-item-statuses/reorder', [LineItemStatusesController::class, 'reorder']);
-    Route::post('line-item-statuses/archive', [LineItemStatusesController::class, 'archive']);
+    Route::match(['post', 'delete'], 'line-item-statuses/archive', [LineItemStatusesController::class, 'archive']);
 
     Route::post('product-types/save-product-type', [ProductTypesController::class, 'saveProductType']);
-    Route::post('product-types/delete-product-type', [ProductTypesController::class, 'deleteProductType']);
+    Route::match(['post', 'delete'], 'product-types/delete-product-type', [ProductTypesController::class, 'deleteProductType']);
 });
 
 // BaseStoreManagementController::init() always required commerce-manageStoreSettings, on top of
@@ -116,41 +116,41 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
 
     Route::middleware('can:commerce-managePaymentCurrencies')->group(function () {
         Route::post('payment-currencies/save', [PaymentCurrenciesController::class, 'save']);
-        Route::post('payment-currencies/delete', [PaymentCurrenciesController::class, 'delete']);
+        Route::match(['post', 'delete'], 'payment-currencies/delete', [PaymentCurrenciesController::class, 'delete']);
     });
 
     Route::middleware('can:commerce-manageShipping')->group(function () {
         Route::post('shipping-zones/save', [ShippingZonesController::class, 'save']);
-        Route::post('shipping-zones/delete', [ShippingZonesController::class, 'delete']);
+        Route::match(['post', 'delete'], 'shipping-zones/delete', [ShippingZonesController::class, 'delete']);
         Route::post('shipping-zones/test-zip', [ShippingZonesController::class, 'testZip']);
 
         Route::post('shipping-methods/save', [ShippingMethodsController::class, 'save']);
-        Route::post('shipping-methods/delete', [ShippingMethodsController::class, 'delete']);
+        Route::match(['post', 'delete'], 'shipping-methods/delete', [ShippingMethodsController::class, 'delete']);
         Route::post('shipping-methods/update-status', [ShippingMethodsController::class, 'updateStatus']);
 
         Route::post('shipping-rules/save', [ShippingRulesController::class, 'save']);
         Route::post('shipping-rules/duplicate', [ShippingRulesController::class, 'duplicate']);
         Route::post('shipping-rules/reorder', [ShippingRulesController::class, 'reorder']);
-        Route::post('shipping-rules/delete', [ShippingRulesController::class, 'delete']);
+        Route::match(['post', 'delete'], 'shipping-rules/delete', [ShippingRulesController::class, 'delete']);
         Route::post('shipping-rules/render-form', [ShippingRulesController::class, 'renderForm']);
 
         Route::post('shipping-categories/save', [ShippingCategoriesController::class, 'save']);
-        Route::post('shipping-categories/delete', [ShippingCategoriesController::class, 'delete']);
+        Route::match(['post', 'delete'], 'shipping-categories/delete', [ShippingCategoriesController::class, 'delete']);
         Route::post('shipping-categories/set-default-category', [ShippingCategoriesController::class, 'setDefaultCategory']);
         Route::post('shipping-categories/render-form', [ShippingCategoriesController::class, 'renderForm']);
     });
 
     Route::middleware('can:commerce-manageTaxes')->group(function () {
         Route::post('tax-zones/save', [TaxZonesController::class, 'save']);
-        Route::post('tax-zones/delete', [TaxZonesController::class, 'delete']);
+        Route::match(['post', 'delete'], 'tax-zones/delete', [TaxZonesController::class, 'delete']);
         Route::post('tax-zones/test-zip', [TaxZonesController::class, 'testZip']);
 
         Route::post('tax-categories/save', [TaxCategoriesController::class, 'save']);
-        Route::post('tax-categories/delete', [TaxCategoriesController::class, 'delete']);
+        Route::match(['post', 'delete'], 'tax-categories/delete', [TaxCategoriesController::class, 'delete']);
         Route::post('tax-categories/set-default-category', [TaxCategoriesController::class, 'setDefaultCategory']);
 
         Route::post('tax-rates/save', [TaxRatesController::class, 'save']);
-        Route::post('tax-rates/delete', [TaxRatesController::class, 'delete']);
+        Route::match(['post', 'delete'], 'tax-rates/delete', [TaxRatesController::class, 'delete']);
         Route::post('tax-rates/update-status', [TaxRatesController::class, 'updateStatus']);
         Route::post('tax-rates/render-form', [TaxRatesController::class, 'renderForm']);
     });
@@ -170,7 +170,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
         Route::post('discounts/reorder', [DiscountsController::class, 'reorder']);
         Route::post('discounts/table-data', [DiscountsController::class, 'tableData']);
         Route::post('discounts/move-to-page', [DiscountsController::class, 'moveToPage']);
-        Route::post('discounts/delete', [DiscountsController::class, 'delete']);
+        Route::match(['post', 'delete'], 'discounts/delete', [DiscountsController::class, 'delete']);
         Route::post('discounts/clear-discount-uses', [DiscountsController::class, 'clearDiscountUses']);
         Route::post('discounts/update-status', [DiscountsController::class, 'updateStatus']);
         Route::post('discounts/get-discounts-by-purchasable-id', [DiscountsController::class, 'getDiscountsByPurchasableId']);
@@ -179,7 +179,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
         Route::post('catalog-pricing-rules/save', [CatalogPricingRulesController::class, 'save']);
         Route::post('catalog-pricing-rules/render-form', [CatalogPricingRulesController::class, 'renderForm']);
         Route::post('catalog-pricing-rules/table-data', [CatalogPricingRulesController::class, 'tableData']);
-        Route::post('catalog-pricing-rules/delete', [CatalogPricingRulesController::class, 'delete']);
+        Route::match(['post', 'delete'], 'catalog-pricing-rules/delete', [CatalogPricingRulesController::class, 'delete']);
         Route::post('catalog-pricing-rules/update-status', [CatalogPricingRulesController::class, 'updateStatus']);
 
         Route::post('catalog-pricing/filter', [CatalogPricingController::class, 'filter']);
@@ -243,7 +243,7 @@ Route::middleware(['auth', 'can:commerce-manageInventoryLocations'])->group(func
     Route::post('inventory-locations/save', [InventoryLocationsController::class, 'save']);
     Route::post('inventory-locations/render-form', [InventoryLocationsController::class, 'renderForm']);
     Route::get('inventory-locations/prepare-delete-modal', [InventoryLocationsController::class, 'prepareDeleteModal']);
-    Route::post('inventory-locations/deactivate', [InventoryLocationsController::class, 'deactivate']);
+    Route::match(['post', 'delete'], 'inventory-locations/deactivate', [InventoryLocationsController::class, 'deactivate']);
 });
 
 Route::middleware(['auth', 'can:commerce-manageInventoryTransfers'])->group(function () {
@@ -255,10 +255,10 @@ Route::middleware(['auth', 'can:commerce-manageInventoryTransfers'])->group(func
 
 Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->group(function () {
     Route::post('emails/save', [EmailsController::class, 'save']);
-    Route::post('emails/delete', [EmailsController::class, 'delete']);
+    Route::match(['post', 'delete'], 'emails/delete', [EmailsController::class, 'delete']);
 
     Route::post('pdfs/save', [PdfsController::class, 'save']);
-    Route::post('pdfs/delete', [PdfsController::class, 'delete']);
+    Route::match(['post', 'delete'], 'pdfs/delete', [PdfsController::class, 'delete']);
     Route::post('pdfs/reorder', [PdfsController::class, 'reorder']);
 });
 

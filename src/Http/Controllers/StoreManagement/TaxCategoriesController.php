@@ -92,7 +92,9 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
                         ->createAction(t('New tax category', category: 'commerce'), $store->getStoreSettingsUrl('taxcategories/new'))
                         ->createActionInPageHeader(),
                 )
-                ->when($canDelete, fn(Table $table) => $table->deletable(action([self::class, 'delete']), bulk: true)),
+                ->when($canDelete, fn(Table $table) => $table
+                    ->deletable(action([self::class, 'delete']))
+                    ->bulkDeletable(action([self::class, 'delete']))),
         ];
 
         $title = t('Tax Categories', category: 'commerce');
@@ -102,8 +104,7 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
             ->title($title)
             ->crumbs($this->crumbs($store))
             ->when($engineButtonsHtml !== '', fn(CpScreenResponse $screen) => $screen->additionalButtonsHtml($engineButtonsHtml))
-            ->inertiaPage('Ui', [
-                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
+            ->ui(Ui::make($nodes), props: [
                 'contentMaxWidth' => false,
             ]);
     }
@@ -232,8 +233,7 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
             ->crumbs($this->crumbs($store, ...($taxCategory->id ? [['label' => $title]] : [])))
             ->action('commerce/tax-categories/save')
             ->redirectUrl($store->getStoreSettingsUrl('taxcategories'))
-            ->inertiaPage('Ui', [
-                'ui' => $form,
+            ->ui($form, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

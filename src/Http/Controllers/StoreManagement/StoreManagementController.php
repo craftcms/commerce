@@ -113,8 +113,7 @@ readonly class StoreManagementController extends BaseStoreManagementController
             ->crumbs($this->crumbs($store))
             ->action('commerce/store-management/save')
             ->redirectUrl($store->getStoreSettingsUrl())
-            ->inertiaPage('Ui', [
-                'ui' => $form,
+            ->ui($form, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

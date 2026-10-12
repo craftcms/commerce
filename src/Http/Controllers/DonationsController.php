@@ -61,8 +61,7 @@ readonly class DonationsController
             ->selectedSubnavItem('donations')
             ->action('commerce/donations/save')
             ->redirectUrl('commerce/donations')
-            ->inertiaPage('Ui', [
-                'ui' => $this->formResolver->resolve($this->buildForm($values), new UiContext(values: $values, refreshable: true)),
+            ->ui($this->buildForm($values), new UiContext(values: $values, refreshable: true), [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

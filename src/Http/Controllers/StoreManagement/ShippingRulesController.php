@@ -108,8 +108,7 @@ readonly class ShippingRulesController extends BaseStoreManagementController
                 ]);
         }
 
-        return $response->inertiaPage('Ui', [
-            'ui' => $form,
+        return $response->ui($form, props: [
             'submit' => [
                 'method' => 'post',
                 'url' => action([self::class, 'save']),

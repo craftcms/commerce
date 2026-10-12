@@ -64,8 +64,7 @@ readonly class ShippingZonesController extends BaseStoreManagementController
         return $this->cpScreenResponse($store)
             ->title($title)
             ->crumbs($this->crumbs($store))
-            ->inertiaPage('Ui', [
-                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
+            ->ui(Ui::make($nodes), props: [
                 'contentMaxWidth' => false,
             ]);
     }
@@ -122,8 +121,7 @@ readonly class ShippingZonesController extends BaseStoreManagementController
             ->crumbs($this->crumbs($store, ...($shippingZone->id ? [['label' => $title]] : [])))
             ->action('commerce/shipping-zones/save')
             ->redirectUrl($store->getStoreSettingsUrl('shippingzones'))
-            ->inertiaPage('Ui', [
-                'ui' => $form,
+            ->ui($form, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

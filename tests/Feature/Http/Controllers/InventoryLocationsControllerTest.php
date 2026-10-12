@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Gate;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\deleteJson;
 use function Pest\Laravel\get;
 use function Pest\Laravel\getJson;
 use function Pest\Laravel\postJson;
@@ -203,6 +204,18 @@ it('moves stock to the destination when deleting an inventory location', functio
 
     expect(app(Inventory::class)->getInventoryLevel($inventoryItem, $destination)?->availableTotal)->toBe(7)
         ->and(DB::table(Table::INVENTORYLOCATIONS)->where('id', $source->id)->value('dateDeleted'))->not->toBeNull();
+});
+
+it('deletes an inventory location via a DELETE request', function() {
+    $source = createInventoryLocationForController('source');
+    $destination = createInventoryLocationForController('destination');
+
+    deleteJson(Url::actionUrl('commerce/inventory-locations/deactivate'), [
+        'id' => $source->id,
+        'destinationInventoryLocation' => $destination->id,
+    ])->assertOk();
+
+    expect(DB::table(Table::INVENTORYLOCATIONS)->where('id', $source->id)->value('dateDeleted'))->not->toBeNull();
 });
 
 it('returns not found when deleting an unknown inventory location', function() {

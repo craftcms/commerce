@@ -14,6 +14,7 @@ use CraftCms\Commerce\Store\Stores;
 use Illuminate\Support\Facades\DB;
 
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\deleteJson;
 use function Pest\Laravel\postJson;
 
 beforeEach(function() {
@@ -130,6 +131,15 @@ it('deletes a shipping rule via a normal (non-ajax) request', function() {
     postJson(Url::actionUrl('commerce/shipping-rules/delete'), ['id' => $usOnly2->id]);
 
     expect(DB::table(Table::SHIPPINGRULES)->where('id', $usOnly2->id)->exists())->toBeFalse();
+});
+
+it('deletes a shipping rule via a DELETE request', function() {
+    ['usOnly' => $usOnly] = seedShippingRulesForController();
+
+    deleteJson(Url::actionUrl('commerce/shipping-rules/delete'), ['id' => $usOnly->id])
+        ->assertOk();
+
+    expect(DB::table(Table::SHIPPINGRULES)->where('id', $usOnly->id)->exists())->toBeFalse();
 });
 
 it('duplicates a shipping rule', function() {

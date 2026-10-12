@@ -74,17 +74,16 @@ class OrderSettingsController extends BaseSettingsController
             ->title($title)
             ->crumbs($this->crumbs())
             ->redirectUrl('commerce/settings/orders/fields')
-            ->inertiaPage('Ui', [
-                'ui' => $this->formResolver->resolve($form, new UiContext(
-                    values: [
-                        'fieldLayout' => [
-                            'id' => $fieldLayout->id,
-                            'uid' => $fieldLayout->uid,
-                            ...($fieldLayout->getConfig() ?? []),
-                        ],
+            ->ui($form, new UiContext(
+                values: [
+                    'fieldLayout' => [
+                        'id' => $fieldLayout->id,
+                        'uid' => $fieldLayout->uid,
+                        ...($fieldLayout->getConfig() ?? []),
                     ],
-                    mode: $this->readOnly ? ControlMode::ReadOnly : ControlMode::Editable,
-                )),
+                ],
+                mode: $this->readOnly ? ControlMode::ReadOnly : ControlMode::Editable,
+            ), [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

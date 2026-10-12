@@ -141,6 +141,7 @@
 - Removed `craft\commerce\controllers\BaseShippingSettingsController`.
 - Removed `craft\commerce\controllers\SettingsController`. `CraftCms\Commerce\Http\Controllers\Settings\SettingsController` should be used instead.
 - Removed `craft\commerce\controllers\PromotionsController`. The `commerce/promotions` URL now redirects to `commerce/promotions/sales` via a plain route closure.
+- The control panel delete, archive and deactivate actions for gateways, stores, order statuses, line item statuses, product types, payment currencies, shipping zones, shipping methods, shipping rules, shipping categories, tax zones, tax categories, tax rates, discounts, catalog pricing rules, emails, PDFs and inventory locations now accept `DELETE` requests as well as `POST` requests.
 
 ### Customers
 

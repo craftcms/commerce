@@ -74,7 +74,8 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
                 ->emptyMessage(t('No shipping methods exist yet.', category: 'commerce'))
                 ->statusFilter()
                 ->createAction(t('New shipping method', category: 'commerce'), $store->getStoreSettingsUrl('shippingmethods/new'))
-                ->deletable(action([self::class, 'delete']), bulk: true)
+                ->deletable(action([self::class, 'delete']))
+                ->bulkDeletable(action([self::class, 'delete']))
                 ->statusActions($this->statusActions(action([self::class, 'updateStatus']))),
         ];
 
@@ -83,8 +84,7 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
         return $this->cpScreenResponse($store)
             ->title($title)
             ->crumbs($this->crumbs($store))
-            ->inertiaPage('Ui', [
-                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
+            ->ui(Ui::make($nodes), props: [
                 'contentMaxWidth' => false,
             ]);
     }
@@ -193,8 +193,7 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
             ->action('commerce/shipping-methods/save')
             ->redirectUrl($store->getStoreSettingsUrl('shippingmethods/{id}#rules'))
             ->submitButtonLabel($shippingMethod->id ? t('Save and set rules', category: 'commerce') : t('Save'))
-            ->inertiaPage('Ui', [
-                'ui' => $form,
+            ->ui($form, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

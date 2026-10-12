@@ -99,7 +99,8 @@ readonly class DiscountsController extends BaseStoreManagementController
                     ['key' => 'stop', 'label' => t('Stops Processing?', category: 'commerce'), 'sortable' => true],
                     ['key' => 'ignore', 'label' => t('Ignore Promotions?', category: 'commerce'), 'sortable' => true],
                 ])
-                ->dataUrl(action([self::class, 'tableData'], ['storeHandle' => $store->handle]), self::DISCOUNTS_PER_PAGE)
+                ->dataUrl(action([self::class, 'tableData'], ['storeHandle' => $store->handle]))
+                ->perPage(self::DISCOUNTS_PER_PAGE)
                 ->moveToPageUrl(action([self::class, 'moveToPage'], ['storeHandle' => $store->handle]))
                 ->emptyMessage(t('No discounts exist yet.', category: 'commerce'))
                 ->statusFilter()
@@ -116,7 +117,9 @@ readonly class DiscountsController extends BaseStoreManagementController
                 )
                 ->when(
                     currentUserElement()?->can('commerce-deleteDiscounts'),
-                    fn(Table $table) => $table->deletable(action([self::class, 'delete']), bulk: true),
+                    fn(Table $table) => $table
+                        ->deletable(action([self::class, 'delete']))
+                        ->bulkDeletable(action([self::class, 'delete'])),
                 )
                 ->when(
                     currentUserElement()?->can('commerce-editDiscounts'),
@@ -127,8 +130,7 @@ readonly class DiscountsController extends BaseStoreManagementController
         return $this->cpScreenResponse($store)
             ->title(t('Discounts', category: 'commerce'))
             ->crumbs($this->crumbs($store))
-            ->inertiaPage('Ui', [
-                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
+            ->ui(Ui::make($nodes), props: [
                 'contentMaxWidth' => false,
             ]);
     }
@@ -308,8 +310,7 @@ readonly class DiscountsController extends BaseStoreManagementController
             ->crumbs($this->crumbs($store, ...($discount->id ? [['label' => $title]] : [])))
             ->action('commerce/discounts/save')
             ->redirectUrl($store->getStoreSettingsUrl('discounts'))
-            ->inertiaPage('Ui', [
-                'ui' => $form,
+            ->ui($form, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

@@ -110,11 +110,10 @@ class StoresController extends BaseSettingsController
             ->title($title)
             ->crumbs($brandNewStore ? $this->crumbs() : $this->crumbs(['label' => $title]))
             ->redirectUrl('commerce/settings/stores')
-            ->inertiaPage('Ui', [
-                'ui' => $this->formResolver->resolve($form, new UiContext(
-                    values: $values,
-                    mode: $this->readOnly ? ControlMode::ReadOnly : ControlMode::Editable,
-                )),
+            ->ui($form, new UiContext(
+                values: $values,
+                mode: $this->readOnly ? ControlMode::ReadOnly : ControlMode::Editable,
+            ), [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'saveStore']),
@@ -465,8 +464,7 @@ class StoresController extends BaseSettingsController
         return $this->cpScreenResponse()
             ->title($title)
             ->crumbs($this->crumbs())
-            ->inertiaPage('Ui', [
-                'ui' => $this->formResolver->resolve($form, new UiContext()),
+            ->ui($form, props: [
                 'contentMaxWidth' => false,
             ]);
     }
@@ -550,12 +548,11 @@ class StoresController extends BaseSettingsController
             ->title($title)
             ->crumbs($this->crumbsForSection(['label' => $title, 'href' => cp_url('commerce/settings/stores/sites')]))
             ->redirectUrl('commerce/settings/stores/sites')
-            ->inertiaPage('Ui', [
+            ->ui($form, new UiContext(
+                values: ['siteStores' => $values],
+                mode: $this->readOnly ? ControlMode::ReadOnly : ControlMode::Editable,
+            ), [
                 'contentMaxWidth' => false,
-                'ui' => $this->formResolver->resolve($form, new UiContext(
-                    values: ['siteStores' => $values],
-                    mode: $this->readOnly ? ControlMode::ReadOnly : ControlMode::Editable,
-                )),
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'saveSiteStores']),

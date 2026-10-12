@@ -116,8 +116,7 @@ class OrderStatusesController extends BaseSettingsController
         return $this->cpScreenResponse()
             ->title($title)
             ->crumbs($this->crumbs())
-            ->inertiaPage('Ui', [
-                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
+            ->ui(Ui::make($nodes), props: [
                 'contentMaxWidth' => false,
             ]);
     }
@@ -213,8 +212,7 @@ class OrderStatusesController extends BaseSettingsController
             ->crumbs($orderStatus->id ? $this->crumbs(['label' => $title]) : $this->crumbs())
             ->action('commerce/order-statuses/save')
             ->redirectUrl('commerce/settings/orders/statuses')
-            ->inertiaPage('Ui', [
-                'ui' => $form,
+            ->ui($form, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

@@ -28,7 +28,7 @@
   };
 
   // See UsageCounterNode.vue for why this is hand-authored.
-  type FormNodePayload<Props> = {
+  type UiNodePayload<Props> = {
     uid: string;
     props: Props;
   };
@@ -51,7 +51,7 @@
   const MAX_COUPONS = 400;
 
   const props = defineProps<{
-    node: FormNodePayload<CouponGeneratorProps>;
+    node: UiNodePayload<CouponGeneratorProps>;
     values: FormValues;
     scope: string[];
   }>();

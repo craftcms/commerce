@@ -73,7 +73,8 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
                     ['key' => 'effect', 'label' => t('Effect', category: 'commerce')],
                     ['key' => 'isPromotionalPrice', 'label' => t('Is Promotional Price?', category: 'commerce'), 'sortable' => true],
                 ])
-                ->dataUrl(action([self::class, 'tableData'], ['storeHandle' => $store->handle]), self::RULES_PER_PAGE)
+                ->dataUrl(action([self::class, 'tableData'], ['storeHandle' => $store->handle]))
+                ->perPage(self::RULES_PER_PAGE)
                 ->emptyMessage(t('No catalog pricing rules exist yet.', category: 'commerce'))
                 ->statusFilter()
                 ->searchable()
@@ -84,7 +85,9 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
                 )
                 ->when(
                     currentUserElement()?->can('commerce-deleteCatalogPricingRules'),
-                    fn(Table $table) => $table->deletable(action([self::class, 'delete']), bulk: true),
+                    fn(Table $table) => $table
+                        ->deletable(action([self::class, 'delete']))
+                        ->bulkDeletable(action([self::class, 'delete'])),
                 )
                 ->when(
                     currentUserElement()?->can('commerce-editCatalogPricingRules'),
@@ -95,8 +98,7 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
         return $this->cpScreenResponse($store)
             ->title(t('Pricing Rules', category: 'commerce'))
             ->crumbs($this->crumbs($store))
-            ->inertiaPage('Ui', [
-                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
+            ->ui(Ui::make($nodes), props: [
                 'contentMaxWidth' => false,
             ]);
     }
@@ -232,8 +234,7 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
             ->crumbs($this->crumbs($store, ...($catalogPricingRule->id ? [['label' => $title]] : [])))
             ->action('commerce/catalog-pricing-rules/save')
             ->redirectUrl($store->getStoreSettingsUrl('pricing-rules'))
-            ->inertiaPage('Ui', [
-                'ui' => $form,
+            ->ui($form, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

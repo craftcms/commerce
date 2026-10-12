@@ -2,7 +2,7 @@
   import {ref} from 'vue';
 
   // See ActionMenuNode.vue/CopyAttributeNode.vue in `cms` — this node holds no
-  // form value of its own, so `FormNode`'s shared prop set shouldn't fall
+  // form value of its own, so `UiNode`'s shared prop set shouldn't fall
   // through onto the host element.
   defineOptions({inheritAttrs: false});
 
@@ -14,16 +14,16 @@
     confirmMessage: string | null;
   };
 
-  // A minimal, hand-authored stand-in for `cms`'s own `FormNodePayload<T>` —
+  // A minimal, hand-authored stand-in for `cms`'s own `UiNodePayload<T>` —
   // only the two members this component actually reads (see window.d.ts for
   // why this can't just be imported from `cms`).
-  type FormNodePayload<Props> = {
+  type UiNodePayload<Props> = {
     uid: string;
     props: Props;
   };
 
   const props = defineProps<{
-    node: FormNodePayload<UsageCounterProps>;
+    node: UiNodePayload<UsageCounterProps>;
   }>();
 
   const loading = ref(false);

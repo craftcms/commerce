@@ -73,7 +73,8 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
                 ->emptyMessage(t('No shipping categories exist yet.', category: 'commerce'))
                 ->createAction(t('New shipping category', category: 'commerce'), $store->getStoreSettingsUrl('shippingcategories/new'))
                 ->createActionInPageHeader()
-                ->deletable(action([self::class, 'delete']), bulk: true)
+                ->deletable(action([self::class, 'delete']))
+                ->bulkDeletable(action([self::class, 'delete']))
                 ->bulkActions([
                     [
                         'icon' => 'settings',
@@ -94,8 +95,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
         return $this->cpScreenResponse($store)
             ->title($title)
             ->crumbs($this->crumbs($store))
-            ->inertiaPage('Ui', [
-                'ui' => $this->formResolver->resolve(Ui::make($nodes), new UiContext()),
+            ->ui(Ui::make($nodes), props: [
                 'contentMaxWidth' => false,
             ]);
     }
@@ -132,8 +132,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
             ->crumbs($this->crumbs($store, ...($shippingCategory->id ? [['label' => $title]] : [])))
             ->action('commerce/shipping-categories/save')
             ->redirectUrl($store->getStoreSettingsUrl('shippingcategories'))
-            ->inertiaPage('Ui', [
-                'ui' => $form,
+            ->ui($form, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

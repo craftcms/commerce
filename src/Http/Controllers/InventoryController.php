@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers;
 
 use CraftCms\Cms\Cp\Data\ActionItem;
+use CraftCms\Cms\Cp\Enums\TableAppearance;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
@@ -101,7 +102,8 @@ readonly class InventoryController
             ->dataUrl(action([self::class, 'inventoryLevelsTableData'], array_filter([
                 'inventoryLocationId' => $currentLocation->id,
                 'inventoryItemId' => $inventoryItemId,
-            ])), 50)
+            ])))
+            ->perPage(50)
             ->searchable(t('Search inventory', category: 'commerce'))
             ->toggleableColumns()
             ->emptyMessage(t('No inventory found.', category: 'commerce'));
@@ -110,8 +112,7 @@ readonly class InventoryController
             ->title(t('{location} Inventory', ['location' => $currentLocation->getUiLabel()], category: 'commerce'))
             ->crumbs($this->crumbs($currentLocation))
             ->selectedSubnavItem('inventory')
-            ->inertiaPage('Ui', [
-                'ui' => $this->formResolver->resolve(Ui::make([$table]), new UiContext()),
+            ->ui(Ui::make([$table]), props: [
                 'contentMaxWidth' => false,
             ]);
     }
@@ -447,9 +448,7 @@ readonly class InventoryController
             ->title($title)
             ->crumbs($this->crumbs($inventoryLocation, $this->inventoryItemLabel($inventoryItem)))
             ->selectedSubnavItem('inventory')
-            ->inertiaPage('Ui', [
-                'ui' => $this->formResolver->resolve(Ui::make([$table]), new UiContext()),
-            ]);
+            ->ui(Ui::make([$table]));
     }
 
     public function itemEdit(int $inventoryItemId): CpScreenResponse
@@ -478,13 +477,12 @@ readonly class InventoryController
             ->action('commerce/inventory/item-save')
             ->redirectUrl('commerce/inventory')
             ->selectedSubnavItem('inventory')
-            ->inertiaPage('Ui', [
-                'ui' => $this->formResolver->resolve($form, new UiContext(values: [
-                    'inventoryItemId' => $inventoryItem->id,
-                    'countryCodeOfOrigin' => $inventoryItem->countryCodeOfOrigin,
-                    'administrativeAreaCodeOfOrigin' => $inventoryItem->administrativeAreaCodeOfOrigin,
-                    'harmonizedSystemCode' => $inventoryItem->harmonizedSystemCode,
-                ])),
+            ->ui($form, new UiContext(values: [
+                'inventoryItemId' => $inventoryItem->id,
+                'countryCodeOfOrigin' => $inventoryItem->countryCodeOfOrigin,
+                'administrativeAreaCodeOfOrigin' => $inventoryItem->administrativeAreaCodeOfOrigin,
+                'harmonizedSystemCode' => $inventoryItem->harmonizedSystemCode,
+            ]), [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'itemSave']),
@@ -647,7 +645,7 @@ readonly class InventoryController
                     ];
                 })->values()->all())
                 ->emptyMessage(t('No inventory transactions for this location.', category: 'commerce'))
-                ->bordered();
+                ->appearance(TableAppearance::Raised);
         }
 
         return $nodes;
