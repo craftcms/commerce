@@ -6,7 +6,7 @@
     useCustomizeSources,
     type ElementIndexRoute,
     type NavItem,
-  } from '@craftcms/cms/elements';
+  } from '@craftcms/cp';
   import NewProductButton, {
     type CreatableProductType,
   } from '../../modules/elements/NewProductButton.vue';

@@ -1,12 +1,12 @@
 /**
- * Ambient types for `@craftcms/cms/elements`, the element index `cms` shares
+ * Ambient types for `@craftcms/cp`, the element index `cms` shares
  * with plugin bundles through the import map (see `cms`'s `Cp::sharedModules()`
- * and `resources/js/elements.ts`). Hand-authored for the same reason as
+ * and `resources/js/cp-module.ts`). Hand-authored for the same reason as
  * `window.d.ts`; keep in sync with `cms`'s `ElementIndexPage.vue`,
  * `ElementEditor.vue`, `CpButtonLink.vue`, `ActionMenu.vue`, `common/types` and
  * `useElementIndexVisits.ts`, `useAppLayout.ts`, `useCustomizeSources.ts`.
  */
-declare module '@craftcms/cms/elements' {
+declare module '@craftcms/cp' {
   import type {ComputedRef, DefineComponent} from 'vue';
 
   export type IndexQueryValue =

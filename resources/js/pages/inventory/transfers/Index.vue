@@ -7,7 +7,7 @@
     useCustomizeSources,
     type ElementIndexRoute,
     type NavItem,
-  } from '@craftcms/cms/elements';
+  } from '@craftcms/cp';
 
   const props = defineProps<{
     indexUrl: string;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import {ActionMenu, type ActionItemLink} from '@craftcms/cms/elements';
+  import {ActionMenu, type ActionItemLink} from '@craftcms/cp';
   import {computed} from 'vue';
 
   export type CreatableProductType = {

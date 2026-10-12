@@ -25,12 +25,12 @@ import laravel from 'laravel-vite-plugin';
  * the CP's own instances rather than bundling second copies.
  *
  * Each maps to its named exports, or `null` for a package the dev server can
- * import itself to find them — `@craftcms/cms/elements` only exists in the
+ * import itself to find them — `@craftcms/cp` only exists in the
  * browser, through the import map.
  */
 const cpSharedModuleExports: Record<string, string[] | null> = {
   vue: null,
-  '@craftcms/cms/elements': [
+  '@craftcms/cp': [
     'ElementIndexPage',
     'ElementEditor',
     'CpButtonLink',

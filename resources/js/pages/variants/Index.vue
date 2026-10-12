@@ -3,7 +3,7 @@
     appendIndexQuery,
     ElementIndexPage,
     type ElementIndexRoute,
-  } from '@craftcms/cms/elements';
+  } from '@craftcms/cp';
 
   const props = defineProps<{
     indexUrl: string;
