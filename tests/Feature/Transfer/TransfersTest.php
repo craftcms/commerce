@@ -342,7 +342,7 @@ test('only a pending or partially received transfer offers to receive inventory 
         ['variant' => $this->hoodieVariant, 'quantity' => 2],
     ]);
 
-    $receive = fn(Transfer $transfer) => collect($transfer->actionMenuDescriptors())
+    $receive = fn(Transfer $transfer) => collect($transfer->additionalButtonDescriptors())
         ->firstWhere('behavior.type', 'formModal');
 
     expect($receive($transfer))->toBeNull();
@@ -355,7 +355,8 @@ test('only a pending or partially received transfer offers to receive inventory 
         'modalUrl' => Url::actionUrl('commerce/transfers/prepare-receive-modal'),
         'actionUrl' => Url::actionUrl('commerce/transfers/receive-transfer'),
         'params' => ['transferId' => $transfer->id],
-    ]);
+    ])
+        ->and(collect($transfer->actionMenuDescriptors())->firstWhere('behavior.type', 'formModal'))->toBeNull();
 
     app(Transfers::class)->receive($transfer, [$transfer->getDetails()[0]->uid => ['accept' => 2]]);
 

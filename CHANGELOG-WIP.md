@@ -949,7 +949,7 @@
 - Added `CraftCms\Commerce\Http\ViewModels\TransferIndexViewModel` and `CraftCms\Commerce\Http\ViewModels\TransferEditViewModel`.
 - The transfers index and edit screens are now Inertia pages built on core's element index and element editor.
 - Transfers are now saved through core's `elements/save` action. `TransferManagementField` now provides origin, destination and item form controls, and changing the origin refreshes the items that can be transferred.
-- Receiving a transfer now happens in a “Receive Inventory” modal opened from the transfer's action menu.
+- Receiving a transfer now happens in a “Receive Inventory” modal opened from a button in the transfer edit screen's footer.
 - Deprecated `craft\commerce\elements\Transfer`. `CraftCms\Commerce\Transfer\Elements\Transfer` should be used instead.
 - Deprecated `craft\commerce\elements\db\TransferQuery`. `CraftCms\Commerce\Transfer\Queries\TransferQuery` should be used instead.
 - Deprecated `craft\commerce\elements\conditions\transfers\TransferCondition`. `CraftCms\Commerce\Transfer\Conditions\TransferCondition` should be used instead.

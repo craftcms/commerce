@@ -242,26 +242,7 @@ class Transfer extends Element
     #[Override]
     protected function extraActionMenuDescriptors(ElementActionContext $context = ElementActionContext::Editor): array
     {
-        if (!$this->id) {
-            return [];
-        }
-
-        if ($this->canBeReceived()) {
-            return [
-                [
-                    'label' => t('Receive Inventory', category: 'commerce'),
-                    'icon' => 'arrow-down',
-                    'behavior' => [
-                        'type' => 'formModal',
-                        'modalUrl' => Url::actionUrl('commerce/transfers/prepare-receive-modal'),
-                        'actionUrl' => Url::actionUrl('commerce/transfers/receive-transfer'),
-                        'params' => ['transferId' => $this->id],
-                    ],
-                ],
-            ];
-        }
-
-        if (!$this->isTransferDraft() || count($this->getDetails()) === 0) {
+        if (!$this->id || !$this->isTransferDraft() || count($this->getDetails()) === 0) {
             return [];
         }
 
@@ -274,6 +255,30 @@ class Transfer extends Element
                     'actionUrl' => Url::actionUrl('commerce/transfers/mark-as-pending'),
                     'params' => ['transferId' => $this->id],
                     'confirm' => t('Are you sure you want to mark this transfer as pending? This will show as incoming at the destination.', category: 'commerce'),
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    #[Override]
+    protected function defineAdditionalButtonDescriptors(): array
+    {
+        if (!$this->id || !$this->canBeReceived()) {
+            return [];
+        }
+
+        return [
+            [
+                'label' => t('Receive Inventory', category: 'commerce'),
+                'icon' => 'arrow-down',
+                'behavior' => [
+                    'type' => 'formModal',
+                    'modalUrl' => Url::actionUrl('commerce/transfers/prepare-receive-modal'),
+                    'actionUrl' => Url::actionUrl('commerce/transfers/receive-transfer'),
+                    'params' => ['transferId' => $this->id],
                 ],
             ],
         ];
