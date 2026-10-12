@@ -21,7 +21,7 @@ readonly class PaymentSourcesController
 {
     use RespondsWithFlash;
 
-    public function add(Request $request): ?Response
+    public function store(Request $request): ?Response
     {
 
         // Are we paying anonymously?
@@ -70,7 +70,7 @@ readonly class PaymentSourcesController
         );
     }
 
-    public function setPrimaryPaymentSource(Request $request): ?Response
+    public function setPrimary(Request $request): ?Response
     {
         $user = currentUserElement();
         abort_unless($user !== null, 401, t('You must be signed in to set a primary payment source.', category: 'commerce'));
@@ -97,7 +97,7 @@ readonly class PaymentSourcesController
         return $this->asSuccess(t('Primary payment source updated.', category: 'commerce'));
     }
 
-    public function delete(Request $request): ?Response
+    public function destroy(Request $request): ?Response
     {
         $currentUser = currentUserElement();
         abort_unless($currentUser !== null, 401);

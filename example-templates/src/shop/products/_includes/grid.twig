@@ -29,7 +29,7 @@
           </p>
           <form method="post" class="mt-6">
             {{ csrfInput() }}
-            {{ actionInput('commerce/cart/update-cart') }}
+            {{ actionInput('commerce/cart/update') }}
             {{ successMessageInput('{product} added to cart.'|t({
               product: product.title
             })) }}

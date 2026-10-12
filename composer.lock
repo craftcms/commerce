@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a5c6087a0c00e93ad3a93f463c9af027",
+    "content-hash": "c42c1052189b24c4d6b925caccc7cd36",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -414,16 +414,16 @@
         },
         {
             "name": "craftcms/cms",
-            "version": "dev-feature/6.x-form-component-compatibility-and-usage-updates",
+            "version": "6.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/cms.git",
-                "reference": "0cbc515d15c6403b927e80b06ed11a6df9a68c53"
+                "reference": "7d178b6d40994d930b196cf2be4a980c90af77f5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/cms/zipball/0cbc515d15c6403b927e80b06ed11a6df9a68c53",
-                "reference": "0cbc515d15c6403b927e80b06ed11a6df9a68c53",
+                "url": "https://api.github.com/repos/craftcms/cms/zipball/7d178b6d40994d930b196cf2be4a980c90af77f5",
+                "reference": "7d178b6d40994d930b196cf2be4a980c90af77f5",
                 "shasum": ""
             },
             "require": {
@@ -604,7 +604,7 @@
                 "rss": "https://github.com/craftcms/cms/releases.atom",
                 "source": "https://github.com/craftcms/cms"
             },
-            "time": "2026-10-12T09:35:12+00:00"
+            "time": "2026-10-12T11:00:07+00:00"
         },
         {
             "name": "craftcms/cms-assets",
@@ -612,12 +612,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/cms-assets.git",
-                "reference": "b222e5e1715a0e85a554241fc477b326d3a9155a"
+                "reference": "11fe5e8e850fe728fc5c74d6ebda33ef3e52e6d0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/cms-assets/zipball/b222e5e1715a0e85a554241fc477b326d3a9155a",
-                "reference": "b222e5e1715a0e85a554241fc477b326d3a9155a",
+                "url": "https://api.github.com/repos/craftcms/cms-assets/zipball/11fe5e8e850fe728fc5c74d6ebda33ef3e52e6d0",
+                "reference": "11fe5e8e850fe728fc5c74d6ebda33ef3e52e6d0",
                 "shasum": ""
             },
             "default-branch": true,
@@ -630,7 +630,7 @@
             "support": {
                 "source": "https://github.com/craftcms/cms-assets/tree/6.x"
             },
-            "time": "2026-10-11T16:23:05+00:00"
+            "time": "2026-10-12T11:02:35+00:00"
         },
         {
             "name": "craftcms/laravel-aliases",
@@ -17048,20 +17048,7 @@
             "time": "2024-01-29T14:13:45+00:00"
         }
     ],
-    "aliases": [
-        {
-            "package": "craftcms/cms",
-            "version": "dev-feature/6.x-form-component-compatibility-and-usage-updates",
-            "alias": "6.x-dev",
-            "alias_normalized": "6.9999999.9999999.9999999-dev"
-        },
-        {
-            "package": "craftcms/cms-assets",
-            "version": "6.9999999.9999999.9999999-dev",
-            "alias": "dev-feature/6.x-form-component-compatibility-and-usage-updates",
-            "alias_normalized": "dev-feature/6.x-form-component-compatibility-and-usage-updates"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
         "craftcms/cms": 20,

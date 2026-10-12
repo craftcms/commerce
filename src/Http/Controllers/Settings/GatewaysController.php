@@ -139,7 +139,17 @@ class GatewaysController extends BaseSettingsController
             ]);
     }
 
-    public function edit(?int $id = null): CpScreenResponse
+    public function create(): CpScreenResponse
+    {
+        return $this->editScreen();
+    }
+
+    public function edit(int $id): CpScreenResponse
+    {
+        return $this->editScreen($id);
+    }
+
+    private function editScreen(?int $id = null): CpScreenResponse
     {
         $gatewayService = app(Gateways::class);
 
@@ -187,14 +197,14 @@ class GatewaysController extends BaseSettingsController
             ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
-                    'url' => action([self::class, 'save']),
+                    'url' => action([self::class, 'store']),
                 ],
                 'refreshUrl' => $this->readOnly ? null : action([self::class, 'renderUi']),
             ]);
     }
 
     /**
-     * Re-resolves the {@see edit()} Form tree for the values currently in progress on the
+     * Re-resolves the {@see editScreen()} Ui tree for the values currently in progress on the
      * client, so switching the Gateway type can swap in that type's own settings fields
      * without a full page reload.
      */
@@ -246,7 +256,7 @@ class GatewaysController extends BaseSettingsController
         }
 
         // Rebuild a live instance of the currently selected type, seeded with whatever's been
-        // posted so far — mirrors save()'s own config-building, so switching types (or a
+        // posted so far — mirrors store()'s own config-building, so switching types (or a
         // reactive round trip mid-edit) always reflects what's actually in the form right now.
         $bareGateway = $gatewayService->createGateway($type);
         // getSettings() (rather than settingsAttributes()) since a gateway type may back its
@@ -345,7 +355,7 @@ class GatewaysController extends BaseSettingsController
         return Ui::make($uiNodes);
     }
 
-    public function save(Request $request): Response
+    public function store(Request $request): Response
     {
         $gatewayService = app(Gateways::class);
 

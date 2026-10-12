@@ -14,7 +14,7 @@ Outputs cart.
   {% if cart.lineItems|length %}
     <form method="post" action="">
       {{ csrfInput() }}
-      {{ actionInput('commerce/cart/update-cart') }}
+      {{ actionInput('commerce/cart/update') }}
       {{ successMessageInput('Cart updated.'|t) }}
       <div class="lg:flex">
         <div class="lg:w-2/3">

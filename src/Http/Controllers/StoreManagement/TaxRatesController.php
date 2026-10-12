@@ -98,7 +98,7 @@ readonly class TaxRatesController extends BaseStoreManagementController
                     app(Taxes::class)->createTaxRates(),
                     fn(Table $table) => $table->createAction(t('New tax rate', category: 'commerce'), $store->getStoreSettingsUrl('taxrates/new')),
                 )
-                ->when($this->canDeleteTaxRates(), fn(Table $table) => $table->deletable(action([self::class, 'delete']))),
+                ->when($this->canDeleteTaxRates(), fn(Table $table) => $table->deletable(action([self::class, 'destroy']))),
         ];
 
         $title = t('Tax Rates', category: 'commerce');
@@ -113,7 +113,17 @@ readonly class TaxRatesController extends BaseStoreManagementController
             ]);
     }
 
-    public function edit(?string $storeHandle = null, ?int $id = null): CpScreenResponse
+    public function create(?string $storeHandle = null): CpScreenResponse
+    {
+        return $this->editScreen($storeHandle);
+    }
+
+    public function edit(?string $storeHandle, int $id): CpScreenResponse
+    {
+        return $this->editScreen($storeHandle, $id);
+    }
+
+    private function editScreen(?string $storeHandle = null, ?int $id = null): CpScreenResponse
     {
         abort_unless(app(Taxes::class)->viewTaxRates(), 403, 'Tax engine does not permit you to perform this action');
 
@@ -154,7 +164,7 @@ readonly class TaxRatesController extends BaseStoreManagementController
             ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
-                    'url' => action([self::class, 'save']),
+                    'url' => action([self::class, 'store']),
                 ],
                 'refreshUrl' => action([self::class, 'renderUi']),
                 'metadataHtml' => $metadataHtml,
@@ -163,7 +173,7 @@ readonly class TaxRatesController extends BaseStoreManagementController
     }
 
     /**
-     * Re-resolves the {@see edit()} Form tree for the values currently in progress on the
+     * Re-resolves the {@see editScreen()} Ui tree for the values currently in progress on the
      * client, so switching the taxable subject, toggling "Included in price?", or checking a
      * tax ID validator can reveal or hide the fields that depend on them without a full page
      * reload.
@@ -248,7 +258,7 @@ readonly class TaxRatesController extends BaseStoreManagementController
         if ($canCreateTaxZones) {
             $taxZoneOptions[] = new ComboboxCreateOption(
                 t('Create a tax zone', category: 'commerce'),
-                action([TaxZonesController::class, 'edit'], ['storeHandle' => $store->handle]),
+                action([TaxZonesController::class, 'create'], ['storeHandle' => $store->handle]),
                 'taxZone',
             );
         }
@@ -261,7 +271,7 @@ readonly class TaxRatesController extends BaseStoreManagementController
         if ($canCreateTaxCategories) {
             $taxCategoryOptions[] = new ComboboxCreateOption(
                 t('Create a new tax category', category: 'commerce'),
-                action([TaxCategoriesController::class, 'edit'], ['storeHandle' => $store->handle]),
+                action([TaxCategoriesController::class, 'create'], ['storeHandle' => $store->handle]),
                 'taxCategory',
             );
         }
@@ -346,7 +356,7 @@ readonly class TaxRatesController extends BaseStoreManagementController
         return app(Taxes::class)->deleteTaxRates();
     }
 
-    public function save(Request $request): Response
+    public function store(Request $request): Response
     {
         abort_unless(app(Taxes::class)->editTaxRates(), 403, 'Tax engine does not permit you to perform this action');
 
@@ -374,7 +384,7 @@ readonly class TaxRatesController extends BaseStoreManagementController
         return $this->asModelSuccess($taxRate, t('Tax rate saved.', category: 'commerce'), 'taxRate');
     }
 
-    public function delete(Request $request): Response
+    public function destroy(Request $request): Response
     {
         abort_unless(app(Taxes::class)->deleteTaxRates(), 403, 'Tax engine does not permit you to perform this action');
         abort_unless($request->expectsJson(), 400);

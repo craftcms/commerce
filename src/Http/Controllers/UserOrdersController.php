@@ -15,7 +15,7 @@ readonly class UserOrdersController
 {
     use RespondsWithFlash;
 
-    public function getOrders(Request $request): Response
+    public function index(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
 
