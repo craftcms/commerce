@@ -12,10 +12,12 @@ use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Facades\InputNamespace;
+use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Ui\Contracts\Node;
 use CraftCms\Cms\Ui\Controls\Money;
+use CraftCms\Cms\Ui\Enums\ControlMode;
 use CraftCms\Cms\Ui\Enums\FieldWidth;
 use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Cms\Ui\Nodes\Group;
@@ -69,7 +71,7 @@ class PurchasablePriceField extends BaseNativeField
             throw new InvalidArgumentException('Persisted Purchasable Price FieldLayout elements require stable UIDs.');
         }
 
-        $static = $context->mode !== \CraftCms\Cms\Ui\Enums\ControlMode::Editable;
+        $static = $context->mode !== ControlMode::Editable || $context->ui->mode !== ControlMode::Editable;
         $status = $this->showStatus() ? $this->statusClass($element, $static) : null;
         $statusLabel = $status !== null
             ? ($this->statusLabel($element, $static) ?? ucfirst($status))
@@ -78,8 +80,7 @@ class PurchasablePriceField extends BaseNativeField
         $currency = $element->getStore()->getCurrency()->getCode();
         $fields = [
             Field::make(t('Price', category: 'commerce'))
-                ->required()
-                ->status($status, $statusLabel)
+                ->required(!$static)
                 ->width(FieldWidth::Half)
                 ->control(
                     Money::make('basePrice')
@@ -93,7 +94,6 @@ class PurchasablePriceField extends BaseNativeField
 
         if (app(CatalogPricingRules::class)->canUseCatalogPricingRules()) {
             $fields[] = Field::make(t('Promotional Price', category: 'commerce'))
-                ->status($status, $statusLabel)
                 ->width(FieldWidth::Half)
                 ->control(
                     Money::make('basePromotionalPrice')
@@ -108,11 +108,15 @@ class PurchasablePriceField extends BaseNativeField
         return Group::make($this->uid, $fields)
             ->asField()
             ->label($this->showLabel() ? $this->label() : null)
-            ->instructions($this->instructionsText($element))
+            ->showStatus($this->showStatus())
+            ->orientation($this->orientation($element, $static))
+            ->translatable(Sites::isMultiSite() && $this->translatable($element, $static), $this->translationDescription($element, $static))
+            ->instructions($this->instructionsText($element, $static))
             ->instructionsPosition($this->instructionsPosition)
-            ->tip($this->tipText($element))
-            ->warning($this->warningText($element))
-            ->required($this->required)
+            ->tip($this->tipText($element, $static))
+            ->warning($this->warningText($element, $static))
+            ->required(!$static && $this->required)
+            ->status($status, $statusLabel)
             ->layoutUid($this->uid)
             ->width($this->width);
     }
