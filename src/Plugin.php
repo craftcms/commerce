@@ -121,6 +121,7 @@ use CraftCms\Commerce\Twig\Extension as CommerceTwigExtension;
 use CraftCms\Commerce\Ui\Controls\SiteStores;
 use CraftCms\Commerce\Ui\Controls\TransferDetails;
 use CraftCms\Commerce\Ui\Controls\TransferReceive;
+use CraftCms\Commerce\Ui\Nodes\CatalogPrices;
 use CraftCms\Commerce\Ui\Nodes\CouponGenerator;
 use CraftCms\Commerce\Ui\Nodes\UsageCounter;
 use Illuminate\Auth\Events\Login;
@@ -259,6 +260,7 @@ class Plugin extends BasePlugin
         $arguments->register('relatedToProducts', RelatedProducts::class);
         $arguments->register('relatedToVariants', RelatedVariants::class);
 
+        app(UiNodeTypes::class)->register(CatalogPrices::class);
         app(UiNodeTypes::class)->register(CouponGenerator::class);
         app(UiNodeTypes::class)->register(UsageCounter::class);
         app(UiControlTypes::class)->register(SiteStores::class);

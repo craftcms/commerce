@@ -34,7 +34,6 @@ use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingRuleVariantConditi
 use CraftCms\Commerce\CatalogPricing\Data\CatalogPricingRule;
 use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingRule as CatalogPricingRuleRecord;
 use CraftCms\Commerce\Customer\Conditions\CatalogPricingRuleCustomerCondition;
-use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Helpers\Localization;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableCondition;
@@ -182,19 +181,12 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
             ? '∞'
             : ($rule->dateFrom?->format($dateFormat) ?? '∞') . ' - ' . ($rule->dateTo?->format($dateFormat) ?? '∞');
 
-        $effect = match ($rule->apply) {
-            CatalogPricingRuleRecord::APPLY_BY_PERCENT => t('{amount} (off original price)', ['amount' => $rule->applyAmountAsPercent], category: 'commerce'),
-            CatalogPricingRuleRecord::APPLY_TO_PERCENT => t('{amount} (of original price)', ['amount' => $rule->applyAmountAsPercent], category: 'commerce'),
-            CatalogPricingRuleRecord::APPLY_BY_FLAT => t('{amount} (off original price)', ['amount' => Currency::formatAsCurrency($rule->applyAmountAsFlat, $currencyIso, true)], category: 'commerce'),
-            default => t('{amount} (new price)', ['amount' => Currency::formatAsCurrency($rule->applyAmountAsFlat, $currencyIso, true)], category: 'commerce'),
-        };
-
         return [
             'id' => $rule->id,
             '_status' => $rule->enabled,
             'name' => ['label' => t($rule->name, category: 'site'), 'url' => $store->getStoreSettingsUrl('pricing-rules/' . $rule->id)],
             'duration' => $dateRange,
-            'effect' => $effect,
+            'effect' => $rule->getEffectLabel($currencyIso),
             'isPromotionalPrice' => $rule->isPromotionalPrice ? ['icon' => 'check', 'label' => t('Yes')] : '',
         ];
     }

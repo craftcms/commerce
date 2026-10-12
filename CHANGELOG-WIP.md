@@ -4,6 +4,7 @@
 
 - Added `CraftCms\Commerce\Product\Elements\Product`.
 - Added `CraftCms\Commerce\Product\Variant\Elements\Variant`.
+- Variants are now edited in a wider slideout.
 - Added `CraftCms\Commerce\Product\Queries\ProductQuery`.
 - Added `CraftCms\Commerce\Product\Variant\Queries\VariantQuery`.
 - Added `CraftCms\Commerce\Product\Models\Product`.
@@ -116,6 +117,14 @@
 - `CraftCms\Commerce\CatalogPricing\Data\CatalogPricingRule` now uses `CraftCms\Commerce\Customer\Conditions\CatalogPricingRuleCustomerCondition`, `CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingRuleProductCondition`, `CatalogPricingRuleVariantCondition`, and `CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableCondition`.
 - Added `CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob`, a native Laravel `ShouldQueue` job.
 - Removed `craft\commerce\queue\jobs\CatalogPricing`. `CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob` should be used instead.
+- Added `CraftCms\Commerce\CatalogPricing\PurchasableCatalogPrices`.
+- Added `CraftCms\Commerce\CatalogPricing\Data\CatalogPricingRule::getEffectLabel()`.
+- Added `CraftCms\Commerce\CatalogPricing\Data\CatalogPricingRule::hasCustomerCondition()`.
+- Added `CraftCms\Commerce\Ui\Nodes\CatalogPrices`.
+- The purchasable Price field now has a collapsible “Pricing rules” listing of the catalog pricing rules currently applied to the purchasable, with badges for the lowest price everyone pays and for customer-specific rules.
+- Removed `craft\commerce\helpers\Purchasable::catalogPricingRulesTableByPurchasableId()`.
+- Removed `craft\commerce\web\assets\purchasablepricefield\PurchasablePriceFieldAsset`.
+- Removed the `commerce/catalog-pricing/get-catalog-prices` action.
 
 #### Controllers
 
