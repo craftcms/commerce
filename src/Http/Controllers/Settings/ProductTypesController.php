@@ -74,7 +74,7 @@ class ProductTypesController extends BaseSettingsController
 
         $title = t('Product Types', category: 'commerce');
 
-        $form = Ui::make([
+        $ui = Ui::make([
             Table::make('product-types')
                 ->columns([
                     ['key' => 'name', 'label' => t('Name'), 'sortable' => true],
@@ -101,7 +101,7 @@ class ProductTypesController extends BaseSettingsController
         return $this->cpScreenResponse()
             ->title($title)
             ->crumbs($this->crumbs())
-            ->ui($form, props: [
+            ->ui($ui, props: [
                 'contentMaxWidth' => false,
             ]);
     }
@@ -121,8 +121,8 @@ class ProductTypesController extends BaseSettingsController
         $title = $productTypeId ? $productType->name : t('Create a new product type', category: 'commerce');
         $values = $this->initialValues($productType, $brandNewProductType);
 
-        $form = $this->formResolver->resolve(
-            $this->buildForm($productType, $values, $brandNewProductType),
+        $ui = $this->uiResolver->resolve(
+            $this->buildUi($productType, $values, $brandNewProductType),
             new UiContext(
                 values: $values,
                 mode: $this->readOnly ? ControlMode::ReadOnly : ControlMode::Editable,
@@ -134,12 +134,12 @@ class ProductTypesController extends BaseSettingsController
             ->title($title)
             ->crumbs($brandNewProductType ? $this->crumbs() : $this->crumbs(['label' => $title]))
             ->redirectUrl('commerce/settings/producttypes')
-            ->ui($form, props: [
+            ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'saveProductType']),
                 ],
-                'refreshUrl' => $this->readOnly ? null : action([self::class, 'renderForm']),
+                'refreshUrl' => $this->readOnly ? null : action([self::class, 'renderUi']),
             ]);
     }
 
@@ -148,12 +148,12 @@ class ProductTypesController extends BaseSettingsController
      * on the client, so toggles like `isStructure`/`hasProductTitleField` can branch which
      * fields appear next without a full page reload.
      */
-    public function renderForm(Request $request): JsonResponse
+    public function renderUi(Request $request): JsonResponse
     {
         // Validate for shape only — `Request::validate()` returns just the ruled subset
         // (`validated()`), which would silently strip every field but `productTypeId` back
         // out of `values`. Reading the raw input keeps the full posted values intact, which
-        // `buildForm()`'s branching (and every other control's live value) depends on.
+        // `buildUi()`'s branching (and every other control's live value) depends on.
         $request->validate([
             'values' => ['required', 'array'],
             'values.productTypeId' => ['nullable', 'integer'],
@@ -176,8 +176,8 @@ class ProductTypesController extends BaseSettingsController
         // `defaultPlacement` when `isStructure` flips on) gets its actual value instead of null.
         $values = array_replace($this->initialValues($productType, brandNew: !$productTypeId), $values);
 
-        $form = $this->formResolver->resolve(
-            $this->buildForm($productType, $values, brandNew: !$productTypeId),
+        $ui = $this->uiResolver->resolve(
+            $this->buildUi($productType, $values, brandNew: !$productTypeId),
             new UiContext(
                 values: $values,
                 mode: ControlMode::Editable,
@@ -185,12 +185,12 @@ class ProductTypesController extends BaseSettingsController
             ),
         );
 
-        return new JsonResponse(['ui' => $form]);
+        return new JsonResponse(['ui' => $ui]);
     }
 
     /**
      * The Form's starting values, derived from a loaded (or brand new) {@see ProductType}.
-     * Only used for the initial page load — {@see renderForm()} uses the client's own
+     * Only used for the initial page load — {@see renderUi()} uses the client's own
      * in-progress values instead, so unsaved edits aren't clobbered on every toggle.
      *
      * @return array<string, mixed>
@@ -260,13 +260,13 @@ class ProductTypesController extends BaseSettingsController
 
     /**
      * Builds the edit screen's Form tree, branching on `$values` (rather than reading straight
-     * off `$productType`) so {@see editProductType()} and {@see renderForm()} produce the exact
+     * off `$productType`) so {@see editProductType()} and {@see renderUi()} produce the exact
      * same shape for the exact same values — one from a loaded model, the other from whatever the
      * client just posted mid-edit.
      *
      * @param  array<string, mixed>  $values
      */
-    private function buildForm(ProductType $productType, array $values, bool $brandNew): Ui
+    private function buildUi(ProductType $productType, array $values, bool $brandNew): Ui
     {
         $isMultiSite = Sites::isMultiSite();
 

@@ -36,7 +36,7 @@ it('renders the donation settings page, creating the donation', function() {
             ->where('title', 'Donation Settings')
             ->where('crumbs.0.label', 'Commerce')
             ->where('submit.url', Url::actionUrl('commerce/donations/save'))
-            ->where('refreshUrl', Url::actionUrl('commerce/donations/render-form'))
+            ->where('refreshUrl', Url::actionUrl('commerce/donations/render-ui'))
             ->where('ui.values.sku', 'DONATION-CC5')
             ->where('ui.values.availableForPurchase', false)
             ->has('ui.values.enabled')
@@ -55,7 +55,7 @@ it('requires the manage donation settings permission', function() {
 it('shows the fields that apply to the lightswitches’ state', function(array $values, array $visible) {
     get(Url::cpUrl('commerce/donations'))->assertOk();
 
-    $form = postJson(Url::actionUrl('commerce/donations/render-form'), [
+    $form = postJson(Url::actionUrl('commerce/donations/render-ui'), [
         'values' => $values,
         'scope' => [],
     ])->assertOk()->json('ui');

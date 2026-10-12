@@ -141,27 +141,27 @@ class PdfsController extends BaseSettingsController
             : Field::make(t('Default Order PDF', category: 'commerce'), Lightswitch::make('isDefault'))
                 ->instructions(t('This is the default PDF that will be rendered when requesting the order PDF.', category: 'commerce'));
 
-        $formNodes = [
+        $uiNodes = [
             HiddenField::make('storeId'),
         ];
 
         if ($pdf->id) {
-            $formNodes[] = HiddenField::make('id');
+            $uiNodes[] = HiddenField::make('id');
         }
 
-        $formNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
+        $uiNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
             ->instructions(t('What this PDF will be called in the control panel.', category: 'commerce'))
             ->required();
-        $formNodes[] = Field::make(t('Handle', category: 'commerce'), $handle)
+        $uiNodes[] = Field::make(t('Handle', category: 'commerce'), $handle)
             ->instructions(t('How you’ll refer to this PDF in the templates.', category: 'commerce'))
             ->required();
-        $formNodes[] = Field::make(t('Description', category: 'commerce'), Text::make('description'));
+        $uiNodes[] = Field::make(t('Description', category: 'commerce'), Text::make('description'));
         // Same template-path autosuggest as the old craft.cp.getTemplateSuggestions() JS call —
         // Combobox is a free-text input with suggestions, not a closed choice.
-        $formNodes[] = Field::make(t('PDF Template Path', category: 'commerce'), Combobox::make('templatePath')->options(SelectOptions::getTemplateSuggestions()))
+        $uiNodes[] = Field::make(t('PDF Template Path', category: 'commerce'), Combobox::make('templatePath')->options(SelectOptions::getTemplateSuggestions()))
             ->instructions(t('The template that the PDF should be generated from.', category: 'commerce'))
             ->required();
-        $formNodes[] = Field::make(t('Order PDF Filename Format', category: 'commerce'), Text::make('fileNameFormat')->monospace())
+        $uiNodes[] = Field::make(t('Order PDF Filename Format', category: 'commerce'), Text::make('fileNameFormat')->monospace())
             ->instructions(t('What the order PDF filename should look like (sans extension). You can include tags that output order properties, such as {ex1} or {ex2}.', [
                 // Field::instructions() runs through the same markdown as the Twig field macro, but
                 // (unlike the old macro) doesn't pass raw inline HTML through — backticks instead of
@@ -169,17 +169,17 @@ class PdfsController extends BaseSettingsController
                 'ex1' => '`{number}`',
                 'ex2' => '`{myOrderCustomField}`',
             ], category: 'commerce'));
-        $formNodes[] = Field::make(t('Language', category: 'commerce'), Choice::make('language')->options($languageOptions))
+        $uiNodes[] = Field::make(t('Language', category: 'commerce'), Choice::make('language')->options($languageOptions))
             ->instructions(t('The language to be used when PDF is rendered.', category: 'commerce'));
-        $formNodes[] = Field::make(t('Paper Orientation', category: 'commerce'), Choice::make('paperOrientation')->options($paperOrientationOptions));
-        $formNodes[] = Field::make(t('Paper Size', category: 'commerce'), Choice::make('paperSize')->options($paperSizeOptions));
-        $formNodes[] = Field::make(t('Link Duration', category: 'commerce'), Number::make('linkExpiry')->min(1))
+        $uiNodes[] = Field::make(t('Paper Orientation', category: 'commerce'), Choice::make('paperOrientation')->options($paperOrientationOptions));
+        $uiNodes[] = Field::make(t('Paper Size', category: 'commerce'), Choice::make('paperSize')->options($paperSizeOptions));
+        $uiNodes[] = Field::make(t('Link Duration', category: 'commerce'), Number::make('linkExpiry')->min(1))
             ->instructions(t('How long (in seconds) a PDF download link should remain valid before expiring. Default is 86400 (24 hours).', category: 'commerce'));
-        $formNodes[] = Field::make(t('Enabled?', category: 'commerce'), Lightswitch::make('enabled'))
+        $uiNodes[] = Field::make(t('Enabled?', category: 'commerce'), Lightswitch::make('enabled'))
             ->instructions(t('If disabled, this PDF will not be available or sent with emails.', category: 'commerce'));
-        $formNodes[] = $defaultNode;
+        $uiNodes[] = $defaultNode;
 
-        $form = $this->formResolver->resolve(Ui::make($formNodes), new UiContext(
+        $ui = $this->uiResolver->resolve(Ui::make($uiNodes), new UiContext(
             values: [
                 'storeId' => $store->id,
                 'id' => $pdf->id,
@@ -205,7 +205,7 @@ class PdfsController extends BaseSettingsController
             ->crumbs($pdf->id ? $this->crumbs($storeCrumb, ['label' => $title]) : $this->crumbs($storeCrumb))
             ->action('commerce/pdfs/save')
             ->redirectUrl("commerce/settings/pdfs/{$store->handle}")
-            ->ui($form, props: [
+            ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

@@ -63,7 +63,7 @@ readonly class InventoryLocationsController
     ];
 
     public function __construct(
-        private UiResolver $formResolver,
+        private UiResolver $uiResolver,
     ) {
     }
 
@@ -125,8 +125,8 @@ readonly class InventoryLocationsController
             t('Updated at') => $formatter->asDateTime($inventoryLocation->dateUpdated, 'short'),
         ]) : null;
 
-        $form = $this->formResolver->resolve(
-            $this->buildForm($inventoryLocation, $address),
+        $ui = $this->uiResolver->resolve(
+            $this->buildUi($inventoryLocation, $address),
             new UiContext(values: $this->initialValues($inventoryLocation, $address), refreshable: true),
         );
 
@@ -136,12 +136,12 @@ readonly class InventoryLocationsController
             ->action('commerce/inventory-locations/save')
             ->redirectUrl('commerce/inventory-locations')
             ->selectedSubnavItem('inventory-locations')
-            ->ui($form, props: [
+            ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
                 ],
-                'refreshUrl' => action([self::class, 'renderForm']),
+                'refreshUrl' => action([self::class, 'renderUi']),
                 'metadataHtml' => $metadataHtml,
             ]);
     }
@@ -151,7 +151,7 @@ readonly class InventoryLocationsController
      * client, so changing the country can reveal the right set of country-specific address
      * fields without a full page reload.
      */
-    public function renderForm(Request $request): JsonResponse
+    public function renderUi(Request $request): JsonResponse
     {
         $request->validate([
             'values' => ['required', 'array'],
@@ -169,12 +169,12 @@ readonly class InventoryLocationsController
 
         $values = array_replace($this->initialValues($inventoryLocation, $address), $values);
 
-        $form = $this->formResolver->resolve(
-            $this->buildForm($inventoryLocation, $address),
+        $ui = $this->uiResolver->resolve(
+            $this->buildUi($inventoryLocation, $address),
             new UiContext(values: $values, refreshable: true),
         );
 
-        return new JsonResponse(['ui' => $form]);
+        return new JsonResponse(['ui' => $ui]);
     }
 
     public function save(Request $request): Response
@@ -251,14 +251,14 @@ readonly class InventoryLocationsController
 
         abort_if(empty($destinationOptions), 400, 'Can not delete last inventory location.');
 
-        $form = Ui::make([
+        $ui = Ui::make([
             Field::make(t('Destination Inventory Location', category: 'commerce'), Choice::make('destinationInventoryLocation')->options($destinationOptions))
                 ->instructions(t('Choose the destination inventory location for the existing on hand stock.', category: 'commerce'))
                 ->required(),
         ]);
 
         return new JsonResponse([
-            'ui' => $this->formResolver->resolve($form, new UiContext(values: [
+            'ui' => $this->uiResolver->resolve($ui, new UiContext(values: [
                 'destinationInventoryLocation' => $destinationOptions[0]['value'],
             ])),
             'title' => t('Deleting the {location} location.', ['location' => $inventoryLocation->name], category: 'commerce'),
@@ -337,7 +337,7 @@ readonly class InventoryLocationsController
      * The location's own fields followed by the Address element's field layout, so custom
      * address fields and the admin-configured layout carry over.
      */
-    private function buildForm(InventoryLocation $inventoryLocation, Address $address): Ui
+    private function buildUi(InventoryLocation $inventoryLocation, Address $address): Ui
     {
         $handle = Handle::make('handle');
         if (!$inventoryLocation->id) {

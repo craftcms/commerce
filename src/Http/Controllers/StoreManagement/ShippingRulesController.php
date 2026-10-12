@@ -74,13 +74,13 @@ readonly class ShippingRulesController extends BaseStoreManagementController
 
         $values = $this->initialValues($shippingMethod, $shippingRule, $store);
 
-        $form = $this->formResolver->resolve(
-            $this->buildForm($shippingMethod, $shippingRule, $values, $store),
+        $ui = $this->uiResolver->resolve(
+            $this->buildUi($shippingMethod, $shippingRule, $values, $store),
             new UiContext(values: $values, refreshable: true),
         );
 
-        $sidebarForm = $this->formResolver->resolve(
-            $this->buildSidebarForm(),
+        $sidebarUi = $this->uiResolver->resolve(
+            $this->buildSidebarUi(),
             new UiContext(values: $values),
         );
 
@@ -108,14 +108,14 @@ readonly class ShippingRulesController extends BaseStoreManagementController
                 ]);
         }
 
-        return $response->ui($form, props: [
+        return $response->ui($ui, props: [
             'submit' => [
                 'method' => 'post',
                 'url' => action([self::class, 'save']),
             ],
-            'refreshUrl' => action([self::class, 'renderForm']),
+            'refreshUrl' => action([self::class, 'renderUi']),
             'metadataHtml' => $metadataHtml,
-            'sidebarUi' => $sidebarForm,
+            'sidebarUi' => $sidebarUi,
         ]);
     }
 
@@ -124,7 +124,7 @@ readonly class ShippingRulesController extends BaseStoreManagementController
      * client, so changing a shipping category's condition can hide or reveal its rate-override
      * row on the Costs tab without a full page reload.
      */
-    public function renderForm(Request $request): JsonResponse
+    public function renderUi(Request $request): JsonResponse
     {
         $request->validate([
             'values' => ['required', 'array'],
@@ -153,20 +153,20 @@ readonly class ShippingRulesController extends BaseStoreManagementController
 
         $values = array_replace($this->initialValues($shippingMethod, $shippingRule, $store), $values);
 
-        $form = $this->formResolver->resolve(
-            $this->buildForm($shippingMethod, $shippingRule, $values, $store),
+        $ui = $this->uiResolver->resolve(
+            $this->buildUi($shippingMethod, $shippingRule, $values, $store),
             new UiContext(values: $values, refreshable: true),
         );
 
-        return new JsonResponse(['ui' => $form]);
+        return new JsonResponse(['ui' => $ui]);
     }
 
     /** @return array<string, mixed> */
     private function initialValues(ShippingMethod $shippingMethod, ShippingRule $shippingRule, Store $store): array
     {
         // Every shipping category gets a fixed row in each of the two tables built in
-        // buildForm(), keyed by its own id — see how save() recombines them, and how
-        // buildForm() reads shippingCategoryConditions to hide a disallowed category's
+        // buildUi(), keyed by its own id — see how save() recombines them, and how
+        // buildUi() reads shippingCategoryConditions to hide a disallowed category's
         // override row.
         $shippingCategories = app(ShippingCategories::class)->getAllShippingCategories($store->id);
         $existingRuleCategories = collect($shippingRule->getShippingRuleCategories())->keyBy('shippingCategoryId');
@@ -214,7 +214,7 @@ readonly class ShippingRulesController extends BaseStoreManagementController
     }
 
     /** @param array<string, mixed> $values */
-    private function buildForm(ShippingMethod $shippingMethod, ShippingRule $shippingRule, array $values, Store $store): Ui
+    private function buildUi(ShippingMethod $shippingMethod, ShippingRule $shippingRule, array $values, Store $store): Ui
     {
         $currency = $store->getCurrency()?->getCode() ?? 'USD';
 
@@ -226,13 +226,13 @@ readonly class ShippingRulesController extends BaseStoreManagementController
 
         $hasShippingCategories = !empty($values['ruleCategories']);
 
-        $formNodes = [
+        $uiNodes = [
             HiddenField::make('storeId'),
             HiddenField::make('methodId'),
         ];
 
         if ($shippingRule->id) {
-            $formNodes[] = HiddenField::make('id');
+            $uiNodes[] = HiddenField::make('id');
         }
 
         $conditionsTabFields = [
@@ -345,7 +345,7 @@ readonly class ShippingRulesController extends BaseStoreManagementController
                 ->hiddenRows($hiddenRuleCategoryIds));
         }
 
-        return Ui::make($formNodes)
+        return Ui::make($uiNodes)
             ->addTab(t('Rule', category: 'commerce'), [
                 Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
                     ->instructions(t('What this shipping rule will be called in the control panel.', category: 'commerce'))
@@ -357,8 +357,8 @@ readonly class ShippingRulesController extends BaseStoreManagementController
             ->addTab(t('Costs', category: 'commerce'), $costsTabFields);
     }
 
-    /** The details column's controls, submitted alongside {@see buildForm()}. */
-    private function buildSidebarForm(): Ui
+    /** The details column's controls, submitted alongside {@see buildUi()}. */
+    private function buildSidebarUi(): Ui
     {
         return Ui::make([
             Field::make(t('Enable this shipping rule', category: 'commerce'), Lightswitch::make('enabled')),

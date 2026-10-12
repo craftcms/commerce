@@ -129,8 +129,8 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
 
         $values = $this->initialValues($shippingCategory, $store);
 
-        $form = $this->formResolver->resolve(
-            $this->buildForm($shippingCategory, $values, $lockDefault),
+        $ui = $this->uiResolver->resolve(
+            $this->buildUi($shippingCategory, $values, $lockDefault),
             new UiContext(values: $values, refreshable: true),
         );
 
@@ -139,12 +139,12 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
             ->crumbs($this->crumbs($store, ...($shippingCategory->id ? [['label' => $title]] : [])))
             ->action('commerce/shipping-categories/save')
             ->redirectUrl($store->getStoreSettingsUrl('shippingcategories'))
-            ->ui($form, props: [
+            ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
                 ],
-                'refreshUrl' => action([self::class, 'renderForm']),
+                'refreshUrl' => action([self::class, 'renderUi']),
                 'metadataHtml' => $metadataHtml,
             ]);
     }
@@ -154,7 +154,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
      * client, so toggling "Default Category" can force every product type on (and disable
      * further picking) without a full page reload.
      */
-    public function renderForm(Request $request): JsonResponse
+    public function renderUi(Request $request): JsonResponse
     {
         $request->validate([
             'values' => ['required', 'array'],
@@ -190,12 +190,12 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
             $values['productTypes'] = array_column(app(ProductTypes::class)->getAllProductTypes(), 'id');
         }
 
-        $form = $this->formResolver->resolve(
-            $this->buildForm($shippingCategory, $values, $lockDefault),
+        $ui = $this->uiResolver->resolve(
+            $this->buildUi($shippingCategory, $values, $lockDefault),
             new UiContext(values: $values, refreshable: true),
         );
 
-        return new JsonResponse(['ui' => $form]);
+        return new JsonResponse(['ui' => $ui]);
     }
 
     private function lockDefault(ShippingCategory $shippingCategory, Store $store): bool
@@ -234,7 +234,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
     }
 
     /** @param array<string, mixed> $values */
-    private function buildForm(ShippingCategory $shippingCategory, array $values, bool $lockDefault): Ui
+    private function buildUi(ShippingCategory $shippingCategory, array $values, bool $lockDefault): Ui
     {
         $isDefault = (bool)($values['default'] ?? false);
 
@@ -248,23 +248,23 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
             app(ProductTypes::class)->getAllProductTypes(),
         ));
 
-        $formNodes = [
+        $uiNodes = [
             HiddenField::make('storeId'),
         ];
 
         if ($shippingCategory->id) {
-            $formNodes[] = HiddenField::make('shippingCategoryId');
+            $uiNodes[] = HiddenField::make('shippingCategoryId');
         }
 
-        $formNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
+        $uiNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
             ->instructions(t('What this shipping category will be called in the control panel.', category: 'commerce'))
             ->required();
-        $formNodes[] = Field::make(t('Handle', category: 'commerce'), $handle)
+        $uiNodes[] = Field::make(t('Handle', category: 'commerce'), $handle)
             ->instructions(t('How you’ll refer to this shipping category in the templates.', category: 'commerce'))
             ->required();
-        $formNodes[] = Field::make(t('Description', category: 'commerce'), Text::make('description'));
-        $formNodes[] = Field::make(t('Icon', category: 'app'), IconPicker::make('icon'));
-        $formNodes[] = Field::make(t('Color', category: 'commerce'), ColorSelect::make('color')
+        $uiNodes[] = Field::make(t('Description', category: 'commerce'), Text::make('description'));
+        $uiNodes[] = Field::make(t('Icon', category: 'app'), IconPicker::make('icon'));
+        $uiNodes[] = Field::make(t('Color', category: 'commerce'), ColorSelect::make('color')
             ->colors($this->colorPalette())
             ->allowTransparent()
             ->blankLabel(t('No color', category: 'app')));
@@ -286,7 +286,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
             );
         }
 
-        $formNodes[] = $productTypesField;
+        $uiNodes[] = $productTypesField;
 
         $defaultKey = $lockDefault ? 'defaultDisplay' : 'default';
         $defaultControl = Lightswitch::make($defaultKey)->mode($lockDefault ? ControlMode::Disabled : ControlMode::Editable);
@@ -294,14 +294,14 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
             $defaultControl->reactive();
         }
 
-        $formNodes[] = Field::make(t('Default Category', category: 'commerce'), $defaultControl)
+        $uiNodes[] = Field::make(t('Default Category', category: 'commerce'), $defaultControl)
             ->instructions(t('This category will be used as the default for all purchasables in this store.', category: 'commerce'));
 
         if ($lockDefault) {
-            $formNodes[] = HiddenField::make('default');
+            $uiNodes[] = HiddenField::make('default');
         }
 
-        return Ui::make($formNodes);
+        return Ui::make($uiNodes);
     }
 
     public function save(Request $request): Response

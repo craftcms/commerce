@@ -60,7 +60,7 @@ trait StatWidgetTrait
 
     /**
      * Preset date-range options. `DATE_RANGE_CUSTOM` is intentionally not offered here -- the
-     * legacy custom-range JS date picker isn't part of the new Form control set, so only the
+     * legacy custom-range JS date picker isn't part of the new Ui control set, so only the
      * fixed presets are configurable going forward.
      *
      * @return array<int, array{label: string, value: string}>

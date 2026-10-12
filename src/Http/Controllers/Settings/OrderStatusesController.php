@@ -170,29 +170,29 @@ class OrderStatusesController extends BaseSettingsController
             $handle->source('name');
         }
 
-        $formNodes = [
+        $uiNodes = [
             HiddenField::make('storeId'),
         ];
 
         if ($orderStatus->id) {
-            $formNodes[] = HiddenField::make('sortOrder');
-            $formNodes[] = HiddenField::make('id');
+            $uiNodes[] = HiddenField::make('sortOrder');
+            $uiNodes[] = HiddenField::make('id');
         }
 
-        $formNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
+        $uiNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
             ->instructions(t('What this status will be called in the control panel.', category: 'commerce'))
             ->required();
-        $formNodes[] = Field::make(t('Handle', category: 'commerce'), $handle)
+        $uiNodes[] = Field::make(t('Handle', category: 'commerce'), $handle)
             ->instructions(t('How you’ll refer to this status in the templates.', category: 'commerce'))
             ->required();
-        $formNodes[] = Field::make(t('Description', category: 'commerce'), Text::make('description'))
+        $uiNodes[] = Field::make(t('Description', category: 'commerce'), Text::make('description'))
             ->instructions(t('Order Status description.', category: 'commerce'));
-        $formNodes[] = Field::make(t('Color', category: 'commerce'), ColorSelect::make('color')->colors($this->colorPalette()))
+        $uiNodes[] = Field::make(t('Color', category: 'commerce'), ColorSelect::make('color')->colors($this->colorPalette()))
             ->instructions(t('Choose a color to represent the order’s status', category: 'commerce'));
-        $formNodes[] = $emailsNode;
-        $formNodes[] = $defaultNode;
+        $uiNodes[] = $emailsNode;
+        $uiNodes[] = $defaultNode;
 
-        $form = $this->formResolver->resolve(Ui::make($formNodes), new UiContext(
+        $ui = $this->uiResolver->resolve(Ui::make($uiNodes), new UiContext(
             values: [
                 'storeId' => $store->id,
                 'sortOrder' => $orderStatus->sortOrder,
@@ -212,7 +212,7 @@ class OrderStatusesController extends BaseSettingsController
             ->crumbs($orderStatus->id ? $this->crumbs(['label' => $title]) : $this->crumbs())
             ->action('commerce/order-statuses/save')
             ->redirectUrl('commerce/settings/orders/statuses')
-            ->ui($form, props: [
+            ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

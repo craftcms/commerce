@@ -48,7 +48,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
 
         Route::get('commerce/settings/gateways', [GatewaysController::class, 'index']);
         Route::get('commerce/settings/gateways/new', [GatewaysController::class, 'edit']);
-        Route::post('commerce/settings/gateways/render-form', [GatewaysController::class, 'renderForm']);
+        Route::post('commerce/settings/gateways/render-ui', [GatewaysController::class, 'renderUi']);
         Route::get('commerce/settings/gateways/{id}', [GatewaysController::class, 'edit'])->whereNumber('id');
 
         Route::get('commerce/settings/general', [GeneralSettingsController::class, 'edit']);
@@ -71,12 +71,12 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
 
         Route::get('commerce/settings/producttypes', [ProductTypesController::class, 'productTypeIndex']);
         Route::get('commerce/settings/producttypes/new', [ProductTypesController::class, 'editProductType']);
-        Route::post('commerce/settings/producttypes/render-form', [ProductTypesController::class, 'renderForm']);
+        Route::post('commerce/settings/producttypes/render-ui', [ProductTypesController::class, 'renderUi']);
         Route::get('commerce/settings/producttypes/{productTypeId}', [ProductTypesController::class, 'editProductType'])->whereNumber('productTypeId');
 
         Route::get('commerce/settings/emails/{storeHandle?}', [EmailsController::class, 'index']);
         Route::get('commerce/settings/emails/{storeHandle}/new', [EmailsController::class, 'edit']);
-        Route::post('commerce/settings/emails/render-form', [EmailsController::class, 'renderForm']);
+        Route::post('commerce/settings/emails/render-ui', [EmailsController::class, 'renderUi']);
         Route::get('commerce/settings/emails/{storeHandle}/{id}', [EmailsController::class, 'edit'])->whereNumber('id');
 
         Route::get('commerce/settings/pdfs/{storeHandle?}', [PdfsController::class, 'index']);

@@ -67,13 +67,13 @@ class TransferSettingsController extends BaseSettingsController
     {
         $fieldLayout = app(Transfers::class)->getFieldLayout();
 
-        $form = Ui::make([
+        $ui = Ui::make([
             Field::make(null, FieldLayoutDesigner::make('fieldLayout')
                 ->elementType(Transfer::class)
                 ->withCardViewDesigner()),
         ]);
 
-        $form = $this->formResolver->resolve($form, new UiContext(
+        $ui = $this->uiResolver->resolve($ui, new UiContext(
             values: [
                 'fieldLayout' => [
                     'id' => $fieldLayout->id,
@@ -90,7 +90,7 @@ class TransferSettingsController extends BaseSettingsController
             ->title($title)
             ->crumbs($this->crumbs())
             ->redirectUrl('commerce/settings/transfers')
-            ->ui($form, props: [
+            ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'saveTransferSettings']),

@@ -137,26 +137,26 @@ class LineItemStatusesController extends BaseSettingsController
             $handle->source('name');
         }
 
-        $formNodes = [
+        $uiNodes = [
             HiddenField::make('storeId'),
         ];
 
         if ($lineItemStatus->id) {
-            $formNodes[] = HiddenField::make('sortOrder');
-            $formNodes[] = HiddenField::make('id');
+            $uiNodes[] = HiddenField::make('sortOrder');
+            $uiNodes[] = HiddenField::make('id');
         }
 
-        $formNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
+        $uiNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
             ->instructions(t('What this status will be called in the control panel.', category: 'commerce'))
             ->required();
-        $formNodes[] = Field::make(t('Handle', category: 'commerce'), $handle)
+        $uiNodes[] = Field::make(t('Handle', category: 'commerce'), $handle)
             ->instructions(t('How you’ll refer to this status in the templates.', category: 'commerce'))
             ->required();
-        $formNodes[] = Field::make(t('Color', category: 'commerce'), ColorSelect::make('color')->colors($this->colorPalette()))
+        $uiNodes[] = Field::make(t('Color', category: 'commerce'), ColorSelect::make('color')->colors($this->colorPalette()))
             ->instructions(t('Choose a color to represent the order’s status', category: 'commerce'));
-        $formNodes[] = Field::make(t('New line items get this status by default when the order is completed', category: 'commerce'), Lightswitch::make('default'));
+        $uiNodes[] = Field::make(t('New line items get this status by default when the order is completed', category: 'commerce'), Lightswitch::make('default'));
 
-        $form = $this->formResolver->resolve(Ui::make($formNodes), new UiContext(
+        $ui = $this->uiResolver->resolve(Ui::make($uiNodes), new UiContext(
             values: [
                 'storeId' => $store->id,
                 'sortOrder' => $lineItemStatus->sortOrder,
@@ -174,7 +174,7 @@ class LineItemStatusesController extends BaseSettingsController
             ->crumbs($lineItemStatus->id ? $this->crumbs(['label' => $title]) : $this->crumbs())
             ->action('commerce/line-item-statuses/save')
             ->redirectUrl('commerce/settings/orders/line-item-statuses')
-            ->ui($form, props: [
+            ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

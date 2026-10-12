@@ -155,7 +155,7 @@ class EmailsController extends BaseSettingsController
             'enabled' => $email->enabled,
         ];
 
-        $form = $this->formResolver->resolve($this->buildForm($values), new UiContext(
+        $ui = $this->uiResolver->resolve($this->buildUi($values), new UiContext(
             values: $values,
             mode: $this->generalConfig->allowAdminChanges ? ControlMode::Editable : ControlMode::ReadOnly,
             refreshable: !$this->readOnly,
@@ -168,12 +168,12 @@ class EmailsController extends BaseSettingsController
             ->crumbs($email->id ? $this->crumbs($storeCrumb, ['label' => $title]) : $this->crumbs($storeCrumb))
             ->action('commerce/emails/save')
             ->redirectUrl("commerce/settings/emails/{$store->handle}")
-            ->ui($form, props: [
+            ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
                 ],
-                'refreshUrl' => $this->readOnly ? null : action([self::class, 'renderForm']),
+                'refreshUrl' => $this->readOnly ? null : action([self::class, 'renderUi']),
             ]);
     }
 
@@ -182,11 +182,11 @@ class EmailsController extends BaseSettingsController
      * client, so the Recipient toggle can show or hide the Custom Recipient field without a
      * full page reload.
      */
-    public function renderForm(Request $request): JsonResponse
+    public function renderUi(Request $request): JsonResponse
     {
         // Validate for shape only — Request::validate() returns just the ruled subset, which
         // would silently strip every field but the ones named here back out of `values`.
-        // Reading the raw input keeps the full posted values intact for buildForm()'s branching.
+        // Reading the raw input keeps the full posted values intact for buildUi()'s branching.
         $request->validate([
             'values' => ['required', 'array'],
             'scope' => ['present', 'array', 'size:0'],
@@ -194,17 +194,17 @@ class EmailsController extends BaseSettingsController
 
         $values = $request->input('values');
 
-        $form = $this->formResolver->resolve($this->buildForm($values), new UiContext(
+        $ui = $this->uiResolver->resolve($this->buildUi($values), new UiContext(
             values: $values,
             mode: ControlMode::Editable,
             refreshable: true,
         ));
 
-        return new JsonResponse(['ui' => $form]);
+        return new JsonResponse(['ui' => $ui]);
     }
 
     /** @param array<string, mixed> $values */
-    private function buildForm(array $values): Ui
+    private function buildUi(array $values): Ui
     {
         $storeId = (int)($values['storeId'] ?? 0);
         $store = app(Stores::class)->getStoreById($storeId) ?? app(Stores::class)->getPrimaryStore();
@@ -232,31 +232,31 @@ class EmailsController extends BaseSettingsController
         $envTriggers = SelectOptions::getEnvTextExpanderTriggers();
         $isCustomRecipient = ($values['recipientType'] ?? EmailRecord::TYPE_CUSTOMER) === EmailRecord::TYPE_CUSTOM;
 
-        $formNodes = [
+        $uiNodes = [
             HiddenField::make('storeId'),
         ];
 
         if (!empty($values['id'])) {
-            $formNodes[] = HiddenField::make('id');
+            $uiNodes[] = HiddenField::make('id');
         }
 
-        $formNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
+        $uiNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
             ->instructions(t('What this email will be called in the control panel.', category: 'commerce'))
             ->required();
-        $formNodes[] = Field::make(t('Status Email Address', category: 'commerce'), Text::make('senderAddress')
+        $uiNodes[] = Field::make(t('Status Email Address', category: 'commerce'), Text::make('senderAddress')
             ->placeholder(App::mailSettings()->fromEmail)
             ->textExpanderTriggers($envTriggers))
             ->instructions(t('The email address that order status emails are sent from. Leave blank to use the System Email Address defined in Craft’s General Settings.', category: 'commerce'));
-        $formNodes[] = Field::make(t('From Name', category: 'commerce'), Text::make('senderName')
+        $uiNodes[] = Field::make(t('From Name', category: 'commerce'), Text::make('senderName')
             ->placeholder(App::mailSettings()->fromName)
             ->textExpanderTriggers($envTriggers))
             ->instructions(t('The “From” name that will be used when sending order status emails. Leave blank to use the Sender Name defined in Craft’s General Settings.', category: 'commerce'));
-        $formNodes[] = Field::make(t('Email Subject', category: 'commerce'), Text::make('subject'))
+        $uiNodes[] = Field::make(t('Email Subject', category: 'commerce'), Text::make('subject'))
             ->instructions(t('The subject line of the email. Twig code can be used here.', category: 'commerce'))
             ->required();
-        $formNodes[] = Field::make(t('Reply To', category: 'commerce'), Text::make('replyTo'))
+        $uiNodes[] = Field::make(t('Reply To', category: 'commerce'), Text::make('replyTo'))
             ->instructions(t('The reply to email address. Leave blank for normal reply to of email sender. Twig code can be used here.', category: 'commerce'));
-        $formNodes[] = Field::make(t('Recipient', category: 'commerce'), Choice::make('recipientType')->options([
+        $uiNodes[] = Field::make(t('Recipient', category: 'commerce'), Choice::make('recipientType')->options([
             ['label' => t('Send to the customer', category: 'commerce'), 'value' => EmailRecord::TYPE_CUSTOMER],
             ['label' => t('Send to custom recipient', category: 'commerce'), 'value' => EmailRecord::TYPE_CUSTOM],
         ])->reactive())
@@ -265,27 +265,27 @@ class EmailsController extends BaseSettingsController
         // The old template combined this with Recipient as one compound field, showing/hiding
         // this half inline based on the select above; here it's its own Field, toggled visible
         // via the Form's refreshable round trip instead.
-        $formNodes[] = Field::make(t('Recipient', category: 'commerce'), Text::make('to')->textExpanderTriggers($envTriggers))
+        $uiNodes[] = Field::make(t('Recipient', category: 'commerce'), Text::make('to')->textExpanderTriggers($envTriggers))
             ->visible($isCustomRecipient);
-        $formNodes[] = Field::make(t('BCC’d Recipient', category: 'commerce'), Text::make('bcc')->textExpanderTriggers($envTriggers))
+        $uiNodes[] = Field::make(t('BCC’d Recipient', category: 'commerce'), Text::make('bcc')->textExpanderTriggers($envTriggers))
             ->instructions(t('Additional recipients that should receive this email. Twig code can be used here.', category: 'commerce'));
-        $formNodes[] = Field::make(t('CC’d Recipient', category: 'commerce'), Text::make('cc')->textExpanderTriggers($envTriggers))
+        $uiNodes[] = Field::make(t('CC’d Recipient', category: 'commerce'), Text::make('cc')->textExpanderTriggers($envTriggers))
             ->instructions(t('Additional recipients that should receive this email. Twig code can be used here.', category: 'commerce'));
-        $formNodes[] = Field::make(t('HTML Email Template Path', category: 'commerce'), Combobox::make('templatePath')->options(SelectOptions::getTemplateSuggestions()))
+        $uiNodes[] = Field::make(t('HTML Email Template Path', category: 'commerce'), Combobox::make('templatePath')->options(SelectOptions::getTemplateSuggestions()))
             ->instructions(t('The template to be used for HTML emails.', category: 'commerce'))
             ->required();
-        $formNodes[] = Field::make(t('Plain Text Email Template Path', category: 'commerce'), Text::make('plainTextTemplatePath'))
+        $uiNodes[] = Field::make(t('Plain Text Email Template Path', category: 'commerce'), Text::make('plainTextTemplatePath'))
             ->instructions(t('The template to be used for plain text emails. Twig code can be used here.', category: 'commerce'));
-        $formNodes[] = Field::make(t('PDF Attachment', category: 'commerce'), Choice::make('pdfId')->options($pdfOptions))
+        $uiNodes[] = Field::make(t('PDF Attachment', category: 'commerce'), Choice::make('pdfId')->options($pdfOptions))
             ->instructions(t('The PDF to attach to this email.', category: 'commerce'));
-        $formNodes[] = Field::make(t('Language', category: 'commerce'), Choice::make('language')->options($languageOptions))
+        $uiNodes[] = Field::make(t('Language', category: 'commerce'), Choice::make('language')->options($languageOptions))
             ->instructions(t('The language to be used when this email is rendered.', category: 'commerce'));
-        $formNodes[] = Field::make(t('Site', category: 'app'), Choice::make('renderSiteId')->options($siteOptions))
+        $uiNodes[] = Field::make(t('Site', category: 'app'), Choice::make('renderSiteId')->options($siteOptions))
             ->instructions(t('The site to be used when this email is rendered.', category: 'commerce'));
-        $formNodes[] = Field::make(t('Enabled?', category: 'commerce'), Lightswitch::make('enabled'))
+        $uiNodes[] = Field::make(t('Enabled?', category: 'commerce'), Lightswitch::make('enabled'))
             ->instructions(t('If disabled, this email will not send.', category: 'commerce'));
 
-        return Ui::make($formNodes);
+        return Ui::make($uiNodes);
     }
 
     public function save(Request $request): Response

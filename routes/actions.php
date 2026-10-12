@@ -77,7 +77,7 @@ Route::post('payment-sources/delete', [PaymentSourcesController::class, 'delete'
 // middleware below is what actually protects them, not the URL prefix.
 Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageDonationSettings'])->group(function () {
     Route::post('donations/save', [DonationsController::class, 'save']);
-    Route::post('donations/render-form', [DonationsController::class, 'renderForm']);
+    Route::post('donations/render-ui', [DonationsController::class, 'renderUi']);
 });
 
 Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->group(function () {
@@ -112,7 +112,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->g
 // this group must check both, matching that legacy compound check exactly.
 Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStoreSettings'])->group(function () {
     Route::post('store-management/save', [StoreManagementController::class, 'save']);
-    Route::post('store-management/render-form', [StoreManagementController::class, 'renderForm']);
+    Route::post('store-management/render-ui', [StoreManagementController::class, 'renderUi']);
 
     Route::middleware('can:commerce-managePaymentCurrencies')->group(function () {
         Route::post('payment-currencies/save', [PaymentCurrenciesController::class, 'save']);
@@ -132,12 +132,12 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
         Route::post('shipping-rules/duplicate', [ShippingRulesController::class, 'duplicate']);
         Route::post('shipping-rules/reorder', [ShippingRulesController::class, 'reorder']);
         Route::match(['post', 'delete'], 'shipping-rules/delete', [ShippingRulesController::class, 'delete']);
-        Route::post('shipping-rules/render-form', [ShippingRulesController::class, 'renderForm']);
+        Route::post('shipping-rules/render-ui', [ShippingRulesController::class, 'renderUi']);
 
         Route::post('shipping-categories/save', [ShippingCategoriesController::class, 'save']);
         Route::match(['post', 'delete'], 'shipping-categories/delete', [ShippingCategoriesController::class, 'delete']);
         Route::post('shipping-categories/set-default-category', [ShippingCategoriesController::class, 'setDefaultCategory']);
-        Route::post('shipping-categories/render-form', [ShippingCategoriesController::class, 'renderForm']);
+        Route::post('shipping-categories/render-ui', [ShippingCategoriesController::class, 'renderUi']);
     });
 
     Route::middleware('can:commerce-manageTaxes')->group(function () {
@@ -152,7 +152,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
         Route::post('tax-rates/save', [TaxRatesController::class, 'save']);
         Route::match(['post', 'delete'], 'tax-rates/delete', [TaxRatesController::class, 'delete']);
         Route::post('tax-rates/update-status', [TaxRatesController::class, 'updateStatus']);
-        Route::post('tax-rates/render-form', [TaxRatesController::class, 'renderForm']);
+        Route::post('tax-rates/render-ui', [TaxRatesController::class, 'renderUi']);
     });
 
     Route::middleware('can:commerce-managePromotions')->group(function () {
@@ -166,7 +166,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
         Route::post('sales/update-status', [SalesController::class, 'updateStatus']);
 
         Route::post('discounts/save', [DiscountsController::class, 'save']);
-        Route::post('discounts/render-form', [DiscountsController::class, 'renderForm']);
+        Route::post('discounts/render-ui', [DiscountsController::class, 'renderUi']);
         Route::post('discounts/reorder', [DiscountsController::class, 'reorder']);
         Route::post('discounts/table-data', [DiscountsController::class, 'tableData']);
         Route::post('discounts/move-to-page', [DiscountsController::class, 'moveToPage']);
@@ -177,7 +177,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
         Route::post('discounts/generate-coupons', [DiscountsController::class, 'generateCoupons']);
 
         Route::post('catalog-pricing-rules/save', [CatalogPricingRulesController::class, 'save']);
-        Route::post('catalog-pricing-rules/render-form', [CatalogPricingRulesController::class, 'renderForm']);
+        Route::post('catalog-pricing-rules/render-ui', [CatalogPricingRulesController::class, 'renderUi']);
         Route::post('catalog-pricing-rules/table-data', [CatalogPricingRulesController::class, 'tableData']);
         Route::match(['post', 'delete'], 'catalog-pricing-rules/delete', [CatalogPricingRulesController::class, 'delete']);
         Route::post('catalog-pricing-rules/update-status', [CatalogPricingRulesController::class, 'updateStatus']);
@@ -241,7 +241,7 @@ Route::middleware(['auth', 'can:commerce-manageInventoryStockLevels'])->group(fu
 
 Route::middleware(['auth', 'can:commerce-manageInventoryLocations'])->group(function () {
     Route::post('inventory-locations/save', [InventoryLocationsController::class, 'save']);
-    Route::post('inventory-locations/render-form', [InventoryLocationsController::class, 'renderForm']);
+    Route::post('inventory-locations/render-ui', [InventoryLocationsController::class, 'renderUi']);
     Route::get('inventory-locations/prepare-delete-modal', [InventoryLocationsController::class, 'prepareDeleteModal']);
     Route::match(['post', 'delete'], 'inventory-locations/deactivate', [InventoryLocationsController::class, 'deactivate']);
 });

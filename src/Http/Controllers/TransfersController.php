@@ -97,7 +97,7 @@ readonly class TransfersController
      * The Form shown by the “Receive Inventory” modal. Its values are posted to {@see receiveTransfer()}
      * along with the `transferId`.
      */
-    public function prepareReceiveModal(Request $request, UiResolver $formResolver): JsonResponse
+    public function prepareReceiveModal(Request $request, UiResolver $uiResolver): JsonResponse
     {
         abort_unless($request->expectsJson(), 400);
 
@@ -115,12 +115,12 @@ readonly class TransfersController
         ], $transfer->getDetails());
 
         // TODO: Add “Accept all remaining” / “Reject all remaining” shortcuts.
-        $form = Ui::make([
+        $ui = Ui::make([
             Field::make(null, TransferReceive::make('details')->rows($rows)),
         ]);
 
         return new JsonResponse([
-            'ui' => $formResolver->resolve($form, new UiContext()),
+            'ui' => $uiResolver->resolve($ui, new UiContext()),
             'title' => t('Receive Transfer', category: 'commerce'),
             'submitLabel' => t('Receive', category: 'commerce'),
         ]);

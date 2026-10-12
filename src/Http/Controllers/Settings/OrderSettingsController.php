@@ -64,7 +64,7 @@ class OrderSettingsController extends BaseSettingsController
         $fieldLayout = Fields::getLayoutByType(Order::class);
         $title = t('Order Settings', category: 'commerce');
 
-        $form = Ui::make([
+        $ui = Ui::make([
             Field::make(null, FieldLayoutDesigner::make('fieldLayout')
                 ->elementType(Order::class)
                 ->withCardViewDesigner()),
@@ -74,7 +74,7 @@ class OrderSettingsController extends BaseSettingsController
             ->title($title)
             ->crumbs($this->crumbs())
             ->redirectUrl('commerce/settings/orders/fields')
-            ->ui($form, new UiContext(
+            ->ui($ui, new UiContext(
                 values: [
                     'fieldLayout' => [
                         'id' => $fieldLayout->id,

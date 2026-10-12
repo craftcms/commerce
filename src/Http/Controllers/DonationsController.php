@@ -31,7 +31,7 @@ readonly class DonationsController
     use RespondsWithFlash;
 
     public function __construct(
-        private UiResolver $formResolver,
+        private UiResolver $uiResolver,
     ) {
     }
 
@@ -61,12 +61,12 @@ readonly class DonationsController
             ->selectedSubnavItem('donations')
             ->action('commerce/donations/save')
             ->redirectUrl('commerce/donations')
-            ->ui($this->buildForm($values), new UiContext(values: $values, refreshable: true), [
+            ->ui($this->buildUi($values), new UiContext(values: $values, refreshable: true), [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
                 ],
-                'refreshUrl' => action([self::class, 'renderForm']),
+                'refreshUrl' => action([self::class, 'renderUi']),
             ]);
     }
 
@@ -74,7 +74,7 @@ readonly class DonationsController
      * Re-resolves the {@see edit()} Form for the values in progress on the client, so the
      * fields that depend on the lightswitches show and hide as they're toggled.
      */
-    public function renderForm(Request $request): JsonResponse
+    public function renderUi(Request $request): JsonResponse
     {
         $request->validate([
             'values' => ['required', 'array'],
@@ -87,7 +87,7 @@ readonly class DonationsController
         $values = array_replace($this->initialValues($donation), $request->input('values'));
 
         return new JsonResponse([
-            'ui' => $this->formResolver->resolve($this->buildForm($values), new UiContext(values: $values, refreshable: true)),
+            'ui' => $this->uiResolver->resolve($this->buildUi($values), new UiContext(values: $values, refreshable: true)),
         ]);
     }
 
@@ -131,7 +131,7 @@ readonly class DonationsController
      *
      * @param array<string, mixed> $values
      */
-    private function buildForm(array $values): Ui
+    private function buildUi(array $values): Ui
     {
         $enabled = (bool)($values['enabled'] ?? false);
         $availableForPurchase = (bool)($values['availableForPurchase'] ?? false);

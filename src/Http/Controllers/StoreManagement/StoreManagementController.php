@@ -103,8 +103,8 @@ readonly class StoreManagementController extends BaseStoreManagementController
 
         $values = $this->initialValues($store);
 
-        $form = $this->formResolver->resolve(
-            $this->buildForm($store, $values),
+        $ui = $this->uiResolver->resolve(
+            $this->buildUi($store, $values),
             new UiContext(values: $values, refreshable: true),
         );
 
@@ -113,12 +113,12 @@ readonly class StoreManagementController extends BaseStoreManagementController
             ->crumbs($this->crumbs($store))
             ->action('commerce/store-management/save')
             ->redirectUrl($store->getStoreSettingsUrl())
-            ->ui($form, props: [
+            ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
                 ],
-                'refreshUrl' => action([self::class, 'renderForm']),
+                'refreshUrl' => action([self::class, 'renderUi']),
             ]);
     }
 
@@ -127,7 +127,7 @@ readonly class StoreManagementController extends BaseStoreManagementController
      * client, so changing the store location's country can reveal the right set of
      * country-specific address fields without a full page reload.
      */
-    public function renderForm(Request $request): JsonResponse
+    public function renderUi(Request $request): JsonResponse
     {
         $request->validate([
             'values' => ['required', 'array'],
@@ -141,12 +141,12 @@ readonly class StoreManagementController extends BaseStoreManagementController
 
         $values = array_replace($this->initialValues($store), $values);
 
-        $form = $this->formResolver->resolve(
-            $this->buildForm($store, $values),
+        $ui = $this->uiResolver->resolve(
+            $this->buildUi($store, $values),
             new UiContext(values: $values, refreshable: true),
         );
 
-        return new JsonResponse(['ui' => $form]);
+        return new JsonResponse(['ui' => $ui]);
     }
 
     /** @return array<string, mixed> */
@@ -173,14 +173,14 @@ readonly class StoreManagementController extends BaseStoreManagementController
     }
 
     /** @param array<string, mixed> $values */
-    private function buildForm(Store $store, array $values): Ui
+    private function buildUi(Store $store, array $values): Ui
     {
         $countryOptions = collect(Addresses::getCountryList())
             ->map(fn(string $label, string $value) => ['label' => $label, 'value' => $value])
             ->values()
             ->all();
 
-        $formNodes = [
+        $uiNodes = [
             HiddenField::make('id'),
 
             Heading::make('store-location-heading', t('Store Location', category: 'commerce')),
@@ -244,12 +244,12 @@ readonly class StoreManagementController extends BaseStoreManagementController
                 ->requireOptionMatch()
                 ->showAllOnEmpty();
 
-            $formNodes[] = Heading::make('inventory-locations-heading', t('Inventory Locations', category: 'commerce'));
-            $formNodes[] = Field::make(t('Inventory Locations', category: 'commerce'), $inventoryLocationsControl)
+            $uiNodes[] = Heading::make('inventory-locations-heading', t('Inventory Locations', category: 'commerce'));
+            $uiNodes[] = Field::make(t('Inventory Locations', category: 'commerce'), $inventoryLocationsControl)
                 ->instructions(t('The inventory locations this store uses.', category: 'commerce'));
         }
 
-        return Ui::make($formNodes);
+        return Ui::make($uiNodes);
     }
 
     public function save(Request $request): Response

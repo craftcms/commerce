@@ -7,10 +7,10 @@ namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 use CraftCms\Commerce\Store\Data\Store;
 
 /**
- * Temporary home for every store-management controller not yet converted to the Form system.
+ * Temporary home for every store-management controller not yet converted to the Ui system.
  *
  * {@see BaseStoreManagementController::getSectionCrumb()} is a real abstract method — a
- * not-yet-converted controller has no Form-system crumb logic to provide, so it extends this
+ * not-yet-converted controller has no Ui-system crumb logic to provide, so it extends this
  * class instead, which stubs that one method just enough to satisfy the parent. Converting a
  * controller is then a one-line change: switch its `extends` from this class to
  * {@see BaseStoreManagementController} directly, and implement `getSectionCrumb()` for real.
@@ -23,6 +23,6 @@ abstract readonly class LegacyStoreManagementController extends BaseStoreManagem
 {
     protected function getSectionCrumb(Store $store): array
     {
-        throw new \LogicException(static::class . ' has not been converted to the Form system yet — it must not call crumbs().');
+        throw new \LogicException(static::class . ' has not been converted to the Ui system yet — it must not call crumbs().');
     }
 }

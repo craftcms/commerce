@@ -136,13 +136,13 @@ readonly class TaxRatesController extends BaseStoreManagementController
 
         $values = $this->initialValues($taxRate, $store);
 
-        $form = $this->formResolver->resolve(
-            $this->buildForm($taxRate, $values, $store),
+        $ui = $this->uiResolver->resolve(
+            $this->buildUi($taxRate, $values, $store),
             new UiContext(values: $values, refreshable: true),
         );
 
-        $sidebarForm = $this->formResolver->resolve(
-            $this->buildSidebarForm(),
+        $sidebarUi = $this->uiResolver->resolve(
+            $this->buildSidebarUi(),
             new UiContext(values: $values),
         );
 
@@ -151,14 +151,14 @@ readonly class TaxRatesController extends BaseStoreManagementController
             ->crumbs($this->crumbs($store, ...($taxRate->id ? [['label' => $title]] : [])))
             ->action('commerce/tax-rates/save')
             ->redirectUrl($store->getStoreSettingsUrl('taxrates'))
-            ->ui($form, props: [
+            ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
                 ],
-                'refreshUrl' => action([self::class, 'renderForm']),
+                'refreshUrl' => action([self::class, 'renderUi']),
                 'metadataHtml' => $metadataHtml,
-                'sidebarUi' => $sidebarForm,
+                'sidebarUi' => $sidebarUi,
             ]);
     }
 
@@ -168,7 +168,7 @@ readonly class TaxRatesController extends BaseStoreManagementController
      * tax ID validator can reveal or hide the fields that depend on them without a full page
      * reload.
      */
-    public function renderForm(Request $request): JsonResponse
+    public function renderUi(Request $request): JsonResponse
     {
         $request->validate([
             'values' => ['required', 'array'],
@@ -191,12 +191,12 @@ readonly class TaxRatesController extends BaseStoreManagementController
 
         $values = array_replace($this->initialValues($taxRate, $store), $values);
 
-        $form = $this->formResolver->resolve(
-            $this->buildForm($taxRate, $values, $store),
+        $ui = $this->uiResolver->resolve(
+            $this->buildUi($taxRate, $values, $store),
             new UiContext(values: $values, refreshable: true),
         );
 
-        return new JsonResponse(['ui' => $form]);
+        return new JsonResponse(['ui' => $ui]);
     }
 
     /** @return array<string, mixed> */
@@ -225,7 +225,7 @@ readonly class TaxRatesController extends BaseStoreManagementController
     }
 
     /** @param array<string, mixed> $values */
-    private function buildForm(TaxRate $taxRate, array $values, Store $store): Ui
+    private function buildUi(TaxRate $taxRate, array $values, Store $store): Ui
     {
         $showTaxCategory = !in_array($values['taxable'] ?? TaxRateRecord::TAXABLE_PRICE, TaxRateRecord::ORDER_TAXABALES, true);
         $include = (bool) ($values['include'] ?? false);
@@ -271,20 +271,20 @@ readonly class TaxRatesController extends BaseStoreManagementController
             ->values()
             ->all();
 
-        $formNodes = [
+        $uiNodes = [
             HiddenField::make('storeId'),
         ];
 
         if ($taxRate->id) {
-            $formNodes[] = HiddenField::make('taxRateId');
+            $uiNodes[] = HiddenField::make('taxRateId');
         }
 
-        $formNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
+        $uiNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
             ->instructions(t('Enter a human-friendly name for this tax rate to be used in the control panel.', category: 'commerce'))
             ->required();
-        $formNodes[] = Field::make(t('Code', category: 'commerce'), Text::make('code')->monospace())
+        $uiNodes[] = Field::make(t('Code', category: 'commerce'), Text::make('code')->monospace())
             ->instructions(t('Can be used as an internal reference.', category: 'commerce'));
-        $formNodes[] = Field::make(t('Taxable Subject', category: 'commerce'), Choice::make('taxable')->options($taxableOptions)->reactive())
+        $uiNodes[] = Field::make(t('Taxable Subject', category: 'commerce'), Choice::make('taxable')->options($taxableOptions)->reactive())
             ->instructions(t('Select what this rate should be applied to.', category: 'commerce'));
         $taxZoneControl = Combobox::make('taxZoneId')
             ->options($taxZoneOptions)
@@ -292,10 +292,10 @@ readonly class TaxRatesController extends BaseStoreManagementController
             ->clearable()
             ->requireOptionMatch()
             ->showAllOnEmpty();
-        $formNodes[] = Field::make(t('Tax Zone', category: 'commerce'), $taxZoneControl)
+        $uiNodes[] = Field::make(t('Tax Zone', category: 'commerce'), $taxZoneControl)
             ->instructions(t('Select a tax zone. If empty, this rate will match anywhere.', category: 'commerce'));
 
-        $formNodes[] = Field::make(t('Disqualify with valid business tax ID?', category: 'commerce'), Choice::make('taxIdValidators')->multiple()->options($taxIdValidatorOptions)->reactive())
+        $uiNodes[] = Field::make(t('Disqualify with valid business tax ID?', category: 'commerce'), Choice::make('taxIdValidators')->multiple()->options($taxIdValidatorOptions)->reactive())
             ->instructions(t('Do not apply this rate if the order address has any of the selected valid business tax IDs.', category: 'commerce'));
 
         if ($showTaxCategory) {
@@ -303,33 +303,33 @@ readonly class TaxRatesController extends BaseStoreManagementController
                 ->options($taxCategoryOptions)
                 ->requireOptionMatch()
                 ->showAllOnEmpty();
-            $formNodes[] = Field::make(t('Tax Category', category: 'commerce'), $taxCategoryControl)
+            $uiNodes[] = Field::make(t('Tax Category', category: 'commerce'), $taxCategoryControl)
                 ->instructions(t('Select a tax category.', category: 'commerce'))
                 ->required();
         }
 
-        $formNodes[] = Field::make(t('Rate', category: 'commerce'), Number::make('rate')->step('any')->suffix($this->percentSymbol()))
+        $uiNodes[] = Field::make(t('Rate', category: 'commerce'), Number::make('rate')->step('any')->suffix($this->percentSymbol()))
             ->instructions(t('Enter a percentage like {ex1} or {ex2}.', ['ex1' => '`5`', 'ex2' => '`10.5`'], category: 'commerce'))
             ->required();
 
-        $formNodes[] = Field::make(t('Included in price?', category: 'commerce'), Lightswitch::make('include')->reactive())
+        $uiNodes[] = Field::make(t('Included in price?', category: 'commerce'), Lightswitch::make('include')->reactive())
             ->instructions(t('Enable if this rate should be built into the taxable subject price instead of adding a cost to the order.', category: 'commerce'));
 
         if ($include) {
-            $formNodes[] = Field::make(t('Adjust price when included rate is disqualified?', category: 'commerce'), Lightswitch::make('removeIncluded'))
+            $uiNodes[] = Field::make(t('Adjust price when included rate is disqualified?', category: 'commerce'), Lightswitch::make('removeIncluded'))
                 ->instructions(t('If enabled and this rate does not match the order, the rate amount will be removed from the subject price in the cart.', category: 'commerce'));
 
             if ($hasTaxIdValidators) {
-                $formNodes[] = Field::make(t('Remove the included tax when a valid organization tax ID is present?', category: 'commerce'), Lightswitch::make('removeVatIncluded'))
+                $uiNodes[] = Field::make(t('Remove the included tax when a valid organization tax ID is present?', category: 'commerce'), Lightswitch::make('removeVatIncluded'))
                     ->instructions(t('If enabled and this rate does not match the order, the rate amount will be removed from the subject price in the cart.', category: 'commerce'));
             }
         }
 
-        return Ui::make($formNodes);
+        return Ui::make($uiNodes);
     }
 
-    /** The details column's controls, submitted alongside {@see buildForm()}. */
-    private function buildSidebarForm(): Ui
+    /** The details column's controls, submitted alongside {@see buildUi()}. */
+    private function buildSidebarUi(): Ui
     {
         return Ui::make([
             Field::make(t('Enable this tax rate', category: 'commerce'), Lightswitch::make('enabled')),

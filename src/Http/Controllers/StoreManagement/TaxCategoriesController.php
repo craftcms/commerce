@@ -156,26 +156,26 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
 
         $lockDefault = $isDefaultAndOnlyCategory || ($taxCategory->id && $taxCategory->default);
 
-        $formNodes = [
+        $uiNodes = [
             HiddenField::make('storeId'),
         ];
 
         if ($taxCategory->id) {
-            $formNodes[] = HiddenField::make('taxCategoryId');
+            $uiNodes[] = HiddenField::make('taxCategoryId');
         }
 
-        $formNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
+        $uiNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
             ->instructions(t('What this tax category will be called in the control panel.', category: 'commerce'))
             ->required();
-        $formNodes[] = Field::make(t('Handle', category: 'commerce'), $handle)
+        $uiNodes[] = Field::make(t('Handle', category: 'commerce'), $handle)
             ->instructions(t('How you’ll refer to this tax category in the templates.', category: 'commerce'))
             ->required();
-        $formNodes[] = Field::make(t('Icon', category: 'app'), IconPicker::make('icon'));
-        $formNodes[] = Field::make(t('Color', category: 'commerce'), ColorSelect::make('color')
+        $uiNodes[] = Field::make(t('Icon', category: 'app'), IconPicker::make('icon'));
+        $uiNodes[] = Field::make(t('Color', category: 'commerce'), ColorSelect::make('color')
             ->colors($this->colorPalette())
             ->allowTransparent()
             ->blankLabel(t('No color', category: 'app')));
-        $formNodes[] = Field::make(t('Description', category: 'commerce'), Text::make('description'));
+        $uiNodes[] = Field::make(t('Description', category: 'commerce'), Text::make('description'));
 
         $productTypesField = Field::make(
             t('Available to Product Types', category: 'commerce'),
@@ -189,7 +189,7 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
             );
         }
 
-        $formNodes[] = $productTypesField;
+        $uiNodes[] = $productTypesField;
 
         // A locked default can't be un-set here (it's the only category, or already the
         // default), so the interactive control moves to a display-only path and the real
@@ -201,14 +201,14 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
             Lightswitch::make($defaultKey)->mode($lockDefault ? ControlMode::Disabled : ControlMode::Editable),
         )->instructions(t('New products default to the first tax category available to them. If none are available, this category will be used.', category: 'commerce'));
 
-        $formNodes[] = $defaultField;
+        $uiNodes[] = $defaultField;
 
         if ($lockDefault) {
-            $formNodes[] = HiddenField::make('default');
+            $uiNodes[] = HiddenField::make('default');
         }
 
         if ($taxCategory->id && $taxRates->isNotEmpty()) {
-            $formNodes[] = Table::make('used-by-tax-rates')
+            $uiNodes[] = Table::make('used-by-tax-rates')
                 ->columns([
                     ['key' => 'name', 'label' => t('Rate', category: 'commerce')],
                     ['key' => 'store', 'label' => t('Store', category: 'commerce')],
@@ -233,14 +233,14 @@ readonly class TaxCategoriesController extends BaseStoreManagementController
             'defaultDisplay' => $taxCategory->default,
         ];
 
-        $form = $this->formResolver->resolve(Ui::make($formNodes), new UiContext(values: $values));
+        $ui = $this->uiResolver->resolve(Ui::make($uiNodes), new UiContext(values: $values));
 
         return $this->cpScreenResponse($store, subnav: false)
             ->title($title)
             ->crumbs($this->crumbs($store, ...($taxCategory->id ? [['label' => $title]] : [])))
             ->action('commerce/tax-categories/save')
             ->redirectUrl($store->getStoreSettingsUrl('taxcategories'))
-            ->ui($form, props: [
+            ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

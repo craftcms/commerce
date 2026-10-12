@@ -98,23 +98,23 @@ readonly class TaxZonesController extends BaseStoreManagementController
             t('Updated at') => $formatter->asDateTime($taxZone->dateUpdated, 'short'),
         ]) : null;
 
-        $formNodes = [
+        $uiNodes = [
             HiddenField::make('storeId'),
         ];
 
         if ($taxZone->id) {
-            $formNodes[] = HiddenField::make('taxZoneId');
+            $uiNodes[] = HiddenField::make('taxZoneId');
         }
 
-        $formNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
+        $uiNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
             ->instructions(t('What this tax zone will be called in the control panel.', category: 'commerce'))
             ->required();
-        $formNodes[] = Field::make(t('Description', category: 'commerce'), Text::make('description'))
+        $uiNodes[] = Field::make(t('Description', category: 'commerce'), Text::make('description'))
             ->instructions(t('Describe this tax zone.', category: 'commerce'));
-        $formNodes[] = Field::make($defaultLabel, Lightswitch::make('default'));
+        $uiNodes[] = Field::make($defaultLabel, Lightswitch::make('default'));
         // Zones aren't project-config-tracked (Zone::setCondition() hardcodes forProjectConfig
         // to false), so this deliberately doesn't call ->forProjectConfig() either.
-        $formNodes[] = Field::make(t('Address Condition', category: 'commerce'), ConditionBuilder::make('condition')
+        $uiNodes[] = Field::make(t('Address Condition', category: 'commerce'), ConditionBuilder::make('condition')
             ->conditionClass(ZoneAddressCondition::class)
             ->value($taxZone->getCondition()->getConfig()));
 
@@ -126,14 +126,14 @@ readonly class TaxZonesController extends BaseStoreManagementController
             'default' => $taxZone->default,
         ];
 
-        $form = $this->formResolver->resolve(Ui::make($formNodes), new UiContext(values: $values));
+        $ui = $this->uiResolver->resolve(Ui::make($uiNodes), new UiContext(values: $values));
 
         return $this->cpScreenResponse($store, subnav: false)
             ->title($title)
             ->crumbs($this->crumbs($store, ...($taxZone->id ? [['label' => $title]] : [])))
             ->action('commerce/tax-zones/save')
             ->redirectUrl($store->getStoreSettingsUrl('taxzones'))
-            ->ui($form, props: [
+            ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

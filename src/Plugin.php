@@ -212,7 +212,7 @@ class Plugin extends BasePlugin
         VariantQuery::class,
     ];
 
-    /** The Form Node/Control Vue components Commerce contributes to the shared CP `Form` system's
+    /** The Ui Node/Control Vue components Commerce contributes to the shared CP `Ui` system's
      *  component registry — see `resources/js/cp.ts` (registered via `window.Cp.$components`,
      *  since `@craftcms/ui`/`cms`'s own JS is a private, unpublished workspace package). Built by
      *  this repo's own root `package.json`/`vite.config.ts` (a pnpm workspace — the legacy Vue 2/

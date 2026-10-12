@@ -46,7 +46,7 @@ class GeneralSettingsController extends BaseSettingsController
             return null;
         };
 
-        $form = Ui::make([
+        $ui = Ui::make([
             Heading::make('units-heading', t('Units', category: 'commerce'))->level(3),
             Field::make(t('Weight Unit', category: 'commerce'), Combobox::make('weightUnits')
                 ->options(array_map(fn($unit, $label) => ['value' => $unit, 'label' => $label], array_keys($settings->getWeightUnitsOptions()), $settings->getWeightUnitsOptions()))
@@ -68,7 +68,7 @@ class GeneralSettingsController extends BaseSettingsController
                 ->instructions(t('Default Commerce control panel view. If the user does not have permission it will fall back to a location they can access.', category: 'commerce')),
         ]);
 
-        $form = $this->formResolver->resolve($form, new UiContext(
+        $ui = $this->uiResolver->resolve($ui, new UiContext(
             namespace: 'settings',
             values: [
                 'settings' => [
@@ -86,7 +86,7 @@ class GeneralSettingsController extends BaseSettingsController
             ->title($title)
             ->crumbs($this->crumbs())
             ->redirectUrl('commerce/settings/general')
-            ->ui($form, props: [
+            ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'saveSettings']),

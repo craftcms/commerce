@@ -91,22 +91,22 @@ readonly class ShippingZonesController extends BaseStoreManagementController
             t('Updated at') => $formatter->asDateTime($shippingZone->dateUpdated, 'short'),
         ]) : null;
 
-        $formNodes = [
+        $uiNodes = [
             HiddenField::make('storeId'),
         ];
 
         if ($shippingZone->id) {
-            $formNodes[] = HiddenField::make('shippingZoneId');
+            $uiNodes[] = HiddenField::make('shippingZoneId');
         }
 
-        $formNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
+        $uiNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
             ->instructions(t('What this shipping zone will be called in the control panel.', category: 'commerce'))
             ->required();
-        $formNodes[] = Field::make(t('Description', category: 'commerce'), Text::make('description'))
+        $uiNodes[] = Field::make(t('Description', category: 'commerce'), Text::make('description'))
             ->instructions(t('Describe this shipping zone.', category: 'commerce'));
         // Zones aren't project-config-tracked (Zone::setCondition() hardcodes forProjectConfig
         // to false), so this deliberately doesn't call ->forProjectConfig() either.
-        $formNodes[] = Field::make(t('Address Condition', category: 'commerce'), ConditionBuilder::make('condition')
+        $uiNodes[] = Field::make(t('Address Condition', category: 'commerce'), ConditionBuilder::make('condition')
             ->conditionClass(ZoneAddressCondition::class)
             ->value($shippingZone->getCondition()->getConfig()));
 
@@ -117,14 +117,14 @@ readonly class ShippingZonesController extends BaseStoreManagementController
             'description' => $shippingZone->description,
         ];
 
-        $form = $this->formResolver->resolve(Ui::make($formNodes), new UiContext(values: $values));
+        $ui = $this->uiResolver->resolve(Ui::make($uiNodes), new UiContext(values: $values));
 
         return $this->cpScreenResponse($store, subnav: false)
             ->title($title)
             ->crumbs($this->crumbs($store, ...($shippingZone->id ? [['label' => $title]] : [])))
             ->action('commerce/shipping-zones/save')
             ->redirectUrl($store->getStoreSettingsUrl('shippingzones'))
-            ->ui($form, props: [
+            ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

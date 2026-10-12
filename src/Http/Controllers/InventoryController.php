@@ -69,7 +69,7 @@ readonly class InventoryController
     ];
 
     public function __construct(
-        private UiResolver $formResolver,
+        private UiResolver $uiResolver,
     ) {
     }
 
@@ -234,7 +234,7 @@ readonly class InventoryController
         $quantity = (int)app(Inventory::class)->getInventoryLevel($inventoryItem, $inventoryLocation)->{$type . 'Total'};
         $label = $this->levelLabel($type);
 
-        $form = Ui::make([
+        $ui = Ui::make([
             Callout::make('current-level', t('{item} currently has {quantity} {type} at {location}.', [
                 'item' => $this->inventoryItemLabel($inventoryItem),
                 'quantity' => $quantity,
@@ -249,7 +249,7 @@ readonly class InventoryController
         ]);
 
         return new JsonResponse([
-            'ui' => $this->formResolver->resolve($form, new UiContext(values: [
+            'ui' => $this->uiResolver->resolve($ui, new UiContext(values: [
                 'quantity' => $isSet ? $quantity : 0,
                 'note' => '',
             ])),
@@ -339,7 +339,7 @@ readonly class InventoryController
 
         $available = app(Inventory::class)->getInventoryLevel($inventoryItem, $inventoryLocation)->getTotal($fromType);
 
-        $form = Ui::make([
+        $ui = Ui::make([
             HiddenField::make(['inventoryMovement', 'inventoryItemId']),
             HiddenField::make(['inventoryMovement', 'fromInventoryLocationId']),
             HiddenField::make(['inventoryMovement', 'toInventoryLocationId']),
@@ -362,7 +362,7 @@ readonly class InventoryController
         ]);
 
         return new JsonResponse([
-            'ui' => $this->formResolver->resolve($form, new UiContext(values: [
+            'ui' => $this->uiResolver->resolve($ui, new UiContext(values: [
                 'inventoryMovement' => [
                     'inventoryItemId' => $inventoryItem->id,
                     'fromInventoryLocationId' => $inventoryLocation->id,
@@ -455,7 +455,7 @@ readonly class InventoryController
     {
         $inventoryItem = $this->resolveInventoryItem($inventoryItemId);
 
-        $form = Ui::make([
+        $ui = Ui::make([
             Tab::make('details', t('Details', category: 'commerce'), [
                 HiddenField::make('inventoryItemId'),
                 Field::make(t('Country Code of Origin', category: 'commerce'), Text::make('countryCodeOfOrigin')),
@@ -477,7 +477,7 @@ readonly class InventoryController
             ->action('commerce/inventory/item-save')
             ->redirectUrl('commerce/inventory')
             ->selectedSubnavItem('inventory')
-            ->ui($form, new UiContext(values: [
+            ->ui($ui, new UiContext(values: [
                 'inventoryItemId' => $inventoryItem->id,
                 'countryCodeOfOrigin' => $inventoryItem->countryCodeOfOrigin,
                 'administrativeAreaCodeOfOrigin' => $inventoryItem->administrativeAreaCodeOfOrigin,

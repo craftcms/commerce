@@ -219,13 +219,13 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
 
         $values = $this->initialValues($catalogPricingRule, $store);
 
-        $form = $this->formResolver->resolve(
-            $this->buildForm($values, $store),
+        $ui = $this->uiResolver->resolve(
+            $this->buildUi($values, $store),
             new UiContext(values: $values, refreshable: true),
         );
 
-        $sidebarForm = $this->formResolver->resolve(
-            $this->buildSidebarForm(),
+        $sidebarUi = $this->uiResolver->resolve(
+            $this->buildSidebarUi(),
             new UiContext(values: $values),
         );
 
@@ -234,14 +234,14 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
             ->crumbs($this->crumbs($store, ...($catalogPricingRule->id ? [['label' => $title]] : [])))
             ->action('commerce/catalog-pricing-rules/save')
             ->redirectUrl($store->getStoreSettingsUrl('pricing-rules'))
-            ->ui($form, props: [
+            ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
                 ],
-                'refreshUrl' => action([self::class, 'renderForm']),
+                'refreshUrl' => action([self::class, 'renderUi']),
                 'metadataHtml' => $metadataHtml,
-                'sidebarUi' => $sidebarForm,
+                'sidebarUi' => $sidebarUi,
             ]);
     }
 
@@ -250,7 +250,7 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
      * client, so changing the effect can swap between the percentage and money inputs and
      * show or hide the price type.
      */
-    public function renderForm(Request $request): JsonResponse
+    public function renderUi(Request $request): JsonResponse
     {
         $request->validate([
             'values' => ['required', 'array'],
@@ -273,12 +273,12 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
 
         $values = array_replace($this->initialValues($catalogPricingRule, $store), $values);
 
-        $form = $this->formResolver->resolve(
-            $this->buildForm($values, $store),
+        $ui = $this->uiResolver->resolve(
+            $this->buildUi($values, $store),
             new UiContext(values: $values, refreshable: true),
         );
 
-        return new JsonResponse(['ui' => $form]);
+        return new JsonResponse(['ui' => $ui]);
     }
 
     private function resolveCatalogPricingRule(?int $id, Store $store): ?CatalogPricingRule
@@ -348,7 +348,7 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
     }
 
     /** @param array<string, mixed> $values */
-    private function buildForm(array $values, Store $store): Ui
+    private function buildUi(array $values, Store $store): Ui
     {
         $apply = (string) ($values['apply'] ?? '');
         $hasPurchasableRules = !empty($values['purchasableCondition']['conditionRules']['rules'] ?? []);
@@ -423,8 +423,8 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
             ->addTab(t('Actions', category: 'commerce'), $actionsFields);
     }
 
-    /** The details column's controls, submitted alongside {@see buildForm()}. */
-    private function buildSidebarForm(): Ui
+    /** The details column's controls, submitted alongside {@see buildUi()}. */
+    private function buildSidebarUi(): Ui
     {
         return Ui::make([
             Field::make(t('Enable this rule', category: 'commerce'), Lightswitch::make('enabled'))

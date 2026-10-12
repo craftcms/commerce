@@ -173,7 +173,7 @@ class GatewaysController extends BaseSettingsController
             ...$gateway->getSettings(),
         ];
 
-        $form = $this->formResolver->resolve($this->buildForm($values), new UiContext(
+        $ui = $this->uiResolver->resolve($this->buildUi($values), new UiContext(
             values: $values,
             mode: $this->generalConfig->allowAdminChanges ? ControlMode::Editable : ControlMode::ReadOnly,
             refreshable: !$this->readOnly,
@@ -184,12 +184,12 @@ class GatewaysController extends BaseSettingsController
             ->crumbs($gateway->id ? $this->crumbs(['label' => $title]) : $this->crumbs())
             ->action('commerce/gateways/save')
             ->redirectUrl('commerce/settings/gateways')
-            ->ui($form, props: [
+            ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
                 ],
-                'refreshUrl' => $this->readOnly ? null : action([self::class, 'renderForm']),
+                'refreshUrl' => $this->readOnly ? null : action([self::class, 'renderUi']),
             ]);
     }
 
@@ -198,11 +198,11 @@ class GatewaysController extends BaseSettingsController
      * client, so switching the Gateway type can swap in that type's own settings fields
      * without a full page reload.
      */
-    public function renderForm(Request $request): JsonResponse
+    public function renderUi(Request $request): JsonResponse
     {
         // Validate for shape only — Request::validate() returns just the ruled subset, which
         // would silently strip every field but the ones named here back out of `values`.
-        // Reading the raw input keeps the full posted values intact for buildForm()'s branching.
+        // Reading the raw input keeps the full posted values intact for buildUi()'s branching.
         $request->validate([
             'values' => ['required', 'array'],
             'scope' => ['present', 'array', 'size:0'],
@@ -210,13 +210,13 @@ class GatewaysController extends BaseSettingsController
 
         $values = $request->input('values');
 
-        $form = $this->formResolver->resolve($this->buildForm($values), new UiContext(
+        $ui = $this->uiResolver->resolve($this->buildUi($values), new UiContext(
             values: $values,
             mode: ControlMode::Editable,
             refreshable: true,
         ));
 
-        return new JsonResponse(['ui' => $form]);
+        return new JsonResponse(['ui' => $ui]);
     }
 
     /**
@@ -224,7 +224,7 @@ class GatewaysController extends BaseSettingsController
      *   left over from a since-changed Gateway type — no longer one of its options — can be
      *   corrected here and reflected back in the UiContext both callers resolve against.
      */
-    private function buildForm(array &$values): Ui
+    private function buildUi(array &$values): Ui
     {
         $gatewayService = app(Gateways::class);
         $type = $values['type'] ?? Dummy::class;
@@ -269,27 +269,27 @@ class GatewaysController extends BaseSettingsController
             $handle->source('name');
         }
 
-        $formNodes = [];
+        $uiNodes = [];
 
         if (!empty($values['id'])) {
-            $formNodes[] = HiddenField::make('id');
+            $uiNodes[] = HiddenField::make('id');
         }
 
-        $formNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
+        $uiNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
             ->instructions(t('What this gateway will be called in the control panel.', category: 'commerce'))
             ->required();
-        $formNodes[] = Field::make(t('Handle', category: 'commerce'), $handle)
+        $uiNodes[] = Field::make(t('Handle', category: 'commerce'), $handle)
             ->instructions(t('How you’ll refer to this gateway in the templates.', category: 'commerce'))
             ->required();
 
         if ($gateway->id && $gateway->supportsWebhooks()) {
-            $formNodes[] = Field::make(t('Webhook URL', category: 'commerce'), Text::make('webhookUrl')
+            $uiNodes[] = Field::make(t('Webhook URL', category: 'commerce'), Text::make('webhookUrl')
                 ->mode(ControlMode::ReadOnly)
                 ->value($gateway->getWebhookUrl()))
                 ->instructions(t('The webhook URL for this gateway.', category: 'commerce'));
         }
 
-        $formNodes[] = Field::make(t('Gateway', category: 'commerce'), Choice::make('type')->options($gatewayOptions)->reactive())
+        $uiNodes[] = Field::make(t('Gateway', category: 'commerce'), Choice::make('type')->options($gatewayOptions)->reactive())
             ->warning(!empty($values['id']) ? t('Changing this value may affect your ability to refund existing transactions.', category: 'commerce') : null)
             ->required();
 
@@ -302,7 +302,7 @@ class GatewaysController extends BaseSettingsController
             $values['paymentType'] = $paymentTypeOptions->first()['value'] ?? null;
         }
 
-        $formNodes[] = Field::make(t('Credit Card Payment Type', category: 'commerce'), Choice::make('paymentType')->options($paymentTypeOptions->all()))
+        $uiNodes[] = Field::make(t('Credit Card Payment Type', category: 'commerce'), Choice::make('paymentType')->options($paymentTypeOptions->all()))
             ->instructions(t('If set to Authorize Only, you will need to manually capture payments before the funds will be transferred to your account. The Gateway needs to support the selected option.', category: 'commerce'))
             ->required();
 
@@ -311,38 +311,38 @@ class GatewaysController extends BaseSettingsController
             mode: ControlMode::Editable,
         ));
         if ($settingsUi !== null) {
-            array_push($formNodes, ...$settingsUi->nodes());
+            array_push($uiNodes, ...$settingsUi->nodes());
         }
 
         // getBooleanEnvOptions()'s optgroup carries its own `options` as a Collection (fine for
-        // its one existing caller, which reshapes it before use) — a Form control's options
+        // its one existing caller, which reshapes it before use) — a Ui control's options
         // must be plain-array JSON-safe all the way down, so that gets flattened here rather
         // than changing the shared method's return shape for every other caller.
         $envOptions = array_map(fn(array $group) => [...$group, 'options' => $group['options']->all()], SelectOptions::getBooleanEnvOptions());
 
-        $formNodes[] = Field::make(t('Enabled for customers to select during checkout?', category: 'commerce'), Combobox::make('isFrontendEnabled')->options([
+        $uiNodes[] = Field::make(t('Enabled for customers to select during checkout?', category: 'commerce'), Combobox::make('isFrontendEnabled')->options([
             ['label' => t('Yes'), 'value' => '1'],
             ['label' => t('No'), 'value' => '0'],
             ...$envOptions,
         ]));
 
-        $formNodes[] = Field::make(t('Match Order', category: 'commerce'), ConditionBuilder::make('orderCondition')
+        $uiNodes[] = Field::make(t('Match Order', category: 'commerce'), ConditionBuilder::make('orderCondition')
             ->conditionClass(GatewayOrderCondition::class)
             ->forProjectConfig()
             ->value($values['orderCondition'] ?? []))
             ->instructions(t('Create rules that allow this gateway to match the order.', category: 'commerce'));
-        $formNodes[] = Field::make(t('Match Billing Address', category: 'commerce'), ConditionBuilder::make('billingAddressCondition')
+        $uiNodes[] = Field::make(t('Match Billing Address', category: 'commerce'), ConditionBuilder::make('billingAddressCondition')
             ->conditionClass(GatewayAddressCondition::class)
             ->forProjectConfig()
             ->value($values['billingAddressCondition'] ?? []))
             ->instructions(t('Create rules that allow this gateway to match the billing address.', category: 'commerce'));
-        $formNodes[] = Field::make(t('Match Shipping Address', category: 'commerce'), ConditionBuilder::make('shippingAddressCondition')
+        $uiNodes[] = Field::make(t('Match Shipping Address', category: 'commerce'), ConditionBuilder::make('shippingAddressCondition')
             ->conditionClass(GatewayAddressCondition::class)
             ->forProjectConfig()
             ->value($values['shippingAddressCondition'] ?? []))
             ->instructions(t('Create rules that allow this gateway to match the shipping address.', category: 'commerce'));
 
-        return Ui::make($formNodes);
+        return Ui::make($uiNodes);
     }
 
     public function save(Request $request): Response

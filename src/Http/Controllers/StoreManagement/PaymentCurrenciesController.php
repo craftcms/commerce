@@ -112,12 +112,12 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
             t('Updated at') => $formatter->asDateTime($currency->dateUpdated, 'short'),
         ]) : '';
 
-        $formNodes = [
+        $uiNodes = [
             HiddenField::make('storeId'),
         ];
 
         if ($currency->id) {
-            $formNodes[] = HiddenField::make('currencyId');
+            $uiNodes[] = HiddenField::make('currencyId');
         }
 
         if ($isoLocked) {
@@ -125,19 +125,19 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
             // UiHtmlRenderer::renderControl()), so it wouldn't submit at all — this
             // pairs a plain readonly display with a HiddenField carrying the real value
             // through, mirroring the old template's readonly-select-plus-hidden-input pair.
-            $formNodes[] = HiddenField::make('iso');
-            $formNodes[] = Field::make(t('Currency Code', category: 'commerce'), Text::make('isoDisplay')
+            $uiNodes[] = HiddenField::make('iso');
+            $uiNodes[] = Field::make(t('Currency Code', category: 'commerce'), Text::make('isoDisplay')
                 ->mode(ControlMode::ReadOnly)
                 ->value($currency->iso))
                 ->instructions(t('Choose the currency’s ISO code.', category: 'commerce'))
                 ->warning(t('The primary currency cannot be changed after orders are placed.', category: 'commerce'));
         } else {
-            $formNodes[] = Field::make(t('Currency Code', category: 'commerce'), Choice::make('iso')->options($currencyOptions))
+            $uiNodes[] = Field::make(t('Currency Code', category: 'commerce'), Choice::make('iso')->options($currencyOptions))
                 ->instructions(t('Choose the currency’s ISO code.', category: 'commerce'))
                 ->required();
         }
 
-        $formNodes[] = Field::make(t('Conversion Rate', category: 'commerce'), Number::make('rate')
+        $uiNodes[] = Field::make(t('Conversion Rate', category: 'commerce'), Number::make('rate')
             ->mode($currency->getPrimary() ? ControlMode::ReadOnly : ControlMode::Editable))
             ->instructions(t('The conversion rate that will be used when converting an amount to this currency. For example, if an item costs {amount1}, a conversion rate of {rate} would result in {amount2} in the alternate currency.', [
                 'amount1' => 10,
@@ -152,14 +152,14 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
             'rate' => $currency->rate ?: 1,
         ];
 
-        $form = $this->formResolver->resolve(Ui::make($formNodes), new UiContext(values: $values));
+        $ui = $this->uiResolver->resolve(Ui::make($uiNodes), new UiContext(values: $values));
 
         return $this->cpScreenResponse($store, subnav: false)
             ->title($title)
             ->crumbs($this->crumbs($store, ...($currency->id ? [['label' => $title]] : [])))
             ->action('commerce/payment-currencies/save')
             ->redirectUrl($store->getStoreSettingsUrl('payment-currencies'))
-            ->ui($form, props: [
+            ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),

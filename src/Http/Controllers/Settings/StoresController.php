@@ -103,14 +103,14 @@ class StoresController extends BaseSettingsController
 
         $currencyOptions = app(Currencies::class)->getAllCurrenciesList();
 
-        $form = $this->buildStoreForm($storeModel, $brandNewStore, $allowCurrencyChange, $availableSiteOptions, $currencyOptions);
+        $ui = $this->buildStoreUi($storeModel, $brandNewStore, $allowCurrencyChange, $availableSiteOptions, $currencyOptions);
         $values = $this->storeInitialValues($storeModel);
 
         return $this->cpScreenResponse(subnav: false)
             ->title($title)
             ->crumbs($brandNewStore ? $this->crumbs() : $this->crumbs(['label' => $title]))
             ->redirectUrl('commerce/settings/stores')
-            ->ui($form, new UiContext(
+            ->ui($ui, new UiContext(
                 values: $values,
                 mode: $this->readOnly ? ControlMode::ReadOnly : ControlMode::Editable,
             ), [
@@ -125,7 +125,7 @@ class StoresController extends BaseSettingsController
      * @param  list<array{label: string, value: mixed, disabled?: bool}>  $availableSiteOptions
      * @param  list<array{label: string, value: mixed}>  $currencyOptions
      */
-    private function buildStoreForm(
+    private function buildStoreUi(
         Store $storeModel,
         bool $brandNewStore,
         bool $allowCurrencyChange,
@@ -434,7 +434,7 @@ class StoresController extends BaseSettingsController
                     && app(CatalogPricingRules::class)->canUseCatalogPricingRules());
         }
 
-        $form = Ui::make([
+        $ui = Ui::make([
             Table::make('stores')
                 ->columns([
                     ['key' => 'name', 'label' => t('Name')],
@@ -464,7 +464,7 @@ class StoresController extends BaseSettingsController
         return $this->cpScreenResponse()
             ->title($title)
             ->crumbs($this->crumbs())
-            ->ui($form, props: [
+            ->ui($ui, props: [
                 'contentMaxWidth' => false,
             ]);
     }
@@ -538,7 +538,7 @@ class StoresController extends BaseSettingsController
             ->showFooter(false)
             ->rows($rows);
 
-        $form = Ui::make([
+        $ui = Ui::make([
             Field::make(null, SiteStores::make('siteStores')->table($table)),
         ]);
 
@@ -548,7 +548,7 @@ class StoresController extends BaseSettingsController
             ->title($title)
             ->crumbs($this->crumbsForSection(['label' => $title, 'href' => cp_url('commerce/settings/stores/sites')]))
             ->redirectUrl('commerce/settings/stores/sites')
-            ->ui($form, new UiContext(
+            ->ui($ui, new UiContext(
                 values: ['siteStores' => $values],
                 mode: $this->readOnly ? ControlMode::ReadOnly : ControlMode::Editable,
             ), [

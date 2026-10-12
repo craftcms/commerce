@@ -120,33 +120,33 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
             $handle->source('name');
         }
 
-        $formNodes = [
+        $uiNodes = [
             HiddenField::make('storeId'),
         ];
 
         if ($shippingMethod->id) {
-            $formNodes[] = HiddenField::make('shippingMethodId');
+            $uiNodes[] = HiddenField::make('shippingMethodId');
         }
 
-        $formNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
+        $uiNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
             ->required();
-        $formNodes[] = Field::make(t('Handle', category: 'commerce'), $handle)
+        $uiNodes[] = Field::make(t('Handle', category: 'commerce'), $handle)
             ->instructions(t('How this shipping method will be referred to in templates and forms.', category: 'commerce'))
             ->required();
-        $formNodes[] = Field::make(t('Icon', category: 'app'), IconPicker::make('icon'));
-        $formNodes[] = Field::make(t('Color', category: 'commerce'), ColorSelect::make('color')
+        $uiNodes[] = Field::make(t('Icon', category: 'app'), IconPicker::make('icon'));
+        $uiNodes[] = Field::make(t('Color', category: 'commerce'), ColorSelect::make('color')
             ->colors($this->colorPalette())
             ->allowTransparent()
             ->blankLabel(t('No color', category: 'app')));
 
         // Neither condition is project-config-tracked (both hardcode forProjectConfig = false
         // in their setters, same as zones), so no ->forProjectConfig() here either.
-        $formNodes[] = Field::make(t('Match Order', category: 'commerce'), ConditionBuilder::make('orderCondition')
+        $uiNodes[] = Field::make(t('Match Order', category: 'commerce'), ConditionBuilder::make('orderCondition')
             ->conditionClass(ShippingMethodOrderCondition::class)
             ->value($shippingMethod->getOrderCondition()->getConfig()))
             ->instructions(t('Conditions here are matched against an order before looking through the rules. This is useful if you want to qualify a method’s availability early, or if there are common conditions to all rules for this method.', category: 'commerce'));
 
-        $formNodes[] = Field::make(t('Match Customer', category: 'commerce'), ConditionBuilder::make('customerCondition')
+        $uiNodes[] = Field::make(t('Match Customer', category: 'commerce'), ConditionBuilder::make('customerCondition')
             ->conditionClass(ShippingMethodCustomerCondition::class)
             ->value($shippingMethod->getCustomerCondition()->getConfig()))
             ->instructions(t('Conditions here are matched against the order’s customer before looking through the rules. This is useful if you want qualify a method’s availability early or if there are common conditions to all rules for this method.', category: 'commerce'));
@@ -165,7 +165,7 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
                 ->values()
                 ->all();
 
-            $formNodes[] = Table::make('shipping-rules')
+            $uiNodes[] = Table::make('shipping-rules')
                 ->columns([
                     ['key' => 'name', 'label' => t('Shipping Rule', category: 'commerce')],
                     ['key' => 'description', 'label' => t('Description', category: 'commerce')],
@@ -191,8 +191,8 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
             'enabled' => $shippingMethod->enabled,
         ];
 
-        $form = $this->formResolver->resolve(Ui::make($formNodes), new UiContext(values: $values));
-        $sidebarForm = $this->formResolver->resolve($this->buildSidebarForm(), new UiContext(values: $values));
+        $ui = $this->uiResolver->resolve(Ui::make($uiNodes), new UiContext(values: $values));
+        $sidebarUi = $this->uiResolver->resolve($this->buildSidebarUi(), new UiContext(values: $values));
 
         return $this->cpScreenResponse($store, subnav: false)
             ->title($title)
@@ -200,18 +200,18 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
             ->action('commerce/shipping-methods/save')
             ->redirectUrl($store->getStoreSettingsUrl('shippingmethods/{id}#rules'))
             ->submitButtonLabel($shippingMethod->id ? t('Save and set rules', category: 'commerce') : t('Save'))
-            ->ui($form, props: [
+            ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
                 ],
                 'metadataHtml' => $metadataHtml,
-                'sidebarUi' => $sidebarForm,
+                'sidebarUi' => $sidebarUi,
             ]);
     }
 
     /** The details column's controls, submitted alongside the main form built in {@see edit()}. */
-    private function buildSidebarForm(): Ui
+    private function buildSidebarUi(): Ui
     {
         return Ui::make([
             Field::make(t('Enable this shipping method on the front end', category: 'commerce'), Lightswitch::make('enabled')),

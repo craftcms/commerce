@@ -24,12 +24,12 @@ use function CraftCms\Cms\t;
 
 /**
  * Shared ancestor for Commerce's store-management settings controllers (shipping, tax,
- * promotions, payment currencies, etc) that have been converted to the Form system.
+ * promotions, payment currencies, etc) that have been converted to the Ui system.
  *
  * `getSectionCrumb()` is a real abstract method — every direct subclass of this class must
- * implement it, enforced at class-load time. A controller not yet converted to the Form system
+ * implement it, enforced at class-load time. A controller not yet converted to the Ui system
  * should extend {@see LegacyStoreManagementController} instead, which satisfies that
- * requirement with a stub so it isn't forced to implement Form-system-only crumb logic before
+ * requirement with a stub so it isn't forced to implement Ui-system-only crumb logic before
  * its turn — see that class's docblock for the one-line change a conversion makes.
  *
  * This class still `use`s {@see HasStoreManagementScreen} itself (not just the legacy shim)
@@ -55,7 +55,7 @@ abstract readonly class BaseStoreManagementController
     use RespondsWithFlash;
 
     public function __construct(
-        protected UiResolver $formResolver,
+        protected UiResolver $uiResolver,
     ) {
     }
 

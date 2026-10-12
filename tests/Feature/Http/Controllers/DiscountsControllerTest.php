@@ -164,7 +164,7 @@ it('requires discount permissions to generate coupon codes', function() {
 it('renders the coupons table and generator only when a coupon code is required', function(bool $requireCouponCode) {
     $discount = DiscountsFixture::seed()->discountWithCoupon;
 
-    $response = postJson(Url::actionUrl('commerce/discounts/render-form'), [
+    $response = postJson(Url::actionUrl('commerce/discounts/render-ui'), [
         'values' => ['id' => $discount->id, 'storeId' => $discount->storeId, 'requireCouponCode' => $requireCouponCode],
         'scope' => [],
     ])->assertOk();
@@ -189,7 +189,7 @@ it('warns about coupon deletion only when coupons exist', function(bool $savedCo
     $fixture = DiscountsFixture::seed();
     $discount = $savedCoupons ? $fixture->discountWithCoupon : new Discount(['storeId' => $fixture->storeId]);
 
-    $response = postJson(Url::actionUrl('commerce/discounts/render-form'), [
+    $response = postJson(Url::actionUrl('commerce/discounts/render-ui'), [
         'values' => ['id' => $discount->id, 'storeId' => $discount->storeId, 'requireCouponCode' => false, 'coupons' => $coupons],
         'scope' => [],
     ])->assertOk();

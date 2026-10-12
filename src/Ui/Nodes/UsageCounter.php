@@ -16,7 +16,7 @@ use Illuminate\Support\Traits\Conditionable;
  * A read-only usage count alongside a confirm-then-reset button, for use in a
  * {@see Field::actions()} slot next to the limit it's tracking usage against.
  *
- * Commerce-owned (not a `cms`-shared Form Node) — its Vue counterpart is
+ * Commerce-owned (not a `cms`-shared Ui Node) — its Vue counterpart is
  * registered by Commerce's own Vite bundle via `window.Cp.$components.register()`,
  * not `cms`'s `register.ts`. See `commerce/resources/js/cp.ts`.
  *

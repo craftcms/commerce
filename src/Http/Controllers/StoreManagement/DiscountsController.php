@@ -70,9 +70,9 @@ readonly class DiscountsController extends BaseStoreManagementController
     public const string DISCOUNT_COUNTER_TYPE_CUSTOMER = 'customer';
 
     public function __construct(
-        UiResolver $formResolver,
+        UiResolver $uiResolver,
     ) {
-        parent::__construct($formResolver);
+        parent::__construct($uiResolver);
     }
 
     protected function getSectionCrumb(Store $store): array
@@ -295,13 +295,13 @@ readonly class DiscountsController extends BaseStoreManagementController
 
         $values = $this->initialValues($discount, $store);
 
-        $form = $this->formResolver->resolve(
-            $this->buildForm($discount, $values, $store),
+        $ui = $this->uiResolver->resolve(
+            $this->buildUi($discount, $values, $store),
             new UiContext(values: $values, refreshable: true),
         );
 
-        $sidebarForm = $this->formResolver->resolve(
-            $this->buildSidebarForm(),
+        $sidebarUi = $this->uiResolver->resolve(
+            $this->buildSidebarUi(),
             new UiContext(values: $values),
         );
 
@@ -310,14 +310,14 @@ readonly class DiscountsController extends BaseStoreManagementController
             ->crumbs($this->crumbs($store, ...($discount->id ? [['label' => $title]] : [])))
             ->action('commerce/discounts/save')
             ->redirectUrl($store->getStoreSettingsUrl('discounts'))
-            ->ui($form, props: [
+            ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
                     'url' => action([self::class, 'save']),
                 ],
-                'refreshUrl' => action([self::class, 'renderForm']),
+                'refreshUrl' => action([self::class, 'renderUi']),
                 'metadataHtml' => $metadataHtml,
-                'sidebarUi' => $sidebarForm,
+                'sidebarUi' => $sidebarUi,
             ]);
     }
 
@@ -326,7 +326,7 @@ readonly class DiscountsController extends BaseStoreManagementController
      * client, so toggling "only match certain purchasables"/"only match related entries" can
      * reveal or hide the fields that depend on them without a full page reload.
      */
-    public function renderForm(Request $request): JsonResponse
+    public function renderUi(Request $request): JsonResponse
     {
         $request->validate([
             'values' => ['required', 'array'],
@@ -346,12 +346,12 @@ readonly class DiscountsController extends BaseStoreManagementController
 
         $values = array_replace($this->initialValues($discount, $store), $values);
 
-        $form = $this->formResolver->resolve(
-            $this->buildForm($discount, $values, $store),
+        $ui = $this->uiResolver->resolve(
+            $this->buildUi($discount, $values, $store),
             new UiContext(values: $values, refreshable: true),
         );
 
-        return new JsonResponse(['ui' => $form]);
+        return new JsonResponse(['ui' => $ui]);
     }
 
     private function resolveDiscount(?int $id, Store $store): ?Discount
@@ -438,7 +438,7 @@ readonly class DiscountsController extends BaseStoreManagementController
     }
 
     /** @param array<string, mixed> $values */
-    private function buildForm(Discount $discount, array $values, Store $store): Ui
+    private function buildUi(Discount $discount, array $values, Store $store): Ui
     {
         $currency = $store->getCurrency()?->getCode() ?? 'USD';
         $percentSymbol = I18N::getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
@@ -655,8 +655,8 @@ readonly class DiscountsController extends BaseStoreManagementController
             ->addTab(t('Actions', category: 'commerce'), $actionsFields);
     }
 
-    /** The details column's controls, submitted alongside {@see buildForm()}. */
-    private function buildSidebarForm(): Ui
+    /** The details column's controls, submitted alongside {@see buildUi()}. */
+    private function buildSidebarUi(): Ui
     {
         return Ui::make([
             Field::make(t('Enable this discount', category: 'commerce'), Lightswitch::make('enabled')),
