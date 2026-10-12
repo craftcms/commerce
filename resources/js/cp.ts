@@ -1,8 +1,8 @@
-import CouponGeneratorNode from './modules/forms/CouponGeneratorNode.vue';
-import SiteStoresControl from './modules/forms/SiteStoresControl.vue';
-import TransferDetailsControl from './modules/forms/TransferDetailsControl.vue';
-import TransferReceiveControl from './modules/forms/TransferReceiveControl.vue';
-import UsageCounterNode from './modules/forms/UsageCounterNode.vue';
+import CouponGeneratorNode from './modules/ui/CouponGeneratorNode.vue';
+import SiteStoresControl from './modules/ui/SiteStoresControl.vue';
+import TransferDetailsControl from './modules/ui/TransferDetailsControl.vue';
+import TransferReceiveControl from './modules/ui/TransferReceiveControl.vue';
+import UsageCounterNode from './modules/ui/UsageCounterNode.vue';
 
 /**
  * Commerce's own contribution to the shared CP `Ui` system's component

@@ -27,13 +27,13 @@ use CraftCms\Cms\Ui\Ui;
 use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\Database\Table as DbTable;
-use CraftCms\Commerce\Form\Controls\SiteStores;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Store\Data\Store;
-
 use CraftCms\Commerce\Store\Stores;
+
+use CraftCms\Commerce\Ui\Controls\SiteStores;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\cp_url;

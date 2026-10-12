@@ -39,8 +39,6 @@ use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Cms\Ui\UiResolver;
 use CraftCms\Commerce\Address\Conditions\DiscountAddressCondition;
 use CraftCms\Commerce\Customer\Conditions\DiscountCustomerCondition;
-use CraftCms\Commerce\Form\Nodes\CouponGenerator;
-use CraftCms\Commerce\Form\Nodes\UsageCounter;
 use CraftCms\Commerce\Helpers\Localization;
 use CraftCms\Commerce\Order\Conditions\DiscountOrderCondition;
 use CraftCms\Commerce\Promotion\Coupons;
@@ -52,6 +50,8 @@ use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Purchasables;
 use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
+use CraftCms\Commerce\Ui\Nodes\CouponGenerator;
+use CraftCms\Commerce\Ui\Nodes\UsageCounter;
 
 use DateTime;
 use Illuminate\Http\JsonResponse;

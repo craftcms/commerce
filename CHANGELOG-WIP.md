@@ -949,7 +949,7 @@
 - Added `CraftCms\Commerce\Transfer\Policies\TransferPolicy`, registered via `Gate::policy()`, which lets users with the “Manage inventory transfers” permission view and save transfers and delete draft transfers.
 - Added `CraftCms\Commerce\Transfer\Transfers::markAsPending()` and `receive()`.
 - Added `CraftCms\Commerce\Transfer\Elements\Transfer::canBeReceived()`.
-- Added `CraftCms\Commerce\Form\Controls\TransferDetails` and `CraftCms\Commerce\Form\Controls\TransferReceive` form controls.
+- Added `CraftCms\Commerce\Ui\Controls\TransferDetails` and `CraftCms\Commerce\Ui\Controls\TransferReceive` form controls.
 - Added `CraftCms\Commerce\Http\ViewModels\TransferIndexViewModel` and `CraftCms\Commerce\Http\ViewModels\TransferEditViewModel`.
 - The transfers index and edit screens are now Inertia pages built on core's element index and element editor.
 - Transfers are now saved through core's `elements/save` action. `TransferManagementField` now provides origin, destination and item form controls, and changing the origin refreshes the items that can be transferred.

@@ -17,12 +17,12 @@ use CraftCms\Cms\Ui\Enums\FieldWidth;
 use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Cms\Ui\Nodes\Group;
 use CraftCms\Cms\Ui\Nodes\TemplateContent;
-use CraftCms\Commerce\Form\Controls\TransferDetails;
 use CraftCms\Commerce\Inventory\Data\InventoryLevel;
 use CraftCms\Commerce\Inventory\Data\InventoryLocation;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Inventory\InventoryLocations;
 use CraftCms\Commerce\Transfer\Elements\Transfer;
+use CraftCms\Commerce\Ui\Controls\TransferDetails;
 use InvalidArgumentException;
 use Override;
 
