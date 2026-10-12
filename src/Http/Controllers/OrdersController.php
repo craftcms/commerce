@@ -98,7 +98,7 @@ class OrdersController
 {
     use RespondsWithFlash;
 
-    public function orderIndex(string $orderStatusHandle = ''): string
+    public function index(string $orderStatusHandle = ''): string
     {
         \Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
 
@@ -150,7 +150,7 @@ class OrdersController
         return redirect('commerce/orders/' . $order->id);
     }
 
-    public function editOrder(int $orderId): string
+    public function edit(int $orderId): string
     {
         $order = app(Orders::class)->getOrderById($orderId);
         abort_if(!$order, 404, t('Can not find order.', category: 'commerce'));
@@ -245,7 +245,7 @@ JS, []);
             });
     }
 
-    public function save(Request $request): ?Response
+    public function store(Request $request): ?Response
     {
         $data = $request->input('orderData');
         $orderRequestData = \CraftCms\Cms\Support\Json::decodeIfJson($data);
@@ -292,7 +292,7 @@ JS, []);
         return $this->redirectToPostedUrl();
     }
 
-    public function deleteOrder(Request $request): ?Response
+    public function destroy(Request $request): ?Response
     {
         $orderId = (int)$request->input('orderId');
         $order = app(Orders::class)->getOrderById($orderId);
@@ -348,7 +348,7 @@ JS, []);
         ]);
     }
 
-    public function getShippingMethodOptions(Request $request): Response
+    public function shippingMethodOptions(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
 
@@ -578,7 +578,7 @@ JS, []);
         return $this->asSuccess(data: compact('customers'));
     }
 
-    public function getCustomerAddresses(Request $request): Response
+    public function customerAddresses(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
 
@@ -610,7 +610,7 @@ JS, []);
         return $this->asSuccess(data: compact('addresses', 'total'));
     }
 
-    public function getOrderAddress(Request $request): Response
+    public function orderAddress(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
 
@@ -675,7 +675,7 @@ JS, []);
         return $this->asSuccess(data: compact('user'));
     }
 
-    public function getLoadCartUrl(Request $request): Response
+    public function loadCartUrl(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
         abort_unless(currentUser()?->can('commerce-manageOrders'), 403);
@@ -818,7 +818,7 @@ JS, []);
         ]);
     }
 
-    public function getIndexSourcesBadgeCounts(Request $request): Response
+    public function indexSourcesBadgeCounts(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
 
@@ -833,7 +833,7 @@ JS, []);
         return $this->asSuccess(data: compact('counts', 'total'));
     }
 
-    public function getPaymentModal(Request $request): Response
+    public function paymentModal(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
 

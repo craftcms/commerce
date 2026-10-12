@@ -59,7 +59,17 @@ readonly class SalesController extends LegacyStoreManagementController
         ], TemplateMode::Cp);
     }
 
-    public function edit(?string $storeHandle = null, ?int $id = null): string
+    public function create(?string $storeHandle = null): string
+    {
+        return $this->editScreen($storeHandle);
+    }
+
+    public function edit(?string $storeHandle, int $id): string
+    {
+        return $this->editScreen($storeHandle, $id);
+    }
+
+    private function editScreen(?string $storeHandle = null, ?int $id = null): string
     {
         $this->guard();
 
@@ -85,7 +95,7 @@ readonly class SalesController extends LegacyStoreManagementController
         return pageTemplate('commerce/promotions/sales/_edit', $variables, TemplateMode::Cp);
     }
 
-    public function save(Request $request): Response
+    public function store(Request $request): Response
     {
         $sale = new Sale();
 
@@ -173,7 +183,7 @@ readonly class SalesController extends LegacyStoreManagementController
         return $this->asSuccess();
     }
 
-    public function delete(Request $request): Response
+    public function destroy(Request $request): Response
     {
         abort_unless(currentUserElement()?->can('commerce-deleteSales'), 403);
 
@@ -198,7 +208,7 @@ readonly class SalesController extends LegacyStoreManagementController
         return $this->asSuccess(t('Sales deleted.', category: 'commerce'), redirect: url()->previous());
     }
 
-    public function getAllSales(Request $request): Response
+    public function list(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
         $sales = app(Sales::class)->getAllSales();
@@ -206,7 +216,7 @@ readonly class SalesController extends LegacyStoreManagementController
         return response()->json(array_values($sales));
     }
 
-    public function getSalesByProductId(Request $request): Response
+    public function byProduct(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
         $id = $request->input('id');
@@ -236,7 +246,7 @@ readonly class SalesController extends LegacyStoreManagementController
         return $this->asSuccess(data: ['sales' => $sales]);
     }
 
-    public function getSalesByPurchasableId(Request $request): Response
+    public function byPurchasable(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
         $id = $request->input('id');
@@ -264,7 +274,7 @@ readonly class SalesController extends LegacyStoreManagementController
         return $this->asSuccess(data: ['sales' => $sales]);
     }
 
-    public function addPurchasableToSale(Request $request): Response
+    public function addPurchasable(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
         $ids = $request->input('ids', []);

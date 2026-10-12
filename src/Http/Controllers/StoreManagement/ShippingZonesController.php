@@ -59,7 +59,7 @@ readonly class ShippingZonesController extends BaseStoreManagementController
                 ->toggleableColumns()
                 ->createAction(t('New shipping zone', category: 'commerce'), $store->getStoreSettingsUrl('shippingzones/new'))
                 ->createActionInPageHeader()
-                ->deletable(action([self::class, 'delete'])),
+                ->deletable(action([self::class, 'destroy'])),
         ];
 
         $title = t('Shipping Zones', category: 'commerce');
@@ -72,7 +72,17 @@ readonly class ShippingZonesController extends BaseStoreManagementController
             ]);
     }
 
-    public function edit(?string $storeHandle = null, ?int $id = null): CpScreenResponse
+    public function create(?string $storeHandle = null): CpScreenResponse
+    {
+        return $this->editScreen($storeHandle);
+    }
+
+    public function edit(?string $storeHandle, int $id): CpScreenResponse
+    {
+        return $this->editScreen($storeHandle, $id);
+    }
+
+    private function editScreen(?string $storeHandle = null, ?int $id = null): CpScreenResponse
     {
         $store = $this->resolveStore($storeHandle);
 
@@ -127,13 +137,13 @@ readonly class ShippingZonesController extends BaseStoreManagementController
             ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
-                    'url' => action([self::class, 'save']),
+                    'url' => action([self::class, 'store']),
                 ],
                 'metadataHtml' => $metadataHtml,
             ]);
     }
 
-    public function save(Request $request): Response
+    public function store(Request $request): Response
     {
         $shippingZone = new ShippingAddressZone();
 
@@ -163,7 +173,7 @@ readonly class ShippingZonesController extends BaseStoreManagementController
         );
     }
 
-    public function delete(Request $request): Response
+    public function destroy(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
 

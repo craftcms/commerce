@@ -110,7 +110,17 @@ readonly class InventoryLocationsController
             ]);
     }
 
-    public function edit(?int $inventoryLocationId = null): CpScreenResponse
+    public function create(): CpScreenResponse
+    {
+        return $this->editScreen();
+    }
+
+    public function edit(int $inventoryLocationId): CpScreenResponse
+    {
+        return $this->editScreen($inventoryLocationId);
+    }
+
+    private function editScreen(?int $inventoryLocationId = null): CpScreenResponse
     {
         $inventoryLocation = $this->resolveInventoryLocation($inventoryLocationId);
         $address = $inventoryLocation->getAddress();
@@ -139,7 +149,7 @@ readonly class InventoryLocationsController
             ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
-                    'url' => action([self::class, 'save']),
+                    'url' => action([self::class, 'store']),
                 ],
                 'refreshUrl' => action([self::class, 'renderUi']),
                 'metadataHtml' => $metadataHtml,
@@ -147,7 +157,7 @@ readonly class InventoryLocationsController
     }
 
     /**
-     * Re-resolves the {@see edit()} Form tree for the values currently in progress on the
+     * Re-resolves the {@see editScreen()} Ui tree for the values currently in progress on the
      * client, so changing the country can reveal the right set of country-specific address
      * fields without a full page reload.
      */
@@ -177,7 +187,7 @@ readonly class InventoryLocationsController
         return new JsonResponse(['ui' => $ui]);
     }
 
-    public function save(Request $request): Response
+    public function store(Request $request): Response
     {
         $inventoryLocation = $this->resolveInventoryLocation($request->integer('inventoryLocationId') ?: null);
 

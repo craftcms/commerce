@@ -109,7 +109,7 @@ class EmailsController extends BaseSettingsController
             )
             ->createActionInPageHeader()
             ->when(!$this->readOnly, fn(Table $table) => $table
-                ->deletable(action([self::class, 'delete'])));
+                ->deletable(action([self::class, 'destroy'])));
 
         return $this->cpScreenResponse()
             ->subnav($this->storeSubnav('commerce/settings/emails', $store))
@@ -120,7 +120,17 @@ class EmailsController extends BaseSettingsController
             ]);
     }
 
-    public function edit(?string $storeHandle = null, ?int $id = null): CpScreenResponse
+    public function create(?string $storeHandle = null): CpScreenResponse
+    {
+        return $this->editScreen($storeHandle);
+    }
+
+    public function edit(?string $storeHandle, int $id): CpScreenResponse
+    {
+        return $this->editScreen($storeHandle, $id);
+    }
+
+    private function editScreen(?string $storeHandle = null, ?int $id = null): CpScreenResponse
     {
         if ($storeHandle === null || !$store = app(Stores::class)->getStoreByHandle($storeHandle)) {
             $store = app(Stores::class)->getPrimaryStore();
@@ -171,14 +181,14 @@ class EmailsController extends BaseSettingsController
             ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
-                    'url' => action([self::class, 'save']),
+                    'url' => action([self::class, 'store']),
                 ],
                 'refreshUrl' => $this->readOnly ? null : action([self::class, 'renderUi']),
             ]);
     }
 
     /**
-     * Re-resolves the {@see edit()} Form tree for the values currently in progress on the
+     * Re-resolves the {@see editScreen()} Ui tree for the values currently in progress on the
      * client, so the Recipient toggle can show or hide the Custom Recipient field without a
      * full page reload.
      */
@@ -288,7 +298,7 @@ class EmailsController extends BaseSettingsController
         return Ui::make($uiNodes);
     }
 
-    public function save(Request $request): Response
+    public function store(Request $request): Response
     {
         $emailsService = app(Emails::class);
         $emailId = $request->input('id') ? (int)$request->input('id') : null;
@@ -330,7 +340,7 @@ class EmailsController extends BaseSettingsController
         return $this->asModelSuccess($email, t('Email saved.', category: 'commerce'), 'email');
     }
 
-    public function delete(Request $request): Response
+    public function destroy(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
 

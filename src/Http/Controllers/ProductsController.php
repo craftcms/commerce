@@ -17,7 +17,7 @@ readonly class ProductsController
 {
     use RedirectsToShownSource;
 
-    public function productIndex(ElementIndexRequest $request, ?string $productTypeHandle = null): InertiaResponse|RedirectResponse
+    public function index(ElementIndexRequest $request, ?string $productTypeHandle = null): InertiaResponse|RedirectResponse
     {
         $this->requireViewableProductTypes();
 

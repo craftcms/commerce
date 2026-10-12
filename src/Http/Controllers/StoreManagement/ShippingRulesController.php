@@ -48,7 +48,17 @@ readonly class ShippingRulesController extends BaseStoreManagementController
         return ['label' => t('Shipping Methods', category: 'commerce'), 'href' => $store->getStoreSettingsUrl('shippingmethods')];
     }
 
-    public function edit(?string $storeHandle = null, ?int $methodId = null, ?int $ruleId = null): CpScreenResponse
+    public function create(?string $storeHandle, int $methodId): CpScreenResponse
+    {
+        return $this->editScreen($storeHandle, $methodId);
+    }
+
+    public function edit(?string $storeHandle, int $methodId, int $ruleId): CpScreenResponse
+    {
+        return $this->editScreen($storeHandle, $methodId, $ruleId);
+    }
+
+    private function editScreen(?string $storeHandle = null, ?int $methodId = null, ?int $ruleId = null): CpScreenResponse
     {
         $store = $this->resolveStore($storeHandle);
 
@@ -103,7 +113,7 @@ readonly class ShippingRulesController extends BaseStoreManagementController
                 ])
                 ->addAltAction(t('Delete', category: 'commerce'), [
                     'destructive' => true,
-                    'action' => action([self::class, 'delete']),
+                    'action' => action([self::class, 'destroy']),
                     'confirm' => t('Are you sure you want to delete this shipping rule?', category: 'commerce'),
                 ]);
         }
@@ -111,7 +121,7 @@ readonly class ShippingRulesController extends BaseStoreManagementController
         return $response->ui($ui, props: [
             'submit' => [
                 'method' => 'post',
-                'url' => action([self::class, 'save']),
+                'url' => action([self::class, 'store']),
             ],
             'refreshUrl' => action([self::class, 'renderUi']),
             'metadataHtml' => $metadataHtml,
@@ -120,7 +130,7 @@ readonly class ShippingRulesController extends BaseStoreManagementController
     }
 
     /**
-     * Re-resolves the {@see edit()} Form tree for the values currently in progress on the
+     * Re-resolves the {@see editScreen()} Ui tree for the values currently in progress on the
      * client, so changing a shipping category's condition can hide or reveal its rate-override
      * row on the Costs tab without a full page reload.
      */
@@ -165,7 +175,7 @@ readonly class ShippingRulesController extends BaseStoreManagementController
     private function initialValues(ShippingMethod $shippingMethod, ShippingRule $shippingRule, Store $store): array
     {
         // Every shipping category gets a fixed row in each of the two tables built in
-        // buildUi(), keyed by its own id — see how save() recombines them, and how
+        // buildUi(), keyed by its own id — see how store() recombines them, and how
         // buildUi() reads shippingCategoryConditions to hide a disallowed category's
         // override row.
         $shippingCategories = app(ShippingCategories::class)->getAllShippingCategories($store->id);
@@ -277,7 +287,7 @@ readonly class ShippingRulesController extends BaseStoreManagementController
             // A single, fixed (non-addable/removable) row — matches 5.x's own layout, where
             // these defaults were the first row of the very table the category overrides
             // continue in below, rather than three standalone fields. The row's own values
-            // are read back out of `defaultRates.0` in save() into the plain `perItemRate`/
+            // are read back out of `defaultRates.0` in store() into the plain `perItemRate`/
             // `weightRate`/`percentageRate` properties; the table itself is purely a layout
             // device; note this drops the individual fields' own `required` enforcement
             // (the editable table has no per-cell concept of it) — matching 5.x's own table
@@ -367,10 +377,10 @@ readonly class ShippingRulesController extends BaseStoreManagementController
 
     public function duplicate(Request $request): Response
     {
-        return $this->save($request, duplicate: true);
+        return $this->store($request, duplicate: true);
     }
 
-    public function save(Request $request, bool $duplicate = false): Response
+    public function store(Request $request, bool $duplicate = false): Response
     {
         $shippingRule = new ShippingRule();
 
@@ -408,7 +418,7 @@ readonly class ShippingRulesController extends BaseStoreManagementController
         $shippingRule->enabled = (bool)$request->input('enabled');
         $shippingRule->orderConditionFormula = trim((string)$request->input('orderConditionFormula', ''));
 
-        // `defaultRates` is the single fixed row of the Item Rates table built in edit() —
+        // `defaultRates` is the single fixed row of the Item Rates table built in editScreen() —
         // a layout device matching 5.x's own combined table, not a real per-category row. Its
         // three cells map straight onto these plain properties.
         $defaultRates = (array) ($request->input('defaultRates')[0] ?? []);
@@ -425,8 +435,8 @@ readonly class ShippingRulesController extends BaseStoreManagementController
         $shippingRule->setOrderCondition($request->input('orderCondition'));
         $shippingRule->setCustomerCondition($request->input('customerCondition'));
 
-        // The Conditions and Costs tabs each own a separate keyed table (see edit()) —
-        // recombine them here into the single per-category model save() actually needs.
+        // The Conditions and Costs tabs each own a separate keyed table (see editScreen()) —
+        // recombine them here into the single per-category model store() actually needs.
         $conditions = (array)$request->input('shippingCategoryConditions');
         $rates = (array)$request->input('ruleCategories');
 
@@ -476,7 +486,7 @@ readonly class ShippingRulesController extends BaseStoreManagementController
         return $this->asSuccess();
     }
 
-    public function delete(Request $request): Response
+    public function destroy(Request $request): Response
     {
         $id = $request->input('id');
         abort_if(!$id, 400, 'Shipping rule ID not submitted');

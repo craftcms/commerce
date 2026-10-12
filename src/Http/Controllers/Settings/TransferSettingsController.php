@@ -30,7 +30,7 @@ class TransferSettingsController extends BaseSettingsController
         return ['label' => t('Transfer Fields', category: 'commerce'), 'href' => cp_url('commerce/settings/transfers')];
     }
 
-    public function saveTransferSettings(): Response
+    public function store(): Response
     {
         $fieldLayout = Fields::assembleLayoutFromPost();
 
@@ -63,7 +63,7 @@ class TransferSettingsController extends BaseSettingsController
         return $this->asSuccess(t('Transfer fields saved.', category: 'commerce'));
     }
 
-    public function editTransferSettings(): CpScreenResponse
+    public function edit(): CpScreenResponse
     {
         $fieldLayout = app(Transfers::class)->getFieldLayout();
 
@@ -93,7 +93,7 @@ class TransferSettingsController extends BaseSettingsController
             ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
-                    'url' => action([self::class, 'saveTransferSettings']),
+                    'url' => action([self::class, 'store']),
                 ],
             ]);
     }

@@ -73,7 +73,7 @@ readonly class InventoryController
     ) {
     }
 
-    public function editLocationLevels(Request $request, ?string $inventoryLocationHandle = null): CpScreenResponse|RedirectResponse
+    public function index(Request $request, ?string $inventoryLocationHandle = null): CpScreenResponse|RedirectResponse
     {
         $inventoryLocations = app(InventoryLocations::class)->getAllInventoryLocations();
         $inventoryLocationHandle ??= $request->input('inventoryLocationHandle');
@@ -99,7 +99,7 @@ readonly class InventoryController
                     'sortable' => true,
                 ], array_keys(self::LEVEL_COLUMNS)),
             ])
-            ->dataUrl(action([self::class, 'inventoryLevelsTableData'], array_filter([
+            ->dataUrl(action([self::class, 'tableData'], array_filter([
                 'inventoryLocationId' => $currentLocation->id,
                 'inventoryItemId' => $inventoryItemId,
             ])))
@@ -117,7 +117,7 @@ readonly class InventoryController
             ]);
     }
 
-    public function inventoryLevelsTableData(Request $request): JsonResponse
+    public function tableData(Request $request): JsonResponse
     {
         $request->validate([
             'inventoryLocationId' => ['required', 'integer'],
@@ -319,7 +319,7 @@ readonly class InventoryController
 
     /**
      * The Form shown by a stock level's “Move Inventory” modal. Its values are posted to
-     * {@see saveInventoryMovement()}.
+     * {@see storeMovement()}.
      */
     public function prepareMovementModal(Request $request): JsonResponse
     {
@@ -378,7 +378,7 @@ readonly class InventoryController
         ]);
     }
 
-    public function saveInventoryMovement(Request $request): Response
+    public function storeMovement(Request $request): Response
     {
         $request->validate(['inventoryMovement.note' => ['nullable', 'string', 'max:' . self::NOTE_MAX_LENGTH]]);
 
@@ -451,7 +451,7 @@ readonly class InventoryController
             ->ui(Ui::make([$table]));
     }
 
-    public function itemEdit(int $inventoryItemId): CpScreenResponse
+    public function editItem(int $inventoryItemId): CpScreenResponse
     {
         $inventoryItem = $this->resolveInventoryItem($inventoryItemId);
 
@@ -485,12 +485,12 @@ readonly class InventoryController
             ]), [
                 'submit' => [
                     'method' => 'post',
-                    'url' => action([self::class, 'itemSave']),
+                    'url' => action([self::class, 'storeItem']),
                 ],
             ]);
     }
 
-    public function itemSave(Request $request): Response
+    public function storeItem(Request $request): Response
     {
         $inventoryItem = $this->resolveInventoryItem($request->integer('inventoryItemId'));
 
@@ -578,7 +578,7 @@ readonly class InventoryController
             $items[] = [
                 'label' => t('Move Inventory', category: 'commerce'),
                 'modalUrl' => action([self::class, 'prepareMovementModal']),
-                'actionUrl' => action([self::class, 'saveInventoryMovement']),
+                'actionUrl' => action([self::class, 'storeMovement']),
                 'params' => $params,
             ];
         }

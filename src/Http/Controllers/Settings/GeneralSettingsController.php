@@ -89,12 +89,12 @@ class GeneralSettingsController extends BaseSettingsController
             ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
-                    'url' => action([self::class, 'saveSettings']),
+                    'url' => action([self::class, 'store']),
                 ],
             ]);
     }
 
-    public function saveSettings(Request $request): Response|string
+    public function store(Request $request): Response|string
     {
         $settings = $request->input('settings');
         $pluginSettingsSaved = Plugins::savePluginSettings($this->plugin, $settings);
