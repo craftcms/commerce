@@ -179,7 +179,7 @@ readonly class PaymentsController
         }
 
         // Set Payment Gateway on cart
-        // Same as CartController::updateCart()
+        // Same as CartController::update()
         if ($gatewayId = $request->input('gatewayId')) {
             $gatewayId = (int)$gatewayId;
             if (app(Gateways::class)->getGatewayById($gatewayId)) {
@@ -188,7 +188,7 @@ readonly class PaymentsController
         }
 
         // Submit payment source on cart
-        // See CartController::updateCart()
+        // See CartController::update()
         if ($paymentSourceId = $request->input('paymentSourceId')) {
             $paymentSourceId = (int)$paymentSourceId;
             if ($paymentSource = app(PaymentSources::class)->getPaymentSourceById($paymentSourceId)) {
@@ -481,7 +481,7 @@ readonly class PaymentsController
         return redirect($redirect);
     }
 
-    public function completePayment(Request $request): Response
+    public function complete(Request $request): Response
     {
         $hash = $request->input('commerceTransactionHash');
         abort_if(!$hash, 400, 'Missing commerceTransactionHash');

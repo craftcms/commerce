@@ -118,8 +118,8 @@ readonly class DiscountsController extends BaseStoreManagementController
                 ->when(
                     currentUserElement()?->can('commerce-deleteDiscounts'),
                     fn(Table $table) => $table
-                        ->deletable(action([self::class, 'delete']))
-                        ->bulkDeletable(action([self::class, 'delete'])),
+                        ->deletable(action([self::class, 'destroy']))
+                        ->bulkDeletable(action([self::class, 'destroy'])),
                 )
                 ->when(
                     currentUserElement()?->can('commerce-editDiscounts'),
@@ -276,7 +276,17 @@ readonly class DiscountsController extends BaseStoreManagementController
         ];
     }
 
-    public function edit(?string $storeHandle = null, ?int $id = null): Response|CpScreenResponse
+    public function create(?string $storeHandle = null): CpScreenResponse
+    {
+        return $this->editScreen($storeHandle);
+    }
+
+    public function edit(?string $storeHandle, int $id): CpScreenResponse
+    {
+        return $this->editScreen($storeHandle, $id);
+    }
+
+    private function editScreen(?string $storeHandle = null, ?int $id = null): CpScreenResponse
     {
         abort_unless(currentUserElement()?->can($id === null ? 'commerce-createDiscounts' : 'commerce-editDiscounts'), 403);
 
@@ -313,7 +323,7 @@ readonly class DiscountsController extends BaseStoreManagementController
             ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
-                    'url' => action([self::class, 'save']),
+                    'url' => action([self::class, 'store']),
                 ],
                 'refreshUrl' => action([self::class, 'renderUi']),
                 'metadataHtml' => $metadataHtml,
@@ -322,7 +332,7 @@ readonly class DiscountsController extends BaseStoreManagementController
     }
 
     /**
-     * Re-resolves the {@see edit()} Form tree for the values currently in progress on the
+     * Re-resolves the {@see editScreen()} Ui tree for the values currently in progress on the
      * client, so toggling "only match certain purchasables"/"only match related entries" can
      * reveal or hide the fields that depend on them without a full page reload.
      */
@@ -392,7 +402,7 @@ readonly class DiscountsController extends BaseStoreManagementController
             // entries…", the opposite sense of the `allPurchasables`/`allCategories` properties
             // they end up setting — kept as its own path (rather than a Choice bound directly
             // to `allPurchasables`) so nothing here has to reason about a double negative; the
-            // inversion happens once, in `save()`/here, not everywhere the value is read.
+            // inversion happens once, in `store()`/here, not everywhere the value is read.
             'restrictPurchasables' => !$discount->allPurchasables,
             'purchasables' => $purchasablesByType,
             'restrictRelatedElements' => !$discount->allCategories,
@@ -426,7 +436,7 @@ readonly class DiscountsController extends BaseStoreManagementController
             'appliedTo' => $discount->appliedTo,
             // Money/percentage inputs mirror the legacy screen's own sign convention: stored as
             // negative internally (a discount subtracted from the total), shown to the editor as
-            // a plain positive amount/percentage — flipped back in save().
+            // a plain positive amount/percentage — flipped back in store().
             'perItemDiscount' => $discount->perItemDiscount < 0 ? $discount->perItemDiscount * -1 : $discount->perItemDiscount,
             'percentDiscount' => round(-$discount->percentDiscount * 100, 6),
             'percentageOffSubject' => $discount->percentageOffSubject,
@@ -569,7 +579,7 @@ readonly class DiscountsController extends BaseStoreManagementController
                     UsageCounter::make(
                         'per-user-usage',
                         t('{uses} uses across {users} users', ['uses' => $customerUsage['uses'], 'users' => $customerUsage['users']], category: 'commerce'),
-                        action([self::class, 'clearDiscountUses']),
+                        action([self::class, 'clearUses']),
                         ['id' => $discount->id, 'type' => self::DISCOUNT_COUNTER_TYPE_CUSTOMER],
                         t('Reset usage', category: 'commerce'),
                     )->confirmMessage(t('Are you sure you want to clear this discount usage counter?', category: 'commerce')),
@@ -580,7 +590,7 @@ readonly class DiscountsController extends BaseStoreManagementController
                     UsageCounter::make(
                         'per-email-usage',
                         t('{uses} uses across {emails} email addresses', ['uses' => $emailUsage['uses'], 'emails' => $emailUsage['emails']], category: 'commerce'),
-                        action([self::class, 'clearDiscountUses']),
+                        action([self::class, 'clearUses']),
                         ['id' => $discount->id, 'type' => self::DISCOUNT_COUNTER_TYPE_EMAIL],
                         t('Reset usage', category: 'commerce'),
                     )->confirmMessage(t('Are you sure you want to clear this discount usage counter?', category: 'commerce')),
@@ -593,7 +603,7 @@ readonly class DiscountsController extends BaseStoreManagementController
                         $discount->totalDiscountUses === 1
                             ? t('{count} time', ['count' => 1], category: 'commerce')
                             : t('{count} times', ['count' => $discount->totalDiscountUses], category: 'commerce'),
-                        action([self::class, 'clearDiscountUses']),
+                        action([self::class, 'clearUses']),
                         ['id' => $discount->id, 'type' => self::DISCOUNT_COUNTER_TYPE_TOTAL],
                         t('Clear counter', category: 'commerce'),
                     )->confirmMessage(t('Are you sure you want to clear this discount usage counter?', category: 'commerce')),
@@ -663,7 +673,7 @@ readonly class DiscountsController extends BaseStoreManagementController
         ]);
     }
 
-    public function save(Request $request): Response
+    public function store(Request $request): Response
     {
         $discount = new Discount();
 
@@ -784,7 +794,7 @@ readonly class DiscountsController extends BaseStoreManagementController
         }, array_filter($coupons, 'is_array'))));
     }
 
-    /** Two payload shapes, same `id`/`ids` dual-payload precedent {@see delete()} follows: upfront mode posts the full reordered `ids`; endpoint mode (only one page loaded) posts a single `id`/`toPosition` instead. */
+    /** Two payload shapes, same `id`/`ids` dual-payload precedent {@see destroy()} follows: upfront mode posts the full reordered `ids`; endpoint mode (only one page loaded) posts a single `id`/`toPosition` instead. */
     public function reorder(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
@@ -818,7 +828,7 @@ readonly class DiscountsController extends BaseStoreManagementController
         return $this->asSuccess();
     }
 
-    public function delete(Request $request): Response
+    public function destroy(Request $request): Response
     {
         abort_unless(currentUserElement()?->can('commerce-deleteDiscounts'), 403);
 
@@ -843,7 +853,7 @@ readonly class DiscountsController extends BaseStoreManagementController
         return $this->asSuccess();
     }
 
-    public function clearDiscountUses(Request $request): Response
+    public function clearUses(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
         abort_unless(currentUserElement()?->can('commerce-editDiscounts'), 403);
@@ -892,7 +902,7 @@ readonly class DiscountsController extends BaseStoreManagementController
         return $this->asSuccess(t('Discounts updated.', category: 'commerce'));
     }
 
-    public function getDiscountsByPurchasableId(Request $request): Response
+    public function byPurchasable(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
         $id = $request->input('id');

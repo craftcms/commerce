@@ -63,7 +63,17 @@ class StoresController extends BaseSettingsController
         ];
     }
 
-    public function editStore(?int $storeId = null): CpScreenResponse
+    public function create(): CpScreenResponse
+    {
+        return $this->editScreen();
+    }
+
+    public function edit(int $storeId): CpScreenResponse
+    {
+        return $this->editScreen($storeId);
+    }
+
+    private function editScreen(?int $storeId = null): CpScreenResponse
     {
         $storesService = app(Stores::class);
 
@@ -116,7 +126,7 @@ class StoresController extends BaseSettingsController
             ), [
                 'submit' => [
                     'method' => 'post',
-                    'url' => action([self::class, 'saveStore']),
+                    'url' => action([self::class, 'store']),
                 ],
             ]);
     }
@@ -319,7 +329,7 @@ class StoresController extends BaseSettingsController
         );
     }
 
-    public function saveStore(Request $request): Response
+    public function store(Request $request): Response
     {
         $storesService = app(Stores::class);
         $storeId = $request->input('storeId') ? (int)$request->input('storeId') : null;
@@ -373,7 +383,7 @@ class StoresController extends BaseSettingsController
         return $this->asModelSuccess($store, t('Store saved.', category: 'commerce'), 'store');
     }
 
-    public function storesIndex(): CpScreenResponse
+    public function index(): CpScreenResponse
     {
         $stores = app(Stores::class)->getAllStores();
 
@@ -454,9 +464,9 @@ class StoresController extends BaseSettingsController
                 )
                 ->createActionInPageHeader()
                 ->when(!$this->readOnly, fn(Table $table) => $table
-                    ->reorderable(action([self::class, 'reorderStores']))
+                    ->reorderable(action([self::class, 'reorder']))
                     ->deletable(
-                        action([self::class, 'deleteStore']),
+                        action([self::class, 'destroy']),
                         t('Are you sure you want to permanently delete this store and everything in it?', category: 'commerce'),
                     )),
         ]);
@@ -469,7 +479,7 @@ class StoresController extends BaseSettingsController
             ]);
     }
 
-    public function deleteStore(Request $request): Response
+    public function destroy(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
 
@@ -481,7 +491,7 @@ class StoresController extends BaseSettingsController
         return $this->asSuccess();
     }
 
-    public function reorderStores(Request $request): Response
+    public function reorder(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
         abort_unless($request->input('ids'), 400, 'Missing ids');

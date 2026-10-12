@@ -49,7 +49,7 @@ class ProductTypesController extends BaseSettingsController
         return ['label' => t('Product Types', category: 'commerce'), 'href' => cp_url('commerce/settings/producttypes')];
     }
 
-    public function productTypeIndex(): CpScreenResponse
+    public function index(): CpScreenResponse
     {
         $canManageShipping = (bool)currentUser()?->can('commerce-manageShipping');
         $canManageTaxes = (bool)currentUser()?->can('commerce-manageTaxes');
@@ -94,7 +94,7 @@ class ProductTypesController extends BaseSettingsController
                 ->createActionInPageHeader()
                 ->when(
                     !$this->readOnly,
-                    fn(Table $table) => $table->deletable(action([self::class, 'deleteProductType'])),
+                    fn(Table $table) => $table->deletable(action([self::class, 'destroy'])),
                 ),
         ]);
 
@@ -106,7 +106,17 @@ class ProductTypesController extends BaseSettingsController
             ]);
     }
 
-    public function editProductType(?int $productTypeId = null): CpScreenResponse
+    public function create(): CpScreenResponse
+    {
+        return $this->editScreen();
+    }
+
+    public function edit(int $productTypeId): CpScreenResponse
+    {
+        return $this->editScreen($productTypeId);
+    }
+
+    private function editScreen(?int $productTypeId = null): CpScreenResponse
     {
         $brandNewProductType = false;
 
@@ -137,14 +147,14 @@ class ProductTypesController extends BaseSettingsController
             ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
-                    'url' => action([self::class, 'saveProductType']),
+                    'url' => action([self::class, 'store']),
                 ],
                 'refreshUrl' => $this->readOnly ? null : action([self::class, 'renderUi']),
             ]);
     }
 
     /**
-     * Re-resolves the {@see editProductType()} Form tree for the values currently in progress
+     * Re-resolves the {@see editScreen()} Ui tree for the values currently in progress
      * on the client, so toggles like `isStructure`/`hasProductTitleField` can branch which
      * fields appear next without a full page reload.
      */
@@ -260,7 +270,7 @@ class ProductTypesController extends BaseSettingsController
 
     /**
      * Builds the edit screen's Form tree, branching on `$values` (rather than reading straight
-     * off `$productType`) so {@see editProductType()} and {@see renderUi()} produce the exact
+     * off `$productType`) so {@see editScreen()} and {@see renderUi()} produce the exact
      * same shape for the exact same values — one from a loaded model, the other from whatever the
      * client just posted mid-edit.
      *
@@ -496,7 +506,7 @@ class ProductTypesController extends BaseSettingsController
         return Html::tag('ul', $items, ['class' => 'bullets']);
     }
 
-    public function saveProductType(Request $request): ?Response
+    public function store(Request $request): ?Response
     {
         abort_unless(currentUser()?->can('manageCommerce'), 403, t('This action is not allowed for the current user.', category: 'commerce'));
 
@@ -587,7 +597,7 @@ class ProductTypesController extends BaseSettingsController
         return $this->asModelFailure($productType, t('Couldn’t save product type.', category: 'commerce'), 'productType');
     }
 
-    public function deleteProductType(Request $request): Response
+    public function destroy(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
 

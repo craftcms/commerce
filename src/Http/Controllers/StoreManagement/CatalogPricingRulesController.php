@@ -86,8 +86,8 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
                 ->when(
                     currentUserElement()?->can('commerce-deleteCatalogPricingRules'),
                     fn(Table $table) => $table
-                        ->deletable(action([self::class, 'delete']))
-                        ->bulkDeletable(action([self::class, 'delete'])),
+                        ->deletable(action([self::class, 'destroy']))
+                        ->bulkDeletable(action([self::class, 'destroy'])),
                 )
                 ->when(
                     currentUserElement()?->can('commerce-editCatalogPricingRules'),
@@ -199,7 +199,17 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
         ];
     }
 
-    public function edit(?string $storeHandle = null, ?int $id = null): CpScreenResponse
+    public function create(?string $storeHandle = null): CpScreenResponse
+    {
+        return $this->editScreen($storeHandle);
+    }
+
+    public function edit(?string $storeHandle, int $id): CpScreenResponse
+    {
+        return $this->editScreen($storeHandle, $id);
+    }
+
+    private function editScreen(?string $storeHandle = null, ?int $id = null): CpScreenResponse
     {
         abort_unless(currentUserElement()?->can($id === null ? 'commerce-createCatalogPricingRules' : 'commerce-editCatalogPricingRules'), 403);
 
@@ -237,7 +247,7 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
             ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
-                    'url' => action([self::class, 'save']),
+                    'url' => action([self::class, 'store']),
                 ],
                 'refreshUrl' => action([self::class, 'renderUi']),
                 'metadataHtml' => $metadataHtml,
@@ -246,7 +256,7 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
     }
 
     /**
-     * Re-resolves the {@see edit()} Form tree for the values currently in progress on the
+     * Re-resolves the {@see editScreen()} Ui tree for the values currently in progress on the
      * client, so changing the effect can swap between the percentage and money inputs and
      * show or hide the price type.
      */
@@ -321,7 +331,7 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
 
         // Stored negative (an adjustment subtracted from the original price) and as a fraction
         // for the percentage types — shown to the editor as a plain positive amount/percentage,
-        // flipped back in save().
+        // flipped back in store().
         $applyAmount = match (true) {
             $catalogPricingRule->applyAmount === null => null,
             $this->isPercentApply($apply) => round(-$catalogPricingRule->applyAmount * 100, 6),
@@ -437,7 +447,7 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
         return in_array($apply, [CatalogPricingRuleRecord::APPLY_BY_PERCENT, CatalogPricingRuleRecord::APPLY_TO_PERCENT], true);
     }
 
-    public function save(Request $request): Response
+    public function store(Request $request): Response
     {
         $id = $request->input('id') ? (int) $request->input('id') : null;
         $storeId = (int) $request->input('storeId');
@@ -510,7 +520,7 @@ readonly class CatalogPricingRulesController extends BaseStoreManagementControll
         return $dateTime instanceof DateTime ? $dateTime : DateTime::createFromInterface($dateTime);
     }
 
-    public function delete(Request $request): Response
+    public function destroy(Request $request): Response
     {
         abort_unless(currentUserElement()?->can('commerce-deleteCatalogPricingRules'), 403);
 

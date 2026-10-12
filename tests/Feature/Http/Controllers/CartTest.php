@@ -25,7 +25,7 @@ beforeEach(function() {
 });
 
 it('returns a new, empty cart as a full JSON representation', function() {
-    $response = get(Url::actionUrl('commerce/cart/get-cart'), ['Accept' => 'application/json'])
+    $response = get(Url::actionUrl('commerce/cart/show'), ['Accept' => 'application/json'])
         ->assertOk();
 
     $cart = $response->json('cart');
@@ -140,7 +140,7 @@ it('returns a new, empty cart as a full JSON representation', function() {
 it('adds a single purchasable to the cart', function() {
     $fixture = SalesFixture::seed();
 
-    $response = postJson(Url::actionUrl('commerce/cart/update-cart'), [
+    $response = postJson(Url::actionUrl('commerce/cart/update'), [
         'purchasableId' => $fixture->radHood->id,
         'qty' => 2,
     ])->assertOk();
@@ -155,7 +155,7 @@ it('adds a single purchasable to the cart', function() {
 it('adds multiple purchasables to the cart in a single request', function() {
     $fixture = SalesFixture::seed();
 
-    $response = postJson(Url::actionUrl('commerce/cart/update-cart'), [
+    $response = postJson(Url::actionUrl('commerce/cart/update'), [
         'purchasables' => [
             ['id' => $fixture->radHood->id, 'qty' => 1],
             ['id' => $fixture->hctWhite->id, 'qty' => 2],
@@ -190,7 +190,7 @@ it('sets custom field values on shipping and billing addresses when updating the
         'fields' => ['testPhone' => '67890'],
     ];
 
-    $response = postJson(Url::actionUrl('commerce/cart/update-cart'), [
+    $response = postJson(Url::actionUrl('commerce/cart/update'), [
         'shippingAddress' => $shippingAddress,
         'billingAddress' => $billingAddress,
     ])->assertOk();
@@ -211,7 +211,7 @@ it('auto-sets the customer\'s primary shipping address on a new cart according t
 
     actingAs($cartsFixture->credentialedUser);
 
-    $response = postJson(Url::actionUrl('commerce/cart/update-cart'), [
+    $response = postJson(Url::actionUrl('commerce/cart/update'), [
         'purchasableId' => $salesFixture->hoodie->getDefaultVariant()->id,
         'qty' => 2,
     ])->assertOk();
@@ -237,7 +237,7 @@ it('sets which addresses should be saved to the customer\'s address book on orde
         $bodyParams['saveShippingAddressOnOrderComplete'] = $saveShipping;
     }
 
-    $response = postJson(Url::actionUrl('commerce/cart/update-cart'), $bodyParams)->assertOk();
+    $response = postJson(Url::actionUrl('commerce/cart/update'), $bodyParams)->assertOk();
 
     $cart = $response->json('cart');
 
@@ -291,7 +291,7 @@ it('sets shipping and/or billing addresses on the cart from the customer\'s addr
         $bodyParams['billingAddressId'] = $cartsFixture->credentialedUserAddressId;
     }
 
-    $response = postJson(Url::actionUrl('commerce/cart/update-cart'), $bodyParams);
+    $response = postJson(Url::actionUrl('commerce/cart/update'), $bodyParams);
 
     $shippingInvalid = ($whichAddress === 'shipping' || $whichAddress === 'both') && !$validShipping;
     $billingInvalid = ($whichAddress === 'billing' || $whichAddress === 'both') && !$validBilling;
