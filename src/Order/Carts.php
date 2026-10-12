@@ -365,7 +365,7 @@ class Carts
         $expiryDate = now('UTC')->add(new DateInterval("PT{$linkExpiry}S"));
 
         $token = app(RouteTokens::class)->createToken([
-            'commerce/cart/load-cart',
+            'commerce/cart/load',
             ['cartNumber' => $cart->number],
         ], expiryDate: $expiryDate);
 
@@ -377,7 +377,7 @@ class Carts
         }
 
         try {
-            return Url::actionUrl('commerce/cart/load-cart', [
+            return Url::actionUrl('commerce/cart/load', [
                 'number' => $cart->number,
                 'code' => $token,
             ]);

@@ -64,14 +64,14 @@ readonly class DonationsController
             ->ui($this->buildUi($values), new UiContext(values: $values, refreshable: true), [
                 'submit' => [
                     'method' => 'post',
-                    'url' => action([self::class, 'save']),
+                    'url' => action([self::class, 'store']),
                 ],
                 'refreshUrl' => action([self::class, 'renderUi']),
             ]);
     }
 
     /**
-     * Re-resolves the {@see edit()} Form for the values in progress on the client, so the
+     * Re-resolves the {@see edit()} Ui for the values in progress on the client, so the
      * fields that depend on the lightswitches show and hide as they're toggled.
      */
     public function renderUi(Request $request): JsonResponse
@@ -91,7 +91,7 @@ readonly class DonationsController
         ]);
     }
 
-    public function save(Request $request): Response
+    public function store(Request $request): Response
     {
         $donation = Donation::find()->status(null)->one();
 

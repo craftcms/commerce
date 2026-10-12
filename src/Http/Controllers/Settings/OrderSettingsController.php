@@ -86,12 +86,12 @@ class OrderSettingsController extends BaseSettingsController
             ), [
                 'submit' => [
                     'method' => 'post',
-                    'url' => action([self::class, 'save']),
+                    'url' => action([self::class, 'store']),
                 ],
             ]);
     }
 
-    public function save(): Response
+    public function store(): Response
     {
         $fieldLayout = Fields::assembleLayoutFromPost();
 

@@ -54,7 +54,7 @@ class CartController
         $this->cartVariable = $this->plugin->getSettings()->cartVariable;
     }
 
-    public function getCart(Request $request): Response
+    public function show(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
 
@@ -72,7 +72,7 @@ class CartController
         ]);
     }
 
-    public function updateCart(Request $request): ?Response
+    public function update(Request $request): ?Response
     {
         $currentUser = currentUserElement();
 
@@ -308,14 +308,14 @@ class CartController
         return $this->returnCart($request);
     }
 
-    public function forgetCart(): Response
+    public function forget(): Response
     {
         app(Carts::class)->forgetCart();
 
         return $this->asSuccess(t('Cart forgotten.', category: 'commerce'));
     }
 
-    public function loadCart(Request $request): ?Response
+    public function load(Request $request): ?Response
     {
         $carts = app(Carts::class);
         $number = $request->input('number');

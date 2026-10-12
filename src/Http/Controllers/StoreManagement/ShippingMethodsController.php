@@ -81,8 +81,8 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
                 ->searchable()
                 ->toggleableColumns()
                 ->createAction(t('New shipping method', category: 'commerce'), $store->getStoreSettingsUrl('shippingmethods/new'))
-                ->deletable(action([self::class, 'delete']))
-                ->bulkDeletable(action([self::class, 'delete']))
+                ->deletable(action([self::class, 'destroy']))
+                ->bulkDeletable(action([self::class, 'destroy']))
                 ->statusActions($this->statusActions(action([self::class, 'updateStatus']))),
         ];
 
@@ -96,7 +96,17 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
             ]);
     }
 
-    public function edit(?string $storeHandle = null, ?int $id = null): CpScreenResponse
+    public function create(?string $storeHandle = null): CpScreenResponse
+    {
+        return $this->editScreen($storeHandle);
+    }
+
+    public function edit(?string $storeHandle, int $id): CpScreenResponse
+    {
+        return $this->editScreen($storeHandle, $id);
+    }
+
+    private function editScreen(?string $storeHandle = null, ?int $id = null): CpScreenResponse
     {
         $store = $this->resolveStore($storeHandle);
 
@@ -176,7 +186,7 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
                 ->emptyMessage(t('No shipping rules exist yet.', category: 'commerce'))
                 ->createAction(t('New shipping rule', category: 'commerce'), $store->getStoreSettingsUrl("shippingmethods/{$shippingMethod->id}/shippingrules/new"))
                 ->reorderable(action([ShippingRulesController::class, 'reorder']))
-                ->deletable(action([ShippingRulesController::class, 'delete']));
+                ->deletable(action([ShippingRulesController::class, 'destroy']));
         }
 
         $values = [
@@ -203,14 +213,14 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
             ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
-                    'url' => action([self::class, 'save']),
+                    'url' => action([self::class, 'store']),
                 ],
                 'metadataHtml' => $metadataHtml,
                 'sidebarUi' => $sidebarUi,
             ]);
     }
 
-    /** The details column's controls, submitted alongside the main form built in {@see edit()}. */
+    /** The details column's controls, submitted alongside the main form built in {@see editScreen()}. */
     private function buildSidebarUi(): Ui
     {
         return Ui::make([
@@ -252,7 +262,7 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
         ])];
     }
 
-    public function save(Request $request): Response
+    public function store(Request $request): Response
     {
         $shippingMethod = new ShippingMethod();
 
@@ -280,7 +290,7 @@ readonly class ShippingMethodsController extends BaseStoreManagementController
         return $this->asModelSuccess($shippingMethod, t('Shipping method saved.', category: 'commerce'), 'shippingMethod');
     }
 
-    public function delete(Request $request): Response
+    public function destroy(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
 

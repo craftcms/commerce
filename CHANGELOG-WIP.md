@@ -533,6 +533,14 @@
 
 - Removed `craft\commerce\controllers\OrdersController`. `CraftCms\Commerce\Http\Controllers\OrdersController` should be used instead.
 - Removed `craft\commerce\controllers\CartController`. `CraftCms\Commerce\Http\Controllers\CartController` should be used instead.
+- Added the `commerce/cart/show`, `commerce/cart/update`, `commerce/cart/load`, and `commerce/cart/forget` actions.
+- Deprecated the `commerce/cart/get-cart` action. `commerce/cart/show` should be used instead.
+- Deprecated the `commerce/cart/update-cart` action. `commerce/cart/update` should be used instead.
+- Deprecated the `commerce/cart/load-cart` action. `commerce/cart/load` should be used instead.
+- Deprecated the `commerce/cart/forget-cart` action. `commerce/cart/forget` should be used instead.
+- Added `CraftCms\Commerce\Http\Middleware\LogDeprecatedAction`.
+- Cart recovery URLs now point to the `commerce/cart/load` action.
+- The example templates now use the `commerce/cart/update` and `commerce/cart/load` actions.
 - Removed `craft\commerce\controllers\OrderStatusesController`. `CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController` should be used instead.
 - Removed `craft\commerce\controllers\LineItemStatusesController`. `CraftCms\Commerce\Http\Controllers\Settings\LineItemStatusesController` should be used instead.
 - Removed `craft\commerce\controllers\UserOrdersController`. `CraftCms\Commerce\Http\Controllers\UserOrdersController` should be used instead.

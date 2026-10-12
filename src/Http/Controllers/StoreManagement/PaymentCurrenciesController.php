@@ -73,7 +73,7 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
                 ->createAction(t('New currency', category: 'commerce'), $store->getStoreSettingsUrl('payment-currencies/new'))
                 ->createActionInPageHeader()
                 ->deletable(
-                    action([self::class, 'delete']),
+                    action([self::class, 'destroy']),
                     t('Warning, deleting this currency will stop all payments and refunds in this currency, are you sure you want to delete it?', category: 'commerce'),
                 ),
         ];
@@ -88,7 +88,17 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
             ]);
     }
 
-    public function edit(?string $storeHandle = null, ?int $id = null): CpScreenResponse
+    public function create(?string $storeHandle = null): CpScreenResponse
+    {
+        return $this->editScreen($storeHandle);
+    }
+
+    public function edit(?string $storeHandle, int $id): CpScreenResponse
+    {
+        return $this->editScreen($storeHandle, $id);
+    }
+
+    private function editScreen(?string $storeHandle = null, ?int $id = null): CpScreenResponse
     {
         $store = $this->resolveStore($storeHandle);
 
@@ -162,13 +172,13 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
             ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
-                    'url' => action([self::class, 'save']),
+                    'url' => action([self::class, 'store']),
                 ],
                 'metadataHtml' => $metaSidebarHtml ?: null,
             ]);
     }
 
-    public function save(Request $request): Response
+    public function store(Request $request): Response
     {
         $currency = new PaymentCurrency();
 
@@ -185,7 +195,7 @@ readonly class PaymentCurrenciesController extends BaseStoreManagementController
         return $this->asModelFailure($currency, t('Couldn’t save currency.', category: 'commerce'), 'currency');
     }
 
-    public function delete(Request $request): Response
+    public function destroy(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
 

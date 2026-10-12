@@ -116,14 +116,14 @@ readonly class StoreManagementController extends BaseStoreManagementController
             ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
-                    'url' => action([self::class, 'save']),
+                    'url' => action([self::class, 'store']),
                 ],
                 'refreshUrl' => action([self::class, 'renderUi']),
             ]);
     }
 
     /**
-     * Re-resolves the {@see edit()} Form tree for the values currently in progress on the
+     * Re-resolves the {@see edit()} Ui tree for the values currently in progress on the
      * client, so changing the store location's country can reveal the right set of
      * country-specific address fields without a full page reload.
      */
@@ -227,11 +227,11 @@ readonly class StoreManagementController extends BaseStoreManagementController
                 ->values()
                 ->all();
             if (app(InventoryLocations::class)->canCreateInventoryLocation()) {
-                // No `category` here, matching InventoryLocationsController::edit()'s own title
+                // No `category` here, matching InventoryLocationsController::editScreen()'s own title
                 // for this same screen — not a commerce.php string.
                 $inventoryLocationOptions[] = new ComboboxCreateOption(
                     t('Create a new inventory location', category: 'commerce'),
-                    action([InventoryLocationsController::class, 'edit']),
+                    action([InventoryLocationsController::class, 'create']),
                     'inventoryLocation',
                 );
             }
@@ -252,7 +252,7 @@ readonly class StoreManagementController extends BaseStoreManagementController
         return Ui::make($uiNodes);
     }
 
-    public function save(Request $request): Response
+    public function store(Request $request): Response
     {
         abort_unless(currentUser()?->can('commerce-manageGeneralStoreSettings'), 403);
 

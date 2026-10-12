@@ -11,7 +11,7 @@ use Illuminate\Http\Response;
 
 readonly class WebhooksController
 {
-    public function processWebhook(Request $request, ?int $gatewayId = null): Response
+    public function process(Request $request, ?int $gatewayId = null): Response
     {
         $gatewayId ??= $request->input('gateway');
 

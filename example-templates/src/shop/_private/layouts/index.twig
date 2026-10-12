@@ -80,7 +80,7 @@ Common, top-level layout template.
           {% endfor %}
         {% endfor %}
         <form method="post">
-          {{ actionInput('commerce/cart/update-cart') }}
+          {{ actionInput('commerce/cart/update') }}
           {{ successMessageInput('Notices dismissed') }}
           {{ hiddenInput('clearNotices') }}
           {{ csrfInput() }}

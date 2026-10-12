@@ -155,7 +155,7 @@ readonly class CatalogPricingController
         ]);
     }
 
-    public function getCatalogPrices(Request $request): ?string
+    public function catalogPrices(Request $request): ?string
     {
         $this->guard();
 

@@ -80,15 +80,15 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
                 ->toggleableColumns()
                 ->createAction(t('New shipping category', category: 'commerce'), $store->getStoreSettingsUrl('shippingcategories/new'))
                 ->createActionInPageHeader()
-                ->deletable(action([self::class, 'delete']))
-                ->bulkDeletable(action([self::class, 'delete']))
+                ->deletable(action([self::class, 'destroy']))
+                ->bulkDeletable(action([self::class, 'destroy']))
                 ->bulkActions([
                     [
                         'icon' => 'settings',
                         'items' => [
                             [
                                 'label' => t('Set default category', category: 'commerce'),
-                                'url' => action([self::class, 'setDefaultCategory']),
+                                'url' => action([self::class, 'setDefault']),
                                 'params' => ['storeHandle' => $store->handle],
                                 'allowMultiple' => false,
                             ],
@@ -107,7 +107,17 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
             ]);
     }
 
-    public function edit(?string $storeHandle = null, ?int $id = null): CpScreenResponse
+    public function create(?string $storeHandle = null): CpScreenResponse
+    {
+        return $this->editScreen($storeHandle);
+    }
+
+    public function edit(?string $storeHandle, int $id): CpScreenResponse
+    {
+        return $this->editScreen($storeHandle, $id);
+    }
+
+    private function editScreen(?string $storeHandle = null, ?int $id = null): CpScreenResponse
     {
         $store = $this->resolveStore($storeHandle);
 
@@ -142,7 +152,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
             ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
-                    'url' => action([self::class, 'save']),
+                    'url' => action([self::class, 'store']),
                 ],
                 'refreshUrl' => action([self::class, 'renderUi']),
                 'metadataHtml' => $metadataHtml,
@@ -150,7 +160,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
     }
 
     /**
-     * Re-resolves the {@see edit()} Form tree for the values currently in progress on the
+     * Re-resolves the {@see editScreen()} Ui tree for the values currently in progress on the
      * client, so toggling "Default Category" can force every product type on (and disable
      * further picking) without a full page reload.
      */
@@ -214,7 +224,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
     private function initialValues(ShippingCategory $shippingCategory, Store $store): array
     {
         // A default category is available to every product type, whether or not it's ever
-        // been explicitly assigned to them — mirrors save()'s own handling below.
+        // been explicitly assigned to them — mirrors store()'s own handling below.
         $productTypes = $shippingCategory->default
             ? array_column(app(ProductTypes::class)->getAllProductTypes(), 'id')
             : $shippingCategory->getProductTypeIds();
@@ -304,7 +314,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
         return Ui::make($uiNodes);
     }
 
-    public function save(Request $request): Response
+    public function store(Request $request): Response
     {
         $shippingCategory = new ShippingCategory();
 
@@ -356,7 +366,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
         );
     }
 
-    public function delete(Request $request): Response
+    public function destroy(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
 
@@ -371,7 +381,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
         $failedIds = [];
         foreach ($ids as $deleteId) {
             // Resolve first so we can check the record's own store before deleting it — mirrors
-            // the store-access guard save()/setDefaultCategory() already carry.
+            // the store-access guard store()/setDefault() already carry.
             $shippingCategory = app(ShippingCategories::class)->getShippingCategoryById((int)$deleteId);
             if ($shippingCategory) {
                 $this->requireStoreAccess($shippingCategory->storeId);
@@ -391,7 +401,7 @@ readonly class ShippingCategoriesController extends BaseStoreManagementControlle
         return $this->asSuccess(t('Shipping categories deleted.', category: 'commerce'));
     }
 
-    public function setDefaultCategory(Request $request): Response
+    public function setDefault(Request $request): Response
     {
         $ids = $request->input('ids');
         $storeHandle = $request->input('storeHandle');

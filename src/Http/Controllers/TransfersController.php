@@ -94,7 +94,7 @@ readonly class TransfersController
     }
 
     /**
-     * The Form shown by the “Receive Inventory” modal. Its values are posted to {@see receiveTransfer()}
+     * The Form shown by the “Receive Inventory” modal. Its values are posted to {@see receive()}
      * along with the `transferId`.
      */
     public function prepareReceiveModal(Request $request, UiResolver $uiResolver): JsonResponse
@@ -126,7 +126,7 @@ readonly class TransfersController
         ]);
     }
 
-    public function receiveTransfer(Request $request): Response
+    public function receive(Request $request): Response
     {
         $transfer = $this->resolveReceivableTransfer($request);
 

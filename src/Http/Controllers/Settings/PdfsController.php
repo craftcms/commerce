@@ -84,7 +84,7 @@ class PdfsController extends BaseSettingsController
             ->createActionInPageHeader()
             ->when(!$this->readOnly, fn(Table $table) => $table
                 ->reorderable(action([self::class, 'reorder']))
-                ->deletable(action([self::class, 'delete'])));
+                ->deletable(action([self::class, 'destroy'])));
 
         return $this->cpScreenResponse()
             ->subnav($this->storeSubnav('commerce/settings/pdfs', $store))
@@ -95,7 +95,17 @@ class PdfsController extends BaseSettingsController
             ]);
     }
 
-    public function edit(?string $storeHandle = null, ?int $id = null): CpScreenResponse
+    public function create(?string $storeHandle = null): CpScreenResponse
+    {
+        return $this->editScreen($storeHandle);
+    }
+
+    public function edit(?string $storeHandle, int $id): CpScreenResponse
+    {
+        return $this->editScreen($storeHandle, $id);
+    }
+
+    private function editScreen(?string $storeHandle = null, ?int $id = null): CpScreenResponse
     {
         if ($storeHandle === null || !$store = app(Stores::class)->getStoreByHandle($storeHandle)) {
             $store = app(Stores::class)->getPrimaryStore();
@@ -208,12 +218,12 @@ class PdfsController extends BaseSettingsController
             ->ui($ui, props: [
                 'submit' => [
                     'method' => 'post',
-                    'url' => action([self::class, 'save']),
+                    'url' => action([self::class, 'store']),
                 ],
             ]);
     }
 
-    public function save(Request $request): Response
+    public function store(Request $request): Response
     {
         $pdfsService = app(Pdfs::class);
         $pdfId = $request->input('id') ? (int)$request->input('id') : null;
@@ -246,7 +256,7 @@ class PdfsController extends BaseSettingsController
         return $this->asModelSuccess($pdf, t('PDF saved.', category: 'commerce'), 'pdf');
     }
 
-    public function delete(Request $request): Response
+    public function destroy(Request $request): Response
     {
         abort_unless($request->expectsJson(), 400);
 
