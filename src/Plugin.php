@@ -435,43 +435,62 @@ class Plugin extends BasePlugin
             return $item;
         }
 
+        $item->group(true);
         $item->label(t('Commerce', category: 'commerce'));
 
         if (currentUser()?->can('commerce-manageOrders')) {
-            $item->add(new NavItem()->label(t('Orders', category: 'commerce'))->url('commerce/orders'));
+            $item->add(new NavItem()
+                ->icon('receipt')
+                ->label(t('Orders', category: 'commerce'))
+                ->url('commerce/orders'));
         }
 
         if (app(ProductTypes::class)->getViewableProductTypeIds(true)) {
-            $item->add(new NavItem()->label(t('Products', category: 'commerce'))->url('commerce/products'));
+            $item->add(new NavItem()
+                ->icon('cart-shopping')
+                ->label(t('Products', category: 'commerce'))
+                ->url('commerce/products'));
         }
 
         if (currentUser()?->can('commerce-manageDonationSettings')) {
-            $item->add(
-                new NavItem()->label(t('Donations', category: 'commerce'))->url('commerce/donations')
-            );
+            $item->add(new NavItem()
+                ->icon('circle-dollar-to-slot')
+                ->label(t('Donations', category: 'commerce'))
+                ->url('commerce/donations'));
         }
 
         $inventoryItems = [];
 
         if (currentUser()?->can('commerce-manageInventoryStockLevels')) {
-            $inventoryItems[] = new NavItem()->label(t('Manage Inventory', category: 'commerce'))->url('commerce/inventory');
+            $inventoryItems[] = new NavItem()
+                ->label(t('Manage Inventory', category: 'commerce'))
+                ->url('commerce/inventory');
         }
 
         if (currentUser()?->can('commerce-manageInventoryLocations')) {
-            $inventoryItems[] = new NavItem()->label(t('Inventory Locations', category: 'commerce'))->url('commerce/inventory-locations');
+            $inventoryItems[] = new NavItem()
+                ->label(t('Inventory Locations', category: 'commerce'))
+                ->url('commerce/inventory-locations');
         }
 
         $multipleLocations = app(InventoryLocations::class)->getAllInventoryLocations()->count() > 1;
         if ($multipleLocations && currentUser()?->can('commerce-manageInventoryTransfers')) {
-            $inventoryItems[] = new NavItem()->label(t('Inventory Transfers', category: 'commerce'))->url('commerce/inventory/transfers');
+            $inventoryItems[] = new NavItem()
+                ->label(t('Inventory Transfers', category: 'commerce'))
+                ->url('commerce/inventory/transfers');
         }
 
         if ($inventoryItems) {
-            $item->add(new NavItem()->label(t('Inventory', category: 'commerce'))->group(true)->subnav($inventoryItems));
+            $item->add(new NavItem()->label(t('Inventory', category: 'commerce'))
+                ->icon('warehouse')
+                ->group(true)->subnav($inventoryItems));
         }
 
         if (currentUser()?->can('commerce-manageStoreSettings')) {
-            $item->add(new NavItem()->label(t('Settings', category: 'app'))->group(true)->subnav([
+            $item->add(new NavItem()
+                ->icon('gear')
+                ->label(t('Settings', category: 'app'))
+                ->group(true)->subnav([
                 new NavItem()->label(t('Store Management', category: 'commerce'))->url('commerce/store-management'),
             ]));
         }
