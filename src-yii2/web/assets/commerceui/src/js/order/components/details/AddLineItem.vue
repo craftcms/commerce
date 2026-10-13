@@ -282,10 +282,9 @@
                     for (var i = 0; i < 256; i++) {
                         lut[i] = (i < 16 ? '0' : '') + i.toString(16);
                     }
-                    var d0 = (Math.random() * 0xffffffff) | 0;
-                    var d1 = (Math.random() * 0xffffffff) | 0;
-                    var d2 = (Math.random() * 0xffffffff) | 0;
-                    var d3 = (Math.random() * 0xffffffff) | 0;
+                    var [d0, d1, d2, d3] = crypto.getRandomValues(
+                        new Int32Array(4)
+                    );
                     const UUID =
                         lut[d0 & 0xff] +
                         lut[(d0 >> 8) & 0xff] +
