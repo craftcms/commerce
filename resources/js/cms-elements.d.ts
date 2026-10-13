@@ -34,6 +34,7 @@ declare module '@craftcms/cp' {
   export const ElementIndexPage: DefineComponent<{
     route: ElementIndexRoute;
     sourceHref?: string;
+    filterParams?: IndexQueryParams;
     customizableSources?: boolean;
   }>;
 

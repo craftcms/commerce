@@ -6,11 +6,8 @@ namespace CraftCms\Commerce\Order\Actions;
 
 use CraftCms\Cms\Element\Actions\ElementAction;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
-use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\Path;
-use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Str;
-use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Pdf\Data\Pdf;
 use CraftCms\Commerce\Pdf\Pdfs;
@@ -22,7 +19,6 @@ use ZipArchive;
 
 use function CraftCms\Cms\renderSandboxedObjectTemplate;
 use function CraftCms\Cms\t;
-use function CraftCms\Cms\template;
 
 class DownloadOrderPdfAction extends ElementAction
 {
@@ -44,40 +40,6 @@ class DownloadOrderPdfAction extends ElementAction
     public function getTriggerLabel(): string
     {
         return t('Download PDF', category: 'commerce');
-    }
-
-    public function getTriggerHtml(): ?string
-    {
-        if ($this->storeId === null) {
-            return '';
-        }
-
-        $allPdfs = app(Pdfs::class)->getAllEnabledPdfs($this->storeId);
-
-        $pdfs = [];
-        foreach ($allPdfs as $pdf) {
-            $pdfs[] = ['label' => t($pdf->name, category: 'site'), 'value' => $pdf->id];
-        }
-        $pdfOptions = Json::encode($pdfs);
-
-        $typeOptions = Json::encode([
-            ['label' => t('ZIP file', category: 'commerce'), 'value' => self::TYPE_ZIP_ARCHIVE],
-            ['label' => t('Collated PDF', category: 'commerce'), 'value' => self::TYPE_PDF_COLLATED],
-        ]);
-
-        $action = Json::encode(static::class);
-
-        if (count($allPdfs) > 0) {
-            $js = <<<JS
-(() => {
-    new Craft.Commerce.DownloadOrderPdfAction($('#download-order-pdf'), $pdfOptions, $typeOptions, $action);
-})();
-JS;
-            HtmlStack::js($js);
-            return template('commerce/_components/elementactions/DownloadOrderPdf/trigger', [], TemplateMode::Cp);
-        }
-
-        return '';
     }
 
     public function performAction(ElementQueryInterface $query): bool
@@ -165,7 +127,10 @@ JS;
      */
     private function pdfFileName(Pdf $pdf, Order $order): string
     {
-        $fileName = renderSandboxedObjectTemplate($pdf->fileNameFormat, $order, $order->getObjectTemplateVariables());
+        $fileName = $pdf->fileNameFormat
+            ? renderSandboxedObjectTemplate($pdf->fileNameFormat, $order, $order->getObjectTemplateVariables())
+            : '';
+
         if (!$fileName) {
             $fileName = $pdf->handle . '-' . $order->number;
         }

@@ -1486,7 +1486,7 @@ return [
     '{name} (Trashed)' => '{name} (Trashed)',
     '{name} Removed' => '{name} Removed',
     '{name} catalog price' => '{name} catalog price',
-    '{num, plural, =1{Order} other{Orders}} updated.' => '{num, plural, =1{order} other{orders}} updated.',
+    '{num, plural, =1{Order} other{Orders}} updated.' => '{num, plural, =1{Order} other{Orders}} updated.',
     '{numOrders, number} {numOrders, plural, =1{order is} other{orders are}} associated with the {numUsers, plural, =1{user} other{users}}.' => '{numOrders, number} {numOrders, plural, =1{order is} other{orders are}} associated with the {numUsers, plural, =1{user} other{users}}.',
     '{numSubscriptions, number} {numSubscriptions, plural, =1{subscription is} other{subscriptions are}} activated for the {numUsers, plural, =1{user} other{users}}.' => '{numSubscriptions, number} {numSubscriptions, plural, =1{subscription is} other{subscriptions are}} activated for the {numUsers, plural, =1{user} other{users}}.',
     '{number} more…' => '{number} more…',

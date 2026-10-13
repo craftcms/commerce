@@ -4,17 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Actions;
 
-use CraftCms\Cms\Cp\RequestedSite;
 use CraftCms\Cms\Element\Actions\ElementAction;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Cms\Support\Facades\Elements;
-use CraftCms\Cms\Support\Facades\HtmlStack;
-use CraftCms\Cms\Support\Facades\Sites;
-use CraftCms\Cms\Support\Json;
-use CraftCms\Commerce\Order\Data\OrderStatus;
 use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Order\OrderStatuses;
-use CraftCms\Commerce\Store\Stores;
 
 use function CraftCms\Cms\t;
 
@@ -32,58 +25,6 @@ class UpdateOrderStatus extends ElementAction
     public function getTriggerLabel(): string
     {
         return t('Update Order Status…', category: 'commerce');
-    }
-
-    public function getTriggerHtml(): ?string
-    {
-        $site = app(RequestedSite::class)->get() ?? Sites::getCurrentSite();
-        $store = app(Stores::class)->getStoreBySiteId($site->id);
-
-        $orderStatuses = app(OrderStatuses::class)->getAllOrderStatuses($store?->id)
-            ->map(function(OrderStatus $orderStatus) {
-                // Encode for output in JS
-                $orderStatus->name = htmlspecialchars($orderStatus->name ?? '', ENT_QUOTES);
-                $orderStatus->color = htmlspecialchars($orderStatus->color, ENT_QUOTES);
-                $orderStatus->description = htmlspecialchars($orderStatus->description ?? '', ENT_QUOTES);
-
-                return $orderStatus;
-            });
-
-        $orderStatuses = Json::encode(array_values($orderStatuses->all()));
-        $type = Json::encode(static::class);
-
-        $js = <<<EOT
-(function()
-{
-    var trigger = new Craft.ElementActionTrigger({
-        type: $type,
-        batch: true,
-        activate: function(\$selectedItems)
-        {
-            Craft.elementIndex.setIndexBusy();
-            var currentSourceStatusHandle = Craft.elementIndex.sourceKey.split(':')[1];
-            var currentOrderStatus = null;
-            var orderStatuses = $orderStatuses;
-            for (i = 0; i < orderStatuses.length; i++) {
-                if(orderStatuses[i].handle == currentSourceStatusHandle){
-                    currentOrderStatus = orderStatuses[i];
-                }
-            }
-            var modal = new Craft.Commerce.UpdateOrderStatusModal(currentOrderStatus,orderStatuses, {
-                onSubmit: function(data){
-                   Craft.elementIndex.submitAction($type, data);
-                   modal.hide();
-                   return false;
-                }
-            });
-        }
-    });
-})();
-EOT;
-
-        HtmlStack::js($js);
-
-        return null;
     }
 
     public function performAction(ElementQueryInterface $query): bool

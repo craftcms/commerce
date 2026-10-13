@@ -3541,6 +3541,22 @@ class Order extends Element implements HasStoreInterface
         }
     }
 
+    /**
+     * Order status and cart sources have index URLs of their own (`commerce/orders/{handle}`).
+     */
+    #[Override]
+    public static function sourceCpUri(array $source, ?string $page = null): ?string
+    {
+        $key = (string)($source['key'] ?? '');
+        $handle = $source['data']['handle'] ?? null;
+
+        if ((!str_starts_with($key, 'orderStatus:') && !str_starts_with($key, 'carts:')) || !is_string($handle) || $handle === '') {
+            return null;
+        }
+
+        return "commerce/orders/$handle";
+    }
+
     #[Override]
     protected static function defineSources(string $context): array
     {

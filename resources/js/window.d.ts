@@ -25,6 +25,10 @@ interface InertiaPageRegistry {
 
 interface InertiaRouter {
   reload(options?: {only?: string[]}): void;
+  visit(
+    url: string,
+    options?: {preserveState?: boolean; preserveScroll?: boolean}
+  ): void;
 }
 
 declare global {
@@ -35,12 +39,20 @@ declare global {
       $router: InertiaRouter;
     };
     Craft: {
-      t(category: string, message: string, params?: Record<string, unknown>): string;
+      t(
+        category: string,
+        message: string,
+        params?: Record<string, unknown>
+      ): string;
       sendActionRequest<T = unknown>(
         method: string,
         action: string,
-        options?: {data?: Record<string, unknown>}
-      ): Promise<{data: T}>;
+        options?: {
+          data?: Record<string, unknown>;
+          params?: Record<string, unknown>;
+          responseType?: 'json' | 'blob' | 'text';
+        }
+      ): Promise<{data: T; headers: Record<string, string>}>;
       csrfTokenValue?: string;
     };
   }

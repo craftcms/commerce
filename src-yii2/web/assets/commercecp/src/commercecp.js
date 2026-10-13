@@ -10,10 +10,7 @@ import './scss/stores.scss';
 // JS
 import './js/Commerce';
 import './js/CommerceOrderEdit';
-import './js/CommerceOrderIndex';
 import './js/CommercePaymentModal';
 import './js/CommerceProductSalesModal';
 import './js/CommerceProductSelectInput';
-import './js/CommerceUpdateOrderStatusModal';
-import './js/DownloadOrderPdf';
 import './js/TableRowAdditionalInfoIcon';
