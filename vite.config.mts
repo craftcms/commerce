@@ -120,4 +120,12 @@ export default defineConfig({
   optimizeDeps: {
     exclude: cpSharedModules,
   },
+  // The build is served from wherever Craft publishes Commerce's assets, not
+  // `/build`, so chunks find their dependencies (a lazily loaded page's CSS,
+  // say) relative to themselves.
+  experimental: {
+    renderBuiltUrl(_filename, {hostType}) {
+      return hostType === 'js' ? {relative: true} : undefined;
+    },
+  },
 });

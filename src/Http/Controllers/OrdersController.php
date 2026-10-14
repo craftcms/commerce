@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers;
 
 use craft\commerce\Plugin;
-use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
@@ -14,10 +13,13 @@ use craft\helpers\Localization;
 use craft\web\assets\inputmask\InputmaskAsset;
 use craft\web\assets\money\MoneyAsset;
 use CraftCms\Cms\Address\Elements\Address;
+use CraftCms\Cms\Cp\SiteSwitcher;
 use CraftCms\Cms\Element\Queries\ElementQuery;
 use CraftCms\Cms\Element\Validation\ElementRules;
 use CraftCms\Cms\Field\Field;
 use CraftCms\Cms\FieldLayout\FieldLayoutCompiler;
+use CraftCms\Cms\Http\Controllers\Concerns\RedirectsToShownSource;
+use CraftCms\Cms\Http\Requests\ElementIndexRequest;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpModalResponse;
 use CraftCms\Cms\Support\Arr;
@@ -43,6 +45,7 @@ use CraftCms\Commerce\Helpers\LineItem as LineItemHelper;
 use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Helpers\PaymentForm;
 use CraftCms\Commerce\Helpers\Purchasable;
+use CraftCms\Commerce\Http\ViewModels\OrderIndexViewModel;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use CraftCms\Commerce\Inventory\Data\InventoryFulfillMovement;
 use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
@@ -65,7 +68,6 @@ use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Payment\Exceptions\RefundException;
 use CraftCms\Commerce\Payment\Gateway\Gateway;
 use CraftCms\Commerce\Payment\Gateway\Gateways;
-
 use CraftCms\Commerce\Payment\Gateway\Types\MissingGateway;
 use CraftCms\Commerce\Payment\Models\Transaction as TransactionRecord;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
@@ -84,9 +86,12 @@ use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Tax\TaxCategories;
 use DateTime;
 use DateTimeZone;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\currentUserElement;
@@ -96,26 +101,19 @@ use function CraftCms\Cms\template;
 
 class OrdersController
 {
+    use RedirectsToShownSource;
     use RespondsWithFlash;
 
-    public function index(string $orderStatusHandle = ''): string
+    public function index(ElementIndexRequest $request, ?string $orderStatusHandle = null): InertiaResponse|RedirectResponse
     {
-        \Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
+        $viewModel = new OrderIndexViewModel($request, $orderStatusHandle);
 
-        $site = \craft\helpers\Cp::requestedSite();
-        /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
-        $store = $site->getStore();
+        if ($viewModel->showSiteMenu()) {
+            app(SiteSwitcher::class)->scopeToSite();
+        }
 
-        HtmlStack::js('window.orderEdit = {};', Position::BodyBegin);
-        $permissions = [
-            'commerce-manageOrders' => (bool)currentUser()?->can('commerce-manageOrders'),
-            'commerce-editOrders' => (bool)currentUser()?->can('commerce-editOrders'),
-            'commerce-deleteOrders' => (bool)currentUser()?->can('commerce-deleteOrders'),
-        ];
-
-        HtmlStack::js('window.orderEdit.currentUserPermissions = ' . \CraftCms\Cms\Support\Json::encode($permissions) . ';', Position::BodyBegin);
-
-        return pageTemplate('commerce/orders/_index', compact('orderStatusHandle', 'store'), TemplateMode::Cp);
+        return $this->shownSourceRedirect($request, $viewModel, $orderStatusHandle !== null && $orderStatusHandle !== '')
+            ?? Inertia::render('commerce::orders/Index', [$viewModel]);
     }
 
     public function create(Request $request, string $storeHandle): Response
@@ -681,9 +679,11 @@ JS, []);
         abort_unless(currentUser()?->can('commerce-manageOrders'), 403);
 
         $number = $request->input('number');
-        abort_if(!$number, 400, 'Missing number');
+        $id = $request->input('id');
+        abort_if(!$number && !$id, 400, 'Missing number or id');
 
-        $cart = Order::find()->number($number)->isCompleted(false)->one();
+        $query = Order::find()->isCompleted(false);
+        $cart = ($number ? $query->number($number) : $query->id((int)$id))->one();
 
         if (!$cart) {
             abort(404, 'Cart not found.');
