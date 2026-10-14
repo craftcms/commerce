@@ -220,10 +220,10 @@ Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function () {
     Route::post('orders/validate-address', [OrdersController::class, 'validateAddress']);
     Route::post('orders/create-customer', [OrdersController::class, 'createCustomer']);
     Route::get('orders/get-load-cart-url', [OrdersController::class, 'loadCartUrl']);
-    Route::get('orders/send-email', [OrdersController::class, 'sendEmail']);
+    Route::post('orders/send-email', [OrdersController::class, 'sendEmail']);
     Route::get('orders/update-order-address', [OrdersController::class, 'updateOrderAddress']);
     Route::get('orders/get-index-sources-badge-counts', [OrdersController::class, 'indexSourcesBadgeCounts']);
-    Route::get('orders/get-payment-modal', [OrdersController::class, 'paymentModal']);
+    Route::match(['get', 'post'], 'orders/get-payment-modal', [OrdersController::class, 'paymentModal']);
     Route::post('orders/payment-amount-data', [OrdersController::class, 'paymentAmountData']);
 
     Route::post('orders/copy-address-to-user', [OrdersController::class, 'copyAddressToUser'])

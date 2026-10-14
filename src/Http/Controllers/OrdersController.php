@@ -945,7 +945,7 @@ JS, []);
 
         $amount = $request->input('amount');
         $amount = Money::toMoney(array_merge($amount, ['currency' => $transaction->paymentCurrency]));
-        $amount = Money::toDecimal($amount);
+        $amount = (float)Money::toDecimal($amount);
 
         $note = $request->input('note');
         abort_if($note === null, 400, 'Missing note');
@@ -1209,13 +1209,16 @@ JS, []);
         }
 
         if (!empty($orderArray['lineItems'])) {
-            foreach ($orderArray['lineItems'] as &$lineItem) {
-                $lineItem['price'] = $lineItem['price'] !== null ? I18N::getFormatter()->asDecimal($lineItem['price'], $subUnit) : null;
-                $lineItem['promotionalPrice'] = $lineItem['promotionalPrice'] !== null ? I18N::getFormatter()->asDecimal($lineItem['promotionalPrice'], $subUnit) : null;
+            $lineItemModels = array_values($lineItems);
+            foreach ($orderArray['lineItems'] as $index => &$lineItem) {
+                $lineItemModel = $lineItemModels[$index];
+                $promotionalPrice = $lineItemModel->getPromotionalPrice();
+                $lineItem['price'] = I18N::getFormatter()->asDecimal($lineItemModel->getPrice(), $subUnit);
+                $lineItem['promotionalPrice'] = $promotionalPrice !== null ? I18N::getFormatter()->asDecimal($promotionalPrice, $subUnit) : null;
 
-                $options = $lineItem['options'];
-                $isAssociativeOptions = is_array($options) && !empty($options) && count(array_filter(array_keys($options), 'is_string')) === count($options);
-                $lineItem['showForm'] = $isAssociativeOptions || (is_array($options) && empty($options));
+                $options = $lineItemModel->getOptions();
+                $isAssociativeOptions = !empty($options) && count(array_filter(array_keys($options), 'is_string')) === count($options);
+                $lineItem['showForm'] = $isAssociativeOptions || empty($options);
                 $lineItem['purchasableCpEditUrl'] = $purchasableCpEditUrlByPurchasableId[$lineItem['purchasableId']] ?? null;
             }
             unset($lineItem);
@@ -1671,8 +1674,8 @@ JS, []);
             }
 
             if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE || $lineItem->type === LineItemType::Custom) {
-                $promotionalPrice = $lineItemData['promotionalPrice'] ? Localization::normalizeNumber($lineItemData['promotionalPrice']) : null;
-                $price = $lineItemData['price'] ? Localization::normalizeNumber($lineItemData['price']) : 0;
+                $promotionalPrice = $lineItemData['promotionalPrice'] ? (float)Localization::normalizeNumber($lineItemData['promotionalPrice']) : null;
+                $price = $lineItemData['price'] ? (float)Localization::normalizeNumber($lineItemData['price']) : 0;
 
                 $lineItem->setPromotionalPrice($promotionalPrice);
                 $lineItem->setPrice($price);
