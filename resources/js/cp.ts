@@ -1,3 +1,4 @@
+import CatalogPricesNode from './modules/ui/CatalogPricesNode.vue';
 import CouponGeneratorNode from './modules/ui/CouponGeneratorNode.vue';
 import SiteStoresControl from './modules/ui/SiteStoresControl.vue';
 import TransferDetailsControl from './modules/ui/TransferDetailsControl.vue';
@@ -25,6 +26,7 @@ import UsageCounterNode from './modules/ui/UsageCounterNode.vue';
  * future `cms`-native one of a similar name.
  */
 function registerComponents(): void {
+  window.Cp.$components.register('commerce:catalog-prices', CatalogPricesNode);
   window.Cp.$components.register(
     'commerce:coupon-generator',
     CouponGeneratorNode

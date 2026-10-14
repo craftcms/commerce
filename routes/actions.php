@@ -199,7 +199,6 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
         Route::post('catalog-pricing/filter', [CatalogPricingController::class, 'filter']);
         Route::post('catalog-pricing/prices', [CatalogPricingController::class, 'prices']);
         Route::get('catalog-pricing/queue-status', [CatalogPricingController::class, 'queueStatus']);
-        Route::post('catalog-pricing/get-catalog-prices', [CatalogPricingController::class, 'catalogPrices']);
     });
 });
 
@@ -277,6 +276,8 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->g
 });
 
 Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
+    Route::post('catalog-pricing/purchasable-prices', [CatalogPricingController::class, 'purchasablePrices']);
+
     Route::post('formulas/validate-condition', [FormulasController::class, 'validateCondition']);
     Route::post('formulas/validate-formula', [FormulasController::class, 'validateFormula']);
 

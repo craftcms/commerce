@@ -14,6 +14,7 @@ use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingRuleProductConditi
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingRuleVariantCondition;
 use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingRule as PricingCatalogRuleRecord;
 use CraftCms\Commerce\Customer\Conditions\CatalogPricingRuleCustomerCondition;
+use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
@@ -24,6 +25,8 @@ use CraftCms\Commerce\Store\Concerns\StoreTrait;
 use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
 use DateTime;
 use Illuminate\Validation\Rule;
+
+use function CraftCms\Cms\t;
 
 /**
  * @property-read string $applyAmountAsPercent
@@ -103,6 +106,21 @@ class CatalogPricingRule extends Component implements HasStoreInterface
     public function getApplyAmountAsFlat(): string
     {
         return $this->applyAmount !== null ? (string)($this->applyAmount * -1) : '0';
+    }
+
+    public function getEffectLabel(string $currencyIso): string
+    {
+        return match ($this->apply) {
+            PricingCatalogRuleRecord::APPLY_BY_PERCENT => t('{amount} (off original price)', ['amount' => $this->getApplyAmountAsPercent()], category: 'commerce'),
+            PricingCatalogRuleRecord::APPLY_TO_PERCENT => t('{amount} (of original price)', ['amount' => $this->getApplyAmountAsPercent()], category: 'commerce'),
+            PricingCatalogRuleRecord::APPLY_BY_FLAT => t('{amount} (off original price)', ['amount' => Currency::formatAsCurrency($this->getApplyAmountAsFlat(), $currencyIso, true)], category: 'commerce'),
+            default => t('{amount} (new price)', ['amount' => Currency::formatAsCurrency($this->getApplyAmountAsFlat(), $currencyIso, true)], category: 'commerce'),
+        };
+    }
+
+    public function hasCustomerCondition(): bool
+    {
+        return !empty($this->getCustomerCondition()->getConditionRules()->getRules());
     }
 
     public function setMetadata(string|array $metadata): void

@@ -173,6 +173,12 @@ class Variant extends Purchasable implements NestedElementInterface
     }
 
     #[Override]
+    public static function slideoutWidth(): ?string
+    {
+        return '80vw';
+    }
+
+    #[Override]
     public static function displayName(): string
     {
         return t('Product Variant', category: 'commerce');

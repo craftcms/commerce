@@ -87,7 +87,7 @@ class CatalogPricing
                     continue;
                 }
 
-                if (!empty($catalogPricingRule->getCustomerCondition()->getConditionRules()->getRules()) && !in_array($catalogPricingRule->id, $cprWithUserIds, true)) {
+                if ($catalogPricingRule->hasCustomerCondition() && !in_array($catalogPricingRule->id, $cprWithUserIds, true)) {
                     continue;
                 }
 
@@ -179,21 +179,20 @@ class CatalogPricing
 
                 $output?->write(PHP_EOL . sprintf('Generating base prices rows for purchasables %s to %s of %s... ', $fromCount, $toCount, $total));
 
-                $idList = implode(',', array_map('intval', $chunk));
+                DB::table($cpTable)->insertUsing(
+                    ['price', 'purchasableId', 'storeId', 'uid', 'dateCreated', 'dateUpdated'],
+                    DB::table($psTable)
+                        ->select(['basePrice', 'purchasableId', 'storeId', DB::raw($uuidFunction), DB::raw($nowFunction), DB::raw($nowFunction)])
+                        ->whereIn('purchasableId', $chunk),
+                );
 
-                DB::statement("
-                    INSERT INTO {$cpTable} (price, purchasableId, storeId, uid, dateCreated, dateUpdated)
-                    SELECT basePrice, purchasableId, storeId, {$uuidFunction}, {$nowFunction}, {$nowFunction}
-                    FROM {$psTable}
-                    WHERE purchasableId IN ({$idList})
-                ");
-
-                DB::statement("
-                    INSERT INTO {$cpTable} (price, purchasableId, storeId, isPromotionalPrice, uid, dateCreated, dateUpdated)
-                    SELECT basePromotionalPrice, purchasableId, storeId, true, {$uuidFunction}, {$nowFunction}, {$nowFunction}
-                    FROM {$psTable}
-                    WHERE basePromotionalPrice IS NOT NULL AND purchasableId IN ({$idList})
-                ");
+                DB::table($cpTable)->insertUsing(
+                    ['price', 'purchasableId', 'storeId', 'isPromotionalPrice', 'uid', 'dateCreated', 'dateUpdated'],
+                    DB::table($psTable)
+                        ->select(['basePromotionalPrice', 'purchasableId', 'storeId', DB::raw('true'), DB::raw($uuidFunction), DB::raw($nowFunction), DB::raw($nowFunction)])
+                        ->whereNotNull('basePromotionalPrice')
+                        ->whereIn('purchasableId', $chunk),
+                );
 
                 $output?->write('done!');
                 $count += $chunkSize;

@@ -11,18 +11,19 @@ use CraftCms\Cms\Condition\ConditionBuilderRenderer;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Sites;
-use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingPurchasableConditionRule;
-use CraftCms\Commerce\CatalogPricing\Data\CatalogPricing;
-use CraftCms\Commerce\Helpers\Purchasable;
+use CraftCms\Commerce\CatalogPricing\PurchasableCatalogPrices;
+use CraftCms\Commerce\Purchasable\Elements\Purchasable as PurchasableElement;
+use CraftCms\Commerce\Store\Stores;
+use CraftCms\Commerce\Ui\Nodes\CatalogPrices;
 use Illuminate\Http\JsonResponse;
-
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+
 use function CraftCms\Cms\pageTemplate;
-use function CraftCms\Cms\t;
 use function CraftCms\Cms\template;
 
 readonly class CatalogPricingController
@@ -106,7 +107,6 @@ readonly class CatalogPricingController
         $offset = $request->input('offset', 0);
         $offset = $offset !== null ? (int)$offset : null;
         $includeBasePrices = $request->input('includeBasePrices', true);
-        $forPurchasable = $request->input('forPurchasable', false);
 
         $conditionBuilder = null;
         if ($condition && isset($condition['condition'])) {
@@ -129,8 +129,6 @@ readonly class CatalogPricingController
 
         $tableHtml = template('commerce/prices/_table', [
             'catalogPrices' => $catalogPrices->all(),
-            'showPurchasable' => !$forPurchasable,
-            'removeMargin' => $forPurchasable,
         ]);
 
         return response()->json([
@@ -155,45 +153,19 @@ readonly class CatalogPricingController
         ]);
     }
 
-    public function catalogPrices(Request $request): ?string
+    public function purchasablePrices(Request $request): JsonResponse
     {
         $this->guard();
 
-        // @TODO Remove this action once the catalog pricing UI refactor lands and no longer needs this endpoint
-        $purchasableId = $request->input('purchasableId');
-        $storeId = $request->input('storeId');
+        $purchasable = Elements::getElementById($request->integer('purchasableId'));
+        abort_unless($purchasable instanceof PurchasableElement, 404);
+        abort_unless(Gate::allows('view', $purchasable), 403);
 
-        if ($purchasableId === null || $storeId === null) {
-            return Html::tag('div', t('Purchasable ID is required.', category: 'commerce'), ['class' => 'error']);
-        }
+        $store = app(Stores::class)->getStoreById($request->integer('storeId'));
+        abort_if($store === null, 404);
 
-        $purchasableId = (int)$purchasableId;
-        $storeId = (int)$storeId;
+        $data = app(PurchasableCatalogPrices::class)->data($purchasable->id, $store);
 
-        $isPriceRecalculation = $request->has('basePrice') || $request->has('basePromotionalPrice');
-
-        if (!$isPriceRecalculation) {
-            return Purchasable::catalogPricingRulesTableByPurchasableId($purchasableId, $storeId);
-        }
-
-        $basePrice = $request->input('basePrice');
-        $basePromotionalPrice = $request->input('basePromotionalPrice');
-
-        $basePrice = $basePrice ? (float)$basePrice : null;
-        $basePromotionalPrice = $basePromotionalPrice ? (float)$basePromotionalPrice : null;
-
-        $allPurchasableRules = app(CatalogPricingRules::class)->getAllCatalogPricingRulesByPurchasableId($purchasableId, $storeId);
-        $catalogPricing = app(\CraftCms\Commerce\CatalogPricing\CatalogPricing::class)->getCatalogPricesByPurchasableId($purchasableId);
-
-        $catalogPricing->each(function(CatalogPricing $cp) use ($basePrice, $basePromotionalPrice, $allPurchasableRules) {
-            $rule = $allPurchasableRules->firstWhere('id', $cp->catalogPricingRuleId);
-            if (!$rule) {
-                return;
-            }
-
-            $cp->price = app(CatalogPricingRules::class)->generateRulePriceFromPrice($basePrice, $basePromotionalPrice, $rule);
-        });
-
-        return Purchasable::catalogPricingRulesTableByPurchasableId($purchasableId, $storeId, $catalogPricing);
+        return response()->json([...$data, 'rows' => CatalogPrices::tableRows($data['rows'], $purchasable->id)]);
     }
 }

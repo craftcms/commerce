@@ -117,7 +117,7 @@ class CatalogPricingRules
     public function getAllCatalogPricingRulesWithUserConditions(?int $storeId = null): Collection
     {
         return $this->getAllCatalogPricingRules($storeId)->filter(
-            fn(CatalogPricingRule $r) => !empty($r->getCustomerCondition()->getConditionRules()->getRules())
+            fn(CatalogPricingRule $r) => $r->hasCustomerCondition()
         );
     }
 
@@ -230,10 +230,14 @@ class CatalogPricingRules
                 ->where('catalogPricingRuleId', $catalogPricingRule->id)
                 ->delete();
 
+            $now = now()->toDateTimeString();
+
             foreach (array_chunk($catalogPricingRule->getUserIds() ?? [], 1000) as $chunk) {
                 $rows = array_map(fn($userId) => [
                     'catalogPricingRuleId' => $catalogPricingRule->id,
                     'userId' => $userId,
+                    'dateCreated' => $now,
+                    'dateUpdated' => $now,
                 ], $chunk);
 
                 DB::table(Table::CATALOG_PRICING_RULES_USERS)->insert($rows);

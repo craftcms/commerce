@@ -35,12 +35,23 @@ declare global {
       $router: InertiaRouter;
     };
     Craft: {
-      t(category: string, message: string, params?: Record<string, unknown>): string;
+      t(
+        category: string,
+        message: string,
+        params?: Record<string, unknown>
+      ): string;
       sendActionRequest<T = unknown>(
         method: string,
         action: string,
         options?: {data?: Record<string, unknown>}
       ): Promise<{data: T}>;
+      openSlideout(
+        href: string,
+        options?: {
+          width?: string;
+          onSaved?: (result: {draft?: boolean}) => void;
+        }
+      ): Promise<unknown>;
       csrfTokenValue?: string;
     };
   }
