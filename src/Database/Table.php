@@ -37,6 +37,8 @@ readonly class Table
 
     public const ORDERADJUSTMENTS = 'commerce_orderadjustments';
 
+    public const ORDER_EDIT_SESSIONS = 'commerce_order_edit_sessions';
+
     public const ORDERHISTORIES = 'commerce_orderhistories';
 
     public const ORDERS = 'commerce_orders';

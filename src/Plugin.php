@@ -79,6 +79,7 @@ use CraftCms\Commerce\Http\RateLimiters\CartRateLimiter;
 use CraftCms\Commerce\Http\RateLimiters\PdfChallengeRateLimiter;
 use CraftCms\Commerce\Inventory\InventoryLocations;
 use CraftCms\Commerce\Order\Carts;
+use CraftCms\Commerce\Order\Edit\OrderEditSessions;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Plugin\Concerns\HasCommerceEditions;
 use CraftCms\Commerce\Plugin\Concerns\HasCommerceEventListeners;
@@ -394,6 +395,7 @@ class Plugin extends BasePlugin
 
         Event::listen(RunningGarbageCollection::class, function(RunningGarbageCollection $event) {
             app(Carts::class)->purgeIncompleteCarts();
+            app(OrderEditSessions::class)->purgeStaleSessions();
 
             DB::table(Table::VARIANTS)->whereNull('primaryOwnerId')->delete();
 

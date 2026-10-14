@@ -5,6 +5,7 @@ use CraftCms\Cms\Http\Middleware\RequireCpRequest;
 use CraftCms\Commerce\Http\Controllers\CartController;
 use CraftCms\Commerce\Http\Controllers\CreateProductController;
 use CraftCms\Commerce\Http\Controllers\DonationsController;
+use CraftCms\Commerce\Http\Controllers\OrderEditController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingRulesController;
@@ -225,6 +226,17 @@ Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function () {
     Route::get('orders/get-index-sources-badge-counts', [OrdersController::class, 'indexSourcesBadgeCounts']);
     Route::match(['get', 'post'], 'orders/get-payment-modal', [OrdersController::class, 'paymentModal']);
     Route::post('orders/payment-amount-data', [OrdersController::class, 'paymentAmountData']);
+
+    Route::middleware('can:commerce-editOrders')->group(function () {
+        Route::post('orders/apply', [OrderEditController::class, 'apply']);
+        Route::post('orders/edit/start', [OrderEditController::class, 'start']);
+        Route::post('orders/edit/take-over', [OrderEditController::class, 'takeOver']);
+        Route::post('orders/edit/preview', [OrderEditController::class, 'preview']);
+        Route::post('orders/edit/add', [OrderEditController::class, 'addOperation']);
+        Route::post('orders/edit/remove', [OrderEditController::class, 'removeOperation']);
+        Route::post('orders/edit/commit', [OrderEditController::class, 'commit']);
+        Route::post('orders/edit/discard', [OrderEditController::class, 'discard']);
+    });
 
     Route::post('orders/copy-address-to-user', [OrdersController::class, 'copyAddressToUser'])
         ->middleware('can:editUsers');
