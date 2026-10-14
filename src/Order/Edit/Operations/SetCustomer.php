@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Edit\Operations;
 
+use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Support\Facades\Users;
+use CraftCms\Cms\User\Elements\User;
+use CraftCms\Commerce\Order\Edit\Enums\OrderAddressType;
 use CraftCms\Commerce\Order\Edit\Exceptions\OperationNotApplicableException;
 use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Elements\Order;
@@ -61,9 +64,7 @@ final readonly class SetCustomer extends OrderOperation
         $order->setCustomer($customer);
 
         if ($customer && $customerChanged && !$order->isCompleted) {
-            $order->setBillingAddress(null);
-            $order->setShippingAddress(null);
-            $order->autoSetAddresses();
+            $this->autoSetAddresses($order, $customer);
         }
 
         // The payment source or gateway may not be valid for the new customer.
@@ -73,6 +74,33 @@ final readonly class SetCustomer extends OrderOperation
         } catch (Throwable) {
             $order->paymentSourceId = null;
             $order->gatewayId = null;
+        }
+    }
+
+    /**
+     * Gives a cart its new customer's primary addresses, as {@see Order::autoSetAddresses()} does, but
+     * as in-memory copies that are only saved along with the order.
+     */
+    private function autoSetAddresses(Order $order, User $customer): void
+    {
+        OrderAddressType::Shipping->setAddress($order, null);
+        OrderAddressType::Billing->setAddress($order, null);
+
+        if (!$order->getStore()->getAutoSetNewCartAddresses()) {
+            return;
+        }
+
+        $primaryAddresses = [
+            /** @phpstan-ignore-next-line method.notFound (getPrimaryShippingAddress() is added to User via a Macroable macro registered in Plugin::registerCustomerMacros(), not visible to static analysis) */
+            OrderAddressType::Shipping->value => $customer->getPrimaryShippingAddress(),
+            /** @phpstan-ignore-next-line method.notFound (getPrimaryBillingAddress() is added to User via a Macroable macro registered in Plugin::registerCustomerMacros(), not visible to static analysis) */
+            OrderAddressType::Billing->value => $customer->getPrimaryBillingAddress(),
+        ];
+
+        foreach ($primaryAddresses as $addressType => $address) {
+            if ($address instanceof Address) {
+                OrderAddressType::from($addressType)->setAddress($order, OrderAddressType::attributesOf($address), $address->id);
+            }
         }
     }
 }

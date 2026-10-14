@@ -4,9 +4,16 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Edit;
 
+use CraftCms\Cms\Database\Table as CmsTable;
+use CraftCms\Cms\Element\Validation\ElementRules;
+use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Commerce\Order\Edit\Exceptions\OperationNotApplicableException;
+use CraftCms\Commerce\Order\Edit\Exceptions\StaleOrderException;
 use CraftCms\Commerce\Order\Elements\Order;
 use DateTimeImmutable;
+use DateTimeInterface;
+use DateTimeZone;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -99,5 +106,61 @@ class OrderOperations
         if (!$order->isCompleted) {
             $order->recalculate();
         }
+    }
+
+    /**
+     * Applies an edit to the order to show what it would do, without saving anything.
+     *
+     * The operations themselves change the order in memory only. Anything else that writes to the
+     * database along the way, such as a plugin's event listener, is rolled back.
+     *
+     * @throws OperationNotApplicableException
+     */
+    public function preview(Order $order, OrderEdit $edit): void
+    {
+        DB::beginTransaction();
+
+        try {
+            $this->apply($order, $edit->operations);
+        } finally {
+            DB::rollBack();
+        }
+    }
+
+    /**
+     * Applies an edit to the order and saves it, once.
+     *
+     * The edit is rejected if the order has changed since the edit was made against it (its
+     * `baseDateUpdated`), or since the given order was loaded.
+     *
+     * @return bool whether the order was saved. If not, the order has errors.
+     * @throws StaleOrderException
+     * @throws OperationNotApplicableException
+     */
+    public function commit(Order $order, OrderEdit $edit): bool
+    {
+        return DB::transaction(function() use ($order, $edit): bool {
+            $savedDateUpdated = DB::table(CmsTable::ELEMENTS)
+                ->where('id', $order->id)
+                ->lockForUpdate()
+                ->value('dateUpdated');
+
+            $saved = $savedDateUpdated ? new DateTimeImmutable($savedDateUpdated, new DateTimeZone('UTC')) : null;
+
+            if (!self::sameMoment($saved, $order->dateUpdated) || ($edit->baseDateUpdated && !self::sameMoment($saved, $edit->baseDateUpdated))) {
+                throw new StaleOrderException(t('This order has changed since it was loaded.', category: 'commerce'));
+            }
+
+            $this->apply($order, $edit->operations);
+
+            $order->ruleset->useScenario(ElementRules::SCENARIO_LIVE);
+
+            return $order->validate(null, false) && Elements::saveElement($order, false);
+        });
+    }
+
+    private static function sameMoment(?DateTimeInterface $a, ?DateTimeInterface $b): bool
+    {
+        return $a?->getTimestamp() === $b?->getTimestamp();
     }
 }
