@@ -111,8 +111,8 @@ class CatalogPricing
                     $row = $priceByPurchasableId[$purchasableId];
 
                     $catalogPrice = app(CatalogPricingRules::class)->generateRulePriceFromPrice(
-                        $row->basePrice,
-                        $row->basePromotionalPrice,
+                        $row->basePrice !== null ? (float)$row->basePrice : null,
+                        $row->basePromotionalPrice !== null ? (float)$row->basePromotionalPrice : null,
                         $catalogPricingRule
                     );
 

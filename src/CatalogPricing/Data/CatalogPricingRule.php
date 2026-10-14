@@ -313,16 +313,17 @@ class CatalogPricingRule extends Component implements HasStoreInterface
 
     public function getRulePriceFromPrice(float $price): float
     {
+        $teller = app(Currencies::class)->getTeller($this->getStore()->getCurrency());
+        $applyAmount = $this->applyAmount ?? 0.0;
+
         $price = match ($this->apply) {
-            PricingCatalogRuleRecord::APPLY_BY_PERCENT => $price * (1 + $this->applyAmount),
-            PricingCatalogRuleRecord::APPLY_BY_FLAT => $price + $this->applyAmount,
-            PricingCatalogRuleRecord::APPLY_TO_PERCENT => $price * -$this->applyAmount,
-            PricingCatalogRuleRecord::APPLY_TO_FLAT => -$this->applyAmount,
-            default => $price,
+            PricingCatalogRuleRecord::APPLY_BY_PERCENT => $teller->multiply($price, 1 + $applyAmount),
+            PricingCatalogRuleRecord::APPLY_BY_FLAT => $teller->add($price, $applyAmount),
+            PricingCatalogRuleRecord::APPLY_TO_PERCENT => $teller->multiply($price, -$applyAmount),
+            PricingCatalogRuleRecord::APPLY_TO_FLAT => $teller->negative($applyAmount),
+            default => $teller->convertToString($price),
         };
 
-        $price = (float)app(Currencies::class)->getTeller($this->getStore()->getCurrency())->convertToString($price);
-
-        return max($price, 0);
+        return (float)$teller->max($price, 0);
     }
 }

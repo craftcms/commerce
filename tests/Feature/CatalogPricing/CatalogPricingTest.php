@@ -201,6 +201,73 @@ test('generateCatalogPrices applies a catalog pricing rule to matching variant p
     ],
 ]);
 
+test('generateCatalogPrices handles base prices fetched from the database as strings', function() {
+    $fixture = CatalogPricingFixture::seed();
+    $variant = $fixture->radHood;
+
+    $rule = createCatalogPricingRule([
+        'apply' => CatalogPricingRuleRecord::APPLY_BY_PERCENT,
+        'name' => '10% off',
+        'enabled' => true,
+        'applyAmount' => -0.1,
+        'applyPriceType' => CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE,
+        'isPromotionalPrice' => false,
+        'storeId' => $variant->getStore()->id,
+    ]);
+
+    DB::connection()->getPdo()->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, true);
+
+    try {
+        app(CatalogPricing::class)->generateCatalogPrices();
+    } finally {
+        DB::connection()->getPdo()->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
+    }
+
+    $price = DB::table(Table::CATALOG_PRICING)
+        ->where('purchasableId', $variant->id)
+        ->where('storeId', $variant->getStore()->id)
+        ->where('catalogPricingRuleId', $rule->id)
+        ->value('price');
+
+    $currency = $variant->getStore()->getCurrency();
+    $expectedPrice = (float) app(Currencies::class)->getTeller($currency)->multiply($variant->basePrice, 0.9);
+
+    expect((float) $price)->toBe($expectedPrice);
+});
+
+test('generateCatalogPrices calculates the rule price for each apply type', function(string $apply, float $applyAmount, float $expectedPrice) {
+    $fixture = CatalogPricingFixture::seed();
+    $variant = $fixture->hctWhite;
+
+    $rule = createCatalogPricingRule([
+        'apply' => $apply,
+        'name' => 'Rule',
+        'enabled' => true,
+        'applyAmount' => $applyAmount,
+        'applyPriceType' => CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE,
+        'isPromotionalPrice' => false,
+        'storeId' => $variant->getStore()->id,
+    ]);
+
+    app(CatalogPricing::class)->generateCatalogPrices();
+
+    $price = DB::table(Table::CATALOG_PRICING)
+        ->where('purchasableId', $variant->id)
+        ->where('storeId', $variant->getStore()->id)
+        ->where('catalogPricingRuleId', $rule->id)
+        ->value('price');
+
+    expect($variant->basePrice)->toBe(19.99);
+    expect((float) $price)->toBe($expectedPrice);
+})->with([
+    '10% off original price' => [CatalogPricingRuleRecord::APPLY_BY_PERCENT, -0.1, 17.99],
+    '$5 off original price' => [CatalogPricingRuleRecord::APPLY_BY_FLAT, -5.0, 14.99],
+    'flat amount off greater than the price floors at zero' => [CatalogPricingRuleRecord::APPLY_BY_FLAT, -25.0, 0.0],
+    '80% of original price' => [CatalogPricingRuleRecord::APPLY_TO_PERCENT, -0.8, 15.99],
+    '50% of original price rounds a half cent up' => [CatalogPricingRuleRecord::APPLY_TO_PERCENT, -0.5, 10.0],
+    'new price of $12.50' => [CatalogPricingRuleRecord::APPLY_TO_FLAT, -12.5, 12.5],
+]);
+
 test('getPurchasableIds() with a purchasableCondition returns matching purchasable ids', function() {
     $fixture = CatalogPricingFixture::seed();
 
