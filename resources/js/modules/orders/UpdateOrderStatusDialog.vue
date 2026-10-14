@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import {ref, useId, watch} from 'vue';
+  import {computed, ref, useId, watch} from 'vue';
   import {
     performOrderAction,
     type OrderActionEventDetail,
@@ -31,6 +31,11 @@
   const message = ref<ValueElement>();
   const suppressEmails = ref<ValueElement>();
   const submitting = ref(false);
+  const statusChanged = computed(
+    () =>
+      orderStatusId.value !== null &&
+      orderStatusId.value !== props.defaultStatusId
+  );
 
   watch(
     () => props.detail,
@@ -43,7 +48,7 @@
   );
 
   async function submit(): Promise<void> {
-    if (!props.detail || orderStatusId.value === null) {
+    if (!props.detail || !statusChanged.value) {
       return;
     }
 
@@ -106,6 +111,7 @@
         type="button"
         variant="primary"
         :loading="submitting"
+        :disabled="!statusChanged"
         @click="submit"
       >
         {{ labels.update }}

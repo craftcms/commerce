@@ -201,7 +201,6 @@ class OrderIndexViewModel extends ContentIndexViewModel
             'to' => t('To'),
             'update' => t('Update', category: 'commerce'),
             'updateOrderStatus' => t('Update Order Status', category: 'commerce'),
-            'loadCartUrlInstructions' => t('This URL will load the cart into the user’s session, making it the active cart.', category: 'commerce'),
             'zipFile' => t('ZIP file', category: 'commerce'),
         ];
     }

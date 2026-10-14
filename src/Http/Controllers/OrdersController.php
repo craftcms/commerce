@@ -680,7 +680,7 @@ JS, []);
 
         $number = $request->input('number');
         $id = $request->input('id');
-        abort_if(!$number && !$id, 400, 'Missing number');
+        abort_if(!$number && !$id, 400, 'Missing number or id');
 
         $query = Order::find()->isCompleted(false);
         $cart = ($number ? $query->number($number) : $query->id((int)$id))->one();

@@ -218,6 +218,12 @@ it('returns a cart’s load URL by its ID', function() {
         ->assertJsonStructure(['url']);
 });
 
+it('requires a cart number or ID for the load URL', function() {
+    get(Url::actionUrl('commerce/orders/get-load-cart-url'), ['Accept' => 'application/json'])
+        ->assertStatus(400)
+        ->assertJsonPath('message', 'Missing number or id');
+});
+
 it('builds order status and cart source URLs from the handle', function() {
     expect(Order::sourceCpUri(['key' => 'orderStatus:shipped', 'data' => ['handle' => 'shipped']]))
         ->toBe('commerce/orders/shipped')
