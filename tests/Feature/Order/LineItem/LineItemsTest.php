@@ -118,3 +118,22 @@ test('create() creates a line item on the order with the given params', function
     expect($lineItem->qty)->toBe($qty);
     expect($lineItem->note)->toBe($note);
 });
+
+test('saved line items get unique uids, keeping one the line item was given', function() {
+    $fixture = OrdersFixture::seed();
+    $order = $fixture->orders['completed-new'];
+    $givenUid = (string)\CraftCms\Cms\Support\Str::uuid();
+
+    $lineItem = app(LineItems::class)->create($order, [
+        'purchasableId' => $fixture->white->id,
+        'qty' => 1,
+        'uid' => $givenUid,
+    ]);
+    app(LineItems::class)->saveLineItem($lineItem, false);
+
+    $uids = collect(app(LineItems::class)->getAllLineItemsByOrderId($order->id))->pluck('uid');
+
+    expect($uids)->toContain($givenUid);
+    expect($uids->unique())->toHaveCount($uids->count());
+    expect($uids)->not->toContain('0');
+});

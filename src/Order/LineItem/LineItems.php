@@ -349,6 +349,10 @@ class LineItems
             ? (LineItemRecord::query()->find($lineItem->id) ?? new LineItemRecord())
             : new LineItemRecord();
 
+        if (!$record->exists && $lineItem->uid) {
+            $record->uid = $lineItem->uid;
+        }
+
         $record->type = $lineItem->type;
         $record->orderId = $lineItem->orderId;
         $record->purchasableId = $lineItem->purchasableId;
