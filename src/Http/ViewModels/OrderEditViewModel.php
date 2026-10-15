@@ -32,6 +32,7 @@ use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Payment\Data\Transaction;
+use CraftCms\Commerce\Purchasable\PurchasableTypes;
 use DateTimeInterface;
 
 use function CraftCms\Cms\currentUserElement;
@@ -394,6 +395,19 @@ class OrderEditViewModel extends ViewModel
     }
 
     /**
+     * The purchasable types a product can be added from.
+     *
+     * @return list<array{type: string, label: string}>
+     */
+    public function purchasableTypes(): array
+    {
+        return app(PurchasableTypes::class)->types()
+            ->map(fn(string $type) => ['type' => $type, 'label' => $type::displayName()])
+            ->values()
+            ->all();
+    }
+
+    /**
      * @return array<string, string>
      */
     public function labels(): array
@@ -402,7 +416,7 @@ class OrderEditViewModel extends ViewModel
             'details' => t('Details', category: 'commerce'),
             'transactions' => t('Transactions', category: 'commerce'),
             'history' => t('History', category: 'commerce'),
-            'products' => t('Products', category: 'commerce'),
+            'products' => t('Line Items', category: 'commerce'),
             'noProducts' => t('No products have been added.', category: 'commerce'),
             'item' => t('Item', category: 'commerce'),
             'qty' => t('Qty', category: 'commerce'),
@@ -412,7 +426,7 @@ class OrderEditViewModel extends ViewModel
             'note' => t('Note', category: 'commerce'),
             'privateNote' => t('Private Note', category: 'commerce'),
             'adjustments' => t('Adjustments', category: 'commerce'),
-            'payment' => t('Payment', category: 'commerce'),
+            'payment' => t('Totals', category: 'commerce'),
             'paid' => t('Paid', category: 'commerce'),
             'outstanding' => t('Outstanding', category: 'commerce'),
             'couponCode' => t('Coupon Code', category: 'commerce'),
@@ -446,8 +460,16 @@ class OrderEditViewModel extends ViewModel
             'viewPurchasable' => t('View Purchasable', category: 'commerce'),
             'remove' => t('Remove', category: 'commerce'),
             'confirmRemoveLineItem' => t('Remove {item} from the cart?', category: 'commerce'),
-            'customItem' => t('Custom Item', category: 'commerce'),
             'dismiss' => t('Dismiss', category: 'commerce'),
+            'add' => t('Add', category: 'commerce'),
+            'addLineItem' => t('Add a line item', category: 'commerce'),
+            'addCustomLineItem' => t('Add a custom line item', category: 'commerce'),
+            'addType' => t('Add {type}', category: 'commerce'),
+            'chooseFromAddressBook' => t('Choose from Address Book', category: 'commerce'),
+            'copyToShipping' => t('Copy to Shipping Address', category: 'commerce'),
+            'copyToBilling' => t('Copy to Billing Address', category: 'commerce'),
+            'removeAddress' => t('Remove Address', category: 'commerce'),
+            'editFields' => t('Edit Fields', category: 'commerce'),
         ];
     }
 

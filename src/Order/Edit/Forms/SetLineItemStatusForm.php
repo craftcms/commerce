@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Edit\Forms;
 
-use CraftCms\Cms\Ui\Controls\Choice;
-use CraftCms\Cms\Ui\Enums\ChoicePresentation;
+use CraftCms\Cms\Ui\Controls\Combobox;
 use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Cms\Ui\Ui;
 use CraftCms\Commerce\Order\Data\LineItemStatus;
@@ -36,14 +35,19 @@ final readonly class SetLineItemStatusForm extends OrderOperationForm
             ->map(fn(LineItemStatus $status) => [
                 'label' => $status->getUiLabel(),
                 'value' => (string)$status->id,
+                'data' => ['indicator' => ['fill' => $status->color]],
             ])
             ->values()
             ->all();
 
         return Ui::make([
-            Field::make(t('Status', category: 'commerce'), Choice::make('lineItemStatusId')
-                ->presentation(ChoicePresentation::Radios)
-                ->options([['label' => t('None', category: 'commerce'), 'value' => ''], ...$statuses])),
+            Field::make(t('Status', category: 'commerce'), Combobox::make('lineItemStatusId')
+                ->requireOptionMatch()
+                ->showAllOnEmpty()
+                ->options([
+                    ['label' => t('None', category: 'commerce'), 'value' => '', 'data' => ['indicator' => ['appearance' => 'outline']]],
+                    ...$statuses,
+                ])),
         ]);
     }
 

@@ -102,6 +102,7 @@
         details: Array<{label: string; value: string; form: string | null}>;
         metadataHtml: string;
         fieldsUi: UiPayload | null;
+        purchasableTypes: Array<{type: string; label: string}>;
         transactions: TransactionRow[];
         histories: HistoryRow[];
         labels: Record<string, string>;
@@ -153,6 +154,56 @@
         }
 
         window.Cp.$router.reload();
+    }
+
+    function addressActions(addressType: 'shipping' | 'billing'): ActionItem[] {
+        const hasAddress =
+            (addressType === 'shipping'
+                ? props.shippingAddressHtml
+                : props.billingAddressHtml) !== null;
+
+        return [
+            {
+                label: props.labels.edit,
+                icon: 'pencil',
+                onClick: () => openForm('setAddress', {addressType}),
+            },
+            ...(props.customer
+                ? [
+                      {
+                          label: props.labels.chooseFromAddressBook,
+                          onClick: () =>
+                              openForm('setAddress', {
+                                  addressType,
+                                  mode: 'book',
+                              }),
+                      },
+                  ]
+                : []),
+            ...(hasAddress
+                ? [
+                      {
+                          label:
+                              addressType === 'shipping'
+                                  ? props.labels.copyToBilling
+                                  : props.labels.copyToShipping,
+                          onClick: () =>
+                              void apply([
+                                  {type: 'copyAddress', from: addressType},
+                              ]),
+                      },
+                      {
+                          label: props.labels.removeAddress,
+                          icon: 'trash',
+                          variant: 'danger',
+                          onClick: () =>
+                              void apply([
+                                  {type: 'removeAddress', addressType},
+                              ]),
+                      },
+                  ]
+                : []),
+        ];
     }
 
     function removeLineItem(item: LineItemRow): void {
@@ -216,6 +267,26 @@
             },
         ];
     }
+
+    const addActions = computed<ActionItem[]>(() => [
+        ...props.purchasableTypes.map((purchasableType) => ({
+            label:
+                props.purchasableTypes.length === 1
+                    ? props.labels.addLineItem
+                    : props.labels.addType.replace(
+                          '{type}',
+                          purchasableType.label
+                      ),
+            onClick: () =>
+                openForm('addLineItem', {
+                    purchasableType: purchasableType.type,
+                }),
+        })),
+        {
+            label: props.labels.addCustomLineItem,
+            onClick: () => openForm('addCustomLineItem'),
+        },
+    ]);
 
     const tabs = computed<PageTab[]>(() => [
         {id: 'details', label: props.labels.details},
@@ -529,16 +600,23 @@
                 class="grid gap-4"
             >
                 <craft-pane appearance="raised" :label="labels.products">
-                    <craft-button
+                    <ActionMenu
                         v-if="editable"
                         slot="header-actions"
-                        type="button"
-                        icon="plus"
-                        size="small"
-                        @click="openForm('addCustomLineItem')"
+                        :label="labels.add"
+                        :actions="addActions"
                     >
-                        {{ labels.customItem }}
-                    </craft-button>
+                        <template #invoker="{label}">
+                            <craft-button
+                                slot="invoker"
+                                type="button"
+                                icon="plus"
+                                size="small"
+                            >
+                                {{ label }}
+                            </craft-button>
+                        </template>
+                    </ActionMenu>
                     <AdminTable
                         v-if="lineItems.length"
                         :table="lineItemsTable"
@@ -630,6 +708,16 @@
                 :key="tab.id"
                 :hidden="activeTab !== tab.id"
             >
+                <craft-button
+                    v-if="editable"
+                    type="button"
+                    icon="pencil"
+                    size="small"
+                    class="mb-4"
+                    @click="openForm('setFieldValues')"
+                >
+                    {{ labels.editFields }}
+                </craft-button>
                 <craft-field-group>
                     <component
                         :is="UiRenderer"
@@ -678,31 +766,62 @@
         <dl class="cp-metadata-list">
             <div class="cp-metadata-list__item">
                 <dt class="font-bold text-xs">{{ labels.customer }}</dt>
-                <dd>
+                <dd class="flex items-center gap-2">
                     <template v-if="customer">
                         <span v-html="customer.chipHtml" />
                     </template>
                     <template v-else>{{ email ?? labels.noCustomer }}</template>
+                    <craft-button
+                        v-if="editable"
+                        type="button"
+                        icon
+                        size="small"
+                        @click="openForm('setCustomer')"
+                    >
+                        <craft-icon
+                            name="pencil"
+                            :label="
+                                labels.editItem.replace(
+                                    '{item}',
+                                    labels.customer
+                                )
+                            "
+                        />
+                    </craft-button>
                 </dd>
             </div>
             <div class="cp-metadata-list__item">
                 <dt class="font-bold text-xs">{{ labels.shippingAddress }}</dt>
-                <dd>
-                    <span
-                        v-if="shippingAddressHtml"
-                        v-html="shippingAddressHtml"
+                <dd class="flex items-start justify-between gap-2">
+                    <div>
+                        <span
+                            v-if="shippingAddressHtml"
+                            v-html="shippingAddressHtml"
+                        />
+                        <template v-else>{{ labels.noAddress }}</template>
+                    </div>
+                    <ActionMenu
+                        v-if="editable"
+                        :label="labels.actions"
+                        :actions="addressActions('shipping')"
                     />
-                    <template v-else>{{ labels.noAddress }}</template>
                 </dd>
             </div>
             <div class="cp-metadata-list__item">
                 <dt class="font-bold text-xs">{{ labels.billingAddress }}</dt>
-                <dd>
-                    <span
-                        v-if="billingAddressHtml"
-                        v-html="billingAddressHtml"
+                <dd class="flex items-start justify-between gap-2">
+                    <div>
+                        <span
+                            v-if="billingAddressHtml"
+                            v-html="billingAddressHtml"
+                        />
+                        <template v-else>{{ labels.noAddress }}</template>
+                    </div>
+                    <ActionMenu
+                        v-if="editable"
+                        :label="labels.actions"
+                        :actions="addressActions('billing')"
                     />
-                    <template v-else>{{ labels.noAddress }}</template>
                 </dd>
             </div>
             <div class="cp-metadata-list__item">

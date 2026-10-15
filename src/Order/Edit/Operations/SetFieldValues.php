@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Edit\Operations;
 
+use CraftCms\Cms\Field\Exceptions\InvalidFieldException;
+use CraftCms\Commerce\Order\Edit\Exceptions\OperationNotApplicableException;
 use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Elements\Order;
 
 /**
- * Sets custom field values on the order, keyed by field handle.
+ * Sets custom field values on the order, keyed by field handle, as a field takes them from a request.
  *
  * @since 6.0.0
  */
@@ -44,6 +46,12 @@ final readonly class SetFieldValues extends OrderOperation
 
     public function apply(Order $order): void
     {
-        $order->setFieldValues($this->values);
+        foreach ($this->values as $handle => $value) {
+            try {
+                $order->setFieldValueFromRequest((string)$handle, $value);
+            } catch (InvalidFieldException $exception) {
+                throw new OperationNotApplicableException($exception->getMessage(), previous: $exception);
+            }
+        }
     }
 }

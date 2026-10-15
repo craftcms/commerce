@@ -39,6 +39,12 @@ enum OrderAddressType: string
         'longitude',
     ];
 
+    /** @return list<string> */
+    public static function attributeNames(): array
+    {
+        return self::ATTRIBUTES;
+    }
+
     public function other(): self
     {
         return match ($this) {

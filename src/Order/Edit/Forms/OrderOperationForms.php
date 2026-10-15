@@ -35,6 +35,10 @@ class OrderOperationForms extends TypeRegistry
         SetShippingMethodForm::class,
         SetCouponCodeForm::class,
         SetOrderSiteForm::class,
+        AddLineItemForm::class,
+        SetCustomerForm::class,
+        SetAddressForm::class,
+        SetFieldValuesForm::class,
     ];
 
     public function byType(string $type): ?OrderOperationForm

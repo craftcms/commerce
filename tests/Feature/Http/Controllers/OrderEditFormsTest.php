@@ -131,18 +131,39 @@ it('returns validation errors at the paths of the form’s controls', function()
     ])->assertStatus(422)->assertJsonValidationErrors(['description']);
 });
 
-it('edits line item options as JSON', function() {
+it('edits line item options as name and value rows', function() {
     $cart = editFormsCart(OrdersFixture::seed());
     $uid = $cart->getLineItems()[0]->uid;
 
-    editFormsSubmit($cart, 'setLineItemOptions', ['lineItemUid' => $uid, 'options' => '[not json'])
-        ->assertStatus(422)
-        ->assertJsonValidationErrors(['options']);
+    editFormsSubmit($cart, 'setLineItemOptions', [
+        'lineItemUid' => $uid,
+        'options' => [
+            ['key' => 'engraving', 'value' => 'Hello'],
+            ['key' => 'gift', 'value' => '{"wrap": true}'],
+            ['key' => '', 'value' => 'ignored'],
+        ],
+    ])->assertOk();
 
-    editFormsSubmit($cart, 'setLineItemOptions', ['lineItemUid' => $uid, 'options' => '{"engraving": "Hello"}'])
-        ->assertOk();
+    $cart = Order::find()->id($cart->id)->one();
 
-    expect(Order::find()->id($cart->id)->one()->getLineItems()[0]->getOptions())->toBe(['engraving' => 'Hello']);
+    expect($cart->getLineItems()[0]->getOptions())->toBe(['engraving' => 'Hello', 'gift' => ['wrap' => true]]);
+
+    $response = editFormsShow($cart, 'setLineItemOptions', ['lineItemUid' => $uid])->assertOk();
+
+    expect($response->json('ui.values.options'))->toBe([
+        ['key' => 'engraving', 'value' => 'Hello'],
+        ['key' => 'gift', 'value' => "{\n    \"wrap\": true\n}"],
+    ]);
+});
+
+it('colours the line item statuses', function() {
+    $cart = editFormsCart(OrdersFixture::seed());
+
+    $response = editFormsShow($cart, 'setLineItemStatus', ['lineItemUid' => $cart->getLineItems()[0]->uid])->assertOk();
+    $options = $response->json('ui.nodes.0.control.props.options');
+
+    expect($options[0]['value'])->toBe('')
+        ->and(collect($options)->skip(1)->every(fn(array $option) => isset($option['data']['indicator']['fill'])))->toBeTrue();
 });
 
 it('treats an empty choice as none', function() {
@@ -166,4 +187,99 @@ it('doesn’t save forms straight to a completed order', function() {
     $order = OrdersFixture::seed()->orders['completed-new'];
 
     editFormsSubmit($order, 'setCouponCode', ['couponCode' => 'X'])->assertStatus(400);
+});
+
+it('adds a purchasable chosen with the element selector', function() {
+    $fixture = OrdersFixture::seed();
+    $cart = editFormsCart($fixture, false);
+
+    $response = editFormsShow($cart, 'addLineItem')->assertOk();
+
+    expect(editFormsControlPaths($response->json('ui.nodes')))->toBe(['purchasableId', 'qty', 'note']);
+
+    editFormsSubmit($cart, 'addLineItem', ['purchasableId' => $fixture->blue->id, 'qty' => '2'])->assertOk();
+
+    $lineItem = Order::find()->id($cart->id)->one()->getLineItems()[0];
+
+    expect($lineItem->purchasableId)->toBe($fixture->blue->id)->and($lineItem->qty)->toBe(2);
+
+    editFormsSubmit($cart, 'addLineItem', ['qty' => '1'])->assertStatus(422)->assertJsonValidationErrors(['purchasableId']);
+});
+
+it('sets, creates and removes the customer', function() {
+    $fixture = OrdersFixture::seed();
+    $cart = editFormsCart($fixture, false);
+
+    editFormsSubmit($cart, 'setCustomer', ['customerId' => $fixture->customer->id])->assertOk();
+    $cart = Order::find()->id($cart->id)->one();
+    expect($cart->getCustomerId())->toBe($fixture->customer->id);
+
+    editFormsSubmit($cart, 'setCustomer', ['email' => 'new-customer@example.com'])->assertOk();
+    $cart = Order::find()->id($cart->id)->one();
+    expect($cart->getCustomer()->email)->toBe('new-customer@example.com');
+
+    editFormsSubmit($cart, 'setCustomer', ['email' => 'not an email'])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['email']);
+
+    editFormsSubmit($cart, 'setCustomer', [])->assertOk();
+    expect(Order::find()->id($cart->id)->one()->getCustomerId())->toBeNull();
+});
+
+it('edits an address from its own fields', function() {
+    $cart = editFormsCart(OrdersFixture::seed(), false);
+
+    $paths = editFormsControlPaths(editFormsShow($cart, 'setAddress', ['addressType' => 'shipping'])->assertOk()->json('ui.nodes'));
+    expect($paths)->toContain('countryCode', 'address');
+
+    editFormsSubmit($cart, 'setAddress', [
+        'addressType' => 'shipping',
+        'fullName' => 'Ada Lovelace',
+        'countryCode' => 'US',
+        'address' => ['addressLine1' => '1 Main St', 'locality' => 'Portland', 'administrativeArea' => 'OR', 'postalCode' => '97201'],
+    ])->assertOk();
+
+    $address = Order::find()->id($cart->id)->one()->getShippingAddress();
+
+    expect($address->fullName)->toBe('Ada Lovelace')
+        ->and($address->addressLine1)->toBe('1 Main St')
+        ->and($address->postalCode)->toBe('97201');
+
+    editFormsSubmit(Order::find()->id($cart->id)->one(), 'setAddress', [
+        'addressType' => 'shipping',
+        'countryCode' => 'US',
+        'address' => ['addressLine1' => '9 Other St', 'locality' => 'Portland', 'administrativeArea' => 'OR', 'postalCode' => '97201'],
+    ])->assertOk();
+
+    expect(Order::find()->id($cart->id)->one()->getShippingAddress()->fullName)->toBe('Ada Lovelace');
+});
+
+it('copies one of the customer’s addresses', function() {
+    $fixture = OrdersFixture::seed();
+    $cart = editFormsCart($fixture, false);
+    editFormsSubmit($cart, 'setCustomer', ['customerId' => $fixture->customer->id])->assertOk();
+    $cart = Order::find()->id($cart->id)->one();
+
+    $address = new CraftCms\Cms\Address\Elements\Address([
+        'ownerId' => $fixture->customer->id,
+        'countryCode' => 'US',
+        'addressLine1' => '2 Side St',
+        'locality' => 'Salem',
+        'administrativeArea' => 'OR',
+        'postalCode' => '97301',
+    ]);
+    Elements::saveElement($address, false);
+
+    $response = editFormsShow($cart, 'setAddress', ['addressType' => 'billing', 'mode' => 'book'])->assertOk();
+    expect(editFormsControlPaths($response->json('ui.nodes')))->toBe(['sourceAddressId']);
+
+    editFormsSubmit($cart, 'setAddress', ['addressType' => 'billing', 'mode' => 'book', 'sourceAddressId' => (string)$address->id])->assertOk();
+
+    expect(Order::find()->id($cart->id)->one()->getBillingAddress()->addressLine1)->toBe('2 Side St');
+});
+
+it('opens the order’s custom fields', function() {
+    $cart = editFormsCart(OrdersFixture::seed(), false);
+
+    editFormsShow($cart, 'setFieldValues')->assertOk()->assertJsonPath('title', 'Edit Fields');
 });
