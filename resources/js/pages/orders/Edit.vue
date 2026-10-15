@@ -83,7 +83,7 @@
         orderId: number;
         isCompleted: boolean;
         canEdit: boolean;
-        editUrls: {form: string; apply: string};
+        editUrls: {form: string; apply: string; snapshot: string};
         dateUpdated: string | null;
         statusHtml: string[];
         actionMenu: unknown[];
@@ -119,6 +119,26 @@
     }
 
     const editable = computed(() => props.canEdit && !props.isCompleted);
+
+    interface Snapshot {
+        title: string;
+        sections: Array<{label: string; json: string}>;
+    }
+
+    const snapshot = ref<Snapshot | null>(null);
+
+    async function showSnapshot(item: LineItemRow): Promise<void> {
+        try {
+            const {data} = await window.Craft.sendActionRequest<Snapshot>(
+                'GET',
+                props.editUrls.snapshot,
+                {params: {orderId: props.orderId, lineItemUid: item.uid}}
+            );
+            snapshot.value = data;
+        } catch (error: any) {
+            window.Craft.cp?.displayError(error?.response?.data?.message);
+        }
+    }
 
     function editParams(): Record<string, string> {
         return {
@@ -232,23 +252,33 @@
     function lineItemActions(item: LineItemRow): ActionItem[] {
         const params = {lineItemUid: item.uid ?? ''};
 
+        const editActions: ActionItem[] = editable.value
+            ? [
+                  {
+                      label: props.labels.edit,
+                      icon: 'pencil',
+                      onClick: () => openForm('updateLineItem', params),
+                  },
+                  {
+                      label: props.labels.setStatus,
+                      onClick: () => openForm('setLineItemStatus', params),
+                  },
+                  {
+                      label: props.labels.notes,
+                      onClick: () => openForm('setLineItemNotes', params),
+                  },
+                  {
+                      label: props.labels.options,
+                      onClick: () => openForm('setLineItemOptions', params),
+                  },
+              ]
+            : [];
+
         return [
+            ...editActions,
             {
-                label: props.labels.edit,
-                icon: 'pencil',
-                onClick: () => openForm('updateLineItem', params),
-            },
-            {
-                label: props.labels.setStatus,
-                onClick: () => openForm('setLineItemStatus', params),
-            },
-            {
-                label: props.labels.notes,
-                onClick: () => openForm('setLineItemNotes', params),
-            },
-            {
-                label: props.labels.options,
-                onClick: () => openForm('setLineItemOptions', params),
+                label: props.labels.viewSnapshot,
+                onClick: () => void showSnapshot(item),
             },
             ...(item.url
                 ? [
@@ -259,12 +289,16 @@
                       },
                   ]
                 : []),
-            {
-                label: props.labels.remove,
-                icon: 'trash',
-                variant: 'danger',
-                onClick: () => removeLineItem(item),
-            },
+            ...(editable.value
+                ? [
+                      {
+                          label: props.labels.remove,
+                          icon: 'trash',
+                          variant: 'danger',
+                          onClick: () => removeLineItem(item),
+                      },
+                  ]
+                : []),
         ];
     }
 
@@ -424,18 +458,14 @@
                     header: props.labels.total,
                     cell: ({row}) => row.original.total,
                 }),
-                ...(editable.value
-                    ? [
-                          lineItemColumns.display({
-                              id: 'actions',
-                              cell: ({row}) =>
-                                  h(ActionMenu, {
-                                      actions: lineItemActions(row.original),
-                                      label: props.labels.actions,
-                                  }),
-                          }),
-                      ]
-                    : []),
+                lineItemColumns.display({
+                    id: 'actions',
+                    cell: ({row}) =>
+                        h(ActionMenu, {
+                            actions: lineItemActions(row.original),
+                            label: props.labels.actions,
+                        }),
+                }),
             ];
         },
     });
@@ -761,6 +791,18 @@
             </div>
         </component>
     </div>
+
+    <craft-dialog
+        v-if="snapshot"
+        open
+        :label="snapshot.title"
+        @craft-after-hide="snapshot = null"
+    >
+        <div v-for="section in snapshot.sections" :key="section.label">
+            <h3 class="font-bold">{{ section.label }}</h3>
+            <pre><code>{{ section.json }}</code></pre>
+        </div>
+    </craft-dialog>
 
     <MetadataDetails :html="metadataHtml">
         <dl class="cp-metadata-list">

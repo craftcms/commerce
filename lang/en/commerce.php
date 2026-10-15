@@ -1433,6 +1433,7 @@ return [
     'Variants restored.' => 'Variants restored.',
     'Variants' => 'Variants',
     'View Purchasable' => 'View Purchasable',
+    'View Snapshot' => 'View Snapshot',
     'View customer' => 'View customer',
     'View order' => 'View order',
     'View product type - {productType}' => 'View product type - {productType}',

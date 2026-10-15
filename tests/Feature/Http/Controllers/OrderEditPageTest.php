@@ -95,6 +95,20 @@ it('renders a custom line item without a purchasable link', function() {
         );
 });
 
+it('offers a reference form on carts', function() {
+    $fixture = OrdersFixture::seed();
+    $cart = new Order();
+    $cart->number = bin2hex(random_bytes(16));
+    $cart->storeId = $fixture->storeId;
+    Elements::saveElement($cart, false);
+
+    get(orderEditPagePath($cart->id))
+        ->assertInertia(fn(AssertableInertia $page) => $page
+            ->where('details', fn($details) => collect($details)->contains(fn($row) => $row['label'] === 'Reference' && $row['form'] === 'setReference'))
+            ->etc()
+        );
+});
+
 it('renders status history messages as Markdown, with HTML escaped', function() {
     $order = OrdersFixture::seed()->orders['completed-new'];
     $history = $order->getHistories()[0];

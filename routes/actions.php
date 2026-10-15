@@ -227,6 +227,8 @@ Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function () {
     Route::match(['get', 'post'], 'orders/get-payment-modal', [OrdersController::class, 'paymentModal']);
     Route::post('orders/payment-amount-data', [OrdersController::class, 'paymentAmountData']);
 
+    Route::get('orders/snapshot', [OrderEditController::class, 'snapshot']);
+
     Route::middleware('can:commerce-editOrders')->group(function () {
         Route::post('orders/apply', [OrderEditController::class, 'apply']);
         Route::get('orders/edit/form', [OrderEditController::class, 'showForm']);

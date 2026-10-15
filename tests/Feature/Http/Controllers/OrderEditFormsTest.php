@@ -283,3 +283,28 @@ it('opens the order’s custom fields', function() {
 
     editFormsShow($cart, 'setFieldValues')->assertOk()->assertJsonPath('title', 'Edit Fields');
 });
+
+it('sets and clears a cart’s reference', function() {
+    $cart = editFormsCart(OrdersFixture::seed(), false);
+
+    editFormsSubmit($cart, 'setReference', ['reference' => ' PO-1234 '])->assertOk();
+    $cart = Order::find()->id($cart->id)->one();
+    expect($cart->reference)->toBe('PO-1234');
+
+    editFormsSubmit($cart, 'setReference', ['reference' => ''])->assertOk();
+    expect(Order::find()->id($cart->id)->one()->reference)->toBeNull();
+});
+
+it('shows the snapshots of a line item', function() {
+    $order = OrdersFixture::seed()->orders['completed-new'];
+    $lineItem = $order->getLineItems()[0];
+
+    getJson(Url::actionUrl('commerce/orders/snapshot', ['orderId' => $order->id, 'lineItemUid' => $lineItem->uid]))
+        ->assertOk()
+        ->assertJsonPath('title', $lineItem->getDescription())
+        ->assertJsonPath('sections.0.label', 'Line Item')
+        ->assertJsonStructure(['sections' => [['label', 'json']]]);
+
+    getJson(Url::actionUrl('commerce/orders/snapshot', ['orderId' => $order->id, 'lineItemUid' => 'missing']))
+        ->assertNotFound();
+});

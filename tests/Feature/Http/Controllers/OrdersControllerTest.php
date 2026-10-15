@@ -242,7 +242,7 @@ it('creates a control panel order for a store and redirects to it', function() {
 
     $order = Order::find()->isCompleted(false)->orderBy('id desc')->one();
 
-    expect($response->headers->get('Location'))->toEndWith('commerce/orders/' . $order->id);
+    expect($response->headers->get('Location'))->toBe(Url::cpUrl('commerce/orders/' . $order->id));
     expect($order->origin)->toBe(Order::ORIGIN_CP);
     expect($order->storeId)->toBe($store->id);
     expect($order->getCustomerId())->toBe($fixture->customer->id);

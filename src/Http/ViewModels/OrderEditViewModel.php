@@ -27,6 +27,7 @@ use CraftCms\Commerce\Order\Data\OrderAdjustment;
 use CraftCms\Commerce\Order\Data\OrderHistory;
 use CraftCms\Commerce\Order\Data\OrderNotice;
 use CraftCms\Commerce\Order\Edit\Operations\SetOrderSite;
+use CraftCms\Commerce\Order\Edit\Operations\SetReference;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
@@ -91,13 +92,14 @@ class OrderEditViewModel extends ViewModel
     }
 
     /**
-     * @return array{form: string, apply: string}
+     * @return array{form: string, apply: string, snapshot: string}
      */
     public function editUrls(): array
     {
         return [
             'form' => action([OrderEditController::class, 'showForm']),
             'apply' => action([OrderEditController::class, 'apply']),
+            'snapshot' => action([OrderEditController::class, 'snapshot']),
         ];
     }
 
@@ -292,8 +294,9 @@ class OrderEditViewModel extends ViewModel
             ],
         ];
 
+        $details[] = ['label' => t('Reference', category: 'commerce'), 'value' => Html::encode($this->order->reference ?? ''), 'form' => SetReference::type()];
+
         if ($this->order->isCompleted) {
-            $details[] = ['label' => t('Reference', category: 'commerce'), 'value' => Html::encode($this->order->reference ?? ''), 'form' => null];
             $details[] = ['label' => t('Date Ordered', category: 'commerce'), 'value' => $this->datetime($this->order->dateOrdered), 'form' => null];
         }
 
@@ -458,6 +461,7 @@ class OrderEditViewModel extends ViewModel
             'notes' => t('Notes', category: 'commerce'),
             'options' => t('Options', category: 'commerce'),
             'viewPurchasable' => t('View Purchasable', category: 'commerce'),
+            'viewSnapshot' => t('View Snapshot', category: 'commerce'),
             'remove' => t('Remove', category: 'commerce'),
             'confirmRemoveLineItem' => t('Remove {item} from the cart?', category: 'commerce'),
             'dismiss' => t('Dismiss', category: 'commerce'),

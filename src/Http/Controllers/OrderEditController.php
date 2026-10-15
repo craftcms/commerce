@@ -69,6 +69,37 @@ class OrderEditController
     }
 
     /**
+     * The snapshots a line item and its adjustments were saved with.
+     */
+    public function snapshot(Request $request): JsonResponse
+    {
+        $request->validate([
+            'orderId' => ['required', 'integer'],
+            'lineItemUid' => ['required', 'string'],
+        ]);
+
+        $order = app(Orders::class)->getOrderById((int)$request->input('orderId'));
+        abort_if(!$order, 404, t('Can not find order.', category: 'commerce'));
+        abort_unless($order->canView($this->user()), 403, 'User not authorized to view this order.');
+
+        foreach ($order->getLineItems() as $lineItem) {
+            if ($lineItem->uid !== $request->input('lineItemUid')) {
+                continue;
+            }
+
+            $sections = [['label' => t('Line Item', category: 'commerce'), 'json' => $this->prettyJson($lineItem->getSnapshot())]];
+
+            foreach ($lineItem->getAdjustments() as $adjustment) {
+                $sections[] = ['label' => $adjustment->name, 'json' => $this->prettyJson($adjustment->getSourceSnapshot())];
+            }
+
+            return new JsonResponse(['title' => $lineItem->getDescription(), 'sections' => $sections]);
+        }
+
+        abort(404, t('The line item no longer exists.', category: 'commerce'));
+    }
+
+    /**
      * The UI of the form an action opens, for `openUiModal()`.
      */
     public function showForm(Request $request): JsonResponse
@@ -248,6 +279,12 @@ class OrderEditController
         return $this->asJsonSuccess(t('Cart updated.', category: 'commerce'), [
             'order' => OrderSummary::fromOrder($order),
         ]);
+    }
+
+    /** @param array<array-key, mixed> $data */
+    private function prettyJson(array $data): string
+    {
+        return (string)json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
     private function operationForm(Request $request): OrderOperationForm

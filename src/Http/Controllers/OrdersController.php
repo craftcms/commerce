@@ -146,7 +146,7 @@ class OrdersController
 
         abort_unless(Elements::saveElement($order, false), 500, t('Can not create a new order', category: 'commerce'));
 
-        return redirect('commerce/orders/' . $order->id);
+        return redirect(Url::cpUrl('commerce/orders/' . $order->id));
     }
 
     public function edit(int $orderId): InertiaResponse
