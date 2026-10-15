@@ -10,6 +10,7 @@ use craft\errors\MutexException;
 use CraftCms\Cms\Address\Elements\Address as AddressElement;
 use CraftCms\Cms\Component\ComponentHelper;
 use CraftCms\Cms\Condition\Contracts\ConditionRuleInterface;
+use CraftCms\Cms\Cp\Data\ActionItem;
 use CraftCms\Cms\Cp\Html\StatusHtml;
 use CraftCms\Cms\Cp\RequestedSite;
 use CraftCms\Cms\Element\Actions\Delete;
@@ -1831,6 +1832,18 @@ class Order extends Element implements HasStoreInterface
         $link = Html::a($title, $this->getCpEditUrl(), $options);
 
         return new HtmlString($link);
+    }
+
+    /**
+     * @return list<ActionItem>
+     */
+    #[Override]
+    protected function crumbs(): array
+    {
+        return [
+            new ActionItem()->label(t('Commerce', category: 'commerce'))->href(Url::cpUrl('commerce')),
+            new ActionItem()->label(static::pluralDisplayName())->href(Url::cpUrl('commerce/orders')),
+        ];
     }
 
     #[Override]

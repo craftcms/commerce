@@ -229,6 +229,8 @@ Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function () {
 
     Route::middleware('can:commerce-editOrders')->group(function () {
         Route::post('orders/apply', [OrderEditController::class, 'apply']);
+        Route::get('orders/edit/form', [OrderEditController::class, 'showForm']);
+        Route::post('orders/edit/form', [OrderEditController::class, 'submitForm']);
         Route::post('orders/edit/start', [OrderEditController::class, 'start']);
         Route::post('orders/edit/take-over', [OrderEditController::class, 'takeOver']);
         Route::post('orders/edit/preview', [OrderEditController::class, 'preview']);

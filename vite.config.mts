@@ -38,6 +38,12 @@ const cpSharedModuleExports: Record<string, string[] | null> = {
     'appendIndexQuery',
     'useAppLayout',
     'useCustomizeSources',
+    'AdminTable',
+    'ElementActionMenu',
+    'MetadataDetails',
+    'openUiModal',
+    'useCraftTable',
+    'createCraftColumnHelper',
   ],
 };
 const cpSharedModules = Object.keys(cpSharedModuleExports);

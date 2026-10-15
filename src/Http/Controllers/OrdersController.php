@@ -45,6 +45,7 @@ use CraftCms\Commerce\Helpers\LineItem as LineItemHelper;
 use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Helpers\PaymentForm;
 use CraftCms\Commerce\Helpers\Purchasable;
+use CraftCms\Commerce\Http\ViewModels\OrderEditViewModel;
 use CraftCms\Commerce\Http\ViewModels\OrderIndexViewModel;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use CraftCms\Commerce\Inventory\Data\InventoryFulfillMovement;
@@ -148,7 +149,20 @@ class OrdersController
         return redirect('commerce/orders/' . $order->id);
     }
 
-    public function edit(int $orderId): string
+    public function edit(int $orderId): InertiaResponse
+    {
+        $order = app(Orders::class)->getOrderById($orderId);
+        abort_if(!$order, 404, t('Can not find order.', category: 'commerce'));
+
+        $this->enforceManageOrderPermissions($order);
+
+        return Inertia::render('commerce::orders/Edit', [new OrderEditViewModel($order)]);
+    }
+
+    /**
+     * The previous order edit screen, kept until the new one can edit orders.
+     */
+    public function editLegacy(int $orderId): string
     {
         $order = app(Orders::class)->getOrderById($orderId);
         abort_if(!$order, 404, t('Can not find order.', category: 'commerce'));

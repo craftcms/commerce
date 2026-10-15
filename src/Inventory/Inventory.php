@@ -618,16 +618,23 @@ class Inventory
         // all locations that have historical inventory for the order.
         $locations = app(InventoryLocations::class)->getAllInventoryLocations();
 
+        $wrap = fn(string $value): string => DB::connection()->getQueryGrammar()->wrap($value);
+        $sumWhen = fn(string $condition, string $alias): string => sprintf(
+            'SUM(CASE WHEN %s THEN it.quantity ELSE 0 END) AS %s',
+            $condition,
+            $wrap($alias),
+        );
+
         $inventoryFulfillmentLevels = [];
         foreach ($locations as $location) {
             $data = DB::table(Table::INVENTORYTRANSACTIONS . ' as it')
-                ->selectRaw('it.lineItemId, it.inventoryItemId, it.inventoryLocationId')
+                ->select(['it.lineItemId', 'it.inventoryItemId', 'it.inventoryLocationId'])
                 ->selectRaw(
-                    "SUM(CASE WHEN ((it.type = ? AND quantity > 0) OR (it.type = ? AND quantity < 0)) THEN quantity ELSE 0 END) AS committedQuantity",
+                    $sumWhen('((it.type = ? AND it.quantity > 0) OR (it.type = ? AND it.quantity < 0))', 'committedQuantity'),
                     [InventoryTransactionType::COMMITTED->value, InventoryTransactionType::FULFILLED->value],
                 )
-                ->selectRaw("SUM(CASE WHEN it.type = ? THEN quantity ELSE 0 END) AS outstandingCommittedQuantity", [InventoryTransactionType::COMMITTED->value])
-                ->selectRaw("SUM(CASE WHEN it.type = ? THEN quantity ELSE 0 END) AS fulfilledQuantity", [InventoryTransactionType::FULFILLED->value])
+                ->selectRaw($sumWhen('it.type = ?', 'outstandingCommittedQuantity'), [InventoryTransactionType::COMMITTED->value])
+                ->selectRaw($sumWhen('it.type = ?', 'fulfilledQuantity'), [InventoryTransactionType::FULFILLED->value])
                 ->join(Table::LINEITEMS . ' as li', 'li.id', '=', 'it.lineItemId')
                 ->where('li.orderId', $order->id)
                 ->where('it.inventoryLocationId', $location->id)

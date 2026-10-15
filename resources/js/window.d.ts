@@ -54,6 +54,10 @@ declare global {
         }
       ): Promise<{data: T; headers: Record<string, string>}>;
       csrfTokenValue?: string;
+      cp?: {
+        displayNotice(message: string): void;
+        displayError(message?: string): void;
+      };
     };
   }
 }

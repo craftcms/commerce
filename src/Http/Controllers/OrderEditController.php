@@ -5,17 +5,22 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers;
 
 use CraftCms\Cms\Http\RespondsWithFlash;
+use CraftCms\Cms\Ui\UiContext;
+use CraftCms\Cms\Ui\UiResolver;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Order\Edit\Data\OrderEditSession;
 use CraftCms\Commerce\Order\Edit\Data\OrderSummary;
 use CraftCms\Commerce\Order\Edit\Exceptions\OperationNotApplicableException;
 use CraftCms\Commerce\Order\Edit\Exceptions\OrderBeingEditedException;
 use CraftCms\Commerce\Order\Edit\Exceptions\StaleOrderException;
+use CraftCms\Commerce\Order\Edit\Forms\OrderOperationForm;
+use CraftCms\Commerce\Order\Edit\Forms\OrderOperationForms;
 use CraftCms\Commerce\Order\Edit\OrderEdit;
 use CraftCms\Commerce\Order\Edit\OrderEditSessions;
 use CraftCms\Commerce\Order\Edit\OrderOperations;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Orders;
+use DateTimeImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -36,6 +41,8 @@ class OrderEditController
     public function __construct(
         private readonly OrderOperations $operations,
         private readonly OrderEditSessions $sessions,
+        private readonly OrderOperationForms $forms,
+        private readonly UiResolver $uiResolver,
     ) {
     }
 
@@ -58,21 +65,44 @@ class OrderEditController
             'operations' => array_values($request->input('operations')),
         ]);
 
-        try {
-            $saved = $this->operations->commit($order, $edit);
-        } catch (StaleOrderException) {
-            return $this->staleResponse();
-        } catch (OperationNotApplicableException $exception) {
-            return $this->notApplicableResponse($exception);
-        }
+        return $this->applyToCart($order, $edit);
+    }
 
-        if (!$saved) {
-            return $this->orderErrorsResponse($order);
-        }
+    /**
+     * The UI of the form an action opens, for `openUiModal()`.
+     */
+    public function showForm(Request $request): JsonResponse
+    {
+        $order = $this->editableOrder($request);
+        $form = $this->operationForm($request);
+        $params = $request->query();
 
-        return $this->asJsonSuccess(data: [
-            'order' => OrderSummary::fromOrder($order),
+        return new JsonResponse([
+            'ui' => $this->uiResolver->resolve($form->ui($order, $params), new UiContext(values: $form->values($order, $params))),
+            'title' => $form->title($order, $params),
+            'submitLabel' => $form->submitLabel($order),
         ]);
+    }
+
+    /**
+     * Turns a submitted form into its operation and saves it to the cart.
+     */
+    public function submitForm(Request $request): JsonResponse
+    {
+        $order = $this->editableOrder($request);
+        abort_if($order->isCompleted, 400, 'Completed orders are edited in an edit session.');
+
+        $request->validate([
+            'dateUpdated' => ['required', 'date'],
+        ]);
+
+        $form = $this->operationForm($request);
+        $operation = $this->operations->operationFromArray([
+            ...$form->operationData($order, $request->all()),
+            'type' => $form::type(),
+        ]);
+
+        return $this->applyToCart($order, new OrderEdit([$operation], new DateTimeImmutable($request->input('dateUpdated'))));
     }
 
     public function start(Request $request): JsonResponse
@@ -199,6 +229,33 @@ class OrderEditController
         return $this->asJsonSuccess(data: [
             'order' => OrderSummary::fromOrder($order),
         ]);
+    }
+
+    private function applyToCart(Order $order, OrderEdit $edit): JsonResponse
+    {
+        try {
+            $saved = $this->operations->commit($order, $edit);
+        } catch (StaleOrderException) {
+            return $this->staleResponse();
+        } catch (OperationNotApplicableException $exception) {
+            return $this->notApplicableResponse($exception);
+        }
+
+        if (!$saved) {
+            return $this->orderErrorsResponse($order);
+        }
+
+        return $this->asJsonSuccess(t('Cart updated.', category: 'commerce'), [
+            'order' => OrderSummary::fromOrder($order),
+        ]);
+    }
+
+    private function operationForm(Request $request): OrderOperationForm
+    {
+        $form = $this->forms->byType((string)$request->input('form'));
+        abort_if(!$form, 404, 'Unknown order form.');
+
+        return $form;
     }
 
     private function editableOrder(Request $request): Order
