@@ -306,10 +306,37 @@ it('copies one of the customer’s addresses', function() {
     expect(Order::find()->id($cart->id)->one()->getBillingAddress()->addressLine1)->toBe('2 Side St');
 });
 
-it('opens the order’s custom fields', function() {
+it('refreshes the order’s custom fields screen', function() {
     $cart = editFormsCart(OrdersFixture::seed(), false);
 
-    editFormsShow($cart, 'setFieldValues')->assertOk()->assertJsonPath('title', 'Edit Fields');
+    postJson(Url::actionUrl('commerce/orders/edit/fields', ['orderId' => $cart->id]), [
+        'values' => ['fields' => []],
+        'scope' => [],
+    ])->assertOk()->assertJsonStructure(['ui' => ['nodes', 'values']]);
+});
+
+it('refreshes an address screen for the chosen country', function() {
+    $cart = editFormsCart(OrdersFixture::seed(), false);
+
+    $labels = function(string $countryCode) use ($cart): array {
+        $response = postJson(Url::actionUrl('commerce/orders/edit/address', ['orderId' => $cart->id, 'addressType' => 'shipping']), [
+            'values' => ['countryCode' => $countryCode],
+            'scope' => [],
+        ])->assertOk();
+
+        $labels = [];
+        $nodes = $response->json('ui.nodes');
+        array_walk_recursive($nodes, function($value, $key) use (&$labels) {
+            if ($key === 'label') {
+                $labels[] = $value;
+            }
+        });
+
+        return $labels;
+    };
+
+    expect($labels('US'))->toContain('State')->toContain('Zip Code')
+        ->and($labels('CA'))->toContain('Province')->toContain('Postal Code');
 });
 
 it('sets and clears a cart’s reference', function() {

@@ -121,6 +121,8 @@ class OrderEditViewModel extends ViewModel
         return [
             'form' => action([OrderEditController::class, 'showForm']),
             'apply' => action([OrderEditController::class, 'apply']),
+            'fields' => action([OrderEditController::class, 'fieldsScreen']),
+            'address' => action([OrderEditController::class, 'addressScreen']),
             'snapshot' => action([OrderEditController::class, 'snapshot']),
             'start' => action([OrderEditController::class, 'start']),
             'takeOver' => action([OrderEditController::class, 'takeOver']),

@@ -6,12 +6,15 @@ namespace CraftCms\Commerce\Order\Edit\Forms;
 
 use CraftCms\Cms\Address\Addresses;
 use CraftCms\Cms\Address\Elements\Address;
+use CraftCms\Cms\Field\Exceptions\InvalidFieldException;
 use CraftCms\Cms\FieldLayout\FieldLayoutCompiler;
 use CraftCms\Cms\Ui\Controls\Choice;
 use CraftCms\Cms\Ui\Enums\ChoicePresentation;
+use CraftCms\Cms\Ui\Enums\ControlMode;
 use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Cms\Ui\Ui;
 use CraftCms\Cms\Ui\UiContext;
+use CraftCms\Cms\Ui\UiPayload;
 use CraftCms\Commerce\Order\Edit\Enums\OrderAddressType;
 use CraftCms\Commerce\Order\Edit\Operations\SetAddress;
 use CraftCms\Commerce\Order\Elements\Order;
@@ -60,6 +63,27 @@ final readonly class SetAddressForm extends OrderOperationForm
         );
     }
 
+    /**
+     * The address' own fields as a screen, optionally as the given values would leave it so the
+     * fields that depend on the country, or on a condition, follow what the user has chosen.
+     *
+     * @param array<string, mixed> $params
+     * @param array<string, mixed>|null $values
+     */
+    public function screenUi(Order $order, array $params, ?array $values = null): UiPayload
+    {
+        return app(FieldLayoutCompiler::class)->compile(
+            app(Addresses::class)->getFieldLayout(),
+            $values === null ? $this->address($order, $params) : $this->addressFromValues($values),
+            new UiContext(
+                namespace: [],
+                values: $values ?? $this->values($order, $params),
+                mode: ControlMode::Editable,
+                refreshable: true,
+            ),
+        );
+    }
+
     public function values(Order $order, array $params): array
     {
         if ($this->isBook($params)) {
@@ -93,6 +117,21 @@ final readonly class SetAddressForm extends OrderOperationForm
             'addressType' => $addressType,
             'address' => Arr::only($attributes, [...OrderAddressType::attributeNames(), 'fields']),
         ];
+    }
+
+    /** @param array<string, mixed> $values */
+    private function addressFromValues(array $values): Address
+    {
+        $address = new Address(Arr::only([...$values, ...($values['address'] ?? [])], OrderAddressType::attributeNames()));
+
+        foreach ($values['fields'] ?? [] as $handle => $value) {
+            try {
+                $address->setFieldValueFromRequest((string)$handle, $value);
+            } catch (InvalidFieldException) {
+            }
+        }
+
+        return $address;
     }
 
     /** @param array<string, mixed> $params */

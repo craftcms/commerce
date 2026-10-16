@@ -282,6 +282,23 @@
         });
     }
 
+    function openSlideout(
+        url: string,
+        params: Record<string, string> = {},
+        opener?: EventTarget | null
+    ): void {
+        const query = new URLSearchParams({...editParams(), ...params});
+
+        void (window.Craft as any).openSlideout(`${url}?${query}`, {
+            opener,
+            onSaved: () => window.Cp.$router.reload(),
+        });
+    }
+
+    function openFieldsSlideout(event: Event): void {
+        openSlideout(props.editUrls.fields, {}, event.currentTarget);
+    }
+
     function showError(error: any): void {
         window.Craft.cp?.displayError(error?.response?.data?.message);
     }
@@ -377,7 +394,8 @@
             {
                 label: props.labels.edit,
                 icon: 'pencil',
-                onClick: () => openForm('setAddress', {addressType}),
+                onClick: () =>
+                    openSlideout(props.editUrls.address, {addressType}),
             },
             ...(props.customer
                 ? [
@@ -1059,7 +1077,7 @@
                     icon="pencil"
                     size="small"
                     class="mb-4"
-                    @click="openForm('setFieldValues')"
+                    @click="openFieldsSlideout"
                 >
                     {{ labels.editFields }}
                 </craft-button>

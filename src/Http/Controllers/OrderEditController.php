@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
+use CraftCms\Cms\Field\Exceptions\InvalidFieldException;
+use CraftCms\Cms\FieldLayout\FieldLayoutCompiler;
 use CraftCms\Cms\Http\RespondsWithFlash;
+use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Ui\Enums\ControlMode;
 use CraftCms\Cms\Ui\UiContext;
+use CraftCms\Cms\Ui\UiPayload;
 use CraftCms\Cms\Ui\UiResolver;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Order\Edit\Data\OrderEditSession;
@@ -15,6 +20,9 @@ use CraftCms\Commerce\Order\Edit\Exceptions\OrderBeingEditedException;
 use CraftCms\Commerce\Order\Edit\Exceptions\StaleOrderException;
 use CraftCms\Commerce\Order\Edit\Forms\OrderOperationForm;
 use CraftCms\Commerce\Order\Edit\Forms\OrderOperationForms;
+use CraftCms\Commerce\Order\Edit\Forms\SetAddressForm;
+use CraftCms\Commerce\Order\Edit\Operations\SetAddress;
+use CraftCms\Commerce\Order\Edit\Operations\SetFieldValues;
 use CraftCms\Commerce\Order\Edit\OrderEdit;
 use CraftCms\Commerce\Order\Edit\OrderEditSessions;
 use CraftCms\Commerce\Order\Edit\OrderOperations;
@@ -114,6 +122,119 @@ class OrderEditController
             'title' => $form->title($order, $params),
             'submitLabel' => $form->submitLabel($order),
         ]);
+    }
+
+    /**
+     * The order's custom fields as a slideout screen, for the slideout to post to `submitForm()`.
+     */
+    public function fieldsScreen(Request $request): CpScreenResponse
+    {
+        $order = $this->editableOrder($request);
+        $this->previewOwnSession($order);
+
+        return new CpScreenResponse()
+            ->title(t('Edit Fields', category: 'commerce'))
+            ->ui($this->fieldsUi($order), props: [
+                'submit' => [
+                    'method' => 'post',
+                    'url' => action([self::class, 'submitForm'], [
+                        'orderId' => $order->id,
+                        'form' => SetFieldValues::type(),
+                        'dateUpdated' => $request->input('dateUpdated'),
+                    ]),
+                ],
+                'refreshUrl' => action([self::class, 'refreshFields'], ['orderId' => $order->id]),
+            ]);
+    }
+
+    /**
+     * The fields screen as the posted values would leave it, so conditional fields appear and
+     * disappear as the user edits.
+     */
+    public function refreshFields(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'values' => ['required', 'array'],
+            'scope' => ['present', 'array'],
+            'scope.*' => ['string'],
+        ]);
+
+        $order = $this->editableOrder($request);
+        $this->previewOwnSession($order);
+
+        foreach ($data['values']['fields'] ?? [] as $handle => $value) {
+            try {
+                $order->setFieldValueFromRequest((string)$handle, $value);
+            } catch (InvalidFieldException) {
+            }
+        }
+
+        return new JsonResponse(['ui' => $this->fieldsUi($order)->forScope($data['scope'])]);
+    }
+
+    /**
+     * An order address' own fields as a slideout screen, for the slideout to post to `submitForm()`.
+     */
+    public function addressScreen(Request $request): CpScreenResponse
+    {
+        $order = $this->editableOrder($request);
+        $this->previewOwnSession($order);
+        $form = $this->addressForm();
+        $params = ['addressType' => $request->input('addressType')];
+
+        return new CpScreenResponse()
+            ->title($form->title($order, $params))
+            ->ui($form->screenUi($order, $params), props: [
+                'submit' => [
+                    'method' => 'post',
+                    'url' => action([self::class, 'submitForm'], [
+                        'orderId' => $order->id,
+                        'form' => $form::type(),
+                        'dateUpdated' => $request->input('dateUpdated'),
+                        ...$params,
+                    ]),
+                ],
+                'refreshUrl' => action([self::class, 'refreshAddress'], ['orderId' => $order->id, ...$params]),
+            ]);
+    }
+
+    /**
+     * The address screen as the posted values would leave it, so the fields that depend on the
+     * country follow the user's choice.
+     */
+    public function refreshAddress(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'values' => ['required', 'array'],
+            'scope' => ['present', 'array'],
+            'scope.*' => ['string'],
+        ]);
+
+        $order = $this->editableOrder($request);
+        $this->previewOwnSession($order);
+
+        return new JsonResponse([
+            'ui' => $this->addressForm()
+                ->screenUi($order, ['addressType' => $request->input('addressType')], $data['values'])
+                ->forScope($data['scope']),
+        ]);
+    }
+
+    private function addressForm(): SetAddressForm
+    {
+        $form = $this->forms->byType(SetAddress::type());
+        assert($form instanceof SetAddressForm);
+
+        return $form;
+    }
+
+    private function fieldsUi(Order $order): UiPayload
+    {
+        return app(FieldLayoutCompiler::class)->compile(
+            $order->getFieldLayout(),
+            $order,
+            new UiContext(namespace: [], errors: [], mode: ControlMode::Editable, refreshable: true),
+        );
     }
 
     /**
