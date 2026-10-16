@@ -51,6 +51,11 @@ final readonly class UpdateLineItem extends OrderOperation
         return 'updateLineItem';
     }
 
+    public function label(): string
+    {
+        return t('Update Line Item', category: 'commerce');
+    }
+
     public static function rules(): array
     {
         return [
@@ -167,5 +172,14 @@ final readonly class UpdateLineItem extends OrderOperation
         if (isset($changes['isTaxable'])) {
             $lineItem->setIsTaxable($changes['isTaxable']);
         }
+    }
+
+    public function absorb(OrderOperation $earlier): ?static
+    {
+        if (!$earlier instanceof self || $earlier->lineItemUid !== $this->lineItemUid) {
+            return null;
+        }
+
+        return new self($this->lineItemUid, [...$earlier->changes, ...$this->changes]);
     }
 }

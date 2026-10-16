@@ -33,6 +33,11 @@ final readonly class SetAddress extends OrderOperation
         return 'setAddress';
     }
 
+    public function label(): string
+    {
+        return t('Change Address', category: 'commerce');
+    }
+
     public static function rules(): array
     {
         return [

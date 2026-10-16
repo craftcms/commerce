@@ -11,6 +11,8 @@ use CraftCms\Commerce\Order\Data\OrderAdjustment;
 use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Elements\Order;
 
+use function CraftCms\Cms\t;
+
 /**
  * Adds a manual adjustment to a completed order, or to one of its line items.
  *
@@ -35,6 +37,11 @@ final readonly class AddAdjustment extends OrderOperation
     public static function type(): string
     {
         return 'addAdjustment';
+    }
+
+    public function label(): string
+    {
+        return t('Add Adjustment', category: 'commerce');
     }
 
     public static function rules(): array

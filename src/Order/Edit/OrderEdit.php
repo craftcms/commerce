@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Edit;
 
+use CraftCms\Commerce\Order\Elements\Order;
 use DateTimeImmutable;
 use DateTimeInterface;
 use JsonSerializable;
@@ -29,9 +30,30 @@ final readonly class OrderEdit implements JsonSerializable
     ) {
     }
 
-    public function with(OrderOperation $operation): self
+    /**
+     * Adds an operation, folding in earlier ones it makes redundant.
+     *
+     * @param Order|null $base the order as the edit starts from. An operation that wouldn't change it
+     *                         is dropped, along with the earlier ones it undoes.
+     */
+    public function with(OrderOperation $operation, ?Order $base = null): self
     {
-        return new self([...$this->operations, $operation], $this->baseDateUpdated);
+        $operations = $this->operations;
+
+        foreach ($operations as $index => $earlier) {
+            $combined = $operation->absorb($earlier);
+
+            if ($combined !== null) {
+                unset($operations[$index]);
+                $operation = $combined;
+            }
+        }
+
+        if ($base === null || !$operation->isUnchangedFor($base)) {
+            $operations[] = $operation;
+        }
+
+        return new self(array_values($operations), $this->baseDateUpdated);
     }
 
     public function without(int $index): self

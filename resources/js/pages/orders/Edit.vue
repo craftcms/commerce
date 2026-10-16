@@ -9,7 +9,21 @@
         useCraftTable,
         type ActionItem,
     } from '@craftcms/cp';
-    import {computed, h, ref, resolveComponent} from 'vue';
+    import {
+        computed,
+        h,
+        nextTick,
+        onBeforeUnmount,
+        onMounted,
+        ref,
+        resolveComponent,
+        watch,
+        type CSSProperties,
+    } from 'vue';
+    import ComboboxFieldPopover, {
+        type ComboboxFieldOption,
+    } from '../../modules/orders/ComboboxFieldPopover.vue';
+    import TextFieldPopover from '../../modules/orders/TextFieldPopover.vue';
 
     interface Adjustment {
         type: string;
@@ -35,6 +49,19 @@
         privateNote: string;
         options: Array<{key: string; value: string}>;
         adjustments: Adjustment[];
+        change: 'added' | 'changed' | 'removed' | null;
+    }
+
+    interface Session {
+        mine: boolean;
+        userName: string | null;
+        since: string;
+        stale: boolean;
+        error: string | null;
+        operations: Array<{index: number; label: string}>;
+        originalTotal: string | null;
+        newTotal: string | null;
+        balance: string | null;
     }
 
     interface Notice {
@@ -83,7 +110,10 @@
         orderId: number;
         isCompleted: boolean;
         canEdit: boolean;
-        editUrls: {form: string; apply: string; snapshot: string};
+        editUrls: Record<string, string>;
+        session: Session | null;
+        changes: string[];
+        changedFields: string[];
         dateUpdated: string | null;
         statusHtml: string[];
         actionMenu: unknown[];
@@ -95,11 +125,21 @@
         payments: {paid: string; outstanding: string} | null;
         couponCode: string | null;
         shippingMethodName: string | null;
+        shippingMethodHandle: string;
+        orderSiteId: string;
+        orderSiteOptions: ComboboxFieldOption[];
+        reference: string | null;
+        shippingMethodOptions: ComboboxFieldOption[];
         customer: {chipHtml: string; email: string | null} | null;
         email: string | null;
         shippingAddressHtml: string | null;
         billingAddressHtml: string | null;
-        details: Array<{label: string; value: string; form: string | null}>;
+        details: Array<{
+            key: string;
+            label: string;
+            value: string;
+            form: string | null;
+        }>;
         metadataHtml: string;
         fieldsUi: UiPayload | null;
         purchasableTypes: Array<{type: string; label: string}>;
@@ -118,7 +158,93 @@
         fieldsUi?: UiPayload;
     }
 
-    const editable = computed(() => props.canEdit && !props.isCompleted);
+    const editable = computed(
+        () => props.canEdit && (!props.isCompleted || !!props.session?.mine)
+    );
+    const canStartEditing = computed(
+        () => props.canEdit && props.isCompleted && !props.session
+    );
+    const reviewing = ref(false);
+    const indicatorStyle: CSSProperties = {
+        position: 'absolute',
+        insetBlockStart: '0',
+        insetInlineStart: 'calc(var(--c-spacing-lg, 1rem) * -1)',
+        width: '2px',
+        height: '100%',
+        cursor: 'help',
+        borderRadius: '1px',
+        backgroundColor: 'var(--blue-600, #2563eb)',
+        boxShadow: '0 0 5px hsl(221deg 83% 53% / 15%)',
+    };
+    const modifiedFields = computed(() =>
+        props.changedFields.map((handle) => `fields.${handle}`)
+    );
+    const detailsEl = ref<HTMLElement | null>(null);
+    const changeBars = ref<Array<{top: number; height: number}>>([]);
+    let layoutObserver: ResizeObserver | undefined;
+
+    function measureChangeBars(): void {
+        const container = detailsEl.value;
+
+        if (!container) {
+            changeBars.value = [];
+
+            return;
+        }
+
+        const top = container.getBoundingClientRect().top;
+        const rows = Array.from(
+            container.querySelectorAll('[data-line-items] tbody tr')
+        );
+        const changedRows = props.lineItems.flatMap((item, index) =>
+            item.change && rows[index] ? [rows[index]] : []
+        );
+        const changedBlocks = Array.from(
+            container.querySelectorAll('[data-changed]')
+        );
+
+        changeBars.value = [...changedRows, ...changedBlocks].map((element) => {
+            const rect = element.getBoundingClientRect();
+
+            return {top: rect.top - top, height: rect.height};
+        });
+    }
+
+    onMounted(() => {
+        const observer = new ResizeObserver(measureChangeBars);
+        layoutObserver = observer;
+        watch(
+            detailsEl,
+            (container) => {
+                observer.disconnect();
+
+                if (container) {
+                    observer.observe(container);
+                }
+
+                void nextTick(measureChangeBars);
+            },
+            {immediate: true}
+        );
+    });
+    onBeforeUnmount(() => layoutObserver?.disconnect());
+    watch(
+        () => [props.lineItems, props.session, props.changes],
+        () => void nextTick(measureChangeBars)
+    );
+
+    const totalChanged = computed(
+        () =>
+            !!props.session?.mine &&
+            props.session.originalTotal !== props.session.newTotal
+    );
+    const changeCount = computed(() => {
+        const count = props.session?.operations.length ?? 0;
+
+        return count === 1
+            ? props.labels.oneChange
+            : props.labels.changeCount.replace('{count}', String(count));
+    });
 
     interface Snapshot {
         title: string;
@@ -156,23 +282,88 @@
         });
     }
 
+    function showError(error: any): void {
+        window.Craft.cp?.displayError(error?.response?.data?.message);
+    }
+
+    async function post(
+        url: string,
+        data: Record<string, unknown>
+    ): Promise<boolean> {
+        try {
+            const {data: response} = await window.Craft.sendActionRequest<{
+                message?: string;
+            }>('POST', url, {data: {orderId: props.orderId, ...data}});
+
+            if (response.message) {
+                window.Craft.cp?.displayNotice(response.message);
+            }
+
+            return true;
+        } catch (error: any) {
+            showError(error);
+
+            return false;
+        }
+    }
+
     async function apply(
         operations: Array<Record<string, unknown>>
     ): Promise<void> {
-        try {
-            const {data} = await window.Craft.sendActionRequest<{
-                message?: string;
-            }>('POST', props.editUrls.apply, {
-                data: {...editParams(), operations},
-            });
-
-            if (data.message) {
-                window.Craft.cp?.displayNotice(data.message);
+        if (props.isCompleted) {
+            for (const operation of operations) {
+                if (!(await post(props.editUrls.add, {operation}))) {
+                    break;
+                }
             }
-        } catch (error: any) {
-            window.Craft.cp?.displayError(error?.response?.data?.message);
+        } else {
+            await post(props.editUrls.apply, {...editParams(), operations});
         }
 
+        window.Cp.$router.reload();
+    }
+
+    function selectShippingMethod(value: string): void {
+        const handle = value === '-none' ? '' : value;
+        const option = props.shippingMethodOptions.find(
+            (option) => option.value === value
+        );
+
+        void apply([
+            {
+                type: 'setShippingMethod',
+                shippingMethodHandle: handle || null,
+                shippingMethodName: handle ? option?.data?.name : null,
+            },
+        ]);
+    }
+
+    async function startEditing(): Promise<void> {
+        await post(props.editUrls.start, {});
+        window.Cp.$router.reload();
+    }
+
+    async function takeOver(): Promise<void> {
+        await post(props.editUrls.takeOver, {});
+        window.Cp.$router.reload();
+    }
+
+    async function discardEdit(): Promise<void> {
+        if (window.confirm(props.labels.confirmDiscard)) {
+            reviewing.value = false;
+            await post(props.editUrls.discard, {});
+            window.Cp.$router.reload();
+        }
+    }
+
+    async function removeChange(index: number): Promise<void> {
+        await post(props.editUrls.remove, {index});
+        window.Cp.$router.reload();
+    }
+
+    async function commitEdit(): Promise<void> {
+        await post(props.editUrls.commit, {});
+        reviewing.value = false;
         window.Cp.$router.reload();
     }
 
@@ -276,10 +467,14 @@
 
         return [
             ...editActions,
-            {
-                label: props.labels.viewSnapshot,
-                onClick: () => void showSnapshot(item),
-            },
+            ...(item.change === 'added'
+                ? []
+                : [
+                      {
+                          label: props.labels.viewSnapshot,
+                          onClick: () => void showSnapshot(item),
+                      },
+                  ]),
             ...(item.url
                 ? [
                       {
@@ -360,54 +555,74 @@
                     cell: ({row}) => {
                         const item = row.original;
 
-                        return h('div', [
-                            item.url
-                                ? h(
-                                      'a',
-                                      {href: item.url, class: 'font-bold'},
-                                      item.description
-                                  )
-                                : h(
-                                      'span',
-                                      {class: 'font-bold'},
-                                      item.description
-                                  ),
-                            item.sku
-                                ? h(
-                                      'div',
-                                      {class: 'text-sm'},
-                                      h('code', item.sku)
-                                  )
-                                : null,
-                            ...item.options.map((option) =>
-                                h(
-                                    'div',
-                                    {class: 'text-sm'},
-                                    `${option.key}: ${option.value}`
-                                )
-                            ),
-                            item.note
-                                ? h(
-                                      'div',
-                                      {class: 'text-sm'},
-                                      `${props.labels.note}: ${item.note}`
-                                  )
-                                : null,
-                            item.privateNote
-                                ? h(
-                                      'div',
-                                      {class: 'text-sm'},
-                                      `${props.labels.privateNote}: ${item.privateNote}`
-                                  )
-                                : null,
-                            ...item.adjustments.map((adjustment) =>
-                                h(
-                                    'div',
-                                    {class: 'text-sm'},
-                                    `${adjustment.type}: ${adjustment.name} ${adjustment.amount}`
-                                )
-                            ),
-                        ]);
+                        const name = item.url
+                            ? h(
+                                  'a',
+                                  {href: item.url, class: 'font-bold'},
+                                  item.description
+                              )
+                            : h('span', {class: 'font-bold'}, item.description);
+
+                        return h(
+                            'div',
+                            {
+                                class:
+                                    item.change === 'removed'
+                                        ? 'line-through'
+                                        : '',
+                            },
+                            [
+                                item.change
+                                    ? h(
+                                          'div',
+                                          {class: 'text-sm'},
+                                          props.labels[
+                                              `change${item.change
+                                                  .charAt(0)
+                                                  .toUpperCase()}${item.change.slice(
+                                                  1
+                                              )}`
+                                          ]
+                                      )
+                                    : null,
+                                name,
+                                item.sku
+                                    ? h(
+                                          'div',
+                                          {class: 'text-sm'},
+                                          h('code', item.sku)
+                                      )
+                                    : null,
+                                ...item.options.map((option) =>
+                                    h(
+                                        'div',
+                                        {class: 'text-sm'},
+                                        `${option.key}: ${option.value}`
+                                    )
+                                ),
+                                item.note
+                                    ? h(
+                                          'div',
+                                          {class: 'text-sm'},
+                                          `${props.labels.note}: ${item.note}`
+                                      )
+                                    : null,
+                                item.privateNote
+                                    ? h(
+                                          'div',
+                                          {class: 'text-sm'},
+                                          `${props.labels.privateNote}: ${item.privateNote}`
+                                      )
+                                    : null,
+                                ...item.adjustments.map((adjustment) =>
+                                    h(
+                                        'div',
+                                        {class: 'text-sm'},
+                                        `${adjustment.type}: ${adjustment.name} ${adjustment.amount}`
+                                    )
+                                ),
+                            ]
+                        );
                     },
                 }),
                 ...(props.lineItems.some((item) => item.statusHtml)
@@ -461,10 +676,12 @@
                 lineItemColumns.display({
                     id: 'actions',
                     cell: ({row}) =>
-                        h(ActionMenu, {
-                            actions: lineItemActions(row.original),
-                            label: props.labels.actions,
-                        }),
+                        row.original.change === 'removed'
+                            ? null
+                            : h(ActionMenu, {
+                                  actions: lineItemActions(row.original),
+                                  label: props.labels.actions,
+                              }),
                 }),
             ];
         },
@@ -588,7 +805,55 @@
         <ElementActionMenu :items="actionMenu" />
     </component>
 
-    <component :is="LayoutSlot" v-if="notices.length" name="content-notices">
+    <component
+        :is="LayoutSlot"
+        v-if="notices.length || session"
+        name="content-notices"
+    >
+        <craft-callout
+            v-if="session && session.mine"
+            variant="accent"
+            icon="edit"
+            appearance="fill"
+            rounded="none"
+        >
+            {{ labels.editingNotice }}
+            <template v-if="session.error"> {{ session.error }}</template>
+            <template v-else-if="session.stale">
+                {{ labels.staleEdit }}</template
+            >
+            <craft-button
+                slot="action"
+                type="button"
+                variant="outline"
+                size="small"
+                inherit
+                @click="discardEdit"
+            >
+                {{ labels.discardChanges }}
+            </craft-button>
+        </craft-callout>
+        <craft-callout
+            v-else-if="session"
+            variant="warning"
+            appearance="fill"
+            rounded="none"
+        >
+            {{
+                labels.beingEditedBy
+                    .replace('{name}', session.userName ?? '')
+                    .replace('{date}', session.since)
+            }}
+            <craft-button
+                v-if="canEdit"
+                slot="action"
+                type="button"
+                size="small"
+                @click="takeOver"
+            >
+                {{ labels.takeOver }}
+            </craft-button>
+        </craft-callout>
         <craft-callout
             v-for="(notice, index) in notices"
             :key="index"
@@ -609,6 +874,29 @@
         </craft-callout>
     </component>
 
+    <component
+        :is="LayoutSlot"
+        v-if="canStartEditing || session?.mine"
+        name="additional-buttons"
+    >
+        <craft-button
+            v-if="canStartEditing"
+            type="button"
+            variant="primary"
+            @click="startEditing"
+        >
+            {{ labels.edit }}
+        </craft-button>
+        <craft-button
+            v-else
+            type="button"
+            variant="primary"
+            @click="reviewing = true"
+        >
+            {{ labels.reviewAndUpdate }}
+        </craft-button>
+    </component>
+
     <component :is="LayoutSlot" name="content-tabs">
         <craft-tabs :label="labels.orderTabs" @craft-tab-show="onTabShow">
             <craft-tab
@@ -626,10 +914,25 @@
         <component :is="CpContainer">
             <div
                 id="order-tab-details"
+                ref="detailsEl"
                 :hidden="activeTab !== 'details'"
-                class="grid gap-4"
+                class="relative grid gap-4"
             >
-                <craft-pane appearance="raised" :label="labels.products">
+                <span
+                    v-for="(bar, index) in changeBars"
+                    :key="index"
+                    :style="{
+                        ...indicatorStyle,
+                        insetBlockStart: `${bar.top}px`,
+                        height: `${bar.height}px`,
+                    }"
+                    :title="labels.fieldModified"
+                />
+                <craft-pane
+                    appearance="plain"
+                    :padding="0"
+                    :label="labels.products"
+                >
                     <ActionMenu
                         v-if="editable"
                         slot="header-actions"
@@ -647,11 +950,9 @@
                             </craft-button>
                         </template>
                     </ActionMenu>
-                    <AdminTable
-                        v-if="lineItems.length"
-                        :table="lineItemsTable"
-                        read-only
-                    />
+                    <div v-if="lineItems.length" data-line-items>
+                        <AdminTable :table="lineItemsTable" read-only />
+                    </div>
                     <craft-empty
                         v-else
                         :label="labels.noProducts"
@@ -659,7 +960,11 @@
                     />
                 </craft-pane>
 
-                <craft-pane appearance="raised" :label="labels.payment">
+                <craft-pane
+                    appearance="plain"
+                    :padding="0"
+                    :label="labels.payment"
+                >
                     <dl class="cp-metadata-list">
                         <div
                             v-for="row in totals"
@@ -679,7 +984,10 @@
                             </dt>
                             <dd>{{ adjustment.amount }}</dd>
                         </div>
-                        <div class="cp-metadata-list__item">
+                        <div
+                            class="cp-metadata-list__item"
+                            :data-changed="totalChanged || undefined"
+                        >
                             <dt class="font-bold text-xs">
                                 {{ labels.total }}
                             </dt>
@@ -702,6 +1010,9 @@
                         <div
                             v-if="couponCode || editable"
                             class="cp-metadata-list__item"
+                            :data-changed="
+                                changes.includes('couponCode') || undefined
+                            "
                         >
                             <dt class="font-bold text-xs">
                                 {{ labels.couponCode }}
@@ -709,23 +1020,27 @@
                             <dd class="flex items-center gap-2">
                                 <code v-if="couponCode">{{ couponCode }}</code>
                                 <template v-else>{{ labels.none }}</template>
-                                <craft-button
+                                <TextFieldPopover
                                     v-if="editable"
-                                    type="button"
-                                    icon
-                                    size="small"
-                                    @click="openForm('setCouponCode')"
-                                >
-                                    <craft-icon
-                                        name="pencil"
-                                        :label="
-                                            labels.editItem.replace(
-                                                '{item}',
-                                                labels.couponCode
-                                            )
-                                        "
-                                    />
-                                </craft-button>
+                                    :title="labels.couponCode"
+                                    :label="
+                                        labels.editItem.replace(
+                                            '{item}',
+                                            labels.couponCode
+                                        )
+                                    "
+                                    :value="couponCode ?? ''"
+                                    :save-label="labels.save"
+                                    :hint="labels.removeCouponHint"
+                                    @submit="
+                                        apply([
+                                            {
+                                                type: 'setCouponCode',
+                                                couponCode: $event || null,
+                                            },
+                                        ])
+                                    "
+                                />
                             </dd>
                         </div>
                     </dl>
@@ -752,6 +1067,7 @@
                     <component
                         :is="UiRenderer"
                         :payload="tab.fieldsUi"
+                        :modified="modifiedFields"
                         disabled
                     />
                 </craft-field-group>
@@ -793,6 +1109,44 @@
     </div>
 
     <craft-dialog
+        v-if="reviewing && session"
+        open
+        :label="labels.reviewChanges"
+        @craft-after-hide="reviewing = false"
+    >
+        <p v-if="!session.operations.length">{{ labels.noChanges }}</p>
+        <ul v-else class="grid gap-2">
+            <li
+                v-for="operation in session.operations"
+                :key="operation.index"
+                class="flex items-center justify-between gap-2"
+            >
+                {{ operation.label }}
+                <craft-button
+                    type="button"
+                    size="small"
+                    @click="removeChange(operation.index)"
+                >
+                    {{ labels.remove }}
+                </craft-button>
+            </li>
+        </ul>
+        <p class="mt-4 font-bold">
+            {{ session.originalTotal }} → {{ session.newTotal }}
+            <template v-if="session.balance"> · {{ session.balance }}</template>
+        </p>
+        <craft-button
+            slot="footer"
+            type="button"
+            variant="primary"
+            :disabled="!session.operations.length"
+            @click="commitEdit"
+        >
+            {{ labels.updateOrder }}
+        </craft-button>
+    </craft-dialog>
+
+    <craft-dialog
         v-if="snapshot"
         open
         :label="snapshot.title"
@@ -806,7 +1160,12 @@
 
     <MetadataDetails :html="metadataHtml">
         <dl class="cp-metadata-list">
-            <div class="cp-metadata-list__item">
+            <div class="cp-metadata-list__item relative">
+                <span
+                    v-if="changes.includes('customer')"
+                    :style="indicatorStyle"
+                    :title="labels.fieldModified"
+                />
                 <dt class="font-bold text-xs">{{ labels.customer }}</dt>
                 <dd class="flex items-center gap-2">
                     <template v-if="customer">
@@ -832,7 +1191,12 @@
                     </craft-button>
                 </dd>
             </div>
-            <div class="cp-metadata-list__item">
+            <div class="cp-metadata-list__item relative">
+                <span
+                    v-if="changes.includes('shippingAddress')"
+                    :style="indicatorStyle"
+                    :title="labels.fieldModified"
+                />
                 <dt class="font-bold text-xs">{{ labels.shippingAddress }}</dt>
                 <dd class="flex items-start justify-between gap-2">
                     <div>
@@ -849,7 +1213,12 @@
                     />
                 </dd>
             </div>
-            <div class="cp-metadata-list__item">
+            <div class="cp-metadata-list__item relative">
+                <span
+                    v-if="changes.includes('billingAddress')"
+                    :style="indicatorStyle"
+                    :title="labels.fieldModified"
+                />
                 <dt class="font-bold text-xs">{{ labels.billingAddress }}</dt>
                 <dd class="flex items-start justify-between gap-2">
                     <div>
@@ -866,51 +1235,97 @@
                     />
                 </dd>
             </div>
-            <div class="cp-metadata-list__item">
+            <div class="cp-metadata-list__item relative">
+                <span
+                    v-if="changes.includes('shippingMethod')"
+                    :style="indicatorStyle"
+                    :title="labels.fieldModified"
+                />
                 <dt class="font-bold text-xs">{{ labels.shippingMethod }}</dt>
                 <dd class="flex items-center gap-2">
                     {{ shippingMethodName || labels.none }}
-                    <craft-button
+                    <ComboboxFieldPopover
                         v-if="editable"
-                        type="button"
-                        icon
-                        size="small"
-                        @click="openForm('setShippingMethod')"
-                    >
-                        <craft-icon
-                            name="pencil"
-                            :label="
-                                labels.editItem.replace(
-                                    '{item}',
-                                    labels.shippingMethod
-                                )
-                            "
-                        />
-                    </craft-button>
+                        :title="labels.shippingMethod"
+                        :label="
+                            labels.editItem.replace(
+                                '{item}',
+                                labels.shippingMethod
+                            )
+                        "
+                        :options="shippingMethodOptions"
+                        :value="shippingMethodHandle"
+                        @select="selectShippingMethod"
+                    />
                 </dd>
             </div>
             <div
                 v-for="detail in details"
                 :key="detail.label"
-                class="cp-metadata-list__item"
+                class="cp-metadata-list__item relative"
             >
+                <span
+                    v-if="changes.includes(detail.key)"
+                    :style="indicatorStyle"
+                    :title="labels.fieldModified"
+                />
                 <dt class="font-bold text-xs">{{ detail.label }}</dt>
                 <dd class="flex items-center gap-2">
                     <span v-html="detail.value" />
-                    <craft-button
-                        v-if="editable && detail.form"
-                        type="button"
-                        icon
-                        size="small"
-                        @click="openForm(detail.form)"
-                    >
-                        <craft-icon
-                            name="pencil"
+                    <template v-if="editable && detail.form">
+                        <ComboboxFieldPopover
+                            v-if="detail.key === 'orderSite'"
+                            :title="detail.label"
                             :label="
                                 labels.editItem.replace('{item}', detail.label)
                             "
+                            :options="orderSiteOptions"
+                            :value="orderSiteId"
+                            required
+                            @select="
+                                apply([
+                                    {
+                                        type: 'setOrderSite',
+                                        orderSiteId: Number($event),
+                                    },
+                                ])
+                            "
                         />
-                    </craft-button>
+                        <TextFieldPopover
+                            v-else-if="detail.key === 'reference'"
+                            :title="detail.label"
+                            :label="
+                                labels.editItem.replace('{item}', detail.label)
+                            "
+                            :value="reference ?? ''"
+                            :save-label="labels.save"
+                            @submit="
+                                apply([
+                                    {
+                                        type: 'setReference',
+                                        reference: $event || null,
+                                    },
+                                ])
+                            "
+                        />
+                        <craft-button
+                            v-else
+                            type="button"
+                            icon
+                            size="small"
+                            @click="openForm(detail.form)"
+                        >
+                            <craft-icon
+                                name="pencil"
+                                :label="
+                                    labels.editItem.replace(
+                                        '{item}',
+                                        detail.label
+                                    )
+                                "
+                            />
+                        </craft-button>
+                    </template>
                 </dd>
             </div>
         </dl>

@@ -9,6 +9,8 @@ use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Order\LineItem\LineItems;
 
+use function CraftCms\Cms\t;
+
 /**
  * Adds a line item that isn't backed by a purchasable.
  *
@@ -36,6 +38,11 @@ final readonly class AddCustomLineItem extends OrderOperation
     public static function type(): string
     {
         return 'addCustomLineItem';
+    }
+
+    public function label(): string
+    {
+        return t('Add Custom Line Item', category: 'commerce');
     }
 
     public static function rules(): array

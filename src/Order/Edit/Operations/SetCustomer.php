@@ -35,6 +35,11 @@ final readonly class SetCustomer extends OrderOperation
         return 'setCustomer';
     }
 
+    public function label(): string
+    {
+        return t('Change Customer', category: 'commerce');
+    }
+
     public static function rules(): array
     {
         return [

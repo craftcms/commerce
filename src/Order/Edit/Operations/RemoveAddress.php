@@ -8,6 +8,8 @@ use CraftCms\Commerce\Order\Edit\Enums\OrderAddressType;
 use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Elements\Order;
 
+use function CraftCms\Cms\t;
+
 /**
  * @since 6.0.0
  */
@@ -21,6 +23,11 @@ final readonly class RemoveAddress extends OrderOperation
     public static function type(): string
     {
         return 'removeAddress';
+    }
+
+    public function label(): string
+    {
+        return t('Remove Address', category: 'commerce');
     }
 
     public static function rules(): array

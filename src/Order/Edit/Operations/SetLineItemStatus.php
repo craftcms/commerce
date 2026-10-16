@@ -27,6 +27,11 @@ final readonly class SetLineItemStatus extends OrderOperation
         return 'setLineItemStatus';
     }
 
+    public function label(): string
+    {
+        return t('Set Line Item Status', category: 'commerce');
+    }
+
     public static function rules(): array
     {
         return [
@@ -60,5 +65,15 @@ final readonly class SetLineItemStatus extends OrderOperation
         }
 
         $lineItem->lineItemStatusId = $this->lineItemStatusId;
+    }
+
+    public function absorb(OrderOperation $earlier): ?static
+    {
+        return $earlier instanceof self && $earlier->lineItemUid === $this->lineItemUid ? $this : null;
+    }
+
+    public function isUnchangedFor(Order $order): bool
+    {
+        return $this->lineItem($order, $this->lineItemUid)->lineItemStatusId === $this->lineItemStatusId;
     }
 }

@@ -102,6 +102,57 @@ describe('starting', function() {
 });
 
 describe('changing', function() {
+    it('lists a repeated change to the same thing once, with the latest value', function() {
+        $order = OrdersFixture::seed()->orders['completed-new'];
+        $sessions = app(OrderEditSessions::class);
+        $session = $sessions->start($order, sessionsAdmin());
+
+        foreach (['methodA', null, 'methodB'] as $handle) {
+            $session = $sessions->addOperation($session, sessionsFreshOrder($order), sessionsOperation(['type' => 'setShippingMethod', 'shippingMethodHandle' => $handle, 'shippingMethodName' => $handle]));
+        }
+        $session = $sessions->addOperation($session, sessionsFreshOrder($order), sessionsOperation(['type' => 'setReference', 'reference' => 'A']));
+        $session = $sessions->addOperation($session, sessionsFreshOrder($order), sessionsOperation(['type' => 'setReference', 'reference' => 'B']));
+
+        $operations = $sessions->getSessionByOrderId($order->id)->edit->operations;
+
+        expect(collect($operations)->map(fn($operation) => $operation::type())->all())->toBe(['setShippingMethod', 'setReference']);
+        expect($operations[0]->shippingMethodHandle)->toBe('methodB');
+        expect($operations[1]->reference)->toBe('B');
+    });
+
+    it('merges changes to the same line item', function() {
+        $order = OrdersFixture::seed()->orders['completed-new'];
+        $uid = $order->getLineItems()[0]->uid;
+        $sessions = app(OrderEditSessions::class);
+        $session = $sessions->start($order, sessionsAdmin());
+
+        $session = $sessions->addOperation($session, sessionsFreshOrder($order), sessionsOperation(['type' => 'updateLineItem', 'lineItemUid' => $uid, 'changes' => ['qty' => 3, 'price' => 10]]));
+        $sessions->addOperation($session, sessionsFreshOrder($order), sessionsOperation(['type' => 'updateLineItem', 'lineItemUid' => $uid, 'changes' => ['qty' => 4]]));
+
+        $operations = $sessions->getSessionByOrderId($order->id)->edit->operations;
+
+        expect($operations)->toHaveCount(1);
+        expect($operations[0]->changes)->toEqual(['qty' => 4, 'price' => 10]);
+    });
+
+    it('keeps the custom field values of earlier edits that a later one leaves out', function() {
+        $earlier = sessionsOperation(['type' => 'setFieldValues', 'values' => ['notes' => 'First', 'priority' => 'high']]);
+        $later = sessionsOperation(['type' => 'setFieldValues', 'values' => ['notes' => 'Second']]);
+
+        expect($later->absorb($earlier)->values)->toBe(['notes' => 'Second', 'priority' => 'high']);
+    });
+
+    it('drops a change that puts the order back as it was', function() {
+        $order = OrdersFixture::seed()->orders['completed-new'];
+        $sessions = app(OrderEditSessions::class);
+        $session = $sessions->start($order, sessionsAdmin());
+
+        $session = $sessions->addOperation($session, sessionsFreshOrder($order), sessionsOperation(['type' => 'setReference', 'reference' => 'TEMP']));
+        $session = $sessions->addOperation($session, sessionsFreshOrder($order), sessionsOperation(['type' => 'setReference', 'reference' => $order->reference]));
+
+        expect($session->hasChanges())->toBeFalse();
+    });
+
     it('adds and removes operations, keeping the order unsaved', function() {
         $order = OrdersFixture::seed()->orders['completed-new'];
         $sessions = app(OrderEditSessions::class);

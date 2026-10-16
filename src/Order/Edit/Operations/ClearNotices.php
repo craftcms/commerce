@@ -8,6 +8,8 @@ use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 
+use function CraftCms\Cms\t;
+
 /**
  * Clears the order's customer or admin notices: all of them, or just the given ones.
  *
@@ -25,6 +27,11 @@ final readonly class ClearNotices extends OrderOperation
     public static function type(): string
     {
         return 'clearNotices';
+    }
+
+    public function label(): string
+    {
+        return t('Clear Notices', category: 'commerce');
     }
 
     public static function rules(): array

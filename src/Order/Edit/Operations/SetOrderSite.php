@@ -28,6 +28,11 @@ final readonly class SetOrderSite extends OrderOperation
         return 'setOrderSite';
     }
 
+    public function label(): string
+    {
+        return t('Change Order Site', category: 'commerce');
+    }
+
     public static function rules(): array
     {
         return [
@@ -53,7 +58,21 @@ final readonly class SetOrderSite extends OrderOperation
             throw new OperationNotApplicableException(t('The site no longer exists.', category: 'commerce'));
         }
 
+        if (!$order->getStore()->getSites()->contains('id', $site->id)) {
+            throw new OperationNotApplicableException(t('The site doesn’t belong to the order’s store.', category: 'commerce'));
+        }
+
         $order->orderSiteId = $site->id;
         $order->orderLanguage = $site->language;
+    }
+
+    public function absorb(OrderOperation $earlier): ?static
+    {
+        return $earlier instanceof self ? $this : null;
+    }
+
+    public function isUnchangedFor(Order $order): bool
+    {
+        return $order->orderSiteId === $this->orderSiteId;
     }
 }

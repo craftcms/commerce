@@ -42,6 +42,30 @@ abstract readonly class OrderOperation implements JsonSerializable
      */
     abstract public function apply(Order $order): void;
 
+    /**
+     * What the operation does, for listing it in an edit.
+     */
+    abstract public function label(): string;
+
+    /**
+     * Combines the operation with an earlier one it makes redundant, so an edit that changes the same
+     * thing repeatedly lists it once.
+     *
+     * @return static|null the operation to use in place of both, or `null` if they're independent.
+     */
+    public function absorb(OrderOperation $earlier): ?static
+    {
+        return null;
+    }
+
+    /**
+     * Whether the operation would leave the order as it already is, so it needn't be kept.
+     */
+    public function isUnchangedFor(Order $order): bool
+    {
+        return false;
+    }
+
     /** @return array<string, mixed> */
     public function jsonSerialize(): array
     {

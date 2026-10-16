@@ -38,6 +38,11 @@ final readonly class UpdateAdjustment extends OrderOperation
         return 'updateAdjustment';
     }
 
+    public function label(): string
+    {
+        return t('Update Adjustment', category: 'commerce');
+    }
+
     public static function rules(): array
     {
         return [

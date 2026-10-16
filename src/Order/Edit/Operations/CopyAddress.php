@@ -28,6 +28,11 @@ final readonly class CopyAddress extends OrderOperation
         return 'copyAddress';
     }
 
+    public function label(): string
+    {
+        return t('Copy Address', category: 'commerce');
+    }
+
     public static function rules(): array
     {
         return [

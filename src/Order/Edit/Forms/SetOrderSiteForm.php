@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Order\Edit\Forms;
 
 use CraftCms\Cms\Site\Data\Site;
-use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Ui\Controls\Choice;
 use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Cms\Ui\Ui;
@@ -33,7 +32,7 @@ final readonly class SetOrderSiteForm extends OrderOperationForm
     {
         return Ui::make([
             Field::make(t('Order Site', category: 'commerce'), Choice::make('orderSiteId')->options(
-                Sites::getAllSites()
+                $order->getStore()->getSites()
                     ->map(fn(Site $site) => ['label' => $site->getUiLabel(), 'value' => (string)$site->id])
                     ->values()
                     ->all(),

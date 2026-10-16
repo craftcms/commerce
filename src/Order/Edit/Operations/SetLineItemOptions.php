@@ -7,6 +7,8 @@ namespace CraftCms\Commerce\Order\Edit\Operations;
 use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Elements\Order;
 
+use function CraftCms\Cms\t;
+
 /**
  * @since 6.0.0
  */
@@ -22,6 +24,11 @@ final readonly class SetLineItemOptions extends OrderOperation
     public static function type(): string
     {
         return 'setLineItemOptions';
+    }
+
+    public function label(): string
+    {
+        return t('Edit Line Item Options', category: 'commerce');
     }
 
     public static function rules(): array
@@ -48,5 +55,10 @@ final readonly class SetLineItemOptions extends OrderOperation
     public function apply(Order $order): void
     {
         $this->lineItem($order, $this->lineItemUid)->setOptions($this->options);
+    }
+
+    public function absorb(OrderOperation $earlier): ?static
+    {
+        return $earlier instanceof self && $earlier->lineItemUid === $this->lineItemUid ? $this : null;
     }
 }

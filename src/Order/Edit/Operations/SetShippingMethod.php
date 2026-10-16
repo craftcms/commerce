@@ -8,6 +8,8 @@ use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Shipping\ShippingMethods;
 
+use function CraftCms\Cms\t;
+
 /**
  * Sets or removes the order's shipping method.
  *
@@ -26,6 +28,11 @@ final readonly class SetShippingMethod extends OrderOperation
     public static function type(): string
     {
         return 'setShippingMethod';
+    }
+
+    public function label(): string
+    {
+        return t('Change Shipping Method', category: 'commerce');
     }
 
     public static function rules(): array
@@ -61,5 +68,15 @@ final readonly class SetShippingMethod extends OrderOperation
 
         $order->shippingMethodName = $this->shippingMethodName
             ?? app(ShippingMethods::class)->getShippingMethodByHandle($this->shippingMethodHandle)?->getName();
+    }
+
+    public function absorb(OrderOperation $earlier): ?static
+    {
+        return $earlier instanceof self ? $this : null;
+    }
+
+    public function isUnchangedFor(Order $order): bool
+    {
+        return (string)$order->shippingMethodHandle === (string)$this->shippingMethodHandle;
     }
 }

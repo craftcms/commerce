@@ -123,7 +123,7 @@ class OrderEditSessions
      */
     public function addOperation(OrderEditSession $session, Order $order, OrderOperation $operation): OrderEditSession
     {
-        $edit = $session->edit->with($operation);
+        $edit = $session->edit->with($operation, $order);
 
         $this->operations->preview($order, $edit);
 

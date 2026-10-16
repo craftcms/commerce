@@ -7,6 +7,8 @@ namespace CraftCms\Commerce\Order\Edit\Operations;
 use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Elements\Order;
 
+use function CraftCms\Cms\t;
+
 /**
  * Fully recalculates a completed order at this point in the edit: line item prices are refreshed
  * from their purchasables and every adjustment is regenerated, replacing any manual ones.
@@ -20,6 +22,11 @@ final readonly class Recalculate extends OrderOperation
     public static function type(): string
     {
         return 'recalculate';
+    }
+
+    public function label(): string
+    {
+        return t('Recalculate Order', category: 'commerce');
     }
 
     public static function rules(): array

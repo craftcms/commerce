@@ -57,6 +57,8 @@ use CraftCms\Commerce\Order\Data\LineItemStatus;
 use CraftCms\Commerce\Order\Data\OrderAdjustment;
 use CraftCms\Commerce\Order\Data\OrderNotice;
 use CraftCms\Commerce\Order\Data\OrderStatus;
+use CraftCms\Commerce\Order\Edit\Exceptions\OperationNotApplicableException;
+use CraftCms\Commerce\Order\Edit\OrderEditSessions;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
@@ -156,7 +158,25 @@ class OrdersController
 
         $this->enforceManageOrderPermissions($order);
 
-        return Inertia::render('commerce::orders/Edit', [new OrderEditViewModel($order)]);
+        $sessions = app(OrderEditSessions::class);
+        $session = $order->isCompleted ? $sessions->getSessionByOrderId($order->id) : null;
+        $original = null;
+        $sessionError = null;
+
+        if ($session) {
+            $original = app(Orders::class)->getOrderById($orderId);
+
+            if ($session->belongsTo(currentUserElement()?->id)) {
+                try {
+                    $sessions->preview($session, $order);
+                } catch (OperationNotApplicableException $exception) {
+                    $sessionError = $exception->getMessage();
+                    $order = app(Orders::class)->getOrderById($orderId);
+                }
+            }
+        }
+
+        return Inertia::render('commerce::orders/Edit', [new OrderEditViewModel($order, $session, $original, $sessionError)]);
     }
 
     /**

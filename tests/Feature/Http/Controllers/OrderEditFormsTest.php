@@ -183,10 +183,38 @@ it('returns a 404 for an unknown form', function() {
     editFormsShow($cart, 'nope')->assertNotFound();
 });
 
-it('doesn’t save forms straight to a completed order', function() {
+it('adds a completed order’s form to its edit session instead of saving it', function() {
     $order = OrdersFixture::seed()->orders['completed-new'];
+    $uid = $order->getLineItems()[0]->uid;
 
-    editFormsSubmit($order, 'setCouponCode', ['couponCode' => 'X'])->assertStatus(400);
+    editFormsSubmit($order, 'setCouponCode', ['couponCode' => 'X'])->assertNotFound();
+
+    postJson(Url::actionUrl('commerce/orders/edit/start'), ['orderId' => $order->id])->assertOk();
+
+    editFormsShow($order, 'setCouponCode')->assertOk();
+
+    $changes = editFormsShow($order, 'updateLineItem', ['lineItemUid' => $uid])->assertOk()->json('ui.values.changes');
+
+    editFormsSubmit($order, 'updateLineItem', ['lineItemUid' => $uid, 'changes' => [...$changes, 'qty' => '4']])
+        ->assertOk()
+        ->assertJsonPath('message', 'Change added.')
+        ->assertJsonPath('session.edit.operations.0.type', 'updateLineItem');
+
+    $saved = Order::find()->id($order->id)->one();
+
+    expect($saved->getLineItems()[0]->qty)->toBe($order->getLineItems()[0]->qty);
+});
+
+it('shows a form the order as its session would leave it', function() {
+    $order = OrdersFixture::seed()->orders['completed-new'];
+    $uid = $order->getLineItems()[0]->uid;
+    postJson(Url::actionUrl('commerce/orders/edit/start'), ['orderId' => $order->id])->assertOk();
+    $changes = editFormsShow($order, 'updateLineItem', ['lineItemUid' => $uid])->assertOk()->json('ui.values.changes');
+    editFormsSubmit($order, 'updateLineItem', ['lineItemUid' => $uid, 'changes' => [...$changes, 'qty' => '4']])->assertOk();
+
+    $response = editFormsShow($order, 'updateLineItem', ['lineItemUid' => $uid])->assertOk();
+
+    expect($response->json('ui.values.changes.qty'))->toBe(4);
 });
 
 it('adds a purchasable chosen with the element selector', function() {

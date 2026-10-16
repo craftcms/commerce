@@ -105,6 +105,7 @@ class OrderEditController
     public function showForm(Request $request): JsonResponse
     {
         $order = $this->editableOrder($request);
+        $this->previewOwnSession($order);
         $form = $this->operationForm($request);
         $params = $request->query();
 
@@ -116,18 +117,22 @@ class OrderEditController
     }
 
     /**
-     * Turns a submitted form into its operation and saves it to the cart.
+     * Turns a submitted form into its operation. A cart is saved straight away, and a completed
+     * order's session takes the operation as another change.
      */
     public function submitForm(Request $request): JsonResponse
     {
         $order = $this->editableOrder($request);
-        abort_if($order->isCompleted, 400, 'Completed orders are edited in an edit session.');
+        $form = $this->operationForm($request);
+
+        if ($order->isCompleted) {
+            return $this->addFormToSession($request, $order, $form);
+        }
 
         $request->validate([
             'dateUpdated' => ['required', 'date'],
         ]);
 
-        $form = $this->operationForm($request);
         $operation = $this->operations->operationFromArray([
             ...$form->operationData($order, $request->all()),
             'type' => $form::type(),
@@ -260,6 +265,47 @@ class OrderEditController
         return $this->asJsonSuccess(data: [
             'order' => OrderSummary::fromOrder($order),
         ]);
+    }
+
+    private function addFormToSession(Request $request, Order $preview, OrderOperationForm $form): JsonResponse
+    {
+        $session = $this->previewOwnSession($preview);
+
+        $operation = $this->operations->operationFromArray([
+            ...$form->operationData($preview, $request->all()),
+            'type' => $form::type(),
+        ]);
+
+        $order = $this->editableOrder($request);
+        $original = OrderSummary::fromOrder($order);
+
+        try {
+            $session = $this->sessions->addOperation($session, $order, $operation);
+        } catch (OperationNotApplicableException $exception) {
+            return $this->notApplicableResponse($exception);
+        }
+
+        return $this->asJsonSuccess(t('Change added.', category: 'commerce'), $this->sessionData($session, $order, $original));
+    }
+
+    /**
+     * Shows a completed order as its edit session would leave it, for the forms to start from.
+     */
+    private function previewOwnSession(Order $order): ?OrderEditSession
+    {
+        if (!$order->isCompleted) {
+            return null;
+        }
+
+        $session = $this->ownSession($order);
+
+        try {
+            $this->sessions->preview($session, $order);
+        } catch (OperationNotApplicableException $exception) {
+            abort($this->notApplicableResponse($exception));
+        }
+
+        return $session;
     }
 
     private function applyToCart(Order $order, OrderEdit $edit): JsonResponse

@@ -10,6 +10,8 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 
+use function CraftCms\Cms\t;
+
 /**
  * Changes when a completed order was placed.
  *
@@ -25,6 +27,11 @@ final readonly class SetDateOrdered extends OrderOperation
     public static function type(): string
     {
         return 'setDateOrdered';
+    }
+
+    public function label(): string
+    {
+        return t('Change Date Ordered', category: 'commerce');
     }
 
     public static function rules(): array

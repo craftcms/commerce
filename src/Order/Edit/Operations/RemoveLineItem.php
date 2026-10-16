@@ -7,6 +7,8 @@ namespace CraftCms\Commerce\Order\Edit\Operations;
 use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Elements\Order;
 
+use function CraftCms\Cms\t;
+
 /**
  * @since 6.0.0
  */
@@ -20,6 +22,11 @@ final readonly class RemoveLineItem extends OrderOperation
     public static function type(): string
     {
         return 'removeLineItem';
+    }
+
+    public function label(): string
+    {
+        return t('Remove Line Item', category: 'commerce');
     }
 
     public static function rules(): array

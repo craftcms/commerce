@@ -9,6 +9,8 @@ use CraftCms\Commerce\Order\Edit\Exceptions\OperationNotApplicableException;
 use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Elements\Order;
 
+use function CraftCms\Cms\t;
+
 /**
  * Sets custom field values on the order, keyed by field handle, as a field takes them from a request.
  *
@@ -25,6 +27,11 @@ final readonly class SetFieldValues extends OrderOperation
     public static function type(): string
     {
         return 'setFieldValues';
+    }
+
+    public function label(): string
+    {
+        return t('Edit Fields', category: 'commerce');
     }
 
     public static function rules(): array
@@ -53,5 +60,10 @@ final readonly class SetFieldValues extends OrderOperation
                 throw new OperationNotApplicableException($exception->getMessage(), previous: $exception);
             }
         }
+    }
+
+    public function absorb(OrderOperation $earlier): ?static
+    {
+        return $earlier instanceof self ? new self([...$earlier->values, ...$this->values]) : null;
     }
 }

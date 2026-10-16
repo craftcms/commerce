@@ -10,6 +10,8 @@ use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\LineItem\LineItems;
 use Throwable;
 
+use function CraftCms\Cms\t;
+
 /**
  * Adds a purchasable to the order.
  *
@@ -32,6 +34,11 @@ final readonly class AddLineItem extends OrderOperation
     public static function type(): string
     {
         return 'addLineItem';
+    }
+
+    public function label(): string
+    {
+        return t('Add Line Item', category: 'commerce');
     }
 
     public static function rules(): array

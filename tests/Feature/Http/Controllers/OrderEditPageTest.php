@@ -5,6 +5,7 @@ declare(strict_types=1);
 use CraftCms\Cms\Cms;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Str;
+use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Edit\Operations\AddCustomLineItem;
@@ -20,6 +21,7 @@ use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
+use function Pest\Laravel\postJson;
 
 beforeEach(function() {
     $this->withoutVite();
@@ -105,6 +107,81 @@ it('offers a reference form on carts', function() {
     get(orderEditPagePath($cart->id))
         ->assertInertia(fn(AssertableInertia $page) => $page
             ->where('details', fn($details) => collect($details)->contains(fn($row) => $row['label'] === 'Reference' && $row['form'] === 'setReference'))
+            ->etc()
+        );
+});
+
+it('offers only the sites of the order’s store as order sites', function() {
+    $order = OrdersFixture::seed()->orders['completed-new'];
+    $storeSiteIds = $order->getStore()->getSites()->map(fn($site) => (string)$site->id)->values()->all();
+
+    get(orderEditPagePath($order->id))
+        ->assertInertia(fn(AssertableInertia $page) => $page
+            ->where('orderSiteId', (string)$order->orderSiteId)
+            ->where('orderSiteOptions', fn($options) => collect($options)->pluck('value')->all() === $storeSiteIds)
+            ->etc()
+        );
+});
+
+it('shows an order as its edit session would leave it', function() {
+    $order = OrdersFixture::seed()->orders['completed-new'];
+    $uid = $order->getLineItems()[0]->uid;
+
+    get(orderEditPagePath($order->id))
+        ->assertInertia(fn(AssertableInertia $page) => $page->where('session', null)->etc());
+
+    postJson(Url::actionUrl('commerce/orders/edit/start'), ['orderId' => $order->id])->assertOk();
+    postJson(Url::actionUrl('commerce/orders/edit/add'), [
+        'orderId' => $order->id,
+        'operation' => ['type' => 'updateLineItem', 'lineItemUid' => $uid, 'changes' => ['qty' => 9]],
+    ])->assertOk();
+    postJson(Url::actionUrl('commerce/orders/edit/add'), [
+        'orderId' => $order->id,
+        'operation' => ['type' => 'setCouponCode', 'couponCode' => 'SESSION'],
+    ])->assertOk();
+
+    get(orderEditPagePath($order->id))
+        ->assertInertia(fn(AssertableInertia $page) => $page
+            ->where('session.mine', true)
+            ->where('session.operations.0.label', 'Update Line Item')
+            ->where('session.operations.1.label', 'Change Coupon Code')
+            ->where('session.stale', false)
+            ->where('couponCode', 'SESSION')
+            ->where('lineItems.0.qty', 9)
+            ->where('lineItems.0.change', 'changed')
+            ->where('changes', ['couponCode'])
+            ->etc()
+        );
+
+    expect(Order::find()->id($order->id)->one()->couponCode)->not->toBe('SESSION');
+});
+
+it('shows the line items a session removes', function() {
+    $order = OrdersFixture::seed()->orders['completed-new'];
+    $uid = $order->getLineItems()[0]->uid;
+    postJson(Url::actionUrl('commerce/orders/edit/start'), ['orderId' => $order->id])->assertOk();
+    postJson(Url::actionUrl('commerce/orders/edit/add'), [
+        'orderId' => $order->id,
+        'operation' => ['type' => 'removeLineItem', 'lineItemUid' => $uid],
+    ])->assertOk();
+
+    get(orderEditPagePath($order->id))
+        ->assertInertia(fn(AssertableInertia $page) => $page
+            ->where('lineItems', fn($items) => collect($items)->contains(fn($item) => $item['uid'] === $uid && $item['change'] === 'removed'))
+            ->etc()
+        );
+});
+
+it('tells another user that an order is being edited', function() {
+    $order = OrdersFixture::seed()->orders['completed-new'];
+    postJson(Url::actionUrl('commerce/orders/edit/start'), ['orderId' => $order->id])->assertOk();
+
+    DB::table(Table::ORDER_EDIT_SESSIONS)->where('orderId', $order->id)->update(['userId' => null]);
+
+    get(orderEditPagePath($order->id))
+        ->assertInertia(fn(AssertableInertia $page) => $page
+            ->where('session.mine', false)
+            ->where('session.operations', [])
             ->etc()
         );
 });

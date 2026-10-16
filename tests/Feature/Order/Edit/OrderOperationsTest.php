@@ -22,6 +22,7 @@ use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Tax\TaxCategories;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
+use CraftCms\Commerce\Tests\Support\StoresFixture;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -495,6 +496,15 @@ describe('order details', function() {
         expect($saved->shippingMethodName)->toBe('US Shipping');
         expect($saved->orderSiteId)->toBe($site->id);
         expect($saved->orderLanguage)->toBe($site->language);
+    });
+
+    it('does not set an order site from another store', function() {
+        $order = OrdersFixture::seed()->orders['completed-new'];
+        $euSite = StoresFixture::seed()->euSite;
+
+        expectNotApplicable(fn() => applyOrderOperations($order, [
+            ['type' => 'setOrderSite', 'orderSiteId' => $euSite->id],
+        ]), 0);
     });
 
     it('removes the shipping method', function() {

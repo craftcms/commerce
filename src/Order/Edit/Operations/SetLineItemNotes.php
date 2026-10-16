@@ -7,6 +7,8 @@ namespace CraftCms\Commerce\Order\Edit\Operations;
 use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Elements\Order;
 
+use function CraftCms\Cms\t;
+
 /**
  * Sets a line item's customer-facing note and its private note.
  *
@@ -24,6 +26,11 @@ final readonly class SetLineItemNotes extends OrderOperation
     public static function type(): string
     {
         return 'setLineItemNotes';
+    }
+
+    public function label(): string
+    {
+        return t('Edit Line Item Notes', category: 'commerce');
     }
 
     public static function rules(): array
@@ -54,5 +61,10 @@ final readonly class SetLineItemNotes extends OrderOperation
         $lineItem = $this->lineItem($order, $this->lineItemUid);
         $lineItem->note = $this->note;
         $lineItem->privateNote = $this->privateNote;
+    }
+
+    public function absorb(OrderOperation $earlier): ?static
+    {
+        return $earlier instanceof self && $earlier->lineItemUid === $this->lineItemUid ? $this : null;
     }
 }

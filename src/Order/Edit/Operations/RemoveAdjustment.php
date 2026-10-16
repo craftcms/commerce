@@ -7,6 +7,8 @@ namespace CraftCms\Commerce\Order\Edit\Operations;
 use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Elements\Order;
 
+use function CraftCms\Cms\t;
+
 /**
  * Removes a saved adjustment from a completed order.
  *
@@ -22,6 +24,11 @@ final readonly class RemoveAdjustment extends OrderOperation
     public static function type(): string
     {
         return 'removeAdjustment';
+    }
+
+    public function label(): string
+    {
+        return t('Remove Adjustment', category: 'commerce');
     }
 
     public static function rules(): array

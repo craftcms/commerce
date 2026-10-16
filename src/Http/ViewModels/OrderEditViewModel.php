@@ -11,6 +11,7 @@ use CraftCms\Cms\Element\Enums\ElementActionContext;
 use CraftCms\Cms\FieldLayout\FieldLayoutCompiler;
 use CraftCms\Cms\Http\ViewModels\ViewModel;
 use CraftCms\Cms\Markdown\Markdown;
+use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Support\Facades\Addresses;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Facades\Markdown as MarkdownFacade;
@@ -20,20 +21,25 @@ use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\Ui\Enums\ControlMode;
 use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Cms\Ui\UiPayload;
+use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Http\Controllers\OrderEditController;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Order\Data\OrderAdjustment;
 use CraftCms\Commerce\Order\Data\OrderHistory;
 use CraftCms\Commerce\Order\Data\OrderNotice;
+use CraftCms\Commerce\Order\Edit\Data\OrderEditSession;
+use CraftCms\Commerce\Order\Edit\Data\OrderSummary;
 use CraftCms\Commerce\Order\Edit\Operations\SetOrderSite;
 use CraftCms\Commerce\Order\Edit\Operations\SetReference;
+use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Payment\Data\Transaction;
 use CraftCms\Commerce\Purchasable\PurchasableTypes;
+use CraftCms\Commerce\Shipping\Data\ShippingMethodOption;
 use DateTimeInterface;
 
 use function CraftCms\Cms\currentUserElement;
@@ -46,10 +52,26 @@ use function CraftCms\Cms\t;
  */
 class OrderEditViewModel extends ViewModel
 {
+    /**
+     * The shipping method combobox's value for "None": an empty value would leave the combobox
+     * without a selection, and handles can't start with a hyphen.
+     */
+    private const string NO_SHIPPING_METHOD = '-none';
+
+    /**
+     * @param OrderEditSession|null $session The order's edit session, whose edit the order has been previewed with.
+     * @param Order|null $original The order as it was saved, before the session's edit.
+     */
     public function __construct(
         private readonly Order $order,
+        private readonly ?OrderEditSession $session = null,
+        private readonly ?Order $original = null,
+        private readonly ?string $sessionError = null,
     ) {
+        $this->originalSummary = $original ? OrderSummary::fromOrder($original) : null;
     }
+
+    private readonly ?OrderSummary $originalSummary;
 
     public function orderId(): int
     {
@@ -92,7 +114,7 @@ class OrderEditViewModel extends ViewModel
     }
 
     /**
-     * @return array{form: string, apply: string, snapshot: string}
+     * @return array<string, string>
      */
     public function editUrls(): array
     {
@@ -100,6 +122,109 @@ class OrderEditViewModel extends ViewModel
             'form' => action([OrderEditController::class, 'showForm']),
             'apply' => action([OrderEditController::class, 'apply']),
             'snapshot' => action([OrderEditController::class, 'snapshot']),
+            'start' => action([OrderEditController::class, 'start']),
+            'takeOver' => action([OrderEditController::class, 'takeOver']),
+            'add' => action([OrderEditController::class, 'addOperation']),
+            'remove' => action([OrderEditController::class, 'removeOperation']),
+            'commit' => action([OrderEditController::class, 'commit']),
+            'discard' => action([OrderEditController::class, 'discard']),
+        ];
+    }
+
+    /**
+     * The parts of the order the session's edit changes: any of `customer`, `shippingAddress`,
+     * `billingAddress`, `shippingMethod`, `couponCode`, `reference`, `orderSite`, `dateOrdered`.
+     *
+     * @return list<string>
+     */
+    public function changes(): array
+    {
+        if (!$this->original) {
+            return [];
+        }
+
+        $before = $this->original;
+        $after = $this->order;
+
+        return array_keys(array_filter([
+            'customer' => $before->getCustomerId() !== $after->getCustomerId(),
+            'shippingAddress' => $this->addressHtml($before->getShippingAddress()) !== $this->addressHtml($after->getShippingAddress()),
+            'billingAddress' => $this->addressHtml($before->getBillingAddress()) !== $this->addressHtml($after->getBillingAddress()),
+            'shippingMethod' => $before->shippingMethodHandle !== $after->shippingMethodHandle,
+            'couponCode' => $before->couponCode !== $after->couponCode,
+            'reference' => $before->reference !== $after->reference,
+            'orderSite' => $before->orderSiteId !== $after->orderSiteId,
+            'dateOrdered' => $before->dateOrdered?->getTimestamp() !== $after->dateOrdered?->getTimestamp(),
+        ]));
+    }
+
+    /**
+     * The handles of the custom fields the session's edit changes.
+     *
+     * @return list<string>
+     */
+    public function changedFields(): array
+    {
+        if (!$this->original) {
+            return [];
+        }
+
+        $before = $this->original->getSerializedFieldValues();
+        $after = $this->order->getSerializedFieldValues();
+
+        return array_values(array_filter(
+            array_keys($after),
+            fn(string $handle) => json_encode($before[$handle] ?? null) !== json_encode($after[$handle]),
+        ));
+    }
+
+    /**
+     * The order's edit session, if it has one.
+     *
+     * The changes and totals are only included for the user who owns the session.
+     *
+     * @return array{
+     *     mine: bool,
+     *     userName: string|null,
+     *     since: string,
+     *     stale: bool,
+     *     error: string|null,
+     *     operations: list<array{index: int, label: string}>,
+     *     originalTotal: string|null,
+     *     newTotal: string|null,
+     *     balance: string|null,
+     * }|null
+     */
+    public function session(): ?array
+    {
+        if (!$this->session) {
+            return null;
+        }
+
+        $mine = $this->session->belongsTo(currentUserElement()?->id);
+        $editor = $this->session->userId ? User::find()->id($this->session->userId)->status(null)->one() : null;
+        $outstanding = $this->order->getOutstandingBalance();
+
+        return [
+            'mine' => $mine,
+            'userName' => $editor?->getFriendlyName(),
+            'since' => $this->datetime($this->session->dateCreated),
+            'stale' => $this->session->edit->baseDateUpdated?->getTimestamp() !== $this->order->dateUpdated?->getTimestamp(),
+            'error' => $mine ? $this->sessionError : null,
+            'operations' => $mine
+                ? array_map(
+                    fn(OrderOperation $operation, int $index) => ['index' => $index, 'label' => $operation->label()],
+                    $this->session->edit->operations,
+                    array_keys($this->session->edit->operations),
+                )
+                : [],
+            'originalTotal' => $mine && $this->originalSummary ? $this->currency($this->originalSummary->totalPrice) : null,
+            'newTotal' => $mine ? $this->order->totalPriceAsCurrency : null,
+            'balance' => match (true) {
+                !$mine || $outstanding == 0 => null,
+                $outstanding > 0 => t('{amount} still owed', ['amount' => $this->currency($outstanding)], category: 'commerce'),
+                default => t('{amount} to refund', ['amount' => $this->currency(abs($outstanding))], category: 'commerce'),
+            },
         ];
     }
 
@@ -156,13 +281,14 @@ class OrderEditViewModel extends ViewModel
      *     privateNote: string,
      *     options: list<array{key: string, value: string}>,
      *     adjustments: list<array{type: string, name: string, description: string|null, amount: string, included: bool}>,
+     *     change: string|null,
      * }>
      */
     public function lineItems(): array
     {
         $fulfilled = $this->fulfilledQuantities();
 
-        return array_values(array_map(fn(LineItem $lineItem) => [
+        $rows = array_values(array_map(fn(LineItem $lineItem) => [
             'uid' => $lineItem->uid,
             'description' => $lineItem->getDescription(),
             'sku' => $lineItem->getSku(),
@@ -182,7 +308,74 @@ class OrderEditViewModel extends ViewModel
                 $lineItem->getOptions(),
             ),
             'adjustments' => array_values(array_map($this->adjustmentData(...), $lineItem->getAdjustments())),
+            'change' => $this->lineItemChange($lineItem),
         ], $this->order->getLineItems()));
+
+        return [...$rows, ...$this->removedLineItems()];
+    }
+
+    private function lineItemChange(LineItem $lineItem): ?string
+    {
+        if (!$this->originalSummary) {
+            return null;
+        }
+
+        foreach ($this->originalSummary->lineItems as $before) {
+            if ($before['uid'] !== $lineItem->uid) {
+                continue;
+            }
+
+            $changed = $before['qty'] !== $lineItem->qty
+                || $before['price'] != $lineItem->getPrice()
+                || $before['salePrice'] != $lineItem->getSalePrice()
+                || $before['total'] != $lineItem->getTotal();
+
+            return $changed ? 'changed' : null;
+        }
+
+        return 'added';
+    }
+
+    /**
+     * The line items the session's edit removes, as they were.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function removedLineItems(): array
+    {
+        if (!$this->originalSummary) {
+            return [];
+        }
+
+        $current = array_map(fn(LineItem $lineItem) => $lineItem->uid, $this->order->getLineItems());
+        $rows = [];
+
+        foreach ($this->originalSummary->lineItems as $before) {
+            if (in_array($before['uid'], $current, true)) {
+                continue;
+            }
+
+            $rows[] = [
+                'uid' => $before['uid'],
+                'description' => $before['description'],
+                'sku' => $before['sku'],
+                'url' => null,
+                'qty' => $before['qty'],
+                'fulfilledQty' => 0,
+                'price' => $this->currency($before['price']),
+                'salePrice' => null,
+                'subtotal' => $this->currency($before['subtotal']),
+                'total' => $this->currency($before['total']),
+                'statusHtml' => null,
+                'note' => '',
+                'privateNote' => '',
+                'options' => [],
+                'adjustments' => [],
+                'change' => 'removed',
+            ];
+        }
+
+        return $rows;
     }
 
     /**
@@ -248,6 +441,51 @@ class OrderEditViewModel extends ViewModel
         return $this->order->shippingMethodName;
     }
 
+    public function reference(): ?string
+    {
+        return $this->order->reference;
+    }
+
+    public function orderSiteId(): string
+    {
+        return (string)$this->order->orderSiteId;
+    }
+
+    /**
+     * @return list<array{label: string, value: string}>
+     */
+    public function orderSiteOptions(): array
+    {
+        return $this->order->getStore()->getSites()
+            ->map(fn(Site $site) => ['label' => $site->getUiLabel(), 'value' => (string)$site->id])
+            ->values()
+            ->all();
+    }
+
+    public function shippingMethodHandle(): string
+    {
+        return $this->order->shippingMethodHandle ?: self::NO_SHIPPING_METHOD;
+    }
+
+    /**
+     * @return list<array{label: string, value: string, data?: array<string, mixed>}>
+     */
+    public function shippingMethodOptions(): array
+    {
+        $options = array_map(fn(ShippingMethodOption $option) => [
+            'label' => $option->matchesOrder
+                ? t('{name} ({price})', ['name' => $option->getName(), 'price' => $option->getPriceAsCurrency()], category: 'commerce')
+                : $option->getName(),
+            'value' => $option->getHandle(),
+            'data' => ['name' => $option->getName(), 'indicator' => ['fill' => $option->color]],
+        ], array_values($this->order->getAvailableShippingMethodOptions()));
+
+        return [
+            ['label' => t('None', category: 'commerce'), 'value' => self::NO_SHIPPING_METHOD, 'data' => ['indicator' => ['appearance' => 'outline']]],
+            ...$options,
+        ];
+    }
+
     /**
      * @return array{chipHtml: string, email: string|null}|null
      */
@@ -281,23 +519,24 @@ class OrderEditViewModel extends ViewModel
     }
 
     /**
-     * @return list<array{label: string, value: string, form: string|null}>
+     * @return list<array{key: string, label: string, value: string, form: string|null}>
      */
     public function details(): array
     {
         $details = [
-            ['label' => t('Store', category: 'commerce'), 'value' => Html::encode($this->order->getStore()->getName()), 'form' => null],
+            ['key' => 'store', 'label' => t('Store', category: 'commerce'), 'value' => Html::encode($this->order->getStore()->getName()), 'form' => null],
             [
+                'key' => 'orderSite',
                 'label' => t('Order Site', category: 'commerce'),
                 'value' => Html::encode($this->order->getOrderSite()?->getName() ?? ''),
                 'form' => Sites::isMultiSite() ? SetOrderSite::type() : null,
             ],
         ];
 
-        $details[] = ['label' => t('Reference', category: 'commerce'), 'value' => Html::encode($this->order->reference ?? ''), 'form' => SetReference::type()];
+        $details[] = ['key' => 'reference', 'label' => t('Reference', category: 'commerce'), 'value' => Html::encode($this->order->reference ?? ''), 'form' => SetReference::type()];
 
         if ($this->order->isCompleted) {
-            $details[] = ['label' => t('Date Ordered', category: 'commerce'), 'value' => $this->datetime($this->order->dateOrdered), 'form' => null];
+            $details[] = ['key' => 'dateOrdered', 'label' => t('Date Ordered', category: 'commerce'), 'value' => $this->datetime($this->order->dateOrdered), 'form' => null];
         }
 
         return $details;
@@ -440,6 +679,8 @@ class OrderEditViewModel extends ViewModel
             'noAddress' => t('No address', category: 'commerce'),
             'shippingMethod' => t('Shipping Method', category: 'commerce'),
             'none' => t('None', category: 'commerce'),
+            'save' => t('Save'),
+            'removeCouponHint' => t('Leave blank to remove the coupon.', category: 'commerce'),
             'notices' => t('Notices', category: 'commerce'),
             'type' => t('Type', category: 'commerce'),
             'status' => t('Status', category: 'commerce'),
@@ -474,6 +715,24 @@ class OrderEditViewModel extends ViewModel
             'copyToBilling' => t('Copy to Billing Address', category: 'commerce'),
             'removeAddress' => t('Remove Address', category: 'commerce'),
             'editFields' => t('Edit Fields', category: 'commerce'),
+            'fieldModified' => t('This field has been modified.'),
+            'discardChanges' => t('Discard changes'),
+            'editingNotice' => t('Showing your unsaved changes.'),
+            'editingOrder' => t('Editing Order', category: 'commerce'),
+            'oneChange' => t('1 change', category: 'commerce'),
+            'changeCount' => t('{count} changes', category: 'commerce'),
+            'discard' => t('Discard', category: 'commerce'),
+            'confirmDiscard' => t('Discard all changes to this order?', category: 'commerce'),
+            'reviewAndUpdate' => t('Review and Update', category: 'commerce'),
+            'reviewChanges' => t('Review Changes', category: 'commerce'),
+            'updateOrder' => t('Update Order', category: 'commerce'),
+            'noChanges' => t('No changes yet.', category: 'commerce'),
+            'beingEditedBy' => t('Being edited by {name} since {date}.', category: 'commerce'),
+            'takeOver' => t('Take Over', category: 'commerce'),
+            'staleEdit' => t('This order has changed since you started editing it. Review the changes and update the order again.', category: 'commerce'),
+            'changeAdded' => t('Added', category: 'commerce'),
+            'changeChanged' => t('Changed', category: 'commerce'),
+            'changeRemoved' => t('Removed', category: 'commerce'),
         ];
     }
 
