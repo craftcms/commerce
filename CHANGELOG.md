@@ -2,9 +2,16 @@
 
 ## Unreleased
 
-- Fixed a bug where all catalog pricing could be removed if a catalog pricing rule was deleted before its catalog pricing job ran. ([#4374](https://github.com/craftcms/commerce/issues/4374))
-- Fixed a bug where non-admin users couldn’t create inventory locations. ([#4376](https://github.com/craftcms/commerce/issues/4376))
+- Added `craft\commerce\base\Plan::getActiveSubscriptionCount()`.
+- Added `craft\commerce\services\Subscriptions::getActiveSubscriptionCountByPlanId()`.
+- Fixed a bug where the Subscription Plans index page was counting expired and suspended subscriptions as active. ([#4381](https://github.com/craftcms/commerce/issues/4381))
 - Fixed a bug where completed orders couldn’t be saved if their VAT ID was no longer valid or couldn’t be validated. ([#4377](https://github.com/craftcms/commerce/pull/4377))
+
+## 5.7.6 - 2026-10-08
+
+- Fixed a bug where all catalog pricing rules’ prices could be removed if a rule was deleted while its catalog pricing job was running. ([#4374](https://github.com/craftcms/commerce/issues/4374))
+- Fixed a bug where non-admin users couldn’t create inventory locations. ([#4376](https://github.com/craftcms/commerce/issues/4376))
+- Fixed a bug where changing a product’s default variant within a provisional draft wasn’t sticking when the draft was applied. ([#4361](https://github.com/craftcms/commerce/issues/4361))
 - Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) RCE vulnerabilities. (GHSA-2m9x-wwwf-f798, GHSA-4rf5-rp2q-cwvw)
 - Fixed a [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (GHSA-xh76-fg84-9j86)
 

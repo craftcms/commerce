@@ -554,7 +554,12 @@ class VariantQuery extends PurchasableQuery
         }
 
         if (isset($this->isDefault)) {
-            $this->subQuery->andWhere(Db::parseBooleanParam('isDefault', $this->isDefault, false));
+            $isDefaultCondition = '[[commerce_variants.id]] = [[commerce_products.defaultVariantId]]';
+            if ($this->isDefault) {
+                $this->subQuery->andWhere(new Expression($isDefaultCondition));
+            } else {
+                $this->subQuery->andWhere(new Expression("not ($isDefaultCondition) or [[commerce_products.defaultVariantId]] is null"));
+            }
         }
 
         if (isset($this->minQty)) {
