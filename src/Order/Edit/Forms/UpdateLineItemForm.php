@@ -57,14 +57,14 @@ final readonly class UpdateLineItemForm extends OrderOperationForm
 
         $nodes[] = Field::make(t('Quantity', category: 'commerce'), Number::make(['changes', 'qty'])->size(6))
             ->required()
-            ->width(FieldWidth::Half);
+            ->width(FieldWidth::Third);
 
         if ($this->editsPricing($order, $lineItem)) {
             $nodes[] = Field::make(t('Price', category: 'commerce'), Money::make(['changes', 'price'])->currency($currency)->size(12))
                 ->required()
-                ->width(FieldWidth::Half);
+                ->width(FieldWidth::Third);
             $nodes[] = Field::make(t('Promotional Price', category: 'commerce'), Money::make(['changes', 'promotionalPrice'])->currency($currency)->size(12))
-                ->width(FieldWidth::Half);
+                ->width(FieldWidth::Third);
             $nodes[] = Field::make(t('Tax Category', category: 'commerce'), Choice::make(['changes', 'taxCategoryId'])->options(
                 $this->choiceOptions(app(TaxCategories::class)->getAllTaxCategoriesAsList()),
             ))->width(FieldWidth::Half);

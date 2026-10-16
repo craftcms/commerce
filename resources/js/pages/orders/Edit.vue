@@ -176,11 +176,23 @@
         backgroundColor: 'var(--blue-600, #2563eb)',
         boxShadow: '0 0 5px hsl(221deg 83% 53% / 15%)',
     };
+    const changeKindStyles: Record<string, CSSProperties> = {
+        added: {
+            backgroundColor: 'var(--green-600, #16a34a)',
+            boxShadow: '0 0 5px hsl(142deg 76% 36% / 20%)',
+        },
+        removed: {
+            backgroundColor: 'var(--red-600, #dc2626)',
+            boxShadow: '0 0 5px hsl(0deg 72% 51% / 20%)',
+        },
+    };
     const modifiedFields = computed(() =>
         props.changedFields.map((handle) => `fields.${handle}`)
     );
     const detailsEl = ref<HTMLElement | null>(null);
-    const changeBars = ref<Array<{top: number; height: number}>>([]);
+    const changeBars = ref<Array<{top: number; height: number; kind: string}>>(
+        []
+    );
     let layoutObserver: ResizeObserver | undefined;
 
     function measureChangeBars(): void {
@@ -196,18 +208,32 @@
         const rows = Array.from(
             container.querySelectorAll('[data-line-items] tbody tr')
         );
-        const changedRows = props.lineItems.flatMap((item, index) =>
-            item.change && rows[index] ? [rows[index]] : []
-        );
+        const changedRows = props.lineItems.flatMap((item, index) => {
+            const row = rows[index] as HTMLElement | undefined;
+
+            if (!row) {
+                return [];
+            }
+
+            if (item.change) {
+                row.dataset.change = item.change;
+            } else {
+                delete row.dataset.change;
+            }
+
+            return item.change ? [{element: row, kind: item.change}] : [];
+        });
         const changedBlocks = Array.from(
             container.querySelectorAll('[data-changed]')
+        ).map((element) => ({element, kind: 'changed'}));
+
+        changeBars.value = [...changedRows, ...changedBlocks].map(
+            ({element, kind}) => {
+                const rect = element.getBoundingClientRect();
+
+                return {top: rect.top - top, height: rect.height, kind};
+            }
         );
-
-        changeBars.value = [...changedRows, ...changedBlocks].map((element) => {
-            const rect = element.getBoundingClientRect();
-
-            return {top: rect.top - top, height: rect.height};
-        });
     }
 
     onMounted(() => {
@@ -273,11 +299,16 @@
         };
     }
 
-    function openForm(form: string, params: Record<string, string> = {}): void {
+    function openForm(
+        form: string,
+        params: Record<string, string> = {},
+        width?: string
+    ): void {
         void openUiModal({
             modalUrl: props.editUrls.form,
             actionUrl: props.editUrls.form,
             params: {...editParams(), form, ...params},
+            width,
             onSubmitted: () => window.Cp.$router.reload(),
         });
     }
@@ -466,7 +497,7 @@
                   {
                       label: props.labels.edit,
                       icon: 'pencil',
-                      onClick: () => openForm('updateLineItem', params),
+                      onClick: () => openForm('updateLineItem', params, 'xl'),
                   },
                   {
                       label: props.labels.setStatus,
@@ -590,17 +621,14 @@
                                         : '',
                             },
                             [
-                                item.change
+                                item.change === 'added' ||
+                                item.change === 'removed'
                                     ? h(
-                                          'div',
-                                          {class: 'text-sm'},
-                                          props.labels[
-                                              `change${item.change
-                                                  .charAt(0)
-                                                  .toUpperCase()}${item.change.slice(
-                                                  1
-                                              )}`
-                                          ]
+                                          'span',
+                                          {class: 'sr-only'},
+                                          item.change === 'added'
+                                              ? props.labels.changeAdded
+                                              : props.labels.changeRemoved
                                       )
                                     : null,
                                 name,
@@ -941,10 +969,17 @@
                     :key="index"
                     :style="{
                         ...indicatorStyle,
+                        ...changeKindStyles[bar.kind],
                         insetBlockStart: `${bar.top}px`,
                         height: `${bar.height}px`,
                     }"
-                    :title="labels.fieldModified"
+                    :title="
+                        bar.kind === 'added'
+                            ? labels.changeAdded
+                            : bar.kind === 'removed'
+                            ? labels.changeRemoved
+                            : labels.fieldModified
+                    "
                 />
                 <craft-pane
                     appearance="plain"
@@ -1177,15 +1212,13 @@
     </craft-dialog>
 
     <MetadataDetails :html="metadataHtml">
-        <dl class="cp-metadata-list">
-            <div class="cp-metadata-list__item relative">
-                <span
-                    v-if="changes.includes('customer')"
-                    :style="indicatorStyle"
-                    :title="labels.fieldModified"
-                />
-                <dt class="font-bold text-xs">{{ labels.customer }}</dt>
-                <dd class="flex items-center gap-2">
+        <craft-field-group>
+            <craft-field
+                :status="changes.includes('customer') ? 'modified' : undefined"
+                :status-label="labels.fieldModified"
+            >
+                <span slot="label">{{ labels.customer }}</span>
+                <div slot="input" class="flex items-center gap-2">
                     <template v-if="customer">
                         <span v-html="customer.chipHtml" />
                     </template>
@@ -1207,60 +1240,57 @@
                             "
                         />
                     </craft-button>
-                </dd>
-            </div>
-            <div class="cp-metadata-list__item relative">
-                <span
-                    v-if="changes.includes('shippingAddress')"
-                    :style="indicatorStyle"
-                    :title="labels.fieldModified"
-                />
-                <dt class="font-bold text-xs">{{ labels.shippingAddress }}</dt>
-                <dd class="flex items-start justify-between gap-2">
+                </div>
+            </craft-field>
+            <craft-field
+                v-for="addressType in ['shipping', 'billing'] as const"
+                :key="addressType"
+                :status="
+                    changes.includes(`${addressType}Address`)
+                        ? 'modified'
+                        : undefined
+                "
+                :status-label="labels.fieldModified"
+            >
+                <span slot="label">{{
+                    addressType === 'shipping'
+                        ? labels.shippingAddress
+                        : labels.billingAddress
+                }}</span>
+                <div
+                    slot="input"
+                    class="flex items-start justify-between gap-2"
+                >
                     <div>
                         <span
-                            v-if="shippingAddressHtml"
-                            v-html="shippingAddressHtml"
+                            v-if="
+                                addressType === 'shipping'
+                                    ? shippingAddressHtml
+                                    : billingAddressHtml
+                            "
+                            v-html="
+                                addressType === 'shipping'
+                                    ? shippingAddressHtml
+                                    : billingAddressHtml
+                            "
                         />
                         <template v-else>{{ labels.noAddress }}</template>
                     </div>
                     <ActionMenu
                         v-if="editable"
                         :label="labels.actions"
-                        :actions="addressActions('shipping')"
+                        :actions="addressActions(addressType)"
                     />
-                </dd>
-            </div>
-            <div class="cp-metadata-list__item relative">
-                <span
-                    v-if="changes.includes('billingAddress')"
-                    :style="indicatorStyle"
-                    :title="labels.fieldModified"
-                />
-                <dt class="font-bold text-xs">{{ labels.billingAddress }}</dt>
-                <dd class="flex items-start justify-between gap-2">
-                    <div>
-                        <span
-                            v-if="billingAddressHtml"
-                            v-html="billingAddressHtml"
-                        />
-                        <template v-else>{{ labels.noAddress }}</template>
-                    </div>
-                    <ActionMenu
-                        v-if="editable"
-                        :label="labels.actions"
-                        :actions="addressActions('billing')"
-                    />
-                </dd>
-            </div>
-            <div class="cp-metadata-list__item relative">
-                <span
-                    v-if="changes.includes('shippingMethod')"
-                    :style="indicatorStyle"
-                    :title="labels.fieldModified"
-                />
-                <dt class="font-bold text-xs">{{ labels.shippingMethod }}</dt>
-                <dd class="flex items-center gap-2">
+                </div>
+            </craft-field>
+            <craft-field
+                :status="
+                    changes.includes('shippingMethod') ? 'modified' : undefined
+                "
+                :status-label="labels.fieldModified"
+            >
+                <span slot="label">{{ labels.shippingMethod }}</span>
+                <div slot="input" class="flex items-center gap-2">
                     {{ shippingMethodName || labels.none }}
                     <ComboboxFieldPopover
                         v-if="editable"
@@ -1275,22 +1305,18 @@
                         :value="shippingMethodHandle"
                         @select="selectShippingMethod"
                     />
-                </dd>
-            </div>
-            <div
-                v-for="detail in details"
-                :key="detail.label"
-                class="cp-metadata-list__item relative"
+                </div>
+            </craft-field>
+            <craft-field
+                v-for="detail in details.filter((detail) => detail.form)"
+                :key="detail.key"
+                :status="changes.includes(detail.key) ? 'modified' : undefined"
+                :status-label="labels.fieldModified"
             >
-                <span
-                    v-if="changes.includes(detail.key)"
-                    :style="indicatorStyle"
-                    :title="labels.fieldModified"
-                />
-                <dt class="font-bold text-xs">{{ detail.label }}</dt>
-                <dd class="flex items-center gap-2">
+                <span slot="label">{{ detail.label }}</span>
+                <div slot="input" class="flex items-center gap-2">
                     <span v-html="detail.value" />
-                    <template v-if="editable && detail.form">
+                    <template v-if="editable">
                         <ComboboxFieldPopover
                             v-if="detail.key === 'orderSite'"
                             :title="detail.label"
@@ -1331,7 +1357,7 @@
                             type="button"
                             icon
                             size="small"
-                            @click="openForm(detail.form)"
+                            @click="openForm(detail.form!)"
                         >
                             <craft-icon
                                 name="pencil"
@@ -1344,8 +1370,27 @@
                             />
                         </craft-button>
                     </template>
-                </dd>
+                </div>
+            </craft-field>
+        </craft-field-group>
+        <dl
+            class="cp-metadata-list"
+            style="margin-block-start: var(--c-spacing-lg, 1rem)"
+        >
+            <div
+                v-for="detail in details.filter((detail) => !detail.form)"
+                :key="detail.key"
+                class="cp-metadata-list__item"
+            >
+                <dt class="font-bold text-xs">{{ detail.label }}</dt>
+                <dd><span v-html="detail.value" /></dd>
             </div>
         </dl>
     </MetadataDetails>
 </template>
+
+<style>
+    [data-line-items] tbody tr[data-change='removed'] > td {
+        opacity: 0.5;
+    }
+</style>
