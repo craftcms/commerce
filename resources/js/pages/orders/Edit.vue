@@ -1178,9 +1178,10 @@
                 <craft-button
                     type="button"
                     size="small"
+                    variant="danger-plain"
                     @click="removeChange(operation.index)"
                 >
-                    {{ labels.remove }}
+                    <craft-icon name="xmark-large" :label="labels.remove" />
                 </craft-button>
             </li>
         </ul>
