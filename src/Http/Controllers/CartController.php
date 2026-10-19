@@ -115,7 +115,7 @@ class CartController
 
         // Backwards compatible way of adding to the cart
         if ($purchasableId = $request->input('purchasableId')) {
-            $note = $request->input('note', '');
+            $note = (string)$request->input('note', '');
             $options = $request->input('options', []); // @TODO Restrict `options` to key/value pairs only in Commerce 6.0 #COM-55
             $qty = (int)$request->input('qty', 1);
 
@@ -127,7 +127,7 @@ class CartController
                     $lineItem = app(LineItems::class)->create($this->cart, params: $params);
                 } else {
                     // we are passing everything into params but need to pass purchasableId and options for now until we refactor
-                    $lineItem = app(LineItems::class)->resolveLineItem($this->cart, $params['purchasableId'], $params['options'], params: $params);
+                    $lineItem = app(LineItems::class)->resolveLineItem($this->cart, (int)$params['purchasableId'], $params['options'], params: $params);
                 }
 
                 // New line items already have a qty of one.
@@ -149,7 +149,7 @@ class CartController
             $purchasablesByKey = [];
             foreach ($purchasables as $key => $purchasable) {
                 $purchasableId = $request->input("purchasables.$key.id");
-                $note = $request->input("purchasables.$key.note", '');
+                $note = (string)$request->input("purchasables.$key.note", '');
                 $options = $request->input("purchasables.$key.options", []);
                 $qty = (int)$request->input("purchasables.$key.qty", 1);
 
@@ -185,7 +185,7 @@ class CartController
                     if ($clearLineItems) {
                         $lineItem = app(LineItems::class)->create($this->cart, params: $params);
                     } else {
-                        $lineItem = app(LineItems::class)->resolveLineItem($this->cart, $params['purchasableId'], $params['options'], $params);
+                        $lineItem = app(LineItems::class)->resolveLineItem($this->cart, (int)$params['purchasableId'], $params['options'], $params);
                     }
 
                     // New line items already have a qty of one.
@@ -207,7 +207,7 @@ class CartController
                 $lineItem = $this->getCartLineItemById((int)$key);
                 if ($lineItem) {
                     $lineItem->qty = (int)$request->input("lineItems.$key.qty", $lineItem->qty);
-                    $lineItem->note = $request->input("lineItems.$key.note", $lineItem->note);
+                    $lineItem->note = (string)$request->input("lineItems.$key.note", $lineItem->note);
                     $lineItem->setOptions($request->input("lineItems.$key.options", $lineItem->getOptions()));
 
                     $removeLine = $request->input("lineItems.$key.remove", false);
