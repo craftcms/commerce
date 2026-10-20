@@ -45,7 +45,8 @@ it('renders a completed order', function() {
             ->where('orderId', $order->id)
             ->where('isCompleted', true)
             ->where('title', "Order {$order->reference}")
-            ->has('statusHtml', 2)
+            ->has('statusHtml', 1)
+            ->where('orderStatusHtml', fn($html) => str_contains($html, $order->getOrderStatus()->getUiLabel()))
             ->has('lineItems', count($order->getLineItems()))
             ->where('lineItems.0.uid', $lineItem->uid)
             ->where('lineItems.0.qty', $lineItem->qty)
@@ -129,7 +130,7 @@ it('shows an order as its edit session would leave it', function() {
     $originalQty = $order->getLineItems()[0]->qty;
 
     get(orderEditPagePath($order->id))
-        ->assertInertia(fn(AssertableInertia $page) => $page->where('session', null)->etc());
+        ->assertInertia(fn(AssertableInertia $page) => $page->where('session', null)->where('immediateActionsBlockedReason', null)->etc());
 
     postJson(Url::actionUrl('commerce/orders/edit/start'), ['orderId' => $order->id])->assertOk();
     postJson(Url::actionUrl('commerce/orders/edit/add'), [
@@ -149,6 +150,7 @@ it('shows an order as its edit session would leave it', function() {
             ->where('session.operations.1.label', 'Change Coupon Code')
             ->where('session.operations.1.summary', fn($summary) => str_ends_with($summary, '→ SESSION'))
             ->where('session.stale', false)
+            ->where('immediateActionsBlockedReason', 'Update or discard your changes to this order first.')
             ->where('session.totals', fn($totals) => collect($totals)->pluck('label')->take(2)->all() === ['Original total', 'New total']
                 && collect($totals)->every(fn($row) => isset($row['amount'], $row['emphasis'], $row['divider'])))
             ->where('couponCode', 'SESSION')

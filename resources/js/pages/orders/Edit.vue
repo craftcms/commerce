@@ -125,6 +125,9 @@
         changedFields: string[];
         dateUpdated: string | null;
         statusHtml: string[];
+        orderStatusHtml: string | null;
+        immediateActionsBlockedReason: string | null;
+        completionStatusName: string | null;
         actionMenu: unknown[];
         notices: Notice[];
         lineItems: LineItemRow[];
@@ -170,6 +173,8 @@
     const editable = computed(
         () => props.canEdit && (!props.isCompleted || !!props.session?.mine)
     );
+    const canChangeStatus = computed(() => props.canEdit && props.isCompleted);
+    const canComplete = computed(() => props.canEdit && !props.isCompleted);
     const canStartEditing = computed(
         () => props.canEdit && props.isCompleted && !props.session
     );
@@ -393,6 +398,29 @@
                 shippingMethodName: handle ? option?.data?.name : null,
             },
         ]);
+    }
+
+    function changeStatus(): void {
+        void openUiModal({
+            modalUrl: props.editUrls.statusForm,
+            actionUrl: props.editUrls.status,
+            params: {orderId: String(props.orderId)},
+            onSubmitted: () => window.Cp.$router.reload(),
+        });
+    }
+
+    async function completeCart(): Promise<void> {
+        const message = props.labels.confirmComplete.replace(
+            '{status}',
+            props.completionStatusName ?? ''
+        );
+
+        if (
+            window.confirm(message) &&
+            (await post(props.editUrls.complete, {}))
+        ) {
+            window.Cp.$router.reload();
+        }
     }
 
     async function startEditing(): Promise<void> {
@@ -931,9 +959,19 @@
 
     <component
         :is="LayoutSlot"
-        v-if="canStartEditing || session?.mine"
+        v-if="
+            canStartEditing || session?.mine || canChangeStatus || canComplete
+        "
         name="additional-buttons"
     >
+        <craft-button
+            v-if="canComplete"
+            type="button"
+            variant="primary"
+            @click="completeCart"
+        >
+            {{ labels.markAsCompleted }}
+        </craft-button>
         <craft-button
             v-if="canStartEditing"
             type="button"
@@ -943,7 +981,7 @@
             {{ labels.edit }}
         </craft-button>
         <craft-button
-            v-else
+            v-else-if="session?.mine"
             type="button"
             variant="primary"
             @click="reviewing = true"
@@ -1339,6 +1377,28 @@
                         :value="shippingMethodHandle"
                         @select="selectShippingMethod"
                     />
+                </div>
+            </craft-field>
+            <craft-field v-if="orderStatusHtml">
+                <span slot="label">{{ labels.status }}</span>
+                <div slot="input" class="flex items-center gap-2">
+                    <span v-html="orderStatusHtml" />
+                    <craft-button
+                        v-if="canChangeStatus"
+                        type="button"
+                        icon
+                        size="small"
+                        :disabled="!!immediateActionsBlockedReason"
+                        :title="immediateActionsBlockedReason ?? undefined"
+                        @click="changeStatus"
+                    >
+                        <craft-icon
+                            name="pencil"
+                            :label="
+                                labels.editItem.replace('{item}', labels.status)
+                            "
+                        />
+                    </craft-button>
                 </div>
             </craft-field>
             <craft-field

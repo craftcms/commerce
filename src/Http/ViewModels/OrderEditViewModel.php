@@ -24,6 +24,7 @@ use CraftCms\Cms\Ui\UiPayload;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Http\Controllers\OrderEditController;
+use CraftCms\Commerce\Http\Controllers\OrderLifecycleController;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Order\Data\OrderAdjustment;
 use CraftCms\Commerce\Order\Data\OrderHistory;
@@ -32,6 +33,7 @@ use CraftCms\Commerce\Order\Edit\Data\OrderEditSession;
 use CraftCms\Commerce\Order\Edit\Data\OrderSummary;
 use CraftCms\Commerce\Order\Edit\Operations\SetOrderSite;
 use CraftCms\Commerce\Order\Edit\Operations\SetReference;
+use CraftCms\Commerce\Order\Edit\OrderEditGuard;
 use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Edit\OrderOperations;
 use CraftCms\Commerce\Order\Elements\Order;
@@ -39,6 +41,7 @@ use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Order\Orders;
+use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Payment\Data\Transaction;
 use CraftCms\Commerce\Purchasable\PurchasableTypes;
 use CraftCms\Commerce\Shipping\Data\ShippingMethodOption;
@@ -106,6 +109,22 @@ class OrderEditViewModel extends ViewModel
     }
 
     /**
+     * Why actions that save straight away are unavailable, such as a session with changes waiting.
+     */
+    public function immediateActionsBlockedReason(): ?string
+    {
+        return app(OrderEditGuard::class)->blockReason($this->order, currentUserElement()?->id);
+    }
+
+    /**
+     * The name of the status a cart is given when it's completed.
+     */
+    public function completionStatusName(): ?string
+    {
+        return $this->order->isCompleted ? null : app(OrderStatuses::class)->getDefaultOrderStatusForOrder($this->order)?->getUiLabel();
+    }
+
+    /**
      * Whether the current user can change the order from this page.
      */
     public function canEdit(): bool
@@ -124,6 +143,9 @@ class OrderEditViewModel extends ViewModel
             'form' => action([OrderEditController::class, 'showForm']),
             'apply' => action([OrderEditController::class, 'apply']),
             'fields' => action([OrderEditController::class, 'fieldsScreen']),
+            'statusForm' => action([OrderLifecycleController::class, 'statusForm']),
+            'status' => action([OrderLifecycleController::class, 'changeStatus']),
+            'complete' => action([OrderLifecycleController::class, 'complete']),
             'address' => action([OrderEditController::class, 'addressScreen']),
             'snapshot' => action([OrderEditController::class, 'snapshot']),
             'start' => action([OrderEditController::class, 'start']),
@@ -293,10 +315,15 @@ class OrderEditViewModel extends ViewModel
      */
     public function statusHtml(): array
     {
-        return array_values(array_filter([
-            $this->order->getOrderStatusHtml(),
-            $this->order->isCompleted ? $this->order->getPaidStatusHtml() : null,
-        ]));
+        return $this->order->isCompleted ? [$this->order->getPaidStatusHtml()] : [];
+    }
+
+    /**
+     * The order's status as a badge, for the details sidebar. Carts have none.
+     */
+    public function orderStatusHtml(): ?string
+    {
+        return $this->order->isCompleted ? ($this->order->getOrderStatusHtml() ?: null) : null;
     }
 
     /**
@@ -782,6 +809,8 @@ class OrderEditViewModel extends ViewModel
             'discard' => t('Discard', category: 'commerce'),
             'confirmDiscard' => t('Discard all changes to this order?', category: 'commerce'),
             'reviewAndUpdate' => t('Review and Update', category: 'commerce'),
+            'markAsCompleted' => t('Mark as Completed', category: 'commerce'),
+            'confirmComplete' => t('Mark this cart as completed with the status “{status}”?', category: 'commerce'),
             'reviewChanges' => t('Review Changes', category: 'commerce'),
             'updateOrder' => t('Update Order', category: 'commerce'),
             'noChanges' => t('No changes yet.', category: 'commerce'),

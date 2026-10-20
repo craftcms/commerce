@@ -6,6 +6,7 @@ use CraftCms\Commerce\Http\Controllers\CartController;
 use CraftCms\Commerce\Http\Controllers\CreateProductController;
 use CraftCms\Commerce\Http\Controllers\DonationsController;
 use CraftCms\Commerce\Http\Controllers\OrderEditController;
+use CraftCms\Commerce\Http\Controllers\OrderLifecycleController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingRulesController;
@@ -237,6 +238,9 @@ Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function () {
         Route::post('orders/edit/fields', [OrderEditController::class, 'refreshFields']);
         Route::get('orders/edit/address', [OrderEditController::class, 'addressScreen']);
         Route::post('orders/edit/address', [OrderEditController::class, 'refreshAddress']);
+        Route::get('orders/edit/status', [OrderLifecycleController::class, 'statusForm']);
+        Route::post('orders/edit/status', [OrderLifecycleController::class, 'changeStatus']);
+        Route::post('orders/edit/complete', [OrderLifecycleController::class, 'complete']);
         Route::post('orders/edit/start', [OrderEditController::class, 'start']);
         Route::post('orders/edit/take-over', [OrderEditController::class, 'takeOver']);
         Route::post('orders/edit/preview', [OrderEditController::class, 'preview']);
