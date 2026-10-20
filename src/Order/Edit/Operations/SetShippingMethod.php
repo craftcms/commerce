@@ -56,6 +56,15 @@ final readonly class SetShippingMethod extends OrderOperation
         ];
     }
 
+    public function summary(Order $before): string
+    {
+        $next = $this->shippingMethodHandle
+            ? ($this->shippingMethodName ?? app(ShippingMethods::class)->getShippingMethodByHandle($this->shippingMethodHandle)?->getName())
+            : null;
+
+        return $this->change($before->shippingMethodName, $next);
+    }
+
     public function apply(Order $order): void
     {
         $order->shippingMethodHandle = $this->shippingMethodHandle;

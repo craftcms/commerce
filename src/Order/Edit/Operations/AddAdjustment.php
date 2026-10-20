@@ -80,6 +80,11 @@ final readonly class AddAdjustment extends OrderOperation
         ];
     }
 
+    public function summary(Order $before): string
+    {
+        return t('{name} · {amount}', ['name' => $this->name, 'amount' => $this->currency($before, $this->amount)], category: 'commerce');
+    }
+
     public function apply(Order $order): void
     {
         $this->requireCompletedOrder($order);

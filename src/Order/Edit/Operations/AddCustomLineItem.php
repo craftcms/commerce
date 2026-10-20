@@ -102,6 +102,15 @@ final readonly class AddCustomLineItem extends OrderOperation
         ];
     }
 
+    public function summary(Order $before): string
+    {
+        return t('{description} · {qty} × {price}', [
+            'description' => $this->description,
+            'qty' => $this->qty,
+            'price' => $this->currency($before, $this->promotionalPrice ?? $this->price),
+        ], category: 'commerce');
+    }
+
     public function apply(Order $order): void
     {
         $lineItem = app(LineItems::class)->create($order, [

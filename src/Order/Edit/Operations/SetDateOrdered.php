@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Edit\Operations;
 
+use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Elements\Order;
 use DateTime;
@@ -49,6 +50,16 @@ final readonly class SetDateOrdered extends OrderOperation
     public function toArray(): array
     {
         return ['dateOrdered' => $this->dateOrdered->format(DateTimeInterface::ATOM)];
+    }
+
+    public function summary(Order $before): string
+    {
+        $formatter = I18N::getFormatter();
+
+        return $this->change(
+            $before->dateOrdered ? $formatter->asDatetime($before->dateOrdered, 'short') : null,
+            $formatter->asDatetime($this->dateOrdered, 'short'),
+        );
     }
 
     public function apply(Order $order): void

@@ -46,6 +46,11 @@ final readonly class SetCouponCode extends OrderOperation
         return ['couponCode' => $this->couponCode];
     }
 
+    public function summary(Order $before): string
+    {
+        return $this->change($before->couponCode, $this->couponCode);
+    }
+
     public function apply(Order $order): void
     {
         $order->couponCode = $this->couponCode;

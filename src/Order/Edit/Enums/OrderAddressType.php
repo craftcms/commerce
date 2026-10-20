@@ -8,6 +8,8 @@ use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Commerce\Base\EnumHelpersTrait;
 use CraftCms\Commerce\Order\Elements\Order;
 
+use function CraftCms\Cms\t;
+
 enum OrderAddressType: string
 {
     use EnumHelpersTrait;
@@ -43,6 +45,14 @@ enum OrderAddressType: string
     public static function attributeNames(): array
     {
         return self::ATTRIBUTES;
+    }
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::Shipping => t('Shipping Address', category: 'commerce'),
+            self::Billing => t('Billing Address', category: 'commerce'),
+        };
     }
 
     public function other(): self

@@ -8,6 +8,7 @@ use CraftCms\Commerce\Order\Edit\Exceptions\OperationNotApplicableException;
 use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\LineItem\LineItems;
+use CraftCms\Commerce\Purchasable\Purchasables;
 use Throwable;
 
 use function CraftCms\Cms\t;
@@ -72,6 +73,15 @@ final readonly class AddLineItem extends OrderOperation
             'options' => $this->options,
             'note' => $this->note,
         ];
+    }
+
+    public function summary(Order $before): ?string
+    {
+        $purchasable = app(Purchasables::class)->getPurchasableById($this->purchasableId, $before->orderSiteId, $before->getCustomer()?->id);
+
+        return $purchasable
+            ? t('{description} × {qty}', ['description' => $purchasable->getDescription(), 'qty' => $this->qty], category: 'commerce')
+            : null;
     }
 
     public function apply(Order $order): void

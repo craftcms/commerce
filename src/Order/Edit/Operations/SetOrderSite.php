@@ -50,6 +50,11 @@ final readonly class SetOrderSite extends OrderOperation
         return ['orderSiteId' => $this->orderSiteId];
     }
 
+    public function summary(Order $before): string
+    {
+        return $this->change($before->getOrderSite()?->getName(), Sites::getSiteById($this->orderSiteId)?->getName());
+    }
+
     public function apply(Order $order): void
     {
         $site = Sites::getSiteById($this->orderSiteId);

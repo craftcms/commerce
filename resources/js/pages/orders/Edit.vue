@@ -58,10 +58,19 @@
         since: string;
         stale: boolean;
         error: string | null;
-        operations: Array<{index: number; label: string}>;
+        operations: Array<{
+            index: number;
+            label: string;
+            summary: string | null;
+        }>;
         originalTotal: string | null;
         newTotal: string | null;
-        balance: string | null;
+        totals: Array<{
+            label: string;
+            amount: string;
+            emphasis: boolean;
+            divider: boolean;
+        }>;
     }
 
     interface Notice {
@@ -1174,7 +1183,21 @@
                 :key="operation.index"
                 class="flex items-center justify-between gap-2"
             >
-                {{ operation.label }}
+                <div>
+                    {{ operation.label }}
+                    <div
+                        v-if="operation.summary"
+                        style="
+                            font-size: 0.875em;
+                            color: var(
+                                --c-text-muted,
+                                var(--gray-600, #6b7280)
+                            );
+                        "
+                    >
+                        {{ operation.summary }}
+                    </div>
+                </div>
                 <craft-button
                     type="button"
                     size="small"
@@ -1185,10 +1208,20 @@
                 </craft-button>
             </li>
         </ul>
-        <p class="mt-4 font-bold">
-            {{ session.originalTotal }} → {{ session.newTotal }}
-            <template v-if="session.balance"> · {{ session.balance }}</template>
-        </p>
+        <dl v-if="session.totals.length" class="review-totals">
+            <div
+                v-for="row in session.totals"
+                :key="row.label"
+                class="review-totals__row"
+                :class="{
+                    'review-totals__divider': row.divider,
+                    'review-totals__emphasis': row.emphasis,
+                }"
+            >
+                <dt>{{ row.label }}</dt>
+                <dd>{{ row.amount }}</dd>
+            </div>
+        </dl>
         <craft-button
             slot="footer"
             type="button"
@@ -1391,6 +1424,34 @@
 </template>
 
 <style>
+    .review-totals {
+        display: grid;
+        gap: 0.25rem;
+        margin: 1rem 0 0;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .review-totals__row {
+        display: flex;
+        justify-content: space-between;
+        gap: 2rem;
+    }
+
+    .review-totals dt,
+    .review-totals dd {
+        margin: 0;
+    }
+
+    .review-totals__divider {
+        margin-block-start: 0.25rem;
+        padding-block-start: 0.5rem;
+        border-block-start: 1px solid var(--c-border-color, #d1d5db);
+    }
+
+    .review-totals__emphasis {
+        font-weight: bold;
+    }
+
     [data-line-items] tbody tr[data-change='removed'] > td {
         opacity: 0.5;
     }

@@ -46,6 +46,11 @@ final readonly class RemoveLineItem extends OrderOperation
         return ['lineItemUid' => $this->lineItemUid];
     }
 
+    public function summary(Order $before): ?string
+    {
+        return $this->itemName($before, $this->lineItemUid) ?: null;
+    }
+
     public function apply(Order $order): void
     {
         $order->removeLineItem($this->lineItem($order, $this->lineItemUid));

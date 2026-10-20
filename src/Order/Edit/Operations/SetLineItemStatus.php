@@ -56,6 +56,18 @@ final readonly class SetLineItemStatus extends OrderOperation
         ];
     }
 
+    public function summary(Order $before): string
+    {
+        $statuses = app(LineItemStatuses::class);
+        $name = fn(?int $id): ?string => $id === null ? null : $statuses->getLineItemStatusById($id, $before->storeId)?->name;
+
+        return $this->itemSummary(
+            $before,
+            $this->lineItemUid,
+            $this->change($name($this->lineItem($before, $this->lineItemUid)->lineItemStatusId), $name($this->lineItemStatusId)),
+        );
+    }
+
     public function apply(Order $order): void
     {
         $lineItem = $this->lineItem($order, $this->lineItemUid);

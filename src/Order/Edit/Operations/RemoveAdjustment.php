@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Edit\Operations;
 
+use CraftCms\Commerce\Order\Edit\Exceptions\OperationNotApplicableException;
 use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Elements\Order;
 
@@ -46,6 +47,17 @@ final readonly class RemoveAdjustment extends OrderOperation
     public function toArray(): array
     {
         return ['adjustmentId' => $this->adjustmentId];
+    }
+
+    public function summary(Order $before): ?string
+    {
+        try {
+            $adjustment = UpdateAdjustment::find($before, $this->adjustmentId);
+        } catch (OperationNotApplicableException) {
+            return null;
+        }
+
+        return t('{name} · {amount}', ['name' => $adjustment->name, 'amount' => $this->currency($before, (float)$adjustment->amount)], category: 'commerce');
     }
 
     public function apply(Order $order): void

@@ -79,6 +79,20 @@ final readonly class UpdateAdjustment extends OrderOperation
         ];
     }
 
+    public function summary(Order $before): string
+    {
+        $adjustment = self::find($before, $this->adjustmentId);
+
+        if (isset($this->changes['amount'])) {
+            return t('{name}: {change}', [
+                'name' => $this->changes['name'] ?? $adjustment->name,
+                'change' => $this->change($this->currency($before, (float)$adjustment->amount), $this->currency($before, (float)$this->changes['amount'])),
+            ], category: 'commerce');
+        }
+
+        return $this->changes['name'] ?? $adjustment->name;
+    }
+
     public function apply(Order $order): void
     {
         $this->requireCompletedOrder($order);

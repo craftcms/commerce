@@ -46,6 +46,11 @@ final readonly class SetReference extends OrderOperation
         return ['reference' => $this->reference];
     }
 
+    public function summary(Order $before): string
+    {
+        return $this->change($before->reference, $this->reference);
+    }
+
     public function apply(Order $order): void
     {
         $order->reference = $this->reference;

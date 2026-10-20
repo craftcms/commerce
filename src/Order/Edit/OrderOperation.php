@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Edit;
 
+use CraftCms\Cms\Address\Elements\Address;
+use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Order\Edit\Exceptions\OperationNotApplicableException;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
@@ -48,6 +50,17 @@ abstract readonly class OrderOperation implements JsonSerializable
     abstract public function label(): string;
 
     /**
+     * A compact line saying what the operation changes, for listing it in an edit under its label.
+     *
+     * Called with the order as it stands just before the operation applies, so earlier operations
+     * in the same edit are already reflected in it.
+     */
+    public function summary(Order $before): ?string
+    {
+        return null;
+    }
+
+    /**
      * Combines the operation with an earlier one it makes redundant, so an edit that changes the same
      * thing repeatedly lists it once.
      *
@@ -81,6 +94,52 @@ abstract readonly class OrderOperation implements JsonSerializable
         }
 
         throw new OperationNotApplicableException(t('The line item no longer exists.', category: 'commerce'));
+    }
+
+    protected function none(): string
+    {
+        return t('None', category: 'commerce');
+    }
+
+    protected function change(?string $from, ?string $to): string
+    {
+        return t('{from} → {to}', [
+            'from' => $from === null || $from === '' ? $this->none() : $from,
+            'to' => $to === null || $to === '' ? $this->none() : $to,
+        ], category: 'commerce');
+    }
+
+    protected function currency(Order $order, ?float $amount): string
+    {
+        return $amount === null ? $this->none() : Currency::formatAsCurrency($amount, $order->getStore()->getCurrency());
+    }
+
+    /**
+     * The description of the order's line item, or an empty string if it has gone.
+     */
+    protected function itemName(Order $order, string $uid): string
+    {
+        foreach ($order->getLineItems() as $lineItem) {
+            if ($lineItem->uid === $uid) {
+                return $lineItem->getDescription();
+            }
+        }
+
+        return '';
+    }
+
+    protected function itemSummary(Order $order, string $uid, string $change): string
+    {
+        return t('{item}: {change}', ['item' => $this->itemName($order, $uid), 'change' => $change], category: 'commerce');
+    }
+
+    protected function addressText(?Address $address): ?string
+    {
+        if (!$address) {
+            return null;
+        }
+
+        return implode(', ', array_filter([$address->addressLine1, $address->locality, $address->countryCode])) ?: null;
     }
 
     protected function requireCompletedOrder(Order $order): void

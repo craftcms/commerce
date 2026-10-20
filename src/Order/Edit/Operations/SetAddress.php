@@ -35,7 +35,7 @@ final readonly class SetAddress extends OrderOperation
 
     public function label(): string
     {
-        return t('Change Address', category: 'commerce');
+        return t('Change {address}', ['address' => $this->addressType->label()], category: 'commerce');
     }
 
     public static function rules(): array
@@ -63,6 +63,23 @@ final readonly class SetAddress extends OrderOperation
             'sourceAddressId' => $this->sourceAddressId,
             'address' => $this->address,
         ];
+    }
+
+    public function summary(Order $before): string
+    {
+        $current = $this->addressText($this->addressType->getAddress($before));
+
+        if ($this->sourceAddressId !== null) {
+            /** @var Address|null $source */
+            $source = Address::find()->id($this->sourceAddressId)->one();
+
+            return $this->change($current, $this->addressText($source));
+        }
+
+        $attributes = $this->address ?? [];
+        $next = implode(', ', array_filter([$attributes['addressLine1'] ?? null, $attributes['locality'] ?? null, $attributes['countryCode'] ?? null]));
+
+        return $this->change($current, $next);
     }
 
     public function apply(Order $order): void

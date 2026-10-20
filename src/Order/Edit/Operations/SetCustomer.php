@@ -57,6 +57,13 @@ final readonly class SetCustomer extends OrderOperation
         return ['customerId' => $this->customerId];
     }
 
+    public function summary(Order $before): string
+    {
+        $next = $this->customerId !== null ? Users::getUserById($this->customerId) : null;
+
+        return $this->change($before->getCustomer()?->getFriendlyName(), $next?->getFriendlyName());
+    }
+
     public function apply(Order $order): void
     {
         $customer = $this->customerId !== null ? Users::getUserById($this->customerId) : null;

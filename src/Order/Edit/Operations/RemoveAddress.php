@@ -27,7 +27,7 @@ final readonly class RemoveAddress extends OrderOperation
 
     public function label(): string
     {
-        return t('Remove Address', category: 'commerce');
+        return t('Remove {address}', ['address' => $this->addressType->label()], category: 'commerce');
     }
 
     public static function rules(): array
@@ -45,6 +45,11 @@ final readonly class RemoveAddress extends OrderOperation
     public function toArray(): array
     {
         return ['addressType' => $this->addressType->value];
+    }
+
+    public function summary(Order $before): ?string
+    {
+        return $this->addressText($this->addressType->getAddress($before));
     }
 
     public function apply(Order $order): void

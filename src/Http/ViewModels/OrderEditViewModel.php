@@ -33,10 +33,12 @@ use CraftCms\Commerce\Order\Edit\Data\OrderSummary;
 use CraftCms\Commerce\Order\Edit\Operations\SetOrderSite;
 use CraftCms\Commerce\Order\Edit\Operations\SetReference;
 use CraftCms\Commerce\Order\Edit\OrderOperation;
+use CraftCms\Commerce\Order\Edit\OrderOperations;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
+use CraftCms\Commerce\Order\Orders;
 use CraftCms\Commerce\Payment\Data\Transaction;
 use CraftCms\Commerce\Purchasable\PurchasableTypes;
 use CraftCms\Commerce\Shipping\Data\ShippingMethodOption;
@@ -191,10 +193,10 @@ class OrderEditViewModel extends ViewModel
      *     since: string,
      *     stale: bool,
      *     error: string|null,
-     *     operations: list<array{index: int, label: string}>,
+     *     operations: list<array{index: int, label: string, summary: string|null}>,
      *     originalTotal: string|null,
      *     newTotal: string|null,
-     *     balance: string|null,
+     *     totals: list<array{label: string, amount: string, emphasis: bool, divider: bool}>,
      * }|null
      */
     public function session(): ?array
@@ -205,29 +207,83 @@ class OrderEditViewModel extends ViewModel
 
         $mine = $this->session->belongsTo(currentUserElement()?->id);
         $editor = $this->session->userId ? User::find()->id($this->session->userId)->status(null)->one() : null;
-        $outstanding = $this->order->getOutstandingBalance();
-
         return [
             'mine' => $mine,
             'userName' => $editor?->getFriendlyName(),
             'since' => $this->datetime($this->session->dateCreated),
             'stale' => $this->session->edit->baseDateUpdated?->getTimestamp() !== $this->order->dateUpdated?->getTimestamp(),
             'error' => $mine ? $this->sessionError : null,
-            'operations' => $mine
-                ? array_map(
-                    fn(OrderOperation $operation, int $index) => ['index' => $index, 'label' => $operation->label()],
-                    $this->session->edit->operations,
-                    array_keys($this->session->edit->operations),
-                )
-                : [],
+            'operations' => $mine ? $this->sessionOperations() : [],
             'originalTotal' => $mine && $this->originalSummary ? $this->currency($this->originalSummary->totalPrice) : null,
             'newTotal' => $mine ? $this->order->totalPriceAsCurrency : null,
-            'balance' => match (true) {
-                !$mine || $outstanding == 0 => null,
-                $outstanding > 0 => t('{amount} still owed', ['amount' => $this->currency($outstanding)], category: 'commerce'),
-                default => t('{amount} to refund', ['amount' => $this->currency(abs($outstanding))], category: 'commerce'),
-            },
+            'totals' => $mine ? $this->sessionTotals() : [],
         ];
+    }
+
+    /**
+     * The figures an edit changes, for laying out in columns.
+     *
+     * @return list<array{label: string, amount: string, emphasis: bool, divider: bool}>
+     */
+    private function sessionTotals(): array
+    {
+        if (!$this->originalSummary) {
+            return [];
+        }
+
+        $original = $this->originalSummary->totalPrice;
+        $new = $this->order->getTotalPrice();
+        $difference = round($new - $original, 4);
+        $outstanding = $this->order->getOutstandingBalance();
+
+        $rows = [
+            ['label' => t('Original total', category: 'commerce'), 'amount' => $this->currency($original), 'emphasis' => false, 'divider' => false],
+            ['label' => t('New total', category: 'commerce'), 'amount' => $this->currency($new), 'emphasis' => true, 'divider' => false],
+        ];
+
+        if ($difference != 0) {
+            $rows[] = [
+                'label' => t('Change', category: 'commerce'),
+                'amount' => ($difference > 0 ? '+' : '−') . $this->currency(abs($difference)),
+                'emphasis' => false,
+                'divider' => true,
+            ];
+        }
+
+        if ($this->order->getTotalPaid() > 0) {
+            $rows[] = ['label' => t('Paid', category: 'commerce'), 'amount' => $this->currency($this->order->getTotalPaid()), 'emphasis' => false, 'divider' => $difference == 0];
+        }
+
+        if ($outstanding != 0) {
+            $rows[] = [
+                'label' => $outstanding > 0 ? t('Still owed', category: 'commerce') : t('To refund', category: 'commerce'),
+                'amount' => $this->currency(abs($outstanding)),
+                'emphasis' => true,
+                'divider' => $difference == 0 && $this->order->getTotalPaid() <= 0,
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * @return list<array{index: int, label: string, summary: string|null}>
+     */
+    private function sessionOperations(): array
+    {
+        $operations = $this->session->edit->operations;
+        $base = $operations ? app(Orders::class)->getOrderById($this->order->id) : null;
+        $summaries = $base ? app(OrderOperations::class)->summaries($base, $operations) : [];
+
+        return array_map(
+            fn(OrderOperation $operation, int $index) => [
+                'index' => $index,
+                'label' => $operation->label(),
+                'summary' => $summaries[$index] ?? null,
+            ],
+            $operations,
+            array_keys($operations),
+        );
     }
 
     /**

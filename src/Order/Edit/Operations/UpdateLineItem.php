@@ -114,6 +114,49 @@ final readonly class UpdateLineItem extends OrderOperation
         ];
     }
 
+    public function summary(Order $before): ?string
+    {
+        $lineItem = $this->lineItem($before, $this->lineItemUid);
+        $parts = [];
+
+        if (isset($this->changes['qty']) && $this->changes['qty'] !== $lineItem->qty) {
+            $parts[] = $this->labelledChange(t('Quantity', category: 'commerce'), (string)$lineItem->qty, (string)$this->changes['qty']);
+        }
+
+        if (isset($this->changes['price']) && (float)$this->changes['price'] !== $lineItem->getPrice()) {
+            $parts[] = $this->labelledChange(t('Price', category: 'commerce'), $this->currency($before, $lineItem->getPrice()), $this->currency($before, (float)$this->changes['price']));
+        }
+
+        if (array_key_exists('promotionalPrice', $this->changes) && $this->changes['promotionalPrice'] !== $lineItem->getPromotionalPrice()) {
+            $next = $this->changes['promotionalPrice'] === null ? null : (float)$this->changes['promotionalPrice'];
+            $parts[] = $this->labelledChange(t('Promotional Price', category: 'commerce'), $this->currency($before, $lineItem->getPromotionalPrice()), $this->currency($before, $next));
+        }
+
+        $others = [];
+
+        foreach ([
+            'taxCategoryId' => t('Tax Category', category: 'commerce'),
+            'shippingCategoryId' => t('Shipping Category', category: 'commerce'),
+            'description' => t('Description', category: 'commerce'),
+            'sku' => t('SKU', category: 'commerce'),
+        ] as $key => $label) {
+            if (isset($this->changes[$key])) {
+                $others[] = $label;
+            }
+        }
+
+        if ($others) {
+            $parts[] = implode(', ', $others);
+        }
+
+        return $parts ? $this->itemSummary($before, $this->lineItemUid, implode(' · ', $parts)) : null;
+    }
+
+    private function labelledChange(string $label, string $from, string $to): string
+    {
+        return t('{label}: {from} → {to}', ['label' => $label, 'from' => $from, 'to' => $to], category: 'commerce');
+    }
+
     public function apply(Order $order): void
     {
         $lineItem = $this->lineItem($order, $this->lineItemUid);

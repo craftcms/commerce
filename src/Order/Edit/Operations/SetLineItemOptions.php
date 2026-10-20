@@ -52,6 +52,36 @@ final readonly class SetLineItemOptions extends OrderOperation
         ];
     }
 
+    public function summary(Order $before): ?string
+    {
+        $current = $this->lineItem($before, $this->lineItemUid)->getOptions();
+        $changes = [];
+
+        foreach (array_unique([...array_keys($current), ...array_keys($this->options)]) as $key) {
+            $from = $current[$key] ?? null;
+            $to = $this->options[$key] ?? null;
+
+            if ($from !== $to) {
+                $changes[] = t('{label}: {from} → {to}', [
+                    'label' => (string)$key,
+                    'from' => $this->display($from),
+                    'to' => $this->display($to),
+                ], category: 'commerce');
+            }
+        }
+
+        return $changes ? $this->itemSummary($before, $this->lineItemUid, implode(' · ', $changes)) : null;
+    }
+
+    private function display(mixed $value): string
+    {
+        if ($value === null || $value === '') {
+            return $this->none();
+        }
+
+        return is_scalar($value) ? (string)$value : (string)json_encode($value);
+    }
+
     public function apply(Order $order): void
     {
         $this->lineItem($order, $this->lineItemUid)->setOptions($this->options);

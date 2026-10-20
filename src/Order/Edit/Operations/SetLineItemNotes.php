@@ -56,6 +56,22 @@ final readonly class SetLineItemNotes extends OrderOperation
         ];
     }
 
+    public function summary(Order $before): ?string
+    {
+        $lineItem = $this->lineItem($before, $this->lineItemUid);
+        $changes = [];
+
+        if ($lineItem->note !== $this->note) {
+            $changes[] = t('Note', category: 'commerce');
+        }
+
+        if ($lineItem->privateNote !== $this->privateNote) {
+            $changes[] = t('Private Note', category: 'commerce');
+        }
+
+        return $changes ? $this->itemSummary($before, $this->lineItemUid, implode(', ', $changes)) : null;
+    }
+
     public function apply(Order $order): void
     {
         $lineItem = $this->lineItem($order, $this->lineItemUid);

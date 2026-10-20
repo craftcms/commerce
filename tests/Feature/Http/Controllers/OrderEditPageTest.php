@@ -126,6 +126,7 @@ it('offers only the sites of the order’s store as order sites', function() {
 it('shows an order as its edit session would leave it', function() {
     $order = OrdersFixture::seed()->orders['completed-new'];
     $uid = $order->getLineItems()[0]->uid;
+    $originalQty = $order->getLineItems()[0]->qty;
 
     get(orderEditPagePath($order->id))
         ->assertInertia(fn(AssertableInertia $page) => $page->where('session', null)->etc());
@@ -144,8 +145,12 @@ it('shows an order as its edit session would leave it', function() {
         ->assertInertia(fn(AssertableInertia $page) => $page
             ->where('session.mine', true)
             ->where('session.operations.0.label', 'Update Line Item')
+            ->where('session.operations.0.summary', fn($summary) => str_ends_with($summary, 'Quantity: ' . $originalQty . ' → 9'))
             ->where('session.operations.1.label', 'Change Coupon Code')
+            ->where('session.operations.1.summary', fn($summary) => str_ends_with($summary, '→ SESSION'))
             ->where('session.stale', false)
+            ->where('session.totals', fn($totals) => collect($totals)->pluck('label')->take(2)->all() === ['Original total', 'New total']
+                && collect($totals)->every(fn($row) => isset($row['amount'], $row['emphasis'], $row['divider'])))
             ->where('couponCode', 'SESSION')
             ->where('lineItems.0.qty', 9)
             ->where('lineItems.0.change', 'changed')

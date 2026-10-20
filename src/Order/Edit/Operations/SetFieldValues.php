@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Order\Edit\Operations;
 
 use CraftCms\Cms\Field\Exceptions\InvalidFieldException;
+use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Commerce\Order\Edit\Exceptions\OperationNotApplicableException;
 use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Elements\Order;
@@ -49,6 +50,28 @@ final readonly class SetFieldValues extends OrderOperation
     public function toArray(): array
     {
         return ['values' => $this->values];
+    }
+
+    public function summary(Order $before): ?string
+    {
+        $names = [];
+
+        foreach ($this->values as $handle => $value) {
+            $handle = (string)$handle;
+            $current = json_encode($before->getSerializedFieldValues([$handle])[$handle] ?? null);
+
+            try {
+                $before->setFieldValueFromRequest($handle, $value);
+            } catch (InvalidFieldException) {
+                continue;
+            }
+
+            if ($current !== json_encode($before->getSerializedFieldValues([$handle])[$handle] ?? null)) {
+                $names[] = Fields::getFieldByHandle($handle)->name;
+            }
+        }
+
+        return $names ? implode(', ', $names) : null;
     }
 
     public function apply(Order $order): void

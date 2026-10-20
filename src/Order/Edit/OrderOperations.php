@@ -16,6 +16,7 @@ use DateTimeZone;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use InvalidArgumentException;
 
 use function CraftCms\Cms\t;
 
@@ -106,6 +107,39 @@ class OrderOperations
         if (!$order->isCompleted) {
             $order->recalculate();
         }
+    }
+
+    /**
+     * What each operation in an edit changes, in order, for listing the edit.
+     *
+     * The operations are replayed on the given order, which should be as it was before the edit,
+     * and each is summarised just before it applies. Nothing is saved, but the order is left as the
+     * operations leave it.
+     *
+     * @param list<OrderOperation> $operations
+     * @return list<string|null> A summary per operation, `null` where it has none.
+     */
+    public function summaries(Order $order, array $operations): array
+    {
+        $summaries = array_fill(0, count($operations), null);
+        $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
+
+        DB::beginTransaction();
+
+        try {
+            foreach ($operations as $index => $operation) {
+                try {
+                    $summaries[$index] = $operation->summary($order);
+                    $operation->apply($order);
+                } catch (OperationNotApplicableException|InvalidArgumentException) {
+                    break;
+                }
+            }
+        } finally {
+            DB::rollBack();
+        }
+
+        return $summaries;
     }
 
     /**

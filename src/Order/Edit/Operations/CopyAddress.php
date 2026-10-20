@@ -30,7 +30,7 @@ final readonly class CopyAddress extends OrderOperation
 
     public function label(): string
     {
-        return t('Copy Address', category: 'commerce');
+        return t('Copy {from} to {to}', ['from' => $this->from->label(), 'to' => $this->from->other()->label()], category: 'commerce');
     }
 
     public static function rules(): array
@@ -49,6 +49,12 @@ final readonly class CopyAddress extends OrderOperation
     {
         return ['from' => $this->from->value];
     }
+
+    public function summary(Order $before): ?string
+    {
+        return $this->addressText($this->from->getAddress($before));
+    }
+
 
     public function apply(Order $order): void
     {
