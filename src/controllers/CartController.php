@@ -372,7 +372,8 @@ class CartController extends BaseFrontEndController
 
         // Set Payment Gateway on cart
         if ($gatewayId = $this->request->getParam('gatewayId')) {
-            if ($plugin->getGateways()->getGatewayById($gatewayId)) {
+            $gateway = $plugin->getGateways()->getGatewayById($gatewayId);
+            if ($gateway && !$gateway->isArchived) {
                 $this->_cart->setGatewayId($gatewayId);
             }
         }

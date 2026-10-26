@@ -53,7 +53,7 @@ class PaymentSourcesController extends BaseFrontEndController
 
         $gateway = $plugin->getGateways()->getGatewayById($gatewayId);
 
-        if (!$gateway || !$gateway->supportsPaymentSources()) {
+        if (!$gateway || $gateway->isArchived || !$gateway->supportsPaymentSources()) {
             return $this->asFailure(Craft::t('commerce', 'There is no gateway selected that supports payment sources.'));
         }
 

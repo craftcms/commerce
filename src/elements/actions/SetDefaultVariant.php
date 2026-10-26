@@ -88,6 +88,7 @@ EOT;
             ['id' => $product->id]
         )->execute();
 
+        // @TODO Remove in Commerce 6.0 if the `isDefault` column is removed from the variants table
         if ($product->getIsCanonical()) {
             // Remove previous default
             Craft::$app->getDb()->createCommand()->update(

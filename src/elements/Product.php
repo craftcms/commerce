@@ -1167,9 +1167,10 @@ JS, [
      */
     public function getDefaultVariant(bool $includeDisabled = false): ?Variant
     {
-        $defaultVariant = $this->getVariants($includeDisabled)->firstWhere('id', $this->defaultVariantId);
+        $variants = $this->getVariants($includeDisabled);
+        $defaultVariant = $variants->firstWhere('id', $this->defaultVariantId);
 
-        return $defaultVariant ?: $this->getVariants($includeDisabled)->first();
+        return $defaultVariant ?: $variants->first();
     }
 
     /**
@@ -1662,7 +1663,13 @@ JS, [
             $record->typeId = $this->typeId;
 
             $defaultVariant = $this->getDefaultVariant();
-            $record->defaultVariantId = $defaultVariant->id ?? null;
+            $defaultVariantId = $defaultVariant->id ?? null;
+
+            if ($defaultVariantId && $this->getIsCanonical() && $defaultVariant->getIsDerivative()) {
+                $defaultVariantId = $defaultVariant->getCanonicalId();
+            }
+
+            $record->defaultVariantId = $defaultVariantId;
             $record->defaultSku = $defaultVariant?->getSkuAsText() ?? '';
             $record->defaultPrice = $defaultVariant?->getBasePrice() ?? 0.0;
             $record->defaultHeight = $defaultVariant->height ?? 0.0;
@@ -1671,7 +1678,7 @@ JS, [
             $record->defaultWeight = $defaultVariant->weight ?? 0.0;
 
             // Make sure to update the object
-            $this->defaultVariantId = $defaultVariant->id ?? null;
+            $this->defaultVariantId = $defaultVariantId;
             $this->defaultSku = $defaultVariant?->getSkuAsText();
             $this->defaultPrice = $defaultVariant?->getBasePrice() ?? 0.0;
             $this->defaultHeight = $defaultVariant->height ?? 0;
@@ -1690,6 +1697,27 @@ JS, [
             $this->id = $record->id;
 
             $this->setDirtyAttributes($dirtyAttributes);
+
+            if ($this->getIsCanonical()) {
+                // @TODO Remove in Commerce 6.0 if the `isDefault` column is removed from the variants table
+                $staleDefaultCondition = ['and', ['primaryOwnerId' => $this->id], ['isDefault' => true]];
+                if ($defaultVariantId) {
+                    $staleDefaultCondition[] = ['not', ['id' => $defaultVariantId]];
+                }
+                Craft::$app->getDb()->createCommand()->update(
+                    Table::VARIANTS,
+                    ['isDefault' => false],
+                    $staleDefaultCondition
+                )->execute();
+
+                if ($defaultVariantId) {
+                    Craft::$app->getDb()->createCommand()->update(
+                        Table::VARIANTS,
+                        ['isDefault' => true],
+                        ['and', ['id' => $defaultVariantId], ['isDefault' => false]]
+                    )->execute();
+                }
+            }
 
             if ($this->getIsCanonical() &&
                 isset($this->typeId) &&

@@ -20,7 +20,6 @@ use craft\commerce\models\inventory\InventoryTransferMovement;
 use craft\commerce\models\inventory\UpdateInventoryLevel;
 use craft\commerce\models\TransferDetail;
 use craft\commerce\Plugin;
-use craft\commerce\services\Transfers;
 use craft\helpers\Cp as CraftCp;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
@@ -113,52 +112,6 @@ class TransfersController extends BaseCpController
         }
 
         return $this->asSuccess(Craft::t('app', 'Transfer marked as pending.'));
-    }
-
-    /**
-     * @return Response
-     */
-    public function actionSaveSettings(): Response
-    {
-        $this->requirePostRequest();
-
-        $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
-
-        $fieldLayout->reservedFieldHandles = [
-            'originLocationId',
-            'originLocation',
-            'destinationLocationId',
-            'destinationLocation',
-        ];
-
-        $fieldLayout->type = Transfer::class;
-
-        if (!$fieldLayout->validate()) {
-            Craft::info('Field layout not saved due to validation error.', __METHOD__);
-
-            Craft::$app->getUrlManager()->setRouteParams([
-                'variables' => [
-                    'fieldLayout' => $fieldLayout,
-                ],
-            ]);
-
-            return $this->asFailure(Craft::t('commerce', 'Couldn’t save transfer fields.'));
-        }
-
-        if ($currentTransfersFieldLayout = Craft::$app->getProjectConfig()->get(Transfers::CONFIG_FIELDLAYOUT_KEY)) {
-            $uid = array_key_first($currentTransfersFieldLayout);
-        } else {
-            $uid = StringHelper::UUID();
-        }
-
-        $configData = [$uid => $fieldLayout->getConfig()];
-        $result = Craft::$app->getProjectConfig()->set(Transfers::CONFIG_FIELDLAYOUT_KEY, $configData, force: true);
-
-        if (!$result) {
-            return $this->asFailure(Craft::t('app', 'Couldn’t save transfer fields.'));
-        }
-
-        return $this->asSuccess(Craft::t('commerce', 'Transfer fields saved.'));
     }
 
     /**
