@@ -6,6 +6,7 @@
 - Added `craft\commerce\services\Subscriptions::getActiveSubscriptionCountByPlanId()`.
 - Fixed a bug where the Subscription Plans index page was counting expired and suspended subscriptions as active. ([#4381](https://github.com/craftcms/commerce/issues/4381))
 - Fixed a bug where completed orders couldn’t be saved if their VAT ID was no longer valid. ([#4377](https://github.com/craftcms/commerce/pull/4377))
+- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerability.
 
 ## 5.7.6 - 2026-10-08
 

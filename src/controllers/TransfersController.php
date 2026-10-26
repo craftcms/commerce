@@ -24,7 +24,9 @@ use craft\helpers\Cp as CraftCp;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
+use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
+use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 /**
@@ -96,15 +98,27 @@ class TransfersController extends BaseCpController
     /**
      * @return Response
      * @throws \yii\base\InvalidConfigException
-     * @throws \yii\web\BadRequestHttpException
+     * @throws BadRequestHttpException
      * @throws \yii\web\MethodNotAllowedHttpException
+     * @throws NotFoundHttpException
      */
     public function actionMarkAsPending(): Response
     {
         $this->requirePostRequest();
 
         $transferId = $this->request->getRequiredBodyParam('transferId');
-        $transfer = Transfer::findOne($transferId);
+
+        if (!is_numeric($transferId)) {
+            throw new BadRequestHttpException('Invalid transfer ID.');
+        }
+
+        /** @var Transfer|null $transfer */
+        $transfer = Transfer::find()->id($transferId)->status(null)->one();
+
+        if (!$transfer) {
+            throw new NotFoundHttpException('Transfer not found');
+        }
+
         $transfer->transferStatus = TransferStatusType::PENDING;
 
         if (!Craft::$app->getElements()->saveElement($transfer)) {
