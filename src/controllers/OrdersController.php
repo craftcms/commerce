@@ -565,18 +565,13 @@ JS, []);
             }
 
             // Validate sorting
-            if (!in_array($direction, ['asc', 'desc']) ||
-                !in_array($field, [
+            if (in_array($direction, ['asc', 'desc'], true) &&
+                in_array($field, [
                     'reference',
                     'dateOrdered',
                     'totalPrice',
-                ])
+                ], true)
             ) {
-                $field = null;
-                $direction = null;
-            }
-
-            if ($field && $direction) {
                 $orderQuery->orderBy($field . ' ' . $direction);
             }
         }
