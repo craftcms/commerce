@@ -165,6 +165,39 @@ class OrdersControllerTest extends Unit
         }
     }
 
+    public function testUpdateOrderAddressRejectsInvalidAddressType(): void
+    {
+        $ordersFixture = $this->tester->grabFixture('orders');
+        $order = $ordersFixture->getElement('completed-new');
+
+        $this->request->getHeaders()->set('Accept', 'application/json');
+        Craft::$app->getRequest()->setQueryParams([
+            'orderId' => $order->id,
+            'addressId' => 1,
+            'addressType' => 'id',
+        ]);
+
+        $response = $this->controller->runAction('update-order-address');
+
+        self::assertEquals(400, $response->statusCode);
+        self::assertSame('Not a valid address type', $response->data['message']);
+    }
+
+    public function testUpdateOrderAddressRejectsUnknownOrder(): void
+    {
+        $this->request->getHeaders()->set('Accept', 'application/json');
+        Craft::$app->getRequest()->setQueryParams([
+            'orderId' => 999999,
+            'addressId' => 1,
+            'addressType' => 'shippingAddress',
+        ]);
+
+        $response = $this->controller->runAction('update-order-address');
+
+        self::assertEquals(400, $response->statusCode);
+        self::assertSame('Bad order ID.', $response->data['message']);
+    }
+
     public function testGetShippingMethodOptionsReturnsOptions(): void
     {
         $ordersFixture = $this->tester->grabFixture('orders');
