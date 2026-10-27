@@ -125,9 +125,10 @@ class OrderAdjustments extends Component
     /**
      * Get all order adjustments by order's ID.
      *
+     * @param Order|null $order The already-loaded order, to avoid re-querying it for each adjustment.
      * @return OrderAdjustment[]
      */
-    public function getAllOrderAdjustmentsByOrderId(int $orderId): array
+    public function getAllOrderAdjustmentsByOrderId(int $orderId, ?Order $order = null): array
     {
         $rows = $this->_createOrderAdjustmentQuery()
             ->where(['orderId' => $orderId])
@@ -137,7 +138,8 @@ class OrderAdjustments extends Component
 
         foreach ($rows as $row) {
             $row['sourceSnapshot'] = Json::decodeIfJson($row['sourceSnapshot']);
-            $adjustments[] = new OrderAdjustment($row);
+            // Set the order first so behaviors() can read its currency without re-querying it
+            $adjustments[] = new OrderAdjustment($order ? ['order' => $order] + $row : $row);
         }
 
         return $adjustments;
@@ -225,13 +227,15 @@ class OrderAdjustments extends Component
     public function eagerLoadOrderAdjustmentsForOrders(array $orders): array
     {
         $orderIds = ArrayHelper::getColumn($orders, 'id');
+        $ordersById = ArrayHelper::index($orders, 'id');
         $orderAdjustmentResults = $this->_createOrderAdjustmentQuery()->andWhere(['orderId' => $orderIds])->all();
 
         $orderAdjustments = [];
 
         foreach ($orderAdjustmentResults as $result) {
             $result['sourceSnapshot'] = Json::decodeIfJson($result['sourceSnapshot']);
-            $adjustment = new OrderAdjustment($result);
+            // Set the order first so behaviors() can read its currency without re-querying it
+            $adjustment = new OrderAdjustment(['order' => $ordersById[$result['orderId']]] + $result);
 
             $orderAdjustments[$adjustment->orderId] ??= [];
             $orderAdjustments[$adjustment->orderId][] = $adjustment;
