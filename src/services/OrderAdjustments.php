@@ -235,7 +235,8 @@ class OrderAdjustments extends Component
         foreach ($orderAdjustmentResults as $result) {
             $result['sourceSnapshot'] = Json::decodeIfJson($result['sourceSnapshot']);
             // Set the order first so behaviors() can read its currency without re-querying it
-            $adjustment = new OrderAdjustment(['order' => $ordersById[$result['orderId']]] + $result);
+            $order = $ordersById[$result['orderId']] ?? null;
+            $adjustment = new OrderAdjustment($order ? ['order' => $order] + $result : $result);
 
             $orderAdjustments[$adjustment->orderId] ??= [];
             $orderAdjustments[$adjustment->orderId][] = $adjustment;
