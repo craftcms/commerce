@@ -305,6 +305,41 @@ class Inventory extends Component
     }
 
     /**
+     * Returns a query for fulfillment levels: the committed and fulfilled stock of each order line item, per inventory
+     * item and inventory location.
+     *
+     * @return Query
+     */
+    private function _createInventoryFulfillmentLevelQuery(): Query
+    {
+        return (new Query())
+            ->select([
+                '[[it.lineItemId]]',
+                '[[li.orderId]]',
+                '[[it.inventoryItemId]]',
+                '[[it.inventoryLocationId]]',
+
+                'SUM(CASE WHEN (([[it.type]] = :committedType AND [[it.quantity]] > 0) OR ([[it.type]] = :fulfilledType AND [[it.quantity]] < 0)) THEN [[it.quantity]] ELSE 0 END) AS committedQuantity',
+
+                'SUM(CASE WHEN [[it.type]] = :committedType THEN [[it.quantity]] ELSE 0 END) AS outstandingCommittedQuantity',
+                'SUM(CASE WHEN [[it.type]] = :fulfilledType THEN [[it.quantity]] ELSE 0 END) AS fulfilledQuantity',
+            ])
+            ->from(['it' => Table::INVENTORYTRANSACTIONS])
+            ->innerJoin(['li' => Table::LINEITEMS], '[[li.id]] = [[it.lineItemId]]')
+            ->where(['[[it.type]]' => [InventoryTransactionType::COMMITTED->value, InventoryTransactionType::FULFILLED->value]])
+            ->groupBy([
+                '[[it.lineItemId]]',
+                '[[li.orderId]]',
+                '[[it.inventoryItemId]]',
+                '[[it.inventoryLocationId]]',
+            ])
+            ->params([
+                ':committedType' => InventoryTransactionType::COMMITTED->value,
+                ':fulfilledType' => InventoryTransactionType::FULFILLED->value,
+            ]);
+    }
+
+    /**
      * @param InventoryLocation $inventoryLocation
      * @param bool $withTrashed
      * @return Collection
@@ -719,9 +754,8 @@ class Inventory extends Component
             ->andWhere(['it.inventoryItemId' => $inventoryItemId])
             ->andWhere(['it.inventoryLocationId' => $inventoryLocationId])
             ->andWhere(['it.type' => InventoryTransactionType::COMMITTED->value])
-            ->addSelect(['lineItems.qty'])
-            ->groupBy(['lineItems.orderId', 'lineItems.id', 'lineItems.qty'])
-            ->having(new Expression('SUM([[it.quantity]]) >= [[lineItems.qty]]'))
+            ->groupBy(['lineItems.orderId', 'lineItems.id'])
+            ->having(new Expression('SUM([[it.quantity]]) > 0'))
             ->column();
 
         return Order::find()
@@ -782,36 +816,11 @@ class Inventory extends Component
 
         $inventoryFulfillmentLevels = [];
         foreach ($locations as $location) {
-            $data = (new Query())
-                ->select([
-                    '[[it.lineItemId]]',
-                    '[[it.inventoryItemId]]',
-                    '[[it.inventoryLocationId]]',
-
-                    'SUM(CASE WHEN (([[it.type]] = :committedType AND quantity > 0) OR ([[it.type]] = :fulfilledType AND quantity < 0)) THEN [[quantity]] ELSE 0 END) AS committedQuantity',
-
-                    'SUM(CASE WHEN [[it.type]] = :committedType THEN [[quantity]] ELSE 0 END) AS outstandingCommittedQuantity',
-                    'SUM(CASE WHEN [[it.type]] = :fulfilledType THEN [[quantity]] ELSE 0 END) AS fulfilledQuantity',
-                ])
-                ->from(['it' => Table::INVENTORYTRANSACTIONS])
+            $data = $this->_createInventoryFulfillmentLevelQuery()
                 ->andWhere([
                     '[[li.orderId]]' => $order->id,
                     '[[it.inventoryLocationId]]' => $location->id,
                 ])
-                ->andWhere(['or',
-                    ['it.type' => InventoryTransactionType::COMMITTED->value],
-                    ['it.type' => InventoryTransactionType::FULFILLED->value],
-                ])
-                ->groupBy([
-                    '[[it.lineItemId]]',
-                    '[[it.inventoryItemId]]',
-                    '[[it.inventoryLocationId]]',
-                ])
-                ->params([
-                    ':committedType' => InventoryTransactionType::COMMITTED->value,
-                    ':fulfilledType' => InventoryTransactionType::FULFILLED->value,
-                ])
-                ->innerJoin(['li' => Table::LINEITEMS], '[[li.id]] = [[it.lineItemId]]')
                 ->all();
 
             foreach ($data as $row) {
@@ -820,6 +829,36 @@ class Inventory extends Component
         }
 
         return collect($inventoryFulfillmentLevels);
+    }
+
+    /**
+     * Returns the fulfillment levels of an inventory item that still have stock to fulfill (outstanding committed
+     * stock) on completed orders that haven't been deleted, oldest order first.
+     *
+     * @param int $inventoryItemId
+     * @param int|null $inventoryLocationId Only return levels at this inventory location
+     * @param int[]|null $lineItemIds Only return levels for these line items
+     * @return Collection<InventoryFulfillmentLevel>
+     * @since 5.7.7
+     */
+    public function getOutstandingInventoryFulfillmentLevels(int $inventoryItemId, ?int $inventoryLocationId = null, ?array $lineItemIds = null): Collection
+    {
+        $query = $this->_createInventoryFulfillmentLevelQuery()
+            ->innerJoin(['orders' => Table::ORDERS], '[[orders.id]] = [[li.orderId]]')
+            ->innerJoin(['elements' => CraftTable::ELEMENTS], '[[elements.id]] = [[orders.id]]')
+            ->andWhere([
+                '[[it.inventoryItemId]]' => $inventoryItemId,
+                '[[orders.isCompleted]]' => true,
+                '[[elements.dateDeleted]]' => null,
+            ])
+            ->andFilterWhere([
+                '[[it.inventoryLocationId]]' => $inventoryLocationId,
+                '[[it.lineItemId]]' => $lineItemIds,
+            ])
+            ->having(new Expression('SUM(CASE WHEN [[it.type]] = :committedType THEN [[it.quantity]] ELSE 0 END) > 0'))
+            ->orderBy(new Expression('MIN([[orders.dateOrdered]]) ASC'));
+
+        return collect($query->all())->map(fn(array $row) => $this->_populateInventoryFulfillmentLevel($row));
     }
 
     /**
@@ -834,30 +873,31 @@ class Inventory extends Component
      * @param int $inventoryItemId
      * @param int $inventoryLocationId
      * @param int|null $committedLocationId
-     * @return Collection<array{lineItemId: int, reservedQty: int}>
+     * @return Collection<array{lineItemId: int, orderId: int, reservedQty: int}>
      * @since 5.7.7
      */
     public function getReservedQuantitiesByLineItem(int $inventoryItemId, int $inventoryLocationId, ?int $committedLocationId = null): Collection
     {
         $query = (new Query())
             ->select([
-                'lineItemId',
-                'reservedQty' => new Expression('SUM([[quantity]])'),
-                'firstReservedDate' => new Expression('MIN([[dateCreated]])'),
+                'lineItemId' => '[[it.lineItemId]]',
+                'orderId' => '[[li.orderId]]',
+                'reservedQty' => new Expression('SUM([[it.quantity]])'),
+                'firstReservedDate' => new Expression('MIN([[it.dateCreated]])'),
             ])
-            ->from(Table::INVENTORYTRANSACTIONS)
+            ->from(['it' => Table::INVENTORYTRANSACTIONS])
+            ->innerJoin(['li' => Table::LINEITEMS], '[[li.id]] = [[it.lineItemId]]')
             ->where([
-                'type' => InventoryTransactionType::RESERVED->value,
-                'inventoryItemId' => $inventoryItemId,
-                'inventoryLocationId' => $inventoryLocationId,
+                '[[it.type]]' => InventoryTransactionType::RESERVED->value,
+                '[[it.inventoryItemId]]' => $inventoryItemId,
+                '[[it.inventoryLocationId]]' => $inventoryLocationId,
             ])
-            ->andWhere(['not', ['lineItemId' => null]])
-            ->groupBy(['lineItemId'])
-            ->having(new Expression('SUM([[quantity]]) > 0'))
+            ->groupBy(['[[it.lineItemId]]', '[[li.orderId]]'])
+            ->having(new Expression('SUM([[it.quantity]]) > 0'))
             ->orderBy(['firstReservedDate' => SORT_ASC]);
 
         if ($committedLocationId !== null) {
-            $query->andWhere(['lineItemId' => (new Query())
+            $query->andWhere(['[[it.lineItemId]]' => (new Query())
                 ->select(['lineItemId'])
                 ->from(Table::INVENTORYTRANSACTIONS)
                 ->where([
@@ -873,6 +913,7 @@ class Inventory extends Component
 
         return collect($query->all())->map(fn(array $row) => [
             'lineItemId' => (int)$row['lineItemId'],
+            'orderId' => (int)$row['orderId'],
             'reservedQty' => (int)$row['reservedQty'],
         ]);
     }

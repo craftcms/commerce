@@ -36,6 +36,7 @@ use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\PaymentForm;
 use craft\commerce\helpers\Purchasable;
 use craft\commerce\models\inventory\InventoryFulfillMovement;
+use craft\commerce\models\InventoryFulfillmentLevel;
 use craft\commerce\models\LineItemStatus;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderNotice;
@@ -323,7 +324,9 @@ class OrdersController extends Controller
 
         $orderId = $this->request->getRequiredParam('orderId');
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
-        $inventoryFulfillmentLevels = Plugin::getInstance()->getInventory()->getInventoryFulfillmentLevels($order)->groupBy('inventoryLocationId');
+        $inventoryFulfillmentLevels = Plugin::getInstance()->getInventory()->getInventoryFulfillmentLevels($order)
+            ->each(fn(InventoryFulfillmentLevel $fulfillmentLevel) => $fulfillmentLevel->setOrder($order))
+            ->groupBy('inventoryLocationId');
 
         /** @phpstan-ignore-next-line */
         $response = $this->asCpModal()

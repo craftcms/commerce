@@ -56,13 +56,10 @@ class InventoryFulfillMovement extends InventoryMovement
                 $fulfillable = Plugin::getInstance()->getInventory()->getFulfillableQuantity($this->inventoryItemId, $this->fromInventoryLocation->id);
 
                 if ($this->quantity + $this->otherPendingQuantity > $fulfillable) {
-                    $validator->addError($this, $attribute, Craft::t('commerce',
-                        'Only {quantity} can be fulfilled from {inventoryLocation}. Transfer more stock to this location before fulfilling the rest.',
-                        [
-                            'quantity' => max($fulfillable - $this->otherPendingQuantity, 0),
-                            'inventoryLocation' => $this->fromInventoryLocation->getUiLabel(),
-                        ]
-                    ));
+                    $validator->addError($this, $attribute, Craft::t('commerce', '{description} only has {stock} in stock.', [
+                        'description' => $this->fromInventoryLocation->getUiLabel(),
+                        'stock' => max($fulfillable - $this->otherPendingQuantity, 0),
+                    ]));
                 }
             },
         ];

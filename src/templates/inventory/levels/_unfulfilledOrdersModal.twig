@@ -1,8 +1,72 @@
-{% import '_includes/forms' as forms %}
+{# @var fulfillmentLevels \Illuminate\Support\Collection<\craft\commerce\models\InventoryFulfillmentLevel> #}
+{# @var inventoryLocation \craft\commerce\models\InventoryLocation #}
 
-<div>
-    <h3>{{ title }}</h3>
-    {% for order in orders %}
-        {{ order.getLink(order.reference, { 'data-icon': 'external', target: '_blank' }) }}<br>
-    {% endfor %}
+<div style="width: min(56rem, calc(100vw - 6rem));">
+    <h2>{{ title }}</h2>
+
+    <div class="flex flex-wrap" style="gap: var(--l); margin-block: var(--s) var(--m);">
+        <div><span class="light">{{ 'Location'|t('app') }}:</span> <strong>{{ inventoryLocation.getUiLabel() }}</strong></div>
+        <div><span class="light">{{ 'Committed'|t('commerce') }}:</span> <strong>{{ committedTotal }}</strong></div>
+    </div>
+
+    {% if fulfillmentLevels|length %}
+        <div style="max-height: min(28rem, calc(100vh - 16rem)); overflow: auto;">
+            <table class="data fullwidth">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ 'Order'|t('commerce') }}</th>
+                        <th scope="col">{{ 'Date Ordered'|t('commerce') }}</th>
+                        <th scope="col">{{ 'Order Status'|t('commerce') }}</th>
+                        <th scope="col">{{ 'Item'|t('commerce') }}</th>
+                        <th scope="col" class="thin">{{ 'Qty'|t('commerce') }}</th>
+                        <th scope="col" class="thin">{{ 'Fulfilled'|t('commerce') }}</th>
+                        <th scope="col" class="thin">{{ 'Committed'|t('commerce') }}</th>
+                        <th scope="col" class="thin">{{ 'Stock'|t('commerce') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fulfillmentLevel in fulfillmentLevels %}
+                        {% set order = fulfillmentLevel.getOrder() %}
+                        {% set lineItem = fulfillmentLevel.getLineItem() %}
+                        <tr>
+                            <th scope="row">
+                                {{ tag('a', {
+                                    text: order.reference ?: order.shortNumber,
+                                    href: order.getCpEditUrl(),
+                                    target: '_blank',
+                                    rel: 'noopener',
+                                    class: 'go',
+                                    title: 'Open in a new tab'|t('app'),
+                                }) }}
+                                {% if order.email %}
+                                    <div class="smalltext light">{{ order.email }}</div>
+                                {% endif %}
+                            </th>
+                            <td>{{ order.dateOrdered ? order.dateOrdered|datetime('short') }}</td>
+                            <td>{{ order.getOrderStatus() ? order.getOrderStatus().getLabelHtml()|raw }}</td>
+                            <td>
+                                {{ lineItem.description }}
+                                <div class="smalltext light code">{{ lineItem.sku }}</div>
+                            </td>
+                            <td class="thin">{{ lineItem.qty }}</td>
+                            <td class="thin">{{ fulfillmentLevel.fulfilledQuantity }}</td>
+                            <td class="thin"><strong>{{ fulfillmentLevel.outstandingCommittedQuantity }}</strong></td>
+                            <td class="thin">
+                                {% if fulfillmentLevel.isShortOfStock %}
+                                    <span class="error" title="{{ '{description} only has {stock} in stock.'|t('commerce', {
+                                        description: inventoryLocation.getUiLabel(),
+                                        stock: fulfillmentLevel.getFulfillableQuantity(),
+                                    }) }}">{{ fulfillmentLevel.getFulfillableQuantity() }}</span>
+                                {% else %}
+                                    {{ fulfillmentLevel.getFulfillableQuantity() }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="zilch small">{{ 'No results.'|t('app') }}</p>
+    {% endif %}
 </div>

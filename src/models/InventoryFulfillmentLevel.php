@@ -30,6 +30,12 @@ class InventoryFulfillmentLevel extends Model
     public int $lineItemId;
 
     /**
+     * @var int|null
+     * @since 5.7.7
+     */
+    public ?int $orderId = null;
+
+    /**
      * @var int
      */
     public int $committedQuantity;
@@ -49,6 +55,18 @@ class InventoryFulfillmentLevel extends Model
      * @see getFulfillableQuantity()
      */
     private ?int $_fulfillableQuantity = null;
+
+    /**
+     * @var Order|null
+     * @see getOrder()
+     */
+    private ?Order $_order = null;
+
+    /**
+     * @var LineItem|null
+     * @see getLineItem()
+     */
+    private ?LineItem $_lineItem = null;
 
     /**
      * Returns the quantity of the inventory item that can be fulfilled from the inventory location, regardless of order.
@@ -102,7 +120,19 @@ class InventoryFulfillmentLevel extends Model
 
     public function getOrder(): Order
     {
-        return Order::find()->id($this->getLineItem()->order)->status(null)->one();
+        return $this->_order ??= Order::find()->id($this->orderId ?? $this->getLineItem()->orderId)->status(null)->one();
+    }
+
+    /**
+     * Sets the order, e.g. when eager-loading the orders for a list of fulfillment levels.
+     *
+     * @param Order $order
+     * @since 5.7.7
+     */
+    public function setOrder(Order $order): void
+    {
+        $this->_order = $order;
+        $this->orderId = $order->id;
     }
 
     public function getLineItem(): LineItem
@@ -111,7 +141,11 @@ class InventoryFulfillmentLevel extends Model
             throw new InvalidConfigException('InventoryFulfillmentLevel is not associated with a line item');
         }
 
-        return Plugin::getInstance()->getLineItems()->getLineItemById($this->lineItemId);
+        if ($this->_lineItem === null && $this->_order !== null) {
+            $this->_lineItem = collect($this->_order->getLineItems())->firstWhere('id', $this->lineItemId);
+        }
+
+        return $this->_lineItem ??= Plugin::getInstance()->getLineItems()->getLineItemById($this->lineItemId);
     }
 
     /**

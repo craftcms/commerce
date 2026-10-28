@@ -285,6 +285,93 @@ class InventoryMovementTest extends Unit
         self::assertCount(0, $inventory->getReservedQuantitiesByLineItem($itemId, $secondary->id, $secondary->id));
     }
 
+    // Orders waiting on committed stock (inventory "See Orders" modal)
+    // =========================================================================
+
+    /**
+     * The committed stock modal lists every line item with stock still to fulfill at the location, including
+     * partially fulfilled ones.
+     *
+     * A completed order for 10 is committed at a location and 1 is fulfilled, leaving 9 committed. It must be
+     * listed with 9 to fulfill. It previously disappeared because getUnfulfilledOrders() only matched line items
+     * whose committed stock was at least the full line item quantity, so the modal showed 0 orders.
+     */
+    public function testGetOutstandingInventoryFulfillmentLevels_includesPartiallyFulfilledLineItems(): void
+    {
+        $itemId = $this->_getInventoryItemId();
+        $location = $this->_createInventoryLocation('outstandingA');
+        $lineItem = $this->_createLineItem(qty: 10, completeOrder: true);
+
+        $this->_setAvailable($itemId, $location->id, 20);
+        $this->_commit($itemId, $location, 10, $lineItem->id);
+        $this->_executeFulfillment($itemId, $location, 1, $lineItem->id);
+
+        $levels = Plugin::getInstance()->getInventory()->getOutstandingInventoryFulfillmentLevels($itemId, $location->id)->values();
+
+        self::assertCount(1, $levels);
+        self::assertSame($lineItem->id, $levels[0]->lineItemId);
+        self::assertSame($lineItem->orderId, $levels[0]->orderId);
+        self::assertSame(9, $levels[0]->outstandingCommittedQuantity);
+        self::assertSame(1, $levels[0]->fulfilledQuantity);
+        self::assertSame($lineItem->orderId, $levels[0]->getOrder()->id);
+
+        $orders = Plugin::getInstance()->getInventory()->getUnfulfilledOrders($itemId, $location->id);
+        self::assertCount(1, $orders, 'getUnfulfilledOrders() should also include partially fulfilled orders.');
+    }
+
+    /**
+     * Line items with nothing left to fulfill, and orders that were never completed, aren't listed.
+     *
+     * One completed order is fully fulfilled (committed nets to 0) and one order is still a cart (not completed),
+     * so nothing is waiting on stock at the location.
+     */
+    public function testGetOutstandingInventoryFulfillmentLevels_excludesFulfilledAndIncompleteOrders(): void
+    {
+        $itemId = $this->_getInventoryItemId();
+        $location = $this->_createInventoryLocation('outstandingB');
+        $fulfilledLineItem = $this->_createLineItem(qty: 3, completeOrder: true);
+        $cartLineItem = $this->_createLineItem(qty: 2);
+
+        $this->_setAvailable($itemId, $location->id, 20);
+        $this->_commit($itemId, $location, 3, $fulfilledLineItem->id);
+        $this->_executeFulfillment($itemId, $location, 3, $fulfilledLineItem->id);
+        $this->_commit($itemId, $location, 2, $cartLineItem->id);
+
+        self::assertCount(0, Plugin::getInstance()->getInventory()->getOutstandingInventoryFulfillmentLevels($itemId, $location->id));
+    }
+
+    /**
+     * The reserved stock modal shows where each reserved line item is committed, by looking up the outstanding
+     * fulfillment levels for those line items at any location.
+     *
+     * An order for 15 is committed at the primary location with 5 reserved at the secondary location. Asking for
+     * that line item's levels without a location returns the primary location with 15 to fulfill, and the
+     * reservation itself reports its order ID.
+     */
+    public function testGetOutstandingInventoryFulfillmentLevels_findsCommittedLocationForReservation(): void
+    {
+        $itemId = $this->_getInventoryItemId();
+        $primary = $this->_createInventoryLocation('outstandingPrimary');
+        $secondary = $this->_createInventoryLocation('outstandingSecondary');
+        $lineItem = $this->_createLineItem(qty: 15, completeOrder: true);
+
+        $this->_setAvailable($itemId, $primary->id, 10);
+        $this->_setAvailable($itemId, $secondary->id, 10);
+        $this->_commit($itemId, $primary, 15, $lineItem->id);
+        $this->_reserveFromAvailable($itemId, $secondary, 5, $lineItem->id);
+
+        $inventory = Plugin::getInstance()->getInventory();
+
+        $reservations = $inventory->getReservedQuantitiesByLineItem($itemId, $secondary->id)->values();
+        self::assertCount(1, $reservations);
+        self::assertSame($lineItem->orderId, $reservations[0]['orderId']);
+
+        $levels = $inventory->getOutstandingInventoryFulfillmentLevels($itemId, null, [$lineItem->id])->values();
+        self::assertCount(1, $levels);
+        self::assertSame($primary->id, $levels[0]->inventoryLocationId);
+        self::assertSame(15, $levels[0]->outstandingCommittedQuantity);
+    }
+
     // Issue #4268 end-to-end scenario
     // =========================================================================
 
@@ -516,7 +603,7 @@ class InventoryMovementTest extends Unit
         return $location;
     }
 
-    private function _createLineItem(string $sku = 'rad-hood'): LineItem
+    private function _createLineItem(string $sku = 'rad-hood', int $qty = 1, bool $completeOrder = false): LineItem
     {
         $variant = Variant::find()->sku($sku)->one();
 
@@ -525,11 +612,28 @@ class InventoryMovementTest extends Unit
 
         $lineItem = Plugin::getInstance()->getLineItems()->create($order, [
             'purchasableId' => $variant->id,
+            'qty' => $qty,
         ]);
         $order->setLineItems([$lineItem]);
         Craft::$app->getElements()->saveElement($order, false);
 
+        if ($completeOrder) {
+            // Mark the order complete directly, rather than via Order::markAsComplete(), so that order completion
+            // doesn't make its own inventory movements on top of the ones each test sets up.
+            Craft::$app->getDb()->createCommand()
+                ->update(Table::ORDERS, ['isCompleted' => true, 'dateOrdered' => Db::prepareDateForDb(new \DateTime())], ['id' => $order->id])
+                ->execute();
+        }
+
         return $order->getLineItems()[0];
+    }
+
+    private function _executeFulfillment(int $inventoryItemId, InventoryLocation $location, int $quantity, int $lineItemId): void
+    {
+        $movement = $this->_fulfillMovement($inventoryItemId, $location, $quantity, $lineItemId);
+        self::assertTrue(Plugin::getInstance()->getInventory()->executeInventoryMovements(
+            (new InventoryMovementCollection())->push($movement)
+        ));
     }
 
     private function _createDraftTransfer(int $originLocationId, int $destinationLocationId, array $details = []): Transfer
