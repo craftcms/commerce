@@ -1,0 +1,5 @@
+services:
+  postgres:
+    command: /usr/lib/postgresql/15/bin/postgres -D "$HOME/.local/share/craft-commerce/postgres"
+    port: 5432
+    platforms: [linux]
