@@ -7,6 +7,9 @@ namespace CraftCms\Commerce\Twig;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Helpers\PaymentForm;
+use CraftCms\Commerce\Order\Queries\OrderQuery;
+use CraftCms\Commerce\Product\Queries\ProductQuery;
+use CraftCms\Commerce\Product\Variant\Queries\VariantQuery;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
 use Twig\TwigFilter;
@@ -33,6 +36,15 @@ class Extension extends AbstractExtension implements GlobalsInterface
 
         return [
             'currentStore' => $currentStore,
+        ];
+    }
+
+    public function getFunctions(): array
+    {
+        return [
+            new \Twig\TwigFunction('products', fn(array $config = []) => new ProductQuery($config)),
+            new \Twig\TwigFunction('orders', fn(array $config = []) => new OrderQuery($config)),
+            new \Twig\TwigFunction('variants', fn(array $config = []) => new VariantQuery($config)),
         ];
     }
 }
