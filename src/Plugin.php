@@ -4,24 +4,14 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce;
 
-use Closure;
-use craft\commerce\services\Gateways as LegacyGateways;
-use craft\commerce\services\OrderAdjustments as LegacyOrderAdjustments;
-use craft\commerce\services\Purchasables as LegacyPurchasables;
-use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Auth\Events\ElementAuthorizing;
-use CraftCms\Cms\Cms;
-use CraftCms\Cms\Cp\Data\NavItem;
-use CraftCms\Cms\Cp\Settings as CpSettings;
 use CraftCms\Cms\Element\Events\DefineDeletionBlockers;
 use CraftCms\Cms\Element\Events\ElementSaved;
 use CraftCms\Cms\Element\Queries\Events\ElementsHydrated;
-use CraftCms\Cms\FieldLayout\FieldLayout;
-use CraftCms\Cms\GarbageCollection\Actions\DeletePartialElements;
 use CraftCms\Cms\GarbageCollection\Events\RunningGarbageCollection;
+use CraftCms\Cms\Gql\Events\GqlArgumentsResolving;
 use CraftCms\Cms\Gql\Events\GqlEagerLoadableFieldsResolving;
 use CraftCms\Cms\Gql\Events\GqlSchemaComponentsResolving;
-use CraftCms\Cms\Gql\GqlArguments;
 use CraftCms\Cms\Plugin\Plugin as BasePlugin;
 use CraftCms\Cms\Route\Routes;
 use CraftCms\Cms\Site\Events\SiteDeleted;
@@ -29,9 +19,6 @@ use CraftCms\Cms\Site\Events\SiteSaved;
 use CraftCms\Cms\Support\Facades\Twig;
 use CraftCms\Cms\Support\File;
 use CraftCms\Cms\Support\Path;
-use CraftCms\Cms\SystemMessage\Models\SystemMessage;
-use CraftCms\Cms\Ui\UiControlTypes;
-use CraftCms\Cms\Ui\UiNodeTypes;
 use CraftCms\Cms\User\Events\EditUserScreensResolving;
 use CraftCms\Cms\User\Events\UserAssignedToGroups;
 use CraftCms\Cms\View\TemplateMode;
@@ -46,7 +33,6 @@ use CraftCms\Commerce\Console\Commands\Resave\ResaveProductsCommand;
 use CraftCms\Commerce\Console\Commands\Resave\ResaveVariantsCommand;
 use CraftCms\Commerce\Console\Commands\ResetData\ResetDataCommand;
 use CraftCms\Commerce\Console\Commands\TransferCustomerData\TransferCustomerDataCommand;
-use CraftCms\Commerce\Customer\FieldLayoutElements\UserAddressSettings;
 use CraftCms\Commerce\Customer\Fields\IsPrimaryBillingField;
 use CraftCms\Commerce\Customer\Fields\IsPrimaryShippingField;
 use CraftCms\Commerce\Customer\Fields\PrimaryBillingAddressIdField;
@@ -63,77 +49,58 @@ use CraftCms\Commerce\Dashboard\Widgets\TopPurchasables;
 use CraftCms\Commerce\Dashboard\Widgets\TotalOrders;
 use CraftCms\Commerce\Dashboard\Widgets\TotalOrdersByCountry;
 use CraftCms\Commerce\Dashboard\Widgets\TotalRevenue;
-use CraftCms\Commerce\Database\Table;
-use CraftCms\Commerce\Gql\Handlers\HasProduct;
-use CraftCms\Commerce\Gql\Handlers\HasVariant;
-use CraftCms\Commerce\Gql\Handlers\RelatedProducts;
-use CraftCms\Commerce\Gql\Handlers\RelatedVariants;
 use CraftCms\Commerce\Gql\Interfaces\Elements\Product as ProductInterface;
 use CraftCms\Commerce\Gql\Interfaces\Elements\Variant as VariantInterface;
 use CraftCms\Commerce\Gql\Queries\Product as ProductQuery;
 use CraftCms\Commerce\Gql\Queries\Variant as VariantQuery;
-use CraftCms\Commerce\Http\Controllers\Users\UsersController;
 use CraftCms\Commerce\Http\Middleware\PoweredByHeader;
 use CraftCms\Commerce\Http\RateLimiters\CartChallengeRateLimiter;
 use CraftCms\Commerce\Http\RateLimiters\CartRateLimiter;
 use CraftCms\Commerce\Http\RateLimiters\PdfChallengeRateLimiter;
-use CraftCms\Commerce\Inventory\InventoryLocations;
-use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Plugin\Concerns\HasCommerceEditions;
-use CraftCms\Commerce\Plugin\Concerns\HasCommerceEventListeners;
 use CraftCms\Commerce\Plugin\Concerns\HasCommerceMacros;
+use CraftCms\Commerce\Plugin\Concerns\HasCpNavigation;
+use CraftCms\Commerce\Plugin\Concerns\HasCpSettings;
+use CraftCms\Commerce\Plugin\Concerns\HasGql;
+use CraftCms\Commerce\Plugin\Concerns\HasLegacyBridges;
+use CraftCms\Commerce\Plugin\Concerns\HasNativeFields;
 use CraftCms\Commerce\Plugin\Concerns\HasPermissions;
+use CraftCms\Commerce\Plugin\Concerns\HasProjectConfigListeners;
 use CraftCms\Commerce\Plugin\Concerns\HasServices;
+use CraftCms\Commerce\Plugin\Concerns\HasSystemMessages;
+use CraftCms\Commerce\Plugin\Concerns\HasUi;
 use CraftCms\Commerce\Plugin\Listeners\DefineDeletionBlockersListener;
+use CraftCms\Commerce\Plugin\Listeners\EditUserScreensResolvingListener;
 use CraftCms\Commerce\Plugin\Listeners\ElementAuthorizingListener;
 use CraftCms\Commerce\Plugin\Listeners\ElementSavedListener;
+use CraftCms\Commerce\Plugin\Listeners\GqlArgumentsResolvingListener;
+use CraftCms\Commerce\Plugin\Listeners\GqlEagerLoadableFieldsResolvingListener;
+use CraftCms\Commerce\Plugin\Listeners\GqlSchemaComponentsResolvingListener;
 use CraftCms\Commerce\Plugin\Listeners\LoginListener;
 use CraftCms\Commerce\Plugin\Listeners\LogoutListener;
+use CraftCms\Commerce\Plugin\Listeners\RunningGarbageCollectionListener;
 use CraftCms\Commerce\Plugin\Listeners\SiteDeletedListener;
 use CraftCms\Commerce\Plugin\Listeners\SiteSavedListener;
 use CraftCms\Commerce\Plugin\Listeners\UserAssignedToGroupsListener;
 use CraftCms\Commerce\Product\Elements\Product;
-use CraftCms\Commerce\Product\FieldLayoutElements\ProductTitleField;
 use CraftCms\Commerce\Product\Fields\Products as ProductsField;
 use CraftCms\Commerce\Product\Fields\Variants as VariantsField;
 use CraftCms\Commerce\Product\LinkTypes\ProductLinkType;
 use CraftCms\Commerce\Product\Policies\ProductPolicy;
-use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
-use CraftCms\Commerce\Product\Variant\FieldLayoutElements\VariantsField as VariantsLayoutElement;
-use CraftCms\Commerce\Product\Variant\FieldLayoutElements\VariantTitleField;
 use CraftCms\Commerce\Product\Variant\Policies\VariantPolicy;
 use CraftCms\Commerce\Purchasable\Elements\Donation;
-use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableAllowedQtyField;
-use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableAvailableForPurchaseField;
-use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableDimensionsField;
-use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableFreeShippingField;
-use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasablePriceField;
-use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasablePromotableField;
-use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableSkuField;
-use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableStockField;
-use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableWeightField;
 use CraftCms\Commerce\Transfer\Elements\Transfer;
-use CraftCms\Commerce\Transfer\FieldLayoutElements\TransferManagementField;
 use CraftCms\Commerce\Transfer\Policies\TransferPolicy;
 use CraftCms\Commerce\Twig\Extension as CommerceTwigExtension;
-use CraftCms\Commerce\Ui\Controls\SiteStores;
-use CraftCms\Commerce\Ui\Controls\TransferDetails;
-use CraftCms\Commerce\Ui\Controls\TransferReceive;
-use CraftCms\Commerce\Ui\Nodes\CouponGenerator;
-use CraftCms\Commerce\Ui\Nodes\UsageCounter;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 
-use function CraftCms\Cms\cp_url;
-use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
 
 class Plugin extends BasePlugin
@@ -142,7 +109,14 @@ class Plugin extends BasePlugin
     use HasServices;
     use HasCommerceEditions;
     use HasCommerceMacros;
-    use HasCommerceEventListeners;
+    use HasProjectConfigListeners;
+    use HasLegacyBridges;
+    use HasCpNavigation;
+    use HasSystemMessages;
+    use HasNativeFields;
+    use HasGql;
+    use HasUi;
+    use HasCpSettings;
 
     public const string HANDLE = 'commerce';
 
@@ -196,6 +170,11 @@ class Plugin extends BasePlugin
         SiteDeleted::class => SiteDeletedListener::class,
         DefineDeletionBlockers::class => DefineDeletionBlockersListener::class,
         ElementAuthorizing::class => ElementAuthorizingListener::class,
+        EditUserScreensResolving::class => EditUserScreensResolvingListener::class,
+        GqlArgumentsResolving::class => GqlArgumentsResolvingListener::class,
+        GqlSchemaComponentsResolving::class => GqlSchemaComponentsResolvingListener::class,
+        GqlEagerLoadableFieldsResolving::class => GqlEagerLoadableFieldsResolvingListener::class,
+        RunningGarbageCollection::class => RunningGarbageCollectionListener::class,
     ];
 
     protected array $linkTypes = [
@@ -241,39 +220,13 @@ class Plugin extends BasePlugin
 
     public function boot(): void
     {
-        // Reconcile our type registries against any legacy `Event::on(...)` listeners for the
-        // deprecated EVENT_REGISTER_* constants, once every plugin has finished registering its listeners.
-        $this->app->booted(function() {
-            if (!Cms::isInstalled(strict: true)) {
-                return;
-            }
-
-            LegacyOrderAdjustments::finalizeRegistrationEvents();
-            LegacyGateways::finalizeRegistrationEvents();
-            LegacyPurchasables::finalizeRegistrationEvents();
-        });
-
-        $arguments = app(GqlArguments::class);
-        $arguments->register('hasProduct', HasProduct::class);
-        $arguments->register('hasVariant', HasVariant::class);
-        $arguments->register('relatedToProducts', RelatedProducts::class);
-        $arguments->register('relatedToVariants', RelatedVariants::class);
-
-        app(UiNodeTypes::class)->register(CouponGenerator::class);
-        app(UiNodeTypes::class)->register(UsageCounter::class);
-        app(UiControlTypes::class)->register(SiteStores::class);
-        app(UiControlTypes::class)->register(TransferDetails::class);
-        app(UiControlTypes::class)->register(TransferReceive::class);
-
+        $this->finalizeLegacyRegistrationEvents();
+        $this->registerGqlArguments();
+        $this->registerUiComponents();
         $this->registerCpSettings();
-
-        Gate::policy(Product::class, ProductPolicy::class);
-        Gate::policy(Transfer::class, TransferPolicy::class);
-        Gate::policy(Variant::class, VariantPolicy::class);
-
+        $this->registerPolicies();
         $this->registerBehaviorMacros();
         $this->registerVariableMacros();
-        $this->registerGqlRelatedToArguments();
         $this->registerForeignKeysRestore();
         $this->registerLegacyEventBridges();
 
@@ -290,46 +243,15 @@ class Plugin extends BasePlugin
 
             if (request()->isCpRequest()) {
                 $this->registerCKEditorLinkOptions();
-                $this->registerLegacyCpRoutes();
             }
         }
     }
 
-    private function registerCpSettings(): void
+    private function registerPolicies(): void
     {
-        $settings = [
-            'general' => ['gear', fn() => t('General', category: 'commerce')],
-            'stores' => ['store', fn() => t('Stores', category: 'commerce')],
-            'producttypes' => ['boxes-stacked', fn() => t('Product Types', category: 'commerce')],
-            'orders' => ['receipt', fn() => t('Orders', category: 'commerce')],
-            'pdfs' => ['file-pdf', fn() => t('PDFs', category: 'commerce')],
-            'emails' => ['envelopes', fn() => t('Emails', category: 'commerce')],
-            'gateways' => ['credit-card', fn() => t('Gateways', category: 'commerce')],
-            'transfers' => ['truck-arrow-right', fn() => t('Transfers', category: 'commerce')],
-        ];
-
-        foreach ($settings as $handle => [$icon, $label]) {
-            $setting = fn() => [
-                'label' => $label(),
-                'url' => cp_url("commerce/settings/$handle"),
-                'icon' => File::get(dirname($this->getBasePath()) . "/resources/icons/light/$icon.svg"),
-            ];
-
-            app(CpSettings::class)->registerSetting('Commerce', $handle, $setting);
-            app(CpSettings::class)->registerReadOnlySetting('Commerce', $handle, $setting);
-        }
-    }
-
-    #[\Override]
-    public function getSettingsResponse(): mixed
-    {
-        return redirect('commerce/settings/general');
-    }
-
-    #[\Override]
-    public function getReadOnlySettingsResponse(): mixed
-    {
-        return redirect('commerce/settings/general');
+        Gate::policy(Product::class, ProductPolicy::class);
+        Gate::policy(Transfer::class, TransferPolicy::class);
+        Gate::policy(Variant::class, VariantPolicy::class);
     }
 
     protected static function createSettings(): ?Settings
@@ -359,162 +281,6 @@ class Plugin extends BasePlugin
         RateLimiter::for(CartRateLimiter::NAME, fn(Request $request) => app(CartRateLimiter::class)->limit($request));
         RateLimiter::for(CartChallengeRateLimiter::NAME, fn(Request $request) => app(CartChallengeRateLimiter::class)->limit($request));
         RateLimiter::for(PdfChallengeRateLimiter::NAME, fn(Request $request) => app(PdfChallengeRateLimiter::class)->limit($request));
-
-        // Add a "Commerce" screen to the Edit User screen for users who can access Commerce
-        Event::listen(EditUserScreensResolving::class, function(EditUserScreensResolving $event) {
-            if (currentUser()?->can('accessPlugin-commerce')) {
-                $event->screens[UsersController::SCREEN_COMMERCE] = ['label' => t('Commerce', category: 'commerce')];
-            }
-        });
-
-        Event::listen(GqlSchemaComponentsResolving::class, function(GqlSchemaComponentsResolving $event) {
-            $productTypes = app(ProductTypes::class)->getAllProductTypes();
-
-            if (empty($productTypes)) {
-                return;
-            }
-
-            $label = t('Products', category: 'commerce');
-            $productPermissions = [];
-
-            foreach ($productTypes as $productType) {
-                $suffix = 'productTypes.' . $productType->uid;
-                $productPermissions[$suffix . ':read'] = [
-                    'label' => t('View product type - {productType}', ['productType' => t($productType->name, category: 'site')], category: 'commerce'),
-                ];
-            }
-
-            $event->queries[$label] = $productPermissions;
-        });
-
-        Event::listen(GqlEagerLoadableFieldsResolving::class, function(GqlEagerLoadableFieldsResolving $event) {
-            $event->fieldList['variants'] = [ProductsField::class];
-            $event->fieldList['product'] = [VariantsField::class];
-        });
-
-        Event::listen(RunningGarbageCollection::class, function(RunningGarbageCollection $event) {
-            app(Carts::class)->purgeIncompleteCarts();
-
-            DB::table(Table::VARIANTS)->whereNull('primaryOwnerId')->delete();
-
-            foreach ([
-                [Donation::class, Table::DONATIONS],
-                [Order::class, Table::ORDERS],
-                [Product::class, Table::PRODUCTS],
-                [Variant::class, Table::VARIANTS],
-                [Transfer::class, Table::TRANSFERS],
-            ] as [$elementType, $table]) {
-                app(DeletePartialElements::class, [
-                    'garbageCollection' => $event->garbageCollection,
-                    'elementType' => $elementType,
-                    'table' => $table,
-                ])();
-            }
-        });
-    }
-
-    /**
-     * The CP nav's `craft-icon` component resolves `icon` to a published icon
-     * *name* (e.g. `/vendor/craft/icons/solid/cart-shopping.svg`), not a
-     * filesystem path, so the base `cpNavIconPath()` (which points at
-     * `resources/icon-mask.svg`) never renders here. Use a published system
-     * icon until plugin-contributed custom icons are supported.
-     */
-    #[\Override]
-    protected function cpNavIconPath(): ?string
-    {
-        return 'cart-shopping';
-    }
-
-    #[\Override]
-    public function getCpNavItem(): NavItem|array|null
-    {
-        $item = parent::getCpNavItem();
-
-        if (!$item instanceof NavItem) {
-            return $item;
-        }
-
-        $item->group(true);
-        $item->label(t('Commerce', category: 'commerce'));
-
-        if (currentUser()?->can('commerce-manageOrders')) {
-            $item->add(new NavItem()
-                ->icon('receipt')
-                ->label(t('Orders', category: 'commerce'))
-                ->url('commerce/orders'));
-        }
-
-        if (app(ProductTypes::class)->getViewableProductTypeIds(true)) {
-            $item->add(new NavItem()
-                ->icon('cart-shopping')
-                ->label(t('Products', category: 'commerce'))
-                ->url('commerce/products'));
-        }
-
-        if (currentUser()?->can('commerce-manageDonationSettings')) {
-            $item->add(new NavItem()
-                ->icon('circle-dollar-to-slot')
-                ->label(t('Donations', category: 'commerce'))
-                ->url('commerce/donations'));
-        }
-
-        $inventoryItems = [];
-
-        if (currentUser()?->can('commerce-manageInventoryStockLevels')) {
-            $inventoryItems[] = new NavItem()
-                ->label(t('Manage Inventory', category: 'commerce'))
-                ->url('commerce/inventory');
-        }
-
-        if (currentUser()?->can('commerce-manageInventoryLocations')) {
-            $inventoryItems[] = new NavItem()
-                ->label(t('Inventory Locations', category: 'commerce'))
-                ->url('commerce/inventory-locations');
-        }
-
-        $multipleLocations = app(InventoryLocations::class)->getAllInventoryLocations()->count() > 1;
-        if ($multipleLocations && currentUser()?->can('commerce-manageInventoryTransfers')) {
-            $inventoryItems[] = new NavItem()
-                ->label(t('Inventory Transfers', category: 'commerce'))
-                ->url('commerce/inventory/transfers');
-        }
-
-        if ($inventoryItems) {
-            $item->add(new NavItem()->label(t('Inventory', category: 'commerce'))
-                ->icon('warehouse')
-                ->group(true)->subnav($inventoryItems));
-        }
-
-        if (currentUser()?->can('commerce-manageStoreSettings')) {
-            $item->add(new NavItem()
-                ->icon('gear')
-                ->label(t('Settings', category: 'app'))
-                ->group(true)->subnav([
-                new NavItem()->label(t('Store Management', category: 'commerce'))->url('commerce/store-management'),
-            ]));
-        }
-
-        return $item;
-    }
-
-    #[\Override]
-    protected function getSystemMessages(): array
-    {
-        return [
-            'commerce_pdf_download' => fn() => new SystemMessage([
-                'key' => 'commerce_pdf_download',
-                'heading' => t('Order PDF Download Link', category: 'commerce'),
-                'subject' => t('Your Order PDF Download Link', category: 'commerce'),
-                'body' => $this->defaultPdfDownloadMessage(),
-            ]),
-            'commerce_cart_recovery' => fn() => new SystemMessage([
-                'key' => 'commerce_cart_recovery',
-                'heading' => t('Cart Recovery Link', category: 'commerce'),
-                'subject' => t('Your Cart Recovery Link', category: 'commerce'),
-                'body' => $this->defaultCartRecoveryMessage(),
-            ]),
-        ];
     }
 
     #[\Override]
@@ -528,62 +294,5 @@ class Plugin extends BasePlugin
                 },
             ],
         ];
-    }
-
-    #[\Override]
-    protected function getNativeFields(): ?Closure
-    {
-        return function(FieldLayout $fieldLayout, array $fields): array {
-            switch ($fieldLayout->type) {
-                case Address::class:
-                    $fields[] = UserAddressSettings::class;
-                    break;
-                case Product::class:
-                    $fields[] = ProductTitleField::class;
-                    $fields[] = VariantsLayoutElement::class;
-                    break;
-                case Transfer::class:
-                    $fields[] = TransferManagementField::class;
-                    break;
-                case Variant::class:
-                    $fields[] = VariantTitleField::class;
-                    $fields[] = PurchasableSkuField::class;
-                    $fields[] = PurchasablePriceField::class;
-                    $fields[] = PurchasableStockField::class;
-                    $fields[] = PurchasableAvailableForPurchaseField::class;
-                    $fields[] = PurchasableAllowedQtyField::class;
-                    $fields[] = PurchasableFreeShippingField::class;
-                    $fields[] = PurchasablePromotableField::class;
-                    $fields[] = PurchasableDimensionsField::class;
-                    $fields[] = PurchasableWeightField::class;
-                    break;
-            }
-
-            return $fields;
-        };
-    }
-
-    /**
-     * Returns the default message body for the PDF download email.
-     */
-    private function defaultPdfDownloadMessage(): string
-    {
-        return "Hello,\n\n" .
-            "You requested a PDF download for your order. Click the link below to download your PDF:\n\n" .
-            "[Download PDF]({{ link }})\n\n" .
-            "**Please note:** This link will expire for security purposes.\n\n" .
-            "Thank you!";
-    }
-
-    /**
-     * Returns the default message body for the cart recovery email.
-     */
-    private function defaultCartRecoveryMessage(): string
-    {
-        return "Hello,\n\n" .
-            "You requested a link to recover your shopping cart. Click the link below to continue shopping:\n\n" .
-            "[Recover My Cart]({{ link }})\n\n" .
-            "**Please note:** This link will expire for security purposes.\n\n" .
-            "Thank you!";
     }
 }
