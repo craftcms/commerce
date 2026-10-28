@@ -2282,7 +2282,6 @@ class Order extends Element implements HasStoreInterface
             }
 
             $oldStatusId = $orderRecord->orderStatusId;
-            $oldStoreId = $orderRecord->storeId;
             $wasCompleted = (bool)$orderRecord->isCompleted;
 
             $orderRecord->storeId = $this->storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
@@ -2418,16 +2417,10 @@ class Order extends Element implements HasStoreInterface
             $orderRecord->save(false);
 
             if (
-                $wasCompleted !== (bool)$orderRecord->isCompleted ||
-                ($orderRecord->isCompleted && ($isNew || $oldStatusId != $orderRecord->orderStatusId || $oldStoreId != $orderRecord->storeId))
+                $orderRecord->isCompleted &&
+                (!$wasCompleted || $oldStatusId != $orderRecord->orderStatusId)
             ) {
-                $orderStatuses = Plugin::getInstance()->getOrderStatuses();
-                if ($wasCompleted) {
-                    $orderStatuses->invalidateOrderCountByStatus($oldStoreId);
-                }
-                if ($orderRecord->isCompleted && (!$wasCompleted || $oldStoreId != $orderRecord->storeId)) {
-                    $orderStatuses->invalidateOrderCountByStatus($orderRecord->storeId);
-                }
+                Plugin::getInstance()->getOrderStatuses()->invalidateOrderCountByStatus($orderRecord->storeId);
             }
 
             $this->_saveAdjustments();
