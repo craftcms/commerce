@@ -231,17 +231,15 @@ class InventoryLocationsController extends BaseCpController
 
         if ($inventoryLocationAddress = Craft::$app->getRequest()->getBodyParam('inventoryLocationAddress')) {
             // Remove the non-address fields from the post data
-            unset($inventoryLocationAddress['name'], $inventoryLocationAddress['handle'], $inventoryLocationAddress['inventoryLocationId']);
+            unset($inventoryLocationAddress['name'], $inventoryLocationAddress['handle'], $inventoryLocationAddress['inventoryLocationId'], $inventoryLocationAddress['id']);
 
             $inventoryLocationAddress['title'] = $inventoryLocation->name;
-            if ($isValid) {
-                $addressId = $inventoryLocationAddress['id'] ?: null;
-                $address = $addressId ? Craft::$app->getElements()->getElementById($addressId, Address::class) : new Address();
-
-                $address->id = $addressId;
-            } else {
-                $address = new Address();
+            $address = null;
+            if ($isValid && $inventoryLocation->addressId) {
+                $address = Craft::$app->getElements()->getElementById($inventoryLocation->addressId, Address::class);
             }
+
+            $address ??= new Address();
 
             $address->setAttributes($inventoryLocationAddress, false);
 
