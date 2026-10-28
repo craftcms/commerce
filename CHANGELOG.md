@@ -10,6 +10,26 @@
 - Fixed a bug where an order’s line items could be fulfilled beyond the committed and available stock at an inventory location. ([#4367](https://github.com/craftcms/commerce/pull/4367))
 - Fixed a bug where stock reserved for an order’s shortfall wasn’t released when it was transferred to the location the order was committed to. ([#4367](https://github.com/craftcms/commerce/pull/4367))
 - Fixed a bug where the “See Orders” modal for committed inventory stock didn’t list orders that had been partially fulfilled. ([#4367](https://github.com/craftcms/commerce/pull/4367))
+- The “See Orders” modal for committed stock now lists each order’s date, status, customer, quantities and the location’s stock on the inventory screen. ([#4367](https://github.com/craftcms/commerce/pull/4367))
+- Fixed a bug where the Subscription Plans index page was counting expired and suspended subscriptions as active. ([#4382](https://github.com/craftcms/commerce/pull/4382))
+- Fixed a bug where completed orders couldn’t be saved if their VAT ID was no longer valid. ([#4377](https://github.com/craftcms/commerce/pull/4377))
+- Fixed a bug where saving an inventory location could overwrite an address that belonged to something else. ([#4392](https://github.com/craftcms/commerce/pull/4392))
+- Fixed a performance issue when loading an order’s adjustments. ([#4391](https://github.com/craftcms/commerce/pull/4391))
+- Fixed a bug where an order’s line items could be fulfilled beyond the committed and available stock at an inventory location. ([#4367](https://github.com/craftcms/commerce/pull/4367))
+- Fixed a bug where stock reserved for an order’s shortfall wasn’t released when it was transferred to the location the order was committed to. ([#4367](https://github.com/craftcms/commerce/pull/4367))
+- Fixed a bug where the “See Orders” modal for committed inventory stock didn’t list orders that had been partially fulfilled. ([#4367](https://github.com/craftcms/commerce/pull/4367))
+- Added `craft\commerce\base\Plan::getActiveSubscriptionCount()`.
+- Added `craft\commerce\services\Subscriptions::getActiveSubscriptionCountByPlanId()`.
+- Added `craft\commerce\models\InventoryFulfillmentLevel::$orderId`.
+- Added `craft\commerce\models\InventoryFulfillmentLevel::getFulfillableQuantity()`.
+- Added `craft\commerce\models\InventoryFulfillmentLevel::getIsShortOfStock()`.
+- Added `craft\commerce\models\InventoryFulfillmentLevel::getMaxFulfillQuantity()`.
+- Added `craft\commerce\models\InventoryFulfillmentLevel::setOrder()`.
+- Added `craft\commerce\models\inventory\InventoryFulfillMovement::$otherPendingQuantity`.
+- Added `craft\commerce\models\inventory\UpdateInventoryLevel::$lineItemId`.
+- Added `craft\commerce\services\Inventory::getFulfillableQuantity()`.
+- Added `craft\commerce\services\Inventory::getOutstandingInventoryFulfillmentLevels()`.
+- Added `craft\commerce\services\Inventory::getReservedQuantitiesByLineItem()`.
 - Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerability. (GHSA-9j9f-hvqx-wp2r)
 
 ## 5.7.6 - 2026-10-08
