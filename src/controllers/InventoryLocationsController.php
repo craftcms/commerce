@@ -57,7 +57,6 @@ class InventoryLocationsController extends BaseCpController
     public function actionIndex(): Response
     {
         $inventoryLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
-        $currentUser = Craft::$app->getUser()->getIdentity();
         $variables = [];
 
         $screen = $this->asCpScreen()
@@ -66,15 +65,8 @@ class InventoryLocationsController extends BaseCpController
             ->selectedSubnavItem('inventory-locations')
             ->contentTemplate('commerce/inventory-locations/_index', $variables);
 
-        $locationCount = count($inventoryLocations);
-        $showNewButton = false;
-        $userCanCreate = ($currentUser && $currentUser->can('commerce-createLocations'));
-
-        if ($locationCount < Plugin::EDITION_PRO_STORE_LIMIT) {
-            $showNewButton = true;
-        }
-
-        if ($userCanCreate && $showNewButton) {
+        // The `commerce-manageInventoryLocations` permission required in `init()` covers creating locations
+        if (count($inventoryLocations) < Plugin::EDITION_PRO_STORE_LIMIT) {
             $button = Html::a(
                 Craft::t('commerce', 'New location'),
                 'commerce/inventory-locations/new',
@@ -239,17 +231,15 @@ class InventoryLocationsController extends BaseCpController
 
         if ($inventoryLocationAddress = Craft::$app->getRequest()->getBodyParam('inventoryLocationAddress')) {
             // Remove the non-address fields from the post data
-            unset($inventoryLocationAddress['name'], $inventoryLocationAddress['handle'], $inventoryLocationAddress['inventoryLocationId']);
+            unset($inventoryLocationAddress['name'], $inventoryLocationAddress['handle'], $inventoryLocationAddress['inventoryLocationId'], $inventoryLocationAddress['id']);
 
             $inventoryLocationAddress['title'] = $inventoryLocation->name;
-            if ($isValid) {
-                $addressId = $inventoryLocationAddress['id'] ?: null;
-                $address = $addressId ? Craft::$app->getElements()->getElementById($addressId, Address::class) : new Address();
-
-                $address->id = $addressId;
-            } else {
-                $address = new Address();
+            $address = null;
+            if ($isValid && $inventoryLocation->addressId) {
+                $address = Craft::$app->getElements()->getElementById($inventoryLocation->addressId, Address::class);
             }
+
+            $address ??= new Address();
 
             $address->setAttributes($inventoryLocationAddress, false);
 

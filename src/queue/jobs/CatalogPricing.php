@@ -66,6 +66,14 @@ class CatalogPricing extends BaseJob
                 ->getAllCatalogPricingRules($storeId)
                 ->whereIn('id', $catalogPricingRuleIds)
                 ->all();
+
+            if (empty($catalogPricingRules)) {
+                if ($reservedRowId) {
+                    $catalogPricingService->deleteCatalogPricingQueueRowById($reservedRowId);
+                }
+
+                return;
+            }
         }
 
         try {

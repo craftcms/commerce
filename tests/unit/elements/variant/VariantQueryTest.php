@@ -23,6 +23,7 @@ use craft\db\Query;
 use craft\elements\User;
 use craftcommercetests\fixtures\ProductFixture;
 use craftcommercetests\fixtures\ShippingCategoryFixture;
+use DateTime;
 use UnitTester;
 
 /**
@@ -561,6 +562,63 @@ class VariantQueryTest extends Unit
             self::assertCount(0, $query->all());
         } finally {
             Craft::$app->getUser()->setIdentity($originalIdentity);
+        }
+    }
+
+    /**
+     * @return void
+     */
+    public function testIsDefaultDerivesFromDefaultVariantId(): void
+    {
+        $product = new Product();
+        $product->title = 'IsDefault Query Test Product';
+        $product->typeId = 2000;
+        $product->slug = 'is-default-query-test-product';
+        $product->enabled = true;
+        $product->enabledForSite = true;
+        $product->postDate = new DateTime('now');
+
+        $variantA = new Variant();
+        $variantA->title = 'IsDefault Query Variant A';
+        $variantA->slug = 'is-default-query-variant-a';
+        $variantA->sku = 'is-default-query-a';
+        $variantA->basePrice = 10;
+        $variantA->sortOrder = 0;
+        $variantA->isDefault = true;
+
+        $variantB = new Variant();
+        $variantB->title = 'IsDefault Query Variant B';
+        $variantB->slug = 'is-default-query-variant-b';
+        $variantB->sku = 'is-default-query-b';
+        $variantB->basePrice = 20;
+        $variantB->sortOrder = 1;
+        $variantB->isDefault = false;
+
+        $product->setVariants([$variantA, $variantB]);
+        Craft::$app->getElements()->saveElement($product, false);
+
+        try {
+            self::assertSame($variantA->id, Variant::find()->productId($product->id)->isDefault(true)->one()?->id);
+            self::assertSame($variantB->id, Variant::find()->productId($product->id)->isDefault(false)->one()?->id);
+
+            Craft::$app->getDb()->createCommand()->update(
+                Table::VARIANTS,
+                ['isDefault' => true],
+                ['id' => $variantB->id]
+            )->execute();
+            Craft::$app->getDb()->createCommand()->update(
+                Table::VARIANTS,
+                ['isDefault' => false],
+                ['id' => $variantA->id]
+            )->execute();
+
+            self::assertSame($variantA->id, Variant::find()->productId($product->id)->isDefault(true)->one()?->id);
+            self::assertSame($variantB->id, Variant::find()->productId($product->id)->isDefault(false)->one()?->id);
+
+            self::assertTrue(Variant::find()->id($variantA->id)->one()?->isDefault);
+            self::assertFalse(Variant::find()->id($variantB->id)->one()?->isDefault);
+        } finally {
+            Craft::$app->getElements()->deleteElementById($product->id, Product::class, null, true);
         }
     }
 }

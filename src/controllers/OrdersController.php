@@ -57,6 +57,7 @@ use craft\errors\InvalidElementException;
 use craft\errors\UnsupportedSiteException;
 use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Component as ComponentHelper;
 use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
@@ -369,13 +370,14 @@ JS, []);
 
         $this->enforceManageOrderPermissions($order);
 
-        // Set custom field values
-        $order->setFieldValuesFromRequest('fields');
-
         $alreadyCompleted = $order->isCompleted;
         // Set data from request to the order
         $this->_updateOrder($order, $orderRequestData, false);
         $markAsComplete = !$alreadyCompleted && $order->isCompleted;
+
+        // Set custom field values, after the order's attributes have been updated so that
+        // any field layout visibility conditions based on those attributes are evaluated correctly
+        $order->setFieldValuesFromRequest('fields');
 
         // We don't want to save it as completed yet since we will markAsComplete() after saving the cart
         if ($markAsComplete) {
@@ -940,8 +942,13 @@ JS, []);
 
         $attributes = $this->request->getRequiredParam('address');
 
-        // Never let a caller override the class to instantiate
-        unset($attributes['class']);
+        if (!is_array($attributes)) {
+            throw new BadRequestHttpException('Invalid address.');
+        }
+
+        // Never let a caller attach behaviors or event handlers, or override the class to instantiate
+        $attributes = ComponentHelper::cleanseConfig($attributes);
+        unset($attributes['class'], $attributes['__class']);
         $attributes = ['class' => Address::class] + $attributes;
 
         $address = Craft::createObject($attributes);

@@ -8,6 +8,7 @@
 namespace unit\services;
 
 use Codeception\Test\Unit;
+use Craft;
 use craft\base\conditions\BaseCondition;
 use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\products\ProductTypeConditionRule;
@@ -16,6 +17,8 @@ use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
+use craft\commerce\queue\jobs\CatalogPricing as CatalogPricingJob;
+use craft\commerce\records\CatalogPricingQueue as CatalogPricingQueueRecord;
 use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
 use craft\db\Query;
 use craftcommercetests\fixtures\ProductFixture;
@@ -252,6 +255,104 @@ class CatalogPricingTest extends Unit
                 -0.1,
                 ['ddb-red'],
             ],
+        ];
+    }
+
+    public function testGeneratePricesWithEmptyRulesDoesNothing(): void
+    {
+        $this->_createRule($this->_percentOffRuleConfig('10% off'));
+        Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices();
+
+        $totalCount = $this->_countCatalogPrices();
+        $rulePriceCount = $this->_countCatalogPrices(true);
+        self::assertGreaterThan(0, $rulePriceCount);
+
+        Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices(null, []);
+
+        self::assertSame($totalCount, $this->_countCatalogPrices());
+        self::assertSame($rulePriceCount, $this->_countCatalogPrices(true));
+    }
+
+    /**
+     * @see https://github.com/craftcms/commerce/issues/4374
+     */
+    public function testJobForDeletedRuleKeepsOtherRulePrices(): void
+    {
+        $keptRule = $this->_createRule($this->_percentOffRuleConfig('10% off'));
+        Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices();
+        CatalogPricingQueueRecord::deleteAll();
+
+        $keptRulePriceCount = $this->_countCatalogPrices(true);
+        self::assertGreaterThan(0, $keptRulePriceCount);
+
+        $deletedRule = $this->_createRule($this->_percentOffRuleConfig('20% off'));
+        Plugin::getInstance()->getCatalogPricingRules()->deleteCatalogPricingRuleById($deletedRule->id);
+        self::assertSame(1, (int)CatalogPricingQueueRecord::find()->count());
+
+        (new CatalogPricingJob())->execute(Craft::$app->getQueue());
+
+        self::assertSame($keptRulePriceCount, $this->_countCatalogPrices(true));
+        self::assertSame($keptRulePriceCount, $this->_countRulePrices($keptRule->id));
+        self::assertSame(0, (int)CatalogPricingQueueRecord::find()->count());
+    }
+
+    public function testJobForPartiallyDeletedRulesRegeneratesRemainingRules(): void
+    {
+        $untouchedRule = $this->_createRule($this->_percentOffRuleConfig('10% off'));
+        Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices();
+        CatalogPricingQueueRecord::deleteAll();
+
+        $untouchedRulePriceCount = $this->_countRulePrices($untouchedRule->id);
+        self::assertGreaterThan(0, $untouchedRulePriceCount);
+
+        $remainingRule = $this->_createRule($this->_percentOffRuleConfig('20% off'));
+        $deletedRule = $this->_createRule($this->_percentOffRuleConfig('30% off'));
+        Plugin::getInstance()->getCatalogPricingRules()->deleteCatalogPricingRuleById($deletedRule->id);
+
+        /** @var CatalogPricingQueueRecord[] $queueRows */
+        $queueRows = CatalogPricingQueueRecord::find()->all();
+        self::assertCount(1, $queueRows);
+        self::assertSame(CatalogPricingQueueRecord::TYPE_RULE, $queueRows[0]->type);
+        self::assertEquals([$remainingRule->id, $deletedRule->id], $queueRows[0]->getIds());
+        self::assertSame(0, $this->_countRulePrices($remainingRule->id));
+
+        (new CatalogPricingJob())->execute(Craft::$app->getQueue());
+
+        self::assertSame($untouchedRulePriceCount, $this->_countRulePrices($remainingRule->id));
+        self::assertSame($untouchedRulePriceCount, $this->_countRulePrices($untouchedRule->id));
+        self::assertSame(0, $this->_countRulePrices($deletedRule->id));
+        self::assertSame(0, (int)CatalogPricingQueueRecord::find()->count());
+    }
+
+    private function _countRulePrices(int $catalogPricingRuleId): int
+    {
+        return (int)(new Query())
+            ->from(Table::CATALOG_PRICING)
+            ->where(['catalogPricingRuleId' => $catalogPricingRuleId])
+            ->count();
+    }
+
+    private function _countCatalogPrices(bool $rulePricesOnly = false): int
+    {
+        $query = (new Query())->from(Table::CATALOG_PRICING);
+
+        if ($rulePricesOnly) {
+            $query->where(['not', ['catalogPricingRuleId' => null]]);
+        }
+
+        return (int)$query->count();
+    }
+
+    private function _percentOffRuleConfig(string $name): array
+    {
+        return [
+            'apply' => CatalogPricingRuleRecord::APPLY_BY_PERCENT,
+            'name' => $name,
+            'enabled' => true,
+            'applyAmount' => -0.1,
+            'applyPriceType' => CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE,
+            'isPromotionalPrice' => false,
+            'storeId' => 1,
         ];
     }
 
