@@ -22,7 +22,7 @@
 - Added `craft\commerce\services\Inventory::getFulfillableQuantity()`.
 - Added `craft\commerce\services\Inventory::getOutstandingInventoryFulfillmentLevels()`.
 - Added `craft\commerce\services\Inventory::getReservedQuantitiesByLineItem()`.
-- Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerability. (GHSA-9j9f-hvqx-wp2r)
+- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerability. (GHSA-9j9f-hvqx-wp2r)
 
 ## 5.7.6 - 2026-10-08
 
