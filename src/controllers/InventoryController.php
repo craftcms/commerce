@@ -12,11 +12,13 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\collections\UpdateInventoryLevelCollection;
 use craft\commerce\db\Table;
+use craft\commerce\elements\Order;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\InventoryUpdateQuantityType;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\inventory\InventoryManualMovement;
 use craft\commerce\models\inventory\UpdateInventoryLevel;
+use craft\commerce\models\InventoryFulfillmentLevel;
 use craft\commerce\models\InventoryItem;
 use craft\commerce\models\InventoryLocation;
 use craft\commerce\Plugin;
@@ -31,6 +33,7 @@ use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\web\assets\htmx\HtmxAsset;
 use craft\web\CpScreenResponseBehavior;
+use Illuminate\Support\Collection;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
 use yii\web\BadRequestHttpException;
@@ -356,12 +359,14 @@ JS, [
                 $items = [];
                 $id = $inventoryLevel['id'];
 
-                $showOrderLinks = (
-                    $type == InventoryTransactionType::COMMITTED->value &&
-                    $inventoryLevel['committedTotal'] > 0
-                );
+                // Committed and reserved stock can both be traced back to the orders they're held for
+                $orderLinksAction = match (true) {
+                    $type == InventoryTransactionType::COMMITTED->value && $inventoryLevel['committedTotal'] > 0 => 'commerce/inventory/unfulfilled-orders',
+                    $type == InventoryTransactionType::RESERVED->value && $inventoryLevel['reservedTotal'] > 0 => 'commerce/inventory/reserved-orders',
+                    default => null,
+                };
 
-                if ($showOrderLinks) {
+                if ($orderLinksAction) {
                     $showOrderLinksId = sprintf("$type-show-$id-order-links-%s", mt_rand());
                     $items['orderLinks'] = [
                         'type' => MenuItemType::Button,
@@ -370,10 +375,10 @@ JS, [
                         'icon' => 'cart-shopping',
                     ];
 
-                    $view->registerJsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS
+                    $view->registerJsWithVars(fn($id, $action, $params, $inventoryLevelsManagerContainerId) => <<<JS
 $('#' + $id).on('click', (e) => {
     e.preventDefault();
-    let modal = new Craft.CpModal('commerce/inventory/unfulfilled-orders', {
+    let modal = new Craft.CpModal($action, {
         containerElement: 'div',
         showSubmitButton: false,
         params: $params
@@ -384,6 +389,7 @@ $('#' + $id).on('click', (e) => {
 });
 JS, [
                         $showOrderLinksId,
+                        $orderLinksAction,
                         [
                             'inventoryItemId' => $inventoryLevel['inventoryItemId'],
                             'inventoryLocationId' => $inventoryLevel['inventoryLocationId'],
@@ -741,29 +747,130 @@ JS, [
     }
 
     /**
+     * Returns a modal listing the orders that still need fulfilling from an inventory location's committed stock.
+     *
      * @return Response
      * @throws InvalidConfigException
+     * @throws NotFoundHttpException
      */
     public function actionUnfulfilledOrders(): Response
     {
         $this->requirePermission('commerce-manageInventoryStockLevels');
+        Craft::$app->getView()->registerAssetBundle(InventoryAsset::class);
 
-        $view = Craft::$app->getView();
-        $view->registerAssetBundle(InventoryAsset::class);
+        [$inventoryItemId, $inventoryLocation] = $this->_getInventoryLevelParams();
+        $inventory = Plugin::getInstance()->getInventory();
 
-        $inventoryLocationId = Craft::$app->getRequest()->getParam('inventoryLocationId');
-        $inventoryItemId = Craft::$app->getRequest()->getParam('inventoryItemId');
-
-        $orders = Plugin::getInstance()->getInventory()->getUnfulfilledOrders($inventoryItemId, $inventoryLocationId);
-
-        $title = Craft::t('commerce', '{count} Unfulfilled Orders', [
-            'count' => count($orders),
-        ]);
+        $fulfillmentLevels = $this->_setFulfillmentLevelOrders(
+            $inventory->getOutstandingInventoryFulfillmentLevels($inventoryItemId, $inventoryLocation->id)
+        );
+        $committedTotal = $inventory->getInventoryLevel($inventoryItemId, $inventoryLocation->id)?->committedTotal ?? 0;
 
         return $this->asCpModal()
-            ->contentTemplate('commerce/inventory/levels/_unfulfilledOrdersModal', compact(
-                'title',
-                'orders'
-            ));
+            ->contentTemplate('commerce/inventory/levels/_unfulfilledOrdersModal', [
+                'title' => Craft::t('commerce', '{count} Unfulfilled Orders', [
+                    'count' => $fulfillmentLevels->pluck('orderId')->unique()->count(),
+                ]),
+                'inventoryLocation' => $inventoryLocation,
+                'fulfillmentLevels' => $fulfillmentLevels,
+                'committedTotal' => $committedTotal,
+            ]);
+    }
+
+    /**
+     * Returns a modal listing the orders whose shortfall is reserved at an inventory location, and where each order
+     * is committed, so the stock can be transferred there to fulfill it.
+     *
+     * @return Response
+     * @throws InvalidConfigException
+     * @throws NotFoundHttpException
+     * @since 5.7.7
+     */
+    public function actionReservedOrders(): Response
+    {
+        $this->requirePermission('commerce-manageInventoryStockLevels');
+        Craft::$app->getView()->registerAssetBundle(InventoryAsset::class);
+
+        [$inventoryItemId, $inventoryLocation] = $this->_getInventoryLevelParams();
+        $inventory = Plugin::getInstance()->getInventory();
+
+        $reservations = $inventory->getReservedQuantitiesByLineItem($inventoryItemId, $inventoryLocation->id);
+        $orders = $this->_getOrdersById($reservations->pluck('orderId')->all());
+        $committedLevels = $inventory
+            ->getOutstandingInventoryFulfillmentLevels($inventoryItemId, null, $reservations->pluck('lineItemId')->all())
+            ->groupBy('lineItemId');
+
+        $rows = $reservations
+            ->filter(fn(array $reservation) => isset($orders[$reservation['orderId']]))
+            ->map(fn(array $reservation) => [
+                'order' => $orders[$reservation['orderId']],
+                'lineItem' => collect($orders[$reservation['orderId']]->getLineItems())->firstWhere('id', $reservation['lineItemId']),
+                'reservedQuantity' => $reservation['reservedQty'],
+                'committedLevels' => $committedLevels->get($reservation['lineItemId'], collect()),
+            ])
+            ->filter(fn(array $row) => $row['lineItem'] !== null)
+            ->values();
+
+        return $this->asCpModal()
+            ->contentTemplate('commerce/inventory/levels/_reservedOrdersModal', [
+                'title' => Craft::t('commerce', 'Orders'),
+                'inventoryLocation' => $inventoryLocation,
+                'rows' => $rows,
+                'reservedTotal' => $inventory->getInventoryLevel($inventoryItemId, $inventoryLocation->id)?->reservedTotal ?? 0,
+            ]);
+    }
+
+    /**
+     * @return array{0: int, 1: InventoryLocation}
+     * @throws BadRequestHttpException
+     * @throws NotFoundHttpException
+     * @throws InvalidConfigException
+     */
+    private function _getInventoryLevelParams(): array
+    {
+        $inventoryItemId = (int)$this->request->getRequiredParam('inventoryItemId');
+        $inventoryLocationId = (int)$this->request->getRequiredParam('inventoryLocationId');
+        $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($inventoryLocationId);
+
+        if (!$inventoryLocation) {
+            throw new NotFoundHttpException('Inventory location not found.');
+        }
+
+        return [$inventoryItemId, $inventoryLocation];
+    }
+
+    /**
+     * Eager-loads the orders for a list of fulfillment levels, dropping any whose order can't be found (e.g. it's been deleted).
+     *
+     * @param Collection<InventoryFulfillmentLevel> $fulfillmentLevels
+     * @return Collection<InventoryFulfillmentLevel>
+     */
+    private function _setFulfillmentLevelOrders(Collection $fulfillmentLevels): Collection
+    {
+        $orders = $this->_getOrdersById($fulfillmentLevels->pluck('orderId')->all());
+
+        return $fulfillmentLevels
+            ->filter(fn(InventoryFulfillmentLevel $fulfillmentLevel) => isset($orders[$fulfillmentLevel->orderId]))
+            ->each(fn(InventoryFulfillmentLevel $fulfillmentLevel) => $fulfillmentLevel->setOrder($orders[$fulfillmentLevel->orderId]))
+            ->values();
+    }
+
+    /**
+     * @param int[] $orderIds
+     * @return array<int, Order>
+     */
+    private function _getOrdersById(array $orderIds): array
+    {
+        $orderIds = array_values(array_unique(array_filter($orderIds)));
+
+        if (empty($orderIds)) {
+            return [];
+        }
+
+        return Order::find()
+            ->id($orderIds)
+            ->status(null)
+            ->indexBy('id')
+            ->all();
     }
 }

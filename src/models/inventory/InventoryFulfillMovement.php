@@ -2,8 +2,10 @@
 
 namespace craft\commerce\models\inventory;
 
+use Craft;
 use craft\commerce\base\InventoryMovement;
 use craft\commerce\enums\InventoryTransactionType;
+use craft\commerce\Plugin;
 
 /**
  * Inventory Fulfill movement model
@@ -12,6 +14,13 @@ use craft\commerce\enums\InventoryTransactionType;
  */
 class InventoryFulfillMovement extends InventoryMovement
 {
+    /**
+     * @var int The quantity of the same inventory item being fulfilled from the same location alongside this movement
+     * (e.g. another line item for the same purchasable in the same request), which isn't in the ledger yet.
+     * @since 5.7.7
+     */
+    public int $otherPendingQuantity = 0;
+
     /**
      * @return array
      */
@@ -33,6 +42,24 @@ class InventoryFulfillMovement extends InventoryMovement
             function($attribute, $params, $validator) {
                 if ($this->fromInventoryLocation->id !== $this->toInventoryLocation->id) {
                     $validator->addError($this, $attribute, 'The from and to inventory locations must be the same.');
+                }
+            },
+        ];
+
+        $rules[] = [
+            ['quantity'],
+            function($attribute, $params, $validator) {
+                if ($this->quantity <= 0) {
+                    return;
+                }
+
+                $fulfillable = Plugin::getInstance()->getInventory()->getFulfillableQuantity($this->inventoryItemId, $this->fromInventoryLocation->id);
+
+                if ($this->quantity + $this->otherPendingQuantity > $fulfillable) {
+                    $validator->addError($this, $attribute, Craft::t('commerce', '{description} only has {stock} in stock.', [
+                        'description' => $this->fromInventoryLocation->getUiLabel(),
+                        'stock' => max($fulfillable - $this->otherPendingQuantity, 0),
+                    ]));
                 }
             },
         ];
