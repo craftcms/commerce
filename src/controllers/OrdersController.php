@@ -565,18 +565,13 @@ JS, []);
             }
 
             // Validate sorting
-            if (!in_array($direction, ['asc', 'desc']) ||
-                !in_array($field, [
+            if (in_array($direction, ['asc', 'desc'], true) &&
+                in_array($field, [
                     'reference',
                     'dateOrdered',
                     'totalPrice',
-                ])
+                ], true)
             ) {
-                $field = null;
-                $direction = null;
-            }
-
-            if ($field && $direction) {
                 $orderQuery->orderBy($field . ' ' . $direction);
             }
         }
@@ -1078,12 +1073,12 @@ JS, []);
 
         // Validate Address Type
         if (!in_array($type, ['shippingAddress', 'billingAddress'], true)) {
-            $this->asFailure(Craft::t('commerce', 'Not a valid address type'));
+            return $this->asFailure(Craft::t('commerce', 'Not a valid address type'));
         }
 
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
         if (!$order) {
-            $this->asFailure(Craft::t('commerce', 'Bad order ID.'));
+            return $this->asFailure(Craft::t('commerce', 'Bad order ID.'));
         }
 
         // Return early if the address is already set.

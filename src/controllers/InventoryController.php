@@ -255,8 +255,8 @@ class InventoryController extends BaseCpController
             $direction = $sort[0]['direction'];
 
             // Validate the sorting inputs
-            if (!in_array($direction, ['asc', 'desc']) ||
-                !in_array($field, [
+            if (in_array($direction, ['asc', 'desc'], true) &&
+                in_array($field, [
                     'item',
                     'sku',
                     'reservedTotal',
@@ -267,12 +267,7 @@ class InventoryController extends BaseCpController
                     'availableTotal',
                     'onHandTotal',
                     'incomingTotal',
-                ])) {
-                $field = null;
-                $direction = null;
-            }
-
-            if ($field && $direction) {
+                ], true)) {
                 if ($field == 'sku') {
                     $field = 'purchasables.sku';
                 }

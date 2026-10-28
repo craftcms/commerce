@@ -35,7 +35,9 @@ class TransferDetail extends Model
         parent::init();
 
         if ($this->transferId) {
-            $this->_transfer = Transfer::findOne($this->transferId);
+            /** @var Transfer|null $transfer */
+            $transfer = Transfer::find()->id($this->transferId)->status(null)->one();
+            $this->_transfer = $transfer;
         }
 
         if ($this->inventoryItemId) {
