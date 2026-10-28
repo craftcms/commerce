@@ -3229,7 +3229,7 @@ class Order extends Element implements HasStoreInterface
         }
 
         if ($this->id) {
-            $this->setAdjustments(Plugin::getInstance()->getOrderAdjustments()->getAllOrderAdjustmentsByOrderId($this->id));
+            $this->setAdjustments(Plugin::getInstance()->getOrderAdjustments()->getAllOrderAdjustmentsByOrderId($this->id, $this));
         }
 
         return $this->_orderAdjustments ?? [];
