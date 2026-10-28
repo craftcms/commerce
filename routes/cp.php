@@ -9,6 +9,7 @@ use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingRulesContro
 use CraftCms\Commerce\Http\Controllers\StoreManagement\DiscountsController;
 use CraftCms\Commerce\Http\Controllers\Settings\EmailsController;
 use CraftCms\Commerce\Http\Controllers\Settings\GatewaysController;
+use CraftCms\Commerce\Http\Controllers\IndexController;
 use CraftCms\Commerce\Http\Controllers\InventoryController;
 use CraftCms\Commerce\Http\Controllers\InventoryLocationsController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
@@ -40,6 +41,8 @@ use Illuminate\Support\Facades\Route;
 use function CraftCms\Cms\cp_url;
 
 Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
+    Route::get('commerce', IndexController::class);
+
     Route::middleware('can:commerce-manageDonationSettings')
         ->get('commerce/donations', [DonationsController::class, 'edit']);
 
