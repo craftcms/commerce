@@ -18,15 +18,22 @@
                 {{ forms.text({
                     type: 'number',
                     inputAttributes: {
-                        max: max(fulfillmentLevel.outstandingCommittedQuantity, 0),
+                        max: fulfillmentLevel.getMaxFulfillQuantity(),
                         min: -fulfillmentLevel.fulfilledQuantity,
                         step: 1,
                         class: 'fulfillment-quantity',
                     },
                     name: 'fulfillment['~fieldIndex~'][quantity]',
                 }) }}
+                {% if fulfillmentLevel.isShortOfStock %}
+                    <p class="warning has-icon">
+                        <span class="icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">{{ 'Warning'|t('app') }}: </span>
+                        <span>{{ 'Only {quantity} in stock at this location. Transfer more stock here to fulfill the rest.'|t('commerce', { quantity: fulfillmentLevel.getFulfillableQuantity() }) }}</span>
+                    </p>
+                {% endif %}
                 </div>
-                {{ hiddenInput('fulfillment['~fieldIndex~'][max]', max(fulfillmentLevel.outstandingCommittedQuantity, 0)) }}
+                {{ hiddenInput('fulfillment['~fieldIndex~'][max]', fulfillmentLevel.getMaxFulfillQuantity()) }}
                 {{ hiddenInput('fulfillment['~fieldIndex~'][inventoryLocationId]', fulfillmentLevel.inventoryLocationId) }}
                 {{ hiddenInput('fulfillment['~fieldIndex~'][inventoryItemId]', fulfillmentLevel.inventoryItemId) }}
                 {{ hiddenInput('fulfillment['~fieldIndex~'][lineItemId]', fulfillmentLevel.lineItemId) }}

@@ -4,10 +4,8 @@ namespace craft\commerce\models\inventory;
 
 use Craft;
 use craft\commerce\base\InventoryMovement;
-use craft\commerce\db\Table;
 use craft\commerce\enums\InventoryTransactionType;
-use craft\db\Query;
-use yii\db\Expression;
+use craft\commerce\Plugin;
 
 /**
  * Inventory Fulfill movement model
@@ -16,6 +14,13 @@ use yii\db\Expression;
  */
 class InventoryFulfillMovement extends InventoryMovement
 {
+    /**
+     * @var int The quantity of the same inventory item being fulfilled from the same location alongside this movement
+     * (e.g. another line item for the same purchasable in the same request), which isn't in the ledger yet.
+     * @since 5.7.7
+     */
+    public int $otherPendingQuantity = 0;
+
     /**
      * @return array
      */
@@ -42,37 +47,26 @@ class InventoryFulfillMovement extends InventoryMovement
         ];
 
         $rules[] = [
-            ['fromInventoryLocation'],
+            ['quantity'],
             function($attribute, $params, $validator) {
-                if ($this->fromLocationOnHandAfterQuantity() < 0) {
+                if ($this->quantity <= 0) {
+                    return;
+                }
+
+                $fulfillable = Plugin::getInstance()->getInventory()->getFulfillableQuantity($this->inventoryItemId, $this->fromInventoryLocation->id);
+
+                if ($this->quantity + $this->otherPendingQuantity > $fulfillable) {
                     $validator->addError($this, $attribute, Craft::t('commerce',
-                        'The {inventoryLocation} inventory location does not have enough physical stock on hand to fulfill this quantity.',
-                        ['inventoryLocation' => $this->fromInventoryLocation->getUiLabel()]
+                        'Only {quantity} can be fulfilled from {inventoryLocation}. Transfer more stock to this location before fulfilling the rest.',
+                        [
+                            'quantity' => max($fulfillable - $this->otherPendingQuantity, 0),
+                            'inventoryLocation' => $this->fromInventoryLocation->getUiLabel(),
+                        ]
                     ));
                 }
             },
         ];
 
         return $rules;
-    }
-
-    /**
-     * Returns what the on-hand total (everything physically present: unavailable + available + committed)
-     * at the `fromInventoryLocation` would be after this fulfillment is applied.
-     *
-     * @return int
-     */
-    public function fromLocationOnHandAfterQuantity(): int
-    {
-        return (int)(new Query())
-            ->select(['quantity' => new Expression('COALESCE(SUM(quantity), 0) - :quantity')])
-            ->from(Table::INVENTORYTRANSACTIONS)
-            ->where([
-                'type' => collect(InventoryTransactionType::onHand())->pluck('value')->all(),
-                'inventoryItemId' => $this->inventoryItemId,
-                'inventoryLocationId' => $this->fromInventoryLocation->id,
-            ])
-            ->params([':quantity' => $this->quantity])
-            ->scalar();
     }
 }

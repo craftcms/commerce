@@ -8,8 +8,9 @@
 - Fixed a bug where completed orders couldn’t be saved if their VAT ID was no longer valid. ([#4377](https://github.com/craftcms/commerce/pull/4377))
 - Fixed a bug where saving an inventory location could overwrite an address that belonged to something else.
 - Fixed a performance bug where loading an order’s adjustments re-queried the order and its notices for each adjustment. ([#4390](https://github.com/craftcms/commerce/issues/4390))
-- Fixed a bug where an order’s line items could be fulfilled beyond a stock location’s physical on-hand quantity. ([#4268](https://github.com/craftcms/commerce/issues/4268))
-- Fixed a bug where reserved inventory stock wasn’t updated when the reserved stock was moved via an inventory transfer. ([#4268](https://github.com/craftcms/commerce/issues/4268))
+- Fixed a bug where an order’s line items could be fulfilled beyond the committed and available stock at an inventory location. ([#4268](https://github.com/craftcms/commerce/issues/4268))
+- Fixed a bug where stock reserved for an order’s shortfall wasn’t released when it was transferred to the location the order was committed to. ([#4268](https://github.com/craftcms/commerce/issues/4268))
+- The order fulfillment modal now limits each quantity to the stock that can be fulfilled from that location. ([#4268](https://github.com/craftcms/commerce/issues/4268))
 
 ## 5.7.6 - 2026-10-08
 

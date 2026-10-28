@@ -790,12 +790,13 @@ JS, [
 
                     $inventoryUpdateCollection->push($inventoryUpdate1);
 
-                    // Debit any order-RESERVED stock at the origin location first, so that stock which was
-                    // earmarked for a specific order's shortfall is tracked through the transfer rather than
-                    // just draining generic AVAILABLE stock and stranding the reservation. Any remaining
-                    // quantity beyond what's reserved is debited from AVAILABLE as before.
+                    // When an order is completed with a shortfall at the location it's committed to, the shortfall
+                    // is RESERVED at other locations. If this transfer moves stock from one of those locations to
+                    // the committed location, debit the reservation first rather than AVAILABLE stock, so the
+                    // reservation doesn't get stranded. Once received, the stock becomes AVAILABLE at the
+                    // destination, filling the shortfall there. Any remaining quantity is debited from AVAILABLE.
                     $remainingQty = $detail->quantity;
-                    foreach ($inventoryService->getReservedQuantitiesByLineItem($detail->inventoryItemId, $this->originLocationId) as $reservation) {
+                    foreach ($inventoryService->getReservedQuantitiesByLineItem($detail->inventoryItemId, $this->originLocationId, $this->destinationLocationId) as $reservation) {
                         if ($remainingQty <= 0) {
                             break;
                         }

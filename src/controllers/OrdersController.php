@@ -281,6 +281,14 @@ class OrdersController extends Controller
             }
         }
 
+        // Validate each movement against the stock the other movements for the same item and location will also use
+        $pendingQuantities = [];
+        foreach ($movements as $movement) {
+            $key = $movement->inventoryItemId . '-' . $movement->fromInventoryLocation->id;
+            $movement->otherPendingQuantity = $pendingQuantities[$key] ?? 0;
+            $pendingQuantities[$key] = $movement->otherPendingQuantity + max($movement->quantity, 0);
+        }
+
         foreach ($movements as $movement) {
             if (!$movement->isValid()) {
                 $errorMessage = collect($movement->getErrors())->flatten()->first() ?? Craft::t('commerce', 'Invalid inventory movements.');
@@ -327,8 +335,8 @@ class OrdersController extends Controller
             ])->prepareModal(function() {
                 $view = Craft::$app->getView();
                 $view->registerJsWithVars(fn() => <<<JS
-document.querySelector('input.fulfillment-quantity').addEventListener('input', e=>{
-  const el = e.target || e
+document.querySelectorAll('input.fulfillment-quantity').forEach(input => input.addEventListener('input', e=>{
+  const el = e.target
   if(el.type == "number" && el.max && el.min ){
     let value = parseInt(el.value)
     el.value = value // for 000 like input cleanup to 0
@@ -337,7 +345,7 @@ document.querySelector('input.fulfillment-quantity').addEventListener('input', e
     if ( value > max ) el.value = el.max
     if ( value < min ) el.value = el.min
   }
-});
+}));
 JS, []);
             });
 
