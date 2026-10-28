@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Toolchains, dependencies, built assets, and SQLite survive snapshot restore.
+# Amp's service supervisor restarts the declared workbench; no installs on wake.

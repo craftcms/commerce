@@ -1,0 +1,11 @@
+services:
+  workbench:
+    command: >-
+      php workbench/prepare.php &&
+      php vendor/bin/testbench optimize:clear --no-interaction &&
+      APP_URL="$PUBLIC_URL" ASSET_URL="$PUBLIC_URL"
+      php vendor/bin/testbench serve --host=127.0.0.1 --port="$PORT" --no-interaction
+    health: /
+    portal:
+      title: Commerce workbench
+      description: Opens the Commerce control panel and signs in as the seeded admin.
