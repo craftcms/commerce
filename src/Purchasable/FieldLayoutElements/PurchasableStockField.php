@@ -8,7 +8,6 @@ use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\FieldLayout\FieldLayoutElementContext;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
-use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Ui\Contracts\Node;
 use CraftCms\Cms\Ui\Controls\Lightswitch;
@@ -66,10 +65,6 @@ class PurchasableStockField extends BaseNativeField
         }
 
         $static = $context->mode !== ControlMode::Editable || $context->ui->mode !== ControlMode::Editable;
-        $status = $this->showStatus() ? $this->statusClass($element, $static) : null;
-        $statusLabel = $status !== null
-            ? ($this->statusLabel($element, $static) ?? ucfirst($status))
-            : null;
         $inventoryTracked = $element->getIsFresh() ? $this->defaultInventoryTracked : $element->inventoryTracked;
 
         return Group::make($this->uid, [
@@ -95,14 +90,10 @@ class PurchasableStockField extends BaseNativeField
         ])
             ->asField()
             ->label($this->label !== null && $this->label !== $this->defaultLabel() ? $this->label() : null)
-            ->showStatus($this->showStatus())
-            ->orientation($this->orientation($element, $static))
-            ->translatable(Sites::isMultiSite() && $this->translatable($element, $static), $this->translationDescription($element, $static))
             ->instructions($this->instructionsText($element, $static))
             ->instructionsPosition($this->instructionsPosition)
             ->tip($this->tipText($element, $static))
             ->warning($this->warningText($element, $static))
-            ->status($status, $statusLabel)
             ->layoutUid($this->uid)
             ->width($this->width);
     }

@@ -12,7 +12,6 @@ use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Facades\InputNamespace;
-use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Ui\Contracts\Node;
@@ -72,10 +71,6 @@ class PurchasablePriceField extends BaseNativeField
         }
 
         $static = $context->mode !== ControlMode::Editable || $context->ui->mode !== ControlMode::Editable;
-        $status = $this->showStatus() ? $this->statusClass($element, $static) : null;
-        $statusLabel = $status !== null
-            ? ($this->statusLabel($element, $static) ?? ucfirst($status))
-            : null;
 
         $currency = $element->getStore()->getCurrency()->getCode();
         $fields = [
@@ -108,15 +103,11 @@ class PurchasablePriceField extends BaseNativeField
         return Group::make($this->uid, $fields)
             ->asField()
             ->label($this->showLabel() ? $this->label() : null)
-            ->showStatus($this->showStatus())
-            ->orientation($this->orientation($element, $static))
-            ->translatable(Sites::isMultiSite() && $this->translatable($element, $static), $this->translationDescription($element, $static))
             ->instructions($this->instructionsText($element, $static))
             ->instructionsPosition($this->instructionsPosition)
             ->tip($this->tipText($element, $static))
             ->warning($this->warningText($element, $static))
             ->required(!$static && $this->required)
-            ->status($status, $statusLabel)
             ->layoutUid($this->uid)
             ->width($this->width);
     }
