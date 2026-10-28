@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\base\ElementInterface;
 use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\db\Table;
 use craft\commerce\enums\InventoryTransactionType;
@@ -361,11 +362,7 @@ class InventoryLocations extends Component
      */
     public function authorizeInventoryLocationAddressView(AuthorizationCheckEvent $event): void
     {
-        if (!$event->element instanceof Address) {
-            return;
-        }
-
-        if ($this->getAllInventoryLocations(true)->firstWhere('addressId', $event->element->getCanonicalId()) === null) {
+        if (!$this->isInventoryLocationAddress($event->element)) {
             return;
         }
 
@@ -374,14 +371,23 @@ class InventoryLocations extends Component
 
     public function authorizeInventoryLocationAddressEdit(AuthorizationCheckEvent $event): void
     {
-        if (!$event->element instanceof Address) {
-            return;
-        }
-
-        if ($this->getAllInventoryLocations(true)->firstWhere('addressId', $event->element->getCanonicalId()) === null) {
+        if (!$this->isInventoryLocationAddress($event->element)) {
             return;
         }
 
         $event->authorized = true;
+    }
+
+    /**
+     * Returns whether the given element is an inventory location’s address.
+     */
+    private function isInventoryLocationAddress(ElementInterface $element): bool
+    {
+        // Unsaved addresses can't belong to an inventory location yet, and a null ID would match locations without an address
+        if (!$element instanceof Address || !$element->getCanonicalId()) {
+            return false;
+        }
+
+        return $this->getAllInventoryLocations(true)->firstWhere('addressId', $element->getCanonicalId()) !== null;
     }
 }
