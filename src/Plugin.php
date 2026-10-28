@@ -13,7 +13,6 @@ use CraftCms\Cms\Gql\Events\GqlArgumentsResolving;
 use CraftCms\Cms\Gql\Events\GqlEagerLoadableFieldsResolving;
 use CraftCms\Cms\Gql\Events\GqlSchemaComponentsResolving;
 use CraftCms\Cms\Plugin\Plugin as BasePlugin;
-use CraftCms\Cms\Route\Routes;
 use CraftCms\Cms\Site\Events\SiteDeleted;
 use CraftCms\Cms\Site\Events\SiteSaved;
 use CraftCms\Cms\Support\Facades\Twig;
@@ -54,15 +53,13 @@ use CraftCms\Commerce\Gql\Interfaces\Elements\Variant as VariantInterface;
 use CraftCms\Commerce\Gql\Queries\Product as ProductQuery;
 use CraftCms\Commerce\Gql\Queries\Variant as VariantQuery;
 use CraftCms\Commerce\Http\Middleware\PoweredByHeader;
-use CraftCms\Commerce\Http\RateLimiters\CartChallengeRateLimiter;
-use CraftCms\Commerce\Http\RateLimiters\CartRateLimiter;
-use CraftCms\Commerce\Http\RateLimiters\PdfChallengeRateLimiter;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Plugin\Concerns\HasCommerceEditions;
 use CraftCms\Commerce\Plugin\Concerns\HasCommerceMacros;
 use CraftCms\Commerce\Plugin\Concerns\HasCpNavigation;
 use CraftCms\Commerce\Plugin\Concerns\HasCpSettings;
 use CraftCms\Commerce\Plugin\Concerns\HasGql;
+use CraftCms\Commerce\Plugin\Concerns\HasHttpProtection;
 use CraftCms\Commerce\Plugin\Concerns\HasLegacyBridges;
 use CraftCms\Commerce\Plugin\Concerns\HasNativeFields;
 use CraftCms\Commerce\Plugin\Concerns\HasPermissions;
@@ -87,19 +84,12 @@ use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\Fields\Products as ProductsField;
 use CraftCms\Commerce\Product\Fields\Variants as VariantsField;
 use CraftCms\Commerce\Product\LinkTypes\ProductLinkType;
-use CraftCms\Commerce\Product\Policies\ProductPolicy;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
-use CraftCms\Commerce\Product\Variant\Policies\VariantPolicy;
 use CraftCms\Commerce\Purchasable\Elements\Donation;
 use CraftCms\Commerce\Transfer\Elements\Transfer;
-use CraftCms\Commerce\Transfer\Policies\TransferPolicy;
 use CraftCms\Commerce\Twig\Extension as CommerceTwigExtension;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
-use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\RateLimiter;
 
 use function CraftCms\Cms\t;
 
@@ -117,13 +107,14 @@ class Plugin extends BasePlugin
     use HasGql;
     use HasUi;
     use HasCpSettings;
+    use HasHttpProtection;
 
     public const string HANDLE = 'commerce';
 
     public string $schemaVersion = '6.0.0.0';
 
     // TODO: keep in sync with the latest 5.x patch release as it advances, right up until 6.0 stable ships
-    public string $minVersionRequired = '5.7.3';
+    public string $minVersionRequired = '5.7.7';
 
     public bool $hasCpSettings = false;
 
@@ -247,13 +238,6 @@ class Plugin extends BasePlugin
         }
     }
 
-    private function registerPolicies(): void
-    {
-        Gate::policy(Product::class, ProductPolicy::class);
-        Gate::policy(Transfer::class, TransferPolicy::class);
-        Gate::policy(Variant::class, VariantPolicy::class);
-    }
-
     protected static function createSettings(): ?Settings
     {
         return new Settings();
@@ -268,19 +252,8 @@ class Plugin extends BasePlugin
 
     public function register(): void
     {
-        // Gateway webhooks and off-site payment returns can't provide a CSRF token
-        $routes = app(Routes::class);
-        PreventRequestForgery::except([
-            'commerce/webhooks/process-webhook/gateway/*',
-            $routes->actionTriggerUriPrefix() . '/commerce/webhooks/process-webhook',
-            $routes->cpActionTriggerUriPrefix() . '/commerce/webhooks/process-webhook',
-            $routes->actionTriggerUriPrefix() . '/commerce/payments/complete-payment',
-            $routes->cpActionTriggerUriPrefix() . '/commerce/payments/complete-payment',
-        ]);
-
-        RateLimiter::for(CartRateLimiter::NAME, fn(Request $request) => app(CartRateLimiter::class)->limit($request));
-        RateLimiter::for(CartChallengeRateLimiter::NAME, fn(Request $request) => app(CartChallengeRateLimiter::class)->limit($request));
-        RateLimiter::for(PdfChallengeRateLimiter::NAME, fn(Request $request) => app(PdfChallengeRateLimiter::class)->limit($request));
+        $this->registerCsrfExceptions();
+        $this->registerRateLimiters();
     }
 
     #[\Override]
