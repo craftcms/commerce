@@ -113,6 +113,54 @@ class MutationsTest extends TestCase
         self::assertSame('Renamed', $result['data']['save_tShirts_Product']['title']);
     }
 
+    public function testProductDrafts(): void
+    {
+        $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle('tShirts');
+        $user = Craft::$app->getUsers()->getUserByUsernameOrEmail('customer2@crafttest.com');
+        Craft::$app->getUserPermissions()->saveUserPermissions($user->id, [
+            'accessCp',
+            'editSite:' . Craft::$app->getSites()->getPrimarySite()->uid,
+            "commerce-viewProductType:$productType->uid",
+            "commerce-saveProductType:$productType->uid",
+        ]);
+        $user = Craft::$app->getUsers()->getUserById($user->id);
+        $schema = Craft::$app->getGql()->getSchemaForUser($user);
+        self::assertContains('elements.drafts:read', $schema->scope);
+
+        $product = Product::find()->typeId($productType->id)->one();
+        $variants = $product->getVariants(true)->all();
+        $variantId = $variants[0]->id;
+        $price = $variants[0]->basePrice;
+
+        // creatorId is ignored for authenticated requests
+        $draftId = $this->execute($schema, "mutation { createProductDraft(id: $product->id, name: \"Draft\", creatorId: 1) }")['data']['createProductDraft'];
+        $draft = Product::find()->draftId($draftId)->status(null)->one();
+        self::assertSame($user->id, $draft->creatorId);
+
+        $result = $this->execute($schema, "mutation {
+            save_tShirts_ProductDraft(draftId: $draftId, title: \"Draft title\", sortOrder: [$variantId], variants: [{id: $variantId, basePrice: 99}]) {
+                title isDraft variants { price }
+            }
+        }")['data']['save_tShirts_ProductDraft'];
+        self::assertSame(['title' => 'Draft title', 'isDraft' => true, 'variants' => [['price' => 99.0]]], $result);
+
+        // The canonical product and its variants are untouched until the draft is published
+        $canonical = Product::find()->id($product->id)->status(null)->one();
+        self::assertSame($product->title, $canonical->title);
+        self::assertCount(count($variants), $canonical->getVariants(true));
+        self::assertEquals($price, Variant::find()->id($variantId)->status(null)->one()->basePrice);
+
+        $drafts = $this->execute($schema, "{ products(drafts: true, draftOf: $product->id, status: null) { draftId draftName } }")['data']['products'];
+        self::assertSame([['draftId' => (int)$draftId, 'draftName' => 'Draft']], $drafts);
+
+        $id = $this->execute($schema, "mutation { publishProductDraft(id: $draftId) }")['data']['publishProductDraft'];
+        self::assertSame((string)$product->id, $id);
+        $canonical = Product::find()->id($product->id)->status(null)->one();
+        self::assertSame('Draft title', $canonical->title);
+        self::assertSame([$variantId], $canonical->getVariants(true)->pluck('id')->all());
+        self::assertEquals(99, Variant::find()->id($variantId)->status(null)->one()->basePrice);
+    }
+
     public function testSaveOrder(): void
     {
         $storeUid = Plugin::getInstance()->getStores()->getPrimaryStore()->uid;

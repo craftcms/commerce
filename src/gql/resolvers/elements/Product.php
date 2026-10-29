@@ -59,6 +59,17 @@ class Product extends ElementResolver
 
         $query->andWhere(['in', 'typeId', array_values(Db::idsByUids(Table::PRODUCTTYPES, $pairs['productTypes']))]);
 
+        // Authenticated users can only see their own provisional drafts, like in the control panel
+        $user = GqlHelper::getSchemaUser();
+        if ($user && $query->drafts !== false && $query->provisionalDrafts !== false) {
+            $query->andWhere([
+                'or',
+                ['elements.draftId' => null],
+                ['drafts.provisional' => false],
+                ['drafts.creatorId' => $user->id],
+            ]);
+        }
+
         return $query;
     }
 }

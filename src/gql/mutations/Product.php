@@ -41,19 +41,24 @@ class Product extends Mutation
     {
         $mutationList = [];
         $createDeleteMutations = false;
+        $createDraftMutations = false;
 
         foreach (Plugin::getInstance()->getProductTypes()->getAllProductTypes() as $productType) {
             $scope = "productTypes.$productType->uid";
 
-            if (Gql::canSchema($scope, 'create') || Gql::canSchema($scope, 'save')) {
-                $mutation = static::createSaveMutation($productType);
-                $mutationList[$mutation['name']] = $mutation;
+            $canSave = Gql::canSchema($scope, 'save');
+
+            if ($canSave || Gql::canSchema($scope, 'create')) {
+                foreach (static::createSaveMutations($productType, $canSave) as $mutation) {
+                    $mutationList[$mutation['name']] = $mutation;
+                }
             }
 
             // Variants are saved as part of their product, so saving them requires the product type’s “save” action
-            if (Gql::canSchema($scope, 'save')) {
+            if ($canSave) {
                 $mutation = static::createSaveVariantMutation($productType);
                 $mutationList[$mutation['name']] = $mutation;
+                $createDraftMutations = true;
             }
 
             if (!$createDeleteMutations && Gql::canSchema($scope, 'delete')) {
@@ -85,16 +90,74 @@ class Product extends Mutation
             ];
         }
 
+        if ($createDraftMutations) {
+            $resolver = Craft::createObject(ProductMutationResolver::class);
+
+            $mutationList['createProductDraft'] = [
+                'name' => 'createProductDraft',
+                'args' => [
+                    'id' => [
+                        'name' => 'id',
+                        'type' => Type::nonNull(Type::int()),
+                        'description' => 'The ID of the product to create the draft for.',
+                    ],
+                    'name' => [
+                        'name' => 'name',
+                        'type' => Type::string(),
+                        'description' => 'The name of the draft.',
+                    ],
+                    'notes' => [
+                        'name' => 'notes',
+                        'type' => Type::string(),
+                        'description' => 'Draft notes.',
+                    ],
+                    'provisional' => [
+                        'name' => 'provisional',
+                        'type' => Type::boolean(),
+                        'description' => 'Whether the draft should be a provisional draft.',
+                    ],
+                    'creatorId' => [
+                        'name' => 'creatorId',
+                        'type' => Type::int(),
+                        'description' => 'The ID of the creator of the draft. Ignored for authenticated requests.',
+                    ],
+                ],
+                'resolve' => [$resolver, 'createDraft'],
+                'description' => 'Create a draft for a product and return the draft ID.',
+                'type' => Type::id(),
+            ];
+
+            $mutationList['publishProductDraft'] = [
+                'name' => 'publishProductDraft',
+                'args' => [
+                    'id' => [
+                        'name' => 'id',
+                        'type' => Type::nonNull(Type::int()),
+                        'description' => 'The ID of the draft to be published.',
+                    ],
+                    'provisional' => [
+                        'name' => 'provisional',
+                        'type' => Type::boolean(),
+                        'description' => 'Whether the draft is a provisional draft.',
+                    ],
+                ],
+                'resolve' => [$resolver, 'publishDraft'],
+                'description' => 'Publish a product draft and return the product ID.',
+                'type' => Type::id(),
+            ];
+        }
+
         return $mutationList;
     }
 
     /**
-     * Creates the save mutation for a product type.
+     * Creates the save mutations for a product type.
      *
      * @param ProductType $productType
+     * @param bool $createSaveDraftMutation Whether to create the draft save mutation
      * @return array
      */
-    public static function createSaveMutation(ProductType $productType): array
+    public static function createSaveMutations(ProductType $productType, bool $createSaveDraftMutation): array
     {
         $arguments = ProductMutationArguments::getArguments();
 
@@ -123,13 +186,59 @@ class Product extends Mutation
         $resolver->setResolutionData('productType', $productType);
         static::prepareResolver($resolver, $productType->getCustomFields());
 
-        return [
-            'name' => "save_{$productType->handle}_Product",
-            'description' => sprintf('Save a product in the “%s” product type.', $productType->name),
-            'args' => array_merge($arguments, $resolver->getResolutionData(ElementMutationResolver::CONTENT_FIELD_KEY)),
-            'resolve' => [$resolver, 'saveProduct'],
-            'type' => ProductTypeGenerator::generateType($productType),
+        $contentFields = $resolver->getResolutionData(ElementMutationResolver::CONTENT_FIELD_KEY);
+        $generatedType = ProductTypeGenerator::generateType($productType);
+
+        $mutations = [
+            [
+                'name' => "save_{$productType->handle}_Product",
+                'description' => sprintf('Save a product in the “%s” product type.', $productType->name),
+                'args' => array_merge($arguments, $contentFields),
+                'resolve' => [$resolver, 'saveProduct'],
+                'type' => $generatedType,
+            ],
         ];
+
+        if ($createSaveDraftMutation) {
+            $draftArguments = $arguments;
+            unset($draftArguments['id'], $draftArguments['uid']);
+
+            $mutations[] = [
+                'name' => "save_{$productType->handle}_ProductDraft",
+                'description' => sprintf('Save a product draft in the “%s” product type.', $productType->name),
+                'args' => array_merge($draftArguments, [
+                    'draftId' => [
+                        'name' => 'draftId',
+                        'type' => Type::id(),
+                        'description' => 'The ID of the draft. Can only be omitted if creating an unpublished draft.',
+                    ],
+                    'provisional' => [
+                        'name' => 'provisional',
+                        'type' => Type::boolean(),
+                        'description' => 'Whether a provisional draft should be looked up.',
+                    ],
+                    'asUnpublishedDraft' => [
+                        'name' => 'asUnpublishedDraft',
+                        'type' => Type::boolean(),
+                        'description' => 'Whether an unpublished draft should be created.',
+                    ],
+                    'draftName' => [
+                        'name' => 'draftName',
+                        'type' => Type::string(),
+                        'description' => 'The name of the draft.',
+                    ],
+                    'draftNotes' => [
+                        'name' => 'draftNotes',
+                        'type' => Type::string(),
+                        'description' => 'Notes for the draft.',
+                    ],
+                ], $contentFields),
+                'resolve' => [$resolver, 'saveProduct'],
+                'type' => $generatedType,
+            ];
+        }
+
+        return $mutations;
     }
 
     /**

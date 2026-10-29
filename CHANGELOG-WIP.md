@@ -11,6 +11,8 @@
 - Added the `donation` GraphQL query and the `save_Donation` mutation, enabled via new “Donations” schema components.
 - Added the `transfers`, `transfer`, and `transferCount` GraphQL queries, and the `save_Transfer` and `deleteTransfer` mutations, enabled via new “Inventory Transfers” schema components. Draft transfers can be marked as pending via `save_Transfer`.
 - Added the `save_<productType>_Product`, `save_<productType>_Variant`, `deleteProduct`, and `deleteVariant` GraphQL mutations, enabled via new per-product-type “Edit products” schema components. Product save mutations accept `sortOrder` and `variants` arguments for creating, updating, reordering, and removing the product’s variants, which work like Matrix fields’ `sortOrder` and `entries` mutation arguments.
+- Added the `save_<productType>_ProductDraft`, `createProductDraft`, and `publishProductDraft` GraphQL mutations, which work like their entry counterparts.
+- Products’ GraphQL data now includes `drafts`, `draftCreator`, `revisions`, `revisionCreator`, `currentRevision`, and other draft and revision fields, when drafts or revisions can be queried.
 - Added the `save_Order` and `deleteOrder` GraphQL mutations, enabled via new per-store “Edit orders” schema components. Orders’ line items, addresses, customers, and custom fields can be set, and orders can be marked as complete.
 
 ### Extensibility
