@@ -8,6 +8,7 @@
 namespace craftcommercetests\unit\gql;
 
 use Craft;
+use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
@@ -102,6 +103,55 @@ class MutationsTest extends TestCase
         $productId = Product::find()->typeId($productType->id)->one()->id;
         $result = $this->execute($schema, "mutation { save_tShirts_Product(id: $productId, title: \"Renamed\") { title } }");
         self::assertSame('Renamed', $result['data']['save_tShirts_Product']['title']);
+    }
+
+    public function testSaveOrder(): void
+    {
+        $storeUid = Plugin::getInstance()->getStores()->getPrimaryStore()->uid;
+        $schema = $this->schema(["orders.$storeUid:create", "orders.$storeUid:save"]);
+        $white = Variant::find()->sku('hct-white')->one()->id;
+        $blue = Variant::find()->sku('hct-blue')->one()->id;
+
+        $order = $this->execute($schema, "mutation {
+            save_Order(email: \"gql@example.com\", lineItems: [{purchasableId: $white, qty: 2}]) {
+                id email isCompleted lineItems { id sku qty }
+            }
+        }")['data']['save_Order'];
+
+        self::assertSame('gql@example.com', $order['email']);
+        self::assertFalse($order['isCompleted']);
+        self::assertSame([['sku' => 'hct-white', 'qty' => 2]], array_map(fn($li) => ['sku' => $li['sku'], 'qty' => $li['qty']], $order['lineItems']));
+
+        // Line items left out of the list are removed, and the order can be completed
+        $order = $this->execute($schema, "mutation {
+            save_Order(id: {$order['id']}, lineItems: [{purchasableId: $blue, qty: 3}], isCompleted: true) {
+                isCompleted dateOrdered lineItems { sku qty }
+            }
+        }")['data']['save_Order'];
+
+        self::assertTrue($order['isCompleted']);
+        self::assertNotNull($order['dateOrdered']);
+        self::assertSame([['sku' => 'hct-blue', 'qty' => 3]], $order['lineItems']);
+    }
+
+    public function testAuthenticatedUsersNeedPermissionToEditOrders(): void
+    {
+        $orderId = Order::find()->isCompleted()->one()->id;
+        $user = Craft::$app->getUsers()->getUserByUsernameOrEmail('customer1@crafttest.com');
+        $mutation = "mutation { save_Order(id: $orderId, message: \"Hi\") { id } }";
+
+        // Customers can query their own orders, but not edit them
+        Craft::$app->getUserPermissions()->saveUserPermissions($user->id, []);
+        $schema = Craft::$app->getGql()->getSchemaForUser(Craft::$app->getUsers()->getUserById($user->id));
+        $storeUid = Plugin::getInstance()->getStores()->getPrimaryStore()->uid;
+        self::assertContains("orders.$storeUid:read", $schema->scope);
+        self::assertNotContains("orders.$storeUid:save", $schema->scope);
+        self::assertArrayNotHasKey('save_Order', $this->execute($schema, $mutation)['data'] ?? []);
+
+        Craft::$app->getUserPermissions()->saveUserPermissions($user->id, ['commerce-manageOrders', 'commerce-editOrders']);
+        $schema = Craft::$app->getGql()->getSchemaForUser(Craft::$app->getUsers()->getUserById($user->id));
+        self::assertSame((string)$orderId, $this->execute($schema, $mutation)['data']['save_Order']['id']);
+        self::assertSame('Hi', Order::find()->id($orderId)->one()->message);
     }
 
     private function schema(array $scope): GqlSchema

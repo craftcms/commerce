@@ -51,6 +51,7 @@ use craft\commerce\gql\handlers\RelatedVariants;
 use craft\commerce\gql\interfaces\elements\Order as GqlOrderInterface;
 use craft\commerce\gql\interfaces\elements\Product as GqlProductInterface;
 use craft\commerce\gql\interfaces\elements\Variant as GqlVariantInterface;
+use craft\commerce\gql\mutations\Order as GqlOrderMutations;
 use craft\commerce\gql\mutations\Product as GqlProductMutations;
 use craft\commerce\gql\queries\Order as GqlOrderQueries;
 use craft\commerce\gql\queries\Product as GqlProductQueries;
@@ -1074,6 +1075,7 @@ class Plugin extends BasePlugin
             $event->mutations = array_merge(
                 $event->mutations,
                 GqlProductMutations::getMutations(),
+                GqlOrderMutations::getMutations(),
             );
         });
     }
@@ -1152,13 +1154,34 @@ class Plugin extends BasePlugin
             ];
 
             $orderComponents = [];
+            $orderMutations = [];
             foreach (Plugin::getInstance()->getStores()->getAllStores() as $store) {
+                $storeName = $store->getName();
                 $orderComponents["orders.$store->uid:read"] = [
-                    'label' => Craft::t('commerce', 'Query for orders in the “{store}” store', ['store' => $store->getName()]),
+                    'label' => Craft::t('commerce', 'Query for orders in the “{store}” store', ['store' => $storeName]),
                     // Customers can query their own orders; see the order resolver
                     'authenticated' => true,
                 ];
+                $orderMutations["orders.$store->uid:edit"] = [
+                    'label' => Craft::t('commerce', 'Edit orders in the “{store}” store', ['store' => $storeName]),
+                    'authenticated' => fn(UserElement $user) => $user->can('commerce-editOrders') || $user->can('commerce-deleteOrders'),
+                    'nested' => [
+                        "orders.$store->uid:create" => [
+                            'label' => Craft::t('commerce', 'Create orders in the “{store}” store', ['store' => $storeName]),
+                            'authenticated' => fn(UserElement $user) => $user->can('commerce-editOrders'),
+                        ],
+                        "orders.$store->uid:save" => [
+                            'label' => Craft::t('commerce', 'Save orders in the “{store}” store', ['store' => $storeName]),
+                            'authenticated' => fn(UserElement $user) => $user->can('commerce-editOrders'),
+                        ],
+                        "orders.$store->uid:delete" => [
+                            'label' => Craft::t('commerce', 'Delete orders in the “{store}” store', ['store' => $storeName]),
+                            'authenticated' => fn(UserElement $user) => $user->can('commerce-deleteOrders'),
+                        ],
+                    ],
+                ];
             }
+            $mutationComponents[Craft::t('commerce', 'Orders')] = $orderMutations;
 
             $queryComponents[Craft::t('commerce', 'Orders')] = $orderComponents + [
                 'settings.orderstatuses:read' => [
