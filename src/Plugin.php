@@ -51,6 +51,7 @@ use craft\commerce\gql\handlers\RelatedVariants;
 use craft\commerce\gql\interfaces\elements\Product as GqlProductInterface;
 use craft\commerce\gql\interfaces\elements\Variant as GqlVariantInterface;
 use craft\commerce\gql\queries\Product as GqlProductQueries;
+use craft\commerce\gql\queries\Settings as GqlSettingsQueries;
 use craft\commerce\gql\queries\Variant as GqlVariantQueries;
 use craft\commerce\gql\types\input\criteria\ProductRelation;
 use craft\commerce\gql\types\input\criteria\VariantRelation;
@@ -1051,7 +1052,8 @@ class Plugin extends BasePlugin
             $event->queries = array_merge(
                 $event->queries,
                 GqlProductQueries::getQueries(),
-                GqlVariantQueries::getQueries()
+                GqlVariantQueries::getQueries(),
+                GqlSettingsQueries::getQueries(),
             );
         });
     }
@@ -1068,7 +1070,16 @@ class Plugin extends BasePlugin
 
             if (!empty($productTypes)) {
                 $label = Craft::t('commerce', 'Products');
-                $productPermissions = [];
+                $productPermissions = [
+                    'settings.producttypes:read' => [
+                        'label' => Craft::t('commerce', 'Query for product types'),
+                        'info' => Craft::t('commerce', 'Adds “{plural}” and “{singular}” queries, and a “{field}” field to products.', [
+                            'plural' => 'productTypes',
+                            'singular' => 'productType',
+                            'field' => 'productType',
+                        ]),
+                    ],
+                ];
 
                 foreach ($productTypes as $productType) {
                     $suffix = 'productTypes.' . $productType->uid;
@@ -1077,6 +1088,26 @@ class Plugin extends BasePlugin
 
                 $queryComponents[$label] = $productPermissions;
             }
+
+            $queryComponents[Craft::t('commerce', 'Stores')] = [
+                'settings.stores:read' => [
+                    'label' => Craft::t('commerce', 'Query for stores'),
+                    'info' => Craft::t('commerce', 'Adds “{plural}” and “{singular}” queries.', [
+                        'plural' => 'stores',
+                        'singular' => 'store',
+                    ]),
+                ],
+            ];
+
+            $queryComponents[Craft::t('commerce', 'Orders')] = [
+                'settings.orderstatuses:read' => [
+                    'label' => Craft::t('commerce', 'Query for order statuses'),
+                    'info' => Craft::t('commerce', 'Adds “{plural}” and “{singular}” queries.', [
+                        'plural' => 'orderStatuses',
+                        'singular' => 'orderStatus',
+                    ]),
+                ],
+            ];
 
             $event->queries = array_merge($event->queries, $queryComponents);
         });

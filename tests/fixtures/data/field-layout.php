@@ -62,7 +62,7 @@ return [
     ],
     [
         'uid' => 'product-layout-1001--------------uid',
-        'type' => 'craft\elements\Product',
+        'type' => 'craft\commerce\elements\Product',
         'tabs' => [
             [
                 'name' => 'Tab 1',
@@ -79,7 +79,7 @@ return [
     ],
     [
         'uid' => 'variant-layout-1001--------------uid',
-        'type' => 'craft\elements\Variant',
+        'type' => 'craft\commerce\elements\Variant',
         'tabs' => [
             [
                 'name' => 'Tab 1',

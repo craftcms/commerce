@@ -40,6 +40,7 @@ class Product extends ElementType
         /** @var ProductElement $source */
         $fieldName = $resolveInfo->fieldName;
         return match ($fieldName) {
+            'productType' => $source->getType(),
             'productTypeHandle' => $source->getType()->handle,
             'productTypeId' => $source->getType()->id,
             default => parent::resolve($source, $arguments, $context, $resolveInfo),

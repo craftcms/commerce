@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\elements\Product as ProductElement;
 use craft\commerce\gql\arguments\elements\Product as ProductArguments;
 use craft\commerce\gql\types\generators\ProductType;
+use craft\commerce\gql\types\ProductType as ProductTypeGqlType;
 use craft\commerce\helpers\Gql;
 use craft\gql\GqlEntityRegistry;
 use craft\gql\interfaces\Element;
@@ -78,7 +79,13 @@ class Product extends Element
             }
         }
 
-        return Craft::$app->getGql()->prepareFieldDefinitions(array_merge(parent::getFieldDefinitions(), [
+        return Craft::$app->getGql()->prepareFieldDefinitions(array_merge(parent::getFieldDefinitions(), Gql::canSchema('settings.producttypes') ? [
+            'productType' => [
+                'name' => 'productType',
+                'type' => Type::nonNull(ProductTypeGqlType::getType()),
+                'description' => 'The product type that contains the product.',
+            ],
+        ] : [], [
             'defaultSku' => [
                 'name' => 'defaultSku',
                 'type' => Type::string(),
