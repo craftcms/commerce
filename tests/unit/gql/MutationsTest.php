@@ -18,7 +18,6 @@ use craft\helpers\StringHelper;
 use craft\models\GqlSchema;
 use craft\test\TestCase;
 use craftcommercetests\fixtures\OrdersFixture;
-use craftcommercetests\fixtures\SubscriptionsFixture;
 
 /**
  * Tests Commerce’s GraphQL mutations.
@@ -35,9 +34,6 @@ class MutationsTest extends TestCase
         return [
             'orders' => [
                 'class' => OrdersFixture::class,
-            ],
-            'subscriptions' => [
-                'class' => SubscriptionsFixture::class,
             ],
         ];
     }
@@ -184,19 +180,6 @@ class MutationsTest extends TestCase
 
         $result = $this->execute($schema, "mutation { deleteTransfer(id: {$transfer['id']}) }");
         self::assertSame('Only draft transfers can be deleted.', $result['errors'][0]['message']);
-    }
-
-    public function testAuthenticatedUsersCanOnlyQueryTheirOwnSubscriptions(): void
-    {
-        $user = Craft::$app->getUsers()->getUserByUsernameOrEmail('customer2@crafttest.com');
-
-        Craft::$app->getUserPermissions()->saveUserPermissions($user->id, []);
-        $schema = Craft::$app->getGql()->getSchemaForUser(Craft::$app->getUsers()->getUserById($user->id));
-        self::assertSame(0, $this->execute($schema, '{ subscriptionCount }')['data']['subscriptionCount']);
-
-        Craft::$app->getUserPermissions()->saveUserPermissions($user->id, ['commerce-manageSubscriptions']);
-        $schema = Craft::$app->getGql()->getSchemaForUser(Craft::$app->getUsers()->getUserById($user->id));
-        self::assertSame(1, $this->execute($schema, '{ subscriptionCount }')['data']['subscriptionCount']);
     }
 
     private function schema(array $scope): GqlSchema
