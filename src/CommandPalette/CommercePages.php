@@ -7,7 +7,6 @@ namespace CraftCms\Commerce\CommandPalette;
 use CraftCms\Cms\Cp\CommandPalette\CommandPaletteItem;
 use CraftCms\Cms\User\Contracts\CraftUser;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
-use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
 
 use function CraftCms\Cms\cp_url;
@@ -18,6 +17,8 @@ use function CraftCms\Cms\t;
  */
 class CommercePages
 {
+    use DescribesStores;
+
     public function __construct(
         private readonly ProductTypes $productTypes,
         private readonly Stores $stores,
@@ -121,7 +122,7 @@ class CommercePages
                     $pages[] = $this->page(
                         "commerce-$store->handle-$path",
                         $label,
-                        $this->storeDescription($store, $stores->count()),
+                        $this->storeDescription(t('Store Management', category: 'commerce'), $store, $stores->count()),
                         $icon,
                         "commerce/store-management/$store->handle/$path",
                     );
@@ -155,13 +156,6 @@ class CommercePages
             $setting[2],
             "commerce/settings/$setting[0]",
         ), $settings);
-    }
-
-    private function storeDescription(Store $store, int $storeCount): string
-    {
-        $description = t('Store Management', category: 'commerce');
-
-        return $storeCount > 1 ? sprintf('%s → %s', $description, t($store->name ?? '', category: 'site')) : $description;
     }
 
     private function page(string $id, string $label, string $description, string $icon, string $path): CommandPaletteItem
