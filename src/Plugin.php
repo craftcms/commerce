@@ -16,8 +16,6 @@ use CraftCms\Cms\Plugin\Plugin as BasePlugin;
 use CraftCms\Cms\Site\Events\SiteDeleted;
 use CraftCms\Cms\Site\Events\SiteSaved;
 use CraftCms\Cms\Support\Facades\Twig;
-use CraftCms\Cms\Support\File;
-use CraftCms\Cms\Support\Path;
 use CraftCms\Cms\User\Events\EditUserScreensResolving;
 use CraftCms\Cms\User\Events\UserAssignedToGroups;
 use CraftCms\Cms\View\TemplateMode;
@@ -54,6 +52,7 @@ use CraftCms\Commerce\Gql\Queries\Product as ProductQuery;
 use CraftCms\Commerce\Gql\Queries\Variant as VariantQuery;
 use CraftCms\Commerce\Http\Middleware\PoweredByHeader;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Plugin\Concerns\HasCacheOptions;
 use CraftCms\Commerce\Plugin\Concerns\HasCommerceEditions;
 use CraftCms\Commerce\Plugin\Concerns\HasCommerceMacros;
 use CraftCms\Commerce\Plugin\Concerns\HasCpNavigation;
@@ -91,8 +90,6 @@ use CraftCms\Commerce\Twig\Extension as CommerceTwigExtension;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 
-use function CraftCms\Cms\t;
-
 class Plugin extends BasePlugin
 {
     use HasPermissions;
@@ -108,6 +105,7 @@ class Plugin extends BasePlugin
     use HasUi;
     use HasCpSettings;
     use HasHttpProtection;
+    use HasCacheOptions;
 
     public const string HANDLE = 'commerce';
 
@@ -254,18 +252,5 @@ class Plugin extends BasePlugin
     {
         $this->registerCsrfExceptions();
         $this->registerRateLimiters();
-    }
-
-    #[\Override]
-    protected function getCacheOptions(): array
-    {
-        return [
-            'commerce-order-exports' => [
-                'label' => t('Commerce order exports', category: 'commerce'),
-                'action' => static function() {
-                    File::cleanDirectory(app(Path::class)->runtime('commerce-order-exports'));
-                },
-            ],
-        ];
     }
 }
