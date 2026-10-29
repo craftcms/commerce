@@ -925,6 +925,7 @@ return [
     'Quality Control' => 'Quality Control',
     'Quantity' => 'Quantity',
     'Query for order statuses' => 'Query for order statuses',
+    'Query for orders in the “{store}” store' => 'Query for orders in the “{store}” store',
     'Query for product types' => 'Query for product types',
     'Query for stores' => 'Query for stores',
     'Rate' => 'Rate',

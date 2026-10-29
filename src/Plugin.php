@@ -48,8 +48,10 @@ use craft\commerce\gql\handlers\HasProduct;
 use craft\commerce\gql\handlers\HasVariant;
 use craft\commerce\gql\handlers\RelatedProducts;
 use craft\commerce\gql\handlers\RelatedVariants;
+use craft\commerce\gql\interfaces\elements\Order as GqlOrderInterface;
 use craft\commerce\gql\interfaces\elements\Product as GqlProductInterface;
 use craft\commerce\gql\interfaces\elements\Variant as GqlVariantInterface;
+use craft\commerce\gql\queries\Order as GqlOrderQueries;
 use craft\commerce\gql\queries\Product as GqlProductQueries;
 use craft\commerce\gql\queries\Settings as GqlSettingsQueries;
 use craft\commerce\gql\queries\Variant as GqlVariantQueries;
@@ -1038,6 +1040,7 @@ class Plugin extends BasePlugin
             $types = $event->types;
             $types[] = GqlProductInterface::class;
             $types[] = GqlVariantInterface::class;
+            $types[] = GqlOrderInterface::class;
             $event->types = $types;
         });
     }
@@ -1053,6 +1056,7 @@ class Plugin extends BasePlugin
                 $event->queries,
                 GqlProductQueries::getQueries(),
                 GqlVariantQueries::getQueries(),
+                GqlOrderQueries::getQueries(),
                 GqlSettingsQueries::getQueries(),
             );
         });
@@ -1099,7 +1103,14 @@ class Plugin extends BasePlugin
                 ],
             ];
 
-            $queryComponents[Craft::t('commerce', 'Orders')] = [
+            $orderComponents = [];
+            foreach (Plugin::getInstance()->getStores()->getAllStores() as $store) {
+                $orderComponents["orders.$store->uid:read"] = [
+                    'label' => Craft::t('commerce', 'Query for orders in the “{store}” store', ['store' => $store->getName()]),
+                ];
+            }
+
+            $queryComponents[Craft::t('commerce', 'Orders')] = $orderComponents + [
                 'settings.orderstatuses:read' => [
                     'label' => Craft::t('commerce', 'Query for order statuses'),
                     'info' => Craft::t('commerce', 'Adds “{plural}” and “{singular}” queries.', [
