@@ -60,7 +60,7 @@ class MutationsTest extends TestCase
         $schema = $this->schema(["productTypes.$uid:read", "productTypes.$uid:create", "productTypes.$uid:save"]);
 
         $product = $this->execute($schema, 'mutation {
-            save_tShirts_Product(title: "GraphQL Tee", variants: [
+            save_tShirts_Product(title: "GraphQL Tee", sortOrder: ["new:2", "new:1"], variants: [
                 {sku: "gql-small", basePrice: 10},
                 {sku: "gql-large", basePrice: 12, isDefault: true}
             ]) { id title defaultSku variants { id sku price } }
@@ -68,12 +68,19 @@ class MutationsTest extends TestCase
 
         self::assertSame('GraphQL Tee', $product['title']);
         self::assertSame('gql-large', $product['defaultSku']);
-        self::assertSame(['gql-small', 'gql-large'], array_column($product['variants'], 'sku'));
-        [$small, $large] = array_column($product['variants'], 'id');
+        self::assertSame(['gql-large', 'gql-small'], array_column($product['variants'], 'sku'));
+        [$large, $small] = array_column($product['variants'], 'id');
 
-        // Variants left out of the list are deleted
+        // Variants can be updated without changing which variants the product has
         $variants = $this->execute($schema, "mutation {
-            save_tShirts_Product(id: {$product['id']}, variants: [{id: $large, basePrice: 15}]) { variants { id price } }
+            save_tShirts_Product(id: {$product['id']}, variants: [{id: $small, basePrice: 9}, {sku: \"ignored\", basePrice: 1}]) { variants { sku price } }
+        }")['data']['save_tShirts_Product']['variants'];
+
+        self::assertSame([['sku' => 'gql-large', 'price' => 12.0], ['sku' => 'gql-small', 'price' => 9.0]], $variants);
+
+        // Variants left out of the sort order are deleted
+        $variants = $this->execute($schema, "mutation {
+            save_tShirts_Product(id: {$product['id']}, sortOrder: [$large], variants: [{id: $large, basePrice: 15}]) { variants { id price } }
         }")['data']['save_tShirts_Product']['variants'];
 
         self::assertSame([['id' => $large, 'price' => 15.0]], $variants);
@@ -98,7 +105,7 @@ class MutationsTest extends TestCase
         ]);
         $schema = Craft::$app->getGql()->getSchemaForUser(Craft::$app->getUsers()->getUserById($user->id));
 
-        $result = $this->execute($schema, 'mutation { save_tShirts_Product(title: "New", variants: [{sku: "new", basePrice: 1}]) { id } }');
+        $result = $this->execute($schema, 'mutation { save_tShirts_Product(title: "New", sortOrder: ["new:1"], variants: [{sku: "new", basePrice: 1}]) { id } }');
         self::assertSame('Unable to perform the action.', $result['errors'][0]['message']);
 
         $productId = Product::find()->typeId($productType->id)->one()->id;

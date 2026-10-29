@@ -12,6 +12,7 @@ use craft\commerce\elements\Product as ProductElement;
 use craft\commerce\elements\Variant as VariantElement;
 use craft\commerce\models\ProductType;
 use craft\gql\base\ElementMutationResolver;
+use craft\helpers\ArrayHelper;
 use GraphQL\Error\Error;
 use GraphQL\Type\Definition\ResolveInfo;
 use Throwable;
@@ -25,7 +26,7 @@ use Throwable;
 class Product extends ElementMutationResolver
 {
     /** @inheritdoc */
-    protected array $immutableAttributes = ['id', 'uid', 'typeId', 'siteId', 'variants'];
+    protected array $immutableAttributes = ['id', 'uid', 'typeId', 'siteId', 'sortOrder', 'variants'];
 
     /**
      * Saves a product using the passed arguments.
@@ -74,7 +75,8 @@ class Product extends ElementMutationResolver
         }
 
         // Normalize the variant data along with the product’s, but set it on the product separately
-        $variantsData = null;
+        $setVariants = isset($arguments['sortOrder']) || isset($arguments['variants']);
+        $variantsData = [];
         if (isset($arguments['variants'])) {
             $variantsData = $this->recursivelyNormalizeArgumentValues($resolveInfo, ['variants' => $arguments['variants']])['variants'];
         }
@@ -82,8 +84,8 @@ class Product extends ElementMutationResolver
         /** @var ProductElement $product */
         $product = $this->populateElementWithData($product, $arguments, $resolveInfo);
 
-        if ($variantsData !== null) {
-            $product->setVariants($this->variants($product, $productType, $variantsData));
+        if ($setVariants) {
+            $product->setVariants($this->variants($product, $productType, $arguments['sortOrder'] ?? null, $variantsData));
             $product->setDirtyAttributes(['variants']);
         }
 
@@ -117,15 +119,31 @@ class Product extends ElementMutationResolver
     /**
      * Returns the product’s variants, populated with the submitted variant data.
      *
+     * Like Matrix fields, `sortOrder` determines which variants the product should have, and `variants` provides data
+     * for new and updated variants, keyed by their IDs or `new:N` (in the order the new variants are listed).
+     *
      * @param ProductElement $product
      * @param ProductType $productType
+     * @param array|null $sortOrder
      * @param array $variantsData
      * @return VariantElement[]
      * @throws Error
      */
-    private function variants(ProductElement $product, ProductType $productType, array $variantsData): array
+    private function variants(ProductElement $product, ProductType $productType, ?array $sortOrder, array $variantsData): array
     {
-        $existingVariants = $product->id ? $product->getVariants(true)->all() : [];
+        $oldVariantsById = [];
+        if ($product->id) {
+            foreach ($product->getVariants(true) as $variant) {
+                $oldVariantsById[$variant->id] = $variant;
+            }
+        }
+
+        $newVariantsData = [];
+        $newCounter = 1;
+        foreach ($variantsData as $data) {
+            $id = ArrayHelper::remove($data, 'id') ?? sprintf('new:%s', $newCounter++);
+            $newVariantsData[$id] = $data;
+        }
 
         $resolver = new Variant([
             self::CONTENT_FIELD_KEY => array_flip(array_map(
@@ -136,26 +154,20 @@ class Product extends ElementMutationResolver
 
         $variants = [];
 
-        foreach ($variantsData as $data) {
-            if (!empty($data['id']) || !empty($data['uid'])) {
-                $variant = null;
-                foreach ($existingVariants as $existingVariant) {
-                    if (
-                        (!empty($data['uid']) && $existingVariant->uid === $data['uid']) ||
-                        (empty($data['uid']) && $existingVariant->id == $data['id'])
-                    ) {
-                        $variant = $existingVariant;
-                        break;
-                    }
-                }
+        foreach ($sortOrder ?? array_keys($oldVariantsById) as $id) {
+            $data = $newVariantsData[$id] ?? [];
 
-                if (!$variant) {
-                    throw new Error('No such variant exists on this product');
+            if (isset($oldVariantsById[$id])) {
+                $variant = $oldVariantsById[$id];
+            } elseif (str_starts_with((string)$id, 'new')) {
+                if (!isset($newVariantsData[$id])) {
+                    throw new Error("No variant data was provided for “{$id}”.");
                 }
-            } else {
                 $variant = new VariantElement();
                 $variant->setPrimaryOwner($product);
                 $variant->setOwner($product);
+            } else {
+                throw new Error('No such variant exists on this product');
             }
 
             $variants[] = $resolver->populateVariant($variant, $data);

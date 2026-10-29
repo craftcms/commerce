@@ -19,6 +19,7 @@ use craft\commerce\Plugin;
 use craft\gql\base\ElementMutationResolver;
 use craft\gql\base\Mutation;
 use craft\gql\GqlEntityRegistry;
+use craft\gql\types\QueryArgument;
 use craft\helpers\Gql;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
@@ -105,10 +106,16 @@ class Product extends Mutation
             ];
         }
 
+        // Like Matrix fields’ `sortOrder` and `entries`
+        $arguments['sortOrder'] = [
+            'name' => 'sortOrder',
+            'type' => Type::listOf(QueryArgument::getType()),
+            'description' => 'The IDs of the variants the product should have, in order. New variants are identified as `new:1`, `new:2`, etc., in the order they’re listed in `variants`. Existing variants that aren’t included are deleted. Defaults to the product’s current variants.',
+        ];
         $arguments['variants'] = [
             'name' => 'variants',
-            'type' => Type::listOf(Type::nonNull(static::variantInputType($productType))),
-            'description' => 'The product’s variants. Variants with an `id` or `uid` are updated, variants without one are created, and any existing variants that aren’t included are deleted.',
+            'type' => Type::listOf(static::variantInputType($productType)),
+            'description' => 'Data for new and updated variants. Variants with an `id` are updated; variants without one are new, and must be included in `sortOrder`.',
         ];
 
         /** @var ProductMutationResolver $resolver */
@@ -178,7 +185,11 @@ class Product extends Mutation
 
             return new InputObjectType([
                 'name' => $typeName,
-                'fields' => fn() => array_merge(VariantMutationArguments::getArguments(), $contentFields),
+                'fields' => function() use ($contentFields) {
+                    $fields = array_merge(VariantMutationArguments::getArguments(), $contentFields);
+                    unset($fields['uid']);
+                    return $fields;
+                },
             ]);
         });
     }
