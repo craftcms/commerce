@@ -30,9 +30,7 @@ class Product extends ElementMutationResolver
     /**
      * Saves a product using the passed arguments.
      *
-     * @param mixed $source
      * @param array $arguments
-     * @param mixed $context
      * @param ResolveInfo $resolveInfo
      * @return ProductElement
      * @throws Throwable
@@ -97,9 +95,7 @@ class Product extends ElementMutationResolver
     /**
      * Deletes a product identified by the passed arguments.
      *
-     * @param mixed $source
      * @param array $arguments
-     * @param mixed $context
      * @param ResolveInfo $resolveInfo
      * @return bool
      * @throws Throwable

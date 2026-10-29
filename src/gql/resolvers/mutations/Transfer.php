@@ -32,9 +32,7 @@ class Transfer extends ElementMutationResolver
     /**
      * Saves an inventory transfer using the passed arguments.
      *
-     * @param mixed $source
      * @param array $arguments
-     * @param mixed $context
      * @param ResolveInfo $resolveInfo
      * @return TransferElement
      * @throws Throwable
@@ -92,9 +90,7 @@ class Transfer extends ElementMutationResolver
     /**
      * Deletes a draft inventory transfer identified by the passed arguments.
      *
-     * @param mixed $source
      * @param array $arguments
-     * @param mixed $context
      * @param ResolveInfo $resolveInfo
      * @return bool
      * @throws Throwable

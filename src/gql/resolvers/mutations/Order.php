@@ -42,9 +42,7 @@ class Order extends ElementMutationResolver
     /**
      * Saves an order using the passed arguments.
      *
-     * @param mixed $source
      * @param array $arguments
-     * @param mixed $context
      * @param ResolveInfo $resolveInfo
      * @return OrderElement
      * @throws Throwable
@@ -143,9 +141,7 @@ class Order extends ElementMutationResolver
     /**
      * Deletes an order identified by the passed arguments.
      *
-     * @param mixed $source
      * @param array $arguments
-     * @param mixed $context
      * @param ResolveInfo $resolveInfo
      * @return bool
      * @throws Throwable

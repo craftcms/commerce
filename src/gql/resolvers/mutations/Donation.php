@@ -26,9 +26,7 @@ class Donation extends ElementMutationResolver
      *
      * There’s only ever one donation, which is created if it doesn’t exist yet.
      *
-     * @param mixed $source
      * @param array $arguments
-     * @param mixed $context
      * @param ResolveInfo $resolveInfo
      * @return DonationElement
      * @throws Throwable

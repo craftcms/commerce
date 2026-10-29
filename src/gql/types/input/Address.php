@@ -50,7 +50,6 @@ class Address extends InputObjectType
     /**
      * Moves custom field values into a `fields` key, as expected by [[\craft\commerce\elements\Order::setBillingAddress()]].
      *
-     * @param mixed $value
      * @return mixed
      */
     public static function normalizeValue(mixed $value): mixed
