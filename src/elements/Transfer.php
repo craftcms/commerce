@@ -537,7 +537,7 @@ class Transfer extends Element
             return true;
         }
 
-        return $user->can('commerce-manageTransfers');
+        return $user->can('commerce-manageInventoryTransfers');
     }
 
     /**
@@ -549,7 +549,7 @@ class Transfer extends Element
             return true;
         }
 
-        return $user->can('commerce-manageTransfers');
+        return $user->can('commerce-manageInventoryTransfers');
     }
 
     /**
@@ -575,7 +575,7 @@ class Transfer extends Element
             $canDelete = true;
         }
 
-        return $canDelete && $user->can('commerce-manageTransfers');
+        return $canDelete && $user->can('commerce-manageInventoryTransfers');
     }
 
     /**
