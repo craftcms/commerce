@@ -1026,6 +1026,7 @@
 - Added `CraftCms\Commerce\CommandPalette\CommerceActions`.
 - Added product type, store management, catalog pricing, and Commerce settings pages to the Control Panel command palette.
 - Added actions for creating orders, products, inventory locations, and store management and Commerce settings items to the Control Panel command palette.
+- Added order, product, and variant search to the Control Panel command palette.
 
 ### Translations
 
