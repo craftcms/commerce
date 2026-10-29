@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a PHP error that could occur when processing gateway webhooks on a control panel-only domain. ([#4395](https://github.com/craftcms/commerce/issues/4395))
+
 ## 5.7.7 - 2026-10-28
 
 - The “See Orders” modal for committed stock on the Inventory screen now lists each order’s date, status, customer, and quantities, along with the location’s available stock. ([#4367](https://github.com/craftcms/commerce/pull/4367))
