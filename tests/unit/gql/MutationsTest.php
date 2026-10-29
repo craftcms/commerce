@@ -210,9 +210,12 @@ class MutationsTest extends TestCase
         self::assertSame('Hi', Order::find()->id($orderId)->one()->message);
     }
 
-    public function testPendingTransfersAreLocked(): void
+    public function testAuthenticatedUsersCanManageTransfers(): void
     {
-        $schema = $this->schema(['transfers.all:create', 'transfers.all:save', 'transfers.all:delete']);
+        // Authenticated users with the “Manage inventory transfers” permission can manage transfers
+        $user = Craft::$app->getUsers()->getUserByUsernameOrEmail('customer2@crafttest.com');
+        Craft::$app->getUserPermissions()->saveUserPermissions($user->id, ['commerce-manageInventoryTransfers']);
+        $schema = Craft::$app->getGql()->getSchemaForUser(Craft::$app->getUsers()->getUserById($user->id));
         $origin = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations()->first()->id;
         $destination = new InventoryLocation(['name' => 'Warehouse', 'handle' => 'warehouse']);
         Plugin::getInstance()->getInventoryLocations()->saveInventoryLocation($destination, false);
