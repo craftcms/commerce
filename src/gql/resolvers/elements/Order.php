@@ -59,6 +59,12 @@ class Order extends ElementResolver
         $pairs = GqlHelper::extractAllowedEntitiesFromSchema();
         $query->andWhere(['commerce_orders.storeId' => array_values(Db::idsByUids(Table::STORES, $pairs['orders']))]);
 
+        // Limit authenticated queries to the user’s own orders, unless they can manage orders
+        $user = GqlHelper::getSchemaUser();
+        if ($user && !$user->can('commerce-manageOrders')) {
+            $query->andWhere(['commerce_orders.customerId' => $user->id]);
+        }
+
         return $query;
     }
 }

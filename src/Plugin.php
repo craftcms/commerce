@@ -1077,6 +1077,7 @@ class Plugin extends BasePlugin
                 $productPermissions = [
                     'settings.producttypes:read' => [
                         'label' => Craft::t('commerce', 'Query for product types'),
+                        'authenticated' => fn(UserElement $user) => $user->can('accessCp'),
                         'info' => Craft::t('commerce', 'Adds “{plural}” and “{singular}” queries, and a “{field}” field to products.', [
                             'plural' => 'productTypes',
                             'singular' => 'productType',
@@ -1087,7 +1088,10 @@ class Plugin extends BasePlugin
 
                 foreach ($productTypes as $productType) {
                     $suffix = 'productTypes.' . $productType->uid;
-                    $productPermissions[$suffix . ':read'] = ['label' => Craft::t('commerce', 'View product type - {productType}', ['productType' => Craft::t('site', $productType->name)])];
+                    $productPermissions[$suffix . ':read'] = [
+                        'label' => Craft::t('commerce', 'View product type - {productType}', ['productType' => Craft::t('site', $productType->name)]),
+                        'authenticated' => fn(UserElement $user) => $user->can("commerce-viewProductType:$productType->uid"),
+                    ];
                 }
 
                 $queryComponents[$label] = $productPermissions;
@@ -1096,6 +1100,7 @@ class Plugin extends BasePlugin
             $queryComponents[Craft::t('commerce', 'Stores')] = [
                 'settings.stores:read' => [
                     'label' => Craft::t('commerce', 'Query for stores'),
+                    'authenticated' => true,
                     'info' => Craft::t('commerce', 'Adds “{plural}” and “{singular}” queries.', [
                         'plural' => 'stores',
                         'singular' => 'store',
@@ -1107,12 +1112,15 @@ class Plugin extends BasePlugin
             foreach (Plugin::getInstance()->getStores()->getAllStores() as $store) {
                 $orderComponents["orders.$store->uid:read"] = [
                     'label' => Craft::t('commerce', 'Query for orders in the “{store}” store', ['store' => $store->getName()]),
+                    // Customers can query their own orders; see the order resolver
+                    'authenticated' => true,
                 ];
             }
 
             $queryComponents[Craft::t('commerce', 'Orders')] = $orderComponents + [
                 'settings.orderstatuses:read' => [
                     'label' => Craft::t('commerce', 'Query for order statuses'),
+                    'authenticated' => true,
                     'info' => Craft::t('commerce', 'Adds “{plural}” and “{singular}” queries.', [
                         'plural' => 'orderStatuses',
                         'singular' => 'orderStatus',

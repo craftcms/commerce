@@ -2,6 +2,8 @@
 
 ### Development
 
+- GraphQL requests authenticated with OAuth access tokens can now query products, variants, orders, stores, product types, and order statuses that the authenticated user has access to. ([craftcms/cms#20147](https://github.com/craftcms/cms/pull/20147))
+- Users can query their own orders via authenticated GraphQL requests. Users with the “Manage orders” permission can query all orders.
 - Added the `orders`, `order`, and `orderCount` GraphQL queries, enabled via new per-store “Query for orders” schema components.
 - Added the `productTypes` and `productType` GraphQL queries, and a `productType` field to products’ GraphQL data, enabled via the new “Query for product types” schema component.
 - Added the `stores` and `store` GraphQL queries, enabled via the new “Query for stores” schema component.
@@ -27,3 +29,4 @@
 
 - `productType` is now a reserved product field handle.
 - `lineItems`, `orderStatus`, and `store` are now reserved order field handles.
+- Craft Commerce now requires Craft CMS 5.12.0 or later.
