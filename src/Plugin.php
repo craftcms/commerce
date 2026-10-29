@@ -53,6 +53,7 @@ use CraftCms\Commerce\Gql\Queries\Variant as VariantQuery;
 use CraftCms\Commerce\Http\Middleware\PoweredByHeader;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Plugin\Concerns\HasCacheOptions;
+use CraftCms\Commerce\Plugin\Concerns\HasCommandPalette;
 use CraftCms\Commerce\Plugin\Concerns\HasCommerceEditions;
 use CraftCms\Commerce\Plugin\Concerns\HasCommerceMacros;
 use CraftCms\Commerce\Plugin\Concerns\HasCpNavigation;
@@ -106,6 +107,7 @@ class Plugin extends BasePlugin
     use HasCpSettings;
     use HasHttpProtection;
     use HasCacheOptions;
+    use HasCommandPalette;
 
     public const string HANDLE = 'commerce';
 
@@ -213,6 +215,7 @@ class Plugin extends BasePlugin
         $this->registerGqlArguments();
         $this->registerUiComponents();
         $this->registerCpSettings();
+        $this->registerCommandPalette();
         $this->registerPolicies();
         $this->registerBehaviorMacros();
         $this->registerVariableMacros();
