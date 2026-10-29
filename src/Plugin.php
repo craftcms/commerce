@@ -51,6 +51,7 @@ use craft\commerce\gql\handlers\RelatedVariants;
 use craft\commerce\gql\interfaces\elements\Order as GqlOrderInterface;
 use craft\commerce\gql\interfaces\elements\Product as GqlProductInterface;
 use craft\commerce\gql\interfaces\elements\Variant as GqlVariantInterface;
+use craft\commerce\gql\mutations\Product as GqlProductMutations;
 use craft\commerce\gql\queries\Order as GqlOrderQueries;
 use craft\commerce\gql\queries\Product as GqlProductQueries;
 use craft\commerce\gql\queries\Settings as GqlSettingsQueries;
@@ -148,6 +149,7 @@ use craft\events\RegisterElementExportersEvent;
 use craft\events\RegisterEmailMessagesEvent;
 use craft\events\RegisterGqlArgumentHandlersEvent;
 use craft\events\RegisterGqlEagerLoadableFields;
+use craft\events\RegisterGqlMutationsEvent;
 use craft\events\RegisterGqlQueriesEvent;
 use craft\events\RegisterGqlSchemaComponentsEvent;
 use craft\events\RegisterGqlTypesEvent;
@@ -321,6 +323,7 @@ class Plugin extends BasePlugin
         $this->_registerElementTypes();
         $this->_registerGqlInterfaces();
         $this->_registerGqlQueries();
+        $this->_registerGqlMutations();
         $this->_registerGqlComponents();
         $this->_registerGqlEagerLoadableFields();
         $this->_registerGqlArgumentHandlers();
@@ -1063,12 +1066,26 @@ class Plugin extends BasePlugin
     }
 
     /**
+     * Register the Gql mutations
+     */
+    private function _registerGqlMutations(): void
+    {
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_MUTATIONS, static function(RegisterGqlMutationsEvent $event) {
+            $event->mutations = array_merge(
+                $event->mutations,
+                GqlProductMutations::getMutations(),
+            );
+        });
+    }
+
+    /**
      * Register the Gql permissions
      */
     private function _registerGqlComponents(): void
     {
         Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_SCHEMA_COMPONENTS, static function(RegisterGqlSchemaComponentsEvent $event) {
             $queryComponents = [];
+            $mutationComponents = [];
 
             $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
 
@@ -1086,15 +1103,41 @@ class Plugin extends BasePlugin
                     ],
                 ];
 
+                $productMutations = [];
+
                 foreach ($productTypes as $productType) {
                     $suffix = 'productTypes.' . $productType->uid;
+                    $name = Craft::t('site', $productType->name);
                     $productPermissions[$suffix . ':read'] = [
-                        'label' => Craft::t('commerce', 'View product type - {productType}', ['productType' => Craft::t('site', $productType->name)]),
+                        'label' => Craft::t('commerce', 'View product type - {productType}', ['productType' => $name]),
                         'authenticated' => fn(UserElement $user) => $user->can("commerce-viewProductType:$productType->uid"),
+                    ];
+                    $productMutations[$suffix . ':edit'] = [
+                        'label' => Craft::t('commerce', 'Edit products in the “{productType}” product type', ['productType' => $name]),
+                        'authenticated' => fn(UserElement $user) => (
+                            $user->can("commerce-createProductType:$productType->uid") ||
+                            $user->can("commerce-saveProductType:$productType->uid") ||
+                            $user->can("commerce-deleteProductType:$productType->uid")
+                        ),
+                        'nested' => [
+                            $suffix . ':create' => [
+                                'label' => Craft::t('commerce', 'Create products in the “{productType}” product type', ['productType' => $name]),
+                                'authenticated' => fn(UserElement $user) => $user->can("commerce-createProductType:$productType->uid"),
+                            ],
+                            $suffix . ':save' => [
+                                'label' => Craft::t('commerce', 'Save products and variants in the “{productType}” product type', ['productType' => $name]),
+                                'authenticated' => fn(UserElement $user) => $user->can("commerce-saveProductType:$productType->uid"),
+                            ],
+                            $suffix . ':delete' => [
+                                'label' => Craft::t('commerce', 'Delete products and variants in the “{productType}” product type', ['productType' => $name]),
+                                'authenticated' => fn(UserElement $user) => $user->can("commerce-deleteProductType:$productType->uid"),
+                            ],
+                        ],
                     ];
                 }
 
                 $queryComponents[$label] = $productPermissions;
+                $mutationComponents[$label] = $productMutations;
             }
 
             $queryComponents[Craft::t('commerce', 'Stores')] = [
@@ -1129,6 +1172,7 @@ class Plugin extends BasePlugin
             ];
 
             $event->queries = array_merge($event->queries, $queryComponents);
+            $event->mutations = array_merge($event->mutations, $mutationComponents);
         });
     }
 
