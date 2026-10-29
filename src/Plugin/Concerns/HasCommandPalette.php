@@ -11,7 +11,7 @@ use CraftCms\Cms\Cp\CommandPalette\SearchProviders\ElementSearchProvider;
 use CraftCms\Cms\User\Contracts\CraftUser;
 use CraftCms\Commerce\CommandPalette\CommerceActions;
 use CraftCms\Commerce\CommandPalette\CommercePages;
-use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\CommandPalette\OrderSearchProvider;
 use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
@@ -26,18 +26,19 @@ trait HasCommandPalette
     {
         app(PageRegistry::class)->register(
             self::HANDLE,
-            fn(CraftUser $user, CommercePages $pages) => $pages->all($user),
+            fn(CraftUser $user, CommercePages $pages) => $this->isInstalled ? $pages->all($user) : [],
         );
 
         app(ActionRegistry::class)->register(
             self::HANDLE,
-            fn(CraftUser $user, CommerceActions $actions) => $actions->all($user),
+            fn(CraftUser $user, CommerceActions $actions) => $this->isInstalled ? $actions->all($user) : [],
         );
 
-        $hasViewableProductTypes = fn() => app(ProductTypes::class)->getViewableProductTypeIds(true) !== [];
+        // Stores and product types live in tables that don't exist until Commerce is installed.
+        $hasViewableProductTypes = fn() => $this->isInstalled && app(ProductTypes::class)->getViewableProductTypeIds(true) !== [];
 
         app(SearchProviderRegistry::class)->register(
-            new ElementSearchProvider(Order::class, fn(CraftUser $user) => $user->can('commerce-manageOrders')),
+            OrderSearchProvider::class,
             new ElementSearchProvider(Product::class, $hasViewableProductTypes),
             new ElementSearchProvider(Variant::class, $hasViewableProductTypes),
         );
