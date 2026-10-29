@@ -54,6 +54,11 @@ use yii\base\InvalidConfigException;
 class Subscription extends Element
 {
     /**
+     * @since 5.8.0
+     */
+    public const GQL_TYPE_NAME = 'Subscription';
+
+    /**
      * @var string
      */
     public const STATUS_ACTIVE = 'active';
@@ -747,5 +752,14 @@ class Subscription extends Element
             'orderLink' => $elementQuery->andWith('order'),
             default => parent::prepElementQueryForTableAttribute($elementQuery, $attribute),
         };
+    }
+
+    /**
+     * @inheritdoc
+     * @since 5.8.0
+     */
+    public function getGqlTypeName(): string
+    {
+        return self::GQL_TYPE_NAME;
     }
 }

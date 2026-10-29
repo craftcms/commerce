@@ -48,14 +48,23 @@ use craft\commerce\gql\handlers\HasProduct;
 use craft\commerce\gql\handlers\HasVariant;
 use craft\commerce\gql\handlers\RelatedProducts;
 use craft\commerce\gql\handlers\RelatedVariants;
+use craft\commerce\gql\interfaces\elements\Donation as GqlDonationInterface;
 use craft\commerce\gql\interfaces\elements\Order as GqlOrderInterface;
 use craft\commerce\gql\interfaces\elements\Product as GqlProductInterface;
+use craft\commerce\gql\interfaces\elements\Subscription as GqlSubscriptionInterface;
+use craft\commerce\gql\interfaces\elements\Transfer as GqlTransferInterface;
 use craft\commerce\gql\interfaces\elements\Variant as GqlVariantInterface;
+use craft\commerce\gql\mutations\Donation as GqlDonationMutations;
 use craft\commerce\gql\mutations\Order as GqlOrderMutations;
 use craft\commerce\gql\mutations\Product as GqlProductMutations;
+use craft\commerce\gql\mutations\Subscription as GqlSubscriptionMutations;
+use craft\commerce\gql\mutations\Transfer as GqlTransferMutations;
+use craft\commerce\gql\queries\Donation as GqlDonationQueries;
 use craft\commerce\gql\queries\Order as GqlOrderQueries;
 use craft\commerce\gql\queries\Product as GqlProductQueries;
 use craft\commerce\gql\queries\Settings as GqlSettingsQueries;
+use craft\commerce\gql\queries\Subscription as GqlSubscriptionQueries;
+use craft\commerce\gql\queries\Transfer as GqlTransferQueries;
 use craft\commerce\gql\queries\Variant as GqlVariantQueries;
 use craft\commerce\gql\types\input\criteria\ProductRelation;
 use craft\commerce\gql\types\input\criteria\VariantRelation;
@@ -1045,6 +1054,9 @@ class Plugin extends BasePlugin
             $types[] = GqlProductInterface::class;
             $types[] = GqlVariantInterface::class;
             $types[] = GqlOrderInterface::class;
+            $types[] = GqlSubscriptionInterface::class;
+            $types[] = GqlDonationInterface::class;
+            $types[] = GqlTransferInterface::class;
             $event->types = $types;
         });
     }
@@ -1061,6 +1073,9 @@ class Plugin extends BasePlugin
                 GqlProductQueries::getQueries(),
                 GqlVariantQueries::getQueries(),
                 GqlOrderQueries::getQueries(),
+                GqlSubscriptionQueries::getQueries(),
+                GqlDonationQueries::getQueries(),
+                GqlTransferQueries::getQueries(),
                 GqlSettingsQueries::getQueries(),
             );
         });
@@ -1076,6 +1091,9 @@ class Plugin extends BasePlugin
                 $event->mutations,
                 GqlProductMutations::getMutations(),
                 GqlOrderMutations::getMutations(),
+                GqlSubscriptionMutations::getMutations(),
+                GqlDonationMutations::getMutations(),
+                GqlTransferMutations::getMutations(),
             );
         });
     }
@@ -1191,6 +1209,74 @@ class Plugin extends BasePlugin
                         'plural' => 'orderStatuses',
                         'singular' => 'orderStatus',
                     ]),
+                ],
+            ];
+
+            $label = Craft::t('commerce', 'Subscriptions');
+            $queryComponents[$label] = [
+                'subscriptions.all:read' => [
+                    'label' => Craft::t('commerce', 'Query for subscriptions'),
+                    // Users can query their own subscriptions; see the subscription resolver
+                    'authenticated' => true,
+                ],
+            ];
+            $mutationComponents[$label] = [
+                'subscriptions.all:edit' => [
+                    'label' => Craft::t('commerce', 'Edit subscriptions'),
+                    'authenticated' => fn(UserElement $user) => $user->can('commerce-manageSubscriptions'),
+                    'nested' => [
+                        'subscriptions.all:save' => [
+                            'label' => Craft::t('commerce', 'Save subscriptions'),
+                            'authenticated' => fn(UserElement $user) => $user->can('commerce-manageSubscriptions'),
+                        ],
+                        // Not available to authenticated requests, as subscriptions can’t be deleted by users
+                        'subscriptions.all:delete' => [
+                            'label' => Craft::t('commerce', 'Delete subscriptions'),
+                        ],
+                    ],
+                ],
+            ];
+
+            $label = Craft::t('commerce', 'Donations');
+            $queryComponents[$label] = [
+                'donations.all:read' => [
+                    'label' => Craft::t('commerce', 'Query for the donation'),
+                    'authenticated' => true,
+                ],
+            ];
+            $mutationComponents[$label] = [
+                'donations.all:save' => [
+                    'label' => Craft::t('commerce', 'Save the donation'),
+                    'authenticated' => fn(UserElement $user) => $user->can('commerce-manageDonationSettings'),
+                ],
+            ];
+
+            $label = Craft::t('commerce', 'Inventory Transfers');
+            $canManageTransfers = fn(UserElement $user) => $user->can('commerce-manageInventoryTransfers');
+            $queryComponents[$label] = [
+                'transfers.all:read' => [
+                    'label' => Craft::t('commerce', 'Query for inventory transfers'),
+                    'authenticated' => $canManageTransfers,
+                ],
+            ];
+            $mutationComponents[$label] = [
+                'transfers.all:edit' => [
+                    'label' => Craft::t('commerce', 'Edit inventory transfers'),
+                    'authenticated' => $canManageTransfers,
+                    'nested' => [
+                        'transfers.all:create' => [
+                            'label' => Craft::t('commerce', 'Create inventory transfers'),
+                            'authenticated' => $canManageTransfers,
+                        ],
+                        'transfers.all:save' => [
+                            'label' => Craft::t('commerce', 'Save inventory transfers'),
+                            'authenticated' => $canManageTransfers,
+                        ],
+                        'transfers.all:delete' => [
+                            'label' => Craft::t('commerce', 'Delete inventory transfers'),
+                            'authenticated' => $canManageTransfers,
+                        ],
+                    ],
                 ],
             ];
 

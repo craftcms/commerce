@@ -11,12 +11,14 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\commerce\models\InventoryLocation;
 use craft\commerce\Plugin;
 use craft\enums\CmsEdition;
 use craft\helpers\StringHelper;
 use craft\models\GqlSchema;
 use craft\test\TestCase;
 use craftcommercetests\fixtures\OrdersFixture;
+use craftcommercetests\fixtures\SubscriptionsFixture;
 
 /**
  * Tests Commerce’s GraphQL mutations.
@@ -33,6 +35,9 @@ class MutationsTest extends TestCase
         return [
             'orders' => [
                 'class' => OrdersFixture::class,
+            ],
+            'subscriptions' => [
+                'class' => SubscriptionsFixture::class,
             ],
         ];
     }
@@ -152,6 +157,46 @@ class MutationsTest extends TestCase
         $schema = Craft::$app->getGql()->getSchemaForUser(Craft::$app->getUsers()->getUserById($user->id));
         self::assertSame((string)$orderId, $this->execute($schema, $mutation)['data']['save_Order']['id']);
         self::assertSame('Hi', Order::find()->id($orderId)->one()->message);
+    }
+
+    public function testPendingTransfersAreLocked(): void
+    {
+        $schema = $this->schema(['transfers.all:create', 'transfers.all:save', 'transfers.all:delete']);
+        $origin = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations()->first()->id;
+        $destination = new InventoryLocation(['name' => 'Warehouse', 'handle' => 'warehouse']);
+        Plugin::getInstance()->getInventoryLocations()->saveInventoryLocation($destination, false);
+        $purchasableId = Variant::find()->sku('hct-white')->one()->id;
+
+        $transfer = $this->execute($schema, "mutation {
+            save_Transfer(originLocationId: $origin, destinationLocationId: $destination->id, details: [{purchasableId: $purchasableId, quantity: 2}]) {
+                id transferStatus details { inventoryItemDescription quantity }
+            }
+        }")['data']['save_Transfer'];
+
+        self::assertSame('draft', $transfer['transferStatus']);
+        self::assertSame([['inventoryItemDescription' => 'hct-white', 'quantity' => 2]], $transfer['details']);
+
+        $status = $this->execute($schema, "mutation { save_Transfer(id: {$transfer['id']}, markAsPending: true) { transferStatus } }");
+        self::assertSame('pending', $status['data']['save_Transfer']['transferStatus']);
+
+        $result = $this->execute($schema, "mutation { save_Transfer(id: {$transfer['id']}, details: [{purchasableId: $purchasableId, quantity: 1}]) { id } }");
+        self::assertSame('Only draft transfers’ locations and items can be changed.', $result['errors'][0]['message']);
+
+        $result = $this->execute($schema, "mutation { deleteTransfer(id: {$transfer['id']}) }");
+        self::assertSame('Only draft transfers can be deleted.', $result['errors'][0]['message']);
+    }
+
+    public function testAuthenticatedUsersCanOnlyQueryTheirOwnSubscriptions(): void
+    {
+        $user = Craft::$app->getUsers()->getUserByUsernameOrEmail('customer2@crafttest.com');
+
+        Craft::$app->getUserPermissions()->saveUserPermissions($user->id, []);
+        $schema = Craft::$app->getGql()->getSchemaForUser(Craft::$app->getUsers()->getUserById($user->id));
+        self::assertSame(0, $this->execute($schema, '{ subscriptionCount }')['data']['subscriptionCount']);
+
+        Craft::$app->getUserPermissions()->saveUserPermissions($user->id, ['commerce-manageSubscriptions']);
+        $schema = Craft::$app->getGql()->getSchemaForUser(Craft::$app->getUsers()->getUserById($user->id));
+        self::assertSame(1, $this->execute($schema, '{ subscriptionCount }')['data']['subscriptionCount']);
     }
 
     private function schema(array $scope): GqlSchema
