@@ -51,7 +51,7 @@ class TransferDetail extends Component
         }
 
         if ($this->transferId) {
-            $this->_transfer = Transfer::find()->id($this->transferId)->one();
+            $this->_transfer = Transfer::find()->id($this->transferId)->status(null)->one();
         }
 
         return $this->_transfer;

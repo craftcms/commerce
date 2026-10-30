@@ -30,6 +30,10 @@ class CatalogPricing
 
     public function generateCatalogPrices(?array $purchasableIds = null, ?array $catalogPricingRules = null, ?OutputInterface $output = null, mixed $queue = null): void
     {
+        if ($catalogPricingRules === []) {
+            return;
+        }
+
         $chunkSize = 1000;
         $this->setQueueProgress($queue, 10, 'Retrieving purchasables');
 

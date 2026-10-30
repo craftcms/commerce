@@ -164,3 +164,25 @@ it('includes a custom runtime shipping method registered via the shipping method
     expect($options['myCustomCarrier']['name'])->toBe('My Custom Carrier');
     expect($options['myCustomCarrier']['handle'])->toBe('myCustomCarrier');
 });
+
+it('rejects an invalid address type when updating an order address', function() {
+    $order = OrdersFixture::seed()->orders['completed-new'];
+
+    get(Url::actionUrl('commerce/orders/update-order-address', [
+        'orderId' => $order->id,
+        'addressId' => 1,
+        'addressType' => 'id',
+    ]), ['Accept' => 'application/json'])
+        ->assertStatus(400)
+        ->assertJsonPath('message', 'Not a valid address type');
+});
+
+it('rejects an unknown order when updating an order address', function() {
+    get(Url::actionUrl('commerce/orders/update-order-address', [
+        'orderId' => 999999,
+        'addressId' => 1,
+        'addressType' => 'shippingAddress',
+    ]), ['Accept' => 'application/json'])
+        ->assertStatus(400)
+        ->assertJsonPath('message', 'Bad order ID.');
+});

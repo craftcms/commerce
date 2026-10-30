@@ -19,6 +19,11 @@ class UpdateInventoryLevel extends Component
 
     public ?int $transferId = null;
 
+    /**
+     * Whether the update should be associated with an order line item.
+     */
+    public ?int $lineItemId = null;
+
     public InventoryUpdateQuantityType $updateAction;
 
     public int $quantity;

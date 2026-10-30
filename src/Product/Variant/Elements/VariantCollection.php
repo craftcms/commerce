@@ -27,11 +27,10 @@ class VariantCollection extends ElementCollection
                 continue;
             }
 
-            $class = $item['class'] ?? Variant::class;
-            unset($item['class']);
+            // Never let a caller override the class to instantiate
+            unset($item['class'], $item['__class']);
 
-            /** @var Variant $variant */
-            $variant = new $class();
+            $variant = new Variant();
             $variant->setAttributes($item);
             $item = $variant;
         }

@@ -387,3 +387,50 @@ test('duplicating deleting and restoring a product carries its variants', functi
 
     Elements::deleteElementById($duplicate->id, Product::class, null, true);
 });
+
+function flaggedDefaultVariantIds(int $productId): array
+{
+    return DB::table(Table::VARIANTS)
+        ->where('primaryOwnerId', $productId)
+        ->where('isDefault', true)
+        ->orderBy('id')
+        ->pluck('id')
+        ->map(fn($id) => (int)$id)
+        ->all();
+}
+
+test('saving a product keeps the legacy isDefault flag in sync with its default variant', function() {
+    $fixture = VariantQueryFixture::seed();
+    $product = $fixture->tee;
+
+    expect(flaggedDefaultVariantIds($product->id))->toBe([$fixture->whiteVariant->id]);
+
+    // Pointing the product at a different default variant moves the flag when the product is saved
+    $product->defaultVariantId = $fixture->blueVariant->id;
+    $product->setVariants([
+        Variant::find()->id($fixture->whiteVariant->id)->one(),
+        Variant::find()->id($fixture->blueVariant->id)->one(),
+    ]);
+    $product->getVariants()->firstWhere('id', $fixture->blueVariant->id)->isDefault = true;
+    $product->getVariants()->firstWhere('id', $fixture->whiteVariant->id)->isDefault = false;
+    Elements::saveElement($product, false);
+
+    expect(DB::table(Table::PRODUCTS)->where('id', $product->id)->value('defaultVariantId'))->toBe($fixture->blueVariant->id)
+        ->and(flaggedDefaultVariantIds($product->id))->toBe([$fixture->blueVariant->id]);
+});
+
+test('the legacy isDefault flags are cleared when a product has no default variant', function() {
+    $fixture = VariantQueryFixture::seed();
+    $product = $fixture->tee;
+
+    foreach ([$fixture->whiteVariant, $fixture->blueVariant] as $variant) {
+        $variant->enabled = false;
+        Elements::saveElement($variant, false);
+    }
+
+    $product = Product::find()->id($product->id)->status(null)->one();
+    Elements::saveElement($product, false);
+
+    expect(DB::table(Table::PRODUCTS)->where('id', $product->id)->value('defaultVariantId'))->toBeNull()
+        ->and(flaggedDefaultVariantIds($product->id))->toBe([]);
+});

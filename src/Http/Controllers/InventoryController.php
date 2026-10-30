@@ -29,6 +29,7 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
+use CraftCms\Commerce\Inventory\Data\InventoryFulfillmentLevel;
 use CraftCms\Commerce\Inventory\Data\InventoryItem;
 use CraftCms\Commerce\Inventory\Data\InventoryLocation;
 use CraftCms\Commerce\Inventory\Data\InventoryManualMovement;
@@ -42,6 +43,7 @@ use CraftCms\Commerce\Order\Elements\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -427,25 +429,109 @@ readonly class InventoryController
         $inventoryLocation = $this->resolveInventoryLocation($inventoryLocationHandle);
         $inventoryItem = $this->resolveInventoryItem($request->integer('inventoryItemId'));
 
-        $orders = app(Inventory::class)->getUnfulfilledOrders($inventoryItem, $inventoryLocation);
+        $inventory = app(Inventory::class);
+        $fulfillmentLevels = $this->withFulfillmentLevelOrders(
+            $inventory->getOutstandingInventoryFulfillmentLevels($inventoryItem->id, $inventoryLocation->id)
+        );
         $formatter = app(Formatter::class);
 
         $table = TableNode::make('unfulfilled-orders')
             ->columns([
                 ['key' => 'order', 'label' => t('Order', category: 'commerce')],
                 ['key' => 'dateOrdered', 'label' => t('Date Ordered', category: 'commerce')],
+                ['key' => 'orderStatus', 'label' => t('Order Status', category: 'commerce')],
+                ['key' => 'item', 'label' => t('Item', category: 'commerce')],
+                ['key' => 'qty', 'label' => t('Qty', category: 'commerce')],
+                ['key' => 'fulfilled', 'label' => t('Fulfilled', category: 'commerce')],
+                ['key' => 'committed', 'label' => t('Committed', category: 'commerce')],
+                ['key' => 'stock', 'label' => t('Stock', category: 'commerce')],
             ])
-            ->rows(array_map(fn(Order $order) => [
-                'id' => $order->id,
-                'order' => ['label' => (string)($order->reference ?: $order->getShortNumber()), 'url' => $order->getCpEditUrl()],
-                'dateOrdered' => $order->dateOrdered ? $formatter->asDateTime($order->dateOrdered, 'short') : '',
-            ], $orders))
+            ->rows($fulfillmentLevels->map(function(InventoryFulfillmentLevel $fulfillmentLevel) use ($formatter) {
+                $order = $fulfillmentLevel->getOrder();
+                $lineItem = $fulfillmentLevel->getLineItem();
+
+                return [
+                    'id' => $fulfillmentLevel->lineItemId,
+                    'order' => ['label' => (string)($order->reference ?: $order->getShortNumber()), 'url' => $order->getCpEditUrl()],
+                    'dateOrdered' => $order->dateOrdered ? $formatter->asDateTime($order->dateOrdered, 'short') : '',
+                    'orderStatus' => $order->getOrderStatus()?->name ?? '',
+                    'item' => trim($lineItem->description . ' ' . $lineItem->sku),
+                    'qty' => $lineItem->qty,
+                    'fulfilled' => $fulfillmentLevel->fulfilledQuantity,
+                    'committed' => $fulfillmentLevel->outstandingCommittedQuantity,
+                    'stock' => $fulfillmentLevel->getFulfillableQuantity(),
+                ];
+            })->all())
             ->emptyMessage(t('No unfulfilled orders.', category: 'commerce'));
 
-        $title = t('{count} Unfulfilled Orders', ['count' => count($orders)], category: 'commerce');
+        $title = t('{count} Unfulfilled Orders', ['count' => $fulfillmentLevels->pluck('orderId')->unique()->count()], category: 'commerce');
 
         return new CpScreenResponse()
             ->title($title)
+            ->crumbs($this->crumbs($inventoryLocation, $this->inventoryItemLabel($inventoryItem)))
+            ->selectedSubnavItem('inventory')
+            ->ui(Ui::make([$table]));
+    }
+
+    /**
+     * Lists the orders whose shortfall is reserved at an inventory location, and where each order is committed,
+     * so the stock can be transferred there to fulfill it.
+     */
+    public function reservedOrders(Request $request, string $inventoryLocationHandle): CpScreenResponse
+    {
+        $inventoryLocation = $this->resolveInventoryLocation($inventoryLocationHandle);
+        $inventoryItem = $this->resolveInventoryItem($request->integer('inventoryItemId'));
+
+        $inventory = app(Inventory::class);
+        $reservations = $inventory->getReservedQuantitiesByLineItem($inventoryItem->id, $inventoryLocation->id);
+        $orders = $this->ordersById($reservations->pluck('orderId')->all());
+        $committedLevels = $inventory
+            ->getOutstandingInventoryFulfillmentLevels($inventoryItem->id, null, $reservations->pluck('lineItemId')->all())
+            ->groupBy('lineItemId');
+        $formatter = app(Formatter::class);
+
+        $rows = $reservations
+            ->filter(fn(array $reservation) => isset($orders[$reservation['orderId']]))
+            ->map(function(array $reservation) use ($orders, $committedLevels, $formatter) {
+                $order = $orders[$reservation['orderId']];
+                $lineItem = collect($order->getLineItems())->firstWhere('id', $reservation['lineItemId']);
+
+                if ($lineItem === null) {
+                    return null;
+                }
+
+                return [
+                    'id' => $reservation['lineItemId'],
+                    'order' => ['label' => (string)($order->reference ?: $order->getShortNumber()), 'url' => $order->getCpEditUrl()],
+                    'dateOrdered' => $order->dateOrdered ? $formatter->asDateTime($order->dateOrdered, 'short') : '',
+                    'orderStatus' => $order->getOrderStatus()?->name ?? '',
+                    'item' => trim($lineItem->description . ' ' . $lineItem->sku),
+                    'qty' => $lineItem->qty,
+                    'reserved' => $reservation['reservedQty'],
+                    'committed' => $committedLevels->get($reservation['lineItemId'], collect())
+                        ->map(fn(InventoryFulfillmentLevel $level) => $level->getInventoryLocation()->getUiLabel() . ': ' . $level->outstandingCommittedQuantity)
+                        ->implode(', ') ?: '0',
+                ];
+            })
+            ->filter()
+            ->values()
+            ->all();
+
+        $table = TableNode::make('reserved-orders')
+            ->columns([
+                ['key' => 'order', 'label' => t('Order', category: 'commerce')],
+                ['key' => 'dateOrdered', 'label' => t('Date Ordered', category: 'commerce')],
+                ['key' => 'orderStatus', 'label' => t('Order Status', category: 'commerce')],
+                ['key' => 'item', 'label' => t('Item', category: 'commerce')],
+                ['key' => 'qty', 'label' => t('Qty', category: 'commerce')],
+                ['key' => 'reserved', 'label' => t('Reserved', category: 'commerce')],
+                ['key' => 'committed', 'label' => t('Committed', category: 'commerce')],
+            ])
+            ->rows($rows)
+            ->emptyMessage(t('No orders.', category: 'commerce'));
+
+        return new CpScreenResponse()
+            ->title(t('Orders', category: 'commerce'))
             ->crumbs($this->crumbs($inventoryLocation, $this->inventoryItemLabel($inventoryItem)))
             ->selectedSubnavItem('inventory')
             ->ui(Ui::make([$table]));
@@ -550,10 +636,17 @@ readonly class InventoryController
 
         $items = [];
 
-        if ($type === InventoryTransactionType::COMMITTED->value && $quantity > 0) {
+        // Committed and reserved stock can both be traced back to the orders they're held for
+        $ordersRoute = match ($type) {
+            InventoryTransactionType::COMMITTED->value => 'orders',
+            InventoryTransactionType::RESERVED->value => 'reserved-orders',
+            default => null,
+        };
+
+        if ($ordersRoute !== null && $quantity > 0) {
             $items[] = [
                 'label' => t('See Orders', category: 'commerce'),
-                'url' => Url::cpUrl("commerce/inventory/levels/$inventoryLocation->handle/orders", ['inventoryItemId' => $inventoryItemId]),
+                'url' => Url::cpUrl("commerce/inventory/levels/$inventoryLocation->handle/$ordersRoute", ['inventoryItemId' => $inventoryItemId]),
             ];
         }
 
@@ -676,6 +769,41 @@ readonly class InventoryController
         }
 
         return $purchasables;
+    }
+
+    /**
+     * Eager-loads the orders for a list of fulfillment levels, dropping any whose order can't be found (e.g. it's been deleted).
+     *
+     * @param Collection<int, InventoryFulfillmentLevel> $fulfillmentLevels
+     * @return Collection<int, InventoryFulfillmentLevel>
+     */
+    private function withFulfillmentLevelOrders(Collection $fulfillmentLevels): Collection
+    {
+        $orders = $this->ordersById($fulfillmentLevels->pluck('orderId')->all());
+
+        return $fulfillmentLevels
+            ->filter(fn(InventoryFulfillmentLevel $fulfillmentLevel) => isset($orders[$fulfillmentLevel->orderId]))
+            ->each(fn(InventoryFulfillmentLevel $fulfillmentLevel) => $fulfillmentLevel->setOrder($orders[$fulfillmentLevel->orderId]))
+            ->values();
+    }
+
+    /**
+     * @param int[] $orderIds
+     * @return array<int, Order>
+     */
+    private function ordersById(array $orderIds): array
+    {
+        $orderIds = array_values(array_unique(array_filter($orderIds)));
+
+        if (empty($orderIds)) {
+            return [];
+        }
+
+        return Order::find()
+            ->id($orderIds)
+            ->status(null)
+            ->indexBy('id')
+            ->all();
     }
 
     private function resolveInventoryLocation(string $handle): InventoryLocation

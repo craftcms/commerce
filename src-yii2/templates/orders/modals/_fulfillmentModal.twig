@@ -1,37 +1,70 @@
 {% import '_includes/forms.twig' as forms %}
 
-{% for inventoryLocationId, fulfillmentLevels in inventoryFulfillmentLevels %}
-    <h3>{{ fulfillmentLevels[0].getInventoryLocation().name }}</h3>
-    <table class="data fullwidth">
-        <tr>
-            <th>{{ "Description"|t('commerce') }}</th>
-            <th>{{ "Fulfilled"|t('commerce') }}</th>
-            <th>{{ "Fulfill"|t('commerce') }}</th>
-        </tr>
-        {% for fulfillmentLevel in fulfillmentLevels %}
-            {% set fieldIndex = random() %}
-            <tr>
-            <td class="">{{fulfillmentLevel.getLineItem().description}}</td>
-            <td class="">{{fulfillmentLevel.fulfilledQuantity}} / {{fulfillmentLevel.committedQuantity}}</td>
-            <td class="">
-                <div id="fulfillment-{{ fieldIndex }}">
-                {{ forms.text({
-                    type: 'number',
-                    inputAttributes: {
-                        max: max(fulfillmentLevel.outstandingCommittedQuantity, 0),
-                        min: -fulfillmentLevel.fulfilledQuantity,
-                        step: 1,
-                        class: 'fulfillment-quantity',
-                    },
-                    name: 'fulfillment['~fieldIndex~'][quantity]',
-                }) }}
-                </div>
-                {{ hiddenInput('fulfillment['~fieldIndex~'][max]', max(fulfillmentLevel.outstandingCommittedQuantity, 0)) }}
-                {{ hiddenInput('fulfillment['~fieldIndex~'][inventoryLocationId]', fulfillmentLevel.inventoryLocationId) }}
-                {{ hiddenInput('fulfillment['~fieldIndex~'][inventoryItemId]', fulfillmentLevel.inventoryItemId) }}
-                {{ hiddenInput('fulfillment['~fieldIndex~'][lineItemId]', fulfillmentLevel.lineItemId) }}
-            </td>
-            </tr>
-        {% endfor %}
-    </table>
-{% endfor %}
+<div style="width: min(48rem, calc(100vw - 6rem)); max-height: min(32rem, calc(100vh - 12rem)); overflow: auto;">
+    {% for inventoryLocationId, fulfillmentLevels in inventoryFulfillmentLevels %}
+        {% set inventoryLocation = fulfillmentLevels[0].getInventoryLocation() %}
+
+        <h3>{{ inventoryLocation.getUiLabel() }}</h3>
+
+        <table class="data fullwidth">
+            <thead>
+                <tr>
+                    <th scope="col">{{ 'Item'|t('commerce') }}</th>
+                    <th scope="col" class="thin">{{ 'Qty'|t('commerce') }}</th>
+                    <th scope="col" class="thin">{{ 'Fulfilled'|t('commerce') }}</th>
+                    <th scope="col" class="thin">{{ 'Committed'|t('commerce') }}</th>
+                    <th scope="col" class="thin">{{ 'Stock'|t('commerce') }}</th>
+                    <th scope="col" class="thin">{{ 'Fulfill'|t('commerce') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fulfillmentLevel in fulfillmentLevels %}
+                    {% set fieldIndex = random() %}
+                    {% set lineItem = fulfillmentLevel.getLineItem() %}
+                    <tr>
+                        <th scope="row">
+                            {{ lineItem.description }}
+                            <div class="smalltext light code">{{ lineItem.sku }}</div>
+                        </th>
+                        <td class="thin">{{ lineItem.qty }}</td>
+                        <td class="thin">{{ fulfillmentLevel.fulfilledQuantity }}</td>
+                        <td class="thin"><strong>{{ fulfillmentLevel.outstandingCommittedQuantity }}</strong></td>
+                        <td class="thin">
+                            {% if fulfillmentLevel.isShortOfStock %}
+                                <span class="error" title="{{ '{description} only has {stock} in stock.'|t('commerce', {
+                                    description: inventoryLocation.getUiLabel(),
+                                    stock: fulfillmentLevel.getFulfillableQuantity(),
+                                }) }}">{{ fulfillmentLevel.getFulfillableQuantity() }}</span>
+                            {% else %}
+                                {{ fulfillmentLevel.getFulfillableQuantity() }}
+                            {% endif %}
+                        </td>
+                        <td class="thin">
+                            <div id="fulfillment-{{ fieldIndex }}">
+                                {{ forms.text({
+                                    type: 'number',
+                                    inputAttributes: {
+                                        max: fulfillmentLevel.getMaxFulfillQuantity(),
+                                        min: -fulfillmentLevel.fulfilledQuantity,
+                                        step: 1,
+                                        class: 'fulfillment-quantity',
+                                        style: 'width: 6rem;',
+                                        placeholder: '0',
+                                        'aria-label': 'Fulfill'|t('commerce') ~ ' ' ~ lineItem.description,
+                                    },
+                                    name: 'fulfillment['~fieldIndex~'][quantity]',
+                                }) }}
+                            </div>
+                            {{ hiddenInput('fulfillment['~fieldIndex~'][max]', fulfillmentLevel.getMaxFulfillQuantity()) }}
+                            {{ hiddenInput('fulfillment['~fieldIndex~'][inventoryLocationId]', fulfillmentLevel.inventoryLocationId) }}
+                            {{ hiddenInput('fulfillment['~fieldIndex~'][inventoryItemId]', fulfillmentLevel.inventoryItemId) }}
+                            {{ hiddenInput('fulfillment['~fieldIndex~'][lineItemId]', fulfillmentLevel.lineItemId) }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="zilch small">{{ 'No results.'|t('app') }}</p>
+    {% endfor %}
+</div>

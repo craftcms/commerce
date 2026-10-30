@@ -47,6 +47,7 @@ use CraftCms\Commerce\Helpers\PaymentForm;
 use CraftCms\Commerce\Helpers\Purchasable;
 use CraftCms\Commerce\Http\ViewModels\OrderIndexViewModel;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
+use CraftCms\Commerce\Inventory\Data\InventoryFulfillmentLevel;
 use CraftCms\Commerce\Inventory\Data\InventoryFulfillMovement;
 use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
 use CraftCms\Commerce\Inventory\Inventory;
@@ -192,9 +193,19 @@ class OrdersController
             }
         }
 
+        // Validate each movement against the stock the other movements for the same item and location will also use
+        $pendingQuantities = [];
+        foreach ($movements as $movement) {
+            $key = $movement->inventoryItemId . '-' . $movement->fromInventoryLocation->id;
+            $movement->otherPendingQuantity = $pendingQuantities[$key] ?? 0;
+            $pendingQuantities[$key] = $movement->otherPendingQuantity + max($movement->quantity, 0);
+        }
+
         foreach ($movements as $movement) {
             if (!$movement->isValid()) {
-                return $this->asFailure(t('Invalid inventory movements.', category: 'commerce'), [
+                $errorMessage = collect($movement->getErrors())->flatten()->first() ?? t('Invalid inventory movements.', category: 'commerce');
+
+                return $this->asFailure($errorMessage, [
                     'errors' => ['fulfillment' => $movement->getErrors()],
                 ]);
             }
@@ -218,7 +229,9 @@ class OrdersController
         abort_if(!$orderId, 400, 'Missing order id');
 
         $order = app(Orders::class)->getOrderById((int)$orderId);
-        $inventoryFulfillmentLevels = app(Inventory::class)->getInventoryFulfillmentLevels($order)->groupBy('inventoryLocationId');
+        $inventoryFulfillmentLevels = app(Inventory::class)->getInventoryFulfillmentLevels($order)
+            ->each(fn(InventoryFulfillmentLevel $fulfillmentLevel) => $fulfillmentLevel->setOrder($order))
+            ->groupBy('inventoryLocationId');
 
         return new CpModalResponse()
             ->action('commerce/orders/fulfill')
@@ -228,8 +241,8 @@ class OrdersController
                 'order' => $order,
             ])->prepareModal(function() {
                 HtmlStack::jsWithVars(fn() => <<<JS
-document.querySelector('input.fulfillment-quantity').addEventListener('input', e=>{
-  const el = e.target || e
+document.querySelectorAll('input.fulfillment-quantity').forEach(input => input.addEventListener('input', e=>{
+  const el = e.target
   if(el.type == "number" && el.max && el.min ){
     let value = parseInt(el.value)
     el.value = value // for 000 like input cleanup to 0
@@ -238,7 +251,7 @@ document.querySelector('input.fulfillment-quantity').addEventListener('input', e
     if ( value > max ) el.value = el.max
     if ( value < min ) el.value = el.min
   }
-});
+}));
 JS, []);
             });
     }
@@ -414,18 +427,13 @@ JS, []);
 
             // Validate sorting
             if (
-                !in_array($direction, ['asc', 'desc']) ||
-                !in_array($field, [
+                in_array($direction, ['asc', 'desc'], true) &&
+                in_array($field, [
                     'reference',
                     'dateOrdered',
                     'totalPrice',
-                ])
+                ], true)
             ) {
-                $field = null;
-                $direction = null;
-            }
-
-            if ($field && $direction) {
                 $orderQuery->orderBy($field . ' ' . $direction);
             }
         }

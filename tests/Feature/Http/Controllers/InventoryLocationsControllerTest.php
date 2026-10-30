@@ -137,6 +137,26 @@ it('updates an existing inventory location and keeps its address', function() {
         ->and($saved->getAddress()->addressLine1)->toBe('1 Main St');
 });
 
+it('ignores a posted address ID and never overwrites another location\'s address', function() {
+    $first = createInventoryLocationForController('first');
+    $first->getAddress()->addressLine1 = 'First Street';
+    Elements::saveElement($first->getAddress());
+
+    postJson(Url::actionUrl('commerce/inventory-locations/save'), [
+        'addressId' => $first->addressId,
+        'name' => 'Second',
+        'handle' => 'second',
+        'countryCode' => 'US',
+        'address' => ['addressLine1' => 'Second Street'],
+    ])->assertOk();
+
+    $second = app(InventoryLocations::class)->getInventoryLocationByHandle('second');
+
+    expect($second->addressId)->not->toBe($first->addressId)
+        ->and(Elements::getElementById($first->addressId, Address::class)->addressLine1)->toBe('First Street')
+        ->and($second->getAddress()->addressLine1)->toBe('Second Street');
+});
+
 it('does not save an address when the inventory location is invalid', function() {
     $existing = createInventoryLocationForController('warehouse');
     $addressCount = DB::table('addresses')->count();

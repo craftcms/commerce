@@ -276,7 +276,8 @@ class CartController
         // Set Payment Gateway on cart
         if ($gatewayId = $request->input('gatewayId')) {
             $gatewayId = (int)$gatewayId;
-            if (app(Gateways::class)->getGatewayById($gatewayId)) {
+            $gateway = app(Gateways::class)->getGatewayById($gatewayId);
+            if ($gateway && !$gateway->isArchived) {
                 $this->cart->setGatewayId($gatewayId);
             }
         }

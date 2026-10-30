@@ -80,10 +80,12 @@ readonly class TransfersController
 
     public function markAsPending(Request $request): Response
     {
+        abort_if(!is_numeric($request->input('transferId')), 400, 'Invalid transferId');
+
         $transferId = $request->integer('transferId');
         abort_if(!$transferId, 400, 'Missing transferId');
 
-        $transfer = Transfer::find()->id($transferId)->one();
+        $transfer = Transfer::find()->id($transferId)->status(null)->one();
         abort_if($transfer === null, 404);
 
         if (!app(Transfers::class)->markAsPending($transfer)) {

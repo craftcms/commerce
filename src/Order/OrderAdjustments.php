@@ -58,18 +58,24 @@ class OrderAdjustments
     /**
      * Get all order adjustments by order's ID.
      *
+     * @param Order|null $order The already-loaded order, to avoid re-querying it for each adjustment.
      * @return OrderAdjustment[]
      */
-    public function getAllOrderAdjustmentsByOrderId(int $orderId): array
+    public function getAllOrderAdjustmentsByOrderId(int $orderId, ?Order $order = null): array
     {
         return $this->query()
             ->where('orderId', $orderId)
             ->get()
-            ->map(function($row) {
+            ->map(function($row) use ($order) {
                 $row = (array)$row;
                 $row['sourceSnapshot'] = Json::decodeIfJson($row['sourceSnapshot']);
 
-                return new OrderAdjustment($row);
+                $adjustment = new OrderAdjustment($row);
+                if ($order) {
+                    $adjustment->setOrder($order);
+                }
+
+                return $adjustment;
             })
             ->all();
     }
@@ -147,12 +153,17 @@ class OrderAdjustments
         $orderIds = collect($orders)->pluck('id')->filter()->all();
         $orderAdjustmentResults = $this->query()->whereIn('orderId', $orderIds)->get();
 
+        $ordersById = collect($orders)->keyBy('id');
         $orderAdjustments = [];
 
         foreach ($orderAdjustmentResults as $result) {
             $result = (array)$result;
             $result['sourceSnapshot'] = Json::decodeIfJson($result['sourceSnapshot']);
             $adjustment = new OrderAdjustment($result);
+
+            if ($order = $ordersById->get($adjustment->orderId)) {
+                $adjustment->setOrder($order);
+            }
 
             $orderAdjustments[$adjustment->orderId] ??= [];
             $orderAdjustments[$adjustment->orderId][] = $adjustment;
