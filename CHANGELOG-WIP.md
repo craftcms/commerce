@@ -995,7 +995,6 @@
 - Added MCP tools for inventory levels, order line items, statuses, completion, emails, fulfillment, payment captures and refunds, transfers, store settings, and reports.
 - Added `CraftCms\Commerce\Order\Policies\OrderPolicy`.
 - Added `CraftCms\Commerce\Order\OrderManagement`, `CraftCms\Commerce\Payment\PaymentManagement`, `CraftCms\Commerce\Inventory\InventoryManagement`, `CraftCms\Commerce\Transfer\TransferManagement`, `CraftCms\Commerce\Store\StoreManagement`, and `CraftCms\Commerce\Stats\Reports`.
-- Product and variant drafts and variant copies now require permission to view the element.
 
 ### Extensibility
 

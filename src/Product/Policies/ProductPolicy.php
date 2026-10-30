@@ -77,7 +77,7 @@ class ProductPolicy extends ElementPolicy
      */
     public function createDrafts(CraftUser $user, Product $product): bool
     {
-        return $this->view($user, $product);
+        return true;
     }
 
     private function productType(Product $product): ?ProductType
