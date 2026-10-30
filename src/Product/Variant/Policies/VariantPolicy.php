@@ -52,7 +52,7 @@ class VariantPolicy extends ElementPolicy
 
     public function createDrafts(CraftUser $user, Variant $variant): bool
     {
-        return true;
+        return $this->view($user, $variant);
     }
 
     public function deleteForSite(CraftUser $user, Variant $variant): bool
@@ -62,7 +62,6 @@ class VariantPolicy extends ElementPolicy
 
     public function copy(CraftUser $user, Variant $variant): bool
     {
-        // TODO: Review whether copying a variant should require authorization against its owner.
-        return true;
+        return $this->view($user, $variant);
     }
 }

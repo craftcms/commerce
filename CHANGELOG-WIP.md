@@ -987,6 +987,16 @@
 - Removed `craft\commerce\controllers\UsersController`. `CraftCms\Commerce\Http\Controllers\Users\UsersController` should be used instead.
 - The Commerce tab on the Edit User screen is now built from `CraftCms\Cms\Http\Controllers\Users\EditUserTrait`; Commerce listens for `CraftCms\Cms\User\Events\EditUserScreensResolving` instead of the removed `craft\controllers\UsersController::EVENT_DEFINE_EDIT_SCREENS`.
 
+### MCP
+
+- Products, variants, orders, and transfers are now available through Craft’s authenticated MCP `elements.*` tools.
+- Added the `commerce.resources.*` MCP tools for managing store settings records, including shipping, tax, promotions, payment currencies, and inventory locations.
+- Added the `commerce.configuration.*` MCP tools for managing stores, product types, order and line item statuses, emails, PDFs, and gateways. These tools require an admin, and changes also require `allowAdminChanges`.
+- Added MCP tools for inventory levels, order line items, statuses, completion, emails, fulfillment, payment captures and refunds, transfers, store settings, and reports.
+- Added `CraftCms\Commerce\Order\Policies\OrderPolicy`.
+- Added `CraftCms\Commerce\Order\OrderManagement`, `CraftCms\Commerce\Payment\PaymentManagement`, `CraftCms\Commerce\Inventory\InventoryManagement`, `CraftCms\Commerce\Transfer\TransferManagement`, `CraftCms\Commerce\Store\StoreManagement`, and `CraftCms\Commerce\Stats\Reports`.
+- Product and variant drafts and variant copies now require permission to view the element.
+
 ### Extensibility
 
 - Added `CraftCms\Commerce\Plugin`. `craft\commerce\Plugin` now extends this class instead of `craft\base\Plugin`.
