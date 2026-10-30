@@ -19,7 +19,7 @@ Outputs a form for collecting an order’s shipping and billing address.
       <div class="mt-6">
         <form method="post" action="">
           {{ csrfInput() }}
-          {{ actionInput('commerce/cart/update-cart') }}
+          {{ actionInput('commerce/cart/update') }}
           {{ successMessageInput('Addresses selected.') }}
           {{ redirectInput(siteUrl('shop/checkout/shipping')) }}
 

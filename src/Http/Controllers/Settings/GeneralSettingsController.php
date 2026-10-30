@@ -1,0 +1,108 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CraftCms\Commerce\Http\Controllers\Settings;
+
+use CraftCms\Cms\Http\RespondsWithFlash;
+use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Facades\Plugins;
+use CraftCms\Cms\Ui\Controls\Combobox;
+use CraftCms\Cms\Ui\Enums\ControlMode;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\Heading;
+use CraftCms\Cms\Ui\Nodes\Separator;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
+use Symfony\Component\HttpFoundation\Response;
+
+use function CraftCms\Cms\cp_url;
+use function CraftCms\Cms\t;
+
+class GeneralSettingsController extends BaseSettingsController
+{
+    use RespondsWithFlash;
+
+    protected function getSectionCrumb(): array
+    {
+        return ['label' => t('General Settings', category: 'commerce'), 'href' => cp_url('commerce/settings/general')];
+    }
+
+    public function edit(): CpScreenResponse
+    {
+        $settings = $this->plugin->getSettings();
+        $config = Config::get('craft.commerce', null);
+
+        $overrideWarning = function($key) use ($config) {
+            if ($config && isset($config[$key])) {
+                return t("This is being overridden by the {setting} config setting in `config/{file}.php`.", [
+                    'setting' => $key,
+                    'file' => 'commerce',
+                ], category: 'commerce');
+            }
+
+            return null;
+        };
+
+        $ui = Ui::make([
+            Heading::make('units-heading', t('Units', category: 'commerce'))->level(3),
+            Field::make(t('Weight Unit', category: 'commerce'), Combobox::make('weightUnits')
+                ->options(array_map(fn($unit, $label) => ['value' => $unit, 'label' => $label], array_keys($settings->getWeightUnitsOptions()), $settings->getWeightUnitsOptions()))
+                ->showAllOnEmpty())
+                ->required()
+                ->instructions(t('The unit of measurement that should be used when specifying product weights.', category: 'commerce')),
+            Field::make(t('Dimension Unit', category: 'commerce'), Combobox::make('dimensionUnits')
+                ->options(array_map(fn($unit, $label) => ['value' => $unit, 'label' => $label], array_keys($settings->getDimensionUnits()), $settings->getDimensionUnits()))
+                ->showAllOnEmpty())
+                ->required()
+                ->instructions(t('The unit of measurement that should be used when specifying product dimensions.', category: 'commerce')),
+            Separator::make('default-view-separator'),
+            Heading::make('default-view-heading', t('Control Panel Settings', category: 'commerce'))->level(3),
+            Field::make(t('Default View', category: 'commerce'), Combobox::make('defaultView')
+                ->options(array_map(fn($unit, $label) => ['value' => $unit, 'label' => $label], array_keys($settings->getDefaultViewOptions()), $settings->getDefaultViewOptions()))
+                ->showAllOnEmpty())
+                ->required()
+                ->warning($overrideWarning('defaultView'))
+                ->instructions(t('Default Commerce control panel view. If the user does not have permission it will fall back to a location they can access.', category: 'commerce')),
+        ]);
+
+        $ui = $this->uiResolver->resolve($ui, new UiContext(
+            namespace: 'settings',
+            values: [
+                'settings' => [
+                    'weightUnits' => $settings->weightUnits,
+                    'dimensionUnits' => $settings->dimensionUnits,
+                    'defaultView' => $settings->defaultView,
+                ],
+            ],
+            mode: $this->generalConfig->allowAdminChanges ? ControlMode::Editable : ControlMode::ReadOnly,
+        ));
+
+        $title = t('General Settings', category: 'commerce');
+
+        return $this->cpScreenResponse()
+            ->title($title)
+            ->crumbs($this->crumbs())
+            ->redirectUrl('commerce/settings/general')
+            ->ui($ui, props: [
+                'submit' => [
+                    'method' => 'post',
+                    'url' => action([self::class, 'store']),
+                ],
+            ]);
+    }
+
+    public function store(Request $request): Response|string
+    {
+        $settings = $request->input('settings');
+        $pluginSettingsSaved = Plugins::savePluginSettings($this->plugin, $settings);
+
+        if (!$pluginSettingsSaved) {
+            return $this->asFailure(t('Couldn’t save settings.', category: 'commerce'));
+        }
+
+        return $this->asSuccess(t('Settings saved.', category: 'commerce'));
+    }
+}

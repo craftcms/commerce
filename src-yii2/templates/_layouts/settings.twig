@@ -1,0 +1,73 @@
+{% extends "commerce/_layouts/cp" %}
+{% set selectedSubnavItem = 'settings' %}
+{% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commercesettings" %}
+
+{% set title = "Settings"|t('app') %}
+
+{% if readOnly %}
+    {% set contentNotice = readOnlyNotice() %}
+{% endif %}
+
+{% set navItems = {} %}
+
+{% if currentUser.admin %}
+{% set navItems = {
+    'general': { title: "General Settings"|t('commerce')},
+    'Stores': { heading: "Stores & Sites"|t('commerce')},
+    'stores': { title: "Stores"|t('commerce')},
+    'sites': { title: "Sites"|t('app')},
+    'products-heading': { heading: "Products"|t('commerce')},
+    'producttypes': { title: "Product Types"|t('commerce')},
+
+    'orders-heading': { heading: "Orders"|t('commerce')},
+    'ordersettings': { title: "Order Fields"|t('commerce')},
+    'orderstatuses': { title: "Order Statuses"|t('commerce')},
+    'lineitemstatuses': { title: "Line Item Statuses"|t('commerce')},
+
+    'communication-heading': { heading: "PDFs & Emails"|t('commerce')},
+    'pdfs': { title: "PDFs"|t('commerce')},
+    'emails': { title: "Emails"|t('commerce')},
+    'payments-heading': { heading: "Payments"|t('commerce')},
+    'gateways': { title: "Gateways"|t('commerce')},
+
+    'transfers-heading': { heading: "Transfers"|t('commerce')},
+    'transfers': { title: "Transfer Fields"|t('commerce')},
+} %}
+{% endif %}
+
+{% if selectedItem is not defined %}
+    {% set selectedItem = craft.app.request.getSegment(3) %}
+{% endif %}
+
+{% set docTitle = navItems[selectedItem].title~' - '~title %}
+
+{% macro configWarning(setting, file) -%}
+    {%- apply spaceless %}
+        {% set config = craft.app.config.getConfigFromFile(file) %}
+        {% if config[setting] is defined %}
+            {{ "This is being overridden by the {setting} config setting in `config/{file}.php`."|t('commerce', {
+                setting: setting,
+                file: file,
+            })|raw }}
+        {% else %}
+            {{ false }}
+        {% endif %}
+    {% endapply -%}
+{%- endmacro %}
+
+{% block sidebar %}
+    <nav>
+        <ul>
+            {% for handle, item in navItems %}
+                {% if item.heading is defined %}
+                    <li class="heading"><span>{{ item.heading }}</span></li>
+                {% else %}
+                    <li>
+                        <a href="{{ url('commerce/settings/'~handle) }}"{% if handle == selectedItem %} class="sel"{% endif %}>{{ item.title }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </nav>
+{% endblock %}
+

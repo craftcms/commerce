@@ -1,0 +1,327 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CraftCms\Commerce\Http\Controllers\Settings;
+
+use craft\db\Query;
+use CraftCms\Cms\Cp\FormFields;
+use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Shared\Enums\Color;
+use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\Support\Json;
+use CraftCms\Cms\Ui\Controls\Choice;
+use CraftCms\Cms\Ui\Controls\ColorSelect;
+use CraftCms\Cms\Ui\Controls\Handle;
+use CraftCms\Cms\Ui\Controls\Lightswitch;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Enums\ControlMode;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\Heading;
+use CraftCms\Cms\Ui\Nodes\HiddenField;
+use CraftCms\Cms\Ui\Nodes\Table;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
+use CraftCms\Commerce\Database\Table as DbTable;
+use CraftCms\Commerce\Email\Data\Email;
+use CraftCms\Commerce\Email\Emails;
+use CraftCms\Commerce\Order\Data\OrderStatus;
+use CraftCms\Commerce\Order\OrderStatuses;
+use CraftCms\Commerce\Store\Data\Store;
+use CraftCms\Commerce\Store\Stores;
+use CraftCms\Commerce\Support\ObjectState;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
+use function CraftCms\Cms\cp_url;
+use function CraftCms\Cms\currentUser;
+use function CraftCms\Cms\t;
+
+class OrderStatusesController extends BaseSettingsController
+{
+    protected function getSectionCrumb(): array
+    {
+        return ['label' => t('Order Statuses', category: 'commerce'), 'href' => cp_url('commerce/settings/orders/statuses')];
+    }
+
+    #[\Override]
+    protected function subnav(): array
+    {
+        return OrderSettingsController::ordersSubnav();
+    }
+
+    public function index(): CpScreenResponse
+    {
+        $stores = app(Stores::class)->getAllStores();
+        $isMultiStore = $stores->count() > 1;
+
+        // Every store's table can plant its own create action in the page's shared actions
+        // slot, so with more than one store, only the first store's table gets one — a single
+        // combined "New order status" menu covering every store, rather than one button apiece.
+        $createMenuItems = $this->readOnly ? [] : $stores->map(fn(Store $store) => [
+            'label' => $store->getName(),
+            'url' => cp_url("commerce/settings/orders/statuses/{$store->handle}/new"),
+        ])->all();
+        $createMenuAssigned = false;
+
+        $nodes = [];
+        $stores->each(function(Store $store) use (&$nodes, $isMultiStore, $createMenuItems, &$createMenuAssigned) {
+            if ($isMultiStore) {
+                $nodes[] = Heading::make("{$store->handle}-heading", $store->getName());
+            }
+
+            $rows = app(OrderStatuses::class)->getAllOrderStatuses($store->id)
+                ->map(function(OrderStatus $orderStatus) {
+                    $emailCount = count($orderStatus->getEmailIds());
+
+                    return [
+                        'id' => $orderStatus->id,
+                        // getLabelHtml() already Html::encode()s the name it interpolates — safe to
+                        // wrap directly, same as the pre-conversion Twig index did.
+                        'name' => ['html' => Html::a($orderStatus->getLabelHtml(), $orderStatus->getCpEditUrl(), ['class' => 'cell-bold'])],
+                        'handle' => ['html' => FormFields::copytextHtml(['value' => $orderStatus->handle, 'monospace' => true])],
+                        'hasEmails' => $emailCount > 0 ? $emailCount : '',
+                        'default' => $orderStatus->default ? ['icon' => 'check', 'label' => t('Yes')] : '',
+                    ];
+                })
+                // getAllOrderStatuses() ends in a ->filter(), which (like the rest of Illuminate's
+                // Collection) preserves original keys rather than reindexing — so with an item
+                // filtered out upstream, ->all() can hand back a non-sequential array that
+                // json_encodes as a JS object instead of an array. ->values() guarantees a plain list.
+                ->values()
+                ->all();
+
+            $nodes[] = Table::make("{$store->handle}-order-statuses")
+                ->columns([
+                    ['key' => 'name', 'label' => t('Name')],
+                    ['key' => 'handle', 'label' => t('Handle')],
+                    ['key' => 'hasEmails', 'label' => t('Has Emails?', category: 'commerce')],
+                    ['key' => 'default', 'label' => t('Default Status?', category: 'commerce')],
+                ])
+                ->rows($rows)
+                ->emptyMessage(t('No order statuses exist yet.', category: 'commerce'))
+                ->when(!$createMenuAssigned && $createMenuItems, function(Table $table) use ($createMenuItems, &$createMenuAssigned) {
+                    $table->createActionMenu(t('New order status', category: 'commerce'), $createMenuItems)
+                        ->createActionInPageHeader();
+                    $createMenuAssigned = true;
+                })
+                ->when(!$this->readOnly, fn(Table $table) => $table
+                    ->reorderable(action([self::class, 'reorder']))
+                    ->deletable(action([self::class, 'destroy'])));
+        });
+
+        $title = t('Order Statuses', category: 'commerce');
+
+        return $this->cpScreenResponse()
+            ->title($title)
+            ->crumbs($this->crumbs())
+            ->ui(Ui::make($nodes), props: [
+                'contentMaxWidth' => false,
+            ]);
+    }
+
+    public function create(?string $storeHandle = null): CpScreenResponse
+    {
+        return $this->editScreen($storeHandle);
+    }
+
+    public function edit(?string $storeHandle, int $id): CpScreenResponse
+    {
+        return $this->editScreen($storeHandle, $id);
+    }
+
+    private function editScreen(?string $storeHandle = null, ?int $id = null): CpScreenResponse
+    {
+        if ($storeHandle === null || !$store = app(Stores::class)->getStoreByHandle($storeHandle)) {
+            $store = app(Stores::class)->getPrimaryStore();
+        }
+
+        if ($id) {
+            $orderStatus = app(OrderStatuses::class)->getOrderStatusById($id, $store->id);
+            abort_if($orderStatus === null, 404);
+        } else {
+            $orderStatus = new OrderStatus(['storeId' => $store->id]);
+        }
+
+        $statusColor = static fn(OrderStatus $status): string => (Color::tryFromStatus($status->color) ?? Color::Gray)->value;
+
+        if ($orderStatus->id) {
+            $title = $orderStatus->name;
+            $color = $statusColor($orderStatus);
+        } else {
+            $title = t('Create a new order status', category: 'commerce');
+
+            $usedColors = app(OrderStatuses::class)->getAllOrderStatuses($store->id)->map($statusColor)->all();
+            $availableColors = array_values(array_diff($this->colorPalette(), $usedColors));
+            $color = $availableColors[0] ?? Color::Green->value;
+        }
+
+        $emailOptions = app(Emails::class)->getAllEmails($store->id)
+            ->map(fn(Email $email) => ['label' => $email->name, 'value' => $email->id])
+            ->all();
+
+        $emailsNode = Field::make(t('Status Emails', category: 'commerce'), Choice::make('emails')->multiple()->options($emailOptions))
+            ->instructions(t('Select the emails that will be sent when transitioning to this status.', category: 'commerce'))
+            ->warning($emailOptions === [] ? t('You currently have no emails configured to select for this status.', category: 'commerce') : null);
+
+        // An existing default status can't be un-defaulted from its own screen — promote a
+        // different status to default instead. A brand new status defaults to on when it'll be
+        // the store's first (nothing else to be the default), same as the legacy behavior.
+        $isDefault = $orderStatus->default
+            || app(OrderStatuses::class)->getAllOrderStatuses($store->id)->count() === 0;
+
+        $defaultNode = $orderStatus->default
+            ? HiddenField::make('default')
+            : Field::make(t('New orders get this status by default', category: 'commerce'), Lightswitch::make('default'));
+
+        $handle = Handle::make('handle');
+        if (!$orderStatus->id) {
+            $handle->source('name');
+        }
+
+        $uiNodes = [
+            HiddenField::make('storeId'),
+        ];
+
+        if ($orderStatus->id) {
+            $uiNodes[] = HiddenField::make('sortOrder');
+            $uiNodes[] = HiddenField::make('id');
+        }
+
+        $uiNodes[] = Field::make(t('Name', category: 'commerce'), Text::make('name')->autofocus())
+            ->instructions(t('What this status will be called in the control panel.', category: 'commerce'))
+            ->required();
+        $uiNodes[] = Field::make(t('Handle', category: 'commerce'), $handle)
+            ->instructions(t('How you’ll refer to this status in the templates.', category: 'commerce'))
+            ->required();
+        $uiNodes[] = Field::make(t('Description', category: 'commerce'), Text::make('description'))
+            ->instructions(t('Order Status description.', category: 'commerce'));
+        $uiNodes[] = Field::make(t('Color', category: 'commerce'), ColorSelect::make('color')->colors($this->colorPalette()))
+            ->instructions(t('Choose a color to represent the order’s status', category: 'commerce'));
+        $uiNodes[] = $emailsNode;
+        $uiNodes[] = $defaultNode;
+
+        $ui = $this->uiResolver->resolve(Ui::make($uiNodes), new UiContext(
+            values: [
+                'storeId' => $store->id,
+                'sortOrder' => $orderStatus->sortOrder,
+                'id' => $orderStatus->id,
+                'name' => $orderStatus->name,
+                'handle' => $orderStatus->handle,
+                'description' => $orderStatus->description,
+                'color' => $color,
+                'emails' => $orderStatus->getEmailIds(),
+                'default' => $isDefault,
+            ],
+            mode: $this->generalConfig->allowAdminChanges ? ControlMode::Editable : ControlMode::ReadOnly,
+        ));
+
+        return $this->cpScreenResponse(subnav: false)
+            ->title($title)
+            ->crumbs($orderStatus->id ? $this->crumbs(['label' => $title]) : $this->crumbs())
+            ->action('commerce/order-statuses/save')
+            ->redirectUrl('commerce/settings/orders/statuses')
+            ->ui($ui, props: [
+                'submit' => [
+                    'method' => 'post',
+                    'url' => action([self::class, 'store']),
+                ],
+            ]);
+    }
+
+    public function store(Request $request): Response
+    {
+        $id = $request->input('id') ? (int)$request->input('id') : null;
+        $storeId = $request->input('storeId') ? (int)$request->input('storeId') : null;
+        $this->requireStoreAccess($storeId);
+        $orderStatus = $id ? app(OrderStatuses::class)->getOrderStatusById($id, $storeId) : null;
+        $orderStatus ??= new OrderStatus();
+
+        $orderStatus->storeId = $storeId;
+        $orderStatus->name = $request->input('name');
+        $orderStatus->handle = $request->input('handle');
+        $orderStatus->color = $request->input('color');
+        $orderStatus->description = $request->input('description');
+        $orderStatus->default = (bool)$request->input('default');
+        $emailIds = $request->input('emails', []) ?: [];
+
+        if (!$id) {
+            $orderStatus->sortOrder = new Query()
+                    ->from(DbTable::ORDERSTATUSES)
+                    ->where(['storeId' => $storeId])
+                    ->max('[[sortOrder]]') + 1;
+        }
+
+        if (!app(OrderStatuses::class)->saveOrderStatus($orderStatus, $emailIds)) {
+            return $this->asModelFailure($orderStatus, t('Couldn’t save order status.', category: 'commerce'), 'orderStatus');
+        }
+
+        return $this->asModelSuccess($orderStatus, t('Order status saved.', category: 'commerce'), 'orderStatus');
+    }
+
+    public function list(Request $request): Response
+    {
+        abort_unless($request->expectsJson(), 400);
+
+        $storeId = $request->input('storeId');
+        abort_if(!$storeId, 400, 'Missing store id');
+        $storeId = (int)$storeId;
+
+        $store = app(Stores::class)->getStoreById($storeId);
+        $allowableStoreIds = app(Stores::class)->getStoresByUserId(currentUser()?->getCraftUserId())->map(fn(Store $s) => $s->id)->all();
+
+        if (!$store || !in_array($store->id, $allowableStoreIds)) {
+            return $this->asFailure(t('Invalid store.', category: 'commerce'));
+        }
+
+        $orderStatuses = app(OrderStatuses::class)->getAllOrderStatuses($storeId)->all();
+
+        return $this->asSuccess(data: ['orderStatuses' => $orderStatuses]);
+    }
+
+    public function reorder(Request $request): Response
+    {
+        abort_unless($request->expectsJson(), 400);
+        abort_unless($request->input('ids'), 400, 'Missing ids');
+
+        $ids = Json::decode($request->input('ids'));
+
+        if (!app(OrderStatuses::class)->reorderOrderStatuses($ids)) {
+            return $this->asFailure(t('Couldn’t reorder Order Statuses.', category: 'commerce'));
+        }
+
+        return $this->asSuccess();
+    }
+
+    public function destroy(Request $request): Response
+    {
+        abort_unless($request->expectsJson(), 400);
+
+        $orderStatusId = $request->input('id');
+        abort_if(!$orderStatusId, 400, 'Missing order status id');
+
+        $storeId = DB::table(DbTable::ORDERSTATUSES)->where('id', $orderStatusId)->value('storeId');
+
+        if ($storeId) {
+            $this->requireStoreAccess((int)$storeId);
+        }
+
+        if (!$storeId || !app(OrderStatuses::class)->deleteOrderStatusById((int)$orderStatusId, $storeId)) {
+            return $this->asFailure(t('Couldn’t archive Order Status.', category: 'commerce'));
+        }
+
+        return $this->asSuccess();
+    }
+
+    private function requireStoreAccess(?int $storeId): void
+    {
+        if (!ObjectState::has($this, 'allowableStoreIds')) {
+            ObjectState::set($this, 'allowableStoreIds', app(Stores::class)->getStoresByUserId(currentUser()?->getCraftUserId())->map(fn(Store $s) => $s->id)->all());
+        }
+
+        $allowableStoreIds = ObjectState::get($this, 'allowableStoreIds');
+
+        abort_unless($storeId !== null && in_array($storeId, $allowableStoreIds, true), 403, t('You are not permitted to perform this action for this store.', category: 'commerce'));
+    }
+}

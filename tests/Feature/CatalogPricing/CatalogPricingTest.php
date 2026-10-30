@@ -1,0 +1,414 @@
+<?php
+
+declare(strict_types=1);
+
+use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Commerce\CatalogPricing\CatalogPricing;
+use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
+use CraftCms\Commerce\CatalogPricing\Data\CatalogPricingRule as CatalogPricingRuleData;
+use CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob;
+use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingQueue as CatalogPricingQueueRecord;
+use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingRule as CatalogPricingRuleRecord;
+use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Payment\Currencies;
+use CraftCms\Commerce\Product\Conditions\ProductTypeConditionRule;
+use CraftCms\Commerce\Product\Variant\Elements\Variant;
+use CraftCms\Commerce\Purchasable\Conditions\PurchasableTypeConditionRule;
+use CraftCms\Commerce\Purchasable\Conditions\SkuConditionRule;
+use CraftCms\Commerce\Tests\Support\CatalogPricingFixture;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
+
+/**
+ * @param array<string, object> $conditionRules Keyed by condition property name
+ *   ("purchasableCondition", "variantCondition", "productCondition"), each a single
+ *   pre-configured condition rule instance to add to that condition.
+ */
+function createCatalogPricingRule(array $attributes, array $conditionRules = []): CatalogPricingRuleData
+{
+    $rule = new CatalogPricingRuleData($attributes);
+
+    foreach ($conditionRules as $property => $conditionRule) {
+        $getter = 'get' . ucfirst($property);
+        $setter = 'set' . ucfirst($property);
+        $condition = $rule->$getter();
+        $condition->addConditionRule($conditionRule);
+        $rule->$setter($condition);
+    }
+
+    if (!app(CatalogPricingRules::class)->saveCatalogPricingRule($rule)) {
+        throw new RuntimeException('Could not save catalog pricing rule: ' . json_encode($rule->errors()->all()));
+    }
+
+    return $rule;
+}
+
+test('generateCatalogPrices with no rules copies each purchasable\'s own store base price into catalog pricing', function() {
+    $fixture = CatalogPricingFixture::seed();
+
+    app(CatalogPricing::class)->generateCatalogPrices();
+
+    // 3 variants exist in every store (3 x 3), plus 1 UK-only variant that only exists in the UK store.
+    expect(DB::table(Table::CATALOG_PRICING)->count())->toBe(10);
+
+    foreach ([$fixture->radHood, $fixture->hctWhite, $fixture->hctBlue, $fixture->ddbRed] as $variant) {
+        $price = DB::table(Table::CATALOG_PRICING)
+            ->where('purchasableId', $variant->id)
+            ->where('storeId', $variant->getStore()->id)
+            ->value('price');
+
+        expect((float) $price)->toBe($variant->basePrice);
+    }
+});
+
+test('generateCatalogPrices applies a catalog pricing rule to matching variant prices', function(array $ruleAttributes, array $conditionRules, string $siteHandle, float $rate, ?array $impactedSkus) {
+    $fixture = CatalogPricingFixture::seed();
+    $sites = $fixture->stores;
+
+    $siteId = match ($siteHandle) {
+        'usSite' => $sites->usSite->id,
+        'ukSite' => $sites->ukSite->id,
+    };
+    $storeId = match ($ruleAttributes['storeId']) {
+        'primaryStore' => $sites->primaryStore->id,
+        'ukStore' => $sites->ukStore->id,
+    };
+    $ruleAttributes['storeId'] = $storeId;
+
+    $conditionRuleInstances = [];
+    foreach ($conditionRules as $property => $factory) {
+        $conditionRuleInstances[$property] = $factory($fixture);
+    }
+
+    $allSkus = ['rad-hood', 'hct-white', 'hct-blue', 'ddb-red'];
+    $priceBySku = Variant::find()->siteId($siteId)->sku($allSkus)->collect()
+        ->mapWithKeys(fn(Variant $variant) => [$variant->sku => $variant->getPrice()]);
+
+    createCatalogPricingRule($ruleAttributes, $conditionRuleInstances);
+
+    app(CatalogPricing::class)->generateCatalogPrices();
+
+    $variants = Variant::find()->siteId($siteId)->sku($allSkus)->collect();
+
+    $variants->each(function(Variant $variant) use ($priceBySku, $rate, $impactedSkus) {
+        // Variants that don't exist for this site's store hold a `0.00` base price there — nothing
+        // to assert against.
+        if ($variant->getPrice() === 0.00) {
+            return;
+        }
+
+        $originalPrice = $priceBySku[$variant->sku];
+
+        if ($impactedSkus !== null && !in_array($variant->sku, $impactedSkus, true)) {
+            $expectedPrice = $originalPrice;
+        } else {
+            $currency = $variant->getStore()->getCurrency();
+            $expectedPrice = (float) app(Currencies::class)->getTeller($currency)->multiply($originalPrice, 1 + $rate);
+        }
+
+        expect($variant->getPrice())->toBe($expectedPrice);
+    });
+})->with([
+    'rule with no conditions applies to every variant in the store' => [
+        [
+            'apply' => CatalogPricingRuleRecord::APPLY_BY_PERCENT,
+            'name' => '10% off',
+            'enabled' => true,
+            'applyAmount' => -0.1,
+            'applyPriceType' => CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE,
+            'isPromotionalPrice' => false,
+            'storeId' => 'primaryStore',
+        ],
+        [],
+        'usSite',
+        -0.1,
+        null,
+    ],
+    'rule with a variant SKU condition only applies to matching variants' => [
+        [
+            'apply' => CatalogPricingRuleRecord::APPLY_BY_PERCENT,
+            'name' => '30% off',
+            'enabled' => true,
+            'applyAmount' => -0.3,
+            'applyPriceType' => CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE,
+            'isPromotionalPrice' => false,
+            'storeId' => 'primaryStore',
+        ],
+        [
+            'variantCondition' => fn() => tap(new SkuConditionRule(), function(SkuConditionRule $rule) {
+                $rule->operator = 'ew';
+                $rule->value = 'hood';
+            }),
+        ],
+        'usSite',
+        -0.3,
+        ['rad-hood'],
+    ],
+    'rule with a purchasable SKU condition only applies to matching purchasables' => [
+        [
+            'apply' => CatalogPricingRuleRecord::APPLY_BY_PERCENT,
+            'name' => '20% off',
+            'enabled' => true,
+            'applyAmount' => -0.2,
+            'applyPriceType' => CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE,
+            'isPromotionalPrice' => false,
+            'storeId' => 'primaryStore',
+        ],
+        [
+            'purchasableCondition' => fn() => tap(new SkuConditionRule(), function(SkuConditionRule $rule) {
+                $rule->operator = 'bw';
+                $rule->value = 'rad';
+            }),
+        ],
+        'usSite',
+        -0.2,
+        ['rad-hood'],
+    ],
+    'rule with a product type condition only applies to matching products' => [
+        [
+            'apply' => CatalogPricingRuleRecord::APPLY_BY_PERCENT,
+            'name' => '10% off',
+            'enabled' => true,
+            'applyAmount' => -0.1,
+            'applyPriceType' => CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE,
+            'isPromotionalPrice' => false,
+            'storeId' => 'primaryStore',
+        ],
+        [
+            'productCondition' => fn(CatalogPricingFixture $fixture) => tap(new ProductTypeConditionRule(), function(ProductTypeConditionRule $rule) use ($fixture) {
+                $rule->setValues([$fixture->tShirtsType->uid]);
+            }),
+        ],
+        'usSite',
+        -0.1,
+        ['hct-white', 'hct-blue'],
+    ],
+    'rule scoped to a non-primary store still applies to that store\'s products' => [
+        [
+            'apply' => CatalogPricingRuleRecord::APPLY_BY_PERCENT,
+            'name' => '10% off',
+            'enabled' => true,
+            'applyAmount' => -0.1,
+            'applyPriceType' => CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE,
+            'isPromotionalPrice' => false,
+            'storeId' => 'ukStore',
+        ],
+        [
+            'productCondition' => fn(CatalogPricingFixture $fixture) => tap(new ProductTypeConditionRule(), function(ProductTypeConditionRule $rule) use ($fixture) {
+                $rule->setValues([$fixture->ukOnlyType->uid]);
+            }),
+        ],
+        'ukSite',
+        -0.1,
+        ['ddb-red'],
+    ],
+]);
+
+test('generateCatalogPrices handles base prices fetched from the database as strings', function() {
+    $fixture = CatalogPricingFixture::seed();
+    $variant = $fixture->radHood;
+
+    $rule = createCatalogPricingRule([
+        'apply' => CatalogPricingRuleRecord::APPLY_BY_PERCENT,
+        'name' => '10% off',
+        'enabled' => true,
+        'applyAmount' => -0.1,
+        'applyPriceType' => CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE,
+        'isPromotionalPrice' => false,
+        'storeId' => $variant->getStore()->id,
+    ]);
+
+    DB::connection()->getPdo()->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, true);
+
+    try {
+        app(CatalogPricing::class)->generateCatalogPrices();
+    } finally {
+        DB::connection()->getPdo()->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
+    }
+
+    $price = DB::table(Table::CATALOG_PRICING)
+        ->where('purchasableId', $variant->id)
+        ->where('storeId', $variant->getStore()->id)
+        ->where('catalogPricingRuleId', $rule->id)
+        ->value('price');
+
+    $currency = $variant->getStore()->getCurrency();
+    $expectedPrice = (float) app(Currencies::class)->getTeller($currency)->multiply($variant->basePrice, 0.9);
+
+    expect((float) $price)->toBe($expectedPrice);
+});
+
+test('generateCatalogPrices calculates the rule price for each apply type', function(string $apply, float $applyAmount, float $expectedPrice) {
+    $fixture = CatalogPricingFixture::seed();
+    $variant = $fixture->hctWhite;
+
+    $rule = createCatalogPricingRule([
+        'apply' => $apply,
+        'name' => 'Rule',
+        'enabled' => true,
+        'applyAmount' => $applyAmount,
+        'applyPriceType' => CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE,
+        'isPromotionalPrice' => false,
+        'storeId' => $variant->getStore()->id,
+    ]);
+
+    app(CatalogPricing::class)->generateCatalogPrices();
+
+    $price = DB::table(Table::CATALOG_PRICING)
+        ->where('purchasableId', $variant->id)
+        ->where('storeId', $variant->getStore()->id)
+        ->where('catalogPricingRuleId', $rule->id)
+        ->value('price');
+
+    expect($variant->basePrice)->toBe(19.99);
+    expect((float) $price)->toBe($expectedPrice);
+})->with([
+    '10% off original price' => [CatalogPricingRuleRecord::APPLY_BY_PERCENT, -0.1, 17.99],
+    '$5 off original price' => [CatalogPricingRuleRecord::APPLY_BY_FLAT, -5.0, 14.99],
+    'flat amount off greater than the price floors at zero' => [CatalogPricingRuleRecord::APPLY_BY_FLAT, -25.0, 0.0],
+    '80% of original price' => [CatalogPricingRuleRecord::APPLY_TO_PERCENT, -0.8, 15.99],
+    '50% of original price rounds a half cent up' => [CatalogPricingRuleRecord::APPLY_TO_PERCENT, -0.5, 10.0],
+    'new price of $12.50' => [CatalogPricingRuleRecord::APPLY_TO_FLAT, -12.5, 12.5],
+]);
+
+test('getPurchasableIds() with a purchasableCondition returns matching purchasable ids', function() {
+    $fixture = CatalogPricingFixture::seed();
+
+    $rule = createCatalogPricingRule([
+        'apply' => CatalogPricingRuleRecord::APPLY_BY_PERCENT,
+        'name' => '20% off',
+        'enabled' => true,
+        'applyAmount' => -0.2,
+        'applyPriceType' => CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE,
+        'isPromotionalPrice' => false,
+        'storeId' => $fixture->stores->primaryStore->id,
+    ], [
+        'purchasableCondition' => tap(new SkuConditionRule(), function(SkuConditionRule $rule) {
+            $rule->operator = 'bw';
+            $rule->value = 'rad';
+        }),
+    ]);
+
+    expect($rule->getPurchasableIds())->toBe([$fixture->radHood->id]);
+});
+
+test('getPurchasableIds() with a purchasableCondition and isPromotionalPrice excludes purchasables that are not promotable', function() {
+    $fixture = CatalogPricingFixture::seed();
+
+    Elements::saveElement(tap($fixture->radHood, function(Variant $variant) {
+        $variant->promotable = false;
+    }));
+
+    $rule = createCatalogPricingRule([
+        'apply' => CatalogPricingRuleRecord::APPLY_BY_PERCENT,
+        'name' => '20% off',
+        'enabled' => true,
+        'applyAmount' => -0.2,
+        'applyPriceType' => CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE,
+        'isPromotionalPrice' => true,
+        'storeId' => $fixture->stores->primaryStore->id,
+    ], [
+        'purchasableCondition' => tap(new PurchasableTypeConditionRule(), function(PurchasableTypeConditionRule $rule) {
+            $rule->setValues([Variant::class]);
+        }),
+    ]);
+
+    $purchasableIds = $rule->getPurchasableIds();
+
+    expect($purchasableIds)->not->toContain($fixture->radHood->id)
+        ->and($purchasableIds)->toContain($fixture->hctWhite->id);
+});
+
+function percentOffRuleAttributes(string $name, int $storeId): array
+{
+    return [
+        'apply' => CatalogPricingRuleRecord::APPLY_BY_PERCENT,
+        'name' => $name,
+        'enabled' => true,
+        'applyAmount' => -0.1,
+        'applyPriceType' => CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE,
+        'isPromotionalPrice' => false,
+        'storeId' => $storeId,
+    ];
+}
+
+function countRulePrices(int $catalogPricingRuleId): int
+{
+    return DB::table(Table::CATALOG_PRICING)->where('catalogPricingRuleId', $catalogPricingRuleId)->count();
+}
+
+function countAllRulePrices(): int
+{
+    return DB::table(Table::CATALOG_PRICING)->whereNotNull('catalogPricingRuleId')->count();
+}
+
+test('generateCatalogPrices with an empty set of rules does nothing', function() {
+    $fixture = CatalogPricingFixture::seed();
+    $storeId = $fixture->hctWhite->getStore()->id;
+
+    createCatalogPricingRule(percentOffRuleAttributes('10% off', $storeId));
+    app(CatalogPricing::class)->generateCatalogPrices();
+
+    $totalCount = DB::table(Table::CATALOG_PRICING)->count();
+    $rulePriceCount = countAllRulePrices();
+    expect($rulePriceCount)->toBeGreaterThan(0);
+
+    app(CatalogPricing::class)->generateCatalogPrices(null, []);
+
+    expect(DB::table(Table::CATALOG_PRICING)->count())->toBe($totalCount)
+        ->and(countAllRulePrices())->toBe($rulePriceCount);
+});
+
+test('a job for a deleted rule keeps the prices of other rules', function() {
+    $fixture = CatalogPricingFixture::seed();
+    $storeId = $fixture->hctWhite->getStore()->id;
+
+    $keptRule = createCatalogPricingRule(percentOffRuleAttributes('10% off', $storeId));
+    app(CatalogPricing::class)->generateCatalogPrices();
+
+    Queue::fake();
+    CatalogPricingQueueRecord::query()->delete();
+
+    $keptRulePriceCount = countAllRulePrices();
+    expect($keptRulePriceCount)->toBeGreaterThan(0);
+
+    $deletedRule = createCatalogPricingRule(percentOffRuleAttributes('20% off', $storeId));
+    app(CatalogPricingRules::class)->deleteCatalogPricingRuleById($deletedRule->id);
+    expect(CatalogPricingQueueRecord::query()->count())->toBe(1);
+
+    (new CatalogPricingJob())->handle();
+
+    expect(countAllRulePrices())->toBe($keptRulePriceCount)
+        ->and(countRulePrices($keptRule->id))->toBe($keptRulePriceCount)
+        ->and(CatalogPricingQueueRecord::query()->count())->toBe(0);
+});
+
+test('a job for partially deleted rules regenerates the remaining rules', function() {
+    $fixture = CatalogPricingFixture::seed();
+    $storeId = $fixture->hctWhite->getStore()->id;
+
+    $untouchedRule = createCatalogPricingRule(percentOffRuleAttributes('10% off', $storeId));
+    app(CatalogPricing::class)->generateCatalogPrices();
+
+    Queue::fake();
+    CatalogPricingQueueRecord::query()->delete();
+
+    $untouchedRulePriceCount = countRulePrices($untouchedRule->id);
+    expect($untouchedRulePriceCount)->toBeGreaterThan(0);
+
+    $remainingRule = createCatalogPricingRule(percentOffRuleAttributes('20% off', $storeId));
+    $deletedRule = createCatalogPricingRule(percentOffRuleAttributes('30% off', $storeId));
+    app(CatalogPricingRules::class)->deleteCatalogPricingRuleById($deletedRule->id);
+
+    $queueRows = CatalogPricingQueueRecord::query()->get();
+    expect($queueRows)->toHaveCount(1)
+        ->and($queueRows[0]->type)->toBe(CatalogPricingQueueRecord::TYPE_RULE)
+        ->and(countRulePrices($remainingRule->id))->toBe(0);
+
+    (new CatalogPricingJob())->handle();
+
+    expect(countRulePrices($remainingRule->id))->toBe($untouchedRulePriceCount)
+        ->and(countRulePrices($untouchedRule->id))->toBe($untouchedRulePriceCount)
+        ->and(countRulePrices($deletedRule->id))->toBe(0)
+        ->and(CatalogPricingQueueRecord::query()->count())->toBe(0);
+});

@@ -11,7 +11,7 @@
   {% if donation and donation.isAvailable %}
     <form method="post" action="" class="pt-2 pb-8">
       {{ csrfInput() }}
-      {{ actionInput('commerce/cart/update-cart') }}
+      {{ actionInput('commerce/cart/update') }}
       {{ successMessageInput('Donation added.'|t) }}
       {{ redirectInput('[[folderName]]/cart') }}
       {{ hiddenInput('purchasableId', craft.commerce.donation.id) }}

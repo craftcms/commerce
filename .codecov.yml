@@ -27,7 +27,7 @@ ignore:
   - 'src/etc'
   - 'src/migrations'
   - 'src/templates'
-  - 'src/translations'
+  - 'lang'
   - 'src/web/assets'
   - 'docs'
   - 'templates'

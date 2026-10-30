@@ -1,0 +1,147 @@
+{% extends "commerce/_layouts/cp" %}
+
+{% set crumbs = [
+  { label: 'Commerce'|t('commerce'), url: url('commerce') },
+  { label: 'Settings'|t('app'), url: url('commerce/settings'), ariaLabel: 'Commerce Settings'|t('commerce') },
+  { label: "Gateways"|t('commerce'), url: url('commerce/settings/gateways') },
+] %}
+
+{% set selectedSubnavItem = 'settings' %}
+
+{% set fullPageForm = not readOnly %}
+
+{% if readOnly %}
+    {% set contentNotice = readOnlyNotice() %}
+{% endif %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+    {{ hiddenInput('id', gateway.id) }}
+    {{ actionInput('commerce/gateways/save') }}
+    {{ redirectInput("commerce/settings/gateways") }}
+
+    {{ forms.textField({
+        label: 'Name'|t('commerce'),
+        name: 'name',
+        id: 'name',
+        value : gateway.name,
+        required: true,
+        errors: gateway.getErrors('name'),
+        disabled: readOnly,
+    }) }}
+
+    {{ forms.textField({
+        label: 'Handle'|t('commerce'),
+        name: 'handle',
+        id: 'handle',
+        class: 'code',
+        value : gateway.handle,
+        required: true,
+        errors: gateway.getErrors('handle'),
+        disabled: readOnly,
+    }) }}
+
+    {% if gateway.supportsWebhooks() %}
+        {{ forms.textField({
+            label: "Webhook URL"|t('commerce'),
+            instructions: "The webhook URL for this gateway."|t('commerce'),
+            disabled: true,
+            value: gateway.webhookUrl,
+            disabled: readOnly,
+        }) }}
+    {% endif %}
+    <hr>
+
+    {{ forms.selectField({
+        first: true,
+        label: 'Gateway'|t('commerce'),
+        warning: (gateway.id ? "Changing this value may affect your ability to refund existing transactions."|t('commerce')),
+        id: 'type',
+        name: 'type',
+        options : gatewayOptions,
+        value : className(gateway),
+        required: true,
+        errors: gateway.getErrors('type') ?? null,
+        toggle: true,
+        disabled: readOnly,
+    }) }}
+
+    <input type="hidden" name="gatewayClass" value="{{ className(gateway) }}">
+
+    {% for gatewayType in gatewayTypes %}
+        {% set isCurrent = (gatewayType == className(gateway)) %}
+
+        <div id="{{ gatewayType|id }}"{% if not isCurrent %} class="hidden"{% endif %}>
+
+            {% namespace 'paymentTypes['~gatewayType~']' %}
+                {{ forms.selectField({
+                    label: "Credit Card Payment Type"|t('commerce'),
+                    instructions: "If set to Authorize Only, you will need to manually capture payments before the funds will be transferred to your account. The Gateway needs to support the selected option."|t('commerce'),
+                    id: 'paymentType',
+                    name: 'paymentType',
+                    value: gateway.paymentType,
+                    options: gatewayInstances[gatewayType].getPaymentTypeOptions(),
+                    errors: gateway.getErrors('paymentType'),
+                    required: true,
+                    disabled: readOnly,
+                }) }}
+            {% endnamespace %}
+
+            {% namespace 'types['~gatewayType~']' %}
+                {% if isCurrent %}
+                    {{ readOnly ? gateway.getReadOnlySettingsHtml()|raw : gateway.getSettingsHtml()|raw }}
+                {% else %}
+                    {{ readOnly ? gatewayInstances[gatewayType].getReadOnlySettingsHtml()|raw : gatewayInstances[gatewayType].getSettingsHtml()|raw }}
+                {% endif %}
+            {% endnamespace %}
+        </div>
+    {% endfor %}
+
+    {{ forms.booleanMenuField({
+        label: "Enabled for customers to select during checkout?"|t('commerce'),
+        id: 'isFrontendEnabled',
+        name: 'isFrontendEnabled',
+        includeEnvVars: true,
+        value: gateway.isFrontendEnabled(false),
+        errors: gateway.getErrors('isFrontendEnabled'),
+        disabled: readOnly,
+    }) }}
+
+    <hr>
+    {{ forms.field({
+        label: 'Match Order'|t('commerce'),
+        instructions: 'Create rules that allow this gateway to match the order.'|t('commerce'),
+        errors: gateway.getErrors('orderCondition'),
+    }, orderConditionHtml|raw) }}
+
+    {{ forms.field({
+        label: 'Match Billing Address'|t('commerce'),
+        instructions: 'Create rules that allow this gateway to match the billing address.'|t('commerce'),
+        errors: gateway.getErrors('billingAddressCondition'),
+    }, billingAddressConditionHtml|raw) }}
+
+    {{ forms.field({
+        label: 'Match Shipping Address'|t('commerce'),
+        instructions: 'Create rules that allow this gateway to match the shipping address.'|t('commerce'),
+        errors: gateway.getErrors('shippingAddressCondition'),
+    }, shippingAddressConditionHtml|raw) }}
+
+{% endblock %}
+
+{% js %}
+    $(function() {
+        $('#type').change(function() {
+            $('.gateway-settings').hide().find('select, input, textarea').prop('disabled', true);
+            if($(this).val()) {
+                $('#gateway-' + $(this).val()).show().find('select, input, textarea').prop('disabled', false);
+            }
+        }).change();
+    });
+{% endjs %}
+
+{% if gateway is not defined or not gateway.handle %}
+    {% js %}
+        new Craft.HandleGenerator('#name', '#handle');
+    {% endjs %}
+{% endif %}

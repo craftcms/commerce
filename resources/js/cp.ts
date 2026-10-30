@@ -1,0 +1,72 @@
+import CouponGeneratorNode from './modules/ui/CouponGeneratorNode.vue';
+import SiteStoresControl from './modules/ui/SiteStoresControl.vue';
+import TransferDetailsControl from './modules/ui/TransferDetailsControl.vue';
+import TransferReceiveControl from './modules/ui/TransferReceiveControl.vue';
+import UsageCounterNode from './modules/ui/UsageCounterNode.vue';
+
+/**
+ * Commerce's own contribution to the shared CP `Ui` system's component
+ * registry. `window.Cp` is a deliberate public bridge `cms` exposes for
+ * exactly this (see `cms/resources/js/bootstrap/cp.ts`'s `window.Cp = Cp;`).
+ *
+ * On genuine Inertia pages (`app.blade.php`), `cms`'s own bundle is
+ * guaranteed to run first — `Cp::viteScripts()` renders before
+ * `Plugins::getAssetsHtml()` (which is what enqueues this script, via
+ * `CraftCms\Commerce\Plugin::$vite` + `HasFrontendAssets`). That ordering
+ * guarantee does *not* hold on legacy-compat-rendered pages (still-Yii2-
+ * template screens like Orders, not yet converted to the new Ui system) —
+ * their own asset registration can enqueue this script *before* `cms`'s,
+ * confirmed live (script tag order swapped on `commerce/orders`, throwing
+ * `Cannot read properties of undefined (reading '$components')`). Rather
+ * than depend on load order at all, wait for `window.Cp` to actually exist.
+ *
+ * Component names are prefixed `commerce:` (rather than reusing `cms`'s own
+ * `craft:` prefix) so a Commerce-contributed type can never collide with a
+ * future `cms`-native one of a similar name.
+ */
+function registerComponents(): void {
+  window.Cp.$components.register(
+    'commerce:coupon-generator',
+    CouponGeneratorNode
+  );
+  window.Cp.$components.register('commerce:usage-counter', UsageCounterNode);
+  window.Cp.$components.register('commerce:site-stores', SiteStoresControl);
+  window.Cp.$components.register(
+    'commerce:transfer-details',
+    TransferDetailsControl
+  );
+  window.Cp.$components.register(
+    'commerce:transfer-receive',
+    TransferReceiveControl
+  );
+
+  // Loaded on demand, so the element index `cms` shares through the import
+  // map is only fetched on the pages that use it.
+  window.Cp.$inertia.register(
+    'commerce::products/Index',
+    () => import('./pages/products/Index.vue')
+  );
+  window.Cp.$inertia.register(
+    'commerce::variants/Index',
+    () => import('./pages/variants/Index.vue')
+  );
+  window.Cp.$inertia.register(
+    'commerce::orders/Index',
+    () => import('./pages/orders/Index.vue')
+  );
+  window.Cp.$inertia.register(
+    'commerce::inventory/transfers/Index',
+    () => import('./pages/inventory/transfers/Index.vue')
+  );
+}
+
+if (window.Cp) {
+  registerComponents();
+} else {
+  const id = setInterval(() => {
+    if (window.Cp) {
+      clearInterval(id);
+      registerComponents();
+    }
+  }, 10);
+}

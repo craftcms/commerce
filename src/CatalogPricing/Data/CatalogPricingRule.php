@@ -1,0 +1,329 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CraftCms\Commerce\CatalogPricing\Data;
+
+use CraftCms\Cms\Component\Component;
+use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionInterface;
+use CraftCms\Cms\Support\Facades\Conditions;
+use CraftCms\Cms\Support\Facades\I18N;
+use CraftCms\Cms\Support\Json;
+use CraftCms\Cms\User\Elements\User;
+use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingRuleProductCondition;
+use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingRuleVariantCondition;
+use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingRule as PricingCatalogRuleRecord;
+use CraftCms\Commerce\Customer\Conditions\CatalogPricingRuleCustomerCondition;
+use CraftCms\Commerce\Payment\Currencies;
+use CraftCms\Commerce\Product\Elements\Product;
+use CraftCms\Commerce\Product\Variant\Elements\Variant;
+use CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableCondition;
+use CraftCms\Commerce\Purchasable\Elements\Purchasable;
+use CraftCms\Commerce\Purchasable\Queries\PurchasableConditionQuery;
+use CraftCms\Commerce\Store\Concerns\StoreTrait;
+use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
+use DateTime;
+use Illuminate\Validation\Rule;
+
+/**
+ * @property-read string $applyAmountAsPercent
+ * @property-read string $applyAmountAsFlat
+ */
+class CatalogPricingRule extends Component implements HasStoreInterface
+{
+    use StoreTrait;
+
+    public ?int $id = null;
+
+    public ?string $name = null;
+
+    public ?string $description = null;
+
+    public ?DateTime $dateFrom = null;
+
+    public ?DateTime $dateTo = null;
+
+    public string $apply = PricingCatalogRuleRecord::APPLY_BY_PERCENT;
+
+    public ?float $applyAmount = null;
+
+    public string $applyPriceType = PricingCatalogRuleRecord::APPLY_PRICE_TYPE_PRICE;
+
+    public null|ElementConditionInterface $_customerCondition = null;
+
+    public null|ElementConditionInterface $_productCondition = null;
+
+    public null|ElementConditionInterface $_variantCondition = null;
+
+    public null|ElementConditionInterface $_purchasableCondition = null;
+
+    public bool $enabled = true;
+
+    public bool $isPromotionalPrice = false;
+
+    public ?DateTime $dateCreated = null;
+
+    public ?DateTime $dateUpdated = null;
+
+    private ?array $_purchasableIds = null;
+
+    private ?array $_userIds = null;
+
+    /**
+     * @var array
+     * @todo Remove the unused $_metadata property in Commerce 6.0
+     */
+    private array $_metadata = [];
+
+    #[\Override]
+    public function getRules(): array
+    {
+        return [
+            'apply' => ['required', Rule::in([
+                PricingCatalogRuleRecord::APPLY_TO_PERCENT,
+                PricingCatalogRuleRecord::APPLY_TO_FLAT,
+                PricingCatalogRuleRecord::APPLY_BY_PERCENT,
+                PricingCatalogRuleRecord::APPLY_BY_FLAT,
+            ])],
+            'enabled' => ['boolean'],
+            'name' => ['required', 'string'],
+        ];
+    }
+
+    public function getCpEditUrl(): string
+    {
+        return $this->getStore()->getStoreSettingsUrl('pricing-rules/' . $this->id);
+    }
+
+    public function getApplyAmountAsPercent(): string
+    {
+        return I18N::getFormatter()->asPercent(-($this->applyAmount ?? 0.0));
+    }
+
+    public function getApplyAmountAsFlat(): string
+    {
+        return $this->applyAmount !== null ? (string)($this->applyAmount * -1) : '0';
+    }
+
+    public function setMetadata(string|array $metadata): void
+    {
+        $metadata = Json::decodeIfJson($metadata);
+
+        if (!is_array($metadata)) {
+            $metadata = [];
+        }
+
+        $this->_metadata = $metadata;
+    }
+
+    public function getMetadata(): array
+    {
+        return $this->_metadata;
+    }
+
+    public function getPurchasableIds(): ?array
+    {
+        if ($this->_purchasableIds === null) {
+            $siteIds = $this->getStore()->getSites()->map(fn($site) => $site->id)->all();
+            $productVariantIds = null;
+
+            if (!empty($this->getProductCondition()->getConditionRules()->getRules())) {
+                $productQuery = Product::find();
+                $productQuery->siteId($siteIds);
+                $productCondition = $this->getProductCondition();
+                $productCondition->modifyQuery($productQuery);
+
+                $productVariantIds = [];
+                if ($productIds = $productQuery->ids()) {
+                    $productVariantIdsQuery = Variant::find()
+                        ->siteId($siteIds)
+                        ->productId($productIds);
+
+                    if ($this->isPromotionalPrice) {
+                        $productVariantIdsQuery->whereBooleanParam('purchasables_stores.promotable', true);
+                    }
+
+                    $productVariantIds = $productVariantIdsQuery->ids();
+                }
+            }
+
+            if ($productVariantIds === []) {
+                $this->_purchasableIds = [];
+                return $this->_purchasableIds;
+            }
+
+            $this->_purchasableIds = $productVariantIds;
+
+            $variantIds = $productVariantIds;
+            if (!empty($this->getVariantCondition()->getConditionRules()->getRules())) {
+                $variantQuery = Variant::find();
+                $variantQuery->siteId($siteIds);
+                $variantCondition = $this->getVariantCondition();
+                $variantCondition->modifyQuery($variantQuery);
+
+                if ($this->isPromotionalPrice) {
+                    $variantQuery->whereBooleanParam('purchasables_stores.promotable', true);
+                }
+
+                if ($productVariantIds !== null) {
+                    $variantQuery->whereIn('commerce_variants.id', $productVariantIds);
+                }
+
+                $variantIds = $variantQuery->ids();
+            }
+
+            if ($variantIds === []) {
+                $this->_purchasableIds = [];
+                return $this->_purchasableIds;
+            }
+
+            $this->_purchasableIds = $variantIds;
+
+            if (!empty($this->getPurchasableCondition()->getConditionRules()->getRules())) {
+                $purchasableQuery = new PurchasableConditionQuery(Purchasable::class);
+                $purchasableQuery->siteId($siteIds);
+                $purchasableCondition = $this->getPurchasableCondition();
+                $purchasableCondition->modifyQuery($purchasableQuery);
+
+                if ($variantIds !== null) {
+                    $purchasableQuery->whereIn('elements.id', $variantIds);
+                }
+
+                if ($this->isPromotionalPrice) {
+                    $purchasableQuery->whereBooleanParam('purchasables_stores.promotable', true);
+                }
+
+                $this->_purchasableIds = $purchasableQuery->ids();
+            }
+
+            $this->_purchasableIds = $this->_purchasableIds !== null ? array_unique($this->_purchasableIds) : null;
+        }
+
+        return $this->_purchasableIds;
+    }
+
+    public function getCustomerCondition(): ElementConditionInterface
+    {
+        $condition = $this->_customerCondition ?? new CatalogPricingRuleCustomerCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'customerCondition';
+
+        return $condition;
+    }
+
+    public function setCustomerCondition(ElementConditionInterface|string|array $condition): void
+    {
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof ElementConditionInterface) {
+            $condition['class'] = CatalogPricingRuleCustomerCondition::class;
+            $condition = Conditions::createCondition($condition);
+        }
+        $condition->forProjectConfig = false;
+        /** @phpstan-ignore-next-line */
+        $this->_customerCondition = $condition;
+    }
+
+    public function getPurchasableCondition(): ElementConditionInterface
+    {
+        $condition = $this->_purchasableCondition ?? new CatalogPricingRulePurchasableCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'purchasableCondition';
+
+        return $condition;
+    }
+
+    public function setPurchasableCondition(ElementConditionInterface|string|array $condition): void
+    {
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof ElementConditionInterface) {
+            $condition['class'] = CatalogPricingRulePurchasableCondition::class;
+            $condition = Conditions::createCondition($condition);
+        }
+        $condition->forProjectConfig = false;
+        /** @phpstan-ignore-next-line */
+        $this->_purchasableCondition = $condition;
+    }
+
+    public function getProductCondition(): ElementConditionInterface
+    {
+        $condition = $this->_productCondition ?? new CatalogPricingRuleProductCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'productCondition';
+        $condition->elementType = Product::class;
+
+        return $condition;
+    }
+
+    public function setProductCondition(ElementConditionInterface|string|array $condition): void
+    {
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof ElementConditionInterface) {
+            $condition['class'] = CatalogPricingRuleProductCondition::class;
+            $condition = Conditions::createCondition($condition);
+        }
+        $condition->forProjectConfig = false;
+        /** @phpstan-ignore-next-line */
+        $this->_productCondition = $condition;
+    }
+
+    public function getVariantCondition(): ElementConditionInterface
+    {
+        $condition = $this->_variantCondition ?? new CatalogPricingRuleVariantCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'variantCondition';
+        $condition->elementType = Variant::class;
+
+        return $condition;
+    }
+
+    public function setVariantCondition(ElementConditionInterface|string|array $condition): void
+    {
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof ElementConditionInterface) {
+            $condition['class'] = CatalogPricingRuleVariantCondition::class;
+            $condition = Conditions::createCondition($condition);
+        }
+        $condition->forProjectConfig = false;
+        /** @phpstan-ignore-next-line */
+        $this->_variantCondition = $condition;
+    }
+
+    public function getUserIds(): ?array
+    {
+        if ($this->_userIds === null && !empty($this->getCustomerCondition()->getConditionRules()->getRules())) {
+            $userQuery = User::find();
+            $this->getCustomerCondition()->modifyQuery($userQuery);
+            $this->_userIds = $userQuery->ids();
+        }
+
+        return $this->_userIds;
+    }
+
+    public function getRulePriceFromPrice(float $price): float
+    {
+        $teller = app(Currencies::class)->getTeller($this->getStore()->getCurrency());
+        $applyAmount = $this->applyAmount ?? 0.0;
+
+        $price = match ($this->apply) {
+            PricingCatalogRuleRecord::APPLY_BY_PERCENT => $teller->multiply($price, 1 + $applyAmount),
+            PricingCatalogRuleRecord::APPLY_BY_FLAT => $teller->add($price, $applyAmount),
+            PricingCatalogRuleRecord::APPLY_TO_PERCENT => $teller->multiply($price, -$applyAmount),
+            PricingCatalogRuleRecord::APPLY_TO_FLAT => $teller->negative($applyAmount),
+            default => $teller->convertToString($price),
+        };
+
+        return (float)$teller->max($price, 0);
+    }
+}

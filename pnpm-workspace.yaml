@@ -1,0 +1,40 @@
+packages:
+  - 'legacy'
+
+# @craftcms/webpack (legacy's build tool) assumes classic npm-style flat hoisting for its own
+# nested loader/plugin dependencies (babel-loader, vue-loader, etc.) — it has no awareness of
+# pnpm's strict per-package isolation. Without this, webpack can't resolve its own loaders
+# when building the 13 src-yii2/web/assets/* bundles (which sit outside legacy/'s own
+# node_modules ancestor chain).
+shamefullyHoist: true
+
+# pnpm 10+ blocks postinstall/build scripts for dependencies by default and wants every
+# candidate answered explicitly. Both of these are well-known, trusted packages needed for
+# normal operation (@parcel/watcher: Vite's native file watcher; core-js: a transitive
+# polyfill dependency) — matches cms's own treatment of @parcel/watcher in its own
+# pnpm-workspace.yaml.
+allowBuilds:
+  '@parcel/watcher': true
+  core-js: true
+
+# vue-template-compiler does a plain `require('vue')` at its own module top level to
+# version-check itself against whatever `vue` it finds — since it doesn't declare `vue` as
+# its own dependency, Node's directory walk finds the workspace ROOT's vue (3.x, for the new
+# Vite pipeline) instead of legacy's own vue (2.x), and throws. Force pnpm to nest a correctly
+# -scoped vue@2 directly under vue-template-compiler's own resolved location so that walk
+# never needs to leave it.
+packageExtensions:
+  vue-template-compiler@2.7.16:
+    dependencies:
+      vue: 2.7.16
+
+catalogs:
+  # @craftcms/commerce-legacy is intentionally held on Vue 2 — it builds the
+  # old commerceui/etc. webpack bundles that still power the Orders edit
+  # screen and friends, pre-dating the move to the new Vue 3/Vite CP `Form`
+  # system. Keeping it in its own catalog makes the split explicit instead of
+  # looking like drift (mirrors cms's own pnpm-workspace.yaml, which does the
+  # same for its packages/craftcms-legacy).
+  legacy:
+    vue: ^2.6.14
+    vue-template-compiler: ^2.6.14

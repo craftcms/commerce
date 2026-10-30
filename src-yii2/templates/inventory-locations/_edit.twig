@@ -1,0 +1,11 @@
+{% namespace 'inventoryLocationAddress' %}
+{{ extraFieldsHtml|raw }}
+{% endnamespace %}
+
+{{ form|raw }}
+
+{% hook "cp.commerce.inventoryLocation.edit" %}
+
+{% if not inventoryLocation.id %}
+{% js "new Craft.HandleGenerator('##{'name'|namespaceInputId}', '##{'handle'|namespaceInputId}');" %}
+{% endif %}

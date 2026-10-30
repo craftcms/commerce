@@ -1,0 +1,11 @@
+.env
+/vendor
+/bootstrap/cache
+/database/*.sqlite*
+/config/craft/project
+/config/craft/license.key
+/public/vendor
+/public/assets
+/storage
+/cms
+/public/cpresources
