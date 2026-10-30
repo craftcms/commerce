@@ -72,15 +72,16 @@ abstract class OrderCurrencyValuesAttributeConditionRule extends MoneyFieldCondi
         if ($this->getCondition() instanceof HasStoreInterface) {
             $this->currency = $this->getCondition()->getStore()->getCurrency();
         } else {
+            $currentSite = null;
             if (Craft::$app->getRequest()->getIsCpRequest()) {
+                // Will be null if there is no user with editable sites (e.g. webhook requests on a CP-only domain)
                 $currentSite = Cp::requestedSite();
-            } else {
-                $currentSite = Craft::$app->getSites()->getCurrentSite();
             }
-            /** @var Site|StoreBehavior|null $currentSite */
+            $currentSite ??= Craft::$app->getSites()->getCurrentSite();
+            /** @var Site|StoreBehavior $currentSite */
 
             if ($currentSite->getBehavior('commerce:store')) {
-                $this->currency = $currentSite?->getStore()->getCurrency();
+                $this->currency = $currentSite->getStore()->getCurrency();
             }
         }
 

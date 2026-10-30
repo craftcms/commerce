@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+SECONDS=0
+
+echo 'Installing missing system packages'
+packages=(php8.2-cli php8.2-bcmath php8.2-curl php8.2-gd php8.2-imagick
+  php8.2-intl php8.2-mbstring php8.2-mysql php8.2-pgsql php8.2-xml php8.2-zip
+  composer postgresql-15 curl ca-certificates xz-utils unzip)
+missing=()
+for package in "${packages[@]}"; do
+  if ! dpkg-query -W -f='${Status}' "$package" 2>/dev/null | grep -qx 'install ok installed'; then
+    missing+=("$package")
+  fi
+done
+if ((${#missing[@]})); then
+  sudo apt-get update -qq
+  sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${missing[@]}"
+fi
+echo "System packages ready at ${SECONDS}s"
+
+echo 'Installing the Node version pinned in .nvmrc'
+node_version="$(tr -d '[:space:]' < .nvmrc)"
+case "$(uname -m)" in
+  x86_64) node_arch=x64 ;;
+  aarch64) node_arch=arm64 ;;
+  *) echo 'Unsupported Node architecture' >&2; exit 1 ;;
+esac
+tools_dir="$HOME/.local/share/craft-commerce"
+node_dir="$tools_dir/node-$node_version-linux-$node_arch"
+if [[ ! -x "$node_dir/bin/node" ]]; then
+  download_dir="$(mktemp -d)"
+  trap 'rm -rf "$download_dir"' EXIT
+  archive="node-$node_version-linux-$node_arch.tar.xz"
+  curl -fsSL "https://nodejs.org/dist/$node_version/$archive" -o "$download_dir/$archive"
+  curl -fsSL "https://nodejs.org/dist/$node_version/SHASUMS256.txt" -o "$download_dir/SHASUMS256.txt"
+  (cd "$download_dir"; grep " $archive\$" SHASUMS256.txt | sha256sum --check -)
+  mkdir -p "$tools_dir"
+  tar -xJf "$download_dir/$archive" -C "$tools_dir"
+  rm -rf "$download_dir"
+  trap - EXIT
+fi
+export PATH="$node_dir/bin:$PATH"
+# The orb's newer Node accepts this flag, but the repository's Node 16 does not.
+NODE_OPTIONS="${NODE_OPTIONS:-}"
+export NODE_OPTIONS="${NODE_OPTIONS//--use-system-ca/}"
+
+# Login shells used by Amp and supervised services must use the same Node version.
+profile_marker='# Craft Commerce orb toolchain'
+if ! grep -Fqx "$profile_marker" "$HOME/.bash_profile" 2>/dev/null; then
+  cat >> "$HOME/.bash_profile" <<EOF
+
+$profile_marker
+if [[ "\$PWD" == "$repo_root" || "\$PWD" == "$repo_root/"* ]]; then
+  commerce_node_version="\$(tr -d '[:space:]' < "$repo_root/.nvmrc")"
+  export PATH="$tools_dir/node-\$commerce_node_version-linux-$node_arch/bin:\$PATH"
+  export NODE_OPTIONS="\${NODE_OPTIONS//--use-system-ca/}"
+  unset commerce_node_version
+fi
+EOF
+fi
+echo "Node $(node --version) ready at ${SECONDS}s"
+
+echo 'Installing locked PHP dependencies'
+composer install --no-interaction --prefer-dist --no-progress
+echo "Composer dependencies ready at ${SECONDS}s"
+
+echo 'Installing locked frontend dependencies'
+npm ci --no-audit --no-fund --prefer-offline
+echo "Frontend dependencies ready at ${SECONDS}s"
+
+echo 'Preparing the isolated PostgreSQL test database'
+pg_bin=/usr/lib/postgresql/15/bin
+pg_data="$tools_dir/postgres"
+if [[ ! -f "$pg_data/PG_VERSION" ]]; then
+  # Trust is limited to this disposable orb's local test database.
+  "$pg_bin/initdb" -D "$pg_data" -U root --encoding=UTF8 --locale=C.UTF-8 \
+    --auth-local=trust --auth-host=trust
+  cat >> "$pg_data/postgresql.conf" <<'EOF'
+listen_addresses = '127.0.0.1'
+unix_socket_directories = '/tmp'
+fsync = off
+synchronous_commit = off
+full_page_writes = off
+EOF
+  "$pg_bin/postgres" --single -D "$pg_data" template1 <<'SQL'
+CREATE DATABASE craft_test;
+SQL
+fi
+
+[[ -f .env ]] || cp -- .env.example .env
+[[ -f tests/.env ]] || cp -- tests/.env.example.pgsql tests/.env
+echo "Orb setup finished in ${SECONDS}s"
