@@ -68,4 +68,3 @@
 - `productType` is now a reserved product field handle.
 - `lineItems`, `orderStatus`, and `store` are now reserved order field handles.
 - Craft Commerce now requires Craft CMS 5.12.0 or later.
-- Fixed a bug where users with the “Manage inventory transfers” permission couldn’t view, save, or delete inventory transfers unless they had been granted it before Commerce 5.1.
