@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+# Dependencies live in the snapshot. Only ensure the database is listening.
+if ! /usr/lib/postgresql/15/bin/pg_isready -h 127.0.0.1 -p 5432 -q; then
+  amp orb services ensure
+fi
