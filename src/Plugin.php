@@ -60,6 +60,7 @@ use CraftCms\Commerce\Plugin\Concerns\HasCpSettings;
 use CraftCms\Commerce\Plugin\Concerns\HasGql;
 use CraftCms\Commerce\Plugin\Concerns\HasHttpProtection;
 use CraftCms\Commerce\Plugin\Concerns\HasLegacyBridges;
+use CraftCms\Commerce\Plugin\Concerns\HasMcp;
 use CraftCms\Commerce\Plugin\Concerns\HasNativeFields;
 use CraftCms\Commerce\Plugin\Concerns\HasPermissions;
 use CraftCms\Commerce\Plugin\Concerns\HasProjectConfigListeners;
@@ -106,6 +107,7 @@ class Plugin extends BasePlugin
     use HasCpSettings;
     use HasHttpProtection;
     use HasCacheOptions;
+    use HasMcp;
 
     public const string HANDLE = 'commerce';
 
@@ -214,6 +216,7 @@ class Plugin extends BasePlugin
         $this->registerUiComponents();
         $this->registerCpSettings();
         $this->registerPolicies();
+        $this->registerMcp();
         $this->registerBehaviorMacros();
         $this->registerVariableMacros();
         $this->registerForeignKeysRestore();
