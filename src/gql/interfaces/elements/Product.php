@@ -11,9 +11,11 @@ use Craft;
 use craft\commerce\elements\Product as ProductElement;
 use craft\commerce\gql\arguments\elements\Product as ProductArguments;
 use craft\commerce\gql\types\generators\ProductType;
+use craft\commerce\gql\types\ProductType as ProductTypeGqlType;
 use craft\commerce\helpers\Gql;
 use craft\gql\GqlEntityRegistry;
 use craft\gql\interfaces\Element;
+use craft\gql\interfaces\elements\User;
 use craft\services\Gql as GqlService;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\Type;
@@ -78,7 +80,13 @@ class Product extends Element
             }
         }
 
-        return Craft::$app->getGql()->prepareFieldDefinitions(array_merge(parent::getFieldDefinitions(), [
+        return Craft::$app->getGql()->prepareFieldDefinitions(array_merge(parent::getFieldDefinitions(), static::getDraftFieldDefinitions(), self::getDraftAndRevisionFields($productArguments), Gql::canSchema('settings.producttypes') ? [
+            'productType' => [
+                'name' => 'productType',
+                'type' => Type::nonNull(ProductTypeGqlType::getType()),
+                'description' => 'The product type that contains the product.',
+            ],
+        ] : [], [
             'defaultSku' => [
                 'name' => 'defaultSku',
                 'type' => Type::string(),
@@ -175,5 +183,60 @@ class Product extends Element
                 'complexity' => Gql::relatedArgumentComplexity(GqlService::GRAPHQL_COMPLEXITY_EAGER_LOAD),
             ],
         ]), self::getName());
+    }
+
+    /**
+     * Returns the draft and revision fields, like entries’.
+     *
+     * @param array $productArguments
+     * @return array
+     */
+    private static function getDraftAndRevisionFields(array $productArguments): array
+    {
+        $fields = [];
+
+        if (Gql::canQueryDrafts()) {
+            $fields = array_merge($fields, array_filter([
+                'draftCreator' => Gql::canQueryAllUsers() ? [
+                    'name' => 'draftCreator',
+                    'type' => User::getType(),
+                    'description' => 'The creator of a given draft.',
+                    'complexity' => Gql::relatedArgumentComplexity(GqlService::GRAPHQL_COMPLEXITY_EAGER_LOAD),
+                ] : null,
+                'drafts' => [
+                    'name' => 'drafts',
+                    'args' => $productArguments,
+                    'type' => Type::listOf(static::getType()),
+                    'description' => 'The drafts for the product.',
+                    'complexity' => Gql::relatedArgumentComplexity(GqlService::GRAPHQL_COMPLEXITY_EAGER_LOAD),
+                ],
+            ]));
+        }
+
+        if (Gql::canQueryRevisions()) {
+            $fields = array_merge($fields, array_filter([
+                'revisionCreator' => Gql::canQueryAllUsers() ? [
+                    'name' => 'revisionCreator',
+                    'type' => User::getType(),
+                    'description' => 'The creator of a given revision.',
+                    'complexity' => Gql::relatedArgumentComplexity(GqlService::GRAPHQL_COMPLEXITY_EAGER_LOAD),
+                ] : null,
+                'currentRevision' => [
+                    'name' => 'currentRevision',
+                    'type' => static::getType(),
+                    'description' => 'The current revision for the product.',
+                    'complexity' => Gql::relatedArgumentComplexity(GqlService::GRAPHQL_COMPLEXITY_EAGER_LOAD),
+                ],
+                'revisions' => [
+                    'name' => 'revisions',
+                    'args' => $productArguments,
+                    'type' => Type::listOf(static::getType()),
+                    'description' => 'The revisions for the product.',
+                    'complexity' => Gql::relatedArgumentComplexity(GqlService::GRAPHQL_COMPLEXITY_EAGER_LOAD),
+                ],
+            ]));
+        }
+
+        return $fields;
     }
 }

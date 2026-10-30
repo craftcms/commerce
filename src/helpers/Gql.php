@@ -31,6 +31,17 @@ class Gql extends GqlHelper
     }
 
     /**
+     * Return true if active schema can query orders.
+     *
+     * @since 5.8.0
+     */
+    public static function canQueryOrders(): bool
+    {
+        $allowedEntities = self::extractAllowedEntitiesFromSchema();
+        return isset($allowedEntities['orders']);
+    }
+
+    /**
      * @param GqlSchema|null $schema
      * @return array|ProductType[]
      * @throws InvalidConfigException

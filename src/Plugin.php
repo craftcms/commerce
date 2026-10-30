@@ -48,9 +48,20 @@ use craft\commerce\gql\handlers\HasProduct;
 use craft\commerce\gql\handlers\HasVariant;
 use craft\commerce\gql\handlers\RelatedProducts;
 use craft\commerce\gql\handlers\RelatedVariants;
+use craft\commerce\gql\interfaces\elements\Donation as GqlDonationInterface;
+use craft\commerce\gql\interfaces\elements\Order as GqlOrderInterface;
 use craft\commerce\gql\interfaces\elements\Product as GqlProductInterface;
+use craft\commerce\gql\interfaces\elements\Transfer as GqlTransferInterface;
 use craft\commerce\gql\interfaces\elements\Variant as GqlVariantInterface;
+use craft\commerce\gql\mutations\Donation as GqlDonationMutations;
+use craft\commerce\gql\mutations\Order as GqlOrderMutations;
+use craft\commerce\gql\mutations\Product as GqlProductMutations;
+use craft\commerce\gql\mutations\Transfer as GqlTransferMutations;
+use craft\commerce\gql\queries\Donation as GqlDonationQueries;
+use craft\commerce\gql\queries\Order as GqlOrderQueries;
 use craft\commerce\gql\queries\Product as GqlProductQueries;
+use craft\commerce\gql\queries\Settings as GqlSettingsQueries;
+use craft\commerce\gql\queries\Transfer as GqlTransferQueries;
 use craft\commerce\gql\queries\Variant as GqlVariantQueries;
 use craft\commerce\gql\types\input\criteria\ProductRelation;
 use craft\commerce\gql\types\input\criteria\VariantRelation;
@@ -145,6 +156,7 @@ use craft\events\RegisterElementExportersEvent;
 use craft\events\RegisterEmailMessagesEvent;
 use craft\events\RegisterGqlArgumentHandlersEvent;
 use craft\events\RegisterGqlEagerLoadableFields;
+use craft\events\RegisterGqlMutationsEvent;
 use craft\events\RegisterGqlQueriesEvent;
 use craft\events\RegisterGqlSchemaComponentsEvent;
 use craft\events\RegisterGqlTypesEvent;
@@ -318,6 +330,7 @@ class Plugin extends BasePlugin
         $this->_registerElementTypes();
         $this->_registerGqlInterfaces();
         $this->_registerGqlQueries();
+        $this->_registerGqlMutations();
         $this->_registerGqlComponents();
         $this->_registerGqlEagerLoadableFields();
         $this->_registerGqlArgumentHandlers();
@@ -1037,6 +1050,9 @@ class Plugin extends BasePlugin
             $types = $event->types;
             $types[] = GqlProductInterface::class;
             $types[] = GqlVariantInterface::class;
+            $types[] = GqlOrderInterface::class;
+            $types[] = GqlDonationInterface::class;
+            $types[] = GqlTransferInterface::class;
             $event->types = $types;
         });
     }
@@ -1051,7 +1067,27 @@ class Plugin extends BasePlugin
             $event->queries = array_merge(
                 $event->queries,
                 GqlProductQueries::getQueries(),
-                GqlVariantQueries::getQueries()
+                GqlVariantQueries::getQueries(),
+                GqlOrderQueries::getQueries(),
+                GqlDonationQueries::getQueries(),
+                GqlTransferQueries::getQueries(),
+                GqlSettingsQueries::getQueries(),
+            );
+        });
+    }
+
+    /**
+     * Register the Gql mutations
+     */
+    private function _registerGqlMutations(): void
+    {
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_MUTATIONS, static function(RegisterGqlMutationsEvent $event) {
+            $event->mutations = array_merge(
+                $event->mutations,
+                GqlProductMutations::getMutations(),
+                GqlOrderMutations::getMutations(),
+                GqlDonationMutations::getMutations(),
+                GqlTransferMutations::getMutations(),
             );
         });
     }
@@ -1063,22 +1099,158 @@ class Plugin extends BasePlugin
     {
         Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_SCHEMA_COMPONENTS, static function(RegisterGqlSchemaComponentsEvent $event) {
             $queryComponents = [];
+            $mutationComponents = [];
 
             $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
 
             if (!empty($productTypes)) {
                 $label = Craft::t('commerce', 'Products');
-                $productPermissions = [];
+                $productPermissions = [
+                    'settings.producttypes:read' => [
+                        'label' => Craft::t('commerce', 'Query for product types'),
+                        'authenticated' => fn(UserElement $user) => $user->can('accessCp'),
+                        'info' => Craft::t('commerce', 'Adds “{plural}” and “{singular}” queries, and a “{field}” field to products.', [
+                            'plural' => 'productTypes',
+                            'singular' => 'productType',
+                            'field' => 'productType',
+                        ]),
+                    ],
+                ];
+
+                $productMutations = [];
 
                 foreach ($productTypes as $productType) {
                     $suffix = 'productTypes.' . $productType->uid;
-                    $productPermissions[$suffix . ':read'] = ['label' => Craft::t('commerce', 'View product type - {productType}', ['productType' => Craft::t('site', $productType->name)])];
+                    $name = Craft::t('site', $productType->name);
+                    $productPermissions[$suffix . ':read'] = [
+                        'label' => Craft::t('commerce', 'View product type - {productType}', ['productType' => $name]),
+                        'authenticated' => fn(UserElement $user) => $user->can("commerce-viewProductType:$productType->uid"),
+                    ];
+                    $productMutations[$suffix . ':edit'] = [
+                        'label' => Craft::t('commerce', 'Edit products in the “{productType}” product type', ['productType' => $name]),
+                        'authenticated' => fn(UserElement $user) => (
+                            $user->can("commerce-createProductType:$productType->uid") ||
+                            $user->can("commerce-saveProductType:$productType->uid") ||
+                            $user->can("commerce-deleteProductType:$productType->uid")
+                        ),
+                        'nested' => [
+                            $suffix . ':create' => [
+                                'label' => Craft::t('commerce', 'Create products in the “{productType}” product type', ['productType' => $name]),
+                                'authenticated' => fn(UserElement $user) => $user->can("commerce-createProductType:$productType->uid"),
+                            ],
+                            $suffix . ':save' => [
+                                'label' => Craft::t('commerce', 'Save products and variants in the “{productType}” product type', ['productType' => $name]),
+                                'authenticated' => fn(UserElement $user) => $user->can("commerce-saveProductType:$productType->uid"),
+                            ],
+                            $suffix . ':delete' => [
+                                'label' => Craft::t('commerce', 'Delete products and variants in the “{productType}” product type', ['productType' => $name]),
+                                'authenticated' => fn(UserElement $user) => $user->can("commerce-deleteProductType:$productType->uid"),
+                            ],
+                        ],
+                    ];
                 }
 
                 $queryComponents[$label] = $productPermissions;
+                $mutationComponents[$label] = $productMutations;
             }
 
+            $queryComponents[Craft::t('commerce', 'Stores')] = [
+                'settings.stores:read' => [
+                    'label' => Craft::t('commerce', 'Query for stores'),
+                    'authenticated' => true,
+                    'info' => Craft::t('commerce', 'Adds “{plural}” and “{singular}” queries.', [
+                        'plural' => 'stores',
+                        'singular' => 'store',
+                    ]),
+                ],
+            ];
+
+            $orderComponents = [];
+            $orderMutations = [];
+            foreach (Plugin::getInstance()->getStores()->getAllStores() as $store) {
+                $storeName = $store->getName();
+                $orderComponents["orders.$store->uid:read"] = [
+                    'label' => Craft::t('commerce', 'Query for orders in the “{store}” store', ['store' => $storeName]),
+                    // Customers can query their own orders; see the order resolver
+                    'authenticated' => true,
+                ];
+                $orderMutations["orders.$store->uid:edit"] = [
+                    'label' => Craft::t('commerce', 'Edit orders in the “{store}” store', ['store' => $storeName]),
+                    'authenticated' => fn(UserElement $user) => $user->can('commerce-editOrders') || $user->can('commerce-deleteOrders'),
+                    'nested' => [
+                        "orders.$store->uid:create" => [
+                            'label' => Craft::t('commerce', 'Create orders in the “{store}” store', ['store' => $storeName]),
+                            'authenticated' => fn(UserElement $user) => $user->can('commerce-editOrders'),
+                        ],
+                        "orders.$store->uid:save" => [
+                            'label' => Craft::t('commerce', 'Save orders in the “{store}” store', ['store' => $storeName]),
+                            'authenticated' => fn(UserElement $user) => $user->can('commerce-editOrders'),
+                        ],
+                        "orders.$store->uid:delete" => [
+                            'label' => Craft::t('commerce', 'Delete orders in the “{store}” store', ['store' => $storeName]),
+                            'authenticated' => fn(UserElement $user) => $user->can('commerce-deleteOrders'),
+                        ],
+                    ],
+                ];
+            }
+            $mutationComponents[Craft::t('commerce', 'Orders')] = $orderMutations;
+
+            $queryComponents[Craft::t('commerce', 'Orders')] = $orderComponents + [
+                'settings.orderstatuses:read' => [
+                    'label' => Craft::t('commerce', 'Query for order statuses'),
+                    'authenticated' => true,
+                    'info' => Craft::t('commerce', 'Adds “{plural}” and “{singular}” queries.', [
+                        'plural' => 'orderStatuses',
+                        'singular' => 'orderStatus',
+                    ]),
+                ],
+            ];
+
+            $label = Craft::t('commerce', 'Donations');
+            $queryComponents[$label] = [
+                'donations.all:read' => [
+                    'label' => Craft::t('commerce', 'Query for the donation'),
+                    'authenticated' => true,
+                ],
+            ];
+            $mutationComponents[$label] = [
+                'donations.all:save' => [
+                    'label' => Craft::t('commerce', 'Save the donation'),
+                    'authenticated' => fn(UserElement $user) => $user->can('commerce-manageDonationSettings'),
+                ],
+            ];
+
+            $label = Craft::t('commerce', 'Inventory Transfers');
+            $canManageTransfers = fn(UserElement $user) => $user->can('commerce-manageInventoryTransfers');
+            $queryComponents[$label] = [
+                'transfers.all:read' => [
+                    'label' => Craft::t('commerce', 'Query for inventory transfers'),
+                    'authenticated' => $canManageTransfers,
+                ],
+            ];
+            $mutationComponents[$label] = [
+                'transfers.all:edit' => [
+                    'label' => Craft::t('commerce', 'Edit inventory transfers'),
+                    'authenticated' => $canManageTransfers,
+                    'nested' => [
+                        'transfers.all:create' => [
+                            'label' => Craft::t('commerce', 'Create inventory transfers'),
+                            'authenticated' => $canManageTransfers,
+                        ],
+                        'transfers.all:save' => [
+                            'label' => Craft::t('commerce', 'Save inventory transfers'),
+                            'authenticated' => $canManageTransfers,
+                        ],
+                        'transfers.all:delete' => [
+                            'label' => Craft::t('commerce', 'Delete inventory transfers'),
+                            'authenticated' => $canManageTransfers,
+                        ],
+                    ],
+                ],
+            ];
+
             $event->queries = array_merge($event->queries, $queryComponents);
+            $event->mutations = array_merge($event->mutations, $mutationComponents);
         });
     }
 
