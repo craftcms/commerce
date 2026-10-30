@@ -1020,6 +1020,15 @@
 - Removed `craft\commerce\models\Settings::VIEW_URI_CUSTOMERS`, `VIEW_URI_PROMOTIONS`, `VIEW_URI_SHIPPING`, and `VIEW_URI_TAX` constants.
 - Improved `craft\commerce\Plugin`'s `Plugin::getInstance()->getX()` service getters to be backed by a lazy-instantiate-and-cache trait rather than Yii2's component locator.
 
+### Command Palette
+
+- Added `CraftCms\Commerce\CommandPalette\CommercePages`.
+- Added `CraftCms\Commerce\CommandPalette\CommerceActions`.
+- Added `CraftCms\Commerce\CommandPalette\OrderSearchProvider`.
+- Added product type, store management, catalog pricing, and Commerce settings pages to the Control Panel command palette.
+- Added actions for creating orders, products, inventory locations, and store management and Commerce settings items to the Control Panel command palette.
+- Added order, product, and variant search to the Control Panel command palette.
+
 ### Translations
 
 - Moved `src-yii2/translations/` to a top-level `lang/` directory (e.g. `lang/en/commerce.php`, `lang/de/commerce.php`), matching the Laravel convention `CraftCms\Cms\Plugin\Concerns\HasTranslations` looks for (`dirname($plugin->getBasePath()).'/lang'`) ahead of the legacy `src/translations` fallback. Message file structure and content are unchanged.
