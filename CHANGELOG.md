@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a bug where users with the “Manage inventory transfers” permission couldn’t view, save, or delete inventory transfers unless they had been granted it before Commerce 5.1.
 - Fixed a PHP error that could occur when processing gateway webhooks on a control panel-only domain. ([#4395](https://github.com/craftcms/commerce/issues/4395))
 
 ## 5.7.7 - 2026-10-28
