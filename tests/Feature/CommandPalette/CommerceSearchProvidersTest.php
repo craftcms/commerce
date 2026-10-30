@@ -17,7 +17,7 @@ test('the order search provider needs commerce-manageOrders', function() {
         ->and($provider->isAvailable(paletteUser(['commerce-manageOrders'])))->toBeTrue();
 });
 
-test('orders are searched with Commerce's own provider', function() {
+test('orders are searched with the Commerce order provider', function() {
     $provider = app(SearchProviderRegistry::class)->providers()['elements-order'];
 
     expect($provider)->toBeInstanceOf(OrderSearchProvider::class);
