@@ -59,8 +59,8 @@ trait QueriesVariantSales
                 'sales.id',
                 'sales.allGroups',
                 'sales.allPurchasables',
-                'sales.allCategories',
-                'sales.categoryRelationshipType',
+                'sales.allEntries',
+                'sales.entryRelationshipType',
             ])
             ->where(function(Builder $query) use ($nowDb) {
                 $query
@@ -92,9 +92,9 @@ trait QueriesVariantSales
             ->all();
 
         foreach ($activeSales as $activeSale) {
-            // A sale that matches every group, purchasable and category matches every variant,
+            // A sale that matches every group, purchasable and entry matches every variant,
             // so there's nothing left to narrow by
-            if ($activeSale['allGroups'] && $activeSale['allPurchasables'] && $activeSale['allCategories']) {
+            if ($activeSale['allGroups'] && $activeSale['allPurchasables'] && $activeSale['allEntries']) {
                 if ($value) {
                     $query->whereBool('purchasables_stores.promotable', true);
                 }
@@ -145,22 +145,22 @@ trait QueriesVariantSales
             fn(array $sale) => in_array($sale['id'], $activeSaleIds, false),
         ));
 
-        // Check to see if we have any sales that match all products and categories
+        // Check to see if we have any sales that match all products and entries
         // so we can skip extra processing if needed
-        $allProductsAndCategoriesSales = array_filter(
+        $allProductsAndEntriesSales = array_filter(
             $activeSales,
-            fn(array $sale) => $sale['allPurchasables'] && $sale['allCategories'],
+            fn(array $sale) => $sale['allPurchasables'] && $sale['allEntries'],
         );
 
         /** @var array<int, Closure> $hasSalesConditions */
         $hasSalesConditions = [];
 
-        if (empty($allProductsAndCategoriesSales)) {
+        if (empty($allProductsAndEntriesSales)) {
             $purchasableRestrictedSaleIds = array_column(
                 array_filter($activeSales, fn(array $sale) => !$sale['allPurchasables']),
                 'id',
             );
-            $categoryRestrictedSales = array_filter($activeSales, fn(array $sale) => !$sale['allCategories']);
+            $entryRestrictedSales = array_filter($activeSales, fn(array $sale) => !$sale['allEntries']);
 
             $hasSalesConditions[] = fn(Builder $query) => $query->whereIn(
                 'commerce_variants.id',
@@ -169,27 +169,27 @@ trait QueriesVariantSales
                     ->whereIn('saleId', $purchasableRestrictedSaleIds),
             );
 
-            if (!empty($categoryRestrictedSales)) {
-                $sourceSaleIds = array_column(array_filter($categoryRestrictedSales, fn(array $sale) => in_array($sale['categoryRelationshipType'], [
-                    SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
-                    SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH,
+            if (!empty($entryRestrictedSales)) {
+                $sourceSaleIds = array_column(array_filter($entryRestrictedSales, fn(array $sale) => in_array($sale['entryRelationshipType'], [
+                    SaleRecord::ENTRY_RELATIONSHIP_TYPE_SOURCE,
+                    SaleRecord::ENTRY_RELATIONSHIP_TYPE_BOTH,
                 ], true)), 'id');
 
-                $targetSaleIds = array_column(array_filter($categoryRestrictedSales, fn(array $sale) => in_array($sale['categoryRelationshipType'], [
-                    SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
-                    SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH,
+                $targetSaleIds = array_column(array_filter($entryRestrictedSales, fn(array $sale) => in_array($sale['entryRelationshipType'], [
+                    SaleRecord::ENTRY_RELATIONSHIP_TYPE_TARGET,
+                    SaleRecord::ENTRY_RELATIONSHIP_TYPE_BOTH,
                 ], true)), 'id');
 
                 // Source relationships
                 if (!empty($sourceSaleIds)) {
                     $hasSalesConditions[] = fn(Builder $query) => $query->whereIn(
                         'commerce_variants.primaryOwnerId',
-                        self::saleCategoryRelationsQuery($sourceSaleIds, 'sourceId', 'targetId', Product::class, $siteId),
+                        self::saleEntryRelationsQuery($sourceSaleIds, 'sourceId', 'targetId', Product::class, $siteId),
                     );
 
                     $hasSalesConditions[] = fn(Builder $query) => $query->whereIn(
                         'commerce_variants.id',
-                        self::saleCategoryRelationsQuery($sourceSaleIds, 'sourceId', 'targetId', Variant::class, $siteId),
+                        self::saleEntryRelationsQuery($sourceSaleIds, 'sourceId', 'targetId', Variant::class, $siteId),
                     );
                 }
 
@@ -197,12 +197,12 @@ trait QueriesVariantSales
                 if (!empty($targetSaleIds)) {
                     $hasSalesConditions[] = fn(Builder $query) => $query->whereIn(
                         'commerce_variants.primaryOwnerId',
-                        self::saleCategoryRelationsQuery($targetSaleIds, 'targetId', 'sourceId', Product::class, $siteId),
+                        self::saleEntryRelationsQuery($targetSaleIds, 'targetId', 'sourceId', Product::class, $siteId),
                     );
 
                     $hasSalesConditions[] = fn(Builder $query) => $query->whereIn(
                         'commerce_variants.id',
-                        self::saleCategoryRelationsQuery($targetSaleIds, 'targetId', 'sourceId', Variant::class, $siteId),
+                        self::saleEntryRelationsQuery($targetSaleIds, 'targetId', 'sourceId', Variant::class, $siteId),
                     );
                 }
             }
@@ -229,18 +229,18 @@ trait QueriesVariantSales
 
     /**
      * Returns a query for the IDs of elements of the given type that are related to any of the
-     * given sales' categories.
+     * given sales' entries.
      *
      * @param array<int, mixed> $saleIds
      * @param class-string $elementType
      */
-    private static function saleCategoryRelationsQuery(array $saleIds, string $selectColumn, string $joinColumn, string $elementType, mixed $siteId): Builder
+    private static function saleEntryRelationsQuery(array $saleIds, string $selectColumn, string $joinColumn, string $elementType, mixed $siteId): Builder
     {
-        return DB::table(Table::SALE_CATEGORIES . ' as sc')
+        return DB::table(Table::SALE_ENTRIES . ' as sc')
             ->select("rel.$selectColumn")
-            ->leftJoin(CraftTable::RELATIONS . ' as rel', "rel.$joinColumn", '=', 'sc.categoryId')
+            ->leftJoin(CraftTable::RELATIONS . ' as rel', "rel.$joinColumn", '=', 'sc.entryId')
             ->leftJoin(CraftTable::ELEMENTS . ' as sale_elements', 'sale_elements.id', '=', "rel.$selectColumn")
-            ->leftJoin(CraftTable::ELEMENTS_SITES . ' as sale_elements_sites', 'sale_elements_sites.elementId', '=', 'sc.categoryId')
+            ->leftJoin(CraftTable::ELEMENTS_SITES . ' as sale_elements_sites', 'sale_elements_sites.elementId', '=', 'sc.entryId')
             ->whereIn('sc.saleId', $saleIds)
             ->where('sale_elements.type', $elementType)
             ->when($siteId !== null, fn(Builder $query) => $query->whereParam('sale_elements_sites.siteId', $siteId))

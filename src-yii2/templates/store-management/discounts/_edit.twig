@@ -117,44 +117,30 @@
             {% endfor %}
         </div>
 
-        {# @TODO: categories were removed in Craft 6 — determine if category-based discount conditions should be removed or replaced #}
-        {% set showCategories = false %}
         {% set showEntries = craft.entries.exists() %}
 
-        {% if not showCategories and not showEntries %}
+        {% if not showEntries %}
             {{ forms.hidden({
-                name: 'allCategories',
+                name: 'allEntries',
                 value: false,
             }) }}
         {% endif %}
 
-        {% if showCategories or showEntries %}
+        {% if showEntries %}
 
         <hr class="hr">
 
         {{ forms.lightswitchField({
             label: "Only match purchasables related to…"|t('commerce'),
-            id: 'allCategories',
-            name: 'allCategories',
-            toggle: '#matching-items-categories',
-            on: not discount.allCategories,
-            errors: discount.getErrors('allCategories')
+            id: 'allEntries',
+            name: 'allEntries',
+            toggle: '#matching-items-entries',
+            on: not discount.allEntries,
+            errors: discount.getErrors('allEntries')
         }) }}
 
-        <div id="matching-items-categories" {% if discount.allCategories %}class="hidden"{% endif %}>
+        <div id="matching-items-entries" {% if discount.allEntries %}class="hidden"{% endif %}>
 
-            {% if showCategories %}
-            {{ forms.elementSelectField({
-                id: 'categories',
-                label: 'Categories'|t('commerce'),
-                name: 'relatedElements[categories]',
-                elements: categories ? categories : null,
-                elementType: categoryElementType,
-                limit: null,
-                errors: discount.getErrors('categories'),
-                showSiteMenu: true,
-            }) }}
-            {% endif %}
 
             {% if showEntries %}
             {{ forms.elementSelectField({
@@ -165,22 +151,22 @@
                 elementType: entryElementType,
                 limit: null,
                 showSiteMenu: true,
-                errors: discount.getErrors('categories'),
+                errors: discount.getErrors('entryIds'),
             }) }}
             {% endif %}
 
-            <a class="fieldtoggle {% if (discount.categoryRelationshipType != 'element') %}expanded{% endif %}"
-               data-target="categoryRelationshipType-advanced">{{ 'Advanced'|t('commerce') }}</a>
-            <div id="categoryRelationshipType-advanced"
-                 class="{% if (discount.categoryRelationshipType == 'element') %}hidden{% endif %}">
+            <a class="fieldtoggle {% if (discount.entryRelationshipType != 'element') %}expanded{% endif %}"
+               data-target="entryRelationshipType-advanced">{{ 'Advanced'|t('commerce') }}</a>
+            <div id="entryRelationshipType-advanced"
+                 class="{% if (discount.entryRelationshipType == 'element') %}hidden{% endif %}">
 
                 {{ forms.radioGroupField({
-                    id: 'categoryRelationshipType',
-                    name: 'categoryRelationshipType',
+                    id: 'entryRelationshipType',
+                    name: 'entryRelationshipType',
                     label: 'Relationship Type'|t('commerce'),
                     options: elementRelationshipTypeOptions,
-                    value: discount.categoryRelationshipType,
-                    errors: discount.getErrors('categoryRelationshipType')
+                    value: discount.entryRelationshipType,
+                    errors: discount.getErrors('entryRelationshipType')
                 }) }}
             </div>
         </div>

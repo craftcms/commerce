@@ -747,6 +747,9 @@
 
 ### Promotions
 
+> [!WARNING]
+> Commerce 6 doesn’t support categories. Convert category groups to sections with Commerce 5’s `php craft entrify/categories` command before upgrading; the “Commerce 6 Ready” utility in Commerce 5 lists what needs to be converted. The upgrade stops if discounts, sales, or conditions still use categories. Category conditions are converted to entry conditions during the upgrade.
+
 - Added `CraftCms\Commerce\Promotion\Discounts`.
 - Added `CraftCms\Commerce\Support\Facades\Discounts`.
 - Added `CraftCms\Commerce\Promotion\Sales`.
@@ -757,12 +760,12 @@
 - Added `CraftCms\Commerce\Promotion\Models\Sale`.
 - Added `CraftCms\Commerce\Promotion\Models\Coupon`.
 - Added `CraftCms\Commerce\Promotion\Records\Discount`.
-- Added `CraftCms\Commerce\Promotion\Records\DiscountCategory`.
+- Added `CraftCms\Commerce\Promotion\Models\DiscountEntry`.
 - Added `CraftCms\Commerce\Promotion\Records\DiscountPurchasable`.
 - Added `CraftCms\Commerce\Promotion\Records\CustomerDiscountUse`.
 - Added `CraftCms\Commerce\Promotion\Records\EmailDiscountUse`.
 - Added `CraftCms\Commerce\Promotion\Records\Sale`.
-- Added `CraftCms\Commerce\Promotion\Records\SaleCategory`.
+- Added `CraftCms\Commerce\Promotion\Models\SaleEntry`.
 - Added `CraftCms\Commerce\Promotion\Records\SalePurchasable`.
 - Added `CraftCms\Commerce\Promotion\Records\SaleUserGroup`.
 - Added `CraftCms\Commerce\Promotion\Records\Coupon`.
@@ -784,12 +787,17 @@
 - Deprecated `craft\commerce\events\MatchOrderEvent`. `CraftCms\Commerce\Promotion\Events\MatchOrderEvent` should be used instead.
 - Deprecated `craft\commerce\events\SaleEvent`. `CraftCms\Commerce\Promotion\Events\SaleEvent` should be used instead.
 - Deprecated `craft\commerce\events\SaleMatchEvent`. `CraftCms\Commerce\Promotion\Events\SaleMatchEvent` should be used instead.
-- Removed `craft\commerce\records\DiscountCategory`. `CraftCms\Commerce\Promotion\Records\DiscountCategory` should be used instead.
+- Removed `craft\commerce\records\DiscountCategory`. `CraftCms\Commerce\Promotion\Models\DiscountEntry` should be used instead.
 - Removed `craft\commerce\records\DiscountPurchasable`. `CraftCms\Commerce\Promotion\Records\DiscountPurchasable` should be used instead.
 - Removed `craft\commerce\records\CustomerDiscountUse`. `CraftCms\Commerce\Promotion\Records\CustomerDiscountUse` should be used instead.
 - Removed `craft\commerce\records\EmailDiscountUse`. `CraftCms\Commerce\Promotion\Records\EmailDiscountUse` should be used instead.
 - Removed `craft\commerce\records\Sale`. `CraftCms\Commerce\Promotion\Records\Sale` should be used instead.
-- Removed `craft\commerce\records\SaleCategory`. `CraftCms\Commerce\Promotion\Records\SaleCategory` should be used instead.
+- Removed `craft\commerce\records\SaleCategory`. `CraftCms\Commerce\Promotion\Models\SaleEntry` should be used instead.
+- Removed category support from discounts and sales. Discounts and sales can be limited to purchasables related to entries.
+- Renamed the discount `allCategories`, `categoryIds`, and `categoryRelationshipType` properties and database columns to `allEntries`, `entryIds`, and `entryRelationshipType`.
+- Renamed the sale `allCategories` and `categoryRelationshipType` properties and database columns to `allEntries` and `entryRelationshipType`.
+- Renamed `getCategoryIds()` and `setCategoryIds()` on discounts and sales to `getEntryIds()` and `setEntryIds()`.
+- Renamed the `commerce_discount_categories` and `commerce_sale_categories` tables to `commerce_discount_entries` and `commerce_sale_entries`, and their `categoryId` columns to `entryId`.
 - Removed `craft\commerce\records\SalePurchasable`. `CraftCms\Commerce\Promotion\Records\SalePurchasable` should be used instead.
 - Removed `craft\commerce\records\SaleUserGroup`. `CraftCms\Commerce\Promotion\Records\SaleUserGroup` should be used instead.
 - Removed `craft\commerce\records\Discount`. `CraftCms\Commerce\Promotion\Records\Discount` should be used instead.
@@ -848,8 +856,10 @@
 - Removed `craft\commerce\records\PurchasableStore`. `CraftCms\Commerce\Purchasable\Records\PurchasableStore` should be used instead.
 - Removed `craft\commerce\elements\db\PurchasableQuery`. `CraftCms\Commerce\Purchasable\Queries\PurchasableQuery` should be used instead.
 - Removed `craft\commerce\records\OrderStatusEmail` as it was unused.
-- Added `CraftCms\Commerce\Purchasable\Conditions\PurchasableConditionRule`, `PurchasableTypeConditionRule`, `SkuConditionRule`, `CatalogPricingRulePurchasableCategoryConditionRule`, and `CatalogPricingRulePurchasableCondition`.
-- Deprecated `craft\commerce\elements\conditions\purchasables\PurchasableConditionRule`, `PurchasableTypeConditionRule`, `SkuConditionRule`, `CatalogPricingRulePurchasableCategoryConditionRule`, and `CatalogPricingRulePurchasableCondition`. The `CraftCms\Commerce\Purchasable\Conditions` equivalents should be used instead.
+- Added `CraftCms\Commerce\Purchasable\Conditions\PurchasableConditionRule`, `PurchasableTypeConditionRule`, `SkuConditionRule`, `CatalogPricingRulePurchasableEntryConditionRule`, and `CatalogPricingRulePurchasableCondition`.
+- Deprecated `craft\commerce\elements\conditions\purchasables\PurchasableConditionRule`, `PurchasableTypeConditionRule`, `SkuConditionRule`, and `CatalogPricingRulePurchasableCondition`. The `CraftCms\Commerce\Purchasable\Conditions` equivalents should be used instead.
+- Deprecated `craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasableCategoryConditionRule`. `CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableEntryConditionRule` should be used instead.
+- The “Purchasable Categories” catalog pricing rule condition has been replaced by “Purchasable Entries”.
 - Added `CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableSkuField`, `PurchasablePriceField`, `PurchasableStockField`, `PurchasableWeightField`, `PurchasableDimensionsField`, `PurchasableAllowedQtyField`, `PurchasableAvailableForPurchaseField`, `PurchasableFreeShippingField`, and `PurchasablePromotableField`.
 - Deprecated `craft\commerce\fieldlayoutelements\PurchasableSkuField`, `PurchasablePriceField`, `PurchasableStockField`, `PurchasableWeightField`, `PurchasableDimensionsField`, `PurchasableAllowedQtyField`, `PurchasableAvailableForPurchaseField`, `PurchasableFreeShippingField`, and `PurchasablePromotableField`. The `CraftCms\Commerce\Purchasable\FieldLayoutElements` equivalents should be used instead.
 - **Breaking**: Changed `PurchasableInterface::getLineItemRules(LineItem $lineItem): array` to `validateLineItem(LineItem $lineItem): void`, which adds errors directly to `$lineItem->errors()` instead of returning legacy Yii2-shaped inline-closure validation rules. Third-party purchasable types must update their implementation accordingly.

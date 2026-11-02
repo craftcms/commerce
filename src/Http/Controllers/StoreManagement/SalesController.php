@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
-use craft\elements\Category;
 use craft\helpers\Localization;
 use CraftCms\Cms\Edition;
 use CraftCms\Cms\Entry\Elements\Entry;
@@ -84,7 +83,7 @@ readonly class SalesController extends LegacyStoreManagementController
         } else {
             $sale = new Sale();
             $isNewSale = true;
-            $sale->allCategories = true;
+            $sale->allEntries = true;
             $sale->allPurchasables = true;
             $sale->allGroups = true;
         }
@@ -117,7 +116,7 @@ readonly class SalesController extends LegacyStoreManagementController
         $sale->sortOrder = (int)$request->input('sortOrder');
         $sale->ignorePrevious = (bool)$request->input('ignorePrevious');
         $sale->stopProcessing = (bool)$request->input('stopProcessing');
-        $sale->categoryRelationshipType = $request->input('categoryRelationshipType', $sale->categoryRelationshipType);
+        $sale->entryRelationshipType = $request->input('entryRelationshipType', $sale->entryRelationshipType);
 
         if ($sale->apply == SaleRecord::APPLY_BY_PERCENT || $sale->apply == SaleRecord::APPLY_TO_PERCENT) {
             if ((float)$applyAmount >= 1) {
@@ -143,9 +142,9 @@ readonly class SalesController extends LegacyStoreManagementController
             $sale->setPurchasableIds($purchasables);
         }
 
-        $allCategories = !$request->input('allCategories', false);
-        if ($sale->allCategories = $allCategories) {
-            $sale->setCategoryIds([]);
+        $allEntries = !$request->input('allEntries', false);
+        if ($sale->allEntries = $allEntries) {
+            $sale->setEntryIds([]);
         } else {
             $relatedElements = [];
             $relatedElementByType = $request->input('relatedElements') ?: [];
@@ -154,7 +153,7 @@ readonly class SalesController extends LegacyStoreManagementController
                     array_push($relatedElements, ...$type);
                 }
             }
-            $sale->setCategoryIds(array_unique($relatedElements));
+            $sale->setEntryIds(array_unique($relatedElements));
         }
 
         if ($sale->allGroups = (bool)$request->input('allGroups', true)) {
@@ -363,37 +362,32 @@ readonly class SalesController extends LegacyStoreManagementController
             }
         }
 
-        $variables['categoryElementType'] = Category::class;
         $variables['entryElementType'] = Entry::class;
 
-        $categories = [];
         $entries = [];
 
         $request = request();
-        if (empty($id) && $request->input('categoryIds')) {
-            $categoryIds = explode('|', (string)$request->input('categoryIds'));
+        if (empty($id) && $request->input('entryIds')) {
+            $entryIds = explode('|', (string)$request->input('entryIds'));
         } else {
-            $categoryIds = $sale->getCategoryIds();
+            $entryIds = $sale->getEntryIds();
         }
 
-        foreach ($categoryIds as $categoryId) {
-            $elementId = (int)$categoryId;
+        foreach ($entryIds as $entryId) {
+            $elementId = (int)$entryId;
             $element = Elements::getElementById($elementId);
 
-            if ($element instanceof Category) {
-                $categories[] = $element;
-            } elseif ($element instanceof Entry) {
+            if ($element instanceof Entry) {
                 $entries[] = $element;
             }
         }
 
-        $variables['categories'] = $categories;
         $variables['entries'] = $entries;
 
         $variables['elementRelationshipTypeOptions'] = [
-            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE => t('The purchasable defines the relationship', category: 'commerce'),
-            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET => t('The purchasable is related by another element', category: 'commerce'),
-            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH => t('Either way', category: 'commerce'),
+            SaleRecord::ENTRY_RELATIONSHIP_TYPE_SOURCE => t('The purchasable defines the relationship', category: 'commerce'),
+            SaleRecord::ENTRY_RELATIONSHIP_TYPE_TARGET => t('The purchasable is related by another element', category: 'commerce'),
+            SaleRecord::ENTRY_RELATIONSHIP_TYPE_BOTH => t('Either way', category: 'commerce'),
         ];
 
         $purchasables = [];

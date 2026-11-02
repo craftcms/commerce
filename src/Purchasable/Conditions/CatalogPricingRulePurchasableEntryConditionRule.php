@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Purchasable\Conditions;
 
-use craft\elements\Category;
 use CraftCms\Cms\Condition\BaseConditionRule;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Cms\Element\Queries\ElementQuery;
+use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Ui\Contracts\Node;
 use CraftCms\Cms\Ui\Controls\Choice;
 use CraftCms\Cms\Ui\Controls\ElementSelect;
@@ -23,29 +23,29 @@ use function CraftCms\Cms\t;
 /**
  * @todo Remove this rule once the standard Related To condition rule supports source/target/either relationship type selection
  */
-class CatalogPricingRulePurchasableCategoryConditionRule extends BaseConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
+class CatalogPricingRulePurchasableEntryConditionRule extends BaseConditionRule implements ElementConditionRuleInterface, ElementQueryConditionRuleInterface
 {
-    public const string CATEGORY_RELATIONSHIP_TYPE_SOURCE = 'sourceElement';
+    public const string ENTRY_RELATIONSHIP_TYPE_SOURCE = 'sourceElement';
 
-    public const string CATEGORY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
+    public const string ENTRY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
 
-    public const string CATEGORY_RELATIONSHIP_TYPE_BOTH = 'element';
+    public const string ENTRY_RELATIONSHIP_TYPE_BOTH = 'element';
 
-    public string $categoryRelationshipType = self::CATEGORY_RELATIONSHIP_TYPE_BOTH;
+    public string $entryRelationshipType = self::ENTRY_RELATIONSHIP_TYPE_BOTH;
 
     /** @var array<int>|null */
     public ?array $elementIds = null;
 
     public function getLabel(): string
     {
-        return t('Purchasable Categories', category: 'commerce');
+        return t('Purchasable Entries', category: 'commerce');
     }
 
     public function getConfig(): array
     {
         return array_merge(parent::getConfig(), [
             'elementIds' => $this->elementIds,
-            'categoryRelationshipType' => $this->categoryRelationshipType,
+            'entryRelationshipType' => $this->entryRelationshipType,
         ]);
     }
 
@@ -53,7 +53,7 @@ class CatalogPricingRulePurchasableCategoryConditionRule extends BaseConditionRu
     {
         return array_merge(parent::getRules(), [
             'elementIds' => ['nullable'],
-            'categoryRelationshipType' => ['nullable', 'string'],
+            'entryRelationshipType' => ['nullable', 'string'],
         ]);
     }
 
@@ -61,16 +61,16 @@ class CatalogPricingRulePurchasableCategoryConditionRule extends BaseConditionRu
     protected function inputNodes(): array
     {
         return [
-            Field::make($this->getLabel(), ElementSelect::make('elementIds')->elementType(Category::class)->value($this->elementIds ?? [])),
-            Field::make(t('Categories Relationship Type', category: 'commerce'), Choice::make('categoryRelationshipType')
+            Field::make($this->getLabel(), ElementSelect::make('elementIds')->elementType(Entry::class)->value($this->elementIds ?? [])),
+            Field::make(t('Entries Relationship Type', category: 'commerce'), Choice::make('entryRelationshipType')
                 ->options([
-                    ['value' => self::CATEGORY_RELATIONSHIP_TYPE_SOURCE, 'label' => t('Source - The purchasable relationship field is on the category', category: 'commerce')],
-                    ['value' => self::CATEGORY_RELATIONSHIP_TYPE_TARGET, 'label' => t('Target - The category relationship field is on the purchasable', category: 'commerce')],
-                    ['value' => self::CATEGORY_RELATIONSHIP_TYPE_BOTH, 'label' => t('Either (Default) - The relationship field is on the purchasable or the category', category: 'commerce')],
+                    ['value' => self::ENTRY_RELATIONSHIP_TYPE_SOURCE, 'label' => t('Source - The purchasable relationship field is on the entry', category: 'commerce')],
+                    ['value' => self::ENTRY_RELATIONSHIP_TYPE_TARGET, 'label' => t('Target - The entry relationship field is on the purchasable', category: 'commerce')],
+                    ['value' => self::ENTRY_RELATIONSHIP_TYPE_BOTH, 'label' => t('Either (Default) - The relationship field is on the purchasable or the entry', category: 'commerce')],
                 ])
                 ->withoutPlaceholder()
-                ->value($this->categoryRelationshipType))
-                ->instructions(t('How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link}).', ['link' => 'https://craftcms.com/docs/4.x/relations.html#terminology'], category: 'commerce')),
+                ->value($this->entryRelationshipType))
+                ->instructions(t('How the Purchasables and Entries are related, which determines the matching items. See [Relations Terminology]({link}).', ['link' => 'https://craftcms.com/docs/5.x/system/relations.html#terminology'], category: 'commerce')),
         ];
     }
 
@@ -85,7 +85,7 @@ class CatalogPricingRulePurchasableCategoryConditionRule extends BaseConditionRu
             return;
         }
 
-        ElementQuery::applyRelatedTo($query, [$this->categoryRelationshipType => $this->elementIds], $elementQuery);
+        ElementQuery::applyRelatedTo($query, [$this->entryRelationshipType => $this->elementIds], $elementQuery);
     }
 
     public function matchElement(ElementInterface $element): bool
@@ -101,7 +101,7 @@ class CatalogPricingRulePurchasableCategoryConditionRule extends BaseConditionRu
             ->provisionalDrafts($element->isProvisionalDraft)
             ->revisions($element->getIsRevision())
             ->status(null)
-            ->relatedTo([$this->categoryRelationshipType => $this->elementIds])
+            ->relatedTo([$this->entryRelationshipType => $this->elementIds])
             ->exists();
     }
 }

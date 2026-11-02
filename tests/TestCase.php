@@ -12,6 +12,7 @@ use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\User\Models\User as UserModel;
 use CraftCms\Commerce\Tests\Support\DatabaseLock;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\RefreshDatabaseState;
@@ -73,6 +74,12 @@ class TestCase extends Orchestra
         unset($_SERVER['CRAFT_SITE'], $_SERVER['CRAFT_SITE_UPPER']);
 
         parent::setUp();
+
+        // Craft's model factories (autoloaded from the CMS package's `database/Factories`) create
+        // related models with `Model::factory()`, which needs to know where to find them.
+        Factory::guessFactoryNamesUsing(
+            fn(string $modelName) => 'CraftCms\\Cms\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
+        );
 
         config()->set('app.debug', true);
 
