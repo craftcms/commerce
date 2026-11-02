@@ -618,6 +618,9 @@
 
 ### Payments
 
+> [!WARNING]
+> Payment gateway plugins built for Commerce 5 aren’t compatible with Commerce 6. Gateways now extend `CraftCms\Commerce\Payment\Gateway\Gateway` (a Craft 6 component rather than a Yii component), register with `CraftCms\Commerce\Payment\Gateway\GatewayTypes`, validate settings with `getRules()`, render settings with `settingsUi()`, return `Illuminate\Http\Response` objects from `processWebHook()`, and no longer redirect customers themselves.
+
 - Added `CraftCms\Commerce\Payment\Transactions`.
 - Added `CraftCms\Commerce\Support\Facades\Transactions`.
 - Added `CraftCms\Commerce\Payment\PaymentSources`.
@@ -699,6 +702,8 @@
 - Deprecated `craft\commerce\errors\GatewayException`. `CraftCms\Commerce\Payment\Gateway\Exceptions\GatewayException` should be used instead.
 - Deprecated `craft\commerce\base\GatewayInterface`. `CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface` should be used instead.
 - Deprecated `craft\commerce\base\RequestResponseInterface`. `CraftCms\Commerce\Payment\Gateway\Contracts\RequestResponseInterface` should be used instead.
+- Removed `CraftCms\Commerce\Payment\Gateway\Contracts\RequestResponseInterface::redirect()`.
+- Gateway redirects that use POST now return a page that submits the redirect data to the gateway (or the `gatewayPostRedirectTemplate` template), rather than calling the gateway response’s `redirect()` method.
 - Deprecated `craft\commerce\events\PaymentSourceEvent` in favor of the following new events:
   - `craft\commerce\services\PaymentSources::EVENT_BEFORE_SAVE_PAYMENT_SOURCE` => `CraftCms\Commerce\Payment\Events\PaymentSourceSaving`
   - `craft\commerce\services\PaymentSources::EVENT_AFTER_SAVE_PAYMENT_SOURCE` => `CraftCms\Commerce\Payment\Events\PaymentSourceSaved`
