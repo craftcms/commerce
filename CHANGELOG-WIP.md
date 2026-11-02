@@ -432,6 +432,8 @@
 - Added `CraftCms\Commerce\Support\Facades\Orders`.
 - Added `CraftCms\Commerce\Order\Carts`.
 - Added `CraftCms\Commerce\Support\Facades\Carts`.
+- Cart cookies are now encrypted and named after the `app.name` config value, so carts from Commerce 5 aren’t restored after upgrading.
+- Cart cookies now use the `session.domain`, `session.secure`, and `session.same_site` config values, rather than the `defaultCookieDomain`, `useSecureCookies`, and `sameSiteCookieValue` config settings.
 - Added `CraftCms\Commerce\Order\OrderNotices`.
 - Added `CraftCms\Commerce\Support\Facades\OrderNotices`.
 - Added `CraftCms\Commerce\Order\OrderHistories`.
