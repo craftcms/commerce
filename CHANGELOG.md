@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a PHP error that could occur when processing gateway webhooks on a control panel-only domain. ([#4395](https://github.com/craftcms/commerce/issues/4395))
+- Fixed a bug where a completed order could be un-completed, or lose its adjustments, when a stale copy of the order was saved by a concurrent request. ([#4398](https://github.com/craftcms/commerce/issues/4398))
 
 ## 5.7.7 - 2026-10-28
 
