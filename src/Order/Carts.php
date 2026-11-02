@@ -53,16 +53,9 @@ class Carts
 
     public function __construct(private readonly Plugin $plugin)
     {
-        $currentStore = app(Stores::class)->getCurrentStore();
-
-        // Complete the cart cookie config
-        if (!isset($this->cartCookie['name'])) {
-            $this->cartCookie['name'] = md5(sprintf('Craft.%s.%s.%s', self::class, \Craft::$app->id, $currentStore->handle)) . '_commerce_cart';
-        }
+        $this->cartCookie['name'] ??= $this->defaultCartCookieName();
 
         if (!app()->runningInConsole()) {
-            $this->cartCookie = \Craft::cookieConfig($this->cartCookie);
-
             // Also check pre Commerce 4.0 for a cart number in the session just in case.
             if (session()->isStarted() && session()->has('commerce_cart')) {
                 $this->setSessionCartNumber(session()->get('commerce_cart'));
@@ -130,7 +123,7 @@ class Carts
 
         // These values should always be kept up to date when a cart is retrieved from session.
         $this->cart->lastIp = request()->ip();
-        $this->cart->orderLanguage = \Craft::$app->language;
+        $this->cart->orderLanguage = app()->getLocale();
         $this->cart->orderSiteId = Sites::getHasCurrentSite() ? Sites::getCurrentSite()->id : Sites::getPrimarySite()->id;
         $this->cart->paymentCurrency = $this->getCartPaymentCurrencyIso();
         $this->cart->origin = Order::ORIGIN_WEB;
@@ -500,12 +493,7 @@ class Carts
 
     protected function loadCookie(): void
     {
-        $currentStore = app(Stores::class)->getCurrentStore();
-
-        // Complete the cart cookie config
-        if (!isset($this->cartCookie['name'])) {
-            $this->cartCookie['name'] = md5(sprintf('Craft.%s.%s.%s', self::class, \Craft::$app->id, $currentStore->handle)) . '_commerce_cart';
-        }
+        $this->cartCookie['name'] ??= $this->defaultCartCookieName();
 
         // Don't restore from cookie if the cart was explicitly forgotten this request.
         if ($this->cartNumber === false) {
@@ -513,13 +501,21 @@ class Carts
         }
 
         if (!app()->runningInConsole()) {
-            $this->cartCookie = \Craft::cookieConfig($this->cartCookie);
-
             // If we have a cart cookie, assign it to the cart number.
             if (request()->hasCookie($this->cartCookie['name'])) {
                 $this->setSessionCartNumber(request()->cookie($this->cartCookie['name']));
             }
         }
+    }
+
+    /**
+     * The cart cookie name, unique to the app and the current store.
+     */
+    private function defaultCartCookieName(): string
+    {
+        $storeHandle = app(Stores::class)->getCurrentStore()->handle;
+
+        return md5(sprintf('Craft.%s.%s.%s', self::class, config('app.name'), $storeHandle)) . '_commerce_cart';
     }
 
     /**
