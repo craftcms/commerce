@@ -35,6 +35,7 @@ use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
+use CraftCms\Yii2Adapter\Yii2ServiceProvider;
 use Illuminate\Support\Facades\Event;
 
 use function CraftCms\Cms\t;
@@ -44,9 +45,17 @@ use function CraftCms\Cms\t;
  */
 trait HasLegacyBridges
 {
+    /**
+     * Whether the project has installed `craftcms/yii2-adapter`, which the legacy `craft\commerce\*` classes require.
+     */
+    private static function hasYii2Adapter(): bool
+    {
+        return class_exists(Yii2ServiceProvider::class);
+    }
+
     private function registerCKEditorLinkOptions(): void
     {
-        if (!class_exists(CKEditorField::class)) {
+        if (!self::hasYii2Adapter() || !class_exists(CKEditorField::class)) {
             return;
         }
 
@@ -95,7 +104,7 @@ trait HasLegacyBridges
 
     private function registerForeignKeysRestore(): void
     {
-        if (!class_exists(RestoreFksController::class)) {
+        if (!self::hasYii2Adapter() || !class_exists(RestoreFksController::class)) {
             return;
         }
 
@@ -111,6 +120,10 @@ trait HasLegacyBridges
      */
     private function registerLegacyEventBridges(): void
     {
+        if (!self::hasYii2Adapter()) {
+            return;
+        }
+
         LegacyCarts::registerEvents();
         LegacyCustomers::registerEvents();
         LegacyEmails::registerEvents();
@@ -138,6 +151,10 @@ trait HasLegacyBridges
      */
     private function finalizeLegacyRegistrationEvents(): void
     {
+        if (!self::hasYii2Adapter()) {
+            return;
+        }
+
         $this->app->booted(function() {
             if (!Cms::isInstalled(strict: true)) {
                 return;
