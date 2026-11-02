@@ -1143,7 +1143,7 @@ class Plugin extends BasePlugin
                                 'authenticated' => fn(UserElement $user) => $user->can("commerce-saveProductType:$productType->uid"),
                             ],
                             $suffix . ':delete' => [
-                                'label' => Craft::t('commerce', 'Delete products and variants in the “{productType}” product type', ['productType' => $name]),
+                                'label' => Craft::t('commerce', 'Delete products in the “{productType}” product type', ['productType' => $name]),
                                 'authenticated' => fn(UserElement $user) => $user->can("commerce-deleteProductType:$productType->uid"),
                             ],
                         ],

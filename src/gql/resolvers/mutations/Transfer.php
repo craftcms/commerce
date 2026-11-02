@@ -77,11 +77,15 @@ class Transfer extends ElementMutationResolver
             $transfer->setDetails(array_map(fn(array $data) => $this->detail($data), $arguments['details']));
         }
 
-        if (!empty($arguments['markAsPending'])) {
-            $transfer->setTransferStatus(TransferStatusType::PENDING);
-        }
+        Craft::$app->getDb()->transaction(function() use ($transfer, $arguments) {
+            // Validate the details as a draft, and persist that state so dispatch updates inventory for new transfers too.
+            $this->saveElement($transfer);
 
-        $transfer = $this->saveElement($transfer);
+            if (!empty($arguments['markAsPending'])) {
+                $transfer->setTransferStatus(TransferStatusType::PENDING);
+                $this->saveElement($transfer);
+            }
+        });
 
         /** @var TransferElement */
         return TransferElement::find()->id($transfer->id)->status(null)->one();

@@ -661,20 +661,32 @@ JS, [
     {
         if ($handle == 'variants') {
             $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
+            $revisionIds = ArrayHelper::getColumn(array_filter($sourceElements, fn(ElementInterface $product) => $product->getIsRevision()), 'id');
             $map = (new Query())
                 ->select('ownerId as source, elementId as target')
-                ->from(\craft\db\Table::ELEMENTS_OWNERS)
+                ->from(['owners' => \craft\db\Table::ELEMENTS_OWNERS])
+                ->innerJoin(['variants' => \craft\db\Table::ELEMENTS], '[[variants.id]] = [[owners.elementId]]')
                 ->where(['ownerId' => $sourceElementIds])
+                ->andWhere(['or', ['ownerId' => $revisionIds], ['variants.revisionId' => null, 'variants.dateDeleted' => null]])
                 ->orderBy('sortOrder asc')
                 ->all();
 
             return [
                 'elementType' => Variant::class,
                 'map' => $map,
+                // Revision owners reference historical variants, which normal variant queries exclude.
+                'criteria' => ['revisions' => null, 'trashed' => null],
             ];
         }
 
-        return parent::eagerLoadingMap($sourceElements, $handle);
+        $map = parent::eagerLoadingMap($sourceElements, $handle);
+        if ($handle === 'currentRevision') {
+            // Multiple revisions can share the canonical update timestamp; the newest revision wins.
+            $map['criteria']['orderBy'] = ['num' => SORT_DESC];
+            $map['criteria']['limit'] = 1;
+        }
+
+        return $map;
     }
 
     /**

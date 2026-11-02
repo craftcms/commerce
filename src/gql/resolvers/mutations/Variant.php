@@ -10,6 +10,7 @@ namespace craft\commerce\gql\resolvers\mutations;
 use Craft;
 use craft\commerce\elements\Product as ProductElement;
 use craft\commerce\elements\Variant as VariantElement;
+use craft\commerce\helpers\Gql;
 use craft\commerce\models\ProductType;
 use craft\gql\base\ElementMutationResolver;
 use GraphQL\Error\Error;
@@ -83,6 +84,10 @@ class Variant extends ElementMutationResolver
             throw new Error(sprintf('The variant’s product isn’t in the “%s” product type.', $productType->name));
         }
 
+        if (!Gql::canAccessProductDraft($product) || !Gql::canAccessProductDraft($variant->getPrimaryOwner())) {
+            throw new Error('Unable to perform the action.');
+        }
+
         $variant = $this->populateElementWithData($variant, $arguments, $resolveInfo);
         $variant = $this->saveElement($variant);
 
@@ -119,7 +124,10 @@ class Variant extends ElementMutationResolver
             return false;
         }
 
-        $this->requireSchemaAction('productTypes.' . $variant->getOwner()->getType()->uid, 'delete');
+        $this->requireSchemaAction('productTypes.' . $variant->getOwner()->getType()->uid, 'save');
+        if (!Gql::canAccessProductDraft($variant->getOwner()) || !Gql::canAccessProductDraft($variant->getPrimaryOwner())) {
+            throw new Error('Unable to perform the action.');
+        }
         $this->requireUserAuthorization($variant, 'delete');
 
         return Craft::$app->getElements()->deleteElement($variant, $arguments['hardDelete'] ?? false);

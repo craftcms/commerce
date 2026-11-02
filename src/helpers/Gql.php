@@ -7,6 +7,8 @@
 
 namespace craft\commerce\helpers;
 
+use craft\behaviors\DraftBehavior;
+use craft\commerce\elements\Product;
 use craft\commerce\models\ProductType;
 use craft\commerce\Plugin;
 use craft\helpers\Gql as GqlHelper;
@@ -28,6 +30,19 @@ class Gql extends GqlHelper
     {
         $allowedEntities = self::extractAllowedEntitiesFromSchema();
         return isset($allowedEntities['productTypes']);
+    }
+
+    /**
+     * Whether the schema user can access a product's draft data.
+     * Saved drafts are shared, but provisional drafts belong to their creator.
+     *
+     * @since 5.8.0
+     */
+    public static function canAccessProductDraft(Product $product): bool
+    {
+        /** @var Product|DraftBehavior $product */
+        $user = static::getSchemaUser();
+        return !$user || !$product->isProvisionalDraft || $product->creatorId === $user->id;
     }
 
     /**

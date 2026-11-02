@@ -77,7 +77,10 @@ class Product extends Mutation
                 'description' => 'Delete a product.',
                 'type' => Type::boolean(),
             ];
+        }
 
+        if ($createDraftMutations) {
+            // Deleting a nested variant is a product edit, like removing it from `sortOrder`.
             $mutationList['deleteVariant'] = [
                 'name' => 'deleteVariant',
                 'args' => [
@@ -177,7 +180,7 @@ class Product extends Mutation
         ];
         $arguments['variants'] = [
             'name' => 'variants',
-            'type' => Type::listOf(static::variantInputType($productType)),
+            'type' => Type::listOf(Type::nonNull(static::variantInputType($productType))),
             'description' => 'Data for new and updated variants. Variants with an `id` are updated; variants without one are new, and must be included in `sortOrder`.',
         ];
 

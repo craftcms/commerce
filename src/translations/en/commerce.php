@@ -375,7 +375,7 @@ return [
     'Delete inventory transfers' => 'Delete inventory transfers',
     'Delete orders in the “{store}” store' => 'Delete orders in the “{store}” store',
     'Delete orders' => 'Delete orders',
-    'Delete products and variants in the “{productType}” product type' => 'Delete products and variants in the “{productType}” product type',
+    'Delete products in the “{productType}” product type' => 'Delete products in the “{productType}” product type',
     'Delete sales' => 'Delete sales',
     'Delete' => 'Delete',
     'Deleting the {location} location.' => 'Deleting the {location} location.',

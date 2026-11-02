@@ -22,7 +22,7 @@
   "prefer-stable": true,
   "require": {
     "php": "^8.2",
-    "craftcms/cms": "dev-feature/authenticated-graphql as 5.12.0",
+    "craftcms/cms": "5.12.x-dev",
     "dompdf/dompdf": "^2.0.2 || ^3.0",
     "ibericode/vat": "^2.0",
     "iio/libmergepdf": "^4.0",

@@ -12,6 +12,7 @@ use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\elements\Product as ProductElement;
 use craft\commerce\elements\Variant as VariantElement;
 use craft\commerce\helpers\Gql as GqlHelper;
+use craft\db\Table as CmsTable;
 use craft\elements\db\ElementQuery;
 use craft\gql\base\ElementResolver;
 use craft\helpers\Db;
@@ -67,6 +68,21 @@ class Variant extends ElementResolver
 
         $query->innerJoin(Table::PRODUCTS . ' p', '[[p.id]] = [[commerce_variants.primaryOwnerId]]');
         $query->andWhere(['in', '[[p.typeId]]', array_values(Db::idsByUids(Table::PRODUCTTYPES, $pairs['productTypes']))]);
+
+        // Modified variants have a private primary owner; unchanged variants can still have a private contextual owner.
+        if ($user = GqlHelper::getSchemaUser()) {
+            foreach (['variantOwner' => 'commerce_variants.primaryOwnerId', 'variantContextOwner' => 'elements_owners.ownerId'] as $alias => $ownerColumn) {
+                $draftAlias = $alias . 'Draft';
+                $query->innerJoin(CmsTable::ELEMENTS . " $alias", "[[$alias.id]] = [[$ownerColumn]]");
+                $query->leftJoin(CmsTable::DRAFTS . " $draftAlias", "[[$draftAlias.id]] = [[$alias.draftId]]");
+                $query->andWhere([
+                    'or',
+                    ["$alias.draftId" => null],
+                    ["$draftAlias.provisional" => false],
+                    ["$draftAlias.creatorId" => $user->id],
+                ]);
+            }
+        }
 
         return $query;
     }

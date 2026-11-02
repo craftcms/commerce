@@ -88,10 +88,13 @@ class Order extends ElementMutationResolver
         $this->requireUserAuthorization($order, 'save');
 
         // Normalize the address data along with the order’s, but set it on the order separately
-        $addresses = $this->recursivelyNormalizeArgumentValues($resolveInfo, array_intersect_key($arguments, [
+        $addresses = array_intersect_key($arguments, [
             'billingAddress' => true,
             'shippingAddress' => true,
-        ]));
+        ]);
+        // Null clears an address; only address objects need recursive input normalization.
+        $addresses = $this->recursivelyNormalizeArgumentValues($resolveInfo, array_filter($addresses, fn($value) => $value !== null)) + $addresses;
+        unset($arguments['billingAddress'], $arguments['shippingAddress']);
 
         if (!empty($arguments['recalculationMode'])) {
             $order->setRecalculationMode($arguments['recalculationMode']);

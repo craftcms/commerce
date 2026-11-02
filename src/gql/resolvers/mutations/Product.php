@@ -13,11 +13,11 @@ use craft\behaviors\DraftBehavior;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\elements\Product as ProductElement;
 use craft\commerce\elements\Variant as VariantElement;
+use craft\commerce\helpers\Gql;
 use craft\commerce\models\ProductType;
 use craft\gql\base\ElementMutationResolver;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ElementHelper;
-use craft\helpers\Gql;
 use GraphQL\Error\Error;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -44,6 +44,10 @@ class Product extends ElementMutationResolver
      */
     public function saveProduct(mixed $source, array $arguments, mixed $context, ResolveInfo $resolveInfo): ProductElement
     {
+        if (str_ends_with($resolveInfo->fieldName, '_ProductDraft') && empty($arguments['draftId']) && empty($arguments['asUnpublishedDraft'])) {
+            throw new Error('A draft ID is required unless creating an unpublished draft.');
+        }
+
         /** @var ProductType $productType */
         $productType = $this->getResolutionData('productType');
         $canIdentify = !empty($arguments['id']) || !empty($arguments['uid']) || !empty($arguments['draftId']);
@@ -59,7 +63,7 @@ class Product extends ElementMutationResolver
         if ($canIdentify) {
             $product = $this->identifyProduct(ProductElement::find()->status(null)->siteId($siteId), $arguments)->one();
 
-            if (!$product) {
+            if (!$product || !Gql::canAccessProductDraft($product)) {
                 throw new Error('No such product exists');
             }
 
@@ -163,7 +167,7 @@ class Product extends ElementMutationResolver
             ->draftId($arguments['id'])
             ->one();
 
-        if (!$draft) {
+        if (!$draft || !Gql::canAccessProductDraft($draft)) {
             throw new Error('Unable to perform the action.');
         }
 
