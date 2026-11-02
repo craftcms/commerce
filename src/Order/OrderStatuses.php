@@ -17,8 +17,8 @@ use CraftCms\Commerce\Helpers\ProjectConfigData;
 use CraftCms\Commerce\Order\Data\OrderHistory;
 use CraftCms\Commerce\Order\Data\OrderStatus;
 use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Order\Events\DefaultOrderStatusEvent;
-use CraftCms\Commerce\Order\Events\OrderStatusEmailsEvent;
+use CraftCms\Commerce\Order\Events\DefaultOrderStatusResolving;
+use CraftCms\Commerce\Order\Events\OrderStatusEmailsResolving;
 use CraftCms\Commerce\Order\Models\OrderStatus as OrderStatusRecord;
 use CraftCms\Commerce\Store\Stores;
 use Illuminate\Container\Attributes\Singleton;
@@ -119,7 +119,7 @@ class OrderStatuses
     {
         $orderStatus = $this->getDefaultOrderStatus($order->storeId);
 
-        $event = new DefaultOrderStatusEvent(
+        $event = new DefaultOrderStatusResolving(
             orderStatus: $orderStatus,
             order: $order,
         );
@@ -351,7 +351,7 @@ class OrderStatuses
         }
 
         // Raising 'beforeOrderStatusChange' event
-        $event = new OrderStatusEmailsEvent(
+        $event = new OrderStatusEmailsResolving(
             orderHistory: $orderHistory,
             order: $order,
             emails: $status->getEmails(),

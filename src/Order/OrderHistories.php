@@ -8,7 +8,7 @@ use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Data\OrderHistory;
 use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Order\Events\OrderStatusEvent;
+use CraftCms\Commerce\Order\Events\OrderStatusChanged;
 use CraftCms\Commerce\Order\Models\OrderHistory as OrderHistoryRecord;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Database\Query\Builder;
@@ -88,7 +88,7 @@ class OrderHistories
         app(OrderStatuses::class)->statusChangeHandler($order, $orderHistoryModel);
 
         // Raising 'orderStatusChange' event
-        $event = new OrderStatusEvent(
+        $event = new OrderStatusChanged(
             orderHistory: $orderHistoryModel,
             order: $order,
         );

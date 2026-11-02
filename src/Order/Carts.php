@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order;
 
-use craft\db\Query;
-use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Element\Events\ElementSaved;
 use CraftCms\Cms\RouteToken\RouteTokens;
 use CraftCms\Cms\Support\Config;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Sites;
+use CraftCms\Cms\Support\Query;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Order\Events\CartPurgeEvent;
+use CraftCms\Commerce\Order\Events\InactiveCartsPurging;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Store\Stores;
@@ -459,22 +458,18 @@ class Carts
         $interval = new DateInterval("PT{$configInterval}S");
         $edge->sub($interval);
 
-        // This query is exposed via CartPurgeEvent::$inactiveCartsQuery as a legacy craft\db\Query,
-        // so it can't be swapped for the Laravel query builder without breaking that event's contract.
-        $cartIdsQuery = new Query()
-            ->select(['orders.id'])
-            ->where(['not', ['isCompleted' => true]])
-            ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => CraftDb::prepareDateForDb($edge)])
-            ->from(['orders' => Table::ORDERS]);
+        $cartIdsQuery = DB::table(Table::ORDERS, 'orders')
+            ->select('orders.id')
+            ->where('orders.isCompleted', false)
+            ->where('orders.dateUpdated', '<=', Query::prepareDateForDb($edge));
 
-        $event = new CartPurgeEvent(inactiveCartsQuery: $cartIdsQuery);
-        event($event);
+        event($event = new InactiveCartsPurging($cartIdsQuery));
 
         if (!$event->isValid) {
             return 0;
         }
 
-        $cartIds = $event->inactiveCartsQuery->column();
+        $cartIds = $event->inactiveCartsQuery->pluck('id')->all();
 
         if (empty($cartIds)) {
             return 0;
