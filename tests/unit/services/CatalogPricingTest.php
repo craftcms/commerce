@@ -287,6 +287,7 @@ class CatalogPricingTest extends Unit
 
         $deletedRule = $this->_createRule($this->_percentOffRuleConfig('20% off'));
         Plugin::getInstance()->getCatalogPricingRules()->deleteCatalogPricingRuleById($deletedRule->id);
+        Plugin::getInstance()->getCatalogPricing()->flushBufferedCatalogPricingIds();
         self::assertSame(1, (int)CatalogPricingQueueRecord::find()->count());
 
         (new CatalogPricingJob())->execute(Craft::$app->getQueue());
@@ -308,6 +309,7 @@ class CatalogPricingTest extends Unit
         $remainingRule = $this->_createRule($this->_percentOffRuleConfig('20% off'));
         $deletedRule = $this->_createRule($this->_percentOffRuleConfig('30% off'));
         Plugin::getInstance()->getCatalogPricingRules()->deleteCatalogPricingRuleById($deletedRule->id);
+        Plugin::getInstance()->getCatalogPricing()->flushBufferedCatalogPricingIds();
 
         /** @var CatalogPricingQueueRecord[] $queueRows */
         $queueRows = CatalogPricingQueueRecord::find()->all();
@@ -391,6 +393,7 @@ class CatalogPricingTest extends Unit
         }
 
         Plugin::getInstance()->getCatalogPricingRules()->saveCatalogPricingRule($rule);
+        Plugin::getInstance()->getCatalogPricing()->flushBufferedCatalogPricingIds();
 
         $this->_createdRules[] = $rule;
 

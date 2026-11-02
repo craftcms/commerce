@@ -7,8 +7,10 @@
 
 namespace craft\commerce\queue\jobs;
 
+use Craft;
 use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingQueue as CatalogPricingQueueRecord;
+use craft\helpers\Queue as QueueHelper;
 use craft\queue\BaseJob;
 
 class CatalogPricing extends BaseJob
@@ -32,24 +34,17 @@ class CatalogPricing extends BaseJob
     {
         $catalogPricingService = Plugin::getInstance()->getCatalogPricing();
         $isConsolidatedJob = $this->storeId === null && $this->purchasableIds === null && $this->catalogPricingRuleIds === null;
-        $catalogPricingRules = null;
-        $reservedRowId = null;
 
-        // @TODO: remove these properties and behaviour at next breaking change
-        $storeId = $this->storeId;
-        $purchasableIds = $this->purchasableIds;
-        $catalogPricingRuleIds = $this->catalogPricingRuleIds;
+        if (!$isConsolidatedJob) {
+            // @TODO: remove these properties and behaviour at next breaking change
+            $this->_process($queue, $this->storeId, $this->purchasableIds, $this->catalogPricingRuleIds, null);
+            return;
+        }
 
-        if ($isConsolidatedJob) {
-            // New method of processing catalog pricing via queue table: reserve a row and process based on its type and IDs
-            $reservedRecord = $catalogPricingService->reserveCatalogPricingQueueRow();
-
-            if (!$reservedRecord) {
-                return;
-            }
-
-            $reservedRowId = $reservedRecord->id;
-            $storeId = $reservedRecord->storeId;
+        // New method of processing catalog pricing via queue table: reserve each pending row in turn and process based on its type and IDs
+        while ($reservedRecord = $catalogPricingService->reserveCatalogPricingQueueRow()) {
+            $purchasableIds = null;
+            $catalogPricingRuleIds = null;
 
             if ($reservedRecord->type === CatalogPricingQueueRecord::TYPE_PURCHASABLE) {
                 // Specific purchasable IDs: regenerate against all applicable rules
@@ -57,9 +52,27 @@ class CatalogPricing extends BaseJob
             } elseif ($reservedRecord->type === CatalogPricingQueueRecord::TYPE_RULE) {
                 $catalogPricingRuleIds = $reservedRecord->getIds();
             } else {
+                $catalogPricingService->releaseCatalogPricingQueueRowById($reservedRecord->id);
                 throw new \UnexpectedValueException("Unrecognized catalog pricing queue row type: {$reservedRecord->type}");
             }
+
+            $this->_process($queue, $reservedRecord->storeId, $purchasableIds, $catalogPricingRuleIds, $reservedRecord->id);
         }
+
+        if ($catalogPricingService->hasUnreservedCatalogPricingQueueRows()) {
+            try {
+                QueueHelper::push(Craft::createObject(self::class));
+            } catch (\Throwable $e) {
+                Craft::error('Unable to re-queue the catalog pricing job: ' . $e->getMessage(), __METHOD__);
+                Craft::$app->getErrorHandler()->logException($e);
+            }
+        }
+    }
+
+    private function _process($queue, ?int $storeId, ?array $purchasableIds, ?array $catalogPricingRuleIds, ?int $reservedRowId): void
+    {
+        $catalogPricingService = Plugin::getInstance()->getCatalogPricing();
+        $catalogPricingRules = null;
 
         if (!empty($catalogPricingRuleIds)) {
             $catalogPricingRules = Plugin::getInstance()->getCatalogPricingRules()

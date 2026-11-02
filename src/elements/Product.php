@@ -2215,7 +2215,6 @@ JS, [
         $this->getVariantManager()->maintainNestedElements($this, $isNew);
         parent::afterPropagate($isNew);
 
-        // @TODO Collate purchasable IDs updated across the request and queue a single catalog pricing job, rather than one per product propagate
         if (!$this->getIsDraft()) {
             Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
                 'purchasableIds' => $this->getVariants()->pluck('id')->all(),

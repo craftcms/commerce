@@ -17,6 +17,7 @@ use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\CatalogPricing as CatalogPricingJob;
 use craft\commerce\records\CatalogPricingQueue as CatalogPricingQueueRecord;
+use craft\db\Connection;
 use craft\db\Query;
 use craft\errors\DeprecationException;
 use craft\errors\SiteNotFoundException;
@@ -46,6 +47,15 @@ class CatalogPricing extends Component
      * @var array|null
      */
     private ?array $_allCatalogPrices = null;
+
+    /**
+     * @var array<string, array{storeId: int|null, type: string, ids: int[]|null}>
+     */
+    private array $_bufferedQueueIds = [];
+
+    private int $_bufferedPriority = 100;
+
+    private bool $_flushHooked = false;
 
     /**
      * @param Queue|QueueInterface|null $queue
@@ -518,14 +528,188 @@ class CatalogPricing extends Component
 
         if (!empty($purchasableIds) || ($purchasableIds === null && empty($catalogPricingRuleIds))) {
             // Specific purchasable IDs: these will be regenerated against all applicable rules
-            $this->_queueCatalogPricingIds($storeId, CatalogPricingQueueRecord::TYPE_PURCHASABLE, $purchasableIds);
+            $this->_bufferQueueIds($storeId, CatalogPricingQueueRecord::TYPE_PURCHASABLE, $purchasableIds);
         }
 
         if (!empty($catalogPricingRuleIds)) {
-            $this->_queueCatalogPricingIds($storeId, CatalogPricingQueueRecord::TYPE_RULE, $catalogPricingRuleIds);
+            $this->_bufferQueueIds($storeId, CatalogPricingQueueRecord::TYPE_RULE, $catalogPricingRuleIds);
         }
 
-        QueueHelper::push(Craft::createObject(CatalogPricingJob::class), $priority);
+        $this->_bufferedPriority = min($this->_bufferedPriority, $priority);
+
+        $db = Craft::$app->getDb();
+
+        if ($db->getTransaction() === null) {
+            $this->flushBufferedCatalogPricingIds();
+            return;
+        }
+
+        $this->_hookFlush();
+    }
+
+    /**
+     * Writes any buffered catalog pricing IDs to the queue table and pushes a single queue job.
+     *
+     * Called once the outermost database transaction commits, so the queue mutex is only held briefly
+     * and never for the duration of an element save.
+     *
+     * Failures are logged and never thrown. If a row can't be written, a job carrying the IDs is pushed instead,
+     * unless the IDs are null or belong to a rule with no store. Those entries, and any whose job push also fails,
+     * are retried on the next flush in the same process only. If the final job push fails, the rows stay queued
+     * until the next job is pushed. Running `commerce/pricing-catalog/generate` regenerates prices directly, but
+     * doesn't drain the queued rows.
+     *
+     * @return void
+     * @since 5.7.8
+     */
+    public function flushBufferedCatalogPricingIds(): void
+    {
+        $buffered = $this->_bufferedQueueIds;
+        $priority = $this->_bufferedPriority;
+        $this->_bufferedQueueIds = [];
+        $this->_bufferedPriority = 100;
+
+        if (empty($buffered)) {
+            return;
+        }
+
+        $pushJob = false;
+
+        foreach ($buffered as $entry) {
+            if ($this->_queueCatalogPricingIdsWithRetry($entry['storeId'], $entry['type'], $entry['ids'])) {
+                $pushJob = true;
+                continue;
+            }
+
+            if (!$this->_pushJobWithIds($entry, $priority)) {
+                $this->_bufferQueueIds($entry['storeId'], $entry['type'], $entry['ids']);
+                $this->_bufferedPriority = min($this->_bufferedPriority, $priority);
+            }
+        }
+
+        if (!$pushJob) {
+            return;
+        }
+
+        try {
+            QueueHelper::push(Craft::createObject(CatalogPricingJob::class), $priority);
+        } catch (\Throwable $e) {
+            Craft::error('Unable to push the catalog pricing job: ' . $e->getMessage(), __METHOD__);
+            Craft::$app->getErrorHandler()->logException($e);
+        }
+    }
+
+    /**
+     * Pushes a job that carries its IDs directly, for when the queue table can't be written to.
+     *
+     * @param array{storeId: int|null, type: string, ids: int[]|null} $entry
+     * @param int $priority
+     * @return bool whether the job was pushed
+     */
+    private function _pushJobWithIds(array $entry, int $priority): bool
+    {
+        $isRule = $entry['type'] === CatalogPricingQueueRecord::TYPE_RULE;
+
+        if ($entry['ids'] === null || ($isRule && $entry['storeId'] === null)) {
+            return false;
+        }
+
+        $config = ['storeId' => $entry['storeId']];
+        $config[$isRule ? 'catalogPricingRuleIds' : 'purchasableIds'] = $entry['ids'];
+
+        try {
+            QueueHelper::push(Craft::createObject(CatalogPricingJob::class, [$config]), $priority);
+            return true;
+        } catch (\Throwable $e) {
+            Craft::error('Unable to push the catalog pricing job: ' . $e->getMessage(), __METHOD__);
+            Craft::$app->getErrorHandler()->logException($e);
+            return false;
+        }
+    }
+
+    /**
+     * @return void
+     */
+    private function _hookFlush(): void
+    {
+        if ($this->_flushHooked) {
+            return;
+        }
+
+        $this->_flushHooked = true;
+        $db = Craft::$app->getDb();
+
+        $onFinish = function(bool $commit) use ($db, &$onCommit, &$onRollback) {
+            if ($db->getTransaction() !== null) {
+                return;
+            }
+
+            $db->off(Connection::EVENT_COMMIT_TRANSACTION, $onCommit);
+            $db->off(Connection::EVENT_ROLLBACK_TRANSACTION, $onRollback);
+            $this->_flushHooked = false;
+
+            if ($commit) {
+                $this->flushBufferedCatalogPricingIds();
+            } else {
+                $this->_bufferedQueueIds = [];
+                $this->_bufferedPriority = 100;
+            }
+        };
+
+        $onCommit = fn() => $onFinish(true);
+        $onRollback = fn() => $onFinish(false);
+
+        $db->on(Connection::EVENT_COMMIT_TRANSACTION, $onCommit);
+        $db->on(Connection::EVENT_ROLLBACK_TRANSACTION, $onRollback);
+    }
+
+    /**
+     * @param int|null $storeId
+     * @param string $type
+     * @param int[]|null $ids
+     * @return void
+     */
+    private function _bufferQueueIds(?int $storeId, string $type, ?array $ids): void
+    {
+        $key = ($storeId ?? 'null') . '|' . $type;
+
+        if (!isset($this->_bufferedQueueIds[$key])) {
+            $this->_bufferedQueueIds[$key] = ['storeId' => $storeId, 'type' => $type, 'ids' => $ids];
+            return;
+        }
+
+        $buffered = $this->_bufferedQueueIds[$key]['ids'];
+        $this->_bufferedQueueIds[$key]['ids'] = ($buffered === null || $ids === null)
+            ? null
+            : $this->_normalizeIds(array_merge($buffered, $ids));
+    }
+
+    /**
+     * Writes IDs to the queue table, retrying briefly on lock contention. The surrounding save has already
+     * committed, so a failure is logged and reported to the caller rather than thrown.
+     *
+     * @param int|null $storeId
+     * @param string $type
+     * @param int[]|null $ids
+     * @return bool whether the IDs were written to the queue table
+     */
+    private function _queueCatalogPricingIdsWithRetry(?int $storeId, string $type, ?array $ids): bool
+    {
+        try {
+            $this->_queueCatalogPricingIds($storeId, $type, $ids);
+            return true;
+        } catch (\Throwable) {
+            usleep(250000);
+        }
+
+        try {
+            $this->_queueCatalogPricingIds($storeId, $type, $ids);
+            return true;
+        } catch (\Throwable $e) {
+            Craft::error('Unable to queue catalog pricing regeneration: ' . $e->getMessage(), __METHOD__);
+            Craft::$app->getErrorHandler()->logException($e);
+            return false;
+        }
     }
 
     /**
@@ -535,6 +719,20 @@ class CatalogPricing extends Component
     {
         return (new Query())
             ->from(Table::CATALOG_PRICING_QUEUE)
+            ->exists();
+    }
+
+    /**
+     * Returns whether any queue rows are waiting to be reserved.
+     *
+     * @return bool
+     * @since 5.7.8
+     */
+    public function hasUnreservedCatalogPricingQueueRows(): bool
+    {
+        return (new Query())
+            ->from(Table::CATALOG_PRICING_QUEUE)
+            ->where(['reserved' => false])
             ->exists();
     }
 
@@ -549,9 +747,9 @@ class CatalogPricing extends Component
         $mutex = Craft::$app->getMutex();
 
         // Use the same lock as the write methods so that reservation and inserts/merges are fully serialised.
-        // Non-blocking: if a write operation is currently holding the lock, return null and let the next
+        // Waits briefly for a write operation to finish, otherwise returns null and lets the next
         // queue job execution pick up the row instead.
-        if (!$mutex->acquire('catalogpricingqueue', 0)) {
+        if (!$mutex->acquire('catalogpricingqueue', 2)) {
             return null;
         }
 
@@ -623,7 +821,7 @@ class CatalogPricing extends Component
     {
         $mutex = Craft::$app->getMutex();
 
-        if (!$mutex->acquire('catalogpricingqueue', 5)) {
+        if (!$mutex->acquire('catalogpricingqueue', 2)) {
             throw new \RuntimeException('Unable to acquire the catalog pricing queue mutex.');
         }
 

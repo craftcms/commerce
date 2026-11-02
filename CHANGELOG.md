@@ -2,8 +2,11 @@
 
 ## Unreleased
 
+- Added `craft\commerce\services\CatalogPricing::flushBufferedCatalogPricingIds()`.
+- Added `craft\commerce\services\CatalogPricing::hasUnreservedCatalogPricingQueueRows()`.
 - Fixed a bug where users with the “Manage inventory transfers” permission couldn’t view, save, or delete inventory transfers unless they had been granted it before Commerce 5.1.
 - Fixed a PHP error that could occur when processing gateway webhooks on a control panel-only domain. ([#4395](https://github.com/craftcms/commerce/issues/4395))
+- Fixed a bug where concurrent product saves could be slow or fail due to catalog pricing queue locking. ([#4389](https://github.com/craftcms/commerce/issues/4389))
 
 ## 5.7.7 - 2026-10-28
 

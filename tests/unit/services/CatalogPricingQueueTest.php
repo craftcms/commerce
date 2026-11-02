@@ -56,6 +56,99 @@ class CatalogPricingQueueTest extends Unit
         CatalogPricingQueueRecord::deleteAll();
     }
 
+    private function _createJob(array $config): void
+    {
+        $service = Plugin::getInstance()->getCatalogPricing();
+        $service->createCatalogPricingJob($config);
+        $service->flushBufferedCatalogPricingIds();
+    }
+
+    /**
+     * Test that queue writes are held back while a transaction is open and written on flush.
+     */
+    public function testQueueIdsAreBufferedUntilFlushed(): void
+    {
+        $service = Plugin::getInstance()->getCatalogPricing();
+
+        $service->createCatalogPricingJob(['purchasableIds' => [1, 2], 'storeId' => $this->_storeId]);
+        $service->createCatalogPricingJob(['purchasableIds' => [2, 3], 'storeId' => $this->_storeId]);
+
+        $this->assertCount(0, CatalogPricingQueueRecord::find()->all());
+
+        $service->flushBufferedCatalogPricingIds();
+
+        $rows = CatalogPricingQueueRecord::find()->all();
+        $this->assertCount(1, $rows);
+        $this->assertSame([1, 2, 3], $rows[0]->getIds());
+
+        $service->flushBufferedCatalogPricingIds();
+        $this->assertCount(1, CatalogPricingQueueRecord::find()->all());
+    }
+
+    /**
+     * Test that a real commit flushes the buffer and a real rollback discards it.
+     */
+    public function testBufferedIdsFlushOnCommitAndClearOnRollback(): void
+    {
+        $service = Plugin::getInstance()->getCatalogPricing();
+        $db = \Craft::$app->getDb();
+        $db->getTransaction()?->rollBack();
+
+        try {
+            $transaction = $db->beginTransaction();
+            $service->createCatalogPricingJob(['purchasableIds' => [1, 2]]);
+            self::assertCount(0, CatalogPricingQueueRecord::find()->all());
+            $transaction->commit();
+
+            $rows = CatalogPricingQueueRecord::find()->all();
+            self::assertCount(1, $rows);
+            self::assertSame([1, 2], $rows[0]->getIds());
+
+            CatalogPricingQueueRecord::deleteAll();
+
+            $transaction = $db->beginTransaction();
+            $service->createCatalogPricingJob(['purchasableIds' => [3]]);
+            $transaction->rollBack();
+            self::assertCount(0, CatalogPricingQueueRecord::find()->all());
+
+            $service->flushBufferedCatalogPricingIds();
+            self::assertCount(0, CatalogPricingQueueRecord::find()->all());
+        } finally {
+            CatalogPricingQueueRecord::deleteAll();
+        }
+    }
+
+    /**
+     * Test that unreserved rows are reported until they are reserved.
+     */
+    public function testHasUnreservedRows(): void
+    {
+        $service = Plugin::getInstance()->getCatalogPricing();
+        self::assertFalse($service->hasUnreservedCatalogPricingQueueRows());
+
+        $this->_createJob(['purchasableIds' => [1], 'storeId' => $this->_storeId]);
+        self::assertTrue($service->hasUnreservedCatalogPricingQueueRows());
+
+        $service->reserveCatalogPricingQueueRow();
+        self::assertFalse($service->hasUnreservedCatalogPricingQueueRows());
+    }
+
+    /**
+     * Test that a buffered null scope wins over specific IDs.
+     */
+    public function testBufferedNullIdsExpandScope(): void
+    {
+        $service = Plugin::getInstance()->getCatalogPricing();
+
+        $service->createCatalogPricingJob(['purchasableIds' => [1], 'storeId' => $this->_storeId]);
+        $service->createCatalogPricingJob(['storeId' => $this->_storeId]);
+        $service->flushBufferedCatalogPricingIds();
+
+        $rows = CatalogPricingQueueRecord::find()->all();
+        $this->assertCount(1, $rows);
+        $this->assertNull($rows[0]->getIds());
+    }
+
     /**
      * Test that a single purchasable ID creates a new queue row.
      *
@@ -63,7 +156,7 @@ class CatalogPricingQueueTest extends Unit
      */
     public function testCreateQueueRowForSinglePurchasableId(): void
     {
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+        $this->_createJob([
             'purchasableIds' => [1],
             'storeId' => $this->_storeId,
         ]);
@@ -84,7 +177,7 @@ class CatalogPricingQueueTest extends Unit
      */
     public function testCreateQueueRowForSingleRuleId(): void
     {
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+        $this->_createJob([
             'catalogPricingRuleIds' => [5],
             'storeId' => $this->_storeId,
         ]);
@@ -105,7 +198,7 @@ class CatalogPricingQueueTest extends Unit
      */
     public function testPurchasableAndRuleTypesAreSeparated(): void
     {
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+        $this->_createJob([
             'purchasableIds' => [1, 2],
             'catalogPricingRuleIds' => [5, 6],
             'storeId' => $this->_storeId,
@@ -134,12 +227,12 @@ class CatalogPricingQueueTest extends Unit
         $primaryStore = Plugin::getInstance()->getStores()->getPrimaryStore();
         $ukStore = Plugin::getInstance()->getStores()->getStoreByHandle('ukStore');
 
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+        $this->_createJob([
             'purchasableIds' => [1],
             'storeId' => $primaryStore->id,
         ]);
 
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+        $this->_createJob([
             'purchasableIds' => [1],
             'storeId' => $ukStore->id,
         ]);
@@ -157,12 +250,12 @@ class CatalogPricingQueueTest extends Unit
      */
     public function testMultipleQueuesForSameStoreAndTypeMerge(): void
     {
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+        $this->_createJob([
             'purchasableIds' => [1, 2],
             'storeId' => $this->_storeId,
         ]);
 
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+        $this->_createJob([
             'purchasableIds' => [3, 4],
             'storeId' => $this->_storeId,
         ]);
@@ -179,12 +272,12 @@ class CatalogPricingQueueTest extends Unit
      */
     public function testDuplicateIdsAreDeduplicated(): void
     {
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+        $this->_createJob([
             'purchasableIds' => [1, 2, 3],
             'storeId' => $this->_storeId,
         ]);
 
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+        $this->_createJob([
             'purchasableIds' => [2, 3, 4],
             'storeId' => $this->_storeId,
         ]);
@@ -198,7 +291,7 @@ class CatalogPricingQueueTest extends Unit
      */
     public function testNullStoreIdRepresentsAllStores(): void
     {
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+        $this->_createJob([
             'purchasableIds' => [1],
             'storeId' => null,
         ]);
@@ -214,13 +307,13 @@ class CatalogPricingQueueTest extends Unit
     public function testMergingWithNullIdsExpandsScope(): void
     {
         // First queue specific IDs
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+        $this->_createJob([
             'purchasableIds' => [1, 2],
             'storeId' => $this->_storeId,
         ]);
 
         // Then queue with null (meaning all), should merge and expand scope
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+        $this->_createJob([
             'purchasableIds' => null,
             'storeId' => $this->_storeId,
         ]);
@@ -243,7 +336,7 @@ class CatalogPricingQueueTest extends Unit
         $record->save(false);
 
         // Try to queue more IDs for the same store/type
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+        $this->_createJob([
             'purchasableIds' => [2],
             'storeId' => $this->_storeId,
         ]);
@@ -272,7 +365,7 @@ class CatalogPricingQueueTest extends Unit
      */
     public function testIdsAreSortedNumerically(): void
     {
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+        $this->_createJob([
             'purchasableIds' => [100, 5, 50, 1],
             'storeId' => $this->_storeId,
         ]);
@@ -286,7 +379,7 @@ class CatalogPricingQueueTest extends Unit
      */
     public function testZeroAndNegativeIdsAreFiltered(): void
     {
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+        $this->_createJob([
             'purchasableIds' => [1, 0, -5, 2],
             'storeId' => $this->_storeId,
         ]);
@@ -302,7 +395,7 @@ class CatalogPricingQueueTest extends Unit
     {
         self::assertFalse(Plugin::getInstance()->getCatalogPricing()->areCatalogPricingJobsRunning(), 'Should be false when queue is empty');
 
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+        $this->_createJob([
             'purchasableIds' => [1],
             'storeId' => $this->_storeId,
         ]);
@@ -315,7 +408,7 @@ class CatalogPricingQueueTest extends Unit
      */
     public function testReserveCatalogPricingQueueRowMarksAsReserved(): void
     {
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+        $this->_createJob([
             'purchasableIds' => [1],
             'storeId' => $this->_storeId,
         ]);
@@ -339,12 +432,12 @@ class CatalogPricingQueueTest extends Unit
      */
     public function testMultiplePendingRowsCanBeReservedInOrder(): void
     {
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+        $this->_createJob([
             'purchasableIds' => [1],
             'storeId' => $this->_storeId,
         ]);
 
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+        $this->_createJob([
             'purchasableIds' => [2],
             'storeId' => Plugin::getInstance()->getStores()->getStoreByHandle('ukStore')->id,
         ]);
@@ -366,7 +459,7 @@ class CatalogPricingQueueTest extends Unit
      */
     public function testReleaseCatalogPricingQueueByIdMarksAsUnreserved(): void
     {
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+        $this->_createJob([
             'purchasableIds' => [1],
             'storeId' => $this->_storeId,
         ]);
@@ -385,7 +478,7 @@ class CatalogPricingQueueTest extends Unit
      */
     public function testDeleteCatalogPricingQueueByIdRemovesRow(): void
     {
-        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+        $this->_createJob([
             'purchasableIds' => [1],
             'storeId' => $this->_storeId,
         ]);
@@ -410,7 +503,7 @@ class CatalogPricingQueueTest extends Unit
         // Execute all queue calls
         foreach ($queueCalls as $call) {
             $call['storeId'] = $stores->firstWhere('handle', $call['storeId'])?->id ?? null;
-            Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob($call);
+            $this->_createJob($call);
         }
 
         // Verify the state of all rows
