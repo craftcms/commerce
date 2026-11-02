@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface;
-use CraftCms\Commerce\Shipping\Events\RegisterAvailableShippingMethodsEvent;
+use CraftCms\Commerce\Shipping\Events\ShippingMethodsResolving;
 use CraftCms\Commerce\Shipping\ShippingMethods;
 use Illuminate\Support\Facades\Event;
 
@@ -23,8 +23,8 @@ function mockShippingMethod(string $name, string $handle, float $price): Shippin
 test('getMatchingShippingMethods sorts matching methods by price', function() {
     $order = new Order();
 
-    Event::listen(RegisterAvailableShippingMethodsEvent::class, function(RegisterAvailableShippingMethodsEvent $event) {
-        $shippingMethods = $event->getShippingMethods();
+    Event::listen(ShippingMethodsResolving::class, function(ShippingMethodsResolving $event) {
+        $shippingMethods = $event->shippingMethods;
 
         $shippingMethods->push(mockShippingMethod('First', 'first', 12.34));
         $shippingMethods->push(mockShippingMethod('Second', 'second', 12.35));

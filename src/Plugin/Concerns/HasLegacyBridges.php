@@ -22,12 +22,14 @@ use craft\commerce\services\PaymentCurrencies as LegacyPaymentCurrencies;
 use craft\commerce\services\Payments as LegacyPayments;
 use craft\commerce\services\PaymentSources as LegacyPaymentSources;
 use craft\commerce\services\Pdfs as LegacyPdfs;
+use craft\commerce\services\Products as LegacyProducts;
 use craft\commerce\services\ProductTypes as LegacyProductTypes;
 use craft\commerce\services\Purchasables as LegacyPurchasables;
 use craft\commerce\services\ShippingMethods as LegacyShippingMethods;
 use craft\commerce\services\Stores as LegacyStores;
 use craft\commerce\services\Taxes as LegacyTaxes;
 use craft\commerce\services\Transactions as LegacyTransactions;
+use craft\commerce\services\Variants as LegacyVariants;
 use craft\commerce\services\Webhooks as LegacyWebhooks;
 use craft\fixfks\controllers\RestoreController as RestoreFksController;
 use CraftCms\Cms\Cms;
@@ -138,12 +140,14 @@ trait HasLegacyBridges
         LegacyPayments::registerEvents();
         LegacyPaymentSources::registerEvents();
         LegacyPdfs::registerEvents();
+        LegacyProducts::registerEvents();
         LegacyProductTypes::registerEvents();
         LegacyPurchasables::registerEvents();
         LegacyShippingMethods::registerEvents();
         LegacyStores::registerEvents();
         LegacyTaxes::registerEvents();
         LegacyTransactions::registerEvents();
+        LegacyVariants::registerEvents();
         LegacyWebhooks::registerEvents();
     }
 

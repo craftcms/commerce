@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Product\Elements;
 
-use craft\events\ElementCriteriaEvent;
 use CraftCms\Cms\Asset\Actions\CopyReferenceTag;
 use CraftCms\Cms\Cms;
 use CraftCms\Cms\Cp\Data\ActionItem;
@@ -57,6 +56,7 @@ use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
 use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Product\Conditions\ProductCondition;
 use CraftCms\Commerce\Product\Conditions\ProductTypeConditionRule;
+use CraftCms\Commerce\Product\Events\ProductParentSelectionCriteriaResolving;
 use CraftCms\Commerce\Product\Jobs\ResaveProductVariantsJob;
 use CraftCms\Commerce\Product\Models\Product as ProductRecord;
 use CraftCms\Commerce\Product\Products;
@@ -119,6 +119,8 @@ class Product extends Element implements HasStoreInterface
      * @event ElementCriteriaEvent The event that is triggered when defining the parent selection criteria.
      *
      * @see parentOptionCriteria()
+     *
+     * @deprecated 6.0.0 Use {@see \CraftCms\Commerce\Product\Events\ProductParentSelectionCriteriaResolving} instead.
      */
     public const string EVENT_DEFINE_PARENT_SELECTION_CRITERIA = 'defineParentSelectionCriteria';
 
@@ -1477,12 +1479,7 @@ class Product extends Element implements HasStoreInterface
         }
 
         // Fire a 'defineParentSelectionCriteria' event
-        $event = new ElementCriteriaEvent(['criteria' => $parentOptionCriteria]);
-        event($event);
-
-        if ($this->hasEventHandlers(self::EVENT_DEFINE_PARENT_SELECTION_CRITERIA)) {
-            $this->trigger(self::EVENT_DEFINE_PARENT_SELECTION_CRITERIA, $event);
-        }
+        event($event = new ProductParentSelectionCriteriaResolving($this, $parentOptionCriteria));
 
         return $event->criteria;
     }

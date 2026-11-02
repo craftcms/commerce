@@ -7,13 +7,15 @@ namespace CraftCms\Commerce\Purchasable\Events;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
-use yii\base\Event;
 
-class PurchasableShippableEvent extends Event
+/**
+ * Dispatched when resolving whether a purchasable is available to an order and user. Listeners may change `$isAvailable`.
+ */
+class PurchasableAvailabilityResolving
 {
     public function __construct(
         public PurchasableInterface $purchasable,
-        public bool $isShippable,
+        public bool $isAvailable,
         public ?Order $order = null,
         public ?User $currentUser = null,
     ) {

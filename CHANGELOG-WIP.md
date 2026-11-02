@@ -18,16 +18,22 @@
 - Added `CraftCms\Commerce\Product\ProductType\Models\ProductTypeSite`.
 - Added `CraftCms\Commerce\Product\ProductType\ProductTypes`.
 - Added `CraftCms\Commerce\Support\Facades\ProductTypes`.
-- Added `CraftCms\Commerce\Product\Events\CustomizeProductSnapshotDataEvent`.
-- Added `CraftCms\Commerce\Product\Events\CustomizeProductSnapshotFieldsEvent`.
-- Added `CraftCms\Commerce\Product\Variant\Events\CustomizeVariantSnapshotDataEvent`.
-- Added `CraftCms\Commerce\Product\Variant\Events\CustomizeVariantSnapshotFieldsEvent`.
+- Added `CraftCms\Commerce\Product\Events\ProductSnapshotDataResolving`.
+- Added `CraftCms\Commerce\Product\Events\ProductSnapshotFieldsResolving`.
+- Added `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotDataResolving`.
+- Added `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotFieldsResolving`.
+- Added `CraftCms\Commerce\Product\Events\ProductParentSelectionCriteriaResolving`.
 - Added `CraftCms\Commerce\Purchasable\Events\ModifyPurchasablesTableQueryEvent`.
 - Added `CraftCms\Commerce\Product\Events\ProductEvent`.
 - Added `CraftCms\Commerce\Product\ProductType\Events\ProductTypeEvent`.
 - Added `CraftCms\Commerce\Product\Variant\Events\PurchaseVariantEvent`.
 - Deprecated `craft\commerce\elements\Product`. `CraftCms\Commerce\Product\Elements\Product` should be used instead.
+- Deprecated `craft\commerce\elements\Product::EVENT_DEFINE_PARENT_SELECTION_CRITERIA`. `CraftCms\Commerce\Product\Events\ProductParentSelectionCriteriaResolving` should be used instead.
 - Deprecated `craft\commerce\elements\Variant`. `CraftCms\Commerce\Product\Variant\Elements\Variant` should be used instead.
+- Deprecated `craft\commerce\elements\Variant::EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT`. `CraftCms\Commerce\Product\Events\ProductSnapshotFieldsResolving` should be used instead.
+- Deprecated `craft\commerce\elements\Variant::EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT`. `CraftCms\Commerce\Product\Events\ProductSnapshotDataResolving` should be used instead.
+- Deprecated `craft\commerce\elements\Variant::EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT`. `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotFieldsResolving` should be used instead.
+- Deprecated `craft\commerce\elements\Variant::EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT`. `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotDataResolving` should be used instead.
 - Deprecated `craft\commerce\elements\db\ProductQuery`. `CraftCms\Commerce\Product\Queries\ProductQuery` should be used instead.
 - Deprecated `craft\commerce\elements\db\VariantQuery`. `CraftCms\Commerce\Product\Variant\Queries\VariantQuery` should be used instead.
 - Deprecated `craft\commerce\records\Product`. `CraftCms\Commerce\Product\Models\Product` should be used instead.
@@ -39,13 +45,15 @@
 - Deprecated `craft\commerce\services\Products`. `CraftCms\Commerce\Product\Products` should be used instead.
 - Deprecated `craft\commerce\services\Variants`. `CraftCms\Commerce\Product\Variant\Variants` should be used instead.
 - Deprecated `craft\commerce\services\ProductTypes`. `CraftCms\Commerce\Product\ProductType\ProductTypes` should be used instead.
-- Deprecated `craft\commerce\events\CustomizeProductSnapshotDataEvent`. `CraftCms\Commerce\Product\Events\CustomizeProductSnapshotDataEvent` should be used instead.
-- Deprecated `craft\commerce\events\CustomizeProductSnapshotFieldsEvent`. `CraftCms\Commerce\Product\Events\CustomizeProductSnapshotFieldsEvent` should be used instead.
-- Deprecated `craft\commerce\events\CustomizeVariantSnapshotDataEvent`. `CraftCms\Commerce\Product\Variant\Events\CustomizeVariantSnapshotDataEvent` should be used instead.
-- Deprecated `craft\commerce\events\CustomizeVariantSnapshotFieldsEvent`. `CraftCms\Commerce\Product\Variant\Events\CustomizeVariantSnapshotFieldsEvent` should be used instead.
+- Deprecated `craft\commerce\events\CustomizeProductSnapshotDataEvent`. `CraftCms\Commerce\Product\Events\ProductSnapshotDataResolving` should be used instead.
+- Deprecated `craft\commerce\events\CustomizeProductSnapshotFieldsEvent`. `CraftCms\Commerce\Product\Events\ProductSnapshotFieldsResolving` should be used instead.
+- Deprecated `craft\commerce\events\CustomizeVariantSnapshotDataEvent`. `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotDataResolving` should be used instead.
+- Deprecated `craft\commerce\events\CustomizeVariantSnapshotFieldsEvent`. `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotFieldsResolving` should be used instead.
 - Deprecated `craft\commerce\events\ModifyPurchasablesTableQueryEvent`. `CraftCms\Commerce\Purchasable\Events\ModifyPurchasablesTableQueryEvent` should be used instead.
 - Deprecated `craft\commerce\events\ProductEvent`. `CraftCms\Commerce\Product\Events\ProductEvent` should be used instead.
-- Deprecated `craft\commerce\events\ProductTypeEvent`. `CraftCms\Commerce\Product\ProductType\Events\ProductTypeEvent` should be used instead.
+- Deprecated `craft\commerce\events\ProductTypeEvent` in favor of the following new events:
+  - `craft\commerce\services\ProductTypes::EVENT_BEFORE_SAVE_PRODUCTTYPE` => `CraftCms\Commerce\Product\ProductType\Events\ProductTypeSaving`
+  - `craft\commerce\services\ProductTypes::EVENT_AFTER_SAVE_PRODUCTTYPE` => `CraftCms\Commerce\Product\ProductType\Events\ProductTypeSaved`
 - Deprecated `craft\commerce\events\PurchaseVariantEvent`. `CraftCms\Commerce\Product\Variant\Events\PurchaseVariantEvent` should be used instead.
 - Removed `craft\commerce\records\ProductTypeShippingCategory` as it was unused.
 - Removed `craft\commerce\records\ProductTypeTaxCategory` as it was unused.
@@ -775,9 +783,9 @@
 - Added `CraftCms\Commerce\Purchasable\Purchasables`.
 - Added `CraftCms\Commerce\Support\Facades\Purchasables`.
 - Added `CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface`.
-- Added `CraftCms\Commerce\Purchasable\Events\PurchasableAvailableEvent`.
-- Added `CraftCms\Commerce\Purchasable\Events\PurchasableOutOfStockPurchasesAllowedEvent`.
-- Added `CraftCms\Commerce\Purchasable\Events\PurchasableShippableEvent`.
+- Added `CraftCms\Commerce\Purchasable\Events\PurchasableAvailabilityResolving`.
+- Added `CraftCms\Commerce\Purchasable\Events\PurchasableOutOfStockPurchasesResolving`.
+- Added `CraftCms\Commerce\Purchasable\Events\PurchasableShippabilityResolving`.
 - Added `CraftCms\Commerce\Purchasable\PurchasableTypes`, a `CraftCms\Cms\Component\TypeRegistry` for registering purchasable element types.
 - Added `CraftCms\Commerce\Support\Facades\PurchasableTypes`.
 - Deprecated `craft\commerce\services\Purchasables::EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES`. `CraftCms\Commerce\Purchasable\PurchasableTypes::register()` should be used instead.
@@ -787,10 +795,13 @@
 - Deprecated `craft\commerce\models\PurchasableStore`. `CraftCms\Commerce\Purchasable\Models\PurchasableStore` should be used instead.
 - Deprecated `craft\commerce\elements\db\DonationQuery`. `CraftCms\Commerce\Purchasable\Queries\DonationQuery` should be used instead.
 - Deprecated `craft\commerce\services\Purchasables`. `CraftCms\Commerce\Purchasable\Purchasables` should be used instead.
+- Deprecated `craft\commerce\services\Purchasables::EVENT_PURCHASABLE_AVAILABLE`. `CraftCms\Commerce\Purchasable\Events\PurchasableAvailabilityResolving` should be used instead.
+- Deprecated `craft\commerce\services\Purchasables::EVENT_PURCHASABLE_SHIPPABLE`. `CraftCms\Commerce\Purchasable\Events\PurchasableShippabilityResolving` should be used instead.
+- Deprecated `craft\commerce\services\Purchasables::EVENT_PURCHASABLE_OUT_OF_STOCK_PURCHASES_ALLOWED`. `CraftCms\Commerce\Purchasable\Events\PurchasableOutOfStockPurchasesResolving` should be used instead.
 - Deprecated `craft\commerce\base\PurchasableInterface`. `CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface` should be used instead.
-- Deprecated `craft\commerce\events\PurchasableAvailableEvent`. `CraftCms\Commerce\Purchasable\Events\PurchasableAvailableEvent` should be used instead.
-- Deprecated `craft\commerce\events\PurchasableOutOfStockPurchasesAllowedEvent`. `CraftCms\Commerce\Purchasable\Events\PurchasableOutOfStockPurchasesAllowedEvent` should be used instead.
-- Deprecated `craft\commerce\events\PurchasableShippableEvent`. `CraftCms\Commerce\Purchasable\Events\PurchasableShippableEvent` should be used instead.
+- Deprecated `craft\commerce\events\PurchasableAvailableEvent`. `CraftCms\Commerce\Purchasable\Events\PurchasableAvailabilityResolving` should be used instead.
+- Deprecated `craft\commerce\events\PurchasableOutOfStockPurchasesAllowedEvent`. `CraftCms\Commerce\Purchasable\Events\PurchasableOutOfStockPurchasesResolving` should be used instead.
+- Deprecated `craft\commerce\events\PurchasableShippableEvent`. `CraftCms\Commerce\Purchasable\Events\PurchasableShippabilityResolving` should be used instead.
 - Removed `craft\commerce\records\Purchasable`. `CraftCms\Commerce\Purchasable\Records\Purchasable` should be used instead.
 - Removed `craft\commerce\records\PurchasableStore`. `CraftCms\Commerce\Purchasable\Records\PurchasableStore` should be used instead.
 - Removed `craft\commerce\elements\db\PurchasableQuery`. `CraftCms\Commerce\Purchasable\Queries\PurchasableQuery` should be used instead.
@@ -833,8 +844,9 @@
 - Added `CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface`.
 - Added `CraftCms\Commerce\Shipping\Contracts\ShippingRuleInterface`.
 - Added `CraftCms\Commerce\Shipping\Exceptions\ShippingMethodException`.
-- Added `CraftCms\Commerce\Shipping\Events\RegisterAvailableShippingMethodsEvent`.
+- Added `CraftCms\Commerce\Shipping\Events\ShippingMethodsResolving`.
 - Deprecated `craft\commerce\services\ShippingMethods`. `CraftCms\Commerce\Shipping\ShippingMethods` should be used instead.
+- Deprecated `craft\commerce\services\ShippingMethods::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS`. `CraftCms\Commerce\Shipping\Events\ShippingMethodsResolving` should be used instead.
 - Deprecated `craft\commerce\services\ShippingRules`. `CraftCms\Commerce\Shipping\ShippingRules` should be used instead.
 - Deprecated `craft\commerce\services\ShippingRuleCategories`. `CraftCms\Commerce\Shipping\ShippingRuleCategories` should be used instead.
 - Deprecated `craft\commerce\services\ShippingCategories`. `CraftCms\Commerce\Shipping\ShippingCategories` should be used instead.
@@ -849,7 +861,7 @@
 - Deprecated `craft\commerce\base\ShippingMethodInterface`. `CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface` should be used instead.
 - Deprecated `craft\commerce\base\ShippingRuleInterface`. `CraftCms\Commerce\Shipping\Contracts\ShippingRuleInterface` should be used instead.
 - Deprecated `craft\commerce\errors\ShippingMethodException`. `CraftCms\Commerce\Shipping\Exceptions\ShippingMethodException` should be used instead.
-- Deprecated `craft\commerce\events\RegisterAvailableShippingMethodsEvent`. `CraftCms\Commerce\Shipping\Events\RegisterAvailableShippingMethodsEvent` should be used instead.
+- Deprecated `craft\commerce\events\RegisterAvailableShippingMethodsEvent`. `CraftCms\Commerce\Shipping\Events\ShippingMethodsResolving` should be used instead.
 - Removed `craft\commerce\records\ShippingZone`. `CraftCms\Commerce\Shipping\Records\ShippingZone` should be used instead.
 - Removed `craft\commerce\records\ShippingMethod`. `CraftCms\Commerce\Shipping\Records\ShippingMethod` should be used instead.
 - Removed `craft\commerce\records\ShippingRule`. `CraftCms\Commerce\Shipping\Records\ShippingRule` should be used instead.
