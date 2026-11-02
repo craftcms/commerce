@@ -377,6 +377,17 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public function canDelete(User $user): bool
     {
+        // Enabled products must have at least one variant, and deleting a variant doesn’t validate its product
+        $product = $this->getOwner();
+        if (
+            $product instanceof Product &&
+            $product->enabled &&
+            !ElementHelper::isDraftOrRevision($this) &&
+            $product->getVariants(true)->count() <= 1
+        ) {
+            return false;
+        }
+
         if (parent::canDelete($user)) {
             return true;
         }

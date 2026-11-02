@@ -8,12 +8,14 @@
 namespace craftcommercetests\unit\elements\product;
 
 use Codeception\Test\Unit;
+use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
+use craft\elements\User;
 use craftcommercetests\fixtures\ProductFixture;
 use DateTime;
 use ReflectionClass;
@@ -359,6 +361,26 @@ class ProductTest extends Unit
 
         // Remove the product
         \Craft::$app->getElements()->deleteElementById($product->id, Product::class, null, true);
+    }
+
+    /**
+     * @group Product
+     */
+    public function testLastVariantOfEnabledProductCannotBeDeleted(): void
+    {
+        $user = User::find()->admin()->one();
+        $elements = Craft::$app->getElements();
+        $hoodie = Variant::find()->sku('rad-hood')->one();
+        self::assertFalse($elements->canDelete($hoodie, $user));
+
+        // Products with other variants can lose one
+        self::assertTrue($elements->canDelete(Variant::find()->sku('hct-white')->one(), $user));
+
+        // Disabled products don’t need a variant
+        $product = $hoodie->getOwner();
+        $product->enabled = false;
+        self::assertTrue($elements->saveElement($product));
+        self::assertTrue($elements->canDelete(Variant::find()->sku('rad-hood')->status(null)->one(), $user));
     }
 
     /**
