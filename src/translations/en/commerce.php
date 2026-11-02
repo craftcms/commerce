@@ -128,10 +128,10 @@ return [
     'Business Name' => 'Business Name',
     'Business Tax ID' => 'Business Tax ID',
     'Catalog pricing rule' => 'Catalog pricing rule',
-    'Category group “{name}”' => 'Category group “{name}”',
+    'Category group "{name}"' => 'Category group "{name}"',
     'CC’d Recipient' => 'CC’d Recipient',
-    'Commerce 6 doesn’t support categories. Convert each category group to a section with the `entrify/categories` command. Discounts, sales, and catalog pricing rules keep their selections, because categories keep their IDs when they’re converted to entries. Conditions that relate to categories should be updated to relate to the converted entries.' => 'Commerce 6 doesn’t support categories. Convert each category group to a section with the `entrify/categories` command. Discounts, sales, and catalog pricing rules keep their selections, because categories keep their IDs when they’re converted to entries. Conditions that relate to categories should be updated to relate to the converted entries.',
-    'Commerce 6 doesn’t support subscriptions. Existing plans and subscriptions stay in the database, but they can’t be used or managed after upgrading. This site has {plans, number} {plans, plural, =1{plan} other{plans}} and {subscriptions, number} {subscriptions, plural, =1{subscription} other{subscriptions}}.' => 'Commerce 6 doesn’t support subscriptions. Existing plans and subscriptions stay in the database, but they can’t be used or managed after upgrading. This site has {plans, number} {plans, plural, =1{plan} other{plans}} and {subscriptions, number} {subscriptions, plural, =1{subscription} other{subscriptions}}.',
+    'Commerce 6 doesn\'t support categories. Convert each category group to a section with the `entrify/categories` command. Discounts, sales, and catalog pricing rules keep their selections, because categories keep their IDs when they\'re converted to entries. Conditions that relate to categories should be updated to relate to the converted entries.' => 'Commerce 6 doesn\'t support categories. Convert each category group to a section with the `entrify/categories` command. Discounts, sales, and catalog pricing rules keep their selections, because categories keep their IDs when they\'re converted to entries. Conditions that relate to categories should be updated to relate to the converted entries.',
+    'Commerce 6 doesn\'t support subscriptions. Existing plans and subscriptions stay in the database, but they can\'t be used or managed after upgrading. This site has {plans, number} {plans, plural, =1{plan} other{plans}} and {subscriptions, number} {subscriptions, plural, =1{subscription} other{subscriptions}}.' => 'Commerce 6 doesn\'t support subscriptions. Existing plans and subscriptions stay in the database, but they can\'t be used or managed after upgrading. This site has {plans, number} {plans, plural, =1{plan} other{plans}} and {subscriptions, number} {subscriptions, plural, =1{subscription} other{subscriptions}}.',
     'Commerce 6 Ready' => 'Commerce 6 Ready',
     'Commerce 6 requires PHP {version} or later. This server is running PHP {current}.' => 'Commerce 6 requires PHP {version} or later. This server is running PHP {current}.',
     'Convert categories to entries' => 'Convert categories to entries',
@@ -512,7 +512,7 @@ return [
     'Full Name' => 'Full Name',
     'Gateway Code' => 'Gateway Code',
     'Gateway Message' => 'Gateway Message',
-    'Gateway plugins built for Commerce 5 don’t work with Commerce 6. Before upgrading, make sure the plugin that provides each of these gateways has a version that supports Commerce 6.' => 'Gateway plugins built for Commerce 5 don’t work with Commerce 6. Before upgrading, make sure the plugin that provides each of these gateways has a version that supports Commerce 6.',
+    'Gateway plugins built for Commerce 5 don\'t work with Commerce 6. Before upgrading, make sure the plugin that provides each of these gateways has a version that supports Commerce 6.' => 'Gateway plugins built for Commerce 5 don\'t work with Commerce 6. Before upgrading, make sure the plugin that provides each of these gateways has a version that supports Commerce 6.',
     'Gateway Reference' => 'Gateway Reference',
     'Gateway Response' => 'Gateway Response',
     'Gateway doesn’t support authorize' => 'Gateway doesn’t support authorize',
@@ -521,8 +521,8 @@ return [
     'Gateway doesn’t support refunds.' => 'Gateway doesn’t support refunds.',
     'Gateway saved.' => 'Gateway saved.',
     'Gateway' => 'Gateway',
-    'Gateway “{name}” (missing)' => 'Gateway “{name}” (missing)',
-    'Gateway “{name}” ({type})' => 'Gateway “{name}” ({type})',
+    'Gateway "{name}" (missing)' => 'Gateway "{name}" (missing)',
+    'Gateway "{name}" ({type})' => 'Gateway "{name}" ({type})',
     'Gateways reordered.' => 'Gateways reordered.',
     'Gateways' => 'Gateways',
     'General Settings' => 'General Settings',
@@ -1215,13 +1215,13 @@ return [
     'There is no gateway or payment source available for use with this order.' => 'There is no gateway or payment source available for use with this order.',
     'There is no gateway selected that supports payment sources.' => 'There is no gateway selected that supports payment sources.',
     'There is no shipping method selected for this order.' => 'There is no shipping method selected for this order.',
-    'These changes can’t be checked automatically:
+    'These changes can\'t be checked automatically:
 
-- Custom plugins and modules that use Commerce’s classes or events need to be updated. Commerce 6 events are Laravel events, and order emails are sent as Laravel mailables.
-- Guest carts don’t carry over to Commerce 6, because cart cookies change.' => 'These changes can’t be checked automatically:
+- Custom plugins and modules that use Commerce\'s classes or events need to be updated. Commerce 6 events are Laravel events, and order emails are sent as Laravel mailables.
+- Guest carts don\'t carry over to Commerce 6, because cart cookies change.' => 'These changes can\'t be checked automatically:
 
-- Custom plugins and modules that use Commerce’s classes or events need to be updated. Commerce 6 events are Laravel events, and order emails are sent as Laravel mailables.
-- Guest carts don’t carry over to Commerce 6, because cart cookies change.',
+- Custom plugins and modules that use Commerce\'s classes or events need to be updated. Commerce 6 events are Laravel events, and order emails are sent as Laravel mailables.
+- Guest carts don\'t carry over to Commerce 6, because cart cookies change.',
     'This site is ready to upgrade to Commerce 6.' => 'This site is ready to upgrade to Commerce 6.',
     'This URL will load the cart into the user’s session, making it the active cart.' => 'This URL will load the cart into the user’s session, making it the active cart.',
     'This action is not allowed for the current user.' => 'This action is not allowed for the current user.',
@@ -1456,8 +1456,8 @@ return [
     '{total} orders' => '{total} orders',
     '{total} saleable across {locationCount} location(s)' => '{total} saleable across {locationCount} location(s)',
     '{type} conditions' => '{type} conditions',
-    '{type} “{name}”' => '{type} “{name}”',
-    '{type} “{name}” conditions' => '{type} “{name}” conditions',
+    '{type} "{name}"' => '{type} "{name}"',
+    '{type} "{name}" conditions' => '{type} "{name}" conditions',
     '{uses} uses across {emails} email addresses' => '{uses} uses across {emails} email addresses',
     '{uses} uses across {users} users' => '{uses} uses across {users} users',
     '“{description}” is currently out of stock.' => '“{description}” is currently out of stock.',

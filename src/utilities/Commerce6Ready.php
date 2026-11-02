@@ -120,7 +120,7 @@ class Commerce6Ready extends Utility
 
         foreach (Craft::$app->getCategories()->getAllGroups() as $group) {
             $items[] = [
-                'label' => Craft::t('commerce', 'Category group “{name}”', ['name' => $group->name]),
+                'label' => Craft::t('commerce', 'Category group "{name}"', ['name' => $group->name]),
                 'url' => UrlHelper::cpUrl('settings/categories/' . $group->id),
                 'info' => "php craft entrify/categories $group->handle",
             ];
@@ -143,7 +143,7 @@ class Commerce6Ready extends Utility
 
             foreach ($rows as $row) {
                 $items[] = [
-                    'label' => Craft::t('commerce', '{type} “{name}”', ['type' => Craft::t('commerce', $label), 'name' => $row['name']]),
+                    'label' => Craft::t('commerce', '{type} "{name}"', ['type' => Craft::t('commerce', $label), 'name' => $row['name']]),
                     'url' => $label === 'Discount'
                         ? Plugin::getInstance()->getDiscounts()->getDiscountById($row['id'], $row['storeId'])?->getCpEditUrl()
                         : Plugin::getInstance()->getSales()->getSaleById($row['id'])?->getCpEditUrl(),
@@ -170,7 +170,7 @@ class Commerce6Ready extends Utility
                 if ($usesCategories) {
                     $items[] = [
                         'label' => $nameColumn
-                            ? Craft::t('commerce', '{type} “{name}” conditions', ['type' => Craft::t('commerce', $label), 'name' => $row[$nameColumn]])
+                            ? Craft::t('commerce', '{type} "{name}" conditions', ['type' => Craft::t('commerce', $label), 'name' => $row[$nameColumn]])
                             : Craft::t('commerce', '{type} conditions', ['type' => Craft::t('commerce', $label)]),
                         'url' => self::conditionOwnerUrl($table, (int)$row['id'], isset($row['storeId']) ? (int)$row['storeId'] : null),
                     ];
@@ -181,7 +181,7 @@ class Commerce6Ready extends Utility
         return [
             'label' => Craft::t('commerce', 'Convert categories to entries'),
             'ready' => empty($items),
-            'instructions' => Craft::t('commerce', 'Commerce 6 doesn’t support categories. Convert each category group to a section with the `entrify/categories` command. Discounts, sales, and catalog pricing rules keep their selections, because categories keep their IDs when they’re converted to entries. Conditions that relate to categories should be updated to relate to the converted entries.'),
+            'instructions' => Craft::t('commerce', 'Commerce 6 doesn\'t support categories. Convert each category group to a section with the `entrify/categories` command. Discounts, sales, and catalog pricing rules keep their selections, because categories keep their IDs when they\'re converted to entries. Conditions that relate to categories should be updated to relate to the converted entries.'),
             'items' => $items,
         ];
     }
@@ -194,7 +194,7 @@ class Commerce6Ready extends Utility
         return [
             'label' => Craft::t('commerce', 'Stop using subscriptions'),
             'ready' => $planCount === 0 && $subscriptionCount === 0,
-            'instructions' => Craft::t('commerce', 'Commerce 6 doesn’t support subscriptions. Existing plans and subscriptions stay in the database, but they can’t be used or managed after upgrading. This site has {plans, number} {plans, plural, =1{plan} other{plans}} and {subscriptions, number} {subscriptions, plural, =1{subscription} other{subscriptions}}.', [
+            'instructions' => Craft::t('commerce', 'Commerce 6 doesn\'t support subscriptions. Existing plans and subscriptions stay in the database, but they can\'t be used or managed after upgrading. This site has {plans, number} {plans, plural, =1{plan} other{plans}} and {subscriptions, number} {subscriptions, plural, =1{subscription} other{subscriptions}}.', [
                 'plans' => $planCount,
                 'subscriptions' => $subscriptionCount,
             ]),
@@ -214,8 +214,8 @@ class Commerce6Ready extends Utility
 
             $items[] = [
                 'label' => $gateway instanceof MissingGateway
-                    ? Craft::t('commerce', 'Gateway “{name}” (missing)', ['name' => $gateway->name])
-                    : Craft::t('commerce', 'Gateway “{name}” ({type})', ['name' => $gateway->name, 'type' => $gateway::displayName()]),
+                    ? Craft::t('commerce', 'Gateway "{name}" (missing)', ['name' => $gateway->name])
+                    : Craft::t('commerce', 'Gateway "{name}" ({type})', ['name' => $gateway->name, 'type' => $gateway::displayName()]),
                 'url' => $gateway->getCpEditUrl(),
             ];
         }
@@ -223,7 +223,7 @@ class Commerce6Ready extends Utility
         return [
             'label' => Craft::t('commerce', 'Update gateway plugins'),
             'ready' => empty($items),
-            'instructions' => Craft::t('commerce', 'Gateway plugins built for Commerce 5 don’t work with Commerce 6. Before upgrading, make sure the plugin that provides each of these gateways has a version that supports Commerce 6.'),
+            'instructions' => Craft::t('commerce', 'Gateway plugins built for Commerce 5 don\'t work with Commerce 6. Before upgrading, make sure the plugin that provides each of these gateways has a version that supports Commerce 6.'),
             'items' => $items,
         ];
     }
