@@ -148,6 +148,5 @@ class Emails extends Component
                 ]));
             }
         });
-
     }
 }

@@ -133,6 +133,7 @@ trait HasLegacyBridges
         LegacyInventory::registerEvents();
         LegacyLineItems::registerEvents();
         LegacyLineItemStatuses::registerEvents();
+        LegacyOrderAdjustments::registerEvents();
         LegacyOrderHistories::registerEvents();
         LegacyOrders::registerEvents();
         LegacyOrderStatuses::registerEvents();

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Adjuster;
 
-use craft\commerce\adjusters\Discount as LegacyDiscount;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Order\Adjuster\Contracts\AdjusterInterface;
@@ -14,10 +13,9 @@ use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Promotion\Data\Discount as DiscountModel;
 use CraftCms\Commerce\Promotion\Discounts;
-use CraftCms\Commerce\Promotion\Events\DiscountAdjustmentsEvent;
+use CraftCms\Commerce\Promotion\Events\DiscountAdjustmentsCreated;
 use CraftCms\Commerce\Promotion\Models\Discount as DiscountRecord;
 use Money\Teller;
-use yii\base\Event;
 
 /**
  * Discount Adjuster
@@ -32,10 +30,7 @@ class Discount implements AdjusterInterface
     /**
      * @event DiscountAdjustmentsEvent The event that is triggered after a discount has matched the order and before it returns its adjustments.
      *
-     * Fired on the legacy `craft\commerce\adjusters\Discount` class name for backward compatibility
-     * with existing `Event::on(craft\commerce\adjusters\Discount::class, ...)` listeners, since
-     * `yii\base\Event::trigger()`/`hasHandlers()` match by class-name string and don't require an
-     * instance of that class.
+     * @deprecated 6.0.0 Use {@see \CraftCms\Commerce\Promotion\Events\DiscountAdjustmentsCreated} instead.
      */
     public const EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED = 'afterDiscountAdjustmentsCreated';
 
@@ -267,17 +262,13 @@ class Discount implements AdjusterInterface
         }
 
         // Raise the 'afterDiscountAdjustmentsCreated' event
-        $event = new DiscountAdjustmentsEvent(
+        $event = new DiscountAdjustmentsCreated(
             order: $this->_order,
             discount: $discount,
             adjustments: $adjustments,
         );
 
         event($event);
-
-        if (Event::hasHandlers(LegacyDiscount::class, self::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED)) {
-            Event::trigger(LegacyDiscount::class, self::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED, $event);
-        }
 
         if (!$event->isValid) {
             return false;
