@@ -385,9 +385,11 @@
 - Added `CraftCms\Commerce\Inventory\Contracts\InventoryMovementInterface`.
 - Added `CraftCms\Commerce\Inventory\Enums\InventoryTransactionType` enum.
 - Added `CraftCms\Commerce\Inventory\Enums\InventoryUpdateQuantityType` enum.
-- Added `CraftCms\Commerce\Inventory\Events\InventoryMovementEvent`.
-- Added `CraftCms\Commerce\Inventory\Events\UpdateInventoryLevelEvent`.
+- Added `CraftCms\Commerce\Inventory\Events\InventoryMoved`.
+- Added `CraftCms\Commerce\Inventory\Events\InventoryLevelUpdated`.
 - Deprecated `craft\commerce\services\Inventory`. `CraftCms\Commerce\Inventory\Inventory` should be used instead.
+- Deprecated `craft\commerce\services\Inventory::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT`. `CraftCms\Commerce\Inventory\Events\InventoryMoved` should be used instead.
+- Deprecated `craft\commerce\services\Inventory::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL`. `CraftCms\Commerce\Inventory\Events\InventoryLevelUpdated` should be used instead.
 - Deprecated `craft\commerce\services\InventoryLocations`. `CraftCms\Commerce\Inventory\InventoryLocations` should be used instead.
 - Deprecated `craft\commerce\collections\InventoryMovementCollection`. `CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection` should be used instead.
 - Deprecated `craft\commerce\collections\UpdateInventoryLevelCollection`. `CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection` should be used instead.
@@ -411,8 +413,8 @@
 - Deprecated `craft\commerce\base\InventoryMovementInterface`. `CraftCms\Commerce\Inventory\Contracts\InventoryMovementInterface` should be used instead.
 - Deprecated `craft\commerce\enums\InventoryTransactionType`. `CraftCms\Commerce\Inventory\Enums\InventoryTransactionType` should be used instead.
 - Deprecated `craft\commerce\enums\InventoryUpdateQuantityType`. `CraftCms\Commerce\Inventory\Enums\InventoryUpdateQuantityType` should be used instead.
-- Deprecated `craft\commerce\events\InventoryMovementEvent`. `CraftCms\Commerce\Inventory\Events\InventoryMovementEvent` should be used instead.
-- Deprecated `craft\commerce\events\UpdateInventoryLevelEvent`. `CraftCms\Commerce\Inventory\Events\UpdateInventoryLevelEvent` should be used instead.
+- Deprecated `craft\commerce\events\InventoryMovementEvent`. `CraftCms\Commerce\Inventory\Events\InventoryMoved` should be used instead.
+- Deprecated `craft\commerce\events\UpdateInventoryLevelEvent`. `CraftCms\Commerce\Inventory\Events\InventoryLevelUpdated` should be used instead.
 - Removed `craft\commerce\records\InventoryItem`. `CraftCms\Commerce\Inventory\Records\InventoryItem` should be used instead.
 - Removed `craft\commerce\records\InventoryLocation`. `CraftCms\Commerce\Inventory\Records\InventoryLocation` should be used instead.
 - Removed `craft\commerce\web\assets\inventory\InventoryAsset`.
@@ -545,6 +547,7 @@
 - Deprecated `craft\commerce\adjusters\Tax`. `CraftCms\Commerce\Order\Adjuster\Tax` should be used instead.
 - Deprecated `craft\commerce\adjusters\Shipping`. `CraftCms\Commerce\Order\Adjuster\Shipping` should be used instead.
 - Deprecated `craft\commerce\adjusters\Discount`. `CraftCms\Commerce\Order\Adjuster\Discount` should be used instead.
+- Deprecated `craft\commerce\adjusters\Discount::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED`. `CraftCms\Commerce\Promotion\Events\DiscountAdjustmentsCreated` should be used instead.
 - Deprecated `craft\commerce\base\AdjusterInterface`. `CraftCms\Commerce\Order\Adjuster\Contracts\AdjusterInterface` should be used instead.
 - Deprecated `craft\commerce\exports\Expanded`. `CraftCms\Commerce\Order\Exporters\Expanded` should be used instead.
 - Deprecated `craft\commerce\exports\LineItemExport`. `CraftCms\Commerce\Order\Exporters\LineItemExport` should be used instead.
@@ -758,7 +761,7 @@
 - Added `CraftCms\Commerce\Promotion\Records\SalePurchasable`.
 - Added `CraftCms\Commerce\Promotion\Records\SaleUserGroup`.
 - Added `CraftCms\Commerce\Promotion\Records\Coupon`.
-- Added `CraftCms\Commerce\Promotion\Events\DiscountAdjustmentsEvent`.
+- Added `CraftCms\Commerce\Promotion\Events\DiscountAdjustmentsCreated`.
 - Added `CraftCms\Commerce\Promotion\Events\DiscountEvent`.
 - Added `CraftCms\Commerce\Promotion\Events\MatchLineItemEvent`.
 - Added `CraftCms\Commerce\Promotion\Events\MatchOrderEvent`.
@@ -770,7 +773,7 @@
 - Deprecated `craft\commerce\models\Discount`. `CraftCms\Commerce\Promotion\Models\Discount` should be used instead.
 - Deprecated `craft\commerce\models\Sale`. `CraftCms\Commerce\Promotion\Models\Sale` should be used instead.
 - Deprecated `craft\commerce\models\Coupon`. `CraftCms\Commerce\Promotion\Models\Coupon` should be used instead.
-- Deprecated `craft\commerce\events\DiscountAdjustmentsEvent`. `CraftCms\Commerce\Promotion\Events\DiscountAdjustmentsEvent` should be used instead.
+- Deprecated `craft\commerce\events\DiscountAdjustmentsEvent`. `CraftCms\Commerce\Promotion\Events\DiscountAdjustmentsCreated` should be used instead.
 - Deprecated `craft\commerce\events\DiscountEvent`. `CraftCms\Commerce\Promotion\Events\DiscountEvent` should be used instead.
 - Deprecated `craft\commerce\events\MatchLineItemEvent`. `CraftCms\Commerce\Promotion\Events\MatchLineItemEvent` should be used instead.
 - Deprecated `craft\commerce\events\MatchOrderEvent`. `CraftCms\Commerce\Promotion\Events\MatchOrderEvent` should be used instead.
@@ -940,8 +943,13 @@
 - Deprecated `craft\commerce\base\StoreTrait`. `CraftCms\Commerce\Store\Concerns\StoreTrait` should be used instead.
 - Deprecated `craft\commerce\base\HasStoreInterface`. `CraftCms\Commerce\Store\Contracts\HasStoreInterface` should be used instead.
 - Deprecated `craft\commerce\errors\StoreNotFoundException`. `CraftCms\Commerce\Store\Exceptions\StoreNotFoundException` should be used instead.
-- Deprecated `craft\commerce\events\DeleteStoreEvent`. `CraftCms\Commerce\Store\Events\DeleteStoreEvent` should be used instead.
-- Deprecated `craft\commerce\events\StoreEvent`. `CraftCms\Commerce\Store\Events\StoreEvent` should be used instead.
+- Deprecated `craft\commerce\events\DeleteStoreEvent` in favor of the following new events:
+  - `craft\commerce\services\Stores::EVENT_BEFORE_DELETE_STORE` => `CraftCms\Commerce\Store\Events\StoreDeleting`
+  - `craft\commerce\services\Stores::EVENT_BEFORE_APPLY_STORE_DELETE` => `CraftCms\Commerce\Store\Events\StoreDeleteApplying`
+  - `craft\commerce\services\Stores::EVENT_AFTER_DELETE_STORE` => `CraftCms\Commerce\Store\Events\StoreDeleted`
+- Deprecated `craft\commerce\events\StoreEvent` in favor of the following new events:
+  - `craft\commerce\services\Stores::EVENT_BEFORE_SAVE_STORE` => `CraftCms\Commerce\Store\Events\StoreSaving`
+  - `craft\commerce\services\Stores::EVENT_AFTER_SAVE_STORE` => `CraftCms\Commerce\Store\Events\StoreSaved`
 - Removed `craft\commerce\services\Store`. `CraftCms\Commerce\Store\Stores` should be used instead.
 - Removed `craft\commerce\models\Store::setCountries()`, `getCountries()`, `getCountriesList()`, `getAdministrativeAreasListByCountryCode()`, and `getMarketAddressCondition()`. `Store::getSettings()` (returning `CraftCms\Commerce\Store\Models\StoreSettings`) should be used instead.
 - Removed `craft\commerce\records\SiteStore`. `CraftCms\Commerce\Store\Records\SiteStore` should be used instead.
@@ -1005,8 +1013,8 @@
 - Added `CraftCms\Commerce\Tax\Models\TaxCategory`.
 - Added `CraftCms\Commerce\Tax\Contracts\TaxIdValidatorInterface`.
 - Added `CraftCms\Commerce\Tax\Contracts\TaxEngineInterface`.
-- Added `CraftCms\Commerce\Tax\Events\TaxEngineEvent`.
-- Added `CraftCms\Commerce\Tax\Events\TaxIdValidatorsEvent`.
+- Added `CraftCms\Commerce\Tax\Events\TaxEngineResolving`.
+- Added `CraftCms\Commerce\Tax\Events\TaxIdValidatorsResolving`.
 - Deprecated `craft\commerce\services\TaxCategories`. `CraftCms\Commerce\Tax\TaxCategories` should be used instead.
 - Deprecated `craft\commerce\services\TaxZones`. `CraftCms\Commerce\Tax\TaxZones` should be used instead.
 - Deprecated `craft\commerce\models\TaxRate`. `CraftCms\Commerce\Tax\Models\TaxRate` should be used instead.
@@ -1014,8 +1022,10 @@
 - Deprecated `craft\commerce\models\TaxCategory`. `CraftCms\Commerce\Tax\Models\TaxCategory` should be used instead.
 - Deprecated `craft\commerce\base\TaxIdValidatorInterface`. `CraftCms\Commerce\Tax\Contracts\TaxIdValidatorInterface` should be used instead.
 - Deprecated `craft\commerce\base\TaxEngineInterface`. `CraftCms\Commerce\Tax\Contracts\TaxEngineInterface` should be used instead.
-- Deprecated `craft\commerce\events\TaxEngineEvent`. `CraftCms\Commerce\Tax\Events\TaxEngineEvent` should be used instead.
-- Deprecated `craft\commerce\events\TaxIdValidatorsEvent`. `CraftCms\Commerce\Tax\Events\TaxIdValidatorsEvent` should be used instead.
+- Deprecated `craft\commerce\services\Taxes::EVENT_REGISTER_TAX_ENGINE`. `CraftCms\Commerce\Tax\Events\TaxEngineResolving` should be used instead.
+- Deprecated `craft\commerce\services\Taxes::EVENT_REGISTER_TAX_ID_VALIDATORS`. `CraftCms\Commerce\Tax\Events\TaxIdValidatorsResolving` should be used instead.
+- Deprecated `craft\commerce\events\TaxEngineEvent`. `CraftCms\Commerce\Tax\Events\TaxEngineResolving` should be used instead.
+- Deprecated `craft\commerce\events\TaxIdValidatorsEvent`. `CraftCms\Commerce\Tax\Events\TaxIdValidatorsResolving` should be used instead.
 - Removed `craft\commerce\records\TaxZone`. `CraftCms\Commerce\Tax\Records\TaxZone` should be used instead.
 - Removed `craft\commerce\records\TaxRate`. `CraftCms\Commerce\Tax\Records\TaxRate` should be used instead.
 - Removed `craft\commerce\records\TaxCategory`. `CraftCms\Commerce\Tax\Records\TaxCategory` should be used instead.
