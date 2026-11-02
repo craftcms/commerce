@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Customer;
 
-use craft\mail\Mailer;
-use craft\mail\Message;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Auth\Impersonation;
 use CraftCms\Cms\Element\Events\ElementSaved;
@@ -25,8 +23,6 @@ use CraftCms\Commerce\Payment\Events\PrimaryPaymentSourceUpdated;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use yii\base\Event;
-use yii\mail\MailEvent;
 
 use function CraftCms\Cms\t;
 
@@ -417,23 +413,6 @@ class Customers
 
         if (Elements::saveElement($user)) {
             Users::assignUserToDefaultGroup($user);
-
-            $setActivationEmailSiteId = function(MailEvent $event) use ($user, &$setActivationEmailSiteId) {
-                Event::off(Mailer::class, Mailer::EVENT_BEFORE_PREP, $setActivationEmailSiteId);
-
-                if (!$event->message instanceof Message) {
-                    return;
-                }
-
-                if ($event->message->key !== 'account_activation') {
-                    return;
-                }
-
-                if ($event->message->siteId === null && $user->affiliatedSiteId) {
-                    $event->message->siteId = $user->affiliatedSiteId;
-                }
-            };
-            Event::on(Mailer::class, Mailer::EVENT_BEFORE_PREP, $setActivationEmailSiteId);
 
             $emailSent = Users::sendActivationEmail($user);
 

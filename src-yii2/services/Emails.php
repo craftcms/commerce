@@ -10,8 +10,6 @@ use CraftCms\Commerce\Email\Events\EmailDeleted;
 use CraftCms\Commerce\Email\Events\EmailDeleting;
 use CraftCms\Commerce\Email\Events\EmailSaved;
 use CraftCms\Commerce\Email\Events\EmailSaving;
-use CraftCms\Commerce\Email\Events\MailSending;
-use CraftCms\Commerce\Email\Events\MailSent;
 use CraftCms\Commerce\Order\Data\OrderHistory;
 use CraftCms\Commerce\Order\Elements\Order;
 use Illuminate\Support\Collection;
@@ -25,8 +23,14 @@ use yii\base\Exception;
  */
 class Emails extends Component
 {
+    /**
+     * @deprecated 6.0.0 No longer triggered. Use {@see \CraftCms\Commerce\Email\Events\MailSending} instead.
+     */
     public const EVENT_BEFORE_SEND_MAIL = \CraftCms\Commerce\Email\Emails::EVENT_BEFORE_SEND_MAIL;
 
+    /**
+     * @deprecated 6.0.0 No longer triggered. Use {@see \CraftCms\Commerce\Email\Events\MailSent} instead.
+     */
     public const EVENT_AFTER_SEND_MAIL = \CraftCms\Commerce\Email\Emails::EVENT_AFTER_SEND_MAIL;
 
     public const EVENT_BEFORE_SAVE_EMAIL = \CraftCms\Commerce\Email\Emails::EVENT_BEFORE_SAVE_EMAIL;
@@ -145,18 +149,5 @@ class Emails extends Component
             }
         });
 
-        Event::listen(MailSending::class, static function(MailSending $event) {
-            $legacy = Plugin::getInstance()->getEmails();
-            if ($legacy->hasEventHandlers(self::EVENT_BEFORE_SEND_MAIL)) {
-                $legacy->trigger(self::EVENT_BEFORE_SEND_MAIL, $event);
-            }
-        });
-
-        Event::listen(MailSent::class, static function(MailSent $event) {
-            $legacy = Plugin::getInstance()->getEmails();
-            if ($legacy->hasEventHandlers(self::EVENT_AFTER_SEND_MAIL)) {
-                $legacy->trigger(self::EVENT_AFTER_SEND_MAIL, $event);
-            }
-        });
     }
 }

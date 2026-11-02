@@ -226,6 +226,9 @@
 
 ### Email
 
+> [!WARNING]
+> Order emails are now sent as Laravel mailables instead of `craft\mail\Message` objects. `CraftCms\Commerce\Email\Events\MailSending` and `CraftCms\Commerce\Email\Events\MailSent` listeners receive a `CraftCms\Commerce\Email\Mailables\OrderEmail` mailable in `$mailable` (previously `$craftEmail`), and the legacy `craft\commerce\services\Emails::EVENT_BEFORE_SEND_MAIL` and `EVENT_AFTER_SEND_MAIL` events are no longer triggered, even when `craftcms/yii2-adapter` is installed.
+
 - Added `CraftCms\Commerce\Email\Emails`.
 - Added `CraftCms\Commerce\Support\Facades\Emails`.
 - Added `CraftCms\Commerce\Email\Records\Email`.
@@ -233,6 +236,7 @@
 - Added `CraftCms\Commerce\Email\Exceptions\EmailException`.
 - Added `CraftCms\Commerce\Email\Events\EmailEvent`.
 - Added `CraftCms\Commerce\Email\Events\MailEvent`.
+- Added `CraftCms\Commerce\Email\Mailables\OrderEmail`.
 - Added `CraftCms\Commerce\Email\Jobs\SendEmailJob`, a native Laravel `ShouldQueue` job.
 - Removed `craft\commerce\queue\jobs\SendEmail`. `CraftCms\Commerce\Email\Jobs\SendEmailJob` should be used instead.
 - Deprecated `craft\commerce\services\Emails`. `CraftCms\Commerce\Email\Emails` should be used instead.
@@ -243,7 +247,10 @@
   - `craft\commerce\services\Emails::EVENT_AFTER_SAVE_EMAIL` => `CraftCms\Commerce\Email\Events\EmailSaved`
   - `craft\commerce\services\Emails::EVENT_BEFORE_DELETE_EMAIL` => `CraftCms\Commerce\Email\Events\EmailDeleting`
   - `craft\commerce\services\Emails::EVENT_AFTER_DELETE_EMAIL` => `CraftCms\Commerce\Email\Events\EmailDeleted`
-- Deprecated `craft\commerce\events\MailEvent`. `CraftCms\Commerce\Email\Events\MailEvent` should be used instead.
+- Deprecated `craft\commerce\events\MailEvent` in favor of the following new events:
+  - `craft\commerce\services\Emails::EVENT_BEFORE_SEND_MAIL` => `CraftCms\Commerce\Email\Events\MailSending`
+  - `craft\commerce\services\Emails::EVENT_AFTER_SEND_MAIL` => `CraftCms\Commerce\Email\Events\MailSent`
+- Order emails are now sent with the mailer configured for the email’s render site.
 - Removed `craft\commerce\records\Email`. `CraftCms\Commerce\Email\Records\Email` should be used instead.
 
 #### Controllers
