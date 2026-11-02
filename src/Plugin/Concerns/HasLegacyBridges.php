@@ -16,6 +16,7 @@ use craft\commerce\services\LineItems as LegacyLineItems;
 use craft\commerce\services\LineItemStatuses as LegacyLineItemStatuses;
 use craft\commerce\services\OrderAdjustments as LegacyOrderAdjustments;
 use craft\commerce\services\OrderHistories as LegacyOrderHistories;
+use craft\commerce\services\Orders as LegacyOrders;
 use craft\commerce\services\OrderStatuses as LegacyOrderStatuses;
 use craft\commerce\services\PaymentCurrencies as LegacyPaymentCurrencies;
 use craft\commerce\services\Payments as LegacyPayments;
@@ -131,6 +132,7 @@ trait HasLegacyBridges
         LegacyLineItems::registerEvents();
         LegacyLineItemStatuses::registerEvents();
         LegacyOrderHistories::registerEvents();
+        LegacyOrders::registerEvents();
         LegacyOrderStatuses::registerEvents();
         LegacyPaymentCurrencies::registerEvents();
         LegacyPayments::registerEvents();
