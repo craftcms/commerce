@@ -174,6 +174,14 @@
 - Added `CraftCms\Commerce\Stats\Stat`.
 - Added `CraftCms\Commerce\Stats\Contracts\StatInterface`.
 - Added `CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait` trait.
+- Added `CraftCms\Commerce\Dashboard\Assets\ChartJsAsset`.
+- Added `CraftCms\Commerce\Dashboard\Assets\DeepMergeAsset`.
+- Added `CraftCms\Commerce\Dashboard\Assets\StatWidgetsAsset`.
+- Removed `craft\commerce\web\assets\chartjs\ChartJsAsset`. `CraftCms\Commerce\Dashboard\Assets\ChartJsAsset` should be used instead.
+- Removed `craft\commerce\web\assets\deepmerge\DeepMergeAsset`. `CraftCms\Commerce\Dashboard\Assets\DeepMergeAsset` should be used instead.
+- Removed `craft\commerce\web\assets\statwidgets\StatWidgetsAsset`. `CraftCms\Commerce\Dashboard\Assets\StatWidgetsAsset` should be used instead.
+- Removed `craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset`.
+- Removed `craft\commerce\web\assets\orderswidget\OrdersWidgetAsset`.
 - Added `CraftCms\Commerce\Stats\AverageOrderTotal`.
 - Added `CraftCms\Commerce\Stats\NewCustomers`.
 - Added `CraftCms\Commerce\Stats\RepeatCustomers`.

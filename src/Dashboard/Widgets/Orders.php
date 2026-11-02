@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Dashboard\Widgets;
 
-use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
-use craft\commerce\web\assets\orderswidget\OrdersWidgetAsset;
-use craft\helpers\Cp;
+use CraftCms\Cms\Cp\RequestedSite;
 use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\Facades\InputNamespace;
@@ -16,7 +14,10 @@ use CraftCms\Cms\Ui\Controls\Number;
 use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Cms\Ui\Ui;
 use CraftCms\Cms\Ui\UiContext;
+use CraftCms\Cms\View\LegacyAssets\AdminTableAsset;
+use CraftCms\Cms\View\LegacyAssets\InternalAssetRegistry;
 use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Dashboard\Widgets\Concerns\HasCommerceIcon;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
 use CraftCms\Commerce\Order\Elements\Order;
 
@@ -28,6 +29,7 @@ use function CraftCms\Cms\template;
 
 class Orders extends Widget
 {
+    use HasCommerceIcon;
     use StatWidgetTrait;
 
     public int $limit = 10;
@@ -39,7 +41,7 @@ class Orders extends Widget
 
         if (!$this->storeId) {
             /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
-            $this->storeId = Cp::requestedSite()?->getStore()->id ?? app(Stores::class)->getPrimaryStore()->id;
+            $this->storeId = app(RequestedSite::class)->get()?->getStore()->id ?? app(Stores::class)->getPrimaryStore()->id;
         }
     }
 
@@ -53,12 +55,6 @@ class Orders extends Widget
     public static function displayName(): string
     {
         return t('Recent Orders', category: 'commerce');
-    }
-
-    #[\Override]
-    public static function icon(): ?string
-    {
-        return \Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
 
     #[\Override]
@@ -78,6 +74,8 @@ class Orders extends Widget
     #[\Override]
     public function props(): array
     {
+        app(InternalAssetRegistry::class)->register(AdminTableAsset::class);
+
         $orders = $this->getOrders();
 
         $id = 'recent-orders-settings-' . Str::random();
@@ -94,9 +92,6 @@ class Orders extends Widget
     #[\Override]
     public function settingsUi(UiContext $context = new UiContext()): ?Ui
     {
-        \Craft::$app->getView()->registerAssetBundle(OrdersWidgetAsset::class);
-        \Craft::$app->getView()->registerAssetBundle(CommerceWidgetsAsset::class);
-
         return Ui::make([
             Field::make(t('Store', category: 'commerce'))
                 ->control(Choice::make('storeId')->value($this->storeId)->options($this->getStoreOptions())),

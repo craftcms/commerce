@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Dashboard\Widgets;
 
-use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
-use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
-use craft\helpers\Cp;
+use CraftCms\Cms\Cp\RequestedSite;
 use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\DateTimeHelper;
@@ -18,7 +16,10 @@ use CraftCms\Cms\Ui\Controls\Lightswitch;
 use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Cms\Ui\Ui;
 use CraftCms\Cms\Ui\UiContext;
+use CraftCms\Cms\View\LegacyAssets\InternalAssetRegistry;
 use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Dashboard\Assets\StatWidgetsAsset;
+use CraftCms\Commerce\Dashboard\Widgets\Concerns\HasCommerceIcon;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
 use CraftCms\Commerce\Stats\Contracts\StatInterface;
 use CraftCms\Commerce\Stats\TotalOrders as TotalOrdersStat;
@@ -30,6 +31,7 @@ use function CraftCms\Cms\template;
 
 class TotalOrders extends Widget
 {
+    use HasCommerceIcon;
     use StatWidgetTrait;
 
     public mixed $showChart = null;
@@ -43,7 +45,7 @@ class TotalOrders extends Widget
 
         if (!$this->storeId) {
             /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
-            $this->storeId = Cp::requestedSite()?->getStore()->id ?? app(Stores::class)->getPrimaryStore()->id;
+            $this->storeId = app(RequestedSite::class)->get()?->getStore()->id ?? app(Stores::class)->getPrimaryStore()->id;
         }
 
         $this->dateRange = $this->dateRange ?: StatInterface::DATE_RANGE_TODAY;
@@ -70,12 +72,6 @@ class TotalOrders extends Widget
     public static function displayName(): string
     {
         return t('Total Orders', category: 'commerce');
-    }
-
-    #[\Override]
-    public static function icon(): ?string
-    {
-        return \Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
 
     #[\Override]
@@ -130,7 +126,7 @@ class TotalOrders extends Widget
         $id = 'total-orders' . Str::random();
         $namespaceId = InputNamespace::namespaceId($id);
 
-        \Craft::$app->getView()->registerAssetBundle(StatWidgetsAsset::class);
+        app(InternalAssetRegistry::class)->register(StatWidgetsAsset::class);
 
         return ['html' => template('commerce/_components/widgets/orders/total/body', compact(
             'namespaceId',
@@ -145,8 +141,6 @@ class TotalOrders extends Widget
     #[\Override]
     public function settingsUi(UiContext $context = new UiContext()): ?Ui
     {
-        \Craft::$app->getView()->registerAssetBundle(CommerceWidgetsAsset::class);
-
         return Ui::make([
             Field::make(t('Show Chart?', category: 'commerce'))
                 ->control(Lightswitch::make('showChart')->value((bool)$this->showChart)),

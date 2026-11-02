@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Dashboard\Widgets;
 
-use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
-use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
-use craft\helpers\Cp;
-use craft\web\assets\admintable\AdminTableAsset;
+use CraftCms\Cms\Cp\RequestedSite;
 use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Html;
@@ -16,7 +13,11 @@ use CraftCms\Cms\Ui\Controls\Choice;
 use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Cms\Ui\Ui;
 use CraftCms\Cms\Ui\UiContext;
+use CraftCms\Cms\View\LegacyAssets\AdminTableAsset;
+use CraftCms\Cms\View\LegacyAssets\InternalAssetRegistry;
 use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Dashboard\Assets\StatWidgetsAsset;
+use CraftCms\Commerce\Dashboard\Widgets\Concerns\HasCommerceIcon;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
 use CraftCms\Commerce\Stats\Contracts\StatInterface;
 use CraftCms\Commerce\Stats\TopPurchasables as TopPurchasablesStat;
@@ -28,6 +29,7 @@ use function CraftCms\Cms\template;
 
 class TopPurchasables extends Widget
 {
+    use HasCommerceIcon;
     use StatWidgetTrait;
 
     /**
@@ -57,7 +59,7 @@ class TopPurchasables extends Widget
 
         if (!$this->storeId) {
             /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
-            $this->storeId = Cp::requestedSite()?->getStore()->id ?? app(Stores::class)->getPrimaryStore()->id;
+            $this->storeId = app(RequestedSite::class)->get()?->getStore()->id ?? app(Stores::class)->getPrimaryStore()->id;
         }
 
         $this->nameFieldOptions = [
@@ -104,12 +106,6 @@ class TopPurchasables extends Widget
     }
 
     #[\Override]
-    public static function icon(): ?string
-    {
-        return \Craft::getAlias('@craft/commerce/icon-mask.svg');
-    }
-
-    #[\Override]
     public function getTitle(): ?string
     {
         return $this->title;
@@ -130,8 +126,8 @@ class TopPurchasables extends Widget
             return ['html' => Html::tag('p', t('No stats available.', category: 'commerce'), ['class' => 'zilch'])];
         }
 
-        \Craft::$app->getView()->registerAssetBundle(StatWidgetsAsset::class);
-        \Craft::$app->getView()->registerAssetBundle(AdminTableAsset::class);
+        app(InternalAssetRegistry::class)->register(StatWidgetsAsset::class);
+        app(InternalAssetRegistry::class)->register(AdminTableAsset::class);
 
         return ['html' => template('commerce/_components/widgets/purchasables/top/body', [
             'stats' => $stats,
@@ -146,8 +142,6 @@ class TopPurchasables extends Widget
     #[\Override]
     public function settingsUi(UiContext $context = new UiContext()): ?Ui
     {
-        \Craft::$app->getView()->registerAssetBundle(CommerceWidgetsAsset::class);
-
         return Ui::make([
             Field::make(t('Type', category: 'commerce'))
                 ->control(Choice::make('type')->value($this->type)->options(

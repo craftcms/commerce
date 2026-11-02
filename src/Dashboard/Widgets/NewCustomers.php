@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Dashboard\Widgets;
 
-use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
-use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
-use craft\helpers\Cp;
+use CraftCms\Cms\Cp\RequestedSite;
 use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Ui\Ui;
 use CraftCms\Cms\Ui\UiContext;
+use CraftCms\Cms\View\LegacyAssets\InternalAssetRegistry;
 use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Dashboard\Assets\StatWidgetsAsset;
+use CraftCms\Commerce\Dashboard\Widgets\Concerns\HasCommerceIcon;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
 use CraftCms\Commerce\Stats\NewCustomers as NewCustomersStat;
 use CraftCms\Commerce\Store\Stores;
@@ -22,6 +23,7 @@ use function CraftCms\Cms\template;
 
 class NewCustomers extends Widget
 {
+    use HasCommerceIcon;
     use StatWidgetTrait;
 
     private NewCustomersStat $stat;
@@ -33,7 +35,7 @@ class NewCustomers extends Widget
 
         if (!$this->storeId) {
             /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
-            $this->storeId = Cp::requestedSite()?->getStore()->id ?? app(Stores::class)->getPrimaryStore()->id;
+            $this->storeId = app(RequestedSite::class)->get()?->getStore()->id ?? app(Stores::class)->getPrimaryStore()->id;
         }
 
         $this->stat = new NewCustomersStat(
@@ -61,12 +63,6 @@ class NewCustomers extends Widget
     }
 
     #[\Override]
-    public static function icon(): ?string
-    {
-        return \Craft::getAlias('@craft/commerce/icon-mask.svg');
-    }
-
-    #[\Override]
     public static function maxColspan(): ?int
     {
         return 1;
@@ -84,7 +80,7 @@ class NewCustomers extends Widget
         $number = $this->stat->get();
         $timeFrame = $this->stat->getDateRangeWording();
 
-        \Craft::$app->getView()->registerAssetBundle(StatWidgetsAsset::class);
+        app(InternalAssetRegistry::class)->register(StatWidgetsAsset::class);
 
         return ['html' => template('commerce/_components/widgets/customers/new/body', compact('number', 'timeFrame'), TemplateMode::Cp)];
     }
@@ -92,8 +88,6 @@ class NewCustomers extends Widget
     #[\Override]
     public function settingsUi(UiContext $context = new UiContext()): ?Ui
     {
-        \Craft::$app->getView()->registerAssetBundle(CommerceWidgetsAsset::class);
-
         return Ui::make($this->statSettingsFields());
     }
 }
