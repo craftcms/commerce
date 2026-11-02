@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Pdf\Events;
 
 use Dompdf\Options;
-use yii\base\Event;
 
-class PdfRenderOptionsEvent extends Event
+/**
+ * Dispatched before a PDF is rendered. Listeners may change the Dompdf `$options`.
+ */
+class PdfRenderOptionsResolving
 {
     public function __construct(
         public Options $options,

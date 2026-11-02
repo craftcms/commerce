@@ -238,7 +238,11 @@
 - Deprecated `craft\commerce\services\Emails`. `CraftCms\Commerce\Email\Emails` should be used instead.
 - Deprecated `craft\commerce\models\Email`. `CraftCms\Commerce\Email\Models\Email` should be used instead.
 - Deprecated `craft\commerce\errors\EmailException`. `CraftCms\Commerce\Email\Exceptions\EmailException` should be used instead.
-- Deprecated `craft\commerce\events\EmailEvent`. `CraftCms\Commerce\Email\Events\EmailEvent` should be used instead.
+- Deprecated `craft\commerce\events\EmailEvent` in favor of the following new events:
+  - `craft\commerce\services\Emails::EVENT_BEFORE_SAVE_EMAIL` => `CraftCms\Commerce\Email\Events\EmailSaving`
+  - `craft\commerce\services\Emails::EVENT_AFTER_SAVE_EMAIL` => `CraftCms\Commerce\Email\Events\EmailSaved`
+  - `craft\commerce\services\Emails::EVENT_BEFORE_DELETE_EMAIL` => `CraftCms\Commerce\Email\Events\EmailDeleting`
+  - `craft\commerce\services\Emails::EVENT_AFTER_DELETE_EMAIL` => `CraftCms\Commerce\Email\Events\EmailDeleted`
 - Deprecated `craft\commerce\events\MailEvent`. `CraftCms\Commerce\Email\Events\MailEvent` should be used instead.
 - Removed `craft\commerce\records\Email`. `CraftCms\Commerce\Email\Records\Email` should be used instead.
 
@@ -258,12 +262,18 @@
 - Added `CraftCms\Commerce\Http\RateLimiters\PdfChallengeRateLimiter`, replacing the per-action `yii\filters\RateLimiter` behavior used to throttle PDF download challenge requests.
 - Added `CraftCms\Commerce\Pdf\Events\PdfEvent`.
 - Added `CraftCms\Commerce\Pdf\Events\PdfRenderEvent`.
-- Added `CraftCms\Commerce\Pdf\Events\PdfRenderOptionsEvent`.
+- Added `CraftCms\Commerce\Pdf\Events\PdfRenderOptionsResolving`.
 - Deprecated `craft\commerce\services\Pdfs`. `CraftCms\Commerce\Pdf\Pdfs` should be used instead.
 - Deprecated `craft\commerce\models\Pdf`. `CraftCms\Commerce\Pdf\Models\Pdf` should be used instead.
-- Deprecated `craft\commerce\events\PdfEvent`. `CraftCms\Commerce\Pdf\Events\PdfEvent` should be used instead.
-- Deprecated `craft\commerce\events\PdfRenderEvent`. `CraftCms\Commerce\Pdf\Events\PdfRenderEvent` should be used instead.
-- Deprecated `craft\commerce\events\PdfRenderOptionsEvent`. `CraftCms\Commerce\Pdf\Events\PdfRenderOptionsEvent` should be used instead.
+- Deprecated `craft\commerce\events\PdfEvent` in favor of the following new events:
+  - `craft\commerce\services\Pdfs::EVENT_BEFORE_SAVE_PDF` => `CraftCms\Commerce\Pdf\Events\PdfSaving`
+  - `craft\commerce\services\Pdfs::EVENT_AFTER_SAVE_PDF` => `CraftCms\Commerce\Pdf\Events\PdfSaved`
+  - `craft\commerce\services\Pdfs::EVENT_BEFORE_DELETE_PDF` => `CraftCms\Commerce\Pdf\Events\PdfDeleting`
+- Deprecated `craft\commerce\events\PdfRenderEvent` in favor of the following new events:
+  - `craft\commerce\services\Pdfs::EVENT_BEFORE_RENDER_PDF` => `CraftCms\Commerce\Pdf\Events\PdfRendering`
+  - `craft\commerce\services\Pdfs::EVENT_AFTER_RENDER_PDF` => `CraftCms\Commerce\Pdf\Events\PdfRendered`
+- Deprecated `craft\commerce\events\PdfRenderOptionsEvent`. `CraftCms\Commerce\Pdf\Events\PdfRenderOptionsResolving` should be used instead.
+- Deprecated `craft\commerce\services\Pdfs::EVENT_MODIFY_RENDER_OPTIONS`. `CraftCms\Commerce\Pdf\Events\PdfRenderOptionsResolving` should be used instead.
 - Removed `craft\commerce\records\Pdf`. `CraftCms\Commerce\Pdf\Records\Pdf` should be used instead.
 - Updated dompdf/dompdf to ^3.1.6 (from ^2.0.2).
 
