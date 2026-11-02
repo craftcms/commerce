@@ -994,9 +994,10 @@ class Product extends Element implements HasStoreInterface
      */
     public function getDefaultVariant(bool $includeDisabled = false): ?Variant
     {
-        $defaultVariant = $this->getVariants($includeDisabled)->firstWhere('id', $this->defaultVariantId);
+        $variants = $this->getVariants($includeDisabled);
+        $defaultVariant = $variants->firstWhere('id', $this->defaultVariantId);
 
-        return $defaultVariant ?: $this->getVariants($includeDisabled)->first();
+        return $defaultVariant ?: $variants->first();
     }
 
     /**
@@ -1546,7 +1547,13 @@ class Product extends Element implements HasStoreInterface
             $record->typeId = $this->typeId;
 
             $defaultVariant = $this->getDefaultVariant();
-            $record->defaultVariantId = $defaultVariant->id ?? null;
+            $defaultVariantId = $defaultVariant->id ?? null;
+
+            if ($defaultVariantId && $this->getIsCanonical() && $defaultVariant->getIsDerivative()) {
+                $defaultVariantId = $defaultVariant->getCanonicalId();
+            }
+
+            $record->defaultVariantId = $defaultVariantId;
             $record->defaultSku = $defaultVariant?->getSkuAsText() ?? '';
             $record->defaultPrice = $defaultVariant?->getBasePrice() ?? 0.0;
             $record->defaultHeight = $defaultVariant->height ?? 0.0;
@@ -1555,7 +1562,7 @@ class Product extends Element implements HasStoreInterface
             $record->defaultWeight = $defaultVariant->weight ?? 0.0;
 
             // Make sure to update the object
-            $this->defaultVariantId = $defaultVariant->id ?? null;
+            $this->defaultVariantId = $defaultVariantId;
             $this->defaultSku = $defaultVariant?->getSkuAsText();
             $this->defaultPrice = $defaultVariant?->getBasePrice() ?? 0.0;
             $this->defaultHeight = $defaultVariant->height ?? 0;
@@ -1574,6 +1581,22 @@ class Product extends Element implements HasStoreInterface
             $this->id = $record->id;
 
             $this->setDirtyAttributes($dirtyAttributes);
+
+            if ($this->getIsCanonical()) {
+                // @TODO Remove in Commerce 6.0 if the `isDefault` column is removed from the variants table
+                DB::table(Table::VARIANTS)
+                    ->where('primaryOwnerId', $this->id)
+                    ->where('isDefault', true)
+                    ->when($defaultVariantId, fn($query) => $query->where('id', '!=', $defaultVariantId))
+                    ->update(['isDefault' => false]);
+
+                if ($defaultVariantId) {
+                    DB::table(Table::VARIANTS)
+                        ->where('id', $defaultVariantId)
+                        ->where('isDefault', false)
+                        ->update(['isDefault' => true]);
+                }
+            }
 
             if ($this->getIsCanonical() &&
                 isset($this->typeId) &&

@@ -541,12 +541,13 @@ class Transfer extends Element
     }
 
     /**
-     * Moves each detail's quantity out of the origin location's on-hand stock and into the destination
+     * Moves each detail's quantity out of the origin location's stock and into the destination
      * location's incoming stock.
      */
     private function moveDetailsToIncoming(): void
     {
         $inventoryUpdateCollection = new UpdateInventoryLevelCollection();
+        $inventoryService = app(Inventory::class);
 
         foreach ($this->getDetails() as $detail) {
             $inventoryUpdateCollection->push(new UpdateInventoryLevelInTransfer([
@@ -559,18 +560,47 @@ class Transfer extends Element
                 'note' => t('Incoming transfer from Transfer ID: {id}', ['id' => $this->id], category: 'commerce'),
             ]));
 
-            $inventoryUpdateCollection->push(new UpdateInventoryLevelInTransfer([
-                'type' => 'onHand',
-                'updateAction' => InventoryUpdateQuantityType::ADJUST,
-                'inventoryItemId' => $detail->inventoryItemId,
-                'transferId' => $this->id,
-                'inventoryLocationId' => $this->originLocationId,
-                'quantity' => $detail->quantity * -1,
-                'note' => t('Outgoing transfer from Transfer ID: {id}', ['id' => $this->id], category: 'commerce'),
-            ]));
+            // When an order is completed with a shortfall at the location it's committed to, the shortfall
+            // is RESERVED at other locations. If this transfer moves stock from one of those locations to
+            // the committed location, debit the reservation first rather than AVAILABLE stock, so the
+            // reservation doesn't get stranded. Once received, the stock becomes AVAILABLE at the
+            // destination, filling the shortfall there. Any remaining quantity is debited from AVAILABLE.
+            $remainingQty = $detail->quantity;
+            foreach ($inventoryService->getReservedQuantitiesByLineItem($detail->inventoryItemId, $this->originLocationId, $this->destinationLocationId) as $reservation) {
+                if ($remainingQty <= 0) {
+                    break;
+                }
+
+                $qty = min($remainingQty, $reservation['reservedQty']);
+
+                $inventoryUpdateCollection->push(new UpdateInventoryLevelInTransfer([
+                    'type' => InventoryTransactionType::RESERVED->value,
+                    'updateAction' => InventoryUpdateQuantityType::ADJUST,
+                    'inventoryItemId' => $detail->inventoryItemId,
+                    'transferId' => $this->id,
+                    'lineItemId' => $reservation['lineItemId'],
+                    'inventoryLocationId' => $this->originLocationId,
+                    'quantity' => $qty * -1,
+                    'note' => t('Outgoing transfer from Transfer ID: {id}', ['id' => $this->id], category: 'commerce'),
+                ]));
+
+                $remainingQty -= $qty;
+            }
+
+            if ($remainingQty > 0) {
+                $inventoryUpdateCollection->push(new UpdateInventoryLevelInTransfer([
+                    'type' => InventoryTransactionType::AVAILABLE->value,
+                    'updateAction' => InventoryUpdateQuantityType::ADJUST,
+                    'inventoryItemId' => $detail->inventoryItemId,
+                    'transferId' => $this->id,
+                    'inventoryLocationId' => $this->originLocationId,
+                    'quantity' => $remainingQty * -1,
+                    'note' => t('Outgoing transfer from Transfer ID: {id}', ['id' => $this->id], category: 'commerce'),
+                ]));
+            }
         }
 
-        app(Inventory::class)->executeUpdateInventoryLevels($inventoryUpdateCollection);
+        $inventoryService->executeUpdateInventoryLevels($inventoryUpdateCollection);
     }
 
     private function saveDetails(): void

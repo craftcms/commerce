@@ -6,11 +6,13 @@ use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\CatalogPricing\Data\CatalogPricingRule;
 use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingRule as CatalogPricingRuleRecord;
+use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Product\Variant\Queries\VariantQuery;
 use CraftCms\Commerce\Purchasable\Conditions\SkuConditionRule;
 use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Tests\Support\VariantQueryFixture;
+use Illuminate\Support\Facades\DB;
 
 beforeEach(function() {
     $this->fixture = VariantQueryFixture::seed();
@@ -109,4 +111,25 @@ test('a catalog pricing rule targeting a sku updates that variant\'s price and s
 
     $white = Variant::find()->sku('hct-white')->one();
     expect($white->getPrice())->toEqual(19.99);
+});
+
+test('isDefault derives from the product\'s defaultVariantId', function() {
+    $product = $this->fixture->tee;
+    $white = $this->fixture->whiteVariant;
+    $blue = $this->fixture->blueVariant;
+
+    DB::table(Table::PRODUCTS)->where('id', $product->id)->update(['defaultVariantId' => $white->id]);
+
+    expect(Variant::find()->productId($product->id)->isDefault(true)->ids())->toBe([$white->id])
+        ->and(Variant::find()->productId($product->id)->isDefault(false)->ids())->toBe([$blue->id]);
+
+    DB::table(Table::PRODUCTS)->where('id', $product->id)->update(['defaultVariantId' => $blue->id]);
+
+    expect(Variant::find()->productId($product->id)->isDefault(true)->ids())->toBe([$blue->id])
+        ->and(Variant::find()->productId($product->id)->isDefault(false)->ids())->toBe([$white->id]);
+
+    DB::table(Table::PRODUCTS)->where('id', $product->id)->update(['defaultVariantId' => null]);
+
+    expect(Variant::find()->productId($product->id)->isDefault(true)->ids())->toBe([])
+        ->and(Variant::find()->productId($product->id)->isDefault(false)->ids())->toContain($white->id, $blue->id);
 });

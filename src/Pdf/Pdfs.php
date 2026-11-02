@@ -273,9 +273,9 @@ class Pdfs
     {
         // Load the PDF to get its link expiry setting
         if ($pdfHandle) {
-            $pdf = $this->getPdfByHandle($pdfHandle);
+            $pdf = $this->getPdfByHandle($pdfHandle, $order->storeId);
         } else {
-            $pdf = $this->getDefaultPdf();
+            $pdf = $this->getDefaultPdf($order->storeId);
         }
 
         if (!$pdf) {

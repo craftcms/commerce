@@ -58,6 +58,20 @@ Run `pnpm dev` in a second terminal for Commerce component updates. After rebuil
 
 To reset the local site, stop the server, delete `workbench/database/database.sqlite*` and `workbench/config/craft/project`, then run `composer workbench:setup`.
 
+### Amp orbs
+
+`.agents/setup` installs PHP 8.5 and its extensions, Node 24, the pinned pnpm version, and the locked Composer and pnpm dependencies. It builds Commerce's frontend and prepares the SQLite workbench. Amp snapshots these files so fresh orbs can reuse them. `.agents/resume` does not reinstall dependencies or reset the database.
+
+Start the supervised workbench and open its portal with:
+
+```bash
+amp orb services ensure
+```
+
+Open the Commerce workbench URL printed by the command to sign in automatically as the seeded admin. The service uses Amp's assigned port and public URL for redirects and assets without changing `workbench/.env`. Only expose this development workbench through Amp's authenticated portal.
+
+After changing the service configuration, run `amp orb service restart workbench`. Use `amp orb service logs workbench` to inspect startup errors. Commerce frontend changes still use `pnpm build` followed by `composer workbench:setup` to republish assets.
+
 ## Resources
 
 We highly recommend you check out these resources as you’re getting started with Craft Commerce:

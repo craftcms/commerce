@@ -68,6 +68,7 @@ use CraftCms\Commerce\Order\Exporters\Expanded;
 use CraftCms\Commerce\Order\Exporters\LineItemExport;
 use CraftCms\Commerce\Order\Exporters\OrderExport;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
+use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Order\LineItem\LineItems;
 use CraftCms\Commerce\Order\Models\Order as OrderRecord;
 use CraftCms\Commerce\Order\Models\OrderNotice as OrderNoticeRecord;
@@ -697,11 +698,11 @@ class Order extends Element implements HasStoreInterface
             $this->validateAddressReuse('shippingAddress');
         }
 
-        if ($this->getStore()->getValidateOrganizationTaxIdAsVatId() && !$this->getStore()->getUseBillingAddressForTax()) {
+        if (!$this->isCompleted && $this->getStore()->getValidateOrganizationTaxIdAsVatId() && !$this->getStore()->getUseBillingAddressForTax()) {
             $this->validateOrganizationTaxIdAsVatId('shippingAddress');
         }
 
-        if ($this->getStore()->getValidateOrganizationTaxIdAsVatId() && $this->getStore()->getUseBillingAddressForTax()) {
+        if (!$this->isCompleted && $this->getStore()->getValidateOrganizationTaxIdAsVatId() && $this->getStore()->getUseBillingAddressForTax()) {
             $this->validateOrganizationTaxIdAsVatId('billingAddress');
         }
 
@@ -2473,7 +2474,7 @@ class Order extends Element implements HasStoreInterface
         }
 
         if ($this->id) {
-            $this->setAdjustments(app(OrderAdjustments::class)->getAllOrderAdjustmentsByOrderId($this->id));
+            $this->setAdjustments(app(OrderAdjustments::class)->getAllOrderAdjustmentsByOrderId($this->id, $this));
         }
 
         return $this->_orderAdjustments ?? [];
@@ -3018,6 +3019,10 @@ class Order extends Element implements HasStoreInterface
 
         if ($this->isCompleted) {
             foreach ($this->_deletingLineItems as $lineItem) {
+                if ($lineItem->type === LineItemType::Custom) {
+                    continue;
+                }
+
                 $purchasable = $lineItem->getPurchasable();
                 if ($purchasable instanceof NewPurchasable && $purchasable::hasInventory() && $purchasable->inventoryTracked) {
                     app(Purchasables::class)->updateStoreStockCache($purchasable, true);

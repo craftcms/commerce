@@ -182,7 +182,8 @@ readonly class PaymentsController
         // Same as CartController::update()
         if ($gatewayId = $request->input('gatewayId')) {
             $gatewayId = (int)$gatewayId;
-            if (app(Gateways::class)->getGatewayById($gatewayId)) {
+            $gateway = app(Gateways::class)->getGatewayById($gatewayId);
+            if ($gateway && !$gateway->isArchived) {
                 $order->setGatewayId($gatewayId);
             }
         }
@@ -206,7 +207,7 @@ readonly class PaymentsController
         $gateway = $order->getGateway();
 
         /** @phpstan-ignore-next-line method.notFound (getIsFrontendEnabled() is declared on CraftCms\Commerce\Payment\Gateway\Gateway, reached here via the legacy craft\commerce\base\Gateway class_alias chain, which PHPStan can't trace) */
-        if (!$gateway || !$gateway->availableForUseWithOrder($order) || (!$gateway->getIsFrontendEnabled() && !$isCpRequest)) {
+        if (!$gateway || $gateway->isArchived || !$gateway->availableForUseWithOrder($order) || (!$gateway->getIsFrontendEnabled() && !$isCpAndAllowed)) {
             $error = t('There is no gateway or payment source available for use with this order.', category: 'commerce');
 
             if ($order->gatewayId) {
@@ -382,7 +383,7 @@ readonly class PaymentsController
         $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
 
         // set a partial payment amount on the order in the orders currency (not payment currency)
-        $partialAllowed = ($isSiteRequest && $order->getStore()->getAllowPartialPaymentOnCheckout()) || $isCpRequest;
+        $partialAllowed = ($isSiteRequest && $order->getStore()->getAllowPartialPaymentOnCheckout()) || $isCpAndAllowed;
 
         if ($partialAllowed) {
             if ($isCpAndAllowed) {

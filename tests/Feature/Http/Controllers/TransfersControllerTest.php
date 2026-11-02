@@ -15,6 +15,7 @@ use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
+use function Pest\Laravel\postJson;
 
 beforeEach(function() {
     $this->withoutVite();
@@ -109,4 +110,16 @@ it('offers to create a new transfer draft', function() {
             ->where('draftId', $draft->draftId)
             ->where('editorActions.primary.label', 'Create transfer')
         );
+});
+
+it('rejects an array transfer ID when marking a transfer as pending', function() {
+    postJson(Url::actionUrl('commerce/transfers/mark-as-pending'), [
+        'transferId' => ['id' => 1, 'where' => '1=1'],
+    ])->assertStatus(400);
+});
+
+it('returns not found when marking an unknown transfer as pending', function() {
+    postJson(Url::actionUrl('commerce/transfers/mark-as-pending'), [
+        'transferId' => 999999999,
+    ])->assertNotFound();
 });

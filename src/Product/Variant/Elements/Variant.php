@@ -836,6 +836,7 @@ class Variant extends Purchasable implements NestedElementInterface
 
             $record->primaryOwnerId = $this->getPrimaryOwnerId();
 
+            // @TODO Remove in Commerce 6.0 if the `isDefault` column is removed from the variants table
             if ($this->getOwner()->getIsCanonical()) {
                 $record->isDefault = $this->isDefault;
             }

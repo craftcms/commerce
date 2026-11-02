@@ -193,6 +193,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
     Route::middleware('can:commerce-manageInventoryStockLevels')->group(function () {
         Route::get('commerce/inventory/item/{inventoryItemId}', [InventoryController::class, 'editItem'])->whereNumber('inventoryItemId');
         Route::get('commerce/inventory/levels/{inventoryLocationHandle}/orders', [InventoryController::class, 'unfulfilledOrders']);
+        Route::get('commerce/inventory/levels/{inventoryLocationHandle}/reserved-orders', [InventoryController::class, 'reservedOrders']);
         Route::get('commerce/inventory/levels/{inventoryLocationHandle}', [InventoryController::class, 'index']);
         Route::get('commerce/inventory/levels', [InventoryController::class, 'index']);
         Route::get('commerce/inventory', [InventoryController::class, 'index']);
