@@ -13,7 +13,6 @@ arch('src/ does not use Yii or legacy Craft classes')
     ->ignoring([
         'craft\\commerce',
         CraftCms\Commerce\CatalogPricing\CatalogPricing::class,
-        CraftCms\Commerce\Customer\Customers::class,
         CraftCms\Commerce\Dashboard\Widgets\AverageOrderTotal::class,
         CraftCms\Commerce\Dashboard\Widgets\NewCustomers::class,
         CraftCms\Commerce\Dashboard\Widgets\Orders::class,
@@ -26,7 +25,6 @@ arch('src/ does not use Yii or legacy Craft classes')
         CraftCms\Commerce\Dashboard\Widgets\TotalOrdersByCountry::class,
         CraftCms\Commerce\Dashboard\Widgets\TotalRevenue::class,
         CraftCms\Commerce\Email\Emails::class,
-        CraftCms\Commerce\Email\Events\MailEvent::class,
         CraftCms\Commerce\Helpers\Locale::class,
         CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen::class,
         CraftCms\Commerce\Http\Controllers\DownloadsController::class,
