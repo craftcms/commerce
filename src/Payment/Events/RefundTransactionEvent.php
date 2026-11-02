@@ -6,7 +6,7 @@ namespace CraftCms\Commerce\Payment\Events;
 
 use CraftCms\Commerce\Payment\Data\Transaction;
 
-class RefundTransactionEvent extends TransactionEvent
+abstract class RefundTransactionEvent extends TransactionEvent
 {
     public Transaction $refundTransaction;
 

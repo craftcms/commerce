@@ -21,7 +21,7 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Models\Order as OrderRecord;
-use CraftCms\Commerce\Payment\Events\UpdatePrimaryPaymentSourceEvent;
+use CraftCms\Commerce\Payment\Events\PrimaryPaymentSourceUpdated;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -74,7 +74,7 @@ class Customers
         $user->setPrimaryPaymentSourceId($paymentSourceId);
 
         if ($originalPaymentSourceId != $paymentSourceId) {
-            $event = new UpdatePrimaryPaymentSourceEvent(
+            $event = new PrimaryPaymentSourceUpdated(
                 customer: $user,
                 previousPrimaryPaymentSourceId: $originalPaymentSourceId,
                 newPrimaryPaymentSourceId: $paymentSourceId,

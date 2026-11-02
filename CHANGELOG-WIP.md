@@ -158,6 +158,7 @@
 - Added `CraftCms\Commerce\Customer\Records\Customer`.
 - Added `CraftCms\Commerce\Customer\Customers::afterSaveUserHandler()` and `afterSaveAddressHandler()`, listening for `CraftCms\Cms\Element\Events\ElementSaved` to persist primary billing/shipping addresses, primary payment sources, and order email syncing.
 - Deprecated `craft\commerce\services\Customers`. `CraftCms\Commerce\Customer\Customers` should be used instead.
+- Deprecated `craft\commerce\services\Customers::EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE`. `CraftCms\Commerce\Payment\Events\PrimaryPaymentSourceUpdated` should be used instead.
 - Removed `craft\commerce\behaviors\CustomerBehavior`. `User::getPrimaryBillingAddressId()`, `getPrimaryShippingAddressId()`, `getPrimaryPaymentSourceId()`, `getActiveCarts()`, `getInactiveCarts()`, and `getOrders()` are provided via a `Illuminate\Support\Traits\Macroable` macro instead.
 - Removed `craft\commerce\behaviors\CustomerAddressBehavior`. `Address::getIsPrimaryBilling()` and `getIsPrimaryShipping()` are provided via a `Illuminate\Support\Traits\Macroable` macro instead.
 - Added `CraftCms\Commerce\Customer\Fields\IsPrimaryBillingField`, `IsPrimaryShippingField`, `PrimaryBillingAddressIdField`, and `PrimaryShippingAddressIdField`, opt-in read-only field types that expose the primary billing/shipping macros via `toArray()`/GraphQL.
@@ -640,12 +641,12 @@
 - Added `CraftCms\Commerce\Payment\Gateway\Types\Manual`.
 - Added `CraftCms\Commerce\Payment\Gateway\Types\MissingGateway`.
 - Added `CraftCms\Commerce\Helpers\PaymentForm`.
-- Added `CraftCms\Commerce\Payment\Events\PaymentCurrencyRateEvent`.
+- Added `CraftCms\Commerce\Payment\Events\PaymentCurrencyRateResolving`.
 - Added `CraftCms\Commerce\Payment\Events\PaymentSourceEvent`.
 - Added `CraftCms\Commerce\Payment\Events\ProcessPaymentEvent`.
 - Added `CraftCms\Commerce\Payment\Events\RefundTransactionEvent`.
 - Added `CraftCms\Commerce\Payment\Events\TransactionEvent`.
-- Added `CraftCms\Commerce\Payment\Events\UpdatePrimaryPaymentSourceEvent`.
+- Added `CraftCms\Commerce\Payment\Events\PrimaryPaymentSourceUpdated`.
 - Added `CraftCms\Commerce\Payment\Events\WebhookEvent`.
 - Deprecated `craft\commerce\services\Transactions`. `CraftCms\Commerce\Payment\Transactions` should be used instead.
 - Deprecated `craft\commerce\services\PaymentSources`. `CraftCms\Commerce\Payment\PaymentSources` should be used instead.
@@ -660,6 +661,7 @@
 - Deprecated `craft\commerce\services\Webhooks`. `CraftCms\Commerce\Payment\Webhooks` should be used instead.
 - Deprecated `craft\commerce\services\Currencies`. `CraftCms\Commerce\Payment\Currencies` should be used instead.
 - Deprecated `craft\commerce\services\PaymentCurrencies`. `CraftCms\Commerce\Payment\PaymentCurrencies` should be used instead.
+- Deprecated `craft\commerce\services\PaymentCurrencies::EVENT_DEFINE_PAYMENT_CURRENCY_RATE`. `CraftCms\Commerce\Payment\Events\PaymentCurrencyRateResolving` should be used instead.
 - Deprecated `craft\commerce\models\Transaction`. `CraftCms\Commerce\Payment\Models\Transaction` should be used instead.
 - Deprecated `craft\commerce\models\PaymentSource`. `CraftCms\Commerce\Payment\Models\PaymentSource` should be used instead.
 - Deprecated `craft\commerce\models\PaymentCurrency`. `CraftCms\Commerce\Payment\Models\PaymentCurrency` should be used instead.
@@ -677,12 +679,27 @@
 - Deprecated `craft\commerce\errors\GatewayException`. `CraftCms\Commerce\Payment\Gateway\Exceptions\GatewayException` should be used instead.
 - Deprecated `craft\commerce\base\GatewayInterface`. `CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface` should be used instead.
 - Deprecated `craft\commerce\base\RequestResponseInterface`. `CraftCms\Commerce\Payment\Gateway\Contracts\RequestResponseInterface` should be used instead.
-- Deprecated `craft\commerce\events\PaymentSourceEvent`. `CraftCms\Commerce\Payment\Events\PaymentSourceEvent` should be used instead.
-- Deprecated `craft\commerce\events\ProcessPaymentEvent`. `CraftCms\Commerce\Payment\Events\ProcessPaymentEvent` should be used instead.
-- Deprecated `craft\commerce\events\RefundTransactionEvent`. `CraftCms\Commerce\Payment\Events\RefundTransactionEvent` should be used instead.
-- Deprecated `craft\commerce\events\TransactionEvent`. `CraftCms\Commerce\Payment\Events\TransactionEvent` should be used instead.
-- Deprecated `craft\commerce\events\UpdatePrimaryPaymentSourceEvent`. `CraftCms\Commerce\Payment\Events\UpdatePrimaryPaymentSourceEvent` should be used instead.
-- Deprecated `craft\commerce\events\WebhookEvent`. `CraftCms\Commerce\Payment\Events\WebhookEvent` should be used instead.
+- Deprecated `craft\commerce\events\PaymentSourceEvent` in favor of the following new events:
+  - `craft\commerce\services\PaymentSources::EVENT_BEFORE_SAVE_PAYMENT_SOURCE` => `CraftCms\Commerce\Payment\Events\PaymentSourceSaving`
+  - `craft\commerce\services\PaymentSources::EVENT_AFTER_SAVE_PAYMENT_SOURCE` => `CraftCms\Commerce\Payment\Events\PaymentSourceSaved`
+  - `craft\commerce\services\PaymentSources::EVENT_DELETE_PAYMENT_SOURCE` => `CraftCms\Commerce\Payment\Events\PaymentSourceDeleting`
+- Deprecated `craft\commerce\events\ProcessPaymentEvent` in favor of the following new events:
+  - `craft\commerce\services\Payments::EVENT_BEFORE_PROCESS_PAYMENT` => `CraftCms\Commerce\Payment\Events\PaymentProcessing`
+  - `craft\commerce\services\Payments::EVENT_AFTER_PROCESS_PAYMENT` => `CraftCms\Commerce\Payment\Events\PaymentProcessed`
+- Deprecated `craft\commerce\events\RefundTransactionEvent` in favor of the following new events:
+  - `craft\commerce\services\Payments::EVENT_BEFORE_REFUND_TRANSACTION` => `CraftCms\Commerce\Payment\Events\TransactionRefunding`
+  - `craft\commerce\services\Payments::EVENT_AFTER_REFUND_TRANSACTION` => `CraftCms\Commerce\Payment\Events\TransactionRefunded`
+- Deprecated `craft\commerce\events\TransactionEvent` in favor of the following new events:
+  - `craft\commerce\services\Payments::EVENT_BEFORE_CAPTURE_TRANSACTION` => `CraftCms\Commerce\Payment\Events\TransactionCapturing`
+  - `craft\commerce\services\Payments::EVENT_AFTER_CAPTURE_TRANSACTION` => `CraftCms\Commerce\Payment\Events\TransactionCaptured`
+  - `craft\commerce\services\Payments::EVENT_AFTER_COMPLETE_PAYMENT` => `CraftCms\Commerce\Payment\Events\PaymentCompleted`
+  - `craft\commerce\services\Transactions::EVENT_AFTER_CREATE_TRANSACTION` => `CraftCms\Commerce\Payment\Events\TransactionCreated`
+  - `craft\commerce\services\Transactions::EVENT_AFTER_SAVE_TRANSACTION` => `CraftCms\Commerce\Payment\Events\TransactionSaved`
+- Deprecated `craft\commerce\events\UpdatePrimaryPaymentSourceEvent`. `CraftCms\Commerce\Payment\Events\PrimaryPaymentSourceUpdated` should be used instead.
+- Deprecated `craft\commerce\events\PaymentCurrencyRateEvent`. `CraftCms\Commerce\Payment\Events\PaymentCurrencyRateResolving` should be used instead.
+- Deprecated `craft\commerce\events\WebhookEvent` in favor of the following new events:
+  - `craft\commerce\services\Webhooks::EVENT_BEFORE_PROCESS_WEBHOOK` => `CraftCms\Commerce\Payment\Events\WebhookProcessing`
+  - `craft\commerce\services\Webhooks::EVENT_AFTER_PROCESS_WEBHOOK` => `CraftCms\Commerce\Payment\Events\WebhookProcessed`
 - Removed `craft\commerce\records\Transaction`. `CraftCms\Commerce\Payment\Records\Transaction` should be used instead.
 - Removed `craft\commerce\records\PaymentSource`. `CraftCms\Commerce\Payment\Records\PaymentSource` should be used instead.
 - Removed `craft\commerce\records\Gateway`. `CraftCms\Commerce\Payment\Gateway\Records\Gateway` should be used instead.
@@ -690,7 +707,7 @@
 - Removed `Gateways::getGatewayOverrides()`.
 - Removed `Transactions::deleteTransaction()`. `deleteTransactionById()` should be used instead.
 - Widened `RefundTransactionEvent::$amount` to `?float` to allow `null` for a full refund.
-- Widened `WebhookEvent::$response` to accept both `Illuminate\Http\Response` and `yii\web\Response`.
+- `craft\commerce\events\WebhookEvent::$response` is now an `Illuminate\Http\Response` rather than a `yii\web\Response`.
 - `craft\commerce\base\Gateway` now uses `CraftCms\Commerce\Order\Conditions\GatewayOrderCondition` and `CraftCms\Commerce\Address\Conditions\GatewayAddressCondition`.
 
 #### Controllers

@@ -2,11 +2,12 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\events\PaymentCurrencyRateEvent;
 use craft\commerce\Plugin;
 use CraftCms\Commerce\Payment\Data\PaymentCurrency;
 use CraftCms\Commerce\Payment\Data\Transaction;
 
-use CraftCms\Commerce\Payment\Events\PaymentCurrencyRateEvent;
+use CraftCms\Commerce\Payment\Events\PaymentCurrencyRateResolving;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
 use Money\Currency;
@@ -94,10 +95,16 @@ class PaymentCurrencies extends Component
 
     public static function registerEvents(): void
     {
-        Event::listen(PaymentCurrencyRateEvent::class, static function(PaymentCurrencyRateEvent $event) {
+        Event::listen(PaymentCurrencyRateResolving::class, static function(PaymentCurrencyRateResolving $event) {
             $legacy = Plugin::getInstance()->getPaymentCurrencies();
             if ($legacy->hasEventHandlers(self::EVENT_DEFINE_PAYMENT_CURRENCY_RATE)) {
-                $legacy->trigger(self::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $event);
+                $legacyEvent = new PaymentCurrencyRateEvent([
+                    'rate' => $event->rate,
+                    'paymentCurrency' => $event->paymentCurrency,
+                    'transaction' => $event->transaction,
+                ]);
+                $legacy->trigger(self::EVENT_DEFINE_PAYMENT_CURRENCY_RATE, $legacyEvent);
+                $event->rate = $legacyEvent->rate;
             }
         });
     }
