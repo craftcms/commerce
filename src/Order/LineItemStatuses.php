@@ -11,7 +11,7 @@ use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
 use CraftCms\Commerce\Order\Data\LineItemStatus;
-use CraftCms\Commerce\Order\Events\DefaultLineItemStatusEvent;
+use CraftCms\Commerce\Order\Events\DefaultLineItemStatusResolving;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\Models\LineItemStatus as LineItemStatusRecord;
 use CraftCms\Commerce\Store\Stores;
@@ -72,7 +72,7 @@ class LineItemStatuses
 
         $lineItemStatus = $this->getDefaultLineItemStatus($order->getStore()->id);
 
-        $event = new DefaultLineItemStatusEvent(
+        $event = new DefaultLineItemStatusResolving(
             lineItem: $lineItem,
             lineItemStatus: $lineItemStatus,
         );

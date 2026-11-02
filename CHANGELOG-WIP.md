@@ -460,9 +460,9 @@
 - Added `CraftCms\Commerce\Http\Controllers\Concerns\HasCartArray`, a trait shared between `CartController` and `PaymentsController` for building a cart's array representation.
 - Added `CraftCms\Commerce\Http\RateLimiters\CartRateLimiter` and `CraftCms\Commerce\Http\RateLimiters\CartChallengeRateLimiter`.
 - Added `CraftCms\Commerce\Order\Events\CartEvent`.
-- Added `CraftCms\Commerce\Order\Events\CartPurgeEvent`.
-- Added `CraftCms\Commerce\Order\Events\DefaultLineItemStatusEvent`.
-- Added `CraftCms\Commerce\Order\Events\DefaultOrderStatusEvent`.
+- Added `CraftCms\Commerce\Order\Events\InactiveCartsPurging`.
+- Added `CraftCms\Commerce\Order\Events\DefaultLineItemStatusResolving`.
+- Added `CraftCms\Commerce\Order\Events\DefaultOrderStatusResolving`.
 - Added `CraftCms\Commerce\Order\Events\LineItemEvent`.
 - Added `CraftCms\Commerce\Order\Events\ModifyCartInfoEvent`.
 - Added `CraftCms\Commerce\Order\Events\LineItemAddApplied`.
@@ -477,8 +477,8 @@
 - Added `CraftCms\Commerce\Order\Events\OrderCompleting`.
 - Added `CraftCms\Commerce\Order\Events\OrderNoticeSaving`.
 - Added `CraftCms\Commerce\Order\Events\OrderPaid`.
-- Added `CraftCms\Commerce\Order\Events\OrderStatusEmailsEvent`.
-- Added `CraftCms\Commerce\Order\Events\OrderStatusEvent`.
+- Added `CraftCms\Commerce\Order\Events\OrderStatusEmailsResolving`.
+- Added `CraftCms\Commerce\Order\Events\OrderStatusChanged`.
 - Added `CraftCms\Commerce\Order\Events\PurgeAddressesEvent`.
 - Deprecated `craft\commerce\elements\Order`. `CraftCms\Commerce\Order\Elements\Order` should be used instead.
 - Deprecated `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID`. `CraftCms\Commerce\Order\Events\OrderPaid` should be used instead.
@@ -506,11 +506,16 @@
 - Deprecated `craft\commerce\enums\LineItemType`. `CraftCms\Commerce\Order\LineItem\Enums\LineItemType` should be used instead.
 - Deprecated `craft\commerce\services\Orders`. `CraftCms\Commerce\Order\Orders` should be used instead.
 - Deprecated `craft\commerce\services\Carts`. `CraftCms\Commerce\Order\Carts` should be used instead.
+- Deprecated `craft\commerce\services\Carts::EVENT_BEFORE_PURGE_INACTIVE_CARTS`. `CraftCms\Commerce\Order\Events\InactiveCartsPurging` should be used instead.
 - Deprecated `craft\commerce\services\OrderNotices`. `CraftCms\Commerce\Order\OrderNotices` should be used instead.
 - Deprecated `craft\commerce\services\OrderHistories`. `CraftCms\Commerce\Order\OrderHistories` should be used instead.
+- Deprecated `craft\commerce\services\OrderHistories::EVENT_ORDER_STATUS_CHANGE`. `CraftCms\Commerce\Order\Events\OrderStatusChanged` should be used instead.
 - Deprecated `craft\commerce\services\OrderAdjustments`. `CraftCms\Commerce\Order\OrderAdjustments` should be used instead.
 - Deprecated `craft\commerce\services\OrderStatuses`. `CraftCms\Commerce\Order\OrderStatuses` should be used instead.
+- Deprecated `craft\commerce\services\OrderStatuses::EVENT_ORDER_STATUS_CHANGE_EMAILS`. `CraftCms\Commerce\Order\Events\OrderStatusEmailsResolving` should be used instead.
+- Deprecated `craft\commerce\services\OrderStatuses::EVENT_DEFAULT_ORDER_STATUS`. `CraftCms\Commerce\Order\Events\DefaultOrderStatusResolving` should be used instead.
 - Deprecated `craft\commerce\services\LineItemStatuses`. `CraftCms\Commerce\Order\LineItemStatuses` should be used instead.
+- Deprecated `craft\commerce\services\LineItemStatuses::EVENT_DEFAULT_LINE_ITEM_STATUS`. `CraftCms\Commerce\Order\Events\DefaultLineItemStatusResolving` should be used instead.
 - Deprecated `craft\commerce\adjusters\Tax`. `CraftCms\Commerce\Order\Adjuster\Tax` should be used instead.
 - Deprecated `craft\commerce\adjusters\Shipping`. `CraftCms\Commerce\Order\Adjuster\Shipping` should be used instead.
 - Deprecated `craft\commerce\adjusters\Discount`. `CraftCms\Commerce\Order\Adjuster\Discount` should be used instead.
@@ -525,9 +530,9 @@
 - Deprecated `craft\commerce\errors\LineItemException`. `CraftCms\Commerce\Order\Exceptions\LineItemException` should be used instead.
 - Deprecated `craft\commerce\events\AddLineItemEvent`. `CraftCms\Commerce\Order\Events\LineItemAdding` should be used instead.
 - Deprecated `craft\commerce\events\CartEvent`. `CraftCms\Commerce\Order\Events\CartEvent` should be used instead.
-- Deprecated `craft\commerce\events\CartPurgeEvent`. `CraftCms\Commerce\Order\Events\CartPurgeEvent` should be used instead.
-- Deprecated `craft\commerce\events\DefaultLineItemStatusEvent`. `CraftCms\Commerce\Order\Events\DefaultLineItemStatusEvent` should be used instead.
-- Deprecated `craft\commerce\events\DefaultOrderStatusEvent`. `CraftCms\Commerce\Order\Events\DefaultOrderStatusEvent` should be used instead.
+- Deprecated `craft\commerce\events\CartPurgeEvent`. `CraftCms\Commerce\Order\Events\InactiveCartsPurging` should be used instead.
+- Deprecated `craft\commerce\events\DefaultLineItemStatusEvent`. `CraftCms\Commerce\Order\Events\DefaultLineItemStatusResolving` should be used instead.
+- Deprecated `craft\commerce\events\DefaultOrderStatusEvent`. `CraftCms\Commerce\Order\Events\DefaultOrderStatusResolving` should be used instead.
 - Deprecated `craft\commerce\events\LineItemEvent` in favor of the following new events:
   - `craft\commerce\elements\Order::EVENT_AFTER_ADD_LINE_ITEM` => `CraftCms\Commerce\Order\Events\LineItemAdded`
   - `craft\commerce\elements\Order::EVENT_AFTER_REMOVE_LINE_ITEM` => `CraftCms\Commerce\Order\Events\LineItemRemoved`
@@ -542,10 +547,10 @@
   - `craft\commerce\elements\Order::EVENT_BEFORE_LINE_ITEMS_REFRESHED` => `CraftCms\Commerce\Order\Events\LineItemsRefreshing`
   - `craft\commerce\elements\Order::EVENT_AFTER_LINE_ITEMS_REFRESHED` => `CraftCms\Commerce\Order\Events\LineItemsRefreshed`
 - Deprecated `craft\commerce\events\OrderNoticeEvent`. `CraftCms\Commerce\Order\Events\OrderNoticeSaving` should be used instead.
-- Deprecated `craft\commerce\events\OrderStatusEmailsEvent`. `CraftCms\Commerce\Order\Events\OrderStatusEmailsEvent` should be used instead.
-- Deprecated `craft\commerce\events\OrderStatusEvent`. `CraftCms\Commerce\Order\Events\OrderStatusEvent` should be used instead.
+- Deprecated `craft\commerce\events\OrderStatusEmailsEvent`. `CraftCms\Commerce\Order\Events\OrderStatusEmailsResolving` should be used instead.
+- Deprecated `craft\commerce\events\OrderStatusEvent`. `CraftCms\Commerce\Order\Events\OrderStatusChanged` should be used instead.
 - Deprecated `craft\commerce\events\PurgeAddressesEvent`. `CraftCms\Commerce\Order\Events\PurgeAddressesEvent` should be used instead.
-- `craft\commerce\elements\Order::EVENT_*` and `craft\commerce\services\LineItems::EVENT_*` event handlers are now only triggered when `craftcms/yii2-adapter` is installed.
+- Event handlers registered with `yii\base\Event::on()` for Commerce’s legacy `craft\commerce\*` classes are now only triggered when `craftcms/yii2-adapter` is installed.
 - Removed `craft\commerce\records\OrderHistory`. `CraftCms\Commerce\Order\Records\OrderHistory` should be used instead.
 - Removed `craft\commerce\records\OrderAdjustment`. `CraftCms\Commerce\Order\Records\OrderAdjustment` should be used instead.
 - Removed `craft\commerce\records\LineItemStatus`. `CraftCms\Commerce\Order\Records\LineItemStatus` should be used instead.

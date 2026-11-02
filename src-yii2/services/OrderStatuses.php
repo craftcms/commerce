@@ -2,17 +2,19 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\events\DefaultOrderStatusEvent;
+use craft\commerce\events\OrderStatusEmailsEvent;
 use craft\commerce\Plugin;
-use CraftCms\Commerce\Order\Events\DefaultOrderStatusEvent;
-use CraftCms\Commerce\Order\Events\OrderStatusEmailsEvent;
-use Illuminate\Support\Facades\Event;
-
-use CraftCms\Commerce\Order\Elements\Order;
 use craft\events\ConfigEvent;
 use CraftCms\Commerce\Email\Events\EmailEvent;
 use CraftCms\Commerce\Order\Data\OrderHistory;
+
 use CraftCms\Commerce\Order\Data\OrderStatus;
+use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\Events\DefaultOrderStatusResolving;
+use CraftCms\Commerce\Order\Events\OrderStatusEmailsResolving;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Event;
 use Throwable;
 use yii\base\Component;
 
@@ -119,17 +121,30 @@ class OrderStatuses extends Component
 
     public static function registerEvents(): void
     {
-        Event::listen(DefaultOrderStatusEvent::class, static function(DefaultOrderStatusEvent $event) {
+        Event::listen(DefaultOrderStatusResolving::class, static function(DefaultOrderStatusResolving $event) {
             $legacy = Plugin::getInstance()->getOrderStatuses();
             if ($legacy->hasEventHandlers(self::EVENT_DEFAULT_ORDER_STATUS)) {
-                $legacy->trigger(self::EVENT_DEFAULT_ORDER_STATUS, $event);
+                $legacyEvent = new DefaultOrderStatusEvent([
+                    'orderStatus' => $event->orderStatus,
+                    'order' => $event->order,
+                ]);
+                $legacy->trigger(self::EVENT_DEFAULT_ORDER_STATUS, $legacyEvent);
+                $event->orderStatus = $legacyEvent->orderStatus;
             }
         });
 
-        Event::listen(OrderStatusEmailsEvent::class, static function(OrderStatusEmailsEvent $event) {
+        Event::listen(OrderStatusEmailsResolving::class, static function(OrderStatusEmailsResolving $event) {
             $legacy = Plugin::getInstance()->getOrderStatuses();
             if ($legacy->hasEventHandlers(self::EVENT_ORDER_STATUS_CHANGE_EMAILS)) {
-                $legacy->trigger(self::EVENT_ORDER_STATUS_CHANGE_EMAILS, $event);
+                $legacyEvent = new OrderStatusEmailsEvent([
+                    'orderHistory' => $event->orderHistory,
+                    'order' => $event->order,
+                    'emails' => $event->emails,
+                    'isValid' => $event->isValid,
+                ]);
+                $legacy->trigger(self::EVENT_ORDER_STATUS_CHANGE_EMAILS, $legacyEvent);
+                $event->emails = $legacyEvent->emails;
+                $event->isValid = $legacyEvent->isValid;
             }
         });
     }
