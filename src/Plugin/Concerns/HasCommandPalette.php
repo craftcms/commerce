@@ -26,12 +26,12 @@ trait HasCommandPalette
     {
         app(PageRegistry::class)->register(
             self::HANDLE,
-            fn(CraftUser $user, CommercePages $pages) => $this->isInstalled ? $pages->all($user) : [],
+            fn(CraftUser $user) => $this->isInstalled ? app(CommercePages::class)->all($user) : [],
         );
 
         app(ActionRegistry::class)->register(
             self::HANDLE,
-            fn(CraftUser $user, CommerceActions $actions) => $this->isInstalled ? $actions->all($user) : [],
+            fn(CraftUser $user) => $this->isInstalled ? app(CommerceActions::class)->all($user) : [],
         );
 
         // Stores and product types live in tables that don't exist until Commerce is installed.

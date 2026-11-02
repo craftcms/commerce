@@ -63,7 +63,7 @@ function productIndexTestPerform(string $source, string $actionClass, array $ele
 }
 
 it('renders product rows with their price and SKU', function() {
-    get($this->indexPath . '/hoodies')
+    get($this->indexPath . '/hoodies?viewMode=table')
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => $page
             ->has('data', 1)
@@ -74,7 +74,7 @@ it('renders product rows with their price and SKU', function() {
 });
 
 it('renders the variants column with element chips', function() {
-    get($this->indexPath . '/hoodies?columns[]=variants')
+    get($this->indexPath . '/hoodies?columns[]=variants&viewMode=table')
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => $page->where(
             'data.0.variants',
@@ -163,7 +163,7 @@ it('filters products by variant SKU', function() {
             'operator' => '=',
             'value' => 'plain-tee',
         ]],
-    ]]))
+    ], 'viewMode' => 'table']))
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => $page
             ->has('data', 1)
@@ -195,6 +195,7 @@ it('lists products in the element select modal', function() {
     $response = postJson(action(ElementSelectorModalController::class), [
         'context' => ElementSources::CONTEXT_MODAL,
         'elementType' => Product::class,
+        'viewMode' => 'table',
     ])->assertOk();
 
     expect($response->json('props.context'))->toBe(ElementSources::CONTEXT_MODAL)
