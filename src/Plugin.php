@@ -109,6 +109,7 @@ use craft\commerce\services\Transfers as TransfersService;
 use craft\commerce\services\Variants as VariantsService;
 use craft\commerce\services\Vat;
 use craft\commerce\services\Webhooks;
+use craft\commerce\utilities\Commerce6Ready;
 use craft\commerce\web\twig\CraftVariableBehavior;
 use craft\commerce\web\twig\Extension;
 use craft\commerce\widgets\AverageOrderTotal;
@@ -173,6 +174,7 @@ use craft\services\Sites;
 use craft\services\SystemMessages;
 use craft\services\UserPermissions;
 use craft\services\Users;
+use craft\services\Utilities;
 use craft\utilities\ClearCaches;
 use craft\web\Application;
 use craft\web\twig\variables\CraftVariable;
@@ -825,6 +827,10 @@ class Plugin extends BasePlugin
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProducts(), 'afterSaveSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getStores(), 'afterSaveCraftSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_DELETE_SITE, [$this->getStores(), 'afterDeleteCraftSiteHandler']);
+
+        Event::on(Utilities::class, Utilities::EVENT_REGISTER_UTILITIES, function(RegisterComponentTypesEvent $event) {
+            $event->types[] = Commerce6Ready::class;
+        });
 
         Event::on(UserElement::class, UserElement::EVENT_DEFINE_DELETION_BLOCKERS, [$this->getOrders(), 'beforeDeleteUserHandler']);
         Event::on(UserElement::class, UserElement::EVENT_DEFINE_DELETION_BLOCKERS, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);

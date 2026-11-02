@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added the “Commerce 6 Ready” utility, which lists what needs to be fixed or updated before upgrading to Commerce 6.
+- The “Purchasable Categories” catalog pricing rule condition now selects entries, unless categories are already selected.
+- Added `craft\commerce\utilities\Commerce6Ready`.
+- Added `craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasableCategoryConditionRule::getElementType()`.
 - Fixed a bug where users with the “Manage inventory transfers” permission couldn’t view, save, or delete inventory transfers unless they had been granted it before Commerce 5.1.
 - Fixed a PHP error that could occur when processing gateway webhooks on a control panel-only domain. ([#4395](https://github.com/craftcms/commerce/issues/4395))
 
