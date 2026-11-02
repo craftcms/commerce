@@ -8,7 +8,7 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Currency as CurrencyHelper;
 use CraftCms\Commerce\Payment\Data\PaymentCurrency;
 use CraftCms\Commerce\Payment\Data\Transaction;
-use CraftCms\Commerce\Payment\Events\PaymentCurrencyRateEvent;
+use CraftCms\Commerce\Payment\Events\PaymentCurrencyRateResolving;
 use CraftCms\Commerce\Payment\Models\PaymentCurrency as PaymentCurrencyRecord;
 use CraftCms\Commerce\Store\Stores;
 use Illuminate\Container\Attributes\Singleton;
@@ -42,7 +42,7 @@ class PaymentCurrencies
      */
     public function getRateFor(PaymentCurrency $currency, ?Transaction $transaction = null): float
     {
-        $event = new PaymentCurrencyRateEvent(
+        $event = new PaymentCurrencyRateResolving(
             rate: $currency->rate,
             paymentCurrency: $currency,
             transaction: $transaction,
