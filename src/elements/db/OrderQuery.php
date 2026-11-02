@@ -1694,6 +1694,7 @@ class OrderQuery extends ElementQuery
             'commerce_orders.makePrimaryShippingAddress',
             'commerce_orders.makePrimaryBillingAddress',
             'commerce_orders.recalculationMode',
+            'commerce_orders.saveVersion',
             'commerce_orders.origin',
             'commerce_orders.dateAuthorized',
             'storedTotalPrice' => 'commerce_orders.totalPrice',
