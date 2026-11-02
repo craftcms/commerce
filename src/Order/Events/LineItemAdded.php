@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Events;
 
-use CraftCms\Cms\Shared\Concerns\ValidatableEvent;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
-use yii\base\Event;
 
-class AddLineItemEvent extends Event
+/**
+ * Dispatched after a line item is added to an order.
+ */
+class LineItemAdded
 {
-    use ValidatableEvent;
-
     public function __construct(
+        public Order $order,
         public LineItem $lineItem,
         public bool $isNew = false,
     ) {
