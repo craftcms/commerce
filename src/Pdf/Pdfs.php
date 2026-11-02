@@ -23,7 +23,7 @@ use CraftCms\Commerce\Pdf\Data\Pdf;
 use CraftCms\Commerce\Pdf\Events\PdfDeleting;
 use CraftCms\Commerce\Pdf\Events\PdfRendered;
 use CraftCms\Commerce\Pdf\Events\PdfRendering;
-use CraftCms\Commerce\Pdf\Events\PdfRenderOptionsEvent;
+use CraftCms\Commerce\Pdf\Events\PdfRenderOptionsResolving;
 use CraftCms\Commerce\Pdf\Events\PdfSaved;
 use CraftCms\Commerce\Pdf\Events\PdfSaving;
 use CraftCms\Commerce\Pdf\Models\Pdf as PdfRecord;
@@ -413,7 +413,7 @@ class Pdfs
             $options->setDefaultPaperSize($pdf->paperSize);
         }
 
-        $renderOptionsEvent = new PdfRenderOptionsEvent(
+        $renderOptionsEvent = new PdfRenderOptionsResolving(
             options: $options,
         );
 
