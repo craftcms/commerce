@@ -100,6 +100,63 @@ class MutationsTest extends TestCase
         self::assertSame(['sku' => 'gql-medium', 'product' => ['id' => $product['id']]], $variant);
     }
 
+    public function testProductAndVariantMutationsDefaultToAllowedSitesOnly(): void
+    {
+        $uid = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle('tShirts')->uid;
+        $siteUid = Craft::$app->getSites()->getSiteById(1000)->uid;
+        $schema = new GqlSchema(['name' => 'Test', 'uid' => StringHelper::UUID(), 'scope' => [
+            "sites.$siteUid:read", "productTypes.$uid:read", "productTypes.$uid:create", "productTypes.$uid:save",
+        ]]);
+        $product = Variant::find()->sku('hct-white')->one()->getOwner();
+        $variantId = Variant::find()->sku('hct-white')->one()->id;
+
+        // Omitting siteId uses the primary site, which this schema can’t edit
+        foreach ([
+            "save_tShirts_Product(id: $product->id, title: \"Primary\") { id }",
+            "save_tShirts_Variant(id: $variantId, basePrice: 1) { id }",
+        ] as $mutation) {
+            $result = $this->execute($schema, "mutation { $mutation }");
+            self::assertSame('Unable to perform the action.', $result['errors'][0]['message'] ?? null, json_encode($result));
+        }
+        self::assertSame($product->title, Product::find()->id($product->id)->one()->title);
+
+        $result = $this->execute($schema, "mutation { save_tShirts_Product(id: $product->id, siteId: 1000, title: \"Site 1\") { title } }");
+        self::assertSame('Site 1', $result['data']['save_tShirts_Product']['title'] ?? null, json_encode($result));
+    }
+
+    public function testStandaloneVariantCreationRespectsMaxVariants(): void
+    {
+        $uid = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle('hoodies')->uid;
+        $schema = $this->schema(["productTypes.$uid:read", "productTypes.$uid:save"]);
+        $product = Variant::find()->sku('rad-hood')->one()->getOwner();
+
+        $result = $this->execute($schema, "mutation { save_hoodies_Variant(productId: $product->id, sku: \"rad-hood-2\", basePrice: 1) { id } }");
+        self::assertSame('Too many variants for this product.', $result['errors'][0]['message'] ?? null, json_encode($result));
+        self::assertCount(1, Product::find()->id($product->id)->one()->getVariants(true));
+
+        // Existing variants can still be updated
+        $variantId = $product->getVariants(true)->first()->id;
+        $result = $this->execute($schema, "mutation { save_hoodies_Variant(id: $variantId, basePrice: 5) { price } }");
+        self::assertSame(['price' => 5.0], $result['data']['save_hoodies_Variant'] ?? null, json_encode($result));
+    }
+
+    public function testFailedProductDraftSaveDoesNotLeaveVariantDrafts(): void
+    {
+        $uid = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle('tShirts')->uid;
+        $schema = $this->schema(["productTypes.$uid:read", "productTypes.$uid:save"]);
+        $product = Variant::find()->sku('hct-white')->one()->getOwner();
+        $variantId = Variant::find()->sku('hct-white')->one()->id;
+        $draftId = $this->execute($schema, "mutation { createProductDraft(id: $product->id) }")['data']['createProductDraft'];
+        $variantDrafts = Variant::find()->drafts()->status(null)->count();
+
+        // The first variant is duplicated as a draft before the unknown ID fails the mutation
+        $result = $this->execute($schema, "mutation {
+            save_tShirts_ProductDraft(draftId: $draftId, sortOrder: [$variantId, 999999], variants: [{id: $variantId, basePrice: 5}]) { id }
+        }");
+        self::assertSame('No such variant exists on this product', $result['errors'][0]['message'] ?? null, json_encode($result));
+        self::assertSame($variantDrafts, Variant::find()->drafts()->status(null)->count());
+    }
+
     public function testAuthenticatedUsersNeedPermissionToCreateProducts(): void
     {
         $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle('tShirts');
@@ -175,12 +232,14 @@ class MutationsTest extends TestCase
         $blue = Variant::find()->sku('hct-blue')->one()->id;
 
         $order = $this->execute($schema, "mutation {
-            save_Order(email: \"gql@example.com\", lineItems: [{purchasableId: $white, qty: 2}]) {
+            save_Order(email: \"gql@example.com\", orderSiteId: 1001, lineItems: [{purchasableId: $white, qty: 2}]) {
                 id email isCompleted lineItems { id sku qty }
             }
         }")['data']['save_Order'];
 
         self::assertSame('gql@example.com', $order['email']);
+        // The order language follows its site
+        self::assertSame('nl', Order::find()->id($order['id'])->one()->orderLanguage);
         self::assertFalse($order['isCompleted']);
         self::assertSame([['sku' => 'hct-white', 'qty' => 2]], array_map(fn($li) => ['sku' => $li['sku'], 'qty' => $li['qty']], $order['lineItems']));
 
@@ -433,6 +492,7 @@ class MutationsTest extends TestCase
 
     private function schema(array $scope): GqlSchema
     {
+        $scope[] = 'sites.' . Craft::$app->getSites()->getPrimarySite()->uid . ':read';
         return new GqlSchema(['name' => 'Test', 'uid' => StringHelper::UUID(), 'scope' => $scope]);
     }
 

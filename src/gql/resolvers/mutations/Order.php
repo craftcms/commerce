@@ -113,6 +113,11 @@ class Order extends ElementMutationResolver
         /** @var OrderElement $order */
         $order = $this->populateElementWithData($order, $arguments, $resolveInfo);
 
+        // Keep the order language in sync with its site, like OrdersController does
+        if (isset($arguments['orderSiteId']) && $site = Craft::$app->getSites()->getSiteById($order->orderSiteId)) {
+            $order->orderLanguage = $site->language;
+        }
+
         if (array_key_exists('billingAddress', $addresses)) {
             $order->setBillingAddress($addresses['billingAddress']);
         }

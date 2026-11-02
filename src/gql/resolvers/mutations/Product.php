@@ -53,12 +53,8 @@ class Product extends ElementMutationResolver
         $canIdentify = !empty($arguments['id']) || !empty($arguments['uid']) || !empty($arguments['draftId']);
         $this->requireSchemaAction("productTypes.$productType->uid", $canIdentify ? 'save' : 'create');
 
-        $siteId = $arguments['siteId'] ?? null;
-        if ($siteId) {
-            $this->requireAllowedSite($siteId);
-        } else {
-            $siteId = Craft::$app->getSites()->getPrimarySite()->id;
-        }
+        $siteId = $arguments['siteId'] ?? Craft::$app->getSites()->getPrimarySite()->id;
+        $this->requireAllowedSite($siteId);
 
         if ($canIdentify) {
             $product = $this->identifyProduct(ProductElement::find()->status(null)->siteId($siteId), $arguments)->one();
@@ -92,19 +88,24 @@ class Product extends ElementMutationResolver
         /** @var ProductElement $product */
         $product = $this->populateElementWithData($product, $arguments, $resolveInfo);
 
-        if ($setVariants) {
-            $product->setVariants($this->variants($product, $productType, $arguments['sortOrder'] ?? null, $variantsData));
-            $product->setDirtyAttributes(['variants']);
-        }
-
-        if ($asUnpublishedDraft) {
-            $this->requireUserAuthorization($product, 'save');
-            if (!Craft::$app->getDrafts()->saveElementAsDraft($product, Gql::getSchemaUser()?->id ?? Craft::$app->getUser()->getId(), $arguments['draftName'] ?? null, $arguments['draftNotes'] ?? null)) {
-                throw new UserError(implode("\n", $product->getFirstErrors()));
+        // Preparing the variants can create variant drafts, so roll them back if the product can’t be saved
+        $product = Craft::$app->getDb()->transaction(function() use ($product, $productType, $arguments, $setVariants, $variantsData, $asUnpublishedDraft) {
+            if ($setVariants) {
+                $product->setVariants($this->variants($product, $productType, $arguments['sortOrder'] ?? null, $variantsData));
+                $product->setDirtyAttributes(['variants']);
             }
-        } else {
-            $product = $this->saveElement($product);
-        }
+
+            if ($asUnpublishedDraft) {
+                $this->requireUserAuthorization($product, 'save');
+                if (!Craft::$app->getDrafts()->saveElementAsDraft($product, Gql::getSchemaUser()?->id ?? Craft::$app->getUser()->getId(), $arguments['draftName'] ?? null, $arguments['draftNotes'] ?? null)) {
+                    throw new UserError(implode("\n", $product->getFirstErrors()));
+                }
+
+                return $product;
+            }
+
+            return $this->saveElement($product);
+        });
 
         // Refresh the data from the DB
         $query = ProductElement::find()->siteId($siteId)->status(null);

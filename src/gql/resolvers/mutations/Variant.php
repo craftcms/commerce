@@ -42,12 +42,8 @@ class Variant extends ElementMutationResolver
         $productType = $this->getResolutionData('productType');
         $this->requireSchemaAction("productTypes.$productType->uid", 'save');
 
-        $siteId = $arguments['siteId'] ?? null;
-        if ($siteId) {
-            $this->requireAllowedSite($siteId);
-        } else {
-            $siteId = Craft::$app->getSites()->getPrimarySite()->id;
-        }
+        $siteId = $arguments['siteId'] ?? Craft::$app->getSites()->getPrimarySite()->id;
+        $this->requireAllowedSite($siteId);
 
         if (!empty($arguments['id']) || !empty($arguments['uid'])) {
             $query = VariantElement::find()->status(null)->siteId($siteId);
@@ -86,6 +82,11 @@ class Variant extends ElementMutationResolver
 
         if (!Gql::canAccessProductDraft($product) || !Gql::canAccessProductDraft($variant->getPrimaryOwner())) {
             throw new Error('Unable to perform the action.');
+        }
+
+        // Saving a variant on its own doesn’t validate the product, so enforce the product type’s variant limit here
+        if (!$variant->id && $productType->maxVariants && $product->getVariants(true)->count() >= $productType->maxVariants) {
+            throw new Error(Craft::t('commerce', 'Too many variants for this product.'));
         }
 
         $variant = $this->populateElementWithData($variant, $arguments, $resolveInfo);
