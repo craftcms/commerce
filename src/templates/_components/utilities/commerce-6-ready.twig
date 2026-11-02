@@ -1,0 +1,51 @@
+{% set remaining = checks|filter(check => not check.ready)|length %}
+
+<div class="readable">
+    <p>
+        {% if remaining %}
+            {{ '{count, number} {count, plural, =1{thing needs} other{things need}} attention before you upgrade to Commerce 6.'|t('commerce', { count: remaining }) }}
+        {% else %}
+            {{ 'This site is ready to upgrade to Commerce 6.'|t('commerce') }}
+        {% endif %}
+    </p>
+</div>
+
+<table class="data fullwidth">
+    <tbody>
+    {% for check in checks %}
+        <tr>
+            <td class="thin centeralign">
+                {% if check.ready %}
+                    <span class="success" title="{{ 'Ready'|t('commerce') }}" aria-label="{{ 'Ready'|t('commerce') }}" data-icon="check"></span>
+                {% else %}
+                    <span class="warning" title="{{ 'Needs attention'|t('commerce') }}" aria-label="{{ 'Needs attention'|t('commerce') }}" data-icon="alert"></span>
+                {% endif %}
+            </td>
+            <td>
+                <strong>{{ check.label }}</strong>
+                {% if not check.ready %}
+                    <div class="readable">{{ check.instructions|md }}</div>
+                    {% if check.items|length %}
+                        <ul class="bullets">
+                            {% for item in check.items %}
+                                <li>
+                                    {% if item.url ?? null %}<a href="{{ item.url }}">{{ item.label }}</a>{% else %}{{ item.label }}{% endif %}
+                                    {% if item.info ?? null %}<code>{{ item.info }}</code>{% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<div class="readable">
+    <h2>{{ 'Also review'|t('commerce') }}</h2>
+    {{ 'These changes can’t be checked automatically:
+
+- Custom plugins and modules that use Commerce’s classes or events need to be updated. Commerce 6 events are Laravel events, and order emails are sent as Laravel mailables.
+- Guest carts don’t carry over to Commerce 6, because cart cookies change.'|t('commerce')|md }}
+</div>

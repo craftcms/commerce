@@ -14,6 +14,7 @@ use craft\commerce\base\Purchasable;
 use craft\elements\Category;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
+use craft\elements\Entry;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 
@@ -46,7 +47,27 @@ class CatalogPricingRulePurchasableCategoryConditionRule extends BaseConditionRu
      */
     public function getLabel(): string
     {
-        return Craft::t('commerce', 'Purchasable Categories');
+        return $this->getElementType() === Category::class
+            ? Craft::t('commerce', 'Purchasable Categories')
+            : Craft::t('commerce', 'Purchasable Entries');
+    }
+
+    /**
+     * Returns the element type the rule selects.
+     *
+     * Rules with categories selected keep selecting categories, so existing selections aren't lost.
+     * Every other rule selects entries, which is the only option in Commerce 6.
+     *
+     * @return class-string<Category|Entry>
+     * @since 5.7.8
+     */
+    public function getElementType(): string
+    {
+        if (!empty($this->elementIds) && Category::find()->id($this->elementIds)->status(null)->site('*')->exists()) {
+            return Category::class;
+        }
+
+        return Entry::class;
     }
 
 
@@ -79,14 +100,16 @@ class CatalogPricingRulePurchasableCategoryConditionRule extends BaseConditionRu
     {
         $id = 'cpr-purchasable-category';
 
-        $elements = !empty($this->elementIds) ? Category::find()->id($this->elementIds)->all() : [];
+        $elementType = $this->getElementType();
+        $isCategory = $elementType === Category::class;
+        $elements = !empty($this->elementIds) ? $elementType::find()->id($this->elementIds)->status(null)->all() : [];
         return Html::hiddenLabel($this->getLabel(), $id) .
             Html::tag('div',
                 Html::tag('div',
                     Cp::elementSelectHtml([
                         'name' => 'elementIds',
                         'elements' => $elements,
-                        'elementType' => Category::class,
+                        'elementType' => $elementType,
                         'sources' => null,
                         'criteria' => null,
                         'single' => false,
@@ -105,14 +128,22 @@ class CatalogPricingRulePurchasableCategoryConditionRule extends BaseConditionRu
                     Cp::selectHtml([
                         'id' => 'categoryRelationshipType',
                         'name' => 'categoryRelationshipType',
-                        'label' => Craft::t('commerce', 'Categories Relationship Type'),
-                        'instructions' => Craft::t('commerce', 'How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link}).', [
-                            'link' => 'https://craftcms.com/docs/4.x/relations.html#terminology',
-                        ]),
-                        'options' => [
+                        'label' => $isCategory ? Craft::t('commerce', 'Categories Relationship Type') : Craft::t('commerce', 'Entries Relationship Type'),
+                        'instructions' => $isCategory
+                            ? Craft::t('commerce', 'How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link}).', [
+                                'link' => 'https://craftcms.com/docs/4.x/relations.html#terminology',
+                            ])
+                            : Craft::t('commerce', 'How the Purchasables and Entries are related, which determines the matching items. See [Relations Terminology]({link}).', [
+                                'link' => 'https://craftcms.com/docs/5.x/system/relations.html#terminology',
+                            ]),
+                        'options' => $isCategory ? [
                             self::CATEGORY_RELATIONSHIP_TYPE_SOURCE => Craft::t('commerce', 'Source - The purchasable relationship field is on the category'),
                             self::CATEGORY_RELATIONSHIP_TYPE_TARGET => Craft::t('commerce', 'Target - The category relationship field is on the purchasable'),
                             self::CATEGORY_RELATIONSHIP_TYPE_BOTH => Craft::t('commerce', 'Either (Default) - The relationship field is on the purchasable or the category'),
+                        ] : [
+                            self::CATEGORY_RELATIONSHIP_TYPE_SOURCE => Craft::t('commerce', 'Source - The purchasable relationship field is on the entry'),
+                            self::CATEGORY_RELATIONSHIP_TYPE_TARGET => Craft::t('commerce', 'Target - The entry relationship field is on the purchasable'),
+                            self::CATEGORY_RELATIONSHIP_TYPE_BOTH => Craft::t('commerce', 'Either (Default) - The relationship field is on the purchasable or the entry'),
                         ],
                         'value' => $this->categoryRelationshipType,
                     ]),
