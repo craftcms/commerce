@@ -41,8 +41,6 @@ arch('src/ does not use Yii or legacy Craft classes')
         CraftCms\Commerce\Order\Events\PurgeAddressesEvent::class,
         CraftCms\Commerce\Order\LineItemStatuses::class,
         CraftCms\Commerce\Order\OrderStatuses::class,
-        CraftCms\Commerce\Payment\Gateway\Gateways::class,
-        CraftCms\Commerce\Payment\Payments::class,
         CraftCms\Commerce\Pdf\Pdfs::class,
         CraftCms\Commerce\Plugin\Concerns\HasLegacyBridges::class,
         CraftCms\Commerce\Product\ProductType\Data\ProductType::class,
