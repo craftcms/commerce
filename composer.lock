@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6ead5aa3bce308376a5112f615678dfc",
+    "content-hash": "77262b59bc408cc6fd3cc6821ccfa29a",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -481,16 +481,16 @@
         },
         {
             "name": "craftcms/cms",
-            "version": "dev-feature/authenticated-graphql",
+            "version": "5.12.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/cms.git",
-                "reference": "0fcf6ecc68b8ccb2ec6ad06565698605e275fd7d"
+                "reference": "868fe9ae36e88426e6f3ea6b2a66665c60165881"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/cms/zipball/0fcf6ecc68b8ccb2ec6ad06565698605e275fd7d",
-                "reference": "0fcf6ecc68b8ccb2ec6ad06565698605e275fd7d",
+                "url": "https://api.github.com/repos/craftcms/cms/zipball/868fe9ae36e88426e6f3ea6b2a66665c60165881",
+                "reference": "868fe9ae36e88426e6f3ea6b2a66665c60165881",
                 "shasum": ""
             },
             "require": {
@@ -611,7 +611,7 @@
                 "rss": "https://github.com/craftcms/cms/releases.atom",
                 "source": "https://github.com/craftcms/cms"
             },
-            "time": "2026-10-29T00:14:19+00:00"
+            "time": "2026-11-02T20:35:10+00:00"
         },
         {
             "name": "craftcms/plugin-installer",
@@ -13735,14 +13735,7 @@
             "time": "2026-07-06T19:11:50+00:00"
         }
     ],
-    "aliases": [
-        {
-            "package": "craftcms/cms",
-            "version": "dev-feature/authenticated-graphql",
-            "alias": "5.12.0",
-            "alias_normalized": "5.12.0.0"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
         "craftcms/cms": 20,

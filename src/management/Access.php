@@ -1,0 +1,83 @@
+<?php
+
+declare(strict_types=1);
+
+namespace craft\commerce\management;
+
+use Craft;
+use craft\base\ElementInterface;
+use craft\commerce\elements\Order;
+use craft\commerce\elements\Product;
+use craft\commerce\elements\Variant;
+use craft\commerce\Plugin;
+use craft\elements\User;
+use craft\mcp\Authorization;
+use yii\web\ForbiddenHttpException;
+
+/** Authorization shared by user-facing Commerce integrations. */
+class Access
+{
+    public function permission(User $actor, string ...$permissions): void
+    {
+        foreach (['accessPlugin-commerce', ...$permissions] as $permission) {
+            if (!$actor->can($permission)) {
+                throw new ForbiddenHttpException('Resource not found.');
+            }
+        }
+    }
+
+    public function configuration(User $actor, bool $write = false): void
+    {
+        $this->permission($actor);
+
+        if (!$actor->admin || ($write && !Craft::$app->getConfig()->getGeneral()->allowAdminChanges)) {
+            throw new ForbiddenHttpException('You are not authorized to manage Commerce configuration.');
+        }
+    }
+
+    public function store(User $actor, int $storeId): void
+    {
+        if (!Plugin::getInstance()->getStores()->getStoresByUserId($actor->id)->contains('id', $storeId)) {
+            throw new ForbiddenHttpException('Store not found.');
+        }
+    }
+
+    public static function allows(User $actor, string $ability, ElementInterface $element): bool
+    {
+        return self::canAccess($actor, $ability, $element)
+            && (in_array($ability, ['capture', 'refund'], true) || Authorization::allows($actor, $ability, $element));
+    }
+
+    /** Additional integration restrictions, also applied to CMS tools that bypass adapters. */
+    public static function canAccess(User $actor, string $ability, ElementInterface $element): bool
+    {
+        if (!$actor->can('accessPlugin-commerce')) {
+            return false;
+        }
+        // Saved drafts remain shared. Provisional drafts belong only to their creator.
+        // A shared variant's contextual owner can differ from its canonical primary owner.
+        $owners = $element instanceof Variant ? [$element->getOwner(), $element->getPrimaryOwner()] : [$element];
+        foreach ($owners as $owner) {
+            if (!$owner || ($owner->isProvisionalDraft && $owner->getBehavior('draft')?->creatorId !== $actor->id)) {
+                return false;
+            }
+            if ($owner instanceof Product && $ability === 'save'
+                && !$actor->can('commerce-saveProductType:' . $owner->getType()->uid)) {
+                return false;
+            }
+        }
+        if ($element instanceof Order) {
+            $permission = match ($ability) {
+                'view' => 'commerce-manageOrders',
+                'save' => 'commerce-editOrders',
+                'delete' => 'commerce-deleteOrders',
+                'capture' => 'commerce-capturePayment',
+                'refund' => 'commerce-refundPayment',
+                default => null,
+            };
+            return $permission !== null && $actor->can($permission)
+                && Plugin::getInstance()->getStores()->getStoresByUserId($actor->id)->contains('id', $element->storeId);
+        }
+        return true;
+    }
+}
