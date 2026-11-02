@@ -2,15 +2,16 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\events\RegisterAvailableShippingMethodsEvent;
 use craft\commerce\Plugin;
-use CraftCms\Commerce\Shipping\Events\RegisterAvailableShippingMethodsEvent;
-use Illuminate\Support\Facades\Event;
-
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface;
+
 use CraftCms\Commerce\Shipping\Contracts\ShippingRuleInterface;
 use CraftCms\Commerce\Shipping\Data\ShippingMethod;
+use CraftCms\Commerce\Shipping\Events\ShippingMethodsResolving;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Event;
 use yii\base\Component;
 
 /**
@@ -73,10 +74,13 @@ class ShippingMethods extends Component
 
     public static function registerEvents(): void
     {
-        Event::listen(RegisterAvailableShippingMethodsEvent::class, static function(RegisterAvailableShippingMethodsEvent $event) {
+        Event::listen(ShippingMethodsResolving::class, static function(ShippingMethodsResolving $event) {
             $legacy = Plugin::getInstance()->getShippingMethods();
             if ($legacy->hasEventHandlers(self::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS)) {
-                $legacy->trigger(self::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS, $event);
+                $legacyEvent = new RegisterAvailableShippingMethodsEvent(['order' => $event->order]);
+                $legacyEvent->setShippingMethods($event->shippingMethods);
+                $legacy->trigger(self::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS, $legacyEvent);
+                $event->shippingMethods = $legacyEvent->getShippingMethods();
             }
         });
     }

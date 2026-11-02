@@ -7,9 +7,11 @@ namespace CraftCms\Commerce\Purchasable\Events;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
-use yii\base\Event;
 
-class PurchasableOutOfStockPurchasesAllowedEvent extends Event
+/**
+ * Dispatched when resolving whether a purchasable may be purchased while out of stock. Listeners may change `$outOfStockPurchasesAllowed`.
+ */
+class PurchasableOutOfStockPurchasesResolving
 {
     public function __construct(
         public PurchasableInterface $purchasable,

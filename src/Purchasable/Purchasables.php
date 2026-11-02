@@ -13,9 +13,9 @@ use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
-use CraftCms\Commerce\Purchasable\Events\PurchasableAvailableEvent;
-use CraftCms\Commerce\Purchasable\Events\PurchasableOutOfStockPurchasesAllowedEvent;
-use CraftCms\Commerce\Purchasable\Events\PurchasableShippableEvent;
+use CraftCms\Commerce\Purchasable\Events\PurchasableAvailabilityResolving;
+use CraftCms\Commerce\Purchasable\Events\PurchasableOutOfStockPurchasesResolving;
+use CraftCms\Commerce\Purchasable\Events\PurchasableShippabilityResolving;
 use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery;
 use Illuminate\Container\Attributes\Scoped;
 use Illuminate\Support\Collection;
@@ -45,7 +45,7 @@ class Purchasables
     {
         $currentUser ??= currentUserElement();
 
-        $event = new PurchasableOutOfStockPurchasesAllowedEvent(
+        $event = new PurchasableOutOfStockPurchasesResolving(
             purchasable: $purchasable,
             order: $order,
             currentUser: $currentUser,
@@ -61,7 +61,7 @@ class Purchasables
     {
         $currentUser ??= currentUserElement();
 
-        $event = new PurchasableAvailableEvent(
+        $event = new PurchasableAvailabilityResolving(
             purchasable: $purchasable,
             isAvailable: $purchasable->getIsAvailable(),
             order: $order,
@@ -77,7 +77,7 @@ class Purchasables
     {
         $currentUser ??= currentUserElement();
 
-        $event = new PurchasableShippableEvent(
+        $event = new PurchasableShippabilityResolving(
             purchasable: $purchasable,
             isShippable: $purchasable->getIsShippable(),
             order: $order,
