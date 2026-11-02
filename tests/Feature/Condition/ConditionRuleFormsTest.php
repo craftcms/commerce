@@ -18,8 +18,8 @@ use CraftCms\Commerce\Order\Conditions\HasPurchasableConditionRule;
 use CraftCms\Commerce\Order\Conditions\OrderCondition;
 use CraftCms\Commerce\Order\Conditions\TotalPriceConditionRule;
 use CraftCms\Commerce\Product\Variant\Conditions\VariantProductConditionRule;
-use CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableCategoryConditionRule;
 use CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableCondition;
+use CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableEntryConditionRule;
 
 /**
  * Rendering-level smoke test for every condition rule whose `inputHtml()`/`elementSelectConfig()`
@@ -64,10 +64,10 @@ test('PostalCodeFormulaConditionRule renders without error', function() {
     expect(renderCondition($condition))->toBeString()->not->toBe('');
 });
 
-test('CatalogPricingRulePurchasableCategoryConditionRule renders without error', function() {
+test('CatalogPricingRulePurchasableEntryConditionRule renders without error', function() {
     /** @var CatalogPricingRulePurchasableCondition $condition */
     $condition = Conditions::createCondition(['class' => CatalogPricingRulePurchasableCondition::class]);
-    $condition->addConditionRule(Conditions::createConditionRule(['class' => CatalogPricingRulePurchasableCategoryConditionRule::class]));
+    $condition->addConditionRule(Conditions::createConditionRule(['class' => CatalogPricingRulePurchasableEntryConditionRule::class]));
 
     expect(renderCondition($condition))->toBeString()->not->toBe('');
 });

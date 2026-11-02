@@ -51,7 +51,7 @@ function discountsTestCreateDiscounts(array $discounts): array
         'name' => 'Discount - ' . $key,
         'perItemDiscount' => 1,
         'enabled' => true,
-        'allCategories' => true,
+        'allEntries' => true,
         'allPurchasables' => true,
         'percentageOffSubject' => 'original',
     ], $d)])->all();
@@ -146,19 +146,17 @@ test('orderCouponAvailable is false once the customer email has used its per-ema
 // ---------------------------------------------------------------------------------------------
 // matchLineItem()
 //
-// Category-relation matching isn't covered: `matchLineItem()` unconditionally calls
-// `craft\elements\Category::find()` whenever a discount has `allCategories: false`, which is
-// currently broken (see COM-644/645/646/647), so it isn't exercised here.
+// Entry-relation matching is covered by `PromotionEntriesTest`.
 // ---------------------------------------------------------------------------------------------
 
-test('matchLineItem matches a fully-promotable line item against an all-purchasables, all-categories discount', function() {
+test('matchLineItem matches a fully-promotable line item against an all-purchasables, all-entries discount', function() {
     $order = new Order(['couponCode' => null]);
     $lineItem = new LineItem(['qty' => 2]);
     $lineItem->setPrice(10);
     $lineItem->setIsPromotable(true);
     $lineItem->setOrder($order);
 
-    $discount = new Discount(['allPurchasables' => true, 'allCategories' => true]);
+    $discount = new Discount(['allPurchasables' => true, 'allEntries' => true]);
 
     expect(app(Discounts::class)->matchLineItem($lineItem, $discount))->toBeTrue();
 });
@@ -253,7 +251,7 @@ test('ensureSortOrder resequences every discount for the store into a contiguous
         $discount->sortOrder = $i + random_int(1, 15);
         $discount->storeId = $storeId;
         $discount->enabled = true;
-        $discount->allCategories = true;
+        $discount->allEntries = true;
         $discount->allPurchasables = true;
         $discount->percentageOffSubject = 'original';
         $discount->save();
@@ -280,9 +278,8 @@ test('ensureSortOrder resequences every discount for the store into a contiguous
 // ---------------------------------------------------------------------------------------------
 // getAllActiveDiscounts()
 //
-// Datasets scoping a discount to specific categories (`allCategories: false` + `categoryIds`)
-// are omitted — category-based discount matching is currently broken (see COM-644/645/646/647)
-// so it isn't exercised here.
+// Datasets scoping a discount to specific entries (`allEntries: false` + `entryIds`) are omitted;
+// entry-relation matching is covered by `PromotionEntriesTest`.
 // ---------------------------------------------------------------------------------------------
 
 test('getAllActiveDiscounts returns only the discounts a given order currently qualifies for', function(array|false $orderConfig, int $expectedCount, array $discountConfigs) {
@@ -403,8 +400,6 @@ test('getAllActiveDiscounts returns only the discounts a given order currently q
         discountsTestCreateDiscounts([
             'purchase-total-zero' => ['purchaseTotal' => 0],
             'purchase-total-all-purchasables-false' => ['purchaseTotal' => 10, 'allPurchasables' => false, 'purchasableIds' => ['rad-hood']],
-            // Dropped: 'purchase-total-all-categories-false' and 'purchase-total-both-all-false' —
-            // both set `allCategories: false` with real `categoryIds`, which crashes (see above).
         ]),
     ],
     'purchase total limit, with a line item' => [
@@ -417,7 +412,6 @@ test('getAllActiveDiscounts returns only the discounts a given order currently q
         discountsTestCreateDiscounts([
             'purchase-total-zero' => ['purchaseTotal' => 0],
             'purchase-total-all-purchasables-false' => ['purchaseTotal' => 10, 'allPurchasables' => false, 'purchasableIds' => ['rad-hood']],
-            // Dropped: 'purchase-total-all-categories-false' and 'purchase-total-both-all-false' (see above).
             'purchase-total-valid' => ['purchaseTotal' => 150],
             'purchase-total-invalid' => ['purchaseTotal' => 10.99],
         ]),
@@ -430,7 +424,6 @@ test('getAllActiveDiscounts returns only the discounts a given order currently q
             'max-qty-zero' => ['maxPurchaseQty' => 0],
             'both-zero' => ['purchaseQty' => 0, 'maxPurchaseQty' => 0],
             'purchase-qty-all-purchasables-false' => ['purchaseQty' => 4, 'allPurchasables' => false, 'purchasableIds' => ['rad-hood']],
-            // Dropped: 'purchase-total-all-categories-false' and 'purchase-total-both-all-false' (see above).
         ]),
     ],
     'qty limits, with line items' => [

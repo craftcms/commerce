@@ -21,11 +21,11 @@ class Discount extends BaseModel
 
     public const string TYPE_DISCOUNTED_SALEPRICE = 'discounted';
 
-    public const string CATEGORY_RELATIONSHIP_TYPE_SOURCE = 'sourceElement';
+    public const string ENTRY_RELATIONSHIP_TYPE_SOURCE = 'sourceElement';
 
-    public const string CATEGORY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
+    public const string ENTRY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
 
-    public const string CATEGORY_RELATIONSHIP_TYPE_BOTH = 'element';
+    public const string ENTRY_RELATIONSHIP_TYPE_BOTH = 'element';
 
     public const string APPLIED_TO_MATCHING_LINE_ITEMS = 'matchingLineItems';
 
@@ -37,9 +37,9 @@ class Discount extends BaseModel
     #[\Override]
     protected $casts = [
         'storeId' => 'integer',
-        'allCategories' => 'boolean',
+        'allEntries' => 'boolean',
         'allPurchasables' => 'boolean',
-        'categoryIds' => 'array',
+        'entryIds' => 'array',
         'purchasableIds' => 'array',
         'baseDiscount' => 'float',
         'purchaseTotal' => 'float',

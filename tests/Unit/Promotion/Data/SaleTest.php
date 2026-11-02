@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 use CraftCms\Commerce\Promotion\Data\Sale;
 
-test('setCategoryIds dedupes and getCategoryIds returns blank array when unset', function() {
+test('setEntryIds dedupes and getEntryIds returns blank array when unset', function() {
     $sale = new Sale();
 
-    expect($sale->getCategoryIds())->toBe([]);
+    expect($sale->getEntryIds())->toBe([]);
 
-    $sale->setCategoryIds([1, 2, 3, 4, 1]);
+    $sale->setEntryIds([1, 2, 3, 4, 1]);
 
-    expect($sale->getCategoryIds())->toBe([1, 2, 3, 4]);
+    expect($sale->getEntryIds())->toBe([1, 2, 3, 4]);
 });
 
 test('setPurchasableIds dedupes and getPurchasableIds returns blank array when unset', function() {

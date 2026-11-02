@@ -93,7 +93,7 @@ test('populate() applies an active percentage sale to the line item price', func
     $sale->applyAmount = -0.10;
     $sale->allGroups = true;
     $sale->allPurchasables = false;
-    $sale->allCategories = true;
+    $sale->allEntries = true;
     $sale->setPurchasableIds([$variant->id]);
     if (!app(Sales::class)->saveSale($sale)) {
         throw new RuntimeException('Could not save sale: ' . json_encode($sale->errors()->all()));
