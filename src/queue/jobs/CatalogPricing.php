@@ -12,9 +12,12 @@ use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingQueue as CatalogPricingQueueRecord;
 use craft\helpers\Queue as QueueHelper;
 use craft\queue\BaseJob;
+use yii\queue\RetryableJobInterface;
 
-class CatalogPricing extends BaseJob
+class CatalogPricing extends BaseJob implements RetryableJobInterface
 {
+    private const MAX_ATTEMPTS = 3;
+
     /**
      * @var array|null
      */
@@ -102,6 +105,22 @@ class CatalogPricing extends BaseJob
 
             throw $e;
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getTtr(): int
+    {
+        return Craft::$app->getQueue()->ttr;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canRetry($attempt, $error): bool
+    {
+        return $attempt < self::MAX_ATTEMPTS;
     }
 
     protected function defaultDescription(): ?string
