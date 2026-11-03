@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\db\Query;
 use CraftCms\Cms\Cp\Components\Select;
 use CraftCms\Cms\Cp\Data\NavItem;
 use CraftCms\Cms\Cp\SelectOptions;
@@ -32,9 +31,10 @@ use CraftCms\Commerce\Payment\Currencies;
 use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
-
 use CraftCms\Commerce\Ui\Controls\SiteStores;
+
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use function CraftCms\Cms\cp_url;
 use function CraftCms\Cms\t;
@@ -367,7 +367,7 @@ class StoresController extends BaseSettingsController
             $store->uid = $savedStore->uid;
             $store->sortOrder = $savedStore->sortOrder;
         } elseif (!$storeId) {
-            $store->sortOrder = new Query()->from(DbTable::STORES)->max('[[sortOrder]]') + 1;
+            $store->sortOrder = (int)DB::table(DbTable::STORES)->max('sortOrder') + 1;
         }
 
         if (!$store->validate() || !$storesService->saveStore($store)) {
