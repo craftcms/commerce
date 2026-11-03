@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed an error that could occur when updating a cart with an unsupported payment currency.
 - Fixed a bug where the last variant of an enabled product could be deleted.
 - Fixed a bug where users with the “Manage inventory transfers” permission couldn’t view, save, or delete inventory transfers unless they had been granted it before Commerce 5.1.
 - Fixed a PHP error that could occur when processing gateway webhooks on a control panel-only domain. ([#4395](https://github.com/craftcms/commerce/issues/4395))
