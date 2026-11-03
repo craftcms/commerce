@@ -16,6 +16,7 @@ use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 
 beforeEach(function() {
+    $this->withoutVite();
     prioritizeCommerceRoutes();
 
     // A Craft project registers the CMS's facade aliases, which the control panel layout uses.
