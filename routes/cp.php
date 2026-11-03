@@ -176,10 +176,6 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
             });
     });
 
-    // PromotionsController extends BaseCpController (not BaseStoreManagementController) — it
-    // only ever needed accessPlugin-commerce, not commerce-manageStoreSettings.
-    Route::get('commerce/promotions', fn() => redirect('commerce/promotions/sales'));
-
     // OrdersController extends the plain Yii2 Controller (not BaseCpController) — its init()
     // only ever checked commerce-manageOrders, not accessPlugin-commerce.
     Route::middleware('can:commerce-manageOrders')->group(function () {

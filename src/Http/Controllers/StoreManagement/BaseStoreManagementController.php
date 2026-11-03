@@ -24,29 +24,16 @@ use function CraftCms\Cms\t;
 
 /**
  * Shared ancestor for Commerce's store-management settings controllers (shipping, tax,
- * promotions, payment currencies, etc) that have been converted to the Ui system.
+ * promotions, payment currencies, etc).
  *
- * `getSectionCrumb()` is a real abstract method — every direct subclass of this class must
- * implement it, enforced at class-load time. A controller not yet converted to the Ui system
- * should extend {@see LegacyStoreManagementController} instead, which satisfies that
- * requirement with a stub so it isn't forced to implement Ui-system-only crumb logic before
- * its turn — see that class's docblock for the one-line change a conversion makes.
- *
- * This class still `use`s {@see HasStoreManagementScreen} itself (not just the legacy shim)
- * because a converted controller can still need the legacy trait's `resolveStore()` and other
- * helpers even once its own screens use `crumbs()`/`subnav()`/`cpScreenResponse()` instead of
- * `storeManagementCpScreen()`.
+ * Each subclass implements `getSectionCrumb()` for its own section of the crumbs, and gets
+ * {@see HasStoreManagementScreen::resolveStore()} for the store a screen is for.
  *
  * Unlike settings data, none of what these controllers manage is project-config-tracked —
  * it's regular database content gated by its own granular permission (`commerce-manageShipping`,
  * `commerce-manageTaxes`, etc.), not by `allowAdminChanges` — so there's deliberately no
  * `$readOnly`/`GeneralConfig` handling here.
- *
- * Every controller still resolves its own `Store` from a `storeHandle` route segment per action
- * method, not via the constructor — there's no framework-level route binding for handle-scoped
- * resources in cms-6 — so `resolveStore()` (from the trait) stays a plain method taking
- * `$storeHandle` as a parameter rather than a constructor-injected dependency.
- */
+ * */
 abstract readonly class BaseStoreManagementController
 {
     use HasColorPalette;

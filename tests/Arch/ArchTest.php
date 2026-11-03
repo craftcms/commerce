@@ -13,12 +13,10 @@ arch('src/ does not use Yii or legacy Craft classes')
     ->ignoring([
         'craft\\commerce',
         CraftCms\Commerce\Helpers\Locale::class,
-        CraftCms\Commerce\Http\Controllers\Concerns\HasStoreManagementScreen::class,
         CraftCms\Commerce\Http\Controllers\DownloadsController::class,
         CraftCms\Commerce\Http\Controllers\OrdersController::class,
         CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController::class,
         CraftCms\Commerce\Http\Controllers\Settings\StoresController::class,
-        CraftCms\Commerce\Http\Controllers\StoreManagement\SalesController::class,
         CraftCms\Commerce\Order\Events\PurgeAddressesEvent::class,
         CraftCms\Commerce\Order\OrderStatuses::class,
         CraftCms\Commerce\Pdf\Pdfs::class,
