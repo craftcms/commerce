@@ -17,6 +17,7 @@ use craft\db\Table as CraftTable;
 use craftcommercetests\fixtures\StoreFixture;
 use ReflectionProperty;
 use UnitTester;
+use yii\queue\ExecEvent;
 
 /**
  * CatalogPricingQueueTest
@@ -261,6 +262,122 @@ class CatalogPricingQueueTest extends Unit
 
         self::assertCount(0, CatalogPricingQueueRecord::find()->all());
         self::assertCount(0, $this->_queueJobsSince($lastJobId));
+    }
+
+    /**
+     * Serialized form of the job as it was queued before the `priority` property existed.
+     */
+    private function _legacyJobPayload(string $purchasableIds = 'N;', string $storeId = 'N;'): string
+    {
+        return 'O:40:"craft\commerce\queue\jobs\CatalogPricing":6:{'
+            . 's:11:"description";N;'
+            . 's:30:"' . "\0" . 'craft\queue\BaseJob' . "\0" . '_progress";i:0;'
+            . 's:35:"' . "\0" . 'craft\queue\BaseJob' . "\0" . '_progressLabel";N;'
+            . 's:14:"purchasableIds";' . $purchasableIds
+            . 's:21:"catalogPricingRuleIds";N;'
+            . 's:7:"storeId";' . $storeId
+            . '}';
+    }
+
+    private function _handleQueuedPayload(string $payload, int $attempt): bool
+    {
+        $queue = \Craft::$app->getQueue();
+        $id = $queue->push(new CatalogPricingJob());
+        $method = new \ReflectionMethod($queue, 'handleMessage');
+
+        return $method->invoke($queue, $id, $payload, 300, $attempt);
+    }
+
+    /**
+     * @return bool whether the queue will retry the previous-release payload after it failed on the given attempt
+     */
+    private function _willRetryFailedPayload(string $payload, int $attempt): bool
+    {
+        $queue = \Craft::$app->getQueue();
+        $event = new ExecEvent([
+            'id' => $queue->push(new CatalogPricingJob()),
+            'job' => unserialize($payload),
+            'ttr' => 300,
+            'attempt' => $attempt,
+            'error' => new \RuntimeException('failed'),
+        ]);
+        $queue->handleError($event);
+
+        return $event->retry;
+    }
+
+    private function _seedRow(string $type, array $ids): void
+    {
+        $record = new CatalogPricingQueueRecord();
+        $record->storeId = $this->_storeId;
+        $record->type = $type;
+        $record->setIds($ids);
+        $record->reserved = false;
+        $record->save(false);
+    }
+
+    /**
+     * Test that a consolidated job queued by the previous release unserializes without a priority and still drains the queue table.
+     */
+    public function testLegacyConsolidatedPayloadWithoutPriorityStillProcesses(): void
+    {
+        $job = unserialize($this->_legacyJobPayload());
+
+        self::assertInstanceOf(CatalogPricingJob::class, $job);
+        self::assertNull($job->priority);
+
+        $this->_seedRow(CatalogPricingQueueRecord::TYPE_PURCHASABLE, [1]);
+        $this->_seedRow(CatalogPricingQueueRecord::TYPE_RULE, [2]);
+        $lastJobId = $this->_lastQueueJobId();
+
+        $job->execute(\Craft::$app->getQueue());
+
+        self::assertCount(1, CatalogPricingQueueRecord::find()->all());
+        $followUps = $this->_queueJobsSince($lastJobId);
+        self::assertCount(1, $followUps);
+        self::assertSame(1024, (int)$followUps[0]['priority']);
+    }
+
+    /**
+     * Test that an explicit-property job queued by the previous release still runs and leaves the queue table alone.
+     */
+    public function testLegacyExplicitPayloadStillProcesses(): void
+    {
+        $job = unserialize($this->_legacyJobPayload('a:1:{i:0;i:7;}', 'i:' . $this->_storeId . ';'));
+
+        self::assertSame([7], $job->purchasableIds);
+        self::assertNull($job->priority);
+
+        $this->_seedRow(CatalogPricingQueueRecord::TYPE_PURCHASABLE, [1]);
+        $lastJobId = $this->_lastQueueJobId();
+
+        $job->execute(\Craft::$app->getQueue());
+
+        self::assertCount(1, CatalogPricingQueueRecord::find()->all());
+        self::assertCount(0, $this->_queueJobsSince($lastJobId));
+    }
+
+    /**
+     * Test that the queue completes a previous-release payload that already has failed attempts.
+     */
+    public function testQueueCompletesLegacyPayloadWithExistingAttemptCount(): void
+    {
+        $this->_seedRow(CatalogPricingQueueRecord::TYPE_PURCHASABLE, [1]);
+
+        self::assertTrue($this->_handleQueuedPayload($this->_legacyJobPayload(), 2));
+        self::assertCount(0, CatalogPricingQueueRecord::find()->all());
+    }
+
+    /**
+     * Test that a previous-release payload is retried until the attempt limit.
+     */
+    public function testQueueRetriesFailingLegacyPayloadUntilAttemptLimit(): void
+    {
+        $payload = $this->_legacyJobPayload();
+
+        self::assertTrue($this->_willRetryFailedPayload($payload, 1));
+        self::assertTrue($this->_willRetryFailedPayload($payload, 2));
+        self::assertFalse($this->_willRetryFailedPayload($payload, 3));
     }
 
     /**
