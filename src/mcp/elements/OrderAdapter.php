@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace craft\commerce\mcp\elements;
 
+use Craft;
 use craft\base\ElementInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use craft\elements\db\UserQuery;
 use craft\elements\User;
 
 class OrderAdapter extends CommerceElementAdapter
@@ -48,6 +50,36 @@ class OrderAdapter extends CommerceElementAdapter
     protected function newElement(array $context, User $actor): ElementInterface
     {
         return new Order([...$context, 'number' => Plugin::getInstance()->getCarts()->generateCartNumber(), 'origin' => Order::ORIGIN_CP]);
+    }
+
+    protected function populate(ElementInterface $element, array $attributes, array $fields, User $actor): void
+    {
+        if ($element instanceof Order && isset($attributes['storeId'])) {
+            $element->storeId = $attributes['storeId'];
+            unset($attributes['storeId']);
+        }
+        $this->authorizeSave($actor, $element);
+        $email = $attributes['email'] ?? null;
+        unset($attributes['email']);
+        parent::populate($element, $attributes, $fields, $actor);
+        if ($element instanceof Order && $email !== null && $element->getCustomer()?->email !== $email) {
+            // Unlike Order::setEmail(), preparing an element must not persist a new customer.
+            $customer = User::find()->email($email)->status(UserQuery::STATUS_CREDENTIALED)->one()
+                ?? User::find()->email($email)->status(User::STATUS_INACTIVE)->one()
+                ?? new User(['email' => $email]);
+            $element->setCustomer($customer);
+        }
+    }
+
+    protected function saveElement(ElementInterface $element, User $actor): ElementInterface
+    {
+        $this->authorizeSave($actor, $element);
+        return Craft::$app->getDb()->transaction(function() use ($element, $actor): ElementInterface {
+            if ($element instanceof Order && ($customer = $element->getCustomer()) && !$customer->id) {
+                $element->setCustomer(Craft::$app->getUsers()->ensureUserByEmail($customer->email));
+            }
+            return parent::saveElement($element, $actor);
+        });
     }
 
     protected function criteriaProperties(): array

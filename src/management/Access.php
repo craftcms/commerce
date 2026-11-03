@@ -56,13 +56,13 @@ class Access
         }
         // Saved drafts remain shared. Provisional drafts belong only to their creator.
         // A shared variant's contextual owner can differ from its canonical primary owner.
-        $owners = $element instanceof Variant ? [$element->getOwner(), $element->getPrimaryOwner()] : [$element];
-        foreach ($owners as $owner) {
-            if (!$owner || ($owner->isProvisionalDraft && $owner->getBehavior('draft')?->creatorId !== $actor->id)) {
+        $subjects = $element instanceof Variant ? [$element, $element->getOwner(), $element->getPrimaryOwner()] : [$element];
+        foreach ($subjects as $subject) {
+            if (!$subject || ($subject->isProvisionalDraft && $subject->getBehavior('draft')?->creatorId !== $actor->id)) {
                 return false;
             }
-            if ($owner instanceof Product && $ability === 'save'
-                && !$actor->can('commerce-saveProductType:' . $owner->getType()->uid)) {
+            if ($subject instanceof Product && $ability === 'save'
+                && !$actor->can('commerce-saveProductType:' . $subject->getType()->uid)) {
                 return false;
             }
         }

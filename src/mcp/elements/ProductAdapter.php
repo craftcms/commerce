@@ -8,6 +8,7 @@ use craft\base\ElementInterface;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\elements\User;
+use craft\helpers\DateTimeHelper;
 
 class ProductAdapter extends CommerceElementAdapter
 {
@@ -50,6 +51,11 @@ class ProductAdapter extends CommerceElementAdapter
     {
         $variant = $attributes['defaultVariant'] ?? null;
         unset($attributes['defaultVariant']);
+        foreach (['postDate', 'expiryDate'] as $name) {
+            if (isset($attributes[$name])) {
+                $attributes[$name] = DateTimeHelper::toDateTime($attributes[$name]);
+            }
+        }
         parent::populate($element, $attributes, $fields, $actor);
         if ($variant !== null && $element instanceof Product) {
             $defaultVariant = new Variant(['title' => $element->title, ...$variant, 'siteId' => $element->siteId, 'isDefault' => true]);

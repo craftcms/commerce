@@ -15,6 +15,7 @@ use craft\commerce\models\ShippingRule;
 use craft\commerce\models\ShippingRuleCategory;
 use craft\commerce\Plugin;
 use craft\elements\User;
+use craft\helpers\DateTimeHelper;
 use craft\models\FieldLayout;
 use DateTimeInterface;
 use Illuminate\Support\Collection;
@@ -156,6 +157,11 @@ readonly class Resources
                     $layout->type = $existing->type;
                     $attributes[$name] = $layout;
                 }
+            }
+        }
+        foreach (['dateFrom', 'dateTo'] as $name) {
+            if (isset($attributes[$name])) {
+                $attributes[$name] = DateTimeHelper::toDateTime($attributes[$name]);
             }
         }
         Craft::configure($item, $attributes);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace craft\commerce\management;
 
+use craft\commerce\helpers\Currency;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\services\Payments;
@@ -24,8 +25,8 @@ readonly class PaymentManagement
 
     public function capture(User $actor, int $transactionId): array
     {
-        $this->find($actor, $transactionId, 'capture');
-        return Mutation::run("commerce:payment-management:$transactionId", function() use ($actor, $transactionId): array {
+        $transaction = $this->find($actor, $transactionId, 'capture');
+        return Mutation::run("commerce:order-management:$transaction->orderId", function() use ($actor, $transactionId): array {
             $transaction = $this->find($actor, $transactionId, 'capture');
             if (!$transaction->canCapture()) {
                 throw new InvalidArgumentException('This transaction cannot be captured.');
@@ -38,12 +39,17 @@ readonly class PaymentManagement
 
     public function refund(User $actor, int $transactionId, ?float $amount = null, string $note = ''): array
     {
-        $this->find($actor, $transactionId, 'refund');
-        return Mutation::run("commerce:payment-management:$transactionId", function() use ($actor, $transactionId, $amount, $note): array {
+        $transaction = $this->find($actor, $transactionId, 'refund');
+        return Mutation::run("commerce:order-management:$transaction->orderId", function() use ($actor, $transactionId, $amount, $note): array {
             $transaction = $this->find($actor, $transactionId, 'refund');
             $remaining = $transaction->getRefundableAmount();
             $amount ??= $remaining;
             if (!$transaction->canRefund() || !is_finite($amount) || $amount <= 0 || $amount > $remaining) {
+                throw new InvalidArgumentException('This transaction cannot be refunded for the requested amount.');
+            }
+            // Match Payments::_refund(), where a rounded zero would mean the entire remaining balance.
+            $amount = Currency::round($amount, $transaction->currency);
+            if ($amount <= 0 || $amount > $remaining) {
                 throw new InvalidArgumentException('This transaction cannot be refunded for the requested amount.');
             }
             $result = $this->payments->refundTransaction($transaction, $amount, $note);

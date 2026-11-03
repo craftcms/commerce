@@ -65,14 +65,11 @@ readonly class TransferManagement
         $this->find($actor, $id, 'save');
         return Mutation::run("commerce:transfer-management:$id", function() use ($actor, $id): Transfer {
             $transfer = $this->find($actor, $id, 'save');
-            if (!$transfer->isTransferDraft() || !$transfer->validate()) {
+            // Validate locations and details under live rules before leaving draft state.
+            $transfer->setScenario(Transfer::SCENARIO_LIVE);
+            // Yii skips the native detail validator for an empty array.
+            if (!$transfer->isTransferDraft() || !$transfer->getDetails() || !$transfer->validate()) {
                 throw new InvalidArgumentException('Only a valid draft transfer can be dispatched.');
-            }
-            // Validate details while still a persisted draft, before the pending transition.
-            foreach ($transfer->getDetails() as $detail) {
-                if (!$detail->validate()) {
-                    throw new InvalidArgumentException(implode("\n", $detail->getErrorSummary(true)));
-                }
             }
             $transfer->transferStatus = TransferStatusType::PENDING;
             if (!Craft::$app->getElements()->saveElement($transfer)) {

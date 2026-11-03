@@ -22,6 +22,7 @@ use craft\mcp\serializers\ElementSerializer;
 use craft\mcp\ServerFactory;
 use craft\services\Mcp;
 use craft\test\TestCase;
+use craftcommercetests\fixtures\CustomerFixture;
 use craftcommercetests\fixtures\OrdersFixture;
 use DateInterval;
 use GuzzleHttp\Psr7\ServerRequest;
@@ -37,6 +38,10 @@ class CommerceTest extends TestCase
 
     public function _fixtures(): array
     {
+        // Promotion scheduling needs no orders or extra stores; legacy sales require a single store.
+        if ($this->name() === 'testPromotionSchedulingDates') {
+            return ['customers' => ['class' => CustomerFixture::class]];
+        }
         return ['orders' => ['class' => OrdersFixture::class]];
     }
 
@@ -176,7 +181,15 @@ class CommerceTest extends TestCase
         $type = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle('tShirts');
         $product = $this->ok('elements.create', ['type' => 'products', 'attributes' => [
             'typeId' => $type->id, 'title' => 'MCP shirt', 'defaultVariant' => ['sku' => 'mcp-shirt', 'basePrice' => 17.35],
+            'postDate' => '2020-02-03T04:05:06+02:00', 'expiryDate' => '2035-07-08T09:10:11-04:00',
         ]])['element'];
+        $scheduled = Product::find()->id($product['id'])->status(null)->one();
+        self::assertSame('2020-02-03T02:05:06+00:00', $scheduled->postDate->setTimezone(new \DateTimeZone('UTC'))->format(DATE_ATOM));
+        self::assertSame('2035-07-08T13:10:11+00:00', $scheduled->expiryDate->setTimezone(new \DateTimeZone('UTC'))->format(DATE_ATOM));
+        $this->ok('elements.update', ['type' => 'products', 'id' => $product['id'], 'attributes' => ['expiryDate' => null]]);
+        $scheduled = Product::find()->id($product['id'])->status(null)->one();
+        self::assertNull($scheduled->expiryDate);
+        self::assertSame('2020-02-03T02:05:06+00:00', $scheduled->postDate->setTimezone(new \DateTimeZone('UTC'))->format(DATE_ATOM));
         $variants = $this->ok('elements.list', ['type' => 'variants', 'criteria' => ['productId' => $product['id']]])['elements'];
         self::assertCount(1, $variants);
         self::assertSame('mcp-shirt', $variants[0]['sku']);
@@ -296,6 +309,8 @@ class CommerceTest extends TestCase
             }
         }
         $this->denied('commerce.payments.capture', ['transactionId' => 999999]);
+        $this->denied('commerce.payments.refund', ['transactionId' => $payment->id, 'amount' => 0.001]);
+        self::assertEqualsWithDelta($payment->paymentAmount, $transactions->getTransactionById($payment->id)->getRefundableAmount(), 0.000001);
         $status = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($order->storeId)->last();
         self::assertSame($status->id, $this->ok('commerce.orders.set-status', ['orderId' => $order->id, 'statusId' => $status->id])['order']['orderStatusId']);
         $this->ok('commerce.orders.recalculate', ['orderId' => $order->id]);
@@ -319,6 +334,43 @@ class CommerceTest extends TestCase
         self::assertSame($authorization->id, $captured['parentId']);
         self::assertArrayNotHasKey('response', $captured);
         $this->denied('commerce.payments.capture', ['transactionId' => $payment->id]);
+    }
+
+    /** @dataProvider paymentOperations */
+    public function testPaymentCannotOverwriteAnInterleavedOrderEdit(string $operation, string $type, string $event): void
+    {
+        $order = Order::find()->isCompleted()->one();
+        $order->message = 'Original message';
+        self::assertTrue(Craft::$app->getElements()->saveElement($order));
+        $transactions = Plugin::getInstance()->getTransactions();
+        $payment = $transactions->createTransaction($order, typeOverride: $type);
+        $payment->status = 'success';
+        self::assertTrue($transactions->saveTransaction($payment));
+        $competing = null;
+        $listener = function() use ($order, &$competing): void {
+            // Run another real MCP operation between the gateway response and payment bookkeeping.
+            $competing = $this->call('elements.update', ['type' => 'orders', 'id' => $order->id, 'attributes' => ['message' => 'Interleaved edit']]);
+        };
+        $payments = Plugin::getInstance()->getPayments();
+        $payments->on($event, $listener);
+        try {
+            $result = $this->ok("commerce.payments.$operation", ['transactionId' => $payment->id]);
+            self::assertSame($order->id, $result['transaction']['orderId']);
+        } finally {
+            $payments->off($event, $listener);
+        }
+        self::assertNotNull($competing);
+        $rejected = isset($competing['error']) || ($competing['result']['isError'] ?? false);
+        // Either serialize/reject the competing write or preserve it. Never lose a successful edit.
+        self::assertSame($rejected ? 'Original message' : 'Interleaved edit', Order::find()->id($order->id)->status(null)->one()->message);
+    }
+
+    public static function paymentOperations(): array
+    {
+        return [
+            ['capture', 'authorize', \craft\commerce\services\Payments::EVENT_AFTER_CAPTURE_TRANSACTION],
+            ['refund', 'purchase', \craft\commerce\services\Payments::EVENT_AFTER_REFUND_TRANSACTION],
+        ];
     }
 
     public function testTransfersValidateBeforeDispatchAndMoveInventoryExactlyOnce(): void
@@ -404,6 +456,106 @@ class CommerceTest extends TestCase
         self::assertSame($draft->id, $this->ok('elements.get', ['type' => 'products', 'id' => $draft->id])['element']['id']);
         $this->asUser('customer3@crafttest.com', array_values(array_diff($permissions, ["commerce-saveProductType:$type->uid"])));
         $this->denied('elements.update', ['type' => 'products', 'id' => $saved->id, 'attributes' => ['title' => 'Read-only peer']]);
+    }
+
+    public function testStandaloneProvisionalVariantIsPrivateWithCanonicalOwner(): void
+    {
+        $product = Product::find()->type('tShirts')->one();
+        $owner = Craft::$app->getUsers()->getUserByUsernameOrEmail('customer1@crafttest.com');
+        $private = Craft::$app->getDrafts()->createDraft($product->getDefaultVariant(), $owner->id, 'Standalone private variant',
+            newAttributes: ['basePrice' => 987.65], provisional: true);
+        $site = Craft::$app->getSites()->getPrimarySite();
+        $type = $product->getType();
+        $permissions = ['accessCp', 'accessPlugin-commerce', "editSite:$site->uid", "commerce-viewProductType:$type->uid", "commerce-saveProductType:$type->uid"];
+        $this->asUser('customer3@crafttest.com', $permissions);
+        $this->denied('elements.get', ['type' => 'variants', 'id' => $private->id]);
+        $this->denied('elements.update', ['type' => 'variants', 'id' => $private->id, 'attributes' => ['basePrice' => 1]]);
+        $serializer = Craft::$app->get('mcp')->getCapabilityContainer()->get(ElementSerializer::class);
+        self::assertSame([], $serializer->serialize($private));
+        $this->asUser('customer1@crafttest.com', $permissions);
+        self::assertEqualsWithDelta(987.65, $this->ok('elements.get', ['type' => 'variants', 'id' => $private->id])['element']['basePrice'], 0.000001);
+        self::assertEqualsWithDelta(19.99, Variant::find()->id($product->defaultVariantId)->status(null)->one()->basePrice, 0.000001);
+    }
+
+    public function testOrderValidationDoesNotCreateCustomers(): void
+    {
+        $order = Order::find()->status(null)->one();
+        $email = 'mcp-validation-only@crafttest.com';
+        self::assertNull(Craft::$app->getUsers()->getUserByUsernameOrEmail($email));
+        Craft::$app->get('mcp')->tokenScopes = [Mcp::SCOPE_READ];
+        self::assertTrue($this->ok('elements.validate', ['type' => 'orders', 'id' => $order->id, 'attributes' => ['email' => $email]])['valid']);
+        self::assertNull(Craft::$app->getUsers()->getUserByUsernameOrEmail($email));
+        self::assertNotSame($email, Order::find()->id($order->id)->status(null)->one()->getEmail());
+    }
+
+    public function testUnauthorizedOrderCreationDoesNotCreateCustomers(): void
+    {
+        $store = Plugin::getInstance()->getStores()->getStoreByHandle('ukStore');
+        $email = 'mcp-denied-create@crafttest.com';
+        $site = Craft::$app->getSites()->getPrimarySite();
+        $this->asUser('customer3@crafttest.com', ['accessCp', 'accessPlugin-commerce', "editSite:$site->uid", 'commerce-editOrders']);
+        self::assertNull(Craft::$app->getUsers()->getUserByUsernameOrEmail($email));
+        $this->denied('elements.create', ['type' => 'orders', 'attributes' => ['storeId' => $store->id, 'email' => $email]]);
+        self::assertNull(Craft::$app->getUsers()->getUserByUsernameOrEmail($email));
+    }
+
+    public function testFailedOrderSaveDoesNotLeaveACustomer(): void
+    {
+        $email = 'mcp-invalid-cart@crafttest.com';
+        $this->denied('elements.create', ['type' => 'orders', 'attributes' => [
+            'storeId' => Plugin::getInstance()->getStores()->getPrimaryStore()->id,
+            'email' => $email, 'shippingAddress' => ['countryCode' => 'invalid'],
+        ]]);
+        self::assertNull(Craft::$app->getUsers()->getUserByUsernameOrEmail($email));
+    }
+
+    /** @dataProvider promotionTypes */
+    public function testPromotionSchedulingDates(string $type): void
+    {
+        $storeId = Plugin::getInstance()->getStores()->getPrimaryStore()->id;
+        $item = $this->ok('commerce.resources.create', ['type' => $type, 'attributes' => [
+            ...($type === 'sales' ? [] : ['storeId' => $storeId]), ...($type === 'discounts' ? [] : ['applyAmount' => 10]),
+            'name' => 'Scheduled promotion',
+            'dateFrom' => '2030-02-03T04:05:06+02:00', 'dateTo' => '2031-07-08T09:10:11-04:00',
+        ]])['item'];
+        self::assertSame('2030-02-03T02:05:06+00:00', (new \DateTime($item['dateFrom']))->setTimezone(new \DateTimeZone('UTC'))->format(DATE_ATOM));
+        self::assertSame('2031-07-08T13:10:11+00:00', (new \DateTime($item['dateTo']))->setTimezone(new \DateTimeZone('UTC'))->format(DATE_ATOM));
+        $updated = $this->ok('commerce.resources.update', ['type' => $type, 'storeId' => $storeId, 'identifier' => ['id' => $item['id']],
+            'attributes' => ['dateFrom' => '2030-04-05T06:07:08Z', 'dateTo' => null],
+        ])['item'];
+        self::assertSame('2030-04-05T06:07:08+00:00', (new \DateTime($updated['dateFrom']))->setTimezone(new \DateTimeZone('UTC'))->format(DATE_ATOM));
+        self::assertNull($updated['dateTo']);
+    }
+
+    public static function promotionTypes(): array
+    {
+        return [['discounts'], ['sales'], ['catalogPricingRules']];
+    }
+
+    /** @dataProvider invalidTransferDrafts */
+    public function testDispatchRejectsInvalidDraftTopology(string $state): void
+    {
+        $origin = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations()->first();
+        $destination = new InventoryLocation(['name' => 'Other location', 'handle' => 'otherLocation']);
+        self::assertTrue(Plugin::getInstance()->getInventoryLocations()->saveInventoryLocation($destination));
+        $item = Variant::find()->sku('hct-blue')->one()->inventoryItemId;
+        $transfer = $this->ok('commerce.transfers.save', ['originLocationId' => $origin->id, 'destinationLocationId' => $destination->id,
+            'items' => [['inventoryItemId' => $item, 'quantity' => 2]],
+        ])['transfer'];
+        if ($state === 'empty') {
+            Craft::$app->getDb()->createCommand()->delete(Table::TRANSFERDETAILS, ['transferId' => $transfer['id']])->execute();
+        } else {
+            Craft::$app->getDb()->createCommand()->update(Table::TRANSFERS,
+                ['destinationLocationId' => $state === 'same-location' ? $origin->id : null], ['id' => $transfer['id']])->execute();
+        }
+        $this->denied('commerce.transfers.dispatch', ['id' => $transfer['id']]);
+        self::assertSame(0, $this->ledgerCount($transfer['id']));
+        self::assertTrue(Transfer::find()->id($transfer['id'])->status(null)->one()->isTransferDraft());
+    }
+
+    public static function invalidTransferDrafts(): array
+    {
+        return [['empty'], ['same-location'], ['missing-location']];
     }
 
     private function asUser(string $email, array $permissions): void
