@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Users;
 
-use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use CraftCms\Cms\Cp\Html\ElementIndexHtml;
 use CraftCms\Cms\Http\Controllers\Users\EditUserTrait;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
@@ -32,8 +31,6 @@ readonly class UsersController
         $user = $this->editedUser($userId);
 
         $response = $this->asEditUserScreen($user, self::SCREEN_COMMERCE);
-
-        \Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
 
         $config = [
             'context' => 'embedded-index',

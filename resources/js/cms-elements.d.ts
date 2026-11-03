@@ -4,7 +4,10 @@
  * and `resources/js/cp-module.ts`). Hand-authored for the same reason as
  * `window.d.ts`; keep in sync with `cms`'s `ElementIndexPage.vue`,
  * `ElementEditor.vue`, `CpButtonLink.vue`, `ActionMenu.vue`, `common/types` and
- * `useElementIndexVisits.ts`, `useAppLayout.ts`, `useCustomizeSources.ts`.
+ * `useElementIndexVisits.ts`, `useAppLayout.ts`, `useCustomizeSources.ts`,
+ * `AdminTable.vue`, `SearchForm.vue`, `common/table/craftTable.ts` and
+ * `common/table/createCraftColumnHelper.ts`. The table types are loose: the
+ * TanStack generics behind them aren't worth mirroring by hand.
  */
 declare module '@craftcms/cp' {
   import type {ComputedRef, DefineComponent} from 'vue';
@@ -111,5 +114,64 @@ declare module '@craftcms/cp' {
     icon?: string;
     target?: string;
     inertia?: boolean;
+  }>;
+
+  export interface PaginationData {
+    total: number;
+    per_page: number;
+    current_page: number;
+    last_page: number;
+    next_page_url: string | null;
+    prev_page_url: string | null;
+    from: number | null;
+    to: number | null;
+  }
+
+  export interface CraftTableInertiaOptions {
+    url: string;
+    pagination?: () => PaginationData;
+    dataProp?: string;
+  }
+
+  export function useCraftTable<TData>(options: {
+    readonly data: TData[];
+    columns: unknown[];
+    getRowId?: (row: TData) => string;
+    inertia?: CraftTableInertiaOptions;
+  }): unknown;
+
+  export interface CraftCellContext<TData, TValue> {
+    getValue(): TValue;
+    row: {original: TData};
+  }
+
+  export interface CraftColumnHelper<TData> {
+    columns(columns: unknown[]): unknown[];
+    accessor<TKey extends keyof TData>(
+      key: TKey,
+      config: {
+        header: string;
+        meta?: {trackSize?: string};
+        cell?: (cell: CraftCellContext<TData, TData[TKey]>) => unknown;
+      }
+    ): unknown;
+  }
+
+  export function createCraftColumnHelper<TData>(): CraftColumnHelper<TData>;
+
+  export const AdminTable: DefineComponent<{
+    table: unknown;
+    title?: string;
+    from?: number | null;
+    to?: number | null;
+    total?: number;
+    emptyMessage?: string | null;
+    enableAdjustPageSize?: boolean;
+  }>;
+
+  export const SearchForm: DefineComponent<{
+    action: string;
+    modelValue?: string | null;
+    options?: Record<string, unknown>;
   }>;
 }
