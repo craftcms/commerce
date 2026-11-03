@@ -96,6 +96,11 @@ class Order extends ElementMutationResolver
         $addresses = $this->recursivelyNormalizeArgumentValues($resolveInfo, array_filter($addresses, fn($value) => $value !== null)) + $addresses;
         unset($arguments['billingAddress'], $arguments['shippingAddress']);
 
+        // Null means “leave the line items alone”, and can’t be normalized as input objects
+        if (!isset($arguments['lineItems'])) {
+            unset($arguments['lineItems']);
+        }
+
         if (!empty($arguments['recalculationMode'])) {
             $order->setRecalculationMode($arguments['recalculationMode']);
         }

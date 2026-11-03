@@ -13,6 +13,7 @@ use craft\commerce\elements\Variant as VariantElement;
 use craft\commerce\helpers\Gql;
 use craft\commerce\models\ProductType;
 use craft\gql\base\ElementMutationResolver;
+use craft\helpers\ElementHelper;
 use GraphQL\Error\Error;
 use GraphQL\Type\Definition\ResolveInfo;
 use Throwable;
@@ -130,6 +131,12 @@ class Variant extends ElementMutationResolver
             throw new Error('Unable to perform the action.');
         }
         $this->requireUserAuthorization($variant, 'delete');
+
+        // Deleting a variant doesn’t validate its product, and enabled products must have at least one variant
+        $product = $variant->getOwner();
+        if ($product->enabled && !ElementHelper::isDraftOrRevision($variant) && $product->getVariants(true)->count() <= 1) {
+            throw new Error(Craft::t('commerce', 'Must have at least one variant.'));
+        }
 
         return Craft::$app->getElements()->deleteElement($variant, $arguments['hardDelete'] ?? false);
     }

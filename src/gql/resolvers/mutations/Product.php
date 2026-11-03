@@ -48,6 +48,15 @@ class Product extends ElementMutationResolver
             throw new Error('A draft ID is required unless creating an unpublished draft.');
         }
 
+        if (!empty($arguments['draftId']) && !empty($arguments['asUnpublishedDraft'])) {
+            throw new Error('An existing draft can’t be saved as a new unpublished draft.');
+        }
+
+        // Null means “leave the variants alone”, and can’t be normalized as input objects
+        if (!isset($arguments['variants'])) {
+            unset($arguments['variants']);
+        }
+
         /** @var ProductType $productType */
         $productType = $this->getResolutionData('productType');
         $canIdentify = !empty($arguments['id']) || !empty($arguments['uid']) || !empty($arguments['draftId']);
@@ -128,7 +137,7 @@ class Product extends ElementMutationResolver
      */
     public function createDraft(mixed $source, array $arguments, mixed $context, ResolveInfo $resolveInfo): int
     {
-        $product = ProductElement::find()->id($arguments['id'])->status(null)->one();
+        $product = ProductElement::find()->id($arguments['id'])->siteId($this->allowedSiteIds())->status(null)->one();
 
         if (!$product) {
             throw new Error('Unable to perform the action.');
@@ -166,15 +175,29 @@ class Product extends ElementMutationResolver
             ->status(null)
             ->provisionalDrafts($arguments['provisional'] ?? false)
             ->draftId($arguments['id'])
+            ->siteId($this->allowedSiteIds())
             ->one();
 
         if (!$draft || !Gql::canAccessProductDraft($draft)) {
             throw new Error('Unable to perform the action.');
         }
 
-        $this->requireSchemaAction('productTypes.' . $draft->getType()->uid, 'save');
+        $productTypeUid = $draft->getType()->uid;
+        $this->requireSchemaAction("productTypes.$productTypeUid", 'save');
+        // Publishing an unpublished draft creates the product
+        if ($draft->getIsUnpublishedDraft()) {
+            $this->requireSchemaAction("productTypes.$productTypeUid", 'create');
+        }
         $this->requireUserAuthorization($draft, 'save');
         $this->requireUserAuthorization($draft, 'saveCanonical');
+
+        // applyDraft() doesn’t validate unpublished drafts, so validate it like the control panel does
+        if ($draft->getIsUnpublishedDraft() && $draft->enabled && $draft->getEnabledForSite()) {
+            $draft->setScenario(Element::SCENARIO_LIVE);
+            if (!$draft->validate()) {
+                throw new UserError(implode("\n", $draft->getFirstErrors()));
+            }
+        }
 
         return Craft::$app->getDrafts()->applyDraft($draft)->id;
     }
@@ -199,6 +222,23 @@ class Product extends ElementMutationResolver
         $this->requireUserAuthorization($product, 'delete');
 
         return Craft::$app->getElements()->deleteElement($product, $arguments['hardDelete'] ?? false);
+    }
+
+    /**
+     * Returns the IDs of the sites the schema can access.
+     *
+     * @return int[]
+     * @throws Error
+     */
+    private function allowedSiteIds(): array
+    {
+        $siteIds = array_values(array_map(fn($site) => $site->id, Gql::getAllowedSites()));
+
+        if (empty($siteIds)) {
+            throw new Error('Unable to perform the action.');
+        }
+
+        return $siteIds;
     }
 
     /**

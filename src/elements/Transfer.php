@@ -671,7 +671,7 @@ JS, [
     public function getDetails(): array
     {
         if ($this->_details === null) {
-            $this->_details = Plugin::getInstance()->getTransfers()->getTransferDetailsByTransferId($this->id);
+            $this->_details = $this->id ? Plugin::getInstance()->getTransfers()->getTransferDetailsByTransferId($this->id) : [];
         }
 
         return $this->_details;

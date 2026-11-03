@@ -157,6 +157,77 @@ class MutationsTest extends TestCase
         self::assertSame($variantDrafts, Variant::find()->drafts()->status(null)->count());
     }
 
+    public function testDraftMutationsRequireAnAllowedSite(): void
+    {
+        // The ukOnly product type only has the “Test site 3” site
+        $uid = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle('ukOnly')->uid;
+        $schemaForSite = fn(int $siteId) => new GqlSchema(['name' => 'Test', 'uid' => StringHelper::UUID(), 'scope' => [
+            'sites.' . Craft::$app->getSites()->getSiteById($siteId)->uid . ':read', "productTypes.$uid:read", "productTypes.$uid:save",
+        ]]);
+        $allowed = $schemaForSite(1002);
+        $forbidden = $schemaForSite(1000);
+        $productId = Variant::find()->sku('ddb-red')->siteId(1002)->one()->getOwner()->id;
+
+        $result = $this->execute($forbidden, "mutation { createProductDraft(id: $productId) }");
+        self::assertSame('Unable to perform the action.', $result['errors'][0]['message'] ?? null, json_encode($result));
+
+        $draftId = $this->execute($allowed, "mutation { createProductDraft(id: $productId) }")['data']['createProductDraft'];
+        $result = $this->execute($forbidden, "mutation { publishProductDraft(id: $draftId) }");
+        self::assertSame('Unable to perform the action.', $result['errors'][0]['message'] ?? null, json_encode($result));
+        $result = $this->execute($allowed, "mutation { publishProductDraft(id: $draftId) }");
+        self::assertSame((string)$productId, $result['data']['publishProductDraft'] ?? null, json_encode($result));
+    }
+
+    public function testPublishingUnpublishedDraftsRequiresCreateScopeAndVariants(): void
+    {
+        $uid = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle('tShirts')->uid;
+        $createSchema = $this->schema(["productTypes.$uid:read", "productTypes.$uid:create", "productTypes.$uid:save"]);
+        $saveSchema = $this->schema(["productTypes.$uid:read", "productTypes.$uid:save"]);
+        $count = Product::find()->status(null)->count();
+
+        $draftId = $this->execute($createSchema, 'mutation { save_tShirts_ProductDraft(asUnpublishedDraft: true, title: "No variants") { draftId } }')['data']['save_tShirts_ProductDraft']['draftId'];
+
+        $result = $this->execute($saveSchema, "mutation { publishProductDraft(id: $draftId) }");
+        self::assertSame('Unable to perform the action.', $result['errors'][0]['message'] ?? null, json_encode($result));
+
+        // An enabled product needs a variant, even if its draft didn’t
+        $result = $this->execute($createSchema, "mutation { publishProductDraft(id: $draftId) }");
+        self::assertSame('Must have at least one variant.', $result['errors'][0]['message'] ?? null, json_encode($result));
+        self::assertSame($count, Product::find()->status(null)->count());
+
+        $result = $this->execute($createSchema, "mutation { save_tShirts_ProductDraft(draftId: $draftId, asUnpublishedDraft: true, title: \"Again\") { id } }");
+        self::assertSame('An existing draft can’t be saved as a new unpublished draft.', $result['errors'][0]['message'] ?? null, json_encode($result));
+
+        $result = $this->execute($createSchema, "mutation { save_tShirts_ProductDraft(draftId: $draftId, sortOrder: [\"new:1\"], variants: [{sku: \"unpublished-1\", basePrice: 1}]) { id } }");
+        self::assertArrayNotHasKey('errors', $result, json_encode($result));
+        $result = $this->execute($createSchema, "mutation { publishProductDraft(id: $draftId) }");
+        self::assertSame(['unpublished-1'], Product::find()->id($result['data']['publishProductDraft'] ?? null)->one()?->getVariants()->pluck('sku')->all(), json_encode($result));
+    }
+
+    public function testNullListArgumentsLeaveRelationsUnchanged(): void
+    {
+        $typeUid = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle('tShirts')->uid;
+        $storeUid = Plugin::getInstance()->getStores()->getPrimaryStore()->uid;
+        $schema = $this->schema([
+            "productTypes.$typeUid:read", "productTypes.$typeUid:save",
+            "orders.$storeUid:create", 'transfers.all:create',
+        ]);
+        $product = Variant::find()->sku('hct-white')->one()->getOwner();
+
+        $result = $this->execute($schema, "mutation { save_tShirts_Product(id: $product->id, title: \"Null variants\", variants: null) { variants { sku } } }");
+        self::assertSame([['sku' => 'hct-white'], ['sku' => 'hct-blue']], $result['data']['save_tShirts_Product']['variants'] ?? null, json_encode($result));
+
+        $result = $this->execute($schema, 'mutation { save_Order(email: "null@example.com", lineItems: null) { lineItems { id } } }');
+        self::assertSame([], $result['data']['save_Order']['lineItems'] ?? null, json_encode($result));
+
+        // Reaches validation instead of failing to normalize the input
+        $result = $this->execute($schema, 'mutation { save_Transfer(details: null) { id } }');
+        self::assertStringContainsString('Origin Location Id cannot be blank.', $result['errors'][0]['message'] ?? '', json_encode($result));
+
+        $result = $this->execute($schema, 'mutation { save_Transfer(details: [{inventoryItemId: 999999, quantity: 1}]) { id } }');
+        self::assertSame('No such inventory item exists', $result['errors'][0]['message'] ?? null, json_encode($result));
+    }
+
     public function testAuthenticatedUsersNeedPermissionToCreateProducts(): void
     {
         $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle('tShirts');
@@ -415,6 +486,18 @@ class MutationsTest extends TestCase
         self::assertArrayNotHasKey('errors', $result);
         self::assertTrue($result['data']['deleteVariant']);
         self::assertNull(Variant::find()->id($variant->id)->one());
+    }
+
+    public function testLastVariantOfEnabledProductCannotBeDeleted(): void
+    {
+        // Token schemas skip user authorization, so this can’t rely on Variant::canDelete()
+        $uid = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle('hoodies')->uid;
+        $schema = $this->schema(["productTypes.$uid:read", "productTypes.$uid:save"]);
+        $variantId = Variant::find()->sku('rad-hood')->one()->id;
+
+        $result = $this->execute($schema, "mutation { deleteVariant(id: $variantId) }");
+        self::assertSame('Must have at least one variant.', $result['errors'][0]['message'] ?? null, json_encode($result));
+        self::assertNotNull(Variant::find()->id($variantId)->one());
     }
 
     public function testOrderAddressesCanBeClearedIndependently(): void

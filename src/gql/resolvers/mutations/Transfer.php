@@ -39,6 +39,11 @@ class Transfer extends ElementMutationResolver
      */
     public function saveTransfer(mixed $source, array $arguments, mixed $context, ResolveInfo $resolveInfo): TransferElement
     {
+        // Null means “leave the items alone”, and can’t be normalized as input objects
+        if (!isset($arguments['details'])) {
+            unset($arguments['details']);
+        }
+
         $canIdentify = !empty($arguments['id']) || !empty($arguments['uid']);
         $this->requireSchemaAction('transfers.all', $canIdentify ? 'save' : 'create');
 
@@ -140,6 +145,10 @@ class Transfer extends ElementMutationResolver
 
         if (!$inventoryItemId) {
             throw new Error('An inventory item ID or purchasable ID is required for each transfer item.');
+        }
+
+        if (Plugin::getInstance()->getInventory()->getInventoryItemsByIds([$inventoryItemId])->isEmpty()) {
+            throw new Error('No such inventory item exists');
         }
 
         return new TransferDetail([
